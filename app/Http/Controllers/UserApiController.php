@@ -42,11 +42,6 @@ class UserApiController extends BaseAPIController
 
     public function update(UpdateUserRequest $request, $userPublicId)
     {
-        /*
-        // temporary fix for ids starting at 0
-        $userPublicId -= 1;
-        $user = User::scope($userPublicId)->firstOrFail();
-        */
         $user = Auth::user();
 
         if ($request->action == ACTION_ARCHIVE) {

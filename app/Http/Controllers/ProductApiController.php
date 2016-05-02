@@ -1,34 +1,20 @@
 <?php namespace App\Http\Controllers;
 
-use App\Ninja\Repositories\ProductRepository;
-use App\Ninja\Transformers\ProductTransformer;
-use Auth;
-use Str;
-use DB;
-use Datatable;
-use Utils;
-use URL;
-use View;
-use Input;
-use Session;
-use Redirect;
-
 use App\Models\Product;
-use App\Models\TaxRate;
-use App\Services\ProductService;
+use App\Ninja\Repositories\ProductRepository;
+use App\Http\Requests\CreateProductRequest;
+use App\Http\Requests\UpdateProductRequest;
 
 class ProductApiController extends BaseAPIController
 {
-    protected $productService;
     protected $productRepo;
     
     protected $entityType = ENTITY_PRODUCT;
 
-    public function __construct(ProductService $productService, ProductRepository $productRepo)
+    public function __construct(ProductRepository $productRepo)
     {
         parent::__construct();
 
-        $this->productService = $productService;
         $this->productRepo = $productRepo;
     }
 
@@ -41,58 +27,28 @@ class ProductApiController extends BaseAPIController
         return $this->listResponse($products);
     }
 
-    public function getDatatable()
+    public function store(CreateProductRequest $request)
     {
-        return $this->productService->getDatatable(Auth::user()->account_id);
+        $product = $this->productRepo->save($request->input());
+
+        return $this->itemResponse($product);
     }
 
-    public function store()
+    public function update(UpdateProductRequest $request, $publicId)
     {
-        return $this->save();
-    }
-
-    public function update(\Illuminate\Http\Request $request, $publicId)
-    {
-
-        if ($request->action == ACTION_ARCHIVE) {
-            $product = Product::scope($publicId)->withTrashed()->firstOrFail();
-            $this->productRepo->archive($product);
-
-            $transformer = new ProductTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($product, $transformer, 'products');
-
-            return $this->response($data);
+        if ($request->action) {
+            return $this->handleAction($request);
         }
-        else
-            return $this->save($publicId);
+        
+        $data = $request->input();
+        $data['public_id'] = $publicId;
+        $product = $this->productRepo->save($data);
+
+        return $this->itemResponse($product);
     }
 
     public function destroy($publicId)
     {
        //stub
     }
-
-    private function save($productPublicId = false)
-    {
-        if ($productPublicId) {
-            $product = Product::scope($productPublicId)->firstOrFail();
-        } else {
-            $product = Product::createNew();
-        }
-
-        $product->product_key = trim(Input::get('product_key'));
-        $product->notes = trim(Input::get('notes'));
-        $product->cost = trim(Input::get('cost'));
-        //$product->default_tax_rate_id = Input::get('default_tax_rate_id');
-
-        $product->save();
-
-        $transformer = new ProductTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($product, $transformer, 'products');
-
-        return $this->response($data);
-
-    }
-
-
 }
