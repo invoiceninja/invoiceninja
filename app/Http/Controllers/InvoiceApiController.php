@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
+use Guzzle\Tests\Common\Cache\NullCacheAdapterTest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Utils;
@@ -357,7 +358,16 @@ class InvoiceApiController extends BaseAPIController
 
             return $this->response($data);
         }
+        else if ($request->action == ACTION_CLONE) {
 
+            $invoice = Invoice::scope($publicId)->firstOrFail();
+            $clonedInvoice = $this->invoiceRepo->cloneInvoice($invoice, null);
+
+            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
+            $data = $this->createItem($clonedInvoice, $transformer, 'invoice');
+
+            return $this->response($data);
+        }
         $data = $request->input();
         $data['public_id'] = $publicId;
         $this->invoiceService->save($data);
