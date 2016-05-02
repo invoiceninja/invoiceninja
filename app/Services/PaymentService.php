@@ -451,8 +451,8 @@ class PaymentService extends BaseService
                     $payment->payment_type_id = PAYMENT_TYPE_ACH;
                 }
                 else{
-                    $payment->expiration = $card['exp_year'] . '-' . $card['exp_month'] . '-00';
-                    $payment->payment_type_id = $this->parseCardType($card['brand']);
+                    $payment->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-00';
+                    $payment->payment_type_id = $this->parseCardType($source['brand']);
                 }
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
@@ -723,7 +723,9 @@ class PaymentService extends BaseService
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
                 },
                 function ($model) {
-                    return Payment::canEditItem($model) && (
+                    return Payment::canEditItem($model) && $model->payment_status_id != PAYMENT_STATUS_FAILED &&
+                    $model->refunded < $model->amount &&
+                    (
                         ($model->transaction_reference && in_array($model->gateway_id , static::$refundableGateways))
                         || $model->payment_type_id == PAYMENT_TYPE_CREDIT
                     );
