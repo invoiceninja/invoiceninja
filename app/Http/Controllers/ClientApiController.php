@@ -116,7 +116,7 @@ class ClientApiController extends BaseAPIController
         
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $client = $this->clientRepo->save($data);
+        $client = $this->clientRepo->save($data, $request->entity());
 
         return $this->itemResponse($client);
     }

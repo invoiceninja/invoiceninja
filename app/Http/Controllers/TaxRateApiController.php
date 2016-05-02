@@ -42,7 +42,7 @@ class TaxRateApiController extends BaseAPIController
         
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $taxRate = $this->taxRateRepo->save($data);
+        $taxRate = $this->taxRateRepo->save($data, $request->entity());
 
         return $this->itemResponse($taxRate);
     }

@@ -182,7 +182,7 @@ class VendorController extends BaseController
      */
     public function update(UpdateVendorRequest $request)
     {
-        $vendor = $this->vendorService->save($request->input());
+        $vendor = $this->vendorService->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_vendor'));
 

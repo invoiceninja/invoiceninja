@@ -31,12 +31,15 @@ class ProductRepository extends BaseRepository
                 );
     }
     
-    public function save($data)
+    public function save($data, $product = null)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
         
-        if ($publicId) {
+        if ($product) {
+            // do nothing
+        } elseif ($publicId) {
             $product = Product::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in product repo save');
         } else {
             $product = Product::createNew();
         }

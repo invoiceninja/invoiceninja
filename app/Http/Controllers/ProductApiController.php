@@ -42,7 +42,7 @@ class ProductApiController extends BaseAPIController
         
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $product = $this->productRepo->save($data);
+        $product = $this->productRepo->save($data, $request->entity());
 
         return $this->itemResponse($product);
     }

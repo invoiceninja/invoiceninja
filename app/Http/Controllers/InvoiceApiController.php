@@ -318,7 +318,7 @@ class InvoiceApiController extends BaseAPIController
 
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $this->invoiceService->save($data);
+        $this->invoiceService->save($data, $request->entity());
 
         $invoice = Invoice::scope($publicId)
                         ->with('client', 'invoice_items', 'invitations')

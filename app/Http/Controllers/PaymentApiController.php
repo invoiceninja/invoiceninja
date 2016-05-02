@@ -85,7 +85,7 @@ class PaymentApiController extends BaseAPIController
 
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $payment = $this->paymentRepo->save($data);
+        $payment = $this->paymentRepo->save($data, $request->entity());
 
         return $this->itemResponse($payment);
     }

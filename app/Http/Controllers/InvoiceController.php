@@ -396,9 +396,7 @@ class InvoiceController extends BaseController
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
-        
-        $this->authorizeUpdate($data);
-                
+                        
         $action = Input::get('action');
         $entityType = Input::get('entityType');
         
@@ -435,13 +433,11 @@ class InvoiceController extends BaseController
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
-        
-        $this->authorizeUpdate($data);
-        
+                
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
-        $invoice = $this->invoiceService->save($data);
+        $invoice = $this->invoiceService->save($data, $request->entity());
         $entityType = $invoice->getEntityType();
         $message = trans("texts.updated_{$entityType}");
         Session::flash('message', $message);

@@ -603,7 +603,7 @@ class PaymentController extends BaseController
 
     public function update(UpdatePaymentRequest $request)
     {
-        $payment = $this->paymentRepo->save($request->input());
+        $payment = $this->paymentRepo->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_payment'));
 

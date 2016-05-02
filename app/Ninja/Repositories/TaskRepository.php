@@ -64,10 +64,13 @@ class TaskRepository
         return $query;
     }
 
-    public function save($publicId, $data)
+    public function save($publicId, $data, $task = null)
     {
-        if ($publicId) {
+        if ($task) {
+            // do nothing
+        } elseif ($publicId) {
             $task = Task::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in task repo save');
         } else {
             $task = Task::createNew();
         }

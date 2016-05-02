@@ -30,7 +30,7 @@ class InvoiceService extends BaseService
         return $this->invoiceRepo;
     }
 
-    public function save($data)
+    public function save($data, $invoice = null)
     {
         if (isset($data['client'])) {
             $canSaveClient = false;
@@ -46,7 +46,7 @@ class InvoiceService extends BaseService
             }
         }
 
-        $invoice = $this->invoiceRepo->save($data);
+        $invoice = $this->invoiceRepo->save($data, $invoice);
 
         $client = $invoice->client;
         $client->load('contacts');
