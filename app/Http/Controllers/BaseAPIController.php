@@ -70,6 +70,7 @@ class BaseAPIController extends Controller
 
     protected function returnList($query)
     {
+        //\DB::enableQueryLog();
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
@@ -77,11 +78,20 @@ class BaseAPIController extends Controller
             $query->whereHas('client', $filter);
         }
         
+        if ( ! Utils::hasPermission('view_all')){
+            if ($this->entityType == ENTITY_USER) {
+                $query->where('id', '=', Auth::user()->id);
+            } else {
+                $query->where('user_id', '=', Auth::user()->id);
+            }
+        }
+        
         $transformerClass = EntityModel::getTransformerName($this->entityType);
         $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
         
         $data = $this->createCollection($query, $transformer, $this->entityType);
 
+        //return \DB::getQueryLog();
         return $this->response($data);
     }
 
@@ -101,11 +111,11 @@ class BaseAPIController extends Controller
             $entityType = null;
         }
 
-        if ($query instanceof LengthAwarePaginator) {
-            $resource = new Collection($query, $transformer, $entityType);
-        } else {
+        if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
             $resource = new Collection($query->get(), $transformer, $entityType);
             $resource->setPaginator(new IlluminatePaginatorAdapter($query->paginate()));
+        } else {
+            $resource = new Collection($query, $transformer, $entityType);
         }
         
         return $this->manager->createData($resource)->toArray();

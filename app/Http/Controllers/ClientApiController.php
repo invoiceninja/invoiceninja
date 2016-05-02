@@ -59,8 +59,7 @@ class ClientApiController extends BaseAPIController
             ->withTrashed();
 
         // Filter by email
-        if (Input::has('email')) {
-            $email = Input::get('email');
+        if ($email = Input::get('email')) {
             $clients = $clients->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', $email);
             });
@@ -200,7 +199,6 @@ class ClientApiController extends BaseAPIController
 
     public function destroy($publicId)
     {
-
         $client = Client::scope($publicId)->withTrashed()->first();
         $this->clientRepo->delete($client);
 
@@ -213,8 +211,6 @@ class ClientApiController extends BaseAPIController
         $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
 
         return $this->response($data);
-
     }
-
 
 }
