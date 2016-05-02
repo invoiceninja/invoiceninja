@@ -1,4 +1,4 @@
-<?php namespace app\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 use Utils;
@@ -58,7 +58,7 @@ class InvoiceRepository extends BaseRepository
                 'clients.user_id as client_user_id',
                 'invoice_number',
                 'invoice_status_id',
-                'clients.name as client_name',
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'invoices.public_id',
                 'invoices.amount',
                 'invoices.balance',
@@ -115,7 +115,7 @@ class InvoiceRepository extends BaseRepository
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'clients.public_id as client_public_id',
-                        'clients.name as client_name',
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                         'invoices.public_id',
                         'invoices.amount',
                         'frequencies.name as frequency',
@@ -125,7 +125,8 @@ class InvoiceRepository extends BaseRepository
                         'contacts.last_name',
                         'contacts.email',
                         'invoices.deleted_at',
-                        'invoices.is_deleted'
+                        'invoices.is_deleted',
+                        'invoices.user_id'
                     );
 
         if ($clientPublicId) {
@@ -152,11 +153,14 @@ class InvoiceRepository extends BaseRepository
           ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
           ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
           ->join('clients', 'clients.id', '=', 'invoices.client_id')
+          ->join('contacts', 'contacts.client_id', '=', 'clients.id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
           ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE)
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
+          ->where('contacts.deleted_at', '=', null)
+          ->where('contacts.is_primary', '=', true)
           ->where('invoices.is_recurring', '=', false)
           // This needs to be a setting to also hide the activity on the dashboard page
           //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT) 
@@ -169,7 +173,7 @@ class InvoiceRepository extends BaseRepository
                 'invoices.balance as balance',
                 'invoices.due_date',
                 'clients.public_id as client_public_id',
-                'clients.name as client_name',
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'invoices.public_id',
                 'invoices.amount',
                 'invoices.start_date',
@@ -197,7 +201,7 @@ class InvoiceRepository extends BaseRepository
             ->make();
     }
 
-    public function save($data, $checkSubPermissions = false)
+    public function save($data)
     {
         $account = \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
@@ -419,7 +423,7 @@ class InvoiceRepository extends BaseRepository
         $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):array();;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
-            if($document && !$checkSubPermissions || Auth::user()->can('edit', $document)){
+            if($document && Auth::user()->can('edit', $document)){
                 
                 if($document->invoice_id && $document->invoice_id != $invoice->id){
                     // From a clone
@@ -472,7 +476,7 @@ class InvoiceRepository extends BaseRepository
             $task = false;
             if (isset($item['task_public_id']) && $item['task_public_id']) {
                 $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                if(!$checkSubPermissions || Auth::user()->can('edit', $task)){
+                if(Auth::user()->can('edit', $task)){
                     $task->invoice_id = $invoice->id;
                     $task->client_id = $invoice->client_id;
                     $task->save();
@@ -482,7 +486,7 @@ class InvoiceRepository extends BaseRepository
             $expense = false;
             if (isset($item['expense_public_id']) && $item['expense_public_id']) {
                 $expense = Expense::scope($item['expense_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                if(!$checkSubPermissions || Auth::user()->can('edit', $expense)){
+                if(Auth::user()->can('edit', $expense)){
                     $expense->invoice_id = $invoice->id;
                     $expense->client_id = $invoice->client_id;
                     $expense->save();
@@ -493,7 +497,7 @@ class InvoiceRepository extends BaseRepository
                 if (\Auth::user()->account->update_products && ! strtotime($productKey)) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
-                        if(!$checkSubPermissions || Auth::user()->can('create', ENTITY_PRODUCT)){
+                        if (Auth::user()->can('create', ENTITY_PRODUCT)) {
                             $product = Product::createNew();
                             $product->product_key = trim($item['product_key']);
                         }
@@ -501,7 +505,7 @@ class InvoiceRepository extends BaseRepository
                             $product = null;
                         }
                     }
-                    if($product && (!$checkSubPermissions || Auth::user()->can('edit', $product))){
+                    if ($product && (Auth::user()->can('edit', $product))) {
                         $product->notes = ($task || $expense) ? '' : $item['notes'];
                         $product->cost = $expense ? 0 : $item['cost'];
                         $product->save();
@@ -515,7 +519,6 @@ class InvoiceRepository extends BaseRepository
             $invoiceItem->notes = trim($invoice->is_recurring ? $item['notes'] : Utils::processVariables($item['notes']));
             $invoiceItem->cost = Utils::parseFloat($item['cost']);
             $invoiceItem->qty = Utils::parseFloat($item['qty']);
-            //$invoiceItem->tax_rate = 0;
 
             if (isset($item['custom_value1'])) {
                 $invoiceItem->custom_value1 = $item['custom_value1'];

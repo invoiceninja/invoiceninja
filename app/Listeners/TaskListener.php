@@ -1,4 +1,4 @@
-<?php namespace app\Listeners;
+<?php namespace App\Listeners;
 
 use App\Models\Task;
 use App\Events\InvoiceWasDeleted;

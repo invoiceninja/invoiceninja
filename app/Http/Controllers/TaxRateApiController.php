@@ -14,6 +14,8 @@ class TaxRateApiController extends BaseAPIController
     protected $taxRateService;
     protected $taxRateRepo;
 
+    protected $entityType = ENTITY_TAX_RATE;
+
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
         parent::__construct();
@@ -24,15 +26,11 @@ class TaxRateApiController extends BaseAPIController
 
     public function index()
     {
-        $taxRates = TaxRate::scope()->withTrashed();
-        $taxRates = $taxRates->paginate();
-
-        $paginator = TaxRate::scope()->withTrashed()->paginate();
-
-        $transformer = new TaxRateTransformer(Auth::user()->account, $this->serializer);
-        $data = $this->createCollection($taxRates, $transformer, 'tax_rates', $paginator);
-
-        return $this->response($data);
+        $taxRates = TaxRate::scope()
+                        ->withTrashed()
+                        ->orderBy('created_at', 'desc');
+        
+        return $this->returnList($taxRates);
     }
 
     public function store(CreateTaxRateRequest $request)

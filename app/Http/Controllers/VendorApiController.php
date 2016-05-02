@@ -14,6 +14,8 @@ class VendorApiController extends BaseAPIController
 {
     protected $vendorRepo;
 
+    protected $entityType = ENTITY_VENDOR;
+
     public function __construct(VendorRepository $vendorRepo)
     {
         parent::__construct();
@@ -46,17 +48,12 @@ class VendorApiController extends BaseAPIController
      */
     public function index()
     {
-        $vendors    = Vendor::scope()
+        $vendors = Vendor::scope()
                     ->with($this->getIncluded())
                     ->withTrashed()
-                    ->orderBy('created_at', 'desc')
-                    ->paginate();
+                    ->orderBy('created_at', 'desc');
 
-        $transformer    = new VendorTransformer(Auth::user()->account, Input::get('serializer'));
-        $paginator      = Vendor::scope()->paginate();
-        $data           = $this->createCollection($vendors, $transformer, ENTITY_VENDOR, $paginator);
-
-        return $this->response($data);
+        return $this->returnList($vendors);
     }
 
     /**

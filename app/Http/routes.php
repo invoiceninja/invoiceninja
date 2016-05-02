@@ -48,8 +48,8 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/documents', 'PublicClientController@documentIndex');
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
-    Route::get('client/document/js/{public_id}/{filename}', 'PublicClientController@getDocumentVFSJS');
-    Route::get('client/document/{invitation_key}/{public_id}/{filename?}', 'PublicClientController@getDocument');
+    Route::get('client/documents/js/{documents}/{filename}', 'PublicClientController@getDocumentVFSJS');
+    Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'PublicClientController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
     
     Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
@@ -134,20 +134,20 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
     Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
     Route::get('recurring_invoices', 'RecurringInvoiceController@index');
-    Route::get('invoices/{public_id}/clone', 'InvoiceController@cloneInvoice');
+    Route::get('invoices/{invoices}/clone', 'InvoiceController@cloneInvoice');
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
 
-    Route::get('document/{public_id}/{filename?}', 'DocumentController@get');
-    Route::get('document/js/{public_id}/{filename}', 'DocumentController@getVFSJS');
-    Route::get('document/preview/{public_id}/{filename?}', 'DocumentController@getPreview');
+    Route::get('documents/{documents}/{filename?}', 'DocumentController@get');
+    Route::get('documents/js/{documents}/{filename}', 'DocumentController@getVFSJS');
+    Route::get('documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
     Route::post('document', 'DocumentController@postUpload');
     
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
-    Route::get('quotes/{public_id}/clone', 'InvoiceController@cloneInvoice');
-    Route::get('quotes/{public_id}/edit', 'InvoiceController@edit');
-    Route::put('quotes/{public_id}', 'InvoiceController@update');
-    Route::get('quotes/{public_id}', 'InvoiceController@edit');
+    Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneInvoice');
+    Route::get('quotes/{invoices}/edit', 'InvoiceController@edit');
+    Route::put('quotes/{invoices}', 'InvoiceController@update');
+    Route::get('quotes/{invoices}', 'InvoiceController@edit');
     Route::post('quotes', 'InvoiceController@store');
     Route::get('quotes', 'QuoteController@index');
     Route::get('api/quotes/{client_id?}', array('as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable'));
@@ -253,8 +253,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
     Route::resource('clients', 'ClientApiController');
-    Route::get('quotes', 'QuoteApiController@index');
-    Route::resource('quotes', 'QuoteApiController');
+    //Route::get('quotes', 'QuoteApiController@index');
+    //Route::resource('quotes', 'QuoteApiController');
     Route::get('invoices', 'InvoiceApiController@index');
     Route::resource('invoices', 'InvoiceApiController');
     Route::get('payments', 'PaymentApiController@index');
@@ -552,25 +552,25 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
     define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
-    define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
-    define('NINJA_APP_URL', 'https://app.invoiceninja.com');
+    define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
+    define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.5.1.3');
+    define('NINJA_VERSION', '2.5.1.3' . env('NINJA_VERSION_SUFFIX'));
 
-    define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
-    define('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja');
-    define('SOCIAL_LINK_GITHUB', 'https://github.com/invoiceninja/invoiceninja/');
+    define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
+    define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
+    define('SOCIAL_LINK_GITHUB', env('SOCIAL_LINK_GITHUB', 'https://github.com/invoiceninja/invoiceninja/'));
 
-    define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
-    define('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja');
-    define('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja');
-    define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
-    define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
-    define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/');
-    define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
-    define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/');
-    define('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup');
-    define('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all');
+    define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
+    define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
+    define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
+    define('OUTDATE_BROWSER_URL', env('OUTDATE_BROWSER_URL', 'http://browsehappy.com/'));
+    define('PDFMAKE_DOCS', env('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html'));
+    define('PHANTOMJS_CLOUD', env('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/'));
+    define('PHP_DATE_FORMATS', env('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php'));
+    define('REFERRAL_PROGRAM_URL', env('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/'));
+    define('EMAIL_MARKUP_URL', env('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup'));
+    define('OFX_HOME_URL', env('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all'));
 
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
 
@@ -584,13 +584,13 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
     define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
-    define('PRO_PLAN_PRICE', 50);
-    define('PLAN_PRICE_PRO_MONTHLY', 5);
-    define('PLAN_PRICE_PRO_YEARLY', 50);
-    define('PLAN_PRICE_ENTERPRISE_MONTHLY', 10);
-    define('PLAN_PRICE_ENTERPRISE_YEARLY', 100);
-    define('WHITE_LABEL_PRICE', 20);
-    define('INVOICE_DESIGNS_PRICE', 10);
+    define('PRO_PLAN_PRICE', env('PRO_PLAN_PRICE', 50));
+    define('PLAN_PRICE_PRO_MONTHLY', env('PLAN_PRICE_PRO_MONTHLY', 5));
+    define('PLAN_PRICE_PRO_YEARLY', env('PLAN_PRICE_PRO_YEARLY', 50));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY', env('PLAN_PRICE_ENTERPRISE_MONTHLY', 10));
+    define('PLAN_PRICE_ENTERPRISE_YEARLY', env('PLAN_PRICE_ENTERPRISE_YEARLY', 100));
+    define('WHITE_LABEL_PRICE', env('WHITE_LABEL_PRICE', 20));
+    define('INVOICE_DESIGNS_PRICE', env('INVOICE_DESIGNS_PRICE', 10));
 
     define('USER_TYPE_SELF_HOST', 'SELF_HOST');
     define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
@@ -600,8 +600,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
 
-    define('IOS_PRODUCTION_PUSH','ninjaIOS');
-    define('IOS_DEV_PUSH','devNinjaIOS');
+    define('IOS_PRODUCTION_PUSH', env('IOS_PRODUCTION_PUSH', 'ninjaIOS'));
+    define('IOS_DEV_PUSH', env('IOS_DEV_PUSH', 'devNinjaIOS'));
 
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);

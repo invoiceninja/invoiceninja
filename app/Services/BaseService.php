@@ -1,5 +1,6 @@
 <?php namespace App\Services;
 
+use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Services\DatatableService;
 

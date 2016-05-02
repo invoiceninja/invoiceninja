@@ -66,11 +66,13 @@ class ClientRepository extends BaseRepository
         return $query;
     }
     
-    public function save($data)
+    public function save($data, $client = null)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        if (!$publicId || $publicId == '-1') {
+        if ($client) {
+           // do nothing
+        } if (!$publicId || $publicId == '-1') {
             $client = Client::createNew();
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();

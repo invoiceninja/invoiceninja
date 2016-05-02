@@ -1,4 +1,4 @@
-<?php namespace app\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 use Utils;
@@ -211,7 +211,7 @@ class DocumentRepository extends BaseRepository
             })
             ->addColumn('name', function ($model) {
                 return link_to(
-                    '/client/document/'.$model->invitation_key.'/'.$model->public_id.'/'.$model->name, 
+                    '/client/documents/'.$model->invitation_key.'/'.$model->public_id.'/'.$model->name, 
                     $model->name,
                     ['target'=>'_blank']
                 )->toHtml(); 

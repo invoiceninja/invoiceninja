@@ -1,4 +1,4 @@
-<?php namespace app\Listeners;
+<?php namespace App\Listeners;
 
 use Carbon;
 use App\Events\QuoteWasEmailed;

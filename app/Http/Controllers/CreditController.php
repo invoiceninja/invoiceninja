@@ -12,12 +12,13 @@ use App\Models\Client;
 use App\Services\CreditService;
 use App\Ninja\Repositories\CreditRepository;
 use App\Http\Requests\CreateCreditRequest;
+use App\Http\Requests\CreditRequest;
 
 class CreditController extends BaseController
 {
     protected $creditRepo;
     protected $creditService;
-    protected $entity = ENTITY_CREDIT;
+    protected $entityType = ENTITY_CREDIT;
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
@@ -55,23 +56,21 @@ class CreditController extends BaseController
         return $this->creditService->getDatatable($clientPublicId, Input::get('sSearch'));
     }
 
-    public function create($clientPublicId = 0)
+    public function create(CreditRequest $request)
     {
-        $this->authorizeCreate();
-        
         $data = array(
-            'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
-            //'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
+            'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
             'credit' => null,
             'method' => 'POST',
             'url' => 'credits',
             'title' => trans('texts.new_credit'),
-            //'invoices' => Invoice::scope()->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), 
+        );
 
         return View::make('credits.edit', $data);
     }
 
+    /*
     public function edit($publicId)
     {
         $credit = Credit::scope($publicId)->firstOrFail();
@@ -90,7 +89,8 @@ class CreditController extends BaseController
 
         return View::make('credit.edit', $data);
     }
-
+    */
+    
     public function store(CreateCreditRequest $request)
     {
         $credit = $this->creditRepo->save($request->input());

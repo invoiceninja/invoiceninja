@@ -13,6 +13,7 @@
 
                 var data = {
                     name: $('#first_name').val() + ' ' + $('#last_name').val(),
+                    email: $('#email').val(),
                     address_line1: $('#address1').val(),
                     address_line2: $('#address2').val(),
                     address_city: $('#city').val(),
@@ -117,6 +118,7 @@
   {{ Former::populate($client) }}
   {{ Former::populateField('first_name', $contact->first_name) }}
   {{ Former::populateField('last_name', $contact->last_name) }}
+  {{ Former::populateField('email', $contact->email) }}
   @if (!$client->country_id && $client->account->country_id)
     {{ Former::populateField('country_id', $client->account->country_id) }}
   @endif
@@ -178,8 +180,7 @@
                         ->label('') !!}
             </div>
         </div>
-        @if (isset($paymentTitle))
-        <div class="row">
+        <div class="row" style="display:{{ isset($paymentTitle) ? 'block' : 'none' }}">
             <div class="col-md-12">
                 {!! Former::text('email')
                         ->placeholder(trans('texts.email'))
@@ -187,7 +188,6 @@
                         ->label('') !!}
             </div>
         </div>
-        @endif
 
         <p>&nbsp;<br/>&nbsp;</p>
 
