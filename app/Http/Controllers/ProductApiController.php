@@ -38,7 +38,7 @@ class ProductApiController extends BaseAPIController
                         ->withTrashed()
                         ->orderBy('created_at', 'desc');
 
-        return $this->returnList($products);
+        return $this->listResponse($products);
     }
 
     public function getDatatable()

@@ -110,7 +110,7 @@ class EntityModel extends Eloquent
     {
         return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
     }
-
+    
     public function setNullValues()
     {
         foreach ($this->fillable as $field) {

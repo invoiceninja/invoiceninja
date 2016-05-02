@@ -68,7 +68,19 @@ class BaseAPIController extends Controller
         }
     }
 
-    protected function returnList($query)
+    protected function handleAction($request)
+    { 
+        $entity = $request->entity();
+        $action = $request->action;
+        
+        $repo = Utils::toCamelCase($this->entityType) . 'Repo';
+        
+        $this->$repo->$action($entity);
+        
+        return $this->itemResponse($entity);
+    }
+
+    protected function listResponse($query)
     {
         //\DB::enableQueryLog();
         if ($clientPublicId = Input::get('client_id')) {
@@ -92,6 +104,16 @@ class BaseAPIController extends Controller
         $data = $this->createCollection($query, $transformer, $this->entityType);
 
         //return \DB::getQueryLog();
+        return $this->response($data);
+    }
+
+    protected function itemResponse($item)
+    {
+        $transformerClass = EntityModel::getTransformerName($this->entityType);
+        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
+
+        $data = $this->createItem($item, $transformer, $this->entityType);
+
         return $this->response($data);
     }
 
@@ -154,7 +176,6 @@ class BaseAPIController extends Controller
         return Response::make($error, $httpErrorCode, $headers);
 
     }
-
 
     protected function getIncluded()
     {

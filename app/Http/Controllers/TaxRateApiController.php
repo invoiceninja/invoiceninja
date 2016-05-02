@@ -30,7 +30,7 @@ class TaxRateApiController extends BaseAPIController
                         ->withTrashed()
                         ->orderBy('created_at', 'desc');
         
-        return $this->returnList($taxRates);
+        return $this->listResponse($taxRates);
     }
 
     public function store(CreateTaxRateRequest $request)

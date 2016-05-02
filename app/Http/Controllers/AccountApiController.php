@@ -34,6 +34,13 @@ class AccountApiController extends BaseAPIController
         $this->accountRepo = $accountRepo;
     }
 
+    public function ping()
+    {
+        $headers = Utils::getApiHeaders();
+
+        return Response::make(RESULT_SUCCESS, 200, $headers);
+    }
+
     public function register(RegisterRequest $request)
     {
 

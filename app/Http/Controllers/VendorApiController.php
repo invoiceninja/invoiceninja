@@ -53,7 +53,7 @@ class VendorApiController extends BaseAPIController
                     ->withTrashed()
                     ->orderBy('created_at', 'desc');
 
-        return $this->returnList($vendors);
+        return $this->listResponse($vendors);
     }
 
     /**

@@ -10,29 +10,19 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\ClientTransformer;
-use App\Services\ClientService;
 use App\Http\Requests\UpdateClientRequest;
 
 class ClientApiController extends BaseAPIController
 {
     protected $clientRepo;
-    protected $clientService;
 
     protected $entityType = ENTITY_CLIENT;
 
-    public function __construct(ClientRepository $clientRepo, ClientService $clientService)
+    public function __construct(ClientRepository $clientRepo)
     {
         parent::__construct();
 
         $this->clientRepo = $clientRepo;
-        $this->clientService = $clientService;
-    }
-
-    public function ping()
-    {
-        $headers = Utils::getApiHeaders();
-
-        return Response::make('', 200, $headers);
     }
 
     /**
@@ -65,7 +55,7 @@ class ClientApiController extends BaseAPIController
             });
         }
         
-        return $this->returnList($clients);
+        return $this->listResponse($clients);
     }
 
     /**
@@ -93,14 +83,7 @@ class ClientApiController extends BaseAPIController
     {
         $client = $this->clientRepo->save($request->input());
 
-        $client = Client::scope($client->public_id)
-            ->with('country', 'contacts', 'industry', 'size', 'currency')
-            ->first();
-
-        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
-
-        return $this->response($data);
+        return $this->itemResponse($client);
     }
 
     /**
@@ -127,51 +110,15 @@ class ClientApiController extends BaseAPIController
 
     public function update(UpdateClientRequest $request, $publicId)
     {
-        if ($request->action == ACTION_ARCHIVE) {
-
-
-            $client = Client::scope($publicId)->withTrashed()->first();
-
-            if(!$client)
-                return $this->errorResponse(['message'=>'Record not found'], 400);
-
-            $this->clientRepo->archive($client);
-
-            $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
-
-            return $this->response($data);
+        if ($request->action) {
+            return $this->handleAction($request);
         }
-        else if ($request->action == ACTION_RESTORE){
-
-            $client = Client::scope($publicId)->withTrashed()->first();
-
-            if(!$client)
-                return $this->errorResponse(['message'=>'Client not found.'], 400);
-
-            $this->clientRepo->restore($client);
-
-            $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
-
-            return $this->response($data);
-        }
-
+        
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $this->clientRepo->save($data);
+        $client = $this->clientRepo->save($data);
 
-        $client = Client::scope($publicId)
-            ->with('country', 'contacts', 'industry', 'size', 'currency')
-            ->first();
-
-        if(!$client)
-            return $this->errorResponse(['message'=>'Client not found.'],400);
-
-        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
-
-        return $this->response($data);
+        return $this->itemResponse($client);
     }
 
 

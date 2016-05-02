@@ -45,7 +45,7 @@ class TaskApiController extends BaseAPIController
                         ->with($this->getIncluded())                        
                         ->orderBy('created_at', 'desc');
 
-        return $this->returnList($payments);
+        return $this->listResponse($payments);
     }
 
     /**

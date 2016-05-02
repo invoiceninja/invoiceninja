@@ -30,7 +30,7 @@ class UserApiController extends BaseAPIController
                         ->withTrashed()
                         ->orderBy('created_at', 'desc');
         
-        return $this->returnList($users);
+        return $this->listResponse($users);
     }
 
     /*

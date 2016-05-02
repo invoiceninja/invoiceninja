@@ -62,7 +62,7 @@ class InvoiceApiController extends BaseAPIController
                         ->with(array_merge(['invoice_items'], $this->getIncluded()))
                         ->orderBy('created_at', 'desc');
 
-        return $this->returnList($invoices);
+        return $this->listResponse($invoices);
     }
 
         /**
