@@ -153,11 +153,6 @@ class PaymentApiController extends BaseAPIController
 
         $this->paymentRepo->delete($payment);
 
-        /*
-        $invoice = Invoice::scope($invoiceId)->with('client', 'invoice_items', 'invitations')->with(['payments' => function($query) {
-            $query->withTrashed();
-        }])->first();
-        */
         $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($payment, $transformer, 'invoice');
 
