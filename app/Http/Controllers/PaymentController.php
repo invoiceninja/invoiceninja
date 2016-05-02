@@ -25,12 +25,13 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
 use App\Services\PaymentService;
 
+use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\CreatePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 
 class PaymentController extends BaseController
 {
-    protected $entity = ENTITY_PAYMENT;
+    protected $entityType = ENTITY_PAYMENT;
     
     public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
     {
@@ -67,10 +68,8 @@ class PaymentController extends BaseController
         return $this->paymentService->getDatatable($clientPublicId, Input::get('sSearch'));
     }
 
-    public function create($clientPublicId = 0, $invoicePublicId = 0)
+    public function create(PaymentRequest $request)
     {
-        $this->authorizeCreate();
-        
         $invoices = Invoice::scope()
                     ->where('is_recurring', '=', false)
                     ->where('is_quote', '=', false)
@@ -79,8 +78,8 @@ class PaymentController extends BaseController
                     ->orderBy('invoice_number')->get();
 
         $data = array(
-            'clientPublicId' => Input::old('client') ? Input::old('client') : $clientPublicId,
-            'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : $invoicePublicId,
+            'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
+            'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : ($request->invoice_id ?: 0),
             'invoice' => null,
             'invoices' => $invoices,
             'payment' => null,
@@ -94,12 +93,10 @@ class PaymentController extends BaseController
         return View::make('payments.edit', $data);
     }
 
-    public function edit($publicId)
+    public function edit(PaymentRequest $request)
     {
-        $payment = Payment::scope($publicId)->firstOrFail();
-        
-        $this->authorize('edit', $payment);
-        
+        $payment = $request->entity();
+                
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
 
         $data = array(
@@ -109,7 +106,7 @@ class PaymentController extends BaseController
                             ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'payment' => $payment,
             'method' => 'PUT',
-            'url' => 'payments/'.$publicId,
+            'url' => 'payments/'.$payment->public_id,
             'title' => trans('texts.edit_payment'),
             'paymentTypes' => Cache::get('paymentTypes'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
@@ -589,9 +586,7 @@ class PaymentController extends BaseController
     public function store(CreatePaymentRequest $request)
     {
         $input = $request->input();
-        
-        $this->authorizeUpdate($data);
-        
+                
         $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
         $input['client_id'] = Client::getPrivateId($input['client']);
         $payment = $this->paymentRepo->save($input);
@@ -608,11 +603,7 @@ class PaymentController extends BaseController
 
     public function update(UpdatePaymentRequest $request)
     {
-        $input = $request->input();
-                
-        $this->authorizeUpdate($data);
-        
-        $payment = $this->paymentRepo->save($input);
+        $payment = $this->paymentRepo->save($request->input());
 
         Session::flash('message', trans('texts.updated_payment'));
 

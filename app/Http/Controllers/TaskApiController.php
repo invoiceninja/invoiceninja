@@ -13,6 +13,8 @@ class TaskApiController extends BaseAPIController
 {
     protected $taskRepo;
 
+    protected $entityType = ENTITY_TASK;
+
     public function __construct(TaskRepository $taskRepo)
     {
         parent::__construct();
@@ -38,25 +40,12 @@ class TaskApiController extends BaseAPIController
      */
     public function index()
     {
-        $paginator = Task::scope();
-        $tasks = Task::scope()
-                    ->with($this->getIncluded());
+        $payments = Task::scope()
+                        ->withTrashed()
+                        ->with($this->getIncluded())                        
+                        ->orderBy('created_at', 'desc');
 
-        if ($clientPublicId = Input::get('client_id')) {
-            $filter = function($query) use ($clientPublicId) {
-                $query->where('public_id', '=', $clientPublicId);
-            };
-            $tasks->whereHas('client', $filter);
-            $paginator->whereHas('client', $filter);
-        }
-
-        $tasks = $tasks->orderBy('created_at', 'desc')->paginate();
-        $paginator = $paginator->paginate();
-        $transformer = new TaskTransformer(\Auth::user()->account, Input::get('serializer'));
-
-        $data = $this->createCollection($tasks, $transformer, 'tasks', $paginator);
-
-        return $this->response($data);
+        return $this->returnList($payments);
     }
 
     /**

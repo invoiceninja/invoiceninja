@@ -796,6 +796,10 @@ class Account extends Eloquent
 
     public function hasFeature($feature)
     {
+        if (Utils::isNinjaDev()) {
+            return true;
+        }
+        
         $planDetails = $this->getPlanDetails();
         $selfHost = !Utils::isNinjaProd();
         

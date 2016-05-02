@@ -1,4 +1,4 @@
-<?php namespace app\Console\Commands;
+<?php namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Services\BankAccountService;

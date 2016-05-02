@@ -1,4 +1,4 @@
-<?php namespace app\Http\Middleware;
+<?php namespace App\Http\Middleware;
 
 use Closure;
 

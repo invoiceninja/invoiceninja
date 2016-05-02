@@ -20,8 +20,9 @@ use App\Services\ProductService;
 class ProductApiController extends BaseAPIController
 {
     protected $productService;
-
-    protected  $productRepo;
+    protected $productRepo;
+    
+    protected $entityType = ENTITY_PRODUCT;
 
     public function __construct(ProductService $productService, ProductRepository $productRepo)
     {
@@ -33,17 +34,11 @@ class ProductApiController extends BaseAPIController
 
     public function index()
     {
+        $products = Product::scope()
+                        ->withTrashed()
+                        ->orderBy('created_at', 'desc');
 
-        $products = Product::scope()->withTrashed();
-        $products = $products->paginate();
-
-        $paginator = Product::scope()->withTrashed()->paginate();
-
-        $transformer = new ProductTransformer(\Auth::user()->account, $this->serializer);
-        $data = $this->createCollection($products, $transformer, 'products', $paginator);
-
-        return $this->response($data);
-
+        return $this->returnList($products);
     }
 
     public function getDatatable()

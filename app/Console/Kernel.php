@@ -1,4 +1,4 @@
-<?php namespace app\Console;
+<?php namespace App\Console;
 
 use Utils;
 use Illuminate\Console\Scheduling\Schedule;

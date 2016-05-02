@@ -63,7 +63,6 @@ class PaymentService extends BaseService
 
         if ($input) {
             $data = self::convertInputForOmnipay($input);
-            $data['email'] = $invitation->contact->email;
             Session::put($key, $data);
         } elseif (Session::get($key)) {
             $data = Session::get($key);
@@ -95,6 +94,7 @@ class PaymentService extends BaseService
         $data = [
             'firstName' => $input['first_name'],
             'lastName' => $input['last_name'],
+            'email' => $input['email'],
             'number' => isset($input['card_number']) ? $input['card_number'] : null,
             'expiryMonth' => isset($input['expiration_month']) ? $input['expiration_month'] : null,
             'expiryYear' => isset($input['expiration_year']) ? $input['expiration_year'] : null,

@@ -27,7 +27,10 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\DocumentRepository;
 use App\Services\InvoiceService;
 use App\Services\RecurringInvoiceService;
-use App\Http\Requests\SaveInvoiceWithClientRequest;
+
+use App\Http\Requests\InvoiceRequest;
+use App\Http\Requests\CreateInvoiceRequest;
+use App\Http\Requests\UpdateInvoiceRequest;
 
 class InvoiceController extends BaseController
 {
@@ -37,7 +40,7 @@ class InvoiceController extends BaseController
     protected $documentRepo;
     protected $invoiceService;
     protected $recurringInvoiceService;
-    protected $entity = ENTITY_INVOICE;
+    protected $entityType = ENTITY_INVOICE;
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService)
     {
@@ -88,18 +91,13 @@ class InvoiceController extends BaseController
         return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_INVOICE, $search);
     }
 
-    public function edit($publicId, $clone = false)
+    public function edit(InvoiceRequest $request, $publicId, $clone = false)
     {
         $account = Auth::user()->account;
-        $invoice = Invoice::scope($publicId)
-                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'payments')
-                        ->withTrashed()
-                        ->firstOrFail();
-        
-        $this->authorize('edit', $invoice);
+        $invoice = $request->entity()->load('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'payments');
         
         $entityType = $invoice->getEntityType();
-
+        
         $contactIds = DB::table('invitations')
             ->join('contacts', 'contacts.id', '=', 'invitations.contact_id')
             ->where('invitations.invoice_id', '=', $invoice->id)
@@ -120,7 +118,7 @@ class InvoiceController extends BaseController
         } else {
             Utils::trackViewed($invoice->getDisplayName().' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
             $method = 'PUT';
-            $url = "{$entityType}s/{$publicId}";
+            $url = "{$entityType}s/{$invoice->public_id}";
             $clients->whereId($invoice->client_id);
         }
 
@@ -229,28 +227,27 @@ class InvoiceController extends BaseController
         return View::make('invoices.edit', $data);
     }
 
-    public function create($clientPublicId = 0, $isRecurring = false)
+    public function create(InvoiceRequest $request, $clientPublicId = 0, $isRecurring = false)
     {
-        $this->authorizeCreate();
-        
         $account = Auth::user()->account;
+        
         $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
 
-        if ($clientPublicId) {
-            $clientId = Client::getPrivateId($clientPublicId);
+        if ($request->client_id) {
+            $clientId = Client::getPrivateId($request->client_id);
         }
 
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
         
-        if(Session::get('expenses')){
+        if (Session::get('expenses')) {
             $invoice->expenses = Expense::scope(Session::get('expenses'))->with('documents')->get();
         }
         
 
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
-        if(!Auth::user()->hasPermission('view_all')){
+        if (!Auth::user()->hasPermission('view_all')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
         
@@ -267,9 +264,9 @@ class InvoiceController extends BaseController
         return View::make('invoices.edit', $data);
     }
 
-    public function createRecurring($clientPublicId = 0)
+    public function createRecurring(InvoiceRequest $request, $clientPublicId = 0)
     {
-        return self::create($clientPublicId, true);
+        return self::create($request, $clientPublicId, true);
     }
 
     private static function getViewModel($invoice)
@@ -395,7 +392,7 @@ class InvoiceController extends BaseController
      *
      * @return Response
      */
-    public function store(SaveInvoiceWithClientRequest $request)
+    public function store(CreateInvoiceRequest $request)
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
@@ -405,7 +402,7 @@ class InvoiceController extends BaseController
         $action = Input::get('action');
         $entityType = Input::get('entityType');
         
-        $invoice = $this->invoiceService->save($data, true);
+        $invoice = $this->invoiceService->save($data);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");
 
@@ -434,7 +431,7 @@ class InvoiceController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function update(SaveInvoiceWithClientRequest $request)
+    public function update(UpdateInvoiceRequest $request)
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
@@ -444,15 +441,15 @@ class InvoiceController extends BaseController
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
-        $invoice = $this->invoiceService->save($data, true);
+        $invoice = $this->invoiceService->save($data);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.updated_{$entityType}");
         Session::flash('message', $message);
 
         if ($action == 'clone') {
-            return $this->cloneInvoice($invoice->public_id);
+            return $this->cloneInvoice($request, $invoice->public_id);
         } elseif ($action == 'convert') {
-            return $this->convertQuote($invoice->public_id);
+            return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
             return $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
@@ -521,7 +518,7 @@ class InvoiceController extends BaseController
     {
         Session::reflash();
 
-        return Redirect::to("invoices/{$publicId}/edit");
+        return Redirect::to("invoices/$publicId/edit");
     }
 
     /**
@@ -549,18 +546,18 @@ class InvoiceController extends BaseController
         }
     }
 
-    public function convertQuote($publicId)
+    public function convertQuote(InvoiceRequest $request)
     {
-        $invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
-        $clone = $this->invoiceService->convertQuote($invoice);
+        $clone = $this->invoiceService->convertQuote($request->entity());
 
         Session::flash('message', trans('texts.converted_to_invoice'));
-        return Redirect::to('invoices/'.$clone->public_id);
+        
+        return Redirect::to('invoices/' . $clone->public_id);
     }
 
-    public function cloneInvoice($publicId)
+    public function cloneInvoice(InvoiceRequest $request, $publicId)
     {
-        return self::edit($publicId, true);
+        return self::edit($request, $publicId, true);
     }
 
     public function invoiceHistory($publicId)

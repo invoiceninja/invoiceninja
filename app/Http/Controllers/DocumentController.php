@@ -12,10 +12,13 @@ use Response;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
 
+use App\Http\Requests\DocumentRequest;
+use App\Http\Requests\CreateDocumentRequest;
+
 class DocumentController extends BaseController
 {
     protected $documentRepo;
-    protected $entity = ENTITY_DOCUMENT;
+    protected $entityType = ENTITY_DOCUMENT;
 
     public function __construct(DocumentRepository $documentRepo)
     {
@@ -24,14 +27,9 @@ class DocumentController extends BaseController
         $this->documentRepo = $documentRepo;
     }
     
-    public function get($publicId)
+    public function get(DocumentRequest $request)
     {
-        $document = Document::scope($publicId)
-                        ->firstOrFail();
-        
-        $this->authorize('view', $document);
-        
-        return static::getDownloadResponse($document);
+        return static::getDownloadResponse($request->entity());
     }
     
     public static function getDownloadResponse($document){
@@ -60,12 +58,9 @@ class DocumentController extends BaseController
         return $response;
     }
     
-    public function getPreview($publicId)
+    public function getPreview(DocumentRequest $request)
     {
-        $document = Document::scope($publicId)
-                        ->firstOrFail();
-        
-        $this->authorize('view', $document);
+        $document = $request->entity();
         
         if(empty($document->preview)){
             return Response::view('error', array('error'=>'Preview does not exist!'), 404);
@@ -83,15 +78,13 @@ class DocumentController extends BaseController
         return $response;
     }
     
-    public function getVFSJS($publicId, $name){
-        $document = Document::scope($publicId)
-                        ->firstOrFail();
+    public function getVFSJS(DocumentRequest $request, $publicId, $name)
+    {
+        $document = $request->entity();
         
         if(substr($name, -3)=='.js'){
             $name = substr($name, 0, -3);
         }
-        
-        $this->authorize('view', $document);
         
         if(!$document->isPDFEmbeddable()){
             return Response::view('error', array('error'=>'Image does not exist!'), 404);
@@ -106,14 +99,12 @@ class DocumentController extends BaseController
         return $response;
     }
     
-    public function postUpload()
+    public function postUpload(CreateDocumentRequest $request)
     {
         if (!Utils::hasFeature(FEATURE_DOCUMENTS)) {
             return;
         }
         
-        $this->authorizeCreate();
-                
         $result = $this->documentRepo->upload(Input::all()['file'], $doc_array);
                 
         if(is_string($result)){

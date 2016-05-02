@@ -173,11 +173,11 @@ class Document extends EntityModel
     }
     
     public function getUrl(){
-        return url('document/'.$this->public_id.'/'.$this->name);
+        return url('documents/'.$this->public_id.'/'.$this->name);
     }
     
     public function getClientUrl($invitation){
-        return url('client/document/'.$invitation->invitation_key.'/'.$this->public_id.'/'.$this->name);
+        return url('client/documents/'.$invitation->invitation_key.'/'.$this->public_id.'/'.$this->name);
     }
     
     public function isPDFEmbeddable(){
@@ -186,16 +186,16 @@ class Document extends EntityModel
     
     public function getVFSJSUrl(){
         if(!$this->isPDFEmbeddable())return null;
-        return url('document/js/'.$this->public_id.'/'.$this->name.'.js');
+        return url('documents/js/'.$this->public_id.'/'.$this->name.'.js');
     }
     
     public function getClientVFSJSUrl(){
         if(!$this->isPDFEmbeddable())return null;
-        return url('client/document/js/'.$this->public_id.'/'.$this->name.'.js');
+        return url('client/documents/js/'.$this->public_id.'/'.$this->name.'.js');
     }
     
     public function getPreviewUrl(){
-        return $this->preview?url('document/preview/'.$this->public_id.'/'.$this->name.'.'.pathinfo($this->preview, PATHINFO_EXTENSION)):null;
+        return $this->preview?url('documents/preview/'.$this->public_id.'/'.$this->name.'.'.pathinfo($this->preview, PATHINFO_EXTENSION)):null;
     }
     
     public function toArray()

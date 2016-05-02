@@ -436,6 +436,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'contacts',
             'country',
             'currency_id',
+            'country_id',
             'custom_value1',
             'custom_value2',
         ]);
