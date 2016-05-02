@@ -303,10 +303,12 @@ class InvoiceRepository extends BaseRepository
         $invoice->invoice_footer = (isset($data['invoice_footer']) && trim($data['invoice_footer'])) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
         $invoice->public_notes = isset($data['public_notes']) ? trim($data['public_notes']) : null;
 
-        // process date variables
-        $invoice->terms = Utils::processVariables($invoice->terms);
-        $invoice->invoice_footer = Utils::processVariables($invoice->invoice_footer);
-        $invoice->public_notes = Utils::processVariables($invoice->public_notes);
+        // process date variables if not recurring
+        if(!$invoice->is_recurring) {
+            $invoice->terms = Utils::processVariables($invoice->terms);
+            $invoice->invoice_footer = Utils::processVariables($invoice->invoice_footer);
+            $invoice->public_notes = Utils::processVariables($invoice->public_notes);
+        }
 
         if (isset($data['po_number'])) {
             $invoice->po_number = trim($data['po_number']);
