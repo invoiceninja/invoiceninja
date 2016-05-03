@@ -349,18 +349,13 @@ class InvoiceApiController extends BaseAPIController
          * )
          */
 
-    public function destroy($publicId)
+    public function destroy(UpdateInvoiceAPIRequest $request)
     {
-        $data['public_id'] = $publicId;
-        $invoice = Invoice::scope($publicId)->firstOrFail();
-
+        $invoice = $request->entity();
+        
         $this->invoiceRepo->delete($invoice);
 
-        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($invoice, $transformer, 'invoice');
-
-        return $this->response($data);
-
+        return $this->itemResponse($invoice);
     }
 
 }

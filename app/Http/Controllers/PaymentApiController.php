@@ -49,7 +49,7 @@ class PaymentApiController extends BaseAPIController
     {
         $payments = Payment::scope()
                         ->withTrashed()
-                        ->with(['client.contacts', 'invitation', 'user', 'invoice'])                        
+                        ->with(['invoice'])                        
                         ->orderBy('created_at', 'desc');
 
         return $this->listResponse($payments);
@@ -145,17 +145,13 @@ class PaymentApiController extends BaseAPIController
     * )
     */
 
-    public function destroy($publicId)
+    public function destroy(UpdatePaymentRequest $request)
     {
+        $payment = $request->entity();
+        
+        $this->clientRepo->delete($payment);
 
-        $payment = Payment::scope($publicId)->withTrashed()->first();
-        $invoiceId = $payment->invoice->public_id;
-
-        $this->paymentRepo->delete($payment);
-
-        $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($payment, $transformer, 'invoice');
-
-        return $this->response($data);
+        return $this->itemResponse($payment);
     }
+
 }
