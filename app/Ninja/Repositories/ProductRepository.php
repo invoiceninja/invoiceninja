@@ -1,6 +1,7 @@
 <?php namespace App\Ninja\Repositories;
 
 use DB;
+use App\Models\Product;
 use App\Ninja\Repositories\BaseRepository;
 
 class ProductRepository extends BaseRepository
@@ -29,4 +30,24 @@ class ProductRepository extends BaseRepository
                     'products.deleted_at'
                 );
     }
+    
+    public function save($data, $product = null)
+    {
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        
+        if ($product) {
+            // do nothing
+        } elseif ($publicId) {
+            $product = Product::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in product repo save');
+        } else {
+            $product = Product::createNew();
+        }
+
+        $product->fill($data);
+        $product->save();
+
+        return $product;
+    }
+
 }

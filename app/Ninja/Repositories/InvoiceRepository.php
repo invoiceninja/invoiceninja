@@ -201,14 +201,16 @@ class InvoiceRepository extends BaseRepository
             ->make();
     }
 
-    public function save($data)
+    public function save($data, $invoice = null)
     {
         $account = \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         $isNew = !$publicId || $publicId == '-1';
 
-        if ($isNew) {
+        if ($invoice) {
+            // do nothing
+        } elseif ($isNew) {
             $entityType = ENTITY_INVOICE;
             if (isset($data['is_recurring']) && filter_var($data['is_recurring'], FILTER_VALIDATE_BOOLEAN)) {
                 $entityType = ENTITY_RECURRING_INVOICE;
@@ -224,6 +226,7 @@ class InvoiceRepository extends BaseRepository
             }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in invoice repo save');
         }
 
         $invoice->fill($data);

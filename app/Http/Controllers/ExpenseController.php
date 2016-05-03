@@ -146,7 +146,7 @@ class ExpenseController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
                 
-        $expense = $this->expenseService->save($data);
+        $expense = $this->expenseService->save($data, $request->entity());
 
         Session::flash('message', trans('texts.updated_expense'));
 

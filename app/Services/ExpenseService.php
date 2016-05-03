@@ -28,7 +28,7 @@ class ExpenseService extends BaseService
         return $this->expenseRepo;
     }
 
-    public function save($data)
+    public function save($data, $expense = null)
     {
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client_id'] = Client::getPrivateId($data['client_id']);
@@ -38,7 +38,7 @@ class ExpenseService extends BaseService
             $data['vendor_id'] = Vendor::getPrivateId($data['vendor_id']);
         }
 
-        return $this->expenseRepo->save($data);
+        return $this->expenseRepo->save($data, $expense);
     }
 
     public function getDatatable($search)

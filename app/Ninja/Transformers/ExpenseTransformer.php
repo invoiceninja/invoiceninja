@@ -6,9 +6,15 @@ use League\Fractal;
 
 class ExpenseTransformer extends EntityTransformer
 {
+    public function __construct($account = null, $serializer = null, $client = null)
+    {
+        parent::__construct($account, $serializer);
+        
+        $this->client = $client;
+    }
+
     public function transform(Expense $expense)
     {
-
         return [
             'id' => (int) $expense->public_id,
             'private_notes' => $expense->private_notes,
@@ -25,7 +31,7 @@ class ExpenseTransformer extends EntityTransformer
             'exchange_rate' => (float) $expense->exchange_rate,
             'invoice_currency_id' => (int) $expense->invoice_currency_id,
             'is_deleted' => (bool) $expense->is_deleted,
-            'client_id' => isset($expense->client->public_id) ? (int) $expense->client->public_id : null,
+            'client_id' => $this->client ? $this->client->public_id : (isset($expense->client->public_id) ? (int) $expense->client->public_id : null),
             'invoice_id' => isset($expense->invoice->public_id) ? (int) $expense->invoice->public_id : null,
             'vendor_id' => isset($expense->vendor->public_id) ? (int) $expense->vendor->public_id : null,
         ];

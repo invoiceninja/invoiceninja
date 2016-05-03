@@ -8,6 +8,14 @@ class Product extends EntityModel
     use SoftDeletes;
     protected $dates = ['deleted_at'];
 
+    protected $fillable = [
+        'product_key',
+        'notes',
+        'cost',
+        'qty',
+        'default_tax_rate_id',
+    ];
+
     public function getEntityType()
     {
         return ENTITY_PRODUCT;

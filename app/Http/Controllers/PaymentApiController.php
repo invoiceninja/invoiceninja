@@ -12,6 +12,8 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\PaymentTransformer;
 use App\Ninja\Transformers\InvoiceTransformer;
+use App\Http\Requests\UpdatePaymentRequest;
+use App\Http\Requests\CreatePaymentAPIRequest;
 
 class PaymentApiController extends BaseAPIController
 {
@@ -47,10 +49,10 @@ class PaymentApiController extends BaseAPIController
     {
         $payments = Payment::scope()
                         ->withTrashed()
-                        ->with(array_merge(['client.contacts', 'invitation', 'user', 'invoice'], $this->getIncluded()))                        
+                        ->with(['client.contacts', 'invitation', 'user', 'invoice'])                        
                         ->orderBy('created_at', 'desc');
 
-        return $this->returnList($payments);
+        return $this->listResponse($payments);
     }
 
     /**
@@ -75,39 +77,17 @@ class PaymentApiController extends BaseAPIController
     * )
     */
 
-    public function update(Request $request, $publicId)
+    public function update(UpdatePaymentRequest $request, $publicId)
     {
-        $data = Input::all();
+        if ($request->action) {
+            return $this->handleAction($request);
+        }
+
+        $data = $request->input();
         $data['public_id'] = $publicId;
-        $error = false;
+        $payment = $this->paymentRepo->save($data, $request->entity());
 
-        if ($request->action == ACTION_ARCHIVE) {
-            $payment = Payment::scope($publicId)->withTrashed()->firstOrFail();
-            $this->paymentRepo->archive($payment);
-
-            $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($payment, $transformer, 'invoice');
-
-            return $this->response($data);
-        }
-
-        $payment = $this->paymentRepo->save($data);
-
-        if ($error) {
-            return $error;
-        }
-
-        /*
-        $invoice = Invoice::scope($data['invoice_id'])->with('client', 'invoice_items', 'invitations')->with(['payments' => function($query) {
-            $query->withTrashed();
-        }])->withTrashed()->first();
-        */
-
-        $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($payment, $transformer, 'invoice');
-
-        return $this->response($data);
-
+        return $this->itemResponse($payment);
     }
 
 
@@ -132,49 +112,15 @@ class PaymentApiController extends BaseAPIController
      *   )
      * )
      */
-    public function store()
+    public function store(CreatePaymentAPIRequest $request)
     {
-        $data = Input::all();
-        $error = false;
-
-        if (isset($data['invoice_id'])) {
-            $invoice = Invoice::scope($data['invoice_id'])->with('client')->first();
-
-            if ($invoice) {
-                $data['invoice_id'] = $invoice->id;
-                $data['client_id'] = $invoice->client->id;
-            } else {
-                $error = trans('validation.not_in', ['attribute' => 'invoice_id']);
-            }
-        } else {
-            $error = trans('validation.not_in', ['attribute' => 'invoice_id']);
-        }
-
-        if (!isset($data['transaction_reference'])) {
-            $data['transaction_reference'] = '';
-        }
-
-        if ($error) {
-            return $error;
-        }
-
-        $payment = $this->paymentRepo->save($data);
+        $payment = $this->paymentRepo->save($request->input());
 
         if (Input::get('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
         }
 
-        /*
-        $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->with(['payments' => function($query) {
-            $query->withTrashed();
-        }])->first();
-        */
-
-        $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($payment, $transformer, 'invoice');
-
-        return $this->response($data);
-
+        return $this->itemResponse($payment);
     }
 
     /**
@@ -207,11 +153,6 @@ class PaymentApiController extends BaseAPIController
 
         $this->paymentRepo->delete($payment);
 
-        /*
-        $invoice = Invoice::scope($invoiceId)->with('client', 'invoice_items', 'invitations')->with(['payments' => function($query) {
-            $query->withTrashed();
-        }])->first();
-        */
         $transformer = new PaymentTransformer(\Auth::user()->account, Input::get('serializer'));
         $data = $this->createItem($payment, $transformer, 'invoice');
 

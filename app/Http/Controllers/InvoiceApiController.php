@@ -19,6 +19,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\InvoiceTransformer;
+use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Services\InvoiceService;
@@ -60,10 +61,10 @@ class InvoiceApiController extends BaseAPIController
     {
         $invoices = Invoice::scope()
                         ->withTrashed()
-                        ->with(array_merge(['invoice_items'], $this->getIncluded()))
+                        ->with('invoice_items')
                         ->orderBy('created_at', 'desc');
 
-        return $this->returnList($invoices);
+        return $this->listResponse($invoices);
     }
 
         /**
@@ -83,17 +84,9 @@ class InvoiceApiController extends BaseAPIController
          * )
          */
 
-    public function show($publicId)
+    public function show(InvoiceRequest $request)
     {
-        $invoice = Invoice::scope($publicId)->withTrashed()->first();
-
-        if(!$invoice)
-            return $this->errorResponse(['message'=>'Invoice does not exist!'], 404);
-
-        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($invoice, $transformer, 'invoice');
-
-        return $this->response($data);
+        return $this->itemResponse($request->entity());
     }
 
     /**
@@ -188,11 +181,11 @@ class InvoiceApiController extends BaseAPIController
             }
         }
 
-        $invoice = Invoice::scope($invoice->public_id)->with('client', 'invoice_items', 'invitations')->first();
-        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($invoice, $transformer, 'invoice');
-
-        return $this->response($data);
+        $invoice = Invoice::scope($invoice->public_id)
+                        ->with('client', 'invoice_items', 'invitations')
+                        ->first();
+                        
+        return $this->itemResponse($invoice);
     }
 
     private function prepareData($data, $client)
@@ -278,35 +271,20 @@ class InvoiceApiController extends BaseAPIController
                 $item[$key] = $val;
             }
         }
-
+        
         return $item;
     }
 
-    public function emailInvoice()
+    public function emailInvoice(InvoiceRequest $request)
     {
-        $data = Input::all();
-        $error = null;
+        $invoice = $request->entity();
 
-        $invoice = Invoice::scope($data['id'])->withTrashed()->first();
+        $this->mailer->sendInvoice($invoice);
 
-        if(!$invoice)
-            return $this->errorResponse(['message'=>'Invoice does not exist.'], 400);
-
-
-        $this->mailer->sendInvoice($invoice, false, false);
-
-
-        if($error) {
-            return $this->errorResponse(['message'=>'There was an error sending the invoice'], 400);
-        }
-        else {
-            $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
-        }
-
+        $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
-        return Response::make($response, $error ? 400 : 200, $headers);
+        return Response::make($response, 200, $headers);
     }
-
 
         /**
          * @SWG\Put(
@@ -331,32 +309,12 @@ class InvoiceApiController extends BaseAPIController
          */
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
-        if ($request->action == ACTION_ARCHIVE) {
-            $invoice = Invoice::scope($publicId)->firstOrFail();
-            $this->invoiceRepo->archive($invoice);
-
-            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($invoice, $transformer, 'invoice');
-
-            return $this->response($data);
-        }
-        else if ($request->action == ACTION_CONVERT) {
-            $quote = Invoice::scope($publicId)->firstOrFail();
+        if ($request->action == ACTION_CONVERT) {
+            $quote = $request->entity();            
             $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
-
-            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($invoice, $transformer, 'invoice');
-
-            return $this->response($data);
-        }
-        else if ($request->action == ACTION_RESTORE) {
-            $invoice = Invoice::scope($publicId)->withTrashed()->firstOrFail();
-            $this->invoiceRepo->restore($invoice);
-
-            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($invoice, $transformer, 'invoice');
-
-            return $this->response($data);
+            return $this->itemResponse($invoice);
+        } elseif ($request->action) {
+            return $this->handleAction($request);
         }
         else if ($request->action == ACTION_CLONE) {
 
@@ -370,13 +328,13 @@ class InvoiceApiController extends BaseAPIController
         }
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $this->invoiceService->save($data);
+        $this->invoiceService->save($data, $request->entity());
 
-        $invoice = Invoice::scope($publicId)->with('client', 'invoice_items', 'invitations')->firstOrFail();
-        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($invoice, $transformer, 'invoice');
-
-        return $this->response($data);
+        $invoice = Invoice::scope($publicId)
+                        ->with('client', 'invoice_items', 'invitations')
+                        ->firstOrFail();
+                        
+        return $this->itemResponse($invoice);
     }
 
         /**

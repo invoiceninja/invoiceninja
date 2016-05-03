@@ -42,10 +42,9 @@ class TaskApiController extends BaseAPIController
     {
         $payments = Task::scope()
                         ->withTrashed()
-                        ->with($this->getIncluded())                        
                         ->orderBy('created_at', 'desc');
 
-        return $this->returnList($payments);
+        return $this->listResponse($payments);
     }
 
     /**
