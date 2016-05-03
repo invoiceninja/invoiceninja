@@ -68,7 +68,19 @@ class BaseAPIController extends Controller
         }
     }
 
-    protected function returnList($query)
+    protected function handleAction($request)
+    { 
+        $entity = $request->entity();
+        $action = $request->action;
+        
+        $repo = Utils::toCamelCase($this->entityType) . 'Repo';
+        
+        $this->$repo->$action($entity);
+        
+        return $this->itemResponse($entity);
+    }
+
+    protected function listResponse($query)
     {
         //\DB::enableQueryLog();
         if ($clientPublicId = Input::get('client_id')) {
@@ -95,6 +107,16 @@ class BaseAPIController extends Controller
         return $this->response($data);
     }
 
+    protected function itemResponse($item)
+    {
+        $transformerClass = EntityModel::getTransformerName($this->entityType);
+        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
+
+        $data = $this->createItem($item, $transformer, $this->entityType);
+
+        return $this->response($data);
+    }
+
     protected function createItem($data, $transformer, $entityType)
     {
         if ($this->serializer && $this->serializer != API_SERIALIZER_JSON) {
@@ -112,8 +134,9 @@ class BaseAPIController extends Controller
         }
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
+            $limit = min(MAX_API_PAGE_SIZE, Input::get('per_page', DEFAULT_API_PAGE_SIZE));
             $resource = new Collection($query->get(), $transformer, $entityType);
-            $resource->setPaginator(new IlluminatePaginatorAdapter($query->paginate()));
+            $resource->setPaginator(new IlluminatePaginatorAdapter($query->paginate($limit)));
         } else {
             $resource = new Collection($query, $transformer, $entityType);
         }
@@ -154,7 +177,6 @@ class BaseAPIController extends Controller
         return Response::make($error, $httpErrorCode, $headers);
 
     }
-
 
     protected function getIncluded()
     {

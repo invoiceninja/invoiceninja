@@ -53,7 +53,7 @@ class VendorApiController extends BaseAPIController
                     ->withTrashed()
                     ->orderBy('created_at', 'desc');
 
-        return $this->returnList($vendors);
+        return $this->listResponse($vendors);
     }
 
     /**
@@ -85,8 +85,6 @@ class VendorApiController extends BaseAPIController
                     ->with('country', 'vendorcontacts', 'industry', 'size', 'currency')
                     ->first();
 
-        $transformer = new VendorTransformer(Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($vendor, $transformer, ENTITY_VENDOR);
-        return $this->response($data);
+        return $this->itemResponse($vendor);
     }
 }

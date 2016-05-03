@@ -123,12 +123,15 @@ class PaymentRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input)
+    public function save($input, $payment = null)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
 
-        if ($publicId) {
+        if ($payment) {
+            // do nothing
+        } elseif ($publicId) {
             $payment = Payment::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in payment repo save');
         } else {
             $payment = Payment::createNew();
         }

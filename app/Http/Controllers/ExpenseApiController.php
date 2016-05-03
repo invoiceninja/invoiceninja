@@ -32,7 +32,7 @@ class ExpenseApiController extends BaseAPIController
             ->withTrashed()
             ->orderBy('created_at','desc');
 
-        return $this->returnList($expenses);
+        return $this->listResponse($expenses);
     }
 
     public function update()

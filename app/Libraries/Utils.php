@@ -676,7 +676,7 @@ class Utils
 
     public static function getEntityName($entityType)
     {
-        return ucwords(str_replace('_', ' ', $entityType));
+        return ucwords(Utils::toCamelCase($entityType));
     }
 
     public static function getClientDisplayName($model)
