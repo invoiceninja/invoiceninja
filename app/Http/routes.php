@@ -1,5 +1,6 @@
 <?php
 
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -552,8 +553,14 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
     define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
+<<<<<<< HEAD
+    define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
+    define('NINJA_APP_URL', 'https://app.invoiceninja.com');
+    define('NINJA_VERSION', '2.5.1.3');
+=======
     define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
+>>>>>>> 871456d402bffb441b8a404a2003afb8d7394648
     define('NINJA_DATE', '2000-01-01');
     define('NINJA_VERSION', '2.5.1.3' . env('NINJA_VERSION_SUFFIX'));
 

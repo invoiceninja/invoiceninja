@@ -40,8 +40,13 @@ class Invitation extends EntityModel
         $url = SITE_URL;
         $iframe_url = $this->account->iframe_url;
         
+<<<<<<< HEAD
+        if ($this->account->isPro()) {
+            if ($iframe_url) {
+=======
         if ($this->account->hasFeature(FEATURE_CUSTOM_URL)) {
             if ($iframe_url && !$forceOnsite) {
+>>>>>>> 871456d402bffb441b8a404a2003afb8d7394648
                 return "{$iframe_url}?{$this->invitation_key}";
             } elseif ($this->account->subdomain) {
                 $url = Utils::replaceSubdomain($url, $this->account->subdomain);
