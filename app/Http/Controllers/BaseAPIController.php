@@ -3,6 +3,7 @@
 use Session;
 use Utils;
 use Auth;
+use Log;
 use Input;
 use Response;
 use Request;
@@ -66,6 +67,10 @@ class BaseAPIController extends Controller
         } else {
             $this->manager->setSerializer(new ArraySerializer());
         }
+        
+        if (Utils::isNinjaDev()) {
+            \DB::enableQueryLog();
+        }
     }
 
     protected function handleAction($request)
@@ -82,7 +87,8 @@ class BaseAPIController extends Controller
 
     protected function listResponse($query)
     {
-        //\DB::enableQueryLog();
+        $query->with($this->getIncluded());
+            
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
@@ -103,7 +109,6 @@ class BaseAPIController extends Controller
         
         $data = $this->createCollection($query, $transformer, $this->entityType);
 
-        //return \DB::getQueryLog();
         return $this->response($data);
     }
 
@@ -113,7 +118,7 @@ class BaseAPIController extends Controller
         $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
 
         $data = $this->createItem($item, $transformer, $this->entityType);
-
+        
         return $this->response($data);
     }
 
@@ -146,6 +151,11 @@ class BaseAPIController extends Controller
 
     protected function response($response)
     {
+        if (Utils::isNinjaDev()) {
+            $count = count(\DB::getQueryLog());
+            Log::info(Request::method() . ' - ' . Request::url() . ": $count queries");
+        }
+        
         $index = Request::get('index') ?: 'data';
 
         if ($index == 'none') {
