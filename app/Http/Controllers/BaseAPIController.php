@@ -87,7 +87,12 @@ class BaseAPIController extends Controller
 
     protected function listResponse($query)
     {
-        $query->with($this->getIncluded());
+        $transformerClass = EntityModel::getTransformerName($this->entityType);
+        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
+
+        $include = $transformer->getDefaultIncludes();
+        $include = $this->getRequestIncludes($include);
+        $query->with($include);
             
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {
@@ -103,9 +108,6 @@ class BaseAPIController extends Controller
                 $query->where('user_id', '=', Auth::user()->id);
             }
         }
-        
-        $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
         
         $data = $this->createCollection($query, $transformer, $this->entityType);
 
@@ -154,6 +156,7 @@ class BaseAPIController extends Controller
         if (Utils::isNinjaDev()) {
             $count = count(\DB::getQueryLog());
             Log::info(Request::method() . ' - ' . Request::url() . ": $count queries");
+            //Log::info(print_r(\DB::getQueryLog(), true));
         }
         
         $index = Request::get('index') ?: 'data';
@@ -188,9 +191,9 @@ class BaseAPIController extends Controller
 
     }
 
-    protected function getIncluded()
+    protected function getRequestIncludes($data)
     {
-        $data = ['user'];
+        $data[] = 'user';
 
         $included = Request::get('include');
         $included = explode(',', $included);
