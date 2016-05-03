@@ -175,9 +175,9 @@ class AppController extends BaseController
 
         $config = '';
         foreach ($_ENV as $key => $val) {
-                        if (preg_match('/\s/',$val)) {
-                                $val = "'{$val}'";
-                        }
+            if (preg_match('/\s/',$val)) {
+                $val = "'{$val}'";
+            }
             $config .= "{$key}={$val}\n";
         }
 
@@ -261,15 +261,15 @@ class AppController extends BaseController
                 Session::flush();
                 Artisan::call('migrate', array('--force' => true));
                 foreach ([
-                    'PaymentLibraries',
-                    'Fonts',
-                    'Banks',
-                    'InvoiceStatus',
-                    'Currencies',
-                    'DateFormats',
-                    'InvoiceDesigns',
-                    'PaymentTerms',
-                ] as $seeder) {
+                             'PaymentLibraries',
+                             'Fonts',
+                             'Banks',
+                             'InvoiceStatus',
+                             'Currencies',
+                             'DateFormats',
+                             'InvoiceDesigns',
+                             'PaymentTerms',
+                         ] as $seeder) {
                     Artisan::call('db:seed', array('--force' => true, '--class' => "{$seeder}Seeder"));
                 }
                 Event::fire(new UserSettingsChanged());
@@ -307,16 +307,16 @@ class AppController extends BaseController
 
         if (Utils::getResllerType() == RESELLER_REVENUE_SHARE) {
             $data = DB::table('accounts')
-                            ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
-                            ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
-                            ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
-                            ->where('payments.is_deleted', '=', false)
-                            ->get([
-                                'clients.public_id as client_id',
-                                'payments.public_id as payment_id',
-                                'payments.payment_date',
-                                'payments.amount'
-                            ]);
+                ->leftJoin('payments', 'payments.account_id', '=', 'accounts.id')
+                ->leftJoin('clients', 'clients.id', '=', 'payments.client_id')
+                ->where('accounts.account_key', '=', NINJA_ACCOUNT_KEY)
+                ->where('payments.is_deleted', '=', false)
+                ->get([
+                    'clients.public_id as client_id',
+                    'payments.public_id as payment_id',
+                    'payments.payment_date',
+                    'payments.amount'
+                ]);
         } else {
             $data = DB::table('users')->count();
         }
