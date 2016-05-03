@@ -15,7 +15,7 @@ class ExpenseTransformer extends EntityTransformer
 
     public function transform(Expense $expense)
     {
-        return [
+        return array_merge($this->getDefaults($expense), [
             'id' => (int) $expense->public_id,
             'private_notes' => $expense->private_notes,
             'public_notes' => $expense->public_notes,
@@ -25,7 +25,6 @@ class ExpenseTransformer extends EntityTransformer
             'transaction_id' => $expense->transaction_id,
             'bank_id' => $expense->bank_id,
             'expense_currency_id' => (int) $expense->expense_currency_id,
-            'account_key' => $this->account->account_key,
             'amount' => (float) $expense->amount,
             'expense_date' => $expense->expense_date,
             'exchange_rate' => (float) $expense->exchange_rate,
@@ -34,6 +33,6 @@ class ExpenseTransformer extends EntityTransformer
             'client_id' => $this->client ? $this->client->public_id : (isset($expense->client->public_id) ? (int) $expense->client->public_id : null),
             'invoice_id' => isset($expense->invoice->public_id) ? (int) $expense->invoice->public_id : null,
             'vendor_id' => isset($expense->vendor->public_id) ? (int) $expense->vendor->public_id : null,
-        ];
+        ]);
     }
 }

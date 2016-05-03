@@ -17,4 +17,9 @@ class TaxRate extends EntityModel
     {
         return ENTITY_TAX_RATE;
     }
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User')->withTrashed();
+    }
 }

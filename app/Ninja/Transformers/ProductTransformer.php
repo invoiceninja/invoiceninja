@@ -7,16 +7,15 @@ class ProductTransformer extends EntityTransformer
 {
     public function transform(Product $product)
     {
-        return [
+        return array_merge($this->getDefaults(), [
             'id' => (int) $product->public_id,
             'product_key' => $product->product_key,
             'notes' => $product->notes,
             'cost' => $product->cost,
             'qty' => $product->qty,
-            'account_key' =>$this->account->account_key,
             'default_tax_rate_id' =>$product->default_tax_rate_id,
             'updated_at' =>$this->getTimestamp($product->updated_at),
             'archived_at' => $this->getTimestamp($product->deleted_at),
-        ];
+        ]);
     }
 }

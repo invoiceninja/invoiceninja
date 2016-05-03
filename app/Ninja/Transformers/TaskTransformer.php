@@ -39,12 +39,10 @@ class TaskTransformer extends EntityTransformer
 
     public function transform(Task $task)
     {
-        return [
+        return array_merge($this->getDefaults($task), [
             'id' => (int) $task->public_id,
-            'account_key' => $this->account->account_key,
-            'user_id' => (int) $task->user->public_id + 1,
             'description' => $task->description,
             'duration' => $task->getDuration()
-        ];
+        ]);
     }
 }

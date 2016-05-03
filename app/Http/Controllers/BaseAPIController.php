@@ -193,26 +193,19 @@ class BaseAPIController extends Controller
 
     protected function getRequestIncludes($data)
     {
-        $data[] = 'user';
-
         $included = Request::get('include');
         $included = explode(',', $included);
 
         foreach ($included as $include) {
             if ($include == 'invoices') {
                 $data[] = 'invoices.invoice_items';
-                $data[] = 'invoices.user';
             } elseif ($include == 'client') {
                 $data[] = 'client.contacts';
-                $data[] = 'client.user';
             } elseif ($include == 'clients') {
                 $data[] = 'clients.contacts';
-                $data[] = 'clients.user';
             } elseif ($include == 'vendors') {
                 $data[] = 'vendors.vendorcontacts';
-                $data[] = 'vendors.user';
-            }
-            elseif ($include) {
+            } elseif ($include) {
                 $data[] = $include;
             }
         }

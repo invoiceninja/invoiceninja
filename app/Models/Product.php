@@ -26,6 +26,11 @@ class Product extends EntityModel
         return Product::scope()->where('product_key', '=', $key)->first();
     }
 
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User')->withTrashed();
+    }
+
     public function default_tax_rate()
     {
         return $this->belongsTo('App\Models\TaxRate');
