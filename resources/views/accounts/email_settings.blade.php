@@ -19,6 +19,7 @@
         ])->addClass('warn-on-exit') !!}
     {{ Former::populate($account) }}
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
+    {{ Former::populateField('document_email_attachment', intval($account->document_email_attachment)) }}
     {{ Former::populateField('enable_email_markup', intval($account->enable_email_markup)) }}
 
     <div class="panel panel-default">
@@ -27,6 +28,7 @@
         </div>
         <div class="panel-body form-padding-right">
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
+            {!! Former::checkbox('document_email_attachment')->text(trans('texts.enable')) !!}
             
             &nbsp;
             
@@ -84,7 +86,7 @@
         </div>
     </div>
 
-    @if (Auth::user()->isPro())
+    @if (Auth::user()->hasFeature(FEATURE_CUSTOM_EMAILS))
         <center>
             {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
         </center>

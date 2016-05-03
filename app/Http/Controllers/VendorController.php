@@ -23,14 +23,15 @@ use App\Models\Country;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
 
+use App\Http\Requests\VendorRequest;
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
-// vendor
+
 class VendorController extends BaseController
 {
     protected $vendorService;
     protected $vendorRepo;
-    protected $model = 'App\Models\Vendor';
+    protected $entityType = ENTITY_VENDOR;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {
@@ -38,8 +39,6 @@ class VendorController extends BaseController
 
         $this->vendorRepo = $vendorRepo;
         $this->vendorService = $vendorService;
-
-
     }
 
     /**
@@ -77,13 +76,7 @@ class VendorController extends BaseController
      */
     public function store(CreateVendorRequest $request)
     {
-        $data = $request->input();
-        
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
-                
-        $vendor = $this->vendorService->save($data);
+        $vendor = $this->vendorService->save($request->input());
 
         Session::flash('message', trans('texts.created_vendor'));
 
@@ -96,18 +89,14 @@ class VendorController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function show($publicId)
+    public function show(VendorRequest $request)
     {
-        $vendor = Vendor::withTrashed()->scope($publicId)->with('vendorcontacts', 'size', 'industry')->firstOrFail();
-        
-        if(!$this->checkViewPermission($vendor, $response)){
-            return $response;
-        }
-        
+        $vendor = $request->entity();
+                
         Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
         $actionLinks = [
-            ['label' => trans('texts.new_vendor'), 'url' => '/vendors/create/' . $vendor->public_id]
+            ['label' => trans('texts.new_vendor'), 'url' => URL::to('/vendors/create/' . $vendor->public_id)]
         ];
 
         $data = array(
@@ -129,12 +118,8 @@ class VendorController extends BaseController
      *
      * @return Response
      */
-    public function create()
+    public function create(VendorRequest $request)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
-        
         if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumVendors()." vendors"]);
         }
@@ -157,26 +142,22 @@ class VendorController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function edit($publicId)
+    public function edit(VendorRequest $request)
     {
-        $vendor = Vendor::scope($publicId)->with('vendorcontacts')->firstOrFail();
-        
-        if(!$this->checkEditPermission($vendor, $response)){
-            return $response;
-        }
+        $vendor = $request->entity();
         
         $data = [
             'vendor' => $vendor,
             'method' => 'PUT',
-            'url' => 'vendors/'.$publicId,
+            'url' => 'vendors/'.$vendor->public_id,
             'title' => trans('texts.edit_vendor'),
         ];
 
         $data = array_merge($data, self::getViewModel());
 
         if (Auth::user()->account->isNinjaAccount()) {
-            if ($account = Account::whereId($vendor->public_id)->first()) {
-                $data['proPlanPaid'] = $account['pro_plan_paid'];
+            if ($account = Account::whereId($client->public_id)->first()) {
+                $data['planDetails'] = $account->getPlanDetails(false, false);
             }
         }
 
@@ -201,13 +182,7 @@ class VendorController extends BaseController
      */
     public function update(UpdateVendorRequest $request)
     {
-        $data = $request->input();
-        
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
-                
-        $vendor = $this->vendorService->save($data);
+        $vendor = $this->vendorService->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_vendor'));
 

@@ -26,13 +26,13 @@ class VendorService extends BaseService
         return $this->vendorRepo;
     }
 
-    public function save($data)
+    public function save($data, $vendor = null)
     {
-        if (Auth::user()->account->isNinjaAccount() && isset($data['pro_plan_paid'])) {
-            $this->ninjaRepo->updateProPlanPaid($data['public_id'], $data['pro_plan_paid']);
+        if (Auth::user()->account->isNinjaAccount() && isset($data['plan'])) {
+            $this->ninjaRepo->updatePlanDetails($data['public_id'], $data);
         }
 
-        return $this->vendorRepo->save($data);
+        return $this->vendorRepo->save($data, $vendor);
     }
 
     public function getDatatable($search)
@@ -91,13 +91,13 @@ class VendorService extends BaseService
                     return URL::to("vendors/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Vendor::canEditItem($model);
+                    return Auth::user()->can('editByOwner', [ENTITY_VENDOR, $model->user_id]);
                 }
             ],
             [
                 '--divider--', function(){return false;},
                 function ($model) {
-                    return Vendor::canEditItem($model) && Expense::canCreate();
+                    return Auth::user()->can('editByOwner', [ENTITY_VENDOR, $model->user_id]) && Auth::user()->can('create', ENTITY_EXPENSE);
                 }
                 
             ],
@@ -107,7 +107,7 @@ class VendorService extends BaseService
                     return URL::to("expenses/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Expense::canCreate();
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
                 }
             ]
         ];

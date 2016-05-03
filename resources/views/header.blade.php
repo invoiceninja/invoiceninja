@@ -189,15 +189,13 @@
   function submitProPlan() {
     fbq('track', 'AddPaymentInfo');
     trackEvent('/account', '/submit_pro_plan/' + NINJA.proPlanFeature);
-    if (NINJA.isRegistered) {      
-      $.ajax({
-        type: 'POST',
-        url: '{{ URL::to('account/go_pro') }}',
-        success: function(result) { 
-          NINJA.formIsChanged = false;
-          window.location = '/payment/' + result;
-        }
-      });     
+    if (NINJA.isRegistered) {
+      if (window.showChangePlan) {
+        $('#proPlanModal').modal('hide');
+        showChangePlan();
+      } else {
+        window.location = '/settings/account_management#changePlanModel';
+      }
     } else {
       $('#proPlanModal').modal('hide');    
       $('#go_pro').val('true');
@@ -275,6 +273,7 @@
           @if (Auth::check() && Auth::user()->account->custom_client_label1)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ Auth::user()->account->custom_client_label1 }}'], 'tokens'),
             templates: {
@@ -285,6 +284,7 @@
           @if (Auth::check() && Auth::user()->account->custom_client_label2)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ Auth::user()->account->custom_client_label2 }}'], 'tokens'),
             templates: {
@@ -295,6 +295,7 @@
           @foreach (['clients', 'contacts', 'invoices', 'quotes', 'navigation'] as $type)
           ,{
             name: 'data',
+            limit: 3,
             display: 'value',
             source: searchData(data['{{ $type }}'], 'tokens', true),
             templates: {
@@ -428,7 +429,7 @@
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis nav-account-name" style="max-width:{{ Utils::isPro() && ! Utils::isTrial() ? '130' : '100' }}px;">
+            <div id="myAccountButton" class="ellipsis nav-account-name" style="max-width:{{ Utils::hasFeature(FEATURE_USERS) ? '130' : '100' }}px;">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
@@ -448,7 +449,7 @@
                             'user_id' => $item->user_id,
                             'account_name' => $item->account_name,
                             'user_name' => $item->user_name,
-                            'logo_path' => isset($item->logo_path) ? $item->logo_path : "",
+                            'logo_url' => isset($item->logo_url) ? $item->logo_url : "",
                             'selected' => true,
                         ])
                     @endif
@@ -460,7 +461,7 @@
                             'user_id' => $item->user_id,
                             'account_name' => $item->account_name,
                             'user_name' => $item->user_name,
-                            'logo_path' => isset($item->logo_path) ? $item->logo_path : "",
+                            'logo_url' => isset($item->logo_url) ? $item->logo_url : "",
                             'selected' => false,
                         ])
                     @endif
@@ -469,7 +470,7 @@
                 @include('user_account', [
                     'account_name' => Auth::user()->account->name ?: trans('texts.untitled'), 
                     'user_name' => Auth::user()->getDisplayName(),
-                    'logo_path' => Auth::user()->account->getLogoPath(),
+                    'logo_url' => Auth::user()->account->getLogoURL(),
                     'selected' => true,
                 ])
             @endif            
@@ -723,8 +724,8 @@
                 <center>
                     <h2>{{ trans('texts.pro_plan_title') }}</h2>
                     <img class="img-responsive price" alt="Only $50 Per Year" src="{{ asset('images/pro_plan/price.png') }}"/>
-                    @if (Auth::user()->isEligibleForTrial())
-                        <a class="button" href="{{ URL::to('start_trial') }}">{{ trans('texts.trial_call_to_action') }}</a>
+                    @if (Auth::user()->isEligibleForTrial(PLAN_PRO))
+                        <a class="button" href="{{ URL::to('start_trial/'.PLAN_PRO) }}">{{ trans('texts.trial_call_to_action') }}</a>
                     @else
                         <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
                     @endif
@@ -766,7 +767,7 @@
   {{-- Per our license, please do not remove or modify this section. --}}
   {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
   {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} | 
-  @if (Auth::user()->account->isWhiteLabel())  
+  @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))  
     {{ trans('texts.white_labeled') }}
   @else
     <a href="#" onclick="loadImages('#whiteLabelModal');$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>

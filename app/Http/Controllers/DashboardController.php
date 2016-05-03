@@ -11,7 +11,7 @@ class DashboardController extends BaseController
 {
     public function index()
     {
-        $view_all = !Auth::user()->hasPermission('view_all');
+        $view_all = Auth::user()->hasPermission('view_all');
         $user_id = Auth::user()->id;
             
         // total_income, billed_clients, invoice_sent and active_clients
@@ -105,6 +105,7 @@ class DashboardController extends BaseController
                     ->where('contacts.deleted_at', '=', null)
                     ->where('invoices.is_recurring', '=', false)
                     //->where('invoices.is_quote', '=', false)
+                    ->where('invoices.quote_invoice_id', '=', null)
                     ->where('invoices.balance', '>', 0)
                     ->where('invoices.is_deleted', '=', false)
                     ->where('invoices.deleted_at', '=', null)
@@ -129,6 +130,7 @@ class DashboardController extends BaseController
                     ->where('invoices.deleted_at', '=', null)
                     ->where('invoices.is_recurring', '=', false)
                     //->where('invoices.is_quote', '=', false)
+                    ->where('invoices.quote_invoice_id', '=', null)
                     ->where('invoices.balance', '>', 0)
                     ->where('invoices.is_deleted', '=', false)
                     ->where('contacts.is_primary', '=', true)

@@ -83,6 +83,7 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
+<<<<<<< HEAD
         $_ENV['APP_ENV']='production';
         $_ENV['APP_DEBUG']=$app['debug'];
         $_ENV['APP_URL']=$app['url'];
@@ -97,6 +98,25 @@ class AppController extends BaseController
         $_ENV['MAIL_ENCRYPTION']=$mail['encryption'];
         $_ENV['MAIL_HOST']=$mail['host'];
         $_ENV['MAIL_USERNAME']=$mail['username'];;
+=======
+        $_ENV['APP_ENV'] = 'production';
+        $_ENV['APP_DEBUG'] = $app['debug'];
+        $_ENV['APP_URL'] = $app['url'];
+        $_ENV['APP_KEY'] = $app['key'];
+        $_ENV['DB_TYPE'] = $dbType;
+        $_ENV['DB_HOST'] = $database['type']['host'];
+        $_ENV['DB_DATABASE'] = $database['type']['database'];
+        $_ENV['DB_USERNAME'] = $database['type']['username'];
+        $_ENV['DB_PASSWORD'] = $database['type']['password'];
+        $_ENV['MAIL_DRIVER'] = $mail['driver'];
+        $_ENV['MAIL_PORT'] = $mail['port'];
+        $_ENV['MAIL_ENCRYPTION'] = $mail['encryption'];
+        $_ENV['MAIL_HOST'] = $mail['host'];
+        $_ENV['MAIL_USERNAME'] = $mail['username'];
+        $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
+        $_ENV['MAIL_PASSWORD'] = $mail['password'];
+        $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
+>>>>>>> 871456d402bffb441b8a404a2003afb8d7394648
 
         $config = '';
         foreach ($_ENV as $key => $val) {
@@ -175,8 +195,16 @@ class AppController extends BaseController
 
         $config = '';
         foreach ($_ENV as $key => $val) {
+<<<<<<< HEAD
             if (preg_match('/\s/',$val)) {
                 $val = "'{$val}'";
+=======
+            if (is_array($val)) {
+                continue;
+            }
+            if (preg_match('/\s/', $val)) {
+                    $val = "'{$val}'";
+>>>>>>> 871456d402bffb441b8a404a2003afb8d7394648
             }
             $config .= "{$key}={$val}\n";
         }
@@ -300,7 +328,7 @@ class AppController extends BaseController
 
     public function stats()
     {
-        if (Input::get('password') != env('RESELLER_PASSWORD')) {
+        if ( ! hash_equals(Input::get('password'), env('RESELLER_PASSWORD'))) {
             sleep(3);
             return '';
         }

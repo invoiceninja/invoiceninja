@@ -53,7 +53,7 @@
 @section('body')
 <div class="container">
 
-{!! Former::open('forgot')->rules(['email' => 'required|email'])->addClass('form-signin') !!}
+{!! Former::open('recover_password')->rules(['email' => 'required|email'])->addClass('form-signin') !!}
   <div class="modal-header">
     <img src="{{ asset('images/icon-login.png') }}" />
     <h4>Invoice Ninja | {{ trans('texts.password_recovery') }}</h4></div>

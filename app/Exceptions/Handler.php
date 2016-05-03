@@ -4,7 +4,11 @@ use Redirect;
 use Utils;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Database\Eloquent\ModelNotFoundException; 
+use Illuminate\Http\Exception\HttpResponseException; 
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Illuminate\Foundation\Validation\ValidationException;
 
 class Handler extends ExceptionHandler {
 
@@ -14,7 +18,10 @@ class Handler extends ExceptionHandler {
 	 * @var array
 	 */
 	protected $dontReport = [
-		'Symfony\Component\HttpKernel\Exception\HttpException'
+        AuthorizationException::class,
+        HttpException::class,
+        ModelNotFoundException::class,
+        ValidationException::class,
 	];
 
 	/**
@@ -27,6 +34,11 @@ class Handler extends ExceptionHandler {
 	 */
 	public function report(Exception $e)
 	{
+        // don't show these errors in the logs
+        if ($e instanceof HttpResponseException) {
+            return false;
+        }
+        
         if (Utils::isNinja()) {
             Utils::logError(Utils::getErrorString($e));
             return false;
@@ -60,7 +72,9 @@ class Handler extends ExceptionHandler {
         }
 
         // In production, except for maintenance mode, we'll show a custom error screen
-        if (Utils::isNinjaProd() && !Utils::isDownForMaintenance()) {
+        if (Utils::isNinjaProd()
+            && !Utils::isDownForMaintenance()
+            && !($e instanceof HttpResponseException)) {
             $data = [
                 'error' => get_class($e),
                 'hideHeader' => true,

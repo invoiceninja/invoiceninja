@@ -58,7 +58,7 @@ class ClientTransformer extends EntityTransformer
 
     public function includeInvoices(Client $client)
     {
-        $transformer = new InvoiceTransformer($this->account, $this->serializer);
+        $transformer = new InvoiceTransformer($this->account, $this->serializer, $client);
         return $this->includeCollection($client->invoices, $transformer, ENTITY_INVOICE);
     }
 

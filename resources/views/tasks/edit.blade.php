@@ -19,6 +19,11 @@
     </style>
 
 
+    @if ($errors->first('time_log'))
+        <div class="alert alert-danger"><li>{{ trans('texts.task_errors') }}  </li></div>
+    @endif
+
+
     {!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit task-form')->method($method)->rules(array()) !!}
     @if ($task)
         {!! Former::populate($task) !!}
@@ -455,7 +460,7 @@
             @endif
         @endif
 
-        @if (Session::has('error'))
+        @if ($errors->first('time_log'))
             loadTimeLog({!! json_encode(Input::old('time_log')) !!});
             model.showTimeOverlaps();
             showTimeDetails();

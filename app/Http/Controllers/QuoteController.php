@@ -26,6 +26,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Events\QuoteInvitationWasApproved;
 use App\Services\InvoiceService;
+use App\Http\Requests\InvoiceRequest;
 
 class QuoteController extends BaseController
 {
@@ -33,7 +34,7 @@ class QuoteController extends BaseController
     protected $invoiceRepo;
     protected $clientRepo;
     protected $invoiceService;
-    protected $model = 'App\Models\Invoice';
+    protected $entityType = ENTITY_INVOICE;
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
@@ -47,7 +48,7 @@ class QuoteController extends BaseController
 
     public function index()
     {
-        if (!Utils::isPro()) {
+        if (!Utils::hasFeature(FEATURE_QUOTES)) {
             return Redirect::to('/invoices/create');
         }
 
@@ -78,13 +79,9 @@ class QuoteController extends BaseController
         return $this->invoiceService->getDatatable($accountId, $clientPublicId, ENTITY_QUOTE, $search);
     }
 
-    public function create($clientPublicId = 0)
+    public function create(InvoiceRequest $request, $clientPublicId = 0)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
-        
-        if (!Utils::isPro()) {
+        if (!Utils::hasFeature(FEATURE_QUOTES)) {
             return Redirect::to('/invoices/create');
         }
 
@@ -111,10 +108,27 @@ class QuoteController extends BaseController
 
     private static function getViewModel()
     {
+        // Tax rate $options
+        $account = Auth::user()->account;
+        $rates = TaxRate::scope()->orderBy('name')->get();
+        $options = [];
+        $defaultTax = false;
+        
+        foreach ($rates as $rate) {
+            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';            
+        
+            // load default invoice tax
+            if ($rate->id == $account->default_tax_rate_id) {
+                $defaultTax = $rate;
+            }
+        }     
+        
         return [
           'entityType' => ENTITY_QUOTE,
           'account' => Auth::user()->account,
           'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
+          'taxRateOptions' => $options,
+          'defaultTax' => $defaultTax,
           'countries' => Cache::get('countries'),
           'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
           'taxRates' => TaxRate::scope()->orderBy('name')->get(),

@@ -28,7 +28,7 @@ class ExpenseService extends BaseService
         return $this->expenseRepo;
     }
 
-    public function save($data)
+    public function save($data, $expense = null)
     {
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client_id'] = Client::getPrivateId($data['client_id']);
@@ -38,7 +38,7 @@ class ExpenseService extends BaseService
             $data['vendor_id'] = Vendor::getPrivateId($data['vendor_id']);
         }
 
-        return $this->expenseRepo->save($data);
+        return $this->expenseRepo->save($data, $expense);
     }
 
     public function getDatatable($search)
@@ -70,7 +70,7 @@ class ExpenseService extends BaseService
                 function ($model)
                 {
                     if ($model->vendor_public_id) {
-                        if(!Vendor::canViewItemByOwner($model->vendor_user_id)){
+                        if(!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])){
                             return $model->vendor_name;
                         }
                         
@@ -85,7 +85,7 @@ class ExpenseService extends BaseService
                 function ($model)
                 {
                     if ($model->client_public_id) {
-                        if(!Client::canViewItemByOwner($model->client_user_id)){
+                        if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
                             return Utils::getClientDisplayName($model);
                         }
                         
@@ -98,7 +98,7 @@ class ExpenseService extends BaseService
             [
                 'expense_date',
                 function ($model) {
-                    if(!Expense::canEditItemByOwner($model->user_id)){
+                    if(!Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id])){
                         return Utils::fromSqlDate($model->expense_date);
                     }
                     
@@ -172,7 +172,7 @@ class ExpenseService extends BaseService
                     return URL::to("expenses/{$model->public_id}/edit") ;
                 },
                 function ($model) {
-                    return Expense::canEditItem($model);
+                    return Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id]);
                 }
             ],
             [
@@ -181,7 +181,7 @@ class ExpenseService extends BaseService
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_public_id && Invoice::canEditItemByOwner($model->invoice_user_id);
+                    return $model->invoice_public_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id]);
                 }
             ],
             [
@@ -190,7 +190,7 @@ class ExpenseService extends BaseService
                     return "javascript:invoiceEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Invoice::canCreate();
+                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
                 }
             ],
         ];

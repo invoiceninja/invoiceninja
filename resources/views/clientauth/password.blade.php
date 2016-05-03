@@ -52,7 +52,7 @@
 @section('body')
 <div class="container">
 
-{!! Former::open('client/forgot')->addClass('form-signin') !!}
+{!! Former::open('client/recover_password')->addClass('form-signin') !!}
     <div class="modal-header">
         @if (!isset($hideLogo) || !$hideLogo)
             <a href="{{ NINJA_WEB_URL }}" target="_blank">

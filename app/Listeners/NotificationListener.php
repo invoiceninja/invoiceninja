@@ -1,4 +1,4 @@
-<?php namespace app\Listeners;
+<?php namespace App\Listeners;
 
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;

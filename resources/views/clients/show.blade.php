@@ -43,11 +43,11 @@
                 @endif
 
                 @if ($client->trashed())
-                    @if ($client->canEdit())
+                    @can('edit', $client)
                         {!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
-                    @endif
+                    @endcan
                 @else
-                    @if ($client->canEdit())
+                    @can('edit', $client)
                     {!! DropdownButton::normal(trans('texts.edit_client'))
                         ->withAttributes(['class'=>'normalDropDown'])
                         ->withContents([
@@ -55,12 +55,12 @@
                           ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
                         ]
                       )->split() !!}
-                    @endif
-                    @if (\App\Models\Invoice::canCreate())
+                    @endcan
+                    @can('create', ENTITY_INVOICE)
                         {!! DropdownButton::primary(trans('texts.new_invoice'))
                                 ->withAttributes(['class'=>'primaryDropDown'])
                                 ->withContents($actionLinks)->split() !!}
-                    @endif
+                    @endcan
                 @endif
               {!! Former::close() !!}
 
@@ -230,7 +230,7 @@
     @endif
 
 
-    @if (Utils::isPro() && $hasQuotes)
+    @if (Utils::hasFeature(FEATURE_QUOTES) && $hasQuotes)
         <div class="tab-pane" id="quotes">
 
 			{!! Datatable::table()

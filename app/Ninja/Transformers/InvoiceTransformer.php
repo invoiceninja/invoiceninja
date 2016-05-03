@@ -31,6 +31,13 @@ class InvoiceTransformer extends EntityTransformer
         'expenses',
     ];
 
+    public function __construct($account = null, $serializer = null, $client = null)
+    {
+        parent::__construct($account, $serializer);
+        
+        $this->client = $client;
+    }
+
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
@@ -45,7 +52,7 @@ class InvoiceTransformer extends EntityTransformer
 
     public function includePayments(Invoice $invoice)
     {
-        $transformer = new PaymentTransformer($this->account, $this->serializer);
+        $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
         return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
     }
 
@@ -68,7 +75,7 @@ class InvoiceTransformer extends EntityTransformer
             'id' => (int) $invoice->public_id,
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
-            'client_id' => (int) $invoice->client->public_id,
+            'client_id' => (int) ($this->client ? $this->client->public_id : $invoice->client->public_id),
             'invoice_status_id' => (int) $invoice->invoice_status_id,
             'updated_at' => $this->getTimestamp($invoice->updated_at),
             'archived_at' => $this->getTimestamp($invoice->deleted_at),
@@ -87,8 +94,10 @@ class InvoiceTransformer extends EntityTransformer
             'end_date' => $invoice->end_date,
             'last_sent_date' => $invoice->last_sent_date,
             'recurring_invoice_id' => (int) $invoice->recurring_invoice_id,
-            'tax_name' => $invoice->tax_name,
-            'tax_rate' => (float) $invoice->tax_rate,
+            'tax_name1' => $invoice->tax_name1 ? $invoice->tax_name1 : '',
+            'tax_rate1' => (float) $invoice->tax_rate1,
+            'tax_name2' => $invoice->tax_name2 ? $invoice->tax_name2 : '',
+            'tax_rate2' => (float) $invoice->tax_rate2,
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
             'is_amount_discount' => (bool) $invoice->is_amount_discount,

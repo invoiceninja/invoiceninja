@@ -146,7 +146,7 @@ class Client extends EntityModel
 
     public function addContact($data, $isPrimary = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
 
         if ($publicId && $publicId != '-1') {
             $contact = Contact::scope($publicId)->firstOrFail();
@@ -155,7 +155,7 @@ class Client extends EntityModel
             $contact->send_invoice = true;
         }
         
-        if (!Utils::isPro() || $this->account->enable_portal_password){
+        if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password){
             if(!empty($data['password']) && $data['password']!='-%unchanged%-'){
                 $contact->password = bcrypt($data['password']);
             } else if(empty($data['password'])){

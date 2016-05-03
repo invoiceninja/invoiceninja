@@ -26,10 +26,11 @@ class PaymentTransformer extends EntityTransformer
     ];
 
 
-    public function __construct(Account $account)
+    public function __construct($account = null, $serializer = null, $invoice = null)
     {
-        parent::__construct($account);
-
+        parent::__construct($account, $serializer);
+        
+        $this->invoice = $invoice;
     }
 
     public function includeInvoice(Payment $payment)
@@ -57,7 +58,7 @@ class PaymentTransformer extends EntityTransformer
             'archived_at' => $this->getTimestamp($payment->deleted_at),
             'is_deleted' => (bool) $payment->is_deleted,
             'payment_type_id' => (int) $payment->payment_type_id,
-            'invoice_id' => (int) $payment->invoice->public_id,
+            'invoice_id' => (int) ($this->invoice ? $this->invoice->public_id : $payment->invoice->public_id),
         ];
     }
 }
