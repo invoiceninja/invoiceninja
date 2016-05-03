@@ -122,12 +122,15 @@ class ExpenseRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input)
+    public function save($input, $expense = null)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
 
-        if ($publicId) {
+        if ($expense) {
+            // do nothing
+        } elseif ($publicId) {
             $expense = Expense::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in expense repo save');
         } else {
             $expense = Expense::createNew();
         }

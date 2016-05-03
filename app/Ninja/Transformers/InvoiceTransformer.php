@@ -31,6 +31,13 @@ class InvoiceTransformer extends EntityTransformer
         'expenses',
     ];
 
+    public function __construct($account = null, $serializer = null, $client = null)
+    {
+        parent::__construct($account, $serializer);
+        
+        $this->client = $client;
+    }
+
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
@@ -45,7 +52,7 @@ class InvoiceTransformer extends EntityTransformer
 
     public function includePayments(Invoice $invoice)
     {
-        $transformer = new PaymentTransformer($this->account, $this->serializer);
+        $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
         return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
     }
 
@@ -68,7 +75,7 @@ class InvoiceTransformer extends EntityTransformer
             'id' => (int) $invoice->public_id,
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
-            'client_id' => (int) $invoice->client->public_id,
+            'client_id' => (int) ($this->client ? $this->client->public_id : $invoice->client->public_id),
             'invoice_status_id' => (int) $invoice->invoice_status_id,
             'updated_at' => $this->getTimestamp($invoice->updated_at),
             'archived_at' => $this->getTimestamp($invoice->deleted_at),

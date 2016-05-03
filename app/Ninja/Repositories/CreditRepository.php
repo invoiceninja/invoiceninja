@@ -59,12 +59,15 @@ class CreditRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input)
+    public function save($input, $credit = null)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
-
-        if ($publicId) {
+        
+        if ($credit) {
+            // do nothing
+        } elseif ($publicId) {
             $credit = Credit::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in credit repo save');
         } else {
             $credit = Credit::createNew();
         }

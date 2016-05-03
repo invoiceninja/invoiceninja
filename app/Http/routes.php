@@ -246,7 +246,7 @@ Route::group([
 // Route groups for API
 Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
-    Route::get('ping', 'ClientApiController@ping');
+    Route::get('ping', 'AccountApiController@ping');
     Route::post('login', 'AccountApiController@login');
     Route::post('register', 'AccountApiController@register');
     Route::get('static', 'AccountApiController@getStaticData');
@@ -600,6 +600,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('TEST_USERNAME', 'user@example.com');
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
+    define('DEFAULT_API_PAGE_SIZE', 15);
+    define('MAX_API_PAGE_SIZE', 100);
 
     define('IOS_PRODUCTION_PUSH', env('IOS_PRODUCTION_PUSH', 'ninjaIOS'));
     define('IOS_DEV_PUSH', env('IOS_DEV_PUSH', 'devNinjaIOS'));
