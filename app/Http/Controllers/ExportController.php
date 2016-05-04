@@ -164,12 +164,12 @@ class ExportController extends BaseController
         
         if ($request->input(ENTITY_VENDOR)) {
             $data['clients'] = Vendor::scope()
-                ->with('user', 'vendorcontacts', 'country')
+                ->with('user', 'vendor_contacts', 'country')
                 ->withArchived()
                 ->get();
 
             $data['vendor_contacts'] = VendorContact::scope()
-                ->with('user', 'vendor.contacts')
+                ->with('user', 'vendor.vendor_contacts')
                 ->withTrashed()
                 ->get();
             

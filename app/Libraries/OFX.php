@@ -2,6 +2,8 @@
 
 // https://github.com/denvertimothy/OFX
 
+use Utils;
+use Log;
 use SimpleXMLElement;
 
 class OFX
@@ -21,13 +23,19 @@ class OFX
         $c = curl_init();
         curl_setopt($c, CURLOPT_URL, $this->bank->url);
         curl_setopt($c, CURLOPT_POST, 1);
-        curl_setopt($c, CURLOPT_HTTPHEADER, array('Content-Type: application/x-ofx'));
+        // User-Agent: http://www.ofxhome.com/ofxforum/viewtopic.php?pid=108091#p108091
+        curl_setopt($c, CURLOPT_HTTPHEADER, array('Content-Type: application/x-ofx', 'User-Agent: httpclient'));
         curl_setopt($c, CURLOPT_POSTFIELDS, $this->request);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
+        
         $this->response = curl_exec($c);
-        //print_r($this->response);
-        //\Log::info(print_r($this->response, true));
+        
+        if (Utils::isNinjaDev()) {
+            Log::info(print_r($this->response, true));
+        }
+        
         curl_close($c);
+        
         $tmp = explode('<OFX>', $this->response);
         $this->responseHeader = $tmp[0];
         $this->responseBody = '<OFX>'.$tmp[1];
@@ -35,14 +43,15 @@ class OFX
     public function xml()
     {
         $xml = $this->responseBody;
-        self::closeTags($xml);
+        $xml = self::closeTags($xml);
         $x = new SimpleXMLElement($xml);
 
         return $x;
     }
-    public static function closeTags(&$x)
+    public static function closeTags($x)
     {
-        $x = preg_replace('/(<([^<\/]+)>)(?!.*?<\/\2>)([^<]+)/', '\1\3</\2>', $x);
+        $x = preg_replace('/\s+/', '', $x);
+        return preg_replace('/(<([^<\/]+)>)(?!.*?<\/\2>)([^<]+)/', '\1\3</\2>', $x);
     }
 }
 
@@ -224,3 +233,4 @@ class Account
         }
     }
 }
+

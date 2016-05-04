@@ -19,6 +19,11 @@ class InvoiceItem extends EntityModel
         return $this->belongsTo('App\Models\Invoice');
     }
 
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User')->withTrashed();
+    }
+
     public function product()
     {
         return $this->belongsTo('App\Models\Product');

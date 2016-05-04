@@ -90,10 +90,23 @@ class BaseAPIController extends Controller
         $transformerClass = EntityModel::getTransformerName($this->entityType);
         $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
 
-        $include = $transformer->getDefaultIncludes();
-        $include = $this->getRequestIncludes($include);
-        $query->with($include);
-            
+        $includes = $transformer->getDefaultIncludes();
+        $includes = $this->getRequestIncludes($includes);
+
+        $query->with($includes);
+        
+        if ($updatedAt = Input::get('updated_at')) {
+            $updatedAt = date('Y-m-d H:i:s', $updatedAt);
+            $query->where(function($query) use ($includes, $updatedAt) {
+                $query->where('updated_at', '>=', $updatedAt);
+                foreach ($includes as $include) {
+                    $query->orWhereHas($include, function($query) use ($updatedAt) {
+                        $query->where('updated_at', '>=', $updatedAt);
+                    });
+                }
+            });
+        }
+        
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
@@ -156,7 +169,7 @@ class BaseAPIController extends Controller
         if (Utils::isNinjaDev()) {
             $count = count(\DB::getQueryLog());
             Log::info(Request::method() . ' - ' . Request::url() . ": $count queries");
-            //Log::info(print_r(\DB::getQueryLog(), true));
+            Log::info(json_encode(\DB::getQueryLog()));
         }
         
         $index = Request::get('index') ?: 'data';
@@ -193,23 +206,19 @@ class BaseAPIController extends Controller
 
     protected function getRequestIncludes($data)
     {
-        $data[] = 'user';
-
         $included = Request::get('include');
         $included = explode(',', $included);
 
         foreach ($included as $include) {
             if ($include == 'invoices') {
                 $data[] = 'invoices.invoice_items';
-                $data[] = 'invoices.user';
+            } elseif ($include == 'client') {
+                $data[] = 'client.contacts';
             } elseif ($include == 'clients') {
                 $data[] = 'clients.contacts';
-                $data[] = 'clients.user';
             } elseif ($include == 'vendors') {
-                $data[] = 'vendors.vendorcontacts';
-                $data[] = 'vendors.user';
-            }
-            elseif ($include) {
+                $data[] = 'vendors.vendor_contacts';
+            } elseif ($include) {
                 $data[] = $include;
             }
         }

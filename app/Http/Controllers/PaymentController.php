@@ -551,7 +551,8 @@ class PaymentController extends BaseController
                     $payment = $this->paymentService->createPayment($invitation, $accountGateway, $token, $payerId);
                     Session::flash('message', trans('texts.applied_payment'));
                 } else {
-                    Session::flash('error', Input::get('message'));
+                    $message = Input::get('message') . ': ' . Input::get('invalid_fields');
+                    Session::flash('error', $message);
                 }
                 return Redirect::to($invitation->getLink());
             } elseif (method_exists($gateway, 'completePurchase') 

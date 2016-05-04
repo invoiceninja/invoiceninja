@@ -61,7 +61,7 @@ class InvoiceApiController extends BaseAPIController
     {
         $invoices = Invoice::scope()
                         ->withTrashed()
-                        ->with('invoice_items')
+                        ->with('invoice_items', 'client')
                         ->orderBy('created_at', 'desc');
 
         return $this->listResponse($invoices);
@@ -359,18 +359,13 @@ class InvoiceApiController extends BaseAPIController
          * )
          */
 
-    public function destroy($publicId)
+    public function destroy(UpdateInvoiceAPIRequest $request)
     {
-        $data['public_id'] = $publicId;
-        $invoice = Invoice::scope($publicId)->firstOrFail();
-
+        $invoice = $request->entity();
+        
         $this->invoiceRepo->delete($invoice);
 
-        $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($invoice, $transformer, 'invoice');
-
-        return $this->response($data);
-
+        return $this->itemResponse($invoice);
     }
 
 }

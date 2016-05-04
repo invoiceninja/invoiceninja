@@ -30,6 +30,7 @@ class ExpenseApiController extends BaseAPIController
     {
         $expenses = Expense::scope()
             ->withTrashed()
+            ->with('client', 'invoice', 'vendor')
             ->orderBy('created_at','desc');
 
         return $this->listResponse($expenses);

@@ -78,7 +78,7 @@ class APICest
 
         $data = new stdClass;
         $data->name = $this->faker->word;
-        $data->vendorcontacts = [];
+        $data->vendor_contacts = [];
         $this->createEntity('vendor', $data);
         $this->listEntities('vendor');
 
