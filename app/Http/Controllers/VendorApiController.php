@@ -49,7 +49,6 @@ class VendorApiController extends BaseAPIController
     public function index()
     {
         $vendors = Vendor::scope()
-                    ->with($this->getIncluded())
                     ->withTrashed()
                     ->orderBy('created_at', 'desc');
 

@@ -44,7 +44,6 @@ class ClientApiController extends BaseAPIController
     public function index()
     {
         $clients = Client::scope()
-            ->with($this->getIncluded())
             ->orderBy('created_at', 'desc')
             ->withTrashed();
 

@@ -49,7 +49,7 @@ class PaymentApiController extends BaseAPIController
     {
         $payments = Payment::scope()
                         ->withTrashed()
-                        ->with(array_merge(['client.contacts', 'invitation', 'user', 'invoice'], $this->getIncluded()))                        
+                        ->with(['client.contacts', 'invitation', 'user', 'invoice'])                        
                         ->orderBy('created_at', 'desc');
 
         return $this->listResponse($payments);

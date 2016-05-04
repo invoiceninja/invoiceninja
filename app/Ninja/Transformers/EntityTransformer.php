@@ -37,4 +37,9 @@ class EntityTransformer extends TransformerAbstract
     {
         return $date ? $date->getTimestamp() : null;
     }
+    
+    public function getDefaultIncludes()
+    {
+        return $this->defaultIncludes;
+    }
 }
