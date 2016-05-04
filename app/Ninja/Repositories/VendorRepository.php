@@ -16,7 +16,7 @@ class VendorRepository extends BaseRepository
     public function all()
     {
         return Vendor::scope()
-                ->with('user', 'vendorcontacts', 'country')
+                ->with('user', 'vendor_contacts', 'country')
                 ->withTrashed()
                 ->where('is_deleted', '=', false)
                 ->get();
@@ -71,7 +71,7 @@ class VendorRepository extends BaseRepository
         } elseif (!$publicId || $publicId == '-1') {
             $vendor = Vendor::createNew();
         } else {
-            $vendor = Vendor::scope($publicId)->with('vendorcontacts')->firstOrFail();
+            $vendor = Vendor::scope($publicId)->with('vendor_contacts')->firstOrFail();
             \Log::warning('Entity not set in vendor repo save');
         }
 
@@ -79,7 +79,7 @@ class VendorRepository extends BaseRepository
         $vendor->save();
 
         $first              = true;
-        $vendorcontacts     = isset($data['vendorcontact']) ? [$data['vendorcontact']] : $data['vendorcontacts'];
+        $vendorcontacts     = isset($data['vendor_contact']) ? [$data['vendor_contact']] : $data['vendor_contacts'];
 
         foreach ($vendorcontacts as $vendorcontact) {
             $vendorcontact      = $vendor->addVendorContact($vendorcontact, $first);

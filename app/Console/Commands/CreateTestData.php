@@ -126,7 +126,7 @@ class CreateTestData extends Command
                 'city' => $this->faker->city,
                 'state' => $this->faker->state,
                 'postal_code' => $this->faker->postcode,
-                'vendorcontacts' => [[
+                'vendor_contacts' => [[
                     'first_name' => $this->faker->firstName,
                     'last_name' => $this->faker->lastName,
                     'email' => $this->faker->safeEmail, 

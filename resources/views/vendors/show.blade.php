@@ -109,7 +109,7 @@
 
 		<div class="col-md-3">
 			<h3>{{ trans('texts.contacts') }}</h3>
-		  	@foreach ($vendor->vendorcontacts as $contact)
+		  	@foreach ($vendor->vendor_contacts as $contact)
                 @if ($contact->first_name || $contact->last_name)
                     <b>{{ $contact->first_name.' '.$contact->last_name }}</b><br/>
                 @endif

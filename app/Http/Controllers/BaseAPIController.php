@@ -204,7 +204,7 @@ class BaseAPIController extends Controller
             } elseif ($include == 'clients') {
                 $data[] = 'clients.contacts';
             } elseif ($include == 'vendors') {
-                $data[] = 'vendors.vendorcontacts';
+                $data[] = 'vendors.vendor_contacts';
             } elseif ($include) {
                 $data[] = $include;
             }

@@ -74,7 +74,7 @@ class ExpenseController extends BaseController
     public function create(ExpenseRequest $request)
     {
         if ($request->vendor_id != 0) {
-            $vendor = Vendor::scope($request->vendor_id)->with('vendorcontacts')->firstOrFail();
+            $vendor = Vendor::scope($request->vendor_id)->with('vendor_contacts')->firstOrFail();
         } else {
             $vendor = null;
         }
@@ -85,7 +85,7 @@ class ExpenseController extends BaseController
             'method' => 'POST',
             'url' => 'expenses',
             'title' => trans('texts.new_expense'),
-            'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
+            'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
             'vendor' => $vendor,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $request->client_id,
@@ -124,7 +124,7 @@ class ExpenseController extends BaseController
             'url' => 'expenses/'.$expense->public_id,
             'title' => 'Edit Expense',
             'actions' => $actions,
-            'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
+            'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
             'vendorPublicId' => $expense->vendor ? $expense->vendor->public_id : null,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $expense->client ? $expense->client->public_id : null,
