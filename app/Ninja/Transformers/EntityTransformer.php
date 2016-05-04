@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Transformers;
 
+use Auth;
 use App\Models\Account;
 use App\Models\Client;
 use League\Fractal\TransformerAbstract;
@@ -41,5 +42,19 @@ class EntityTransformer extends TransformerAbstract
     public function getDefaultIncludes()
     {
         return $this->defaultIncludes;
+    }
+    
+    protected function getDefaults($entity)
+    {
+        $data = [
+            'account_key' => $this->account->account_key,
+            'is_owner' => (bool) Auth::user()->owns($entity),
+        ];
+        
+        if ($entity->relationLoaded('user')) {
+            $data['user_id'] = (int) $entity->user->public_id + 1;
+        }
+        
+        return $data;
     }
 }

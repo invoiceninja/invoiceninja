@@ -51,6 +51,11 @@ class Utils
         return php_sapi_name() == 'cli';
     }
 
+    public static function isTravis()
+    {
+        return env('TRAVIS') == 'true';
+    }
+
     public static function isNinja()
     {
         return self::isNinjaProd() || self::isNinjaDev();

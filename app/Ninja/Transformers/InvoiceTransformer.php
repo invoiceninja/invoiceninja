@@ -28,7 +28,7 @@ class InvoiceTransformer extends EntityTransformer
         'invitations',
         'payments',
         'client',
-        'expenses',
+        //'expenses',
     ];
 
     public function __construct($account = null, $serializer = null, $client = null)
@@ -71,7 +71,7 @@ class InvoiceTransformer extends EntityTransformer
 
     public function transform(Invoice $invoice)
     {
-        return [
+        return array_merge($this->getDefaults($invoice), [
             'id' => (int) $invoice->public_id,
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
@@ -105,8 +105,6 @@ class InvoiceTransformer extends EntityTransformer
             'partial' => (float) $invoice->partial,
             'has_tasks' => (bool) $invoice->has_tasks,
             'auto_bill' => (bool) $invoice->auto_bill,
-            'account_key' => $this->account->account_key,
-            'user_id' => (int) $invoice->user->public_id + 1,
             'custom_value1' => (float) $invoice->custom_value1,
             'custom_value2' => (float) $invoice->custom_value2,
             'custom_taxes1' => (bool) $invoice->custom_taxes1,
@@ -115,6 +113,6 @@ class InvoiceTransformer extends EntityTransformer
             'quote_invoice_id' => (int) $invoice->quote_invoice_id,
             'custom_text_value1' => $invoice->custom_text_value1,
             'custom_text_value2' => $invoice->custom_text_value2,
-        ];
+        ]);
     }
 }

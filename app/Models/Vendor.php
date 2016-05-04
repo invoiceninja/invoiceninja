@@ -95,7 +95,7 @@ class Vendor extends EntityModel
         return $this->hasMany('App\Models\Payment');
     }
 
-    public function vendorContacts()
+    public function vendor_contacts()
     {
         return $this->hasMany('App\Models\VendorContact');
     }
@@ -143,7 +143,7 @@ class Vendor extends EntityModel
         $contact->fill($data);
         $contact->is_primary = $isPrimary;
 
-        return $this->vendorContacts()->save($contact);
+        return $this->vendor_contacts()->save($contact);
     }
 
     public function getRoute()

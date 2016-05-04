@@ -143,20 +143,13 @@ class ClientApiController extends BaseAPIController
      * )
      */
 
-    public function destroy($publicId)
+    public function destroy(UpdateClientRequest $request)
     {
-        $client = Client::scope($publicId)->withTrashed()->first();
+        $client = $request->entity();
+        
         $this->clientRepo->delete($client);
 
-        $client = Client::scope($publicId)
-            ->with('country', 'contacts', 'industry', 'size', 'currency')
-            ->withTrashed()
-            ->first();
-
-        $transformer = new ClientTransformer(Auth::user()->account, Input::get('serializer'));
-        $data = $this->createItem($client, $transformer, ENTITY_CLIENT);
-
-        return $this->response($data);
+        return $this->itemResponse($client);
     }
-
+    
 }

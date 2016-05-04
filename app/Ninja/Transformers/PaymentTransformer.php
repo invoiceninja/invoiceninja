@@ -47,11 +47,9 @@ class PaymentTransformer extends EntityTransformer
 
     public function transform(Payment $payment)
     {
-        return [
+        return array_merge($this->getDefaults($payment), [
             'id' => (int) $payment->public_id,
             'amount' => (float) $payment->amount,
-            'account_key' => $this->account->account_key,
-            'user_id' => (int) $payment->user->public_id + 1,
             'transaction_reference' => $payment->transaction_reference,
             'payment_date' => $payment->payment_date,
             'updated_at' => $this->getTimestamp($payment->updated_at),
@@ -59,6 +57,6 @@ class PaymentTransformer extends EntityTransformer
             'is_deleted' => (bool) $payment->is_deleted,
             'payment_type_id' => (int) $payment->payment_type_id,
             'invoice_id' => (int) ($this->invoice ? $this->invoice->public_id : $payment->invoice->public_id),
-        ];
+        ]);
     }
 }

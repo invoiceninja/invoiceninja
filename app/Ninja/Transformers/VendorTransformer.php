@@ -35,16 +35,19 @@ class VendorTransformer extends EntityTransformer
     * @SWG\Property(property="id_number", type="string", example="123456")
     */
 
+    protected $defaultIncludes = [
+        'vendor_contacts',
+    ];
+    
     protected $availableIncludes = [
-        'vendorContacts',
         'invoices',
-        'expenses',
+        //'expenses',
     ];
     
     public function includeVendorContacts(Vendor $vendor)
     {
         $transformer = new VendorContactTransformer($this->account, $this->serializer);
-        return $this->includeCollection($vendor->vendorContacts, $transformer, ENTITY_CONTACT);
+        return $this->includeCollection($vendor->vendor_contacts, $transformer, ENTITY_CONTACT);
     }
 
     public function includeInvoices(Vendor $vendor)
@@ -61,13 +64,11 @@ class VendorTransformer extends EntityTransformer
 
     public function transform(Vendor $vendor)
     {
-        return [
+        return array_merge($this->getDefaults($vendor), [
             'id' => (int) $vendor->public_id,
             'name' => $vendor->name,
             'balance' => (float) $vendor->balance,
             'paid_to_date' => (float) $vendor->paid_to_date,
-            'user_id' => (int) $vendor->user->public_id + 1,
-            'account_key' => $this->account->account_key,
             'updated_at' => $this->getTimestamp($vendor->updated_at),
             'archived_at' => $this->getTimestamp($vendor->deleted_at),
             'address1' => $vendor->address1,
@@ -84,6 +85,6 @@ class VendorTransformer extends EntityTransformer
             'vat_number' => $vendor->vat_number,
             'id_number' => $vendor->id_number,
             'currency_id' => (int) $vendor->currency_id
-        ];
+        ]);
     }
 }
