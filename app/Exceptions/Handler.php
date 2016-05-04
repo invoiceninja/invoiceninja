@@ -39,7 +39,7 @@ class Handler extends ExceptionHandler {
             return false;
         }
         
-        if (Utils::isNinja()) {
+        if (Utils::isNinja() && ! Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
             return false;
         } else {
