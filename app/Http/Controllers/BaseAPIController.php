@@ -93,17 +93,19 @@ class BaseAPIController extends Controller
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
 
-        if ($updatedAt = Input::get('updated_at')) {
-            $query->where('updated_at', '>=', $updatedAt);
-        }
+        $query->with($includes);
         
-        foreach ($includes as $include) {
-            $query->with([$include => function($query) use ($updatedAt) {
-                if ($updatedAt) {
-                    $query->where('updated_at', '>=', $updatedAt);
+        if ($updatedAt = Input::get('updated_at')) {
+            $updatedAt = date('Y-m-d H:i:s', $updatedAt);
+            $query->where(function($query) use ($includes, $updatedAt) {
+                $query->where('updated_at', '>=', $updatedAt);
+                foreach ($includes as $include) {
+                    $query->orWhereHas($include, function($query) use ($updatedAt) {
+                        $query->where('updated_at', '>=', $updatedAt);
+                    });
                 }
-            }]);
-        }        
+            });
+        }
         
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {
@@ -167,7 +169,7 @@ class BaseAPIController extends Controller
         if (Utils::isNinjaDev()) {
             $count = count(\DB::getQueryLog());
             Log::info(Request::method() . ' - ' . Request::url() . ": $count queries");
-            //Log::info(json_encode(\DB::getQueryLog()));
+            Log::info(json_encode(\DB::getQueryLog()));
         }
         
         $index = Request::get('index') ?: 'data';
