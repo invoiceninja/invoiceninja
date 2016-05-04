@@ -47,7 +47,7 @@ class ClientTransformer extends EntityTransformer
     protected $availableIncludes = [
         'invoices',
         'credits',
-        'expenses',
+        //'expenses',
     ];
     
     public function includeContacts(Client $client)

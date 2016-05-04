@@ -28,7 +28,7 @@ class InvoiceTransformer extends EntityTransformer
         'invitations',
         'payments',
         'client',
-        'expenses',
+        //'expenses',
     ];
 
     public function __construct($account = null, $serializer = null, $client = null)

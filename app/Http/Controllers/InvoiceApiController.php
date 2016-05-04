@@ -60,7 +60,7 @@ class InvoiceApiController extends BaseAPIController
     {
         $invoices = Invoice::scope()
                         ->withTrashed()
-                        ->with('invoice_items')
+                        ->with('invoice_items', 'client')
                         ->orderBy('created_at', 'desc');
 
         return $this->listResponse($invoices);

@@ -35,10 +35,13 @@ class VendorTransformer extends EntityTransformer
     * @SWG\Property(property="id_number", type="string", example="123456")
     */
 
-    protected $availableIncludes = [
+    protected $defaultIncludes = [
         'vendorContacts',
+    ];
+    
+    protected $availableIncludes = [
         'invoices',
-        'expenses',
+        //'expenses',
     ];
     
     public function includeVendorContacts(Vendor $vendor)
