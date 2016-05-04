@@ -90,10 +90,21 @@ class BaseAPIController extends Controller
         $transformerClass = EntityModel::getTransformerName($this->entityType);
         $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
 
-        $include = $transformer->getDefaultIncludes();
-        $include = $this->getRequestIncludes($include);
-        $query->with($include);
-            
+        $includes = $transformer->getDefaultIncludes();
+        $includes = $this->getRequestIncludes($includes);
+
+        if ($updatedAt = Input::get('updated_at')) {
+            $query->where('updated_at', '>=', $updatedAt);
+        }
+        
+        foreach ($includes as $include) {
+            $query->with([$include => function($query) use ($updatedAt) {
+                if ($updatedAt) {
+                    $query->where('updated_at', '>=', $updatedAt);
+                }
+            }]);
+        }        
+        
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
@@ -156,7 +167,7 @@ class BaseAPIController extends Controller
         if (Utils::isNinjaDev()) {
             $count = count(\DB::getQueryLog());
             Log::info(Request::method() . ' - ' . Request::url() . ": $count queries");
-            //Log::info(print_r(\DB::getQueryLog(), true));
+            //Log::info(json_encode(\DB::getQueryLog()));
         }
         
         $index = Request::get('index') ?: 'data';
