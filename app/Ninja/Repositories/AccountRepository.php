@@ -184,12 +184,15 @@ class AccountRepository
             ];
         }
 
-        $features[] = ['dashboard', '/dashboard'];
-        $features[] = ['customize_design', '/settings/customize_design'];
-        $features[] = ['new_tax_rate', '/tax_rates/create'];
-        $features[] = ['new_product', '/products/create'];
-        $features[] = ['new_user', '/users/create'];
-        $features[] = ['custom_fields', '/settings/invoice_settings'];	
+        $features = array_merge($features, [
+            ['dashboard', '/dashboard'],
+            ['customize_design', '/settings/customize_design'],
+            ['new_tax_rate', '/tax_rates/create'],
+            ['new_product', '/products/create'],
+            ['new_user', '/users/create'],
+            ['custom_fields', '/settings/invoice_settings'],
+            ['invoice_number', '/settings/invoice_settings'],
+        ]);
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
 
