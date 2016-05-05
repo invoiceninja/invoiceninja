@@ -1318,7 +1318,7 @@ class AccountController extends BaseController
         ];
         
         // create the email view 
-        $view = 'emails.' . $account->getTemplateView() . '_html';
+        $view = 'emails.' . $account->getTemplateView(ENTITY_INVOICE) . '_html';
         $data = array_merge($data, [
             'body' => $templateService->processVariables($template, $data),
             'entityType' => ENTITY_INVOICE,
