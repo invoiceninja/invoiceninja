@@ -228,6 +228,12 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasMany('App\Models\Expense','invoice_id','id')->withTrashed();
     }
 
+    public function scopeInvoices($query)
+    {
+        return $query->where('is_quote', '=', false)
+                     ->where('is_recurring', '=', false);
+    }
+
     public function markInvitationsSent($notify = false)
     {
         foreach ($this->invitations as $invitation) {

@@ -12,7 +12,7 @@
     </tr>
     <tr>
         <td style="border-collapse: collapse;">
-            <table cellpadding="10" cellspacing="0" border="0" bgcolor="{{ $account->primary_color ?: '#2E2B2B' }}" width="580" align="center" class="header" 
+            <table cellpadding="10" cellspacing="0" border="0" bgcolor="{{ $account->primary_color ?: '#2E2B2B' }}" width="600" align="center" class="header" 
                 style="border-bottom-width: 6px; border-bottom-color: {{ $account->primary_color ?: '#2E2B2B' }}; border-bottom-style: solid;">
                 <tr>
                     <td class="logo" width="205" style="border-collapse: collapse; vertical-align: middle; line-height: 16px;" valign="middle">

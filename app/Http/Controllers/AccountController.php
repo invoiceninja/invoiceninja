@@ -1305,7 +1305,15 @@ class AccountController extends BaseController
     public function previewEmail(\App\Services\TemplateService $templateService)
     {
         $template = Input::get('template');
-        $invoice = Invoice::scope()->first();
+        $invoice = Invoice::scope()
+                    ->invoices()
+                    ->withTrashed()
+                    ->first();
+        
+        if ( ! $invoice) {
+            return trans('texts.create_invoice_for_sample');
+        }
+        
         $account = Auth::user()->account;
         
         // replace the variables with sample data
