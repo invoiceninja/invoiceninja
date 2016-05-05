@@ -5,6 +5,7 @@ use App\Models\Account;
 use App\Models\Company;
 use App\Models\Affiliate;
 use App\Models\Country;
+use App\Models\InvoiceDesign;
 use Faker\Factory;
 
 class UserTableSeeder extends Seeder
@@ -31,7 +32,7 @@ class UserTableSeeder extends Seeder
             'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),
             'work_phone' => $faker->phoneNumber,
             'work_email' => $faker->safeEmail,
-            'invoice_design_id' => $faker->numberBetween(1, 10),
+            'invoice_design_id' => min(InvoiceDesign::all()->random()->id, 10),
             'primary_color' => $faker->hexcolor,
             'timezone_id' => 1,
             'company_id' => $company->id,
