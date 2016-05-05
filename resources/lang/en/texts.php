@@ -992,7 +992,7 @@ $LANG = array(
     'overdue' => 'Overdue',
 
 
-    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and emails.',
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
     'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/settings/notifications',
     'reset_password_footer' => 'If you did not request this password reset please email our support: '.CONTACT_EMAIL,
     'limit_users' => 'Sorry, this will exceed the limit of '.MAX_NUM_USERS.' users',
