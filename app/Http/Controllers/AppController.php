@@ -266,18 +266,7 @@ class AppController extends BaseController
                 Cache::flush();
                 Session::flush();
                 Artisan::call('migrate', array('--force' => true));
-                foreach ([
-                    'PaymentLibraries',
-                    'Fonts',
-                    'Banks',
-                    'InvoiceStatus',
-                    'Currencies',
-                    'DateFormats',
-                    'InvoiceDesigns',
-                    'PaymentTerms',
-                ] as $seeder) {
-                    Artisan::call('db:seed', array('--force' => true, '--class' => "{$seeder}Seeder"));
-                }
+                Artisan::call('db:seed', array('--force' => true, '--class' => "UpdateSeeder"));
                 Event::fire(new UserSettingsChanged());
                 Session::flash('message', trans('texts.processed_updates'));
             } catch (Exception $e) {
