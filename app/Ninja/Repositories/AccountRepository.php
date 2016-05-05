@@ -340,7 +340,7 @@ class AccountRepository
             $client->public_id = $account->id;
             $client->user_id = $ninjaAccount->users()->first()->id;
             $client->currency_id = 1;
-            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id'] as $field) {
+            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
                 $client->$field = $account->$field;
             }
             $ninjaAccount->clients()->save($client);
