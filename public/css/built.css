@@ -2539,6 +2539,10 @@ ul.dropdown-menu,
     box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
 }
 
+.twitter-typeahead .tt-menu {
+    overflow-x: hidden;
+}
+
 .panel-default,
 canvas {
     border: 1px solid;
