@@ -31196,7 +31196,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
             field = toSnakeCase(field);
             var value = getDescendantProp(invoice, field);
             if (match.indexOf('?') < 0 || value) {
-                if (invoice.partial && field == 'balance_due') {
+                if (invoice.partial > 0 && field == 'balance_due') {
                     field = 'partial_due';
                 } else if (invoice.is_quote) {
                     field = field.replace('invoice', 'quote');

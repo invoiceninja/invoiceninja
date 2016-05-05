@@ -4,6 +4,8 @@ use App\Models\User;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Affiliate;
+use App\Models\Country;
+use Faker\Factory;
 
 class UserTableSeeder extends Seeder
 {
@@ -14,11 +16,23 @@ class UserTableSeeder extends Seeder
 
         Eloquent::unguard();
 
+        $faker = Faker\Factory::create();
         $company = Company::create();
         
         $account = Account::create([
-            //'name' => 'Test Account',
+            'name' => $faker->name,
+            'address1' => $faker->streetAddress,
+            'address2' => $faker->secondaryAddress,
+            'city' => $faker->city,
+            'state' => $faker->state,
+            'postal_code' => $faker->postcode,
+            'country_id' => Country::all()->random()->id, 
             'account_key' => str_random(RANDOM_KEY_LENGTH),
+            'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),
+            'work_phone' => $faker->phoneNumber,
+            'work_email' => $faker->safeEmail,
+            'invoice_design_id' => $faker->numberBetween(1, 10),
+            'primary_color' => $faker->hexcolor,
             'timezone_id' => 1,
             'company_id' => $company->id,
         ]);
@@ -30,6 +44,8 @@ class UserTableSeeder extends Seeder
             'password' => Hash::make(TEST_PASSWORD),
             'registered' => true,
             'confirmed' => true,
+            'notify_sent' => false,
+            'notify_paid' => false,
         ]);
 
         Affiliate::create([
