@@ -167,6 +167,7 @@ class AccountRepository
             ENTITY_QUOTE,
             ENTITY_TASK,
             ENTITY_EXPENSE,
+            ENTITY_VENDOR,
             ENTITY_RECURRING_INVOICE,
             ENTITY_PAYMENT,
             ENTITY_CREDIT
@@ -191,6 +192,10 @@ class AccountRepository
         $features[] = ['custom_fields', '/settings/invoice_settings'];	
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
+
+        if ( ! Utils::isNinjaProd()) {
+            $settings[] = ACCOUNT_SYSTEM_SETTINGS;
+        }
 
         foreach ($settings as $setting) {
             $features[] = [
