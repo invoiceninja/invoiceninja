@@ -341,6 +341,7 @@ class Utils
         $currency = self::getFromCache($currencyId, 'currencies');
         $thousand = $currency->thousand_separator;
         $decimal = $currency->decimal_separator;
+        $precision = $currency->precision;
         $code = $currency->code;
         $swapSymbol = false;
 
@@ -355,7 +356,7 @@ class Utils
             }
         }
 
-        $value = number_format($value, $currency->precision, $decimal, $thousand);
+        $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
         if ($showCode || !$symbol) {
