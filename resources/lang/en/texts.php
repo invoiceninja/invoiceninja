@@ -1176,6 +1176,7 @@ $LANG = array(
     'page_size' => 'Page Size',
     'live_preview_disabled' => 'Live preview has been disabled to support selected font',
     'invoice_number_padding' => 'Padding',
+    'preview' => 'Preview',
 
 );
 

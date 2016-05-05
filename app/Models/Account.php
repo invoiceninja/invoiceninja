@@ -1169,6 +1169,11 @@ class Account extends Eloquent
         return str_replace('/>', ' />', $template);
     }
 
+    public function getTemplateView($view = '')
+    {
+        return $this->getEmailDesignId() == EMAIL_DESIGN_PLAIN ? $view : 'design' . $this->getEmailDesignId();
+    }
+
     public function getEmailFooter()
     {
         if ($this->email_footer) {
