@@ -31584,7 +31584,7 @@ NINJA.invoiceDetails = function(invoice) {
     ],
     [
         {text: (invoice.is_quote ? invoiceLabels.valid_until : invoiceLabels.due_date)}, 
-        {text: invoice.due_date}
+        {text: invoice.is_recurring ? false : invoice.due_date}
     ]
     ];
 
