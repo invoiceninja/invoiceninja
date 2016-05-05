@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Font;
 use App\Models\Account;
 use App\Models\Company;
 use App\Models\Affiliate;
@@ -33,6 +34,8 @@ class UserTableSeeder extends Seeder
             'work_phone' => $faker->phoneNumber,
             'work_email' => $faker->safeEmail,
             'invoice_design_id' => min(InvoiceDesign::all()->random()->id, 10),
+            'header_font_id' => Font::all()->random()->id,
+            'body_font_id' => Font::all()->random()->id,
             'primary_color' => $faker->hexcolor,
             'timezone_id' => 1,
             'company_id' => $company->id,
