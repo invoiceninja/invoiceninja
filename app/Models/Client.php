@@ -256,13 +256,17 @@ class Client extends EntityModel
 
     public function getGatewayToken()
     {
-        $this->account->load('account_gateways');
+        $account = $this->account;
+        
+        if ( ! $account->relationLoaded('account_gateways')) {
+            $account->load('account_gateways');
+        }
 
-        if (!count($this->account->account_gateways)) {
+        if (!count($account->account_gateways)) {
             return false;
         }
 
-        $accountGateway = $this->account->getGatewayConfig(GATEWAY_STRIPE);
+        $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
         
         if (!$accountGateway) {
             return false;

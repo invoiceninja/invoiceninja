@@ -9,7 +9,7 @@ class ClientRequest extends EntityRequest {
         $client = parent::entity();
         
         // eager load the contacts
-        if ($client && ! count($client->contacts)) {
+        if ($client && ! $client->relationLoaded('contacts')) {
             $client->load('contacts');
         }
          

@@ -212,7 +212,9 @@ class Account extends Eloquent
 
     public function isGatewayConfigured($gatewayId = 0)
     {
-        $this->load('account_gateways');
+        if ( ! $this->relationLoaded('account_gateways')) {
+            $this->load('account_gateways');
+        }
 
         if ($gatewayId) {
             return $this->getGatewayConfig($gatewayId) != false;
@@ -241,7 +243,7 @@ class Account extends Eloquent
             return $this->name;
         }
 
-        $this->load('users');
+        //$this->load('users');
         $user = $this->users()->first();
 
         return $user->getDisplayName();

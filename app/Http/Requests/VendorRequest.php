@@ -9,7 +9,7 @@ class VendorRequest extends EntityRequest {
         $vendor = parent::entity();
         
         // eager load the contacts
-        if ($vendor && ! count($vendor->vendor_contacts)) {
+        if ($vendor && ! $vendor->relationLoaded('vendor_contacts')) {
             $vendor->load('vendor_contacts');
         }
          
