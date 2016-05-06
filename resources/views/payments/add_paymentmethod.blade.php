@@ -235,7 +235,7 @@
 
 
     @if($paymentType == PAYMENT_TYPE_STRIPE_ACH)
-        {!! Former::vertical_open($url)
+        {!! Former::open($url)
             ->autocomplete('on')
             ->addClass('payment-form')
             ->id('payment-form')
@@ -303,13 +303,15 @@
                 <div class="row">
                     <div class="col-md-7">
                         <header>
-                            @if ($client)
+                            @if ($client && isset($invoiceNumber))
                                 <h2>{{ $client->getDisplayName() }}</h2>
-                                @if(isset($invoiceNumber))
                                 <h3>{{ trans('texts.invoice') . ' ' . $invoiceNumber }}<span>|&nbsp; {{ trans('texts.amount_due') }}: <em>{{ $account->formatMoney($amount, $client, true) }}</em></span></h3>
-                                @endif
                             @elseif ($paymentTitle)
-                                <h2>{{ $paymentTitle }}<br/><small>{{ $paymentSubtitle }}</small></h2>
+                                <h2>{{ $paymentTitle }}
+                                    @if(isset($paymentSubtitle))
+                                    <br/><small>{{ $paymentSubtitle }}</small>
+                                    @endif
+                                </h2>
                             @endif
                         </header>
                     </div>
@@ -324,90 +326,87 @@
                 </div>
 
                 <p>&nbsp;<br/>&nbsp;</p>
-
                 <div>
-                    <h3>{{ trans('texts.contact_information') }}</h3>
-                    <div class="row">
-                        <div class="col-md-6">
-                            {!! Former::text('first_name')
-                                    ->placeholder(trans('texts.first_name'))
-                                    ->autocomplete('given-name')
-                                    ->label('') !!}
-                        </div>
-                        <div class="col-md-6">
-                            {!! Former::text('last_name')
-                                    ->placeholder(trans('texts.last_name'))
-                                    ->autocomplete('family-name')
-                                    ->label('') !!}
-                        </div>
-                    </div>
-                    @if (isset($paymentTitle))
+                    @if($paymentType != PAYMENT_TYPE_STRIPE_ACH)
+                        <h3>{{ trans('texts.contact_information') }}</h3>
                         <div class="row">
-                            <div class="col-md-12">
-                                {!! Former::text('email')
-                                        ->placeholder(trans('texts.email'))
-                                        ->autocomplete('email')
+                            <div class="col-md-6">
+                                {!! Former::text('first_name')
+                                        ->placeholder(trans('texts.first_name'))
+                                        ->autocomplete('given-name')
+                                        ->label('') !!}
+                            </div>
+                            <div class="col-md-6">
+                                {!! Former::text('last_name')
+                                        ->placeholder(trans('texts.last_name'))
+                                        ->autocomplete('family-name')
                                         ->label('') !!}
                             </div>
                         </div>
+                        @if (isset($paymentTitle))
+                            <div class="row">
+                                <div class="col-md-12">
+                                    {!! Former::text('email')
+                                            ->placeholder(trans('texts.email'))
+                                            ->autocomplete('email')
+                                            ->label('') !!}
+                                </div>
+                            </div>
+                        @endif
+
+                        <p>&nbsp;<br/>&nbsp;</p>
+
+                        @if ($showAddress)
+                            <h3>{{ trans('texts.billing_address') }}&nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {!! Former::text('address1')
+                                        ->autocomplete('address-line1')
+                                        ->placeholder(trans('texts.address1'))
+                                        ->label('') !!}
+                            </div>
+                            <div class="col-md-6">
+                                {!! Former::text('address2')
+                                        ->autocomplete('address-line2')
+                                        ->placeholder(trans('texts.address2'))
+                                        ->label('') !!}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {!! Former::text('city')
+                                        ->autocomplete('address-level2')
+                                        ->placeholder(trans('texts.city'))
+                                        ->label('') !!}
+                            </div>
+                            <div class="col-md-6">
+                                {!! Former::text('state')
+                                        ->autocomplete('address-level1')
+                                        ->placeholder(trans('texts.state'))
+                                        ->label('') !!}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                {!! Former::text('postal_code')
+                                        ->autocomplete('postal-code')
+                                        ->placeholder(trans('texts.postal_code'))
+                                        ->label('') !!}
+                            </div>
+                            <div class="col-md-6">
+                                {!! Former::select('country_id')
+                                        ->placeholder(trans('texts.country_id'))
+                                        ->fromQuery($countries, 'name', 'id')
+                                        ->addGroupClass('country-select')
+                                        ->label('') !!}
+                            </div>
+                        </div>
+
+                        <p>&nbsp;<br/>&nbsp;</p>
+                        @endif
+
+                        <h3>{{ trans('texts.billing_method') }}</h3>
                     @endif
-
-                    <p>&nbsp;<br/>&nbsp;</p>
-
-                    @if ($showAddress)
-                        <h3>{{ trans('texts.billing_address') }}
-                            @if($paymentType != PAYMENT_TYPE_STRIPE_ACH)
-                                &nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
-                    @endif
-                    <div class="row">
-                        <div class="col-md-6">
-                            {!! Former::text('address1')
-                                    ->autocomplete('address-line1')
-                                    ->placeholder(trans('texts.address1'))
-                                    ->label('') !!}
-                        </div>
-                        <div class="col-md-6">
-                            {!! Former::text('address2')
-                                    ->autocomplete('address-line2')
-                                    ->placeholder(trans('texts.address2'))
-                                    ->label('') !!}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            {!! Former::text('city')
-                                    ->autocomplete('address-level2')
-                                    ->placeholder(trans('texts.city'))
-                                    ->label('') !!}
-                        </div>
-                        <div class="col-md-6">
-                            {!! Former::text('state')
-                                    ->autocomplete('address-level1')
-                                    ->placeholder(trans('texts.state'))
-                                    ->label('') !!}
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            {!! Former::text('postal_code')
-                                    ->autocomplete('postal-code')
-                                    ->placeholder(trans('texts.postal_code'))
-                                    ->label('') !!}
-                        </div>
-                        <div class="col-md-6">
-                            {!! Former::select('country_id')
-                                    ->placeholder(trans('texts.country_id'))
-                                    ->fromQuery($countries, 'name', 'id')
-                                    ->addGroupClass('country-select')
-                                    ->label('') !!}
-                        </div>
-                    </div>
-
-                    <p>&nbsp;<br/>&nbsp;</p>
-                    @endif
-
-                    <h3>{{ trans('texts.billing_method') }}</h3>
-
 
 
                     @if($paymentType == PAYMENT_TYPE_STRIPE_ACH)
@@ -430,61 +429,34 @@
                             <h4>{{ trans('texts.link_manually') }}</h4>
                             @endif
                             <p>{{ trans('texts.ach_verification_delay_help') }}</p>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="radio">
-                                        {!! Former::radios('account_holder_type')->radios(array(
-                                            trans('texts.individual_account') => array('value' => 'individual'),
-                                            trans('texts.company_account') => array('value' => 'company'),
-                                        ))->inline()->label('');  !!}
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    {!! Former::text('account_holder_name')
-                                           ->placeholder(trans('texts.account_holder_name'))
-                                           ->label('') !!}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
+                            {!! Former::radios('account_holder_type')->radios(array(
+                                    trans('texts.individual_account') => array('value' => 'individual'),
+                                    trans('texts.company_account') => array('value' => 'company'),
+                                ))->inline()->label(trans('texts.account_holder_type'));  !!}
+                            {!! Former::text('account_holder_name')
+                                   ->label(trans('texts.account_holder_name')) !!}
                                     {!! Former::select('country')
-                                            ->placeholder(trans('texts.country_id'))
+                                            ->label(trans('texts.country_id'))
                                             ->fromQuery($countries, 'name', 'iso_3166_2')
-                                            ->addGroupClass('country-select')
-                                            ->label('') !!}
-                                </div>
-                                <div class="col-md-6">
+                                            ->addGroupClass('country-select') !!}
                                     {!! Former::select('currency')
-                                            ->placeholder(trans('texts.currency_id'))
+                                            ->label(trans('texts.currency_id'))
                                             ->fromQuery($currencies, 'name', 'code')
-                                            ->addGroupClass('currency-select')
-                                            ->label('') !!}
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
+                                            ->addGroupClass('currency-select') !!}
                                     {!! Former::text('')
                                             ->id('routing_number')
-                                            ->placeholder(trans('texts.routing_number'))
-                                            ->label('') !!}
-                                </div>
-                                <div class="col-md-6">
-                                    <div id="bank_name"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
+                                            ->label(trans('texts.routing_number')) !!}
+                                    <div class="form-group" style="margin-top:-15px">
+                                        <div class="col-md-8 col-md-offset-4">
+                                            <div id="bank_name"></div>
+                                        </div>
+                                    </div>
                                     {!! Former::text('')
                                             ->id('account_number')
-                                            ->placeholder(trans('texts.account_number'))
-                                            ->label('') !!}
-                                </div>
-                                <div class="col-md-6">
+                                            ->label(trans('texts.account_number')) !!}
                                     {!! Former::text('')
                                             ->id('confirm_account_number')
-                                            ->placeholder(trans('texts.confirm_account_number'))
-                                            ->label('') !!}
-                                </div>
+                                            ->label(trans('texts.confirm_account_number')) !!}
                             </div>
                         </div>
                         <center>
@@ -653,7 +625,7 @@
                     $.ajax({
                         url:"{{ URL::to('/bank') }}/" + routingNumber,
                         success:function(data) {
-                            var els = $().add(document.createTextNode(data.name)).add('<br>').add(document.createTextNode(data.city + ", " + data.state));
+                            var els = $().add(document.createTextNode(data.name + ", " + data.city + ", " + data.state));
                             routingNumberCache[routingNumber] = els;
 
                             // Still the same number?

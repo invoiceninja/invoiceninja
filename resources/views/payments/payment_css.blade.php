@@ -210,4 +210,8 @@ header h3 em {
     font-size:150%;
 }
 
+#bank_name {
+    margin:5px 0 -5px;
+}
+
 </style>

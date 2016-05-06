@@ -764,6 +764,7 @@ class PublicClientController extends BaseController
             'url' => URL::to('client/paymentmethods/add/'.$typeLink),
             'clientFontUrl' => $account->getFontsUrl(),
             'showAddress' => $accountGateway->show_address,
+            'paymentTitle' => trans('texts.add_payment_method'),
         ];
 
         if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {

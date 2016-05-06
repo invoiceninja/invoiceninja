@@ -1262,7 +1262,9 @@ $LANG = array(
     'link_with_plaid' => 'Link Account Instantly with Plaid',
     'link_manually' => 'Link Manually',
     'secured_by_plaid' => 'Secured by Plaid',
-    'plaid_linked_status' => 'Your bank account at :bank'
+    'plaid_linked_status' => 'Your bank account at :bank',
+    'add_payment_method' => 'Add Payment Method',
+    'account_holder_type' => 'Account Holder Type',
 );
 
 return $LANG;
