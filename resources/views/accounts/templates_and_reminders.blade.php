@@ -25,11 +25,16 @@
 
 
     {!! Former::vertical_open()->addClass('warn-on-exit') !!}
-    {!! Former::populate($account) !!}
 
     @foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type)
         @foreach (['subject', 'template'] as $field)
-            {!! Former::populateField("email_{$field}_{$type}", $templates[$type][$field]) !!}
+            {{ Former::populateField("email_{$field}_{$type}", $templates[$type][$field]) }}
+        @endforeach
+    @endforeach
+
+    @foreach ([REMINDER1, REMINDER2, REMINDER3] as $type)
+        @foreach (['enable', 'num_days', 'direction', 'field'] as $field)
+            {{ Former::populateField("{$field}_{$type}", $account->{"{$field}_{$type}"}) }}
         @endforeach
     @endforeach
 
