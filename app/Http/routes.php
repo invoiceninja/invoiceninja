@@ -208,6 +208,7 @@ Route::group([
     Route::resource('tax_rates', 'TaxRateController');
     Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
+    Route::get('settings/email_preview', 'AccountController@previewEmail');
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
     Route::get('settings/charts_and_reports', 'ReportController@showReports');

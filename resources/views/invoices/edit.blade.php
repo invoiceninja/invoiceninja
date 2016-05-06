@@ -73,7 +73,12 @@
 				<div class="form-group">
 					<label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.client') }}</label>
 					<div class="col-lg-8 col-sm-8">
-                        <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
+                        <h4>
+                            <span data-bind="text: getClientDisplayName(ko.toJS(client()))"></span>
+                            @if ($invoice->client->is_deleted)
+                                &nbsp;&nbsp;<div class="label label-danger">{{ trans('texts.deleted') }}</div>
+                            @endif
+                        </h4>
                         
                         @can('view', $invoice->client)
                             @can('edit', $invoice->client)
@@ -109,6 +114,7 @@
 							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<span data-bind="html: email.display"></span>
                         </label>
+                        @if ( ! $invoice->is_deleted && ! $invoice->client->is_deleted)
                         <span data-bind="visible: !$root.invoice().is_recurring()">
                             <span data-bind="html: $data.view_as_recipient"></span>&nbsp;&nbsp;
                             @if (Utils::isConfirmed())
@@ -119,6 +125,7 @@
                                     style: {color: $data.info_color}"></span>
                             @endif
                         </span>
+                        @endif
 					</div>
 				</div>
 			</div>

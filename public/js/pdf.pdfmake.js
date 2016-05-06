@@ -192,7 +192,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
             field = toSnakeCase(field);
             var value = getDescendantProp(invoice, field);
             if (match.indexOf('?') < 0 || value) {
-                if (invoice.partial && field == 'balance_due') {
+                if (invoice.partial > 0 && field == 'balance_due') {
                     field = 'partial_due';
                 } else if (invoice.is_quote) {
                     field = field.replace('invoice', 'quote');
@@ -580,7 +580,7 @@ NINJA.invoiceDetails = function(invoice) {
     ],
     [
         {text: (invoice.is_quote ? invoiceLabels.valid_until : invoiceLabels.due_date)}, 
-        {text: invoice.due_date}
+        {text: invoice.is_recurring ? false : invoice.due_date}
     ]
     ];
 

@@ -1,17 +1,13 @@
 <?php namespace App\Ninja\Mailers;
 
-use Form;
-use HTML;
 use Utils;
 use Event;
 use URL;
 use Auth;
-
+use App\Services\TemplateService;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\Activity;
-use App\Models\Gateway;
-
 use App\Events\InvoiceWasEmailed;
 use App\Events\QuoteWasEmailed;
 
@@ -35,6 +31,11 @@ class ContactMailer extends Mailer
         'paymentLink',
         'paymentButton',
     ];
+
+    public function __construct(TemplateService $templateService)
+    {
+        $this->templateService = $templateService;
+    }
 
     public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
     {
@@ -144,7 +145,7 @@ class ContactMailer extends Mailer
         }
 
         $data = [
-            'body' => $this->processVariables($body, $variables),
+            'body' => $this->templateService->processVariables($body, $variables),
             'link' => $invitation->getLink(),
             'entityType' => $invoice->getEntityType(),
             'invoiceId' => $invoice->id,
@@ -160,14 +161,9 @@ class ContactMailer extends Mailer
             $data['pdfFileName'] = $invoice->getFileName();
         }
 
-        $subject = $this->processVariables($subject, $variables);
+        $subject = $this->templateService->processVariables($subject, $variables);
         $fromEmail = $user->email;
-
-        if ($account->getEmailDesignId() == EMAIL_DESIGN_PLAIN) {
-            $view = ENTITY_INVOICE;
-        } else {
-            $view = 'design' . ($account->getEmailDesignId() - 1);
-        }
+        $view = $account->getTemplateView(ENTITY_INVOICE);
         
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
 
@@ -230,7 +226,7 @@ class ContactMailer extends Mailer
         ];
 
         $data = [
-            'body' => $this->processVariables($emailTemplate, $variables),
+            'body' => $this->templateService->processVariables($emailTemplate, $variables),
             'link' => $invitation->getLink(),
             'invoice' => $invoice,
             'client' => $client,
@@ -244,14 +240,10 @@ class ContactMailer extends Mailer
             $data['pdfFileName'] = $invoice->getFileName();
         }
 
-        $subject = $this->processVariables($emailSubject, $variables);
+        $subject = $this->templateService->processVariables($emailSubject, $variables);
         $data['invoice_id'] = $payment->invoice->id;
 
-        if ($account->getEmailDesignId() == EMAIL_DESIGN_PLAIN) {
-            $view = 'payment_confirmation';
-        } else {
-            $view = 'design' . ($account->getEmailDesignId() - 1);
-        }
+        $view = $account->getTemplateView('payment_confirmation');
 
         if ($user->email && $contact->email) {
             $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
@@ -280,76 +272,5 @@ class ContactMailer extends Mailer
         ];
         
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
-    }
-
-    private function processVariables($template, $data)
-    {
-        $account = $data['account'];
-        $client = $data['client'];
-        $invitation = $data['invitation'];
-        $invoice = $invitation->invoice;
-        $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
-        $documentsHTML = '';
-
-        if($account->hasFeature(FEATURE_DOCUMENTS) && $invoice->hasDocuments()){
-            $documentsHTML .= trans('texts.email_documents_header').'<ul>';
-            foreach($invoice->documents as $document){
-                $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
-            }
-            foreach($invoice->expenses as $expense){
-                foreach($expense->documents as $document){
-                    $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
-                }
-            }
-            $documentsHTML .= '</ul>';
-        }
-        
-        $variables = [
-            '$footer' => $account->getEmailFooter(),
-            '$client' => $client->getDisplayName(),
-            '$account' => $account->getDisplayName(),
-            '$dueDate' => $account->formatDate($invoice->due_date),
-            '$invoiceDate' => $account->formatDate($invoice->invoice_date),
-            '$contact' => $invitation->contact->getDisplayName(),
-            '$firstName' => $invitation->contact->first_name,
-            '$amount' => $account->formatMoney($data['amount'], $client),
-            '$invoice' => $invoice->invoice_number,
-            '$quote' => $invoice->invoice_number,
-            '$link' => $invitation->getLink(),
-            '$password' => $passwordHTML,
-            '$viewLink' => $invitation->getLink().'$password',
-            '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()).'$password',
-            '$paymentLink' => $invitation->getLink('payment').'$password',
-            '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
-            '$customClient1' => $account->custom_client_label1,
-            '$customClient2' => $account->custom_client_label2,
-            '$customInvoice1' => $account->custom_invoice_text_label1,
-            '$customInvoice2' => $account->custom_invoice_text_label2,
-            '$documents' => $documentsHTML,
-        ];
-
-        // Add variables for available payment types
-        foreach (Gateway::$paymentTypes as $type) {
-            $camelType = Gateway::getPaymentTypeName($type);
-            $type = Utils::toSnakeCase($camelType);
-            $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
-            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
-        }
-        
-        $includesPasswordPlaceholder = strpos($template, '$password') !== false;
-                
-        $str = str_replace(array_keys($variables), array_values($variables), $template);
-
-        if(!$includesPasswordPlaceholder && $passwordHTML){
-            $pos = strrpos($str, '$password');
-            if($pos !== false)
-            {
-                $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
-            }
-        }        
-        $str = str_replace('$password', '', $str);
-        $str = autolink($str, 100);
-        
-        return $str;
     }
 }

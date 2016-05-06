@@ -23,5 +23,6 @@ class DatabaseSeeder extends Seeder
         $this->call('DateFormatsSeeder');
         $this->call('InvoiceDesignsSeeder');
         $this->call('PaymentTermsSeeder');
+        $this->call('LanguageSeeder');
     }
 }

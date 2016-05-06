@@ -62,10 +62,13 @@
                 <div id="{{ $field }}_template_preview"></div>
             </div>
         </div>
+        <p>&nbsp;<p/>
         <div class="row">
-            <div class="col-md-12">
-                <p>&nbsp;<p/>
+            <div class="col-md-10">
                 @include('partials/quill_toolbar', ['name' => $field])
+            </div>
+            <div class="col-md-2" style="padding-top:10px">
+                {!! Button::primary(trans('texts.preview'))->withAttributes(['onclick' => 'serverPreview("'.$field.'")'])->small() !!}
             </div>
         </div>
     </div>

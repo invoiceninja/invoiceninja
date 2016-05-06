@@ -8,8 +8,8 @@ class InvoiceRequest extends EntityRequest {
     {
         $invoice = parent::entity();
         
-        // eager load the contacts
-        if ($invoice && ! count($invoice->invoice_items)) {
+        // eager load the invoice items
+        if ($invoice && ! $invoice->relationLoaded('invoice_items')) {
             $invoice->load('invoice_items');
         }
          
