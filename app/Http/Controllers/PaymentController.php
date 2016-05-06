@@ -447,6 +447,11 @@ class PaymentController extends BaseController
 
             // check if we're creating/using a billing token
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+                if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && !Input::get('authorize_ach')) {
+                    Session::flash('error', trans('texts.ach_authorization_required'));
+                    return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+                }
+
                 if ($useToken) {
                     $details['customerReference'] = $client->getGatewayToken();
                     unset($details['token']);

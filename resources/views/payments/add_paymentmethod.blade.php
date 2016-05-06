@@ -245,7 +245,8 @@
                 'account_number' => 'required',
                 'routing_number' => 'required',
                 'account_holder_name' => 'required',
-                'account_holder_type' => 'required'
+                'account_holder_type' => 'required',
+                'authorize_ach' => 'required',
             )) !!}
     @else
         {!! Former::vertical_open($url)
@@ -457,9 +458,12 @@
                                     {!! Former::text('')
                                             ->id('confirm_account_number')
                                             ->label(trans('texts.confirm_account_number')) !!}
+                                    {!! Former::checkbox('authorize_ach')
+                                            ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName()]))
+                                            ->label(' ') !!}
                             </div>
                         </div>
-                        <center>
+                        <div class="col-md-8 col-md-offset-4">
                             {!! Button::success(strtoupper(trans('texts.add_account')))
                                             ->submit()
                                             ->withAttributes(['id'=>'add_account_button'])
@@ -470,7 +474,7 @@
                                             ->withAttributes(['style'=>'display:none', 'id'=>'pay_now_button'])
                                             ->large() !!}
                             @endif
-                        </center>
+                        </div>
                     @else
                         <div class="row">
                             <div class="col-md-9">

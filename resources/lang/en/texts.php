@@ -1265,6 +1265,8 @@ $LANG = array(
     'plaid_linked_status' => 'Your bank account at :bank',
     'add_payment_method' => 'Add Payment Method',
     'account_holder_type' => 'Account Holder Type',
+    'ach_authorization' => 'I authorize :company to electronically debit my account and, if necessary, electronically credit my account to correct erroneous debits.',
+    'ach_authorization_required' => 'You must consent to ACH transactions.'
 );
 
 return $LANG;
