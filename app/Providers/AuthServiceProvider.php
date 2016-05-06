@@ -21,8 +21,13 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Payment::class => \App\Policies\PaymentPolicy::class,
         \App\Models\Task::class => \App\Policies\TaskPolicy::class,
         \App\Models\Vendor::class => \App\Policies\VendorPolicy::class,
+        \App\Models\AccountGateway::class => \App\Policies\AccountGatewayPolicy::class,
+        \App\Models\Token::class => \App\Policies\TokenPolicy::class,
+        \App\Models\BankAccount::class => \App\Policies\BankAccountPolicy::class,
+        \App\Models\PaymentTerm::class => \App\Policies\PaymentTermPolicy::class,
+
     ];
-    
+
     /**
      * Register any application authentication / authorization services.
      *
