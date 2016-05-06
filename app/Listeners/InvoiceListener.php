@@ -9,6 +9,7 @@ use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
+use App\Events\PaymentWasVoided;
 use App\Events\PaymentFailed;
 use App\Events\InvoiceInvitationWasViewed;
 
@@ -71,6 +72,16 @@ class InvoiceListener
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $adjustment = $event->refundAmount;
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function voidedPayment(PaymentWasVoided $event)
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $payment->amount;
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();

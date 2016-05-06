@@ -25,7 +25,7 @@ class PaymentsChanges extends Migration
         Schema::table('payments', function($table)
         {
             $table->decimal('refunded', 13, 2);
-            $table->unsignedInteger('payment_status_id')->default(3);
+            $table->unsignedInteger('payment_status_id')->default(PAYMENT_STATUS_COMPLETED);
             $table->foreign('payment_status_id')->references('id')->on('payment_statuses');
             
             $table->unsignedInteger('routing_number')->nullable();

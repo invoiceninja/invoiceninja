@@ -14,6 +14,7 @@ use App\Models\Account;
 use App\Models\Country;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\AccountGateway;
 use App\Http\Controllers\PaymentController;
 use App\Models\AccountGatewayToken;
 use App\Ninja\Repositories\PaymentRepository;
@@ -27,7 +28,8 @@ class PaymentService extends BaseService
     protected $datatableService;
     
     protected static $refundableGateways = array(
-        GATEWAY_STRIPE
+        GATEWAY_STRIPE,
+        GATEWAY_BRAINTREE
     );
 
     public function __construct(PaymentRepository $paymentRepo, AccountRepository $accountRepo, DatatableService $datatableService)
@@ -212,7 +214,28 @@ class PaymentService extends BaseService
                 }
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+            $response = $gateway->findCustomer($token)->send();
+            $data = $response->getData();
 
+            if (!($data instanceof \Braintree\Customer)) {
+                return null;
+            }
+
+            $sources = $data->paymentMethods;
+
+            $paymentTypes = Cache::get('paymentTypes');
+            $currencies = Cache::get('currencies');
+            foreach ($sources as $source) {
+                if ($source instanceof \Braintree\CreditCard) {
+                    $paymentMethods[] = array(
+                        'id' => $source->token,
+                        'default' => $source->isDefault(),
+                        'type' => $paymentTypes->find($this->parseCardType($source->cardType)),
+                        'last4' => $source->last4,
+                        'expiration' => $source->expirationYear . '-' . $source->expirationMonth . '-00',
+                    );
+                }
+            }
         }
 
         return $paymentMethods;
@@ -249,7 +272,24 @@ class PaymentService extends BaseService
                 return $response->getMessage();
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+            // Make sure the source is owned by this client
+            $sources = $this->getClientPaymentMethods($client);
+            $ownsSource = false;
+            foreach ($sources as $source) {
+                if ($source['id'] == $sourceId) {
+                    $ownsSource = true;
+                    break;
+                }
+            }
+            if (!$ownsSource) {
+                return 'Unknown source';
+            }
 
+            $response = $gateway->deletePaymentMethod(array('token'=>$sourceId))->send();
+
+            if (!$response->isSuccessful()) {
+                return $response->getMessage();
+            }
         }
 
         return true;
@@ -272,7 +312,27 @@ class PaymentService extends BaseService
                 'default_card='.$sourceId
             );
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+            // Make sure the source is owned by this client
+            $sources = $this->getClientPaymentMethods($client);
+            $ownsSource = false;
+            foreach ($sources as $source) {
+                if ($source['id'] == $sourceId) {
+                    $ownsSource = true;
+                    break;
+                }
+            }
+            if (!$ownsSource) {
+                return 'Unknown source';
+            }
 
+            $response = $gateway->updatePaymentMethod(array(
+                'token' => $sourceId,
+                'makeDefault' => true,
+            ))->send();
+
+            if (!$response->isSuccessful()) {
+                return $response->getMessage();
+            }
         }
 
         return true;
@@ -285,10 +345,18 @@ class PaymentService extends BaseService
         if ($customerReference) {
             $details['customerReference'] = $customerReference;
 
-            $customerResponse = $gateway->fetchCustomer(array('customerReference'=>$customerReference))->send();
+            if ($accountGateway->gateway->id == GATEWAY_STRIPE) {
+                $customerResponse = $gateway->fetchCustomer(array('customerReference'=>$customerReference))->send();
 
-            if (!$customerResponse->isSuccessful()){
-                $customerReference = null; // The customer might not exist anymore
+                if (!$customerResponse->isSuccessful()){
+                    $customerReference = null; // The customer might not exist anymore
+                }
+            } elseif ($accountGateway->gateway->id == GATEWAY_BRAINTREE) {
+                $customer = $gateway->findCustomer($customerReference)->send()->getData();
+
+                if (!($customer instanceof \Braintree\Customer)){
+                    $customerReference = null; // The customer might not exist anymore
+                }
             }
         }
 
@@ -599,8 +667,9 @@ class PaymentService extends BaseService
 
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $details['customerId'] = $token;
-            $customer = $gateway->findCustomer($token)->send();
-            $details['paymentMethodToken'] = $customer->getData()->paymentMethods[0]->token;
+            $customer = $gateway->findCustomer($token)->send()->getData();
+            $defaultPaymentMethod = $customer->defaultPaymentMethod();
+            $details['paymentMethodToken'] = $defaultPaymentMethod->token;
         }
 
         // submit purchase/get response
@@ -723,7 +792,7 @@ class PaymentService extends BaseService
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) && $model->payment_status_id != PAYMENT_STATUS_FAILED &&
+                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED &&
                     $model->refunded < $model->amount &&
                     (
                         ($model->transaction_reference && in_array($model->gateway_id , static::$refundableGateways))
@@ -742,18 +811,18 @@ class PaymentService extends BaseService
             }
 
             $payments = $this->getRepo()->findByPublicIdsWithTrashed($ids);
+            $successful = 0;
 
             foreach ($payments as $payment) {
                 if(Auth::user()->can('edit', $payment)){
-                    if(!empty($params['amount'])) {
-                        $this->refund($payment, floatval($params['amount']));
-                    } else {
-                        $this->refund($payment);
+                    $amount = !empty($params['amount']) ? floatval($params['amount']) : null;
+                    if ($this->refund($payment, $amount)) {
+                        $successful++;
                     }  
                 }
             }
 
-            return count($payments);
+            return $successful;
         } else {
             return parent::bulk($ids, $action);
         }
@@ -779,6 +848,7 @@ class PaymentService extends BaseService
                 ]);
                 $class = 'primary';
                 break;
+            case PAYMENT_STATUS_VOIDED:
             case PAYMENT_STATUS_REFUNDED:
                 $class = 'default';
                 break;
@@ -792,14 +862,20 @@ class PaymentService extends BaseService
         }
         
         $amount = min($amount, $payment->amount - $payment->refunded);
+
+        $accountGateway = $payment->account_gateway;
         
-        if (!$amount) {
+        if (!$accountGateway) {
+            $accountGateway = AccountGateway::withTrashed()->find($payment->account_gateway_id);
+        }
+        
+        if (!$amount || !$accountGateway) {
             return;
         }
         
         if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT) {
-            $accountGateway = $this->createGateway($payment->account_gateway);
-            $refund = $accountGateway->refund(array(
+            $gateway = $this->createGateway($accountGateway);
+            $refund = $gateway->refund(array(
                 'transactionReference' => $payment->transaction_reference,
                 'amount' => $amount,
             ));
@@ -808,11 +884,49 @@ class PaymentService extends BaseService
             if ($response->isSuccessful()) {
                 $payment->recordRefund($amount);
             } else {
-                $this->error('Unknown', $response->getMessage(), $accountGateway);
+                $data = $response->getData();
+
+                if ($data instanceof \Braintree\Result\Error) {
+                    $error = $data->errors->deepAll()[0];
+                    if ($error && $error->code == 91506) {
+                        if ($amount == $payment->amount) {
+                            // This is an unsettled transaction; try to void it
+                            $void = $gateway->void(array(
+                                'transactionReference' => $payment->transaction_reference,
+                            ));
+                            $response = $void->send();
+
+                            if ($response->isSuccessful()) {
+                                $payment->markVoided();
+                            }
+                        } else {
+                            $this->error('Unknown', 'Partial refund not allowed for unsettled transactions.', $accountGateway);
+                            return false;
+                        }
+                    }
+                }
+
+                if (!$response->isSuccessful()) {
+                    $this->error('Unknown', $response->getMessage(), $accountGateway);
+                    return false;
+                }
             }
         } else {
             $payment->recordRefund($amount);
         }
+        return true;
+    }
+
+    private function error($type, $error, $accountGateway = false, $exception = false)
+    {
+        $message = '';
+        if ($accountGateway && $accountGateway->gateway) {
+            $message = $accountGateway->gateway->name . ': ';
+        }
+        $message .= $error ?: trans('texts.payment_error');
+
+        Session::flash('error', $message);
+        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
 
     public function makeStripeCall($accountGateway, $method, $url, $body = null) {

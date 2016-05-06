@@ -161,7 +161,7 @@
                 </div>
             </div>
         </div>
-        @if (!empty($paymentMethods))
+        @if (!empty($account->getTokenGatewayId()))
                 <div class="row">
                     <div class="col-xs-12">
                     <h3>{{ trans('texts.payment_methods') }}</h3>

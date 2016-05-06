@@ -1188,8 +1188,10 @@ $LANG = array(
     'status_partially_refunded' => 'Partially Refunded',
     'status_partially_refunded_amount' => ':amount Refunded',
     'status_refunded' => 'Refunded',
+    'status_voided' => 'Cancelled',
     'refunded_payment' => 'Refunded Payment',
-    'activity_39' => ':user refunded :adjustment of a :payment_amount payment (:payment)',
+    'activity_39' => ':user cancelled a :payment_amount payment (:payment)',
+    'activity_40' => ':user refunded :adjustment of a :payment_amount payment (:payment)',
     'card_expiration' => 'Exp:&nbsp:expires',
     
     'card_creditcardother' => 'Unknown',
@@ -1252,7 +1254,7 @@ $LANG = array(
     'use_for_auto_bill' => 'Use For Autobill',
     'used_for_auto_bill' => 'Autobill Payment Method',
     'payment_method_set_as_default' => 'Set Autobill payment method.',
-    'activity_40' => ':payment_amount payment (:payment) failed',
+    'activity_41' => ':payment_amount payment (:payment) failed',
     'webhook_url' => 'Webhook URL',
     'stripe_webhook_help' => 'You must :link for ACH payment status to be updated.',
     'stripe_webhook_help_link_text' => 'add this URL as an endpoint at Stripe',
@@ -1274,7 +1276,7 @@ $LANG = array(
     'disabled_by_client' => 'Disabled by client',
     'manage_auto_bill' => 'Manage Auto-bill',
     'enabled' => 'Enabled',
-    'disabled' => 'Disabled',
+    ''
 );
 
 return $LANG;

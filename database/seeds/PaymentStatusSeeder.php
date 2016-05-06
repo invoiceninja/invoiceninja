@@ -17,10 +17,11 @@ class PaymentStatusSeeder extends Seeder
     {
         $statuses = [
             ['id' => '1', 'name' => 'Pending'],
-            ['id' => '2', 'name' => 'Failed'],
-            ['id' => '3', 'name' => 'Completed'],
-            ['id' => '4', 'name' => 'Partially Refunded'],
-            ['id' => '5', 'name' => 'Refunded'],
+            ['id' => '2', 'name' => 'Voided'],
+            ['id' => '3', 'name' => 'Failed'],
+            ['id' => '4', 'name' => 'Completed'],
+            ['id' => '5', 'name' => 'Partially Refunded'],
+            ['id' => '6', 'name' => 'Refunded'],
         ];
 
         foreach ($statuses as $status) {

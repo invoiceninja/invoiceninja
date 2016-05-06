@@ -16,6 +16,7 @@
         display:inline-block;
     }
 </style>
+@if(!empty($paymentMethods))
 @foreach ($paymentMethods as $paymentMethod)
 <div class="payment_method">
             <span class="payment_method_img_container">
@@ -41,6 +42,7 @@
     <a href="javasript::void" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod['id']}}')">&times;</a>
 </div>
 @endforeach
+@endif
 
 <center>
     {!! Button::success(strtoupper(trans('texts.add_credit_card')))

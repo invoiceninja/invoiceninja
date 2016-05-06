@@ -34,6 +34,8 @@
                         }
                     },
                     onError: function(e) {
+                        var $form = $('.payment-form');
+                        $form.find('button').prop('disabled', false);
                         // Show the errors on the form
                         if (e.details && e.details.invalidFieldKeys.length) {
                             var invalidField = e.details.invalidFieldKeys[0];
@@ -54,6 +56,10 @@
                     }
                 });
                 $('.payment-form').submit(function(event) {
+                    var $form = $(this);
+
+                    // Disable the submit button to prevent repeated clicks
+                    $form.find('button').prop('disabled', true);
                     $('#js-error-message').hide();
                 });
             });

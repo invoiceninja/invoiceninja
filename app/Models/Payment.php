@@ -4,7 +4,9 @@ use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasRefunded;
+use App\Events\PaymentWasVoided;
 use App\Events\PaymentCompleted;
+use App\Events\PaymentVoided;
 use App\Events\PaymentFailed;
 use Laracasts\Presenter\PresentableTrait;
 
@@ -90,7 +92,7 @@ class Payment extends EntityModel
     
     public function isCompleted()
     {
-        return $this->payment_status_id >= PAYMENT_STATUS_COMPLETED;
+        return $this->payment_status_id == PAYMENT_STATUS_COMPLETED;
     }
     
     public function isPartiallyRefunded()
@@ -103,9 +105,14 @@ class Payment extends EntityModel
         return $this->payment_status_id == PAYMENT_STATUS_REFUNDED;
     }
 
+    public function isVoided()
+    {
+        return $this->payment_status_id == PAYMENT_STATUS_VOIDED;
+    }
+
     public function recordRefund($amount = null)
     {
-        if (!$this->isRefunded()) {
+        if (!$this->isRefunded() && !$this->isVoided()) {
             if (!$amount) {
                 $amount = $this->amount;
             }
@@ -120,6 +127,17 @@ class Payment extends EntityModel
                 
                 Event::fire(new PaymentWasRefunded($this, $refund_change));
             }
+        }
+    }
+
+    public function markVoided()
+    {
+        if (!$this->isVoided() && !$this->isPartiallyRefunded() && !$this->isRefunded()) {
+            $this->refunded = $this->amount;
+            $this->payment_status_id = PAYMENT_STATUS_VOIDED;
+            $this->save();
+
+            Event::fire(new PaymentWasVoided($this));
         }
     }
 
