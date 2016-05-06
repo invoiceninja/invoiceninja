@@ -33,6 +33,15 @@ class PaymentsChanges extends Migration
             $table->date('expiration')->nullable();
             $table->text('gateway_error')->nullable();
         });
+
+        Schema::table('invoices', function($table)
+        {
+            $table->tinyInteger('enable_auto_bill')->default(AUTO_BILL_OFF);
+        });
+
+        \DB::table('invoices')
+            ->where('auto_bill', '=', 1)
+            ->update(array('enable_auto_bill' => AUTO_BILL_OPT_OUT));
     }
 
     /**
@@ -52,6 +61,10 @@ class PaymentsChanges extends Migration
             $table->dropColumn('last4');
             $table->dropColumn('expiration');
             $table->dropColumn('gateway_error');
+        });
+
+        Schema::table('invoices', function ($table) {
+            $table->dropColumn('enable_auto_bill');
         });
         
         Schema::dropIfExists('payment_statuses');

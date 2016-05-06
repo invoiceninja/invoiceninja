@@ -51,6 +51,8 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::post('client/paymentmethods/{source_id}/remove', 'PublicClientController@removePaymentMethod');
     Route::get('client/quotes', 'PublicClientController@quoteIndex');
     Route::get('client/invoices', 'PublicClientController@invoiceIndex');
+    Route::get('client/invoices/recurring', 'PublicClientController@recurringInvoiceIndex');
+    Route::post('client/invoices/auto_bill', 'PublicClientController@setAutoBill');
     Route::get('client/documents', 'PublicClientController@documentIndex');
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
@@ -60,6 +62,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     
     Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
     Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
+    Route::get('api/client.recurring_invoices', array('as'=>'api.client.recurring_invoices', 'uses'=>'PublicClientController@recurringInvoiceDatatable'));
     Route::get('api/client.documents', array('as'=>'api.client.documents', 'uses'=>'PublicClientController@documentDatatable'));
     Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
     Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'PublicClientController@activityDatatable'));
@@ -687,6 +690,10 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');
+
+    define('AUTO_BILL_OFF', 0);
+    define('AUTO_BILL_OPT_IN', 1);
+    define('AUTO_BILL_OPT_OUT', 2);
     
     // These must be lowercase
     define('PLAN_FREE', 'free');

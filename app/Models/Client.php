@@ -319,6 +319,10 @@ class Client extends EntityModel
         $this->last_login = Carbon::now()->toDateTimeString();
         $this->save();
     }
+
+    public function hasAutoBillInvoices(){
+        return $this->invoices()->where('auto_bill', 1)->count() > 0;
+    }
 }
 
 Client::creating(function ($client) {

@@ -305,7 +305,7 @@ class PublicClientController extends BaseController
             ->make();
     }
 
-    public function invoiceIndex()
+    public function recurringInvoiceIndex()
     {
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
@@ -322,6 +322,34 @@ class PublicClientController extends BaseController
         $data = [
             'color' => $color,
             'account' => $account,
+            'client' => $invitation->invoice->client,
+            'clientFontUrl' => $account->getFontsUrl(),
+            'title' => trans('texts.recurring_invoices'),
+            'entityType' => ENTITY_RECURRING_INVOICE,
+            'columns' => Utils::trans(['frequency', 'start_date', 'end_date', 'invoice_total', 'auto_bill']),
+        ];
+
+        return response()->view('public_list', $data);
+    }
+
+    public function invoiceIndex()
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $account = $invitation->account;
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
+        $data = [
+            'color' => $color,
+            'account' => $account,
+            'client' => $invitation->invoice->client,
             'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
@@ -338,6 +366,15 @@ class PublicClientController extends BaseController
         }
 
         return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_INVOICE, Input::get('sSearch'));
+    }
+
+    public function recurringInvoiceDatatable()
+    {
+        if (!$invitation = $this->getInvitation()) {
+            return '';
+        }
+
+        return $this->invoiceRepo->getClientRecurringDatatable($invitation->contact_id);
     }
 
 
@@ -859,5 +896,29 @@ class PublicClientController extends BaseController
 
         Session::flash('error', $message);
         Utils::logError("Payment Method Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
+    }
+
+    public function setAutoBill(){
+        if (!$invitation = $this->getInvitation()) {
+            return $this->returnError();
+        }
+
+        $validator = Validator::make(Input::all(), array('public_id' => 'required'));
+        $client = $invitation->invoice->client;
+
+        if ($validator->fails()) {
+            return Redirect::to('client/invoices/recurring');
+        }
+
+        $publicId = Input::get('public_id');
+        $enable = Input::get('enable');
+        $invoice = $client->invoices->where('public_id', intval($publicId))->first();
+
+        if ($invoice && $invoice->is_recurring && $invoice->enable_auto_bill > AUTO_BILL_OFF) {
+            $invoice->auto_bill = $enable ? true : false;
+            $invoice->save();
+        }
+
+        return Redirect::to('client/invoices/recurring');
     }
 }

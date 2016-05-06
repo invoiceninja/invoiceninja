@@ -1266,7 +1266,15 @@ $LANG = array(
     'add_payment_method' => 'Add Payment Method',
     'account_holder_type' => 'Account Holder Type',
     'ach_authorization' => 'I authorize :company to electronically debit my account and, if necessary, electronically credit my account to correct erroneous debits.',
-    'ach_authorization_required' => 'You must consent to ACH transactions.'
+    'ach_authorization_required' => 'You must consent to ACH transactions.',
+    'off' => 'Off',
+    'opt_in' => 'Opt-in',
+    'opt_out' => 'Opt-out',
+    'enabled_by_client' => 'Enabled by client',
+    'disabled_by_client' => 'Disabled by client',
+    'manage_auto_bill' => 'Manage Auto-bill',
+    'enabled' => 'Enabled',
+    'disabled' => 'Disabled',
 );
 
 return $LANG;

@@ -188,7 +188,8 @@ function InvoiceModel(data) {
     self.tax_rate2 = ko.observable();
     self.is_recurring = ko.observable(0);
     self.is_quote = ko.observable({{ $entityType == ENTITY_QUOTE ? '1' : '0' }});
-    self.auto_bill = ko.observable();
+    self.auto_bill = ko.observable(false);
+    self.enable_auto_bill = ko.observable(0);
     self.invoice_status_id = ko.observable(0);
     self.invoice_items = ko.observableArray();
     self.documents = ko.observableArray();

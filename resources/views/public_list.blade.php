@@ -35,7 +35,12 @@
 		</div>
 		-->
 
-		<h3>{{ $title }}</h3>
+        @if($entityType == ENTITY_INVOICE && $account->getTokenGatewayId() && $client->hasAutoBillInvoices())
+            <div class="pull-right" style="margin-top:5px">
+                {!! Button::info(trans("texts.manage_auto_bill"))->asLinkTo(URL::to('/client/invoices/recurring'))->appendIcon(Icon::create('repeat')) !!}
+            </div>
+        @endif
+        <h3>{{ $title }}</h3>
 
 		{!! Datatable::table()
 	    	->addColumn($columns)
@@ -44,6 +49,22 @@
 	    	->render('datatable') !!}
 
 	</div>
+
+    @if($entityType == ENTITY_RECURRING_INVOICE)
+        {!! Former::open(URL::to('/client/invoices/auto_bill'))->id('auto_bill_form')  !!}
+        <input type="hidden" name="public_id" id="auto_bill_public_id">
+        <input type="hidden" name="enable" id="auto_bill_enable">
+        {!! Former::close() !!}
+
+        <script type="text/javascript">
+            function setAutoBill(publicId, enable){
+                $('#auto_bill_public_id').val(publicId);
+                $('#auto_bill_enable').val(enable?'1':'0');
+                $('#auto_bill_form').submit();
+            }
+        </script>
+    @endif
+
 
     <p>&nbsp;</p>
 

@@ -159,10 +159,25 @@
             </span>
             @if($account->getTokenGatewayId())
             <span data-bind="visible: is_recurring()" style="display: none">
-            {!! Former::checkbox('auto_bill')
-                        ->label(trans('texts.auto_bill'))
-                        ->text(trans('texts.enable'))
-                        ->data_bind("checked: auto_bill, valueUpdate: 'afterkeydown'") !!}
+            {!! Former::radios('enable_auto_bill')->radios([
+                            trans('texts.off') => array('name' => 'enable_auto_bill', 'value' => 0, 'data-bind' => "checked: enable_auto_bill, valueUpdate: 'afterkeydown', checkedValue:0"),
+                            trans('texts.opt_in') => array('name' => 'enable_auto_bill', 'value' => 1, 'data-bind' => "checked: enable_auto_bill, valueUpdate: 'afterkeydown', checkedValue:1"),
+                            trans('texts.opt_out') => array('name' => 'enable_auto_bill', 'value' => 2, 'data-bind' => "checked: enable_auto_bill, valueUpdate: 'afterkeydown', checkedValue:2"),
+                        ])->inline()
+                        ->label(trans('texts.auto_bill')) !!}
+                <input type="hidden" name="auto_bill" data-bind="attr: { value: auto_bill() }" />
+                <div class="row">
+                    <div class="col-sm-8 col-sm-offset-4">
+                        <div style="margin:-10px 0 10px;">
+                            <div data-bind="visible: enable_auto_bill() == 1 &amp;&amp; auto_bill() &amp;&amp; public_id() != 0" style="display: none">
+                                {{trans('texts.enabled_by_client')}} <a href="#" data-bind="click:function(){auto_bill(false)}">({{trans('texts.disable')}})</a>
+                            </div>
+                            <div data-bind="visible: enable_auto_bill() == 2 &amp;&amp; !auto_bill() &amp;&amp; public_id() != 0" style="display: none">
+                                {{trans('texts.disabled_by_client')}} <a href="#" data-bind="click:function(){auto_bill(true)}">({{trans('texts.enable')}})</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </span>
             @endif
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}

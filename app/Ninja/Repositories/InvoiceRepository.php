@@ -145,21 +145,68 @@ class InvoiceRepository extends BaseRepository
         return $query;
     }
 
-    public function getClientDatatable($contactId, $entityType, $search)
+    public function getClientRecurringDatatable($contactId)
     {
         $query = DB::table('invitations')
           ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
           ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
           ->join('clients', 'clients.id', '=', 'invoices.client_id')
+          ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
-          ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE)
+          ->where('invoices.is_quote', '=', false)
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
-          ->where('invoices.is_recurring', '=', false)
-          // This needs to be a setting to also hide the activity on the dashboard page
-          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT) 
+          ->where('invoices.is_recurring', '=', true)
+          ->where('invoices.enable_auto_bill', '>', AUTO_BILL_OFF)
+          //->where('invoices.start_date', '>=', date('Y-m-d H:i:s'))
           ->select(
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                'invitations.invitation_key',
+                'invoices.invoice_number',
+                'invoices.due_date',
+                'clients.public_id as client_public_id',
+                'clients.name as client_name',
+                'invoices.public_id',
+                'invoices.amount',
+                'invoices.start_date',
+                'invoices.end_date',
+                'invoices.auto_bill',
+                'frequencies.name as frequency'
+            );
+
+        $table = \Datatable::query($query)
+            ->addColumn('frequency', function ($model) { return $model->frequency; })
+            ->addColumn('start_date', function ($model) { return Utils::fromSqlDate($model->start_date); })
+            ->addColumn('end_date', function ($model) { return Utils::fromSqlDate($model->end_date); })
+            ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
+            ->addColumn('auto_bill', function ($model) {
+                if ($model->auto_bill) {
+                    return trans('texts.enabled') . ' <a href="javascript:setAutoBill('.$model->public_id.',false)">('.trans('texts.disable').')</a>';
+                } else {
+                    return trans('texts.disabled') . ' <a href="javascript:setAutoBill('.$model->public_id.',true)">('.trans('texts.enable').')</a>';
+                }
+            });
+
+        return $table->make();
+    }
+
+    public function getClientDatatable($contactId, $entityType, $search)
+    {
+        $query = DB::table('invitations')
+            ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
+            ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
+            ->join('clients', 'clients.id', '=', 'invoices.client_id')
+            ->where('invitations.contact_id', '=', $contactId)
+            ->where('invitations.deleted_at', '=', null)
+            ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE)
+            ->where('invoices.is_deleted', '=', false)
+            ->where('clients.deleted_at', '=', null)
+            ->where('invoices.is_recurring', '=', false)
+            // This needs to be a setting to also hide the activity on the dashboard page
+            //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
+            ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                 'invitations.invitation_key',
@@ -269,6 +316,16 @@ class InvoiceRepository extends BaseRepository
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
             $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
+            $invoice->enable_auto_bill = isset($data['enable_auto_bill']) ? intval($data['enable_auto_bill']) : 0;
+
+            if ($invoice->enable_auto_bill != AUTO_BILL_OPT_IN && $invoice->enable_auto_bill != AUTO_BILL_OPT_OUT ) {
+                // Auto-bill is not enabled
+                $invoice->enable_auto_bill = AUTO_BILL_OFF;
+                $invoice->auto_bill = false;
+            } elseif ($isNew) {
+                $invoice->auto_bill = $invoice->enable_auto_bill == AUTO_BILL_OPT_OUT;
+            }
+
             
             if (isset($data['recurring_due_date'])) {
                 $invoice->due_date = $data['recurring_due_date'];
