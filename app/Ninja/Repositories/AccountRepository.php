@@ -167,6 +167,7 @@ class AccountRepository
             ENTITY_QUOTE,
             ENTITY_TASK,
             ENTITY_EXPENSE,
+            ENTITY_VENDOR,
             ENTITY_RECURRING_INVOICE,
             ENTITY_PAYMENT,
             ENTITY_CREDIT
@@ -183,14 +184,21 @@ class AccountRepository
             ];
         }
 
-        $features[] = ['dashboard', '/dashboard'];
-        $features[] = ['customize_design', '/settings/customize_design'];
-        $features[] = ['new_tax_rate', '/tax_rates/create'];
-        $features[] = ['new_product', '/products/create'];
-        $features[] = ['new_user', '/users/create'];
-        $features[] = ['custom_fields', '/settings/invoice_settings'];	
+        $features = array_merge($features, [
+            ['dashboard', '/dashboard'],
+            ['customize_design', '/settings/customize_design'],
+            ['new_tax_rate', '/tax_rates/create'],
+            ['new_product', '/products/create'],
+            ['new_user', '/users/create'],
+            ['custom_fields', '/settings/invoice_settings'],
+            ['invoice_number', '/settings/invoice_settings'],
+        ]);
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
+
+        if ( ! Utils::isNinjaProd()) {
+            $settings[] = ACCOUNT_SYSTEM_SETTINGS;
+        }
 
         foreach ($settings as $setting) {
             $features[] = [
@@ -332,7 +340,7 @@ class AccountRepository
             $client->public_id = $account->id;
             $client->user_id = $ninjaAccount->users()->first()->id;
             $client->currency_id = 1;
-            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id'] as $field) {
+            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
                 $client->$field = $account->$field;
             }
             $ninjaAccount->clients()->save($client);

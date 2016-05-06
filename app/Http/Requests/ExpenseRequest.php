@@ -8,11 +8,11 @@ class ExpenseRequest extends EntityRequest {
     {
         $expense = parent::entity();
         
-        // eager load the contacts
-        if ($expense && ! count($expense->documents)) {
+        // eager load the documents
+        if ($expense && ! $expense->relationLoaded('documents')) {
             $expense->load('documents');
         }
-         
+        
         return $expense;
     }
 }

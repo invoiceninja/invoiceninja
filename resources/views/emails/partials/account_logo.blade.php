@@ -3,7 +3,7 @@
         <a href="{{ $account->website }}" style="color: #19BB40; text-decoration: underline;">
     @endif
 
-    <img src="{{ $message->embed($account->getLogoURL()) }}" style="max-height:50px; max-width:140px; margin-left: 33px;" />
+    <img src="{{ isset($message) ? $message->embed($account->getLogoURL()) : $account->getLogoURL() }}" style="max-height:50px; max-width:140px; margin-left: 33px;" />
 
     @if ($account->website)
         </a>
