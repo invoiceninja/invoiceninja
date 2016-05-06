@@ -54,33 +54,32 @@ class AppServiceProvider extends ServiceProvider {
             $Type = ucfirst($type);
             $Types = ucfirst($types);
             $class = ( Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*settings*') ? ' active' : '';
+            $user = Auth::user();
 
             $str = '<li class="dropdown '.$class.'">
                    <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>';
                    
             $items = [];
                        
-            if(Auth::user()->hasPermission('create_all')){
-                   $items[] = '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
-            }
+            if($user->can('create', $type))$items[] = '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
                     
             if ($type == ENTITY_INVOICE) {
                 if(!empty($items))$items[] = '<li class="divider"></li>';
                 $items[] = '<li><a href="'.URL::to('recurring_invoices').'">'.trans("texts.recurring_invoices").'</a></li>';
-                if(Invoice::canCreate())$items[] = '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
-                if (Auth::user()->hasFeature(FEATURE_QUOTES)) {
+                if($user->can('create', ENTITY_INVOICE))$items[] = '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans("texts.new_recurring_invoice").'</a></li>';
+                if ($user->hasFeature(FEATURE_QUOTES)) {
                     $items[] = '<li class="divider"></li>';
                     $items[] = '<li><a href="'.URL::to('quotes').'">'.trans("texts.quotes").'</a></li>';
-                    if(Invoice::canCreate())$items[] = '<li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
+                    if($user->can('create', ENTITY_INVOICE))$items[] = '<li><a href="'.URL::to('quotes/create').'">'.trans("texts.new_quote").'</a></li>';
                 }
             } else if ($type == ENTITY_CLIENT) {
                 if(!empty($items))$items[] = '<li class="divider"></li>';
                 $items[] = '<li><a href="'.URL::to('credits').'">'.trans("texts.credits").'</a></li>';
-                if(Credit::canCreate())$items[] = '<li><a href="'.URL::to('credits/create').'">'.trans("texts.new_credit").'</a></li>';
+                if($user->can('create', ENTITY_CREDIT))$items[] = '<li><a href="'.URL::to('credits/create').'">'.trans("texts.new_credit").'</a></li>';
             } else if ($type == ENTITY_EXPENSE) {
 				if(!empty($items))$items[] = '<li class="divider"></li>';
                 $items[] = '<li><a href="'.URL::to('vendors').'">'.trans("texts.vendors").'</a></li>';
-                if(Vendor::canCreate())$items[] = '<li><a href="'.URL::to('vendors/create').'">'.trans("texts.new_vendor").'</a></li>';
+                if($user->can('create', ENTITY_VENDOR))$items[] = '<li><a href="'.URL::to('vendors/create').'">'.trans("texts.new_vendor").'</a></li>';
 			}
             
             if(!empty($items)){

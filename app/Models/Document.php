@@ -222,20 +222,6 @@ class Document extends EntityModel
         
         return $document;
     }
-    
-    public static function canCreate(){
-        return true;
-    }
-    
-    public static function canViewItem($document){
-        if(Auth::user()->hasPermission('view_all'))return true;
-        if($document->expense){
-            if($document->expense->invoice)return $document->expense->invoice->canView();
-            return $document->expense->canView();
-        }
-        if($document->invoice)return $document->invoice->canView();
-        return Auth::user()->id == $item->user_id;
-    }
 }
 
 Document::deleted(function ($document) {

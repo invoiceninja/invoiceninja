@@ -75,12 +75,12 @@
 					<div class="col-lg-8 col-sm-8">
                         <h4><div data-bind="text: getClientDisplayName(ko.toJS(client()))"></div></h4>
                         
-                        @if($invoice->client->canView())
-                            @if ($invoice->client->canEdit())
+                        @can('view', $invoice->client)
+                            @can('edit', $invoice->client)
                                 <a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
-                            @endif
+                            @endcan
                             {!! link_to('/clients/'.$invoice->client->public_id, trans('texts.view_client'), ['target' => '_blank']) !!}
-                        @endif
+                        @endcan
 					</div>
 				</div>
 				<div style="display:none">

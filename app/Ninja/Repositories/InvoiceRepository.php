@@ -3,6 +3,7 @@
 use DB;
 use Utils;
 use Session;
+use Auth;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
@@ -475,7 +476,7 @@ class InvoiceRepository extends BaseRepository
         $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):array();;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
-            if($document && !$checkSubPermissions || $document->canEdit()){
+            if($document && !$checkSubPermissions || Auth::user()->can('edit', $document)){
                 
                 if($document->invoice_id && $document->invoice_id != $invoice->id){
                     // From a clone
@@ -489,7 +490,7 @@ class InvoiceRepository extends BaseRepository
             }
         }
         
-        if(!empty($data['documents']) && Document::canCreate()){
+        if(!empty($data['documents']) && Auth::user()->can('create', ENTITY_DOCUMENT)){
             // Fallback upload
             $doc_errors = array();
             foreach($data['documents'] as $upload){
@@ -528,7 +529,7 @@ class InvoiceRepository extends BaseRepository
             $task = false;
             if (isset($item['task_public_id']) && $item['task_public_id']) {
                 $task = Task::scope($item['task_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                if(!$checkSubPermissions || $task->canEdit()){
+                if(!$checkSubPermissions || Auth::user()->can('edit', $task)){
                     $task->invoice_id = $invoice->id;
                     $task->client_id = $invoice->client_id;
                     $task->save();
@@ -538,7 +539,7 @@ class InvoiceRepository extends BaseRepository
             $expense = false;
             if (isset($item['expense_public_id']) && $item['expense_public_id']) {
                 $expense = Expense::scope($item['expense_public_id'])->where('invoice_id', '=', null)->firstOrFail();
-                if(!$checkSubPermissions || $expense->canEdit()){
+                if(!$checkSubPermissions || Auth::user()->can('edit', $expense)){
                     $expense->invoice_id = $invoice->id;
                     $expense->client_id = $invoice->client_id;
                     $expense->save();
@@ -549,7 +550,7 @@ class InvoiceRepository extends BaseRepository
                 if (\Auth::user()->account->update_products && ! strtotime($productKey)) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
-                        if(!$checkSubPermissions || Product::canCreate()){
+                        if(!$checkSubPermissions || Auth::user()->can('create', ENTITY_PRODUCT)){
                             $product = Product::createNew();
                             $product->product_key = trim($item['product_key']);
                         }
@@ -557,7 +558,7 @@ class InvoiceRepository extends BaseRepository
                             $product = null;
                         }
                     }
-                    if($product && (!$checkSubPermissions || $product->canEdit())){
+                    if($product && (!$checkSubPermissions || Auth::user()->can('edit', $product))){
                         $product->notes = ($task || $expense) ? '' : $item['notes'];
                         $product->cost = $expense ? 0 : $item['cost'];
                         $product->save();

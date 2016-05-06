@@ -91,13 +91,13 @@ class VendorService extends BaseService
                     return URL::to("vendors/{$model->public_id}/edit");
                 },
                 function ($model) {
-                    return Vendor::canEditItem($model);
+                    return Auth::user()->can('editByOwner', [ENTITY_VENDOR, $model->user_id]);
                 }
             ],
             [
                 '--divider--', function(){return false;},
                 function ($model) {
-                    return Vendor::canEditItem($model) && Expense::canCreate();
+                    return Auth::user()->can('editByOwner', [ENTITY_VENDOR, $model->user_id]) && Auth::user()->can('create', ENTITY_EXPENSE);
                 }
                 
             ],
@@ -107,7 +107,7 @@ class VendorService extends BaseService
                     return URL::to("expenses/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Expense::canCreate();
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
                 }
             ]
         ];
