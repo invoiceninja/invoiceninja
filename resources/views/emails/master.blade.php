@@ -2,8 +2,11 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns="http://www.w3.org/1999/xhtml" lang="{{ App::getLocale() }}">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <!--[if !mso]><!-- -->
+    <link href="{{ isset($account) ? $account->getFontsUrl('http') : '' }}" rel="stylesheet" type="text/css" />
+    <!--<![endif]-->
 </head>
-<body style="color: #000000; font-family:Arial, Helvetica, sans-serif; font-size: 12px; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; background: #F4F5F5; margin: 0; padding: 0;" 
+<body style="color: #000000;{!! isset($account) ? $account->getBodyFontCss() : '' !!}font-size: 12px; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; background: #F4F5F5; margin: 0; padding: 0;" 
     alink="#FF0000" link="#FF0000" bgcolor="#F4F5F5" text="#000000" yahoo="fix">
     @yield('markup')
 
