@@ -125,7 +125,8 @@ class InvoiceRepository extends BaseRepository
                         'contacts.last_name',
                         'contacts.email',
                         'invoices.deleted_at',
-                        'invoices.is_deleted'
+                        'invoices.is_deleted',
+                        'invoices.user_id'
                     );
 
         if ($clientPublicId) {
