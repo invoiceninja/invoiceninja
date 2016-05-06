@@ -267,6 +267,8 @@ class PublicClientController extends BaseController
             'account' => $account,
             'client' => $client,
             'clientFontUrl' => $account->getFontsUrl(),
+            'gateway' => $account->getTokenGateway(),
+            'paymentMethods' => $this->paymentService->getClientPaymentMethods($client),
         ];
         
         return response()->view('invited.dashboard', $data);
@@ -711,7 +713,7 @@ class PublicClientController extends BaseController
             Session::flash('message', trans('texts.payment_method_verified'));
         }
 
-        return redirect()->to('/client/paymentmethods/');
+        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
     }
 
     public function removePaymentMethod($sourceId)
@@ -729,7 +731,7 @@ class PublicClientController extends BaseController
             Session::flash('message', trans('texts.payment_method_removed'));
         }
 
-        return redirect()->to('/client/paymentmethods/');
+        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
     }
 
     public function addPaymentMethod($paymentType)
@@ -813,10 +815,10 @@ class PublicClientController extends BaseController
         } else if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {
             // The user needs to complete verification
             Session::flash('message', trans('texts.bank_account_verification_next_steps'));
-            return Redirect::to('client/paymentmethods/');
+            return Redirect::to($account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
         } else {
             Session::flash('message', trans('texts.payment_method_added'));
-            return redirect()->to('/client/paymentmethods/');
+            return redirect()->to($account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
         }
     }
 
@@ -826,11 +828,11 @@ class PublicClientController extends BaseController
         }
 
         $validator = Validator::make(Input::all(), array('source' => 'required'));
+        $client = $invitation->invoice->client;
         if ($validator->fails()) {
-            return Redirect::to('client/paymentmethods');
+            return Redirect::to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
         }
 
-        $client = $invitation->invoice->client;
         $result = $this->paymentService->setClientDefaultPaymentMethod($client, Input::get('source'));
 
         if (is_string($result)) {
@@ -839,7 +841,7 @@ class PublicClientController extends BaseController
             Session::flash('message', trans('texts.payment_method_set_as_default'));
         }
 
-        return redirect()->to('/client/paymentmethods/');
+        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
     }
 
     private function paymentMethodError($type, $error, $accountGateway = false, $exception = false)

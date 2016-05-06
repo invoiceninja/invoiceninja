@@ -90,11 +90,11 @@
                         {!! link_to('/client/documents', trans('texts.documents') ) !!}
                     </li>
                 @endif
-                @if (isset($account) && $account->getTokenGatewayId())
+                @if (isset($account) && $account->getTokenGatewayId() && !$account->enable_client_portal_dashboard)
                     <li {{ Request::is('*client/paymentmethods') ? 'class="active"' : '' }}>
                         {!! link_to('/client/paymentmethods', trans('texts.payment_methods') ) !!}
                     </li>
-                    @endif
+                @endif
                 <li {{ Request::is('*client/payments') ? 'class="active"' : '' }}>
                     {!! link_to('/client/payments', trans('texts.payments') ) !!}
                 </li>                
