@@ -723,7 +723,7 @@ class PaymentService extends BaseService
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
                 },
                 function ($model) {
-                    return Payment::canEditItem($model) && $model->payment_status_id != PAYMENT_STATUS_FAILED &&
+                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) && $model->payment_status_id != PAYMENT_STATUS_FAILED &&
                     $model->refunded < $model->amount &&
                     (
                         ($model->transaction_reference && in_array($model->gateway_id , static::$refundableGateways))
@@ -744,7 +744,7 @@ class PaymentService extends BaseService
             $payments = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
             foreach ($payments as $payment) {
-                if($payment->canEdit()){
+                if(Auth::user()->can('edit', $payment)){
                     if(!empty($params['amount'])) {
                         $this->refund($payment, floatval($params['amount']));
                     } else {
