@@ -77,6 +77,11 @@ class AccountGateway extends EntityModel
        return !empty($this->getConfigField('enableAch'));
     }
 
+    public function getPayPAlEnabled()
+    {
+        return !empty($this->getConfigField('enablePayPal'));
+    }
+
     public function getPlaidSecret()
     {
         if ( ! $this->isGateway(GATEWAY_STRIPE)) {

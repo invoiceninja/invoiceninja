@@ -16,28 +16,65 @@
         display:inline-block;
     }
 </style>
+@if (!empty($braintreeClientToken))
+    <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
+    <script type="text/javascript" >
+        $(function() {
+            var paypalLink = $('#add-paypal'),
+                    paypalUrl = paypalLink.attr('href'),
+                    checkout;
+            braintree.setup("{{ $braintreeClientToken }}", "custom", {
+                onReady: function (integration) {
+                    checkout = integration;
+                },
+                paypal: {
+                    container: "paypal-container",
+                    singleUse: false,
+                    enableShippingAddress: false,
+                    enableBillingAddress: false,
+                    headless: true,
+                    locale: "{{$client->language?$client->language->locale:$client->account->language->locale}}"
+                },
+                dataCollector: {
+                    paypal: true
+                },
+                onPaymentMethodReceived: function (obj) {
+                    window.location.href = paypalUrl + '/' + encodeURIComponent(obj.nonce)
+                }
+            });
+            paypalLink.click(function(e){
+                e.preventDefault();
+                checkout.paypal.initAuthFlow();
+            })
+        });
+    </script>
+@endif
 @if(!empty($paymentMethods))
 @foreach ($paymentMethods as $paymentMethod)
 <div class="payment_method">
             <span class="payment_method_img_container">
                 <img height="22" src="{{URL::to('/images/credit_cards/'.str_replace(' ', '', strtolower($paymentMethod['type']->name).'.png'))}}" alt="{{trans("texts.card_" . str_replace(' ', '', strtolower($paymentMethod['type']->name)))}}">
             </span>
+    @if(!empty($paymentMethod['last4']))
     <span class="payment_method_number">&bull;&bull;&bull;&bull;&bull;{{$paymentMethod['last4']}}</span>
+    @endif
 
     @if($paymentMethod['type']->id == PAYMENT_TYPE_ACH)
-    {{ $paymentMethod['bank_name'] }}
-    @if($paymentMethod['status'] == 'new')
-    <a href="javasript::void" onclick="completeVerification('{{$paymentMethod['id']}}','{{$paymentMethod['currency']->symbol}}')">({{trans('texts.complete_verification')}})</a>
-    @elseif($paymentMethod['status'] == 'verification_failed')
-    ({{trans('texts.verification_failed')}})
-    @endif
+        {{ $paymentMethod['bank_name'] }}
+        @if($paymentMethod['status'] == 'new')
+        <a href="javasript::void" onclick="completeVerification('{{$paymentMethod['id']}}','{{$paymentMethod['currency']->symbol}}')">({{trans('texts.complete_verification')}})</a>
+        @elseif($paymentMethod['status'] == 'verification_failed')
+        ({{trans('texts.verification_failed')}})
+        @endif
+    @elseif($paymentMethod['type']->id == PAYMENT_TYPE_ID_PAYPAL)
+        {{ $paymentMethod['email'] }}
     @else
-    {!! trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($paymentMethod['expiration'], false)->format('m/y'))) !!}
+        {!! trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($paymentMethod['expiration'], false)->format('m/y'))) !!}
     @endif
     @if($paymentMethod['default'])
-    ({{trans('texts.used_for_auto_bill')}})
+        ({{trans('texts.used_for_auto_bill')}})
     @elseif($paymentMethod['type']->id != PAYMENT_TYPE_ACH || $paymentMethod['status'] == 'verified')
-    <a href="#" onclick="setDefault('{{$paymentMethod['id']}}')">({{trans('texts.use_for_auto_bill')}})</a>
+        <a href="#" onclick="setDefault('{{$paymentMethod['id']}}')">({{trans('texts.use_for_auto_bill')}})</a>
     @endif
     <a href="javasript::void" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod['id']}}')">&times;</a>
 </div>
@@ -49,8 +86,15 @@
     ->asLinkTo(URL::to('/client/paymentmethods/add/'.($gateway->getPaymentType() == PAYMENT_TYPE_STRIPE ? 'stripe_credit_card' : 'credit_card'))) !!}
     @if($gateway->getACHEnabled())
     &nbsp;
-    {!! Button::success(strtoupper(trans('texts.add_bank_account')))
-    ->asLinkTo(URL::to('/client/paymentmethods/add/stripe_ach')) !!}
+        {!! Button::success(strtoupper(trans('texts.add_bank_account')))
+            ->asLinkTo(URL::to('/client/paymentmethods/add/stripe_ach')) !!}
+    @endif
+    @if($gateway->getPayPalEnabled())
+        &nbsp;
+        {!! Button::success(strtoupper(trans('texts.add_paypal_account')))
+            ->withAttributes(['id'=>'add-paypal'])
+            ->asLinkTo(URL::to('/client/paymentmethods/add/braintree_paypal')) !!}
+        <div id="paypal-container"></div>
     @endif
 </center>
 

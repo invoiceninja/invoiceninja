@@ -152,62 +152,82 @@ class PaymentController extends BaseController
                                 $account->account_gateways[0]->getPaymentType();
         }
 
-        if ($paymentType == PAYMENT_TYPE_TOKEN) {
-            $useToken = true;
-            $accountGateway = $invoice->client->account->getTokenGateway();
-            $paymentType = $accountGateway->getPaymentType();
-        } else {
-            $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
-        }
+        $data = array();
 
-        Session::put($invitation->id . 'payment_type', $paymentType);
-
-        $gateway = $accountGateway->gateway;
-
-        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
-
-        $isOffsite = ($paymentType != PAYMENT_TYPE_CREDIT_CARD && $accountGateway->getPaymentType() != PAYMENT_TYPE_STRIPE)
-            || $gateway->id == GATEWAY_EWAY
-            || $gateway->id == GATEWAY_TWO_CHECKOUT
-            || $gateway->id == GATEWAY_PAYFAST
-            || $gateway->id == GATEWAY_MOLLIE;
-
-        // Handle offsite payments
-        if ($useToken || $isOffsite) {
-            if (Session::has('error')) {
-                Session::reflash();
-                return Redirect::to('view/'.$invitationKey);
+        if ($paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+            if ($paymentType == PAYMENT_TYPE_TOKEN) {
+                $useToken = true;
+                $accountGateway = $invoice->client->account->getTokenGateway();
+                $paymentType = $accountGateway->getPaymentType();
             } else {
-                return self::do_payment($invitationKey, false, $useToken, $sourceId);
+                $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
             }
+
+            Session::put($invitation->id . 'payment_type', $paymentType);
+
+            $gateway = $accountGateway->gateway;
+
+            $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
+
+            $isOffsite = ($paymentType != PAYMENT_TYPE_CREDIT_CARD && $accountGateway->getPaymentType() != PAYMENT_TYPE_STRIPE)
+                || $gateway->id == GATEWAY_EWAY
+                || $gateway->id == GATEWAY_TWO_CHECKOUT
+                || $gateway->id == GATEWAY_PAYFAST
+                || $gateway->id == GATEWAY_MOLLIE;
+
+            // Handle offsite payments
+            if ($useToken || $isOffsite) {
+                if (Session::has('error')) {
+                    Session::reflash();
+                    return Redirect::to('view/' . $invitationKey);
+                } else {
+                    return self::do_payment($invitationKey, false, $useToken, $sourceId);
+                }
+            }
+
+            $data += [
+                'accountGateway' => $accountGateway,
+                'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
+                'gateway' => $gateway,
+                'showAddress' => $accountGateway->show_address,
+            ];
+
+            if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
+                $data['currencies'] = Cache::get('currencies');
+            }
+
+            if ($gateway->id == GATEWAY_BRAINTREE) {
+                $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
+            }
+
+        } else {
+            if ($deviceData = Input::get('details')) {
+                Session::put($invitation->id . 'device_data', $deviceData);
+            }
+
+            Session::put($invitation->id . 'payment_type', PAYMENT_TYPE_BRAINTREE_PAYPAL);
+            $paypalDetails = json_decode(Input::get('details'));
+            if (!$sourceId || !$paypalDetails) {
+               return Redirect::to('view/'.$invitationKey);
+            }
+            $data['paypalDetails'] = $paypalDetails;
         }
 
-        $data = [
+        $data += [
             'showBreadcrumbs' => false,
             'url' => 'payment/'.$invitationKey,
             'amount' => $invoice->getRequestedAmount(),
             'invoiceNumber' => $invoice->invoice_number,
             'client' => $client,
             'contact' => $invitation->contact,
-            'gateway' => $gateway,
-            'accountGateway' => $accountGateway,
-            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
             'paymentType' => $paymentType,
             'countries' => Cache::get('countries'),
             'currencyId' => $client->getCurrencyId(),
             'currencyCode' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD'),
             'account' => $client->account,
+            'sourceId' => $sourceId,
             'clientFontUrl' => $client->account->getFontsUrl(),
-            'showAddress' => $accountGateway->show_address,
         ];
-
-        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
-            $data['currencies'] = Cache::get('currencies');
-        }
-
-        if ($gateway->id == GATEWAY_BRAINTREE) {
-            $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
-        }
 
         return View::make('payments.add_paymentmethod', $data);
     }
@@ -381,7 +401,6 @@ class PaymentController extends BaseController
         $paymentType = Session::get($invitation->id . 'payment_type');
         $accountGateway = $account->getGatewayByType($paymentType);
 
-
         $rules = [
             'first_name' => 'required',
             'last_name' => 'required',
@@ -399,7 +418,9 @@ class PaymentController extends BaseController
             );
         }
 
-        if ($accountGateway->show_address) {
+        $requireAddress = $accountGateway->show_address && $paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL;
+
+        if ($requireAddress) {
             $rules = array_merge($rules, [
                 'address1' => 'required',
                 'city' => 'required',
@@ -418,7 +439,7 @@ class PaymentController extends BaseController
                     ->withInput(Request::except('cvv'));
             }
 
-            if ($accountGateway->update_address) {
+            if ($requireAddress && $accountGateway->update_address) {
                 $client->address1 = trim(Input::get('address1'));
                 $client->address2 = trim(Input::get('address2'));
                 $client->city = trim(Input::get('city'));
@@ -471,6 +492,11 @@ class PaymentController extends BaseController
                     }
                 }
             } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+                $deviceData = Input::get('device_data');
+                if (!$deviceData) {
+                    $deviceData = Session::get($invitation->id . 'device_data');
+                }
+
                 if ($token = Input::get('payment_method_nonce')) {
                     $details['token'] = $token;
                     unset($details['card']);
@@ -495,6 +521,10 @@ class PaymentController extends BaseController
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
                         return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
                     }
+                }
+
+                if($deviceData) {
+                    $details['deviceData'] = $deviceData;
                 }
             }
 

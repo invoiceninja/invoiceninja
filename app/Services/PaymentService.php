@@ -234,6 +234,13 @@ class PaymentService extends BaseService
                         'last4' => $source->last4,
                         'expiration' => $source->expirationYear . '-' . $source->expirationMonth . '-00',
                     );
+                } elseif ($source instanceof \Braintree\PayPalAccount) {
+                    $paymentMethods[] = array(
+                        'id' => $source->token,
+                        'default' => $source->isDefault(),
+                        'type' => $paymentTypes->find(PAYMENT_TYPE_ID_PAYPAL),
+                        'email' => $source->email,
+                    );
                 }
             }
         }
@@ -524,10 +531,16 @@ class PaymentService extends BaseService
                 }
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
-            $card = $purchaseResponse->getData()->transaction->creditCardDetails;
-            $payment->last4 = $card->last4;
-            $payment->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
-            $payment->payment_type_id = $this->parseCardType($card->cardType);
+            $transaction = $purchaseResponse->getData()->transaction;
+            if ($transaction->paymentInstrumentType == 'credit_card') {
+                $card = $transaction->creditCardDetails;
+                $payment->last4 = $card->last4;
+                $payment->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
+                $payment->payment_type_id = $this->parseCardType($card->cardType);
+            } elseif ($transaction->paymentInstrumentType == 'paypal_account') {
+                $payment->payment_type_id = PAYMENT_TYPE_ID_PAYPAL;
+                $payment->email = $transaction->paypalDetails->payerEmail;
+            }
         }
         
         if ($payerId) {
@@ -734,17 +747,20 @@ class PaymentService extends BaseService
             [
                 'source',
                 function ($model) {
-                    if (!$model->last4) return '';
                     $code = str_replace(' ', '', strtolower($model->payment_type));
                     $card_type = trans("texts.card_" . $code);
                     if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
-                        $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
-                        return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
-                    } else {
+                        if($model->last4) {
+                            $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
+                            return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
+                        } elseif ($model->email) {
+                            return $model->email;
+                        }
+                    } elseif ($model->last4) {
                         $bankData = PaymentController::getBankData($model->routing_number);
                         if (is_array($bankData)) {
                             return $bankData['name'].'&nbsp; &bull;&bull;&bull;' . $model->last4;
-                        } else {
+                        } elseif($model->last4) {
                             return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }
                     }

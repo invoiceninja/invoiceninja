@@ -110,9 +110,21 @@ class AccountGatewayController extends BaseController
                     continue;
                 }
 
+                if ($type == PAYMENT_TYPE_STRIPE && $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD)) {
+                    // Another gateway is already handling credit card payments
+                    continue;
+                }
+
                 if ($type == PAYMENT_TYPE_DIRECT_DEBIT && $stripeGateway = $account->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
-                    if (!empty($stripeGateway->getConfig()->enableAch)) {
+                    if (!empty($stripeGateway->getAchEnabled())) {
                         // Stripe is already handling ACH payments
+                        continue;
+                    }
+                }
+
+                if ($type == PAYMENT_TYPE_PAYPAL && $braintreeGateway = $account->getGatewayConfig(GATEWAY_BRAINTREE)) {
+                    if (!empty($braintreeGateway->getPayPalEnabled())) {
+                        // PayPal is already enabled
                         continue;
                     }
                 }
@@ -298,6 +310,10 @@ class AccountGatewayController extends BaseController
 
             if ($gatewayId == GATEWAY_STRIPE) {
                 $config->enableAch = boolval(Input::get('enable_ach'));
+            }
+
+            if ($gatewayId == GATEWAY_BRAINTREE) {
+                $config->enablePayPal = boolval(Input::get('enable_paypal'));
             }
 
             $cardCount = 0;

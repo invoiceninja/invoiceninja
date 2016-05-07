@@ -32,6 +32,7 @@ class PaymentsChanges extends Migration
             $table->smallInteger('last4')->unsigned()->nullable();
             $table->date('expiration')->nullable();
             $table->text('gateway_error')->nullable();
+            $table->string('email')->nullable();
         });
 
         Schema::table('invoices', function($table)
@@ -61,6 +62,7 @@ class PaymentsChanges extends Migration
             $table->dropColumn('last4');
             $table->dropColumn('expiration');
             $table->dropColumn('gateway_error');
+            $table->dropColumn('email');
         });
 
         Schema::table('invoices', function ($table) {

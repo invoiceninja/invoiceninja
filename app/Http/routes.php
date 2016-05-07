@@ -45,7 +45,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::match(['GET', 'POST'], 'complete', 'PaymentController@offsite_payment');
     Route::get('client/paymentmethods', 'PublicClientController@paymentMethods');
     Route::post('client/paymentmethods/verify', 'PublicClientController@verifyPaymentMethod');
-    Route::get('client/paymentmethods/add/{payment_type}', 'PublicClientController@addPaymentMethod');
+    Route::get('client/paymentmethods/add/{payment_type}/{source_id?}', 'PublicClientController@addPaymentMethod');
     Route::post('client/paymentmethods/add/{payment_type}', 'PublicClientController@postAddPaymentMethod');
     Route::post('client/paymentmethods/default', 'PublicClientController@setDefaultPaymentMethod');
     Route::post('client/paymentmethods/{source_id}/remove', 'PublicClientController@removePaymentMethod');
@@ -638,6 +638,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_TYPE_EUROCARD', 11);
     define('PAYMENT_TYPE_NOVA', 12);
     define('PAYMENT_TYPE_CREDIT_CARD_OTHER', 13);
+    define('PAYMENT_TYPE_ID_PAYPAL', 14);
     define('PAYMENT_TYPE_CARTE_BLANCHE', 17);
     define('PAYMENT_TYPE_UNIONPAY', 18);
     define('PAYMENT_TYPE_JCB', 19);
@@ -650,6 +651,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_TYPE_STRIPE', 'PAYMENT_TYPE_STRIPE');
     define('PAYMENT_TYPE_STRIPE_CREDIT_CARD', 'PAYMENT_TYPE_STRIPE_CREDIT_CARD');
     define('PAYMENT_TYPE_STRIPE_ACH', 'PAYMENT_TYPE_STRIPE_ACH');
+    define('PAYMENT_TYPE_BRAINTREE_PAYPAL', 'PAYMENT_TYPE_BRAINTREE_PAYPAL');
     define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
     define('PAYMENT_TYPE_DIRECT_DEBIT', 'PAYMENT_TYPE_DIRECT_DEBIT');
     define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');

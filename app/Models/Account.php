@@ -383,6 +383,15 @@ class Account extends Eloquent
             $type = PAYMENT_TYPE_STRIPE;
         }
 
+        if ($type == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+            $gateway = $this->getGatewayConfig(GATEWAY_BRAINTREE);
+
+            if (!$gateway || !$gateway->getPayPalEnabled()){
+                return false;
+            }
+            return $gateway;
+        }
+
         foreach ($this->account_gateways as $gateway) {
             if (!$type || $type == PAYMENT_TYPE_ANY) {
                 return $gateway;

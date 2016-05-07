@@ -1276,7 +1276,13 @@ $LANG = array(
     'disabled_by_client' => 'Disabled by client',
     'manage_auto_bill' => 'Manage Auto-bill',
     'enabled' => 'Enabled',
-    ''
+    'paypal' => 'PayPal',
+    'braintree_enable_paypal' => 'Enable PayPal payments through BrainTree',
+    'braintree_paypal_disabled_help' => 'The PayPal gateway is processing PayPal payments',
+    'braintree_paypal_help' => 'You must also :link.',
+    'braintree_paypal_help_link_text' => 'link PayPal to your BrainTree account',
+    'token_billing_braintree_paypal' => 'Save payment details',
+    'add_paypal_account' => 'Add PayPal Account'
 );
 
 return $LANG;

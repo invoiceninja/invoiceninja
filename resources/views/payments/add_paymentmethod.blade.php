@@ -64,7 +64,7 @@
                 });
             });
         </script>
-    @elseif ($accountGateway->getPublishableStripeKey())
+    @elseif (isset($accountGateway) && $accountGateway->getPublishableStripeKey())
         <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
         <script type="text/javascript">
             Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
@@ -334,7 +334,8 @@
 
                 <p>&nbsp;<br/>&nbsp;</p>
                 <div>
-                    @if($paymentType != PAYMENT_TYPE_STRIPE_ACH)
+                    <div id="paypal-container"></div>
+                    @if($paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL)
                         <h3>{{ trans('texts.contact_information') }}</h3>
                         <div class="row">
                             <div class="col-md-6">
@@ -363,7 +364,7 @@
 
                         <p>&nbsp;<br/>&nbsp;</p>
 
-                        @if ($showAddress)
+                        @if (!empty($showAddress))
                             <h3>{{ trans('texts.billing_address') }}&nbsp;<span class="help">{{ trans('texts.payment_footer1') }}</span></h3>
                         <div class="row">
                             <div class="col-md-6">
@@ -481,6 +482,33 @@
                                             ->large() !!}
                             @endif
                         </div>
+                    @elseif($paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL)
+                        <h3>{{ trans('texts.paypal') }}</h3>
+                        <div>{{$paypalDetails->firstName}} {{$paypalDetails->lastName}}</div>
+                        <div>{{$paypalDetails->email}}</div>
+                        <input type="hidden" name="payment_method_nonce" value="{{$sourceId}}">
+                        <input type="hidden" name="first_name" value="{{$paypalDetails->firstName}}">
+                        <input type="hidden" name="last_name" value="{{$paypalDetails->lastName}}">
+                        <p>&nbsp;</p>
+                        @if (isset($amount) && $client && $account->showTokenCheckbox())
+                            <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
+                            <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing_braintree_paypal') }}</label>
+                            <span class="help-block" style="font-size:15px">
+                                            {!! trans('texts.token_billing_secure', ['link' => link_to('https://www.braintreepayments.com/', 'Braintree', ['target' => '_blank'])]) !!}
+                            </span>
+                        @endif
+                        <p>&nbsp;</p>
+                        <center>
+                            @if(isset($amount))
+                                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
+                                                ->submit()
+                                                ->large() !!}
+                            @else
+                                {!! Button::success(strtoupper(trans('texts.add_credit_card') ))
+                                            ->submit()
+                                            ->large() !!}
+                            @endif
+                        </center>
                     @else
                         <div class="row">
                             <div class="col-md-9">
@@ -662,7 +690,7 @@
         });
 
     </script>
-    @if ($accountGateway->getPlaidEnabled())
+    @if (isset($accountGateway) && $accountGateway->getPlaidEnabled())
     <a href="https://plaid.com/products/auth/" target="_blank" style="display:none" id="secured_by_plaid"><img src="{{ URL::to('images/plaid-logowhite.svg') }}">{{ trans('texts.secured_by_plaid') }}</a>
     <script src="https://cdn.plaid.com/link/stable/link-initialize.js"></script>
     @endif

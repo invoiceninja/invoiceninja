@@ -95,12 +95,19 @@ class PublicClientController extends BaseController
             'phone',
         ]);
 
+        $data = array();
         $paymentTypes = $this->getPaymentTypes($client, $invitation);
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
             if (!$account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
                 $paymentURL = URL::to($paymentURL);
+            }
+        }
+
+        if ($braintreeGateway = $account->getGatewayConfig(GATEWAY_BRAINTREE)){
+            if($braintreeGateway->getPayPalEnabled()) {
+                $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
             }
         }
 
@@ -125,7 +132,7 @@ class PublicClientController extends BaseController
             }
         }
 
-        $data = array(
+        $data += array(
             'account' => $account,
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
@@ -167,20 +174,28 @@ class PublicClientController extends BaseController
 
                     if ($paymentMethod['type']->id == PAYMENT_TYPE_ACH) {
                         $html = '<div>'.htmlentities($paymentMethod['bank_name']).'</div>';
+                    } elseif ($paymentMethod['type']->id == PAYMENT_TYPE_ID_PAYPAL) {
+                        $html = '<img height="22" src="'.URL::to('/images/credit_cards/paypal.png').'" alt="'.trans("texts.card_".$code).'">';
                     } else {
                         $code = htmlentities(str_replace(' ', '', strtolower($paymentMethod['type']->name)));
                         $html = '<img height="22" src="'.URL::to('/images/credit_cards/'.$code.'.png').'" alt="'.trans("texts.card_".$code).'">';
                     }
 
-                    if ($paymentMethod['type']->id != PAYMENT_TYPE_ACH) {
+                    $url = URL::to("/payment/{$invitation->invitation_key}/token/".$paymentMethod['id']);
+
+                    if ($paymentMethod['type']->id == PAYMENT_TYPE_ID_PAYPAL) {
+                        $html .= '&nbsp;&nbsp;<span>'.$paymentMethod['email'].'</span>';
+                        $url .= '#braintree_paypal';
+                    } elseif ($paymentMethod['type']->id != PAYMENT_TYPE_ACH) {
                         $html .= '<div class="pull-right" style="text-align:right">'.trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($paymentMethod['expiration'], false)->format('m/y'))).'<br>';
+                        $html .= '&bull;&bull;&bull;'.$paymentMethod['last4'].'</div>';
                     } else {
                         $html .= '<div style="text-align:right">';
+                        $html .= '&bull;&bull;&bull;'.$paymentMethod['last4'].'</div>';
                     }
-                    $html .= '&bull;&bull;&bull;'.$paymentMethod['last4'].'</div>';
 
                     $paymentTypes[] = [
-                        'url' => URL::to("/payment/{$invitation->invitation_key}/token/".$paymentMethod['id']),
+                        'url' => $url,
                         'label' => $html,
                     ];
                 }
@@ -219,6 +234,13 @@ class PublicClientController extends BaseController
                     $paymentTypes[] = [
                         'url' => $url, 'label' => $label
                     ];
+
+                    if($gateway->getPayPalEnabled()) {
+                        $paymentTypes[] = [
+                            'label' => trans('texts.paypal'),
+                            'url' => $url = URL::to("/payment/{$invitation->invitation_key}/braintree_paypal"),
+                        ];
+                    }
                 }
             }
         }
@@ -270,6 +292,12 @@ class PublicClientController extends BaseController
             'gateway' => $account->getTokenGateway(),
             'paymentMethods' => $this->paymentService->getClientPaymentMethods($client),
         ];
+
+        if ($braintreeGateway = $account->getGatewayConfig(GATEWAY_BRAINTREE)){
+            if($braintreeGateway->getPayPalEnabled()) {
+                $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
+            }
+        }
         
         return response()->view('invited.dashboard', $data);
     }
@@ -413,18 +441,21 @@ class PublicClientController extends BaseController
                 ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number; })
                 ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
                 ->addColumn('payment_type', function ($model) { return ($model->payment_type && !$model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
-                ->addColumn('payment_source', function ($model) { 
-                    if (!$model->last4) return '';
+                ->addColumn('payment_source', function ($model) {
                     $code = str_replace(' ', '', strtolower($model->payment_type));
                     $card_type = trans("texts.card_" . $code);
                     if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
-                        $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
-                        return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
-                    } else {
+                        if($model->last4) {
+                            $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
+                            return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
+                        } elseif ($model->email) {
+                            return $model->email;
+                        }
+                    } elseif ($model->last4) {
                         $bankData = PaymentController::getBankData($model->routing_number);
                         if (is_array($bankData)) {
                             return $bankData['name'].'&nbsp; &bull;&bull;&bull;' . $model->last4;
-                        } else {
+                        } elseif($model->last4) {
                             return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }
                     }
@@ -728,6 +759,12 @@ class PublicClientController extends BaseController
             'title' => trans('texts.payment_methods')
         );
 
+        if ($braintreeGateway = $account->getGatewayConfig(GATEWAY_BRAINTREE)){
+            if($braintreeGateway->getPayPalEnabled()) {
+                $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
+            }
+        }
+
         return response()->view('payments.paymentmethods', $data);
     }
 
@@ -771,7 +808,7 @@ class PublicClientController extends BaseController
         return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
     }
 
-    public function addPaymentMethod($paymentType)
+    public function addPaymentMethod($paymentType, $token=false)
     {
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
@@ -785,6 +822,18 @@ class PublicClientController extends BaseController
         $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
         $accountGateway = $invoice->client->account->getTokenGateway();
         $gateway = $accountGateway->gateway;
+
+        if ($token && $paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+            $sourceId = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $invitation->contact_id);
+
+            if(empty($sourceId)) {
+                $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
+            } else {
+                Session::flash('message', trans('texts.payment_method_added'));
+            }
+            return redirect()->to($account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
+        }
+
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
 

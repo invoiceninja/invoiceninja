@@ -23,6 +23,7 @@
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
         {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? '1' : null) !!}
+        {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? '1' : null) !!}
         {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
         {!! Former::populateField('plaid_secret', $accountGateway->getPlaidSecret() ? str_repeat('*', strlen($accountGateway->getPlaidSecret())) : '') !!}
         {!! Former::populateField('plaid_public_key', $accountGateway->getPlaidPublicKey() ? str_repeat('*', strlen($accountGateway->getPlaidPublicKey())) : '') !!}
@@ -94,6 +95,25 @@
                 {!! Former::select('token_billing_type_id')
                         ->options($tokenBillingOptions)
                         ->help(trans('texts.token_billing_help')) !!}
+            @endif
+
+            @if ($gateway->id == GATEWAY_BRAINTREE)
+                @if ($account->getGatewayByType(PAYMENT_TYPE_PAYPAL))
+                    {!! Former::checkbox('enable_paypal')
+                        ->label(trans('texts.paypal'))
+                        ->text(trans('texts.braintree_enable_paypal'))
+                        ->value(null)
+                        ->disabled(true)
+                        ->help(trans('texts.braintree_paypal_disabled_help')) !!}
+                @else
+                    {!! Former::checkbox('enable_paypal')
+                           ->label(trans('texts.paypal'))
+                           ->help(trans('texts.braintree_paypal_help', [
+                                'link'=>'<a href="https://articles.braintreepayments.com/guides/paypal/setup-guide" target="_blank">'.
+                                    trans('texts.braintree_paypal_help_link_text').'</a>'
+                            ]))
+                           ->text(trans('texts.braintree_enable_paypal')) !!}
+                @endif
             @endif
         </div>
 
