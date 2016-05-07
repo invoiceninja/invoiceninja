@@ -247,13 +247,13 @@ NINJA.notesAndTerms = function(invoice)
     var data = [];
 
     if (invoice.public_notes) {
-        data.push({stack:[{text: invoice.public_notes, style: ['notes']}]});
+        data.push({stack:[{text: invoice.is_recurring ? processVariables(invoice.public_notes) : invoice.public_notes, style: ['notes']}]});
         data.push({text:' '});
     }
 
     if (invoice.terms) {
         data.push({text:invoiceLabels.terms, style: ['termsLabel']});
-        data.push({stack:[{text: invoice.terms, style: ['terms']}]});
+        data.push({stack:[{text: invoice.is_recurring ? processVariables(invoice.terms) : invoice.terms, style: ['terms']}]});
     }
 
     return NINJA.prepareDataList(data, 'notesAndTerms');
@@ -293,10 +293,16 @@ NINJA.invoiceColumns = function(invoice)
 
 NINJA.invoiceFooter = function(invoice)
 {
+    var footer = invoice.invoice_footer;
+
+    if (invoice.is_recurring) {
+        footer = processVariables(footer);
+    }
+
     if (!invoice.features.invoice_settings && invoice.invoice_design_id == 3) {
-        return invoice.invoice_footer ? invoice.invoice_footer.substring(0, 200) : ' ';
+        return footer ? footer.substring(0, 200) : ' ';
     } else {
-        return invoice.invoice_footer || ' ';
+        return footer || ' ';
     }
 }
 
@@ -587,13 +593,13 @@ NINJA.invoiceDetails = function(invoice) {
     if (invoice.custom_text_value1) {
         data.push([
             {text: invoice.account.custom_invoice_text_label1},
-            {text: invoice.custom_text_value1}
+            {text: invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1}
         ])
     }
     if (invoice.custom_text_value2) {
         data.push([
             {text: invoice.account.custom_invoice_text_label2},
-            {text: invoice.custom_text_value2}
+            {text: invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2}
         ])
     }
 

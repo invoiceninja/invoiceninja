@@ -726,8 +726,8 @@ class InvoiceRepository extends BaseRepository
         $invoice->custom_value2 = $recurInvoice->custom_value2 ?: 0;
         $invoice->custom_taxes1 = $recurInvoice->custom_taxes1 ?: 0;
         $invoice->custom_taxes2 = $recurInvoice->custom_taxes2 ?: 0;
-        $invoice->custom_text_value1 = $recurInvoice->custom_text_value1;
-        $invoice->custom_text_value2 = $recurInvoice->custom_text_value2;
+        $invoice->custom_text_value1 = Utils::processVariables($recurInvoice->custom_text_value1);
+        $invoice->custom_text_value2 = Utils::processVariables($recurInvoice->custom_text_value2);
         $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
         $invoice->due_date = $recurInvoice->getDueDate();
         $invoice->save();
