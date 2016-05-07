@@ -743,6 +743,8 @@ class InvoiceRepository extends BaseRepository
             $item->tax_rate1 = $recurItem->tax_rate1;
             $item->tax_name2 = $recurItem->tax_name2;
             $item->tax_rate2 = $recurItem->tax_rate2;
+            $item->custom_value1 = Utils::processVariables($recurItem->custom_value1);
+            $item->custom_value2 = Utils::processVariables($recurItem->custom_value2);
             $invoice->invoice_items()->save($item);
         }
 
