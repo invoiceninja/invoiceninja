@@ -75,17 +75,19 @@ class AccountRepository
         return $account;
     }
 
-    public function getSearchData($account)
+    public function getSearchData($user)
     {
-        $data = $this->getAccountSearchData($account);
+        $data = $this->getAccountSearchData($user);
 
-        $data['navigation'] = $this->getNavigationSearchData();
+        $data['navigation'] = $user->is_admin ? $this->getNavigationSearchData() : [];
 
         return $data;
     }
 
-    private function getAccountSearchData($account)
+    private function getAccountSearchData($user)
     {
+        $account = $user->account;
+        
         $data = [
             'clients' => [],
             'contacts' => [],
@@ -100,11 +102,19 @@ class AccountRepository
         if ($account->custom_client_label2) {
             $data[$account->custom_client_label2] = [];
         }
-
-        $clients = Client::scope()
-                    ->with('contacts', 'invoices')
-                    ->get();
-
+        
+        if ($user->hasPermission('view_all')) {
+            $clients = Client::scope()
+                        ->with('contacts', 'invoices')
+                        ->get();
+        } else {
+            $clients = Client::scope()
+                        ->where('user_id', '=', $user->id)
+                        ->with(['contacts', 'invoices' => function($query) use ($user) {
+                            $query->where('user_id', '=', $user->id);
+                        }])->get();
+        }
+        
         foreach ($clients as $client) {
             if ($client->name) {
                 $data['clients'][] = [

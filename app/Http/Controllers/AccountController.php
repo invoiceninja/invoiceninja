@@ -253,8 +253,7 @@ class AccountController extends BaseController
 
     public function getSearchData()
     {
-        $account = Auth::user()->account;
-        $data = $this->accountRepo->getSearchData($account);
+        $data = $this->accountRepo->getSearchData(Auth::user());
 
         return Response::json($data);
     }
