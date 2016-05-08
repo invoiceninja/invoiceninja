@@ -644,7 +644,7 @@ class AccountRepository
     {
         $name = trim($name) ?: 'TOKEN';
         $users = $this->findUsers($user);
-
+        
         foreach ($users as $user) {
             if ($token = AccountToken::whereUserId($user->id)->whereName($name)->first()) {
                 continue;
