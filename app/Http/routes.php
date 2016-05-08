@@ -573,6 +573,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('REFERRAL_PROGRAM_URL', env('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/'));
     define('EMAIL_MARKUP_URL', env('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup'));
     define('OFX_HOME_URL', env('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all'));
+    define('GOOGLE_ANALYITCS_URL', env('GOOGLE_ANALYITCS_URL', 'https://www.google-analytics.com/collect'));
 
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
 
@@ -586,7 +587,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
     define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
-    define('PRO_PLAN_PRICE', env('PRO_PLAN_PRICE', 50));
     define('PLAN_PRICE_PRO_MONTHLY', env('PLAN_PRICE_PRO_MONTHLY', 5));
     define('PLAN_PRICE_PRO_YEARLY', env('PLAN_PRICE_PRO_YEARLY', 50));
     define('PLAN_PRICE_ENTERPRISE_MONTHLY', env('PLAN_PRICE_ENTERPRISE_MONTHLY', 10));

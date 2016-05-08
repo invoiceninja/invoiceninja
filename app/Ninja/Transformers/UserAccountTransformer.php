@@ -33,6 +33,8 @@ class UserAccountTransformer extends EntityTransformer
             'account_key' => $user->account->account_key,
             'name' => $user->account->present()->name,
             'token' => $user->account->getToken($user->id, $this->tokenName),
+            'is_admin' => (bool) $user->is_admin,
+            'permissions' => $user->permissions,
             'default_url' => SITE_URL
         ];
     }

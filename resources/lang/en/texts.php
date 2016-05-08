@@ -1178,6 +1178,7 @@ $LANG = array(
     'invoice_number_padding' => 'Padding',
     'preview' => 'Preview',
     'list_vendors' => 'List Vendors',
+    'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
 
 );
 
