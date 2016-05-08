@@ -470,10 +470,10 @@ class Account extends Eloquent
         return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
     }
 
-    public function getToken($name)
+    public function getToken($userId, $name)
     {
         foreach ($this->account_tokens as $token) {
-            if ($token->name === $name) {
+            if ($token->user_id == $userId && $token->name === $name) {
                 return $token->token;
             }
         }
@@ -1180,7 +1180,7 @@ class Account extends Eloquent
             // Add line breaks if HTML isn't already being used
             return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {
-            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</p>";
+            return "<p><div>" . trans('texts.email_signature') . "\n<br>\$account</div></p>";
         }
     }
 
