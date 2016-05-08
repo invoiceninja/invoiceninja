@@ -114,6 +114,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
+    Route::post('users/change_password', 'UserController@changePassword');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -192,7 +193,6 @@ Route::group([
     Route::get('start_trial/{plan}', 'AccountController@startTrial')
         ->where(['plan'=>'pro']);
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
-    Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
