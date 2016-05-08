@@ -3,7 +3,6 @@
 use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use App\Services\DatatableService;
-use Auth;
 
 class BaseService
 {
