@@ -470,6 +470,13 @@ class Account extends Eloquent
         return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
     }
 
+    public function getPrimaryUser()
+    {
+        return $this->users()
+                    ->orderBy('id')
+                    ->first();
+    }
+
     public function getToken($userId, $name)
     {
         foreach ($this->account_tokens as $token) {
