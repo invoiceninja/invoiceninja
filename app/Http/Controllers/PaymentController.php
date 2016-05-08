@@ -477,6 +477,7 @@ class PaymentController extends BaseController
                 if ($account->account_key == NINJA_ACCOUNT_KEY) {
                     Session::flash('trackEventCategory', '/account');
                     Session::flash('trackEventAction', '/buy_pro_plan');
+                    Session::flash('trackEventAmount', $payment->amount);
                 }
 
                 return Redirect::to('view/'.$payment->invitation->invitation_key);
