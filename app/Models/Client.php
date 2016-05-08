@@ -199,6 +199,13 @@ class Client extends EntityModel
         return $this->name;
     }
     
+    public function getPrimaryContact()
+    {
+        return $this->contacts()
+                    ->whereIsPrimary(true)
+                    ->first();
+    }
+    
     public function getDisplayName()
     {
         if ($this->name) {
