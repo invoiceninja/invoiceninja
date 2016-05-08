@@ -247,13 +247,13 @@ NINJA.notesAndTerms = function(invoice)
     var data = [];
 
     if (invoice.public_notes) {
-        data.push({stack:[{text: invoice.public_notes, style: ['notes']}]});
+        data.push({stack:[{text: invoice.is_recurring ? processVariables(invoice.public_notes) : invoice.public_notes, style: ['notes']}]});
         data.push({text:' '});
     }
 
     if (invoice.terms) {
         data.push({text:invoiceLabels.terms, style: ['termsLabel']});
-        data.push({stack:[{text: invoice.terms, style: ['terms']}]});
+        data.push({stack:[{text: invoice.is_recurring ? processVariables(invoice.terms) : invoice.terms, style: ['terms']}]});
     }
 
     return NINJA.prepareDataList(data, 'notesAndTerms');
@@ -293,10 +293,16 @@ NINJA.invoiceColumns = function(invoice)
 
 NINJA.invoiceFooter = function(invoice)
 {
+    var footer = invoice.invoice_footer;
+
+    if (invoice.is_recurring) {
+        footer = processVariables(footer);
+    }
+
     if (!invoice.features.invoice_settings && invoice.invoice_design_id == 3) {
-        return invoice.invoice_footer ? invoice.invoice_footer.substring(0, 200) : ' ';
+        return footer ? footer.substring(0, 200) : ' ';
     } else {
-        return invoice.invoice_footer || ' ';
+        return footer || ' ';
     }
 }
 
@@ -352,7 +358,9 @@ NINJA.invoiceLines = function(invoice) {
         var notes = item.notes;
         var productKey = item.product_key;
         var tax1 = '';        
-        var tax2 = '';        
+        var tax2 = '';
+        var custom_value1 = item.custom_value1;
+        var custom_value2 = item.custom_value2;
         
         if (showItemTaxes) {
             if (item.tax_name1) {
@@ -374,6 +382,8 @@ NINJA.invoiceLines = function(invoice) {
         if (invoice.is_recurring) {
             notes = processVariables(notes);
             productKey = processVariables(productKey);
+            custom_value1 = processVariables(item.custom_value1);
+            custom_value2 = processVariables(item.custom_value2);
         }
 
         var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
@@ -386,10 +396,10 @@ NINJA.invoiceLines = function(invoice) {
         }
         row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]}); 
         if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
-            row.push({style:["customValue1", rowStyle], text:item.custom_value1 || ' '});
+            row.push({style:["customValue1", rowStyle], text:custom_value1 || ' '});
         }
         if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
-            row.push({style:["customValue2", rowStyle], text:item.custom_value2 || ' '});
+            row.push({style:["customValue2", rowStyle], text:custom_value2 || ' '});
         }
         row.push({style:["cost", rowStyle], text:cost});
         if (!hideQuantity) {
@@ -587,13 +597,13 @@ NINJA.invoiceDetails = function(invoice) {
     if (invoice.custom_text_value1) {
         data.push([
             {text: invoice.account.custom_invoice_text_label1},
-            {text: invoice.custom_text_value1}
+            {text: invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1}
         ])
     }
     if (invoice.custom_text_value2) {
         data.push([
             {text: invoice.account.custom_invoice_text_label2},
-            {text: invoice.custom_text_value2}
+            {text: invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2}
         ])
     }
 
