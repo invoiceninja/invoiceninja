@@ -740,30 +740,6 @@ if (!defined('CONTACT_EMAIL')) {
 }
 
 /*
-// Log all SQL queries to laravel.log
-if (Utils::isNinjaDev()) {
-    Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
-        $data = compact('bindings', 'time', 'name');
-
-        // Format binding data for sql insertion
-        foreach ($bindings as $i => $binding) {
-            if ($binding instanceof \DateTime) {
-                $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
-            } elseif (is_string($binding)) {
-                $bindings[$i] = "'$binding'";
-            }
-        }
-
-        // Insert bindings into query
-        $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
-        $query = vsprintf($query, $bindings);
-
-        Log::info($query, $data);
-    });
-}
-*/
-
-/*
 if (Utils::isNinjaDev())
 {
   //ini_set('memory_limit','1024M');
