@@ -348,9 +348,18 @@ class PaymentController extends BaseController
                 $license->save();
             }
 
-            return $productId == PRODUCT_INVOICE_DESIGNS ? file_get_contents(storage_path() . '/invoice_designs.txt') : 'valid';
+            if ($productId == PRODUCT_INVOICE_DESIGNS) {
+                return file_get_contents(storage_path() . '/invoice_designs.txt');
+            } else {
+                // temporary fix to enable previous version to work
+                if (Input::get('get_date')) {
+                    return $license->created_at->format('Y-m-d');
+                } else {
+                    return 'valid';
+                }
+            }
         } else {
-            return 'invalid';
+            return RESULT_FAILURE;
         }
     }
 
