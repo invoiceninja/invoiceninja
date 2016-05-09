@@ -34,7 +34,8 @@ class ApiCheck {
             // check for a valid token
             $token = AccountToken::where('token', '=', Request::header('X-Ninja-Token'))->first(['id', 'user_id']);
 
-            if ($token) {
+            // check if user is archived
+            if ($token && $token->user) {
                 Auth::loginUsingId($token->user_id);
                 Session::set('token_id', $token->id);
             } else {
