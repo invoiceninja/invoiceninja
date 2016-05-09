@@ -506,6 +506,8 @@ class InvoiceController extends BaseController
 
         if ($count > 0) {
             $key = $action == 'markSent' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
+            $key = $action == 'mail' ? "emailed_{$entityType}" : "{$action}d_{$entityType}";
+
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }

@@ -19,6 +19,8 @@
 	@endif
 
 	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
+              ($entityType == ENTITY_INVOICE || $entityType == ENTITY_QUOTE) 
+              ?['label' => trans('texts.mail_'.$entityType), 'url' => 'javascript:submitForm("mail")'] : NULL,
 		      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm("archive")'],
 		      ['label' => trans('texts.delete_'.$entityType), 'url' => 'javascript:submitForm("delete")'],
 		    ])->withAttributes(['class'=>'archive'])->split() !!}
@@ -68,6 +70,11 @@
 		$('#action').val(action);
 		$('form.listForm').submit();		
 	}
+
+    function mailEntity(id) {
+        $('#public_id').val(id);
+        submitForm('mail');
+    }
 
 	function deleteEntity(id) {
 		$('#public_id').val(id);

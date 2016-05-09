@@ -147,6 +147,7 @@ class QuoteController extends BaseController
 
         if ($count > 0) {
             $key = $action == 'markSent' ? "updated_quote" : "{$action}d_quote";
+            $key = $action == 'mail' ? "emailed_quote" : "{$action}d_quote";
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }

@@ -11,6 +11,7 @@ use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Payment;
+use App\Ninja\Mailers\ContactMailer as Mailer;
 
 class InvoiceService extends BaseService
 {
@@ -18,11 +19,12 @@ class InvoiceService extends BaseService
     protected $invoiceRepo;
     protected $datatableService;
 
-    public function __construct(ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, DatatableService $datatableService)
+    public function __construct(ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, DatatableService $datatableService, Mailer $mailer)
     {
         $this->clientRepo = $clientRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->datatableService = $datatableService;
+        $this->mailer = $mailer;
     }
 
     protected function getRepo()
@@ -304,6 +306,20 @@ class InvoiceService extends BaseService
                 break;
         }
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+    }
+
+    public function bulk($ids, $action)
+    {
+        if ($action == 'mail')
+        {
+            $invoices = $this->getRepo()->findByPublicIds($ids);
+            foreach ($invoices as $invoice) {
+                $this->mailer->sendInvoice($invoice);
+            }
+            return count($invoices);
+        } else {
+            parent::bulk($ids, $action);
+        }
     }
 
 }

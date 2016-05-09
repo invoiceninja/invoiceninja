@@ -1097,6 +1097,11 @@ $LANG = array(
     'november' => 'November',
     'december' => 'December',
     
+    'mail_invoice'  =>  'Mail Invoice',
+    'emailed_invoices'  => 'Successfully emailed :count invoices',
+    'mail_quote'  =>  'Mail Quote',
+    'emailed_quotes'  => 'Successfully emailed :count quotes'
+      
 );
 
 return $LANG;
