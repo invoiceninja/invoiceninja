@@ -8,7 +8,7 @@
         <div class="pull-right">  
             {!! Button::primary(trans('texts.add_user'))->asLinkTo(URL::to('/users/create'))->appendIcon(Icon::create('plus-sign')) !!}
         </div>
-    @else
+    @elseif (Utils::isTrial())
         <div class="alert alert-warning">{!! trans('texts.add_users_not_supported') !!}</div>    
     @endif
 

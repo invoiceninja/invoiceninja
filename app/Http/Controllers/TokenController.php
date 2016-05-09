@@ -32,7 +32,7 @@ class TokenController extends BaseController
 
     public function getDatatable()
     {
-        return $this->tokenService->getDatatable(Auth::user()->account_id);
+        return $this->tokenService->getDatatable(Auth::user()->id);
     }
 
     public function edit($publicId)

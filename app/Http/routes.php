@@ -110,9 +110,11 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
+    Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
     
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
+    Route::post('users/change_password', 'UserController@changePassword');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -191,7 +193,6 @@ Route::group([
     Route::get('start_trial/{plan}', 'AccountController@startTrial')
         ->where(['plan'=>'pro']);
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
-    Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
@@ -220,11 +221,6 @@ Route::group([
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
 
-    //Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
-    //Route::resource('payment_terms', 'PaymentTermController');
-    //Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
-
-    Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
     Route::post('account/go_pro', 'AccountController@enableProPlan');
@@ -743,30 +739,6 @@ if (!defined('CONTACT_EMAIL')) {
         }
     }
 }
-
-/*
-// Log all SQL queries to laravel.log
-if (Utils::isNinjaDev()) {
-    Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
-        $data = compact('bindings', 'time', 'name');
-
-        // Format binding data for sql insertion
-        foreach ($bindings as $i => $binding) {
-            if ($binding instanceof \DateTime) {
-                $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
-            } elseif (is_string($binding)) {
-                $bindings[$i] = "'$binding'";
-            }
-        }
-
-        // Insert bindings into query
-        $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
-        $query = vsprintf($query, $bindings);
-
-        Log::info($query, $data);
-    });
-}
-*/
 
 /*
 if (Utils::isNinjaDev())

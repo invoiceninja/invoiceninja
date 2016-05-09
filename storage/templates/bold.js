@@ -114,8 +114,8 @@
             "columns": [
               { 
                 "image": "$accountLogo",
-                "fit": [120, 80],
-                "margin": [30, 20, 0, 0]
+                "fit": [120, 60],
+                "margin": [30, 16, 0, 0]
               },
               {
                 "stack": "$accountDetails",

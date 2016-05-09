@@ -140,7 +140,7 @@ class Utils
 
     public static function hasAllPermissions($permission)
     {
-        return Auth::check() && Auth::user()->hasPermissions($permission);
+        return Auth::check() && Auth::user()->hasPermission($permission);
     }
 
     public static function isTrial()
