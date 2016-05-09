@@ -15,9 +15,17 @@ class EntityRequest extends Request {
             return $this->entity;
         }
 
-        $paramName = $this->entityType . 's';
-        $publicId = $this->$paramName ?: (Input::get('public_id') ?: Input::get('id'));
-        
+        // The entity id can appear as invoices, invoice_id, public_id or id
+        $publicId = false;
+        foreach (['_id', 's'] as $suffix) {
+            $field = $this->entityType . $suffix;
+            if ($this->$field) {
+                $publicId= $this->$field; 
+            } 
+        }
+        if ( ! $publicId) {
+            $publicId = Input::get('public_id') ?: Input::get('id');
+        }
         if ( ! $publicId) {
             return null;
         } 

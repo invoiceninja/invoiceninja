@@ -556,9 +556,9 @@ class InvoiceController extends BaseController
         return self::edit($request, $publicId, true);
     }
 
-    public function invoiceHistory($publicId)
+    public function invoiceHistory(InvoiceRequest $request)
     {
-        $invoice = Invoice::withTrashed()->scope($publicId)->firstOrFail();
+        $invoice = $request->entity();
         $invoice->load('user', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'account.country', 'client.contacts', 'client.country');
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
@@ -584,7 +584,7 @@ class InvoiceController extends BaseController
             $backup = json_decode($activity->json_backup);
             $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
             $backup->due_date = Utils::fromSqlDate($backup->due_date);
-            $invoice->features = [
+            $backup->features = [
                 'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
                 'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
                 'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
