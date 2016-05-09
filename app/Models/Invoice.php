@@ -35,7 +35,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     protected $casts = [
         'is_recurring' => 'boolean',
         'has_tasks' => 'boolean',
-        'auto_bill' => 'boolean',
+        'client_enable_auto_bill' => 'boolean',
         'has_expenses' => 'boolean',
     ];
 

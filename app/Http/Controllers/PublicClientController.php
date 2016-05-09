@@ -963,8 +963,8 @@ class PublicClientController extends BaseController
         $enable = Input::get('enable');
         $invoice = $client->invoices->where('public_id', intval($publicId))->first();
 
-        if ($invoice && $invoice->is_recurring && $invoice->enable_auto_bill > AUTO_BILL_OFF) {
-            $invoice->auto_bill = $enable ? true : false;
+        if ($invoice && $invoice->is_recurring && ($invoice->auto_bill == AUTO_BILL_OPT_IN || $invoice->auto_bill == AUTO_BILL_OPT_OUT)) {
+            $invoice->client_enable_auto_bill = $enable ? true : false;
             $invoice->save();
         }
 

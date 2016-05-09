@@ -160,7 +160,7 @@ class InvoiceRepository extends BaseRepository
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', true)
-          ->where('invoices.enable_auto_bill', '>', AUTO_BILL_OFF)
+          ->whereIn('invoices.auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])
           //->where('invoices.start_date', '>=', date('Y-m-d H:i:s'))
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
@@ -174,7 +174,7 @@ class InvoiceRepository extends BaseRepository
                 'invoices.amount',
                 'invoices.start_date',
                 'invoices.end_date',
-                'invoices.auto_bill',
+                'invoices.client_enable_auto_bill',
                 'frequencies.name as frequency'
             );
 
@@ -183,8 +183,8 @@ class InvoiceRepository extends BaseRepository
             ->addColumn('start_date', function ($model) { return Utils::fromSqlDate($model->start_date); })
             ->addColumn('end_date', function ($model) { return Utils::fromSqlDate($model->end_date); })
             ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
-            ->addColumn('auto_bill', function ($model) {
-                if ($model->auto_bill) {
+            ->addColumn('client_enable_auto_bill', function ($model) {
+                if ($model->client_enable_auto_bill) {
                     return trans('texts.enabled') . ' <a href="javascript:setAutoBill('.$model->public_id.',false)">('.trans('texts.disable').')</a>';
                 } else {
                     return trans('texts.disabled') . ' <a href="javascript:setAutoBill('.$model->public_id.',true)">('.trans('texts.enable').')</a>';
@@ -317,17 +317,12 @@ class InvoiceRepository extends BaseRepository
             $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
-            $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
-            $invoice->enable_auto_bill = isset($data['enable_auto_bill']) ? intval($data['enable_auto_bill']) : 0;
+            $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
+            $invoice->auto_bill = isset($data['auto_bill']) ? intval($data['auto_bill']) : 0;
 
-            if ($invoice->enable_auto_bill != AUTO_BILL_OPT_IN && $invoice->enable_auto_bill != AUTO_BILL_OPT_OUT ) {
-                // Auto-bill is not enabled
-                $invoice->enable_auto_bill = AUTO_BILL_OFF;
-                $invoice->auto_bill = false;
-            } elseif ($isNew) {
-                $invoice->auto_bill = $invoice->enable_auto_bill == AUTO_BILL_OPT_OUT;
+            if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS ) {
+                $invoice->auto_bill = AUTO_BILL_OFF;
             }
-
             
             if (isset($data['recurring_due_date'])) {
                 $invoice->due_date = $data['recurring_due_date'];
@@ -811,7 +806,7 @@ class InvoiceRepository extends BaseRepository
         $recurInvoice->last_sent_date = date('Y-m-d');
         $recurInvoice->save();
 
-        if ($recurInvoice->auto_bill) {
+        if ($recurInvoice->auto_bill == AUTO_BILL_ALWAYS || ($recurInvoice->auto_bill != AUTO_BILL_OFF && $recurInvoice->client_enable_auto_bill)) {
             if ($this->paymentService->autoBillInvoice($invoice)) {
                 // update the invoice reference to match its actual state
                 // this is to ensure a 'payment received' email is sent

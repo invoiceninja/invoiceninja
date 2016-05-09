@@ -698,6 +698,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('AUTO_BILL_OFF', 0);
     define('AUTO_BILL_OPT_IN', 1);
     define('AUTO_BILL_OPT_OUT', 2);
+    define('AUTO_BILL_ALWAYS', 3);
     
     // These must be lowercase
     define('PLAN_FREE', 'free');

@@ -35,7 +35,7 @@
 		</div>
 		-->
 
-        @if($entityType == ENTITY_INVOICE && $account->getTokenGatewayId() && $client->hasAutoBillInvoices())
+        @if($entityType == ENTITY_INVOICE && $account->getTokenGatewayId() && $client->hasAutoBillConfigurableInvoices())
             <div class="pull-right" style="margin-top:5px">
                 {!! Button::info(trans("texts.manage_auto_bill"))->asLinkTo(URL::to('/client/invoices/recurring'))->appendIcon(Icon::create('repeat')) !!}
             </div>

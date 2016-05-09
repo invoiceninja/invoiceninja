@@ -13,21 +13,21 @@ class PaymentsChanges extends Migration
     public function up()
     {
         Schema::dropIfExists('payment_statuses');
-        
+
         Schema::create('payment_statuses', function($table)
         {
             $table->increments('id');
             $table->string('name');
         });
-        
+
         (new \PaymentStatusSeeder())->run();
-        
+
         Schema::table('payments', function($table)
         {
             $table->decimal('refunded', 13, 2);
             $table->unsignedInteger('payment_status_id')->default(PAYMENT_STATUS_COMPLETED);
             $table->foreign('payment_status_id')->references('id')->on('payment_statuses');
-            
+
             $table->unsignedInteger('routing_number')->nullable();
             $table->smallInteger('last4')->unsigned()->nullable();
             $table->date('expiration')->nullable();
@@ -37,12 +37,12 @@ class PaymentsChanges extends Migration
 
         Schema::table('invoices', function($table)
         {
-            $table->tinyInteger('enable_auto_bill')->default(AUTO_BILL_OFF);
+            $table->boolean('client_enable_auto_bill')->default(false);
         });
 
         \DB::table('invoices')
             ->where('auto_bill', '=', 1)
-            ->update(array('enable_auto_bill' => AUTO_BILL_OPT_OUT));
+            ->update(array('client_enable_auto_bill' => 1, 'auto_bill' => AUTO_BILL_OPT_OUT));
     }
 
     /**
@@ -65,8 +65,22 @@ class PaymentsChanges extends Migration
             $table->dropColumn('email');
         });
 
+        \DB::table('invoices')
+            ->where(function($query){
+                $query->where('auto_bill', '=', AUTO_BILL_ALWAYS);
+                $query->orwhere(function($query){
+                    $query->where('auto_bill', '!=', AUTO_BILL_OFF);
+                    $query->where('client_enable_auto_bill', '=', 1);
+                });
+            })
+            ->update(array('auto_bill' => 1));
+
+        \DB::table('invoices')
+            ->where('auto_bill', '!=', 1)
+            ->update(array('auto_bill' => 0));
+
         Schema::table('invoices', function ($table) {
-            $table->dropColumn('enable_auto_bill');
+            $table->dropColumn('client_enable_auto_bill');
         });
         
         Schema::dropIfExists('payment_statuses');

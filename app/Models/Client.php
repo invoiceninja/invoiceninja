@@ -320,8 +320,8 @@ class Client extends EntityModel
         $this->save();
     }
 
-    public function hasAutoBillInvoices(){
-        return $this->invoices()->where('auto_bill', 1)->count() > 0;
+    public function hasAutoBillConfigurableInvoices(){
+        return $this->invoices()->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
     }
 }
 
