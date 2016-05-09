@@ -279,7 +279,7 @@ NINJA.invoiceColumns = function(invoice)
 
     var count = 3;
     if (account.hide_quantity == '1') {
-        count--;
+        count -= 2;
     }
     if (account.show_item_taxes == '1') {
         count++;
@@ -336,11 +336,10 @@ NINJA.invoiceLines = function(invoice) {
     }
     if (invoice.features.invoice_ettings && account.custom_invoice_item_label2) {
         grid[0].push({text: account.custom_invoice_item_label2, style: ['tableHeader', 'custom2TableHeader']});
-    }
-
-    grid[0].push({text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
+    }    
 
     if (!hideQuantity) {
+        grid[0].push({text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
         grid[0].push({text: invoiceLabels.quantity, style: ['tableHeader', 'qtyTableHeader']});
     }
     if (showItemTaxes) {
@@ -401,8 +400,8 @@ NINJA.invoiceLines = function(invoice) {
         if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
             row.push({style:["customValue2", rowStyle], text:custom_value2 || ' '});
         }
-        row.push({style:["cost", rowStyle], text:cost});
         if (!hideQuantity) {
+            row.push({style:["cost", rowStyle], text:cost});
             row.push({style:["quantity", rowStyle], text:qty || ' '});
         }
         if (showItemTaxes) {
