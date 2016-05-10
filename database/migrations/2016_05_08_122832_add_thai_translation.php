@@ -23,7 +23,6 @@ class AddThaiTranslation extends Migration
     public function down()
     {
         $language = \App\Models\Language::whereLocale('th')->first();
-		$language->delete();            //
-       
+		$language->delete();
     }
 }
