@@ -493,7 +493,7 @@ class PaymentController extends BaseController
                     unset($details['token']);
                     $details['cardReference'] = $sourceReference;
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing') || $paymentType == PAYMENT_TYPE_STRIPE_ACH) {
-                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */);
+                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */, $paymentMethod/* return parameter */);
                     if ($token) {
                         $details['token'] = $token;
                         $details['customerReference'] = $customerReference;
@@ -524,7 +524,7 @@ class PaymentController extends BaseController
                     $details['paymentMethodToken'] = $sourceReference;
                     unset($details['token']);
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
-                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */);
+                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */, $paymentMethod/* return parameter */);
                     if ($token) {
                         $details['paymentMethodToken'] = $token;
                         $details['customerId'] = $customerReference;
