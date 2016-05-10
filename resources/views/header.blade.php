@@ -789,7 +789,7 @@
                 </div>
                 <div class="col-md-6">
                     <h4>{{ trans('texts.after') }}</h4>
-                    <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_before.png') }}" width="100%" alt="after">
+                    <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_after.png') }}" width="100%" alt="after">
                 </div>
             </div>
           </div>
