@@ -244,7 +244,7 @@
         .transition()
         .duration(1000)      
         .style("fill", function(d, i) { 
-          return d.displayAge == -1 ? 'white' : 'red';
+          return 'red';
         });                
 
       selection.exit().remove();
