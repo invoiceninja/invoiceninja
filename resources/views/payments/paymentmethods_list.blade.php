@@ -67,9 +67,9 @@
         @elseif($paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFICATION_FAILED)
         ({{trans('texts.verification_failed')}})
         @endif
-    @elseif($paymentMethod->type_id == PAYMENT_TYPE_ID_PAYPAL)
+    @elseif($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL)
         {{ $paymentMethod->email }}
-    @else
+    @elseif($paymentMethod->expiration)
         {!! trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($paymentMethod->expiration, false)->format('m/y'))) !!}
     @endif
     @if($paymentMethod->id == $paymentMethod->account_gateway_token->default_payment_method_id)

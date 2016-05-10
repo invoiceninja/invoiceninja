@@ -174,6 +174,11 @@ class Payment extends EntityModel
         }
         return PaymentMethod::lookupBankData($this->routing_number);
     }
+
+    public function getLast4Attribute($value)
+    {
+        return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
+    }
 }
 
 Payment::creating(function ($payment) {
