@@ -1176,7 +1176,12 @@ $LANG = array(
     'page_size' => 'Rozmiar strony',
     'live_preview_disabled' => 'Podgląd obrazu na żywo został wyłączony w celu wsparcia wybranej czcionki',
     'invoice_number_padding' => 'Padding',
-
+    'preview' => 'Preview',
+    'list_vendors' => 'List Vendors',
+    'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
+    'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
+    'return_to_app' => 'Return to app',
+   
 );
 
 return $LANG;
