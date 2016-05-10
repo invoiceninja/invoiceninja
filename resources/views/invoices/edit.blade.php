@@ -925,11 +925,11 @@
             })(field);
         }
 
-		@if ($invoice->id || count($clients) == 0)
-			$('#invoice_number').focus();
-		@else
-			$('.client_select input.form-control').focus();
-		@endif
+        if (model.invoice().client().public_id() || {{ $invoice->id || count($clients) == 0 ? '1' : '0' }}) {
+            $('#invoice_number').focus();
+        } else {
+            $('.client_select input.form-control').focus();
+        }
 
 		$('#clientModal').on('shown.bs.modal', function () {
             $('#client\\[name\\]').focus();
