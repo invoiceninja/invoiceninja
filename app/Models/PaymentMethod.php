@@ -71,6 +71,11 @@ class PaymentMethod extends EntityModel
         return static::lookupBankData($this->routing_number);
     }
 
+    public function getLast4Attribute($value)
+    {
+        return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
+    }
+
     public function scopeScope($query, $publicId = false, $accountId = false, $accountGatewayTokenId = false)
     {
         $query = parent::scopeScope($query, $publicId, $accountId);
