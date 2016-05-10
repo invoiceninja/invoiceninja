@@ -8,6 +8,7 @@ use App\Events\PaymentWasVoided;
 use App\Events\PaymentCompleted;
 use App\Events\PaymentVoided;
 use App\Events\PaymentFailed;
+use App\Models\PaymentMethod;
 use Laracasts\Presenter\PresentableTrait;
 
 class Payment extends EntityModel
@@ -56,7 +57,12 @@ class Payment extends EntityModel
     public function payment_type()
     {
         return $this->belongsTo('App\Models\PaymentType');
-    }    
+    }
+
+    public function payment_method()
+    {
+        return $this->belongsTo('App\Models\PaymentMethod');
+    }
 
     public function payment_status()
     {
@@ -159,6 +165,14 @@ class Payment extends EntityModel
     public function getEntityType()
     {
         return ENTITY_PAYMENT;
+    }
+
+    public function getBankData()
+    {
+        if (!$this->routing_number) {
+            return null;
+        }
+        return PaymentMethod::lookupBankData($this->routing_number);
     }
 }
 

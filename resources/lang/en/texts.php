@@ -1259,7 +1259,7 @@ $LANG = array(
     'payment_method_set_as_default' => 'Set Autobill payment method.',
     'activity_41' => ':payment_amount payment (:payment) failed',
     'webhook_url' => 'Webhook URL',
-    'stripe_webhook_help' => 'You must :link for ACH payment status to be updated.',
+    'stripe_webhook_help' => 'You must :link.',
     'stripe_webhook_help_link_text' => 'add this URL as an endpoint at Stripe',
     'payment_method_error' => 'There was an error adding your payment methd. Please try again later.',
     'notification_invoice_payment_failed_subject' => 'Payment failed for Invoice :invoice',
@@ -1286,7 +1286,10 @@ $LANG = array(
     'braintree_paypal_help' => 'You must also :link.',
     'braintree_paypal_help_link_text' => 'link PayPal to your BrainTree account',
     'token_billing_braintree_paypal' => 'Save payment details',
-    'add_paypal_account' => 'Add PayPal Account'
+    'add_paypal_account' => 'Add PayPal Account',
+
+
+    'no_payment_method_specified' => 'No payment method specified',
 );
 
 return $LANG;

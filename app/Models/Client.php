@@ -261,7 +261,7 @@ class Client extends EntityModel
     }
 
 
-    public function getGatewayToken(&$accountGateway)
+    public function getGatewayToken(&$accountGateway = null, &$token = null)
     {
         $account = $this->account;
         
@@ -272,7 +272,10 @@ class Client extends EntityModel
         if (!count($account->account_gateways)) {
             return false;
         }
-        $accountGateway = $account->getTokenGateway();
+        
+        if (!$accountGateway){
+            $accountGateway = $account->getTokenGateway();
+        }
 
         if (!$accountGateway) {
             return false;

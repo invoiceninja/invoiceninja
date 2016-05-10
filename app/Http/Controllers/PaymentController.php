@@ -20,6 +20,7 @@ use App\Models\PaymentType;
 use App\Models\License;
 use App\Models\Payment;
 use App\Models\Affiliate;
+use App\Models\PaymentMethod;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\AccountRepository;
@@ -406,6 +407,7 @@ class PaymentController extends BaseController
         $account = $client->account;
         $paymentType = Session::get($invitation->id . 'payment_type');
         $accountGateway = $account->getGatewayByType($paymentType);
+        $paymentMethod = null;
 
         $rules = [
             'first_name' => 'required',
@@ -434,6 +436,17 @@ class PaymentController extends BaseController
                 'postal_code' => 'required',
                 'country_id' => 'required',
             ]);
+        }
+        
+        if ($useToken) {
+            if(!$sourceId) {
+                Session::flash('error', trans('texts.no_payment_method_specified'));
+                return Redirect::to('payment/' . $invitationKey)->withInput(Request::except('cvv'));
+            } else {
+                $customerReference = $client->getGatewayToken($accountGateway, $accountGatewayToken/* return parameter*/);
+                $paymentMethod = PaymentMethod::scope($sourceId, $account->id, $accountGatewayToken->id)->firstOrFail();
+                $sourceReference = $paymentMethod->source_reference;
+            }
         }
 
         if ($onSite) {
@@ -476,11 +489,9 @@ class PaymentController extends BaseController
                 }
 
                 if ($useToken) {
-                    $details['customerReference'] = $client->getGatewayToken();
+                    $details['customerReference'] = $customerReference;
                     unset($details['token']);
-                    if ($sourceId) {
-                        $details['cardReference'] = $sourceId;
-                    }
+                    $details['cardReference'] = $sourceReference;
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing') || $paymentType == PAYMENT_TYPE_STRIPE_ACH) {
                     $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */);
                     if ($token) {
@@ -509,13 +520,8 @@ class PaymentController extends BaseController
                 }
 
                 if ($useToken) {
-                    $details['customerId'] = $customerId = $client->getGatewayToken();
-                    if (!$sourceId) {
-                        $customer = $gateway->findCustomer($customerId)->send();
-                        $details['paymentMethodToken'] = $customer->getData()->paymentMethods[0]->token;
-                    } else {
-                        $details['paymentMethodToken'] = $sourceId;
-                    }
+                    $details['customerId'] = $customerReference;
+                    $details['paymentMethodToken'] = $sourceReference;
                     unset($details['token']);
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
                     $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */);
@@ -535,7 +541,6 @@ class PaymentController extends BaseController
             }
 
             $response = $gateway->purchase($details)->send();
-
 
             if ($accountGateway->gateway_id == GATEWAY_EWAY) {
                 $ref = $response->getData()['AccessCode'];
@@ -563,7 +568,7 @@ class PaymentController extends BaseController
             }
 
             if ($response->isSuccessful()) {
-                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, null, $details, $response);
+                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, null, $details, $paymentMethod, $response);
                 Session::flash('message', trans('texts.applied_payment'));
 
                 if ($account->account_key == NINJA_ACCOUNT_KEY) {
@@ -660,7 +665,7 @@ class PaymentController extends BaseController
                 if ($response->isCancelled()) {
                     // do nothing
                 } elseif ($response->isSuccessful()) {
-                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId, $details, $purchaseResponse);
+                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId, $details, null, $purchaseResponse);
                     Session::flash('message', trans('texts.applied_payment'));
                 } else {
                     $this->error('offsite', $response->getMessage(), $accountGateway);
@@ -738,7 +743,7 @@ class PaymentController extends BaseController
             ], 400);
         }
 
-        $data = static::getBankData($routingNumber);
+        $data = PaymentMethod::lookupBankData($routingNumber);
 
         if (is_string($data)) {
             return response()->json([
@@ -753,74 +758,9 @@ class PaymentController extends BaseController
         ], 404);
     }
 
-    public static function getBankData($routingNumber) {
-        $cached = Cache::get('bankData:'.$routingNumber);
-
-        if ($cached != null) {
-            return $cached == false ? null : $cached;
-        }
-
-        $dataPath = base_path('vendor/gatepay/FedACHdir/FedACHdir.txt');
-
-        if (!file_exists($dataPath) || !$size = filesize($dataPath)) {
-            return 'Invalid data file';
-        }
-
-        $lineSize = 157;
-        $numLines = $size/$lineSize;
-
-        if ($numLines % 1 != 0) {
-            // The number of lines should be an integer
-            return 'Invalid data file';
-        }
-
-        // Format: http://www.sco.ca.gov/Files-21C/Bank_Master_Interface_Information_Package.pdf
-        $file = fopen($dataPath, 'r');
-
-        // Binary search
-        $low = 0;
-        $high = $numLines - 1;
-        while ($low <= $high) {
-            $mid = floor(($low + $high) / 2);
-
-            fseek($file, $mid * $lineSize);
-            $thisNumber = fread($file, 9);
-
-            if ($thisNumber > $routingNumber) {
-                $high = $mid - 1;
-            } else if ($thisNumber < $routingNumber) {
-                $low = $mid + 1;
-            } else {
-                $data = array('routing_number' => $thisNumber);
-                fseek($file, 26, SEEK_CUR);
-                $data['name'] = trim(fread($file, 36));
-                $data['address'] = trim(fread($file, 36));
-                $data['city'] = trim(fread($file, 20));
-                $data['state'] = fread($file, 2);
-                $data['zip'] = fread($file, 5).'-'.fread($file, 4);
-                $data['phone'] = fread($file, 10);
-                break;
-            }
-        }
-
-        if (!empty($data)) {
-            Cache::put('bankData:'.$routingNumber, $data, 5);
-            return $data;
-        } else {
-            Cache::put('bankData:'.$routingNumber, false, 5);
-            return null;
-        }
-    }
-
     public function handlePaymentWebhook($accountKey, $gatewayId)
     {
         $gatewayId = intval($gatewayId);
-
-        if ($gatewayId != GATEWAY_STRIPE) {
-            return response()->json([
-                'message' => 'Unsupported gateway',
-            ], 404);
-        }
 
         $account = Account::where('accounts.account_key', '=', $accountKey)->first();
 
@@ -830,26 +770,47 @@ class PaymentController extends BaseController
             ], 404);
         }
 
+        $accountGateway = $account->getGatewayConfig(intval($gatewayId));
+
+        if (!$accountGateway) {
+            return response()->json([
+                'message' => 'Unknown gateway',
+            ], 404);
+        }
+
+        switch($gatewayId) {
+            case GATEWAY_STRIPE:
+                return $this->handleStripeWebhook($accountGateway);
+            default:
+                return response()->json([
+                    'message' => 'Unsupported gateway',
+                ], 404);
+        }
+    }
+
+    protected function handleStripeWebhook($accountGateway) {
         $eventId = Input::get('id');
         $eventType= Input::get('type');
+        $accountId = $accountGateway->account_id;
 
         if (!$eventId) {
-            return response()->json([
-                'message' => 'Missing event id',
-            ], 400);
+            return response()->json(['message' => 'Missing event id'], 400);
         }
 
         if (!$eventType) {
-            return response()->json([
-                'message' => 'Missing event type',
-            ], 400);
+            return response()->json(['message' => 'Missing event type'], 400);
         }
 
-        if (!in_array($eventType, array('charge.failed', 'charge.succeeded'))) {
+        $supportedEvents = array(
+            'charge.failed',
+            'charge.succeeded',
+            'customer.source.updated',
+            'customer.source.deleted',
+        );
+
+        if (!in_array($eventType, $supportedEvents)) {
             return array('message' => 'Ignoring event');
         }
-
-        $accountGateway = $account->getGatewayConfig(intval($gatewayId));
 
         // Fetch the event directly from Stripe for security
         $eventDetails = $this->paymentService->makeStripeCall($accountGateway, 'GET', 'events/'.$eventId);
@@ -861,33 +822,47 @@ class PaymentController extends BaseController
         }
 
         if ($eventType != $eventDetails['type']) {
-            return response()->json([
-                'message' => 'Event type mismatch',
-            ], 400);
+            return response()->json(['message' => 'Event type mismatch'], 400);
         }
 
         if (!$eventDetails['pending_webhooks']) {
-            return response()->json([
-                'message' => 'This is not a pending event',
-            ], 400);
+            return response()->json(['message' => 'This is not a pending event'], 400);
         }
 
-        $charge = $eventDetails['data']['object'];
-        $transactionRef = $charge['id'];
 
-        $payment = Payment::where('transaction_reference', '=', $transactionRef)->first();
+        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded') {
+            $charge = $eventDetails['data']['object'];
+            $transactionRef = $charge['id'];
 
-        if (!$payment) {
-            return array('message' => 'Unknown payment');
-        }
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $transactionRef)->first();
 
-        if ($eventType == 'charge.failed') {
-            if (!$payment->isFailed()) {
-                $payment->markFailed($charge['failure_message']);
-                $this->userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
+            if (!$payment) {
+                return array('message' => 'Unknown payment');
             }
-        } elseif ($eventType == 'charge.succeeded') {
-            $payment->markComplete();
+
+            if ($eventType == 'charge.failed') {
+                if (!$payment->isFailed()) {
+                    $payment->markFailed($charge['failure_message']);
+                    $this->userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
+                }
+            } elseif ($eventType == 'charge.succeeded') {
+                $payment->markComplete();
+            }
+        } elseif($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted') {
+            $source = $eventDetails['data']['object'];
+            $sourceRef = $source['id'];
+
+            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
+
+            if (!$paymentMethod) {
+                return array('message' => 'Unknown payment method');
+            }
+
+            if ($eventType == 'customer.source.deleted') {
+                $paymentMethod->delete();
+            } elseif ($eventType == 'customer.source.updated') {
+                $this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
+            }
         }
 
         return array('message' => 'Processed successfully');
