@@ -25,7 +25,10 @@
             @include('partials.checkout_com_payment')
         @else
             <div class="pull-right" style="text-align:right">
-            @if ($invoice->is_quote)            
+            @if (Session::get('trackEventAction') === '/buy_pro_plan')
+                {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
+                {!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/dashboard'))->large() !!}
+            @elseif ($invoice->is_quote)
                 {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if ($showApprove)
                     {!! Button::success(trans('texts.approve'))->asLinkTo(URL::to('/approve/' . $invitation->invitation_key))->large() !!}

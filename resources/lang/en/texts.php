@@ -1179,7 +1179,9 @@ $LANG = array(
     'preview' => 'Preview',
     'list_vendors' => 'List Vendors',
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
-
+    'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
+    'return_to_app' => 'Return to app',
+    
 );
 
 return $LANG;
