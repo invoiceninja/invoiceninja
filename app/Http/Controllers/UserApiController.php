@@ -14,6 +14,8 @@ class UserApiController extends BaseAPIController
     protected $userService;
     protected $userRepo;
 
+    protected $entityType = ENTITY_USER;
+
     public function __construct(UserService $userService, UserRepository $userRepo)
     {
         parent::__construct();
@@ -24,16 +26,11 @@ class UserApiController extends BaseAPIController
 
     public function index()
     {
-        $user = Auth::user();
-        $users = User::whereAccountId($user->account_id)->withTrashed();
-        $users = $users->paginate();
-
-        $paginator = User::whereAccountId($user->account_id)->withTrashed()->paginate();
-
-        $transformer = new UserTransformer(Auth::user()->account, $this->serializer);
-        $data = $this->createCollection($users, $transformer, 'users', $paginator);
-
-        return $this->response($data);
+        $users = User::whereAccountId(Auth::user()->account_id)
+                        ->withTrashed()
+                        ->orderBy('created_at', 'desc');
+        
+        return $this->listResponse($users);
     }
 
     /*
@@ -45,11 +42,6 @@ class UserApiController extends BaseAPIController
 
     public function update(UpdateUserRequest $request, $userPublicId)
     {
-        /*
-        // temporary fix for ids starting at 0
-        $userPublicId -= 1;
-        $user = User::scope($userPublicId)->firstOrFail();
-        */
         $user = Auth::user();
 
         if ($request->action == ACTION_ARCHIVE) {

@@ -9,14 +9,14 @@
         {!! Former::text('public_id') !!}
 	</div>
 
-	@if (\App\Models\Invoice::canCreate())
+	@can('create', 'invoice')
 		@if ($entityType == ENTITY_TASK)
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endif
 		@if ($entityType == ENTITY_EXPENSE)
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endif
-	@endif
+	@endcan
 
 	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
 		      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm("archive")'],
@@ -31,7 +31,7 @@
 	<div id="top_right_buttons" class="pull-right">
 		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important" 
             class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
-        @if (Auth::user()->isPro() && $entityType == ENTITY_INVOICE)
+        @if (Auth::user()->hasFeature(FEATURE_QUOTES) && $entityType == ENTITY_INVOICE)
             {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
             {!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_invoices'))->appendIcon(Icon::create('list')) !!}
         @elseif ($entityType == ENTITY_EXPENSE)

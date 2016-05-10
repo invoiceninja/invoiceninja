@@ -51,6 +51,11 @@ class Utils
         return php_sapi_name() == 'cli';
     }
 
+    public static function isTravis()
+    {
+        return env('TRAVIS') == 'true';
+    }
+
     public static function isNinja()
     {
         return self::isNinjaProd() || self::isNinjaDev();
@@ -118,6 +123,11 @@ class Utils
         return Auth::check() && Auth::user()->isPro();
     }
 
+    public static function hasFeature($feature)
+    {
+        return Auth::check() && Auth::user()->hasFeature($feature);
+    }
+
     public static function isAdmin()
     {
         return Auth::check() && Auth::user()->is_admin;
@@ -130,7 +140,7 @@ class Utils
 
     public static function hasAllPermissions($permission)
     {
-        return Auth::check() && Auth::user()->hasPermissions($permission);
+        return Auth::check() && Auth::user()->hasPermission($permission);
     }
 
     public static function isTrial()
@@ -331,6 +341,7 @@ class Utils
         $currency = self::getFromCache($currencyId, 'currencies');
         $thousand = $currency->thousand_separator;
         $decimal = $currency->decimal_separator;
+        $precision = $currency->precision;
         $code = $currency->code;
         $swapSymbol = false;
 
@@ -345,7 +356,7 @@ class Utils
             }
         }
 
-        $value = number_format($value, $currency->precision, $decimal, $thousand);
+        $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
         if ($showCode || !$symbol) {
@@ -440,7 +451,12 @@ class Utils
             return false;
         }
 
-        $dateTime = new DateTime($date);
+        if ($date instanceof DateTime) {
+            $dateTime = $date;
+        } else {
+            $dateTime = new DateTime($date);
+        }
+
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
@@ -659,9 +675,14 @@ class Utils
         return $year + $offset;
     }
 
+    public static function getEntityClass($entityType)
+    {
+        return 'App\\Models\\' . static::getEntityName($entityType);
+    }
+
     public static function getEntityName($entityType)
     {
-        return ucwords(str_replace('_', ' ', $entityType));
+        return ucwords(Utils::toCamelCase($entityType));
     }
 
     public static function getClientDisplayName($model)
@@ -959,38 +980,6 @@ class Utils
         }
 
         return $entity1;
-    }
-
-    public static function withinPastYear($date)
-    {
-        if (!$date || $date == '0000-00-00') {
-            return false;
-        }
-
-        $today = new DateTime('now');
-        $datePaid = DateTime::createFromFormat('Y-m-d', $date);
-        $interval = $today->diff($datePaid);
-
-        return $interval->y == 0;
-    }
-
-    public static function getInterval($date)
-    {
-        if (!$date || $date == '0000-00-00') {
-            return false;
-        }
-
-        $today = new DateTime('now');
-        $datePaid = DateTime::createFromFormat('Y-m-d', $date);
-
-        return $today->diff($datePaid);
-    }
-
-    public static function withinPastTwoWeeks($date)
-    {
-        $interval = Utils::getInterval($date);
-
-        return $interval && $interval->d <= 14;
     }
 
     public static function addHttp($url)

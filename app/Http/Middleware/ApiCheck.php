@@ -34,7 +34,8 @@ class ApiCheck {
             // check for a valid token
             $token = AccountToken::where('token', '=', Request::header('X-Ninja-Token'))->first(['id', 'user_id']);
 
-            if ($token) {
+            // check if user is archived
+            if ($token && $token->user) {
                 Auth::loginUsingId($token->user_id);
                 Session::set('token_id', $token->id);
             } else {
@@ -47,7 +48,7 @@ class ApiCheck {
             return $next($request);
         }
 
-        if (!Utils::isPro() && !$loggingIn) {
+        if (!Utils::hasFeature(FEATURE_API) && !$loggingIn) {
             return Response::json('API requires pro plan', 403, $headers);
         } else {
             $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();

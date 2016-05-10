@@ -42,7 +42,7 @@ class Authenticate {
 			
 			// Does this account require portal passwords?
 			$account = Account::whereId($account_id)->first();
-			if(!$account->enable_portal_password || !$account->isPro()){
+			if($account && (!$account->enable_portal_password || !$account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD))){
 				$authenticated = true;
 			}
 			

@@ -8,19 +8,19 @@ class InvoiceItemTransformer extends EntityTransformer
 {
     public function transform(InvoiceItem $item)
     {
-        return [
+        return array_merge($this->getDefaults($item), [
             'id' => (int) $item->public_id,
             'product_key' => $item->product_key,
-            'account_key' => $this->account->account_key,
-            'user_id' => (int) $item->user_id,
             'updated_at' => $this->getTimestamp($item->updated_at),
             'archived_at' => $this->getTimestamp($item->deleted_at),
             'product_key' => $item->product_key,
             'notes' => $item->notes,
             'cost' => (float) $item->cost,
             'qty' => (float) $item->qty,
-            'tax_name' => $item->tax_name,
-            'tax_rate' => (float) $item->tax_rate
-        ];
+            'tax_name1' => $item->tax_name1 ? $item->tax_name1 : '',
+            'tax_rate1' => (float) $item->tax_rate1,
+            'tax_name2' => $item->tax_name2 ? $item->tax_name1 : '',
+            'tax_rate2' => (float) $item->tax_rate2,
+        ]);
     }
 }

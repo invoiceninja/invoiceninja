@@ -116,11 +116,11 @@
                         @foreach ($payments as $payment)
                         <tr>
                             <td>{!! \App\Models\Invoice::calcLink($payment) !!}</td>
-                            @if (\App\Models\Client::canViewItemByOwner($payment->client_user_id))
+                            @can('viewByOwner', [ENTITY_CLIENT, $payment->client_user_id])
                                 <td>{!! link_to('/clients/'.$payment->client_public_id, trim($payment->client_name) ?: (trim($payment->first_name . ' ' . $payment->last_name) ?: $payment->email)) !!}</td>
                             @else
                                 <td>{{ trim($payment->client_name) ?: (trim($payment->first_name . ' ' . $payment->last_name) ?: $payment->email) }}</td>
-                            @endif
+                            @endcan
                             <td>{{ Utils::fromSqlDate($payment->payment_date) }}</td>
                             <td>{{ Utils::formatMoney($payment->amount, $payment->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
                         </tr>
@@ -153,11 +153,11 @@
                             @if (!$invoice->is_quote)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                                    @if (\App\Models\Client::canViewItemByOwner($invoice->client_user_id))
+                                    @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
                                     @else
                                         <td>{{ trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email) }}</td>
-                                    @endif
+                                    @endcan
                                     <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
                                     <td>{{ Utils::formatMoney($invoice->balance, $invoice->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
                                 </tr>
@@ -188,11 +188,11 @@
                             @if (!$invoice->is_quote)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
-                                    @if (\App\Models\Client::canViewItemByOwner($invoice->client_user_id))
+                                    @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
                                     @else
                                         <td>{{ trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email) }}</td>
-                                    @endif
+                                    @endcan
                                     <td>{{ Utils::fromSqlDate($invoice->due_date) }}</td>
                                     <td>{{ Utils::formatMoney($invoice->balance, $invoice->currency_id ?: ($account->currency_id ?: DEFAULT_CURRENCY)) }}</td>
                                 </tr>

@@ -11,7 +11,11 @@
   )); !!}
 
   @if ($user)
-    {!! Former::populate($user) !!}    
+    {!! Former::populate($user) !!}
+    {{ Former::populateField('is_admin', intval($user->is_admin)) }}
+    {{ Former::populateField('permissions[create_all]', intval($user->hasPermission('create'))) }}
+    {{ Former::populateField('permissions[view_all]', intval($user->hasPermission('view_all'))) }}
+    {{ Former::populateField('permissions[edit_all]', intval($user->hasPermission('edit_all'))) }}
   @endif
 
 <div class="panel panel-default">
@@ -27,6 +31,7 @@
 </div>
 </div>
 
+@if (Utils::hasFeature(FEATURE_USER_PERMISSIONS))
 <div class="panel panel-default">
 <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.permissions') !!}</h3>
@@ -59,6 +64,7 @@
     
 </div>
 </div>
+@endif
 
   {!! Former::actions( 
       Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/user_management'))->appendIcon(Icon::create('remove-circle'))->large(),

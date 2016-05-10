@@ -7419,8 +7419,6 @@ if (!PDFJS.workerSrc && typeof document !== 'undefined') {
 
 
 
-/* -*- Mode: Java; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim: set shiftwidth=2 tabstop=2 autoindent cindent expandtab: */
 /* Copyright 2012 Mozilla Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -7446,9 +7444,10 @@ if (typeof PDFJS === 'undefined') {
 }
 
 // Checking if the typed arrays are supported
+// Support: iOS<6.0 (subarray), IE<10, Android<4.0
 (function checkTypedArrayCompatibility() {
   if (typeof Uint8Array !== 'undefined') {
-    // some mobile versions do not support subarray (e.g. safari 5 / iOS)
+    // Support: iOS<6.0
     if (typeof Uint8Array.prototype.subarray === 'undefined') {
         Uint8Array.prototype.subarray = function subarray(start, end) {
           return new Uint8Array(this.slice(start, end));
@@ -7458,10 +7457,10 @@ if (typeof PDFJS === 'undefined') {
         };
     }
 
-    // some mobile version might not support Float64Array
-    if (typeof Float64Array === 'undefined')
+    // Support: Android<4.1
+    if (typeof Float64Array === 'undefined') {
       window.Float64Array = Float32Array;
-
+    }
     return;
   }
 
@@ -7470,23 +7469,26 @@ if (typeof PDFJS === 'undefined') {
   }
 
   function setArrayOffset(array, offset) {
-    if (arguments.length < 2)
+    if (arguments.length < 2) {
       offset = 0;
-    for (var i = 0, n = array.length; i < n; ++i, ++offset)
+    }
+    for (var i = 0, n = array.length; i < n; ++i, ++offset) {
       this[offset] = array[i] & 0xFF;
+    }
   }
 
   function TypedArray(arg1) {
-    var result;
+    var result, i, n;
     if (typeof arg1 === 'number') {
       result = [];
-      for (var i = 0; i < arg1; ++i)
+      for (i = 0; i < arg1; ++i) {
         result[i] = 0;
+      }
     } else if ('slice' in arg1) {
       result = arg1.slice(0);
     } else {
       result = [];
-      for (var i = 0, n = arg1.length; i < n; ++i) {
+      for (i = 0, n = arg1.length; i < n; ++i) {
         result[i] = arg1[i];
       }
     }
@@ -7496,13 +7498,14 @@ if (typeof PDFJS === 'undefined') {
     result.byteLength = result.length;
     result.set = setArrayOffset;
 
-    if (typeof arg1 === 'object' && arg1.buffer)
+    if (typeof arg1 === 'object' && arg1.buffer) {
       result.buffer = arg1.buffer;
-
+    }
     return result;
   }
 
   window.Uint8Array = TypedArray;
+  window.Int8Array = TypedArray;
 
   // we don't need support for set, byteLength for 32-bit array
   // so we can use the TypedArray as well
@@ -7514,25 +7517,15 @@ if (typeof PDFJS === 'undefined') {
 })();
 
 // URL = URL || webkitURL
+// Support: Safari<7, Android 4.2+
 (function normalizeURLObject() {
   if (!window.URL) {
     window.URL = window.webkitURL;
   }
 })();
 
-// Object.create() ?
-(function checkObjectCreateCompatibility() {
-  if (typeof Object.create !== 'undefined')
-    return;
-
-  Object.create = function objectCreate(proto) {
-    function Constructor() {}
-    Constructor.prototype = proto;
-    return new Constructor();
-  };
-})();
-
-// Object.defineProperty() ?
+// Object.defineProperty()?
+// Support: Android<4.0, Safari<5.1
 (function checkObjectDefinePropertyCompatibility() {
   if (typeof Object.defineProperty !== 'undefined') {
     var definePropertyPossible = true;
@@ -7548,15 +7541,19 @@ if (typeof PDFJS === 'undefined') {
     } catch (e) {
       definePropertyPossible = false;
     }
-    if (definePropertyPossible) return;
+    if (definePropertyPossible) {
+      return;
+    }
   }
 
   Object.defineProperty = function objectDefineProperty(obj, name, def) {
     delete obj[name];
-    if ('get' in def)
+    if ('get' in def) {
       obj.__defineGetter__(name, def['get']);
-    if ('set' in def)
+    }
+    if ('set' in def) {
       obj.__defineSetter__(name, def['set']);
+    }
     if ('value' in def) {
       obj.__defineSetter__(name, function objectDefinePropertySetter(value) {
         this.__defineGetter__(name, function objectDefinePropertyGetter() {
@@ -7569,105 +7566,77 @@ if (typeof PDFJS === 'undefined') {
   };
 })();
 
-// Object.keys() ?
-(function checkObjectKeysCompatibility() {
-  if (typeof Object.keys !== 'undefined')
-    return;
 
-  Object.keys = function objectKeys(obj) {
-    var result = [];
-    for (var i in obj) {
-      if (obj.hasOwnProperty(i))
-        result.push(i);
-    }
-    return result;
-  };
-})();
-
-// No readAsArrayBuffer ?
-(function checkFileReaderReadAsArrayBuffer() {
-  if (typeof FileReader === 'undefined')
-    return; // FileReader is not implemented
-  var frPrototype = FileReader.prototype;
-  // Older versions of Firefox might not have readAsArrayBuffer
-  if ('readAsArrayBuffer' in frPrototype)
-    return; // readAsArrayBuffer is implemented
-  Object.defineProperty(frPrototype, 'readAsArrayBuffer', {
-    value: function fileReaderReadAsArrayBuffer(blob) {
-      var fileReader = new FileReader();
-      var originalReader = this;
-      fileReader.onload = function fileReaderOnload(evt) {
-        var data = evt.target.result;
-        var buffer = new ArrayBuffer(data.length);
-        var uint8Array = new Uint8Array(buffer);
-
-        for (var i = 0, ii = data.length; i < ii; i++)
-          uint8Array[i] = data.charCodeAt(i);
-
-        Object.defineProperty(originalReader, 'result', {
-          value: buffer,
-          enumerable: true,
-          writable: false,
-          configurable: true
-        });
-
-        var event = document.createEvent('HTMLEvents');
-        event.initEvent('load', false, false);
-        originalReader.dispatchEvent(event);
-      };
-      fileReader.readAsBinaryString(blob);
-    }
-  });
-})();
-
-// No XMLHttpRequest.response ?
+// No XMLHttpRequest#response?
+// Support: IE<11, Android <4.0
 (function checkXMLHttpRequestResponseCompatibility() {
   var xhrPrototype = XMLHttpRequest.prototype;
-  if (!('overrideMimeType' in xhrPrototype)) {
+  var xhr = new XMLHttpRequest();
+  if (!('overrideMimeType' in xhr)) {
     // IE10 might have response, but not overrideMimeType
+    // Support: IE10
     Object.defineProperty(xhrPrototype, 'overrideMimeType', {
       value: function xmlHttpRequestOverrideMimeType(mimeType) {}
     });
   }
-  if ('response' in xhrPrototype ||
-      'mozResponseArrayBuffer' in xhrPrototype ||
-      'mozResponse' in xhrPrototype ||
-      'responseArrayBuffer' in xhrPrototype)
+  if ('responseType' in xhr) {
     return;
-  // IE9 ?
+  }
+
+  // The worker will be using XHR, so we can save time and disable worker.
+  PDFJS.disableWorker = true;
+
+  Object.defineProperty(xhrPrototype, 'responseType', {
+    get: function xmlHttpRequestGetResponseType() {
+      return this._responseType || 'text';
+    },
+    set: function xmlHttpRequestSetResponseType(value) {
+      if (value === 'text' || value === 'arraybuffer') {
+        this._responseType = value;
+        if (value === 'arraybuffer' &&
+            typeof this.overrideMimeType === 'function') {
+          this.overrideMimeType('text/plain; charset=x-user-defined');
+        }
+      }
+    }
+  });
+
+  // Support: IE9
   if (typeof VBArray !== 'undefined') {
     Object.defineProperty(xhrPrototype, 'response', {
       get: function xmlHttpRequestResponseGet() {
-        return new Uint8Array(new VBArray(this.responseBody).toArray());
+        if (this.responseType === 'arraybuffer') {
+          return new Uint8Array(new VBArray(this.responseBody).toArray());
+        } else {
+          return this.responseText;
+        }
       }
     });
     return;
   }
 
-  // other browsers
-  function responseTypeSetter() {
-    // will be only called to set "arraybuffer"
-    this.overrideMimeType('text/plain; charset=x-user-defined');
-  }
-  if (typeof xhrPrototype.overrideMimeType === 'function') {
-    Object.defineProperty(xhrPrototype, 'responseType',
-                          { set: responseTypeSetter });
-  }
-  function responseGetter() {
-    var text = this.responseText;
-    var i, n = text.length;
-    var result = new Uint8Array(n);
-    for (i = 0; i < n; ++i)
-      result[i] = text.charCodeAt(i) & 0xFF;
-    return result;
-  }
-  Object.defineProperty(xhrPrototype, 'response', { get: responseGetter });
+  Object.defineProperty(xhrPrototype, 'response', {
+    get: function xmlHttpRequestResponseGet() {
+      if (this.responseType !== 'arraybuffer') {
+        return this.responseText;
+      }
+      var text = this.responseText;
+      var i, n = text.length;
+      var result = new Uint8Array(n);
+      for (i = 0; i < n; ++i) {
+        result[i] = text.charCodeAt(i) & 0xFF;
+      }
+      return result.buffer;
+    }
+  });
 })();
 
 // window.btoa (base64 encode function) ?
+// Support: IE<10
 (function checkWindowBtoaCompatibility() {
-  if ('btoa' in window)
+  if ('btoa' in window) {
     return;
+  }
 
   var digits =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
@@ -7689,17 +7658,21 @@ if (typeof PDFJS === 'undefined') {
   };
 })();
 
-// window.atob (base64 encode function) ?
+// window.atob (base64 encode function)?
+// Support: IE<10
 (function checkWindowAtobCompatibility() {
-  if ('atob' in window)
+  if ('atob' in window) {
     return;
+  }
 
   // https://github.com/davidchambers/Base64.js
   var digits =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
   window.atob = function (input) {
     input = input.replace(/=+$/, '');
-    if (input.length % 4 == 1) throw new Error('bad atob input');
+    if (input.length % 4 === 1) {
+      throw new Error('bad atob input');
+    }
     for (
       // initialize result and counters
       var bc = 0, bs, buffer, idx = 0, output = '';
@@ -7719,15 +7692,17 @@ if (typeof PDFJS === 'undefined') {
   };
 })();
 
-// Function.prototype.bind ?
+// Function.prototype.bind?
+// Support: Android<4.0, iOS<6.0
 (function checkFunctionPrototypeBindCompatibility() {
-  if (typeof Function.prototype.bind !== 'undefined')
+  if (typeof Function.prototype.bind !== 'undefined') {
     return;
+  }
 
   Function.prototype.bind = function functionPrototypeBind(obj) {
     var fn = this, headArgs = Array.prototype.slice.call(arguments, 1);
     var bound = function functionPrototypeBindBound() {
-      var args = Array.prototype.concat.apply(headArgs, arguments);
+      var args = headArgs.concat(Array.prototype.slice.call(arguments));
       return fn.apply(obj, args);
     };
     return bound;
@@ -7735,23 +7710,29 @@ if (typeof PDFJS === 'undefined') {
 })();
 
 // HTMLElement dataset property
+// Support: IE<11, Safari<5.1, Android<4.0
 (function checkDatasetProperty() {
   var div = document.createElement('div');
-  if ('dataset' in div)
+  if ('dataset' in div) {
     return; // dataset property exists
+  }
 
   Object.defineProperty(HTMLElement.prototype, 'dataset', {
     get: function() {
-      if (this._dataset)
+      if (this._dataset) {
         return this._dataset;
+      }
 
       var dataset = {};
       for (var j = 0, jj = this.attributes.length; j < jj; j++) {
         var attribute = this.attributes[j];
-        if (attribute.name.substring(0, 5) != 'data-')
+        if (attribute.name.substring(0, 5) !== 'data-') {
           continue;
+        }
         var key = attribute.name.substring(5).replace(/\-([a-z])/g,
-          function(all, ch) { return ch.toUpperCase(); });
+          function(all, ch) {
+            return ch.toUpperCase();
+          });
         dataset[key] = attribute.value;
       }
 
@@ -7767,20 +7748,26 @@ if (typeof PDFJS === 'undefined') {
 })();
 
 // HTMLElement classList property
+// Support: IE<10, Android<4.0, iOS<5.0
 (function checkClassListProperty() {
   var div = document.createElement('div');
-  if ('classList' in div)
+  if ('classList' in div) {
     return; // classList property exists
+  }
 
   function changeList(element, itemName, add, remove) {
     var s = element.className || '';
     var list = s.split(/\s+/g);
-    if (list[0] === '') list.shift();
+    if (list[0] === '') {
+      list.shift();
+    }
     var index = list.indexOf(itemName);
-    if (index < 0 && add)
+    if (index < 0 && add) {
       list.push(itemName);
-    if (index >= 0 && remove)
+    }
+    if (index >= 0 && remove) {
       list.splice(index, 1);
+    }
     element.className = list.join(' ');
     return (index >= 0);
   }
@@ -7802,8 +7789,9 @@ if (typeof PDFJS === 'undefined') {
 
   Object.defineProperty(HTMLElement.prototype, 'classList', {
     get: function() {
-      if (this._classList)
+      if (this._classList) {
         return this._classList;
+      }
 
       var classList = Object.create(classListPrototype, {
         element: {
@@ -7824,6 +7812,9 @@ if (typeof PDFJS === 'undefined') {
 })();
 
 // Check console compatibility
+// In older IE versions the console object is not available
+// unless console is open.
+// Support: IE<10
 (function checkConsoleCompatibility() {
   if (!('console' in window)) {
     window.console = {
@@ -7846,6 +7837,7 @@ if (typeof PDFJS === 'undefined') {
 })();
 
 // Check onclick compatibility in Opera
+// Support: Opera<15
 (function checkOnClickCompatibility() {
   // workaround for reported Opera bug DSK-354448:
   // onclick fires on disabled buttons with opaque content
@@ -7857,30 +7849,34 @@ if (typeof PDFJS === 'undefined') {
   function isDisabled(node) {
     return node.disabled || (node.parentNode && isDisabled(node.parentNode));
   }
-  if (navigator.userAgent.indexOf('Opera') != -1) {
+  if (navigator.userAgent.indexOf('Opera') !== -1) {
     // use browser detection since we cannot feature-check this bug
     document.addEventListener('click', ignoreIfTargetDisabled, true);
   }
 })();
 
+// Checks if possible to use URL.createObjectURL()
+// Support: IE
+(function checkOnBlobSupport() {
+  // sometimes IE loosing the data created with createObjectURL(), see #3977
+  if (navigator.userAgent.indexOf('Trident') >= 0) {
+    PDFJS.disableCreateObjectURL = true;
+  }
+})();
+
 // Checks if navigator.language is supported
 (function checkNavigatorLanguage() {
-  if ('language' in navigator)
+  if ('language' in navigator) {
     return;
-  Object.defineProperty(navigator, 'language', {
-    get: function navigatorLanguage() {
-      var language = navigator.userLanguage || 'en-US';
-      return language.substring(0, 2).toLowerCase() +
-        language.substring(2).toUpperCase();
-    },
-    enumerable: true
-  });
+  }
+  PDFJS.locale = navigator.userLanguage || 'en-US';
 })();
 
 (function checkRangeRequests() {
   // Safari has issues with cached range requests see:
   // https://github.com/mozilla/pdf.js/issues/3260
   // Last tested with version 6.0.4.
+  // Support: Safari 6.0+
   var isSafari = Object.prototype.toString.call(
                   window.HTMLElement).indexOf('Constructor') > 0;
 
@@ -7888,21 +7884,134 @@ if (typeof PDFJS === 'undefined') {
   // https://github.com/mozilla/pdf.js/issues/3381.
   // Make sure that we only match webkit-based Android browsers,
   // since Firefox/Fennec works as expected.
+  // Support: Android<3.0
   var regex = /Android\s[0-2][^\d]/;
   var isOldAndroid = regex.test(navigator.userAgent);
 
-  if (isSafari || isOldAndroid) {
+  // Range requests are broken in Chrome 39 and 40, https://crbug.com/442318
+  var isChromeWithRangeBug = /Chrome\/(39|40)\./.test(navigator.userAgent);
+
+  if (isSafari || isOldAndroid || isChromeWithRangeBug) {
     PDFJS.disableRange = true;
+    PDFJS.disableStream = true;
   }
 })();
 
 // Check if the browser supports manipulation of the history.
+// Support: IE<10, Android<4.2
 (function checkHistoryManipulation() {
-  if (!window.history.pushState) {
+  // Android 2.x has so buggy pushState support that it was removed in
+  // Android 3.0 and restored as late as in Android 4.2.
+  // Support: Android 2.x
+  if (!history.pushState || navigator.userAgent.indexOf('Android 2.') >= 0) {
     PDFJS.disableHistory = true;
   }
 })();
 
+// Support: IE<11, Chrome<21, Android<4.4, Safari<6
+(function checkSetPresenceInImageData() {
+  // IE < 11 will use window.CanvasPixelArray which lacks set function.
+  if (window.CanvasPixelArray) {
+    if (typeof window.CanvasPixelArray.prototype.set !== 'function') {
+      window.CanvasPixelArray.prototype.set = function(arr) {
+        for (var i = 0, ii = this.length; i < ii; i++) {
+          this[i] = arr[i];
+        }
+      };
+    }
+  } else {
+    // Old Chrome and Android use an inaccessible CanvasPixelArray prototype.
+    // Because we cannot feature detect it, we rely on user agent parsing.
+    var polyfill = false, versionMatch;
+    if (navigator.userAgent.indexOf('Chrom') >= 0) {
+      versionMatch = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
+      // Chrome < 21 lacks the set function.
+      polyfill = versionMatch && parseInt(versionMatch[2]) < 21;
+    } else if (navigator.userAgent.indexOf('Android') >= 0) {
+      // Android < 4.4 lacks the set function.
+      // Android >= 4.4 will contain Chrome in the user agent,
+      // thus pass the Chrome check above and not reach this block.
+      polyfill = /Android\s[0-4][^\d]/g.test(navigator.userAgent);
+    } else if (navigator.userAgent.indexOf('Safari') >= 0) {
+      versionMatch = navigator.userAgent.
+        match(/Version\/([0-9]+)\.([0-9]+)\.([0-9]+) Safari\//);
+      // Safari < 6 lacks the set function.
+      polyfill = versionMatch && parseInt(versionMatch[1]) < 6;
+    }
+
+    if (polyfill) {
+      var contextPrototype = window.CanvasRenderingContext2D.prototype;
+      var createImageData = contextPrototype.createImageData;
+      contextPrototype.createImageData = function(w, h) {
+        var imageData = createImageData.call(this, w, h);
+        imageData.data.set = function(arr) {
+          for (var i = 0, ii = this.length; i < ii; i++) {
+            this[i] = arr[i];
+          }
+        };
+        return imageData;
+      };
+      // this closure will be kept referenced, so clear its vars
+      contextPrototype = null;
+    }
+  }
+})();
+
+// Support: IE<10, Android<4.0, iOS
+(function checkRequestAnimationFrame() {
+  function fakeRequestAnimationFrame(callback) {
+    window.setTimeout(callback, 20);
+  }
+
+  var isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+  if (isIOS) {
+    // requestAnimationFrame on iOS is broken, replacing with fake one.
+    window.requestAnimationFrame = fakeRequestAnimationFrame;
+    return;
+  }
+  if ('requestAnimationFrame' in window) {
+    return;
+  }
+  window.requestAnimationFrame =
+    window.mozRequestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    fakeRequestAnimationFrame;
+})();
+
+(function checkCanvasSizeLimitation() {
+  var isIOS = /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+  var isAndroid = /Android/g.test(navigator.userAgent);
+  if (isIOS || isAndroid) {
+    // 5MP
+    PDFJS.maxCanvasPixels = 5242880;
+  }
+})();
+
+// Disable fullscreen support for certain problematic configurations.
+// Support: IE11+ (when embedded).
+(function checkFullscreenSupport() {
+  var isEmbeddedIE = (navigator.userAgent.indexOf('Trident') >= 0 &&
+                      window.parent !== window);
+  if (isEmbeddedIE) {
+    PDFJS.disableFullscreen = true;
+  }
+})();
+
+// Provides document.currentScript support
+// Support: IE, Chrome<29.
+(function checkCurrentScript() {
+  if ('currentScript' in document) {
+    return;
+  }
+  Object.defineProperty(document, 'currentScript', {
+    get: function () {
+      var scripts = document.getElementsByTagName('script');
+      return scripts[scripts.length - 1];
+    },
+    enumerable: true,
+    configurable: true
+  });
+})();
 !function(t){function e(r){if(n[r])return n[r].exports;var i=n[r]={exports:{},id:r,loaded:!1};return t[r].call(i.exports,i,i.exports,e),i.loaded=!0,i.exports}var n={};return e.m=t,e.c=n,e.p="",e(0)}([function(t,e,n){(function(e){t.exports=e.pdfMake=n(1)}).call(e,function(){return this}())},function(t,e,n){(function(e){"use strict";function r(t,e,n){this.docDefinition=t,this.fonts=e||s,this.vfs=n}var i=n(6),o=n(105),a=o.saveAs,s={Roboto:{normal:"Roboto-Regular.ttf",bold:"Roboto-Medium.ttf",italics:"Roboto-Italic.ttf",bolditalics:"Roboto-Italic.ttf"}};r.prototype._createDoc=function(t,n){var r=new i(this.fonts);r.fs.bindFS(this.vfs);var o,a=r.createPdfKitDocument(this.docDefinition,t),s=[];a.on("data",function(t){s.push(t)}),a.on("end",function(){o=e.concat(s),n(o,a._pdfMakePages)}),a.end()},r.prototype._getPages=function(t,e){if(!e)throw"getBuffer is an async method and needs a callback argument";this._createDoc(t,function(t,n){e(n)})},r.prototype.open=function(t){var e=window.open("","_blank");try{this.getDataUrl(function(t){e.location.href=t})}catch(n){throw e.close(),n}},r.prototype.print=function(){this.getDataUrl(function(t){var e=document.createElement("iframe");e.style.position="absolute",e.style.left="-99999px",e.src=t,e.onload=function(){function t(){document.body.removeChild(e),document.removeEventListener("click",t)}document.addEventListener("click",t,!1)},document.body.appendChild(e)},{autoPrint:!0})},r.prototype.download=function(t,e){"function"==typeof t&&(e=t,t=null),t=t||"file.pdf",this.getBuffer(function(n){var r;try{r=new Blob([n],{type:"application/pdf"})}catch(i){if("InvalidStateError"==i.name){var o=new Uint8Array(n);r=new Blob([o.buffer],{type:"application/pdf"})}}if(!r)throw"Could not generate blob";a(r,t),"function"==typeof e&&e()})},r.prototype.getBase64=function(t,e){if(!t)throw"getBase64 is an async method and needs a callback argument";this._createDoc(e,function(e){t(e.toString("base64"))})},r.prototype.getDataUrl=function(t,e){if(!t)throw"getDataUrl is an async method and needs a callback argument";this._createDoc(e,function(e){t("data:application/pdf;base64,"+e.toString("base64"))})},r.prototype.getBuffer=function(t,e){if(!t)throw"getBuffer is an async method and needs a callback argument";this._createDoc(e,function(e){t(e)})},t.exports={createPdf:function(t){return new r(t,window.pdfMake.fonts,window.pdfMake.vfs)}}}).call(e,n(2).Buffer)},function(t,e,n){(function(t,r){function i(){function t(){}try{var e=new Uint8Array(1);return e.foo=function(){return 42},e.constructor=t,42===e.foo()&&e.constructor===t&&"function"==typeof e.subarray&&0===e.subarray(1,1).byteLength}catch(n){return!1}}function o(){return t.TYPED_ARRAY_SUPPORT?2147483647:1073741823}function t(e){return this instanceof t?(this.length=0,this.parent=void 0,"number"==typeof e?a(this,e):"string"==typeof e?s(this,e,arguments.length>1?arguments[1]:"utf8"):h(this,e)):arguments.length>1?new t(e,arguments[1]):new t(e)}function a(e,n){if(e=g(e,0>n?0:0|v(n)),!t.TYPED_ARRAY_SUPPORT)for(var r=0;n>r;r++)e[r]=0;return e}function s(t,e,n){("string"!=typeof n||""===n)&&(n="utf8");var r=0|y(e,n);return t=g(t,r),t.write(e,n),t}function h(e,n){if(t.isBuffer(n))return u(e,n);if(V(n))return c(e,n);if(null==n)throw new TypeError("must start with number, buffer, array or string");if("undefined"!=typeof ArrayBuffer){if(n.buffer instanceof ArrayBuffer)return l(e,n);if(n instanceof ArrayBuffer)return f(e,n)}return n.length?d(e,n):p(e,n)}function u(t,e){var n=0|v(e.length);return t=g(t,n),e.copy(t,0,0,n),t}function c(t,e){var n=0|v(e.length);t=g(t,n);for(var r=0;n>r;r+=1)t[r]=255&e[r];return t}function l(t,e){var n=0|v(e.length);t=g(t,n);for(var r=0;n>r;r+=1)t[r]=255&e[r];return t}function f(e,n){return t.TYPED_ARRAY_SUPPORT?(n.byteLength,e=t._augment(new Uint8Array(n))):e=l(e,new Uint8Array(n)),e}function d(t,e){var n=0|v(e.length);t=g(t,n);for(var r=0;n>r;r+=1)t[r]=255&e[r];return t}function p(t,e){var n,r=0;"Buffer"===e.type&&V(e.data)&&(n=e.data,r=0|v(n.length)),t=g(t,r);for(var i=0;r>i;i+=1)t[i]=255&n[i];return t}function g(e,n){t.TYPED_ARRAY_SUPPORT?(e=t._augment(new Uint8Array(n)),e.__proto__=t.prototype):(e.length=n,e._isBuffer=!0);var r=0!==n&&n<=t.poolSize>>>1;return r&&(e.parent=$),e}function v(t){if(t>=o())throw new RangeError("Attempt to allocate Buffer larger than maximum size: 0x"+o().toString(16)+" bytes");return 0|t}function m(e,n){if(!(this instanceof m))return new m(e,n);var r=new t(e,n);return delete r.parent,r}function y(t,e){"string"!=typeof t&&(t=""+t);var n=t.length;if(0===n)return 0;for(var r=!1;;)switch(e){case"ascii":case"binary":case"raw":case"raws":return n;case"utf8":case"utf-8":return H(t).length;case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return 2*n;case"hex":return n>>>1;case"base64":return Y(t).length;default:if(r)return H(t).length;e=(""+e).toLowerCase(),r=!0}}function _(t,e,n){var r=!1;if(e=0|e,n=void 0===n||n===1/0?this.length:0|n,t||(t="utf8"),0>e&&(e=0),n>this.length&&(n=this.length),e>=n)return"";for(;;)switch(t){case"hex":return T(this,e,n);case"utf8":case"utf-8":return I(this,e,n);case"ascii":return L(this,e,n);case"binary":return R(this,e,n);case"base64":return C(this,e,n);case"ucs2":case"ucs-2":case"utf16le":case"utf-16le":return B(this,e,n);default:if(r)throw new TypeError("Unknown encoding: "+t);t=(t+"").toLowerCase(),r=!0}}function w(t,e,n,r){n=Number(n)||0;var i=t.length-n;r?(r=Number(r),r>i&&(r=i)):r=i;var o=e.length;if(o%2!==0)throw new Error("Invalid hex string");r>o/2&&(r=o/2);for(var a=0;r>a;a++){var s=parseInt(e.substr(2*a,2),16);if(isNaN(s))throw new Error("Invalid hex string");t[n+a]=s}return a}function b(t,e,n,r){return q(H(e,t.length-n),t,n,r)}function x(t,e,n,r){return q(Z(e),t,n,r)}function S(t,e,n,r){return x(t,e,n,r)}function k(t,e,n,r){return q(Y(e),t,n,r)}function E(t,e,n,r){return q(G(e,t.length-n),t,n,r)}function C(t,e,n){return 0===e&&n===t.length?K.fromByteArray(t):K.fromByteArray(t.slice(e,n))}function I(t,e,n){n=Math.min(t.length,n);for(var r=[],i=e;n>i;){var o=t[i],a=null,s=o>239?4:o>223?3:o>191?2:1;if(n>=i+s){var h,u,c,l;switch(s){case 1:128>o&&(a=o);break;case 2:h=t[i+1],128===(192&h)&&(l=(31&o)<<6|63&h,l>127&&(a=l));break;case 3:h=t[i+1],u=t[i+2],128===(192&h)&&128===(192&u)&&(l=(15&o)<<12|(63&h)<<6|63&u,l>2047&&(55296>l||l>57343)&&(a=l));break;case 4:h=t[i+1],u=t[i+2],c=t[i+3],128===(192&h)&&128===(192&u)&&128===(192&c)&&(l=(15&o)<<18|(63&h)<<12|(63&u)<<6|63&c,l>65535&&1114112>l&&(a=l))}}null===a?(a=65533,s=1):a>65535&&(a-=65536,r.push(a>>>10&1023|55296),a=56320|1023&a),r.push(a),i+=s}return A(r)}function A(t){var e=t.length;if(J>=e)return String.fromCharCode.apply(String,t);for(var n="",r=0;e>r;)n+=String.fromCharCode.apply(String,t.slice(r,r+=J));return n}function L(t,e,n){var r="";n=Math.min(t.length,n);for(var i=e;n>i;i++)r+=String.fromCharCode(127&t[i]);return r}function R(t,e,n){var r="";n=Math.min(t.length,n);for(var i=e;n>i;i++)r+=String.fromCharCode(t[i]);return r}function T(t,e,n){var r=t.length;(!e||0>e)&&(e=0),(!n||0>n||n>r)&&(n=r);for(var i="",o=e;n>o;o++)i+=j(t[o]);return i}function B(t,e,n){for(var r=t.slice(e,n),i="",o=0;o<r.length;o+=2)i+=String.fromCharCode(r[o]+256*r[o+1]);return i}function O(t,e,n){if(t%1!==0||0>t)throw new RangeError("offset is not uint");if(t+e>n)throw new RangeError("Trying to access beyond buffer length")}function M(e,n,r,i,o,a){if(!t.isBuffer(e))throw new TypeError("buffer must be a Buffer instance");if(n>o||a>n)throw new RangeError("value is out of bounds");if(r+i>e.length)throw new RangeError("index out of range")}function D(t,e,n,r){0>e&&(e=65535+e+1);for(var i=0,o=Math.min(t.length-n,2);o>i;i++)t[n+i]=(e&255<<8*(r?i:1-i))>>>8*(r?i:1-i)}function U(t,e,n,r){0>e&&(e=4294967295+e+1);for(var i=0,o=Math.min(t.length-n,4);o>i;i++)t[n+i]=e>>>8*(r?i:3-i)&255}function P(t,e,n,r,i,o){if(e>i||o>e)throw new RangeError("value is out of bounds");if(n+r>t.length)throw new RangeError("index out of range");if(0>n)throw new RangeError("index out of range")}function z(t,e,n,r,i){return i||P(t,e,n,4,3.4028234663852886e38,-3.4028234663852886e38),X.write(t,e,n,r,23,4),n+4}function F(t,e,n,r,i){return i||P(t,e,n,8,1.7976931348623157e308,-1.7976931348623157e308),X.write(t,e,n,r,52,8),n+8}function W(t){if(t=N(t).replace(tt,""),t.length<2)return"";for(;t.length%4!==0;)t+="=";return t}function N(t){return t.trim?t.trim():t.replace(/^\s+|\s+$/g,"")}function j(t){return 16>t?"0"+t.toString(16):t.toString(16)}function H(t,e){e=e||1/0;for(var n,r=t.length,i=null,o=[],a=0;r>a;a++){if(n=t.charCodeAt(a),n>55295&&57344>n){if(!i){if(n>56319){(e-=3)>-1&&o.push(239,191,189);continue}if(a+1===r){(e-=3)>-1&&o.push(239,191,189);continue}i=n;continue}if(56320>n){(e-=3)>-1&&o.push(239,191,189),i=n;continue}n=i-55296<<10|n-56320|65536}else i&&(e-=3)>-1&&o.push(239,191,189);if(i=null,128>n){if((e-=1)<0)break;o.push(n)}else if(2048>n){if((e-=2)<0)break;o.push(n>>6|192,63&n|128)}else if(65536>n){if((e-=3)<0)break;o.push(n>>12|224,n>>6&63|128,63&n|128)}else{if(!(1114112>n))throw new Error("Invalid code point");if((e-=4)<0)break;o.push(n>>18|240,n>>12&63|128,n>>6&63|128,63&n|128)}}return o}function Z(t){for(var e=[],n=0;n<t.length;n++)e.push(255&t.charCodeAt(n));return e}function G(t,e){for(var n,r,i,o=[],a=0;a<t.length&&!((e-=2)<0);a++)n=t.charCodeAt(a),r=n>>8,i=n%256,o.push(i),o.push(r);return o}function Y(t){return K.toByteArray(W(t))}function q(t,e,n,r){for(var i=0;r>i&&!(i+n>=e.length||i>=t.length);i++)e[i+n]=t[i];return i}/*!
 	 * The buffer module from node.js, for the browser.
 	 *
@@ -7926,7 +8035,12 @@ if(window.ninjaFontVfs)ninjaLoadFontVfs();
 function ninjaLoadFontVfs(){
   jQuery.each(window.ninjaFontVfs, function(font, files){
     jQuery.each(files, function(filename, file){
-      window.pdfMake.vfs[font+'/'+filename] = file;
+      window.pdfMake.vfs['fonts/'+font+'/'+filename] = file;
     });
   })
+}
+function ninjaAddVFSDoc(name,content){
+  window.pdfMake.vfs['docs/'+name] = content;
+  if(window.refreshPDF)refreshPDF(true);
+  jQuery(document).trigger('ninjaVFSDocAdded');
 }

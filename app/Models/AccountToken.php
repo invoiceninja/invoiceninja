@@ -16,4 +16,9 @@ class AccountToken extends EntityModel
     {
         return $this->belongsTo('App\Models\Account');
     }
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
 }

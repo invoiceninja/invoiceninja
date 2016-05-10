@@ -25,11 +25,16 @@
 
 
     {!! Former::vertical_open()->addClass('warn-on-exit') !!}
-    {!! Former::populate($account) !!}
 
     @foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type)
         @foreach (['subject', 'template'] as $field)
-            {!! Former::populateField("email_{$field}_{$type}", $templates[$type][$field]) !!}
+            {{ Former::populateField("email_{$field}_{$type}", $templates[$type][$field]) }}
+        @endforeach
+    @endforeach
+
+    @foreach ([REMINDER1, REMINDER2, REMINDER3] as $type)
+        @foreach (['enable', 'num_days', 'direction', 'field'] as $field)
+            {{ Former::populateField("{$field}_{$type}", $account->{"{$field}_{$type}"}) }}
         @endforeach
     @endforeach
 
@@ -74,6 +79,26 @@
                         @include('accounts.template', ['field' => 'reminder2', 'isReminder' => true])
                         @include('accounts.template', ['field' => 'reminder3', 'isReminder' => true])
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="templatePreviewModal" tabindex="-1" role="dialog" aria-labelledby="templatePreviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="templatePreviewModalLabel">{{ trans('texts.preview') }}</h4>
+                </div>
+
+                <div class="modal-body">
+                    <iframe id="server-preview" frameborder="1" width="100%" height="500px"/></iframe>
+                </div>
+
+                <div class="modal-footer" style="margin-top: 0px">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
             </div>
         </div>
@@ -125,7 +150,7 @@
         </div>
     </div>
 
-    @if (Auth::user()->isPro())
+    @if (Auth::user()->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS))
         <center>
             {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
         </center>
@@ -156,6 +181,22 @@
                     $(previewName).html(processVariables(value));
                 }
             }            
+        }
+
+        function serverPreview(field) {
+            console.log(field);
+            $('#templatePreviewModal').modal('show');
+            var template = $('#email_template_' + field).val();
+            var url = '{{ URL::to('settings/email_preview') }}?template=' + template;
+            $('#server-preview').attr('src', url).load(function() {
+                // disable links in the preview 
+                $('iframe').contents().find('a').each(function(index) {
+                    $(this).on('click', function(event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    });
+                });
+            });            
         }
 
         $(function() {
@@ -201,6 +242,13 @@
 
             var keys = {!! json_encode(\App\Ninja\Mailers\ContactMailer::$variableFields) !!};
             var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<p>'.trans('texts.password').': 6h2NWNdw6<p>':'' !!}";
+            
+            @if ($account->isPro())
+            var documentsHtml = "{!! trans('texts.email_documents_header').'<ul><li><a>'.trans('texts.email_documents_example_1').'</a></li><li><a>'.trans('texts.email_documents_example_2').'</a></li></ul>' !!}";
+            @else
+            var documentsHtml = "";
+            @endif
+            
             var vals = [
                 {!! json_encode($emailFooter) !!}, 
                 "{{ $account->getDisplayName() }}", 
@@ -213,6 +261,7 @@
                 "0001", 
                 "0001",
                 passwordHtml,
+                documentsHtml,
                 "{{ URL::to('/view/...') }}$password", 
                 '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
                 "{{ URL::to('/payment/...') }}$password", 

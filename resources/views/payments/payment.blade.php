@@ -13,6 +13,7 @@
 
                 var data = {
                     name: $('#first_name').val() + ' ' + $('#last_name').val(),
+                    email: $('#email').val(),
                     address_line1: $('#address1').val(),
                     address_line2: $('#address2').val(),
                     address_city: $('#city').val(),
@@ -20,10 +21,14 @@
                     address_zip: $('#postal_code').val(),
                     address_country: $("#country_id option:selected").text(),
                     number: $('#card_number').val(),
-                    cvc: $('#cvv').val(),
                     exp_month: $('#expiration_month').val(),
                     exp_year: $('#expiration_year').val()
                 };
+                
+                // allow space until there's a setting to disable
+                if ($('#cvv').val() != ' ') {
+                    data.cvc = $('#cvv').val();
+                }
 
                 // Validate the card details
                 if (!Stripe.card.validateCardNumber(data.number)) {
@@ -34,11 +39,12 @@
                     $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
                     return false;
                 }
-                if (!Stripe.card.validateCVC(data.cvc)) {
+                
+                if (data.hasOwnProperty('cvc') && !Stripe.card.validateCVC(data.cvc)) {
                     $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
                     return false;
                 }
-
+                
                 // Disable the submit button to prevent repeated clicks
                 $form.find('button').prop('disabled', true);
                 $('#js-error-message').hide();
@@ -112,6 +118,7 @@
   {{ Former::populate($client) }}
   {{ Former::populateField('first_name', $contact->first_name) }}
   {{ Former::populateField('last_name', $contact->last_name) }}
+  {{ Former::populateField('email', $contact->email) }}
   @if (!$client->country_id && $client->account->country_id)
     {{ Former::populateField('country_id', $client->account->country_id) }}
   @endif
@@ -173,8 +180,7 @@
                         ->label('') !!}
             </div>
         </div>
-        @if (isset($paymentTitle))
-        <div class="row">
+        <div class="row" style="display:{{ isset($paymentTitle) ? 'block' : 'none' }}">
             <div class="col-md-12">
                 {!! Former::text('email')
                         ->placeholder(trans('texts.email'))
@@ -182,7 +188,6 @@
                         ->label('') !!}
             </div>
         </div>
-        @endif
 
         <p>&nbsp;<br/>&nbsp;</p>
 

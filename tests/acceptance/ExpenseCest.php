@@ -44,12 +44,14 @@ class ExpenseCest
         $I->selectDropdown($I, $vendorName, '.vendor-select .dropdown-toggle');
         $I->selectDropdown($I, $clientEmail, '.client-select .dropdown-toggle');
         $I->click('Save');
+        $I->wait(2);
         $I->seeInDatabase('expenses', ['vendor_id' => $vendorId]);
 
         // invoice expense
         $I->executeJS('submitAction(\'invoice\')');
+        $I->wait(2);
         $I->click('Save');
-        $I->wait(1);
+        $I->wait(2);
         $I->see($clientEmail);
         $I->see($amount);
     }

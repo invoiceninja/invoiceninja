@@ -2,6 +2,7 @@
 
 use Utils;
 use DateTime;
+use URL;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Models\BalanceAffecting;
@@ -24,6 +25,13 @@ class Invoice extends EntityModel implements BalanceAffecting
     protected $presenter = 'App\Ninja\Presenters\InvoicePresenter';
     protected $dates = ['deleted_at'];
 
+    protected $fillable = [
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',    
+    ];
+    
     protected $casts = [
         'is_recurring' => 'boolean',
         'has_tasks' => 'boolean',
@@ -175,6 +183,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasMany('App\Models\InvoiceItem')->orderBy('id');
     }
 
+    public function documents()
+    {
+        return $this->hasMany('App\Models\Document')->orderBy('id');
+    }
+
     public function invoice_status()
     {
         return $this->belongsTo('App\Models\InvoiceStatus');
@@ -213,6 +226,12 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function expenses()
     {
         return $this->hasMany('App\Models\Expense','invoice_id','id')->withTrashed();
+    }
+
+    public function scopeInvoices($query)
+    {
+        return $query->where('is_quote', '=', false)
+                     ->where('is_recurring', '=', false);
     }
 
     public function markInvitationsSent($notify = false)
@@ -385,14 +404,18 @@ class Invoice extends EntityModel implements BalanceAffecting
             'amount',
             'balance',
             'invoice_items',
+            'documents',
+            'expenses',
             'client',
-            'tax_name',
-            'tax_rate',
+            'tax_name1',
+            'tax_rate1',
+            'tax_name2',
+            'tax_rate2',
             'account',
             'invoice_design',
             'invoice_design_id',
             'invoice_fonts',
-            'is_pro',
+            'features',
             'is_quote',
             'custom_value1',
             'custom_value2',
@@ -419,6 +442,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'contacts',
             'country',
             'currency_id',
+            'country_id',
             'custom_value1',
             'custom_value2',
         ]);
@@ -457,6 +481,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'custom_invoice_text_label2',
             'custom_invoice_item_label1',
             'custom_invoice_item_label2',
+            'invoice_embed_documents',
+            'page_size',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
@@ -467,8 +493,10 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'custom_value2',
                 'cost',
                 'qty',
-                'tax_name',
-                'tax_rate',
+                'tax_name1',
+                'tax_rate1',
+                'tax_name2',
+                'tax_rate2',
             ]);
         }
 
@@ -479,6 +507,26 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'email',
                 'phone',
             ]);
+        }
+
+        foreach ($this->documents as $document) {
+            $document->setVisible([
+                'public_id',
+                'name',
+            ]);
+        }
+        
+        foreach ($this->expenses as $expense) {
+            $expense->setVisible([
+                'documents',
+            ]);
+            
+            foreach ($expense->documents as $document) {
+                $document->setVisible([
+                    'public_id',
+                    'name',
+                ]);
+            }
         }
 
         return $this;
@@ -749,9 +797,8 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         $invitation = $this->invitations[0];
-        $link = $invitation->getLink();
+        $link = $invitation->getLink('view', true);
         $key = env('PHANTOMJS_CLOUD_KEY');
-        $curl = curl_init();
         
         if (Utils::isNinjaDev()) {
             $link = env('TEST_LINK');
@@ -814,52 +861,78 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $total;
     }
 
+    // if $calculatePaid is true we'll loop through each payment to  
+    // determine the sum, otherwise we'll use the cached paid_to_date amount
     public function getTaxes($calculatePaid = false)
     {
         $taxes = [];
         $taxable = $this->getTaxable();
-        
-        if ($this->tax_rate && $this->tax_name) {
-            $taxAmount = $taxable * ($this->tax_rate / 100);
-            $taxAmount = round($taxAmount, 2);
+        $paidAmount = $this->getAmountPaid($calculatePaid);
+                
+        if ($this->tax_name1) {
+            $invoiceTaxAmount = round($taxable * ($this->tax_rate1 / 100), 2);
+            $invoicePaidAmount = $this->amount && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
+            $this->calculateTax($taxes, $this->tax_name1, $this->tax_rate1, $invoiceTaxAmount, $invoicePaidAmount);
+        }
 
-            if ($taxAmount) {
-                $taxes[$this->tax_name.$this->tax_rate] = [
-                    'name' => $this->tax_name,
-                    'rate' => $this->tax_rate,
-                    'amount' => $taxAmount,
-                    'paid' => round($this->getAmountPaid($calculatePaid) / $this->amount * $taxAmount, 2)
-                ];
-            }
+        if ($this->tax_name2) {
+            $invoiceTaxAmount = round($taxable * ($this->tax_rate2 / 100), 2);
+            $invoicePaidAmount = $this->amount && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
+            $this->calculateTax($taxes, $this->tax_name2, $this->tax_rate2, $invoiceTaxAmount, $invoicePaidAmount);
         }
 
         foreach ($this->invoice_items as $invoiceItem) {
-            if ( ! $invoiceItem->tax_rate || ! $invoiceItem->tax_name) {
-                continue;
+            $itemTaxAmount = $this->getItemTaxable($invoiceItem, $taxable);
+            
+            if ($invoiceItem->tax_name1) {
+                $itemTaxAmount = round($taxable * ($invoiceItem->tax_rate1 / 100), 2);
+                $itemPaidAmount = $this->amount && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
+                $this->calculateTax($taxes, $invoiceItem->tax_name1, $invoiceItem->tax_rate1, $itemTaxAmount, $itemPaidAmount);
             }
 
-            $taxAmount = $this->getItemTaxable($invoiceItem, $taxable);
-            $taxAmount = $taxable * ($invoiceItem->tax_rate / 100);
-            $taxAmount = round($taxAmount, 2);
-
-            if ($taxAmount) {
-                $key = $invoiceItem->tax_name.$invoiceItem->tax_rate;
-                
-                if ( ! isset($taxes[$key])) {
-                    $taxes[$key] = [
-                        'amount' => 0,
-                        'paid' => 0
-                    ];
-                }
-
-                $taxes[$key]['amount'] += $taxAmount;
-                $taxes[$key]['paid'] += $this->amount && $taxAmount ? round($this->getAmountPaid($calculatePaid) / $this->amount * $taxAmount, 2) : 0;
-                $taxes[$key]['name'] = $invoiceItem->tax_name;
-                $taxes[$key]['rate'] = $invoiceItem->tax_rate;
+            if ($invoiceItem->tax_name2) {
+                $itemTaxAmount = round($taxable * ($invoiceItem->tax_rate2 / 100), 2);
+                $itemPaidAmount = $this->amount && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
+                $this->calculateTax($taxes, $invoiceItem->tax_name2, $invoiceItem->tax_rate2, $itemTaxAmount, $itemPaidAmount);
             }
         }
-
+        
         return $taxes;
+    }
+    
+    private function calculateTax(&$taxes, $name, $rate, $amount, $paid) 
+    {    
+        if ( ! $amount) {
+            return;
+        } 
+        
+        $amount = round($amount, 2);
+        $paid = round($paid, 2);
+        $key = $rate . ' ' . $name;
+        
+        if ( ! isset($taxes[$key])) {
+            $taxes[$key] = [
+                'name' => $name,
+                'rate' => $rate+0,
+                'amount' => 0,
+                'paid' => 0
+            ];
+        }
+
+        $taxes[$key]['amount'] += $amount;
+        $taxes[$key]['paid'] += $paid;        
+    }
+    
+    public function hasDocuments(){
+        if(count($this->documents))return true;
+        return $this->hasExpenseDocuments();
+    }
+    
+    public function hasExpenseDocuments(){
+        foreach($this->expenses as $expense){
+            if(count($expense->documents))return true;
+        }
+        return false;
     }
 }
 

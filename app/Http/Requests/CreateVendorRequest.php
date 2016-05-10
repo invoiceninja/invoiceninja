@@ -1,9 +1,6 @@
-<?php namespace app\Http\Requests;
-// vendor
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
+<?php namespace App\Http\Requests;
 
-class CreateVendorRequest extends Request
+class CreateVendorRequest extends VendorRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,7 +9,7 @@ class CreateVendorRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->can('create', ENTITY_VENDOR);
     }
 
     /**
@@ -26,21 +23,4 @@ class CreateVendorRequest extends Request
             'name' => 'required',
         ];
     }
-
-    /*
-    public function validator($factory)
-    {
-        // support submiting the form with a single contact record
-        $input = $this->input();
-        if (isset($input['vendor_contact'])) {
-            $input['vendor_contacts'] = [$input['vendor_contact']];
-            unset($input['vendor_contact']);
-            $this->replace($input);
-        }
-
-        return $factory->make(
-            $this->input(), $this->container->call([$this, 'rules']), $this->messages()
-        );
-    }
-    */
 }

@@ -17,26 +17,32 @@ use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Account;
 use App\Models\Product;
+use App\Models\Expense;
 use App\Models\TaxRate;
 use App\Models\InvoiceDesign;
 use App\Models\Activity;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\DocumentRepository;
 use App\Services\InvoiceService;
 use App\Services\RecurringInvoiceService;
-use App\Http\Requests\SaveInvoiceWithClientRequest;
+
+use App\Http\Requests\InvoiceRequest;
+use App\Http\Requests\CreateInvoiceRequest;
+use App\Http\Requests\UpdateInvoiceRequest;
 
 class InvoiceController extends BaseController
 {
     protected $mailer;
     protected $invoiceRepo;
     protected $clientRepo;
+    protected $documentRepo;
     protected $invoiceService;
     protected $recurringInvoiceService;
-    protected $model = 'App\Models\Invoice';
+    protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, RecurringInvoiceService $recurringInvoiceService)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService)
     {
         // parent::__construct();
 
@@ -85,20 +91,13 @@ class InvoiceController extends BaseController
         return $this->recurringInvoiceService->getDatatable($accountId, $clientPublicId, ENTITY_RECURRING_INVOICE, $search);
     }
 
-    public function edit($publicId, $clone = false)
+    public function edit(InvoiceRequest $request, $publicId, $clone = false)
     {
         $account = Auth::user()->account;
-        $invoice = Invoice::scope($publicId)
-                        ->with('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'payments')
-                        ->withTrashed()
-                        ->firstOrFail();
-        
-        if(!$this->checkEditPermission($invoice, $response)){
-            return $response;
-        }
+        $invoice = $request->entity()->load('invitations', 'account.country', 'client.contacts', 'client.country', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'payments');
         
         $entityType = $invoice->getEntityType();
-
+        
         $contactIds = DB::table('invitations')
             ->join('contacts', 'contacts.id', '=', 'invitations.contact_id')
             ->where('invitations.invoice_id', '=', $invoice->id)
@@ -119,7 +118,7 @@ class InvoiceController extends BaseController
         } else {
             Utils::trackViewed($invoice->getDisplayName().' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
             $method = 'PUT';
-            $url = "{$entityType}s/{$publicId}";
+            $url = "{$entityType}s/{$invoice->public_id}";
             $clients->whereId($invoice->client_id);
         }
 
@@ -129,7 +128,11 @@ class InvoiceController extends BaseController
         $invoice->start_date = Utils::fromSqlDate($invoice->start_date);
         $invoice->end_date = Utils::fromSqlDate($invoice->end_date);
         $invoice->last_sent_date = Utils::fromSqlDate($invoice->last_sent_date);
-        $invoice->is_pro = Auth::user()->isPro();
+        $invoice->features = [
+            'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+            'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+            'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+        ];
 
         $actions = [
             ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
@@ -191,7 +194,7 @@ class InvoiceController extends BaseController
                 'isRecurring' => $invoice->is_recurring,
                 'actions' => $actions,
                 'lastSent' => $lastSent);
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, self::getViewModel($invoice));
 
         if ($clone) {
             $data['formIsChanged'] = true;
@@ -211,6 +214,7 @@ class InvoiceController extends BaseController
                             $contact->email_error = $invitation->email_error;
                             $contact->invitation_link = $invitation->getLink();
                             $contact->invitation_viewed = $invitation->viewed_date && $invitation->viewed_date != '0000-00-00 00:00:00' ? $invitation->viewed_date : false;
+                            $contact->invitation_openend = $invitation->opened_date && $invitation->opened_date != '0000-00-00 00:00:00' ? $invitation->opened_date : false;
                             $contact->invitation_status = $contact->email_error ? false : $invitation->getStatus();
                         }
                     }
@@ -223,25 +227,27 @@ class InvoiceController extends BaseController
         return View::make('invoices.edit', $data);
     }
 
-    public function create($clientPublicId = 0, $isRecurring = false)
+    public function create(InvoiceRequest $request, $clientPublicId = 0, $isRecurring = false)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
+        $account = Auth::user()->account;
         
-       $account = Auth::user()->account;
         $entityType = $isRecurring ? ENTITY_RECURRING_INVOICE : ENTITY_INVOICE;
         $clientId = null;
 
-        if ($clientPublicId) {
-            $clientId = Client::getPrivateId($clientPublicId);
+        if ($request->client_id) {
+            $clientId = Client::getPrivateId($request->client_id);
         }
 
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
+        
+        if (Session::get('expenses')) {
+            $invoice->expenses = Expense::scope(Session::get('expenses'))->with('documents')->get();
+        }
+        
 
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
-        if(!Auth::user()->hasPermission('view_all')){
+        if (!Auth::user()->hasPermission('view_all')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
         
@@ -253,17 +259,17 @@ class InvoiceController extends BaseController
             'url' => 'invoices',
             'title' => trans('texts.new_invoice'),
         ];
-        $data = array_merge($data, self::getViewModel());
+        $data = array_merge($data, self::getViewModel($invoice));
 
         return View::make('invoices.edit', $data);
     }
 
-    public function createRecurring($clientPublicId = 0)
+    public function createRecurring(InvoiceRequest $request, $clientPublicId = 0)
     {
-        return self::create($clientPublicId, true);
+        return self::create($request, $clientPublicId, true);
     }
 
-    private static function getViewModel()
+    private static function getViewModel($invoice)
     {
         $recurringHelp = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_help')) as $line) {
@@ -324,11 +330,37 @@ class InvoiceController extends BaseController
             }
         }
 
+        // Tax rate $options
+        $account = Auth::user()->account;
+        $rates = TaxRate::scope()->orderBy('name')->get();
+        $options = [];
+        $defaultTax = false;
+        
+        foreach ($rates as $rate) {
+            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';            
+        
+            // load default invoice tax
+            if ($rate->id == $account->default_tax_rate_id) {
+                $defaultTax = $rate;
+            }
+        }     
+        
+        // Check for any taxes which have been deleted
+        if ($invoice->exists) {
+            foreach ($invoice->getTaxes() as $key => $rate) {
+                if (isset($options[$key])) {
+                    continue;
+                }                
+                $options[$key] = $rate['name'] . ' ' . $rate['rate'] . '%';
+            }
+        }
+                        
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
-            'taxRates' => TaxRate::scope()->orderBy('name')->get(),
+            'taxRateOptions' => $options,
+            'defaultTax' => $defaultTax,
             'currencies' => Cache::get('currencies'),
             'languages' => Cache::get('languages'),
             'sizes' => Cache::get('sizes'),
@@ -350,7 +382,6 @@ class InvoiceController extends BaseController
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
-            'expenses' => Session::get('expenses') ? json_encode(Session::get('expenses')) : null,
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
         ];
 
@@ -361,18 +392,15 @@ class InvoiceController extends BaseController
      *
      * @return Response
      */
-    public function store(SaveInvoiceWithClientRequest $request)
+    public function store(CreateInvoiceRequest $request)
     {
         $data = $request->input();
-        
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
-                
+        $data['documents'] = $request->file('documents');
+                        
         $action = Input::get('action');
         $entityType = Input::get('entityType');
         
-        $invoice = $this->invoiceService->save($data, true);
+        $invoice = $this->invoiceService->save($data);
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");
 
@@ -401,26 +429,23 @@ class InvoiceController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function update(SaveInvoiceWithClientRequest $request)
+    public function update(UpdateInvoiceRequest $request)
     {
         $data = $request->input();
-        
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
-        
+        $data['documents'] = $request->file('documents');
+                
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
-        $invoice = $this->invoiceService->save($data, true);
+        $invoice = $this->invoiceService->save($data, $request->entity());
         $entityType = $invoice->getEntityType();
         $message = trans("texts.updated_{$entityType}");
         Session::flash('message', $message);
 
         if ($action == 'clone') {
-            return $this->cloneInvoice($invoice->public_id);
+            return $this->cloneInvoice($request, $invoice->public_id);
         } elseif ($action == 'convert') {
-            return $this->convertQuote($invoice->public_id);
+            return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
             return $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
@@ -489,7 +514,7 @@ class InvoiceController extends BaseController
     {
         Session::reflash();
 
-        return Redirect::to("invoices/{$publicId}/edit");
+        return Redirect::to("invoices/$publicId/edit");
     }
 
     /**
@@ -517,27 +542,31 @@ class InvoiceController extends BaseController
         }
     }
 
-    public function convertQuote($publicId)
+    public function convertQuote(InvoiceRequest $request)
     {
-        $invoice = Invoice::with('invoice_items')->scope($publicId)->firstOrFail();
-        $clone = $this->invoiceService->convertQuote($invoice);
+        $clone = $this->invoiceService->convertQuote($request->entity());
 
         Session::flash('message', trans('texts.converted_to_invoice'));
-        return Redirect::to('invoices/'.$clone->public_id);
+        
+        return Redirect::to('invoices/' . $clone->public_id);
     }
 
-    public function cloneInvoice($publicId)
+    public function cloneInvoice(InvoiceRequest $request, $publicId)
     {
-        return self::edit($publicId, true);
+        return self::edit($request, $publicId, true);
     }
 
-    public function invoiceHistory($publicId)
+    public function invoiceHistory(InvoiceRequest $request)
     {
-        $invoice = Invoice::withTrashed()->scope($publicId)->firstOrFail();
-        $invoice->load('user', 'invoice_items', 'account.country', 'client.contacts', 'client.country');
+        $invoice = $request->entity();
+        $invoice->load('user', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'account.country', 'client.contacts', 'client.country');
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->is_pro = Auth::user()->isPro();
+        $invoice->features = [
+            'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+            'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+            'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+        ];
         $invoice->is_quote = intval($invoice->is_quote);
 
         $activityTypeId = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
@@ -555,7 +584,11 @@ class InvoiceController extends BaseController
             $backup = json_decode($activity->json_backup);
             $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
             $backup->due_date = Utils::fromSqlDate($backup->due_date);
-            $backup->is_pro = Auth::user()->isPro();
+            $backup->features = [
+                'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+                'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+                'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+            ];
             $backup->is_quote = isset($backup->is_quote) && intval($backup->is_quote);
             $backup->account = $invoice->account->toArray();
 

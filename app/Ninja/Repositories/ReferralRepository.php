@@ -1,31 +1,32 @@
 <?php namespace App\Ninja\Repositories;
 
-use DB;
+use App\Models\Account;
 use Utils;
 
 class ReferralRepository
 {
     public function getCounts($userId)
     {
-        $accounts = DB::table('accounts')
-                        ->where('referral_user_id', $userId)
-                        ->get(['id', 'pro_plan_paid']);
+        $accounts = Account::where('referral_user_id', $userId);
 
         $counts = [
             'free' => 0,
-            'pro' => 0
+            'pro' => 0,
+            'enterprise' => 0
         ];
 
         foreach ($accounts as $account) {
             $counts['free']++;
-            if (Utils::withinPastYear($account->pro_plan_paid)) {
+            $plan = $account->getPlanDetails(false, false);
+            
+            if ($plan) {
                 $counts['pro']++;
+                if ($plan['plan'] == PLAN_ENTERPRISE) {
+                    $counts['enterprise']++;
+                }
             }
         }
 
         return $counts;
     }
-
-
-
 }

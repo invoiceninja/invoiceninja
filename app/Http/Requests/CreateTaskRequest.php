@@ -1,9 +1,6 @@
-<?php namespace app\Http\Requests;
+<?php namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
-
-class UpdateExpenseRequest extends Request
+class CreateTaskRequest extends TaskRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,7 +9,7 @@ class UpdateExpenseRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->can('create', ENTITY_TASK);
     }
 
     /**
@@ -23,8 +20,7 @@ class UpdateExpenseRequest extends Request
     public function rules()
     {
         return [
-            'amount' => 'required|positive',
+            'time_log' => 'time_log',
         ];
-
     }
 }

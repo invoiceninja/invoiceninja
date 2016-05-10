@@ -1,4 +1,4 @@
-<?php namespace app\Listeners;
+<?php namespace App\Listeners;
 
 use Utils;
 use Auth;
@@ -14,10 +14,11 @@ class InvoiceListener
 {
     public function createdInvoice(InvoiceWasCreated $event)
     {
-        if (Utils::isPro()) {
+        if (Utils::hasFeature(FEATURE_DIFFERENT_DESIGNS)) {
             return;
         }
 
+        // Make sure the account has the same design set as the invoice does
         if (Auth::check()) {
             $invoice = $event->invoice;
             $account = Auth::user()->account;

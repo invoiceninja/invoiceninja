@@ -49,7 +49,7 @@ class TaskService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
                         return Utils::getClientDisplayName($model);
                     }
                     
@@ -93,7 +93,7 @@ class TaskService extends BaseService
                     return URL::to('tasks/'.$model->public_id.'/edit');
                 },
                 function ($model) {
-                    return (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Task::canEditItem($model);
+                    return (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]);
                 }
             ],
             [
@@ -102,7 +102,7 @@ class TaskService extends BaseService
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");
                 },
                 function ($model) {
-                    return $model->invoice_number && Invoice::canEditItemByOwner($model->invoice_user_id);
+                    return $model->invoice_number && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id]);
                 }
             ],
             [
@@ -111,7 +111,7 @@ class TaskService extends BaseService
                     return "javascript:stopTask({$model->public_id})";
                 },
                 function ($model) {
-                    return $model->is_running && Task::canEditItem($model);
+                    return $model->is_running && Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]);
                 }
             ],
             [
@@ -120,7 +120,7 @@ class TaskService extends BaseService
                     return "javascript:invoiceEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_number && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Invoice::canCreate();
+                    return ! $model->invoice_number && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
                 }
             ]
         ];

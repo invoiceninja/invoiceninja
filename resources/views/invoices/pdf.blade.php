@@ -75,7 +75,7 @@
   logoImages.imageLogoHeight3 = 81/2;
 
   @if ($account->hasLogo())
-  window.accountLogo = "{{ Form::image_data($account->getLogoPath()) }}";
+  window.accountLogo = "{{ Form::image_data($account->getLogoRaw(), true) }}";
   if (window.invoice) {
     invoice.image = window.accountLogo;
     invoice.imageWidth = {{ $account->getLogoWidth() }};
@@ -84,7 +84,7 @@
   @endif
 
   var NINJA = NINJA || {};
-  @if ($account->isPro())
+  @if ($account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
       NINJA.primaryColor = "{{ $account->primary_color }}";
       NINJA.secondaryColor = "{{ $account->secondary_color }}";
       NINJA.fontSize = {{ $account->font_size }};
@@ -123,7 +123,7 @@
       $('#theFrame').attr('src', string).show();
     } else {      
       if (isRefreshing) {
-        //needsRefresh = true;
+        needsRefresh = true;
         return;
       }
       isRefreshing = true;

@@ -1,4 +1,4 @@
-<?php namespace app\Http\Controllers;
+<?php namespace App\Http\Controllers;
 
 use Utils;
 use View;

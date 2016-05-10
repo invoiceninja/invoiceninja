@@ -109,7 +109,7 @@
 
 		<div class="col-md-3">
 			<h3>{{ trans('texts.contacts') }}</h3>
-		  	@foreach ($vendor->vendorcontacts as $contact)
+		  	@foreach ($vendor->vendor_contacts as $contact)
                 @if ($contact->first_name || $contact->last_name)
                     <b>{{ $contact->first_name.' '.$contact->last_name }}</b><br/>
                 @endif
@@ -174,22 +174,8 @@
 			window.location = '{{ URL::to('expenses/create/' . $vendor->public_id ) }}';
 		});
 
-        // load datatable data when tab is shown and remember last tab selected
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-          var target = $(e.target).attr("href") // activated tab
-          target = target.substring(1);
-          localStorage.setItem('vendor_tab', target);
-          if (!loadedTabs.hasOwnProperty(target)) {
-            loadedTabs[target] = true;
-            window['load_' + target]();
-          }
-        });
-        var tab = localStorage.getItem('vendor_tab');
-        if (tab && tab != 'activity') {
-            $('.nav-tabs a[href="#' + tab.replace('#', '') + '"]').tab('show');
-        } else {
-            //window['load_activity']();
-        }
+        $('.nav-tabs a[href="#expenses"]').tab('show');
+        load_expenses();
 	});
 
 	function onArchiveClick() {

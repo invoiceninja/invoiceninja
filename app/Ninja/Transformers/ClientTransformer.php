@@ -47,7 +47,7 @@ class ClientTransformer extends EntityTransformer
     protected $availableIncludes = [
         'invoices',
         'credits',
-        'expenses',
+        //'expenses',
     ];
     
     public function includeContacts(Client $client)
@@ -58,7 +58,7 @@ class ClientTransformer extends EntityTransformer
 
     public function includeInvoices(Client $client)
     {
-        $transformer = new InvoiceTransformer($this->account, $this->serializer);
+        $transformer = new InvoiceTransformer($this->account, $this->serializer, $client);
         return $this->includeCollection($client->invoices, $transformer, ENTITY_INVOICE);
     }
 
@@ -77,13 +77,11 @@ class ClientTransformer extends EntityTransformer
 
     public function transform(Client $client)
     {
-        return [
+        return array_merge($this->getDefaults($client), [
             'id' => (int) $client->public_id,
             'name' => $client->name,
             'balance' => (float) $client->balance,
             'paid_to_date' => (float) $client->paid_to_date,
-            'user_id' => (int) $client->user->public_id + 1,
-            'account_key' => $this->account->account_key,
             'updated_at' => $this->getTimestamp($client->updated_at),
             'archived_at' => $this->getTimestamp($client->deleted_at),
             'address1' => $client->address1,
@@ -106,6 +104,6 @@ class ClientTransformer extends EntityTransformer
             'currency_id' => (int) $client->currency_id,
             'custom_value1' => $client->custom_value1,
             'custom_value2' => $client->custom_value2,
-        ];
+        ]);
     }
 }

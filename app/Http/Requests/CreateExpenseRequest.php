@@ -1,9 +1,6 @@
-<?php namespace app\Http\Requests;
+<?php namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
-
-class CreateExpenseRequest extends Request
+class CreateExpenseRequest extends ExpenseRequest
 {
     // Expenses 
     /**
@@ -13,7 +10,7 @@ class CreateExpenseRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->can('create', ENTITY_EXPENSE);
     }
 
     /**

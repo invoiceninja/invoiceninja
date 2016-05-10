@@ -244,7 +244,7 @@
         .transition()
         .duration(1000)      
         .style("fill", function(d, i) { 
-          return d.displayAge == -1 ? 'white' : 'red';
+          return 'red';
         });                
 
       selection.exit().remove();
@@ -268,7 +268,7 @@
         return -1;
       }
       var dayInSeconds = 1000*60*60*24;
-      @if (Auth::user()->account->isPro())
+      @if (Auth::user()->account->hasFeature(FEATURE_REPORTS))
         var date = convertToJsDate(invoice.created_at);
       @else
         var date = new Date().getTime() - (dayInSeconds * Math.random() * 100);

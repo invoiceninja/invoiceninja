@@ -89,7 +89,7 @@
                     ->large()->submit()->block() !!}</p>
 
             <p class="link">
-                {!! link_to('/client/forgot', trans('texts.forgot_password')) !!}
+                {!! link_to('/client/recover_password', trans('texts.recover_password')) !!}
             </p>
 
 

@@ -14,12 +14,12 @@ class AccountTransformer extends EntityTransformer
         'users',
         'products',
         'taxRates',
-        'payments'
     ];
 
     protected $availableIncludes = [
         'clients',
         'invoices',
+        'payments',
     ];
 
     public function includeUsers(Account $account)

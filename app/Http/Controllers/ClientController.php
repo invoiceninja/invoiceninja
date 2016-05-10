@@ -28,6 +28,7 @@ use App\Models\Task;
 use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
 
+use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
 
@@ -35,7 +36,7 @@ class ClientController extends BaseController
 {
     protected $clientService;
     protected $clientRepo;
-    protected $model = 'App\Models\Client';
+    protected $entityType = ENTITY_CLIENT;
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
@@ -81,13 +82,7 @@ class ClientController extends BaseController
      */
     public function store(CreateClientRequest $request)
     {
-        $data = $request->input();
-        
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
-                
-        $client = $this->clientService->save($data);
+        $client = $this->clientService->save($request->input());
 
         Session::flash('message', trans('texts.created_client'));
 
@@ -100,38 +95,35 @@ class ClientController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function show($publicId)
+    public function show(ClientRequest $request)
     {
-        $client = Client::withTrashed()->scope($publicId)->with('contacts', 'size', 'industry')->firstOrFail();
+        $client = $request->entity();         
         
-        if(!$this->checkViewPermission($client, $response)){
-            return $response;
-        }
-        
+        $user = Auth::user();
         Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 
         $actionLinks = [];
-        if(Task::canCreate()){
-            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => '/tasks/create/'.$client->public_id];
+        if($user->can('create', ENTITY_TASK)){
+            $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/'.$client->public_id)];
         }
-        if (Utils::isPro() && Invoice::canCreate()) {
-            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => '/quotes/create/'.$client->public_id];
+        if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_INVOICE)) {
+            $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
         }
         
         if(!empty($actionLinks)){
             $actionLinks[] = \DropdownButton::DIVIDER;
         }
         
-        if(Payment::canCreate()){
-            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => '/payments/create/'.$client->public_id];
+        if($user->can('create', ENTITY_PAYMENT)){
+            $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/'.$client->public_id)];
         }
         
-        if(Credit::canCreate()){
-            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => '/credits/create/'.$client->public_id];
+        if($user->can('create', ENTITY_CREDIT)){
+            $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/'.$client->public_id)];
         }
         
-        if(Expense::canCreate()){
-            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => '/expenses/create/0/'.$client->public_id];
+        if($user->can('create', ENTITY_EXPENSE)){
+            $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/'.$client->public_id)];
         }
 
         $data = array(
@@ -154,12 +146,8 @@ class ClientController extends BaseController
      *
      * @return Response
      */
-    public function create()
+    public function create(ClientRequest $request)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
-        
         if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients()." clients"]);
         }
@@ -182,18 +170,14 @@ class ClientController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function edit($publicId)
+    public function edit(ClientRequest $request)
     {
-        $client = Client::scope($publicId)->with('contacts')->firstOrFail();
-        
-        if(!$this->checkEditPermission($client, $response)){
-            return $response;
-        }
-        
+        $client = $request->entity();
+                
         $data = [
             'client' => $client,
             'method' => 'PUT',
-            'url' => 'clients/'.$publicId,
+            'url' => 'clients/'.$client->public_id,
             'title' => trans('texts.edit_client'),
         ];
 
@@ -201,7 +185,7 @@ class ClientController extends BaseController
 
         if (Auth::user()->account->isNinjaAccount()) {
             if ($account = Account::whereId($client->public_id)->first()) {
-                $data['proPlanPaid'] = $account['pro_plan_paid'];
+                $data['planDetails'] = $account->getPlanDetails(false, false);
             }
         }
 
@@ -232,13 +216,7 @@ class ClientController extends BaseController
      */
     public function update(UpdateClientRequest $request)
     {
-        $data = $request->input();
-        
-        if(!$this->checkUpdatePermission($data, $response)){
-            return $response;
-        }
-                
-        $client = $this->clientService->save($data);
+        $client = $this->clientService->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_client'));
 

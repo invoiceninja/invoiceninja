@@ -96,7 +96,7 @@ class OnlinePaymentCest
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->checkOption('#auto_bill');
         $I->executeJS('preparePdfData(\'email\')');
-        $I->wait(2);
+        $I->wait(3);
         $I->see("$0.00");
 
    }

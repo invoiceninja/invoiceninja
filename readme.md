@@ -3,14 +3,10 @@
 </p>
 
 # Invoice Ninja
-### [https://www.invoiceninja.com](https://www.invoiceninja.com)
+### [http://www.invoiceninja.org](http://www.invoiceninja.org)
 
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=master)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
-Note: we've recently updated this branch to Laravel 5.2. If you're upgrading here are some things to note
-* Make sure to run composer install
-* If there are any strings with spaces in your .env file you'll need to enclose them in quotes to prevent error class log not found.
 
 ### Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)

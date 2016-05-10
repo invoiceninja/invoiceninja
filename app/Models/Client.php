@@ -146,7 +146,7 @@ class Client extends EntityModel
 
     public function addContact($data, $isPrimary = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
 
         if ($publicId && $publicId != '-1') {
             $contact = Contact::scope($publicId)->firstOrFail();
@@ -155,7 +155,7 @@ class Client extends EntityModel
             $contact->send_invoice = true;
         }
         
-        if (!Utils::isPro() || $this->account->enable_portal_password){
+        if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password){
             if(!empty($data['password']) && $data['password']!='-%unchanged%-'){
                 $contact->password = bcrypt($data['password']);
             } else if(empty($data['password'])){
@@ -197,6 +197,13 @@ class Client extends EntityModel
     public function getName()
     {
         return $this->name;
+    }
+    
+    public function getPrimaryContact()
+    {
+        return $this->contacts()
+                    ->whereIsPrimary(true)
+                    ->first();
     }
     
     public function getDisplayName()
@@ -256,13 +263,17 @@ class Client extends EntityModel
 
     public function getGatewayToken()
     {
-        $this->account->load('account_gateways');
+        $account = $this->account;
+        
+        if ( ! $account->relationLoaded('account_gateways')) {
+            $account->load('account_gateways');
+        }
 
-        if (!count($this->account->account_gateways)) {
+        if (!count($account->account_gateways)) {
             return false;
         }
 
-        $accountGateway = $this->account->getGatewayConfig(GATEWAY_STRIPE);
+        $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
         
         if (!$accountGateway) {
             return false;

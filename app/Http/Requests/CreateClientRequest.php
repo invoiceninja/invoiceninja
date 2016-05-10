@@ -1,9 +1,6 @@
-<?php namespace app\Http\Requests;
+<?php namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
-
-class CreateClientRequest extends Request
+class CreateClientRequest extends ClientRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,7 +9,7 @@ class CreateClientRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->can('create', ENTITY_CLIENT);
     }
 
     /**
@@ -25,22 +22,5 @@ class CreateClientRequest extends Request
         return [
             'contacts' => 'valid_contacts',
         ];
-    }
-
-    public function validator($factory)
-    {
-        // support submiting the form with a single contact record
-        $input = $this->input();
-        if (isset($input['contact'])) {
-            $input['contacts'] = [$input['contact']];
-            unset($input['contact']);
-            $this->replace($input);
-        }
-
-        return $factory->make(
-            $this->input(),
-            $this->container->call([$this, 'rules']),
-            $this->messages()
-        );
     }
 }

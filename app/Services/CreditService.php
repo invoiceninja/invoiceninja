@@ -47,7 +47,7 @@ class CreditService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    if(!Client::canViewItemByOwner($model->client_user_id)){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
                         return Utils::getClientDisplayName($model);
                     }
                     
@@ -91,7 +91,7 @@ class CreditService extends BaseService
                     return URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1';
                 },
                 function ($model) {
-                    return Payment::canCreate();
+                    return Auth::user()->can('create', ENTITY_PAYMENT);
                 }
             ]
         ];

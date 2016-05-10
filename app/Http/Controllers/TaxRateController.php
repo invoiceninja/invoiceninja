@@ -75,9 +75,7 @@ class TaxRateController extends BaseController
 
     public function update(UpdateTaxRateRequest $request, $publicId)
     {
-        $taxRate = TaxRate::scope($publicId)->firstOrFail();
-
-        $this->taxRateRepo->save($request->input(), $taxRate);
+        $this->taxRateRepo->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_tax_rate'));
         return Redirect::to('settings/' . ACCOUNT_TAX_RATES);

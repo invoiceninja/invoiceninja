@@ -50,7 +50,7 @@
             "paddingTop": "$amount:14", 
             "paddingBottom": "$amount:14"
         }
-    },    
+    },
     {
         "columns": [
         {
@@ -72,7 +72,13 @@
                 "paddingBottom": "$amount:4"  
             }
         }]
-    }
+    },
+        {
+            "stack": [
+                "$invoiceDocuments"
+            ],
+            "style": "invoiceDocuments"
+        }
     ],
     "footer":
     [
@@ -108,8 +114,8 @@
             "columns": [
               { 
                 "image": "$accountLogo",
-                "fit": [120, 80],
-                "margin": [30, 20, 0, 0]
+                "fit": [120, 60],
+                "margin": [30, 16, 0, 0]
               },
               {
                 "stack": "$accountDetails",
@@ -254,6 +260,12 @@
             "help": {
                 "fontSize": "$fontSizeSmaller",
                 "color": "#737373"
+            },
+            "invoiceDocuments": {
+                "margin": [47, 0, 47, 0]
+            },
+            "invoiceDocument": {
+                "margin": [0, 10, 0, 10]
             }
         },
         "pageMargins": [0, 80, 0, 40]

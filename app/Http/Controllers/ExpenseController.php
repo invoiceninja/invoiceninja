@@ -17,6 +17,8 @@ use App\Models\Expense;
 use App\Models\Client;
 use App\Services\ExpenseService;
 use App\Ninja\Repositories\ExpenseRepository;
+
+use App\Http\Requests\ExpenseRequest;
 use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 
@@ -25,7 +27,7 @@ class ExpenseController extends BaseController
     // Expenses
     protected $expenseRepo;
     protected $expenseService;
-    protected $model = 'App\Models\Expense';
+    protected $entityType = ENTITY_EXPENSE;
 
     public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {
@@ -69,42 +71,35 @@ class ExpenseController extends BaseController
         return $this->expenseService->getDatatableVendor($vendorPublicId);
     }
 
-    public function create($vendorPublicId = null, $clientPublicId = null)
+    public function create(ExpenseRequest $request)
     {
-        if(!$this->checkCreatePermission($response)){
-            return $response;
-        }
-        
-        if($vendorPublicId != 0) {
-            $vendor = Vendor::scope($vendorPublicId)->with('vendorcontacts')->firstOrFail();
+        if ($request->vendor_id != 0) {
+            $vendor = Vendor::scope($request->vendor_id)->with('vendor_contacts')->firstOrFail();
         } else {
             $vendor = null;
         }
+        
         $data = array(
-            'vendorPublicId' => Input::old('vendor') ? Input::old('vendor') : $vendorPublicId,
+            'vendorPublicId' => Input::old('vendor') ? Input::old('vendor') : $request->vendor_id,
             'expense' => null,
             'method' => 'POST',
             'url' => 'expenses',
             'title' => trans('texts.new_expense'),
-            'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
+            'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
             'vendor' => $vendor,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
-            'clientPublicId' => $clientPublicId,
-            );
+            'clientPublicId' => $request->client_id,
+        );
 
         $data = array_merge($data, self::getViewModel());
 
         return View::make('expenses.edit', $data);
     }
 
-    public function edit($publicId)
+    public function edit(ExpenseRequest $request)
     {
-        $expense = Expense::scope($publicId)->firstOrFail();
-        
-        if(!$this->checkEditPermission($expense, $response)){
-            return $response;
-        }
-        
+        $expense = $request->entity();
+                
         $expense->expense_date = Utils::fromSqlDate($expense->expense_date);
         
         $actions = [];
@@ -112,15 +107,6 @@ class ExpenseController extends BaseController
             $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans("texts.view_invoice")];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans("texts.invoice_expense")];
-
-            /*
-            // check for any open invoices
-            $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id) : [];
-
-            foreach ($invoices as $invoice) {
-                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans("texts.add_to_invoice", ["invoice" => $invoice->invoice_number])];
-            }
-            */
         }
 
         $actions[] = \DropdownButton::DIVIDER;
@@ -135,22 +121,16 @@ class ExpenseController extends BaseController
             'vendor' => null,
             'expense' => $expense,
             'method' => 'PUT',
-            'url' => 'expenses/'.$publicId,
+            'url' => 'expenses/'.$expense->public_id,
             'title' => 'Edit Expense',
             'actions' => $actions,
-            'vendors' => Vendor::scope()->with('vendorcontacts')->orderBy('name')->get(),
+            'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
             'vendorPublicId' => $expense->vendor ? $expense->vendor->public_id : null,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $expense->client ? $expense->client->public_id : null,
         );
 
         $data = array_merge($data, self::getViewModel());
-
-        if (Auth::user()->account->isNinjaAccount()) {
-            if ($account = Account::whereId($client->public_id)->first()) {
-                $data['proPlanPaid'] = $account['pro_plan_paid'];
-            }
-        }
 
         return View::make('expenses.edit', $data);
     }
@@ -163,7 +143,10 @@ class ExpenseController extends BaseController
      */
     public function update(UpdateExpenseRequest $request)
     {
-        $expense = $this->expenseService->save($request->input());
+        $data = $request->input();
+        $data['documents'] = $request->file('documents');
+                
+        $expense = $this->expenseService->save($data, $request->entity());
 
         Session::flash('message', trans('texts.updated_expense'));
 
@@ -177,7 +160,10 @@ class ExpenseController extends BaseController
 
     public function store(CreateExpenseRequest $request)
     {
-        $expense = $this->expenseService->save($request->input());
+        $data = $request->input();
+        $data['documents'] = $request->file('documents');
+                
+        $expense = $this->expenseService->save($data);
 
         Session::flash('message', trans('texts.created_expense'));
 
@@ -195,8 +181,7 @@ class ExpenseController extends BaseController
                 $expenses = Expense::scope($ids)->with('client')->get();
                 $clientPublicId = null;
                 $currencyId = null;
-                $data = [];
-
+                
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense)
                 {
@@ -220,19 +205,11 @@ class ExpenseController extends BaseController
                         Session::flash('error', trans('texts.expense_error_invoiced'));
                         return Redirect::to('expenses');
                     }
-
-                    $account = Auth::user()->account;
-                    $data[] = [
-                        'publicId' => $expense->public_id,
-                        'description' => $expense->public_notes,
-                        'qty' => 1,
-                        'cost' => $expense->present()->converted_amount,
-                    ];
                 }
 
                 return Redirect::to("invoices/create/{$clientPublicId}")
                         ->with('expenseCurrencyId', $currencyId)
-                        ->with('expenses', $data);
+                        ->with('expenses', $ids);
                 break;
 
             default:
