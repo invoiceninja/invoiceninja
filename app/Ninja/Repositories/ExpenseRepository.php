@@ -1,4 +1,4 @@
-<?php namespace app\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 use Utils;
@@ -96,7 +96,7 @@ class ExpenseRepository extends BaseRepository
                         'vendors.name as vendor_name',
                         'vendors.public_id as vendor_public_id',
                         'vendors.user_id as vendor_user_id',
-                        'clients.name as client_name',
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                         'clients.public_id as client_public_id',
                         'clients.user_id as client_user_id',
                         'contacts.first_name',
@@ -122,12 +122,15 @@ class ExpenseRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input, $checkSubPermissions=false)
+    public function save($input, $expense = null)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
 
-        if ($publicId) {
+        if ($expense) {
+            // do nothing
+        } elseif ($publicId) {
             $expense = Expense::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in expense repo save');
         } else {
             $expense = Expense::createNew();
         }
@@ -160,7 +163,7 @@ class ExpenseRepository extends BaseRepository
         $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):array();;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
-            if($document && !$checkSubPermissions || Auth::user()->can('edit', $document)){
+            if($document && Auth::user()->can('edit', $document)){
                 $document->invoice_id = null;
                 $document->expense_id = $expense->id;
                 $document->save();

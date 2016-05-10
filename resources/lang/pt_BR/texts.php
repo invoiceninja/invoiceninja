@@ -487,7 +487,7 @@ return array(
     'invoice_history' => 'Histórico de Faturas',
     'quote_history' => 'Histórico de Orçamentos',
     'current_version' => 'Versão Atual',
-    'select_versiony' => 'Selecionar versão',
+    'select_version' => 'Selecionar versão',
     'view_history' => 'Visualizar Histórico',
 
     'edit_payment' => 'Editar Pagamento',

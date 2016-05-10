@@ -51,6 +51,11 @@ class Utils
         return php_sapi_name() == 'cli';
     }
 
+    public static function isTravis()
+    {
+        return env('TRAVIS') == 'true';
+    }
+
     public static function isNinja()
     {
         return self::isNinjaProd() || self::isNinjaDev();
@@ -135,7 +140,7 @@ class Utils
 
     public static function hasAllPermissions($permission)
     {
-        return Auth::check() && Auth::user()->hasPermissions($permission);
+        return Auth::check() && Auth::user()->hasPermission($permission);
     }
 
     public static function isTrial()
@@ -336,6 +341,7 @@ class Utils
         $currency = self::getFromCache($currencyId, 'currencies');
         $thousand = $currency->thousand_separator;
         $decimal = $currency->decimal_separator;
+        $precision = $currency->precision;
         $code = $currency->code;
         $swapSymbol = false;
 
@@ -350,7 +356,7 @@ class Utils
             }
         }
 
-        $value = number_format($value, $currency->precision, $decimal, $thousand);
+        $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
         if ($showCode || !$symbol) {
@@ -669,9 +675,14 @@ class Utils
         return $year + $offset;
     }
 
+    public static function getEntityClass($entityType)
+    {
+        return 'App\\Models\\' . static::getEntityName($entityType);
+    }
+
     public static function getEntityName($entityType)
     {
-        return ucwords(str_replace('_', ' ', $entityType));
+        return ucwords(Utils::toCamelCase($entityType));
     }
 
     public static function getClientDisplayName($model)

@@ -1097,7 +1097,7 @@ function searchData(data, key, fuzzy) {
         matches = fuse.search(q);
     } else {
         matches = [];
-        substrRegex = new RegExp(q, 'i');
+        substrRegex = new RegExp(escapeRegExp(q), 'i');
         $.each(data, function(i, obj) {
           if (substrRegex.test(obj[key])) {
             matches.push(obj);
@@ -1107,3 +1107,7 @@ function searchData(data, key, fuzzy) {
     cb(matches);
     }
 }; 
+
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}

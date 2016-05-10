@@ -98,6 +98,7 @@ class EventServiceProvider extends ServiceProvider {
             'App\Listeners\SubscriptionListener@createdPayment',
             'App\Listeners\InvoiceListener@createdPayment',
             'App\Listeners\NotificationListener@createdPayment',
+            'App\Listeners\AnalyticsListener@trackRevenue',
         ],
         'App\Events\PaymentWasArchived' => [
             'App\Listeners\ActivityListener@archivedPayment',

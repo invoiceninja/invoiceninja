@@ -11,7 +11,11 @@
   )); !!}
 
   @if ($user)
-    {!! Former::populate($user) !!}    
+    {!! Former::populate($user) !!}
+    {{ Former::populateField('is_admin', intval($user->is_admin)) }}
+    {{ Former::populateField('permissions[create_all]', intval($user->hasPermission('create'))) }}
+    {{ Former::populateField('permissions[view_all]', intval($user->hasPermission('view_all'))) }}
+    {{ Former::populateField('permissions[edit_all]', intval($user->hasPermission('edit_all'))) }}
   @endif
 
 <div class="panel panel-default">

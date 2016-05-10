@@ -23,14 +23,15 @@ use App\Models\Country;
 use App\Ninja\Repositories\VendorRepository;
 use App\Services\VendorService;
 
+use App\Http\Requests\VendorRequest;
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
-// vendor
+
 class VendorController extends BaseController
 {
     protected $vendorService;
     protected $vendorRepo;
-    protected $entity = ENTITY_VENDOR;
+    protected $entityType = ENTITY_VENDOR;
 
     public function __construct(VendorRepository $vendorRepo, VendorService $vendorService)
     {
@@ -38,8 +39,6 @@ class VendorController extends BaseController
 
         $this->vendorRepo = $vendorRepo;
         $this->vendorService = $vendorService;
-
-
     }
 
     /**
@@ -77,11 +76,7 @@ class VendorController extends BaseController
      */
     public function store(CreateVendorRequest $request)
     {
-        $data = $request->input();
-        
-        $this->authorizeUpdate($data);
-                
-        $vendor = $this->vendorService->save($data);
+        $vendor = $this->vendorService->save($request->input());
 
         Session::flash('message', trans('texts.created_vendor'));
 
@@ -94,12 +89,10 @@ class VendorController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function show($publicId)
+    public function show(VendorRequest $request)
     {
-        $vendor = Vendor::withTrashed()->scope($publicId)->with('vendorcontacts', 'size', 'industry')->firstOrFail();
-        
-        $this->authorize('view', $vendor);
-        
+        $vendor = $request->entity();
+                
         Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
         $actionLinks = [
@@ -125,10 +118,8 @@ class VendorController extends BaseController
      *
      * @return Response
      */
-    public function create()
+    public function create(VendorRequest $request)
     {
-        $this->authorizeCreate();
-        
         if (Vendor::scope()->count() > Auth::user()->getMaxNumVendors()) {
             return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumVendors()." vendors"]);
         }
@@ -151,16 +142,14 @@ class VendorController extends BaseController
      * @param  int      $id
      * @return Response
      */
-    public function edit($publicId)
+    public function edit(VendorRequest $request)
     {
-        $vendor = Vendor::scope($publicId)->with('vendorcontacts')->firstOrFail();
-        
-        $this->authorize('edit', $vendor)
+        $vendor = $request->entity();
         
         $data = [
             'vendor' => $vendor,
             'method' => 'PUT',
-            'url' => 'vendors/'.$publicId,
+            'url' => 'vendors/'.$vendor->public_id,
             'title' => trans('texts.edit_vendor'),
         ];
 
@@ -193,11 +182,7 @@ class VendorController extends BaseController
      */
     public function update(UpdateVendorRequest $request)
     {
-        $data = $request->input();
-        
-        $this->authorizeUpdate($data);
-                
-        $vendor = $this->vendorService->save($data);
+        $vendor = $this->vendorService->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_vendor'));
 

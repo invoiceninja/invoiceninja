@@ -246,8 +246,7 @@ class AccountController extends BaseController
 
     public function getSearchData()
     {
-        $account = Auth::user()->account;
-        $data = $this->accountRepo->getSearchData($account);
+        $data = $this->accountRepo->getSearchData(Auth::user());
 
         return Response::json($data);
     }
@@ -1293,5 +1292,38 @@ class AccountController extends BaseController
         }
 
         return Redirect::to("/settings/$section/", 301);
+    }
+    
+    public function previewEmail(\App\Services\TemplateService $templateService)
+    {
+        $template = Input::get('template');
+        $invoice = Invoice::scope()
+                    ->invoices()
+                    ->withTrashed()
+                    ->first();
+        
+        if ( ! $invoice) {
+            return trans('texts.create_invoice_for_sample');
+        }
+        
+        $account = Auth::user()->account;
+        
+        // replace the variables with sample data
+        $data = [
+            'account' => $account,
+            'invoice' => $invoice,
+            'invitation' => $invoice->invitations->first(),
+            'client' => $invoice->client,
+            'amount' => $invoice->amount 
+        ];
+        
+        // create the email view 
+        $view = 'emails.' . $account->getTemplateView(ENTITY_INVOICE) . '_html';
+        $data = array_merge($data, [
+            'body' => $templateService->processVariables($template, $data),
+            'entityType' => ENTITY_INVOICE,
+        ]);
+        
+        return Response::view($view, $data);
     }
 }

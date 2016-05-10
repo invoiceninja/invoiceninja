@@ -66,16 +66,19 @@ class ClientRepository extends BaseRepository
         return $query;
     }
     
-    public function save($data)
+    public function save($data, $client = null)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        if (!$publicId || $publicId == '-1') {
+        if ($client) {
+           // do nothing
+        } elseif (!$publicId || $publicId == '-1') {
             $client = Client::createNew();
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
+            \Log::warning('Entity not set in client repo save');
         }
-
+        
         // convert currency code to id
         if (isset($data['currency_code'])) {
             $currencyCode = strtolower($data['currency_code']);
@@ -102,9 +105,9 @@ class ClientRepository extends BaseRepository
 
         // If the primary is set ensure it's listed first
         usort($contacts, function ($left, $right) {
-            return (isset($right['is_primary']) ? $right['is_primary'] : 0) - (isset($left['is_primary']) ? $left['is_primary'] : 0);
+            return (isset($right['is_primary']) ? $right['is_primary'] : 1) - (isset($left['is_primary']) ? $left['is_primary'] : 0);
         });
-
+        
         foreach ($contacts as $contact) {
             $contact = $client->addContact($contact, $first);
             $contactIds[] = $contact->public_id;

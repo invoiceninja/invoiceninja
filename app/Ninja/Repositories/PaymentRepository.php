@@ -35,7 +35,7 @@ class PaymentRepository extends BaseRepository
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'payments.transaction_reference',
-                        'clients.name as client_name',
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                         'clients.public_id as client_public_id',
                         'clients.user_id as client_user_id',
                         'payments.amount',
@@ -74,7 +74,14 @@ class PaymentRepository extends BaseRepository
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
-                $query->where('clients.name', 'like', '%'.$filter.'%');
+                $query->where('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%')
+                      ->orWhere('payments.transaction_reference', 'like', '%'.$filter.'%')
+                      ->orWhere('gateways.name', 'like', '%'.$filter.'%')
+                      ->orWhere('payment_types.name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%');
             });
         }
 
@@ -105,7 +112,7 @@ class PaymentRepository extends BaseRepository
                         'invitations.invitation_key',
                         'payments.public_id',
                         'payments.transaction_reference',
-                        'clients.name as client_name',
+                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                         'clients.public_id as client_public_id',
                         'payments.amount',
                         'payments.payment_date',
@@ -135,12 +142,15 @@ class PaymentRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input)
+    public function save($input, $payment = null)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
 
-        if ($publicId) {
+        if ($payment) {
+            // do nothing
+        } elseif ($publicId) {
             $payment = Payment::scope($publicId)->firstOrFail();
+            \Log::warning('Entity not set in payment repo save');
         } else {
             $payment = Payment::createNew();
         }

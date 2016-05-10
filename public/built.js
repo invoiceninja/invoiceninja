@@ -30988,7 +30988,7 @@ function searchData(data, key, fuzzy) {
         matches = fuse.search(q);
     } else {
         matches = [];
-        substrRegex = new RegExp(q, 'i');
+        substrRegex = new RegExp(escapeRegExp(q), 'i');
         $.each(data, function(i, obj) {
           if (substrRegex.test(obj[key])) {
             matches.push(obj);
@@ -30999,6 +30999,9 @@ function searchData(data, key, fuzzy) {
     }
 }; 
 
+function escapeRegExp(str) {
+  return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
 var NINJA = NINJA || {};
 
 NINJA.TEMPLATES = {
@@ -31193,7 +31196,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
             field = toSnakeCase(field);
             var value = getDescendantProp(invoice, field);
             if (match.indexOf('?') < 0 || value) {
-                if (invoice.partial && field == 'balance_due') {
+                if (invoice.partial > 0 && field == 'balance_due') {
                     field = 'partial_due';
                 } else if (invoice.is_quote) {
                     field = field.replace('invoice', 'quote');
@@ -31248,13 +31251,13 @@ NINJA.notesAndTerms = function(invoice)
     var data = [];
 
     if (invoice.public_notes) {
-        data.push({stack:[{text: invoice.public_notes, style: ['notes']}]});
+        data.push({stack:[{text: invoice.is_recurring ? processVariables(invoice.public_notes) : invoice.public_notes, style: ['notes']}]});
         data.push({text:' '});
     }
 
     if (invoice.terms) {
         data.push({text:invoiceLabels.terms, style: ['termsLabel']});
-        data.push({stack:[{text: invoice.terms, style: ['terms']}]});
+        data.push({stack:[{text: invoice.is_recurring ? processVariables(invoice.terms) : invoice.terms, style: ['terms']}]});
     }
 
     return NINJA.prepareDataList(data, 'notesAndTerms');
@@ -31280,7 +31283,7 @@ NINJA.invoiceColumns = function(invoice)
 
     var count = 3;
     if (account.hide_quantity == '1') {
-        count--;
+        count -= 2;
     }
     if (account.show_item_taxes == '1') {
         count++;
@@ -31294,10 +31297,16 @@ NINJA.invoiceColumns = function(invoice)
 
 NINJA.invoiceFooter = function(invoice)
 {
+    var footer = invoice.invoice_footer;
+
+    if (invoice.is_recurring) {
+        footer = processVariables(footer);
+    }
+
     if (!invoice.features.invoice_settings && invoice.invoice_design_id == 3) {
-        return invoice.invoice_footer ? invoice.invoice_footer.substring(0, 200) : ' ';
+        return footer ? footer.substring(0, 200) : ' ';
     } else {
-        return invoice.invoice_footer || ' ';
+        return footer || ' ';
     }
 }
 
@@ -31331,11 +31340,10 @@ NINJA.invoiceLines = function(invoice) {
     }
     if (invoice.features.invoice_ettings && account.custom_invoice_item_label2) {
         grid[0].push({text: account.custom_invoice_item_label2, style: ['tableHeader', 'custom2TableHeader']});
-    }
-
-    grid[0].push({text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
+    }    
 
     if (!hideQuantity) {
+        grid[0].push({text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
         grid[0].push({text: invoiceLabels.quantity, style: ['tableHeader', 'qtyTableHeader']});
     }
     if (showItemTaxes) {
@@ -31353,7 +31361,9 @@ NINJA.invoiceLines = function(invoice) {
         var notes = item.notes;
         var productKey = item.product_key;
         var tax1 = '';        
-        var tax2 = '';        
+        var tax2 = '';
+        var custom_value1 = item.custom_value1;
+        var custom_value2 = item.custom_value2;
         
         if (showItemTaxes) {
             if (item.tax_name1) {
@@ -31375,6 +31385,8 @@ NINJA.invoiceLines = function(invoice) {
         if (invoice.is_recurring) {
             notes = processVariables(notes);
             productKey = processVariables(productKey);
+            custom_value1 = processVariables(item.custom_value1);
+            custom_value2 = processVariables(item.custom_value2);
         }
 
         var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
@@ -31387,13 +31399,13 @@ NINJA.invoiceLines = function(invoice) {
         }
         row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]}); 
         if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
-            row.push({style:["customValue1", rowStyle], text:item.custom_value1 || ' '});
+            row.push({style:["customValue1", rowStyle], text:custom_value1 || ' '});
         }
         if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
-            row.push({style:["customValue2", rowStyle], text:item.custom_value2 || ' '});
+            row.push({style:["customValue2", rowStyle], text:custom_value2 || ' '});
         }
-        row.push({style:["cost", rowStyle], text:cost});
         if (!hideQuantity) {
+            row.push({style:["cost", rowStyle], text:cost});
             row.push({style:["quantity", rowStyle], text:qty || ' '});
         }
         if (showItemTaxes) {
@@ -31581,42 +31593,35 @@ NINJA.invoiceDetails = function(invoice) {
     ],
     [
         {text: (invoice.is_quote ? invoiceLabels.valid_until : invoiceLabels.due_date)}, 
-        {text: invoice.due_date}
+        {text: invoice.is_recurring ? false : invoice.due_date}
     ]
     ];
 
     if (invoice.custom_text_value1) {
         data.push([
             {text: invoice.account.custom_invoice_text_label1},
-            {text: invoice.custom_text_value1}
+            {text: invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1}
         ])
     }
     if (invoice.custom_text_value2) {
         data.push([
             {text: invoice.account.custom_invoice_text_label2},
-            {text: invoice.custom_text_value2}
+            {text: invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2}
         ])
     }
 
-    var isPartial = NINJA.parseFloat(invoice.partial);
-    
-    if (NINJA.parseFloat(invoice.balance) < NINJA.parseFloat(invoice.amount)) {
-        data.push([
-            {text: invoiceLabels.balance_due},
-            {text: formatMoneyInvoice(invoice.amount, invoice)}
-        ]);
-    } else if (isPartial) {
-        data.push([
-            {text: invoiceLabels.balance_due},
-            {text: formatMoneyInvoice(invoice.total_amount, invoice)}
-        ]);
-    }
-
     data.push([
-        {text: isPartial ? invoiceLabels.partial_due : invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
-        {text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['invoiceDetailBalanceDue']}
+        {text: invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
+        {text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['invoiceDetailBalanceDue']}
     ])
 
+    if (NINJA.parseFloat(invoice.partial)) {
+        data.push([
+            {text: invoiceLabels.partial_due, style: ['invoiceDetailBalanceDueLabel']},
+            {text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['invoiceDetailBalanceDue']}
+        ])
+    }
+    
     return NINJA.prepareDataPairs(data, 'invoiceDetails');
 }
 

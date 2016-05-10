@@ -2,7 +2,7 @@
 
 namespace App\Policies;
 
-class VendorPolicy extends EntityPolicy {
+class ProductPolicy extends EntityPolicy {
 	public static function edit($user, $item) {
         return $user->hasPermission('admin');
     }

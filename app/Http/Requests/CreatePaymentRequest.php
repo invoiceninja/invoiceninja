@@ -1,10 +1,8 @@
-<?php namespace app\Http\Requests;
+<?php namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
 use App\Models\Invoice;
 
-class CreatePaymentRequest extends Request
+class CreatePaymentRequest extends PaymentRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -13,7 +11,7 @@ class CreatePaymentRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->can('create', ENTITY_PAYMENT);
     }
 
     /**

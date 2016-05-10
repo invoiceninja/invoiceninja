@@ -127,13 +127,24 @@ class EnterprisePlan extends Migration
             $company->plan_started = $primaryAccount->pro_plan_paid;
             $company->plan_paid = $primaryAccount->pro_plan_paid;
 
+            $expires = DateTime::createFromFormat('Y-m-d', $primaryAccount->pro_plan_paid);
+            $expires->modify('+1 year');
+            $expires = $expires->format('Y-m-d');
+
+            // check for self host white label licenses
             if (!Utils::isNinjaProd()) {
-                $company->plan = 'white_label';
-                $company->plan_term = null;
-            } elseif ($company->plan_paid != '2000-01-01'/* NINJA_DATE*/) {
-                $expires = DateTime::createFromFormat('Y-m-d', $primaryAccount->pro_plan_paid);
-                $expires->modify('+1 year');
-                $company->plan_expires = $expires->format('Y-m-d');
+                if ($company->plan_paid) {
+                    $company->plan = 'white_label';
+                    // old ones were unlimited, new ones are yearly
+                    if ($company->plan_paid == NINJA_DATE) {
+                        $company->plan_term = null;
+                    } else {
+                        $company->plan_term = PLAN_TERM_YEARLY;
+                        $company->plan_expires = $expires;
+                    }
+                }
+            } elseif ($company->plan_paid != NINJA_DATE) {
+                $company->plan_expires = $expires;
             } 
         }
 

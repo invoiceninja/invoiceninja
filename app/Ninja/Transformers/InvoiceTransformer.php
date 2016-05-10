@@ -28,8 +28,15 @@ class InvoiceTransformer extends EntityTransformer
         'invitations',
         'payments',
         'client',
-        'expenses',
+        //'expenses',
     ];
+
+    public function __construct($account = null, $serializer = null, $client = null)
+    {
+        parent::__construct($account, $serializer);
+        
+        $this->client = $client;
+    }
 
     public function includeInvoiceItems(Invoice $invoice)
     {
@@ -45,7 +52,7 @@ class InvoiceTransformer extends EntityTransformer
 
     public function includePayments(Invoice $invoice)
     {
-        $transformer = new PaymentTransformer($this->account, $this->serializer);
+        $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
         return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
     }
 
@@ -64,11 +71,11 @@ class InvoiceTransformer extends EntityTransformer
 
     public function transform(Invoice $invoice)
     {
-        return [
+        return array_merge($this->getDefaults($invoice), [
             'id' => (int) $invoice->public_id,
             'amount' => (float) $invoice->amount,
             'balance' => (float) $invoice->balance,
-            'client_id' => (int) $invoice->client->public_id,
+            'client_id' => (int) ($this->client ? $this->client->public_id : $invoice->client->public_id),
             'invoice_status_id' => (int) $invoice->invoice_status_id,
             'updated_at' => $this->getTimestamp($invoice->updated_at),
             'archived_at' => $this->getTimestamp($invoice->deleted_at),
@@ -98,8 +105,6 @@ class InvoiceTransformer extends EntityTransformer
             'partial' => (float) $invoice->partial,
             'has_tasks' => (bool) $invoice->has_tasks,
             'auto_bill' => (bool) $invoice->auto_bill,
-            'account_key' => $this->account->account_key,
-            'user_id' => (int) $invoice->user->public_id + 1,
             'custom_value1' => (float) $invoice->custom_value1,
             'custom_value2' => (float) $invoice->custom_value2,
             'custom_taxes1' => (bool) $invoice->custom_taxes1,
@@ -108,6 +113,6 @@ class InvoiceTransformer extends EntityTransformer
             'quote_invoice_id' => (int) $invoice->quote_invoice_id,
             'custom_text_value1' => $invoice->custom_text_value1,
             'custom_text_value2' => $invoice->custom_text_value2,
-        ];
+        ]);
     }
 }

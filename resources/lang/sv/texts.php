@@ -492,7 +492,7 @@ return array(
     'invoice_history' => 'Fakturahistorik',
     'quote_history' => 'Offerthistorik',
     'current_version' => 'Nuvarande version',
-    'select_versiony' => 'Välj version',
+    'select_version' => 'Välj version',
     'view_history' => 'Visa historik',
 
     'edit_payment' => 'Ändra betalning',

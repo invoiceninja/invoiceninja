@@ -21,13 +21,12 @@ class TaxRateTransformer extends EntityTransformer
 
     public function transform(TaxRate $taxRate)
     {
-        return [
+        return array_merge($this->getDefaults($taxRate), [
             'id' => (int) $taxRate->public_id,
             'name' => $taxRate->name,
             'rate' => (float) $taxRate->rate,
             'updated_at' => $this->getTimestamp($taxRate->updated_at),
             'archived_at' => $this->getTimestamp($taxRate->deleted_at),
-            'account_key' => $this->account->account_key,
-            ];
+        ]);
     }
 }

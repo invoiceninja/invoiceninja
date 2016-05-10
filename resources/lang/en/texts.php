@@ -423,7 +423,7 @@ $LANG = array(
     'invoice_history' => 'Invoice History',
     'quote_history' => 'Quote History',
     'current_version' => 'Current version',
-    'select_versiony' => 'Select version',
+    'select_version' => 'Select version',
     'view_history' => 'View History',
     'edit_payment' => 'Edit Payment',
     'updated_payment' => 'Successfully updated payment',
@@ -1176,6 +1176,9 @@ $LANG = array(
     'page_size' => 'Page Size',
     'live_preview_disabled' => 'Live preview has been disabled to support selected font',
     'invoice_number_padding' => 'Padding',
+    'preview' => 'Preview',
+    'list_vendors' => 'List Vendors',
+    'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     
     // Payment updates
     'refund_payment' => 'Refund Payment',

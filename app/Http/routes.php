@@ -56,8 +56,8 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/documents', 'PublicClientController@documentIndex');
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
-    Route::get('client/document/js/{public_id}/{filename}', 'PublicClientController@getDocumentVFSJS');
-    Route::get('client/document/{invitation_key}/{public_id}/{filename?}', 'PublicClientController@getDocument');
+    Route::get('client/documents/js/{documents}/{filename}', 'PublicClientController@getDocumentVFSJS');
+    Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'PublicClientController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
     
     Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
@@ -121,9 +121,11 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
+    Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
     
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
+    Route::post('users/change_password', 'UserController@changePassword');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', array('as'=>'api.clients', 'uses'=>'ClientController@getDatatable'));
@@ -145,20 +147,20 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
     Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
     Route::get('recurring_invoices', 'RecurringInvoiceController@index');
-    Route::get('invoices/{public_id}/clone', 'InvoiceController@cloneInvoice');
+    Route::get('invoices/{invoices}/clone', 'InvoiceController@cloneInvoice');
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
 
-    Route::get('document/{public_id}/{filename?}', 'DocumentController@get');
-    Route::get('document/js/{public_id}/{filename}', 'DocumentController@getVFSJS');
-    Route::get('document/preview/{public_id}/{filename?}', 'DocumentController@getPreview');
+    Route::get('documents/{documents}/{filename?}', 'DocumentController@get');
+    Route::get('documents/js/{documents}/{filename}', 'DocumentController@getVFSJS');
+    Route::get('documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
     Route::post('document', 'DocumentController@postUpload');
     
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
-    Route::get('quotes/{public_id}/clone', 'InvoiceController@cloneInvoice');
-    Route::get('quotes/{public_id}/edit', 'InvoiceController@edit');
-    Route::put('quotes/{public_id}', 'InvoiceController@update');
-    Route::get('quotes/{public_id}', 'InvoiceController@edit');
+    Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneInvoice');
+    Route::get('quotes/{invoices}/edit', 'InvoiceController@edit');
+    Route::put('quotes/{invoices}', 'InvoiceController@update');
+    Route::get('quotes/{invoices}', 'InvoiceController@edit');
     Route::post('quotes', 'InvoiceController@store');
     Route::get('quotes', 'QuoteController@index');
     Route::get('api/quotes/{client_id?}', array('as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable'));
@@ -202,7 +204,6 @@ Route::group([
     Route::get('start_trial/{plan}', 'AccountController@startTrial')
         ->where(['plan'=>'pro']);
     Route::get('restore_user/{user_id}', 'UserController@restoreUser');
-    Route::post('users/change_password', 'UserController@changePassword');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
@@ -219,6 +220,7 @@ Route::group([
     Route::resource('tax_rates', 'TaxRateController');
     Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
+    Route::get('settings/email_preview', 'AccountController@previewEmail');
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
     Route::get('settings/charts_and_reports', 'ReportController@showReports');
@@ -230,11 +232,6 @@ Route::group([
     Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
 
-    //Route::get('api/payment_terms', array('as'=>'api.payment_terms', 'uses'=>'PaymentTermController@getDatatable'));
-    //Route::resource('payment_terms', 'PaymentTermController');
-    //Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
-
-    Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
     Route::post('account/go_pro', 'AccountController@enableProPlan');
@@ -257,15 +254,15 @@ Route::group([
 // Route groups for API
 Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
-    Route::get('ping', 'ClientApiController@ping');
+    Route::get('ping', 'AccountApiController@ping');
     Route::post('login', 'AccountApiController@login');
     Route::post('register', 'AccountApiController@register');
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
     Route::resource('clients', 'ClientApiController');
-    Route::get('quotes', 'QuoteApiController@index');
-    Route::resource('quotes', 'QuoteApiController');
+    //Route::get('quotes', 'QuoteApiController@index');
+    //Route::resource('quotes', 'QuoteApiController');
     Route::get('invoices', 'InvoiceApiController@index');
     Route::resource('invoices', 'InvoiceApiController');
     Route::get('payments', 'PaymentApiController@index');
@@ -573,24 +570,26 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
     define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
-    define('NINJA_WEB_URL', 'https://www.invoiceninja.com');
-    define('NINJA_APP_URL', 'https://app.invoiceninja.com');
-    define('NINJA_VERSION', '2.5.1.3');
+    define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
+    define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
+    define('NINJA_DATE', '2000-01-01');
+    define('NINJA_VERSION', '2.5.1.3' . env('NINJA_VERSION_SUFFIX'));
 
-    define('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja');
-    define('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja');
-    define('SOCIAL_LINK_GITHUB', 'https://github.com/invoiceninja/invoiceninja/');
+    define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
+    define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
+    define('SOCIAL_LINK_GITHUB', env('SOCIAL_LINK_GITHUB', 'https://github.com/invoiceninja/invoiceninja/'));
 
-    define('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com');
-    define('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja');
-    define('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja');
-    define('OUTDATE_BROWSER_URL', 'http://browsehappy.com/');
-    define('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html');
-    define('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/');
-    define('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php');
-    define('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/');
-    define('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup');
-    define('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all');
+    define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
+    define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
+    define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
+    define('OUTDATE_BROWSER_URL', env('OUTDATE_BROWSER_URL', 'http://browsehappy.com/'));
+    define('PDFMAKE_DOCS', env('PDFMAKE_DOCS', 'http://pdfmake.org/playground.html'));
+    define('PHANTOMJS_CLOUD', env('PHANTOMJS_CLOUD', 'http://api.phantomjscloud.com/api/browser/v2/'));
+    define('PHP_DATE_FORMATS', env('PHP_DATE_FORMATS', 'http://php.net/manual/en/function.date.php'));
+    define('REFERRAL_PROGRAM_URL', env('REFERRAL_PROGRAM_URL', 'https://www.invoiceninja.com/referral-program/'));
+    define('EMAIL_MARKUP_URL', env('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup'));
+    define('OFX_HOME_URL', env('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all'));
+    define('GOOGLE_ANALYITCS_URL', env('GOOGLE_ANALYITCS_URL', 'https://www.google-analytics.com/collect'));
 
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
 
@@ -604,13 +603,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
     define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
-    define('PRO_PLAN_PRICE', 50);
-    define('PLAN_PRICE_PRO_MONTHLY', 5);
-    define('PLAN_PRICE_PRO_YEARLY', 50);
-    define('PLAN_PRICE_ENTERPRISE_MONTHLY', 10);
-    define('PLAN_PRICE_ENTERPRISE_YEARLY', 100);
-    define('WHITE_LABEL_PRICE', 20);
-    define('INVOICE_DESIGNS_PRICE', 10);
+    define('PLAN_PRICE_PRO_MONTHLY', env('PLAN_PRICE_PRO_MONTHLY', 5));
+    define('PLAN_PRICE_PRO_YEARLY', env('PLAN_PRICE_PRO_YEARLY', 50));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY', env('PLAN_PRICE_ENTERPRISE_MONTHLY', 10));
+    define('PLAN_PRICE_ENTERPRISE_YEARLY', env('PLAN_PRICE_ENTERPRISE_YEARLY', 100));
+    define('WHITE_LABEL_PRICE', env('WHITE_LABEL_PRICE', 20));
+    define('INVOICE_DESIGNS_PRICE', env('INVOICE_DESIGNS_PRICE', 10));
 
     define('USER_TYPE_SELF_HOST', 'SELF_HOST');
     define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
@@ -619,9 +617,11 @@ if (!defined('CONTACT_EMAIL')) {
     define('TEST_USERNAME', 'user@example.com');
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
+    define('DEFAULT_API_PAGE_SIZE', 15);
+    define('MAX_API_PAGE_SIZE', 100);
 
-    define('IOS_PRODUCTION_PUSH','ninjaIOS');
-    define('IOS_DEV_PUSH','devNinjaIOS');
+    define('IOS_PRODUCTION_PUSH', env('IOS_PRODUCTION_PUSH', 'ninjaIOS'));
+    define('IOS_DEV_PUSH', env('IOS_DEV_PUSH', 'devNinjaIOS'));
 
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);
@@ -787,30 +787,6 @@ if (!defined('CONTACT_EMAIL')) {
         }
     }
 }
-
-/*
-// Log all SQL queries to laravel.log
-if (Utils::isNinjaDev()) {
-    Event::listen('illuminate.query', function($query, $bindings, $time, $name) {
-        $data = compact('bindings', 'time', 'name');
-
-        // Format binding data for sql insertion
-        foreach ($bindings as $i => $binding) {
-            if ($binding instanceof \DateTime) {
-                $bindings[$i] = $binding->format('\'Y-m-d H:i:s\'');
-            } elseif (is_string($binding)) {
-                $bindings[$i] = "'$binding'";
-            }
-        }
-
-        // Insert bindings into query
-        $query = str_replace(array('%', '?'), array('%%', '%s'), $query);
-        $query = vsprintf($query, $bindings);
-
-        Log::info($query, $data);
-    });
-}
-*/
 
 /*
 if (Utils::isNinjaDev())

@@ -199,6 +199,13 @@ class Client extends EntityModel
         return $this->name;
     }
     
+    public function getPrimaryContact()
+    {
+        return $this->contacts()
+                    ->whereIsPrimary(true)
+                    ->first();
+    }
+    
     public function getDisplayName()
     {
         if ($this->name) {
@@ -254,14 +261,18 @@ class Client extends EntityModel
     }
 
 
-    public function getGatewayToken(&$accountGateway = null)
+    public function getGatewayToken(&$accountGateway)
     {
-        $this->account->load('account_gateways');
+        $account = $this->account;
+        
+        if ( ! $account->relationLoaded('account_gateways')) {
+            $account->load('account_gateways');
+        }
 
-        if (!count($this->account->account_gateways)) {
+        if (!count($account->account_gateways)) {
             return false;
         }
-        $accountGateway = $this->account->getTokenGateway();
+        $accountGateway = $account->getTokenGateway();
 
         if (!$accountGateway) {
             return false;

@@ -1,9 +1,6 @@
-<?php namespace app\Http\Requests;
+<?php namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
-
-class CreatePaymentTermRequest extends Request
+class CreateProductRequest extends ProductRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -12,7 +9,7 @@ class CreatePaymentTermRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->can('create', ENTITY_PRODUCT);
     }
 
     /**
@@ -23,8 +20,7 @@ class CreatePaymentTermRequest extends Request
     public function rules()
     {
         return [
-            'num_days' => 'required',
-            'name' => 'required',
+            'product_key' => 'required',
         ];
     }
 }

@@ -4,13 +4,13 @@
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_USER_MANAGEMENT, 'advanced' => true])
 
-
-  <div class="pull-right">  
     @if (Utils::hasFeature(FEATURE_USERS))
-        {!! Button::primary(trans('texts.add_user'))->asLinkTo(URL::to('/users/create'))->appendIcon(Icon::create('plus-sign')) !!}
+        <div class="pull-right">  
+            {!! Button::primary(trans('texts.add_user'))->asLinkTo(URL::to('/users/create'))->appendIcon(Icon::create('plus-sign')) !!}
+        </div>
+    @elseif (Utils::isTrial())
+        <div class="alert alert-warning">{!! trans('texts.add_users_not_supported') !!}</div>    
     @endif
-  </div>
-
 
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">
         <input id="trashed" type="checkbox" onclick="setTrashVisible()"

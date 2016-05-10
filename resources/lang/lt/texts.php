@@ -497,7 +497,7 @@ return array(
     'invoice_history' => 'Invoice History',
     'quote_history' => 'Quote History',
     'current_version' => 'Current version',
-    'select_versiony' => 'Select version',
+    'select_version' => 'Select version',
     'view_history' => 'View History',
 
     'edit_payment' => 'Edit Payment',

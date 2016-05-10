@@ -26,13 +26,13 @@ class VendorService extends BaseService
         return $this->vendorRepo;
     }
 
-    public function save($data)
+    public function save($data, $vendor = null)
     {
         if (Auth::user()->account->isNinjaAccount() && isset($data['plan'])) {
             $this->ninjaRepo->updatePlanDetails($data['public_id'], $data);
         }
 
-        return $this->vendorRepo->save($data);
+        return $this->vendorRepo->save($data, $vendor);
     }
 
     public function getDatatable($search)

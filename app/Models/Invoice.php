@@ -228,6 +228,12 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->hasMany('App\Models\Expense','invoice_id','id')->withTrashed();
     }
 
+    public function scopeInvoices($query)
+    {
+        return $query->where('is_quote', '=', false)
+                     ->where('is_recurring', '=', false);
+    }
+
     public function markInvitationsSent($notify = false)
     {
         foreach ($this->invitations as $invitation) {
@@ -436,6 +442,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'contacts',
             'country',
             'currency_id',
+            'country_id',
             'custom_value1',
             'custom_value2',
         ]);
@@ -792,7 +799,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
         $key = env('PHANTOMJS_CLOUD_KEY');
-        $curl = curl_init();
         
         if (Utils::isNinjaDev()) {
             $link = env('TEST_LINK');

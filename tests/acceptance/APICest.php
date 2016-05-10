@@ -70,6 +70,18 @@ class APICest
         $this->createEntity('tax_rate', $data);
         $this->listEntities('tax_rate');
 
+        $data = new stdClass;
+        $data->product_key = $this->faker->word;
+        $data->notes = $this->faker->realText(100);
+        $this->createEntity('product', $data);
+        $this->listEntities('product');
+
+        $data = new stdClass;
+        $data->name = $this->faker->word;
+        $data->vendor_contacts = [];
+        $this->createEntity('vendor', $data);
+        $this->listEntities('vendor');
+
         $this->listEntities('account');
     }
 
@@ -79,6 +91,7 @@ class APICest
 
         $response = $this->sendRequest("{$entityType}s", $data);
         $entityId = $response->data->id;
+        
         PHPUnit_Framework_Assert::assertGreaterThan(0, $entityId);
 
         return $entityId;

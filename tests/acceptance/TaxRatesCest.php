@@ -78,13 +78,14 @@ class TaxRatesCest
         // check total is right before saving
         $I->see("\${$total}");
         $I->click('Save');
-        $I->wait(2);
+        $I->wait(3);
         $I->see($clientEmail);
 
         // check total is right after saving
         $I->see("\${$total}");
         $I->amOnPage('/invoices');
-
+        $I->wait(2);
+        
         // check total is right in list view
         $I->see("\${$total}");
    }

@@ -62,8 +62,12 @@ class SendRenewalInvoices extends Command
             $invoice->due_date = date('Y-m-d', strtotime('+ 10 days'));
             $invoice->save();
 
-            $this->mailer->sendInvoice($invoice);
-            $this->info("Sent invoice to {$client->getDisplayName()}");
+            if ($term == PLAN_TERM_YEARLY) {
+                $this->mailer->sendInvoice($invoice);
+                $this->info("Sent {$term}ly {$plan} invoice to {$client->getDisplayName()}");
+            } else {
+                $this->info("Created {$term}ly {$plan} invoice for {$client->getDisplayName()}");
+            }
         }
 
         $this->info('Done');

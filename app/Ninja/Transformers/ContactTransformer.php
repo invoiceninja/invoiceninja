@@ -8,7 +8,7 @@ class ContactTransformer extends EntityTransformer
 {
     public function transform(Contact $contact)
     {
-        return [
+        return array_merge($this->getDefaults($contact), [
             'id' => (int) $contact->public_id,
             'first_name' => $contact->first_name,
             'last_name' => $contact->last_name,
@@ -18,8 +18,7 @@ class ContactTransformer extends EntityTransformer
             'is_primary' => (bool) $contact->is_primary,
             'phone' => $contact->phone,
             'last_login' => $contact->last_login,
-            'account_key' => $this->account->account_key,
             'send_invoice' => (bool) $contact->send_invoice,
-        ];
+        ]);
     }
 }

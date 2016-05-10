@@ -212,7 +212,9 @@ class Account extends Eloquent
 
     public function isGatewayConfigured($gatewayId = 0)
     {
-        $this->load('account_gateways');
+        if ( ! $this->relationLoaded('account_gateways')) {
+            $this->load('account_gateways');
+        }
 
         if ($gatewayId) {
             return $this->getGatewayConfig($gatewayId) != false;
@@ -241,7 +243,7 @@ class Account extends Eloquent
             return $this->name;
         }
 
-        $this->load('users');
+        //$this->load('users');
         $user = $this->users()->first();
 
         return $user->getDisplayName();
@@ -481,10 +483,17 @@ class Account extends Eloquent
         return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
     }
 
-    public function getToken($name)
+    public function getPrimaryUser()
+    {
+        return $this->users()
+                    ->orderBy('id')
+                    ->first();
+    }
+
+    public function getToken($userId, $name)
     {
         foreach ($this->account_tokens as $token) {
-            if ($token->name === $name) {
+            if ($token->user_id == $userId && $token->name === $name) {
                 return $token->token;
             }
         }
@@ -809,6 +818,10 @@ class Account extends Eloquent
 
     public function hasFeature($feature)
     {
+        if (Utils::isNinjaDev()) {
+            return true;
+        }
+        
         $planDetails = $this->getPlanDetails();
         $selfHost = !Utils::isNinjaProd();
         
@@ -1176,13 +1189,18 @@ class Account extends Eloquent
         return str_replace('/>', ' />', $template);
     }
 
+    public function getTemplateView($view = '')
+    {
+        return $this->getEmailDesignId() == EMAIL_DESIGN_PLAIN ? $view : 'design' . $this->getEmailDesignId();
+    }
+
     public function getEmailFooter()
     {
         if ($this->email_footer) {
             // Add line breaks if HTML isn't already being used
             return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {
-            return "<p>" . trans('texts.email_signature') . "\n<br>\$account</p>";
+            return "<p><div>" . trans('texts.email_signature') . "\n<br>\$account</div></p>";
         }
     }
 

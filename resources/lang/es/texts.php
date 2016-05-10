@@ -466,7 +466,7 @@ return array(
     'invoice_history' => 'Facturar Historial',
     'quote_history' => 'Cotizar Historial',
     'current_version' => 'Versión actual',
-    'select_versiony' => 'Seleccionar versión',
+    'select_version' => 'Seleccionar versión',
     'view_history' => 'Ver Historial',
 
     'edit_payment' => 'Editar Pago',

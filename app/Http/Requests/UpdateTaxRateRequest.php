@@ -1,9 +1,9 @@
-<?php namespace app\Http\Requests;
+<?php namespace App\Http\Requests;
 
 use App\Http\Requests\Request;
 use Illuminate\Validation\Factory;
 
-class UpdateTaxRateRequest extends Request
+class UpdateTaxRateRequest extends TaxRateRequest
 {
     // Expenses 
     /**
@@ -13,7 +13,7 @@ class UpdateTaxRateRequest extends Request
      */
     public function authorize()
     {
-        return true;
+        return $this->user()->can('edit', $this->entity());
     }
 
     /**
