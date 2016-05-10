@@ -359,6 +359,9 @@ class PaymentService extends BaseService
                 $tokenResponse = $gateway->createCustomer(array('customerData' => array()))->send();
                 if ($tokenResponse->isSuccessful()) {
                     $customerReference = $tokenResponse->getCustomerData()->id;
+                } else {
+                    $this->lastError = $tokenResponse->getData()->message;
+                    return;
                 }
             }
 
@@ -366,7 +369,12 @@ class PaymentService extends BaseService
                 $details['customerId'] = $customerReference;
 
                 $tokenResponse = $gateway->createPaymentMethod($details)->send();
-                $sourceReference = $tokenResponse->getData()->paymentMethod->token;
+                if ($tokenResponse->isSuccessful()) {
+                    $sourceReference = $tokenResponse->getData()->paymentMethod->token;
+                } else {
+                    $this->lastError = $tokenResponse->getData()->message;
+                    return;
+                }
             }
         }
 
@@ -461,20 +469,26 @@ class PaymentService extends BaseService
                 $paymentMethod = $this->convertPaymentMethodFromStripe($source, $accountGatewayToken);
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
-            $paymentMethod = $accountGatewayToken ? PaymentMethod::createNew($accountGatewayToken) : new PaymentMethod();
+            $data = $gatewayResponse->getData();
 
-            $transaction = $sourceResponse->getData()->transaction;
-            if ($transaction->paymentInstrumentType == 'credit_card') {
-                $card = $transaction->creditCardDetails;
-                $paymentMethod->last4 = $card->last4;
-                $paymentMethod->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
-                $paymentMethod->payment_type_id = $this->parseCardType($card->cardType);
-            } elseif ($transaction->paymentInstrumentType == 'paypal_account') {
-                $paymentMethod->payment_type_id = PAYMENT_TYPE_ID_PAYPAL;
-                $paymentMethod->email = $transaction->paypalDetails->payerEmail;
+            if (!empty($data->transaction)) {
+                $transaction = $data->transaction;
+
+                $paymentMethod = $accountGatewayToken ? PaymentMethod::createNew($accountGatewayToken) : new PaymentMethod();
+                if ($transaction->paymentInstrumentType == 'credit_card') {
+                    $card = $transaction->creditCardDetails;
+                    $paymentMethod->last4 = $card->last4;
+                    $paymentMethod->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
+                    $paymentMethod->payment_type_id = $this->parseCardType($card->cardType);
+                } elseif ($transaction->paymentInstrumentType == 'paypal_account') {
+                    $paymentMethod->payment_type_id = PAYMENT_TYPE_ID_PAYPAL;
+                    $paymentMethod->email = $transaction->paypalDetails->payerEmail;
+                }
+                $paymentMethod->setRelation('payment_type', Cache::get('paymentTypes')->find($paymentMethod->payment_type_id));
+            } elseif (!empty($data->paymentMethod)) {
+                $paymentMethod = $this->convertPaymentMethodFromBraintree($data->paymentMethod, $accountGatewayToken);
             }
 
-            $paymentMethod->setRelation('payment_type', Cache::get('paymentTypes')->find($paymentMethod->payment_type_id));
         }
 
         if (!empty($paymentMethod) && $accountGatewayToken && $contactId) {
@@ -722,13 +736,12 @@ class PaymentService extends BaseService
         // setup the gateway/payment info
         $gateway = $this->createGateway($accountGateway);
         $details = $this->getPaymentDetails($invitation, $accountGateway);
+        $details['customerReference'] = $token;
 
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-            $details['customerReference'] = $token;
-            $details['cardReference'] = $defaultPaymentMethod->sourceReference;
+            $details['cardReference'] = $defaultPaymentMethod->source_reference;
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
-            $details['customerId'] = $token;
-            $details['paymentMethodToken'] = $defaultPaymentMethod->sourceReference;
+            $details['paymentMethodToken'] = $defaultPaymentMethod->source_reference;
         }
 
         // submit purchase/get response
