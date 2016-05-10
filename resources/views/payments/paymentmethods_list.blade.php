@@ -53,30 +53,31 @@
 @foreach ($paymentMethods as $paymentMethod)
 <div class="payment_method">
             <span class="payment_method_img_container">
-                <img height="22" src="{{URL::to('/images/credit_cards/'.str_replace(' ', '', strtolower($paymentMethod['type']->name).'.png'))}}" alt="{{trans("texts.card_" . str_replace(' ', '', strtolower($paymentMethod['type']->name)))}}">
+                <img height="22" src="{{URL::to('/images/credit_cards/'.str_replace(' ', '', strtolower($paymentMethod->payment_type->name).'.png'))}}" alt="{{trans("texts.card_" . str_replace(' ', '', strtolower($paymentMethod->payment_type->name)))}}">
             </span>
-    @if(!empty($paymentMethod['last4']))
-    <span class="payment_method_number">&bull;&bull;&bull;&bull;&bull;{{$paymentMethod['last4']}}</span>
+    @if(!empty($paymentMethod->last4))
+    <span class="payment_method_number">&bull;&bull;&bull;&bull;&bull;{{$paymentMethod->last4}}</span>
     @endif
-
-    @if($paymentMethod['type']->id == PAYMENT_TYPE_ACH)
-        {{ $paymentMethod['bank_name'] }}
-        @if($paymentMethod['status'] == 'new')
-        <a href="javasript::void" onclick="completeVerification('{{$paymentMethod['id']}}','{{$paymentMethod['currency']->symbol}}')">({{trans('texts.complete_verification')}})</a>
-        @elseif($paymentMethod['status'] == 'verification_failed')
+    @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
+        @if($paymentMethod->bank())
+            {{ $paymentMethod->bank()->name }}
+        @endif
+        @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
+        <a href="javasript::void" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
+        @elseif($paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFICATION_FAILED)
         ({{trans('texts.verification_failed')}})
         @endif
-    @elseif($paymentMethod['type']->id == PAYMENT_TYPE_ID_PAYPAL)
-        {{ $paymentMethod['email'] }}
-    @else
-        {!! trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($paymentMethod['expiration'], false)->format('m/y'))) !!}
+    @elseif($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL)
+        {{ $paymentMethod->email }}
+    @elseif($paymentMethod->expiration)
+        {!! trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($paymentMethod->expiration, false)->format('m/y'))) !!}
     @endif
-    @if($paymentMethod['default'])
+    @if($paymentMethod->id == $paymentMethod->account_gateway_token->default_payment_method_id)
         ({{trans('texts.used_for_auto_bill')}})
-    @elseif($paymentMethod['type']->id != PAYMENT_TYPE_ACH || $paymentMethod['status'] == 'verified')
-        <a href="#" onclick="setDefault('{{$paymentMethod['id']}}')">({{trans('texts.use_for_auto_bill')}})</a>
+    @elseif($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED)
+        <a href="#" onclick="setDefault('{{$paymentMethod->public_id}}')">({{trans('texts.use_for_auto_bill')}})</a>
     @endif
-    <a href="javasript::void" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod['id']}}')">&times;</a>
+    <a href="javasript::void" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">&times;</a>
 </div>
 @endforeach
 @endif

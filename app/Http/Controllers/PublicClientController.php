@@ -16,6 +16,7 @@ use Redirect;
 use App\Models\Gateway;
 use App\Models\Invitation;
 use App\Models\Document;
+use App\ModelsPaymentMethod;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
@@ -170,28 +171,30 @@ class PublicClientController extends BaseController
 
         if ($paymentMethods) {
             foreach ($paymentMethods as $paymentMethod) {
-                if ($paymentMethod['type']->id != PAYMENT_TYPE_ACH || $paymentMethod['status'] == 'verified') {
+                if ($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED) {
+                    $code = htmlentities(str_replace(' ', '', strtolower($paymentMethod->payment_type->name)));
 
-                    if ($paymentMethod['type']->id == PAYMENT_TYPE_ACH) {
-                        $html = '<div>'.htmlentities($paymentMethod['bank_name']).'</div>';
-                    } elseif ($paymentMethod['type']->id == PAYMENT_TYPE_ID_PAYPAL) {
+                    if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
+                        if($paymentMethod->bank_data) {
+                            $html = '<div>' . htmlentities($paymentMethod->bank_data->name) . '</div>';
+                        }
+                    } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL) {
                         $html = '<img height="22" src="'.URL::to('/images/credit_cards/paypal.png').'" alt="'.trans("texts.card_".$code).'">';
                     } else {
-                        $code = htmlentities(str_replace(' ', '', strtolower($paymentMethod['type']->name)));
                         $html = '<img height="22" src="'.URL::to('/images/credit_cards/'.$code.'.png').'" alt="'.trans("texts.card_".$code).'">';
                     }
 
-                    $url = URL::to("/payment/{$invitation->invitation_key}/token/".$paymentMethod['id']);
+                    $url = URL::to("/payment/{$invitation->invitation_key}/token/".$paymentMethod->public_id);
 
-                    if ($paymentMethod['type']->id == PAYMENT_TYPE_ID_PAYPAL) {
-                        $html .= '&nbsp;&nbsp;<span>'.$paymentMethod['email'].'</span>';
+                    if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL) {
+                        $html .= '&nbsp;&nbsp;<span>'.$paymentMethod->email.'</span>';
                         $url .= '#braintree_paypal';
-                    } elseif ($paymentMethod['type']->id != PAYMENT_TYPE_ACH) {
-                        $html .= '<div class="pull-right" style="text-align:right">'.trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($paymentMethod['expiration'], false)->format('m/y'))).'<br>';
-                        $html .= '&bull;&bull;&bull;'.$paymentMethod['last4'].'</div>';
+                    } elseif ($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH) {
+                        $html .= '<div class="pull-right" style="text-align:right">'.trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($paymentMethod->expiration, false)->format('m/y'))).'<br>';
+                        $html .= '&bull;&bull;&bull;'.$paymentMethod->last4.'</div>';
                     } else {
                         $html .= '<div style="text-align:right">';
-                        $html .= '&bull;&bull;&bull;'.$paymentMethod['last4'].'</div>';
+                        $html .= '&bull;&bull;&bull;'.$paymentMethod->last4.'</div>';
                     }
 
                     $paymentTypes[] = [
@@ -452,9 +455,9 @@ class PublicClientController extends BaseController
                             return $model->email;
                         }
                     } elseif ($model->last4) {
-                        $bankData = PaymentController::getBankData($model->routing_number);
-                        if (is_array($bankData)) {
-                            return $bankData['name'].'&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        $bankData = PaymentMethod::lookupBankData($model->routing_number);
+                        if (is_object($bankData)) {
+                            return $bankData->name.'&nbsp; &bull;&bull;&bull;' . $model->last4;
                         } elseif($model->last4) {
                             return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }
@@ -770,7 +773,7 @@ class PublicClientController extends BaseController
 
     public function verifyPaymentMethod()
     {
-        $sourceId = Input::get('source_id');
+        $publicId = Input::get('source_id');
         $amount1 = Input::get('verification1');
         $amount2 = Input::get('verification2');
 
@@ -779,7 +782,7 @@ class PublicClientController extends BaseController
         }
 
         $client = $invitation->invoice->client;
-        $result = $this->paymentService->verifyClientPaymentMethod($client, $sourceId, $amount1, $amount2);
+        $result = $this->paymentService->verifyClientPaymentMethod($client, $publicId, $amount1, $amount2);
 
         if (is_string($result)) {
             Session::flash('error', $result);
@@ -790,14 +793,14 @@ class PublicClientController extends BaseController
         return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
     }
 
-    public function removePaymentMethod($sourceId)
+    public function removePaymentMethod($publicId)
     {
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
 
         $client = $invitation->invoice->client;
-        $result = $this->paymentService->removeClientPaymentMethod($client, $sourceId);
+        $result = $this->paymentService->removeClientPaymentMethod($client, $publicId);
 
         if (is_string($result)) {
             Session::flash('error', $result);
@@ -824,9 +827,9 @@ class PublicClientController extends BaseController
         $gateway = $accountGateway->gateway;
 
         if ($token && $paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-            $sourceId = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $invitation->contact_id);
+            $sourceReference = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $invitation->contact_id);
 
-            if(empty($sourceId)) {
+            if(empty($sourceReference)) {
                 $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
             } else {
                 Session::flash('message', trans('texts.payment_method_added'));
@@ -895,12 +898,12 @@ class PublicClientController extends BaseController
 
         if (!empty($details)) {
             $gateway = $this->paymentService->createGateway($accountGateway);
-            $sourceId = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
+            $sourceReference = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
         } else {
             return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
         }
 
-        if(empty($sourceId)) {
+        if(empty($sourceReference)) {
             $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
             return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
         } else if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {

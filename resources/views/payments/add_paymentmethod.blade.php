@@ -83,7 +83,6 @@
                         routing_number: $('#routing_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''),
                         account_number: $('#account_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')
                         @else
-                        email: $('#email').val(),
                         name: $('#first_name').val() + ' ' + $('#last_name').val(),
                         address_line1: $('#address1').val(),
                         address_line2: $('#address2').val(),
