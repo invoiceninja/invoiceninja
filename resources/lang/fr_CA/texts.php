@@ -510,11 +510,11 @@ return array(
     'token_billing_3' => 'Désengagement - case à cocher affichée avec sélection',
     'token_billing_4' => 'Toujours',
     'token_billing_checkbox' => 'Mémoriser les informations de carte de crédit',
-    'view_in_stripe' => 'Visualiser dans Stripe',
+    'view_in_gateway' => 'Visualiser dans :gateway',
     'use_card_on_file' => 'Mémoriser les informations de la carte pour usage ultérieur',
     'edit_payment_details' => 'Éditer les informations de paiement',
     'token_billing' => 'Sauvegarder les informations de carte de crédit',
-    'token_billing_secure' => 'Les données sont mémorisées de façon sécuritaire avec :stripe_link',
+    'token_billing_secure' => 'Les données sont mémorisées de façon sécuritaire avec :link',
 
     'support' => 'Support',
     'contact_information' => 'Contact',

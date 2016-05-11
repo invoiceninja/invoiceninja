@@ -126,7 +126,6 @@
                 @endif
             </div>
         </div>
-
         <div class="row">
             <div class="col-md-4 col-md-4-left">
                 <div class="well">
@@ -162,7 +161,14 @@
                 </div>
             </div>
         </div>
-
+        @if (!empty($account->getTokenGatewayId()))
+                <div class="row">
+                    <div class="col-xs-12">
+                    <h3>{{ trans('texts.payment_methods') }}</h3>
+                    @include('payments.paymentmethods_list')
+                </div>
+        </div>
+        @endif
         <div style="min-height: 550px">
             {!! Datatable::table()
                 ->addColumn(

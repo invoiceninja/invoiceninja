@@ -71,5 +71,58 @@ class AccountGateway extends EntityModel
 
         return $this->getConfigField('publishableKey');
     }
+
+    public function getAchEnabled()
+    {
+       return !empty($this->getConfigField('enableAch'));
+    }
+
+    public function getPayPAlEnabled()
+    {
+        return !empty($this->getConfigField('enablePayPal'));
+    }
+
+    public function getPlaidSecret()
+    {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+            return false;
+        }
+
+        return $this->getConfigField('plaidSecret');
+    }
+
+    public function getPlaidClientId()
+    {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+            return false;
+        }
+
+        return $this->getConfigField('plaidClientId');
+    }
+
+    public function getPlaidPublicKey()
+    {
+        if ( ! $this->isGateway(GATEWAY_STRIPE)) {
+            return false;
+        }
+
+        return $this->getConfigField('plaidPublicKey');
+    }
+
+    public function getPlaidEnabled()
+    {
+        return !empty($this->getPlaidClientId()) && $this->getAchEnabled();
+    }
+
+    public function getPlaidEnvironment()
+    {
+        if (!$this->getPlaidClientId()) {
+            return null;
+        }
+
+        $stripe_key = $this->getPublishableStripeKey();
+
+        return substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
+    }
 }
 

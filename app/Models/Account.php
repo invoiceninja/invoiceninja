@@ -381,6 +381,19 @@ class Account extends Eloquent
 
     public function getGatewayByType($type = PAYMENT_TYPE_ANY)
     {
+        if ($type == PAYMENT_TYPE_STRIPE_ACH || $type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
+            $type = PAYMENT_TYPE_STRIPE;
+        }
+
+        if ($type == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+            $gateway = $this->getGatewayConfig(GATEWAY_BRAINTREE);
+
+            if (!$gateway || !$gateway->getPayPalEnabled()){
+                return false;
+            }
+            return $gateway;
+        }
+
         foreach ($this->account_gateways as $gateway) {
             if (!$type || $type == PAYMENT_TYPE_ANY) {
                 return $gateway;
@@ -1217,14 +1230,33 @@ class Account extends Eloquent
         return false;
     }
 
-    public function showTokenCheckbox()
+    public function showTokenCheckbox(&$storage_gateway = null)
     {
-        if (!$this->isGatewayConfigured(GATEWAY_STRIPE)) {
+        if (!($storage_gateway = $this->getTokenGatewayId())) {
             return false;
         }
 
         return $this->token_billing_type_id == TOKEN_BILLING_OPT_IN
                 || $this->token_billing_type_id == TOKEN_BILLING_OPT_OUT;
+    }
+
+    public function getTokenGatewayId() {
+        if ($this->isGatewayConfigured(GATEWAY_STRIPE)) {
+            return GATEWAY_STRIPE;
+        } elseif ($this->isGatewayConfigured(GATEWAY_BRAINTREE)) {
+            return GATEWAY_BRAINTREE;
+        } else {
+            return false;
+        }
+    }
+
+    public function getTokenGateway() {
+        $gatewayId = $this->getTokenGatewayId();
+        if (!$gatewayId) {
+            return;
+        }
+
+        return $this->getGatewayConfig($gatewayId);
     }
 
     public function selectTokenCheckbox()

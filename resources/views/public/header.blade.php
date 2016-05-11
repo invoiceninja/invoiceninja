@@ -7,9 +7,7 @@
     <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
     @endif
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-    @if (!empty($clientViewCSS))
-        <style type="text/css">{!! $clientViewCSS !!}</style>
-    @endif
+    <style type="text/css">{!! isset($account)?$account->clientViewCSS():'' !!}</style>
 @stop
 
 @section('body')
@@ -68,15 +66,15 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            @if (!isset($hideLogo) || !$hideLogo)
+            @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
                 {{-- Per our license, please do not remove or modify this link. --}}
                 <a class="navbar-brand" href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank"><img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px"></a>
             @endif            
         </div>
         <div id="navbar" class="collapse navbar-collapse">
-            @if (!isset($hideHeader) || !$hideHeader)
+            @if (!isset($account) || $account->isNinjaAccount() || $account->enable_client_portal)
             <ul class="nav navbar-nav navbar-right">
-                @if (!isset($hideDashboard) || !$hideDashboard)
+                @if (!isset($account) || $account->enable_client_portal_dashboard)
                     <li {{ Request::is('*client/dashboard') ? 'class="active"' : '' }}>
                         {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
                     </li>
@@ -87,9 +85,14 @@
                 <li {{ Request::is('*client/invoices') ? 'class="active"' : '' }}>
                     {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                 </li>
-                @if (!empty($showDocuments))
+                @if (isset($account) && $account->hasFeature(FEATURE_DOCUMENTS))
                     <li {{ Request::is('*client/documents') ? 'class="active"' : '' }}>
                         {!! link_to('/client/documents', trans('texts.documents') ) !!}
+                    </li>
+                @endif
+                @if (isset($account) && $account->getTokenGatewayId() && !$account->enable_client_portal_dashboard)
+                    <li {{ Request::is('*client/paymentmethods') ? 'class="active"' : '' }}>
+                        {!! link_to('/client/paymentmethods', trans('texts.payment_methods') ) !!}
                     </li>
                 @endif
                 <li {{ Request::is('*client/payments') ? 'class="active"' : '' }}>
@@ -123,7 +126,7 @@
 <footer id="footer" role="contentinfo">
     <div class="top">
         <div class="wrap">
-            @if (!isset($hideLogo) || !$hideLogo)
+            @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
             <div id="footer-menu" class="menu-wrap">
                 <ul id="menu-footer-menu" class="menu">
                     <li id="menu-item-31" class="menu-item-31">
@@ -146,7 +149,7 @@
     
     <div class="bottom">
         <div class="wrap">
-            @if (!isset($hideLogo) || !$hideLogo)
+            @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
                 <div class="copy">Copyright &copy;{{ date('Y') }} <a href="{{ NINJA_WEB_URL }}" target="_blank">Invoice Ninja</a>. All rights reserved.</div>
             @endif
         </div><!-- .wrap -->

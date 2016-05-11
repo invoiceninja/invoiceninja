@@ -7,7 +7,10 @@ use App\Events\InvoiceWasUpdated;
 use App\Events\InvoiceWasCreated;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
+use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
+use App\Events\PaymentWasVoided;
+use App\Events\PaymentFailed;
 use App\Events\InvoiceInvitationWasViewed;
 
 class InvoiceListener
@@ -58,7 +61,37 @@ class InvoiceListener
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
+        $adjustment = $payment->amount - $payment->refunded;
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function refundedPayment(PaymentWasRefunded $event)
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $event->refundAmount;
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function voidedPayment(PaymentWasVoided $event)
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
         $adjustment = $payment->amount;
+
+        $invoice->updateBalances($adjustment);
+        $invoice->updatePaidStatus();
+    }
+
+    public function failedPayment(PaymentFailed $event)
+    {
+        $payment = $event->payment;
+        $invoice = $payment->invoice;
+        $adjustment = $payment->amount - $payment->refunded;
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
@@ -72,7 +105,7 @@ class InvoiceListener
 
         $payment = $event->payment;
         $invoice = $payment->invoice;
-        $adjustment = $payment->amount * -1;
+        $adjustment = ($payment->amount - $payment->refunded) * -1;
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();

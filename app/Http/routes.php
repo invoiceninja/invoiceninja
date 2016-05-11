@@ -41,11 +41,19 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('download/{invitation_key}', 'PublicClientController@download');
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
-    Route::get('payment/{invitation_key}/{payment_type?}', 'PaymentController@show_payment');
+    Route::get('payment/{invitation_key}/{payment_type?}/{source_id?}', 'PaymentController@show_payment');
     Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
     Route::match(['GET', 'POST'], 'complete', 'PaymentController@offsite_payment');
+    Route::get('client/paymentmethods', 'PublicClientController@paymentMethods');
+    Route::post('client/paymentmethods/verify', 'PublicClientController@verifyPaymentMethod');
+    Route::get('client/paymentmethods/add/{payment_type}/{source_id?}', 'PublicClientController@addPaymentMethod');
+    Route::post('client/paymentmethods/add/{payment_type}', 'PublicClientController@postAddPaymentMethod');
+    Route::post('client/paymentmethods/default', 'PublicClientController@setDefaultPaymentMethod');
+    Route::post('client/paymentmethods/{source_id}/remove', 'PublicClientController@removePaymentMethod');
     Route::get('client/quotes', 'PublicClientController@quoteIndex');
     Route::get('client/invoices', 'PublicClientController@invoiceIndex');
+    Route::get('client/invoices/recurring', 'PublicClientController@recurringInvoiceIndex');
+    Route::post('client/invoices/auto_bill', 'PublicClientController@setAutoBill');
     Route::get('client/documents', 'PublicClientController@documentIndex');
     Route::get('client/payments', 'PublicClientController@paymentIndex');
     Route::get('client/dashboard', 'PublicClientController@dashboard');
@@ -55,12 +63,15 @@ Route::group(['middleware' => 'auth:client'], function() {
     
     Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
     Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
+    Route::get('api/client.recurring_invoices', array('as'=>'api.client.recurring_invoices', 'uses'=>'PublicClientController@recurringInvoiceDatatable'));
     Route::get('api/client.documents', array('as'=>'api.client.documents', 'uses'=>'PublicClientController@documentDatatable'));
     Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
     Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'PublicClientController@activityDatatable'));
 });
 
 
+Route::get('bank/{routing_number}', 'PaymentController@getBankInfo');
+Route::post('paymenthook/{accountKey}/{gatewayId}', 'PaymentController@handlePaymentWebhook');
 Route::get('license', 'PaymentController@show_license_payment');
 Route::post('license', 'PaymentController@do_license_payment');
 Route::get('claim_license', 'PaymentController@claim_license');
@@ -396,6 +407,9 @@ if (!defined('CONTACT_EMAIL')) {
     //define('ACTIVITY_TYPE_UPDATE_PAYMENT', 11);
     define('ACTIVITY_TYPE_ARCHIVE_PAYMENT', 12);
     define('ACTIVITY_TYPE_DELETE_PAYMENT', 13);
+    define('ACTIVITY_TYPE_VOIDED_PAYMENT', 39);
+    define('ACTIVITY_TYPE_REFUNDED_PAYMENT', 40);
+    define('ACTIVITY_TYPE_FAILED_PAYMENT', 41);
 
     define('ACTIVITY_TYPE_CREATE_CREDIT', 14);
     //define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);
@@ -472,8 +486,14 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_STATUS_APPROVED', 4);
     define('INVOICE_STATUS_PARTIAL', 5);
     define('INVOICE_STATUS_PAID', 6);
+    
+    define('PAYMENT_STATUS_PENDING', 1);
+    define('PAYMENT_STATUS_VOIDED', 2);
+    define('PAYMENT_STATUS_FAILED', 3);
+    define('PAYMENT_STATUS_COMPLETED', 4);
+    define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 5);
+    define('PAYMENT_STATUS_REFUNDED', 6);
 
-    define('PAYMENT_TYPE_CREDIT', 1);
     define('CUSTOM_DESIGN', 11);
 
     define('FREQUENCY_WEEKLY', 1);
@@ -537,6 +557,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
     define('GATEWAY_CYBERSOURCE', 49);
+    define('GATEWAY_WEPAY', 60);
+    define('GATEWAY_BRAINTREE', 61);
 
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);
@@ -608,7 +630,34 @@ if (!defined('CONTACT_EMAIL')) {
     define('TOKEN_BILLING_OPT_OUT', 3);
     define('TOKEN_BILLING_ALWAYS', 4);
 
+    define('PAYMENT_TYPE_CREDIT', 1);
+    define('PAYMENT_TYPE_ACH', 5);
+    define('PAYMENT_TYPE_VISA', 6);
+    define('PAYMENT_TYPE_MASTERCARD', 7);
+    define('PAYMENT_TYPE_AMERICAN_EXPRESS', 8);
+    define('PAYMENT_TYPE_DISCOVER', 9);
+    define('PAYMENT_TYPE_DINERS', 10);
+    define('PAYMENT_TYPE_EUROCARD', 11);
+    define('PAYMENT_TYPE_NOVA', 12);
+    define('PAYMENT_TYPE_CREDIT_CARD_OTHER', 13);
+    define('PAYMENT_TYPE_ID_PAYPAL', 14);
+    define('PAYMENT_TYPE_CARTE_BLANCHE', 17);
+    define('PAYMENT_TYPE_UNIONPAY', 18);
+    define('PAYMENT_TYPE_JCB', 19);
+    define('PAYMENT_TYPE_LASER', 20);
+    define('PAYMENT_TYPE_MAESTRO', 21);
+    define('PAYMENT_TYPE_SOLO', 22);
+    define('PAYMENT_TYPE_SWITCH', 23);
+
+    define('PAYMENT_METHOD_STATUS_NEW', 'new');
+    define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
+    define('PAYMENT_METHOD_STATUS_VERIFIED', 'verified');
+
     define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
+    define('PAYMENT_TYPE_STRIPE', 'PAYMENT_TYPE_STRIPE');
+    define('PAYMENT_TYPE_STRIPE_CREDIT_CARD', 'PAYMENT_TYPE_STRIPE_CREDIT_CARD');
+    define('PAYMENT_TYPE_STRIPE_ACH', 'PAYMENT_TYPE_STRIPE_ACH');
+    define('PAYMENT_TYPE_BRAINTREE_PAYPAL', 'PAYMENT_TYPE_BRAINTREE_PAYPAL');
     define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
     define('PAYMENT_TYPE_DIRECT_DEBIT', 'PAYMENT_TYPE_DIRECT_DEBIT');
     define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
@@ -651,6 +700,11 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');
+
+    define('AUTO_BILL_OFF', 0);
+    define('AUTO_BILL_OPT_IN', 1);
+    define('AUTO_BILL_OPT_OUT', 2);
+    define('AUTO_BILL_ALWAYS', 3);
     
     // These must be lowercase
     define('PLAN_FREE', 'free');

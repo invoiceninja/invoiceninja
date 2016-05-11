@@ -164,12 +164,33 @@
                         ->label(trans("texts.{$entityType}_number_short"))
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
+            @if($account->getTokenGatewayId())
             <span data-bind="visible: is_recurring()" style="display: none">
-            {!! Former::checkbox('auto_bill')
-                        ->label(trans('texts.auto_bill'))
-                        ->text(trans('texts.enable_with_stripe'))
-                        ->data_bind("checked: auto_bill, valueUpdate: 'afterkeydown'") !!}
+                <div data-bind="visible: !(auto_bill() == 1 &amp;&amp; client_enable_auto_bill()) &amp;&amp; !(auto_bill() == 2 &amp;&amp; !client_enable_auto_bill())" style="display: none">
+                {!! Former::select('auto_bill')
+                        ->data_bind("value: auto_bill, valueUpdate: 'afterkeydown', event:{change:function(){if(auto_bill()==1)client_enable_auto_bill(0);if(auto_bill()==2)client_enable_auto_bill(1)}}")
+                        ->options([
+                            0 => trans('texts.off'),
+                            1 => trans('texts.opt_in'),
+                            2 => trans('texts.opt_out'),
+                            3 => trans('texts.always'),
+                        ]) !!}
+                </div>
+                <input type="hidden" name="client_enable_auto_bill" data-bind="attr: { value: client_enable_auto_bill() }" />
+                <div class="form-group" data-bind="visible: auto_bill() == 1 &amp;&amp; client_enable_auto_bill()">
+                    <div class="col-sm-4 control-label">{{trans('texts.auto_bill')}}</div>
+                    <div class="col-sm-8" style="padding-top:10px;padding-bottom:9px">
+                        {{trans('texts.opted_in')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(false)}">({{trans('texts.disable')}})</a>
+                    </div>
+                </div>
+                <div class="form-group" data-bind="visible: auto_bill() == 2 &amp;&amp; !client_enable_auto_bill()">
+                    <div class="col-sm-4 control-label">{{trans('texts.auto_bill')}}</div>
+                    <div class="col-sm-8" style="padding-top:10px;padding-bottom:9px">
+                        {{trans('texts.opted_out')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(true)}">({{trans('texts.enable')}})</a>
+                    </div>
+                </div>
             </span>
+            @endif
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(

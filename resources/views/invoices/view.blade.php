@@ -14,7 +14,52 @@
 			body {
 				background-color: #f8f8f8;		
 			}
+
+            .dropdown-menu li a{
+                overflow:hidden;
+                margin-top:5px;
+                margin-bottom:5px;
+            }
 		</style>
+
+    @if (!empty($braintreeClientToken))
+        <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
+        <script type="text/javascript" >
+            $(function() {
+                var paypalLink = $('.dropdown-menu a[href$="/braintree_paypal"]'),
+                    paypalUrl = paypalLink.attr('href'),
+                    checkout;
+                paypalLink.parent().attr('id', 'paypal-container');
+                braintree.setup("{{ $braintreeClientToken }}", "custom", {
+                    onReady: function (integration) {
+                        checkout = integration;
+                        $('.dropdown-menu a[href$="#braintree_paypal"]').each(function(){
+                            var el=$(this);
+                            el.attr('href', el.attr('href').replace('#braintree_paypal','?device_data='+encodeURIComponent(integration.deviceData)))
+                        })
+                    },
+                    paypal: {
+                        container: "paypal-container",
+                        singleUse: false,
+                        enableShippingAddress: false,
+                        enableBillingAddress: false,
+                        headless: true,
+                        locale: "{{$invoice->client->language?$invoice->client->language->locale:$invoice->account->language->locale}}"
+                    },
+                    dataCollector: {
+                        paypal: true
+                    },
+                    onPaymentMethodReceived: function (obj) {
+                        window.location.href = paypalUrl + '/' + encodeURIComponent(obj.nonce) + "?details=" + encodeURIComponent(JSON.stringify(obj.details))
+                    }
+                });
+                paypalLink.click(function(e){
+                    e.preventDefault();
+                    checkout.paypal.initAuthFlow();
+                })
+            });
+        </script>
+    @endif
 @stop
 
 @section('content')

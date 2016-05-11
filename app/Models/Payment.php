@@ -1,7 +1,14 @@
 <?php namespace App\Models;
 
+use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\PaymentWasCreated;
+use App\Events\PaymentWasRefunded;
+use App\Events\PaymentWasVoided;
+use App\Events\PaymentCompleted;
+use App\Events\PaymentVoided;
+use App\Events\PaymentFailed;
+use App\Models\PaymentMethod;
 use Laracasts\Presenter\PresentableTrait;
 
 class Payment extends EntityModel
@@ -52,6 +59,16 @@ class Payment extends EntityModel
         return $this->belongsTo('App\Models\PaymentType');
     }
 
+    public function payment_method()
+    {
+        return $this->belongsTo('App\Models\PaymentMethod');
+    }
+
+    public function payment_status()
+    {
+        return $this->belongsTo('App\Models\PaymentStatus');
+    }
+
     public function getRoute()
     {
         return "/payments/{$this->public_id}/edit";
@@ -69,9 +86,98 @@ class Payment extends EntityModel
         return trim("payment {$this->transaction_reference}");
     }
 
+    public function isPending()
+    {
+        return $this->payment_status_id = PAYMENT_STATUS_PENDING;
+    }
+    
+    public function isFailed()
+    {
+        return $this->payment_status_id = PAYMENT_STATUS_FAILED;
+    }
+    
+    public function isCompleted()
+    {
+        return $this->payment_status_id == PAYMENT_STATUS_COMPLETED;
+    }
+    
+    public function isPartiallyRefunded()
+    {
+        return $this->payment_status_id == PAYMENT_STATUS_PARTIALLY_REFUNDED;
+    }
+    
+    public function isRefunded()
+    {
+        return $this->payment_status_id == PAYMENT_STATUS_REFUNDED;
+    }
+
+    public function isVoided()
+    {
+        return $this->payment_status_id == PAYMENT_STATUS_VOIDED;
+    }
+
+    public function recordRefund($amount = null)
+    {
+        if (!$this->isRefunded() && !$this->isVoided()) {
+            if (!$amount) {
+                $amount = $this->amount;
+            }
+            
+            $new_refund = min($this->amount, $this->refunded + $amount);
+            $refund_change = $new_refund - $this->refunded;
+            
+            if ($refund_change) {
+                $this->refunded = $new_refund;
+                $this->payment_status_id = $this->refunded == $this->amount ? PAYMENT_STATUS_REFUNDED : PAYMENT_STATUS_PARTIALLY_REFUNDED;
+                $this->save();
+                
+                Event::fire(new PaymentWasRefunded($this, $refund_change));
+            }
+        }
+    }
+
+    public function markVoided()
+    {
+        if (!$this->isVoided() && !$this->isPartiallyRefunded() && !$this->isRefunded()) {
+            $this->refunded = $this->amount;
+            $this->payment_status_id = PAYMENT_STATUS_VOIDED;
+            $this->save();
+
+            Event::fire(new PaymentWasVoided($this));
+        }
+    }
+
+    public function markComplete()
+    {
+        $this->payment_status_id = PAYMENT_STATUS_COMPLETED;
+        $this->save();
+        Event::fire(new PaymentCompleted($this));
+    }
+
+    public function markFailed($failureMessage)
+    {
+        $this->payment_status_id = PAYMENT_STATUS_FAILED;
+        $this->gateway_error = $failureMessage;
+        $this->save();
+        Event::fire(new PaymentFailed($this));
+    }
+
     public function getEntityType()
     {
         return ENTITY_PAYMENT;
+    }
+
+    public function getBankData()
+    {
+        if (!$this->routing_number) {
+            return null;
+        }
+        return PaymentMethod::lookupBankData($this->routing_number);
+    }
+
+    public function getLast4Attribute($value)
+    {
+        return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
     }
 }
 

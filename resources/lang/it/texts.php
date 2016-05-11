@@ -512,11 +512,11 @@ return array(
     'token_billing_3' => 'Opt-out - checkbox is shown and selected',
     'token_billing_4' => 'Sempre',
     'token_billing_checkbox' => 'Salva dettagli carta di credito',
-    'view_in_stripe' => 'Vedi transazione in Stripe',
+    'view_in_gateway' => 'Vedi transazione in :gateway',
     'use_card_on_file' => 'Carta di credito salvata',
     'edit_payment_details' => 'Modifica dettagli pagamento',
     'token_billing' => 'Salva carta di credito',
-    'token_billing_secure' => 'I dati sono memorizzati su piattaforma sicura mediante :stripe_link',
+    'token_billing_secure' => 'I dati sono memorizzati su piattaforma sicura mediante :link',
 
     'support' => 'Support',
     'contact_information' => 'Informazioni di contatto',

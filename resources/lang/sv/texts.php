@@ -515,11 +515,11 @@ return array(
     'token_billing_3' => 'Opt-out - Checkbox visas och är förvald',
     'token_billing_4' => 'alltid',
     'token_billing_checkbox' => 'Spara betalkortsinformation',
-    'view_in_stripe' => 'Visa i Stripe',
+    'view_in_gateway' => 'Visa i :gateway',
     'use_card_on_file' => 'Använd kort på fil',
     'edit_payment_details' => 'Ändra betalningsdetaljer',
     'token_billing' => 'Spara kortinformation',
-    'token_billing_secure' => 'Data sparas säkert med :stripe_link',
+    'token_billing_secure' => 'Data sparas säkert med :link',
 
     'support' => 'Support',
     'contact_information' => 'Kontaktinformation',

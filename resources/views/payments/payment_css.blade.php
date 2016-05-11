@@ -12,9 +12,14 @@ body {
 
 .container input[type=text],
 .container input[type=email],
-.container select {
+.container select,
+.braintree-hosted {
+    @if(!empty($account))
+    {!! $account->getBodyFontCss() !!}
+    @else
     font-weight: 300;
     font-family: 'Roboto', sans-serif;
+    @endif
     width: 100%;
     padding: 11px;
     color: #8c8c8c;
@@ -24,6 +29,12 @@ body {
     font-size: 16px;
     min-height: 42px !important;
     font-weight: 400;
+}
+
+.form-control.braintree-hosted-fields-focused{
+    border-color: #66afe9;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
 }
 
 div.col-md-3,
@@ -102,8 +113,6 @@ header h3 em {
     color: #eb8039;
 }
 
-
-
 .secure {
     text-align: right;
     float: right;
@@ -125,6 +134,84 @@ header h3 em {
     text-transform: uppercase;
 }
 
+#plaid_link_button img {
+    height:30px;
+    vertical-align:-7px;
+    margin-right:5px;
+}
 
+#plaid_link_button:hover img,
+#plaid_link_button .hoverimg{
+    display:none;
+}
+
+#plaid_link_button:hover .hoverimg{
+    display:inline;
+}
+
+#plaid_link_button {
+    width:425px;
+    border-color:#2A5A74;
+    color:#2A5A74;
+}
+
+#plaid_link_button:hover {
+    width:425px;
+    background-color:#2A5A74;
+    color:#fff;
+}
+
+#plaid_or,
+#plaid_container {
+    text-align:center
+}
+
+#plaid_or span{
+    background:#fff;
+    position:relative;
+    bottom:-11px;
+    font-size:125%;
+    padding:0 10px;
+}
+
+#plaid_or {
+    border-bottom:1px solid #000;
+    margin:10px 0 30px;
+}
+
+#secured_by_plaid{
+    position:fixed;
+    z-index:999999999;
+    bottom:5px;
+    left:5px;
+    color:#fff;
+    border:1px solid #fff;
+    padding:3px 7px 3px 3px;
+    border-radius:3px;
+    vertical-align:-5px;
+    text-decoration: none!important;
+}
+#secured_by_plaid img{
+    height:20px;
+    margin-right:5px;
+}
+
+#secured_by_plaid:hover{
+    background-color:#2A5A74;
+}
+
+#plaid_linked{
+    margin:40px 0;
+    display:none;
+}
+
+#plaid_linked_status {
+    margin-bottom:10px;
+    font-size:150%;
+}
+
+#bank_name {
+    margin:5px 0 -5px;
+}
 
 </style>
