@@ -112,9 +112,9 @@ class PaymentService extends BaseService
     public function convertInputForOmnipay($input)
     {
         $data = [
-            'firstName' => $input['first_name'],
-            'lastName' => $input['last_name'],
-            'email' => $input['email'],
+            'firstName' => isset($input['first_name']) ? $input['first_name'] : null,
+            'lastName' =>isset($input['last_name']) ? $input['last_name'] : null,
+            'email' => isset($input['email']) ? $input['email'] : null,
             'number' => isset($input['card_number']) ? $input['card_number'] : null,
             'expiryMonth' => isset($input['expiration_month']) ? $input['expiration_month'] : null,
             'expiryYear' => isset($input['expiration_year']) ? $input['expiration_year'] : null,
@@ -380,19 +380,19 @@ class PaymentService extends BaseService
         }
 
         if ($customerReference) {
-            $token = AccountGatewayToken::where('client_id', '=', $client->id)
+            $accountGatewayToken = AccountGatewayToken::where('client_id', '=', $client->id)
                 ->where('account_gateway_id', '=', $accountGateway->id)->first();
 
-            if (!$token) {
-                $token = new AccountGatewayToken();
-                $token->account_id = $client->account->id;
-                $token->contact_id = $contactId;
-                $token->account_gateway_id = $accountGateway->id;
-                $token->client_id = $client->id;
+            if (!$accountGatewayToken) {
+                $accountGatewayToken = new AccountGatewayToken();
+                $accountGatewayToken->account_id = $client->account->id;
+                $accountGatewayToken->contact_id = $contactId;
+                $accountGatewayToken->account_gateway_id = $accountGateway->id;
+                $accountGatewayToken->client_id = $client->id;
             }
 
-            $token->token = $customerReference;
-            $token->save();
+            $accountGatewayToken->token = $customerReference;
+            $accountGatewayToken->save();
 
             $paymentMethod = $this->createPaymentMethodFromGatewayResponse($tokenResponse, $accountGateway, $accountGatewayToken, $contactId);
 
@@ -464,7 +464,7 @@ class PaymentService extends BaseService
                 $source = $data;
             } elseif (!empty($data['object']) && $data['object'] == 'customer') {
                 $sources = !empty($data['sources']) ? $data['sources'] : $data['cards'];
-                $source = reset($sources);
+                $source = reset($sources['data']);
             } else {
                 $source = !empty($data['source']) ? $data['source'] : $data['card'];
             }
