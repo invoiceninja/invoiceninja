@@ -87,6 +87,7 @@ class AccountGatewayController extends BaseController
                                     ->where('id', '!=', GATEWAY_GOCARDLESS)
                                     ->where('id', '!=', GATEWAY_DWOLLA)
                                     ->where('id', '!=', GATEWAY_STRIPE)
+                                    ->where('id', '!=', GATEWAY_WEPAY)
                                     ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 

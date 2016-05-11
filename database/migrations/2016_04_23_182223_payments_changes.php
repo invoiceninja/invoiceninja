@@ -84,7 +84,7 @@ class PaymentsChanges extends Migration
             $table->unsignedInteger('default_payment_method_id')->nullable();
             $table->foreign('default_payment_method_id')->references('id')->on('payment_methods');
 
-            $table->boolean('uses_local_payment_methods')->defalut(true);
+            $table->boolean('uses_local_payment_methods')->default(true);
         });
 
         \DB::table('account_gateway_tokens')->update(array('uses_local_payment_methods' => false));

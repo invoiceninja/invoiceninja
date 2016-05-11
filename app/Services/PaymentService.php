@@ -191,7 +191,8 @@ class PaymentService extends BaseService
             }
 
             $data = $response->getData();
-            $sources = isset($data['sources']) ? $data['sources']['data'] : $data['cards']['data'];
+            $sources_list = isset($data['sources']) ? $data['sources'] : $data['cards'];
+            $sources = isset($sources_list['data'])?$sources_list['data']:$sources_list;
 
             // Load
             $accountGatewayToken->payment_methods();
@@ -459,8 +460,11 @@ class PaymentService extends BaseService
     public function createPaymentMethodFromGatewayResponse($gatewayResponse, $accountGateway, $accountGatewayToken = null, $contactId = null) {
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             $data = $gatewayResponse->getData();
-            if(!empty($data['object']) && ($data['object'] == 'card' || $data['object'] == 'bank_account')) {
+            if (!empty($data['object']) && ($data['object'] == 'card' || $data['object'] == 'bank_account')) {
                 $source = $data;
+            } elseif (!empty($data['object']) && $data['object'] == 'customer') {
+                $sources = !empty($data['sources']) ? $data['sources'] : $data['cards'];
+                $source = reset($sources);
             } else {
                 $source = !empty($data['source']) ? $data['source'] : $data['card'];
             }

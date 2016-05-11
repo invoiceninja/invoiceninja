@@ -400,7 +400,7 @@ class PaymentController extends BaseController
     }
 
     public static function processPaymentClientDetails($client, $accountGateway, $paymentType, $onSite = true){
-        $rules = [
+        $rules = $paymentType == PAYMENT_TYPE_STRIPE_ACH ? [] : [
             'first_name' => 'required',
             'last_name' => 'required',
         ];
@@ -433,9 +433,7 @@ class PaymentController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to('payment/'.$invitationKey)
-                    ->withErrors($validator)
-                    ->withInput(Request::except('cvv'));
+                return false;
             }
 
             if ($requireAddress && $accountGateway->update_address) {
@@ -475,9 +473,10 @@ class PaymentController extends BaseController
             }
         }
 
-        $result = static::processPaymentClientDetails($client,  $accountGateway, $paymentType,  $onSite);
-        if ($result !== true) {
-            return $result;
+        if (!static::processPaymentClientDetails($client,  $accountGateway, $paymentType,  $onSite)) {
+            return Redirect::to('payment/'.$invitationKey)
+                ->withErrors($validator)
+                ->withInput(Request::except('cvv'));
         }
 
         try {
