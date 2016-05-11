@@ -98,7 +98,7 @@ class PaymentService extends BaseService
         if ($input && $accountGateway->isGateway(GATEWAY_STRIPE)) {
             if (!empty($input['stripeToken'])) {
                 $data['token'] = $input['stripeToken'];
-                unset($details['card']);
+                unset($data['card']);
             } elseif (!empty($input['plaidPublicToken'])) {
                 $data['plaidPublicToken'] = $input['plaidPublicToken'];
                 $data['plaidAccountId'] = $input['plaidAccountId'];

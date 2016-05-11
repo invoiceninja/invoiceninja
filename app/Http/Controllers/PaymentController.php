@@ -399,16 +399,7 @@ class PaymentController extends BaseController
         }
     }
 
-    public function do_payment($invitationKey, $onSite = true, $useToken = false, $sourceId = false)
-    {
-        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $invoice = $invitation->invoice;
-        $client = $invoice->client;
-        $account = $client->account;
-        $paymentType = Session::get($invitation->id . 'payment_type');
-        $accountGateway = $account->getGatewayByType($paymentType);
-        $paymentMethod = null;
-
+    public static function processPaymentClientDetails($client, $accountGateway, $paymentType, $onSite = true){
         $rules = [
             'first_name' => 'required',
             'last_name' => 'required',
@@ -437,17 +428,6 @@ class PaymentController extends BaseController
                 'country_id' => 'required',
             ]);
         }
-        
-        if ($useToken) {
-            if(!$sourceId) {
-                Session::flash('error', trans('texts.no_payment_method_specified'));
-                return Redirect::to('payment/' . $invitationKey)->withInput(Request::except('cvv'));
-            } else {
-                $customerReference = $client->getGatewayToken($accountGateway, $accountGatewayToken/* return parameter*/);
-                $paymentMethod = PaymentMethod::scope($sourceId, $account->id, $accountGatewayToken->id)->firstOrFail();
-                $sourceReference = $paymentMethod->source_reference;
-            }
-        }
 
         if ($onSite) {
             $validator = Validator::make(Input::all(), $rules);
@@ -467,6 +447,37 @@ class PaymentController extends BaseController
                 $client->country_id = Input::get('country_id');
                 $client->save();
             }
+        }
+
+        return true;
+    }
+
+    public function do_payment($invitationKey, $onSite = true, $useToken = false, $sourceId = false)
+    {
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $account = $client->account;
+        $paymentType = Session::get($invitation->id . 'payment_type');
+        $accountGateway = $account->getGatewayByType($paymentType);
+        $paymentMethod = null;
+
+
+        
+        if ($useToken) {
+            if(!$sourceId) {
+                Session::flash('error', trans('texts.no_payment_method_specified'));
+                return Redirect::to('payment/' . $invitationKey)->withInput(Request::except('cvv'));
+            } else {
+                $customerReference = $client->getGatewayToken($accountGateway, $accountGatewayToken/* return parameter*/);
+                $paymentMethod = PaymentMethod::scope($sourceId, $account->id, $accountGatewayToken->id)->firstOrFail();
+                $sourceReference = $paymentMethod->source_reference;
+            }
+        }
+
+        $result = static::processPaymentClientDetails($client,  $accountGateway, $paymentType,  $onSite);
+        if ($result !== true) {
+            return $result;
         }
 
         try {
