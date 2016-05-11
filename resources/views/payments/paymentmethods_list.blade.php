@@ -82,6 +82,7 @@
 @endforeach
 @endif
 
+@if($gateway->gateway_id != GATEWAY_STRIPE || $gateway->getPublishableStripeKey())
 <center>
     {!! Button::success(strtoupper(trans('texts.add_credit_card')))
     ->asLinkTo(URL::to('/client/paymentmethods/add/'.($gateway->getPaymentType() == PAYMENT_TYPE_STRIPE ? 'stripe_credit_card' : 'credit_card'))) !!}
@@ -98,6 +99,7 @@
         <div id="paypal-container"></div>
     @endif
 </center>
+@endif
 
 <div class="modal fade" id="completeVerificationModal" tabindex="-1" role="dialog" aria-labelledby="completeVerificationModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="min-width:150px">

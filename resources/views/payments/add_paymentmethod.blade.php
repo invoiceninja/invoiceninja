@@ -488,6 +488,7 @@
                         <input type="hidden" name="payment_method_nonce" value="{{$sourceId}}">
                         <input type="hidden" name="first_name" value="{{$paypalDetails->firstName}}">
                         <input type="hidden" name="last_name" value="{{$paypalDetails->lastName}}">
+                        <input type="hidden" name="email" value="{{$paypalDetails->email}}">
                         <p>&nbsp;</p>
                         @if (isset($amount) && $client && $account->showTokenCheckbox())
                             <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">

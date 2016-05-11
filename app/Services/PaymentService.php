@@ -558,14 +558,8 @@ class PaymentService extends BaseService
         
         if (!empty($paymentDetails['card'])) {
             $card = $paymentDetails['card'];
-            $payment->last4 = substr($card->number, -4);
-            $year = $card->expiryYear;
-            if (strlen($year) == 2) {
-                $year = '20' . $year;
-            }
-
-            $payment->expiration = $year . '-' . $card->expiryMonth . '-00';
-            $payment->payment_type_id = $this->detectCardType($card->number);
+            $payment->last4 = $card->getNumberLastFour();
+            $payment->payment_type_id = $this->detectCardType($card->getNumber());
         }
 
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
@@ -863,7 +857,7 @@ class PaymentService extends BaseService
                 function ($model) {
                     $max_refund = number_format($model->amount - $model->refunded, 2);
                     $formatted = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
-                    $symbol = Utils::getFromCache($model->currency_id, 'currencies')->symbol;
+                    $symbol = Utils::getFromCache($model->currency_id ? $model->currency_id : 1, 'currencies')->symbol ;
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
                 },
                 function ($model) {
