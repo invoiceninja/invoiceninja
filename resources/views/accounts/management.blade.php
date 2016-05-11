@@ -128,7 +128,8 @@
 							@endif
 							{!! Former::select('plan_term')
 								->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
-								->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)!!}
+								->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)
+                                ->inlineHelp(trans('texts.enterprise_plan_features')) !!}
 						</div>
 						<div class="modal-footer" style="margin-top: 0px">
 							<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
