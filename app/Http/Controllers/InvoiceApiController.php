@@ -316,16 +316,7 @@ class InvoiceApiController extends BaseAPIController
         } elseif ($request->action) {
             return $this->handleAction($request);
         }
-        else if ($request->action == ACTION_CLONE) {
-
-            $invoice = Invoice::scope($publicId)->firstOrFail();
-            $clonedInvoice = $this->invoiceRepo->cloneInvoice($invoice, null);
-
-            $transformer = new InvoiceTransformer(\Auth::user()->account, Input::get('serializer'));
-            $data = $this->createItem($clonedInvoice, $transformer, 'invoice');
-
-            return $this->response($data);
-        }
+        
         $data = $request->input();
         $data['public_id'] = $publicId;
         $this->invoiceService->save($data, $request->entity());
