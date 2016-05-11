@@ -884,9 +884,8 @@ class PublicClientController extends BaseController
         $accountGateway = $account->getGatewayByType($paymentType);
         $sourceToken = $accountGateway->gateway_id == GATEWAY_STRIPE ? Input::get('stripeToken'):Input::get('payment_method_nonce');
 
-        $result = PaymentController::processPaymentClientDetails($client,  $accountGateway, $paymentType);
-        if ($result !== true) {
-            return $result;
+        if (!PaymentController::processPaymentClientDetails($client,  $accountGateway, $paymentType)) {
+            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
         }
 
         if ($sourceToken) {

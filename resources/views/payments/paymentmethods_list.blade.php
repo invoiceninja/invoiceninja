@@ -59,8 +59,8 @@
     <span class="payment_method_number">&bull;&bull;&bull;&bull;&bull;{{$paymentMethod->last4}}</span>
     @endif
     @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
-        @if($paymentMethod->bank())
-            {{ $paymentMethod->bank()->name }}
+        @if($paymentMethod->bank_data)
+            {{ $paymentMethod->bank_data }}
         @endif
         @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
         <a href="javasript::void" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
