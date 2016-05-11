@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Guzzle\Tests\Common\Cache\NullCacheAdapterTest;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Utils;
 use Response;
@@ -316,7 +314,7 @@ class InvoiceApiController extends BaseAPIController
         } elseif ($request->action) {
             return $this->handleAction($request);
         }
-        
+
         $data = $request->input();
         $data['public_id'] = $publicId;
         $this->invoiceService->save($data, $request->entity());
