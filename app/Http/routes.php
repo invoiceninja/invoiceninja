@@ -556,7 +556,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
     define('GATEWAY_CYBERSOURCE', 49);
-    define('GATEWAY_BRAINTREE', 62);
+    define('GATEWAY_WEPAY', 60);
+    define('GATEWAY_BRAINTREE', 61);
 
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);
