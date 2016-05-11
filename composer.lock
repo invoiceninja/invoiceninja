@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cf82d2ddb25cb1a7d6b4867bcc8692b8",
-    "content-hash": "481a95753b873249aebceb99e7426421",
+    "hash": "7139e4aedb2ac151079c50ee5c17f93c",
+    "content-hash": "a314d6c0a16785dd2395a7fd73cdc76d",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -127,7 +127,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/78ae8c65b1f8134e2db1c9491c251c03638823ca",
+                "url": "https://api.github.com/repos/formers/former/zipball/37f6876a5d211427b5c445cd64f0eb637f42f685",
                 "reference": "d97f907741323b390f43954a90a227921ecc6b96",
                 "shasum": ""
             },
@@ -559,6 +559,53 @@
             "time": "2016-03-03 14:38:04"
         },
         {
+            "name": "braintree/braintree_php",
+            "version": "3.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/braintree/braintree_php.git",
+                "reference": "2ab7e41d8d31286fa64bae7279a8e785a40b1be4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/2ab7e41d8d31286fa64bae7279a8e785a40b1be4",
+                "reference": "2ab7e41d8d31286fa64bae7279a8e785a40b1be4",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-dom": "*",
+                "ext-hash": "*",
+                "ext-openssl": "*",
+                "ext-xmlwriter": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Braintree": "lib/"
+                },
+                "psr-4": {
+                    "Braintree\\": "lib/Braintree"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Braintree",
+                    "homepage": "http://www.braintreepayments.com"
+                }
+            ],
+            "description": "Braintree PHP Client Library",
+            "time": "2016-04-12 20:39:36"
+        },
+        {
             "name": "cardgate/omnipay-cardgate",
             "version": "v2.0.0",
             "source": {
@@ -699,7 +746,7 @@
                 "laravel"
             ],
             "abandoned": "OpenSkill/Datatable",
-            "time": "2015-04-29 07:00:36"
+            "time": "2015-11-23 21:33:41"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -1965,6 +2012,17 @@
             "time": "2015-01-16 08:41:13"
         },
         {
+            "name": "gatepay/FedACHdir",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:gatepay/FedACHdir.git",
+                "reference": "origin/master"
+            },
+            "type": "library",
+            "time": "2016-04-29 12:01:22"
+        },
+        {
             "name": "guzzle/guzzle",
             "version": "v3.8.1",
             "source": {
@@ -2338,7 +2396,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/e368d262887dbb2fdfaf710880571ede51e9c0e6",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/22088b04728a039bd1fc32f7e79a89a118b78698",
                 "reference": "e368d262887dbb2fdfaf710880571ede51e9c0e6",
                 "shasum": ""
             },
@@ -4278,6 +4336,69 @@
             "time": "2016-03-10 03:16:04"
         },
         {
+            "name": "omnipay/braintree",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/omnipay-braintree.git",
+                "reference": "e4b4027c6a9e6443833490d0d51fd530f0a19f62"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-braintree/zipball/e4b4027c6a9e6443833490d0d51fd530f0a19f62",
+                "reference": "e4b4027c6a9e6443833490d0d51fd530f0a19f62",
+                "shasum": ""
+            },
+            "require": {
+                "braintree/braintree_php": "^2.39|^3.0",
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Omnipay\\Braintree\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Barry vd. Heuvel",
+                    "email": "barryvdh@gmail.com"
+                },
+                {
+                    "name": "Kayla Daniels",
+                    "email": "kayladnls@gmail.com"
+                },
+                {
+                    "name": "Omnipay Contributors",
+                    "homepage": "https://github.com/thephpleague/omnipay-braintree/contributors"
+                }
+            ],
+            "description": "Braintree gateway for Omnipay payment processing library",
+            "homepage": "https://github.com/thephpleague/omnipay-braintree",
+            "keywords": [
+                "braintree",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "purchase"
+            ],
+            "time": "2016-02-25 20:54:09"
+        },
+        {
             "name": "omnipay/buckaroo",
             "version": "v2.0.1",
             "source": {
@@ -5661,16 +5782,16 @@
         },
         {
             "name": "omnipay/stripe",
-            "version": "v2.3.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/omnipay-stripe.git",
-                "reference": "54b816a5e95e34c988d71fb805b0232cfd7c1ce5"
+                "reference": "0ea7a647ee01e29c152814e11c2ea6307e5b0db9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/54b816a5e95e34c988d71fb805b0232cfd7c1ce5",
-                "reference": "54b816a5e95e34c988d71fb805b0232cfd7c1ce5",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-stripe/zipball/0ea7a647ee01e29c152814e11c2ea6307e5b0db9",
+                "reference": "0ea7a647ee01e29c152814e11c2ea6307e5b0db9",
                 "shasum": ""
             },
             "require": {
@@ -5714,7 +5835,7 @@
                 "payment",
                 "stripe"
             ],
-            "time": "2015-11-10 16:17:35"
+            "time": "2016-04-26 08:34:50"
         },
         {
             "name": "omnipay/targetpay",
@@ -9875,6 +9996,7 @@
         "omnipay/mollie": 20,
         "omnipay/2checkout": 20,
         "omnipay/gocardless": 20,
+        "omnipay/stripe": 20,
         "anahkiasen/former": 20,
         "chumper/datatable": 20,
         "intervention/image": 20,
@@ -9894,7 +10016,9 @@
         "meebio/omnipay-secure-trading": 20,
         "labs7in0/omnipay-wechat": 20,
         "laracasts/presenter": 20,
-        "jlapp/swaggervel": 20
+        "jlapp/swaggervel": 20,
+        "omnipay/braintree": 20,
+        "gatepay/fedachdir": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

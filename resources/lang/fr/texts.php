@@ -509,11 +509,11 @@ return array(
     'token_billing_3' => 'Opt-out - Case à cocher affichée et sélectionné',
     'token_billing_4' => 'Toujours',
     'token_billing_checkbox' => 'Enregistrer les informations de paiement',
-    'view_in_stripe' => 'Voir sur Stripe',
+    'view_in_gateway' => 'Voir sur :gateway',
     'use_card_on_file' => 'Use card on file',
     'edit_payment_details' => 'Editer les détails de pauement',
     'token_billing' => 'Enregister les détails de paiement',
-    'token_billing_secure' => 'Les données sont enregistrées de manière sécurisée par :stripe_link',
+    'token_billing_secure' => 'Les données sont enregistrées de manière sécurisée par :link',
 
     'support' => 'Support',
     'contact_information' => 'Information de contact',

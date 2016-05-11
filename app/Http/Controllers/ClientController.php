@@ -135,7 +135,8 @@ class ClientController extends BaseController
             'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0,
             'hasQuotes' => Invoice::scope()->where('is_quote', '=', true)->whereClientId($client->id)->count() > 0,
             'hasTasks' => Task::scope()->whereClientId($client->id)->count() > 0,
-            'gatewayLink' => $client->getGatewayLink(),
+            'gatewayLink' => $client->getGatewayLink($accountGateway),
+            'gateway' => $accountGateway
         );
 
         return View::make('clients.show', $data);

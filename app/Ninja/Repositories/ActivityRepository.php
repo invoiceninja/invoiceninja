@@ -97,6 +97,7 @@ class ActivityRepository
                         'contacts.last_name as last_name',
                         'contacts.email as email',
                         'payments.transaction_reference as payment',
+                        'payments.amount as payment_amount',
                         'credits.amount as credit'
                     );
     }

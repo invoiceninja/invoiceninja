@@ -489,11 +489,11 @@ return array(
     'token_billing_3' => 'Opt-out - el checkbox es mostrado y seleccionado',
     'token_billing_4' => 'Siempre',
     'token_billing_checkbox' => 'Almacenar detalles de la tarjeta de crédito',
-    'view_in_stripe' => 'Ver en Stripe',
+    'view_in_gateway' => 'Ver en :gateway',
     'use_card_on_file' => 'Usar la tarjeta en el archivo',
     'edit_payment_details' => 'Editar detalles del pago',
     'token_billing' => 'Guardar detalles de la tarjeta',
-    'token_billing_secure' => 'La información es almacenada de manera segura por :stripe_link',
+    'token_billing_secure' => 'La información es almacenada de manera segura por :link',
 
     'support' => 'Soporte',
     'contact_information' => 'Información de Contacto',

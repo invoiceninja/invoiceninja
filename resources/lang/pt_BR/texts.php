@@ -514,7 +514,7 @@ return array(
     'use_card_on_file' => 'Usar cartão no arquivo',
     'edit_payment_details' => 'Editar detalhes do pagamento',
     'token_billing' => 'Salvar detalhes do cartão',
-    'token_billing_secure' => 'Dados armazenados com seguração por :stripe_link',
+    'token_billing_secure' => 'Dados armazenados com seguração por :link',
 
     'support' => 'Suporte',
     'contact_information' => 'Informações de Contato',

@@ -9,6 +9,7 @@ class Gateway extends Eloquent
     public $timestamps = true;
 
     public static $paymentTypes = [
+        PAYMENT_TYPE_STRIPE,
         PAYMENT_TYPE_CREDIT_CARD,
         PAYMENT_TYPE_PAYPAL,
         PAYMENT_TYPE_BITCOIN,
@@ -97,8 +98,10 @@ class Gateway extends Eloquent
             return PAYMENT_TYPE_BITCOIN;
         } else if ($gatewayId == GATEWAY_DWOLLA) {
             return PAYMENT_TYPE_DWOLLA;
-        }else if ($gatewayId == GATEWAY_GOCARDLESS) {
+        } else if ($gatewayId == GATEWAY_GOCARDLESS) {
             return PAYMENT_TYPE_DIRECT_DEBIT;
+        } else if ($gatewayId == GATEWAY_STRIPE) {
+            return PAYMENT_TYPE_STRIPE;
         } else {
             return PAYMENT_TYPE_CREDIT_CARD;
         }

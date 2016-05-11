@@ -512,11 +512,11 @@ return array(
     'token_billing_3' => 'Opt-out - checkbox is getoond en geselecteerd',
     'token_billing_4' => 'Altijd',
     'token_billing_checkbox' => 'Sla carditcard gegevens op',
-    'view_in_stripe' => 'In Stripe bekijken',
+    'view_in_gateway' => 'In :gateway bekijken',
     'use_card_on_file' => 'Gebruik opgeslagen kaart',
     'edit_payment_details' => 'Betalingsdetails aanpassen',
     'token_billing' => 'Kaartgegevens opslaan',
-    'token_billing_secure' => 'Kaartgegevens worden veilig opgeslagen door :stripe_link',
+    'token_billing_secure' => 'Kaartgegevens worden veilig opgeslagen door :link',
 
     'support' => 'Ondersteuning',
     'contact_information' => 'Contact informatie',
