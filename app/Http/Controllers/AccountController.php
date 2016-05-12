@@ -430,7 +430,14 @@ class AccountController extends BaseController
         if ($count == 0) {
             return Redirect::to('gateways/create');
         } else {
+            $switchToWepay = WEPAY_CLIENT_ID && !$account->getGatewayConfig(GATEWAY_WEPAY);
+
+            if ($switchToWepay && $account->token_billing_type_id != TOKEN_BILLING_DISABLED) {
+                $switchToWepay = !$account->getGatewayConfig(GATEWAY_BRAINTREE) && !$account->getGatewayConfig(GATEWAY_STRIPE);
+            }
+
             return View::make('accounts.payments', [
+                'showSwitchToWepay' => $switchToWepay,
                 'showAdd' => $count < count(Gateway::$paymentTypes),
                 'title' => trans('texts.online_payments')
             ]);

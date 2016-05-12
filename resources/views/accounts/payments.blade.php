@@ -4,6 +4,12 @@
 	@parent	
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
+  @if ($showSwitchToWepay)
+      {!! Button::success(trans('texts.switch_to_wepay'))
+            ->asLinkTo(URL::to('/gateways/switch/wepay'))
+            ->appendIcon(Icon::create('circle-arrow-up')) !!}
+  @endif
+
   @if ($showAdd)
       {!! Button::primary(trans('texts.add_gateway'))
             ->asLinkTo(URL::to('/gateways/create'))

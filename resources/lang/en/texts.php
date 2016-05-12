@@ -1308,7 +1308,9 @@ $LANG = array(
     'manage_wepay_account' => 'Manage WePay Account',
     'action_required' => 'Action Required',
     'finish_setup' => 'Finish Setup',
-    'created_wepay_confirmation_required' => 'Please check your email and confirm your email address with WePay.'
+    'created_wepay_confirmation_required' => 'Please check your email and confirm your email address with WePay.',
+    'switch_to_wepay' => 'Switch to WePay',
+    'switch' => 'Switch',
 );
 
 return $LANG;

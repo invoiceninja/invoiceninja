@@ -243,6 +243,7 @@ Route::group([
 
     Route::resource('gateways', 'AccountGatewayController');
     Route::get('gateways/{public_id}/resend_confirmation', 'AccountGatewayController@resendConfirmation');
+    Route::get('gateways/switch/wepay', 'AccountGatewayController@switchToWepay');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 

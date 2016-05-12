@@ -410,7 +410,7 @@ class AccountGatewayController extends BaseController
                 'original_ip' => \Request::getClientIp(true),
                 'original_device' => \Request::server('HTTP_USER_AGENT'),
                 'tos_acceptance_time' => time(),
-                'redirect_uri' => URL::to('/gateways'),
+                'redirect_uri' => URL::to('gateways'),
                 'callback_uri' => URL::to('https://sometechie.ngrok.io/paymenthook/'.$account->account_key.'/'.GATEWAY_WEPAY),
                 'scope' => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
             ));
@@ -435,6 +435,10 @@ class AccountGatewayController extends BaseController
                 } else {
                     throw $ex;
                 }
+            }
+
+            if (($gateway = $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD)) || ($gateway = $account->getGatewayByType(PAYMENT_TYPE_STRIPE))) {
+                $gateway->delete();
             }
 
             $accountGateway = AccountGateway::createNew();
@@ -485,5 +489,19 @@ class AccountGatewayController extends BaseController
         }
 
         return Redirect::to("gateways/{$accountGateway->public_id}/edit");
+    }
+
+    public function switchToWepay()
+    {
+        $data = self::getViewModel();
+        $data['url'] = 'gateways';
+        $data['method'] = 'POST';
+        unset($data['gateways']);
+
+        if ( ! \Request::secure() && ! Utils::isNinjaDev()) {
+            Session::flash('warning', trans('texts.enable_https'));
+        }
+
+        return View::make('accounts.account_gateway_switch_wepay', $data);
     }
 }
