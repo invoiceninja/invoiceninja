@@ -248,11 +248,13 @@ class ReportController extends BaseController
                         ->withArchived()
                         ->with('contacts')
                         ->with(['invoices' => function($query) use ($startDate, $endDate, $dateField) {
-                            $query->withArchived();
-                            if ($dateField == FILTER_PAYMENT_DATE) {
+                            $query->with('invoice_items')->withArchived();
+                            if ($dateField == FILTER_INVOICE_DATE) {
                                 $query->where('invoice_date', '>=', $startDate)
                                       ->where('invoice_date', '<=', $endDate)
-                                      ->whereHas('payments', function($query) use ($startDate, $endDate) {
+                                      ->with('payments');
+                            } else {
+                                $query->whereHas('payments', function($query) use ($startDate, $endDate) {
                                             $query->where('payment_date', '>=', $startDate)
                                                   ->where('payment_date', '<=', $endDate)
                                                   ->withArchived();
@@ -260,9 +262,8 @@ class ReportController extends BaseController
                                         ->with(['payments' => function($query) use ($startDate, $endDate) {
                                             $query->where('payment_date', '>=', $startDate)
                                                   ->where('payment_date', '<=', $endDate)
-                                                  ->withArchived()
-                                                  ->with('payment_type', 'account_gateway.gateway');
-                                  }, 'invoice_items']);
+                                                  ->withArchived();
+                                        }]);
                             }
                         }]);
 
