@@ -63,7 +63,7 @@
             {{ $paymentMethod->bank_data }}
         @endif
         @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
-        <a href="javasript::void" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
+        <a href="#" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
         @elseif($paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFICATION_FAILED)
         ({{trans('texts.verification_failed')}})
         @endif
@@ -77,7 +77,7 @@
     @elseif($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED)
         <a href="#" onclick="setDefault('{{$paymentMethod->public_id}}')">({{trans('texts.use_for_auto_bill')}})</a>
     @endif
-    <a href="javasript::void" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">&times;</a>
+    <a href="#" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">&times;</a>
 </div>
 @endforeach
 @endif
