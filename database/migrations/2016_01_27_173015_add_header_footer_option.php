@@ -25,20 +25,24 @@ class AddHeaderFooterOption extends Migration {
             $table->boolean('is_offsite');
             $table->boolean('is_secure');
         });
-        
+
         Schema::table('expenses', function($table)
         {
-            $table->string('transaction_id')->nullable()->change();
-            $table->unsignedInteger('bank_id')->nullable()->change();
-        });        
+						if (Schema::hasColumn('expenses', 'transaction_id')) {
+                $table->string('transaction_id')->nullable()->change();
+                $table->unsignedInteger('bank_id')->nullable()->change();
+					  }
+        });
 
         Schema::table('vendors', function($table)
         {
-            $table->string('transaction_name')->nullable()->change();
-        });        
-        
+						if (Schema::hasColumn('vendors', 'transaction_name')) {
+            		$table->string('transaction_name')->nullable()->change();
+						}
+        });
+
     }
-    
+
 	/**
 	 * Reverse the migrations.
 	 *
