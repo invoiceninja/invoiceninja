@@ -15,6 +15,7 @@ use Log;
 use DateTime;
 use stdClass;
 use Carbon;
+use WePay;
 
 use App\Models\Currency;
 
@@ -989,5 +990,22 @@ class Utils
         }
 
         return $url;
+    }
+
+    public static function setupWePay($accountGateway = null)
+    {
+        if (WePay::getEnvironment() == 'none') {
+            if (WEPAY_ENVIRONMENT == WEPAY_STAGING) {
+                WePay::useStaging(WEPAY_CLIENT_ID, WEPAY_CLIENT_SECRET);
+            } else {
+                WePay::useProduction(WEPAY_CLIENT_ID, WEPAY_CLIENT_SECRET);
+            }
+        }
+
+        if ($accountGateway) {
+            return new WePay($accountGateway->getConfig()->accessToken);
+        } else {
+            return new WePay(null);
+        }
     }
 }

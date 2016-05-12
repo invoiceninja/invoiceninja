@@ -82,7 +82,14 @@ class DatatableService
                                 $lastIsDivider = true;
                             }
                             else {
-                                $str .= "<li><a href=\"{$url($model)}\">{$value}</a></li>";
+                                $urlVal = $url($model);
+                                $urlStr = is_string($urlVal) ? $urlVal : $urlVal['url'];
+                                $attributes = '';
+                                if (!empty($urlVal['attributes'])) {
+                                    $attributes = ' '.$urlVal['attributes'];
+                                }
+                                
+                                $str .= "<li><a href=\"$urlStr\"{$attributes}>{$value}</a></li>";
                                 $hasAction = true;
                                 $lastIsDivider = false;
                             }

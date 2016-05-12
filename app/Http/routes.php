@@ -242,6 +242,7 @@ Route::group([
     Route::post('/import_csv', 'ImportController@doImportCSV');
 
     Route::resource('gateways', 'AccountGatewayController');
+    Route::get('gateways/{public_id}/resend_confirmation', 'AccountGatewayController@resendConfirmation');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
@@ -744,6 +745,14 @@ if (!defined('CONTACT_EMAIL')) {
     
     // Pro users who started paying on or before this date will be able to manage users
     define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-05-15');
+
+    // WePay
+    define('WEPAY_PRODUCTION', 'production');
+    define('WEPAY_STAGING', 'staging');
+    define('WEPAY_CLIENT_ID', env('WEPAY_CLIENT_ID'));
+    define('WEPAY_CLIENT_SECRET', env('WEPAY_CLIENT_SECRET'));
+    define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
+    define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
     
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
