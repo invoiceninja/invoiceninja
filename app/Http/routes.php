@@ -562,6 +562,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
 
+    // The customer exists, but only as a local concept
+    // The remote gateway doesn't understand the concept of customers
+    define('CUSTOMER_REFERENCE_LOCAL', 'local');
+
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);
     define('EVENT_CREATE_QUOTE', 3);
@@ -749,7 +753,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     // WePay
     define('WEPAY_PRODUCTION', 'production');
-    define('WEPAY_STAGING', 'staging');
+    define('WEPAY_STAGE', 'stage');
     define('WEPAY_CLIENT_ID', env('WEPAY_CLIENT_ID'));
     define('WEPAY_CLIENT_SECRET', env('WEPAY_CLIENT_SECRET'));
     define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));

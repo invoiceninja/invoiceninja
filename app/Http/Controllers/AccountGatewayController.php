@@ -449,7 +449,7 @@ class AccountGatewayController extends BaseController
                 'tokenType' => $wepayUser->token_type,
                 'tokenExpires' => $accessTokenExpires,
                 'accountId' => $wepayAccount->account_id,
-                'testMode' => WEPAY_ENVIRONMENT == WEPAY_STAGING,
+                'testMode' => WEPAY_ENVIRONMENT == WEPAY_STAGE,
             ));
             $account->account_gateways()->save($accountGateway);
 

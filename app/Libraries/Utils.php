@@ -995,7 +995,7 @@ class Utils
     public static function setupWePay($accountGateway = null)
     {
         if (WePay::getEnvironment() == 'none') {
-            if (WEPAY_ENVIRONMENT == WEPAY_STAGING) {
+            if (WEPAY_ENVIRONMENT == WEPAY_STAGE) {
                 WePay::useStaging(WEPAY_CLIENT_ID, WEPAY_CLIENT_SECRET);
             } else {
                 WePay::useProduction(WEPAY_CLIENT_ID, WEPAY_CLIENT_SECRET);

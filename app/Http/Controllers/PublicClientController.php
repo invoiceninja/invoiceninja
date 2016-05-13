@@ -859,12 +859,15 @@ class PublicClientController extends BaseController
         ];
 
         if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
-
             $data['currencies'] = Cache::get('currencies');
         }
 
         if ($gateway->id == GATEWAY_BRAINTREE) {
             $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
+        }
+
+        if(!empty($data['braintreeClientToken']) || $accountGateway->getPublishableStripeKey()|| $accountGateway->gateway_id == GATEWAY_WEPAY) {
+            $data['tokenize'] = true;
         }
 
         return View::make('payments.add_paymentmethod', $data);
@@ -882,7 +885,7 @@ class PublicClientController extends BaseController
         $account = $client->account;
 
         $accountGateway = $account->getGatewayByType($paymentType);
-        $sourceToken = $accountGateway->gateway_id == GATEWAY_STRIPE ? Input::get('stripeToken'):Input::get('payment_method_nonce');
+        $sourceToken = Input::get('sourceToken');
 
         if (!PaymentController::processPaymentClientDetails($client,  $accountGateway, $paymentType)) {
             return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));

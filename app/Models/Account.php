@@ -1245,6 +1245,8 @@ class Account extends Eloquent
             return GATEWAY_STRIPE;
         } elseif ($this->isGatewayConfigured(GATEWAY_BRAINTREE)) {
             return GATEWAY_BRAINTREE;
+        } elseif ($this->isGatewayConfigured(GATEWAY_WEPAY)) {
+            return GATEWAY_WEPAY;
         } else {
             return false;
         }

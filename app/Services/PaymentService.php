@@ -9,6 +9,7 @@ use Cache;
 use Omnipay;
 use Session;
 use CreditCard;
+use WePay;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Account;
@@ -30,7 +31,8 @@ class PaymentService extends BaseService
 
     protected static $refundableGateways = array(
         GATEWAY_STRIPE,
-        GATEWAY_BRAINTREE
+        GATEWAY_BRAINTREE,
+        GATEWAY_WEPAY,
     );
 
     public function __construct(PaymentRepository $paymentRepo, AccountRepository $accountRepo, DatatableService $datatableService)
@@ -95,15 +97,19 @@ class PaymentService extends BaseService
             $data['ButtonSource'] = 'InvoiceNinja_SP';
         };
 
-        if ($input && $accountGateway->isGateway(GATEWAY_STRIPE)) {
-            if (!empty($input['stripeToken'])) {
-                $data['token'] = $input['stripeToken'];
+        if ($input) {
+            if (!empty($input['sourceToken'])) {
+                $data['token'] = $input['sourceToken'];
                 unset($data['card']);
             } elseif (!empty($input['plaidPublicToken'])) {
                 $data['plaidPublicToken'] = $input['plaidPublicToken'];
                 $data['plaidAccountId'] = $input['plaidAccountId'];
                 unset($data['card']);
             }
+        }
+
+        if ($accountGateway->isGateway(GATEWAY_WEPAY) && $transactionId = Session::get($invitation->id.'payment_ref')) {
+            $data['transaction_id'] = $transactionId;
         }
 
         return $data;
@@ -266,6 +272,17 @@ class PaymentService extends BaseService
             if (!$response->isSuccessful()) {
                 return $response->getMessage();
             }
+        } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+            try {
+                $wepay = Utils::setupWePay($accountGateway);
+                $wepay->request('/credit_card/delete', [
+                    'client_id' => WEPAY_CLIENT_ID,
+                    'client_secret' => WEPAY_CLIENT_SECRET,
+                    'credit_card_id' => $paymentMethod->source_reference,
+                ]);
+            } catch (\WePayException $ex){
+                return $ex->getMessage();
+            }
         }
 
         $paymentMethod->delete();
@@ -291,16 +308,16 @@ class PaymentService extends BaseService
     {
         $customerReference = $client->getGatewayToken($accountGateway, $accountGatewayToken/* return paramenter */);
 
-        if ($customerReference) {
+        if ($customerReference && $customerReference != CUSTOMER_REFERENCE_LOCAL) {
             $details['customerReference'] = $customerReference;
 
-            if ($accountGateway->gateway->id == GATEWAY_STRIPE) {
+            if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
                 $customerResponse = $gateway->fetchCustomer(array('customerReference' => $customerReference))->send();
 
                 if (!$customerResponse->isSuccessful()) {
                     $customerReference = null; // The customer might not exist anymore
                 }
-            } elseif ($accountGateway->gateway->id == GATEWAY_BRAINTREE) {
+            } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
                 $customer = $gateway->findCustomer($customerReference)->send()->getData();
 
                 if (!($customer instanceof \Braintree\Customer)) {
@@ -309,7 +326,7 @@ class PaymentService extends BaseService
             }
         }
 
-        if ($accountGateway->gateway->id == GATEWAY_STRIPE) {
+        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             if (!empty($details['plaidPublicToken'])) {
                 $plaidResult = $this->getPlaidToken($accountGateway, $details['plaidPublicToken'], $details['plaidAccountId']);
 
@@ -355,7 +372,7 @@ class PaymentService extends BaseService
                     return;
                 }
             }
-        } elseif ($accountGateway->gateway->id == GATEWAY_BRAINTREE) {
+        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             if (!$customerReference) {
                 $tokenResponse = $gateway->createCustomer(array('customerData' => array()))->send();
                 if ($tokenResponse->isSuccessful()) {
@@ -377,6 +394,31 @@ class PaymentService extends BaseService
                     return;
                 }
             }
+        } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+            $wepay = Utils::setupWePay($accountGateway);
+
+            try {
+                $wepay->request('credit_card/authorize', array(
+                    'client_id' => WEPAY_CLIENT_ID,
+                    'client_secret' => WEPAY_CLIENT_SECRET,
+                    'credit_card_id' => $details['token'],
+                ));
+
+                // Get the card details
+                $tokenResponse = $wepay->request('credit_card', array(
+                    'client_id' => WEPAY_CLIENT_ID,
+                    'client_secret' => WEPAY_CLIENT_SECRET,
+                    'credit_card_id' => $details['token'],
+                ));
+
+                $customerReference = CUSTOMER_REFERENCE_LOCAL;
+                $sourceReference = $details['token'];
+            } catch (\WePayException $ex) {
+                $this->lastError = $ex->getMessage();
+                return;
+            }
+        } else {
+            return null;
         }
 
         if ($customerReference) {
@@ -394,7 +436,7 @@ class PaymentService extends BaseService
             $accountGatewayToken->token = $customerReference;
             $accountGatewayToken->save();
 
-            $paymentMethod = $this->createPaymentMethodFromGatewayResponse($tokenResponse, $accountGateway, $accountGatewayToken, $contactId);
+            $paymentMethod = $this->convertPaymentMethodFromGatewayResponse($tokenResponse, $accountGateway, $accountGatewayToken, $contactId);
 
         } else {
             $this->lastError = $tokenResponse->getMessage();
@@ -456,8 +498,24 @@ class PaymentService extends BaseService
 
         return $paymentMethod;
     }
+
+    public function convertPaymentMethodFromWePay($source, $accountGatewayToken = null, $paymentMethod = null) {
+        // Creating a new one or updating an existing one
+        if (!$paymentMethod) {
+            $paymentMethod = $accountGatewayToken ? PaymentMethod::createNew($accountGatewayToken) : new PaymentMethod();
+        }
+
+        $paymentMethod->payment_type_id = $this->parseCardType($source->credit_card_name);
+        $paymentMethod->last4 = $source->last_four;
+        $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-00';
+        $paymentMethod->setRelation('payment_type', Cache::get('paymentTypes')->find($paymentMethod->payment_type_id));
+
+        $paymentMethod->source_reference = $source->credit_card_id;
+
+        return $paymentMethod;
+    }
     
-    public function createPaymentMethodFromGatewayResponse($gatewayResponse, $accountGateway, $accountGatewayToken = null, $contactId = null) {
+    public function convertPaymentMethodFromGatewayResponse($gatewayResponse, $accountGateway, $accountGatewayToken = null, $contactId = null, $existingPaymentMethod = null) {
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             $data = $gatewayResponse->getData();
             if (!empty($data['object']) && ($data['object'] == 'card' || $data['object'] == 'bank_account')) {
@@ -470,7 +528,7 @@ class PaymentService extends BaseService
             }
 
             if ($source) {
-                $paymentMethod = $this->convertPaymentMethodFromStripe($source, $accountGatewayToken);
+                $paymentMethod = $this->convertPaymentMethodFromStripe($source, $accountGatewayToken, $existingPaymentMethod);
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $data = $gatewayResponse->getData();
@@ -478,7 +536,12 @@ class PaymentService extends BaseService
             if (!empty($data->transaction)) {
                 $transaction = $data->transaction;
 
-                $paymentMethod = $accountGatewayToken ? PaymentMethod::createNew($accountGatewayToken) : new PaymentMethod();
+                if ($existingPaymentMethod) {
+                    $paymentMethod = $existingPaymentMethod;
+                } else {
+                    $paymentMethod = $accountGatewayToken ? PaymentMethod::createNew($accountGatewayToken) : new PaymentMethod();
+                }
+
                 if ($transaction->paymentInstrumentType == 'credit_card') {
                     $card = $transaction->creditCardDetails;
                     $paymentMethod->last4 = $card->last4;
@@ -490,9 +553,20 @@ class PaymentService extends BaseService
                 }
                 $paymentMethod->setRelation('payment_type', Cache::get('paymentTypes')->find($paymentMethod->payment_type_id));
             } elseif (!empty($data->paymentMethod)) {
-                $paymentMethod = $this->convertPaymentMethodFromBraintree($data->paymentMethod, $accountGatewayToken);
+                $paymentMethod = $this->convertPaymentMethodFromBraintree($data->paymentMethod, $accountGatewayToken, $existingPaymentMethod);
             }
 
+        } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+            if ($gatewayResponse instanceof \Omnipay\WePay\Message\CustomCheckoutResponse) {
+                $wepay = \Utils::setupWePay($accountGateway);
+                $gatewayResponse = $wepay->request('credit_card', array(
+                    'client_id' => WEPAY_CLIENT_ID,
+                    'client_secret' => WEPAY_CLIENT_SECRET,
+                    'credit_card_id' => $gatewayResponse->getData()['payment_method']['credit_card']['id'],
+                ));
+
+            }
+            $paymentMethod = $this->convertPaymentMethodFromWePay($gatewayResponse, $accountGatewayToken, $existingPaymentMethod);
         }
 
         if (!empty($paymentMethod) && $accountGatewayToken && $contactId) {
@@ -566,43 +640,49 @@ class PaymentService extends BaseService
             $payment->payment_type_id = $this->detectCardType($card->getNumber());
         }
 
+        $savePaymentMethod = !empty($paymentMethod);
+
+        // This will convert various gateway's formats to a known format
+        $paymentMethod = $this->convertPaymentMethodFromGatewayResponse($purchaseResponse, $accountGateway, null, null, $paymentMethod);
+
+        // If this is a stored payment method, we'll update it with the latest info
+        if ($savePaymentMethod) {
+            $paymentMethod->save();
+        }
+
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             $data = $purchaseResponse->getData();
-            $source = !empty($data['source'])?$data['source']:$data['card'];
-
             $payment->payment_status_id = $data['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
-
-            if ($source) {
-                $payment->last4 = $source['last4'];
-
-                if ($source['object'] == 'bank_account') {
-                    $payment->routing_number = $source['routing_number'];
-                    $payment->payment_type_id = PAYMENT_TYPE_ACH;
-                }
-                else{
-                    $payment->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-00';
-                    $payment->payment_type_id = $this->parseCardType($source['brand']);
-                }
-            }
-        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
-            $transaction = $purchaseResponse->getData()->transaction;
-            if ($transaction->paymentInstrumentType == 'credit_card') {
-                $card = $transaction->creditCardDetails;
-                $payment->last4 = $card->last4;
-                $payment->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
-                $payment->payment_type_id = $this->parseCardType($card->cardType);
-            } elseif ($transaction->paymentInstrumentType == 'paypal_account') {
-                $payment->payment_type_id = PAYMENT_TYPE_ID_PAYPAL;
-                $payment->email = $transaction->paypalDetails->payerEmail;
-            }
-        }
-        
-        if ($payerId) {
-            $payment->payer_id = $payerId;
         }
 
         if ($paymentMethod) {
-            $payment->payment_method_id = $paymentMethod->id;
+            if ($paymentMethod->last4) {
+                $payment->last4 = $paymentMethod->last4;
+            }
+
+            if ($paymentMethod->expiration) {
+                $payment->expiration = $paymentMethod->expiration;
+            }
+
+            if ($paymentMethod->routing_number) {
+                $payment->routing_number = $paymentMethod->routing_number;
+            }
+
+            if ($paymentMethod->payment_type_id) {
+                $payment->payment_type_id = $paymentMethod->payment_type_id;
+            }
+
+            if ($paymentMethod->email) {
+                $payment->email = $paymentMethod->email;
+            }
+
+            if ($payerId) {
+                $payment->payer_id = $payerId;
+            }
+
+            if ($savePaymentMethod) {
+                $payment->payment_method_id = $paymentMethod->id;
+            }
         }
 
         $payment->save();
@@ -665,19 +745,28 @@ class PaymentService extends BaseService
 
     private function parseCardType($cardName) {
         $cardTypes = array(
-            'Visa' => PAYMENT_TYPE_VISA,
-            'American Express' => PAYMENT_TYPE_AMERICAN_EXPRESS,
-            'MasterCard' => PAYMENT_TYPE_MASTERCARD,
-            'Discover' => PAYMENT_TYPE_DISCOVER,
-            'JCB' => PAYMENT_TYPE_JCB,
-            'Diners Club' => PAYMENT_TYPE_DINERS,
-            'Carte Blanche' => PAYMENT_TYPE_CARTE_BLANCHE,
-            'China UnionPay' => PAYMENT_TYPE_UNIONPAY,
-            'Laser' => PAYMENT_TYPE_LASER,
-            'Maestro' => PAYMENT_TYPE_MAESTRO,
-            'Solo' => PAYMENT_TYPE_SOLO,
-            'Switch' => PAYMENT_TYPE_SWITCH
+            'visa' => PAYMENT_TYPE_VISA,
+            'americanexpress' => PAYMENT_TYPE_AMERICAN_EXPRESS,
+            'amex' => PAYMENT_TYPE_AMERICAN_EXPRESS,
+            'mastercard' => PAYMENT_TYPE_MASTERCARD,
+            'discover' => PAYMENT_TYPE_DISCOVER,
+            'jcb' => PAYMENT_TYPE_JCB,
+            'dinersclub' => PAYMENT_TYPE_DINERS,
+            'carteblanche' => PAYMENT_TYPE_CARTE_BLANCHE,
+            'chinaunionpay' => PAYMENT_TYPE_UNIONPAY,
+            'unionpay' => PAYMENT_TYPE_UNIONPAY,
+            'laser' => PAYMENT_TYPE_LASER,
+            'maestro' => PAYMENT_TYPE_MAESTRO,
+            'solo' => PAYMENT_TYPE_SOLO,
+            'switch' => PAYMENT_TYPE_SWITCH
         );
+
+        $cardName = strtolower(str_replace(array(' ', '-', '_'), '', $cardName));
+
+        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^('.implode('|', array_keys($cardTypes)).')/', $cardName, $matches)) {
+            // Some gateways return extra stuff after the card name
+            $cardName = $matches[1];
+        }
 
         if (!empty($cardTypes[$cardName])) {
             return $cardTypes[$cardName];
@@ -736,10 +825,9 @@ class PaymentService extends BaseService
         $details = $this->getPaymentDetails($invitation, $accountGateway);
         $details['customerReference'] = $token;
 
-        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-            $details['cardReference'] = $defaultPaymentMethod->source_reference;
-        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
-            $details['paymentMethodToken'] = $defaultPaymentMethod->source_reference;
+        $details['token'] = $defaultPaymentMethod->source_reference;
+        if ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+            $details['transaction_id'] = 'autobill_'.$invoice->id;
         }
 
         // submit purchase/get response

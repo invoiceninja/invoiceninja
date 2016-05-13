@@ -183,5 +183,6 @@
     function setDefault(sourceId) {
         $('#default_id').val(sourceId);
         $('#defaultSourceForm').submit()
+        return false;
     }
 </script>

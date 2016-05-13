@@ -3,221 +3,11 @@
 @section('head')
     @parent
     @if (!empty($braintreeClientToken))
-        <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
-        <script type="text/javascript" >
-            $(function() {
-                braintree.setup("{{ $braintreeClientToken }}", "custom", {
-                    id: "payment-form",
-                    hostedFields: {
-                        number: {
-                            selector: "#card_number",
-                            placeholder: "{{ trans('texts.card_number') }}"
-                        },
-                        cvv: {
-                            selector: "#cvv",
-                            placeholder: "{{ trans('texts.cvv') }}"
-                        },
-                        expirationMonth: {
-                            selector: "#expiration_month",
-                            placeholder: "{{ trans('texts.expiration_month') }}"
-                        },
-                        expirationYear: {
-                            selector: "#expiration_year",
-                            placeholder: "{{ trans('texts.expiration_year') }}"
-                        },
-                        styles: {
-                            'input': {
-                                'font-family': {!!  json_encode(Utils::getFromCache($account->getBodyFontId(), 'fonts')['css_stack']) !!},
-                                'font-weight': "{{ Utils::getFromCache($account->getBodyFontId(), 'fonts')['css_weight'] }}",
-                                'font-size': '16px'
-                            }
-                        }
-                    },
-                    onError: function(e) {
-                        var $form = $('.payment-form');
-                        $form.find('button').prop('disabled', false);
-                        // Show the errors on the form
-                        if (e.details && e.details.invalidFieldKeys.length) {
-                            var invalidField = e.details.invalidFieldKeys[0];
-
-                            if (invalidField == 'number') {
-                                $('#js-error-message').html('{{ trans('texts.invalid_card_number') }}').fadeIn();
-                            }
-                            else if (invalidField == 'expirationDate' || invalidField == 'expirationYear' || invalidField == 'expirationMonth') {
-                                $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
-                            }
-                            else if (invalidField == 'cvv') {
-                                $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
-                            }
-                        }
-                        else {
-                            $('#js-error-message').html(e.message).fadeIn();
-                        }
-                    }
-                });
-                $('.payment-form').submit(function(event) {
-                    var $form = $(this);
-
-                    // Disable the submit button to prevent repeated clicks
-                    $form.find('button').prop('disabled', true);
-                    $('#js-error-message').hide();
-                });
-            });
-        </script>
+        @include('payments.tokenization_braintree')
     @elseif (isset($accountGateway) && $accountGateway->getPublishableStripeKey())
-        <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
-        <script type="text/javascript">
-            Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
-            $(function() {
-                $('.payment-form').submit(function(event) {
-                    if($('[name=plaidAccountId]').length)return;
-
-                    var $form = $(this);
-
-                    var data = {
-                        @if($paymentType == PAYMENT_TYPE_STRIPE_ACH)
-                        account_holder_name: $('#account_holder_name').val(),
-                        account_holder_type: $('[name=account_holder_type]:checked').val(),
-                        currency: $("#currency").val(),
-                        country: $("#country").val(),
-                        routing_number: $('#routing_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, ''),
-                        account_number: $('#account_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')
-                        @else
-                        name: $('#first_name').val() + ' ' + $('#last_name').val(),
-                        address_line1: $('#address1').val(),
-                        address_line2: $('#address2').val(),
-                        address_city: $('#city').val(),
-                        address_state: $('#state').val(),
-                        address_zip: $('#postal_code').val(),
-                        address_country: $("#country_id option:selected").text(),
-                        number: $('#card_number').val(),
-                        cvc: $('#cvv').val(),
-                        exp_month: $('#expiration_month').val(),
-                        exp_year: $('#expiration_year').val()
-                        @endif
-                    };
-
-                    @if($paymentType == PAYMENT_TYPE_STRIPE_ACH)
-                    // Validate the account details
-                    if (!data.account_holder_type) {
-                        $('#js-error-message').html('{{ trans('texts.missing_account_holder_type') }}').fadeIn();
-                        return false;
-                    }
-                    if (!data.account_holder_name) {
-                        $('#js-error-message').html('{{ trans('texts.missing_account_holder_name') }}').fadeIn();
-                        return false;
-                    }
-                    if (!data.routing_number || !Stripe.bankAccount.validateRoutingNumber(data.routing_number, data.country)) {
-                        $('#js-error-message').html('{{ trans('texts.invalid_routing_number') }}').fadeIn();
-                        return false;
-                    }
-                    if (data.account_number != $('#confirm_account_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '')) {
-                        $('#js-error-message').html('{{ trans('texts.account_number_mismatch') }}').fadeIn();
-                        return false;
-                    }
-                    if (!data.account_number || !Stripe.bankAccount.validateAccountNumber(data.account_number, data.country)) {
-                        $('#js-error-message').html('{{ trans('texts.invalid_account_number') }}').fadeIn();
-                        return false;
-                    }
-                    @else
-                    // Validate the card details
-                    if (!Stripe.card.validateCardNumber(data.number)) {
-                        $('#js-error-message').html('{{ trans('texts.invalid_card_number') }}').fadeIn();
-                        return false;
-                    }
-                    if (!Stripe.card.validateExpiry(data.exp_month, data.exp_year)) {
-                        $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
-                        return false;
-                    }
-                    if (!Stripe.card.validateCVC(data.cvc)) {
-                        $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
-                        return false;
-                    }
-                    @endif
-
-                    // Disable the submit button to prevent repeated clicks
-                    $form.find('button').prop('disabled', true);
-                    $('#js-error-message').hide();
-
-                    @if($paymentType == PAYMENT_TYPE_STRIPE_ACH)
-                    Stripe.bankAccount.createToken(data, stripeResponseHandler);
-                    @else
-                    Stripe.card.createToken(data, stripeResponseHandler);
-                    @endif
-
-                    // Prevent the form from submitting with the default action
-                    return false;
-                });
-
-                @if($accountGateway->getPlaidEnabled())
-                    var plaidHandler = Plaid.create({
-                        selectAccount: true,
-                        env: '{{ $accountGateway->getPlaidEnvironment() }}',
-                        clientName: {!! json_encode($account->getDisplayName()) !!},
-                        key: '{{ $accountGateway->getPlaidPublicKey() }}',
-                        product: 'auth',
-                        onSuccess: plaidSuccessHandler,
-                        onExit : function(){$('#secured_by_plaid').hide()}
-                    });
-
-                    $('#plaid_link_button').click(function(){plaidHandler.open();$('#secured_by_plaid').fadeIn()});
-                    $('#plaid_unlink').click(function(e){
-                        e.preventDefault();
-                        $('#manual_container').fadeIn();
-                        $('#plaid_linked').hide();
-                        $('#plaid_link_button').show();
-                        $('#pay_now_button').hide();
-                        $('#add_account_button').show();
-                        $('[name=plaidPublicToken]').remove();
-                        $('[name=plaidAccountId]').remove();
-                        $('[name=account_holder_type],#account_holder_name').attr('required','required');
-                    })
-                @endif
-            });
-
-            function stripeResponseHandler(status, response) {
-                var $form = $('.payment-form');
-
-                if (response.error) {
-                    // Show the errors on the form
-                    var error = response.error.message;
-                    @if($paymentType == PAYMENT_TYPE_STRIPE_ACH)
-                    if(response.error.param == 'bank_account[country]') {
-                        error = "{{trans('texts.country_not_supported')}}";
-                    }
-                    @endif
-                    $form.find('button').prop('disabled', false);
-                    $('#js-error-message').html(error).fadeIn();
-                } else {
-                    // response contains id and card, which contains additional card details
-                    var token = response.id;
-                    // Insert the token into the form so it gets submitted to the server
-                    $form.append($('<input type="hidden" name="stripeToken"/>').val(token));
-                    // and submit
-                    $form.get(0).submit();
-                }
-            };
-
-            function plaidSuccessHandler(public_token, metadata) {
-                $('#secured_by_plaid').hide()
-                var $form = $('.payment-form');
-
-                $form.append($('<input type="hidden" name="plaidPublicToken"/>').val(public_token));
-                $form.append($('<input type="hidden" name="plaidAccountId"/>').val(metadata.account_id));
-                $('#plaid_linked_status').text('{{ trans('texts.plaid_linked_status') }}'.replace(':bank', metadata.institution.name));
-                $('#manual_container').fadeOut();
-                $('#plaid_linked').show();
-                $('#plaid_link_button').hide();
-                $('[name=account_holder_type],#account_holder_name').removeAttr('required');
-
-
-                var payNowBtn = $('#pay_now_button');
-                if(payNowBtn.length) {
-                    payNowBtn.show();
-                    $('#add_account_button').hide();
-                }
-            };
-        </script>
+        @include('payments.tokenization_stripe')
+    @elseif (isset($accountGateway) && $accountGateway->gateway_id == GATEWAY_WEPAY)
+        @include('payments.tokenization_wepay')
     @else
         <script type="text/javascript">
             $(function() {
@@ -232,7 +22,6 @@
             });
         </script>
     @endif
-
 @stop
 
 @section('content')
@@ -283,7 +72,6 @@
         {{ Former::populateField('email', $contact->email) }}
         @if (!$client->country_id && $client->account->country_id)
             {{ Former::populateField('country_id', $client->account->country_id) }}
-            {{ Former::populateField('country', $client->account->country->iso_3166_2) }}
         @endif
         @if (!$client->currency_id && $client->account->currency_id)
             {{ Former::populateField('currency_id', $client->account->currency_id) }}
@@ -442,9 +230,9 @@
                                 ))->inline()->label(trans('texts.account_holder_type'));  !!}
                             {!! Former::text('account_holder_name')
                                    ->label(trans('texts.account_holder_name')) !!}
-                                    {!! Former::select('country')
+                                    {!! Former::select('country_id')
                                             ->label(trans('texts.country_id'))
-                                            ->fromQuery($countries, 'name', 'iso_3166_2')
+                                            ->fromQuery($countries, 'name', 'id')
                                             ->addGroupClass('country-select') !!}
                                     {!! Former::select('currency')
                                             ->label(trans('texts.currency_id'))
@@ -485,7 +273,7 @@
                         <h3>{{ trans('texts.paypal') }}</h3>
                         <div>{{$paypalDetails->firstName}} {{$paypalDetails->lastName}}</div>
                         <div>{{$paypalDetails->email}}</div>
-                        <input type="hidden" name="payment_method_nonce" value="{{$sourceId}}">
+                        <input type="hidden" name="sourceToken" value="{{$sourceId}}">
                         <input type="hidden" name="first_name" value="{{$paypalDetails->firstName}}">
                         <input type="hidden" name="last_name" value="{{$paypalDetails->lastName}}">
                         <input type="hidden" name="email" value="{{$paypalDetails->email}}">
@@ -515,7 +303,7 @@
                                 @if (!empty($braintreeClientToken))
                                     <div id="card_number" class="braintree-hosted form-control"></div>
                                 @else
-                                    {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'card_number')
+                                    {!! Former::text(!empty($tokenize) ? '' : 'card_number')
                                             ->id('card_number')
                                             ->placeholder(trans('texts.card_number'))
                                             ->autocomplete('cc-number')
@@ -526,7 +314,7 @@
                                 @if (!empty($braintreeClientToken))
                                     <div id="cvv" class="braintree-hosted form-control"></div>
                                 @else
-                                    {!! Former::text($accountGateway->getPublishableStripeKey() ? '' : 'cvv')
+                                    {!! Former::text(!empty($tokenize) ? '' : 'cvv')
                                             ->id('cvv')
                                             ->placeholder(trans('texts.cvv'))
                                             ->autocomplete('off')
@@ -539,7 +327,7 @@
                                 @if (!empty($braintreeClientToken))
                                     <div id="expiration_month" class="braintree-hosted form-control"></div>
                                 @else
-                                    {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_month')
+                                    {!! Former::select(!empty($tokenize) ? '' : 'expiration_month')
                                             ->id('expiration_month')
                                             ->autocomplete('cc-exp-month')
                                             ->placeholder(trans('texts.expiration_month'))
@@ -562,7 +350,7 @@
                                 @if (!empty($braintreeClientToken))
                                     <div id="expiration_year" class="braintree-hosted form-control"></div>
                                 @else
-                                    {!! Former::select($accountGateway->getPublishableStripeKey() ? '' : 'expiration_year')
+                                    {!! Former::select(!empty($tokenize) ? '' : 'expiration_year')
                                             ->id('expiration_year')
                                             ->autocomplete('cc-exp-year')
                                             ->placeholder(trans('texts.expiration_year'))

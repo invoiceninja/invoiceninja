@@ -46,7 +46,7 @@ class AccountGatewayService extends BaseService
                         return link_to("gateways/{$model->public_id}/edit", $model->name)->toHtml();
                     } else {
                         $accountGateway = AccountGateway::find($model->id);
-                        $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGING ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
+                        $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
                         $wepayAccountId = $accountGateway->getConfig()->accountId;
                         $linkText = $model->name;
                         $url = $endpoint.'account/'.$wepayAccountId;
@@ -116,7 +116,7 @@ class AccountGatewayService extends BaseService
                 uctrans('texts.manage_wepay_account'),
                 function ($model) {
                     $accountGateway = AccountGateway::find($model->id);
-                    $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGING ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
+                    $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
                     return array(
                         'url' => $endpoint.'account/'.$accountGateway->getConfig()->accountId,
                         'attributes' => 'target="_blank"'
