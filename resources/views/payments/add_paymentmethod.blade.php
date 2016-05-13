@@ -299,6 +299,15 @@
         {{ Former::populateField('state', 'NY') }}
         {{ Former::populateField('postal_code', '10118') }}
         {{ Former::populateField('country_id', 840) }}
+
+        <script>
+            $(function() {
+                $('#card_number').val('4242424242424242');
+                $('#cvv').val('1234');
+                $('#expiration_month').val(1);
+                $('#expiration_year').val({{ date_create()->modify('+3 year')->format('Y') }});
+            })
+        </script>
     @endif
 
 
