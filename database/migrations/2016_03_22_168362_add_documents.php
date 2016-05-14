@@ -19,7 +19,7 @@ class AddDocuments extends Migration {
 			$table->boolean('document_email_attachment')->default(1);
 		});
 		
-		DB::table('accounts')->update(array('logo' => ''));
+		\DB::table('accounts')->update(array('logo' => ''));
 		Schema::dropIfExists('documents');
 		Schema::create('documents', function($t)
         {

@@ -124,7 +124,8 @@ class StartupCheck
                 $licenseKey = Input::get('license_key');
                 $productId = Input::get('product_id');
 
-                $data = trim(file_get_contents((Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL)."/claim_license?license_key={$licenseKey}&product_id={$productId}"));
+                $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true"; 
+                $data = trim(file_get_contents($url));
                 
                 if ($productId == PRODUCT_INVOICE_DESIGNS) {
                     if ($data = json_decode($data)) {
@@ -140,11 +141,11 @@ class StartupCheck
                         Session::flash('message', trans('texts.bought_designs'));
                     }
                 } elseif ($productId == PRODUCT_WHITE_LABEL) {
-                    if ($data == 'valid') {
+                    if ($data && $data != RESULT_FAILURE) {
                         $company = Auth::user()->account->company;
                         $company->plan_term = PLAN_TERM_YEARLY;
-                        $company->plan_paid = date_create()->format('Y-m-d');
-                        $company->plan_expires = date_create()->modify('+1 year')->format('Y-m-d');
+                        $company->plan_paid = $data;
+                        $company->plan_expires = date_create($data)->modify('+1 year')->format('Y-m-d');
                         $company->plan = PLAN_WHITE_LABEL;
                         $company->save();
 

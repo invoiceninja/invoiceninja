@@ -22,6 +22,11 @@
         {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
+        {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? '1' : null) !!}
+        {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? '1' : null) !!}
+        {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
+        {!! Former::populateField('plaid_secret', $accountGateway->getPlaidSecret() ? str_repeat('*', strlen($accountGateway->getPlaidSecret())) : '') !!}
+        {!! Former::populateField('plaid_public_key', $accountGateway->getPlaidPublicKey() ? str_repeat('*', strlen($accountGateway->getPlaidPublicKey())) : '') !!}
 
         @if ($config)
             @foreach ($accountGateway->fields as $field => $junk)
@@ -45,7 +50,7 @@
 
     {!! Former::select('gateway_id')
         ->dataClass('gateway-dropdown')
-        ->addGroupClass('gateway-option')
+        ->addGroupClass('gateway-option gateway-choice')
         ->fromQuery($selectGateways, 'name', 'id')
         ->onchange('setFieldsShown()') !!}
 
@@ -84,10 +89,43 @@
 
             @if ($gateway->id == GATEWAY_STRIPE)
                 {!! Former::text('publishable_key') !!}
+            @endif
 
+            @if ($gateway->id == GATEWAY_STRIPE || $gateway->id == GATEWAY_BRAINTREE)
                 {!! Former::select('token_billing_type_id')
                         ->options($tokenBillingOptions)
                         ->help(trans('texts.token_billing_help')) !!}
+            @endif
+
+            @if ($gateway->id == GATEWAY_STRIPE)
+                <div class="form-group">
+                    <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
+                    <div class="col-lg-8 col-sm-8 help-block">
+                        <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to('/paymenthook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
+                        <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
+                        'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
+                    ]) !!}</strong></div>
+                    </div>
+                </div>
+            @endif
+
+            @if ($gateway->id == GATEWAY_BRAINTREE)
+                @if ($account->getGatewayByType(PAYMENT_TYPE_PAYPAL))
+                    {!! Former::checkbox('enable_paypal')
+                        ->label(trans('texts.paypal'))
+                        ->text(trans('texts.braintree_enable_paypal'))
+                        ->value(null)
+                        ->disabled(true)
+                        ->help(trans('texts.braintree_paypal_disabled_help')) !!}
+                @else
+                    {!! Former::checkbox('enable_paypal')
+                           ->label(trans('texts.paypal'))
+                           ->help(trans('texts.braintree_paypal_help', [
+                                'link'=>'<a href="https://articles.braintreepayments.com/guides/paypal/setup-guide" target="_blank">'.
+                                    trans('texts.braintree_paypal_help_link_text').'</a>'
+                            ]))
+                           ->text(trans('texts.braintree_enable_paypal')) !!}
+                @endif
             @endif
         </div>
 
@@ -108,6 +146,33 @@
             ->class('creditcard-types')
             ->addGroupClass('gateway-option')
     !!}
+    <div class="stripe-ach">
+        @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT))
+            {!! Former::checkbox('enable_ach')
+                ->label(trans('texts.ach'))
+                ->text(trans('texts.enable_ach'))
+                ->value(null)
+                ->disabled(true)
+                ->help(trans('texts.stripe_ach_disabled')) !!}
+        @else
+        {!! Former::checkbox('enable_ach')
+            ->label(trans('texts.ach'))
+            ->text(trans('texts.enable_ach'))
+            ->help(trans('texts.stripe_ach_help')) !!}
+        <div class="stripe-ach-options">
+            <div class="form-group">
+                <div class="col-sm-8 col-sm-offset-4">
+                    <h4>{{trans('texts.plaid')}}</h4>
+                    <div class="help-block">{{trans('texts.plaid_optional')}}</div>
+                </div>
+            </div>
+            {!! Former::text('plaid_client_id')->label(trans('texts.client_id')) !!}
+            {!! Former::text('plaid_secret')->label(trans('texts.secret')) !!}
+            {!! Former::text('plaid_public_key')->label(trans('texts.public_key'))
+                ->help(trans('texts.plaid_environment_help')) !!}
+        </div>
+        @endif
+    </div>
 
     </div>
     </div>
@@ -126,9 +191,11 @@
         var val = $('#payment_type_id').val();
         if (val == 'PAYMENT_TYPE_CREDIT_CARD') {
             $('.gateway-option').show();
+            $('.stripe-ach').hide();
             setFieldsShown();
         } else {
             $('.gateway-option').hide();
+            $('.stripe-ach').hide();
 
             if (val == 'PAYMENT_TYPE_PAYPAL') {
                 setFieldsShown({{ GATEWAY_PAYPAL_EXPRESS }});
@@ -136,6 +203,10 @@
                 setFieldsShown({{ GATEWAY_DWOLLA }});
             } else if (val == 'PAYMENT_TYPE_DIRECT_DEBIT') {
                 setFieldsShown({{ GATEWAY_GOCARDLESS }});
+            } else if (val == 'PAYMENT_TYPE_STRIPE') {
+                $('.gateway-option:not(.gateway-choice)').show();
+                $('.stripe-ach').show();
+                setFieldsShown({{ GATEWAY_STRIPE }});
             } else {
                 setFieldsShown({{ GATEWAY_BITPAY }});
             }
@@ -169,14 +240,22 @@
         }
     }
 
+    function enablePlaidSettings() {
+        var visible = $('#enable_ach').is(':checked');
+        $('.stripe-ach-options').toggle(visible);
+    }
+
     $(function() {
         setPaymentType();
+        enablePlaidSettings();
         @if ($accountGateway)
             $('.payment-type-option').hide();
         @endif
 
         $('#show_address').change(enableUpdateAddress);
         enableUpdateAddress();
+
+        $('#enable_ach').change(enablePlaidSettings)
     })
 
     </script>

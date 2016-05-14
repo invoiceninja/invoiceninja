@@ -48,6 +48,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'SecPay', 'provider' => 'SecPay', 'payment_library_id' => 1],
             ['name' => 'WeChat Express', 'provider' => 'WeChat_Express', 'payment_library_id' => 1],
             ['name' => 'WePay', 'provider' => 'WePay', 'payment_library_id' => 1],
+            ['name' => 'Braintree', 'provider' => 'Braintree', 'payment_library_id' => 1],
         ];
 
         foreach ($gateways as $gateway) {

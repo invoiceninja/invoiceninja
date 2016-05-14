@@ -69,7 +69,7 @@
     {{ Former::populateField('remember', 'true') }}
 
         <div class="modal-header">
-        @if (!isset($hideLogo) || !$hideLogo)
+        @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
             <a href="{{ NINJA_WEB_URL }}" target="_blank">
                 <img src="{{ asset('images/icon-login.png') }}" /> 
                 <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4>

@@ -7,11 +7,11 @@ use Auth;
 
 class DatatableService
 {
-    public function createDatatable($entityType, $query, $columns, $actions = null, $showCheckbox = true)
+    public function createDatatable($entityType, $query, $columns, $actions = null, $showCheckbox = true, $orderColumns = [])
     {
         $table = Datatable::query($query);
-        $orderColumns = [];
-
+        $calculateOrderColumns = empty($orderColumns);        
+        
         if ($actions && $showCheckbox) {
             $table->addColumn('checkbox', function ($model) {
                 $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
@@ -31,7 +31,9 @@ class DatatableService
 
             if ($visible) {
                 $table->addColumn($field, $value);
-                $orderColumns[] = $field;
+                if ($calculateOrderColumns) {
+                    $orderColumns[] = $field;
+                }
             }
         }
 

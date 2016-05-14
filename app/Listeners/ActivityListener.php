@@ -22,8 +22,11 @@ use App\Events\QuoteInvitationWasViewed;
 use App\Events\QuoteInvitationWasApproved;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
+use App\Events\PaymentWasRefunded;
+use App\Events\PaymentWasVoided;
 use App\Events\PaymentWasArchived;
 use App\Events\PaymentWasRestored;
+use App\Events\PaymentFailed;
 use App\Events\CreditWasCreated;
 use App\Events\CreditWasDeleted;
 use App\Events\CreditWasArchived;
@@ -304,6 +307,42 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_DELETE_PAYMENT,
+            $payment->amount,
+            $payment->amount * -1
+        );
+    }
+
+    public function refundedPayment(PaymentWasRefunded $event)
+    {
+        $payment = $event->payment;
+
+        $this->activityRepo->create(
+            $payment,
+            ACTIVITY_TYPE_REFUNDED_PAYMENT,
+            $event->refundAmount,
+            $event->refundAmount * -1
+        );
+    }
+
+    public function voidedPayment(PaymentWasVoided $event)
+    {
+        $payment = $event->payment;
+
+        $this->activityRepo->create(
+            $payment,
+            ACTIVITY_TYPE_VOIDED_PAYMENT,
+            $payment->amount,
+            $payment->amount * -1
+        );
+    }
+
+    public function failedPayment(PaymentFailed $event)
+    {
+        $payment = $event->payment;
+
+        $this->activityRepo->create(
+            $payment,
+            ACTIVITY_TYPE_FAILED_PAYMENT,
             $payment->amount,
             $payment->amount * -1
         );

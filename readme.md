@@ -31,10 +31,11 @@
 ### Features
 * Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
-* Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
+* Integrates with 50+ payment providers with [Omnipay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
 * Expenses and vendors
 * Tasks with time-tracking
+* File Attachments
 * Multi-user/multi-company support
 * Tax rates and payment terms
 * Reminder emails
