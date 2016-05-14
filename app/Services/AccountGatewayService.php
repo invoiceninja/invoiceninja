@@ -42,7 +42,9 @@ class AccountGatewayService extends BaseService
             [
                 'name',
                 function ($model) {
-                    if ($model->gateway_id != GATEWAY_WEPAY) {
+                    if ($model->deleted_at) {
+                        return $model->name;
+                    } elseif ($model->gateway_id != GATEWAY_WEPAY) {
                         return link_to("gateways/{$model->public_id}/edit", $model->name)->toHtml();
                     } else {
                         $accountGateway = AccountGateway::find($model->id);
@@ -89,20 +91,12 @@ class AccountGatewayService extends BaseService
     {
         return [
             [
-                uctrans('texts.edit_gateway'),
-                function ($model) {
-                    return URL::to("gateways/{$model->public_id}/edit");
-                },
-                function($model) {
-                    return $model->gateway_id != GATEWAY_WEPAY;
-                }
-            ], [
                 uctrans('texts.resend_confirmation_email'),
                 function ($model) {
                     return $model->resendConfirmationUrl;
                 },
                 function($model) {
-                    return $model->gateway_id == GATEWAY_WEPAY && !empty($model->resendConfirmationUrl);
+                    return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && !empty($model->resendConfirmationUrl);
                 }
             ], [
                 uctrans('texts.finish_setup'),
@@ -110,9 +104,17 @@ class AccountGatewayService extends BaseService
                     return $model->setupUrl;
                 },
                 function($model) {
-                    return $model->gateway_id == GATEWAY_WEPAY && !empty($model->setupUrl);
+                    return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && !empty($model->setupUrl);
                 }
             ] , [
+                uctrans('texts.edit_gateway'),
+                function ($model) {
+                    return URL::to("gateways/{$model->public_id}/edit");
+                },
+                function($model) {
+                    return !$model->deleted_at;
+                }
+            ], [
                 uctrans('texts.manage_wepay_account'),
                 function ($model) {
                     $accountGateway = AccountGateway::find($model->id);
@@ -123,7 +125,7 @@ class AccountGatewayService extends BaseService
                     );
                 },
                 function($model) {
-                    return $model->gateway_id == GATEWAY_WEPAY;
+                    return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY;
                 }
             ]
         ];

@@ -94,7 +94,7 @@
                 {!! Former::text('publishable_key') !!}
             @endif
 
-            @if ($gateway->id == GATEWAY_STRIPE || $gateway->id == GATEWAY_BRAINTREE)
+            @if ($gateway->id == GATEWAY_STRIPE || $gateway->id == GATEWAY_BRAINTREE || $gateway->id == GATEWAY_WEPAY)
                 {!! Former::select('token_billing_type_id')
                         ->options($tokenBillingOptions)
                         ->help(trans('texts.token_billing_help')) !!}

@@ -1311,6 +1311,8 @@ $LANG = array(
     'created_wepay_confirmation_required' => 'Please check your email and confirm your email address with WePay.',
     'switch_to_wepay' => 'Switch to WePay',
     'switch' => 'Switch',
+    'restore_account_gateway' => 'Restore Gateway',
+    'restored_account_gateway' => 'Successfully restored gateway',
 );
 
 return $LANG;
