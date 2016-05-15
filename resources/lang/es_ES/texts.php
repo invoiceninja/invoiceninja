@@ -271,7 +271,7 @@ return array(
     'email_salutation' => 'Estimado :name,',
     'email_signature' => 'Un cordial saludo,',
     'email_from' => 'El equipo de Invoice Ninja ',
-    'user_email_footer' => 'Para ajustar la configuración de las notificaciones de tu email, visita '.SITE_URL.'/settings/notifications',
+    'user_email_footer' => 'Para ajustar la configuración de las notificaciones de tu email, visita :link',
     'invoice_link_message' => 'Para visualizar la factura de cliente, haz clic en el enlace de abajo:',
     'notification_invoice_paid_subject' => 'La factura :invoice ha sido pagada por el cliente :client',
     'notification_invoice_sent_subject' => 'La factura :invoice ha sido enviada a el cliente :client',
@@ -280,7 +280,7 @@ return array(
     'notification_invoice_sent' => 'La factura :invoice por importe de :amount fue enviada al cliente :cliente.',
     'notification_invoice_viewed' => 'La factura :invoice por importe de :amount fue visualizada por el cliente :client.',
     'reset_password' => 'Puedes reconfigurar la contraseña de tu cuenta haciendo clic en el siguiente enlace:',
-    'reset_password_footer' => 'Si no has solicitado un cambio de contraseña, por favor contactate con nosostros: '.CONTACT_EMAIL,
+    'reset_password_footer' => 'Si no has solicitado un cambio de contraseña, por favor contactate con nosostros: :email',
 
     // Payment page
     'secure_payment' => 'Pago seguro',
@@ -289,22 +289,10 @@ return array(
     'expiration_year' => 'Año de caducidad',
     'cvv' => 'CVV',
 
-    // Security alerts
-    'confide' => array(
-    'too_many_attempts' => 'Demasiados intentos fallidos. Inténtalo de nuevo en un par de minutos.',
-    'wrong_credentials' => 'Contraseña o email incorrecto.',
-    'confirmation' => '¡Tu cuenta se ha confirmado!',
-    'wrong_confirmation' => 'Código de confirmación incorrecto.',
-    'password_forgot' => 'La información sobre el cambio de tu contraseña se ha enviado a tu dirección de correo electrónico.',
-    'password_reset' => 'Tu contraseña se ha cambiado con éxito.',
-    'wrong_password_reset' => 'Contraseña no válida. Inténtalo de nuevo',
-    ),
-
     // Pro Plan
-    'pro_plan' => [
-    'remove_logo' => ':link haz click para eliminar el logo de Invoice Ninja',
-    'remove_logo_link' => 'Haz click aquí',
-    ],
+    'pro_plan_remove_logo' => ':link haz click para eliminar el logo de Invoice Ninja',
+    'pro_plan_remove_logo_link' => 'Haz click aquí',
+
     'logout' => 'Cerrar sesión',
     'sign_up_to_save' => 'Registrate para guardar tu trabajo',
     'agree_to_terms' => 'Estoy de acuerdo con los términos de Invoice Ninja :terms',
@@ -414,7 +402,7 @@ return array(
     'active' => 'Activo',
     'pending' => 'Pendiente',
     'deleted_user' => 'Usario eliminado con éxito',
-    'limit_users' => 'Lo sentimos, esta acción excederá el límite de '.MAX_NUM_USERS.' usarios',
+    'limit_users' => 'Lo sentimos, esta acción excederá el límite de :limit usarios',
     'confirm_email_invoice' => '¿Estás seguro que quieres enviar esta factura?',
     'confirm_email_quote' => '¿Estás seguro que quieres enviar este presupuesto?',
     'confirm_recurring_email_invoice' => 'Se ha marcado esta factura como recurrente, estás seguro que quieres enviar esta factura?',
@@ -444,7 +432,7 @@ return array(
     'more_designs_title' => 'Diseños adicionales para factura',
     'more_designs_cloud_header' => 'Pase a Pro para añadir más diseños de facturas',
     'more_designs_cloud_text' => '',
-    'more_designs_self_host_header' => 'Obtenga 6 diseños más para facturas por sólo '.INVOICE_DESIGNS_PRICE, // comprobar
+    'more_designs_self_host_header' => 'Obtenga 6 diseños más para facturas por sólo $:price', // comprobar
     'more_designs_self_host_text' => '',
     'buy' => 'Comprar',
     'bought_designs' => 'Añadidos con exito los diseños de factura',
@@ -702,7 +690,7 @@ return array(
 
     'email_error' => 'Ocurrió un problema enviando el correo',
     'confirm_recurring_timing' => 'Nota: correos enviados cada hora en punto.',
-    'old_browser' => 'Por favor use un <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">navegador mas actual</a>',
+    'old_browser' => 'Por favor use un <a href=":link" target="_blank">navegador mas actual</a>',
     'payment_terms_help' => 'Establezca la fecha de pago de factura por defecto',
     'unlink_account' => 'Cuenta desvinculada',
     'unlink' => 'Desvincular',
@@ -799,11 +787,10 @@ return array(
     'invoice_quote_number' => 'Números de Factura y Presupuesto',
     'invoice_charges' => 'Cargos de factura',
 
-    'invitation_status' => [
-    'sent' => 'Correo Enviado',
-    'opened' => 'Correo abierto',
-    'viewed' => 'Factura vista',
-    ],
+    'invitation_status_sent' => 'Correo Enviado',
+    'invitation_status_opened' => 'Correo abierto',
+    'invitation_status_viewed' => 'Factura vista',
+
     'notification_invoice_bounced' => 'No podemos entregar la factura :invoice a :contact.',
     'notification_invoice_bounced_subject' => 'No se puede entregar la factura :invoice',
     'notification_quote_bounced' => 'No podemos entregar el presupuesto :invoice a :contact.',
@@ -924,14 +911,12 @@ return array(
     'no_mapper' => 'Mapeo no válido para el fichero',
     'invalid_csv_header' => 'Cabecera CSV no Válida',
 
-    'email_errors' => [
-    'inactive_client' => 'No se pueden enviar correos a Clientes inactivos',
-    'inactive_contact' => 'No se pueden enviar correos a Contactos inactivos',
-    'inactive_invoice' => 'No se pueden enviar correos de Facturas inactivas',
-    'user_unregistered' => 'Por favor registra tu cuenta para enviar correos',
-    'user_unconfirmed' => 'Por favor confirma tu cuenta para enviar correos',
-    'invalid_contact_email' => 'Correo de contacto no válido',
-    ],
+    'email_error_inactive_client' => 'No se pueden enviar correos a Clientes inactivos',
+    'email_error_inactive_contact' => 'No se pueden enviar correos a Contactos inactivos',
+    'email_error_inactive_invoice' => 'No se pueden enviar correos de Facturas inactivas',
+    'email_error_user_unregistered' => 'Por favor registra tu cuenta para enviar correos',
+    'email_error_user_unconfirmed' => 'Por favor confirma tu cuenta para enviar correos',
+    'email_error_invalid_contact_email' => 'Correo de contacto no válido',
 
     'client_portal' => 'Portal Cliente',
     'admin' => 'Admin.',
@@ -985,7 +970,7 @@ return array(
     'email_designs' => 'Diseños de correo',
     'assigned_when_sent' => 'Asignado al enviar',
 
-    'white_label_custom_css' => ':link para $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
+    'white_label_custom_css' => ':link para $:price to enable custom styling and help support our project.',
     'white_label_purchase_link' => 'Comprar licencia de marca blanca',
 
     // Expense / vendor
@@ -1091,7 +1076,7 @@ return array(
     'archived_bank_account' => 'Cuenta Bancaria archivada correctamente',
     'created_bank_account' => 'Cuenta Bancaria creada correctamente',
     'validate_bank_account' => 'Validar Cuenta Bancaria',
-    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href="'.OFX_HOME_URL.'" target="_blank">400+ US banks.</a>',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
     'bank_password_help' => 'Note: your password is transmitted securely and never stored on our servers.',
     'bank_password_warning' => 'Warning: your password may be transmitted in plain text, consider enabling HTTPS.',
     'username' => 'Usuario',
@@ -1126,7 +1111,7 @@ return array(
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
-    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the client portal and help support our project.',
 
     'navigation' => 'Navigation',
     'list_invoices' => 'List Invoices',
@@ -1157,14 +1142,14 @@ return array(
     'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password'=>'Generate password automatically',
     'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
-    
+
     'expired' => 'Expired',
     'invalid_card_number' => 'The credit card number is not valid.',
     'invalid_expiry' => 'The expiration date is not valid.',
     'invalid_cvv' => 'The CVV is not valid.',
     'cost' => 'Cost',
     'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
-    
+
     // User Permissions
     'owner' => 'Owner',
     'administrator' => 'Administrator',
@@ -1182,8 +1167,8 @@ return array(
     'create_all_help' => 'Allow user to create and modify records',
     'view_all_help' => 'Allow user to view records they didn\'t create',
     'edit_all_help' => 'Allow user to modify records they didn\'t create',
-    'view_payment' => 'View Payment', 
-   
+    'view_payment' => 'View Payment',
+
     'january' => 'January',
     'february' => 'February',
     'march' => 'March',
@@ -1209,17 +1194,15 @@ return array(
     'document_email_attachment' => 'Attach Documents',
     'download_documents' => 'Download Documents (:size)',
     'documents_from_expenses' => 'From Expenses:',
-    'dropzone' => array(// See http://www.dropzonejs.com/#config-dictDefaultMessage
-        'DefaultMessage' => 'Drop files or click to upload',
-        'FallbackMessage' => 'Your browser does not support drag\'n\'drop file uploads.',
-        'FallbackText' => 'Please use the fallback form below to upload your files like in the olden days.',
-        'FileTooBig' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
-        'InvalidFileType' => 'You can\'t upload files of this type.',
-        'ResponseError' => 'Server responded with {{statusCode}} code.',
-        'CancelUpload' => 'Cancel upload',
-        'CancelUploadConfirmation' => 'Are you sure you want to cancel this upload?',
-        'RemoveFile' => 'Remove file',
-    ),
+    'dropzone_default_message' => 'Drop files or click to upload',
+    'dropzone_fallback_message' => 'Your browser does not support drag\'n\'drop file uploads.',
+    'dropzone_fallback_text' => 'Please use the fallback form below to upload your files like in the olden days.',
+    'dropzone_file_too_big' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+    'dropzone_invalid_file_type' => 'You can\'t upload files of this type.',
+    'dropzone_response_error' => 'Server responded with {{statusCode}} code.',
+    'dropzone_cancel_upload' => 'Cancel upload',
+    'dropzone_cancel_upload_confirmation' => 'Are you sure you want to cancel this upload?',
+    'dropzone_remove_file' => 'Remove file',
     'documents' => 'Documents',
     'document_date' => 'Document Date',
     'document_size' => 'Size',
@@ -1228,11 +1211,11 @@ return array(
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-        
+
     // Plans
     'account_management' => 'Account Management',
     'plan_status' => 'Plan Status',
-    
+
     'plan_upgrade' => 'Upgrade',
     'plan_change' => 'Change Plan',
     'pending_change_to' => 'Changes To',
@@ -1262,9 +1245,9 @@ return array(
     'plan_paid' => 'Term Started',
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
-    
+
     'white_label_button' => 'White Label',
-    
+
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Enterprise Plan',
@@ -1284,5 +1267,5 @@ return array(
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
     'return_to_app' => 'Return to app',
-   
+
 );

@@ -261,7 +261,7 @@ return array(
     'email_salutation' => 'Beste :name,',
     'email_signature' => 'Met vriendelijke groeten,',
     'email_from' => 'Het InvoiceNinja Team',
-    'user_email_footer' => 'Ga alstublieft naar '.SITE_URL.'/settings/notifications om uw e-mail notificatie instellingen aan te passen',
+    'user_email_footer' => 'Ga alstublieft naar :link om uw e-mail notificatie instellingen aan te passen',
     'invoice_link_message' => 'Klik op volgende link om de Factuur van uw klant te bekijken:',
     'notification_invoice_paid_subject' => 'Factuur :invoice is betaald door :client',
     'notification_invoice_sent_subject' => 'Factuur :invoice is gezonden door :client',
@@ -270,7 +270,7 @@ return array(
     'notification_invoice_sent' => 'De volgende klant :client heeft Factuur :invoice voor :amount gemaild gekregen.',
     'notification_invoice_viewed' => 'De volgende klant :client heeft Factuur :invoice voor :amount bekeken.',
     'reset_password' => 'U kunt het wachtwoord van uw account resetten door op de volgende link te klikken:',
-    'reset_password_footer' => 'Neem a.u.b. contact op met onze helpdesk indien u deze wachtwoordreset niet heeft aangevraagd. Het e-mailadres van de helpdesk is '.CONTACT_EMAIL,
+    'reset_password_footer' => 'Neem a.u.b. contact op met onze helpdesk indien u deze wachtwoordreset niet heeft aangevraagd. Het e-mailadres van de helpdesk is :email',
 
     // Payment page
     'secure_payment' => 'Veilige betaling',
@@ -279,22 +279,9 @@ return array(
     'expiration_year' => 'Verval jaar',
     'cvv' => 'CVV',
 
-    // Security alerts
-    'security' => [
-    'too_many_attempts' => 'Te veel pogingen. Probeer opnieuw binnen enkele minuten.',
-    'wrong_credentials' => 'Verkeerd e-mailadres of wachtwoord.',
-    'confirmation' => 'Uw account is bevestigd!',
-    'wrong_confirmation' => 'Verkeerde bevestigingscode.',
-    'password_forgot' => 'De informatie over uw wachtwoordreset is verzonden naar uw e-mailadres.',
-    'password_reset' => 'Uw wachtwoord is succesvol aangepast.',
-    'wrong_password_reset' => 'Ongeldig wachtwoord. Probeer opnieuw',
-    ],
-
     // Pro Plan
-    'pro_plan' => [
-    'remove_logo' => ':link om het InvoiceNinja logo te verwijderen door het pro plan te nemen',
-    'remove_logo_link' => 'Klik hier',
-    ],
+    'pro_plan_remove_logo' => ':link om het InvoiceNinja logo te verwijderen door het pro plan te nemen',
+    'pro_plan_remove_logo_link' => 'Klik hier',
 
     'logout' => 'Afmelden',
     'sign_up_to_save' => 'Registreer u om uw werk op te slaan',
@@ -415,7 +402,7 @@ return array(
     'active' => 'Actief',
     'pending' => 'In afwachting',
     'deleted_user' => 'Gebruiker succesvol verwijderd',
-    'limit_users' => 'Sorry, dit zou de limiet van '.MAX_NUM_USERS.' gebruikers overschrijden',
+    'limit_users' => 'Sorry, dit zou de limiet van :limit gebruikers overschrijden',
 
     'confirm_email_invoice' => 'Weet u zeker dat u deze factuur wilt e-mailen?',
     'confirm_email_quote' => 'Weet u zeker dat u deze offerte wilt e-mailen?',
@@ -449,7 +436,7 @@ return array(
     'more_designs_title' => 'Aanvullende factuurontwerpen',
     'more_designs_cloud_header' => 'Neem Pro Plan voor meer factuurontwerpen',
     'more_designs_cloud_text' => '',
-    'more_designs_self_host_header' => 'Krijg 6 extra factuurontwerpen voor maar $'.INVOICE_DESIGNS_PRICE,
+    'more_designs_self_host_header' => 'Krijg 6 extra factuurontwerpen voor maar $:price',
     'more_designs_self_host_text' => '',
     'buy' => 'Koop',
     'bought_designs' => 'Aanvullende factuurontwerpen succesvol toegevoegd',
@@ -698,7 +685,7 @@ return array(
 
     'email_error' => 'Er was een probleem met versturen van de e-mail',
     'confirm_recurring_timing' => 'Opmerking: e-mails worden aan het begin van het uur verzonden.',
-    'old_browser' => 'Gebruik a.u.b. een <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">moderne browser</a>',
+    'old_browser' => 'Gebruik a.u.b. een <a href=":link" target="_blank">moderne browser</a>',
     'payment_terms_help' => 'Stel de standaard factuurvervaldatum in',
     'unlink_account' => 'Koppel account los',
     'unlink' => 'Koppel los',
@@ -795,11 +782,10 @@ return array(
     'invoice_quote_number' => 'Factuur- en offertenummers',
     'invoice_charges' => 'Facturatiekosten',
 
-    'invitation_status' => [
-    'sent' => 'E-mail verstuurd',
-    'opened' => 'E-mail geopend',
-    'viewed' => 'Factuur bekeken',
-    ],
+    'invitation_status_sent' => 'E-mail verstuurd',
+    'invitation_status_opened' => 'E-mail geopend',
+    'invitation_status_viewed' => 'Factuur bekeken',
+
     'notification_invoice_bounced' => 'We konden factuur :invoice niet afleveren bij :contact.',
     'notification_invoice_bounced_subject' => 'Factuur :invoice kon niet worden afgeleverd',
     'notification_quote_bounced' => 'We konden offerte :invoice niet afleveren bij :contact.',
@@ -921,14 +907,12 @@ return array(
     'no_mapper' => 'Geen geldige mapping voor bestand',
     'invalid_csv_header' => 'Ongeldige CSV kop',
 
-    'email_errors' => [
-    'inactive_client' => 'E-mails kunnen niet worden verstuurd naar inactieve klanten',
-    'inactive_contact' => 'E-mails kunnen niet worden verstuurd naar inactieve contactpersonen',
-    'inactive_invoice' => 'E-mails kunnen niet worden verstuurd naar inactieve facturen',
-    'user_unregistered' => 'Registreer een account om e-mails te kunnen versturen',
-    'user_unconfirmed' => 'Bevestig uw account om e-mails te kunnen versturen',
-    'invalid_contact_email' => 'Ongeldig e-mailadres van contactpersoon',
-    ],
+    'email_error_inactive_client' => 'E-mails kunnen niet worden verstuurd naar inactieve klanten',
+    'email_error_inactive_contact' => 'E-mails kunnen niet worden verstuurd naar inactieve contactpersonen',
+    'email_error_inactive_invoice' => 'E-mails kunnen niet worden verstuurd naar inactieve facturen',
+    'email_error_user_unregistered' => 'Registreer een account om e-mails te kunnen versturen',
+    'email_error_user_unconfirmed' => 'Bevestig uw account om e-mails te kunnen versturen',
+    'email_error_invalid_contact_email' => 'Ongeldig e-mailadres van contactpersoon',
 
     'client_portal' => 'Klantenportaal',
     'admin' => 'Admin',
@@ -982,7 +966,7 @@ return array(
     'email_designs' => 'E-mail Ontwerpen',
     'assigned_when_sent' => 'Toegwezen zodra verzonden',
 
-    'white_label_custom_css' => ':link voor $'.WHITE_LABEL_PRICE.' om eigen opmaak te gebruiken en ons project te ondersteunen.',
+    'white_label_custom_css' => ':link voor $:price om eigen opmaak te gebruiken en ons project te ondersteunen.',
     'white_label_purchase_link' => 'Koop een whitelabel licentie',
 
     // Expense / vendor
@@ -1086,7 +1070,7 @@ return array(
     'archived_bank_account' => 'Bankrekening succesvol gearchiveerd',
     'created_bank_account' => 'Bankrekening succesvol toegevoegd',
     'validate_bank_account' => 'Bankrekening valideren',
-    'bank_accounts_help' => 'Koppel een bankrekening om automatisch uitgaven en leveranciers te importeren. Ondersteund American Express en <a href="'.OFX_HOME_URL.'" target="_blank">400+ banken uit de VS.</a>',
+    'bank_accounts_help' => 'Koppel een bankrekening om automatisch uitgaven en leveranciers te importeren. Ondersteund American Express en <a href=":link" target="_blank">400+ banken uit de VS.</a>',
     'bank_password_help' => 'Opmerking: uw wachtwoord wordt beveiligd verstuurd en wordt nooit op onze servers opgeslagen.',
     'bank_password_warning' => 'Waarschuwing: uw wachtwoord wordt mogelijk als leesbare tekst verzonden, overweeg HTTPS in te schakelen.',
     'username' => 'Gebruikersnaam',
@@ -1121,7 +1105,7 @@ return array(
     'trial_call_to_action' => 'Start gratis probeerversie',
     'trial_success' => 'De gratis twee weken durende probeerversie van het pro plan is succesvol geactiveerd.',
     'overdue' => 'Verlopen',
-    'white_label_text' => 'Koop een &eacute;&eacute;n jaar geldige white label licentie van $'.WHITE_LABEL_PRICE.' om de Invoice Ninja logo\'s in het klantenportaal te verbergen en ons project te ondersteunen.',
+    'white_label_text' => 'Koop een &eacute;&eacute;n jaar geldige white label licentie van $:price om de Invoice Ninja logo\'s in het klantenportaal te verbergen en ons project te ondersteunen.',
 
     'navigation' => 'Navigatie',
     'list_invoices' => 'Toon Facturen',
@@ -1152,14 +1136,14 @@ return array(
     'enable_portal_password_help'=>'Geeft u de mogelijkheid om een wachtwoord in te stellen voor elke contactpersoon. Als er een wachtwoord is ingesteld moet de contactpersoon het wachtwoord invoeren voordat deze facturen kan bekijken.',
     'send_portal_password'=>'Wachtwoord automatisch genereren',
     'send_portal_password_help'=>'Als er geen wachtwoord is ingesteld zal deze automatisch worden gegenereerd en verzonden bij de eerste factuur.',
-    
+
     'expired' => 'Verlopen',
     'invalid_card_number' => 'Het creditcardnummer is niet geldig.',
     'invalid_expiry' => 'De verloopdatum is niet geldig.',
     'invalid_cvv' => 'Het CVV-nummer is niet geldig.',
     'cost' => 'Kosten',
     'create_invoice_for_sample' => 'Opmerking: maak uw eerste factuur om hier een voorbeeld te zien.',
-    
+
     // User Permissions
     'owner' => 'Eigenaar',
     'administrator' => 'Beheerder',
@@ -1178,7 +1162,7 @@ return array(
     'view_all_help' => 'Gebruiker toestemming geven om regels te bekijken die hij niet heeft gemaakt',
     'edit_all_help' => 'Gebruiker toestemming geven om regels te bewerken die hij niet heeft gemaakt',
     'view_payment' => 'Betaling bekijken',
-   
+
     'january' => 'januari',
     'february' => 'februari',
     'march' => 'maart',
@@ -1204,17 +1188,15 @@ return array(
     'document_email_attachment' => 'Attach Documents',
     'download_documents' => 'Download Documents (:size)',
     'documents_from_expenses' => 'From Expenses:',
-    'dropzone' => array(// See http://www.dropzonejs.com/#config-dictDefaultMessage
-        'DefaultMessage' => 'Drop files or click to upload',
-        'FallbackMessage' => 'Your browser does not support drag\'n\'drop file uploads.',
-        'FallbackText' => 'Please use the fallback form below to upload your files like in the olden days.',
-        'FileTooBig' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
-        'InvalidFileType' => 'You can\'t upload files of this type.',
-        'ResponseError' => 'Server responded with {{statusCode}} code.',
-        'CancelUpload' => 'Cancel upload',
-        'CancelUploadConfirmation' => 'Are you sure you want to cancel this upload?',
-        'RemoveFile' => 'Remove file',
-    ),
+    'dropzone_default_message' => 'Drop files or click to upload',
+    'dropzone_fallback_message' => 'Your browser does not support drag\'n\'drop file uploads.',
+    'dropzone_fallback_text' => 'Please use the fallback form below to upload your files like in the olden days.',
+    'dropzone_file_too_big' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+    'dropzone_invalid_file_type' => 'You can\'t upload files of this type.',
+    'dropzone_response_error' => 'Server responded with {{statusCode}} code.',
+    'dropzone_cancel_upload' => 'Cancel upload',
+    'dropzone_cancel_upload_confirmation' => 'Are you sure you want to cancel this upload?',
+    'dropzone_remove_file' => 'Remove file',
     'documents' => 'Documents',
     'document_date' => 'Document Date',
     'document_size' => 'Size',
@@ -1223,11 +1205,11 @@ return array(
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-        
+
     // Plans
     'account_management' => 'Account Management',
     'plan_status' => 'Plan Status',
-    
+
     'plan_upgrade' => 'Upgrade',
     'plan_change' => 'Change Plan',
     'pending_change_to' => 'Changes To',
@@ -1257,9 +1239,9 @@ return array(
     'plan_paid' => 'Term Started',
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
-    
+
     'white_label_button' => 'White Label',
-    
+
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Enterprise Plan',
@@ -1279,5 +1261,5 @@ return array(
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
     'return_to_app' => 'Return to app',
-   
+
 );

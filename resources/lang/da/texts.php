@@ -262,7 +262,7 @@ return array(
     'email_salutation' => 'Kære :name,',
     'email_signature' => 'Med venlig hilsen,',
     'email_from' => 'Invoice Ninja Teamet',
-    'user_email_footer' => 'For at justere varslings indstillingene besøg venligst'.SITE_URL.'/settings/notifications',
+    'user_email_footer' => 'For at justere varslings indstillingene besøg venligst :link',
     'invoice_link_message' => 'Hvis du vil se din klient faktura klik på linket under:',
     'notification_invoice_paid_subject' => 'Faktura :invoice betalt af :client',
     'notification_invoice_sent_subject' => 'Faktura :invoice sendt til :client',
@@ -271,7 +271,7 @@ return array(
     'notification_invoice_sent' => 'En e-mail er blevet sendt til :client med faktura :invoice pålydende :amount.',
     'notification_invoice_viewed' => ':client har set faktura :invoice pålydende :amount.',
     'reset_password' => 'Du kan nulstille din adgangskode ved at besøge følgende link:',
-    'reset_password_footer' => 'Hvis du ikke bad om at få nulstillet din adgangskode kontakt venligst kundeservice: '.CONTACT_EMAIL,
+    'reset_password_footer' => 'Hvis du ikke bad om at få nulstillet din adgangskode kontakt venligst kundeservice: :email',
 
     // Payment page
     'secure_payment' => 'Sikker betaling',
@@ -280,22 +280,9 @@ return array(
     'expiration_year' => 'Udløbsår',
     'cvv' => 'Kontrolcifre',
 
-    // Security alerts
-    'security' => [
-    'too_many_attempts' => 'For mange forsøg. Prøv igen om nogen få minutter.',
-    'wrong_credentials' => 'Forkert e-mail eller adgangskode.',
-    'confirmation' => 'Din konto har blevet bekræftet!',
-    'wrong_confirmation' => 'Forkert bekræftelseskode.',
-    'password_forgot' => 'Informationen om nulstilling af din adgangskode er blevet sendt til din e-mail.',
-    'password_reset' => 'Adgangskode ændret',
-    'wrong_password_reset' => 'Ugyldig adgangskode. Prøv på ny',
-    ],
-
     // Pro Plan
-    'pro_plan' => [
-    'remove_logo' => ':link for at fjerne Invoice Ninja-logoet, opgrader til en Pro Plan',
-    'remove_logo_link' => 'Klik her',
-    ],
+    'pro_plan_remove_logo' => ':link for at fjerne Invoice Ninja-logoet, opgrader til en Pro Plan',
+    'pro_plan_remove_logo_link' => 'Klik her',
 
     'logout' => 'Log ud',
     'sign_up_to_save' => 'Registrer dig for at gemme dit arbejde',
@@ -419,7 +406,7 @@ return array(
     'active' => 'Aktiv',
     'pending' => 'Afventer',
     'deleted_user' => 'Bruger slettet',
-    'limit_users' => 'Desværre, dette vil overstige grænsen på '.MAX_NUM_USERS.' brugere',
+    'limit_users' => 'Desværre, dette vil overstige grænsen på :limit brugere',
 
     'confirm_email_invoice' => 'Er du sikker på at du vil sende en e-mail med denne faktura?',
     'confirm_email_quote' => 'Er du sikker på du ville sende en e-mail med dette tilbud?',
@@ -453,7 +440,7 @@ return array(
     'more_designs_title' => 'Yderligere faktura designs',
     'more_designs_cloud_header' => 'Skift til Pro for flere faktura designs',
     'more_designs_cloud_text' => '',
-    'more_designs_self_host_header' => 'Få 6 flere faktura designs for kun $'.INVOICE_DESIGNS_PRICE,
+    'more_designs_self_host_header' => 'Få 6 flere faktura designs for kun $:price',
     'more_designs_self_host_text' => '',
     'buy' => 'Køb',
     'bought_designs' => 'Yderligere faktura designs tilføjet',
@@ -704,7 +691,7 @@ return array(
     'email_error' => 'Der opstod et problem ved afsendelse af e-mailen',
     'created_by_recurring' => 'Oprettet af gentaget faktura nr.: :invoice',
     'confirm_recurring_timing' => 'Bemærk: e-mail bliver sendt i starten af timen.',
-    'old_browser' => 'Din browser er registreret som værende af ældre dato og den vil ikke kunne bruges, skift til en <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">nyere version browser</a>',
+    'old_browser' => 'Din browser er registreret som værende af ældre dato og den vil ikke kunne bruges, skift til en <a href=":link" target="_blank">nyere version browser</a>',
     'payment_terms_help' => 'Sætter standard fakturaens forfalds dato',
     'unlink_account' => 'Fjern sammenkædning af konti',
     'unlink' => 'Fjern sammenkædning',
@@ -800,11 +787,10 @@ return array(
     'invoice_quote_number' => 'Invoice and Quote Numbers',
     'invoice_charges' => 'Invoice Charges',
 
-    'invitation_status' => [
-    'sent' => 'Email Sent',
-    'opened' => 'Email Openend',
-    'viewed' => 'Invoice Viewed',
-    ],
+    'invitation_status_sent' => 'Email Sent',
+    'invitation_status_opened' => 'Email Openend',
+    'invitation_status_viewed' => 'Invoice Viewed',
+
     'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact.',
     'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
     'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
@@ -926,14 +912,12 @@ return array(
     'no_mapper' => 'No valid mapping for file',
     'invalid_csv_header' => 'Invalid CSV Header',
 
-    'email_errors' => [
-    'inactive_client' => 'Emails can not be sent to inactive clients',
-    'inactive_contact' => 'Emails can not be sent to inactive contacts',
-    'inactive_invoice' => 'Emails can not be sent to inactive invoices',
-    'user_unregistered' => 'Please register your account to send emails',
-    'user_unconfirmed' => 'Please confirm your account to send emails',
-    'invalid_contact_email' => 'Invalid contact email',
-    ],
+    'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
+    'email_error_inactive_contact' => 'Emails can not be sent to inactive contacts',
+    'email_error_inactive_invoice' => 'Emails can not be sent to inactive invoices',
+    'email_error_user_unregistered' => 'Please register your account to send emails',
+    'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
+    'email_error_invalid_contact_email' => 'Invalid contact email',
 
     'client_portal' => 'Client Portal',
     'admin' => 'Admin',
@@ -987,7 +971,7 @@ return array(
     'email_designs' => 'Email Designs',
     'assigned_when_sent' => 'Assigned when sent',
 
-    'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
+    'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
     'white_label_purchase_link' => 'Purchase a white label license',
 
     // Expense / vendor
@@ -1094,7 +1078,7 @@ return array(
     'archived_bank_account' => 'Successfully archived bank account',
     'created_bank_account' => 'Successfully created bank account',
     'validate_bank_account' => 'Validate Bank Account',
-    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href="'.OFX_HOME_URL.'" target="_blank">400+ US banks.</a>',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
     'bank_password_help' => 'Note: your password is transmitted securely and never stored on our servers.',
     'bank_password_warning' => 'Warning: your password may be transmitted in plain text, consider enabling HTTPS.',
     'username' => 'Username',
@@ -1129,7 +1113,7 @@ return array(
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
-    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the client portal and help support our project.',
 
     'navigation' => 'Navigation',
     'list_invoices' => 'List Invoices',
@@ -1160,14 +1144,14 @@ return array(
     'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password'=>'Generate password automatically',
     'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
-    
+
     'expired' => 'Expired',
     'invalid_card_number' => 'The credit card number is not valid.',
     'invalid_expiry' => 'The expiration date is not valid.',
     'invalid_cvv' => 'The CVV is not valid.',
     'cost' => 'Cost',
     'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
-    
+
     // User Permissions
     'owner' => 'Owner',
     'administrator' => 'Administrator',
@@ -1185,8 +1169,8 @@ return array(
     'create_all_help' => 'Allow user to create and modify records',
     'view_all_help' => 'Allow user to view records they didn\'t create',
     'edit_all_help' => 'Allow user to modify records they didn\'t create',
-    'view_payment' => 'View Payment', 
-   
+    'view_payment' => 'View Payment',
+
     'january' => 'January',
     'february' => 'February',
     'march' => 'March',
@@ -1212,17 +1196,15 @@ return array(
     'document_email_attachment' => 'Attach Documents',
     'download_documents' => 'Download Documents (:size)',
     'documents_from_expenses' => 'From Expenses:',
-    'dropzone' => array(// See http://www.dropzonejs.com/#config-dictDefaultMessage
-        'DefaultMessage' => 'Drop files or click to upload',
-        'FallbackMessage' => 'Your browser does not support drag\'n\'drop file uploads.',
-        'FallbackText' => 'Please use the fallback form below to upload your files like in the olden days.',
-        'FileTooBig' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
-        'InvalidFileType' => 'You can\'t upload files of this type.',
-        'ResponseError' => 'Server responded with {{statusCode}} code.',
-        'CancelUpload' => 'Cancel upload',
-        'CancelUploadConfirmation' => 'Are you sure you want to cancel this upload?',
-        'RemoveFile' => 'Remove file',
-    ),
+    'dropzone_default_message' => 'Drop files or click to upload',
+    'dropzone_fallback_message' => 'Your browser does not support drag\'n\'drop file uploads.',
+    'dropzone_fallback_text' => 'Please use the fallback form below to upload your files like in the olden days.',
+    'dropzone_file_too_big' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+    'dropzone_invalid_file_type' => 'You can\'t upload files of this type.',
+    'dropzone_response_error' => 'Server responded with {{statusCode}} code.',
+    'dropzone_cancel_upload' => 'Cancel upload',
+    'dropzone_cancel_upload_confirmation' => 'Are you sure you want to cancel this upload?',
+    'dropzone_remove_file' => 'Remove file',
     'documents' => 'Documents',
     'document_date' => 'Document Date',
     'document_size' => 'Size',
@@ -1231,11 +1213,11 @@ return array(
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-        
+
     // Plans
     'account_management' => 'Account Management',
     'plan_status' => 'Plan Status',
-    
+
     'plan_upgrade' => 'Upgrade',
     'plan_change' => 'Change Plan',
     'pending_change_to' => 'Changes To',
@@ -1265,9 +1247,9 @@ return array(
     'plan_paid' => 'Term Started',
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
-    
+
     'white_label_button' => 'White Label',
-    
+
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Enterprise Plan',
@@ -1287,5 +1269,5 @@ return array(
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
     'return_to_app' => 'Return to app',
-       
+
 );

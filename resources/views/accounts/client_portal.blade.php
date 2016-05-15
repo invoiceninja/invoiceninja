@@ -6,7 +6,7 @@
 <link href='https://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
 @stop
 
-@section('content')	
+@section('content')
 @parent
 
 {!! Former::open_for_files()
@@ -21,7 +21,7 @@
 @if (!Utils::isNinja() && !Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
 <div class="alert alert-warning" style="font-size:larger;">
 	<center>
-		{!! trans('texts.white_label_custom_css', ['link'=>'<a href="#" onclick="$(\'#whiteLabelModal\').modal(\'show\');">'.trans('texts.white_label_purchase_link').'</a>']) !!}
+		{!! trans('texts.white_label_custom_css', ['price' => WHITE_LABEL_PRICE, 'link'=>'<a href="#" onclick="$(\'#whiteLabelModal\').modal(\'show\');">'.trans('texts.white_label_purchase_link').'</a>']) !!}
 	</center>
 </div>
 @endif
@@ -92,5 +92,5 @@
 		$('#send_portal_password').prop('disabled', !checked);
 	}
 	fixCheckboxes();
-</script> 
+</script>
 @stop

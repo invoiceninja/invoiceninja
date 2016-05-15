@@ -993,40 +993,26 @@ $LANG = array(
     'overdue' => 'Overdue',
 
 
-    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
-    'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/settings/notifications',
-    'reset_password_footer' => 'If you did not request this password reset please email our support: '.CONTACT_EMAIL,
-    'limit_users' => 'Sorry, this will exceed the limit of '.MAX_NUM_USERS.' users',
-    'more_designs_self_host_header' => 'Get 6 more invoice designs for just $'.INVOICE_DESIGNS_PRICE,
-    'old_browser' => 'Please use a <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">newer browser</a>',
-    'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
-    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href="'.OFX_HOME_URL.'" target="_blank">400+ US banks.</a>',
-    'security' => [
-        'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
-        'wrong_credentials' => 'メールアドレスもしくはパスワードが正しくありません。',
-        'confirmation' => 'アカウントが確認されました！',
-        'wrong_confirmation' => '確認コードが違っています。',
-        'password_forgot' => 'The information regarding password reset was sent to your email.',
-        'password_reset' => 'パスワードが変更されました。',
-        'wrong_password_reset' => 'パスワードが正しくありません。もう一度入力してください。',
-    ],
-    'pro_plan' => [
-        'remove_logo' => 'プロプランに加入して、Invoice Ninjaのロゴを消す。 :link',
-        'remove_logo_link' => 'こちらをクリック',
-    ],
-    'invitation_status' => [
-        'sent' => 'メール送付済',
-        'opened' => 'メール開封済',
-        'viewed' => '請求書閲覧済',
-    ],
-    'email_errors' => [
-        'inactive_client' => 'Emails can not be sent to inactive clients',
-        'inactive_contact' => 'Emails can not be sent to inactive contacts',
-        'inactive_invoice' => 'Emails can not be sent to inactive invoices',
-        'user_unregistered' => 'Please register your account to send emails',
-        'user_unconfirmed' => 'Please confirm your account to send emails',
-        'invalid_contact_email' => 'Invalid contact email',
-    ],
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the client portal and help support our project.',
+    'user_email_footer' => 'To adjust your email notification settings please visit :link',
+    'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
+    'limit_users' => 'Sorry, this will exceed the limit of :limit users',
+    'more_designs_self_host_header' => 'Get 6 more invoice designs for just $:price',
+    'old_browser' => 'Please use a <a href=":link" target="_blank">newer browser</a>',
+    'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
+
+    'pro_plan_remove_logo' => 'プロプランに加入して、Invoice Ninjaのロゴを消す。 :link',
+    'pro_plan_remove_logo_link' => 'こちらをクリック',
+    'invitation_status_sent' => 'メール送付済',
+    'invitation_status_opened' => 'メール開封済',
+    'invitation_status_viewed' => '請求書閲覧済',
+    'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
+    'email_error_inactive_contact' => 'Emails can not be sent to inactive contacts',
+    'email_error_inactive_invoice' => 'Emails can not be sent to inactive invoices',
+    'email_error_user_unregistered' => 'Please register your account to send emails',
+    'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
+    'email_error_invalid_contact_email' => 'Invalid contact email',
 
     'navigation' => 'ナビゲーション',
     'list_invoices' => '請求書一覧',
@@ -1057,14 +1043,14 @@ $LANG = array(
     'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password'=>'Generate password automatically',
     'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
-    
+
     'expired' => 'Expired',
     'invalid_card_number' => 'The credit card number is not valid.',
     'invalid_expiry' => 'The expiration date is not valid.',
     'invalid_cvv' => 'The CVV is not valid.',
     'cost' => 'Cost',
     'create_invoice_for_sample' => 'Note: create your first invoice to see a preview here.',
-    
+
     // User Permissions
     'owner' => 'Owner',
     'administrator' => 'Administrator',
@@ -1082,8 +1068,8 @@ $LANG = array(
     'create_all_help' => 'Allow user to create and modify records',
     'view_all_help' => 'Allow user to view records they didn\'t create',
     'edit_all_help' => 'Allow user to modify records they didn\'t create',
-    'view_payment' => 'View Payment', 
-   
+    'view_payment' => 'View Payment',
+
     'january' => 'January',
     'february' => 'February',
     'march' => 'March',
@@ -1109,17 +1095,15 @@ $LANG = array(
     'document_email_attachment' => 'Attach Documents',
     'download_documents' => 'Download Documents (:size)',
     'documents_from_expenses' => 'From Expenses:',
-    'dropzone' => array(// See http://www.dropzonejs.com/#config-dictDefaultMessage
-        'DefaultMessage' => 'Drop files or click to upload',
-        'FallbackMessage' => 'Your browser does not support drag\'n\'drop file uploads.',
-        'FallbackText' => 'Please use the fallback form below to upload your files like in the olden days.',
-        'FileTooBig' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
-        'InvalidFileType' => 'You can\'t upload files of this type.',
-        'ResponseError' => 'Server responded with {{statusCode}} code.',
-        'CancelUpload' => 'Cancel upload',
-        'CancelUploadConfirmation' => 'Are you sure you want to cancel this upload?',
-        'RemoveFile' => 'Remove file',
-    ),
+    'dropzone_default_message' => 'Drop files or click to upload',
+    'dropzone_fallback_message' => 'Your browser does not support drag\'n\'drop file uploads.',
+    'dropzone_fallback_text' => 'Please use the fallback form below to upload your files like in the olden days.',
+    'dropzone_file_too_big' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+    'dropzone_invalid_file_type' => 'You can\'t upload files of this type.',
+    'dropzone_response_error' => 'Server responded with {{statusCode}} code.',
+    'dropzone_cancel_upload' => 'Cancel upload',
+    'dropzone_cancel_upload_confirmation' => 'Are you sure you want to cancel this upload?',
+    'dropzone_remove_file' => 'Remove file',
     'documents' => 'Documents',
     'document_date' => 'Document Date',
     'document_size' => 'Size',
@@ -1128,11 +1112,11 @@ $LANG = array(
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-        
+
     // Plans
     'account_management' => 'Account Management',
     'plan_status' => 'Plan Status',
-    
+
     'plan_upgrade' => 'Upgrade',
     'plan_change' => 'Change Plan',
     'pending_change_to' => 'Changes To',
@@ -1162,9 +1146,9 @@ $LANG = array(
     'plan_paid' => 'Term Started',
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
-    
+
     'white_label_button' => 'White Label',
-    
+
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Enterprise Plan',
@@ -1184,8 +1168,8 @@ $LANG = array(
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
     'return_to_app' => 'Return to app',
-   
-    
+
+
 );
 
 return $LANG;

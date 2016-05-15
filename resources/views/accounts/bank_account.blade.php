@@ -37,7 +37,7 @@
                             ->data_bind('combobox: bank_id')
                             ->addOption('', '')
                             ->fromQuery($banks, 'name', 'id')
-                            ->blockHelp('texts.bank_accounts_help')  !!}
+                            ->blockHelp(trans('texts.bank_accounts_help', ['link' => OFX_HOME_URL]))  !!}
                 @endif
 
                 {!! Former::password('bank_username')

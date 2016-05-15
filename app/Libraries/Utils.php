@@ -152,11 +152,11 @@ class Utils
     {
         return App::getLocale() == 'en';
     }
-    
+
     public static function getLocaleRegion()
     {
-        $parts = explode('_', App::getLocale()); 
-        
+        $parts = explode('_', App::getLocale());
+
         return count($parts) ? $parts[0] : 'en';
     }
 
@@ -284,7 +284,7 @@ class Utils
         if ($info) {
             Log::info($error."\n", $data);
         } else {
-            Log::error($error."\n", $data);    
+            Log::error($error."\n", $data);
         }
 
         /*
@@ -311,12 +311,12 @@ class Utils
 
     public static function getFromCache($id, $type) {
         $cache = Cache::get($type);
-        
+
         if ( ! $cache) {
             static::logError("Cache for {$type} is not set");
             return null;
         }
-        
+
         $data = $cache->filter(function($item) use ($id) {
             return $item->id == $id;
         });
@@ -426,7 +426,12 @@ class Utils
 
     public static function toCamelCase($string)
     {
-        return lcfirst(str_replace(' ', '', ucwords(str_replace('_', ' ', $string))));
+        return lcfirst(static::toClassCase($string));
+    }
+
+    public static function toClassCase($string)
+    {
+        return str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
     }
 
     public static function timestampToDateTimeString($timestamp)

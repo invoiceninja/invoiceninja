@@ -992,40 +992,26 @@ $LANG = array(
     'overdue' => 'Zaległy',
 
 
-    'white_label_text' => 'Kup white label licencję na JEDEN ROK za $'.WHITE_LABEL_PRICE.' aby usunąć z portalu klienta logo Invoice Ninja i wesprzeć nasz projekt.',
-    'user_email_footer' => 'Aby dostosować ustawienia powiadomień email, zobacz '.SITE_URL.'/settings/notifications',
-    'reset_password_footer' => 'If you did not request this password reset please email our support: '.CONTACT_EMAIL,
-    'limit_users' => 'Sorry, this will exceed the limit of '.MAX_NUM_USERS.' users',
-    'more_designs_self_host_header' => 'Kup 6 szablonów faktur za jedyne $'.INVOICE_DESIGNS_PRICE,
-    'old_browser' => 'Proszę użyć <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">nowszej przeglądarki</a>',
-    'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
-    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href="'.OFX_HOME_URL.'" target="_blank">400+ US banks.</a>',
-    'security' => [
-        'too_many_attempts' => 'Zbyt wiele prób. Spróbuj ponownie za kilka minut.',
-        'wrong_credentials' => 'Nieprawidłowy e-mail lub hasło.',
-        'confirmation' => 'Twoje konto zostało potwierdzone!',
-        'wrong_confirmation' => 'Błędny kod potwierdzający.',
-        'password_forgot' => 'Informacje dotyczące resetowania hasła zostały wysłane na Twój adres e-mail.',
-        'password_reset' => 'Twoje hasło zostało zmienione.',
-        'wrong_password_reset' => 'Nieprawidłowe hasło. Spróbuj ponownie',
-    ],
-    'pro_plan' => [
-        'remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
-        'remove_logo_link' => 'Kliknij tutaj',
-    ],
-    'invitation_status' => [
-        'sent' => 'E-mail wysłany',
-        'opened' => 'Email otwarty',
-        'viewed' => 'Przeglądana faktura',
-    ],
-    'email_errors' => [
-        'inactive_client' => 'E-maile nie mogą być wysyłane do klientów nieaktywnych',
-        'inactive_contact' => 'E-mail nie może zostać wysłany do nieaktywnych kontaktów',
-        'inactive_invoice' => 'E-mail nie może zostać wysłany do nieaktywnych faktur',
-        'user_unregistered' => 'Proszę zarejestrować swoje konto, aby wysyłać e-maile',
-        'user_unconfirmed' => 'Proszę potwierdzić swoje konto do wysyłania e-maili',
-        'invalid_contact_email' => 'Nieprawidłowy e-mail kontaktowy',
-    ],
+    'white_label_text' => 'Kup white label licencję na JEDEN ROK za $:price aby usunąć z portalu klienta logo Invoice Ninja i wesprzeć nasz projekt.',
+    'user_email_footer' => 'Aby dostosować ustawienia powiadomień email, zobacz :link',
+    'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
+    'limit_users' => 'Sorry, this will exceed the limit of :limit users',
+    'more_designs_self_host_header' => 'Kup 6 szablonów faktur za jedyne $:price',
+    'old_browser' => 'Proszę użyć <a href=":link" target="_blank">nowszej przeglądarki</a>',
+    'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
+
+    'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
+    'pro_plan_remove_logo_link' => 'Kliknij tutaj',
+    'invitation_status_sent' => 'E-mail wysłany',
+    'invitation_status_opened' => 'Email otwarty',
+    'invitation_status_viewed' => 'Przeglądana faktura',
+    'email_error_inactive_client' => 'E-maile nie mogą być wysyłane do klientów nieaktywnych',
+    'email_error_inactive_contact' => 'E-mail nie może zostać wysłany do nieaktywnych kontaktów',
+    'email_error_inactive_invoice' => 'E-mail nie może zostać wysłany do nieaktywnych faktur',
+    'email_error_user_unregistered' => 'Proszę zarejestrować swoje konto, aby wysyłać e-maile',
+    'email_error_user_unconfirmed' => 'Proszę potwierdzić swoje konto do wysyłania e-maili',
+    'email_error_invalid_contact_email' => 'Nieprawidłowy e-mail kontaktowy',
 
     'navigation' => 'Nawigacja',
     'list_invoices' => 'Lista faktur',
@@ -1054,14 +1040,14 @@ $LANG = array(
     'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
     'send_portal_password'=>'Generate password automatically',
     'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
-    
+
     'expired' => 'Wygasło',
     'invalid_card_number' => 'Numer karty kredytowej jest nieprawidłowy.',
     'invalid_expiry' => 'Data ważności jest nieprawidłowa.',
     'invalid_cvv' => 'Kod CVV jest nieprawidłowy.',
     'cost' => 'Koszt',
     'create_invoice_for_sample' => 'Notatka: aby zobaczyć podgląd, utwórz fakturę.',
-    
+
     // User Permissions
     'owner' => 'Właściciel',
     'administrator' => 'Administrator',
@@ -1080,7 +1066,7 @@ $LANG = array(
     'view_all_help' => 'Allow user to view records they didn\'t create',
     'edit_all_help' => 'Allow user to modify records they didn\'t create',
     'view_payment' => 'Zobacz wpłatę',
-   
+
     'january' => 'Styczeń',
     'february' => 'Luty',
     'march' => 'Marzec',
@@ -1093,7 +1079,7 @@ $LANG = array(
     'october' => 'Październik',
     'november' => 'Listopad',
     'december' => 'Grudzień',
-    
+
     // Documents
     'documents_header' => 'Dokumenty:',
     'email_documents_header' => 'Dokumenty:',
@@ -1106,17 +1092,15 @@ $LANG = array(
     'document_email_attachment' => 'Załącz dokumenty',
     'download_documents' => 'Ściągnij dokumenty (:size)',
     'documents_from_expenses' => 'From Expenses:',
-    'dropzone' => array(// See http://www.dropzonejs.com/#config-dictDefaultMessage
-        'DefaultMessage' => 'Upuść pliki lub kliknij, aby przesłać',
-        'FallbackMessage' => 'Your browser does not support drag\'n\'drop file uploads.',
-        'FallbackText' => 'Please use the fallback form below to upload your files like in the olden days.',
-        'FileTooBig' => 'Plik jest zbyt duży ({{filesize}}MiB). Max rozmiar pliku: {{maxFilesize}}MiB.',
-        'InvalidFileType' => 'Nie możesz przesłać plików tego typu.',
-        'ResponseError' => 'Serwer zwraca {{statusCode}} kod.',
-        'CancelUpload' => 'Anuluj przesyłanie',
-        'CancelUploadConfirmation' => 'Czy na pewno chcesz anulować przesyłanie pliku?',
-        'RemoveFile' => 'Usuń plik',
-    ),
+    'dropzone_default_message' => 'Upuść pliki lub kliknij, aby przesłać',
+    'dropzone_fallback_message' => 'Your browser does not support drag\'n\'drop file uploads.',
+    'dropzone_fallback_text' => 'Please use the fallback form below to upload your files like in the olden days.',
+    'dropzone_file_too_big' => 'Plik jest zbyt duży ({{filesize}}MiB). Max rozmiar pliku: {{maxFilesize}}MiB.',
+    'dropzone_invalid_file_type' => 'Nie możesz przesłać plików tego typu.',
+    'dropzone_response_error' => 'Serwer zwraca {{statusCode}} kod.',
+    'dropzone_cancel_upload' => 'Anuluj przesyłanie',
+    'dropzone_cancel_upload_confirmation' => 'Czy na pewno chcesz anulować przesyłanie pliku?',
+    'dropzone_remove_file' => 'Usuń plik',
     'documents' => 'Dokumenty',
     'document_date' => 'Data dokumentu',
     'document_size' => 'Rozmiar',
@@ -1125,11 +1109,11 @@ $LANG = array(
     'enable_client_portal_help' => 'Pokaż/ukryj portal klienta.',
     'enable_client_portal_dashboard' => 'Pulpit',
     'enable_client_portal_dashboard_help' => 'Pokaż/ukryj pulpit w panelu klienta.',
-        
+
     // Plans
     'account_management' => 'Zarządzanie kontem',
     'plan_status' => 'Plan Status',
-    
+
     'plan_upgrade' => 'Aktualizuj',
     'plan_change' => 'Zmień plan',
     'pending_change_to' => 'Zmienia się na',
@@ -1159,9 +1143,9 @@ $LANG = array(
     'plan_paid' => 'Termin rozpoczął',
     'plan_started' => 'Plan rozpoczął',
     'plan_expires' => 'Plan Wygasa',
-    
+
     'white_label_button' => 'Biała etykieta',
-    
+
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Plan Enterprise',
@@ -1181,7 +1165,7 @@ $LANG = array(
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
     'return_to_app' => 'Return to app',
-   
+
 );
 
 return $LANG;

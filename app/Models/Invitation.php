@@ -39,7 +39,7 @@ class Invitation extends EntityModel
 
         $url = SITE_URL;
         $iframe_url = $this->account->iframe_url;
-        
+
         if ($this->account->hasFeature(FEATURE_CUSTOM_URL)) {
             if ($iframe_url && !$forceOnsite) {
                 return "{$iframe_url}?{$this->invitation_key}";
@@ -47,7 +47,7 @@ class Invitation extends EntityModel
                 $url = Utils::replaceSubdomain($url, $this->account->subdomain);
             }
         }
-        
+
         return "{$url}/{$type}/{$this->invitation_key}";
     }
 
@@ -64,7 +64,7 @@ class Invitation extends EntityModel
                 $date = Utils::dateToString($this->$field);
                 $hasValue = true;
             }
-            $parts[] = trans('texts.invitation_status.' . $status) . ': ' . $date;
+            $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
         }
 
         return $hasValue ? implode($parts, '<br/>') : false;
