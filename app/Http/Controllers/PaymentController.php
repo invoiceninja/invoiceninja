@@ -411,7 +411,7 @@ class PaymentController extends BaseController
             'last_name' => 'required',
         ];
 
-        if ( ! Input::get('sourceToken') && !(Input::get('plaidPublicToken') && Input::get('plaidAccountId'))) {
+        if ( !Input::get('sourceToken') && !(Input::get('plaidPublicToken') && Input::get('plaidAccountId'))) {
             $rules = array_merge(
                 $rules,
                 [
@@ -439,7 +439,7 @@ class PaymentController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                return false;
+                return $validator;
             }
 
             if ($requireAddress && $accountGateway->update_address) {
@@ -465,7 +465,7 @@ class PaymentController extends BaseController
         $paymentType = Session::get($invitation->id . 'payment_type');
         $accountGateway = $account->getGatewayByType($paymentType);
         $paymentMethod = null;
-        
+
         if ($useToken) {
             if(!$sourceId) {
                 Session::flash('error', trans('texts.no_payment_method_specified'));
@@ -477,11 +477,12 @@ class PaymentController extends BaseController
             }
         }
 
-        if (!static::processPaymentClientDetails($client,  $accountGateway, $paymentType,  $onSite)) {
+        if (($validator = static::processPaymentClientDetails($client,  $accountGateway, $paymentType,  $onSite)) !== true) {
             return Redirect::to('payment/'.$invitationKey)
                 ->withErrors($validator)
                 ->withInput(Request::except('cvv'));
         }
+
 
         try {
             // For offsite payments send the client's details on file
@@ -497,9 +498,10 @@ class PaymentController extends BaseController
 
             // check if we're creating/using a billing token
             $tokenBillingSupported = false;
+            $sourceReferenceParam = 'token';
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
                 $tokenBillingSupported = true;
-                $customerReferenceParam = 'cardReference';
+                $customerReferenceParam = 'customerReference';
 
                 if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && !Input::get('authorize_ach')) {
                     Session::flash('error', trans('texts.ach_authorization_required'));
@@ -507,7 +509,8 @@ class PaymentController extends BaseController
                 }
             } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
                 $tokenBillingSupported = true;
-                $customerReferenceParam = 'paymentMethodToken';
+                $sourceReferenceParam = 'paymentMethodToken';
+                $customerReferenceParam = 'customerId';
 
                 $deviceData = Input::get('device_data');
                 if (!$deviceData) {
@@ -527,12 +530,12 @@ class PaymentController extends BaseController
                     if ($customerReferenceParam) {
                         $details[$customerReferenceParam] = $customerReference;
                     }
-                    $details['token'] = $sourceReference;
+                    $details[$sourceReferenceParam] = $sourceReference;
                     unset($details['card']);
                 } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing') || $paymentType == PAYMENT_TYPE_STRIPE_ACH) {
                     $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */, $paymentMethod/* return parameter */);
                     if ($token) {
-                        $details['token'] = $token;
+                        $details[$sourceReferenceParam] = $token;
                         if ($customerReferenceParam) {
                             $details[$customerReferenceParam] = $customerReference;
                         }
@@ -568,7 +571,7 @@ class PaymentController extends BaseController
             if (!$ref) {
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
-                if ($onSite) {
+                if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
                     return Redirect::to('payment/'.$invitationKey)
                             ->withInput(Request::except('cvv'));
                 } else {
@@ -596,7 +599,7 @@ class PaymentController extends BaseController
                 $response->redirect();
             } else {
                 $this->error('Unknown', $response->getMessage(), $accountGateway);
-                if ($onSite) {
+                if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
                     return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
                 } else {
                     return Redirect::to('view/'.$invitationKey);
@@ -604,7 +607,7 @@ class PaymentController extends BaseController
             }
         } catch (\Exception $e) {
             $this->error('Uncaught', false, $accountGateway, $e);
-            if ($onSite) {
+            if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
                 return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
             } else {
                 return Redirect::to('view/'.$invitationKey);
@@ -759,7 +762,7 @@ class PaymentController extends BaseController
                 'message' => $data,
             ], 500);
         } elseif (!empty($data)) {
-            return $data;
+            return response()->json($data);
         }
         
         return response()->json([

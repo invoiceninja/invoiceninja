@@ -130,7 +130,6 @@
                             <div class="col-md-6">
                                 {!! Former::text('first_name')
                                         ->placeholder(trans('texts.first_name'))
-                                        ->autocomplete('given-name')
                                         ->label('') !!}
                             </div>
                             <div class="col-md-6">
@@ -230,33 +229,32 @@
                                 ))->inline()->label(trans('texts.account_holder_type'));  !!}
                             {!! Former::text('account_holder_name')
                                    ->label(trans('texts.account_holder_name')) !!}
-                                    {!! Former::select('country_id')
-                                            ->label(trans('texts.country_id'))
-                                            ->fromQuery($countries, 'name', 'id')
-                                            ->addGroupClass('country-select') !!}
-                                    {!! Former::select('currency')
-                                            ->label(trans('texts.currency_id'))
-                                            ->fromQuery($currencies, 'name', 'code')
-                                            ->addGroupClass('currency-select') !!}
-                                    {!! Former::text('')
-                                            ->id('routing_number')
-                                            ->label(trans('texts.routing_number')) !!}
-                                    <div class="form-group" style="margin-top:-15px">
-                                        <div class="col-md-8 col-md-offset-4">
-                                            <div id="bank_name"></div>
-                                        </div>
-                                    </div>
-                                    {!! Former::text('')
-                                            ->id('account_number')
-                                            ->label(trans('texts.account_number')) !!}
-                                    {!! Former::text('')
-                                            ->id('confirm_account_number')
-                                            ->label(trans('texts.confirm_account_number')) !!}
-                                    {!! Former::checkbox('authorize_ach')
-                                            ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName()]))
-                                            ->label(' ') !!}
+                            {!! Former::select('country_id')
+                                    ->label(trans('texts.country_id'))
+                                    ->fromQuery($countries, 'name', 'id')
+                                    ->addGroupClass('country-select') !!}
+                            {!! Former::select('currency')
+                                    ->label(trans('texts.currency_id'))
+                                    ->fromQuery($currencies, 'name', 'code')
+                                    ->addGroupClass('currency-select') !!}
+                            {!! Former::text('')
+                                    ->id('routing_number')
+                                    ->label(trans('texts.routing_number')) !!}
+                            <div class="form-group" style="margin-top:-15px">
+                                <div class="col-md-8 col-md-offset-4">
+                                    <div id="bank_name"></div>
+                                </div>
                             </div>
+                            {!! Former::text('')
+                                    ->id('account_number')
+                                    ->label(trans('texts.account_number')) !!}
+                            {!! Former::text('')
+                                    ->id('confirm_account_number')
+                                    ->label(trans('texts.confirm_account_number')) !!}
                         </div>
+                        {!! Former::checkbox('authorize_ach')
+                                ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName()]))
+                                ->label(' ') !!}
                         <div class="col-md-8 col-md-offset-4">
                             {!! Button::success(strtoupper(trans('texts.add_account')))
                                             ->submit()
@@ -441,7 +439,7 @@
             $('#routing_number, #country').on('change keypress keyup keydown paste', function(){setTimeout(function () {
                 var routingNumber = $('#routing_number').val().replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
 
-                if (routingNumber.length != 9 || $("#country").val() != 'US' || routingNumberCache[routingNumber] === false) {
+                if (routingNumber.length != 9 || $("#country_id").val() != 840 || routingNumberCache[routingNumber] === false) {
                     $('#bank_name').hide();
                 } else if (routingNumberCache[routingNumber]) {
                     $('#bank_name').empty().append(routingNumberCache[routingNumber]).show();

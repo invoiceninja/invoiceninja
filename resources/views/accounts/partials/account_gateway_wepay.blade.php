@@ -49,7 +49,7 @@
                     ->large() !!}
             @if(isset($gateways))
                 <br><br>
-                <a href="#" id="show-other-providers">{{ trans('texts.use_another_provider') }}</a>
+                <a href="javascript::void" id="show-other-providers">{{ trans('texts.use_another_provider') }}</a>
             @endif
         </center>
     </div>

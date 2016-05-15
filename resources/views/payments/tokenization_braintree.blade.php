@@ -1,6 +1,7 @@
 <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
 <script type="text/javascript" >
     $(function() {
+        var $form = $('.payment-form');
         braintree.setup("{{ $braintreeClientToken }}", "custom", {
             id: "payment-form",
             hostedFields: {
@@ -29,7 +30,6 @@
                 }
             },
             onError: function(e) {
-                var $form = $('.payment-form');
                 $form.find('button').prop('disabled', false);
                 // Show the errors on the form
                 if (e.details && e.details.invalidFieldKeys.length) {
@@ -48,6 +48,12 @@
                 else {
                     $('#js-error-message').html(e.message).fadeIn();
                 }
+            },
+            onPaymentMethodReceived: function(e) {
+                // Insert the token into the form so it gets submitted to the server
+                $form.append($('<input type="hidden" name="sourceToken"/>').val(e.nonce));
+                // and submit
+                $form.get(0).submit();
             }
         });
         $('.payment-form').submit(function(event) {

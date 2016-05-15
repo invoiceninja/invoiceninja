@@ -131,7 +131,7 @@ class PaymentService extends BaseService
             $data['cvv'] = $input['cvv'];
         }
 
-        if (isset($input['country_id'])) {
+        if (isset($input['address1'])) {
             $country = Country::find($input['country_id']);
 
             $data = array_merge($data, [
@@ -222,7 +222,7 @@ class PaymentService extends BaseService
 
     public function verifyClientPaymentMethod($client, $publicId, $amount1, $amount2)
     {
-        $token = $client->getGatewayToken($accountGateway);
+        $token = $client->getGatewayToken($accountGateway/* return parameter */, $accountGatewayToken/* return parameter */);
         if ($accountGateway->gateway_id != GATEWAY_STRIPE) {
             return 'Unsupported gateway';
         }
@@ -238,15 +238,18 @@ class PaymentService extends BaseService
             'amounts[]=' . intval($amount1) . '&amounts[]=' . intval($amount2)
         );
 
-        if (!is_string($result)) {
-            $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
-            $paymentMethod->save();
-
-            if (!$paymentMethod->account_gateway_token->default_payment_method_id) {
-                $paymentMethod->account_gateway_token->default_payment_method_id = $paymentMethod->id;
-                $paymentMethod->account_gateway_token->save();
-            }
+        if (is_string($result)) {
+            return $result;
         }
+
+        $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
+        $paymentMethod->save();
+
+        if (!$paymentMethod->account_gateway_token->default_payment_method_id) {
+            $paymentMethod->account_gateway_token->default_payment_method_id = $paymentMethod->id;
+            $paymentMethod->account_gateway_token->save();
+        }
+
         return true;
     }
 
