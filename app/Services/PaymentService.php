@@ -471,7 +471,7 @@ class PaymentService extends BaseService
                 $paymentMethod->setRelation('currency', $currency);
             }
         } elseif ($source['object'] == 'card') {
-            $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-00';
+            $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
             $paymentMethod->payment_type_id = $this->parseCardType($source['brand']);
         } else {
             return null;
@@ -491,7 +491,7 @@ class PaymentService extends BaseService
         if ($source instanceof \Braintree\CreditCard) {
             $paymentMethod->payment_type_id = $this->parseCardType($source->cardType);
             $paymentMethod->last4 = $source->last4;
-            $paymentMethod->expiration = $source->expirationYear . '-' . $source->expirationMonth . '-00';
+            $paymentMethod->expiration = $source->expirationYear . '-' . $source->expirationMonth . '-01';
         } elseif ($source instanceof \Braintree\PayPalAccount) {
             $paymentMethod->email = $source->email;
             $paymentMethod->payment_type_id = PAYMENT_TYPE_ID_PAYPAL;
@@ -514,7 +514,7 @@ class PaymentService extends BaseService
 
         $paymentMethod->payment_type_id = $this->parseCardType($source->credit_card_name);
         $paymentMethod->last4 = $source->last_four;
-        $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-00';
+        $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-01';
         $paymentMethod->setRelation('payment_type', Cache::get('paymentTypes')->find($paymentMethod->payment_type_id));
 
         $paymentMethod->source_reference = $source->credit_card_id;
@@ -552,7 +552,7 @@ class PaymentService extends BaseService
                 if ($transaction->paymentInstrumentType == 'credit_card') {
                     $card = $transaction->creditCardDetails;
                     $paymentMethod->last4 = $card->last4;
-                    $paymentMethod->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-00';
+                    $paymentMethod->expiration = $card->expirationYear . '-' . $card->expirationMonth . '-01';
                     $paymentMethod->payment_type_id = $this->parseCardType($card->cardType);
                 } elseif ($transaction->paymentInstrumentType == 'paypal_account') {
                     $paymentMethod->payment_type_id = PAYMENT_TYPE_ID_PAYPAL;
