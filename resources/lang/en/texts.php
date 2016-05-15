@@ -1294,6 +1294,7 @@ $LANG = array(
 
     'no_payment_method_specified' => 'No payment method specified',
     'chart_type' => 'Chart Type',
+    'format' => 'Format',
     
 );
 
