@@ -17,10 +17,14 @@
 
         {!! Former::file("ofx_file") !!}
 
-        {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}
-        {!! Former::close() !!}
+    </div>
+    </div>
 
-    </div>
-    </div>
+    {!! Former::actions(
+        Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('settings/bank_accounts'))->appendIcon(Icon::create('remove-circle')),
+        Button::success(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))
+    ) !!}
+
+    {!! Former::close() !!}
 
 @stop
