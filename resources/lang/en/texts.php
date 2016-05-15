@@ -1295,7 +1295,9 @@ $LANG = array(
     'no_payment_method_specified' => 'No payment method specified',
     'chart_type' => 'Chart Type',
     'format' => 'Format',
-    
+    'import_ofx' => 'Import OFX',
+    'ofx_file' => 'OFX File',
+    'ofx_parse_failed' => 'Failed to parse OFX file',
 );
 
 return $LANG;
