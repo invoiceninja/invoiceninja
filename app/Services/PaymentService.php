@@ -1048,41 +1048,76 @@ class PaymentService extends BaseService
         
         if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT) {
             $gateway = $this->createGateway($accountGateway);
-            $refund = $gateway->refund(array(
-                'transactionReference' => $payment->transaction_reference,
-                'amount' => $amount,
-            ));
-            $response = $refund->send();
-            
-            if ($response->isSuccessful()) {
-                $payment->recordRefund($amount);
+
+            if ($accountGateway->gateway_id != GATEWAY_WEPAY) {
+                $refund = $gateway->refund(array(
+                    'transactionReference' => $payment->transaction_reference,
+                    'amount' => $amount,
+                ));
+                $response = $refund->send();
+
+                if ($response->isSuccessful()) {
+                    $payment->recordRefund($amount);
+                } else {
+                    $data = $response->getData();
+
+                    if ($data instanceof \Braintree\Result\Error) {
+                        $error = $data->errors->deepAll()[0];
+                        if ($error && $error->code == 91506) {
+                            if ($amount == $payment->amount) {
+                                // This is an unsettled transaction; try to void it
+                                $void = $gateway->void(array(
+                                    'transactionReference' => $payment->transaction_reference,
+                                ));
+                                $response = $void->send();
+
+                                if ($response->isSuccessful()) {
+                                    $payment->markVoided();
+                                }
+                            } else {
+                                $this->error('Unknown', 'Partial refund not allowed for unsettled transactions.', $accountGateway);
+                                return false;
+                            }
+                        }
+                    }
+
+                    if (!$response->isSuccessful()) {
+                        $this->error('Unknown', $response->getMessage(), $accountGateway);
+                        return false;
+                    }
+                }
             } else {
-                $data = $response->getData();
+                $wepay = \Utils::setupWePay($accountGateway);
 
-                if ($data instanceof \Braintree\Result\Error) {
-                    $error = $data->errors->deepAll()[0];
-                    if ($error && $error->code == 91506) {
+                try {
+                    $wepay->request('checkout/refund', array(
+                        'checkout_id' => intval($payment->transaction_reference),
+                        'refund_reason' => 'Refund issued by merchant.',
+                        'amount' => $amount,
+                    ));
+                    $payment->recordRefund($amount);
+                } catch (\WePayException $ex) {
+                    if ($ex->getCode() == 4004) {
                         if ($amount == $payment->amount) {
-                            // This is an unsettled transaction; try to void it
-                            $void = $gateway->void(array(
-                                'transactionReference' => $payment->transaction_reference,
-                            ));
-                            $response = $void->send();
-
-                            if ($response->isSuccessful()) {
+                            try {
+                                // This is an uncaptured transaction; try to cancel it
+                                $wepay->request('checkout/cancel', array(
+                                    'checkout_id' => intval($payment->transaction_reference),
+                                    'cancel_reason' => 'Refund issued by merchant.',
+                                ));
                                 $payment->markVoided();
+                            } catch (\WePayException $ex) {
+                                $this->error('Unknown', $ex->getMessage(), $accountGateway);
                             }
                         } else {
                             $this->error('Unknown', 'Partial refund not allowed for unsettled transactions.', $accountGateway);
                             return false;
                         }
+                    } else {
+                        $this->error('Unknown', $ex->getMessage(), $accountGateway);
                     }
                 }
 
-                if (!$response->isSuccessful()) {
-                    $this->error('Unknown', $response->getMessage(), $accountGateway);
-                    return false;
-                }
             }
         } else {
             $payment->recordRefund($amount);
