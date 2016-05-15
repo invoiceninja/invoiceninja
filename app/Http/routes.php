@@ -707,10 +707,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');
 
-    define('AUTO_BILL_OFF', 0);
-    define('AUTO_BILL_OPT_IN', 1);
-    define('AUTO_BILL_OPT_OUT', 2);
-    define('AUTO_BILL_ALWAYS', 3);
+    define('AUTO_BILL_OFF', 1);
+    define('AUTO_BILL_OPT_IN', 2);
+    define('AUTO_BILL_OPT_OUT', 3);
+    define('AUTO_BILL_ALWAYS', 4);
     
     // These must be lowercase
     define('PLAN_FREE', 'free');
