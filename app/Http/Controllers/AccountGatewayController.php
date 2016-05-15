@@ -87,6 +87,7 @@ class AccountGatewayController extends BaseController
                                     ->where('id', '!=', GATEWAY_GOCARDLESS)
                                     ->where('id', '!=', GATEWAY_DWOLLA)
                                     ->where('id', '!=', GATEWAY_STRIPE)
+                                    ->where('id', '!=', GATEWAY_WEPAY)
                                     ->orderBy('name')->get();
         $data['hiddenFields'] = Gateway::$hiddenFields;
 
@@ -245,8 +246,11 @@ class AccountGatewayController extends BaseController
                 $accountGateway = AccountGateway::createNew();
                 $accountGateway->gateway_id = $gatewayId;
 
-                if ($gatewayId == GATEWAY_WEPAY && !$this->setupWePay($accountGateway, $wepayResponse)) {
-                    return $wepayResponse;
+                if ($gatewayId == GATEWAY_WEPAY) {
+                    if(!$this->setupWePay($accountGateway, $wepayResponse)) {
+                        return $wepayResponse;
+                    }
+                    $oldConfig = $accountGateway->getConfig();
                 }
             }
 
@@ -265,7 +269,7 @@ class AccountGatewayController extends BaseController
                         $config->$field = $value;
                     }
                 }
-            } else {
+            } elseif($oldConfig) {
                 $config = clone $oldConfig;
             }
 
