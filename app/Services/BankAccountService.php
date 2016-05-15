@@ -178,7 +178,7 @@ class BankAccountService extends BaseService
                     $field => $info,
                     'name' => $vendorName,
                     'transaction_name' => $transaction['vendor_orig'],
-                    'vendorcontact' => [],
+                    'vendor_contact' => [],
                 ]);
                 $vendorMap[$key] = $vendor;
                 $vendorMap[$transaction['vendor_orig']] = $vendor;
