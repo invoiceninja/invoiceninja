@@ -821,6 +821,11 @@ class PaymentService extends BaseService
 
         $invitation = $invoice->invitations->first();
         $token = $client->getGatewayToken($accountGateway/* return parameter */, $accountGatewayToken/* return parameter */);
+
+        if (!$accountGatewayToken) {
+            return false;
+        }
+
         $defaultPaymentMethod = $accountGatewayToken->default_payment_method;
 
         if (!$invitation || !$token || !$defaultPaymentMethod) {
