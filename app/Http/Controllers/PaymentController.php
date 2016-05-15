@@ -790,10 +790,56 @@ class PaymentController extends BaseController
         switch($gatewayId) {
             case GATEWAY_STRIPE:
                 return $this->handleStripeWebhook($accountGateway);
+            case GATEWAY_WEPAY:
+                return $this->handleWePayWebhook($accountGateway);
             default:
                 return response()->json([
                     'message' => 'Unsupported gateway',
                 ], 404);
+        }
+    }
+
+    protected function handleWePayWebhook($accountGateway) {
+        $data = Input::all();
+        $accountId = $accountGateway->account_id;
+
+        foreach (array_keys($data) as $key) {
+            if ('_id' == substr($key, -3)) {
+                $objectType = substr($key, 0, -3);
+                $objectId = $data[$key];
+                break;
+            }
+        }
+
+        if (!isset($objectType)) {
+            return response()->json([
+                'message' => 'Could not find object id parameter',
+            ], 400);
+        }
+
+        if ($objectType == 'credit_card') {
+            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $objectId)->first();
+
+            if (!$paymentMethod) {
+                return array('message' => 'Unknown payment method');
+            }
+
+            $wepay = \Utils::setupWePay($accountGateway);
+            $source = $wepay->request('credit_card', array(
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                'credit_card_id' => intval($objectId),
+            ));
+
+            if ($source->state == 'deleted') {
+                $paymentMethod->delete();
+            } else {
+                $this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
+            }
+
+            return array('message' => 'Processed successfully');
+        } else {
+            return array('message' => 'Ignoring event');
         }
     }
 

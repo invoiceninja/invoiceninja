@@ -278,7 +278,7 @@ class PaymentService extends BaseService
                 $wepay->request('/credit_card/delete', [
                     'client_id' => WEPAY_CLIENT_ID,
                     'client_secret' => WEPAY_CLIENT_SECRET,
-                    'credit_card_id' => $paymentMethod->source_reference,
+                    'credit_card_id' => intval($paymentMethod->source_reference),
                 ]);
             } catch (\WePayException $ex){
                 return $ex->getMessage();
@@ -401,14 +401,21 @@ class PaymentService extends BaseService
                 $wepay->request('credit_card/authorize', array(
                     'client_id' => WEPAY_CLIENT_ID,
                     'client_secret' => WEPAY_CLIENT_SECRET,
-                    'credit_card_id' => $details['token'],
+                    'credit_card_id' => intval($details['token']),
                 ));
 
-                // Get the card details
+                // Update the callback uri and get the card details
+                $wepay->request('credit_card/modify', array(
+                    'client_id' => WEPAY_CLIENT_ID,
+                    'client_secret' => WEPAY_CLIENT_SECRET,
+                    'credit_card_id' => intval($details['token']),
+                    'auto_update' => WEPAY_AUTO_UPDATE,
+                    'callback_uri' => URL::to(env('WEBHOOK_PREFIX','').'paymenthook/'.$client->account->account_key.'/'.GATEWAY_WEPAY),
+                ));
                 $tokenResponse = $wepay->request('credit_card', array(
                     'client_id' => WEPAY_CLIENT_ID,
                     'client_secret' => WEPAY_CLIENT_SECRET,
-                    'credit_card_id' => $details['token'],
+                    'credit_card_id' => intval($details['token']),
                 ));
 
                 $customerReference = CUSTOMER_REFERENCE_LOCAL;

@@ -3,6 +3,7 @@
     $(function() {
         var countries = {!! $countries->pluck('iso_3166_2','id') !!};
         WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
+        var $form = $('.payment-form');
         $('.payment-form').submit(function(event) {
             var data = {
                 client_id: {{ WEPAY_CLIENT_ID }},
@@ -27,9 +28,11 @@
             }
             // Not including state/province, since WePay wants 2-letter codes and users enter the full name
 
-            var response = WePay.credit_card.create(data, function(response) {
-                var $form = $('.payment-form');
+            // Disable the submit button to prevent repeated clicks
+            $form.find('button').prop('disabled', true);
+            $('#js-error-message').hide();
 
+            var response = WePay.credit_card.create(data, function(response) {
                 if (response.error) {
                     // Show the errors on the form
                     var error = response.error_description;
@@ -44,6 +47,13 @@
                     $form.get(0).submit();
                 }
             });
+
+            if (response.error) {
+                // Show the errors on the form
+                var error = response.error_description;
+                $form.find('button').prop('disabled', false);
+                $('#js-error-message').text(error).fadeIn();
+            }
 
             // Prevent the form from submitting with the default action
             return false;
