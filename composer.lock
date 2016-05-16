@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "7139e4aedb2ac151079c50ee5c17f93c",
-    "content-hash": "a314d6c0a16785dd2395a7fd73cdc76d",
+    "hash": "b2471aea1af5ef67a1379ad95b5138f7",
+    "content-hash": "df30a311df0341933d4ff2c3aa5974a6",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -505,7 +505,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/e97ed532f09e290b91ff7713b785ed7ab11d0812",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/f7b31bdbdceaaea930c71df20e4180b0b7172b4a",
                 "reference": "e97ed532f09e290b91ff7713b785ed7ab11d0812",
                 "shasum": ""
             },
@@ -2785,7 +2785,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/labs7in0/omnipay-wechat/zipball/40c9f86df6573ad98ae1dd0d29712ccbc789a74e",
+                "url": "https://api.github.com/repos/labs7in0/omnipay-wechat/zipball/c8d80c3b48bae2bab071f283f75b1cd8624ed3c7",
                 "reference": "40c9f86df6573ad98ae1dd0d29712ccbc789a74e",
                 "shasum": ""
             },
@@ -8056,6 +8056,53 @@
                 "laravel"
             ],
             "time": "2016-02-25 10:29:59"
+        },
+        {
+            "name": "wepay/php-sdk",
+            "version": "0.2.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/wepay/PHP-SDK.git",
+                "reference": "31bfcdd97d2c9c33c9c09129638ae31840822182"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/wepay/PHP-SDK/zipball/31bfcdd97d2c9c33c9c09129638ae31840822182",
+                "reference": "31bfcdd97d2c9c33c9c09129638ae31840822182",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.2.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "wepay.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "WePay",
+                    "email": "api@wepay.com"
+                }
+            ],
+            "description": "WePay APIv2 SDK for PHP",
+            "keywords": [
+                "payment",
+                "sdk",
+                "wepay"
+            ],
+            "time": "2015-08-14 19:42:37"
         },
         {
             "name": "wildbit/laravel-postmark-provider",

@@ -78,6 +78,11 @@ class PaymentsChanges extends Migration
             ->where('auto_bill', '=', 1)
             ->update(array('client_enable_auto_bill' => 1, 'auto_bill' => AUTO_BILL_OPT_OUT));
 
+        \DB::table('invoices')
+            ->where('auto_bill', '=', 0)
+            ->where('is_recurring', '=', 1)
+            ->update(array('auto_bill' => AUTO_BILL_OFF));
+
 
         Schema::table('account_gateway_tokens', function($table)
         {
@@ -114,10 +119,14 @@ class PaymentsChanges extends Migration
         });
 
         \DB::table('invoices')
+            ->where('auto_bill', '=', AUTO_BILL_OFF)
+            ->update(array('auto_bill' => 0));
+
+        \DB::table('invoices')
             ->where(function($query){
                 $query->where('auto_bill', '=', AUTO_BILL_ALWAYS);
                 $query->orwhere(function($query){
-                    $query->where('auto_bill', '!=', AUTO_BILL_OFF);
+                    $query->where('auto_bill', '!=', 0);
                     $query->where('client_enable_auto_bill', '=', 1);
                 });
             })

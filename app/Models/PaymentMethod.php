@@ -63,7 +63,7 @@ class PaymentMethod extends EntityModel
         return $this->hasMany('App\Models\Payments');
     }
 
-    public function getBankData()
+    public function getBankDataAttribute()
     {
         if (!$this->routing_number) {
             return null;

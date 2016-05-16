@@ -166,24 +166,24 @@
             </span>
             @if($account->getTokenGatewayId())
             <span data-bind="visible: is_recurring()" style="display: none">
-                <div data-bind="visible: !(auto_bill() == 1 &amp;&amp; client_enable_auto_bill()) &amp;&amp; !(auto_bill() == 2 &amp;&amp; !client_enable_auto_bill())" style="display: none">
+                <div data-bind="visible: !(auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()) &amp;&amp; !(auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill())" style="display: none">
                 {!! Former::select('auto_bill')
-                        ->data_bind("value: auto_bill, valueUpdate: 'afterkeydown', event:{change:function(){if(auto_bill()==1)client_enable_auto_bill(0);if(auto_bill()==2)client_enable_auto_bill(1)}}")
+                        ->data_bind("value: auto_bill, valueUpdate: 'afterkeydown', event:{change:function(){if(auto_bill()==".AUTO_BILL_OPT_IN.")client_enable_auto_bill(0);if(auto_bill()==".AUTO_BILL_OPT_OUT.")client_enable_auto_bill(1)}}")
                         ->options([
-                            0 => trans('texts.off'),
-                            1 => trans('texts.opt_in'),
-                            2 => trans('texts.opt_out'),
-                            3 => trans('texts.always'),
+                            AUTO_BILL_OFF => trans('texts.off'),
+                            AUTO_BILL_OPT_IN => trans('texts.opt_in'),
+                            AUTO_BILL_OPT_OUT => trans('texts.opt_out'),
+                            AUTO_BILL_ALWAYS => trans('texts.always'),
                         ]) !!}
                 </div>
                 <input type="hidden" name="client_enable_auto_bill" data-bind="attr: { value: client_enable_auto_bill() }" />
-                <div class="form-group" data-bind="visible: auto_bill() == 1 &amp;&amp; client_enable_auto_bill()">
+                <div class="form-group" data-bind="visible: auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()">
                     <div class="col-sm-4 control-label">{{trans('texts.auto_bill')}}</div>
                     <div class="col-sm-8" style="padding-top:10px;padding-bottom:9px">
                         {{trans('texts.opted_in')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(false)}">({{trans('texts.disable')}})</a>
                     </div>
                 </div>
-                <div class="form-group" data-bind="visible: auto_bill() == 2 &amp;&amp; !client_enable_auto_bill()">
+                <div class="form-group" data-bind="visible: auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill()">
                     <div class="col-sm-4 control-label">{{trans('texts.auto_bill')}}</div>
                     <div class="col-sm-8" style="padding-top:10px;padding-bottom:9px">
                         {{trans('texts.opted_out')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(true)}">({{trans('texts.enable')}})</a>

@@ -1245,6 +1245,8 @@ class Account extends Eloquent
             return GATEWAY_STRIPE;
         } elseif ($this->isGatewayConfigured(GATEWAY_BRAINTREE)) {
             return GATEWAY_BRAINTREE;
+        } elseif ($this->isGatewayConfigured(GATEWAY_WEPAY)) {
+            return GATEWAY_WEPAY;
         } else {
             return false;
         }
@@ -1409,6 +1411,37 @@ class Account extends Eloquent
     
     public function getFontFolders(){
         return array_map(function($item){return $item['folder'];}, $this->getFontsData());
+    }
+
+    public function canAddGateway($type){
+        if($this->getGatewayByType($type)) {
+            return false;
+        }
+        if ($type == PAYMENT_TYPE_CREDIT_CARD && $this->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
+            // Stripe is already handling credit card payments
+            return false;
+        }
+
+        if ($type == PAYMENT_TYPE_STRIPE && $this->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD)) {
+            // Another gateway is already handling credit card payments
+            return false;
+        }
+
+        if ($type == PAYMENT_TYPE_DIRECT_DEBIT && $stripeGateway = $this->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
+            if (!empty($stripeGateway->getAchEnabled())) {
+                // Stripe is already handling ACH payments
+                return false;
+            }
+        }
+
+        if ($type == PAYMENT_TYPE_PAYPAL && $braintreeGateway = $this->getGatewayConfig(GATEWAY_BRAINTREE)) {
+            if (!empty($braintreeGateway->getPayPalEnabled())) {
+                // PayPal is already enabled
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 

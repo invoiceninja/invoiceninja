@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Models\AccountGateway;
 use Auth;
 use File;
 use Image;
@@ -420,6 +421,7 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         $account->load('account_gateways');
         $count = count($account->account_gateways);
+        $trashedCount = AccountGateway::scope($account->id)->withTrashed()->count();
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
             if (! $accountGateway->getPublishableStripeKey()) {
@@ -427,10 +429,17 @@ class AccountController extends BaseController
             }
         }
 
-        if ($count == 0) {
+        if ($trashedCount == 0) {
             return Redirect::to('gateways/create');
         } else {
+            $switchToWepay = WEPAY_CLIENT_ID && !$account->getGatewayConfig(GATEWAY_WEPAY);
+
+            if ($switchToWepay && $account->token_billing_type_id != TOKEN_BILLING_DISABLED) {
+                $switchToWepay = !$account->getGatewayConfig(GATEWAY_BRAINTREE) && !$account->getGatewayConfig(GATEWAY_STRIPE);
+            }
+
             return View::make('accounts.payments', [
+                'showSwitchToWepay' => $switchToWepay,
                 'showAdd' => $count < count(Gateway::$paymentTypes),
                 'title' => trans('texts.online_payments')
             ]);
