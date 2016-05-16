@@ -13,7 +13,6 @@
 
                 var data = {
                     name: $('#first_name').val() + ' ' + $('#last_name').val(),
-                    email: $('#email').val(),
                     address_line1: $('#address1').val(),
                     address_line2: $('#address2').val(),
                     address_city: $('#city').val(),
@@ -24,7 +23,7 @@
                     exp_month: $('#expiration_month').val(),
                     exp_year: $('#expiration_year').val()
                 };
-                
+
                 // allow space until there's a setting to disable
                 if ($('#cvv').val() != ' ') {
                     data.cvc = $('#cvv').val();
@@ -39,16 +38,16 @@
                     $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
                     return false;
                 }
-                
+
                 if (data.hasOwnProperty('cvc') && !Stripe.card.validateCVC(data.cvc)) {
                     $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
                     return false;
                 }
-                
+
                 // Disable the submit button to prevent repeated clicks
                 $form.find('button').prop('disabled', true);
                 $('#js-error-message').hide();
-                
+
                 Stripe.card.createToken(data, stripeResponseHandler);
 
                 // Prevent the form from submitting with the default action
@@ -324,9 +323,9 @@
             {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
                             ->submit()
                             ->large() !!}
-        </center>        
+        </center>
         <p>&nbsp;</p>
-        
+
         <div id="js-error-message" style="display:none" class="alert alert-danger"></div>
     </div>
 
