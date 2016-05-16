@@ -77,7 +77,7 @@ class OnlinePaymentCest
             $I->fillField(['name' => 'postal_code'], $this->faker->postcode);
             $I->selectDropdown($I, 'United States', '.country-select .dropdown-toggle');
             */
-            
+
             $I->fillField('#card_number', '4242424242424242');
             $I->fillField('#cvv', '1234');
             $I->selectOption('#expiration_month', 12);
@@ -94,7 +94,7 @@ class OnlinePaymentCest
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
-        $I->checkOption('#auto_bill');
+        $I->selectOption('#auto_bill', 3);
         $I->executeJS('preparePdfData(\'email\')');
         $I->wait(3);
         $I->see("$0.00");

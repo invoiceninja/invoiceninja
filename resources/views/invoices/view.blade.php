@@ -70,10 +70,7 @@
             @include('partials.checkout_com_payment')
         @else
             <div class="pull-right" style="text-align:right">
-            @if (Session::get('trackEventAction') === '/buy_pro_plan')
-                {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
-                {!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/dashboard'))->large() !!}
-            @elseif ($invoice->is_quote)
+            @if ($invoice->is_quote)
                 {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if ($showApprove)
                     {!! Button::success(trans('texts.approve'))->asLinkTo(URL::to('/approve/' . $invitation->invitation_key))->large() !!}
@@ -85,8 +82,11 @@
                 @else
                     <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
                 @endif            
-    		@else 
+    		@else
     			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
+                @if ($account->isNinjaAccount())
+                    {!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/dashboard'))->large() !!}
+                @endif
     		@endif
     		</div>
     		<div class="pull-left">

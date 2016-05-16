@@ -391,6 +391,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('ACTION_RESTORE', 'restore');
     define('ACTION_ARCHIVE', 'archive');
+    define('ACTION_CLONE', 'clone');
     define('ACTION_CONVERT', 'convert');
     define('ACTION_DELETE', 'delete');
 
