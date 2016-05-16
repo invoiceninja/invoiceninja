@@ -16,7 +16,7 @@ use Redirect;
 use App\Models\Gateway;
 use App\Models\Invitation;
 use App\Models\Document;
-use App\ModelsPaymentMethod;
+use App\Models\PaymentMethod;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
@@ -176,8 +176,10 @@ class PublicClientController extends BaseController
                     $html = '';
 
                     if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
-                        if($paymentMethod->bank_data) {
+                        if ($paymentMethod->bank_data) {
                             $html = '<div>' . htmlentities($paymentMethod->bank_data->name) . '</div>';
+                        } else {
+                            $html = '<img height="22" src="'.URL::to('/images/credit_cards/ach.png').'" style="float:left" alt="'.trans("texts.direct_debit").'">';
                         }
                     } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL) {
                         $html = '<img height="22" src="'.URL::to('/images/credit_cards/paypal.png').'" alt="'.trans("texts.card_".$code).'">';
@@ -860,12 +862,15 @@ class PublicClientController extends BaseController
         ];
 
         if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
-
             $data['currencies'] = Cache::get('currencies');
         }
 
         if ($gateway->id == GATEWAY_BRAINTREE) {
             $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
+        }
+
+        if(!empty($data['braintreeClientToken']) || $accountGateway->getPublishableStripeKey()|| $accountGateway->gateway_id == GATEWAY_WEPAY) {
+            $data['tokenize'] = true;
         }
 
         return View::make('payments.add_paymentmethod', $data);
@@ -883,10 +888,12 @@ class PublicClientController extends BaseController
         $account = $client->account;
 
         $accountGateway = $account->getGatewayByType($paymentType);
-        $sourceToken = $accountGateway->gateway_id == GATEWAY_STRIPE ? Input::get('stripeToken'):Input::get('payment_method_nonce');
+        $sourceToken = Input::get('sourceToken');
 
-        if (!PaymentController::processPaymentClientDetails($client,  $accountGateway, $paymentType)) {
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
+        if (($validator = PaymentController::processPaymentClientDetails($client,  $accountGateway, $paymentType)) !== true) {
+            return Redirect::to('client/paymentmethods/add/' . $typeLink)
+                ->withErrors($validator)
+                ->withInput(Request::except('cvv'));
         }
 
         if ($sourceToken) {

@@ -60,11 +60,7 @@ class DatatableService
                 $str .= '<div class="tr-status"></div>';
             }
 
-            $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
-                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
-                        '.trans('texts.select').' <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">';
+            $dropdown_contents = '';
 
             $lastIsDivider = false;
             if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
@@ -78,17 +74,24 @@ class DatatableService
                         list($value, $url, $visible) = $action;
                         if ($visible($model)) {
                             if($value == '--divider--'){
-                                $str .= "<li class=\"divider\"></li>";
+                                $dropdown_contents .= "<li class=\"divider\"></li>";
                                 $lastIsDivider = true;
                             }
                             else {
-                                $str .= "<li><a href=\"{$url($model)}\">{$value}</a></li>";
+                                $urlVal = $url($model);
+                                $urlStr = is_string($urlVal) ? $urlVal : $urlVal['url'];
+                                $attributes = '';
+                                if (!empty($urlVal['attributes'])) {
+                                    $attributes = ' '.$urlVal['attributes'];
+                                }
+
+                                $dropdown_contents .= "<li><a href=\"$urlStr\"{$attributes}>{$value}</a></li>";
                                 $hasAction = true;
                                 $lastIsDivider = false;
                             }
                         }
                     } elseif ( ! $lastIsDivider) {
-                        $str .= "<li class=\"divider\"></li>";
+                        $dropdown_contents .= "<li class=\"divider\"></li>";
                         $lastIsDivider = true;
                     }
                 }
@@ -98,24 +101,35 @@ class DatatableService
                 }
 
                 if ( $can_edit && ! $lastIsDivider) {
-                    $str .= "<li class=\"divider\"></li>";
+                    $dropdown_contents .= "<li class=\"divider\"></li>";
                 }
 
                 if (($entityType != ENTITY_USER || $model->public_id) && $can_edit) {
-                    $str .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">"
+                    $dropdown_contents .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">"
                             . trans("texts.archive_{$entityType}") . "</a></li>";
                 }
             } else if($can_edit) {
-                $str .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
+                if ($entityType != ENTITY_ACCOUNT_GATEWAY || Auth::user()->account->canAddGateway(\App\Models\Gateway::getPaymentType($model->gateway_id))) {
+                    $dropdown_contents .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
                         . trans("texts.restore_{$entityType}") . "</a></li>";
+                }
             }
 
             if (property_exists($model, 'is_deleted') && !$model->is_deleted && $can_edit) {
-                $str .= "<li><a href=\"javascript:deleteEntity({$model->public_id})\">"
+                $dropdown_contents .= "<li><a href=\"javascript:deleteEntity({$model->public_id})\">"
                         . trans("texts.delete_{$entityType}") . "</a></li>";
             }
 
-            return $str.'</ul></div></center>';
+            if (!empty($dropdown_contents)) {
+                $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
+                        '.trans('texts.select').' <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">';
+                $str .= $dropdown_contents . '</ul>';
+            }
+
+            return $str.'</div></center>';
         });
     }
 

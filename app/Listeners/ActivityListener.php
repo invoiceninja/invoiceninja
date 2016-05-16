@@ -307,8 +307,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_DELETE_PAYMENT,
-            $payment->amount,
-            $payment->amount * -1
+            $payment->amount - $payment->refunded,
+            ($payment->amount - $payment->refunded) * -1
         );
     }
 
@@ -343,8 +343,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_FAILED_PAYMENT,
-            $payment->amount,
-            $payment->amount * -1
+            ($payment->amount - $payment->refunded),
+            ($payment->amount - $payment->refunded) * -1
         );
     }
 
@@ -367,8 +367,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_RESTORE_PAYMENT,
-            $event->fromDeleted ? $payment->amount * -1 : 0,
-            $event->fromDeleted ? $payment->amount : 0
+            $event->fromDeleted ? ($payment->amount - $payment->refunded) * -1 : 0,
+            $event->fromDeleted ? ($payment->amount - $payment->refunded) : 0
         );
     }
 }

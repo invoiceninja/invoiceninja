@@ -242,6 +242,8 @@ Route::group([
     Route::post('/import_csv', 'ImportController@doImportCSV');
 
     Route::resource('gateways', 'AccountGatewayController');
+    Route::get('gateways/{public_id}/resend_confirmation', 'AccountGatewayController@resendConfirmation');
+    Route::get('gateways/switch/wepay', 'AccountGatewayController@switchToWepay');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
@@ -563,6 +565,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
 
+    // The customer exists, but only as a local concept
+    // The remote gateway doesn't understand the concept of customers
+    define('CUSTOMER_REFERENCE_LOCAL', 'local');
+
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);
     define('EVENT_CREATE_QUOTE', 3);
@@ -704,10 +710,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');
 
-    define('AUTO_BILL_OFF', 0);
-    define('AUTO_BILL_OPT_IN', 1);
-    define('AUTO_BILL_OPT_OUT', 2);
-    define('AUTO_BILL_ALWAYS', 3);
+    define('AUTO_BILL_OFF', 1);
+    define('AUTO_BILL_OPT_IN', 2);
+    define('AUTO_BILL_OPT_OUT', 3);
+    define('AUTO_BILL_ALWAYS', 4);
 
     // These must be lowercase
     define('PLAN_FREE', 'free');
@@ -747,6 +753,15 @@ if (!defined('CONTACT_EMAIL')) {
 
     // Pro users who started paying on or before this date will be able to manage users
     define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-05-15');
+
+    // WePay
+    define('WEPAY_PRODUCTION', 'production');
+    define('WEPAY_STAGE', 'stage');
+    define('WEPAY_CLIENT_ID', env('WEPAY_CLIENT_ID'));
+    define('WEPAY_CLIENT_SECRET', env('WEPAY_CLIENT_SECRET'));
+    define('WEPAY_AUTO_UPDATE', env('WEPAY_AUTO_UPDATE', false));
+    define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
+    define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

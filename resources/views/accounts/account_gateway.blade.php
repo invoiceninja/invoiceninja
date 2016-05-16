@@ -5,15 +5,18 @@
 
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
-    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
-    {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
+    @if(!$accountGateway && WEPAY_CLIENT_ID && !$account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD) && !$account->getGatewayByType(PAYMENT_TYPE_STRIPE))
+        @include('accounts.partials.account_gateway_wepay')
+    @endif
 
-
+    <div id="other-providers">
     <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">{!! trans($title) !!}</h3>
     </div>
     <div class="panel-body form-padding-right">
+    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
+    {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
 
     @if ($accountGateway)
         {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
@@ -91,7 +94,7 @@
                 {!! Former::text('publishable_key') !!}
             @endif
 
-            @if ($gateway->id == GATEWAY_STRIPE || $gateway->id == GATEWAY_BRAINTREE)
+            @if ($gateway->id == GATEWAY_STRIPE || $gateway->id == GATEWAY_BRAINTREE || $gateway->id == GATEWAY_WEPAY)
                 {!! Former::select('token_billing_type_id')
                         ->options($tokenBillingOptions)
                         ->help(trans('texts.token_billing_help')) !!}
@@ -101,7 +104,7 @@
                 <div class="form-group">
                     <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
                     <div class="col-lg-8 col-sm-8 help-block">
-                        <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to('/paymenthook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
+                        <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'paymenthook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
                         <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
                         'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
                     ]) !!}</strong></div>
@@ -173,7 +176,6 @@
         </div>
         @endif
     </div>
-
     </div>
     </div>
 
@@ -183,6 +185,7 @@
         $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/online_payments'))->appendIcon(Icon::create('remove-circle')) : false,
         Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
     {!! Former::close() !!}
+    </div>
 
 
     <script type="text/javascript">
@@ -256,6 +259,11 @@
         enableUpdateAddress();
 
         $('#enable_ach').change(enablePlaidSettings)
+
+        $('#show-other-providers').click(function(){
+            $(this).hide();
+            $('#other-providers').show();
+        })
     })
 
     </script>
