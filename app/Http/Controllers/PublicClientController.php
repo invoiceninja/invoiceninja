@@ -293,6 +293,7 @@ class PublicClientController extends BaseController
             'color' => $color,
             'account' => $account,
             'client' => $client,
+            'contact' => $invitation->contact,
             'clientFontUrl' => $account->getFontsUrl(),
             'gateway' => $account->getTokenGateway(),
             'paymentMethods' => $this->paymentService->getClientPaymentMethods($client),
@@ -757,6 +758,7 @@ class PublicClientController extends BaseController
             'account' => $account,
             'color' => $account->primary_color ? $account->primary_color : '#0b4d78',
             'client' => $client,
+            'contact' => $invitation->contact,
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
             'paymentMethods' => $paymentMethods,
@@ -828,19 +830,20 @@ class PublicClientController extends BaseController
         $accountGateway = $invoice->client->account->getTokenGateway();
         $gateway = $accountGateway->gateway;
 
-        if ($token && $paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-            $sourceReference = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $invitation->contact_id);
+        if ($token) {
+            if ($paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+                $sourceReference = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token' => $token), $accountGateway, $client, $invitation->contact_id);
 
-            if(empty($sourceReference)) {
-                $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-            } else {
-                Session::flash('message', trans('texts.payment_method_added'));
+                if (empty($sourceReference)) {
+                    $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
+                } else {
+                    Session::flash('message', trans('texts.payment_method_added'));
+                }
+                return redirect()->to($account->enable_client_portal ? '/client/dashboard' : '/client/paymentmethods/');
             }
-            return redirect()->to($account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
         }
 
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
-
 
         $data = [
             'showBreadcrumbs' => false,

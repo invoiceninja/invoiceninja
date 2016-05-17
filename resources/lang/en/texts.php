@@ -1219,7 +1219,7 @@ $LANG = array(
     'ach' => 'ACH',
     'enable_ach' => 'Enable ACH',
     'stripe_ach_help' => 'ACH support must also be enabled at Stripe.',
-    'stripe_ach_disabled' => 'Another gateway is already configured for direct debit.',
+    'ach_disabled' => 'Another gateway is already configured for direct debit.',
 
     'plaid' => 'Plaid',
     'client_id' => 'Client Id',

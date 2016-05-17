@@ -113,7 +113,7 @@
             @endif
 
             @if ($gateway->id == GATEWAY_BRAINTREE)
-                @if ($account->getGatewayByType(PAYMENT_TYPE_PAYPAL))
+                @if ($account->getGatewayByType(PAYMENT_TYPE_PAYPAL, isset($accountGateway)?$accountGateway:null))
                     {!! Former::checkbox('enable_paypal')
                         ->label(trans('texts.paypal'))
                         ->text(trans('texts.braintree_enable_paypal'))
@@ -149,33 +149,49 @@
             ->class('creditcard-types')
             ->addGroupClass('gateway-option')
     !!}
-    <div class="stripe-ach">
-        @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT))
+    @if(isset($accountGateway) && $accountGateway->gateway_id == GATEWAY_WEPAY)
+        @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT, $accountGateway))
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
                 ->text(trans('texts.enable_ach'))
                 ->value(null)
                 ->disabled(true)
-                ->help(trans('texts.stripe_ach_disabled')) !!}
+                ->help(trans('texts.ach_disabled')) !!}
         @else
-        {!! Former::checkbox('enable_ach')
-            ->label(trans('texts.ach'))
-            ->text(trans('texts.enable_ach'))
-            ->help(trans('texts.stripe_ach_help')) !!}
-        <div class="stripe-ach-options">
-            <div class="form-group">
-                <div class="col-sm-8 col-sm-offset-4">
-                    <h4>{{trans('texts.plaid')}}</h4>
-                    <div class="help-block">{{trans('texts.plaid_optional')}}</div>
-                </div>
-            </div>
-            {!! Former::text('plaid_client_id')->label(trans('texts.client_id')) !!}
-            {!! Former::text('plaid_secret')->label(trans('texts.secret')) !!}
-            {!! Former::text('plaid_public_key')->label(trans('texts.public_key'))
-                ->help(trans('texts.plaid_environment_help')) !!}
-        </div>
+            {!! Former::checkbox('enable_ach')
+                ->label(trans('texts.ach'))
+                ->text(trans('texts.enable_ach')) !!}
         @endif
-    </div>
+
+    @elseif(!isset($accountGateway) || $accountGateway->gateway_id == GATEWAY_STRIPE)
+        <div class="stripe-ach">
+            @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT, isset($accountGateway)?$accountGateway:null))
+                {!! Former::checkbox('enable_ach')
+                    ->label(trans('texts.ach'))
+                    ->text(trans('texts.enable_ach'))
+                    ->value(null)
+                    ->disabled(true)
+                    ->help(trans('texts.ach_disabled')) !!}
+            @else
+            {!! Former::checkbox('enable_ach')
+                ->label(trans('texts.ach'))
+                ->text(trans('texts.enable_ach'))
+                ->help(trans('texts.stripe_ach_help')) !!}
+            <div class="stripe-ach-options">
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-4">
+                        <h4>{{trans('texts.plaid')}}</h4>
+                        <div class="help-block">{{trans('texts.plaid_optional')}}</div>
+                    </div>
+                </div>
+                {!! Former::text('plaid_client_id')->label(trans('texts.client_id')) !!}
+                {!! Former::text('plaid_secret')->label(trans('texts.secret')) !!}
+                {!! Former::text('plaid_public_key')->label(trans('texts.public_key'))
+                    ->help(trans('texts.plaid_environment_help')) !!}
+            </div>
+            @endif
+        </div>
+    @endif
     </div>
     </div>
 
