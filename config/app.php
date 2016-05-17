@@ -139,7 +139,7 @@ return [
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Broadcasting\BroadcastServiceProvider',
-        
+
         /*
          * Additional Providers
          */
@@ -153,6 +153,7 @@ return [
         'Laravel\Socialite\SocialiteServiceProvider',
         'Jlapp\Swaggervel\SwaggervelServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
+        Websight\GcsProvider\CloudStorageServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -211,6 +212,7 @@ return [
         'Schema'          => 'Illuminate\Support\Facades\Schema',
         'Seeder'          => 'Illuminate\Database\Seeder',
         'Session'         => 'Illuminate\Support\Facades\Session',
+        'Storage'         => 'Illuminate\Support\Facades\Storage',
         'Str'             => 'Illuminate\Support\Str',
         'URL'             => 'Illuminate\Support\Facades\URL',
         'Validator'       => 'Illuminate\Support\Facades\Validator',

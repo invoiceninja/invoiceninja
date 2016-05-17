@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cf82d2ddb25cb1a7d6b4867bcc8692b8",
-    "content-hash": "481a95753b873249aebceb99e7426421",
+    "hash": "959e373ec2049b8d396f90b313da08b5",
+    "content-hash": "0a191e645db4d3edd709ec706c26503d",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -127,7 +127,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/78ae8c65b1f8134e2db1c9491c251c03638823ca",
+                "url": "https://api.github.com/repos/formers/former/zipball/37f6876a5d211427b5c445cd64f0eb637f42f685",
                 "reference": "d97f907741323b390f43954a90a227921ecc6b96",
                 "shasum": ""
             },
@@ -505,7 +505,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/e97ed532f09e290b91ff7713b785ed7ab11d0812",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/35ebf3a2ba9443e11fbdb9066cc363ec7b2245e4",
                 "reference": "e97ed532f09e290b91ff7713b785ed7ab11d0812",
                 "shasum": ""
             },
@@ -1965,6 +1965,97 @@
             "time": "2015-01-16 08:41:13"
         },
         {
+            "name": "fzaninotto/faker",
+            "version": "v1.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fzaninotto/Faker.git",
+                "reference": "44f9a286a04b80c76a4e5fb7aad8bb539b920123"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/44f9a286a04b80c76a4e5fb7aad8bb539b920123",
+                "reference": "44f9a286a04b80c76a4e5fb7aad8bb539b920123",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.3|^7.0"
+            },
+            "require-dev": {
+                "ext-intl": "*",
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "~1.5"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": []
+            },
+            "autoload": {
+                "psr-4": {
+                    "Faker\\": "src/Faker/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "François Zaninotto"
+                }
+            ],
+            "description": "Faker is a PHP library that generates fake data for you.",
+            "keywords": [
+                "data",
+                "faker",
+                "fixtures"
+            ],
+            "time": "2016-04-29 12:21:54"
+        },
+        {
+            "name": "google/apiclient",
+            "version": "1.1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/google/google-api-php-client.git",
+                "reference": "400f250a30ae1dd4c4a0a4f750fe973fc70e6311"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/google/google-api-php-client/zipball/400f250a30ae1dd4c4a0a4f750fe973fc70e6311",
+                "reference": "400f250a30ae1dd4c4a0a4f750fe973fc70e6311",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "3.7.*",
+                "squizlabs/php_codesniffer": "~2.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1.x-dev"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "description": "Client library for Google APIs",
+            "homepage": "http://developers.google.com/api-client-library/php",
+            "keywords": [
+                "google"
+            ],
+            "time": "2016-02-02 18:50:42"
+        },
+        {
             "name": "guzzle/guzzle",
             "version": "v3.8.1",
             "source": {
@@ -2338,7 +2429,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/e368d262887dbb2fdfaf710880571ede51e9c0e6",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/22088b04728a039bd1fc32f7e79a89a118b78698",
                 "reference": "e368d262887dbb2fdfaf710880571ede51e9c0e6",
                 "shasum": ""
             },
@@ -2727,7 +2818,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/labs7in0/omnipay-wechat/zipball/40c9f86df6573ad98ae1dd0d29712ccbc789a74e",
+                "url": "https://api.github.com/repos/labs7in0/omnipay-wechat/zipball/c8d80c3b48bae2bab071f283f75b1cd8624ed3c7",
                 "reference": "40c9f86df6573ad98ae1dd0d29712ccbc789a74e",
                 "shasum": ""
             },
@@ -6490,6 +6581,53 @@
             "time": "2015-08-12 08:09:37"
         },
         {
+            "name": "superbalist/flysystem-google-storage",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Superbalist/flysystem-google-storage.git",
+                "reference": "441a8529680986a2d2063a268ee2918f51db1b79"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Superbalist/flysystem-google-storage/zipball/441a8529680986a2d2063a268ee2918f51db1b79",
+                "reference": "441a8529680986a2d2063a268ee2918f51db1b79",
+                "shasum": ""
+            },
+            "require": {
+                "google/apiclient": "~1.1|^2.0.0@RC",
+                "league/flysystem": "~1.0",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "0.9.*",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Superbalist\\Flysystem\\GoogleStorage\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Superbalist.com a division of Takealot Online (Pty) Ltd",
+                    "email": "info@superbalist.com"
+                }
+            ],
+            "description": "Flysystem adapter for Google Cloud Storage",
+            "time": "2016-04-12 14:56:22"
+        },
+        {
             "name": "swiftmailer/swiftmailer",
             "version": "v5.4.1",
             "source": {
@@ -7937,6 +8075,49 @@
             "time": "2016-02-25 10:29:59"
         },
         {
+            "name": "websight/l5-google-cloud-storage",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/websightgmbh/l5-google-cloud-storage.git",
+                "reference": "c1cac9985dfce60010234c9dca127f3543d2d594"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/websightgmbh/l5-google-cloud-storage/zipball/c1cac9985dfce60010234c9dca127f3543d2d594",
+                "reference": "c1cac9985dfce60010234c9dca127f3543d2d594",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "~5.0.17|5.1.*|5.2.*",
+                "superbalist/flysystem-google-storage": "^1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Websight\\GcsProvider\\": "src/Websight/GcsProvider/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cedric Ziel",
+                    "email": "ziel@websight.de"
+                }
+            ],
+            "description": "Laravel 5 Flysystem Google Cloud Storage  Service Provider",
+            "homepage": "https://github.com/websightgmbh/l5-google-cloud-storage",
+            "keywords": [
+                "Flysystem",
+                "laravel",
+                "laravel5"
+            ],
+            "time": "2016-03-04 11:57:00"
+        },
+        {
             "name": "wildbit/laravel-postmark-provider",
             "version": "3.0.0",
             "source": {
@@ -8739,58 +8920,6 @@
                 "webdriver"
             ],
             "time": "2015-12-31 15:58:49"
-        },
-        {
-            "name": "fzaninotto/faker",
-            "version": "v1.5.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "d0190b156bcca848d401fb80f31f504f37141c8d"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/d0190b156bcca848d401fb80f31f504f37141c8d",
-                "reference": "d0190b156bcca848d401fb80f31f504f37141c8d",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.3"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.0",
-                "squizlabs/php_codesniffer": "~1.5"
-            },
-            "suggest": {
-                "ext-intl": "*"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "1.5.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Faker\\": "src/Faker/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "François Zaninotto"
-                }
-            ],
-            "description": "Faker is a PHP library that generates fake data for you.",
-            "keywords": [
-                "data",
-                "faker",
-                "fixtures"
-            ],
-            "time": "2015-05-29 06:29:14"
         },
         {
             "name": "phpspec/php-diff",
