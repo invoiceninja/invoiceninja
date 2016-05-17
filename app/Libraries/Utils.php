@@ -344,7 +344,7 @@ class Utils
         $decimal = $currency->decimal_separator;
         $precision = $currency->precision;
         $code = $currency->code;
-        $swapSymbol = false;
+        $swapSymbol = $currency->swap_currency_symbol;
 
         if ($countryId && $currencyId == CURRENCY_EURO) {
             $country = self::getFromCache($countryId, 'countries');
