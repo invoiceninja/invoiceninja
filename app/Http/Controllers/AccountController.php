@@ -1248,8 +1248,9 @@ class AccountController extends BaseController
         $this->accountRepo->unlinkAccount($account);
         if ($account->company->accounts->count() == 1) {
             $account->company->forceDelete();
+        } else {
+            $account->forceDelete();
         }
-        $account->forceDelete();
 
         Auth::logout();
         Session::flush();
