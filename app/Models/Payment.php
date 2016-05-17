@@ -90,22 +90,22 @@ class Payment extends EntityModel
     {
         return $this->payment_status_id = PAYMENT_STATUS_PENDING;
     }
-    
+
     public function isFailed()
     {
         return $this->payment_status_id = PAYMENT_STATUS_FAILED;
     }
-    
+
     public function isCompleted()
     {
         return $this->payment_status_id == PAYMENT_STATUS_COMPLETED;
     }
-    
+
     public function isPartiallyRefunded()
     {
         return $this->payment_status_id == PAYMENT_STATUS_PARTIALLY_REFUNDED;
     }
-    
+
     public function isRefunded()
     {
         return $this->payment_status_id == PAYMENT_STATUS_REFUNDED;
@@ -122,15 +122,15 @@ class Payment extends EntityModel
             if (!$amount) {
                 $amount = $this->amount;
             }
-            
+
             $new_refund = min($this->amount, $this->refunded + $amount);
             $refund_change = $new_refund - $this->refunded;
-            
+
             if ($refund_change) {
                 $this->refunded = $new_refund;
                 $this->payment_status_id = $this->refunded == $this->amount ? PAYMENT_STATUS_REFUNDED : PAYMENT_STATUS_PARTIALLY_REFUNDED;
                 $this->save();
-                
+
                 Event::fire(new PaymentWasRefunded($this, $refund_change));
             }
         }
@@ -167,6 +167,11 @@ class Payment extends EntityModel
         return ENTITY_PAYMENT;
     }
 
+    public function getCompletedAmount()
+    {
+        return $this->amount - $this->refunded;
+    }
+
     public function getBankDataAttribute()
     {
         if (!$this->routing_number) {
@@ -182,7 +187,7 @@ class Payment extends EntityModel
 }
 
 Payment::creating(function ($payment) {
-    
+
 });
 
 Payment::created(function ($payment) {
