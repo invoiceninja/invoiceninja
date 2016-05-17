@@ -63,7 +63,6 @@
         "meebio/omnipay-secure-trading": "dev-master",
         "justinbusschau/omnipay-secpay": "~2.0",
         "labs7in0/omnipay-wechat": "dev-master",
-        "collizo4sky/omnipay-wepay": "~1.0",
         "laracasts/presenter": "dev-master",
         "jlapp/swaggervel": "master-dev",
         "maatwebsite/excel": "~2.0",
@@ -75,7 +74,8 @@
         "barracudanetworks/archivestream-php": "^1.0",
         "omnipay/braintree": "~2.0@dev",
         "gatepay/FedACHdir": "dev-master@dev",
-        "wepay/php-sdk": "^0.2"
+        "wepay/php-sdk": "^0.2",
+        "collizo4sky/omnipay-wepay": "dev-additional-calls"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
@@ -141,6 +141,10 @@
                     "reference": "origin/master"
                 }
             }
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/sometechie/omnipay-wepay"
         }
     ]
 }

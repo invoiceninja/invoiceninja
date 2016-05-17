@@ -1313,6 +1313,10 @@ $LANG = array(
     'switch' => 'Switch',
     'restore_account_gateway' => 'Restore Gateway',
     'restored_account_gateway' => 'Successfully restored gateway',
+    'united_states' => 'United States',
+    'canada' => 'Canada',
+    'accept_debit_cards' => 'Accept Debit Cards',
+    'debit_cards' => 'Debit Cards',
 );
 
 return $LANG;

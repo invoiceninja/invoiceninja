@@ -369,14 +369,20 @@ class AccountGatewayController extends BaseController
         $user = Auth::user();
         $account = $user->account;
 
-        $validator = Validator::make(Input::all(), array(
+        $rules = array(
             'company_name' => 'required',
             'description' => 'required',
             'tos_agree' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required',
-        ));
+        );
+
+        if (WEPAY_ENABLE_CANADA) {
+            $rules['country'] = 'required|in:US,CA';
+        }
+
+        $validator = Validator::make(Input::all(), $rules);
 
         if ($validator->fails()) {
             return Redirect::to('gateways/create')
@@ -387,7 +393,7 @@ class AccountGatewayController extends BaseController
         try{
             $wepay = Utils::setupWePay();
 
-            $wepayUser = $wepay->request('user/register/', array(
+            $userDetails = array(
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'email' => Input::get('email'),
@@ -399,18 +405,31 @@ class AccountGatewayController extends BaseController
                 'redirect_uri' => URL::to('gateways'),
                 'callback_uri' => URL::to(env('WEBHOOK_PREFIX','').'paymenthook/'.$account->account_key.'/'.GATEWAY_WEPAY),
                 'scope' => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
-            ));
+            );
+
+            $wepayUser = $wepay->request('user/register/', $userDetails);
 
             $accessToken = $wepayUser->access_token;
             $accessTokenExpires = $wepayUser->expires_in ? (time() + $wepayUser->expires_in) : null;
 
             $wepay = new WePay($accessToken);
 
-            $wepayAccount = $wepay->request('account/create/', array(
+            $accountDetails = array(
                 'name'         => Input::get('company_name'),
                 'description'  => Input::get('description'),
                 'theme_object' => json_decode(WEPAY_THEME),
-            ));
+            );
+
+            if (WEPAY_ENABLE_CANADA) {
+                $accountDetails['country'] = Input::get('country');
+
+                if (Input::get('country') == 'CA') {
+                    $accountDetails['currencies'] = ['CAD'];
+                    $accountDetails['country_options'] = ['debit_opt_in' => boolval(Input::get('debit_cards'))];
+                }
+            }
+
+            $wepayAccount = $wepay->request('account/create/', $accountDetails);
 
             try {
                 $wepay->request('user/send_confirmation/', []);
@@ -435,6 +454,7 @@ class AccountGatewayController extends BaseController
                 'tokenExpires' => $accessTokenExpires,
                 'accountId' => $wepayAccount->account_id,
                 'testMode' => WEPAY_ENVIRONMENT == WEPAY_STAGE,
+                'country' => WEPAY_ENABLE_CANADA ? Input::get('country') : 'US',
             ));
 
             if ($confirmationRequired) {

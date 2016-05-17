@@ -759,8 +759,13 @@ if (!defined('CONTACT_EMAIL')) {
     define('WEPAY_CLIENT_SECRET', env('WEPAY_CLIENT_SECRET'));
     define('WEPAY_AUTO_UPDATE', env('WEPAY_AUTO_UPDATE', false));
     define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
+    define('WEPAY_ENABLE_CANADA', env('WEPAY_ENABLE_CANADA', false));
     define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
-    
+
+    define('WEPAY_FEE_PAYER', env('WEPAY_FEE_PAYER', 'payee'));
+    define('WEPAY_APP_FEE_MULTIPLIER', env('WEPAY_APP_FEE_MULTIPLIER', 0.002));
+    define('WEPAY_APP_FEE_FIXED', env('WEPAY_APP_FEE_MULTIPLIER', 0.00));
+
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
