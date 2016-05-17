@@ -6,8 +6,12 @@ class Currency extends Eloquent
 {
     public $timestamps = false;
 
-    public function getName() 
+    protected $casts = [
+        'swap_currency_symbol' => 'boolean',
+    ];
+
+    public function getName()
     {
         return $this->name;
-    }    
+    }
 }
