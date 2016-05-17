@@ -41,6 +41,10 @@ class PushService
 
     public function sendNotification($invoice, $type)
     {
+        if (! IOS_PUSH_CERTIFICATE) {
+            return;
+        }
+
         //check user has registered for push notifications
         if(!$this->checkDeviceExists($invoice->account))
             return;
