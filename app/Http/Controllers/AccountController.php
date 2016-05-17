@@ -758,7 +758,7 @@ class AccountController extends BaseController
 
         return Redirect::to('settings/'.ACCOUNT_CLIENT_PORTAL);
     }
-    
+
     private function saveEmailTemplates()
     {
         if (Auth::user()->account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
@@ -1254,8 +1254,9 @@ class AccountController extends BaseController
         $this->accountRepo->unlinkAccount($account);
         if ($account->company->accounts->count() == 1) {
             $account->company->forceDelete();
+        } else {
+            $account->forceDelete();
         }
-        $account->forceDelete();
 
         Auth::logout();
         Session::flush();
