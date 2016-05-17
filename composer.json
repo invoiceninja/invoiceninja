@@ -75,7 +75,7 @@
         "omnipay/braintree": "~2.0@dev",
         "gatepay/FedACHdir": "dev-master@dev",
         "websight/l5-google-cloud-storage": "^1.0",
-        "fzaninotto/faker": "^1.5"
+        "fzaninotto/faker": "^1.5",
         "wepay/php-sdk": "^0.2",
         "collizo4sky/omnipay-wepay": "dev-additional-calls"
     },
