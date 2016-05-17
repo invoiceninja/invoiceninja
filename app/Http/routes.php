@@ -631,8 +631,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_API_PAGE_SIZE', 15);
     define('MAX_API_PAGE_SIZE', 100);
 
-    define('IOS_PRODUCTION_PUSH', env('IOS_PRODUCTION_PUSH', 'ninjaIOS'));
-    define('IOS_DEV_PUSH', env('IOS_DEV_PUSH', 'devNinjaIOS'));
+    define('IOS_PUSH_CERTIFICATE', env('IOS_PUSH_CERTIFICATE', ''));
 
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);
