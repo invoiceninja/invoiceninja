@@ -498,7 +498,7 @@ return array(
     'token_billing_4' => 'Toujours',
     'token_billing_checkbox' => 'Mémoriser les informations de carte de crédit',
     'view_in_gateway' => 'Visualiser dans :gateway',
-    'use_card_on_file' => 'Mémoriser les informations de la carte pour usage ultérieur',
+    'use_card_on_file' => 'Utiliser la carte de crédit en mémoire',
     'edit_payment_details' => 'Éditer les informations de paiement',
     'token_billing' => 'Sauvegarder les informations de carte de crédit',
     'token_billing_secure' => 'Les données sont mémorisées de façon sécuritaire avec :link',
