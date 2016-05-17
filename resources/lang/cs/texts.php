@@ -517,8 +517,8 @@ $LANG = array(
     'duplicate_post' => 'Varování: předchozí stránka byla odeslána dvakrát. Druhé odeslání bylo ignorováno.',
     'view_documentation' => 'Zobrazit dokumentaci',
     'app_title' => 'Open source online fakrurace',
-    'app_description' => 'Invoice Ninja je bezplatné open-source řešení pro fakturaci a účtování zákazníkům. 
-    S Invoice Ninja, můžete jednoduše vytvářet a posílat hezké faktury z jakéhokoli zařízení, které má přístup na web. Vaši klienti si mohou faktury 
+    'app_description' => 'Invoice Ninja je bezplatné open-source řešení pro fakturaci a účtování zákazníkům.
+    S Invoice Ninja, můžete jednoduše vytvářet a posílat hezké faktury z jakéhokoli zařízení, které má přístup na web. Vaši klienti si mohou faktury
      vytisknout, stáhnout jako PDF nebo Vám rovnou online zaplatit.',
     'rows' => 'řádky',
     'www' => 'www',
@@ -913,7 +913,7 @@ $LANG = array(
     'archive_payment_term' => 'Archivovat platební podmínky',
     'recurring_due_dates' => 'Datumy splatnosti pravidelných faktur',
     'recurring_due_date_help' => '<p>Automaticky nastavit datum splatnosti na fakturách</p>
-        <p>U faktury s měsíčním nebo ročním cyklem bude nastavena měsíční splatnost v dalším měsíci. Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. 
+        <p>U faktury s měsíčním nebo ročním cyklem bude nastavena měsíční splatnost v dalším měsíci. Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month.
         Faktury se splatností k  29. nebo 30 v měsících, které tyto dny nemají se splatnost nastaví k poslednímu dni v měsíci.</p>
         <p>Faktury s týdenním cyklem mají jako výchozí týdenní splatnost.</p>
         <p>Například:</p>
@@ -995,40 +995,26 @@ $LANG = array(
     'overdue' => 'Po termínu',
 
 
-    'white_label_text' => 'Objednejte si white label licenci na JEDEN ROK $'.WHITE_LABEL_PRICE.' pro odstranění značky Invoice Ninja z klientského portálu a stránek podpory.',
-    'user_email_footer' => 'Pro úpravu emailových notifikací prosím navštivte '.SITE_URL.'/settings/notifications',
-    'reset_password_footer' => 'Pokud jste nepožádali o resetování hesla, prosím kontaktujte naši podporu na: '.CONTACT_EMAIL,
-    'limit_users' => 'Omlouváme se, to už přesáhlo limit '.MAX_NUM_USERS.' uživatelů',
-    'more_designs_self_host_header' => 'Získejte 6 dalších vzhledů faktur jen za  $'.INVOICE_DESIGNS_PRICE,
-    'old_browser' => 'Prosím použijte <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">novější prohlížeč</a>',
-    'white_label_custom_css' => ':link za $'.WHITE_LABEL_PRICE.'  získáte volitelné úpravy a pomůžete podpoře našeho projektu.',
-    'bank_accounts_help' => 'Připojte si bankovní účet pro automatický import nákladů a tvorbu dodavatelů. K dispozici pro American Express <a href="'.OFX_HOME_URL.'" target="_blank">přes 400 amerických bank.</a>',
-    'security' => [
-        'too_many_attempts' => 'Mnoho přístupů. Zkuste to prosím za několik minut.',
-        'wrong_credentials' => 'Neplatný email nebo heslo.',
-        'confirmation' => 'Váš účet byl potvrzen!',
-        'wrong_confirmation' => 'Chybný potvrzovací kód.',
-        'password_forgot' => 'Informace týkající se resetování hesla byla odeslána na Váš email.',
-        'password_reset' => 'Heslo bylo změněno úspěšně.',
-        'wrong_password_reset' => 'Neplatné heslo. Zkuste znovu',
-    ],
-    'pro_plan' => [
-        'remove_logo' => ':link pro odstranění loga Invoice Ninja připojením se k profi plánu',
-        'remove_logo_link' => 'Klikněte zde',
-    ],
-    'invitation_status' => [
-        'sent' => 'Email odeslán',
-        'opened' => 'Email otevřen',
-        'viewed' => 'Faktura zobrazena',
-    ],
-    'email_errors' => [
-        'inactive_client' => 'Emaily nemohou být odeslány neaktivním klientům',
-        'inactive_contact' => 'Emaily nemohou být odeslány neaktivním kontaktům',
-        'inactive_invoice' => 'Emaily nemohou být odeslány k neaktivním fakturám',
-        'user_unregistered' => 'Pro odesílání emailů si prosím zaregistrujte účet',
-        'user_unconfirmed' => 'Pro posílání emailů potvrďte prosím Váš účet.',
-        'invalid_contact_email' => 'Neplatný kontaktní email',
-    ],
+    'white_label_text' => 'Objednejte si white label licenci na JEDEN ROK $:price pro odstranění značky Invoice Ninja z klientského portálu a stránek podpory.',
+    'user_email_footer' => 'Pro úpravu emailových notifikací prosím navštivte :link',
+    'reset_password_footer' => 'Pokud jste nepožádali o resetování hesla, prosím kontaktujte naši podporu na: :email',
+    'limit_users' => 'Omlouváme se, to už přesáhlo limit :limit uživatelů',
+    'more_designs_self_host_header' => 'Získejte 6 dalších vzhledů faktur jen za  $:price',
+    'old_browser' => 'Prosím použijte <a href=":link" target="_blank">novější prohlížeč</a>',
+    'white_label_custom_css' => ':link za $:price  získáte volitelné úpravy a pomůžete podpoře našeho projektu.',
+    'bank_accounts_help' => 'Připojte si bankovní účet pro automatický import nákladů a tvorbu dodavatelů. K dispozici pro American Express <a href=":link" target="_blank">přes 400 amerických bank.</a>',
+
+    'pro_plan_remove_logo' => ':link pro odstranění loga Invoice Ninja připojením se k profi plánu',
+    'pro_plan_remove_logo_link' => 'Klikněte zde',
+    'invitation_status_sent' => 'Email odeslán',
+    'invitation_status_opened' => 'Email otevřen',
+    'invitation_status_viewed' => 'Faktura zobrazena',
+    'email_error_inactive_client' => 'Emaily nemohou být odeslány neaktivním klientům',
+    'email_error_inactive_contact' => 'Emaily nemohou být odeslány neaktivním kontaktům',
+    'email_error_inactive_invoice' => 'Emaily nemohou být odeslány k neaktivním fakturám',
+    'email_error_user_unregistered' => 'Pro odesílání emailů si prosím zaregistrujte účet',
+    'email_error_user_unconfirmed' => 'Pro posílání emailů potvrďte prosím Váš účet.',
+    'email_error_invalid_contact_email' => 'Neplatný kontaktní email',
 
     'navigation' => 'Navigace',
     'list_invoices' => 'Seznam faktur',
@@ -1059,14 +1045,14 @@ $LANG = array(
     'enable_portal_password_help'=>'Umožní Vám nastavit heslo pro každý kontakt. Pokud heslo nastavíte, tak kontakt ho bude pro zobrazení faktury vždy použít.',
     'send_portal_password'=>'Generovat heslo automaticky',
     'send_portal_password_help'=>'Pokud heslo není nastaveno, bude vygenerováno a zasláno spolu s první fakturou.',
-    
+
     'expired' => 'Expirované',
     'invalid_card_number' => 'Číslo platební karty není platné.',
     'invalid_expiry' => 'Datum expirace není platné.',
     'invalid_cvv' => 'CVV není platné.',
     'cost' => 'Cena',
     'create_invoice_for_sample' => 'Poznámka: vytvořte si první fakturu a zde si ji prohlédněte.',
-    
+
     // User Permissions
     'owner' => 'Vlastník',
     'administrator' => 'Administrátor',
@@ -1084,8 +1070,8 @@ $LANG = array(
     'create_all_help' => 'Povolit uživatelům měnit záznamy',
     'view_all_help' => 'Povolit uživatelům zobrazit záznamy, které nevytvořili',
     'edit_all_help' => 'Povolit uživatelům měnit záznamy, které nevytvořili',
-    'view_payment' => 'Zobrazit platbu', 
-   
+    'view_payment' => 'Zobrazit platbu',
+
     'january' => 'Leden',
     'february' => 'Únor',
     'march' => 'Březen',
@@ -1098,7 +1084,7 @@ $LANG = array(
     'october' => 'Říjen',
     'november' => 'Listopad',
     'december' => 'Prosinec',
-    
+
     // Documents
     'documents_header' => 'Documents:',
     'email_documents_header' => 'Documents:',
@@ -1111,17 +1097,15 @@ $LANG = array(
     'document_email_attachment' => 'Attach Documents',
     'download_documents' => 'Download Documents (:size)',
     'documents_from_expenses' => 'From Expenses:',
-    'dropzone' => array(// See http://www.dropzonejs.com/#config-dictDefaultMessage
-        'DefaultMessage' => 'Drop files or click to upload',
-        'FallbackMessage' => 'Your browser does not support drag\'n\'drop file uploads.',
-        'FallbackText' => 'Please use the fallback form below to upload your files like in the olden days.',
-        'FileTooBig' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
-        'InvalidFileType' => 'You can\'t upload files of this type.',
-        'ResponseError' => 'Server responded with {{statusCode}} code.',
-        'CancelUpload' => 'Cancel upload',
-        'CancelUploadConfirmation' => 'Are you sure you want to cancel this upload?',
-        'RemoveFile' => 'Remove file',
-    ),
+    'dropzone_default_message' => 'Drop files or click to upload',
+    'dropzone_fallback_message' => 'Your browser does not support drag\'n\'drop file uploads.',
+    'dropzone_fallback_text' => 'Please use the fallback form below to upload your files like in the olden days.',
+    'dropzone_file_too_big' => 'File is too big ({{filesize}}MiB). Max filesize: {{maxFilesize}}MiB.',
+    'dropzone_invalid_file_type' => 'You can\'t upload files of this type.',
+    'dropzone_response_error' => 'Server responded with {{statusCode}} code.',
+    'dropzone_cancel_upload' => 'Cancel upload',
+    'dropzone_cancel_upload_confirmation' => 'Are you sure you want to cancel this upload?',
+    'dropzone_remove_file' => 'Remove file',
     'documents' => 'Documents',
     'document_date' => 'Document Date',
     'document_size' => 'Size',
@@ -1130,11 +1114,11 @@ $LANG = array(
     'enable_client_portal_help' => 'Show/hide the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
-        
+
     // Plans
     'account_management' => 'Account Management',
     'plan_status' => 'Plan Status',
-    
+
     'plan_upgrade' => 'Upgrade',
     'plan_change' => 'Change Plan',
     'pending_change_to' => 'Changes To',
@@ -1164,9 +1148,9 @@ $LANG = array(
     'plan_paid' => 'Term Started',
     'plan_started' => 'Plan Started',
     'plan_expires' => 'Plan Expires',
-    
+
     'white_label_button' => 'White Label',
-    
+
     'pro_plan_year_description' => 'One year enrollment in the Invoice Ninja Pro Plan.',
     'pro_plan_month_description' => 'One month enrollment in the Invoice Ninja Pro Plan.',
     'enterprise_plan_product' => 'Enterprise Plan',
@@ -1186,7 +1170,7 @@ $LANG = array(
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
     'return_to_app' => 'Return to app',
-   
+
 );
 
 return $LANG;

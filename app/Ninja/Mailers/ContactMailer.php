@@ -48,9 +48,9 @@ class ContactMailer extends Mailer
         $response = null;
 
         if ($client->trashed()) {
-            return trans('texts.email_errors.inactive_client');
+            return trans('texts.email_error_inactive_client');
         } elseif ($invoice->trashed()) {
-            return trans('texts.email_errors.inactive_invoice');
+            return trans('texts.email_error_inactive_invoice');
         }
 
         $account->loadLocalizationSettings($client);
@@ -62,23 +62,23 @@ class ContactMailer extends Mailer
         if ($account->attatchPDF() && !$pdfString) {
             $pdfString = $invoice->getPDFString();
         }
-        
+
         $documentStrings = array();
         if ($account->document_email_attachment && $invoice->hasDocuments()) {
             $documents = $invoice->documents;
-        
+
             foreach($invoice->expenses as $expense){
                 $documents = $documents->merge($expense->documents);
             }
 
             $documents = $documents->sortBy('size');
-                        
+
             $size = 0;
             $maxSize = MAX_EMAIL_DOCUMENTS_SIZE * 1000;
             foreach($documents as $document){
                 $size += $document->size;
                 if($size > $maxSize)break;
-                
+
                 $documentStrings[] = array(
                     'name' => $document->name,
                     'data' => $document->getRaw(),
@@ -92,7 +92,7 @@ class ContactMailer extends Mailer
                 $sent = true;
             }
         }
-        
+
         $account->loadLocalizationSettings();
 
         if ($sent === true) {
@@ -110,7 +110,7 @@ class ContactMailer extends Mailer
     {
         $client = $invoice->client;
         $account = $invoice->account;
-        
+
         if (Auth::check()) {
             $user = Auth::user();
         } else {
@@ -121,13 +121,13 @@ class ContactMailer extends Mailer
         }
 
         if (!$user->email || !$user->registered) {
-            return trans('texts.email_errors.user_unregistered');
+            return trans('texts.email_error_user_unregistered');
         } elseif (!$user->confirmed) {
-            return trans('texts.email_errors.user_unconfirmed');
+            return trans('texts.email_error_user_unconfirmed');
         } elseif (!$invitation->contact->email) {
-            return trans('texts.email_errors.invalid_contact_email');
+            return trans('texts.email_error_invalid_contact_email');
         } elseif ($invitation->contact->trashed()) {
-            return trans('texts.email_errors.inactive_contact');
+            return trans('texts.email_error_inactive_contact');
         }
 
         $variables = [
@@ -136,7 +136,7 @@ class ContactMailer extends Mailer
             'invitation' => $invitation,
             'amount' => $invoice->getRequestedAmount()
         ];
-        
+
          if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
             // The contact needs a password
             $variables['password'] = $password = $this->generatePassword();
@@ -164,7 +164,7 @@ class ContactMailer extends Mailer
         $subject = $this->templateService->processVariables($subject, $variables);
         $fromEmail = $user->email;
         $view = $account->getTemplateView(ENTITY_INVOICE);
-        
+
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
 
         if ($response === true) {
@@ -173,7 +173,7 @@ class ContactMailer extends Mailer
             return $response;
         }
     }
-    
+
     protected function generatePassword($length = 9)
     {
         $sets = array(
@@ -192,7 +192,7 @@ class ContactMailer extends Mailer
         for($i = 0; $i < $length - count($sets); $i++)
             $password .= $all[array_rand($all)];
         $password = str_shuffle($password);
-        
+
         return $password;
     }
 
@@ -256,7 +256,7 @@ class ContactMailer extends Mailer
     {
         $view = 'license_confirmation';
         $subject = trans('texts.payment_subject');
-        
+
         if ($productId == PRODUCT_ONE_CLICK_INSTALL) {
             $license = "Softaculous install license: $license";
         } elseif ($productId == PRODUCT_INVOICE_DESIGNS) {
@@ -264,13 +264,13 @@ class ContactMailer extends Mailer
         } elseif ($productId == PRODUCT_WHITE_LABEL) {
             $license = "White label license: $license";
         }
-        
+
         $data = [
             'client' => $name,
             'amount' => Utils::formatMoney($amount, DEFAULT_CURRENCY, DEFAULT_COUNTRY),
             'license' => $license
         ];
-        
+
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 }

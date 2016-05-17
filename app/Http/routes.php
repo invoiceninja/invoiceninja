@@ -60,7 +60,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/documents/js/{documents}/{filename}', 'PublicClientController@getDocumentVFSJS');
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'PublicClientController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
-    
+
     Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
     Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
     Route::get('api/client.recurring_invoices', array('as'=>'api.client.recurring_invoices', 'uses'=>'PublicClientController@recurringInvoiceDatatable'));
@@ -735,20 +735,20 @@ if (!defined('CONTACT_EMAIL')) {
     define('FEATURE_API', 'api');
     define('FEATURE_CLIENT_PORTAL_PASSWORD', 'client_portal_password');
     define('FEATURE_CUSTOM_URL', 'custom_url');
-    
+
     define('FEATURE_MORE_CLIENTS', 'more_clients'); // No trial allowed
-    
+
     // Whitelabel
     define('FEATURE_CLIENT_PORTAL_CSS', 'client_portal_css');
     define('FEATURE_WHITE_LABEL', 'feature_white_label');
 
     // Enterprise
     define('FEATURE_DOCUMENTS', 'documents');
-    
+
     // No Trial allowed
     define('FEATURE_USERS', 'users');// Grandfathered for old Pro users
     define('FEATURE_USER_PERMISSIONS', 'user_permissions');
-    
+
     // Pro users who started paying on or before this date will be able to manage users
     define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-05-15');
 
@@ -765,7 +765,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('WEPAY_FEE_PAYER', env('WEPAY_FEE_PAYER', 'payee'));
     define('WEPAY_APP_FEE_MULTIPLIER', env('WEPAY_APP_FEE_MULTIPLIER', 0.002));
     define('WEPAY_APP_FEE_FIXED', env('WEPAY_APP_FEE_MULTIPLIER', 0.00));
-
+    
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],

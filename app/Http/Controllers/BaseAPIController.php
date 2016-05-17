@@ -61,40 +61,36 @@ class BaseAPIController extends Controller
         }
 
         $this->serializer = Request::get('serializer') ?: API_SERIALIZER_ARRAY;
-        
+
         if ($this->serializer === API_SERIALIZER_JSON) {
             $this->manager->setSerializer(new JsonApiSerializer());
         } else {
             $this->manager->setSerializer(new ArraySerializer());
         }
-        
-        if (Utils::isNinjaDev()) {
-            \DB::enableQueryLog();
-        }
     }
 
     protected function handleAction($request)
-    { 
+    {
         $entity = $request->entity();
         $action = $request->action;
-        
+
         $repo = Utils::toCamelCase($this->entityType) . 'Repo';
-        
+
         $this->$repo->$action($entity);
-        
+
         return $this->itemResponse($entity);
     }
 
     protected function listResponse($query)
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
+        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
 
         $includes = $transformer->getDefaultIncludes();
         $includes = $this->getRequestIncludes($includes);
 
         $query->with($includes);
-        
+
         if ($updatedAt = Input::get('updated_at')) {
             $updatedAt = date('Y-m-d H:i:s', $updatedAt);
             $query->where(function($query) use ($includes, $updatedAt) {
@@ -106,14 +102,14 @@ class BaseAPIController extends Controller
                 }
             });
         }
-        
+
         if ($clientPublicId = Input::get('client_id')) {
             $filter = function($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
             };
             $query->whereHas('client', $filter);
         }
-        
+
         if ( ! Utils::hasPermission('view_all')){
             if ($this->entityType == ENTITY_USER) {
                 $query->where('id', '=', Auth::user()->id);
@@ -121,7 +117,7 @@ class BaseAPIController extends Controller
                 $query->where('user_id', '=', Auth::user()->id);
             }
         }
-        
+
         $data = $this->createCollection($query, $transformer, $this->entityType);
 
         return $this->response($data);
@@ -130,10 +126,10 @@ class BaseAPIController extends Controller
     protected function itemResponse($item)
     {
         $transformerClass = EntityModel::getTransformerName($this->entityType);
-        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));        
+        $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
 
         $data = $this->createItem($item, $transformer, $this->entityType);
-        
+
         return $this->response($data);
     }
 
@@ -160,18 +156,12 @@ class BaseAPIController extends Controller
         } else {
             $resource = new Collection($query, $transformer, $entityType);
         }
-        
+
         return $this->manager->createData($resource)->toArray();
     }
 
     protected function response($response)
     {
-        if (Utils::isNinjaDev()) {
-            $count = count(\DB::getQueryLog());
-            Log::info(Request::method() . ' - ' . Request::url() . ": $count queries");
-            Log::info(json_encode(\DB::getQueryLog()));
-        }
-        
         $index = Request::get('index') ?: 'data';
 
         if ($index == 'none') {
@@ -222,7 +212,7 @@ class BaseAPIController extends Controller
                 $data[] = $include;
             }
         }
-        
+
         return $data;
     }
 }

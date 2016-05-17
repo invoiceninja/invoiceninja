@@ -8,4 +8,4 @@
 {!! trans('texts.email_signature') !!}
 {!! trans('texts.email_from') !!}
 
-{!! trans('texts.user_email_footer') !!}
+{!! trans('texts.user_email_footer', ['link' => URL::to('/settings/notifications')]) !!}

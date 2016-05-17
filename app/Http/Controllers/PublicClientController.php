@@ -60,7 +60,7 @@ class PublicClientController extends BaseController
             ]);
         }
 
-        if (!Input::has('phantomjs') && !Input::has('silent') && !Session::has($invitationKey) 
+        if (!Input::has('phantomjs') && !Input::has('silent') && !Session::has($invitationKey)
             && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->is_quote) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
@@ -73,7 +73,7 @@ class PublicClientController extends BaseController
         Session::put('invitation_key', $invitationKey); // track current invitation
 
         $account->loadLocalizationSettings($client);
-        
+
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->features = [
@@ -82,7 +82,7 @@ class PublicClientController extends BaseController
             'invoice_settings' => $account->hasFeature(FEATURE_INVOICE_SETTINGS),
         ];
         $invoice->invoice_fonts = $account->getFontsData();
-        
+
         if ($invoice->invoice_design_id == CUSTOM_DESIGN) {
             $invoice->invoice_design->javascript = $account->custom_design;
         } else {
@@ -149,10 +149,10 @@ class PublicClientController extends BaseController
             'checkoutComDebug' => $checkoutComDebug,
             'phantomjs' => Input::has('phantomjs'),
         );
-        
+
         if($account->hasFeature(FEATURE_DOCUMENTS) && $this->canCreateZip()){
             $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
-            
+
             if(count($zipDocs) > 1){
                 $data['documentsZipURL'] = URL::to("client/documents/{$invitation->invitation_key}");
                 $data['documentsZipSize'] = $size;
@@ -173,6 +173,7 @@ class PublicClientController extends BaseController
             foreach ($paymentMethods as $paymentMethod) {
                 if ($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED) {
                     $code = htmlentities(str_replace(' ', '', strtolower($paymentMethod->payment_type->name)));
+                    $html = '';
 
                     if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
                         if ($paymentMethod->bank_data) {
@@ -303,7 +304,7 @@ class PublicClientController extends BaseController
                 $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
             }
         }
-        
+
         return response()->view('invited.dashboard', $data);
     }
 
@@ -323,9 +324,9 @@ class PublicClientController extends BaseController
                 $data = [
                     'client' => Utils::getClientDisplayName($model),
                     'user' => $model->is_system ? ('<i>' . trans('texts.system') . '</i>') : ($model->user_first_name . ' ' . $model->user_last_name),
-                    'invoice' => trans('texts.invoice') . ' ' . $model->invoice,
+                    'invoice' => $model->invoice,
                     'contact' => Utils::getClientDisplayName($model),
-                    'payment' => trans('texts.payment') . ($model->payment ? ' ' . $model->payment : ''),
+                    'payment' => $model->payment ? ' ' . $model->payment : '',
                     'credit' => $model->payment_amount ? Utils::formatMoney($model->credit, $model->currency_id, $model->country_id) : '',
                     'payment_amount' => $model->payment_amount ? Utils::formatMoney($model->payment_amount, $model->currency_id, $model->country_id) : null,
                     'adjustment' => $model->adjustment ? Utils::formatMoney($model->adjustment, $model->currency_id, $model->country_id) : null,
@@ -351,7 +352,7 @@ class PublicClientController extends BaseController
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
-        
+
         $data = [
             'color' => $color,
             'account' => $account,
@@ -422,7 +423,7 @@ class PublicClientController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $data = [
             'color' => $color,
             'account' => $account,
@@ -471,7 +472,7 @@ class PublicClientController extends BaseController
                 ->orderColumns( 'invoice_number', 'transaction_reference', 'payment_type', 'amount', 'payment_date')
                 ->make();
     }
-    
+
     private function getPaymentStatusLabel($model)
     {
         $label = trans("texts.status_" . strtolower($model->payment_status_name));
@@ -546,7 +547,7 @@ class PublicClientController extends BaseController
             return $this->returnError();
         }
 
-        $color = $account->primary_color ? $account->primary_color : '#0b4d78';        
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $data = [
           'color' => $color,
           'account' => $account,
@@ -599,55 +600,55 @@ class PublicClientController extends BaseController
 
         return $invitation;
     }
-        
+
     public function getDocumentVFSJS($publicId, $name){
         if (!$invitation = $this->getInvitation()) {
             return $this->returnError();
         }
-        
+
         $clientId = $invitation->invoice->client_id;
         $document = Document::scope($publicId, $invitation->account_id)->first();
-        
-                
+
+
         if(!$document->isPDFEmbeddable()){
             return Response::view('error', array('error'=>'Image does not exist!'), 404);
         }
-        
+
         $authorized = false;
         if($document->expense && $document->expense->client_id == $invitation->invoice->client_id){
             $authorized = true;
         } else if($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id){
             $authorized = true;
         }
-        
+
         if(!$authorized){
             return Response::view('error', array('error'=>'Not authorized'), 403);
-        }        
-        
+        }
+
         if(substr($name, -3)=='.js'){
             $name = substr($name, 0, -3);
         }
-        
+
         $content = $document->preview?$document->getRawPreview():$document->getRaw();
         $content = 'ninjaAddVFSDoc('.json_encode(intval($publicId).'/'.strval($name)).',"'.base64_encode($content).'")';
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
         $response->header('cache-control', 'max-age=31536000');
-        
+
         return $response;
     }
-    
+
     protected function canCreateZip(){
         return function_exists('gmp_init');
     }
-    
+
     protected function getInvoiceZipDocuments($invoice, &$size=0){
         $documents = $invoice->documents;
-        
+
         foreach($invoice->expenses as $expense){
             $documents = $documents->merge($expense->documents);
         }
-        
+
         $documents = $documents->sortBy('size');
 
         $size = 0;
@@ -655,16 +656,16 @@ class PublicClientController extends BaseController
         $toZip = array();
         foreach($documents as $document){
             if($size + $document->size > $maxSize)break;
-            
+
             if(!empty($toZip[$document->name])){
                 // This name is taken
                 if($toZip[$document->name]->hash != $document->hash){
                     // 2 different files with the same name
                     $nameInfo = pathinfo($document->name);
-                    
+
                     for($i = 1;; $i++){
                         $name = $nameInfo['filename'].' ('.$i.').'.$nameInfo['extension'];
-                        
+
                         if(empty($toZip[$name])){
                             $toZip[$name] = $document;
                             $size += $document->size;
@@ -674,7 +675,7 @@ class PublicClientController extends BaseController
                             break;
                         }
                     }
-                    
+
                 }
             }
             else{
@@ -682,25 +683,25 @@ class PublicClientController extends BaseController
                 $size += $document->size;
             }
         }
-        
+
         return $toZip;
     }
-    
+
     public function getInvoiceDocumentsZip($invitationKey){
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();
         }
-        
+
         Session::put('invitation_key', $invitationKey); // track current invitation
-        
+
         $invoice = $invitation->invoice;
-        
+
         $toZip = $this->getInvoiceZipDocuments($invoice);
-        
+
         if(!count($toZip)){
             return Response::view('error', array('error'=>'No documents small enough'), 404);
         }
-        
+
         $zip = new ZipArchive($invitation->account->name.' Invoice '.$invoice->invoice_number.'.zip');
         return Response::stream(function() use ($toZip, $zip) {
             foreach($toZip as $name=>$document){
@@ -718,28 +719,28 @@ class PublicClientController extends BaseController
             $zip->finish();
         }, 200);
     }
-    
+
     public function getDocument($invitationKey, $publicId){
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();
         }
-        
+
         Session::put('invitation_key', $invitationKey); // track current invitation
-        
+
         $clientId = $invitation->invoice->client_id;
         $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
-        
+
         $authorized = false;
         if($document->expense && $document->expense->client_id == $invitation->invoice->client_id){
             $authorized = true;
         } else if($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id){
             $authorized = true;
         }
-        
+
         if(!$authorized){
             return Response::view('error', array('error'=>'Not authorized'), 403);
-        }        
-        
+        }
+
         return DocumentController::getDownloadResponse($document);
     }
 

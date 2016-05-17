@@ -74,6 +74,8 @@
         "barracudanetworks/archivestream-php": "^1.0",
         "omnipay/braintree": "~2.0@dev",
         "gatepay/FedACHdir": "dev-master@dev",
+        "websight/l5-google-cloud-storage": "^1.0",
+        "fzaninotto/faker": "^1.5"
         "wepay/php-sdk": "^0.2",
         "collizo4sky/omnipay-wepay": "dev-additional-calls"
     },
@@ -82,7 +84,6 @@
         "phpspec/phpspec": "~2.1",
         "codeception/codeception": "*",
         "codeception/c3": "~2.0",
-        "fzaninotto/faker": "^1.5",
         "symfony/dom-crawler": "~3.0"
     },
     "autoload": {

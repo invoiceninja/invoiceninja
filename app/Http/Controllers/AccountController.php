@@ -403,17 +403,9 @@ class AccountController extends BaseController
 
     private function showBankAccounts()
     {
-        $account = Auth::user()->account;
-        $account->load('bank_accounts');
-        $count = count($account->bank_accounts);
-
-        if ($count == 0) {
-            return Redirect::to('bank_accounts/create');
-        } else {
-            return View::make('accounts.banks', [
-                'title' => trans('texts.bank_accounts')
-            ]);
-        }
+        return View::make('accounts.banks', [
+            'title' => trans('texts.bank_accounts')
+        ]);
     }
 
     private function showOnlinePayments()
