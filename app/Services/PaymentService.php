@@ -602,9 +602,8 @@ class PaymentService extends BaseService
         $account = $invoice->account;
 
         $accountGateway = $account->getGatewayConfig(GATEWAY_CHECKOUT_COM);
-        $gateway = $this->createGateway($accountGateway);
 
-        $response = $gateway->purchase([
+        $response = $this->purchase($accountGateway, [
             'amount' => $invoice->getRequestedAmount(),
             'currency' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD')
         ])->send();
@@ -836,7 +835,6 @@ class PaymentService extends BaseService
         }
 
         // setup the gateway/payment info
-        $gateway = $this->createGateway($accountGateway);
         $details = $this->getPaymentDetails($invitation, $accountGateway);
         $details['customerReference'] = $token;
 
@@ -846,7 +844,7 @@ class PaymentService extends BaseService
         }
 
         // submit purchase/get response
-        $response = $gateway->purchase($details)->send();
+        $response = $this->purchase($accountGateway, $details);
 
         if ($response->isSuccessful()) {
             $ref = $response->getTransactionReference();
@@ -994,7 +992,7 @@ class PaymentService extends BaseService
                     $amount = !empty($params['amount']) ? floatval($params['amount']) : null;
                     if ($this->refund($payment, $amount)) {
                         $successful++;
-                    }  
+                    }
                 }
             }
 
@@ -1033,11 +1031,9 @@ class PaymentService extends BaseService
     }
     
     public function refund($payment, $amount = null) {
-        if (!$amount) {
-            $amount = $payment->amount;
+        if ($amount) {
+            $amount = min($amount, $payment->amount - $payment->refunded);
         }
-        
-        $amount = min($amount, $payment->amount - $payment->refunded);
 
         $accountGateway = $payment->account_gateway;
         
@@ -1052,75 +1048,56 @@ class PaymentService extends BaseService
         if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT) {
             $gateway = $this->createGateway($accountGateway);
 
-            if ($accountGateway->gateway_id != GATEWAY_WEPAY) {
-                $refund = $gateway->refund(array(
-                    'transactionReference' => $payment->transaction_reference,
-                    'amount' => $amount,
-                ));
-                $response = $refund->send();
+            $details = array(
+                'transactionReference' => $payment->transaction_reference,
+            );
 
-                if ($response->isSuccessful()) {
-                    $payment->recordRefund($amount);
-                } else {
-                    $data = $response->getData();
+            if ($amount != ($payment->amount - $payment->refunded)) {
+                $details['amount'] = $amount;
+            }
 
-                    if ($data instanceof \Braintree\Result\Error) {
-                        $error = $data->errors->deepAll()[0];
-                        if ($error && $error->code == 91506) {
-                            if ($amount == $payment->amount) {
-                                // This is an unsettled transaction; try to void it
-                                $void = $gateway->void(array(
-                                    'transactionReference' => $payment->transaction_reference,
-                                ));
-                                $response = $void->send();
+            if ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+                $details['refund_reason'] = 'Refund issued by merchant.';
+            }
 
-                                if ($response->isSuccessful()) {
-                                    $payment->markVoided();
-                                }
-                            } else {
-                                $this->error('Unknown', 'Partial refund not allowed for unsettled transactions.', $accountGateway);
-                                return false;
-                            }
-                        }
+            $refund = $gateway->refund($details);
+            $response = $refund->send();
+
+            if ($response->isSuccessful()) {
+                $payment->recordRefund($amount);
+            } else {
+                $data = $response->getData();
+
+                if ($data instanceof \Braintree\Result\Error) {
+                    $error = $data->errors->deepAll()[0];
+                    if ($error && $error->code == 91506) {
+                        $tryVoid = true;
                     }
+                } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY && $response->getCode() == 4004) {
+                    $tryVoid = true;
+                }
 
-                    if (!$response->isSuccessful()) {
-                        $this->error('Unknown', $response->getMessage(), $accountGateway);
+                if (!empty($tryVoid)) {
+                    if ($amount == $payment->amount) {
+                        // This is an unsettled transaction; try to void it
+                        $void = $gateway->void(array(
+                            'transactionReference' => $payment->transaction_reference,
+                        ));
+                        $response = $void->send();
+
+                        if ($response->isSuccessful()) {
+                            $payment->markVoided();
+                        }
+                    } else {
+                        $this->error('Unknown', 'Partial refund not allowed for unsettled transactions.', $accountGateway);
                         return false;
                     }
                 }
-            } else {
-                $wepay = \Utils::setupWePay($accountGateway);
 
-                try {
-                    $wepay->request('checkout/refund', array(
-                        'checkout_id' => intval($payment->transaction_reference),
-                        'refund_reason' => 'Refund issued by merchant.',
-                        'amount' => $amount,
-                    ));
-                    $payment->recordRefund($amount);
-                } catch (\WePayException $ex) {
-                    if ($ex->getCode() == 4004) {
-                        if ($amount == $payment->amount) {
-                            try {
-                                // This is an uncaptured transaction; try to cancel it
-                                $wepay->request('checkout/cancel', array(
-                                    'checkout_id' => intval($payment->transaction_reference),
-                                    'cancel_reason' => 'Refund issued by merchant.',
-                                ));
-                                $payment->markVoided();
-                            } catch (\WePayException $ex) {
-                                $this->error('Unknown', $ex->getMessage(), $accountGateway);
-                            }
-                        } else {
-                            $this->error('Unknown', 'Partial refund not allowed for unsettled transactions.', $accountGateway);
-                            return false;
-                        }
-                    } else {
-                        $this->error('Unknown', $ex->getMessage(), $accountGateway);
-                    }
+                if (!$response->isSuccessful()) {
+                    $this->error('Unknown', $response->getMessage(), $accountGateway);
+                    return false;
                 }
-
             }
         } else {
             $payment->recordRefund($amount);
@@ -1214,5 +1191,28 @@ class PaymentService extends BaseService
 
             return $e->getMessage();
         }
+    }
+
+    public function purchase($accountGateway, $details) {
+        $gateway = $this->createGateway($accountGateway);
+
+        if ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+            $details['applicationFee'] = $this->calculateApplicationFee($accountGateway, $details['amount']);
+            $details['feePayer'] = WEPAY_FEE_PAYER;
+        }
+
+        $response = $gateway->purchase($details)->send();
+
+        return $response;
+    }
+
+    private function calculateApplicationFee($accountGateway, $amount) {
+        if ($accountGateway->gateway_id = GATEWAY_WEPAY) {
+            $fee = WEPAY_APP_FEE_MULTIPLIER * $amount + WEPAY_APP_FEE_FIXED;
+
+            return floor(min($fee, $amount * 0.2));// Maximum fee is 20% of the amount.
+        }
+
+        return 0;
     }
 }

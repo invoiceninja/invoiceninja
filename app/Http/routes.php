@@ -123,7 +123,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-
+    
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
     Route::post('users/change_password', 'UserController@changePassword');
@@ -156,7 +156,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('documents/js/{documents}/{filename}', 'DocumentController@getVFSJS');
     Route::get('documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
     Route::post('document', 'DocumentController@postUpload');
-
+    
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
     Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneInvoice');
     Route::get('quotes/{invoices}/edit', 'InvoiceController@edit');
@@ -247,8 +247,6 @@ Route::group([
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
-    Route::get('bank_accounts/import_ofx', 'BankAccountController@showImportOFX');
-    Route::post('bank_accounts/import_ofx', 'BankAccountController@doImportOFX');
     Route::resource('bank_accounts', 'BankAccountController');
     Route::get('api/bank_accounts', array('as'=>'api.bank_accounts', 'uses'=>'BankAccountController@getDatatable'));
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
@@ -491,7 +489,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_STATUS_APPROVED', 4);
     define('INVOICE_STATUS_PARTIAL', 5);
     define('INVOICE_STATUS_PAID', 6);
-
+    
     define('PAYMENT_STATUS_PENDING', 1);
     define('PAYMENT_STATUS_VOIDED', 2);
     define('PAYMENT_STATUS_FAILED', 3);
@@ -713,7 +711,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('AUTO_BILL_OPT_IN', 2);
     define('AUTO_BILL_OPT_OUT', 3);
     define('AUTO_BILL_ALWAYS', 4);
-
+    
     // These must be lowercase
     define('PLAN_FREE', 'free');
     define('PLAN_PRO', 'pro');
@@ -721,7 +719,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PLAN_WHITE_LABEL', 'white_label');
     define('PLAN_TERM_MONTHLY', 'month');
     define('PLAN_TERM_YEARLY', 'year');
-
+    
     // Pro
     define('FEATURE_CUSTOMIZE_INVOICE_DESIGN', 'customize_invoice_design');
     define('FEATURE_REMOVE_CREATED_BY', 'remove_created_by');
@@ -760,8 +758,13 @@ if (!defined('CONTACT_EMAIL')) {
     define('WEPAY_CLIENT_SECRET', env('WEPAY_CLIENT_SECRET'));
     define('WEPAY_AUTO_UPDATE', env('WEPAY_AUTO_UPDATE', false));
     define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
+    define('WEPAY_ENABLE_CANADA', env('WEPAY_ENABLE_CANADA', false));
     define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
 
+    define('WEPAY_FEE_PAYER', env('WEPAY_FEE_PAYER', 'payee'));
+    define('WEPAY_APP_FEE_MULTIPLIER', env('WEPAY_APP_FEE_MULTIPLIER', 0.002));
+    define('WEPAY_APP_FEE_FIXED', env('WEPAY_APP_FEE_MULTIPLIER', 0.00));
+    
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],

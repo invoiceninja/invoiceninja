@@ -328,9 +328,8 @@ class PaymentController extends BaseController
             if ($testMode) {
                 $ref = 'TEST_MODE';
             } else {
-                $gateway = $this->paymentService->createGateway($accountGateway);
                 $details = self::getLicensePaymentDetails(Input::all(), $affiliate);
-                $response = $gateway->purchase($details)->send();
+                $response = $this->paymentService->purchase($accountGateway, $details);
                 $ref = $response->getTransactionReference();
 
                 if (!$response->isSuccessful() || !$ref) {
@@ -552,7 +551,7 @@ class PaymentController extends BaseController
                 }
             }
 
-            $response = $gateway->purchase($details)->send();
+            $response = $this->paymentService->purchase($accountGateway, $details);
 
             if ($accountGateway->gateway_id == GATEWAY_EWAY) {
                 $ref = $response->getData()['AccessCode'];
