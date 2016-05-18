@@ -56,7 +56,8 @@
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 ### Pull Requests
-We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-model/) model of branching and releasing, **please create pull requests against the develop branch**.
+* Please create pull requests against the develop branch
+* Submit translations through [Transifex](https://www.transifex.com/invoice-ninja/)
 
 ### Contributors
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
