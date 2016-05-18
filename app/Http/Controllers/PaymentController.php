@@ -840,6 +840,53 @@ class PaymentController extends BaseController
             }
 
             return array('message' => 'Processed successfully');
+        } elseif ($objectType == 'account') {
+            $config = $accountGateway->getConfig();
+            if ($config->accountId != $objectId) {
+                return array('message' => 'Unknown account');
+            }
+
+            $wepay = \Utils::setupWePay($accountGateway);
+            $wepayAccount = $wepay->request('account', array(
+                'account_id' => intval($objectId),
+            ));
+
+            if ($wepayAccount->state == 'deleted') {
+                $accountGateway->delete();
+            } else {
+                $config->state = $wepayAccount->state;
+                $accountGateway->setConfig($config);
+                $accountGateway->save();
+            }
+
+            return array('message' => 'Processed successfully');
+        } elseif ($objectType == 'checkout') {
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
+
+            if (!$payment) {
+                return array('message' => 'Unknown payment');
+            }
+
+            $wepay = \Utils::setupWePay($accountGateway);
+            $checkout = $wepay->request('checkout', array(
+                'checkout_id' => intval($objectId),
+            ));
+
+            if ($checkout->state == 'refunded') {
+                $payment->recordRefund();
+            } elseif (!empty($checkout->refund) && !empty($checkout->refund->amount_refunded) && ($checkout->refund->amount_refunded - $payment->refunded) > 0) {
+                $payment->recordRefund($checkout->refund->amount_refunded - $payment->refunded);
+            }
+
+            if ($checkout->state == 'captured') {
+                $payment->markComplete();
+            } elseif ($checkout->state == 'cancelled') {
+                $payment->markCancelled();
+            } elseif ($checkout->state == 'failed') {
+                $payment->markFailed();
+            }
+
+            return array('message' => 'Processed successfully');
         } else {
             return array('message' => 'Ignoring event');
         }
@@ -904,6 +951,8 @@ class PaymentController extends BaseController
                 }
             } elseif ($eventType == 'charge.succeeded') {
                 $payment->markComplete();
+            } elseif ($eventType == 'charge.refunded') {
+                $payment->recordRefund($charge['amount_refunded'] / 100 - $payment->refunded);
             }
         } elseif($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted') {
             $source = $eventDetails['data']['object'];
