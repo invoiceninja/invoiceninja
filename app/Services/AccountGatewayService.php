@@ -48,16 +48,17 @@ class AccountGatewayService extends BaseService
                         return link_to("gateways/{$model->public_id}/edit", $model->name)->toHtml();
                     } else {
                         $accountGateway = AccountGateway::find($model->id);
+                        $config = $accountGateway->getConfig();
                         $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
-                        $wepayAccountId = $accountGateway->getConfig()->accountId;
+                        $wepayAccountId = $config->accountId;
+                        $wepayState = isset($config->state)?$config->state:null;
                         $linkText = $model->name;
                         $url = $endpoint.'account/'.$wepayAccountId;
                         $wepay = \Utils::setupWepay($accountGateway);
                         $html = link_to($url, $linkText, array('target'=>'_blank'))->toHtml();
 
                         try {
-                            $wepayAccount = $wepay->request('/account', array('account_id' => $wepayAccountId));
-                            if ($wepayAccount->state == 'action_required') {
+                            if ($wepayState == 'action_required') {
                                 $updateUri = $wepay->request('/account/get_update_uri', array(
                                     'account_id' => $wepayAccountId,
                                     'redirect_uri' => URL::to('gateways'),
@@ -67,7 +68,7 @@ class AccountGatewayService extends BaseService
                                 $url = $updateUri->uri;
                                 $html = "<a href=\"{$url}\">{$linkText}</a>";
                                 $model->setupUrl = $url;
-                            } elseif ($wepayAccount->state == 'pending') {
+                            } elseif ($wepayState == 'pending') {
                                 $linkText .= ' ('.trans('texts.resend_confirmation_email').')';
                                 $model->resendConfirmationUrl = $url = URL::to("gateways/{$accountGateway->public_id}/resend_confirmation");
                                 $html = link_to($url, $linkText)->toHtml();

@@ -413,7 +413,7 @@ class PaymentService extends BaseService
                     'client_secret' => WEPAY_CLIENT_SECRET,
                     'credit_card_id' => intval($details['token']),
                     'auto_update' => WEPAY_AUTO_UPDATE,
-                    'callback_uri' => URL::to(env('WEBHOOK_PREFIX','').'paymenthook/'.$client->account->account_key.'/'.GATEWAY_WEPAY),
+                    'callback_uri' => $accountGateway->getWebhookUrl(),
                 ));
                 $tokenResponse = $wepay->request('credit_card', array(
                     'client_id' => WEPAY_CLIENT_ID,
@@ -1199,6 +1199,7 @@ class PaymentService extends BaseService
         if ($accountGateway->gateway_id == GATEWAY_WEPAY) {
             $details['applicationFee'] = $this->calculateApplicationFee($accountGateway, $details['amount']);
             $details['feePayer'] = WEPAY_FEE_PAYER;
+            $details['callbackUri'] = $accountGateway->getWebhookUrl();
         }
 
         $response = $gateway->purchase($details)->send();

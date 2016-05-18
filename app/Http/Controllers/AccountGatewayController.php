@@ -403,7 +403,6 @@ class AccountGatewayController extends BaseController
                 'original_device' => \Request::server('HTTP_USER_AGENT'),
                 'tos_acceptance_time' => time(),
                 'redirect_uri' => URL::to('gateways'),
-                'callback_uri' => URL::to(env('WEBHOOK_PREFIX','').'paymenthook/'.$account->account_key.'/'.GATEWAY_WEPAY),
                 'scope' => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
             );
 
@@ -418,6 +417,7 @@ class AccountGatewayController extends BaseController
                 'name'         => Input::get('company_name'),
                 'description'  => Input::get('description'),
                 'theme_object' => json_decode(WEPAY_THEME),
+                'callback_uri' => $accountGateway->getWebhookUrl(),
             );
 
             if (WEPAY_ENABLE_CANADA) {
@@ -453,6 +453,7 @@ class AccountGatewayController extends BaseController
                 'tokenType' => $wepayUser->token_type,
                 'tokenExpires' => $accessTokenExpires,
                 'accountId' => $wepayAccount->account_id,
+                'state' => $wepayAccount->state,
                 'testMode' => WEPAY_ENVIRONMENT == WEPAY_STAGE,
                 'country' => WEPAY_ENABLE_CANADA ? Input::get('country') : 'US',
             ));
