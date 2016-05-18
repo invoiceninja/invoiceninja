@@ -77,8 +77,10 @@ $(function(){
     $('#wepay-country input').change(handleCountryChange)
     function handleCountryChange(){
         var country = $('#wepay-country input:checked').val();
-        $('#wepay-accept-debit').toggle(country == 'CA');
-        $('#wepay-tos-link').attr('href', 'https://go.wepay.com/terms-of-service-' + country.toLowerCase());
+        if(country) {
+            $('#wepay-accept-debit').toggle(country == 'CA');
+            $('#wepay-tos-link').attr('href', 'https://go.wepay.com/terms-of-service-' + country.toLowerCase());
+        }
     }
     handleCountryChange();
 })
