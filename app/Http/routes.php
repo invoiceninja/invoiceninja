@@ -247,6 +247,8 @@ Route::group([
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
+    Route::get('bank_accounts/import_ofx', 'BankAccountController@showImportOFX');
+    Route::post('bank_accounts/import_ofx', 'BankAccountController@doImportOFX');
     Route::resource('bank_accounts', 'BankAccountController');
     Route::get('api/bank_accounts', array('as'=>'api.bank_accounts', 'uses'=>'BankAccountController@getDatatable'));
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
