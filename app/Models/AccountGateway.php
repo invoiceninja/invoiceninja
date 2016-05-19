@@ -77,7 +77,7 @@ class AccountGateway extends EntityModel
        return !empty($this->getConfigField('enableAch'));
     }
 
-    public function getPayPAlEnabled()
+    public function getPayPalEnabled()
     {
         return !empty($this->getConfigField('enablePayPal'));
     }
@@ -123,6 +123,12 @@ class AccountGateway extends EntityModel
         $stripe_key = $this->getPublishableStripeKey();
 
         return substr(trim($stripe_key), 0, 8) == 'pk_test_' ? 'tartan' : 'production';
+    }
+
+    public function getWebhookUrl()
+    {
+        $account = $this->account ? $this->account : Account::find($this->account_id);
+        return \URL::to(env('WEBHOOK_PREFIX','').'paymenthook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX',''));
     }
 }
 

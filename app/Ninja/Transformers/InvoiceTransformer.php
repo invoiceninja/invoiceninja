@@ -28,7 +28,7 @@ class InvoiceTransformer extends EntityTransformer
         'invitations',
         'payments',
         'client',
-        //'expenses',
+        'documents',
     ];
 
     public function __construct($account = null, $serializer = null, $client = null)
@@ -66,6 +66,12 @@ class InvoiceTransformer extends EntityTransformer
     {
         $transformer = new ExpenseTransformer($this->account, $this->serializer);
         return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
+    }
+
+    public function includeDocuments(Invoice $invoice)
+    {
+        $transformer = new DocumentTransformer($this->account, $this->serializer);
+        return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
     }
 
 

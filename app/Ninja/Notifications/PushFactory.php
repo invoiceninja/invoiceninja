@@ -19,13 +19,12 @@ class PushFactory
      *
      * Static variables defined in routes.php
      *
-     * IOS_PRODUCTION_PUSH
-     * IOS_DEV_PUSH
+     * IOS_PUSH_CERTIFICATE
      */
 
     public function __construct()
     {
-        $this->certificate = IOS_DEV_PUSH;
+        $this->certificate = IOS_PUSH_CERTIFICATE;
     }
 
     /**

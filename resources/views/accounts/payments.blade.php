@@ -4,6 +4,17 @@
 	@parent	
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
+  @if ($showSwitchToWepay)
+      {!! Button::success(trans('texts.switch_to_wepay'))
+            ->asLinkTo(URL::to('/gateways/switch/wepay'))
+            ->appendIcon(Icon::create('circle-arrow-up')) !!}
+      &nbsp;
+  @endif
+  <label for="trashed" style="font-weight:normal; margin-left: 10px;">
+    <input id="trashed" type="checkbox" onclick="setTrashVisible()"
+      {{ Session::get("show_trash:gateway") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText('gateways') }}
+  </label>
+
   @if ($showAdd)
       {!! Button::primary(trans('texts.add_gateway'))
             ->asLinkTo(URL::to('/gateways/create'))
@@ -28,6 +39,14 @@
 
   <script>
     window.onDatatableReady = actionListHandler;
+    function setTrashVisible() {
+        var checked = $('#trashed').is(':checked');
+        var url = '{{ URL::to('view_archive/gateway') }}' + (checked ? '/true' : '/false');
+
+        $.get(url, function(data) {
+            refreshDatatable();
+        })
+    }
   </script>
 
 @stop

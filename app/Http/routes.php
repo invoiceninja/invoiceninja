@@ -60,7 +60,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/documents/js/{documents}/{filename}', 'PublicClientController@getDocumentVFSJS');
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'PublicClientController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
-    
+
     Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
     Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
     Route::get('api/client.recurring_invoices', array('as'=>'api.client.recurring_invoices', 'uses'=>'PublicClientController@recurringInvoiceDatatable'));
@@ -123,7 +123,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
     Route::get('account/getSearchData', array('as' => 'getSearchData', 'uses' => 'AccountController@getSearchData'));
-    
+
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
     Route::post('users/change_password', 'UserController@changePassword');
@@ -156,7 +156,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('documents/js/{documents}/{filename}', 'DocumentController@getVFSJS');
     Route::get('documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
     Route::post('document', 'DocumentController@postUpload');
-    
+
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
     Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneInvoice');
     Route::get('quotes/{invoices}/edit', 'InvoiceController@edit');
@@ -242,6 +242,8 @@ Route::group([
     Route::post('/import_csv', 'ImportController@doImportCSV');
 
     Route::resource('gateways', 'AccountGatewayController');
+    Route::get('gateways/{public_id}/resend_confirmation', 'AccountGatewayController@resendConfirmation');
+    Route::get('gateways/switch/wepay', 'AccountGatewayController@switchToWepay');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
@@ -487,7 +489,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_STATUS_APPROVED', 4);
     define('INVOICE_STATUS_PARTIAL', 5);
     define('INVOICE_STATUS_PAID', 6);
-    
+
     define('PAYMENT_STATUS_PENDING', 1);
     define('PAYMENT_STATUS_VOIDED', 2);
     define('PAYMENT_STATUS_FAILED', 3);
@@ -561,6 +563,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
 
+    // The customer exists, but only as a local concept
+    // The remote gateway doesn't understand the concept of customers
+    define('CUSTOMER_REFERENCE_LOCAL', 'local');
+
     define('EVENT_CREATE_CLIENT', 1);
     define('EVENT_CREATE_INVOICE', 2);
     define('EVENT_CREATE_QUOTE', 3);
@@ -576,7 +582,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.5.2' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.5.2.1' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -623,8 +629,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_API_PAGE_SIZE', 15);
     define('MAX_API_PAGE_SIZE', 100);
 
-    define('IOS_PRODUCTION_PUSH', env('IOS_PRODUCTION_PUSH', 'ninjaIOS'));
-    define('IOS_DEV_PUSH', env('IOS_DEV_PUSH', 'devNinjaIOS'));
+    define('IOS_PUSH_CERTIFICATE', env('IOS_PUSH_CERTIFICATE', ''));
 
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);
@@ -702,11 +707,11 @@ if (!defined('CONTACT_EMAIL')) {
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');
 
-    define('AUTO_BILL_OFF', 0);
-    define('AUTO_BILL_OPT_IN', 1);
-    define('AUTO_BILL_OPT_OUT', 2);
-    define('AUTO_BILL_ALWAYS', 3);
-    
+    define('AUTO_BILL_OFF', 1);
+    define('AUTO_BILL_OPT_IN', 2);
+    define('AUTO_BILL_OPT_OUT', 3);
+    define('AUTO_BILL_ALWAYS', 4);
+
     // These must be lowercase
     define('PLAN_FREE', 'free');
     define('PLAN_PRO', 'pro');
@@ -714,7 +719,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PLAN_WHITE_LABEL', 'white_label');
     define('PLAN_TERM_MONTHLY', 'month');
     define('PLAN_TERM_YEARLY', 'year');
-    
+
     // Pro
     define('FEATURE_CUSTOMIZE_INVOICE_DESIGN', 'customize_invoice_design');
     define('FEATURE_REMOVE_CREATED_BY', 'remove_created_by');
@@ -729,23 +734,37 @@ if (!defined('CONTACT_EMAIL')) {
     define('FEATURE_API', 'api');
     define('FEATURE_CLIENT_PORTAL_PASSWORD', 'client_portal_password');
     define('FEATURE_CUSTOM_URL', 'custom_url');
-    
+
     define('FEATURE_MORE_CLIENTS', 'more_clients'); // No trial allowed
-    
+
     // Whitelabel
     define('FEATURE_CLIENT_PORTAL_CSS', 'client_portal_css');
     define('FEATURE_WHITE_LABEL', 'feature_white_label');
 
     // Enterprise
     define('FEATURE_DOCUMENTS', 'documents');
-    
+
     // No Trial allowed
     define('FEATURE_USERS', 'users');// Grandfathered for old Pro users
     define('FEATURE_USER_PERMISSIONS', 'user_permissions');
-    
+
     // Pro users who started paying on or before this date will be able to manage users
     define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-05-15');
-    
+
+    // WePay
+    define('WEPAY_PRODUCTION', 'production');
+    define('WEPAY_STAGE', 'stage');
+    define('WEPAY_CLIENT_ID', env('WEPAY_CLIENT_ID'));
+    define('WEPAY_CLIENT_SECRET', env('WEPAY_CLIENT_SECRET'));
+    define('WEPAY_AUTO_UPDATE', env('WEPAY_AUTO_UPDATE', false));
+    define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
+    define('WEPAY_ENABLE_CANADA', env('WEPAY_ENABLE_CANADA', false));
+    define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
+
+    define('WEPAY_FEE_PAYER', env('WEPAY_FEE_PAYER', 'payee'));
+    define('WEPAY_APP_FEE_MULTIPLIER', env('WEPAY_APP_FEE_MULTIPLIER', 0.002));
+    define('WEPAY_APP_FEE_FIXED', env('WEPAY_APP_FEE_MULTIPLIER', 0.00));
+
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],

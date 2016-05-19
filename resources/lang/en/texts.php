@@ -992,40 +992,26 @@ $LANG = array(
     'overdue' => 'Overdue',
 
 
-    'white_label_text' => 'Purchase a ONE YEAR white label license for $'.WHITE_LABEL_PRICE.' to remove the Invoice Ninja branding from the client portal and help support our project.',
-    'user_email_footer' => 'To adjust your email notification settings please visit '.SITE_URL.'/settings/notifications',
-    'reset_password_footer' => 'If you did not request this password reset please email our support: '.CONTACT_EMAIL,
-    'limit_users' => 'Sorry, this will exceed the limit of '.MAX_NUM_USERS.' users',
-    'more_designs_self_host_header' => 'Get 6 more invoice designs for just $'.INVOICE_DESIGNS_PRICE,
-    'old_browser' => 'Please use a <a href="'.OUTDATE_BROWSER_URL.'" target="_blank">newer browser</a>',
-    'white_label_custom_css' => ':link for $'.WHITE_LABEL_PRICE.' to enable custom styling and help support our project.',
-    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href="'.OFX_HOME_URL.'" target="_blank">400+ US banks.</a>',
-    'security' => [
-        'too_many_attempts' => 'Too many attempts. Try again in few minutes.',
-        'wrong_credentials' => 'Incorrect email or password.',
-        'confirmation' => 'Your account has been confirmed!',
-        'wrong_confirmation' => 'Wrong confirmation code.',
-        'password_forgot' => 'The information regarding password reset was sent to your email.',
-        'password_reset' => 'Your password has been changed successfully.',
-        'wrong_password_reset' => 'Invalid password. Try again',
-    ],
-    'pro_plan' => [
-        'remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
-        'remove_logo_link' => 'Click here',
-    ],
-    'invitation_status' => [
-        'sent' => 'Email Sent',
-        'opened' => 'Email Openend',
-        'viewed' => 'Invoice Viewed',
-    ],
-    'email_errors' => [
-        'inactive_client' => 'Emails can not be sent to inactive clients',
-        'inactive_contact' => 'Emails can not be sent to inactive contacts',
-        'inactive_invoice' => 'Emails can not be sent to inactive invoices',
-        'user_unregistered' => 'Please register your account to send emails',
-        'user_unconfirmed' => 'Please confirm your account to send emails',
-        'invalid_contact_email' => 'Invalid contact email',
-    ],
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the client portal and help support our project.',
+    'user_email_footer' => 'To adjust your email notification settings please visit :link',
+    'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
+    'limit_users' => 'Sorry, this will exceed the limit of :limit users',
+    'more_designs_self_host_header' => 'Get 6 more invoice designs for just $:price',
+    'old_browser' => 'Please use a <a href=":link" target="_blank">newer browser</a>',
+    'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
+
+    'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
+    'pro_plan_remove_logo_link' => 'Click here',
+    'invitation_status_sent' => 'Email Sent',
+    'invitation_status_opened' => 'Email Openend',
+    'invitation_status_viewed' => 'Invoice Viewed',
+    'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
+    'email_error_inactive_contact' => 'Emails can not be sent to inactive contacts',
+    'email_error_inactive_invoice' => 'Emails can not be sent to inactive invoices',
+    'email_error_user_unregistered' => 'Please register your account to send emails',
+    'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
+    'email_error_invalid_contact_email' => 'Invalid contact email',
 
     'navigation' => 'Navigation',
     'list_invoices' => 'List Invoices',
@@ -1293,6 +1279,30 @@ $LANG = array(
 
 
     'no_payment_method_specified' => 'No payment method specified',
+
+
+    // WePay
+    'wepay' => 'WePay',
+    'sign_up_with_wepay' => 'Sign up with WePay',
+    'use_another_provider' => 'Use another provider',
+    'company_name' => 'Company Name',
+    'wepay_company_name_help' => 'This will appear on client\'s credit card statements.',
+    'wepay_description_help' => 'The purpose of this account.',
+    'wepay_tos_agree' => 'I agree to the :link.',
+    'wepay_tos_link_text' => 'WePay Terms of Service',
+    'resend_confirmation_email' => 'Resend Confirmation Email',
+    'manage_wepay_account' => 'Manage WePay Account',
+    'action_required' => 'Action Required',
+    'finish_setup' => 'Finish Setup',
+    'created_wepay_confirmation_required' => 'Please check your email and confirm your email address with WePay.',
+    'switch_to_wepay' => 'Switch to WePay',
+    'switch' => 'Switch',
+    'restore_account_gateway' => 'Restore Gateway',
+    'restored_account_gateway' => 'Successfully restored gateway',
+    'united_states' => 'United States',
+    'canada' => 'Canada',
+    'accept_debit_cards' => 'Accept Debit Cards',
+    'debit_cards' => 'Debit Cards',
 );
 
 return $LANG;

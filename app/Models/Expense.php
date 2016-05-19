@@ -90,14 +90,23 @@ class Expense extends EntityModel
     {
         return round($this->amount * $this->exchange_rate, 2);
     }
-    
+
     public function toArray()
     {
         $array = parent::toArray();
-        
+
         if(empty($this->visible) || in_array('converted_amount', $this->visible))$array['converted_amount'] = $this->convertedAmount();
-        
+
         return $array;
+    }
+
+    public function scopeBankId($query, $bankdId = null)
+    {
+        if ($bankdId) {
+            $query->whereBankId($bankId);
+        }
+
+        return $query;
     }
 }
 

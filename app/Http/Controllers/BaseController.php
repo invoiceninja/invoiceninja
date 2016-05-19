@@ -10,7 +10,7 @@ use Utils;
 class BaseController extends Controller
 {
     use DispatchesJobs, AuthorizesRequests;
-    
+
     protected $entityType;
 
     /**

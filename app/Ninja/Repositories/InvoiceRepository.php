@@ -324,7 +324,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
             $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
-            $invoice->auto_bill = isset($data['auto_bill']) ? intval($data['auto_bill']) : 0;
+            $invoice->auto_bill = isset($data['auto_bill']) ? intval($data['auto_bill']) : AUTO_BILL_OFF;
 
             if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS ) {
                 $invoice->auto_bill = AUTO_BILL_OFF;

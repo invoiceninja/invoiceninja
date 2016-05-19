@@ -22,9 +22,10 @@ class LanguageSeeder extends Seeder
             ['name' => 'Swedish', 'locale' => 'sv'],
             ['name' => 'Spanish - Spain', 'locale' => 'es_ES'],
             ['name' => 'French - Canada', 'locale' => 'fr_CA'],
-            ['name' => 'Lithuanian', 'locale' => 'lt'],  
+            ['name' => 'Lithuanian', 'locale' => 'lt'],
             ['name' => 'Polish', 'locale' => 'pl'],
             ['name' => 'Czech', 'locale' => 'cs'],
+            ['name' => 'Croatian', 'locale' => 'hr'],
         ];
 
         foreach ($languages as $language) {

@@ -8,6 +8,8 @@
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+**To update the translations please use [Transifex](https://www.transifex.com/invoice-ninja/invoice-ninja/dashboard/)**
+
 ### Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 * White-label reseller (you pay us): 10% of revenue with a $100 sign up fee
@@ -70,6 +72,7 @@ We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-mode
 * [patricktalmadge/bootstrapper](https://github.com/patricktalmadge/bootstrapper) - Laravel Twitter Bootstrap Bundle
 * [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin
 * [eternicode/bootstrap-datepicker](https://github.com/eternicode/bootstrap-datepicker) - A datepicker for @twitter bootstrap
+* [xdan/datetimepicker](https://github.com/xdan/datetimepicker) - jQuery Plugin Date and Time Picker
 * [twitter/typeahead.js](https://github.com/twitter/typeahead.js) - a fast and fully-featured autocomplete library
 * [krisk/Fuse](https://github.com/krisk/Fuse) - Lightweight fuzzy-search, in JavaScript
 * [knockout/knockout](https://github.com/knockout/knockout) - Knockout makes it easier to create rich, responsive UIs with JavaScript
