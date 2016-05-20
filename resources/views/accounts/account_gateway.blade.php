@@ -44,6 +44,11 @@
         {!! Former::populateField('gateway_id', GATEWAY_STRIPE) !!}
         {!! Former::populateField('show_address', 1) !!}
         {!! Former::populateField('update_address', 1) !!}
+
+        @if (Utils::isNinjaDev())
+            {!! Former::populateField('23_apiKey', env('STRIPE_TEST_SECRET_KEY')) !!}
+            {!! Former::populateField('publishable_key', env('STRIPE_TEST_PUBLISHABLE_KEY')) !!}
+        @endif
     @endif
 
     {!! Former::select('payment_type_id')

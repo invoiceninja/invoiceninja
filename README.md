@@ -8,8 +8,6 @@
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**To update the translations please use [Transifex](https://www.transifex.com/invoice-ninja/invoice-ninja/dashboard/)**
-
 ### Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 * White-label reseller (you pay us): 10% of revenue with a $100 sign up fee
@@ -56,7 +54,8 @@
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 ### Pull Requests
-We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-model/) model of branching and releasing, **please create pull requests against the develop branch**.
+* Please create pull requests against the develop branch
+* Submit translations through [Transifex](https://www.transifex.com/invoice-ninja/)
 
 ### Contributors
 * [Troels Liebe Bentsen](https://github.com/tlbdk)

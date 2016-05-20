@@ -206,7 +206,7 @@ class BankAccountService extends BaseService
                 $vendorMap[$transaction['vendor_orig']] = $vendor;
                 $countVendors++;
             }
-
+            
             // create the expense record
             $this->expenseRepo->save([
                 'vendor_id' => $vendor->id,

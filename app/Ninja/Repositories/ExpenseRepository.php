@@ -12,7 +12,7 @@ use Session;
 class ExpenseRepository extends BaseRepository
 {
     protected $documentRepo;
-    
+
     // Expenses
     public function getClassName()
     {
@@ -23,7 +23,7 @@ class ExpenseRepository extends BaseRepository
     {
         $this->documentRepo = $documentRepo;
     }
-    
+
     public function all()
     {
         return Expense::scope()
@@ -156,7 +156,7 @@ class ExpenseRepository extends BaseRepository
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
         $expense->exchange_rate = round($rate, 4);
         $expense->amount = round(Utils::parseFloat($input['amount']), 2);
-        
+
         $expense->save();
 
         // Documents
@@ -169,7 +169,7 @@ class ExpenseRepository extends BaseRepository
                 $document->save();
             }
         }
-        
+
         if(!empty($input['documents']) && Auth::user()->can('create', ENTITY_DOCUMENT)){
             // Fallback upload
             $doc_errors = array();
@@ -188,11 +188,14 @@ class ExpenseRepository extends BaseRepository
                 Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
             }
         }
-        
-        foreach ($expense->documents as $document){
-            if(!in_array($document->public_id, $document_ids)){
-                // Not checking permissions; deleting a document is just editing the invoice
-                $document->delete();
+
+        // prevent loading all of the documents if we don't have to
+        if ( ! $expense->wasRecentlyCreated) {
+            foreach ($expense->documents as $document){
+                if ( ! in_array($document->public_id, $document_ids)){
+                    // Not checking permissions; deleting a document is just editing the invoice
+                    $document->delete();
+                }
             }
         }
 
