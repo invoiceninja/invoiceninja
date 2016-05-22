@@ -23,7 +23,7 @@ class DateFormatsSeeder extends Seeder
             ['format' => 'm/d/Y', 'picker_format' => 'mm/dd/yyyy'],
             ['format' => 'd.m.Y', 'picker_format' => 'dd.mm.yyyy'],
             ['format' => 'j. M. Y', 'picker_format' => 'd. M. yyyy'],
-            ['format' => 'j. F. Y', 'picker_format' => 'd. MM. yyyy']
+            ['format' => 'j. F Y', 'picker_format' => 'd. MM yyyy']
         ];
 
         foreach ($formats as $format) {
@@ -50,7 +50,7 @@ class DateFormatsSeeder extends Seeder
             ['format' => 'm/d/Y g:i a', 'format_moment' => 'MM/DD/YYYY h:mm:ss a'],
             ['format' => 'd.m.Y g:i a', 'format_moment' => 'D.MM.YYYY h:mm:ss a'],
             ['format' => 'j. M. Y g:i a', 'format_moment' => 'DD. MMM. YYYY h:mm:ss a'],
-            ['format' => 'j. F. Y g:i a', 'format_moment' => 'DD. MMMM. YYYY h:mm:ss a']
+            ['format' => 'j. F Y g:i a', 'format_moment' => 'DD. MMMM YYYY h:mm:ss a']
         ];
 
         foreach ($formats as $format) {
