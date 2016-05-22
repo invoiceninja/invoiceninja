@@ -1185,10 +1185,17 @@
         if (!isEmailValid()) {
             alert("{!! trans('texts.provide_email') !!}");
             return;
-        }
+8        }
 
 		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
-			preparePdfData('email');
+            var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
+            var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
+            // if the client's language is different then we can't use the browser version of the PDF
+            if (clientLanguageId && clientLanguageId != accountLanguageId) {
+                submitAction('email');
+            } else {
+                preparePdfData('email');
+            }
 		}
 	}
 
