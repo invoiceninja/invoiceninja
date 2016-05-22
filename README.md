@@ -55,7 +55,7 @@
 
 ### Pull Requests
 * Please create pull requests against the develop branch
-* Submit translations through [Transifex](https://www.transifex.com/invoice-ninja/)
+* Submit translations through [Transifex](https://www.transifex.com/invoice-ninja/invoice-ninja/)
 
 ### Contributors
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
