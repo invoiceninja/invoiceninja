@@ -14,7 +14,7 @@
 @stop
 
 @section('content')
-	
+
 	{!! Former::open($url)->addClass('warn-on-exit main-form')->method($method) !!}
     <div style="display:none">
         {!! Former::text('action') !!}
@@ -216,13 +216,13 @@
             @else
                 $('#amount').focus();
             @endif
-            
+
             @if (Auth::user()->account->isPro())
             $('.main-form').submit(function(){
                 if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
                 else $(this).removeAttr('enctype')
             })
-            
+
             // Initialize document upload
             dropzone = new Dropzone('#document-upload', {
                 url:{!! json_encode(url('document')) !!},
@@ -286,7 +286,7 @@
                     }
                 }
             }
-            
+
             if (data) {
                 ko.mapping.fromJS(data, self.mapping, this);
             }
@@ -327,11 +327,11 @@
                 }
                 var expenseCurrencyId = self.expense_currency_id() || self.account_currency_id();
                 var invoiceCurrencyId = self.invoice_currency_id() || self.account_currency_id();
-                return expenseCurrencyId != invoiceCurrencyId 
+                return expenseCurrencyId != invoiceCurrencyId
                     || invoiceCurrencyId != self.account_currency_id()
                     || expenseCurrencyId != self.account_currency_id();
             })
-            
+
             self.addDocument = function() {
                 var documentModel = new DocumentModel();
                 self.documents.push(documentModel);
@@ -359,11 +359,17 @@
 
             if (data) {
                 self.update(data);
-            }    
+            }
         }
-        
+
         @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
         function handleDocumentAdded(file){
+            // open document when clicked
+            if (file.url) {
+                file.previewElement.addEventListener("click", function() {
+                    window.open(file.url, '_blank');
+                });
+            }
             if(file.mock)return;
             file.index = model.documents().length;
             model.addDocument({name:file.name, size:file.size, type:file.type});

@@ -17,7 +17,7 @@
         label.control-label[for=invoice_number] {
             font-weight: normal !important;
         }
-        
+
         select.tax-select {
             width: 50%;
             float: left;
@@ -79,7 +79,7 @@
                                 &nbsp;&nbsp;<div class="label label-danger">{{ trans('texts.deleted') }}</div>
                             @endif
                         </h4>
-                        
+
                         @can('view', $invoice->client)
                             @can('edit', $invoice->client)
                                 <a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
@@ -90,7 +90,7 @@
 				</div>
 				<div style="display:none">
     		@endif
-            
+
             {!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addClass('client-input')->addGroupClass('client_select closer-row') !!}
 
 			<div class="form-group" style="margin-bottom: 8px">
@@ -419,7 +419,7 @@
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
                             ->data_bind('value: tax1')
-                            ->raw() !!}                    
+                            ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
                     {!! Former::select('')
@@ -427,7 +427,7 @@
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
                             ->data_bind('value: tax2')
-                            ->raw() !!}                    
+                            ->raw() !!}
                     <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
                     <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
                 </td>
@@ -569,7 +569,7 @@
                     {!! Former::text('client[work_phone]')
                             ->label('work_phone')
                             ->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
-				
+
                 </span>
 
                 @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
@@ -756,7 +756,7 @@
     var $clientSelect = $('select#client');
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-    
+
 	$(function() {
         // create client dictionary
         for (var i=0; i<clients.length; i++) {
@@ -844,7 +844,7 @@
             }
 
         @endif
-        
+
         // display blank instead of '0'
         if (!NINJA.parseFloat(model.invoice().discount())) model.invoice().discount('');
         if (!NINJA.parseFloat(model.invoice().partial())) model.invoice().partial('');
@@ -966,13 +966,13 @@
         @endif
 
         applyComboboxListeners();
-        
+
         @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
         $('.main-form').submit(function(){
             if($('#document-upload .dropzone .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
             else $(this).removeAttr('enctype')
         })
-        
+
         // Initialize document upload
         dropzone = new Dropzone('#document-upload .dropzone', {
             url:{!! json_encode(url('document')) !!},
@@ -1224,7 +1224,7 @@
         }
 
         onPartialChange(true);
-        
+
         return true;
     }
 
@@ -1379,24 +1379,30 @@
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
         model.invoice().invoice_number(number);
     }
-        
+
     @if ($account->hasFeature(FEATURE_DOCUMENTS))
     function handleDocumentAdded(file){
+        // open document when clicked
+        if (file.url) {
+            file.previewElement.addEventListener("click", function() {
+                window.open(file.url, '_blank');
+            });
+        }
         if(file.mock)return;
         file.index = model.invoice().documents().length;
         model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
     }
-        
+
     function handleDocumentRemoved(file){
         model.invoice().removeDocument(file.public_id);
         refreshPDF(true);
     }
-        
+
     function handleDocumentUploaded(file, response){
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
         refreshPDF(true);
-        
+
         if(response.document.preview_url){
             dropzone.emit('thumbnail', file, response.document.preview_url);
         }
