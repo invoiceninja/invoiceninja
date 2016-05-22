@@ -45,6 +45,8 @@ class InvoicePresenter extends Presenter {
             return trans('texts.deleted');
         } elseif ($this->entity->trashed()) {
             return trans('texts.archived');
+        } elseif ($this->entity->is_recurring) {
+            return trans('texts.active');
         } else {
             $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
             $status = strtolower($status);
