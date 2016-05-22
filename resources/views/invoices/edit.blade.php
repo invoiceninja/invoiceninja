@@ -530,7 +530,7 @@
         @if ( ! $invoice->is_recurring)
 		    {!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}
         @endif
-        
+
         @if ($invoice->isClientTrashed())
             <!-- do nothing -->
         @elseif ($invoice->trashed())
@@ -809,6 +809,7 @@
             var invoice = {!! $invoice !!};
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
+            model.invoice().start_date_orig(model.invoice().start_date());
 
             @if ($invoice->id)
                 var invitationContactIds = {!! json_encode($invitationContactIds) !!};
@@ -1192,14 +1193,26 @@
 	}
 
 	function onSaveClick() {
-		if (model.invoice().is_recurring() && {{ $invoice ? 'false' : 'true' }}) {
-			if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
-				submitAction('');
-			}
-		} else {
-            preparePdfData('');
-		}
-	}
+		if (model.invoice().is_recurring()) {
+            // warn invoice will be emailed when saving new recurring invoice
+            if ({{ $invoice->exists() ? 'false' : 'true' }}) {
+                if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
+                    submitAction('');
+                }
+                return;
+            // warn invoice will be emailed again if start date is changed
+            } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
+                if (confirm("{!! trans("texts.warn_start_date_changed") !!}" + '\n\n'
+                    + "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
+                    + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date())) {
+                        submitAction('');
+                }
+                return;
+            }
+        }
+
+        preparePdfData('');
+    }
 
     function getSendToEmails() {
         var client = model.invoice().client();
