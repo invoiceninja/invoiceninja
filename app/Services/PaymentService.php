@@ -30,12 +30,6 @@ class PaymentService extends BaseService
     public $lastError;
     protected $datatableService;
 
-    protected static $refundableGateways = array(
-        GATEWAY_STRIPE,
-        GATEWAY_BRAINTREE,
-        GATEWAY_WEPAY,
-    );
-
     public function __construct(PaymentRepository $paymentRepo, AccountRepository $accountRepo, DatatableService $datatableService)
     {
         $this->datatableService = $datatableService;

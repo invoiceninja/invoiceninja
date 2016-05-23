@@ -10,6 +10,12 @@ class PaymentDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PAYMENT;
 
+    protected static $refundableGateways = array(
+        GATEWAY_STRIPE,
+        GATEWAY_BRAINTREE,
+        GATEWAY_WEPAY,
+    );
+
     public function columns()
     {
         return [
