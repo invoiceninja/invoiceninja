@@ -26,7 +26,7 @@ use App\Events\QuoteInvitationWasViewed;
 use App\Services\PaymentService;
 use Barracuda\ArchiveStream\ZipArchive;
 
-class PublicClientController extends BaseController
+class ClientPortalController extends BaseController
 {
     private $invoiceRepo;
     private $paymentRepo;
