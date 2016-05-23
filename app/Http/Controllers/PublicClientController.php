@@ -323,7 +323,7 @@ class PublicClientController extends BaseController
             ->addColumn('activity_type_id', function ($model) {
                 $data = [
                     'client' => Utils::getClientDisplayName($model),
-                    'user' => $model->is_system ? ('<i>' . trans('texts.system') . '</i>') : ($model->user_first_name . ' ' . $model->user_last_name),
+                    'user' => $model->is_system ? ('<i>' . trans('texts.system') . '</i>') : ($model->account_name),
                     'invoice' => $model->invoice,
                     'contact' => Utils::getClientDisplayName($model),
                     'payment' => $model->payment ? ' ' . $model->payment : '',
