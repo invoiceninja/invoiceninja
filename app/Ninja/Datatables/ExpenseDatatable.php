@@ -24,7 +24,8 @@ class ExpenseDatatable extends EntityDatatable
                     } else {
                         return '';
                     }
-                }
+                },
+                ! $this->hideClient
             ],
             [
                 'client_name',
@@ -39,7 +40,8 @@ class ExpenseDatatable extends EntityDatatable
                     } else {
                         return '';
                     }
-                }
+                },
+                ! $this->hideClient
             ],
             [
                 'expense_date',

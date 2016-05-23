@@ -36,22 +36,8 @@ class ExpenseRepository extends BaseRepository
     public function findVendor($vendorPublicId)
     {
         $vendorId = Vendor::getPrivateId($vendorPublicId);
-        $accountid = \Auth::user()->account_id;
-        $query = DB::table('expenses')
-                    ->join('accounts', 'accounts.id', '=', 'expenses.account_id')
-                    ->where('expenses.account_id', '=', $accountid)
-                    ->where('expenses.vendor_id', '=', $vendorId)
-                    ->select(
-                        'expenses.id',
-                        'expenses.expense_date',
-                        'expenses.amount',
-                        'expenses.public_notes',
-                        'expenses.public_id',
-                        'expenses.deleted_at',
-                        'expenses.should_be_invoiced',
-                        'expenses.created_at',
-                        'expenses.user_id'
-                    );
+
+        $query = $this->find()->where('expenses.vendor_id', '=', $vendorId);
 
         return $query;
     }
