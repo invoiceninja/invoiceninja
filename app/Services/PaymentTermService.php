@@ -25,10 +25,10 @@ class PaymentTermService extends BaseService
     {
         $query = $this->paymentTermRepo->find();
 
-        return $this->createDatatable(ENTITY_PAYMENT_TERM, $query, false);
+        return $this->datatableService->createDatatable(ENTITY_PAYMENT_TERM, $query, false);
     }
 
-    protected function getDatatableColumns($entityType, $hideClient)
+    public function columns($entityType, $hideClient)
     {
         return [
             [
@@ -46,7 +46,7 @@ class PaymentTermService extends BaseService
         ];
     }
 
-    protected function getDatatableActions($entityType)
+    public function actions($entityType)
     {
         return [
             [

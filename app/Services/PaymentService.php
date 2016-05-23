@@ -23,6 +23,7 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\BaseService;
 use App\Events\PaymentWasCreated;
+use App\Ninja\Datatables\PaymentDatatable;
 
 class PaymentService extends BaseService
 {
@@ -524,7 +525,7 @@ class PaymentService extends BaseService
 
         return $paymentMethod;
     }
-    
+
     public function convertPaymentMethodFromGatewayResponse($gatewayResponse, $accountGateway, $accountGatewayToken = null, $contactId = null, $existingPaymentMethod = null) {
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             $data = $gatewayResponse->getData();
@@ -642,7 +643,7 @@ class PaymentService extends BaseService
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
-        
+
         if (!empty($paymentDetails['card'])) {
             $card = $paymentDetails['card'];
             $payment->last4 = $card->getNumberLastFour();
@@ -707,10 +708,10 @@ class PaymentService extends BaseService
                     $pending_monthly = true;
                 }
             }
-            
-            if (!empty($plan)) { 
+
+            if (!empty($plan)) {
                 $account = Account::with('users')->find($invoice->client->public_id);
-                
+
                 if(
                     $account->company->plan != $plan
                     || DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create('-7 days')
@@ -719,10 +720,10 @@ class PaymentService extends BaseService
                     // Reset any grandfathering
                     $account->company->plan_started = date_create()->format('Y-m-d');
                 }
-                            
+
                 if (
                     $account->company->plan == $plan
-                    && $account->company->plan_term == $term 
+                    && $account->company->plan_term == $term
                     && DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create()
                 ) {
                     // This is a renewal; mark it paid as of when this term expires
@@ -730,13 +731,13 @@ class PaymentService extends BaseService
                 } else {
                     $account->company->plan_paid = date_create()->format('Y-m-d');
                 }
-                
+
                 $account->company->payment_id = $payment->id;
                 $account->company->plan = $plan;
                 $account->company->plan_term = $term;
                 $account->company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
                     ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
-                                
+
                 if (!empty($pending_monthly)) {
                     $account->company->pending_plan = $plan;
                     $account->company->pending_term = PLAN_TERM_MONTHLY;
@@ -744,7 +745,7 @@ class PaymentService extends BaseService
                     $account->company->pending_plan = null;
                     $account->company->pending_term = null;
                 }
-                
+
                 $account->company->save();
             }
         }
@@ -783,7 +784,7 @@ class PaymentService extends BaseService
             return PAYMENT_TYPE_CREDIT_CARD_OTHER;
         }
     }
-    
+
     private function detectCardType($number)
     {
         if (preg_match('/^3[47][0-9]{13}$/',$number)) {
@@ -856,127 +857,17 @@ class PaymentService extends BaseService
 
     public function getDatatable($clientPublicId, $search)
     {
+        $datatable = new PaymentDatatable( ! $clientPublicId, $clientPublicId);
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
         if(!Utils::hasPermission('view_all')){
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
 
-        return $this->createDatatable(ENTITY_PAYMENT, $query, !$clientPublicId, false, 
-                ['invoice_number', 'transaction_reference', 'payment_type', 'amount', 'payment_date']);
+        return $this->datatableService->createDatatable($datatable, $query);
     }
 
-    protected function getDatatableColumns($entityType, $hideClient)
-    {
-        return [
-            [
-                'invoice_number',
-                function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id])){
-                        return $model->invoice_number;
-                    }
-                    
-                    return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
-                }
-            ],
-            [
-                'client_name',
-                function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
-                        return Utils::getClientDisplayName($model);
-                    }
-                    
-                    return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
-                },
-                ! $hideClient
-            ],
-            [
-                'transaction_reference',
-                function ($model) {
-                    return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>';
-                }
-            ],
-            [
-                'payment_type',
-                function ($model) {
-                    return ($model->payment_type && !$model->last4) ? $model->payment_type : ($model->account_gateway_id ? $model->gateway_name : '');
-                }
-            ],
-            [
-                'source',
-                function ($model) {
-                    $code = str_replace(' ', '', strtolower($model->payment_type));
-                    $card_type = trans("texts.card_" . $code);
-                    if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
-                        if($model->last4) {
-                            $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
-                            return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
-                        } elseif ($model->email) {
-                            return $model->email;
-                        }
-                    } elseif ($model->last4) {
-                        $bankData = PaymentMethod::lookupBankData($model->routing_number);
-                        if (is_object($bankData)) {
-                            return $bankData->name.'&nbsp; &bull;&bull;&bull;' . $model->last4;
-                        } elseif($model->last4) {
-                            return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
-                        }
-                    }
-                }
-            ],
-            [
-                'amount',
-                function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
-                }
-            ],
-            [
-                'payment_date',
-                function ($model) {
-                    return Utils::dateToString($model->payment_date);
-                }
-            ],
-            [
-                'payment_status_name',
-                function ($model) use ($entityType) {
-                    return self::getStatusLabel($entityType, $model);
-                }
-            ]
-        ];
-    }
 
-    protected function getDatatableActions($entityType)
-    {
-        return [
-            [
-                trans('texts.edit_payment'),
-                function ($model) {
-                    return URL::to("payments/{$model->public_id}/edit");
-                },
-                function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]);
-                }
-            ],
-            [
-                trans('texts.refund_payment'),
-                function ($model) {
-                    $max_refund = number_format($model->amount - $model->refunded, 2);
-                    $formatted = Utils::formatMoney($max_refund, $model->currency_id, $model->country_id);
-                    $symbol = Utils::getFromCache($model->currency_id ? $model->currency_id : 1, 'currencies')->symbol ;
-                    return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
-                },
-                function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED &&
-                    $model->refunded < $model->amount &&
-                    (
-                        ($model->transaction_reference && in_array($model->gateway_id , static::$refundableGateways))
-                        || $model->payment_type_id == PAYMENT_TYPE_CREDIT
-                    );
-                }
-            ]
-        ];
-    }
-    
     public function bulk($ids, $action, $params = array())
     {
         if ($action == 'refund') {
@@ -1001,50 +892,22 @@ class PaymentService extends BaseService
             return parent::bulk($ids, $action);
         }
     }
-    
-    private function getStatusLabel($entityType, $model)
-    {
-        $label = trans("texts.status_" . strtolower($model->payment_status_name));
-        $class = 'default';
-        switch ($model->payment_status_id) {
-            case PAYMENT_STATUS_PENDING:
-                $class = 'info';
-                break;
-            case PAYMENT_STATUS_COMPLETED:
-                $class = 'success';
-                break;
-            case PAYMENT_STATUS_FAILED:
-                $class = 'danger';
-                break;
-            case PAYMENT_STATUS_PARTIALLY_REFUNDED:
-                $label = trans('texts.status_partially_refunded_amount', [
-                    'amount' => Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id),
-                ]);
-                $class = 'primary';
-                break;
-            case PAYMENT_STATUS_VOIDED:
-            case PAYMENT_STATUS_REFUNDED:
-                $class = 'default';
-                break;
-        }
-        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
-    }
-    
+
     public function refund($payment, $amount = null) {
         if ($amount) {
             $amount = min($amount, $payment->amount - $payment->refunded);
         }
 
         $accountGateway = $payment->account_gateway;
-        
+
         if (!$accountGateway) {
             $accountGateway = AccountGateway::withTrashed()->find($payment->account_gateway_id);
         }
-        
+
         if (!$amount || !$accountGateway) {
             return;
         }
-        
+
         if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT) {
             $gateway = $this->createGateway($accountGateway);
 
