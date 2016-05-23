@@ -8,7 +8,6 @@ use App\Ninja\Datatables\EntityDatatable;
 
 class DatatableService
 {
-    //public function createDatatable($entityType, $query, $columns, $actions = null, $showCheckbox = true, $orderColumns = [])
     public function createDatatable(EntityDatatable $datatable, $query)
     {
         $table = Datatable::query($query);

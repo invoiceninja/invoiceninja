@@ -74,6 +74,6 @@ class VendorDatatable extends EntityDatatable
             ]
         ];
     }
-    
+
 
 }

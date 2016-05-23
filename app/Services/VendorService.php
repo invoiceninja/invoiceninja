@@ -8,6 +8,7 @@ use App\Models\Expense;
 use App\Services\BaseService;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\NinjaRepository;
+use App\Ninja\Datatables\VendorDatatable;
 
 class VendorService extends BaseService
 {
@@ -37,13 +38,14 @@ class VendorService extends BaseService
 
     public function getDatatable($search)
     {
+        $datatable = new VendorDatatable();
         $query = $this->vendorRepo->find($search);
 
         if(!Utils::hasPermission('view_all')){
             $query->where('vendors.user_id', '=', Auth::user()->id);
         }
 
-        return $this->datatableService->createDatatable(ENTITY_VENDOR, $query);
+        return $this->datatableService->createDatatable($datatable, $query);
     }
 
 }
