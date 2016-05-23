@@ -2,9 +2,8 @@
 
 use URL;
 use Utils;
-use Laracasts\Presenter\Presenter;
 
-class InvoicePresenter extends Presenter {
+class InvoicePresenter extends EntityPresenter {
 
     public function client()
     {
@@ -67,16 +66,6 @@ class InvoicePresenter extends Presenter {
     public function frequency()
     {
         return $this->entity->frequency ? $this->entity->frequency->name : '';
-    }
-
-    public function url()
-    {
-        return URL::to('/invoices/' . $this->entity->public_id);
-    }
-
-    public function link()
-    {
-        return link_to('/invoices/' . $this->entity->public_id, $this->entity->invoice_number);
     }
 
     public function email()

@@ -1,9 +1,8 @@
 <?php namespace App\Ninja\Presenters;
 
 use Utils;
-use Laracasts\Presenter\Presenter;
 
-class CreditPresenter extends Presenter {
+class CreditPresenter extends EntityPresenter {
 
     public function client()
     {

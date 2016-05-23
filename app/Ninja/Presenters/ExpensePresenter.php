@@ -1,9 +1,8 @@
 <?php namespace App\Ninja\Presenters;
 
 use Utils;
-use Laracasts\Presenter\Presenter;
 
-class ExpensePresenter extends Presenter {
+class ExpensePresenter extends EntityPresenter {
 
     // Expenses
     public function vendor()
@@ -20,9 +19,5 @@ class ExpensePresenter extends Presenter {
     {
         return $this->entity->invoice_id ? $this->entity->convertedAmount() : 0;
     }
-
-    public function link()
-    {
-        return link_to('/expenses/' . $this->entity->public_id, $this->entity->name);
-    }
+    
 }
