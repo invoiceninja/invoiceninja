@@ -1310,7 +1310,7 @@ $LANG = array(
     'original_start_date' => 'Original start date',
     'new_start_date' => 'New start date',
     'security' => 'Security',
-
+    'see_whats_new' => 'See what\'s new in v:version',
 );
 
 return $LANG;

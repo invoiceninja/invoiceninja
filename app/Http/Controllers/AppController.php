@@ -268,7 +268,12 @@ class AppController extends BaseController
                 Artisan::call('migrate', array('--force' => true));
                 Artisan::call('db:seed', array('--force' => true, '--class' => "UpdateSeeder"));
                 Event::fire(new UserSettingsChanged());
-                Session::flash('message', trans('texts.processed_updates'));
+
+                // show message with link to Trello board
+                $message = trans('texts.see_whats_new', ['version' => NINJA_VERSION]);
+                $message = link_to(RELEASES_URL, $message, ['target' => '_blank']);
+                $message = sprintf('%s - %s', trans('texts.processed_updates'), $message);
+                Session::flash('warning', $message);
             } catch (Exception $e) {
                 Utils::logError($e);
                 return Response::make($e->getMessage(), 500);
