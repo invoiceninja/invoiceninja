@@ -985,8 +985,7 @@ return array(
     // Expense / vendor
     'expense' => 'Dépense',
     'expenses' => 'Dépenses',
-    'new_expense' => 'Enter Expense',
-    'enter_expense' => 'Enter Expense',
+    'new_expense' => 'Nouvelle dépense',
     'vendors' => 'Fournisseurs',
     'new_vendor' => 'Nouveau fournisseur',
     'payment_terms_net' => 'Net',
