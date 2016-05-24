@@ -77,4 +77,9 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
             return '';
         }
     }
+
+    public function getLinkAttribute()
+    {
+        return \URL::to('client/dashboard/' . $this->contact_key);
+    }
 }

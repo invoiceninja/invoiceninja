@@ -1311,6 +1311,10 @@ $LANG = array(
     'new_start_date' => 'New start date',
     'security' => 'Security',
     'see_whats_new' => 'See what\'s new in v:version',
+
+    'view_dashboard' => 'View Dashboard',
+    'client_session_expired' => 'Session Expired',
+    'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.'
 );
 
 return $LANG;
