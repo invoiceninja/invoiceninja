@@ -127,7 +127,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/37f6876a5d211427b5c445cd64f0eb637f42f685",
+                "url": "https://api.github.com/repos/formers/former/zipball/d97f907741323b390f43954a90a227921ecc6b96",
                 "reference": "d97f907741323b390f43954a90a227921ecc6b96",
                 "shasum": ""
             },
@@ -505,7 +505,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/35ebf3a2ba9443e11fbdb9066cc363ec7b2245e4",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/e97ed532f09e290b91ff7713b785ed7ab11d0812",
                 "reference": "e97ed532f09e290b91ff7713b785ed7ab11d0812",
                 "shasum": ""
             },
@@ -657,7 +657,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Chumper/Datatable/zipball/546e8768d7987b0d9a8501e67432309349ef5504",
+                "url": "https://api.github.com/repos/Chumper/Datatable/zipball/04ef2bf",
                 "reference": "04ef2bf",
                 "shasum": ""
             },
@@ -2429,7 +2429,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/22088b04728a039bd1fc32f7e79a89a118b78698",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/e368d262887dbb2fdfaf710880571ede51e9c0e6",
                 "reference": "e368d262887dbb2fdfaf710880571ede51e9c0e6",
                 "shasum": ""
             },
@@ -2818,7 +2818,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/labs7in0/omnipay-wechat/zipball/c8d80c3b48bae2bab071f283f75b1cd8624ed3c7",
+                "url": "https://api.github.com/repos/labs7in0/omnipay-wechat/zipball/40c9f86df6573ad98ae1dd0d29712ccbc789a74e",
                 "reference": "40c9f86df6573ad98ae1dd0d29712ccbc789a74e",
                 "shasum": ""
             },
@@ -3539,6 +3539,7 @@
                 "php",
                 "url"
             ],
+            "abandoned": "league/uri",
             "time": "2015-07-15 08:24:12"
         },
         {
@@ -4202,7 +4203,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-2checkout/zipball/b27d2823d052f5c227eeb29324bb564cfdb8f9af",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-2checkout/zipball/e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
                 "reference": "e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
                 "shasum": ""
             },
@@ -4320,7 +4321,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-bitpay/zipball/9cadfb7955bd361d1a00ac8f0570aee4c05c6bb4",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-bitpay/zipball/cf813f1d5436a1d2f942d3df6666695d1e2b5280",
                 "reference": "cf813f1d5436a1d2f942d3df6666695d1e2b5280",
                 "shasum": ""
             },
@@ -5011,7 +5012,7 @@
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-mollie/zipball/efd491fdac7d1243e2dd1da5a964514e3aab2a5a",
+                "url": "https://api.github.com/repos/thephpleague/omnipay-mollie/zipball/22956c1a62a9662afa5f5d119723b413770ac525",
                 "reference": "22956c1a62a9662afa5f5d119723b413770ac525",
                 "shasum": ""
             },
@@ -8150,16 +8151,16 @@
         },
         {
             "name": "wildbit/swiftmailer-postmark",
-            "version": "2.0.2",
+            "version": "2.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wildbit/swiftmailer-postmark.git",
-                "reference": "3673ace0473ec72de31bc7e62d78e8b8f95d15f0"
+                "reference": "4032d3336ff97761edad3d0a88769820fb84e56f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wildbit/swiftmailer-postmark/zipball/3673ace0473ec72de31bc7e62d78e8b8f95d15f0",
-                "reference": "3673ace0473ec72de31bc7e62d78e8b8f95d15f0",
+                "url": "https://api.github.com/repos/wildbit/swiftmailer-postmark/zipball/4032d3336ff97761edad3d0a88769820fb84e56f",
+                "reference": "4032d3336ff97761edad3d0a88769820fb84e56f",
                 "shasum": ""
             },
             "require": {
@@ -8189,7 +8190,7 @@
                 }
             ],
             "description": "A Swiftmailer Transport for Postmark.",
-            "time": "2015-11-30 18:23:03"
+            "time": "2016-04-18 14:38:52"
         },
         {
             "name": "zendframework/zend-escaper",
