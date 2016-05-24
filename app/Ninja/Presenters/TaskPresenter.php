@@ -1,9 +1,6 @@
 <?php namespace App\Ninja\Presenters;
 
-use Utils;
-use Laracasts\Presenter\Presenter;
-
-class TaskPresenter extends Presenter {
+class TaskPresenter extends EntityPresenter {
 
     public function client()
     {

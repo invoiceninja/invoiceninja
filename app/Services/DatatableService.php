@@ -4,24 +4,25 @@ use HtmlString;
 use Utils;
 use Datatable;
 use Auth;
+use App\Ninja\Datatables\EntityDatatable;
 
 class DatatableService
 {
-    public function createDatatable($entityType, $query, $columns, $actions = null, $showCheckbox = true, $orderColumns = [])
+    public function createDatatable(EntityDatatable $datatable, $query)
     {
         $table = Datatable::query($query);
-        $calculateOrderColumns = empty($orderColumns);        
-        
-        if ($actions && $showCheckbox) {
+        //$calculateOrderColumns = empty($orderColumns);
+
+        if ($datatable->isBulkEdit) {
             $table->addColumn('checkbox', function ($model) {
                 $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
-                
+
                 return !$can_edit?'':'<input type="checkbox" name="ids[]" value="' . $model->public_id
                         . '" ' . Utils::getEntityRowClass($model) . '>';
             });
         }
 
-        foreach ($columns as $column) {
+        foreach ($datatable->columns() as $column) {
             // set visible to true by default
             if (count($column) == 2) {
                 $column[] = true;
@@ -31,27 +32,31 @@ class DatatableService
 
             if ($visible) {
                 $table->addColumn($field, $value);
+                $orderColumns[] = $field;
+                /*
                 if ($calculateOrderColumns) {
                     $orderColumns[] = $field;
                 }
+                */
             }
         }
 
-        if ($actions) {
-            $this->createDropdown($entityType, $table, $actions);
+        if (count($datatable->actions())) {
+            $this->createDropdown($datatable, $table);
         }
 
         return $table->orderColumns($orderColumns)->make();
     }
 
-    private function createDropdown($entityType, $table, $actions)
+    //private function createDropdown($entityType, $table, $actions)
+    private function createDropdown(EntityDatatable $datatable, $table)
     {
-        $table->addColumn('dropdown', function ($model) use ($entityType, $actions) {
+        $table->addColumn('dropdown', function ($model) use ($datatable) {
             $hasAction = false;
             $str = '<center style="min-width:100px">';
 
             $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
-            
+
             if (property_exists($model, 'is_deleted') && $model->is_deleted) {
                 $str .= '<button type="button" class="btn btn-sm btn-danger tr-status">'.trans('texts.deleted').'</button>';
             } elseif ($model->deleted_at && $model->deleted_at !== '0000-00-00') {
@@ -64,7 +69,7 @@ class DatatableService
 
             $lastIsDivider = false;
             if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
-                foreach ($actions as $action) {
+                foreach ($datatable->actions() as $action) {
                     if (count($action)) {
                         if (count($action) == 2) {
                             $action[] = function() {
@@ -104,20 +109,20 @@ class DatatableService
                     $dropdown_contents .= "<li class=\"divider\"></li>";
                 }
 
-                if (($entityType != ENTITY_USER || $model->public_id) && $can_edit) {
+                if (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit) {
                     $dropdown_contents .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">"
-                            . trans("texts.archive_{$entityType}") . "</a></li>";
+                            . trans("texts.archive_{$datatable->entityType}") . "</a></li>";
                 }
             } else if($can_edit) {
-                if ($entityType != ENTITY_ACCOUNT_GATEWAY || Auth::user()->account->canAddGateway(\App\Models\Gateway::getPaymentType($model->gateway_id))) {
+                if ($datatable->entityType != ENTITY_ACCOUNT_GATEWAY || Auth::user()->account->canAddGateway(\App\Models\Gateway::getPaymentType($model->gateway_id))) {
                     $dropdown_contents .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
-                        . trans("texts.restore_{$entityType}") . "</a></li>";
+                        . trans("texts.restore_{$datatable->entityType}") . "</a></li>";
                 }
             }
 
             if (property_exists($model, 'is_deleted') && !$model->is_deleted && $can_edit) {
                 $dropdown_contents .= "<li><a href=\"javascript:deleteEntity({$model->public_id})\">"
-                        . trans("texts.delete_{$entityType}") . "</a></li>";
+                        . trans("texts.delete_{$datatable->entityType}") . "</a></li>";
             }
 
             if (!empty($dropdown_contents)) {
@@ -132,5 +137,4 @@ class DatatableService
             return $str.'</div></center>';
         });
     }
-
 }

@@ -2,9 +2,8 @@
 
 use URL;
 use Utils;
-use Laracasts\Presenter\Presenter;
 
-class InvoicePresenter extends Presenter {
+class InvoicePresenter extends EntityPresenter {
 
     public function client()
     {
@@ -45,6 +44,8 @@ class InvoicePresenter extends Presenter {
             return trans('texts.deleted');
         } elseif ($this->entity->trashed()) {
             return trans('texts.archived');
+        } elseif ($this->entity->is_recurring) {
+            return trans('texts.active');
         } else {
             $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
             $status = strtolower($status);
@@ -65,16 +66,6 @@ class InvoicePresenter extends Presenter {
     public function frequency()
     {
         return $this->entity->frequency ? $this->entity->frequency->name : '';
-    }
-
-    public function url()
-    {
-        return URL::to('/invoices/' . $this->entity->public_id);
-    }
-
-    public function link()
-    {
-        return link_to('/invoices/' . $this->entity->public_id, $this->entity->invoice_number);
     }
 
     public function email()

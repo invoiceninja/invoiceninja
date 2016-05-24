@@ -37,36 +37,36 @@ Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
 Route::group(['middleware' => 'auth:client'], function() {
-    Route::get('view/{invitation_key}', 'PublicClientController@view');
-    Route::get('download/{invitation_key}', 'PublicClientController@download');
+    Route::get('view/{invitation_key}', 'ClientPortalController@view');
+    Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{payment_type?}/{source_id?}', 'PaymentController@show_payment');
     Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
     Route::match(['GET', 'POST'], 'complete', 'PaymentController@offsite_payment');
-    Route::get('client/paymentmethods', 'PublicClientController@paymentMethods');
-    Route::post('client/paymentmethods/verify', 'PublicClientController@verifyPaymentMethod');
-    Route::get('client/paymentmethods/add/{payment_type}/{source_id?}', 'PublicClientController@addPaymentMethod');
-    Route::post('client/paymentmethods/add/{payment_type}', 'PublicClientController@postAddPaymentMethod');
-    Route::post('client/paymentmethods/default', 'PublicClientController@setDefaultPaymentMethod');
-    Route::post('client/paymentmethods/{source_id}/remove', 'PublicClientController@removePaymentMethod');
-    Route::get('client/quotes', 'PublicClientController@quoteIndex');
-    Route::get('client/invoices', 'PublicClientController@invoiceIndex');
-    Route::get('client/invoices/recurring', 'PublicClientController@recurringInvoiceIndex');
-    Route::post('client/invoices/auto_bill', 'PublicClientController@setAutoBill');
-    Route::get('client/documents', 'PublicClientController@documentIndex');
-    Route::get('client/payments', 'PublicClientController@paymentIndex');
-    Route::get('client/dashboard', 'PublicClientController@dashboard');
-    Route::get('client/documents/js/{documents}/{filename}', 'PublicClientController@getDocumentVFSJS');
-    Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'PublicClientController@getDocument');
-    Route::get('client/documents/{invitation_key}/{filename?}', 'PublicClientController@getInvoiceDocumentsZip');
+    Route::get('client/paymentmethods', 'ClientPortalController@paymentMethods');
+    Route::post('client/paymentmethods/verify', 'ClientPortalController@verifyPaymentMethod');
+    Route::get('client/paymentmethods/add/{payment_type}/{source_id?}', 'ClientPortalController@addPaymentMethod');
+    Route::post('client/paymentmethods/add/{payment_type}', 'ClientPortalController@postAddPaymentMethod');
+    Route::post('client/paymentmethods/default', 'ClientPortalController@setDefaultPaymentMethod');
+    Route::post('client/paymentmethods/{source_id}/remove', 'ClientPortalController@removePaymentMethod');
+    Route::get('client/quotes', 'ClientPortalController@quoteIndex');
+    Route::get('client/invoices', 'ClientPortalController@invoiceIndex');
+    Route::get('client/invoices/recurring', 'ClientPortalController@recurringInvoiceIndex');
+    Route::post('client/invoices/auto_bill', 'ClientPortalController@setAutoBill');
+    Route::get('client/documents', 'ClientPortalController@documentIndex');
+    Route::get('client/payments', 'ClientPortalController@paymentIndex');
+    Route::get('client/dashboard', 'ClientPortalController@dashboard');
+    Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
+    Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'ClientPortalController@getDocument');
+    Route::get('client/documents/{invitation_key}/{filename?}', 'ClientPortalController@getInvoiceDocumentsZip');
 
-    Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'PublicClientController@quoteDatatable'));
-    Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'PublicClientController@invoiceDatatable'));
-    Route::get('api/client.recurring_invoices', array('as'=>'api.client.recurring_invoices', 'uses'=>'PublicClientController@recurringInvoiceDatatable'));
-    Route::get('api/client.documents', array('as'=>'api.client.documents', 'uses'=>'PublicClientController@documentDatatable'));
-    Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'PublicClientController@paymentDatatable'));
-    Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'PublicClientController@activityDatatable'));
+    Route::get('api/client.quotes', array('as'=>'api.client.quotes', 'uses'=>'ClientPortalController@quoteDatatable'));
+    Route::get('api/client.invoices', array('as'=>'api.client.invoices', 'uses'=>'ClientPortalController@invoiceDatatable'));
+    Route::get('api/client.recurring_invoices', array('as'=>'api.client.recurring_invoices', 'uses'=>'ClientPortalController@recurringInvoiceDatatable'));
+    Route::get('api/client.documents', array('as'=>'api.client.documents', 'uses'=>'ClientPortalController@documentDatatable'));
+    Route::get('api/client.payments', array('as'=>'api.client.payments', 'uses'=>'ClientPortalController@paymentDatatable'));
+    Route::get('api/client.activity', array('as'=>'api.client.activity', 'uses'=>'ClientPortalController@activityDatatable'));
 });
 
 
@@ -190,7 +190,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::resource('expenses', 'ExpenseController');
     Route::get('expenses/create/{vendor_id?}/{client_id?}', 'ExpenseController@create');
     Route::get('api/expense', array('as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable'));
-    Route::get('api/expenseVendor/{id}', array('as'=>'api.expense', 'uses'=>'ExpenseController@getDatatableVendor'));
+    Route::get('api/vendor_expense/{id}', array('as'=>'api.expense', 'uses'=>'ExpenseController@getDatatableVendor'));
     Route::post('expenses/bulk', 'ExpenseController@bulk');
 });
 

@@ -527,7 +527,9 @@
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}
+        @if ( ! $invoice->is_recurring)
+		    {!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}
+        @endif
 
         @if ($invoice->isClientTrashed())
             <!-- do nothing -->
@@ -807,6 +809,7 @@
             var invoice = {!! $invoice !!};
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
+            model.invoice().start_date_orig(model.invoice().start_date());
 
             @if ($invoice->id)
                 var invitationContactIds = {!! json_encode($invitationContactIds) !!};
@@ -1182,22 +1185,41 @@
         if (!isEmailValid()) {
             alert("{!! trans('texts.provide_email') !!}");
             return;
-        }
+8        }
 
 		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
-			preparePdfData('email');
+            var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
+            var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
+            // if the client's language is different then we can't use the browser version of the PDF
+            if (clientLanguageId && clientLanguageId != accountLanguageId) {
+                submitAction('email');
+            } else {
+                preparePdfData('email');
+            }
 		}
 	}
 
 	function onSaveClick() {
-		if (model.invoice().is_recurring() && {{ $invoice ? 'false' : 'true' }}) {
-			if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
-				submitAction('');
-			}
-		} else {
-            preparePdfData('');
-		}
-	}
+		if (model.invoice().is_recurring()) {
+            // warn invoice will be emailed when saving new recurring invoice
+            if ({{ $invoice->exists() ? 'false' : 'true' }}) {
+                if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
+                    submitAction('');
+                }
+                return;
+            // warn invoice will be emailed again if start date is changed
+            } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
+                if (confirm("{!! trans("texts.warn_start_date_changed") !!}" + '\n\n'
+                    + "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
+                    + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date())) {
+                        submitAction('');
+                }
+                return;
+            }
+        }
+
+        preparePdfData('');
+    }
 
     function getSendToEmails() {
         var client = model.invoice().client();
@@ -1403,6 +1425,12 @@
 
     @if ($account->hasFeature(FEATURE_DOCUMENTS))
     function handleDocumentAdded(file){
+        // open document when clicked
+        if (file.url) {
+            file.previewElement.addEventListener("click", function() {
+                window.open(file.url, '_blank');
+            });
+        }
         if(file.mock)return;
         file.index = model.invoice().documents().length;
         model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
