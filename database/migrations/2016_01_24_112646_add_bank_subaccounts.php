@@ -35,13 +35,13 @@ class AddBankSubaccounts extends Migration {
 
         Schema::table('expenses', function($table)
         {
-            $table->string('transaction_id');
-            $table->unsignedInteger('bank_id');
+            $table->string('transaction_id')->nullable();
+            $table->unsignedInteger('bank_id')->nullable();
         });
 
         Schema::table('vendors', function($table)
         {
-            $table->string('transaction_name');
+            $table->string('transaction_name')->nullable();
         });
 	}
 
@@ -53,7 +53,7 @@ class AddBankSubaccounts extends Migration {
 	public function down()
 	{
         Schema::drop('bank_subaccounts');
-        
+
         Schema::table('expenses', function($table)
         {
             $table->dropColumn('transaction_id');
