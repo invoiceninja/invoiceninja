@@ -19,22 +19,29 @@ class Authenticate {
 	{
 		$authenticated = Auth::guard($guard)->check();
 		
-		if($guard == 'client' && !empty($request->invitation_key)){
-			$contact_key = session('contact_key');
-			if($contact_key) {
-				$contact = $this->getContact($contact_key);
-				$invitation = $this->getInvitation($request->invitation_key);
-
-				if ($contact->id != $invitation->contact_id) {
-					// This is a different client; reauthenticate
-					$authenticated = false;
-					Auth::guard($guard)->logout();
-				}
-				Session::put('contact_key', $contact->contact_key);
-			}
-		}
-		
 		if($guard=='client'){
+			if(!empty($request->invitation_key)){
+				$contact_key = session('contact_key');
+				if($contact_key) {
+					$contact = $this->getContact($contact_key);
+					$invitation = $this->getInvitation($request->invitation_key);
+
+					if (!$invitation) {
+						return response()->view('error', [
+							'error' => trans('texts.invoice_not_found'),
+							'hideHeader' => true,
+						]);
+					}
+
+					if ($contact->id != $invitation->contact_id) {
+						// This is a different client; reauthenticate
+						$authenticated = false;
+						Auth::guard($guard)->logout();
+					}
+					Session::put('contact_key', $invitation->contact->contact_key);
+				}
+			}
+
 			if (!empty($request->contact_key)) {
 				$contact_key = $request->contact_key;
 				Session::put('contact_key', $contact_key);
@@ -44,14 +51,15 @@ class Authenticate {
 
 			if ($contact_key) {
 				$contact = $this->getContact($contact_key);
-				$account = $contact->account;
 			} elseif (!empty($request->invitation_key)) {
 				$invitation = $this->getInvitation($request->invitation_key);
-				$account = $invitation->account;
+				$contact = $invitation->contact;
+				Session::put('contact_key', $contact->contact_key);
 			} else {
 				return \Redirect::to('client/sessionexpired');
 			}
-			
+			$account = $contact->account;
+
 			if(Auth::guard('user')->check() && Auth::user('user')->account_id === $account->id){
 				// This is an admin; let them pretend to be a client
 				$authenticated = true;
