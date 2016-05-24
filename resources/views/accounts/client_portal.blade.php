@@ -30,9 +30,10 @@
 
 <div class="row">
     <div class="col-md-12">
+
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.client_portal') !!}</h3>
+                <h3 class="panel-title">{!! trans('texts.navigation') !!}</h3>
             </div>
             <div class="panel-body">
                 <div class="col-md-10 col-md-offset-1">
@@ -45,20 +46,29 @@
                         ->text(trans('texts.enable'))
                         ->help(trans('texts.enable_client_portal_dashboard_help')) !!}
                 </div>
+            </div>
+        </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">{!! trans('texts.security') !!}</h3>
+            </div>
+            <div class="panel-body">
                 <div class="col-md-10 col-md-offset-1">
                     {!! Former::checkbox('enable_portal_password')
-                        ->text(trans('texts.enable_portal_password'))
+                        ->text(trans('texts.enable'))
                         ->help(trans('texts.enable_portal_password_help'))
-                        ->label('&nbsp;') !!}
+                        ->label(trans('texts.enable_portal_password')) !!}
                 </div>
                 <div class="col-md-10 col-md-offset-1">
                     {!! Former::checkbox('send_portal_password')
-                        ->text(trans('texts.send_portal_password'))
+                        ->text(trans('texts.enable'))
                         ->help(trans('texts.send_portal_password_help'))
-                        ->label('&nbsp;') !!}
+                        ->label(trans('texts.send_portal_password')) !!}
                 </div>
             </div>
         </div>
+
         @if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_CSS))
         <div class="panel panel-default">
             <div class="panel-heading">

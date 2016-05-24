@@ -1305,6 +1305,12 @@ $LANG = array(
     'canada' => 'Canada',
     'accept_debit_cards' => 'Accept Debit Cards',
     'debit_cards' => 'Debit Cards',
+
+    'warn_start_date_changed' => 'The next invoice will be sent on the new start date.',
+    'original_start_date' => 'Original start date',
+    'new_start_date' => 'New start date',
+    'security' => 'Security',
+    'see_whats_new' => 'See what\'s new in v:version',
 );
 
 return $LANG;

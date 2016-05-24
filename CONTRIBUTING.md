@@ -7,4 +7,4 @@ We welcome contributions! We'll improve this guide over time...
 Guidelines
 * Try to follow [PSR-2 guidlines](https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-2-coding-style-guide.md)
 * Create pull requests against the develop branch
-* Submit translations through [Transifex](https://www.transifex.com/invoice-ninja/)
+* Submit translations through [Transifex](https://www.transifex.com/invoice-ninja/invoice-ninja/)

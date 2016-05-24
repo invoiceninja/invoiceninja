@@ -11,6 +11,7 @@ use App\Services\BaseService;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
+use App\Ninja\Datatables\BankAccountDatatable;
 use App\Libraries\Finance;
 use App\Libraries\Login;
 
@@ -206,7 +207,7 @@ class BankAccountService extends BaseService
                 $vendorMap[$transaction['vendor_orig']] = $vendor;
                 $countVendors++;
             }
-            
+
             // create the expense record
             $this->expenseRepo->save([
                 'vendor_id' => $vendor->id,
@@ -241,36 +242,6 @@ class BankAccountService extends BaseService
     {
         $query = $this->bankAccountRepo->find($accountId);
 
-        return $this->createDatatable(ENTITY_BANK_ACCOUNT, $query, false);
-    }
-
-    protected function getDatatableColumns($entityType, $hideClient)
-    {
-        return [
-            [
-                'bank_name',
-                function ($model) {
-                    return link_to("bank_accounts/{$model->public_id}/edit", $model->bank_name)->toHtml();
-                },
-            ],
-            [
-                'bank_library_id',
-                function ($model) {
-                    return 'OFX';
-                }
-            ],
-        ];
-    }
-
-    protected function getDatatableActions($entityType)
-    {
-        return [
-            [
-                uctrans('texts.edit_bank_account'),
-                function ($model) {
-                    return URL::to("bank_accounts/{$model->public_id}/edit");
-                },
-            ]
-        ];
+        return $this->datatableService->createDatatable(new BankAccountDatatable(false), $query);
     }
 }

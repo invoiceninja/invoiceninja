@@ -364,6 +364,12 @@
 
         @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
         function handleDocumentAdded(file){
+            // open document when clicked
+            if (file.url) {
+                file.previewElement.addEventListener("click", function() {
+                    window.open(file.url, '_blank');
+                });
+            }
             if(file.mock)return;
             file.index = model.documents().length;
             model.addDocument({name:file.name, size:file.size, type:file.type});
