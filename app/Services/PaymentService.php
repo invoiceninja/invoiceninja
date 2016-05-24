@@ -88,6 +88,10 @@ class PaymentService extends BaseService
             'transactionType' => 'Purchase',
         ];
 
+        if ($input !== null) {
+            $data['ip_address'] = \Request::ip();
+        }
+
         if ($accountGateway->isGateway(GATEWAY_PAYPAL_EXPRESS) || $accountGateway->isGateway(GATEWAY_PAYPAL_PRO)) {
             $data['ButtonSource'] = 'InvoiceNinja_SP';
         };
@@ -442,6 +446,8 @@ class PaymentService extends BaseService
             $accountGatewayToken->save();
 
             $paymentMethod = $this->convertPaymentMethodFromGatewayResponse($tokenResponse, $accountGateway, $accountGatewayToken, $contactId);
+            $paymentMethod->ip_address = \Request::ip();
+            $paymentMethod->save();
 
         } else {
             $this->lastError = $tokenResponse->getMessage();
@@ -642,6 +648,10 @@ class PaymentService extends BaseService
             $card = $paymentDetails['card'];
             $payment->last4 = $card->getNumberLastFour();
             $payment->payment_type_id = $this->detectCardType($card->getNumber());
+        }
+
+        if (!empty($paymentDetails['ip_address'])) {
+            $payment->ip_address = $paymentDetails['ip_address'];
         }
 
         $savePaymentMethod = !empty($paymentMethod);

@@ -835,7 +835,7 @@ class ClientPortalController extends BaseController
         $gateway = $accountGateway->gateway;
 
         if ($token && $paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-            $sourceReference = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $invitation->contact_id);
+            $sourceReference = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $contact->id);
 
             if(empty($sourceReference)) {
                 $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
@@ -916,7 +916,7 @@ class ClientPortalController extends BaseController
 
         if (!empty($details)) {
             $gateway = $this->paymentService->createGateway($accountGateway);
-            $sourceReference = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
+            $sourceReference = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $contact->id);
         } else {
             return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
         }

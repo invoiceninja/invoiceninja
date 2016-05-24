@@ -667,7 +667,7 @@ class PaymentController extends BaseController
             } elseif (method_exists($gateway, 'completePurchase') 
                 && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)
                 && !$accountGateway->isGateway(GATEWAY_CHECKOUT_COM)) {
-                $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
+                $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway, array());
 
                 $response = $this->paymentService->completePurchase($gateway, $accountGateway, $details, $token);
 
