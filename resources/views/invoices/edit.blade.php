@@ -1230,7 +1230,7 @@
             }
         }
 
-        preparePdfData('');
+        submitAction('');
     }
 
     function getSendToEmails() {
