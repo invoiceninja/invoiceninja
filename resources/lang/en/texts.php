@@ -1324,7 +1324,8 @@ $LANG = array(
     'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your Visa card ending in 4242 on the due date.',
     'payment_settings' => 'Payment Settings',
     
-    'auto_bill_on_due_date' => 'Auto bill on due date instead of send date',
+    'on_send_date' => 'On send date',
+    'on_due_date' => 'On due date',
     'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
     'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
 
@@ -1333,6 +1334,7 @@ $LANG = array(
     'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
     'privacy_policy' => 'Privacy Policy',
     'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
+    'payment_settings_supported_gateways' => 'These options are supported by the WePay, Stripe, and Braintree gateways.'
 );
 
 return $LANG;
