@@ -48,6 +48,24 @@
             })
         });
     </script>
+@elseif($gateway->gateway_id == GATEWAY_WEPAY && $gateway->getAchEnabled())
+    <script type="text/javascript" src="https://static.wepay.com/js/tokenization.v2.js"></script>
+
+    <script type="text/javascript">
+        $(function() {
+            WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
+            // Shortcuts
+            $('#add-ach').click(function(e) {
+                e.preventDefault();
+                WePay.bank_account.create({
+                    'client_id': '{{ WEPAY_CLIENT_ID }}',
+                    'email':{!! json_encode($contact->email) !!}
+                }, function(data){
+                    window.location.href = $('#add-ach').attr('href') + '/' + encodeURIComponent(data.bank_account_id)
+                });
+            });
+        });
+    </script>
 @endif
 @if(!empty($paymentMethods))
 @foreach ($paymentMethods as $paymentMethod)
@@ -88,8 +106,14 @@
     ->asLinkTo(URL::to('/client/paymentmethods/add/'.($gateway->getPaymentType() == PAYMENT_TYPE_STRIPE ? 'stripe_credit_card' : 'credit_card'))) !!}
     @if($gateway->getACHEnabled())
     &nbsp;
+        @if($gateway->gateway_id == GATEWAY_STRIPE)
         {!! Button::success(strtoupper(trans('texts.add_bank_account')))
             ->asLinkTo(URL::to('/client/paymentmethods/add/stripe_ach')) !!}
+        @elseif($gateway->gateway_id == GATEWAY_WEPAY)
+            {!! Button::success(strtoupper(trans('texts.add_bank_account')))
+                ->withAttributes(['id'=>'add-ach'])
+                ->asLinkTo(URL::to('/client/paymentmethods/add/wepay_ach')) !!}
+        @endif
     @endif
     @if($gateway->getPayPalEnabled())
         &nbsp;

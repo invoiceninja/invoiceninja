@@ -133,7 +133,7 @@
                 <p>&nbsp;<br/>&nbsp;</p>
                 <div>
                     <div id="paypal-container"></div>
-                    @if($paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL)
+                    @if($paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH)
                         <h3>{{ trans('texts.contact_information') }}</h3>
                         <div class="row">
                             <div class="col-md-6">

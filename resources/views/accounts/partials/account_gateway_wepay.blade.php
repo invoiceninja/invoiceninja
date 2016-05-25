@@ -49,6 +49,18 @@
                 ->label('Accepted Credit Cards')
                 ->checkboxes($creditCardTypes)
                 ->class('creditcard-types') !!}
+        @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT))
+            {!! Former::checkbox('enable_ach')
+                ->label(trans('texts.ach'))
+                ->text(trans('texts.enable_ach'))
+                ->value(null)
+                ->disabled(true)
+                ->help(trans('texts.ach_disabled')) !!}
+        @else
+            {!! Former::checkbox('enable_ach')
+                ->label(trans('texts.ach'))
+                ->text(trans('texts.enable_ach')) !!}
+        @endif
         {!! Former::checkbox('tos_agree')->label(' ')->text(trans('texts.wepay_tos_agree',
                 ['link'=>'<a id="wepay-tos-link" href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.wepay_tos_link_text').'</a>']
             ))->value('true') !!}
