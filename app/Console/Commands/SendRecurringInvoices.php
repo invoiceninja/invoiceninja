@@ -54,20 +54,12 @@ class SendRecurringInvoices extends Command
                 $invoice->account->auto_bill_on_due_date;
 
                 $autoBillLater = false;
-                if ($invoice->account->auto_bill_on_due_date) {
+                if ($invoice->account->auto_bill_on_due_date || $this->paymentService->getClientRequiresDelayedAutoBill($invoice->client)) {
                     $autoBillLater = true;
-                } elseif ($paymentMethod = $this->paymentService->getClientDefaultPaymentMethod($invoice->client)) {
-                    if ($paymentMethod && $paymentMethod->requiresDelayedAutoBill()) {
-                        $autoBillLater = true;
-                    }
                 }
 
                 if($autoBillLater) {
-                    if (empty($paymentMethod)) {
-                        $paymentMethod = $this->paymentService->getClientDefaultPaymentMethod($invoice->client);
-                    }
-
-                    if($paymentMethod) {
+                    if($paymentMethod = $this->paymentService->getClientDefaultPaymentMethod($invoice->client)) {
                         $invoice->autoBillPaymentMethod = $paymentMethod;
                     }
                 }
@@ -93,15 +85,7 @@ class SendRecurringInvoices extends Command
             $billNow = false;
 
             if ($autoBill && !$invoice->isPaid()) {
-                $billNow = $invoice->account->auto_bill_on_due_date;
-
-                if (!$billNow) {
-                    $paymentMethod = $this->paymentService->getClientDefaultPaymentMethod($invoice->client);
-
-                    if ($paymentMethod && $paymentMethod->requiresDelayedAutoBill()) {
-                        $billNow = true;
-                    }
-                }
+                $billNow = $invoice->account->auto_bill_on_due_date || $this->paymentService->getClientRequiresDelayedAutoBill($invoice->client);
             }
 
             $this->info('Processing Invoice '.$invoice->id.' - Should bill '.($billNow ? 'YES' : 'NO'));

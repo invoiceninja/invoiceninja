@@ -1200,6 +1200,10 @@
 	}
 
 	function onSaveClick() {
+        @if(!empty($autoBillChangeWarning))
+        if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+        @endif
+
 		if (model.invoice().is_recurring()) {
             // warn invoice will be emailed when saving new recurring invoice
             if ({{ $invoice->exists() ? 'false' : 'true' }}) {
@@ -1324,6 +1328,10 @@
 
     @if ($invoice->id)
     	function onPaymentClick() {
+            @if(!empty($autoBillChangeWarning))
+            if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+            @endif
+
     		window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
     	}
 

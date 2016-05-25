@@ -903,6 +903,12 @@ class PaymentService extends BaseService
         return $accountGatewayToken->default_payment_method;
     }
 
+    public function getClientRequiresDelayedAutoBill($client) {
+        $defaultPaymentMethod = $this->getClientDefaultPaymentMethod($client);
+
+        return $defaultPaymentMethod?$defaultPaymentMethod->requiresDelayedAutoBill():null;
+    }
+
     public function getDatatable($clientPublicId, $search)
     {
         $datatable = new PaymentDatatable( ! $clientPublicId, $clientPublicId);

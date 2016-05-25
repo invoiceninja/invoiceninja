@@ -1325,6 +1325,7 @@ $LANG = array(
     
     'auto_bill_on_due_date' => 'Auto bill on due date instead of send date',
     'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
+    'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
 );
 
 return $LANG;
