@@ -51,6 +51,28 @@ class SendRecurringInvoices extends Command
             $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 
             if ($invoice && !$invoice->isPaid()) {
+                $invoice->account->auto_bill_on_due_date;
+
+                $autoBillLater = false;
+                if ($invoice->account->auto_bill_on_due_date) {
+                    $autoBillLater = true;
+                } elseif ($paymentMethod = $this->paymentService->getClientDefaultPaymentMethod($invoice->client)) {
+                    if ($paymentMethod && $paymentMethod->requiresDelayedAutoBill()) {
+                        $autoBillLater = true;
+                    }
+                }
+
+                if($autoBillLater) {
+                    if (empty($paymentMethod)) {
+                        $paymentMethod = $this->paymentService->getClientDefaultPaymentMethod($invoice->client);
+                    }
+
+                    if($paymentMethod) {
+                        $invoice->autoBillPaymentMethod = $paymentMethod;
+                    }
+                }
+
+
                 $this->info('Sending Invoice');
                 $this->mailer->sendInvoice($invoice);
             }
@@ -74,7 +96,7 @@ class SendRecurringInvoices extends Command
                 $billNow = $invoice->account->auto_bill_on_due_date;
 
                 if (!$billNow) {
-                    $paymentMethod = $this->invoiceService->getClientDefaultPaymentMethod($invoice->client);
+                    $paymentMethod = $this->paymentService->getClientDefaultPaymentMethod($invoice->client);
 
                     if ($paymentMethod && $paymentMethod->requiresDelayedAutoBill()) {
                         $billNow = true;

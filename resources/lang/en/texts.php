@@ -1314,7 +1314,13 @@ $LANG = array(
 
     'view_dashboard' => 'View Dashboard',
     'client_session_expired' => 'Session Expired',
-    'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.'
+    'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.',
+
+    'auto_bill_notification' => 'This invoice will automatically be billed to :payment_method on the due date.',
+    'auto_bill_payment_method_bank' => 'your :bank account ending in :last4',
+    'auto_bill_payment_method_credit_card' => 'your :type card ending in :last4',
+    'auto_bill_payment_method_paypal' => 'your PayPal account (:email)',
+    'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your Visa card ending in 4242 on the due date.'
 );
 
 return $LANG;
