@@ -1222,6 +1222,10 @@
 	}
 
     function onFormSubmit(event) {
+        if (window.countUploadingDocuments > 0) {
+            return false;
+        }
+
         if (!isSaveValid()) {
             model.showClientForm();
             return false;
@@ -1392,6 +1396,7 @@
         model.invoice().invoice_number(number);
     }
 
+    window.countUploadingDocuments = 0;
     @if ($account->hasFeature(FEATURE_DOCUMENTS))
     function handleDocumentAdded(file){
         // open document when clicked
@@ -1403,6 +1408,7 @@
         if(file.mock)return;
         file.index = model.invoice().documents().length;
         model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
+        window.countUploadingDocuments++;
     }
 
     function handleDocumentRemoved(file){
@@ -1413,6 +1419,7 @@
     function handleDocumentUploaded(file, response){
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
+        window.countUploadingDocuments--;
         refreshPDF(true);
 
         if(response.document.preview_url){
