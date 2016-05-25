@@ -1186,7 +1186,7 @@
 				submitAction('');
 			}
 		} else {
-            preparePdfData('');
+            submitAction('');
 		}
 	}
 
