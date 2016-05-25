@@ -16,7 +16,6 @@
 {!! Former::populateField('email', $user->email) !!}
 {!! Former::populateField('show_address', 1) !!}
 {!! Former::populateField('update_address', 1) !!}
-{!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">{!! trans('texts.online_payments') !!}</h3>
@@ -40,9 +39,6 @@
                 ->text(trans('texts.accept_debit_cards')) !!}
         </div>
         @endif
-        {!! Former::select('token_billing_type_id')
-                ->options($tokenBillingOptions)
-                ->help(trans('texts.token_billing_help')) !!}
         {!! Former::checkbox('show_address')
             ->label(trans('texts.billing_address'))
             ->text(trans('texts.show_address_help')) !!}

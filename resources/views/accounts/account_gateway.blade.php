@@ -16,7 +16,6 @@
     </div>
     <div class="panel-body form-padding-right">
     {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
-    {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
 
     @if ($accountGateway)
         {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
@@ -97,12 +96,6 @@
 
             @if ($gateway->id == GATEWAY_STRIPE)
                 {!! Former::text('publishable_key') !!}
-            @endif
-
-            @if ($gateway->id == GATEWAY_STRIPE || $gateway->id == GATEWAY_BRAINTREE || $gateway->id == GATEWAY_WEPAY)
-                {!! Former::select('token_billing_type_id')
-                        ->options($tokenBillingOptions)
-                        ->help(trans('texts.token_billing_help')) !!}
             @endif
 
             @if ($gateway->id == GATEWAY_STRIPE)

@@ -1320,7 +1320,11 @@ $LANG = array(
     'auto_bill_payment_method_bank' => 'your :bank account ending in :last4',
     'auto_bill_payment_method_credit_card' => 'your :type card ending in :last4',
     'auto_bill_payment_method_paypal' => 'your PayPal account (:email)',
-    'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your Visa card ending in 4242 on the due date.'
+    'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your Visa card ending in 4242 on the due date.',
+    'payment_settings' => 'Payment Settings',
+    
+    'auto_bill_on_due_date' => 'Auto bill on due date instead of send date',
+    'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
 );
 
 return $LANG;
