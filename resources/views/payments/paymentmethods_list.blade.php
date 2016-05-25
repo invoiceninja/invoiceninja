@@ -50,20 +50,25 @@
     </script>
 @elseif($gateway->gateway_id == GATEWAY_WEPAY && $gateway->getAchEnabled())
     <script type="text/javascript" src="https://static.wepay.com/js/tokenization.v2.js"></script>
-
     <script type="text/javascript">
         $(function() {
             WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
-            // Shortcuts
             $('#add-ach').click(function(e) {
                 e.preventDefault();
+
+                $('#wepay-error').remove();
+                var email = {!! json_encode($contact->email) !!} || prompt('{{ trans('texts.ach_email_prompt') }}');
+                if(!email)return;
+
                 WePay.bank_account.create({
                     'client_id': '{{ WEPAY_CLIENT_ID }}',
-                    'email':{!! json_encode($contact->email) !!}
+                    'email':email
                 }, function(data){
                     dataObj = JSON.parse(data);
                     if(dataObj.bank_account_id) {
                         window.location.href = $('#add-ach').attr('href') + '/' + dataObj.bank_account_id + "?details=" + encodeURIComponent(data);
+                    } else if(dataObj.error) {
+                        $('#add-ach').after($('<div id="wepay-error" style="margin-top:20px" class="alert alert-danger"></div>').text(dataObj.error_description));
                     }
                 });
             });
@@ -84,7 +89,11 @@
             {{ $paymentMethod->bank_name }}
         @endif
         @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
-        <a href="#" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
+            @if($gateway->gateway_id == GATEWAY_STRIPE)
+            <a href="#" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
+            @else
+            ({{  trans('texts.verification_pending') }})
+            @endif
         @elseif($paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFICATION_FAILED)
         ({{trans('texts.verification_failed')}})
         @endif

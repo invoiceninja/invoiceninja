@@ -1334,7 +1334,9 @@ $LANG = array(
     'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
     'privacy_policy' => 'Privacy Policy',
     'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
-    'payment_settings_supported_gateways' => 'These options are supported by the WePay, Stripe, and Braintree gateways.'
+    'payment_settings_supported_gateways' => 'These options are supported by the WePay, Stripe, and Braintree gateways.',
+    'ach_email_prompt' => 'Please enter your email address:',
+    'verification_pending' => 'Verification Pending',
 );
 
 return $LANG;

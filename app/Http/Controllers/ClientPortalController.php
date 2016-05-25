@@ -111,6 +111,8 @@ class ClientPortalController extends BaseController
             if($braintreeGateway->getPayPalEnabled()) {
                 $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
             }
+        } elseif ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)){
+            $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
         }
 
         $showApprove = $invoice->quote_invoice_id ? false : true;
@@ -224,43 +226,39 @@ class ClientPortalController extends BaseController
 
         foreach(Gateway::$paymentTypes as $type) {
             if ($gateway = $account->getGatewayByType($type)) {
-                $types = array($type);
-
-                if ($type == PAYMENT_TYPE_STRIPE) {
-                    $types = array(PAYMENT_TYPE_STRIPE_CREDIT_CARD);
-                    if ($gateway->getAchEnabled()) {
-                        $types[] = PAYMENT_TYPE_STRIPE_ACH;
+                if ($type == PAYMENT_TYPE_DIRECT_DEBIT) {
+                    if ($gateway->gateway_id == GATEWAY_STRIPE) {
+                        $type = PAYMENT_TYPE_STRIPE_ACH;
+                    } elseif ($gateway->gateway_id == GATEWAY_WEPAY) {
+                        $type = PAYMENT_TYPE_WEPAY_ACH;
                     }
+                } elseif ($type == PAYMENT_TYPE_PAYPAL && $gateway->gateway_id == GATEWAY_BRAINTREE) {
+                    $type = PAYMENT_TYPE_BRAINTREE_PAYPAL;
+                } elseif ($type == PAYMENT_TYPE_CREDIT_CARD && $gateway->gateway_id == GATEWAY_STRIPE) {
+                    $type = PAYMENT_TYPE_STRIPE_CREDIT_CARD;
                 }
 
-                foreach($types as $type) {
-                    $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
-                    $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
+                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
+                $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
 
-                    // PayPal doesn't allow being run in an iframe so we need to open in new tab
-                    if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
-                        $url = 'javascript:window.open("' . $url . '", "_blank")';
-                    }
-
-                    if ($type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
-                        $label = trans('texts.' . strtolower(PAYMENT_TYPE_CREDIT_CARD));
-                    } elseif ($type == PAYMENT_TYPE_STRIPE_ACH) {
-                        $label = trans('texts.' . strtolower(PAYMENT_TYPE_DIRECT_DEBIT));
-                    } else {
-                        $label = trans('texts.' . strtolower($type));
-                    }
-
-                    $paymentTypes[] = [
-                        'url' => $url, 'label' => $label
-                    ];
-
-                    if($gateway->getPayPalEnabled()) {
-                        $paymentTypes[] = [
-                            'label' => trans('texts.paypal'),
-                            'url' => $url = URL::to("/payment/{$invitation->invitation_key}/braintree_paypal"),
-                        ];
-                    }
+                // PayPal doesn't allow being run in an iframe so we need to open in new tab
+                if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
+                    $url = 'javascript:window.open("' . $url . '", "_blank")';
                 }
+
+                if ($type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
+                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_CREDIT_CARD));
+                } elseif ($type == PAYMENT_TYPE_STRIPE_ACH || $type == PAYMENT_TYPE_WEPAY_ACH) {
+                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_DIRECT_DEBIT));
+                } elseif ($type == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_PAYPAL));
+                } else {
+                    $label = trans('texts.' . strtolower($type));
+                }
+
+                $paymentTypes[] = [
+                    'url' => $url, 'label' => $label
+                ];
             }
         }
 

@@ -156,7 +156,23 @@ class PaymentController extends BaseController
         $details = json_decode(Input::get('details'));
         $data['details'] = $details;
 
-        if ($paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+
+        if ($paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+            if ($deviceData = Input::get('device_data')) {
+                Session::put($invitation->id . 'device_data', $deviceData);
+            }
+
+            Session::put($invitation->id . 'payment_type', PAYMENT_TYPE_BRAINTREE_PAYPAL);
+            if (!$sourceId || !$details) {
+                return Redirect::to('view/'.$invitationKey);
+            }
+        } elseif ($paymentType == PAYMENT_TYPE_WEPAY_ACH) {
+            Session::put($invitation->id . 'payment_type', PAYMENT_TYPE_WEPAY_ACH);
+
+            if (!$sourceId) {
+                return Redirect::to('view/'.$invitationKey);
+            }
+        } else {
             if ($paymentType == PAYMENT_TYPE_TOKEN) {
                 $useToken = true;
                 $accountGateway = $invoice->client->account->getTokenGateway();
@@ -206,15 +222,6 @@ class PaymentController extends BaseController
                 $data['tokenize'] = true;
             }
 
-        } else {
-            if ($deviceData = Input::get('device_data')) {
-                Session::put($invitation->id . 'device_data', $deviceData);
-            }
-
-            Session::put($invitation->id . 'payment_type', PAYMENT_TYPE_BRAINTREE_PAYPAL);
-            if (!$sourceId || !$details) {
-               return Redirect::to('view/'.$invitationKey);
-            }
         }
 
         $data += [
@@ -497,7 +504,6 @@ class PaymentController extends BaseController
                 ->withInput(Request::except('cvv'));
         }
 
-
         try {
             // For offsite payments send the client's details on file
             // If we're using a token then we don't need to send any other data
@@ -511,17 +517,22 @@ class PaymentController extends BaseController
             $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway, $data);
             $details['paymentType'] = $paymentType;
 
+            // Check for authorization
+            if (($paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH) && !Input::get('authorize_ach')) {
+                Session::flash('error', trans('texts.ach_authorization_required'));
+                return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
+            }
+            if ($paymentType == PAYMENT_TYPE_WEPAY_ACH && !Input::get('tos_agree')) {
+                Session::flash('error', trans('texts.wepay_payment_tos_agree_required'));
+                return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
+            }
+
             // check if we're creating/using a billing token
             $tokenBillingSupported = false;
             $sourceReferenceParam = 'token';
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
                 $tokenBillingSupported = true;
                 $customerReferenceParam = 'customerReference';
-
-                if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && !Input::get('authorize_ach')) {
-                    Session::flash('error', trans('texts.ach_authorization_required'));
-                    return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
-                }
             } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
                 $tokenBillingSupported = true;
                 $sourceReferenceParam = 'paymentMethodToken';
@@ -547,8 +558,8 @@ class PaymentController extends BaseController
                     }
                     $details[$sourceReferenceParam] = $sourceReference;
                     unset($details['card']);
-                } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing') || $paymentType == PAYMENT_TYPE_STRIPE_ACH) {
-                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */, $paymentMethod/* return parameter */);
+                } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing') || $paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH) {
+                    $token = $this->paymentService->createToken($paymentType, $gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */, $paymentMethod/* return parameter */);
                     if ($token) {
                         $details[$sourceReferenceParam] = $token;
                         if ($customerReferenceParam) {
@@ -586,7 +597,7 @@ class PaymentController extends BaseController
             if (!$ref) {
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
-                if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+                if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH) {
                     return Redirect::to('payment/'.$invitationKey)
                             ->withInput(Request::except('cvv'));
                 } else {
@@ -614,7 +625,7 @@ class PaymentController extends BaseController
                 $response->redirect();
             } else {
                 $this->error('Unknown', $response->getMessage(), $accountGateway);
-                if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+                if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH) {
                     return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
                 } else {
                     return Redirect::to('view/'.$invitationKey);
@@ -622,7 +633,7 @@ class PaymentController extends BaseController
             }
         } catch (\Exception $e) {
             $this->error('Uncaught', false, $accountGateway, $e);
-            if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+            if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH) {
                 return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
             } else {
                 return Redirect::to('view/'.$invitationKey);
