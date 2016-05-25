@@ -249,7 +249,7 @@
                         public_id:document.public_id(),
                         status:Dropzone.SUCCESS,
                         accepted:true,
-                        url:document.preview_url()||document.url(),
+                        url:document.url(),
                         mock:true,
                         index:i
                     };
