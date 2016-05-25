@@ -15,7 +15,10 @@
 
 @section('content')
 
-	{!! Former::open($url)->addClass('warn-on-exit main-form')->method($method) !!}
+    {!! Former::open($url)
+        ->addClass('warn-on-exit main-form')
+        ->onsubmit('return onFormSubmit(event)')
+        ->method($method) !!}
     <div style="display:none">
         {!! Former::text('action') !!}
     </div>
@@ -154,6 +157,15 @@
             clientMap[client.public_id] = client;
         }
 
+        function onFormSubmit(event) {
+            if (window.countUploadingDocuments > 0) {
+                alert("{!! trans('texts.wait_for_upload') !!}");
+                return false;
+            }
+
+            return true;
+        }
+
         function onClientChange() {
             var clientId = $('select#client_id').val();
             var client = clientMap[clientId];
@@ -240,6 +252,7 @@
                 dropzone.on("addedfile",handleDocumentAdded);
                 dropzone.on("removedfile",handleDocumentRemoved);
                 dropzone.on("success",handleDocumentUploaded);
+                dropzone.on("canceled",handleDocumentCanceled);
                 for (var i=0; i<model.documents().length; i++) {
                     var document = model.documents()[i];
                     var mockFile = {
@@ -362,6 +375,7 @@
             }
         }
 
+        window.countUploadingDocuments = 0;
         @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
         function handleDocumentAdded(file){
             // open document when clicked
@@ -373,6 +387,7 @@
             if(file.mock)return;
             file.index = model.documents().length;
             model.addDocument({name:file.name, size:file.size, type:file.type});
+            window.countUploadingDocuments++;
         }
 
         function handleDocumentRemoved(file){
@@ -382,10 +397,15 @@
         function handleDocumentUploaded(file, response){
             file.public_id = response.document.public_id
             model.documents()[file.index].update(response.document);
-
+            window.countUploadingDocuments--;
             if(response.document.preview_url){
                 dropzone.emit('thumbnail', file, response.document.preview_url);
             }
+        }
+
+        function handleDocumentCanceled()
+        {
+            window.countUploadingDocuments--;
         }
         @endif
     </script>

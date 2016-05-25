@@ -1001,6 +1001,7 @@
                 dropzone.on("addedfile",handleDocumentAdded);
                 dropzone.on("removedfile",handleDocumentRemoved);
                 dropzone.on("success",handleDocumentUploaded);
+                dropzone.on("canceled",handleDocumentCanceled);
                 for (var i=0; i<model.invoice().documents().length; i++) {
                     var document = model.invoice().documents()[i];
                     var mockFile = {
@@ -1421,10 +1422,14 @@
         model.invoice().documents()[file.index].update(response.document);
         window.countUploadingDocuments--;
         refreshPDF(true);
-
         if(response.document.preview_url){
             dropzone.emit('thumbnail', file, response.document.preview_url);
         }
+    }
+
+    function handleDocumentCanceled()
+    {
+        window.countUploadingDocuments--;
     }
     @endif
 
