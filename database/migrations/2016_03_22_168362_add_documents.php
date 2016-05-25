@@ -18,7 +18,7 @@ class AddDocuments extends Migration {
 			$table->boolean('invoice_embed_documents')->default(1);
 			$table->boolean('document_email_attachment')->default(1);
 		});
-		
+
 		\DB::table('accounts')->update(array('logo' => ''));
 		Schema::dropIfExists('documents');
 		Schema::create('documents', function($t)
@@ -41,14 +41,14 @@ class AddDocuments extends Migration {
 
             $t->timestamps();
 
-            $t->foreign('account_id')->references('id')->on('accounts');
-			$t->foreign('user_id')->references('id')->on('users');
-			$t->foreign('invoice_id')->references('id')->on('invoices');
-			$t->foreign('expense_id')->references('id')->on('expenses');
+            $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+			$t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+			$t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
+			$t->foreign('expense_id')->references('id')->on('expenses')->onDelete('cascade');
 			
-			
+
             $t->unique( array('account_id','public_id') );
-        });     
+        });
 	}
 	/**
 	 * Reverse the migrations.
@@ -65,7 +65,7 @@ class AddDocuments extends Migration {
 			$table->dropColumn('invoice_embed_documents');
 			$table->dropColumn('document_email_attachment');
 		});
-		
+
 		Schema::dropIfExists('documents');
 	}
 }
