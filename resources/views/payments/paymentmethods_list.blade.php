@@ -61,7 +61,10 @@
                     'client_id': '{{ WEPAY_CLIENT_ID }}',
                     'email':{!! json_encode($contact->email) !!}
                 }, function(data){
-                    window.location.href = $('#add-ach').attr('href') + '/' + encodeURIComponent(data.bank_account_id)
+                    dataObj = JSON.parse(data);
+                    if(dataObj.bank_account_id) {
+                        window.location.href = $('#add-ach').attr('href') + '/' + dataObj.bank_account_id + "?details=" + encodeURIComponent(data);
+                    }
                 });
             });
         });
@@ -77,8 +80,8 @@
     <span class="payment_method_number">&bull;&bull;&bull;&bull;&bull;{{$paymentMethod->last4}}</span>
     @endif
     @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
-        @if($paymentMethod->bank_data)
-            {{ $paymentMethod->bank_data->name }}
+        @if($paymentMethod->bank_name)
+            {{ $paymentMethod->bank_name }}
         @endif
         @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
         <a href="#" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>

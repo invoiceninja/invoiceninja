@@ -385,6 +385,10 @@ class Account extends Eloquent
             $type = PAYMENT_TYPE_STRIPE;
         }
 
+        if ($type == PAYMENT_TYPE_WEPAY_ACH) {
+            return $this->getGatewayConfig(GATEWAY_WEPAY);
+        }
+
         foreach ($this->account_gateways as $gateway) {
             if ($exceptFor && ($gateway->id == $exceptFor->id)) {
                 continue;

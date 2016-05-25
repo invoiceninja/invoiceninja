@@ -189,8 +189,8 @@ class ClientPortalController extends BaseController
                     $html = '';
 
                     if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
-                        if ($paymentMethod->bank_data) {
-                            $html = '<div>' . htmlentities($paymentMethod->bank_data->name) . '</div>';
+                        if ($paymentMethod->bank_name) {
+                            $html = '<div>' . htmlentities($paymentMethod->bank_name) . '</div>';
                         } else {
                             $html = '<img height="22" src="'.URL::to('/images/credit_cards/ach.png').'" style="float:left" alt="'.trans("texts.direct_debit").'">';
                         }
@@ -304,6 +304,7 @@ class ClientPortalController extends BaseController
 
         $data = [
             'color' => $color,
+            'contact' => $contact,
             'account' => $account,
             'client' => $client,
             'clientFontUrl' => $account->getFontsUrl(),
@@ -472,9 +473,16 @@ class ClientPortalController extends BaseController
                             return $model->email;
                         }
                     } elseif ($model->last4) {
-                        $bankData = PaymentMethod::lookupBankData($model->routing_number);
-                        if (is_object($bankData)) {
-                            return $bankData->name.'&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        if($model->bank_name) {
+                            $bankName = $model->bank_name;
+                        } else {
+                            $bankData = PaymentMethod::lookupBankData($model->routing_number);
+                            if($bankData) {
+                                $bankName = $bankData->name;
+                            }
+                        }
+                        if (!empty($bankName)) {
+                            return $bankName.'&nbsp; &bull;&bull;&bull;' . $model->last4;
                         } elseif($model->last4) {
                             return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }
@@ -762,6 +770,7 @@ class ClientPortalController extends BaseController
 
         $data = array(
             'account' => $account,
+            'contact' => $contact,
             'color' => $account->primary_color ? $account->primary_color : '#0b4d78',
             'client' => $client,
             'clientViewCSS' => $account->clientViewCSS(),
@@ -835,7 +844,7 @@ class ClientPortalController extends BaseController
         $gateway = $accountGateway->gateway;
 
         if ($token && $paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-            $sourceReference = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $contact->id);
+            $sourceReference = $this->paymentService->createToken($paymentType, $this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $contact->id);
 
             if(empty($sourceReference)) {
                 $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
@@ -864,7 +873,11 @@ class ClientPortalController extends BaseController
             'clientFontUrl' => $account->getFontsUrl(),
             'showAddress' => $accountGateway->show_address,
             'paymentTitle' => trans('texts.add_payment_method'),
+            'sourceId' => $token,
         ];
+
+        $details = json_decode(Input::get('details'));
+        $data['details'] = $details;
 
         if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
             $data['currencies'] = Cache::get('currencies');
@@ -874,7 +887,7 @@ class ClientPortalController extends BaseController
             $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
         }
 
-        if(!empty($data['braintreeClientToken']) || $accountGateway->getPublishableStripeKey()|| $accountGateway->gateway_id == GATEWAY_WEPAY) {
+        if(!empty($data['braintreeClientToken']) || $accountGateway->getPublishableStripeKey()|| ($accountGateway->gateway_id == GATEWAY_WEPAY && $paymentType != PAYMENT_TYPE_WEPAY_ACH)) {
             $data['tokenize'] = true;
         }
 
@@ -897,7 +910,7 @@ class ClientPortalController extends BaseController
         $sourceToken = Input::get('sourceToken');
 
         if (($validator = PaymentController::processPaymentClientDetails($client,  $accountGateway, $paymentType)) !== true) {
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)
                 ->withErrors($validator)
                 ->withInput(Request::except('cvv'));
         }
@@ -909,21 +922,26 @@ class ClientPortalController extends BaseController
             $details = array('plaidPublicToken' => Input::get('plaidPublicToken'), 'plaidAccountId' => Input::get('plaidAccountId'));
         }
 
-        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && !Input::get('authorize_ach')) {
+        if (($paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH) && !Input::get('authorize_ach')) {
             Session::flash('error', trans('texts.ach_authorization_required'));
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
+        }
+
+        if ($paymentType == PAYMENT_TYPE_WEPAY_ACH && !Input::get('tos_agree')) {
+            Session::flash('error', trans('texts.wepay_payment_tos_agree_required'));
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
         }
 
         if (!empty($details)) {
             $gateway = $this->paymentService->createGateway($accountGateway);
-            $sourceReference = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $contact->id);
+            $sourceReference = $this->paymentService->createToken($paymentType, $gateway, $details, $accountGateway, $client, $contact->id);
         } else {
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
         }
 
         if(empty($sourceReference)) {
             $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
         } else if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {
             // The user needs to complete verification
             Session::flash('message', trans('texts.bank_account_verification_next_steps'));

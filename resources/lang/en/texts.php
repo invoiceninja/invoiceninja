@@ -1257,7 +1257,7 @@ $LANG = array(
     'plaid_linked_status' => 'Your bank account at :bank',
     'add_payment_method' => 'Add Payment Method',
     'account_holder_type' => 'Account Holder Type',
-    'ach_authorization' => 'I authorize :company to electronically debit my account and, if necessary, electronically credit my account to correct erroneous debits.',
+    'ach_authorization' => 'I authorize :company to use my bank account for future payments and, if necessary, electronically credit my account to correct erroneous debits. I understand that I may cancel this authorization at any time by removing the payment method or by contacting :email.',
     'ach_authorization_required' => 'You must consent to ACH transactions.',
     'off' => 'Off',
     'opt_in' => 'Opt-in',
@@ -1327,6 +1327,12 @@ $LANG = array(
     'auto_bill_on_due_date' => 'Auto bill on due date instead of send date',
     'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
     'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
+
+    'bank_account' => 'Bank Account',
+    'payment_processed_through_wepay' => 'ACH payments will be processed using WePay.',
+    'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
+    'privacy_policy' => 'Privacy Policy',
+    'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
 );
 
 return $LANG;

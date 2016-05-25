@@ -306,7 +306,7 @@ class PaymentService extends BaseService
         return true;
     }
 
-    public function createToken($gateway, $details, $accountGateway, $client, $contactId, &$customerReference = null, &$paymentMethod = null)
+    public function createToken($paymentType, $gateway, $details, $accountGateway, $client, $contactId, &$customerReference = null, &$paymentMethod = null)
     {
         $customerReference = $client->getGatewayToken($accountGateway, $accountGatewayToken/* return paramenter */);
 
@@ -398,27 +398,36 @@ class PaymentService extends BaseService
             }
         } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY) {
             $wepay = Utils::setupWePay($accountGateway);
-
             try {
-                $wepay->request('credit_card/authorize', array(
-                    'client_id' => WEPAY_CLIENT_ID,
-                    'client_secret' => WEPAY_CLIENT_SECRET,
-                    'credit_card_id' => intval($details['token']),
-                ));
+                if ($paymentType == PAYMENT_TYPE_WEPAY_ACH) {
+                    // Persist bank details
+                    $tokenResponse = $wepay->request('/payment_bank/persist', array(
+                        'client_id' => WEPAY_CLIENT_ID,
+                        'client_secret' => WEPAY_CLIENT_SECRET,
+                        'payment_bank_id' => intval($details['token']),
+                    ));
+                } else {
+                    // Authorize credit card
+                    $wepay->request('credit_card/authorize', array(
+                        'client_id' => WEPAY_CLIENT_ID,
+                        'client_secret' => WEPAY_CLIENT_SECRET,
+                        'credit_card_id' => intval($details['token']),
+                    ));
 
-                // Update the callback uri and get the card details
-                $wepay->request('credit_card/modify', array(
-                    'client_id' => WEPAY_CLIENT_ID,
-                    'client_secret' => WEPAY_CLIENT_SECRET,
-                    'credit_card_id' => intval($details['token']),
-                    'auto_update' => WEPAY_AUTO_UPDATE,
-                    'callback_uri' => $accountGateway->getWebhookUrl(),
-                ));
-                $tokenResponse = $wepay->request('credit_card', array(
-                    'client_id' => WEPAY_CLIENT_ID,
-                    'client_secret' => WEPAY_CLIENT_SECRET,
-                    'credit_card_id' => intval($details['token']),
-                ));
+                    // Update the callback uri and get the card details
+                    $wepay->request('credit_card/modify', array(
+                        'client_id' => WEPAY_CLIENT_ID,
+                        'client_secret' => WEPAY_CLIENT_SECRET,
+                        'credit_card_id' => intval($details['token']),
+                        'auto_update' => WEPAY_AUTO_UPDATE,
+                        'callback_uri' => $accountGateway->getWebhookUrl(),
+                    ));
+                    $tokenResponse = $wepay->request('credit_card', array(
+                        'client_id' => WEPAY_CLIENT_ID,
+                        'client_secret' => WEPAY_CLIENT_SECRET,
+                        'credit_card_id' => intval($details['token']),
+                    ));
+                }
 
                 $customerReference = CUSTOMER_REFERENCE_LOCAL;
                 $sourceReference = $details['token'];
@@ -516,12 +525,29 @@ class PaymentService extends BaseService
             $paymentMethod = $accountGatewayToken ? PaymentMethod::createNew($accountGatewayToken) : new PaymentMethod();
         }
 
-        $paymentMethod->payment_type_id = $this->parseCardType($source->credit_card_name);
-        $paymentMethod->last4 = $source->last_four;
-        $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-01';
-        $paymentMethod->setRelation('payment_type', Cache::get('paymentTypes')->find($paymentMethod->payment_type_id));
+        if ($source->payment_bank_id) {
+            $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
+            $paymentMethod->last4 = $source->account_last_four;
+            $paymentMethod->bank_name = $source->bank_name;
+            $paymentMethod->source_reference = $source->payment_bank_id;
 
-        $paymentMethod->source_reference = $source->credit_card_id;
+            switch($source->state) {
+                case 'new':
+                case 'pending':
+                    $paymentMethod->status = 'new';
+                    break;
+                case 'authorized':
+                    $paymentMethod->status = 'verified';
+                    break;
+            }
+        } else {
+            $paymentMethod->last4 = $source->last_four;
+            $paymentMethod->payment_type_id = $this->parseCardType($source->credit_card_name);
+            $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-01';
+            $paymentMethod->setRelation('payment_type', Cache::get('paymentTypes')->find($paymentMethod->payment_type_id));
+
+            $paymentMethod->source_reference = $source->credit_card_id;
+        }
 
         return $paymentMethod;
     }
@@ -570,10 +596,12 @@ class PaymentService extends BaseService
         } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY) {
             if ($gatewayResponse instanceof \Omnipay\WePay\Message\CustomCheckoutResponse) {
                 $wepay = \Utils::setupWePay($accountGateway);
-                $gatewayResponse = $wepay->request('credit_card', array(
+                $paymentMethodType = $gatewayResponse->getData()['payment_method']['type'];
+
+                $gatewayResponse = $wepay->request($paymentMethodType, array(
                     'client_id' => WEPAY_CLIENT_ID,
                     'client_secret' => WEPAY_CLIENT_SECRET,
-                    'credit_card_id' => $gatewayResponse->getData()['payment_method']['credit_card']['id'],
+                    $paymentMethodType.'_id' => $gatewayResponse->getData()['payment_method'][$paymentMethodType]['id'],
                 ));
 
             }
@@ -688,6 +716,10 @@ class PaymentService extends BaseService
 
             if ($paymentMethod->email) {
                 $payment->email = $paymentMethod->email;
+            }
+
+            if ($paymentMethod->bank_name) {
+                $payment->bank_name = $paymentMethod->bank_name;
             }
 
             if ($payerId) {
@@ -876,6 +908,7 @@ class PaymentService extends BaseService
         $details['customerReference'] = $token;
 
         $details['token'] = $defaultPaymentMethod->source_reference;
+        $details['paymentType'] = $defaultPaymentMethod->payment_type_id;
         if ($accountGateway->gateway_id == GATEWAY_WEPAY) {
             $details['transaction_id'] = 'autobill_'.$invoice->id;
         }
@@ -1117,6 +1150,13 @@ class PaymentService extends BaseService
             $details['applicationFee'] = $this->calculateApplicationFee($accountGateway, $details['amount']);
             $details['feePayer'] = WEPAY_FEE_PAYER;
             $details['callbackUri'] = $accountGateway->getWebhookUrl();
+            if(isset($details['paymentType'])) {
+                if($details['paymentType'] == PAYMENT_TYPE_ACH || $details['paymentType'] == PAYMENT_TYPE_WEPAY_ACH) {
+                    $details['paymentMethodType'] = 'payment_bank';
+                }
+
+                unset($details['paymentType']);
+            }
         }
 
         $response = $gateway->purchase($details)->send();

@@ -136,7 +136,6 @@ class PaymentController extends BaseController
 
     public function show_payment($invitationKey, $paymentType = false, $sourceId = false)
     {
-
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
         $client = $invoice->client;
@@ -153,6 +152,9 @@ class PaymentController extends BaseController
         $data = array();
 
         Session::put($invitation->id.'payment_ref', $invoice->id.'_'.uniqid());
+
+        $details = json_decode(Input::get('details'));
+        $data['details'] = $details;
 
         if ($paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL) {
             if ($paymentType == PAYMENT_TYPE_TOKEN) {
@@ -205,16 +207,14 @@ class PaymentController extends BaseController
             }
 
         } else {
-            if ($deviceData = Input::get('details')) {
+            if ($deviceData = Input::get('device_data')) {
                 Session::put($invitation->id . 'device_data', $deviceData);
             }
 
             Session::put($invitation->id . 'payment_type', PAYMENT_TYPE_BRAINTREE_PAYPAL);
-            $paypalDetails = json_decode(Input::get('details'));
-            if (!$sourceId || !$paypalDetails) {
+            if (!$sourceId || !$details) {
                return Redirect::to('view/'.$invitationKey);
             }
-            $data['paypalDetails'] = $paypalDetails;
         }
 
         $data += [
@@ -405,7 +405,7 @@ class PaymentController extends BaseController
     }
 
     public static function processPaymentClientDetails($client, $accountGateway, $paymentType, $onSite = true){
-        $rules = $paymentType == PAYMENT_TYPE_STRIPE_ACH ? [] : [
+        $rules = ($paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH)? [] : [
             'first_name' => 'required',
             'last_name' => 'required',
         ];
@@ -422,7 +422,7 @@ class PaymentController extends BaseController
             );
         }
 
-        $requireAddress = $accountGateway->show_address && $paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL;
+        $requireAddress = $accountGateway->show_address && $paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH;
 
         if ($requireAddress) {
             $rules = array_merge($rules, [
@@ -473,6 +473,21 @@ class PaymentController extends BaseController
                 $customerReference = $client->getGatewayToken($accountGateway, $accountGatewayToken/* return parameter*/);
                 $paymentMethod = PaymentMethod::scope($sourceId, $account->id, $accountGatewayToken->id)->firstOrFail();
                 $sourceReference = $paymentMethod->source_reference;
+
+                // What type of payment is this?
+                if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
+                    if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+                        $paymentType = PAYMENT_TYPE_STRIPE_ACH;
+                    } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+                        $paymentType = PAYMENT_TYPE_WEPAY_ACH;
+                    }
+                } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL && $accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+                    $paymentType = PAYMENT_TYPE_BRAINTREE_PAYPAL;
+                } elseif ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+                    $paymentType = PAYMENT_TYPE_STRIPE_CREDIT_CARD;
+                } else {
+                    $paymentType = PAYMENT_TYPE_CREDIT_CARD;
+                }
             }
         }
 
@@ -494,6 +509,7 @@ class PaymentController extends BaseController
 
             $gateway = $this->paymentService->createGateway($accountGateway);
             $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway, $data);
+            $details['paymentType'] = $paymentType;
 
             // check if we're creating/using a billing token
             $tokenBillingSupported = false;
