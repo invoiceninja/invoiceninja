@@ -1311,6 +1311,7 @@ $LANG = array(
     'new_start_date' => 'New start date',
     'security' => 'Security',
     'see_whats_new' => 'See what\'s new in v:version',
+    'wait_for_upload' => 'Please wait for the document upload to complete.',
 
     'view_dashboard' => 'View Dashboard',
     'client_session_expired' => 'Session Expired',
