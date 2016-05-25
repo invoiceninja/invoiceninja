@@ -89,7 +89,7 @@ class PaymentService extends BaseService
         ];
 
         if ($input !== null) {
-            $data['ip_address'] = \Request::ip();
+            $data['ip'] = \Request::ip();
         }
 
         if ($accountGateway->isGateway(GATEWAY_PAYPAL_EXPRESS) || $accountGateway->isGateway(GATEWAY_PAYPAL_PRO)) {
@@ -446,7 +446,7 @@ class PaymentService extends BaseService
             $accountGatewayToken->save();
 
             $paymentMethod = $this->convertPaymentMethodFromGatewayResponse($tokenResponse, $accountGateway, $accountGatewayToken, $contactId);
-            $paymentMethod->ip_address = \Request::ip();
+            $paymentMethod->ip = \Request::ip();
             $paymentMethod->save();
 
         } else {
@@ -650,8 +650,8 @@ class PaymentService extends BaseService
             $payment->payment_type_id = $this->detectCardType($card->getNumber());
         }
 
-        if (!empty($paymentDetails['ip_address'])) {
-            $payment->ip_address = $paymentDetails['ip_address'];
+        if (!empty($paymentDetails['ip'])) {
+            $payment->ip = $paymentDetails['ip'];
         }
 
         $savePaymentMethod = !empty($paymentMethod);
@@ -839,6 +839,38 @@ class PaymentService extends BaseService
             return false;
         }
 
+        if ($defaultPaymentMethod->requiresDelayedAutoBill()) {
+            $invoiceDate = DateTime::createFromFormat('Y-m-d', $invoice_date);
+            $minDueDate = clone $invoiceDate;
+            $minDueDate->modify('+10 days');
+
+            if (DateTime::create() < $minDueDate) {
+                // Can't auto bill now
+                return false;
+            }
+
+            $firstUpdate = \App\Models\Activities::where('invoice_id', '=', $invoice->id)
+                ->where('activity_type_id', '=', ACTIVITY_TYPE_UPDATE_INVOICE)
+                ->first();
+
+            if ($firstUpdate) {
+                $backup = json_decode($firstUpdate->json_backup);
+
+                if ($backup->balance != $invoice->balance || $backup->due_date != $invoice->due_date) {
+                    // It's changed since we sent the email can't bill now
+                    return false;
+                }
+            }
+
+            $invoicePayments = \App\Models\Activities::where('invoice_id', '=', $invoice->id)
+                ->where('activity_type_id', '=', ACTIVITY_TYPE_CREATE_PAYMENT);
+
+            if ($invoicePayments->count()) {
+                // ACH requirements are strict; don't auto bill this
+                return false;
+            }
+        }
+
         // setup the gateway/payment info
         $details = $this->getPaymentDetails($invitation, $accountGateway);
         $details['customerReference'] = $token;
@@ -857,6 +889,18 @@ class PaymentService extends BaseService
         } else {
             return false;
         }
+    }
+
+    public function getClientDefaultPaymentMethod($client) {
+        $this->getClientPaymentMethods($client);
+
+        $client->getGatewayToken($accountGateway/* return parameter */, $accountGatewayToken/* return parameter */);
+
+        if (!$accountGatewayToken) {
+            return false;
+        }
+
+        return $accountGatewayToken->default_payment_method;
     }
 
     public function getDatatable($clientPublicId, $search)

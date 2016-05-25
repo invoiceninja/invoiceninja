@@ -13,26 +13,25 @@ class WePayAch extends Migration
     public function up()
     {
         Schema::table('contacts', function(Blueprint $table) {
-            $table->string('contact_key')->index()->default(null);
+            $table->string('contact_key')->nullable()->default(null)->index()->unique();
         });
 
         Schema::table('payment_methods', function($table)
         {
             $table->string('bank_name')->nullable();
+            $table->string('ip')->nullable();
         });
 
         Schema::table('payments', function($table)
         {
             $table->string('bank_name')->nullable();
+            $table->string('ip')->nullable();
         });
 
         Schema::table('accounts', function($table)
         {
             $table->boolean('auto_bill_on_due_date')->default(false);
         });
-
-        DB::statement('ALTER TABLE `payments` ADD `ip_address` VARBINARY(16)');
-        DB::statement('ALTER TABLE `payment_methods` ADD `ip_address` VARBINARY(16)');
     }
 
     /**
@@ -43,15 +42,21 @@ class WePayAch extends Migration
     public function down()
     {
         Schema::table('contacts', function(Blueprint $table) {
-            $table->dropColumn('contact_key');
+           $table->dropColumn('contact_key');
         });
 
         Schema::table('payments', function($table) {
-            $table->dropColumn('ip_address');
+            $table->dropColumn('bank_name');
+            $table->dropColumn('ip');
         });
 
         Schema::table('payment_methods', function($table) {
-            $table->dropColumn('ip_address');
+            $table->dropColumn('bank_name');
+            $table->dropColumn('ip');
+        });
+
+        Schema::table('accounts', function($table) {
+            $table->dropColumn('auto_bill_on_due_date');
         });
     }
 }

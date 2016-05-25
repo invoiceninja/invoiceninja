@@ -159,14 +159,8 @@ class PaymentMethod extends EntityModel
         }
     }
 
-    public function getIpAddressAttribute($value)
-    {
-        return !$value?$value:inet_ntop($value);
-    }
-
-    public function setIpAddressAttribute($value)
-    {
-        $this->attributes['ip_address'] = inet_pton($value);
+    public function requiresDelayedAutoBill(){
+        return $this->payment_type_id == PAYMENT_TYPE_DIRECT_DEBIT;
     }
 }
 

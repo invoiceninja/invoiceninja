@@ -194,16 +194,6 @@ class Payment extends EntityModel
     {
         return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
     }
-
-    public function getIpAddressAttribute($value)
-    {
-        return !$value?$value:inet_ntop($value);
-    }
-
-    public function setIpAddressAttribute($value)
-    {
-        $this->attributes['ip_address'] = inet_pton($value);
-    }
 }
 
 Payment::creating(function ($payment) {
