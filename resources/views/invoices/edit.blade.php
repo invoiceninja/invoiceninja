@@ -992,8 +992,8 @@
                 },
                 acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
                 addRemoveLinks:true,
-                @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-                    "dict{{Utils::toClassCase($key)}}":"{{trans('texts.dropzone_'.$key)}}",
+                @foreach(trans('texts.dropzone') as $key=>$text)
+    	            "dict{{strval($key)}}":"{{strval($text)}}",
                 @endforeach
                 maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             });
