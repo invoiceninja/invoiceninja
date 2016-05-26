@@ -28,6 +28,7 @@ before_install:
   # set GitHub token and update composer
   - if [ -n "$GH_TOKEN" ]; then composer config github-oauth.github.com ${GH_TOKEN}; fi;
   - composer self-update && composer -V
+  - export USE_ZEND_ALLOC=0
 
 install:
   # install Composer dependencies
