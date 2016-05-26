@@ -156,6 +156,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('documents/js/{documents}/{filename}', 'DocumentController@getVFSJS');
     Route::get('documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
     Route::post('document', 'DocumentController@postUpload');
+    Route::delete('documents/{documents}', 'DocumentController@delete');
 
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
     Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneInvoice');

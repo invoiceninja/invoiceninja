@@ -243,6 +243,7 @@
                 },
                 acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
                 addRemoveLinks:true,
+                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
                 @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
                     "dict{{strval($key)}}":"{{trans('texts.dropzone_'.Utils::toClassCase($key))}}",
                 @endforeach
@@ -392,6 +393,13 @@
 
         function handleDocumentRemoved(file){
             model.removeDocument(file.public_id);
+            $.ajax({
+                url: '{{ '/documents/' }}' + file.public_id,
+                type: 'DELETE',
+                success: function(result) {
+                    // Do something with the result
+                }
+            });
         }
 
         function handleDocumentUploaded(file, response){
