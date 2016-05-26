@@ -132,7 +132,7 @@ class PushService
      */
     private function entitySentMessage($invoice)
     {
-        if($invoice->is_quote)
+        if($invoice->isType(INVOICE_TYPE_QUOTE))
             return trans("texts.notification_quote_sent_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
         else
             return trans("texts.notification_invoice_sent_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
@@ -163,7 +163,7 @@ class PushService
      */
     private function entityViewedMessage($invoice)
     {
-        if($invoice->is_quote)
+        if($invoice->isType(INVOICE_TYPE_QUOTE))
             return trans("texts.notification_quote_viewed_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);
         else
             return trans("texts.notification_invoice_viewed_subject", ['invoice' => $invoice->invoice_number, 'client' => $invoice->client->name]);

@@ -62,7 +62,7 @@ class ClientPortalController extends BaseController
 
         if (!Input::has('phantomjs') && !Input::has('silent') && !Session::has($invitationKey)
             && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
-            if ($invoice->is_quote) {
+            if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
             } else {
                 event(new InvoiceInvitationWasViewed($invoice, $invitation));

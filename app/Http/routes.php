@@ -358,6 +358,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_BANK_ACCOUNT', 'bank_account');
     define('ENTITY_BANK_SUBACCOUNT', 'bank_subaccount');
 
+    define('INVOICE_TYPE_STANDARD', 1);
+    define('INVOICE_TYPE_QUOTE', 2);
+
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
     define('PERSON_VENDOR_CONTACT','vendorcontact');

@@ -96,7 +96,7 @@ class ContactMailer extends Mailer
         $account->loadLocalizationSettings();
 
         if ($sent === true) {
-            if ($invoice->is_quote) {
+            if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteWasEmailed($invoice));
             } else {
                 event(new InvoiceWasEmailed($invoice));
