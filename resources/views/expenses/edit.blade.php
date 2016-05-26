@@ -243,6 +243,7 @@
                 },
                 acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
                 addRemoveLinks:true,
+                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
                 @foreach(trans('texts.dropzone') as $key=>$text)
     	            "dict{{strval($key)}}":"{{strval($text)}}",
                 @endforeach
@@ -392,6 +393,13 @@
 
         function handleDocumentRemoved(file){
             model.removeDocument(file.public_id);
+            $.ajax({
+                url: '{{ '/documents/' }}' + file.public_id,
+                type: 'DELETE',
+                success: function(result) {
+                    // Do something with the result
+                }
+            });
         }
 
         function handleDocumentUploaded(file, response){
