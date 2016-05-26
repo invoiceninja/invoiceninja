@@ -113,16 +113,16 @@ class QuoteController extends BaseController
         $rates = TaxRate::scope()->orderBy('name')->get();
         $options = [];
         $defaultTax = false;
-        
+
         foreach ($rates as $rate) {
-            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';            
-        
+            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';
+
             // load default invoice tax
             if ($rate->id == $account->default_tax_rate_id) {
                 $defaultTax = $rate;
             }
-        }     
-        
+        }
+
         return [
           'entityType' => ENTITY_QUOTE,
           'account' => Auth::user()->account,
@@ -130,7 +130,7 @@ class QuoteController extends BaseController
           'taxRateOptions' => $options,
           'defaultTax' => $defaultTax,
           'countries' => Cache::get('countries'),
-          'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
+          'clients' => Client::scope()->viewable()->with('contacts', 'country')->orderBy('name')->get(),
           'taxRates' => TaxRate::scope()->orderBy('name')->get(),
           'currencies' => Cache::get('currencies'),
           'sizes' => Cache::get('sizes'),
