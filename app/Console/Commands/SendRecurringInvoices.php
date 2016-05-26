@@ -71,14 +71,12 @@ class SendRecurringInvoices extends Command
         }
 
         $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
-            ->leftJoin('invoices as recurring_invoice', 'invoices.recurring_invoice_id', '=', 'recurring_invoice.id')
-            ->whereRaw('invoices.is_deleted IS FALSE AND invoices.deleted_at IS NULL AND invoices.is_recurring IS FALSE 
-            AND invoices.balance > 0 AND invoices.due_date = ?
-            AND (recurring_invoice.auto_bill = ? OR (recurring_invoice.auto_bill != ? AND recurring_invoice.client_enable_auto_bill IS TRUE))',
-                array($today->format('Y-m-d'), AUTO_BILL_ALWAYS, AUTO_BILL_OFF))
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE 
+            AND balance > 0 AND due_date = ? AND recurring_invoice_id IS NOT NULL',
+                array($today->format('Y-m-d')))
             ->orderBy('invoices.id', 'asc')
             ->get();
-        $this->info(count($delayedAutoBillInvoices).' due recurring auto bill invoice instance(s) found');
+        $this->info(count($delayedAutoBillInvoices).' due recurring invoice instance(s) found');
 
         foreach ($delayedAutoBillInvoices as $invoice) {
             $autoBill = $invoice->getAutoBillEnabled();
@@ -91,6 +89,7 @@ class SendRecurringInvoices extends Command
             $this->info('Processing Invoice '.$invoice->id.' - Should bill '.($billNow ? 'YES' : 'NO'));
 
             if ($billNow) {
+                // autoBillInvoice will check for changes to ACH invoices, so we're not checking here
                 $this->paymentService->autoBillInvoice($invoice);
             }
         }

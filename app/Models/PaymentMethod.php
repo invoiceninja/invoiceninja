@@ -160,7 +160,7 @@ class PaymentMethod extends EntityModel
     }
 
     public function requiresDelayedAutoBill(){
-        return $this->payment_type_id == PAYMENT_TYPE_DIRECT_DEBIT;
+        return $this->payment_type_id == PAYMENT_TYPE_ACH;
     }
 }
 

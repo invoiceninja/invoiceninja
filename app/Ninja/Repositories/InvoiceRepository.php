@@ -816,6 +816,7 @@ class InvoiceRepository extends BaseRepository
         $recurInvoice->save();
 
         if ($recurInvoice->getAutoBillEnabled() && !$recurInvoice->account->auto_bill_on_due_date) {
+            // autoBillInvoice will check for ACH, so we're not checking here
             if ($this->paymentService->autoBillInvoice($invoice)) {
                 // update the invoice reference to match its actual state
                 // this is to ensure a 'payment received' email is sent

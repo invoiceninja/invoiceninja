@@ -16,6 +16,7 @@ use App\Models\Account;
 use App\Models\Country;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Activity;
 use App\Models\AccountGateway;
 use App\Http\Controllers\PaymentController;
 use App\Models\AccountGatewayToken;
@@ -872,16 +873,21 @@ class PaymentService extends BaseService
         }
 
         if ($defaultPaymentMethod->requiresDelayedAutoBill()) {
-            $invoiceDate = DateTime::createFromFormat('Y-m-d', $invoice_date);
+            $invoiceDate = \DateTime::createFromFormat('Y-m-d', $invoice->invoice_date);
             $minDueDate = clone $invoiceDate;
             $minDueDate->modify('+10 days');
 
-            if (DateTime::create() < $minDueDate) {
+            if (date_create() < $minDueDate) {
                 // Can't auto bill now
                 return false;
             }
 
-            $firstUpdate = \App\Models\Activities::where('invoice_id', '=', $invoice->id)
+            if ($invoice->partial > 0) {
+                // The amount would be different than the amount in the email
+                return false;
+            }
+
+            $firstUpdate = Activity::where('invoice_id', '=', $invoice->id)
                 ->where('activity_type_id', '=', ACTIVITY_TYPE_UPDATE_INVOICE)
                 ->first();
 
@@ -894,10 +900,7 @@ class PaymentService extends BaseService
                 }
             }
 
-            $invoicePayments = \App\Models\Activities::where('invoice_id', '=', $invoice->id)
-                ->where('activity_type_id', '=', ACTIVITY_TYPE_CREATE_PAYMENT);
-
-            if ($invoicePayments->count()) {
+            if ($invoice->payments->count()) {
                 // ACH requirements are strict; don't auto bill this
                 return false;
             }
