@@ -1245,6 +1245,10 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
 
+        Document::scope()->each(function($item, $key) {
+            $item->delete();
+        });
+
         $this->accountRepo->unlinkAccount($account);
         if ($account->company->accounts->count() == 1) {
             $account->company->forceDelete();

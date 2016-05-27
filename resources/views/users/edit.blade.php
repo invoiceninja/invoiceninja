@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('content') 
+@section('content')
   @parent
   @include('accounts.nav', ['selected' => ACCOUNT_USER_MANAGEMENT])
 
@@ -31,13 +31,20 @@
 </div>
 </div>
 
-@if (Utils::hasFeature(FEATURE_USER_PERMISSIONS))
 <div class="panel panel-default">
 <div class="panel-heading">
     <h3 class="panel-title">{!! trans('texts.permissions') !!}</h3>
 </div>
 <div class="panel-body form-padding-right">
 
+    @if ( ! Utils::hasFeature(FEATURE_USER_PERMISSIONS))
+      <div class="alert alert-warning">{{ trans('texts.upgrade_for_permissions') }}</div>
+      <script>
+          $(function() {
+              $('input[type=checkbox]').prop('disabled', true);
+          })
+      </script>
+    @endif
 
   {!! Former::checkbox('is_admin')
       ->label('&nbsp;')
@@ -61,12 +68,11 @@
       ->id('permissions_edit_all')
       ->text(trans('texts.user_edit_all'))
       ->help(trans('texts.edit_all_help')) !!}
-    
-</div>
-</div>
-@endif
 
-  {!! Former::actions( 
+</div>
+</div>
+
+  {!! Former::actions(
       Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/user_management'))->appendIcon(Icon::create('remove-circle'))->large(),
       Button::success(trans($user && $user->confirmed ? 'texts.save' : 'texts.send_invite'))->submit()->large()->appendIcon(Icon::create($user && $user->confirmed ? 'floppy-disk' : 'send'))
   )!!}

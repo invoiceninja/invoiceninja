@@ -148,11 +148,14 @@ class ExpenseRepository extends BaseRepository
         // Documents
         $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):array();;
         foreach ($document_ids as $document_id){
-            $document = Document::scope($document_id)->first();
-            if($document && Auth::user()->can('edit', $document)){
-                $document->invoice_id = null;
-                $document->expense_id = $expense->id;
-                $document->save();
+            // check document completed upload before user submitted form
+            if ($document_id) {
+                $document = Document::scope($document_id)->first();
+                if($document && Auth::user()->can('edit', $document)){
+                    $document->invoice_id = null;
+                    $document->expense_id = $expense->id;
+                    $document->save();
+                }
             }
         }
 
