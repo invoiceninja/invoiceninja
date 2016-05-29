@@ -262,6 +262,12 @@ class AppController extends BaseController
         if (!Utils::isNinjaProd()) {
             try {
                 set_time_limit(60 * 5);
+                Artisan::call('clear-compiled');
+                Artisan::call('cache:clear');
+                Artisan::call('debugbar:clear');
+                Artisan::call('route:clear');
+                Artisan::call('view:clear');
+                Artisan::call('config:clear');
                 Artisan::call('optimize', array('--force' => true));
                 Cache::flush();
                 Session::flush();
