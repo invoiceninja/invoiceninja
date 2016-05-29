@@ -824,7 +824,7 @@
                 model.invoice().has_tasks(true);
             @endif
 
-            if(model.invoice().expenses() && !model.invoice().public_id()){
+            if(model.invoice().expenses().length && !model.invoice().public_id()){
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
