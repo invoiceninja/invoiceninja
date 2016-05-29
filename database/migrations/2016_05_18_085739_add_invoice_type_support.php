@@ -37,10 +37,6 @@ class AddInvoiceTypeSupport extends Migration
     {
         if (Schema::hasColumn('invoices', 'invoice_type_id')) {
             DB::update('update invoices set invoice_type_id = invoice_type_id - 1');
-
-            Schema::table('invoices', function ($table) {
-                $table->renameColumn('invoice_type_id', 'is_quote');
-            });
         }
 
         Schema::table('accounts', function($table)
