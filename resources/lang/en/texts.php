@@ -1312,7 +1312,8 @@ $LANG = array(
     'security' => 'Security',
     'see_whats_new' => 'See what\'s new in v:version',
     'wait_for_upload' => 'Please wait for the document upload to complete.',
-    'upgrade_for_permissions' => 'Upgrade to our Enterprise plan to enable permissions.'
+    'upgrade_for_permissions' => 'Upgrade to our Enterprise plan to enable permissions.',
+    'enable_second_tax_rate' => 'Enable specifying a <b>second tax rate</b>',
 
 );
 

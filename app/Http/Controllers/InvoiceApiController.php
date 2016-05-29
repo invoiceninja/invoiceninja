@@ -134,6 +134,7 @@ class InvoiceApiController extends BaseAPIController
                     'city',
                     'state',
                     'postal_code',
+                    'country_id',
                     'private_notes',
                     'currency_code',
                 ] as $field) {
@@ -182,7 +183,7 @@ class InvoiceApiController extends BaseAPIController
         $invoice = Invoice::scope($invoice->public_id)
                         ->with('client', 'invoice_items', 'invitations')
                         ->first();
-                        
+
         return $this->itemResponse($invoice);
     }
 
@@ -269,7 +270,7 @@ class InvoiceApiController extends BaseAPIController
                 $item[$key] = $val;
             }
         }
-        
+
         return $item;
     }
 
@@ -308,7 +309,7 @@ class InvoiceApiController extends BaseAPIController
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
         if ($request->action == ACTION_CONVERT) {
-            $quote = $request->entity();            
+            $quote = $request->entity();
             $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
             return $this->itemResponse($invoice);
         } elseif ($request->action) {
@@ -322,7 +323,7 @@ class InvoiceApiController extends BaseAPIController
         $invoice = Invoice::scope($publicId)
                         ->with('client', 'invoice_items', 'invitations')
                         ->firstOrFail();
-                        
+
         return $this->itemResponse($invoice);
     }
 
@@ -351,7 +352,7 @@ class InvoiceApiController extends BaseAPIController
     public function destroy(UpdateInvoiceAPIRequest $request)
     {
         $invoice = $request->entity();
-        
+
         $this->invoiceRepo->delete($invoice);
 
         return $this->itemResponse($invoice);

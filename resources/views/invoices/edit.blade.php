@@ -243,7 +243,7 @@
                 @endif
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
 				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
-				<th style="min-width:180px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
+				<th style="min-width:{{ $account->enable_second_tax_rate ? 180 : 120 }}px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>
 			</tr>
@@ -288,16 +288,18 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->data_bind('value: tax1')
-                            ->addClass('tax-select')
+                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
                             ->raw() !!}
                     <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
-                    {!! Former::select('')
-                            ->addOption('', '')
-                            ->options($taxRateOptions)
-                            ->data_bind('value: tax2')
-                            ->addClass('tax-select')
-                            ->raw() !!}
+                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
+                        {!! Former::select('')
+                                ->addOption('', '')
+                                ->options($taxRateOptions)
+                                ->data_bind('value: tax2')
+                                ->addClass('tax-select')
+                                ->raw() !!}
+                    </div>
                     <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
 				</td>
@@ -438,17 +440,19 @@
                             ->id('taxRateSelect1')
                             ->addOption('', '')
                             ->options($taxRateOptions)
-                            ->addClass('tax-select')
+                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
                             ->data_bind('value: tax1')
                             ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
+                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
                     {!! Former::select('')
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
                             ->data_bind('value: tax2')
                             ->raw() !!}
+                    </div>
                     <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
                     <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
                 </td>

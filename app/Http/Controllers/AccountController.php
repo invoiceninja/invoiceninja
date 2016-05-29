@@ -790,11 +790,7 @@ class AccountController extends BaseController
     private function saveTaxRates()
     {
         $account = Auth::user()->account;
-
-        $account->invoice_taxes = Input::get('invoice_taxes') ? true : false;
-        $account->invoice_item_taxes = Input::get('invoice_item_taxes') ? true : false;
-        $account->show_item_taxes = Input::get('show_item_taxes') ? true : false;
-        $account->default_tax_rate_id = Input::get('default_tax_rate_id');
+        $account->fill(Input::all());
         $account->save();
 
         Session::flash('message', trans('texts.updated_settings'));
