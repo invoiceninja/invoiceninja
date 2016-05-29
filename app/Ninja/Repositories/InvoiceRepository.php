@@ -210,7 +210,7 @@ class InvoiceRepository extends BaseRepository
           ->where('contacts.is_primary', '=', true)
           ->where('invoices.is_recurring', '=', false)
           // This needs to be a setting to also hide the activity on the dashboard page
-          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT) 
+          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
@@ -287,7 +287,7 @@ class InvoiceRepository extends BaseRepository
                 $account->invoice_footer = trim($data['invoice_footer']);
             }
             $account->save();
-        }        
+        }
 
         if (isset($data['invoice_number']) && !$invoice->is_recurring) {
             $invoice->invoice_number = trim($data['invoice_number']);
@@ -329,7 +329,7 @@ class InvoiceRepository extends BaseRepository
             if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS ) {
                 $invoice->auto_bill = AUTO_BILL_OFF;
             }
-            
+
             if (isset($data['recurring_due_date'])) {
                 $invoice->due_date = $data['recurring_due_date'];
             } elseif (isset($data['due_date'])) {
@@ -351,7 +351,7 @@ class InvoiceRepository extends BaseRepository
         } else {
             $invoice->terms = '';
         }
-        
+
         $invoice->invoice_footer = (isset($data['invoice_footer']) && trim($data['invoice_footer'])) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
         $invoice->public_notes = isset($data['public_notes']) ? trim($data['public_notes']) : null;
 
@@ -370,8 +370,8 @@ class InvoiceRepository extends BaseRepository
 
         // provide backwards compatability
         if (isset($data['tax_name']) && isset($data['tax_rate'])) {
-            $data['tax_name1'] = $data['tax_name']; 
-            $data['tax_rate1'] = $data['tax_rate']; 
+            $data['tax_name1'] = $data['tax_name'];
+            $data['tax_rate1'] = $data['tax_rate'];
         }
 
         $total = 0;
@@ -405,11 +405,11 @@ class InvoiceRepository extends BaseRepository
             }
 
             if (isset($item['tax_rate1']) && Utils::parseFloat($item['tax_rate1']) > 0) {
-                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate1']);            
+                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate1']);
                 $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 2);
             }
             if (isset($item['tax_rate2']) && Utils::parseFloat($item['tax_rate2']) > 0) {
-                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate2']);            
+                $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate2']);
                 $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 2);
             }
         }
@@ -453,7 +453,7 @@ class InvoiceRepository extends BaseRepository
 
         $taxAmount1 = round($total * $invoice->tax_rate1 / 100, 2);
         $taxAmount2 = round($total * $invoice->tax_rate2 / 100, 2);
-        $total = round($total + $taxAmount1 + $taxAmount2, 2);        
+        $total = round($total + $taxAmount1 + $taxAmount2, 2);
         $total += $itemTax;
 
         // custom fields not charged taxes
@@ -476,24 +476,24 @@ class InvoiceRepository extends BaseRepository
         if ($publicId) {
             $invoice->invoice_items()->forceDelete();
         }
-        
+
         $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):array();;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
             if($document && Auth::user()->can('edit', $document)){
-                
+
                 if($document->invoice_id && $document->invoice_id != $invoice->id){
                     // From a clone
                     $document = $document->cloneDocument();
                     $document_ids[] = $document->public_id;// Don't remove this document
                 }
-                
+
                 $document->invoice_id = $invoice->id;
                 $document->expense_id = null;
                 $document->save();
             }
         }
-        
+
         if(!empty($data['documents']) && Auth::user()->can('create', ENTITY_DOCUMENT)){
             // Fallback upload
             $doc_errors = array();
@@ -512,7 +512,7 @@ class InvoiceRepository extends BaseRepository
                 Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
             }
         }
-        
+
         foreach ($invoice->documents as $document){
             if(!in_array($document->public_id, $document_ids)){
                 // Removed
@@ -586,12 +586,12 @@ class InvoiceRepository extends BaseRepository
 
             // provide backwards compatability
             if (isset($item['tax_name']) && isset($item['tax_rate'])) {
-                $item['tax_name1'] = $item['tax_name']; 
-                $item['tax_rate1'] = $item['tax_rate']; 
+                $item['tax_name1'] = $item['tax_name'];
+                $item['tax_rate1'] = $item['tax_rate'];
             }
 
             $invoiceItem->fill($item);
-            
+
             $invoice->invoice_items()->save($invoiceItem);
         }
 
@@ -675,9 +675,9 @@ class InvoiceRepository extends BaseRepository
                 'cost',
                 'qty',
                 'tax_name1',
-                'tax_rate1', 
+                'tax_rate1',
                 'tax_name2',
-                'tax_rate2', 
+                'tax_rate2',
             ] as $field) {
                 $cloneItem->$field = $item->$field;
             }
@@ -686,7 +686,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         foreach ($invoice->documents as $document) {
-            $cloneDocument = $document->cloneDocument();            
+            $cloneDocument = $document->cloneDocument();
             $invoice->documents()->save($cloneDocument);
         }
 
@@ -731,8 +731,8 @@ class InvoiceRepository extends BaseRepository
     public function findOpenInvoices($clientId)
     {
         return Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->whereClientId($clientId)
-                ->whereIsQuote(false)
                 ->whereIsRecurring(false)
                 ->whereDeletedAt(null)
                 ->whereHasTasks(true)
