@@ -34,7 +34,7 @@ class InvoiceTransformer extends EntityTransformer
     public function __construct($account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);
-        
+
         $this->client = $client;
     }
 
@@ -119,6 +119,7 @@ class InvoiceTransformer extends EntityTransformer
             'quote_invoice_id' => (int) $invoice->quote_invoice_id,
             'custom_text_value1' => $invoice->custom_text_value1,
             'custom_text_value2' => $invoice->custom_text_value2,
+            'is_quote' => (bool) $invoice->isType(INVOICE_TYPE_QUOTE), // Temp to support mobile app
         ]);
     }
 }
