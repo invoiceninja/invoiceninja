@@ -29,7 +29,7 @@ class AddQuotes extends Migration {
 	{
 		Schema::table('invoices', function($table)
 		{
-			$table->dropColumn('invoice_type_id');
+			$table->dropColumn('is_quote');
 			$table->dropColumn('quote_id');
 			$table->dropColumn('quote_invoice_id');
 		});
