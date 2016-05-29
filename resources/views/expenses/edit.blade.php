@@ -254,6 +254,7 @@
                 dropzone.on("removedfile",handleDocumentRemoved);
                 dropzone.on("success",handleDocumentUploaded);
                 dropzone.on("canceled",handleDocumentCanceled);
+                dropzone.on("error",handleDocumentError);
                 for (var i=0; i<model.documents().length; i++) {
                     var document = model.documents()[i];
                     var mockFile = {
@@ -411,8 +412,11 @@
             }
         }
 
-        function handleDocumentCanceled()
-        {
+        function handleDocumentCanceled() {
+            window.countUploadingDocuments--;
+        }
+
+        function handleDocumentError() {
             window.countUploadingDocuments--;
         }
         @endif
