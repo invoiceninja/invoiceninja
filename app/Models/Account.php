@@ -1317,7 +1317,7 @@ class Account extends Eloquent
         return Utils::isEmpty($entity->$field) ? false : true;
     }
 
-    public function attatchPDF()
+    public function attachPDF()
     {
         return $this->hasFeature(FEATURE_PDF_ATTACHMENT) && $this->pdf_email_attachment;
     }

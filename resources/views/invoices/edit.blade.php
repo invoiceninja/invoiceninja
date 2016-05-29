@@ -1209,8 +1209,13 @@
 		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
             var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
+            var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
+
+            // if they aren't attaching the pdf no need to generate it
+            if ( ! attachPDF) {
+                submitAction('email');
             // if the client's language is different then we can't use the browser version of the PDF
-            if (clientLanguageId && clientLanguageId != accountLanguageId) {
+            } else if (clientLanguageId && clientLanguageId != accountLanguageId) {
                 submitAction('email');
             } else {
                 preparePdfData('email');

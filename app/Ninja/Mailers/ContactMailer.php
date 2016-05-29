@@ -59,7 +59,7 @@ class ContactMailer extends Mailer
 
         $sent = false;
 
-        if ($account->attatchPDF() && !$pdfString) {
+        if ($account->attachPDF() && !$pdfString) {
             $pdfString = $invoice->getPDFString();
         }
 
@@ -156,7 +156,7 @@ class ContactMailer extends Mailer
             'documents' => $documentStrings,
         ];
 
-        if ($account->attatchPDF()) {
+        if ($account->attachPDF()) {
             $data['pdfString'] = $pdfString;
             $data['pdfFileName'] = $invoice->getFileName();
         }
@@ -235,7 +235,7 @@ class ContactMailer extends Mailer
             'entityType' => ENTITY_INVOICE,
         ];
 
-        if ($account->attatchPDF()) {
+        if ($account->attachPDF()) {
             $data['pdfString'] = $invoice->getPDFString();
             $data['pdfFileName'] = $invoice->getFileName();
         }
