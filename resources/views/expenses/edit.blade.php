@@ -247,7 +247,7 @@
                 @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
                     "dict{{strval($key)}}":"{{trans('texts.dropzone_'.Utils::toClassCase($key))}}",
                 @endforeach
-                maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             });
             if(dropzone instanceof Dropzone){
                 dropzone.on("addedfile",handleDocumentAdded);
