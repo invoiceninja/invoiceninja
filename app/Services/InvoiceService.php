@@ -94,7 +94,7 @@ class InvoiceService extends BaseService
     {
         $account = $quote->account;
 
-        if (!$quote->is_quote || $quote->quote_invoice_id) {
+        if (!$quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
             return null;
         }
 
@@ -120,8 +120,10 @@ class InvoiceService extends BaseService
     public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
     {
         $datatable = new InvoiceDatatable( ! $clientPublicId, $clientPublicId);
+        $datatable->entityType = $entityType;
+
         $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
-                    ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE ? true : false);
+                    ->where('invoices.invoice_type_id', '=', $entityType == ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD);
 
         if(!Utils::hasPermission('view_all')){
             $query->where('invoices.user_id', '=', Auth::user()->id);

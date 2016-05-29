@@ -19,7 +19,7 @@ class InvoicePresenter extends EntityPresenter {
     {
         if ($this->entity->partial > 0) {
             return 'partial_due';
-        } elseif ($this->entity->is_quote) {
+        } elseif ($this->entity->isType(INVOICE_TYPE_QUOTE)) {
             return 'total';
         } else {
             return 'balance_due';
