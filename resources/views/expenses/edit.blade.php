@@ -247,7 +247,7 @@
                 @foreach(trans('texts.dropzone') as $key=>$text)
     	            "dict{{strval($key)}}":"{{strval($text)}}",
                 @endforeach
-                maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             });
             if(dropzone instanceof Dropzone){
                 dropzone.on("addedfile",handleDocumentAdded);
