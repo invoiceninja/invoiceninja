@@ -96,7 +96,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function affectsBalance()
     {
-        return !$this->is_quote && !$this->is_recurring;
+        return $this->isType(INVOICE_TYPE_STANDARD) && !$this->is_recurring;
     }
 
     public function getAdjustment()
@@ -139,7 +139,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function getAmountPaid($calculate = false)
     {
-        if ($this->is_quote || $this->is_recurring) {
+        if ($this->isType(INVOICE_TYPE_QUOTE) || $this->is_recurring) {
             return 0;
         }
 
@@ -230,8 +230,17 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function scopeInvoices($query)
     {
-        return $query->where('is_quote', '=', false)
+        return $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                      ->where('is_recurring', '=', false);
+    }
+
+    public function scopeInvoiceType($query, $typeId)
+    {
+        return $query->where('invoice_type_id', '=', $typeId);
+    }
+
+    public function isType($typeId) {
+        return $this->invoice_type_id == $typeId;
     }
 
     public function markInvitationsSent($notify = false)
@@ -256,7 +265,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return;
         }
 
-        if ($this->is_quote) {
+        if ($this->isType(INVOICE_TYPE_QUOTE)) {
             event(new QuoteInvitationWasEmailed($invitation));
         } else {
             event(new InvoiceInvitationWasEmailed($invitation));
@@ -292,7 +301,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function markApproved()
     {
-        if ($this->is_quote) {
+        if ($this->isType(INVOICE_TYPE_QUOTE)) {
             $this->invoice_status_id = INVOICE_STATUS_APPROVED;
             $this->save();
         }
@@ -341,7 +350,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function getEntityType()
     {
-        return $this->is_quote ? ENTITY_QUOTE : ENTITY_INVOICE;
+        return $this->isType(INVOICE_TYPE_QUOTE) ? ENTITY_QUOTE : ENTITY_INVOICE;
     }
 
     public function isSent()
@@ -416,7 +425,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'invoice_design_id',
             'invoice_fonts',
             'features',
-            'is_quote',
+            'invoice_type_id',
             'custom_value1',
             'custom_value2',
             'custom_taxes1',
@@ -943,7 +952,7 @@ Invoice::creating(function ($invoice) {
 });
 
 Invoice::created(function ($invoice) {
-    if ($invoice->is_quote) {
+    if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
         event(new QuoteWasCreated($invoice));
     } else {
         event(new InvoiceWasCreated($invoice));
@@ -951,7 +960,7 @@ Invoice::created(function ($invoice) {
 });
 
 Invoice::updating(function ($invoice) {
-    if ($invoice->is_quote) {
+    if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
         event(new QuoteWasUpdated($invoice));
     } else {
         event(new InvoiceWasUpdated($invoice));

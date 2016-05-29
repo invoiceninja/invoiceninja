@@ -32,9 +32,9 @@ class InvoiceRepository extends BaseRepository
     public function all()
     {
         return Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->with('user', 'client.contacts', 'invoice_status')
                 ->withTrashed()
-                ->where('is_quote', '=', false)
                 ->where('is_recurring', '=', false)
                 ->get();
     }
@@ -106,7 +106,7 @@ class InvoiceRepository extends BaseRepository
                     ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
-                    ->where('invoices.is_quote', '=', false)
+                    ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('invoices.is_recurring', '=', true)
                     ->where('contacts.is_primary', '=', true)
@@ -156,7 +156,7 @@ class InvoiceRepository extends BaseRepository
           ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
-          ->where('invoices.is_quote', '=', false)
+          ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', true)
@@ -203,7 +203,7 @@ class InvoiceRepository extends BaseRepository
           ->join('contacts', 'contacts.client_id', '=', 'clients.id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
-          ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE)
+          ->where('invoices.invoice_type_id', '=', $entityType == ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD)
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('contacts.deleted_at', '=', null)
@@ -642,7 +642,7 @@ class InvoiceRepository extends BaseRepository
           'tax_name2',
           'tax_rate2',
           'amount',
-          'is_quote',
+          'invoice_type_id',
           'custom_value1',
           'custom_value2',
           'custom_taxes1',
@@ -654,7 +654,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         if ($quotePublicId) {
-            $clone->is_quote = false;
+            $clone->invoice_type_id = INVOICE_TYPE_STANDARD;
             $clone->quote_id = $quotePublicId;
         }
 
@@ -838,9 +838,9 @@ class InvoiceRepository extends BaseRepository
         }
 
         $sql = implode(' OR ', $dates);
-        $invoices = Invoice::whereAccountId($account->id)
+        $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
+                    ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
-                    ->where('is_quote', '=', false)
                     ->where('is_recurring', '=', false)
                     ->whereRaw('('.$sql.')')
                     ->get();

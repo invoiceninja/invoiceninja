@@ -168,7 +168,7 @@ class ReportController extends BaseController
                 ->groupBy($groupBy);
 
             if ($entityType == ENTITY_INVOICE) {
-                $records->where('is_quote', '=', false)
+                $records->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                         ->where('is_recurring', '=', false);
             } elseif ($entityType == ENTITY_PAYMENT) {
                 $records->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
@@ -374,7 +374,7 @@ class ReportController extends BaseController
                             $query->where('invoice_date', '>=', $startDate)
                                   ->where('invoice_date', '<=', $endDate)
                                   ->where('is_deleted', '=', false)
-                                  ->where('is_quote', '=', false)
+                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                                   ->where('is_recurring', '=', false)
                                   ->with(['payments' => function($query) {
                                         $query->withTrashed()
@@ -429,7 +429,7 @@ class ReportController extends BaseController
                         ->with(['invoices' => function($query) use ($startDate, $endDate) {
                             $query->where('invoice_date', '>=', $startDate)
                                   ->where('invoice_date', '<=', $endDate)
-                                  ->where('is_quote', '=', false)
+                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                                   ->where('is_recurring', '=', false)
                                   ->withArchived();
                         }]);

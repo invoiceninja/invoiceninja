@@ -154,7 +154,7 @@ class CheckData extends Command {
             $clients->where('clients.id', '=', $this->option('client_id'));
         } else {
             $clients->where('invoices.is_deleted', '=', 0)
-                    ->where('invoices.is_quote', '=', 0)
+                    ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                     ->where('invoices.is_recurring', '=', 0)
                     ->havingRaw('abs(clients.balance - sum(invoices.balance)) > .01 and clients.balance != 999999999.9999');
         }
@@ -184,7 +184,7 @@ class CheckData extends Command {
                 if ($activity->invoice_id) {
                     $invoice = DB::table('invoices')
                                 ->where('id', '=', $activity->invoice_id)
-                                ->first(['invoices.amount', 'invoices.is_recurring', 'invoices.is_quote', 'invoices.deleted_at', 'invoices.id', 'invoices.is_deleted']);
+                                ->first(['invoices.amount', 'invoices.is_recurring', 'invoices.invoice_type_id', 'invoices.deleted_at', 'invoices.id', 'invoices.is_deleted']);
 
                     // Check if this invoice was once set as recurring invoice
                     if ($invoice && !$invoice->is_recurring && DB::table('invoices')
@@ -221,14 +221,14 @@ class CheckData extends Command {
                         && $invoice->amount > 0;
 
                     // **Fix for allowing converting a recurring invoice to a normal one without updating the balance**
-                    if ($noAdjustment && !$invoice->is_quote && !$invoice->is_recurring) {
-                        $this->info("No adjustment for new invoice:{$activity->invoice_id} amount:{$invoice->amount} isQuote:{$invoice->is_quote} isRecurring:{$invoice->is_recurring}");
+                    if ($noAdjustment && $invoice->invoice_type_id == INVOICE_TYPE_STANDARD && !$invoice->is_recurring) {
+                        $this->info("No adjustment for new invoice:{$activity->invoice_id} amount:{$invoice->amount} invoiceTypeId:{$invoice->invoice_type_id} isRecurring:{$invoice->is_recurring}");
                         $foundProblem = true;
                         $clientFix += $invoice->amount;
                         $activityFix = $invoice->amount;
                     // **Fix for updating balance when creating a quote or recurring invoice**
-                    } elseif ($activity->adjustment != 0 && ($invoice->is_quote || $invoice->is_recurring)) {
-                        $this->info("Incorrect adjustment for new invoice:{$activity->invoice_id} adjustment:{$activity->adjustment} isQuote:{$invoice->is_quote} isRecurring:{$invoice->is_recurring}");
+                    } elseif ($activity->adjustment != 0 && ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE || $invoice->is_recurring)) {
+                        $this->info("Incorrect adjustment for new invoice:{$activity->invoice_id} adjustment:{$activity->adjustment} invoiceTypeId:{$invoice->invoice_type_id} isRecurring:{$invoice->is_recurring}");
                         $foundProblem = true;
                         $clientFix -= $activity->adjustment;
                         $activityFix = 0;
