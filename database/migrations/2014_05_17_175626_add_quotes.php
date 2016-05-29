@@ -14,9 +14,9 @@ class AddQuotes extends Migration {
 	{
 		Schema::table('invoices', function($table)
 		{
-			$table->boolean('is_quote')->default(0);			
+			$table->boolean('is_quote')->default(0);
 			$table->unsignedInteger('quote_id')->nullable();
-			$table->unsignedInteger('quote_invoice_id')->nullable();			
+			$table->unsignedInteger('quote_invoice_id')->nullable();
 		});
 	}
 
@@ -29,7 +29,7 @@ class AddQuotes extends Migration {
 	{
 		Schema::table('invoices', function($table)
 		{
-			$table->dropColumn('is_quote');
+			$table->dropColumn('invoice_type_id');
 			$table->dropColumn('quote_id');
 			$table->dropColumn('quote_invoice_id');
 		});
