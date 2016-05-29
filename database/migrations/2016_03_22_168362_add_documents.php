@@ -15,8 +15,8 @@ class AddDocuments extends Migration {
 			$table->unsignedInteger('logo_width');
 			$table->unsignedInteger('logo_height');
 			$table->unsignedInteger('logo_size');
-			$table->boolean('invoice_embed_documents')->default(1);
-			$table->boolean('document_email_attachment')->default(1);
+			$table->boolean('invoice_embed_documents')->default(0);
+			$table->boolean('document_email_attachment')->default(0);
 		});
 
 		\DB::table('accounts')->update(array('logo' => ''));
@@ -45,7 +45,7 @@ class AddDocuments extends Migration {
 			$t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 			$t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
 			$t->foreign('expense_id')->references('id')->on('expenses')->onDelete('cascade');
-			
+
 
             $t->unique( array('account_id','public_id') );
         });
