@@ -590,8 +590,8 @@ class AccountController extends BaseController
 
             // sample invoice to help determine variables
             $invoice = Invoice::scope()
+                            ->invoiceType(INVOICE_TYPE_STANDARD)
                             ->with('client', 'account')
-                            ->where('is_quote', '=', false)
                             ->where('is_recurring', '=', false)
                             ->first();
 

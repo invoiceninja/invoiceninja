@@ -134,23 +134,23 @@ class ExportController extends BaseController
 
         if ($request->input(ENTITY_INVOICE)) {
             $data['invoices'] = Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->with('user', 'client.contacts', 'invoice_status')
                 ->withArchived()
-                ->where('is_quote', '=', false)
                 ->where('is_recurring', '=', false)
                 ->get();
 
             $data['quotes'] = Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_QUOTE)
                 ->with('user', 'client.contacts', 'invoice_status')
                 ->withArchived()
-                ->where('is_quote', '=', true)
                 ->where('is_recurring', '=', false)
                 ->get();
 
             $data['recurringInvoices'] = Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->with('user', 'client.contacts', 'invoice_status', 'frequency')
                 ->withArchived()
-                ->where('is_quote', '=', false)
                 ->where('is_recurring', '=', true)
                 ->get();
         }

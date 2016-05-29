@@ -93,7 +93,7 @@ class InvoiceTransformer extends EntityTransformer
             'terms' => $invoice->terms,
             'public_notes' => $invoice->public_notes,
             'is_deleted' => (bool) $invoice->is_deleted,
-            'is_quote' => (bool) $invoice->is_quote,
+            'invoice_type_id' => (int) $invoice->invoice_type_id,
             'is_recurring' => (bool) $invoice->is_recurring,
             'frequency_id' => (int) $invoice->frequency_id,
             'start_date' => $invoice->start_date,
