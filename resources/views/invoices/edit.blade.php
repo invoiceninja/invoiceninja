@@ -1007,7 +1007,7 @@
             }
 
             window.dropzone = new Dropzone('#document-upload .dropzone', {
-                url:{!! json_encode(url('document')) !!},
+                url:{!! json_encode(url('documents')) !!},
                 params:{
                     _token:"{{ Session::getToken() }}"
                 },

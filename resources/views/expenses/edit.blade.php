@@ -230,7 +230,7 @@
 
             // Initialize document upload
             dropzone = new Dropzone('#document-upload', {
-                url:{!! json_encode(url('document')) !!},
+                url:{!! json_encode(url('documents')) !!},
                 params:{
                     _token:"{{ Session::getToken() }}"
                 },
