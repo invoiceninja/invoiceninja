@@ -158,26 +158,7 @@ class ExpenseRepository extends BaseRepository
                 }
             }
         }
-
-        if(!empty($input['documents']) && Auth::user()->can('create', ENTITY_DOCUMENT)){
-            // Fallback upload
-            $doc_errors = array();
-            foreach($input['documents'] as $upload){
-                $result = $this->documentRepo->upload($upload);
-                if(is_string($result)){
-                    $doc_errors[] = $result;
-                }
-                else{
-                    $result->expense_id = $expense->id;
-                    $result->save();
-                    $document_ids[] = $result->public_id;
-                }
-            }
-            if(!empty($doc_errors)){
-                Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
-            }
-        }
-
+        
         // prevent loading all of the documents if we don't have to
         if ( ! $expense->wasRecentlyCreated) {
             foreach ($expense->documents as $document){

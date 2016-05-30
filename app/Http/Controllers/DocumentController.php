@@ -102,11 +102,7 @@ class DocumentController extends BaseController
 
     public function postUpload(CreateDocumentRequest $request)
     {
-        if (!Utils::hasFeature(FEATURE_DOCUMENTS)) {
-            return;
-        }
-
-        $result = $this->documentRepo->upload(Input::all()['file'], $doc_array);
+        $result = $this->documentRepo->upload($request->file, $doc_array);
 
         if(is_string($result)){
              return Response::json([

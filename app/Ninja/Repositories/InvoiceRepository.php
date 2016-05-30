@@ -494,25 +494,6 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        if(!empty($data['documents']) && Auth::user()->can('create', ENTITY_DOCUMENT)){
-            // Fallback upload
-            $doc_errors = array();
-            foreach($data['documents'] as $upload){
-                $result = $this->documentRepo->upload($upload);
-                if(is_string($result)){
-                    $doc_errors[] = $result;
-                }
-                else{
-                    $result->invoice_id = $invoice->id;
-                    $result->save();
-                    $document_ids[] = $result->public_id;
-                }
-            }
-            if(!empty($doc_errors)){
-                Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
-            }
-        }
-
         foreach ($invoice->documents as $document){
             if(!in_array($document->public_id, $document_ids)){
                 // Removed

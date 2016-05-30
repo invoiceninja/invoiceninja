@@ -9,7 +9,7 @@ class CreateDocumentRequest extends DocumentRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_DOCUMENT);
+        return $this->user()->can('create', ENTITY_DOCUMENT) && $this->user()->hasFeature(FEATURE_DOCUMENTS);
     }
 
     /**
@@ -20,7 +20,7 @@ class CreateDocumentRequest extends DocumentRequest
     public function rules()
     {
         return [
-            
+            //'file' => 'mimes:jpg'
         ];
     }
 }
