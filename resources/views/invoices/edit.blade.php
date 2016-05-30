@@ -364,15 +364,8 @@
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                             <div id="document-upload">
                                 <div class="dropzone">
-                                    <div class="fallback">
-                                        <input name="documents[]" type="file" multiple />
-                                    </div>
                                     <div data-bind="foreach: documents">
-                                        <div class="fallback-doc">
-                                            <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
-                                            <span data-bind="text:name"></span>
-                                            <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
-                                        </div>
+                                        <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                                     </div>
                                 </div>
                                 @if ($invoice->hasExpenseDocuments())
