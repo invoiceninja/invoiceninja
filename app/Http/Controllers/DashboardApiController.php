@@ -165,7 +165,8 @@ class DashboardApiController extends BaseAPIController
         }
 
         Log::info($paidToDate);
-        
+
+        /*
         $data = [
                 'id' => 1,
                 'paidToDate' => $paidToDate[0]->value ? $paidToDate[0]->value : 0,
@@ -177,7 +178,7 @@ class DashboardApiController extends BaseAPIController
                 'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
                 'activeClients' => $metrics ? $metrics->active_clients : 0,
             ];
-
+        */
 
 
             return $this->response($data);
