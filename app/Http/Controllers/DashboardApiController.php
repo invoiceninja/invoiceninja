@@ -2,6 +2,7 @@
 
 use Auth;
 use DB;
+use Illuminate\Support\Facades\Log;
 use View;
 use App\Models\Activity;
 
@@ -163,7 +164,8 @@ class DashboardApiController extends BaseAPIController
             }
         }
 
-
+        Log::info($paidToDate);
+        
         $data = [
                 'id' => 1,
                 'paidToDate' => $paidToDate[0]->value ? $paidToDate[0]->value : 0,
