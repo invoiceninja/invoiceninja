@@ -1314,6 +1314,13 @@ $LANG = array(
     'wait_for_upload' => 'Please wait for the document upload to complete.',
     'upgrade_for_permissions' => 'Upgrade to our Enterprise plan to enable permissions.',
     'enable_second_tax_rate' => 'Enable specifying a <b>second tax rate</b>',
+    'payment_file' => 'Payment File',
+    'expense_file' => 'Expense File',
+    'product_file' => 'Product File',
+    'import_products' => 'Import Products',
+    'products_will_create' => 'products will be created.',
+    'product_key' => 'Product',
+    'created_products' => 'Successfully created :count product(s)',
 
 );
 
