@@ -158,7 +158,7 @@ class DashboardApiController extends BaseAPIController
         $hasQuotes = false;
         foreach ([$upcoming, $pastDue] as $data) {
             foreach ($data as $invoice) {
-                if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
+                if ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) {
                     $hasQuotes = true;
                 }
             }
@@ -180,7 +180,7 @@ class DashboardApiController extends BaseAPIController
                 'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
                 'activeClients' => $metrics ? $metrics->active_clients : 0,
             ];
-        
+
 
 
             return $this->response($data);
