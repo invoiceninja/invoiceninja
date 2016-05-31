@@ -23,4 +23,22 @@ class CreateDocumentRequest extends DocumentRequest
             //'file' => 'mimes:jpg'
         ];
     }
+
+    /**
+     * Sanitize input before validation.
+     *
+     * @return array
+     */
+     /*
+    public function sanitize()
+    {
+        $input = $this->all();
+
+        $input['phone'] = 'test123';
+
+        $this->replace($input);
+
+        return $this->all();
+    }
+    */
 }
