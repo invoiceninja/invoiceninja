@@ -10,7 +10,7 @@ class DashboardApiController extends BaseAPIController
 {
     public function index()
     {
-        $view_all = !Auth::user()->hasPermission('view_all');
+        $view_all = Auth::user()->hasPermission('view_all');
         $user_id = Auth::user()->id;
 
         // total_income, billed_clients, invoice_sent and active_clients
