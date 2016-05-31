@@ -163,12 +163,7 @@ class DashboardApiController extends BaseAPIController
                 }
             }
         }
-
-        Log::info($paidToDate);
-        Log::info($balances);
-        Log::info($averageInvoice);
-        Log::info($metrics);
-
+        
         $data = [
                 'id' => 1,
                 'paidToDate' => $paidToDate[0]->value ? $paidToDate[0]->value : 0,
