@@ -2,7 +2,6 @@
 
 use Auth;
 use DB;
-use Illuminate\Support\Facades\Log;
 use View;
 use App\Models\Activity;
 

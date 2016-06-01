@@ -5,7 +5,6 @@ use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
 use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\CreateDocumentRequest;
-use Illuminate\Support\Facades\Log;
 
 class DocumentAPIController extends BaseAPIController
 {
@@ -34,7 +33,6 @@ class DocumentAPIController extends BaseAPIController
 
     public function store(CreateDocumentRequest $request)
     {
-        Log::info($request);
         
         $document = $this->documentRepo->upload($request->all());
 
