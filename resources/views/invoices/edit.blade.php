@@ -1435,7 +1435,9 @@
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
         window.countUploadingDocuments--;
-        refreshPDF(true);
+        @if ($account->invoice_embed_documents)
+            refreshPDF(true);
+        @endif
         if(response.document.preview_url){
             dropzone.emit('thumbnail', file, response.document.preview_url);
         }
