@@ -304,7 +304,12 @@
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
-                            <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.invoice_documents") }}</a></li>
+                            <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
+                                {{ trans("texts.invoice_documents") }}
+                                @if (count($invoice->documents))
+                                    ({{ count($invoice->documents) }})
+                                @endif
+                            </a></li>
                         @endif
                     </ul>
 
