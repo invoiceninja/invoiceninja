@@ -358,4 +358,17 @@ class InvoiceApiController extends BaseAPIController
         return $this->itemResponse($invoice);
     }
 
+    public function download(InvoiceRequest $request)
+    {
+        $invoice = $request->entity();
+        $pdfString = $invoice->getPDFString();
+
+        header('Content-Type: application/pdf');
+        header('Content-Length: ' . strlen($pdfString));
+        header('Content-disposition: attachment; filename="' . $invoice->getFileName() . '"');
+        header('Cache-Control: public, must-revalidate, max-age=0');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+
+        return $pdfString;
+    }
 }
