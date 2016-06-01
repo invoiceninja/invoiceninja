@@ -574,9 +574,9 @@ class InvoiceController extends BaseController
             'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
             'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
         ];
-        $invoice->is_quote = intval($invoice->is_quote);
+        $invoice->invoice_type_id = intval($invoice->invoice_type_id);
 
-        $activityTypeId = $invoice->is_quote ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
+        $activityTypeId = $invoice->isType(INVOICE_TYPE_QUOTE) ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
         $activities = Activity::scope(false, $invoice->account_id)
                         ->where('activity_type_id', '=', $activityTypeId)
                         ->where('invoice_id', '=', $invoice->id)
@@ -596,7 +596,7 @@ class InvoiceController extends BaseController
                 'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
                 'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
             ];
-            $backup->is_quote = isset($backup->is_quote) && intval($backup->is_quote);
+            $backup->invoice_type_id = isset($backup->invoice_type_id) && intval($backup->invoice_type_id) == INVOICE_TYPE_QUOTE;
             $backup->account = $invoice->account->toArray();
 
             $versionsJson[$activity->id] = $backup;

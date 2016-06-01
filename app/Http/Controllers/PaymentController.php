@@ -77,8 +77,8 @@ class PaymentController extends BaseController
     public function create(PaymentRequest $request)
     {
         $invoices = Invoice::scope()
+                    ->invoiceType(INVOICE_TYPE_STANDARD)
                     ->where('is_recurring', '=', false)
-                    ->where('is_quote', '=', false)
                     ->where('invoices.balance', '>', 0)
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
@@ -108,7 +108,7 @@ class PaymentController extends BaseController
         $data = array(
             'client' => null,
             'invoice' => null,
-            'invoices' => Invoice::scope()->where('is_recurring', '=', false)->where('is_quote', '=', false)
+            'invoices' => Invoice::scope()->invoiceType(INVOICE_TYPE_STANDARD)->where('is_recurring', '=', false)
                             ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'payment' => $payment,
             'method' => 'PUT',

@@ -30,7 +30,7 @@ class EntityModel extends Eloquent
         } else {
             $lastEntity = $className::scope(false, $entity->account_id);
         }
-        
+
         $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
                         ->first();
 
@@ -86,6 +86,15 @@ class EntityModel extends Eloquent
         return $query;
     }
 
+    public function scopeViewable($query)
+    {
+        if (Auth::check() && ! Auth::user()->hasPermission('view_all')) {
+            $query->where($this->getEntityType(). 's.user_id', '=', Auth::user()->id);
+        }
+
+        return $query;
+    }
+
     public function scopeWithArchived($query)
     {
         return $query->withTrashed()->where('is_deleted', '=', false);
@@ -110,7 +119,7 @@ class EntityModel extends Eloquent
     {
         return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
     }
-    
+
     public function setNullValues()
     {
         foreach ($this->fillable as $field) {

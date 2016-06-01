@@ -2,13 +2,21 @@
 
 use App\Models\Document;
 
+use App\Ninja\Repositories\DocumentRepository;
+use App\Http\Requests\DocumentRequest;
+use App\Http\Requests\CreateDocumentRequest;
+
 class DocumentAPIController extends BaseAPIController
 {
+    protected $documentRepo;
 
-    public function __construct()
+    protected $entityType = ENTITY_DOCUMENT;
+
+    public function __construct(DocumentRepository $documentRepo)
     {
         parent::__construct();
 
+        $this->documentRepo = $documentRepo;
     }
 
     public function index()
@@ -16,16 +24,19 @@ class DocumentAPIController extends BaseAPIController
         //stub
     }
 
-    public function show($publicId)
+    public function show(DocumentRequest $request)
     {
-        $document = Document::scope($publicId)->firstOrFail();
+        $document = $request->entity();
 
         return DocumentController::getDownloadResponse($document);
     }
 
-    public function store()
+    public function store(CreateDocumentRequest $request)
     {
-        //stub
+        
+        $document = $this->documentRepo->upload($request->all());
+
+        return $this->itemResponse($document);
     }
 
     public function update()

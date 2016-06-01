@@ -15,7 +15,10 @@
 
 @section('content')
 
-	{!! Former::open($url)->addClass('warn-on-exit main-form')->method($method) !!}
+	{!! Former::open($url)
+            ->addClass('warn-on-exit main-form')
+            ->onsubmit('return onFormSubmit(event)')
+            ->method($method) !!}
     <div style="display:none">
         {!! Former::text('action') !!}
     </div>
@@ -111,15 +114,8 @@
                 <div class="col-md-12 col-sm-8">
                     <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                         <div id="document-upload" class="dropzone">
-                            <div class="fallback">
-                                <input name="documents[]" type="file" multiple />
-                            </div>
                             <div data-bind="foreach: documents">
-                                <div class="fallback-doc">
-                                    <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
-                                    <span data-bind="text:name"></span>
-                                    <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
-                                </div>
+                                <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                             </div>
                         </div>
                     </div>
@@ -152,6 +148,15 @@
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
             clientMap[client.public_id] = client;
+        }
+
+        function onFormSubmit(event) {
+            if (window.countUploadingDocuments > 0) {
+                alert("{!! trans('texts.wait_for_upload') !!}");
+                return false;
+            }
+
+            return true;
         }
 
         function onClientChange() {
@@ -225,21 +230,24 @@
 
             // Initialize document upload
             dropzone = new Dropzone('#document-upload', {
-                url:{!! json_encode(url('document')) !!},
+                url:{!! json_encode(url('documents')) !!},
                 params:{
                     _token:"{{ Session::getToken() }}"
                 },
                 acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
                 addRemoveLinks:true,
+                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
                 @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
                     "dict{{strval($key)}}":"{{trans('texts.dropzone_'.Utils::toClassCase($key))}}",
                 @endforeach
-                maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             });
             if(dropzone instanceof Dropzone){
                 dropzone.on("addedfile",handleDocumentAdded);
                 dropzone.on("removedfile",handleDocumentRemoved);
                 dropzone.on("success",handleDocumentUploaded);
+                dropzone.on("canceled",handleDocumentCanceled);
+                dropzone.on("error",handleDocumentError);
                 for (var i=0; i<model.documents().length; i++) {
                     var document = model.documents()[i];
                     var mockFile = {
@@ -362,6 +370,7 @@
             }
         }
 
+        window.countUploadingDocuments = 0;
         @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
         function handleDocumentAdded(file){
             // open document when clicked
@@ -373,19 +382,35 @@
             if(file.mock)return;
             file.index = model.documents().length;
             model.addDocument({name:file.name, size:file.size, type:file.type});
+            window.countUploadingDocuments++;
         }
 
         function handleDocumentRemoved(file){
             model.removeDocument(file.public_id);
+            $.ajax({
+                url: '{{ '/documents/' }}' + file.public_id,
+                type: 'DELETE',
+                success: function(result) {
+                    // Do something with the result
+                }
+            });
         }
 
         function handleDocumentUploaded(file, response){
             file.public_id = response.document.public_id
             model.documents()[file.index].update(response.document);
-
+            window.countUploadingDocuments--;
             if(response.document.preview_url){
                 dropzone.emit('thumbnail', file, response.document.preview_url);
             }
+        }
+
+        function handleDocumentCanceled() {
+            window.countUploadingDocuments--;
+        }
+
+        function handleDocumentError() {
+            window.countUploadingDocuments--;
         }
         @endif
     </script>

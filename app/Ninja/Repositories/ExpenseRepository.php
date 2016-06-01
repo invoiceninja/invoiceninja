@@ -148,33 +148,17 @@ class ExpenseRepository extends BaseRepository
         // Documents
         $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):array();;
         foreach ($document_ids as $document_id){
-            $document = Document::scope($document_id)->first();
-            if($document && Auth::user()->can('edit', $document)){
-                $document->invoice_id = null;
-                $document->expense_id = $expense->id;
-                $document->save();
-            }
-        }
-
-        if(!empty($input['documents']) && Auth::user()->can('create', ENTITY_DOCUMENT)){
-            // Fallback upload
-            $doc_errors = array();
-            foreach($input['documents'] as $upload){
-                $result = $this->documentRepo->upload($upload);
-                if(is_string($result)){
-                    $doc_errors[] = $result;
-                }
-                else{
-                    $result->expense_id = $expense->id;
-                    $result->save();
-                    $document_ids[] = $result->public_id;
+            // check document completed upload before user submitted form
+            if ($document_id) {
+                $document = Document::scope($document_id)->first();
+                if($document && Auth::user()->can('edit', $document)){
+                    $document->invoice_id = null;
+                    $document->expense_id = $expense->id;
+                    $document->save();
                 }
             }
-            if(!empty($doc_errors)){
-                Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
-            }
         }
-
+        
         // prevent loading all of the documents if we don't have to
         if ( ! $expense->wasRecentlyCreated) {
             foreach ($expense->documents as $document){

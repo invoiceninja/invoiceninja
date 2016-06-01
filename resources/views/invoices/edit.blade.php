@@ -243,7 +243,7 @@
                 @endif
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
 				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
-				<th style="min-width:180px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
+				<th style="min-width:{{ $account->enable_second_tax_rate ? 180 : 120 }}px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>
 			</tr>
@@ -288,16 +288,18 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->data_bind('value: tax1')
-                            ->addClass('tax-select')
+                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
                             ->raw() !!}
                     <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
-                    {!! Former::select('')
-                            ->addOption('', '')
-                            ->options($taxRateOptions)
-                            ->data_bind('value: tax2')
-                            ->addClass('tax-select')
-                            ->raw() !!}
+                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
+                        {!! Former::select('')
+                                ->addOption('', '')
+                                ->options($taxRateOptions)
+                                ->data_bind('value: tax2')
+                                ->addClass('tax-select')
+                                ->raw() !!}
+                    </div>
                     <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
 				</td>
@@ -362,15 +364,8 @@
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                             <div id="document-upload">
                                 <div class="dropzone">
-                                    <div class="fallback">
-                                        <input name="documents[]" type="file" multiple />
-                                    </div>
                                     <div data-bind="foreach: documents">
-                                        <div class="fallback-doc">
-                                            <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
-                                            <span data-bind="text:name"></span>
-                                            <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
-                                        </div>
+                                        <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                                     </div>
                                 </div>
                                 @if ($invoice->hasExpenseDocuments())
@@ -438,17 +433,19 @@
                             ->id('taxRateSelect1')
                             ->addOption('', '')
                             ->options($taxRateOptions)
-                            ->addClass('tax-select')
+                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
                             ->data_bind('value: tax1')
                             ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
+                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
                     {!! Former::select('')
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
                             ->data_bind('value: tax2')
                             ->raw() !!}
+                    </div>
                     <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
                     <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
                 </td>
@@ -848,7 +845,7 @@
                 model.invoice().has_tasks(true);
             @endif
 
-            if(model.invoice().expenses() && !model.invoice().public_id()){
+            if(model.invoice().expenses().length && !model.invoice().public_id()){
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
@@ -1010,21 +1007,24 @@
             }
 
             window.dropzone = new Dropzone('#document-upload .dropzone', {
-                url:{!! json_encode(url('document')) !!},
+                url:{!! json_encode(url('documents')) !!},
                 params:{
                     _token:"{{ Session::getToken() }}"
                 },
                 acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
                 addRemoveLinks:true,
+                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
                 @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
                     "dict{{Utils::toClassCase($key)}}":"{{trans('texts.dropzone_'.$key)}}",
                 @endforeach
-                maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             });
             if(dropzone instanceof Dropzone){
                 dropzone.on("addedfile",handleDocumentAdded);
                 dropzone.on("removedfile",handleDocumentRemoved);
                 dropzone.on("success",handleDocumentUploaded);
+                dropzone.on("canceled",handleDocumentCanceled);
+                dropzone.on("error",handleDocumentError);
                 for (var i=0; i<model.invoice().documents().length; i++) {
                     var document = model.invoice().documents()[i];
                     var mockFile = {
@@ -1202,8 +1202,13 @@
 		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
             var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
+            var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
+
+            // if they aren't attaching the pdf no need to generate it
+            if ( ! attachPDF) {
+                submitAction('email');
             // if the client's language is different then we can't use the browser version of the PDF
-            if (clientLanguageId && clientLanguageId != accountLanguageId) {
+            } else if (clientLanguageId && clientLanguageId != accountLanguageId) {
                 submitAction('email');
             } else {
                 preparePdfData('email');
@@ -1466,6 +1471,13 @@
     function handleDocumentRemoved(file){
         model.invoice().removeDocument(file.public_id);
         refreshPDF(true);
+        $.ajax({
+            url: '{{ '/documents/' }}' + file.public_id,
+            type: 'DELETE',
+            success: function(result) {
+                // Do something with the result
+            }
+        });
     }
 
     function handleDocumentUploaded(file, response){
@@ -1473,10 +1485,17 @@
         model.invoice().documents()[file.index].update(response.document);
         window.countUploadingDocuments--;
         refreshPDF(true);
-
         if(response.document.preview_url){
             dropzone.emit('thumbnail', file, response.document.preview_url);
         }
+    }
+
+    function handleDocumentCanceled() {
+        window.countUploadingDocuments--;
+    }
+
+    function handleDocumentError() {
+        window.countUploadingDocuments--;
     }
     @endif
 

@@ -15,8 +15,8 @@ class AddDocuments extends Migration {
 			$table->unsignedInteger('logo_width');
 			$table->unsignedInteger('logo_height');
 			$table->unsignedInteger('logo_size');
-			$table->boolean('invoice_embed_documents')->default(1);
-			$table->boolean('document_email_attachment')->default(1);
+			$table->boolean('invoice_embed_documents')->default(0);
+			$table->boolean('document_email_attachment')->default(0);
 		});
 
 		\DB::table('accounts')->update(array('logo' => ''));

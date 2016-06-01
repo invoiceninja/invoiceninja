@@ -57,43 +57,49 @@ class DocumentRepository extends BaseRepository
         return $query;
     }
 
-    public function upload($uploaded, &$doc_array=null)
+    public function upload($data, &$doc_array=null)
     {
+        $uploaded = $data['file'];
         $extension = strtolower($uploaded->getClientOriginalExtension());
         if(empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])){
-            $documentType = Document::$extraExtensions[$extension];            
+            $documentType = Document::$extraExtensions[$extension];
         }
         else{
             $documentType = $extension;
         }
-        
+
         if(empty(Document::$types[$documentType])){
             return 'Unsupported file type';
         }
-           
+
         $documentTypeData = Document::$types[$documentType];
-           
+
         $filePath = $uploaded->path();
         $name = $uploaded->getClientOriginalName();
         $size = filesize($filePath);
-        
+
         if($size/1000 > MAX_DOCUMENT_SIZE){
             return 'File too large';
         }
-        
-        
-        
+
+        // don't allow a document to be linked to both an invoice and an expense
+        if (array_get($data, 'invoice_id') && array_get($data, 'expense_id')) {
+            unset($data['expense_id']);
+        }
+
         $hash = sha1_file($filePath);
         $filename = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType;
-                
+
         $document = Document::createNew();
+        $document->fill($data);
+
         $disk = $document->getDisk();
         if(!$disk->exists($filename)){// Have we already stored the same file
             $stream = fopen($filePath, 'r');
             $disk->getDriver()->putStream($filename, $stream, ['mimetype'=>$documentTypeData['mime']]);
             fclose($stream);
         }
-        
+
         // This is an image; check if we need to create a preview
         if(in_array($documentType, array('jpeg','png','gif','bmp','tiff','psd'))){
             $makePreview = false;
@@ -105,32 +111,32 @@ class DocumentRepository extends BaseRepository
                 // Needs to be converted
                 $makePreview = true;
             } else if($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE){
-                $makePreview = true;              
+                $makePreview = true;
             }
-            
+
             if(in_array($documentType,array('bmp','tiff','psd'))){
                 if(!class_exists('Imagick')){
                     // Cant't read this
                     $makePreview = false;
                 } else {
                     $imgManagerConfig['driver'] = 'imagick';
-                }                
+                }
             }
-            
+
             if($makePreview){
                 $previewType = 'jpeg';
                 if(in_array($documentType, array('png','gif','tiff','psd'))){
                     // Has transparency
                     $previewType = 'png';
                 }
-                    
+
                 $document->preview = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType.'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
                 if(!$disk->exists($document->preview)){
                     // We haven't created a preview yet
                     $imgManager = new ImageManager($imgManagerConfig);
-                    
+
                     $img = $imgManager->make($filePath);
-                    
+
                     if($width <= DOCUMENT_PREVIEW_SIZE && $height <= DOCUMENT_PREVIEW_SIZE){
                         $previewWidth = $width;
                         $previewHeight = $height;
@@ -141,9 +147,9 @@ class DocumentRepository extends BaseRepository
                         $previewHeight = DOCUMENT_PREVIEW_SIZE;
                         $previewWidth = $width * DOCUMENT_PREVIEW_SIZE / $height;
                     }
-                    
+
                     $img->resize($previewWidth, $previewHeight);
-                    
+
                     $previewContent = (string) $img->encode($previewType);
                     $disk->put($document->preview, $previewContent);
                     $base64 = base64_encode($previewContent);
@@ -153,23 +159,23 @@ class DocumentRepository extends BaseRepository
                 }
             }else{
                 $base64 = base64_encode(file_get_contents($filePath));
-            }      
+            }
         }
-        
+
         $document->path = $filename;
         $document->type = $documentType;
         $document->size = $size;
         $document->hash = $hash;
         $document->name = substr($name, -255);
-        
+
         if(!empty($imageSize)){
             $document->width = $imageSize[0];
             $document->height = $imageSize[1];
         }
-        
+
         $document->save();
         $doc_array = $document->toArray();
-        
+
         if(!empty($base64)){
             $mime = Document::$types[!empty($previewType)?$previewType:$documentType]['mime'];
             $doc_array['base64'] = 'data:'.$mime.';base64,'.$base64;
@@ -177,10 +183,10 @@ class DocumentRepository extends BaseRepository
 
         return $document;
     }
-    
+
     public function getClientDatatable($contactId, $entityType, $search)
     {
-        
+
        $query = DB::table('invitations')
           ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
           ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
@@ -192,7 +198,7 @@ class DocumentRepository extends BaseRepository
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', false)
           // This needs to be a setting to also hide the activity on the dashboard page
-          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT) 
+          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
           ->select(
                 'invitations.invitation_key',
                 'invoices.invoice_number',
@@ -205,22 +211,22 @@ class DocumentRepository extends BaseRepository
         $table = \Datatable::query($query)
             ->addColumn('invoice_number', function ($model) {
                 return link_to(
-                    '/view/'.$model->invitation_key, 
+                    '/view/'.$model->invitation_key,
                     $model->invoice_number
-                )->toHtml(); 
+                )->toHtml();
             })
             ->addColumn('name', function ($model) {
                 return link_to(
-                    '/client/documents/'.$model->invitation_key.'/'.$model->public_id.'/'.$model->name, 
+                    '/client/documents/'.$model->invitation_key.'/'.$model->public_id.'/'.$model->name,
                     $model->name,
                     ['target'=>'_blank']
-                )->toHtml(); 
+                )->toHtml();
             })
             ->addColumn('document_date', function ($model) {
-                return Utils::fromSqlDate($model->created_at);
+                return Utils::dateToString($model->created_at);
             })
             ->addColumn('document_size', function ($model) {
-                return Form::human_filesize($model->size); 
+                return Form::human_filesize($model->size);
             });
 
         return $table->make();

@@ -597,8 +597,8 @@ class AccountController extends BaseController
 
             // sample invoice to help determine variables
             $invoice = Invoice::scope()
+                            ->invoiceType(INVOICE_TYPE_STANDARD)
                             ->with('client', 'account')
-                            ->where('is_quote', '=', false)
                             ->where('is_recurring', '=', false)
                             ->first();
 
@@ -799,11 +799,7 @@ class AccountController extends BaseController
     private function saveTaxRates()
     {
         $account = Auth::user()->account;
-
-        $account->invoice_taxes = Input::get('invoice_taxes') ? true : false;
-        $account->invoice_item_taxes = Input::get('invoice_item_taxes') ? true : false;
-        $account->show_item_taxes = Input::get('show_item_taxes') ? true : false;
-        $account->default_tax_rate_id = Input::get('default_tax_rate_id');
+        $account->fill(Input::all());
         $account->save();
 
         Session::flash('message', trans('texts.updated_settings'));
@@ -1267,6 +1263,10 @@ class AccountController extends BaseController
         $user = Auth::user();
         $account = Auth::user()->account;
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
+
+        Document::scope()->each(function($item, $key) {
+            $item->delete();
+        });
 
         $this->accountRepo->unlinkAccount($account);
         if ($account->company->accounts->count() == 1) {

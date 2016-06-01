@@ -9,7 +9,7 @@ class DashboardApiController extends BaseAPIController
 {
     public function index()
     {
-        $view_all = !Auth::user()->hasPermission('view_all');
+        $view_all = Auth::user()->hasPermission('view_all');
         $user_id = Auth::user()->id;
 
         // total_income, billed_clients, invoice_sent and active_clients
@@ -24,7 +24,7 @@ class DashboardApiController extends BaseAPIController
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_recurring', '=', false)
-            ->where('invoices.is_quote', '=', false);
+            ->where('invoices.invoice_type_id', '=', false);
 
         if(!$view_all){
             $metrics = $metrics->where(function($query) use($user_id){
@@ -62,7 +62,7 @@ class DashboardApiController extends BaseAPIController
             ->where('accounts.id', '=', Auth::user()->account_id)
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
-            ->where('invoices.is_quote', '=', false)
+            ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('invoices.is_recurring', '=', false);
 
         if(!$view_all){
@@ -106,7 +106,7 @@ class DashboardApiController extends BaseAPIController
             $pastDue = $pastDue->where('invoices.user_id', '=', $user_id);
         }
 
-        $pastDue = $pastDue->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'is_quote'])
+        $pastDue = $pastDue->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
                     ->orderBy('invoices.due_date', 'asc')
                     ->take(50)
                     ->get();
@@ -131,7 +131,7 @@ class DashboardApiController extends BaseAPIController
         }
 
         $upcoming = $upcoming->take(50)
-                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'is_quote'])
+                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
                     ->get();
 
         $payments = DB::table('payments')
@@ -157,13 +157,12 @@ class DashboardApiController extends BaseAPIController
         $hasQuotes = false;
         foreach ([$upcoming, $pastDue] as $data) {
             foreach ($data as $invoice) {
-                if ($invoice->is_quote) {
+                if ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) {
                     $hasQuotes = true;
                 }
             }
         }
-
-
+        
         $data = [
                 'id' => 1,
                 'paidToDate' => $paidToDate[0]->value ? $paidToDate[0]->value : 0,
