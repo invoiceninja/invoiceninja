@@ -16,6 +16,24 @@ class Product extends EntityModel
         'default_tax_rate_id',
     ];
 
+    public static function getImportColumns()
+    {
+        return [
+            'product_key',
+            'notes',
+            'cost',
+        ];
+    }
+
+    public static function getImportMap()
+    {
+        return [
+            'product|item' => 'product_key',
+            'notes|description|details' => 'notes',
+            'cost|amount|price' => 'cost',
+        ];
+    }
+
     public function getEntityType()
     {
         return ENTITY_PRODUCT;

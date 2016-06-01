@@ -29,8 +29,8 @@ class AppServiceProvider extends ServiceProvider {
             else{
                 $contents = $image;
             }
-                
-            return 'data:image/jpeg;base64,' . base64_encode($contents);            
+
+            return 'data:image/jpeg;base64,' . base64_encode($contents);
         });
 
         Form::macro('nav_link', function($url, $text, $url2 = '', $extra = '') {
@@ -58,11 +58,11 @@ class AppServiceProvider extends ServiceProvider {
 
             $str = '<li class="dropdown '.$class.'">
                    <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>';
-                   
+
             $items = [];
-                       
+
             if($user->can('create', $type))$items[] = '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
-                    
+
             if ($type == ENTITY_INVOICE) {
                 if(!empty($items))$items[] = '<li class="divider"></li>';
                 $items[] = '<li><a href="'.URL::to('recurring_invoices').'">'.trans("texts.recurring_invoices").'</a></li>';
@@ -81,7 +81,7 @@ class AppServiceProvider extends ServiceProvider {
                 $items[] = '<li><a href="'.URL::to('vendors').'">'.trans("texts.vendors").'</a></li>';
                 if($user->can('create', ENTITY_VENDOR))$items[] = '<li><a href="'.URL::to('vendors/create').'">'.trans("texts.new_vendor").'</a></li>';
 			}
-            
+
             if(!empty($items)){
                 $str.= '<ul class="dropdown-menu" id="menu1">'.implode($items).'</ul>';
             }
@@ -157,14 +157,14 @@ class AppServiceProvider extends ServiceProvider {
 
             return $str . '</ol>';
         });
-        
+
         Form::macro('human_filesize', function($bytes, $decimals = 1) {
             $size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
             $factor = floor((strlen($bytes) - 1) / 3);
             if($factor == 0)$decimals=0;// There aren't fractional bytes
             return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . ' ' . @$size[$factor];
         });
-        
+
         Validator::extend('positive', function($attribute, $value, $parameters) {
             return Utils::parseFloat($value) >= 0;
         });

@@ -652,30 +652,34 @@ class Account extends Eloquent
     public function getNextInvoiceNumber($invoice)
     {
         if ($this->hasNumberPattern($invoice->invoice_type_id)) {
-            return $this->getNumberPattern($invoice);
+            $number = $this->getNumberPattern($invoice);
+        } else {
+            $counter = $this->getCounter($invoice->invoice_type_id);
+            $prefix = $this->getNumberPrefix($invoice->invoice_type_id);
+            $counterOffset = 0;
+
+            // confirm the invoice number isn't already taken
+            do {
+                $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
+                $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
+                $counter++;
+                $counterOffset++;
+            } while ($check);
+
+            // update the invoice counter to be caught up
+            if ($counterOffset > 1) {
+                if ($invoice->isType(INVOICE_TYPE_QUOTE) && !$this->share_counter) {
+                    $this->quote_number_counter += $counterOffset - 1;
+                } else {
+                    $this->invoice_number_counter += $counterOffset - 1;
+                }
+
+                $this->save();
+            }
         }
 
-        $counter = $this->getCounter($invoice->invoice_type_id);
-        $prefix = $this->getNumberPrefix($invoice->invoice_type_id);
-        $counterOffset = 0;
-
-        // confirm the invoice number isn't already taken
-        do {
-            $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
-            $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
-            $counter++;
-            $counterOffset++;
-        } while ($check);
-
-        // update the invoice counter to be caught up
-        if ($counterOffset > 1) {
-            if ($invoice->isType(INVOICE_TYPE_QUOTE) && !$this->share_counter) {
-                $this->quote_number_counter += $counterOffset - 1;
-            } else {
-                $this->invoice_number_counter += $counterOffset - 1;
-            }
-
-            $this->save();
+        if ($invoice->recurring_invoice_id) {
+            $number = $this->recurring_invoice_number_prefix . $number;
         }
 
         return $number;
@@ -683,17 +687,15 @@ class Account extends Eloquent
 
     public function incrementCounter($invoice)
     {
+        // if they didn't use the counter don't increment it
+        if ($invoice->invoice_number != $this->getNextInvoiceNumber($invoice)) {
+            return;
+        }
+
         if ($invoice->isType(INVOICE_TYPE_QUOTE) && !$this->share_counter) {
             $this->quote_number_counter += 1;
         } else {
-            $default = $this->invoice_number_counter;
-            $actual = Utils::parseInt($invoice->invoice_number);
-
-            if ( ! $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $default != $actual) {
-                $this->invoice_number_counter = $actual + 1;
-            } else {
-                $this->invoice_number_counter += 1;
-            }
+            $this->invoice_number_counter += 1;
         }
 
         $this->save();

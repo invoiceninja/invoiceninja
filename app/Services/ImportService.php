@@ -13,6 +13,7 @@ use App\Ninja\Repositories\ContactRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
+use App\Ninja\Repositories\ProductRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Models\Client;
 use App\Models\Invoice;
@@ -23,6 +24,7 @@ class ImportService
     protected $invoiceRepo;
     protected $clientRepo;
     protected $contactRepo;
+    protected $productRepo;
     protected $processedRows = array();
 
     public static $entityTypes = [
@@ -31,6 +33,8 @@ class ImportService
         ENTITY_INVOICE,
         ENTITY_PAYMENT,
         ENTITY_TASK,
+        ENTITY_PRODUCT,
+        ENTITY_EXPENSE,
     ];
 
     public static $sources = [
@@ -45,7 +49,14 @@ class ImportService
         IMPORT_ZOHO,
     ];
 
-    public function __construct(Manager $manager, ClientRepository $clientRepo, InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ContactRepository $contactRepo)
+    public function __construct(
+        Manager $manager,
+        ClientRepository $clientRepo,
+        InvoiceRepository $invoiceRepo,
+        PaymentRepository $paymentRepo,
+        ContactRepository $contactRepo,
+        ProductRepository $productRepo
+    )
     {
         $this->fractal = $manager;
         $this->fractal->setSerializer(new ArraySerializer());
@@ -54,6 +65,7 @@ class ImportService
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
         $this->contactRepo = $contactRepo;
+        $this->productRepo = $productRepo;
     }
 
     public function import($source, $files)
@@ -216,8 +228,11 @@ class ImportService
                 'invoice_number' => 'required|unique:invoices,invoice_number,,id,account_id,'.Auth::user()->account_id,
                 'discount' => 'positive',
             ];
-        } else {
-            return true;
+        }
+        if ($entityType === ENTITY_PRODUCT) {
+            $rules = [
+                'product_key' => 'required',
+            ];
         }
 
         $validator = Validator::make($data, $rules);
@@ -251,6 +266,14 @@ class ImportService
             }
         }
 
+        $productMap = [];
+        $products = $this->productRepo->all();
+        foreach ($products as $product) {
+            if ($key = strtolower(trim($product->product_key))) {
+                $productMap[$key] = $product->id;
+            }
+        }
+
         $countryMap = [];
         $countryMap2 = [];
         $countries = Cache::get('countries');
@@ -269,6 +292,7 @@ class ImportService
             ENTITY_CLIENT => $clientMap,
             ENTITY_INVOICE => $invoiceMap,
             ENTITY_INVOICE.'_'.ENTITY_CLIENT => $invoiceClientMap,
+            ENTITY_PRODUCT => $productMap,
             'countries' => $countryMap,
             'countries2' => $countryMap2,
             'currencies' => $currencyMap,
@@ -280,13 +304,9 @@ class ImportService
         $data = [];
 
         foreach ($files as $entityType => $filename) {
-            if ($entityType === ENTITY_CLIENT) {
-                $columns = Client::getImportColumns();
-                $map = Client::getImportMap();
-            } else {
-                $columns = Invoice::getImportColumns();
-                $map = Invoice::getImportMap();
-            }
+            $class = "App\\Models\\" . ucwords($entityType);
+            $columns = $class::getImportColumns();
+            $map = $class::getImportMap();
 
             // Lookup field translations
             foreach ($columns as $key => $value) {
@@ -452,12 +472,8 @@ class ImportService
     private function convertToObject($entityType, $data, $map)
     {
         $obj = new stdClass();
-
-        if ($entityType === ENTITY_CLIENT) {
-            $columns = Client::getImportColumns();
-        } else {
-            $columns = Invoice::getImportColumns();
-        }
+        $class = "App\\Models\\" . ucwords($entityType);
+        $columns = $class::getImportColumns();
 
         foreach ($columns as $column) {
             $obj->$column = false;

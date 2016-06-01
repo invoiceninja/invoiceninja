@@ -15,8 +15,14 @@ class BaseTransformer extends TransformerAbstract
 
     protected function hasClient($name)
     {
-        $name = strtolower($name);
+        $name = trim(strtolower($name));
         return isset($this->maps[ENTITY_CLIENT][$name]);
+    }
+
+    protected function hasProduct($key)
+    {
+        $key = trim(strtolower($key));
+        return isset($this->maps[ENTITY_PRODUCT][$key]);
     }
 
     protected function getString($data, $field)
@@ -24,10 +30,21 @@ class BaseTransformer extends TransformerAbstract
         return (isset($data->$field) && $data->$field) ? $data->$field : '';
     }
 
+    protected function getNumber($data, $field)
+    {
+        return (isset($data->$field) && $data->$field) ? $data->$field : 0;
+    }
+
     protected function getClientId($name)
     {
         $name = strtolower($name);
         return isset($this->maps[ENTITY_CLIENT][$name]) ? $this->maps[ENTITY_CLIENT][$name] : null;
+    }
+
+    protected function getProductId($name)
+    {
+        $name = strtolower($name);
+        return isset($this->maps[ENTITY_PRODUCT][$name]) ? $this->maps[ENTITY_PRODUCT][$name] : null;
     }
 
     protected function getCountryId($name)
@@ -53,7 +70,7 @@ class BaseTransformer extends TransformerAbstract
         if ( ! $date instanceof DateTime) {
             $date = DateTime::createFromFormat($format, $date);
         }
-        
+
         return $date ? $date->format('Y-m-d') : null;
     }
 
@@ -87,11 +104,11 @@ class BaseTransformer extends TransformerAbstract
         return isset($this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber])? $this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber] : null;
     }
 
-    
+
     protected function getVendorId($name)
     {
         $name = strtolower($name);
         return isset($this->maps[ENTITY_VENDOR][$name]) ? $this->maps[ENTITY_VENDOR][$name] : null;
     }
-    
+
 }
