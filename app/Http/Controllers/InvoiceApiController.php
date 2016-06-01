@@ -183,7 +183,7 @@ class InvoiceApiController extends BaseAPIController
         $invoice = Invoice::scope($invoice->public_id)
                         ->with('client', 'invoice_items', 'invitations')
                         ->first();
-                        
+
         return $this->itemResponse($invoice);
     }
 
@@ -270,7 +270,7 @@ class InvoiceApiController extends BaseAPIController
                 $item[$key] = $val;
             }
         }
-        
+
         return $item;
     }
 
@@ -309,7 +309,7 @@ class InvoiceApiController extends BaseAPIController
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
         if ($request->action == ACTION_CONVERT) {
-            $quote = $request->entity();            
+            $quote = $request->entity();
             $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
             return $this->itemResponse($invoice);
         } elseif ($request->action) {
@@ -323,7 +323,7 @@ class InvoiceApiController extends BaseAPIController
         $invoice = Invoice::scope($publicId)
                         ->with('client', 'invoice_items', 'invitations')
                         ->firstOrFail();
-                        
+
         return $this->itemResponse($invoice);
     }
 
@@ -352,10 +352,23 @@ class InvoiceApiController extends BaseAPIController
     public function destroy(UpdateInvoiceAPIRequest $request)
     {
         $invoice = $request->entity();
-        
+
         $this->invoiceRepo->delete($invoice);
 
         return $this->itemResponse($invoice);
     }
 
+    public function download(InvoiceRequest $request)
+    {
+        $invoice = $request->entity();
+        $pdfString = $invoice->getPDFString();
+
+        header('Content-Type: application/pdf');
+        header('Content-Length: ' . strlen($pdfString));
+        header('Content-disposition: attachment; filename="' . $invoice->getFileName() . '"');
+        header('Cache-Control: public, must-revalidate, max-age=0');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+
+        return $pdfString;
+    }
 }
