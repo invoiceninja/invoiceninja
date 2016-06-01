@@ -650,7 +650,7 @@ class Account extends Eloquent
 
             // update the invoice counter to be caught up
             if ($counterOffset > 1) {
-                if ($invoice->isType(INVOICE_TYPE_QUOTE) && !$this->share_counter) {
+                if ($invoice->is_quote && !$this->share_counter) {
                     $this->quote_number_counter += $counterOffset - 1;
                 } else {
                     $this->invoice_number_counter += $counterOffset - 1;
@@ -674,7 +674,7 @@ class Account extends Eloquent
             return;
         }
 
-        if ($invoice->isType(INVOICE_TYPE_QUOTE) && !$this->share_counter) {
+        if ($invoice->is_quote && !$this->share_counter) {
             $this->quote_number_counter += 1;
         } else {
             $this->invoice_number_counter += 1;
