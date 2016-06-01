@@ -57,8 +57,9 @@ class DocumentRepository extends BaseRepository
         return $query;
     }
 
-    public function upload($uploaded, &$doc_array=null)
+    public function upload($data, &$doc_array=null)
     {
+        $uploaded = $data['file'];
         $extension = strtolower($uploaded->getClientOriginalExtension());
         if(empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])){
             $documentType = Document::$extraExtensions[$extension];
@@ -81,12 +82,17 @@ class DocumentRepository extends BaseRepository
             return 'File too large';
         }
 
-
+        // don't allow a document to be linked to both an invoice and an expense
+        if (array_get($data, 'invoice_id') && array_get($data, 'expense_id')) {
+            unset($data['expense_id']);
+        }
 
         $hash = sha1_file($filePath);
         $filename = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType;
 
         $document = Document::createNew();
+        $document->fill($data);
+
         $disk = $document->getDisk();
         if(!$disk->exists($filename)){// Have we already stored the same file
             $stream = fopen($filePath, 'r');
