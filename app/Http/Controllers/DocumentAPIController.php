@@ -33,7 +33,7 @@ class DocumentAPIController extends BaseAPIController
 
     public function store(CreateDocumentRequest $request)
     {
-        $document = $this->documentRepo->upload($request->file);
+        $document = $this->documentRepo->upload($request->all());
 
         return $this->itemResponse($document);
     }

@@ -1,7 +1,15 @@
 <?php namespace App\Http\Requests;
 
+use App\Models\Invoice;
+use App\Models\Expense;
+
 class CreateDocumentRequest extends DocumentRequest
 {
+    protected $autoload = [
+        ENTITY_INVOICE,
+        ENTITY_EXPENSE,
+    ];
+
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -9,7 +17,19 @@ class CreateDocumentRequest extends DocumentRequest
      */
     public function authorize()
     {
-        return $this->user()->can('create', ENTITY_DOCUMENT) && $this->user()->hasFeature(FEATURE_DOCUMENTS);
+        if ( ! $this->user()->hasFeature(FEATURE_DOCUMENTS)) {
+            return false;
+        }
+        
+        if ($this->invoice && $this->user()->cannot('edit', $this->invoice)) {
+            return false;
+        }
+
+        if ($this->expense && $this->user()->cannot('edit', $this->expense)) {
+            return false;
+        }
+
+        return $this->user()->can('create', ENTITY_DOCUMENT);
     }
 
     /**
@@ -24,21 +44,4 @@ class CreateDocumentRequest extends DocumentRequest
         ];
     }
 
-    /**
-     * Sanitize input before validation.
-     *
-     * @return array
-     */
-     /*
-    public function sanitize()
-    {
-        $input = $this->all();
-
-        $input['phone'] = 'test123';
-
-        $this->replace($input);
-
-        return $this->all();
-    }
-    */
 }
