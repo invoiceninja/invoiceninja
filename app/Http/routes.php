@@ -472,6 +472,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
     define('IMPORT_CSV', 'CSV');
+    define('IMPORT_JSON', 'JSON');
     define('IMPORT_FRESHBOOKS', 'FreshBooks');
     define('IMPORT_WAVE', 'Wave');
     define('IMPORT_RONIN', 'Ronin');

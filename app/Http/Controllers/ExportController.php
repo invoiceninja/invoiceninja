@@ -43,10 +43,12 @@ class ExportController extends BaseController
         $manager->setSerializer(new ArraySerializer());
 
         $account = Auth::user()->account;
-        $account->loadAllData();
+        $account->load(['clients.contacts', 'clients.invoices.payments', 'clients.invoices.invoice_items']);
 
         $resource = new Item($account, new AccountTransformer);
-        $data = $manager->createData($resource)->toArray();
+        $data = $manager->parseIncludes('clients.invoices.payments')
+                    ->createData($resource)
+                    ->toArray();
 
         return response()->json($data);
     }

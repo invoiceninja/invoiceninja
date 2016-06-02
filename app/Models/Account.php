@@ -545,7 +545,7 @@ class Account extends Eloquent
 
             if ($this->hasClientNumberPattern($invoice) && !$clientId) {
                 // do nothing, we don't yet know the value
-            } else {
+            } elseif ( ! $invoice->invoice_number) {
                 $invoice->invoice_number = $this->getNextInvoiceNumber($invoice);
             }
         }
@@ -649,7 +649,7 @@ class Account extends Eloquent
         return $this->getNextInvoiceNumber($invoice);
     }
 
-    public function getNextInvoiceNumber($invoice)
+    public function getNextInvoiceNumber($invoice, $validateUnique = true)
     {
         if ($this->hasNumberPattern($invoice->invoice_type_id)) {
             $number = $this->getNumberPattern($invoice);
@@ -657,13 +657,16 @@ class Account extends Eloquent
             $counter = $this->getCounter($invoice->invoice_type_id);
             $prefix = $this->getNumberPrefix($invoice->invoice_type_id);
             $counterOffset = 0;
+            $check = false;
 
             // confirm the invoice number isn't already taken
             do {
                 $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
-                $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
-                $counter++;
-                $counterOffset++;
+                if ($validateUnique) {
+                    $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
+                    $counter++;
+                    $counterOffset++;
+                }
             } while ($check);
 
             // update the invoice counter to be caught up
@@ -688,7 +691,7 @@ class Account extends Eloquent
     public function incrementCounter($invoice)
     {
         // if they didn't use the counter don't increment it
-        if ($invoice->invoice_number != $this->getNextInvoiceNumber($invoice)) {
+        if ($invoice->invoice_number != $this->getNextInvoiceNumber($invoice, false)) {
             return;
         }
 
@@ -1452,6 +1455,14 @@ class Account extends Eloquent
     }
 }
 
-Account::updated(function ($account) {
+Account::updated(function ($account)
+{
+    // prevent firing event if the invoice/quote counter was changed
+    // TODO: remove once counters are moved to separate table
+    $dirty = $account->getDirty();
+    if (isset($dirty['invoice_number_counter']) || isset($dirty['quote_number_counter'])) {
+        return;
+    }
+
     Event::fire(new UserSettingsChanged());
 });

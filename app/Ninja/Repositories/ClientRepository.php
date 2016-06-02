@@ -118,9 +118,11 @@ class ClientRepository extends BaseRepository
             $first = false;
         }
 
-        foreach ($client->contacts as $contact) {
-            if (!in_array($contact->public_id, $contactIds)) {
-                $contact->delete();
+        if ( ! $client->wasRecentlyCreated) {
+            foreach ($client->contacts as $contact) {
+                if (!in_array($contact->public_id, $contactIds)) {
+                    $contact->delete();
+                }
             }
         }
 

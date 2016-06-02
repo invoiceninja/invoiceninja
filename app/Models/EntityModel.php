@@ -9,22 +9,31 @@ class EntityModel extends Eloquent
     public $timestamps = true;
     protected $hidden = ['id'];
 
+    public static $notifySubscriptions = true;
+
     public static function createNew($context = null)
     {
         $className = get_called_class();
         $entity = new $className();
 
         if ($context) {
-            $entity->user_id = $context instanceof User ? $context->id : $context->user_id;
-            $entity->account_id = $context->account_id;
+            $user = $context instanceof User ? $context : $context->user;
+            $account = $context->account;
         } elseif (Auth::check()) {
-            $entity->user_id = Auth::user()->id;
-            $entity->account_id = Auth::user()->account_id;
+            $user = Auth::user();
+            $account = Auth::user()->account;
         } else {
             Utils::fatalError();
         }
 
-        if(method_exists($className, 'withTrashed')){
+        $entity->user_id = $user->id;
+        $entity->account_id = $account->id;
+
+        // store references to the original user/account to prevent needing to reload them
+        $entity->setRelation('user', $user);
+        $entity->setRelation('account', $account);
+
+        if (method_exists($className, 'withTrashed')){
             $lastEntity = $className::withTrashed()
                         ->scope(false, $entity->account_id);
         } else {

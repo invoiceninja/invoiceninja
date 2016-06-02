@@ -3,6 +3,7 @@
 use Auth;
 use Utils;
 
+use App\Models\EntityModel;
 use App\Events\ClientWasCreated;
 use App\Events\QuoteWasCreated;
 use App\Events\InvoiceWasCreated;
@@ -48,7 +49,7 @@ class SubscriptionListener
 
     public function createdCredit(CreditWasCreated $event)
     {
-        
+
     }
 
     public function createdVendor(VendorWasCreated $event)
@@ -63,6 +64,10 @@ class SubscriptionListener
 
     private function checkSubscriptions($eventId, $entity, $transformer, $include = '')
     {
+        if ( ! EntityModel::$notifySubscriptions) {
+            return;
+        }
+
         $subscription = $entity->account->getSubscription($eventId);
 
         if ($subscription) {

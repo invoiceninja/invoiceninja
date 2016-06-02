@@ -53,7 +53,8 @@
                 ->addOption('CSV', 'CSV')
                 ->addOption('XLS', 'XLS')
                 ->addOption('JSON', 'JSON')
-                ->style('max-width: 200px') !!}
+                ->style('max-width: 200px')
+                ->inlineHelp('export_help') !!}
 
         {!! Former::checkbox('entity_types')
                 ->label('include')
@@ -100,6 +101,11 @@
                 @endif
             @endforeach
         }
+        @if ($source === IMPORT_JSON)
+            if (val === '{{ $source }}') {
+                $('.JSON-file').show();
+            }
+        @endif
     @endforeach
   }
 
