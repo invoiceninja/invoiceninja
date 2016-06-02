@@ -9,7 +9,7 @@ class DashboardApiController extends BaseAPIController
 {
     public function index()
     {
-        $view_all = !Auth::user()->hasPermission('view_all');
+        $view_all = Auth::user()->hasPermission('view_all');
         $user_id = Auth::user()->id;
 
         // total_income, billed_clients, invoice_sent and active_clients
@@ -157,13 +157,12 @@ class DashboardApiController extends BaseAPIController
         $hasQuotes = false;
         foreach ([$upcoming, $pastDue] as $data) {
             foreach ($data as $invoice) {
-                if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
+                if ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) {
                     $hasQuotes = true;
                 }
             }
         }
-
-
+        
         $data = [
                 'id' => 1,
                 'paidToDate' => $paidToDate[0]->value ? $paidToDate[0]->value : 0,
