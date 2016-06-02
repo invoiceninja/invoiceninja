@@ -3,7 +3,7 @@
 </p>
 
 # Invoice Ninja
-### [http://www.invoiceninja.org](http://www.invoiceninja.org)
+### [https://invoiceninja.org](https://invoiceninja.org)
 
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
