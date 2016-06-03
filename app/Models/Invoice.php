@@ -947,6 +947,20 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
         return false;
     }
+
+    public function getAutoBillEnabled() {
+        if (!$this->is_recurring) {
+            $recurInvoice = $this->recurring_invoice;
+        } else {
+            $recurInvoice = $this;
+        }
+
+        if (!$recurInvoice) {
+            return false;
+        }
+
+        return $recurInvoice->auto_bill == AUTO_BILL_ALWAYS || ($recurInvoice->auto_bill != AUTO_BILL_OFF && $recurInvoice->client_enable_auto_bill);
+    }
 }
 
 Invoice::creating(function ($invoice) {

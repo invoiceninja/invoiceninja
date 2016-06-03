@@ -141,11 +141,6 @@ class AccountGatewayController extends BaseController
             }
         }
 
-        $tokenBillingOptions = [];
-        for ($i=1; $i<=4; $i++) {
-            $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
-        }
-
         return [
             'paymentTypes' => $paymentTypes,
             'account' => $account,
@@ -154,7 +149,6 @@ class AccountGatewayController extends BaseController
             'config' => false,
             'gateways' => $gateways,
             'creditCardTypes' => $creditCards,
-            'tokenBillingOptions' => $tokenBillingOptions,
             'countGateways' => count($currentGateways)
         ];
     }
@@ -301,7 +295,7 @@ class AccountGatewayController extends BaseController
                 $config->plaidPublicKey = $oldConfig->plaidPublicKey;
             }
 
-            if ($gatewayId == GATEWAY_STRIPE) {
+            if ($gatewayId == GATEWAY_STRIPE || $gatewayId == GATEWAY_WEPAY) {
                 $config->enableAch = boolval(Input::get('enable_ach'));
             }
 
@@ -325,11 +319,6 @@ class AccountGatewayController extends BaseController
                 $accountGateway->save();
             } else {
                 $account->account_gateways()->save($accountGateway);
-            }
-
-            if (Input::get('token_billing_type_id')) {
-                $account->token_billing_type_id = Input::get('token_billing_type_id');
-                $account->save();
             }
 
             if(isset($wepayResponse)) {

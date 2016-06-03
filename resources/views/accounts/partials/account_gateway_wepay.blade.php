@@ -16,7 +16,6 @@
 {!! Former::populateField('email', $user->email) !!}
 {!! Former::populateField('show_address', 1) !!}
 {!! Former::populateField('update_address', 1) !!}
-{!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
 <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">{!! trans('texts.online_payments') !!}</h3>
@@ -40,9 +39,6 @@
                 ->text(trans('texts.accept_debit_cards')) !!}
         </div>
         @endif
-        {!! Former::select('token_billing_type_id')
-                ->options($tokenBillingOptions)
-                ->help(trans('texts.token_billing_help')) !!}
         {!! Former::checkbox('show_address')
             ->label(trans('texts.billing_address'))
             ->text(trans('texts.show_address_help')) !!}
@@ -53,6 +49,18 @@
                 ->label('Accepted Credit Cards')
                 ->checkboxes($creditCardTypes)
                 ->class('creditcard-types') !!}
+        @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT))
+            {!! Former::checkbox('enable_ach')
+                ->label(trans('texts.ach'))
+                ->text(trans('texts.enable_ach'))
+                ->value(null)
+                ->disabled(true)
+                ->help(trans('texts.ach_disabled')) !!}
+        @else
+            {!! Former::checkbox('enable_ach')
+                ->label(trans('texts.ach'))
+                ->text(trans('texts.enable_ach')) !!}
+        @endif
         {!! Former::checkbox('tos_agree')->label(' ')->text(trans('texts.wepay_tos_agree',
                 ['link'=>'<a id="wepay-tos-link" href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.wepay_tos_link_text').'</a>']
             ))->value('true') !!}

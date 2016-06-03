@@ -6,7 +6,7 @@
         @include('payments.tokenization_braintree')
     @elseif (isset($accountGateway) && $accountGateway->getPublishableStripeKey())
         @include('payments.tokenization_stripe')
-    @elseif (isset($accountGateway) && $accountGateway->gateway_id == GATEWAY_WEPAY)
+    @elseif (isset($accountGateway) && $accountGateway->gateway_id == GATEWAY_WEPAY && $paymentType != PAYMENT_TYPE_WEPAY_ACH)
         @include('payments.tokenization_wepay')
     @else
         <script type="text/javascript">
@@ -61,7 +61,9 @@
                     'postal_code' => 'required',
                     'country_id' => 'required',
                     'phone' => 'required',
-                    'email' => 'required|email'
+                    'email' => 'required|email',
+                    'authorize_ach' => 'required',
+                    'tos_agree' => 'required',
                 )) !!}
     @endif
 
@@ -132,8 +134,7 @@
 
                 <p>&nbsp;<br/>&nbsp;</p>
                 <div>
-                    <div id="paypal-container"></div>
-                    @if($paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL)
+                    @if($paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH)
                         <h3>{{ trans('texts.contact_information') }}</h3>
                         <div class="row">
                             <div class="col-md-6">
@@ -262,7 +263,7 @@
                                     ->label(trans('texts.confirm_account_number')) !!}
                         </div>
                         {!! Former::checkbox('authorize_ach')
-                                ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName()]))
+                                ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName(), 'email' => $account->work_email]))
                                 ->label(' ') !!}
                         <div class="col-md-8 col-md-offset-4">
                             {!! Button::success(strtoupper(trans('texts.add_account')))
@@ -278,12 +279,12 @@
                         </div>
                     @elseif($paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL)
                         <h3>{{ trans('texts.paypal') }}</h3>
-                        <div>{{$paypalDetails->firstName}} {{$paypalDetails->lastName}}</div>
-                        <div>{{$paypalDetails->email}}</div>
+                        <div>{{$details->firstName}} {{$details->lastName}}</div>
+                        <div>{{$details->email}}</div>
                         <input type="hidden" name="sourceToken" value="{{$sourceId}}">
-                        <input type="hidden" name="first_name" value="{{$paypalDetails->firstName}}">
-                        <input type="hidden" name="last_name" value="{{$paypalDetails->lastName}}">
-                        <input type="hidden" name="email" value="{{$paypalDetails->email}}">
+                        <input type="hidden" name="first_name" value="{{$details->firstName}}">
+                        <input type="hidden" name="last_name" value="{{$details->lastName}}">
+                        <input type="hidden" name="email" value="{{$details->email}}">
                         <p>&nbsp;</p>
                         @if (isset($amount) && $client && $account->showTokenCheckbox())
                             <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
@@ -299,7 +300,36 @@
                                                 ->submit()
                                                 ->large() !!}
                             @else
-                                {!! Button::success(strtoupper(trans('texts.add_credit_card') ))
+                                {!! Button::success(strtoupper(trans('texts.add_paypal_account') ))
+                                            ->submit()
+                                            ->large() !!}
+                            @endif
+                        </center>
+                    @elseif($paymentType == PAYMENT_TYPE_WEPAY_ACH)
+                        <h3>{{ trans('texts.bank_account') }}</h3>
+                        @if (!empty($details))
+                            <div>{{$details->bank_account_name}}</div>
+                            <div>&bull;&bull;&bull;&bull;&bull;{{$details->bank_account_last_four}}</div>
+                        @endif
+                        {!! Former::checkbox('authorize_ach')
+                                ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName(), 'email' => $account->work_email]))
+                                ->label(' ') !!}
+                        {!! Former::checkbox('tos_agree')
+                                ->text(trans('texts.wepay_payment_tos_agree', [
+                                'terms' => '<a href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.terms_of_service').'</a>',
+                                'privacy_policy' => '<a href="https://go.wepay.com/privacy-policy-us" target="_blank">'.trans('texts.privacy_policy').'</a>',
+                                ]))
+                                ->help(trans('texts.payment_processed_through_wepay'))
+                                ->label(' ') !!}
+                        <input type="hidden" name="sourceToken" value="{{$sourceId}}">
+                        <p>&nbsp;</p>
+                        <center>
+                            @if(isset($amount) && empty($paymentMethodPending))
+                                {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
+                                                ->submit()
+                                                ->large() !!}
+                            @else
+                                {!! Button::success(strtoupper(trans('texts.add_bank_account') ))
                                             ->submit()
                                             ->large() !!}
                             @endif

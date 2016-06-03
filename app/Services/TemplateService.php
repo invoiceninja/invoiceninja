@@ -51,6 +51,7 @@ class TemplateService
             '$customInvoice1' => $account->custom_invoice_text_label1,
             '$customInvoice2' => $account->custom_invoice_text_label2,
             '$documents' => $documentsHTML,
+            '$autoBill' => empty($data['autobill'])?'':$data['autobill'],
         ];
 
         // Add variables for available payment types

@@ -430,10 +430,17 @@ class AccountController extends BaseController
                 $switchToWepay = !$account->getGatewayConfig(GATEWAY_BRAINTREE) && !$account->getGatewayConfig(GATEWAY_STRIPE);
             }
 
+            $tokenBillingOptions = [];
+            for ($i=1; $i<=4; $i++) {
+                $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
+            }
+
             return View::make('accounts.payments', [
                 'showSwitchToWepay' => $switchToWepay,
                 'showAdd' => $count < count(Gateway::$paymentTypes),
-                'title' => trans('texts.online_payments')
+                'title' => trans('texts.online_payments'),
+                'tokenBillingOptions' => $tokenBillingOptions,
+                'account' => $account,
             ]);
         }
     }
@@ -661,6 +668,8 @@ class AccountController extends BaseController
             return AccountController::saveDetails();
         } elseif ($section === ACCOUNT_LOCALIZATION) {
             return AccountController::saveLocalization();
+        } elseif ($section == ACCOUNT_PAYMENTS) {
+            return self::saveOnlinePayments();
         } elseif ($section === ACCOUNT_NOTIFICATIONS) {
             return AccountController::saveNotifications();
         } elseif ($section === ACCOUNT_EXPORT) {
@@ -1131,6 +1140,20 @@ class AccountController extends BaseController
         Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('settings/'.ACCOUNT_LOCALIZATION);
+    }
+
+    private function saveOnlinePayments()
+    {
+        $account = Auth::user()->account;
+        $account->token_billing_type_id = Input::get('token_billing_type_id');
+        $account->auto_bill_on_due_date = boolval(Input::get('auto_bill_on_due_date'));
+        $account->save();
+
+        event(new UserSettingsChanged());
+
+        Session::flash('message', trans('texts.updated_settings'));
+
+        return Redirect::to('settings/'.ACCOUNT_PAYMENTS);
     }
 
     public function removeLogo()

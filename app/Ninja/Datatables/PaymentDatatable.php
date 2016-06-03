@@ -65,9 +65,16 @@ class PaymentDatatable extends EntityDatatable
                             return $model->email;
                         }
                     } elseif ($model->last4) {
-                        $bankData = PaymentMethod::lookupBankData($model->routing_number);
-                        if (is_object($bankData)) {
-                            return $bankData->name.'&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        if($model->bank_name) {
+                            $bankName = $model->bank_name;
+                        } else {
+                            $bankData = PaymentMethod::lookupBankData($model->routing_number);
+                            if($bankData) {
+                                $bankName = $bankData->name;
+                            }
+                        }
+                        if (!empty($bankName)) {
+                            return $bankName.'&nbsp; &bull;&bull;&bull;' . $model->last4;
                         } elseif($model->last4) {
                             return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }

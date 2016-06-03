@@ -1203,7 +1203,7 @@ $LANG = array(
     'ach' => 'ACH',
     'enable_ach' => 'Enable ACH',
     'stripe_ach_help' => 'ACH support must also be enabled at Stripe.',
-    'stripe_ach_disabled' => 'Another gateway is already configured for direct debit.',
+    'ach_disabled' => 'Another gateway is already configured for direct debit.',
 
     'plaid' => 'Plaid',
     'client_id' => 'Client Id',
@@ -1257,7 +1257,7 @@ $LANG = array(
     'plaid_linked_status' => 'Your bank account at :bank',
     'add_payment_method' => 'Add Payment Method',
     'account_holder_type' => 'Account Holder Type',
-    'ach_authorization' => 'I authorize :company to electronically debit my account and, if necessary, electronically credit my account to correct erroneous debits.',
+    'ach_authorization' => 'I authorize :company to use my bank account for future payments and, if necessary, electronically credit my account to correct erroneous debits. I understand that I may cancel this authorization at any time by removing the payment method or by contacting :email.',
     'ach_authorization_required' => 'You must consent to ACH transactions.',
     'off' => 'Off',
     'opt_in' => 'Opt-in',
@@ -1324,6 +1324,30 @@ $LANG = array(
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.',
     'JSON_file' => 'JSON File',
 
+    'view_dashboard' => 'View Dashboard',
+    'client_session_expired' => 'Session Expired',
+    'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.',
+
+    'auto_bill_notification' => 'This invoice will automatically be billed to :payment_method on the due date.',
+    'auto_bill_payment_method_bank' => 'your :bank account ending in :last4',
+    'auto_bill_payment_method_credit_card' => 'your :type card ending in :last4',
+    'auto_bill_payment_method_paypal' => 'your PayPal account (:email)',
+    'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your Visa card ending in 4242 on the due date.',
+    'payment_settings' => 'Payment Settings',
+    
+    'on_send_date' => 'On send date',
+    'on_due_date' => 'On due date',
+    'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
+    'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
+
+    'bank_account' => 'Bank Account',
+    'payment_processed_through_wepay' => 'ACH payments will be processed using WePay.',
+    'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
+    'privacy_policy' => 'Privacy Policy',
+    'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
+    'payment_settings_supported_gateways' => 'These options are supported by the WePay, Stripe, and Braintree gateways.',
+    'ach_email_prompt' => 'Please enter your email address:',
+    'verification_pending' => 'Verification Pending',
 );
 
 return $LANG;

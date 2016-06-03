@@ -29,18 +29,13 @@ class AccountGatewayDatatable extends EntityDatatable
                         $wepayState = isset($config->state)?$config->state:null;
                         $linkText = $model->name;
                         $url = $endpoint.'account/'.$wepayAccountId;
-                        $wepay = \Utils::setupWepay($accountGateway);
                         $html = link_to($url, $linkText, array('target'=>'_blank'))->toHtml();
 
                         try {
                             if ($wepayState == 'action_required') {
-                                $updateUri = $wepay->request('/account/get_update_uri', array(
-                                    'account_id' => $wepayAccountId,
-                                    'redirect_uri' => URL::to('gateways'),
-                                ));
-
+                                $updateUri = $endpoint.'api/account_update/'.$wepayAccountId.'?redirect_uri='.urlencode(URL::to('gateways'));
                                 $linkText .= ' <span style="color:#d9534f">('.trans('texts.action_required').')</span>';
-                                $url = $updateUri->uri;
+                                $url = $updateUri;
                                 $html = "<a href=\"{$url}\">{$linkText}</a>";
                                 $model->setupUrl = $url;
                             } elseif ($wepayState == 'pending') {

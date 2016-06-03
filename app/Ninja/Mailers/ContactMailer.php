@@ -30,6 +30,7 @@ class ContactMailer extends Mailer
         'viewButton',
         'paymentLink',
         'paymentButton',
+        'autoBill',
     ];
 
     public function __construct(TemplateService $templateService)
@@ -106,6 +107,20 @@ class ContactMailer extends Mailer
         return $response;
     }
 
+    private function createAutoBillNotifyString($paymentMethod) {
+        if ($paymentMethod->payment_type_id == PAYMENT_TYPE_DIRECT_DEBIT) {
+            $paymentMethodString = trans('texts.auto_bill_payment_method_bank', ['bank'=>$paymentMethod->getBankName(), 'last4'=>$paymentMethod->last4]);
+        } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL) {
+            $paymentMethodString = trans('texts.auto_bill_payment_method_paypal', ['email'=>$paymentMethod->email]);
+        } else {
+            $code = str_replace(' ', '', strtolower($paymentMethod->payment_type->name));
+            $cardType = trans("texts.card_" . $code);
+            $paymentMethodString = trans('texts.auto_bill_payment_method_credit_card', ['type'=>$cardType,'last4'=>$paymentMethod->last4]);
+        }
+
+        return trans('texts.auto_bill_notification', ['payment_method'=>$paymentMethodString]);
+    }
+
     private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString, $documentStrings)
     {
         $client = $invoice->client;
@@ -136,6 +151,11 @@ class ContactMailer extends Mailer
             'invitation' => $invitation,
             'amount' => $invoice->getRequestedAmount()
         ];
+
+        if ($invoice->autoBillPaymentMethod) {
+            // Let the client know they'll be billed later
+            $variables['autobill'] = $this->createAutoBillNotifyString($invoice->autoBillPaymentMethod);
+        }
 
          if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
             // The contact needs a password

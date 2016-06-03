@@ -26,6 +26,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\DocumentRepository;
 use App\Services\InvoiceService;
+use App\Services\PaymentService;
 use App\Services\RecurringInvoiceService;
 
 use App\Http\Requests\InvoiceRequest;
@@ -39,10 +40,11 @@ class InvoiceController extends BaseController
     protected $clientRepo;
     protected $documentRepo;
     protected $invoiceService;
+    protected $paymentService;
     protected $recurringInvoiceService;
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService, PaymentService $paymentService)
     {
         // parent::__construct();
 
@@ -51,6 +53,7 @@ class InvoiceController extends BaseController
         $this->clientRepo = $clientRepo;
         $this->invoiceService = $invoiceService;
         $this->recurringInvoiceService = $recurringInvoiceService;
+        $this->paymentService = $paymentService;
     }
 
     public function index()
@@ -195,6 +198,10 @@ class InvoiceController extends BaseController
                 'actions' => $actions,
                 'lastSent' => $lastSent);
         $data = array_merge($data, self::getViewModel($invoice));
+
+        if ($invoice->isSent() && $invoice->getAutoBillEnabled() && !$invoice->isPaid()) {
+            $data['autoBillChangeWarning'] = $this->paymentService->getClientRequiresDelayedAutoBill($invoice->client);
+        }
 
         if ($clone) {
             $data['formIsChanged'] = true;
