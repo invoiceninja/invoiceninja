@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class WePayAch extends Migration
+class WepayAch extends Migration
 {
     /**
      * Run the migrations.
