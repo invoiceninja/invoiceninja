@@ -266,6 +266,7 @@
                 '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
                 "{{ URL::to('/payment/...') }}$password", 
                 '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
+                '{{ trans('texts.auto_bill_notification_placeholder') }}',
             ];
 
             // Add blanks for custom values

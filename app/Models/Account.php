@@ -384,25 +384,30 @@ class Account extends Eloquent
         return $format;
     }
 
-    public function getGatewayByType($type = PAYMENT_TYPE_ANY)
+    public function getGatewayByType($type = PAYMENT_TYPE_ANY, $exceptFor = null)
     {
         if ($type == PAYMENT_TYPE_STRIPE_ACH || $type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
             $type = PAYMENT_TYPE_STRIPE;
         }
 
-        if ($type == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-            $gateway = $this->getGatewayConfig(GATEWAY_BRAINTREE);
-
-            if (!$gateway || !$gateway->getPayPalEnabled()){
-                return false;
-            }
-            return $gateway;
+        if ($type == PAYMENT_TYPE_WEPAY_ACH) {
+            return $this->getGatewayConfig(GATEWAY_WEPAY);
         }
 
         foreach ($this->account_gateways as $gateway) {
+            if ($exceptFor && ($gateway->id == $exceptFor->id)) {
+                continue;
+            }
+
             if (!$type || $type == PAYMENT_TYPE_ANY) {
                 return $gateway;
             } elseif ($gateway->isPaymentType($type)) {
+                return $gateway;
+            } elseif ($type == PAYMENT_TYPE_CREDIT_CARD && $gateway->isPaymentType(PAYMENT_TYPE_STRIPE)) {
+                return $gateway;
+            } elseif ($type == PAYMENT_TYPE_DIRECT_DEBIT && $gateway->getAchEnabled()) {
+                return $gateway;
+            } elseif ($type == PAYMENT_TYPE_PAYPAL && $gateway->getPayPalEnabled()) {
                 return $gateway;
             }
         }
@@ -1424,31 +1429,12 @@ class Account extends Eloquent
     }
 
     public function canAddGateway($type){
+        if ($type == PAYMENT_TYPE_STRIPE) {
+            $type == PAYMENT_TYPE_CREDIT_CARD;
+        }
+
         if($this->getGatewayByType($type)) {
             return false;
-        }
-        if ($type == PAYMENT_TYPE_CREDIT_CARD && $this->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
-            // Stripe is already handling credit card payments
-            return false;
-        }
-
-        if ($type == PAYMENT_TYPE_STRIPE && $this->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD)) {
-            // Another gateway is already handling credit card payments
-            return false;
-        }
-
-        if ($type == PAYMENT_TYPE_DIRECT_DEBIT && $stripeGateway = $this->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
-            if (!empty($stripeGateway->getAchEnabled())) {
-                // Stripe is already handling ACH payments
-                return false;
-            }
-        }
-
-        if ($type == PAYMENT_TYPE_PAYPAL && $braintreeGateway = $this->getGatewayConfig(GATEWAY_BRAINTREE)) {
-            if (!empty($braintreeGateway->getPayPalEnabled())) {
-                // PayPal is already enabled
-                return false;
-            }
         }
 
         return true;

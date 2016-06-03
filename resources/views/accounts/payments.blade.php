@@ -4,6 +4,33 @@
 	@parent	
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
+    {!! Former::open()->addClass('warn-on-exit') !!}
+    {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
+    {!! Former::populateField('auto_bill_on_due_date', $account->auto_bill_on_due_date) !!}
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.payment_settings') !!}</h3>
+        </div>
+        <div class="panel-body">
+            {!! Former::select('token_billing_type_id')
+                        ->options($tokenBillingOptions)
+                        ->help(trans('texts.token_billing_help')) !!}
+            {!! Former::inline_radios('auto_bill_on_due_date')
+                        ->label(trans('texts.auto_bill'))
+                        ->radios([
+                            trans('texts.on_send_date') => ['value'=>0, 'name'=>'auto_bill_on_due_date'],
+                            trans('texts.on_due_date') => ['value'=>1, 'name'=>'auto_bill_on_due_date'],
+                        ])->help(trans('texts.auto_bill_ach_date_help')) !!}
+            <div class="form-group">
+                <div class="col-sm-offset-4 col-sm-8"><p>{!! trans('texts.payment_settings_supported_gateways') !!}</p></div>
+            </div>
+            {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
+        </div>
+    </div>
+    {!! Former::close() !!}
+
   @if ($showSwitchToWepay)
       {!! Button::success(trans('texts.switch_to_wepay'))
             ->asLinkTo(URL::to('/gateways/switch/wepay'))

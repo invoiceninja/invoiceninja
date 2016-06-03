@@ -19,38 +19,59 @@ class Authenticate {
 	{
 		$authenticated = Auth::guard($guard)->check();
 		
-		if($guard == 'client' && !empty($request->invitation_key)){
-			$old_key = session('invitation_key');
-			if($old_key && $old_key != $request->invitation_key){
-				if($this->getInvitationContactId($old_key) != $this->getInvitationContactId($request->invitation_key)){
-					// This is a different client; reauthenticate
-					$authenticated = false;
-					Auth::guard($guard)->logout();
-				}
-			}					
-			Session::put('invitation_key', $request->invitation_key);					
-		}
-		
 		if($guard=='client'){
-			$invitation_key = session('invitation_key');
-			$account_id = $this->getInvitationAccountId($invitation_key);
-			
-			if(Auth::guard('user')->check() && Auth::user('user')->account_id === $account_id){
+			if(!empty($request->invitation_key)){
+				$contact_key = session('contact_key');
+				if($contact_key) {
+					$contact = $this->getContact($contact_key);
+					$invitation = $this->getInvitation($request->invitation_key);
+
+					if (!$invitation) {
+						return response()->view('error', [
+							'error' => trans('texts.invoice_not_found'),
+							'hideHeader' => true,
+						]);
+					}
+
+					if ($contact->id != $invitation->contact_id) {
+						// This is a different client; reauthenticate
+						$authenticated = false;
+						Auth::guard($guard)->logout();
+					}
+					Session::put('contact_key', $invitation->contact->contact_key);
+				}
+			}
+
+			if (!empty($request->contact_key)) {
+				$contact_key = $request->contact_key;
+				Session::put('contact_key', $contact_key);
+			} else {
+				$contact_key = session('contact_key');
+			}
+
+			if ($contact_key) {
+				$contact = $this->getContact($contact_key);
+			} elseif (!empty($request->invitation_key)) {
+				$invitation = $this->getInvitation($request->invitation_key);
+				$contact = $invitation->contact;
+				Session::put('contact_key', $contact->contact_key);
+			} else {
+				return \Redirect::to('client/sessionexpired');
+			}
+			$account = $contact->account;
+
+			if(Auth::guard('user')->check() && Auth::user('user')->account_id === $account->id){
 				// This is an admin; let them pretend to be a client
 				$authenticated = true;
 			}
 			
 			// Does this account require portal passwords?
-			$account = Account::whereId($account_id)->first();
 			if($account && (!$account->enable_portal_password || !$account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD))){
 				$authenticated = true;
 			}
 			
-			if(!$authenticated){
-				$contact = Contact::whereId($this->getInvitationContactId($invitation_key))->first();
-				if($contact && !$contact->password){
-					$authenticated = true;
-				}
+			if(!$authenticated && $contact && !$contact->password){
+				$authenticated = true;
 			}
 		}
 		
@@ -76,16 +97,12 @@ class Authenticate {
 		}
 		else return null;
 	}
-	
-	protected function getInvitationContactId($key){
-		$invitation = $this->getInvitation($key);
-		
-		return $invitation?$invitation->contact_id:null;
-	}
-	
-	protected function getInvitationAccountId($key){
-		$invitation = $this->getInvitation($key);
-		
-		return $invitation?$invitation->account_id:null;
+
+	protected function getContact($key){
+		$contact = Contact::withTrashed()->where('contact_key', '=', $key)->first();
+		if ($contact && !$contact->is_deleted) {
+			return $contact;
+		}
+		else return null;
 	}
 }

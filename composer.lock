@@ -977,12 +977,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sometechie/omnipay-wepay.git",
-                "reference": "2964730018e9fccf0bb0e449065940cad3ca6719"
+                "reference": "fb0e6c9824d15ba74cd6f75421b318e87a9e1822"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sometechie/omnipay-wepay/zipball/2964730018e9fccf0bb0e449065940cad3ca6719",
-                "reference": "2964730018e9fccf0bb0e449065940cad3ca6719",
+                "url": "https://api.github.com/repos/sometechie/omnipay-wepay/zipball/fb0e6c9824d15ba74cd6f75421b318e87a9e1822",
+                "reference": "fb0e6c9824d15ba74cd6f75421b318e87a9e1822",
                 "shasum": ""
             },
             "require": {
@@ -1014,7 +1014,7 @@
             "support": {
                 "source": "https://github.com/sometechie/omnipay-wepay/tree/additional-calls"
             },
-            "time": "2016-05-18 18:12:17"
+            "time": "2016-05-23 15:01:20"
         },
         {
             "name": "container-interop/container-interop",

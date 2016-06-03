@@ -61,7 +61,7 @@
 @section('body')
 <div class="container">
 
-    @include('partials.warn_session', ['redirectTo' => '/client/login'])
+    @include('partials.warn_session', ['redirectTo' => '/client/sessionexpired'])
 
     {!! Former::open('client/login')
             ->rules(['password' => 'required'])
