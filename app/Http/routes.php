@@ -690,7 +690,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('FEATURE_USER_PERMISSIONS', 'user_permissions');
 
     // Pro users who started paying on or before this date will be able to manage users
-    define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-05-15');
+    define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-06-04');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
