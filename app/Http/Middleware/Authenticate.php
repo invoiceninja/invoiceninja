@@ -18,7 +18,7 @@ class Authenticate {
 	public function handle($request, Closure $next, $guard = 'user')
 	{
 		$authenticated = Auth::guard($guard)->check();
-		
+
 		if($guard=='client'){
 			if(!empty($request->invitation_key)){
 				$contact_key = session('contact_key');
@@ -33,7 +33,7 @@ class Authenticate {
 						]);
 					}
 
-					if ($contact->id != $invitation->contact_id) {
+					if ($contact && $contact->id != $invitation->contact_id) {
 						// This is a different client; reauthenticate
 						$authenticated = false;
 						Auth::guard($guard)->logout();
@@ -64,17 +64,17 @@ class Authenticate {
 				// This is an admin; let them pretend to be a client
 				$authenticated = true;
 			}
-			
+
 			// Does this account require portal passwords?
 			if($account && (!$account->enable_portal_password || !$account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD))){
 				$authenticated = true;
 			}
-			
+
 			if(!$authenticated && $contact && !$contact->password){
 				$authenticated = true;
 			}
 		}
-		
+
 		if (!$authenticated)
 		{
 			if ($request->ajax())
@@ -89,7 +89,7 @@ class Authenticate {
 
 		return $next($request);
 	}
-	
+
 	protected function getInvitation($key){
 		$invitation = Invitation::withTrashed()->where('invitation_key', '=', $key)->first();
 		if ($invitation && !$invitation->is_deleted) {
