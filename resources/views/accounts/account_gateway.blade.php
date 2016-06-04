@@ -147,7 +147,8 @@
             ->class('creditcard-types')
             ->addGroupClass('gateway-option')
     !!}
-    @if(isset($accountGateway) && $accountGateway->gateway_id == GATEWAY_WEPAY)
+
+    @if(!isset($accountGateway) && $accountGateway->gateway_id == GATEWAY_WEPAY)
         @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT, $accountGateway))
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
@@ -161,7 +162,7 @@
                 ->text(trans('texts.enable_ach')) !!}
         @endif
 
-    @elseif(!isset($accountGateway) || $accountGateway->gateway_id == GATEWAY_STRIPE)
+    @elseif(!isset($accountGateway) && $accountGateway->gateway_id == GATEWAY_STRIPE)
         <div class="stripe-ach">
             @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT, isset($accountGateway)?$accountGateway:null))
                 {!! Former::checkbox('enable_ach')
