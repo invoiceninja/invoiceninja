@@ -12,10 +12,10 @@ class AddSvLanguage extends Migration {
 	 */
 	public function up()
 	{
-        DB::table('languages')->insert(['name' => 'Swedish', 'locale' => 'sv']);
-        DB::table('languages')->insert(['name' => 'Spanish - Spain', 'locale' => 'es_ES']);
-        DB::table('languages')->insert(['name' => 'French - Canada', 'locale' => 'fr_CA']);
-        DB::table('languages')->insert(['name' => 'Lithuanian', 'locale' => 'lt']);
+        //DB::table('languages')->insert(['name' => 'Swedish', 'locale' => 'sv']);
+        //DB::table('languages')->insert(['name' => 'Spanish - Spain', 'locale' => 'es_ES']);
+        //DB::table('languages')->insert(['name' => 'French - Canada', 'locale' => 'fr_CA']);
+        //DB::table('languages')->insert(['name' => 'Lithuanian', 'locale' => 'lt']);
 	}
 
 	/**
