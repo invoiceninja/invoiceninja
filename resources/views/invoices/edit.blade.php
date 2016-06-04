@@ -18,7 +18,7 @@
             font-weight: normal !important;
         }
 
-        select.tax-select {
+        select.xtax-select {
             width: 50%;
             float: left;
         }
@@ -271,14 +271,16 @@
                             ->raw() !!}
                     <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
-                    {!! Former::select('')
-                            ->addOption('', '')
-                            ->options($taxRateOptions)
-                            ->data_bind('value: tax2')
-                            ->addClass('tax-select')
-                            ->raw() !!}
-                    <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
-                    <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
+                    <div style="display:none">
+                        {!! Former::select('')
+                                ->addOption('', '')
+                                ->options($taxRateOptions)
+                                ->data_bind('value: tax2')
+                                ->addClass('tax-select')
+                                ->raw() !!}
+                        <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
+                        <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
+                    </div>
 				</td>
 				<td style="text-align:right;padding-top:9px !important" nowrap>
 					<div class="line-total" data-bind="text: totals.total"></div>
@@ -427,14 +429,16 @@
                             ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
-                    {!! Former::select('')
-                            ->addOption('', '')
-                            ->options($taxRateOptions)
-                            ->addClass('tax-select')
-                            ->data_bind('value: tax2')
-                            ->raw() !!}
-                    <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
-                    <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
+                    <div style="display:none">
+                        {!! Former::select('')
+                                ->addOption('', '')
+                                ->options($taxRateOptions)
+                                ->addClass('tax-select')
+                                ->data_bind('value: tax2')
+                                ->raw() !!}
+                        <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
+                        <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
+                    </div>
                 </td>
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 			</tr>
