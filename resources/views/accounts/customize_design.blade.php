@@ -10,16 +10,16 @@
     @foreach ($account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
-        <script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
       <style type="text/css">
 
         select.form-control {
-            background: #FFFFFF !important;        
+            background: #FFFFFF !important;
             margin-right: 12px;
         }
         table {
-            background: #FFFFFF !important;        
+            background: #FFFFFF !important;
         }
 
         /* http://stackoverflow.com/questions/4810841/how-can-i-pretty-print-json-using-javascript */
@@ -34,13 +34,13 @@
 
 @stop
 
-@section('content')	
+@section('content')
     @parent
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-    var invoice = {!! json_encode($invoice) !!};      
+    var invoice = {!! json_encode($invoice) !!};
     var sections = ['content', 'styles', 'defaultStyle', 'pageMargins', 'header', 'footer'];
     var customDesign = origCustomDesign = {!! $customDesign ?: 'JSON.parse(invoiceDesigns[0].javascript);' !!};
 
@@ -66,9 +66,9 @@
     function getDesignJavascript() {
       var id = $('#invoice_design_id').val();
       if (id == '-1') {
-        showMoreDesigns(); 
+        showMoreDesigns();
         $('#invoice_design_id').val(1);
-        return invoiceDesigns[0].javascript;        
+        return invoiceDesigns[0].javascript;
       } else if (customDesign) {
         return JSON.stringify(customDesign);
       } else {
@@ -83,12 +83,12 @@
 
         // the function throws an error if the editor is in code view
         try {
-            editor.expandAll();            
+            editor.expandAll();
         } catch(err) {}
-    }    
+    }
 
     function saveEditor(data)
-    {        
+    {
         setTimeout(function() {
             customDesign[editorSection] = editor.get();
             clearError();
@@ -98,7 +98,7 @@
 
     function onSelectChange()
     {
-        var id = $('#invoice_design_id').val();        
+        var id = $('#invoice_design_id').val();
         if (parseInt(id)) {
             var design = _.find(invoiceDesigns, function(design){ return design.id == id});
             customDesign = JSON.parse(design.javascript);
@@ -135,7 +135,7 @@
 
     $(function() {
        clearError();
-      
+
         var container = document.getElementById("jsoneditor");
           var options = {
             mode: 'form',
@@ -146,7 +146,7 @@
           };
         window.editor = new JSONEditor(container, options);
         loadEditor('content');
-        
+
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           var target = $(e.target).attr("href") // activated tab
           target = target.substring(1); // strip leading #
@@ -161,13 +161,13 @@
         @endif
     });
 
-  </script> 
+  </script>
 
 
   <div class="row">
     <div class="col-md-6">
 
-      {!! Former::open()->addClass('warn-on-exit') !!}      
+      {!! Former::open()->addClass('warn-on-exit') !!}
       {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
 
         <div style="display:none">
@@ -199,16 +199,16 @@
 
       <script>
       @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
-        $(function() {   
+        $(function() {
             $('form.warn-on-exit input, .save-button').prop('disabled', true);
         });
       @endif
 
-        function showHelp() {            
-            $('#helpModal').modal('show');   
-        }   
+        function showHelp() {
+            $('#helpModal').modal('show');
+        }
 
-      </script> 
+      </script>
 
       {!! Former::close() !!}
 
@@ -231,9 +231,9 @@
           </div>
 
          <div class="modal-footer" style="margin-top: 0px">
-            <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>            
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
          </div>
-            
+
         </div>
       </div>
     </div>
