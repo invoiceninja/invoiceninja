@@ -48,7 +48,7 @@
             }
 
             if (errorMsg.indexOf('No unicode cmap for font') > -1) {
-                alert("Please force refresh the page to update the font cache.\n\n - Windows: Ctrl + F5\n - Mac/Apple: Apple + R or Command + R\n - Linux: F5");
+                alert("{{ trans('texts.update_font_cache') }}\n\n - Windows: Ctrl + F5\n - Mac/Apple: Apple + R or Command + R\n - Linux: F5");
             }
 
             try {
