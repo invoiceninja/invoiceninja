@@ -23,7 +23,7 @@ class DocumentAPIController extends BaseAPIController
     {
         $documents = Document::scope()->get();
 
-        return $this->itemResponse($documents);
+        return $this->listResponse($documents);
 
     }
 
