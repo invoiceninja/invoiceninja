@@ -21,7 +21,10 @@ class DocumentAPIController extends BaseAPIController
 
     public function index()
     {
-        //stub
+        $documents = Document::scope()->get();
+
+        return $this->itemResponse($document);
+
     }
 
     public function show(DocumentRequest $request)
