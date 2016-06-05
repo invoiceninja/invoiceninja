@@ -1334,7 +1334,7 @@ $LANG = array(
     'auto_bill_payment_method_paypal' => 'your PayPal account (:email)',
     'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your Visa card ending in 4242 on the due date.',
     'payment_settings' => 'Payment Settings',
-    
+
     'on_send_date' => 'On send date',
     'on_due_date' => 'On due date',
     'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
@@ -1348,6 +1348,9 @@ $LANG = array(
     'payment_settings_supported_gateways' => 'These options are supported by the WePay, Stripe, and Braintree gateways.',
     'ach_email_prompt' => 'Please enter your email address:',
     'verification_pending' => 'Verification Pending',
+
+    'update_font_cache' => 'Please force refresh the page to update the font cache.',
+
 );
 
 return $LANG;
