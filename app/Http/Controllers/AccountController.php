@@ -206,7 +206,7 @@ class AccountController extends BaseController
                 }
             }
 
-            if (!empty($new_plan)) {
+            if (!empty($new_plan) && $new_plan['plan'] != PLAN_FREE) {
                 $time_used = $planDetails['paid']->diff(date_create());
                 $days_used = $time_used->days;
 
@@ -1320,12 +1320,14 @@ class AccountController extends BaseController
         }
 
         $account = Auth::user()->account;
+        $invitation = $invoice->invitations->first();
 
         // replace the variables with sample data
         $data = [
             'account' => $account,
             'invoice' => $invoice,
-            'invitation' => $invoice->invitations->first(),
+            'invitation' => $invitation,
+            'link' => $invitation->getLink(),
             'client' => $invoice->client,
             'amount' => $invoice->amount
         ];

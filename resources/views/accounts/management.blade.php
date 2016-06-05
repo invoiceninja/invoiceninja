@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('content')	
+@section('content')
 @parent
 
 @include('accounts.nav', ['selected' => ACCOUNT_MANAGEMENT])
@@ -134,10 +134,10 @@
 						<div class="modal-footer" style="margin-top: 0px">
 							<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
 							@if ($planDetails && $planDetails['active'])
-								<button type="button" class="btn btn-primary" onclick="confirmChangePlan()">{{ trans('texts.plan_change') }}</button>         
+								<button type="button" class="btn btn-primary" onclick="confirmChangePlan()">{{ trans('texts.plan_change') }}</button>
 							@else
-								<button type="button" class="btn btn-success" onclick="confirmChangePlan()">{{ trans('texts.plan_upgrade') }}</button>         
-							@endif						
+								<button type="button" class="btn btn-success" onclick="confirmChangePlan()">{{ trans('texts.plan_upgrade') }}</button>
+							@endif
 						</div>
 					</div>
 				</div>
@@ -165,12 +165,12 @@
 
 					<div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
 						&nbsp;<p>{{ trans('texts.cancel_account_message') }}</p>&nbsp;
-						&nbsp;<p>{!! Former::textarea('reason')->placeholder(trans('texts.reason_for_canceling'))->raw() !!}</p>&nbsp;        
+						&nbsp;<p>{!! Former::textarea('reason')->placeholder(trans('texts.reason_for_canceling'))->raw() !!}</p>&nbsp;
 					</div>
 
 					<div class="modal-footer" style="margin-top: 0px">
 						<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-						<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>         
+						<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>
 					</div>
 
 				</div>
@@ -182,7 +182,7 @@
 
 <script type="text/javascript">
 	function showChangePlan() {
-		$('#changePlanModel').modal('show'); 
+		$('#changePlanModel').modal('show');
 	}
 
 	function confirmChangePlan() {
@@ -190,13 +190,13 @@
 	}
 
 	function showConfirm() {
-		$('#confirmCancelModal').modal('show'); 
+		$('#confirmCancelModal').modal('show');
 	}
 
 	function confirmCancel() {
 		$('form.cancel-account').submit();
-	} 
-	
+	}
+
 	@if ($account->company->pending_plan)
 	function cancelPendingChange(){
 		$('#plan').val('{{ $planDetails['plan'] }}')
@@ -205,12 +205,12 @@
 		return false;
 	}
 	@endif
-  	
+
   	jQuery(document).ready(function($){
 		function updatePlanModal() {
 			var plan = $('#plan').val();
 	 		$('#plan_term').closest('.form-group').toggle(plan!='free');
-			
+
 			if(plan=='{{PLAN_PRO}}'){
 				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_PRO_MONTHLY])) !!});
 				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_PRO_YEARLY])) !!});
@@ -221,11 +221,15 @@
   	  	}
 		$('#plan_term, #plan').change(updatePlanModal);
 	  	updatePlanModal();
-		
+
 		if(window.location.hash) {
 			var hash = window.location.hash;
 			$(hash).modal('toggle');
 	  	}
+
+        @if (Request::input('upgrade'))
+          showChangePlan();
+        @endif
   	});
 </script>
 @stop

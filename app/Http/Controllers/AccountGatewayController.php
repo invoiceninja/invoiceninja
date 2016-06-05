@@ -39,6 +39,13 @@ class AccountGatewayController extends BaseController
         return $this->accountGatewayService->getDatatable(Auth::user()->account_id);
     }
 
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return Redirect::to("gateways/$publicId/edit");
+    }
+
     public function edit($publicId)
     {
         $accountGateway = AccountGateway::scope($publicId)->firstOrFail();
