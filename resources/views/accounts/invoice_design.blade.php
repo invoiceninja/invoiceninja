@@ -7,28 +7,28 @@
     @foreach ($account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
-    <script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
+    <script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
 @stop
 
-@section('content')	
+@section('content')
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_DESIGN, 'advanced' => true])
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-    var invoice = {!! json_encode($invoice) !!};      
-      
+    var invoice = {!! json_encode($invoice) !!};
+
     function getDesignJavascript() {
       var id = $('#invoice_design_id').val();
       if (id == '-1') {
-        showMoreDesigns(); 
+        showMoreDesigns();
         $('#invoice_design_id').val(1);
         return invoiceDesigns[0].javascript;
-      } else {        
+      } else {
         var design = _.find(invoiceDesigns, function(design){ return design.id == id});
         return design ? design.javascript : '';
       }
@@ -44,7 +44,7 @@
         jQuery.getScript({!! json_encode(asset('js/vfs_fonts/%s.js')) !!}.replace('%s', fontFolder), function(){window.loadingFonts=false;ninjaLoadFontVfs();refreshPDF()})
       }
     }
-    
+
     function getPDFString(cb) {
       invoice.features = {
           customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
@@ -56,21 +56,21 @@
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
       invoice.account.page_size = $('#page_size option:selected').text();
-      
+
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
       NINJA.headerFont = $('#header_font_id option:selected').text();
       NINJA.bodyFont = $('#body_font_id option:selected').text();
-      
+
       var fields = [
-          'item', 
-          'description', 
-          'unit_cost', 
-          'quantity', 
-          'line_total', 
-          'terms', 
-          'balance_due', 
+          'item',
+          'description',
+          'unit_cost',
+          'quantity',
+          'line_total',
+          'terms',
+          'balance_due',
           'partial_due'
       ];
       invoiceLabels.old = {};
@@ -88,7 +88,7 @@
       generatePDF(invoice, getDesignJavascript(), true, cb);
     }
 
-    $(function() {   
+    $(function() {
       var options = {
         preferredFormat: 'hex',
         disabled: {!! Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'false' : 'true' !!},
@@ -102,19 +102,19 @@
       $('#secondary_color').spectrum(options);
       $('#header_font_id').change(function(){loadFont($('#header_font_id').val())});
       $('#body_font_id').change(function(){loadFont($('#body_font_id').val())});
-      
-      
+
+
       refreshPDF();
     });
 
-  </script> 
+  </script>
 
 
   <div class="row">
     <div class="col-md-12">
 
       {!! Former::open()->addClass('warn-on-exit')->onchange('if(!window.loadingFonts)refreshPDF()') !!}
-      
+
       {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
       {!! Former::populateField('body_font_id', $account->body_font_id) !!}
       {!! Former::populateField('header_font_id', $account->header_font_id) !!}
@@ -158,7 +158,7 @@
                             {!! Former::select('invoice_design_id')
                                     ->fromQuery($invoiceDesigns, 'name', 'id')
                                     ->addOption(trans('texts.more_designs') . '...', '-1') !!}
-                          @else 
+                          @else
                             {!! Former::select('invoice_design_id')
                                     ->fromQuery($invoiceDesigns, 'name', 'id') !!}
                           @endif
@@ -167,7 +167,7 @@
                           {!! Former::select('header_font_id')
                                   ->fromQuery($invoiceFonts, 'name', 'id') !!}
 
-                          {!! Former::checkbox('live_preview')->text(trans('texts.enable')) !!}                        
+                          {!! Former::checkbox('live_preview')->text(trans('texts.enable')) !!}
 
                         </div>
                         <div class="col-md-6">
@@ -177,7 +177,7 @@
 
                           {!! Former::select('page_size')
                                   ->options($pageSizes) !!}
-                                  
+
                           {!! Former::text('font_size')
                                 ->type('number')
                                 ->min('0')
@@ -253,7 +253,7 @@
 
 
     <br/>
-    {!! Former::actions( 
+    {!! Former::actions(
             Button::primary(trans('texts.customize'))
                 ->appendIcon(Icon::create('edit'))
                 ->asLinkTo(URL::to('/settings/customize_design'))
@@ -267,10 +267,10 @@
 
       @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
         <script>
-              $(function() {   
+              $(function() {
                 $('form.warn-on-exit input, .save-button').prop('disabled', true);
               });
-          </script> 
+          </script>
       @endif
 
       {!! Former::close() !!}
