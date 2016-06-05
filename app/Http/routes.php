@@ -322,8 +322,8 @@ Route::get('/testimonials', function() {
 Route::get('/compare-online-invoicing{sites?}', function() {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
-Route::get('/forgot_password', function() {
-    return Redirect::to(NINJA_APP_URL.'/forgot', 301);
+Route::get('/forgot', function() {
+    return Redirect::to(NINJA_APP_URL.'/recover_password', 301);
 });
 
 

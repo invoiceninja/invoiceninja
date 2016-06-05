@@ -371,7 +371,7 @@
         }
 
         window.countUploadingDocuments = 0;
-        @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
+        
         function handleDocumentAdded(file){
             // open document when clicked
             if (file.url) {
@@ -412,7 +412,7 @@
         function handleDocumentError() {
             window.countUploadingDocuments--;
         }
-        @endif
+
     </script>
 
 @stop
