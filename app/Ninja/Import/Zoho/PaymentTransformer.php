@@ -5,9 +5,9 @@ use League\Fractal\Resource\Item;
 
 class PaymentTransformer extends BaseTransformer
 {
-    public function transform($data, $maps)
+    public function transform($data)
     {
-        return new Item($data, function ($data) use ($maps) {
+        return new Item($data, function ($data) {
             return [
                 'amount' => (float) $data->total - (float) $data->balance,
                 'payment_date_sql' => $data->last_payment_date,

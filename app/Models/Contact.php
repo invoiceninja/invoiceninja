@@ -60,6 +60,15 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         }
     }
 
+    public function getContactKeyAttribute($contact_key)
+    {
+        if (empty($contact_key) && $this->id) {
+            $this->contact_key = $contact_key = str_random(RANDOM_KEY_LENGTH);
+            static::where('id', $this->id)->update(array('contact_key' => $contact_key));
+        }
+        return $contact_key;
+    }
+
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
@@ -67,5 +76,10 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         } else {
             return '';
         }
+    }
+
+    public function getLinkAttribute()
+    {
+        return \URL::to('client/dashboard/' . $this->contact_key);
     }
 }

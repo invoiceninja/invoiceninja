@@ -17,6 +17,7 @@ use App\Models\Gateway;
 use App\Models\Invitation;
 use App\Models\Document;
 use App\Models\PaymentMethod;
+use App\Models\Contact;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
@@ -70,7 +71,7 @@ class ClientPortalController extends BaseController
         }
 
         Session::put($invitationKey, true); // track this invitation has been seen
-        Session::put('invitation_key', $invitationKey); // track current invitation
+        Session::put('contact_key', $invitation->contact->contact_key);// track current contact
 
         $account->loadLocalizationSettings($client);
 
@@ -110,6 +111,8 @@ class ClientPortalController extends BaseController
             if($braintreeGateway->getPayPalEnabled()) {
                 $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
             }
+        } elseif ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)){
+            $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
         }
 
         $showApprove = $invoice->quote_invoice_id ? false : true;
@@ -161,6 +164,18 @@ class ClientPortalController extends BaseController
 
         return View::make('invoices.view', $data);
     }
+    
+    public function contactIndex($contactKey) {
+        if (!$contact = Contact::where('contact_key', '=', $contactKey)->first()) {
+            return $this->returnError();
+        }
+
+        $client = $contact->client;
+
+        Session::put('contact_key', $contactKey);// track current contact
+
+        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/invoices/');
+    }
 
     private function getPaymentTypes($client, $invitation)
     {
@@ -176,8 +191,8 @@ class ClientPortalController extends BaseController
                     $html = '';
 
                     if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
-                        if ($paymentMethod->bank_data) {
-                            $html = '<div>' . htmlentities($paymentMethod->bank_data->name) . '</div>';
+                        if ($paymentMethod->bank_name) {
+                            $html = '<div>' . htmlentities($paymentMethod->bank_name) . '</div>';
                         } else {
                             $html = '<img height="22" src="'.URL::to('/images/credit_cards/ach.png').'" style="float:left" alt="'.trans("texts.direct_debit").'">';
                         }
@@ -211,43 +226,39 @@ class ClientPortalController extends BaseController
 
         foreach(Gateway::$paymentTypes as $type) {
             if ($gateway = $account->getGatewayByType($type)) {
-                $types = array($type);
-
-                if ($type == PAYMENT_TYPE_STRIPE) {
-                    $types = array(PAYMENT_TYPE_STRIPE_CREDIT_CARD);
-                    if ($gateway->getAchEnabled()) {
-                        $types[] = PAYMENT_TYPE_STRIPE_ACH;
+                if ($type == PAYMENT_TYPE_DIRECT_DEBIT) {
+                    if ($gateway->gateway_id == GATEWAY_STRIPE) {
+                        $type = PAYMENT_TYPE_STRIPE_ACH;
+                    } elseif ($gateway->gateway_id == GATEWAY_WEPAY) {
+                        $type = PAYMENT_TYPE_WEPAY_ACH;
                     }
+                } elseif ($type == PAYMENT_TYPE_PAYPAL && $gateway->gateway_id == GATEWAY_BRAINTREE) {
+                    $type = PAYMENT_TYPE_BRAINTREE_PAYPAL;
+                } elseif ($type == PAYMENT_TYPE_CREDIT_CARD && $gateway->gateway_id == GATEWAY_STRIPE) {
+                    $type = PAYMENT_TYPE_STRIPE_CREDIT_CARD;
                 }
 
-                foreach($types as $type) {
-                    $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
-                    $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
+                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
+                $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
 
-                    // PayPal doesn't allow being run in an iframe so we need to open in new tab
-                    if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
-                        $url = 'javascript:window.open("' . $url . '", "_blank")';
-                    }
-
-                    if ($type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
-                        $label = trans('texts.' . strtolower(PAYMENT_TYPE_CREDIT_CARD));
-                    } elseif ($type == PAYMENT_TYPE_STRIPE_ACH) {
-                        $label = trans('texts.' . strtolower(PAYMENT_TYPE_DIRECT_DEBIT));
-                    } else {
-                        $label = trans('texts.' . strtolower($type));
-                    }
-
-                    $paymentTypes[] = [
-                        'url' => $url, 'label' => $label
-                    ];
-
-                    if($gateway->getPayPalEnabled()) {
-                        $paymentTypes[] = [
-                            'label' => trans('texts.paypal'),
-                            'url' => $url = URL::to("/payment/{$invitation->invitation_key}/braintree_paypal"),
-                        ];
-                    }
+                // PayPal doesn't allow being run in an iframe so we need to open in new tab
+                if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
+                    $url = 'javascript:window.open("' . $url . '", "_blank")';
                 }
+
+                if ($type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
+                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_CREDIT_CARD));
+                } elseif ($type == PAYMENT_TYPE_STRIPE_ACH || $type == PAYMENT_TYPE_WEPAY_ACH) {
+                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_DIRECT_DEBIT));
+                } elseif ($type == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_PAYPAL));
+                } else {
+                    $label = trans('texts.' . strtolower($type));
+                }
+
+                $paymentTypes[] = [
+                    'url' => $url, 'label' => $label
+                ];
             }
         }
 
@@ -277,13 +288,12 @@ class ClientPortalController extends BaseController
 
     public function dashboard()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $account = $invitation->account;
-        $invoice = $invitation->invoice;
-        $client = $invoice->client;
+        $client = $contact->client;
+        $account = $client->account;
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
 
         if (!$account->enable_client_portal || !$account->enable_client_portal_dashboard) {
@@ -292,6 +302,7 @@ class ClientPortalController extends BaseController
 
         $data = [
             'color' => $color,
+            'contact' => $contact,
             'account' => $account,
             'client' => $client,
             'clientFontUrl' => $account->getFontsUrl(),
@@ -310,12 +321,13 @@ class ClientPortalController extends BaseController
 
     public function activityDatatable()
     {
-        if (!$invitation = $this->getInvitation()) {
-            return false;
+        if (!$contact = $this->getContact()) {
+            return $this->returnError();
         }
-        $invoice = $invitation->invoice;
 
-        $query = $this->activityRepo->findByClientId($invoice->client_id);
+        $client = $contact->client;
+
+        $query = $this->activityRepo->findByClientId($client->id);
         $query->where('activities.adjustment', '!=', 0);
 
         return Datatable::query($query)
@@ -341,11 +353,11 @@ class ClientPortalController extends BaseController
 
     public function recurringInvoiceIndex()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $account = $invitation->account;
+        $account = $contact->account;
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -356,7 +368,7 @@ class ClientPortalController extends BaseController
         $data = [
             'color' => $color,
             'account' => $account,
-            'client' => $invitation->invoice->client,
+            'client' => $contact->client,
             'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.recurring_invoices'),
             'entityType' => ENTITY_RECURRING_INVOICE,
@@ -368,11 +380,11 @@ class ClientPortalController extends BaseController
 
     public function invoiceIndex()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $account = $invitation->account;
+        $account = $contact->account;
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -383,7 +395,7 @@ class ClientPortalController extends BaseController
         $data = [
             'color' => $color,
             'account' => $account,
-            'client' => $invitation->invoice->client,
+            'client' => $contact->client,
             'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
@@ -395,29 +407,30 @@ class ClientPortalController extends BaseController
 
     public function invoiceDatatable()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return '';
         }
 
-        return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_INVOICE, Input::get('sSearch'));
+        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_INVOICE, Input::get('sSearch'));
     }
 
     public function recurringInvoiceDatatable()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return '';
         }
 
-        return $this->invoiceRepo->getClientRecurringDatatable($invitation->contact_id);
+        return $this->invoiceRepo->getClientRecurringDatatable($contact->id);
     }
 
 
     public function paymentIndex()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
-        $account = $invitation->account;
+
+        $account = $contact->account;
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -438,10 +451,10 @@ class ClientPortalController extends BaseController
 
     public function paymentDatatable()
     {
-        if (!$invitation = $this->getInvitation()) {
-            return false;
+        if (!$contact = $this->getContact()) {
+            return $this->returnError();
         }
-        $payments = $this->paymentRepo->findForContact($invitation->contact->id, Input::get('sSearch'));
+        $payments = $this->paymentRepo->findForContact($contact->id, Input::get('sSearch'));
 
         return Datatable::query($payments)
                 ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number; })
@@ -458,9 +471,16 @@ class ClientPortalController extends BaseController
                             return $model->email;
                         }
                     } elseif ($model->last4) {
-                        $bankData = PaymentMethod::lookupBankData($model->routing_number);
-                        if (is_object($bankData)) {
-                            return $bankData->name.'&nbsp; &bull;&bull;&bull;' . $model->last4;
+                        if($model->bank_name) {
+                            $bankName = $model->bank_name;
+                        } else {
+                            $bankData = PaymentMethod::lookupBankData($model->routing_number);
+                            if($bankData) {
+                                $bankName = $bankData->name;
+                            }
+                        }
+                        if (!empty($bankName)) {
+                            return $bankName.'&nbsp; &bull;&bull;&bull;' . $model->last4;
                         } elseif($model->last4) {
                             return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
                         }
@@ -502,11 +522,11 @@ class ClientPortalController extends BaseController
 
     public function quoteIndex()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $account = $invitation->account;
+        $account = $contact->account;
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -528,20 +548,20 @@ class ClientPortalController extends BaseController
 
     public function quoteDatatable()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return false;
         }
 
-        return $this->invoiceRepo->getClientDatatable($invitation->contact_id, ENTITY_QUOTE, Input::get('sSearch'));
+        return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_QUOTE, Input::get('sSearch'));
     }
 
     public function documentIndex()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $account = $invitation->account;
+        $account = $contact->account;
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -563,11 +583,11 @@ class ClientPortalController extends BaseController
 
     public function documentDatatable()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return false;
         }
 
-        return $this->documentRepo->getClientDatatable($invitation->contact_id, ENTITY_DOCUMENT, Input::get('sSearch'));
+        return $this->documentRepo->getClientDatatable($contact->id, ENTITY_DOCUMENT, Input::get('sSearch'));
     }
 
     private function returnError($error = false)
@@ -578,36 +598,28 @@ class ClientPortalController extends BaseController
         ]);
     }
 
-    private function getInvitation()
-    {
-        $invitationKey = session('invitation_key');
+    private function getContact() {
+        $contactKey = session('contact_key');
 
-        if (!$invitationKey) {
+        if (!$contactKey) {
             return false;
         }
 
-        $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
+        $contact = Contact::where('contact_key', '=', $contactKey)->first();
 
-        if (!$invitation || $invitation->is_deleted) {
+        if (!$contact || $contact->is_deleted) {
             return false;
         }
 
-        $invoice = $invitation->invoice;
-
-        if (!$invoice || $invoice->is_deleted) {
-            return false;
-        }
-
-        return $invitation;
+        return $contact;
     }
 
     public function getDocumentVFSJS($publicId, $name){
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $clientId = $invitation->invoice->client_id;
-        $document = Document::scope($publicId, $invitation->account_id)->first();
+        $document = Document::scope($publicId, $contact->account_id)->first();
 
 
         if(!$document->isPDFEmbeddable()){
@@ -615,9 +627,9 @@ class ClientPortalController extends BaseController
         }
 
         $authorized = false;
-        if($document->expense && $document->expense->client_id == $invitation->invoice->client_id){
+        if($document->expense && $document->expense->client_id == $contact->client_id){
             $authorized = true;
-        } else if($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id){
+        } else if($document->invoice && $document->invoice->client_id ==$contact->client_id){
             $authorized = true;
         }
 
@@ -692,7 +704,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        Session::put('invitation_key', $invitationKey); // track current invitation
+        Session::put('contact_key', $invitation->contact->contact_key);// track current contact
 
         $invoice = $invitation->invoice;
 
@@ -725,7 +737,7 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
-        Session::put('invitation_key', $invitationKey); // track current invitation
+        Session::put('contact_key', $invitation->contact->contact_key);// track current contact
 
         $clientId = $invitation->invoice->client_id;
         $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
@@ -746,16 +758,17 @@ class ClientPortalController extends BaseController
 
     public function paymentMethods()
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $client = $invitation->invoice->client;
+        $client = $contact->client;
         $account = $client->account;
         $paymentMethods = $this->paymentService->getClientPaymentMethods($client);
 
         $data = array(
             'account' => $account,
+            'contact' => $contact,
             'color' => $account->primary_color ? $account->primary_color : '#0b4d78',
             'client' => $client,
             'clientViewCSS' => $account->clientViewCSS(),
@@ -780,11 +793,11 @@ class ClientPortalController extends BaseController
         $amount1 = Input::get('verification1');
         $amount2 = Input::get('verification2');
 
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $client = $invitation->invoice->client;
+        $client = $contact->client;
         $result = $this->paymentService->verifyClientPaymentMethod($client, $publicId, $amount1, $amount2);
 
         if (is_string($result)) {
@@ -798,11 +811,11 @@ class ClientPortalController extends BaseController
 
     public function removePaymentMethod($publicId)
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $client = $invitation->invoice->client;
+        $client = $contact->client;
         $result = $this->paymentService->removeClientPaymentMethod($client, $publicId);
 
         if (is_string($result)) {
@@ -816,21 +829,20 @@ class ClientPortalController extends BaseController
 
     public function addPaymentMethod($paymentType, $token=false)
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
-        $invoice = $invitation->invoice;
-        $client = $invitation->invoice->client;
+        $client = $contact->client;
         $account = $client->account;
 
         $typeLink = $paymentType;
         $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
-        $accountGateway = $invoice->client->account->getTokenGateway();
+        $accountGateway = $client->account->getTokenGateway();
         $gateway = $accountGateway->gateway;
 
         if ($token && $paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-            $sourceReference = $this->paymentService->createToken($this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $invitation->contact_id);
+            $sourceReference = $this->paymentService->createToken($paymentType, $this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $contact->id);
 
             if(empty($sourceReference)) {
                 $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
@@ -846,7 +858,7 @@ class ClientPortalController extends BaseController
         $data = [
             'showBreadcrumbs' => false,
             'client' => $client,
-            'contact' => $invitation->contact,
+            'contact' => $contact,
             'gateway' => $gateway,
             'accountGateway' => $accountGateway,
             'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
@@ -859,7 +871,11 @@ class ClientPortalController extends BaseController
             'clientFontUrl' => $account->getFontsUrl(),
             'showAddress' => $accountGateway->show_address,
             'paymentTitle' => trans('texts.add_payment_method'),
+            'sourceId' => $token,
         ];
+
+        $details = json_decode(Input::get('details'));
+        $data['details'] = $details;
 
         if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
             $data['currencies'] = Cache::get('currencies');
@@ -869,7 +885,7 @@ class ClientPortalController extends BaseController
             $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
         }
 
-        if(!empty($data['braintreeClientToken']) || $accountGateway->getPublishableStripeKey()|| $accountGateway->gateway_id == GATEWAY_WEPAY) {
+        if(!empty($data['braintreeClientToken']) || $accountGateway->getPublishableStripeKey()|| ($accountGateway->gateway_id == GATEWAY_WEPAY && $paymentType != PAYMENT_TYPE_WEPAY_ACH)) {
             $data['tokenize'] = true;
         }
 
@@ -878,20 +894,21 @@ class ClientPortalController extends BaseController
 
     public function postAddPaymentMethod($paymentType)
     {
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
+        $client = $contact->client;
+
         $typeLink = $paymentType;
         $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
-        $client = $invitation->invoice->client;
         $account = $client->account;
 
         $accountGateway = $account->getGatewayByType($paymentType);
         $sourceToken = Input::get('sourceToken');
 
         if (($validator = PaymentController::processPaymentClientDetails($client,  $accountGateway, $paymentType)) !== true) {
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)
                 ->withErrors($validator)
                 ->withInput(Request::except('cvv'));
         }
@@ -903,21 +920,26 @@ class ClientPortalController extends BaseController
             $details = array('plaidPublicToken' => Input::get('plaidPublicToken'), 'plaidAccountId' => Input::get('plaidAccountId'));
         }
 
-        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && !Input::get('authorize_ach')) {
+        if (($paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH) && !Input::get('authorize_ach')) {
             Session::flash('error', trans('texts.ach_authorization_required'));
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
+        }
+
+        if ($paymentType == PAYMENT_TYPE_WEPAY_ACH && !Input::get('tos_agree')) {
+            Session::flash('error', trans('texts.wepay_payment_tos_agree_required'));
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
         }
 
         if (!empty($details)) {
             $gateway = $this->paymentService->createGateway($accountGateway);
-            $sourceReference = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
+            $sourceReference = $this->paymentService->createToken($paymentType, $gateway, $details, $accountGateway, $client, $contact->id);
         } else {
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
         }
 
         if(empty($sourceReference)) {
             $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-            return Redirect::to('client/paymentmethods/add/' . $typeLink)->withInput(Request::except('cvv'));
+            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
         } else if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {
             // The user needs to complete verification
             Session::flash('message', trans('texts.bank_account_verification_next_steps'));
@@ -929,12 +951,13 @@ class ClientPortalController extends BaseController
     }
 
     public function setDefaultPaymentMethod(){
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
+        $client = $contact->client;
+
         $validator = Validator::make(Input::all(), array('source' => 'required'));
-        $client = $invitation->invoice->client;
         if ($validator->fails()) {
             return Redirect::to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
         }
@@ -963,12 +986,13 @@ class ClientPortalController extends BaseController
     }
 
     public function setAutoBill(){
-        if (!$invitation = $this->getInvitation()) {
+        if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
+        $client = $contact->client;
+
         $validator = Validator::make(Input::all(), array('public_id' => 'required'));
-        $client = $invitation->invoice->client;
 
         if ($validator->fails()) {
             return Redirect::to('client/invoices/recurring');

@@ -57,6 +57,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/documents', 'ClientPortalController@documentIndex');
     Route::get('client/payments', 'ClientPortalController@paymentIndex');
     Route::get('client/dashboard', 'ClientPortalController@dashboard');
+    Route::get('client/dashboard/{contact_key}', 'ClientPortalController@contactIndex');
     Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'ClientPortalController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'ClientPortalController@getInvoiceDocumentsZip');
@@ -101,6 +102,7 @@ Route::get('/user/confirm/{code}', 'UserController@confirm');
 Route::get('/client/login', array('as' => 'login', 'uses' => 'ClientAuth\AuthController@getLogin'));
 Route::post('/client/login', array('as' => 'login', 'uses' => 'ClientAuth\AuthController@postLogin'));
 Route::get('/client/logout', array('as' => 'logout', 'uses' => 'ClientAuth\AuthController@getLogout'));
+Route::get('/client/sessionexpired', array('as' => 'logout', 'uses' => 'ClientAuth\AuthController@getSessionExpired'));
 Route::get('/client/recover_password', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail'));
 Route::post('/client/recover_password', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail'));
 Route::get('/client/password/reset/{invitation_key}/{token}', array('as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset'));
@@ -270,6 +272,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     //Route::get('quotes', 'QuoteApiController@index');
     //Route::resource('quotes', 'QuoteApiController');
     Route::get('invoices', 'InvoiceApiController@index');
+    Route::get('download/{invoice_id}', 'InvoiceApiController@download');
     Route::resource('invoices', 'InvoiceApiController');
     Route::get('payments', 'PaymentApiController@index');
     Route::resource('payments', 'PaymentApiController');
@@ -471,6 +474,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
     define('IMPORT_CSV', 'CSV');
+    define('IMPORT_JSON', 'JSON');
     define('IMPORT_FRESHBOOKS', 'FreshBooks');
     define('IMPORT_WAVE', 'Wave');
     define('IMPORT_RONIN', 'Ronin');
@@ -671,6 +675,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_TYPE_STRIPE_CREDIT_CARD', 'PAYMENT_TYPE_STRIPE_CREDIT_CARD');
     define('PAYMENT_TYPE_STRIPE_ACH', 'PAYMENT_TYPE_STRIPE_ACH');
     define('PAYMENT_TYPE_BRAINTREE_PAYPAL', 'PAYMENT_TYPE_BRAINTREE_PAYPAL');
+    define('PAYMENT_TYPE_WEPAY_ACH', 'PAYMENT_TYPE_WEPAY_ACH');
     define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
     define('PAYMENT_TYPE_DIRECT_DEBIT', 'PAYMENT_TYPE_DIRECT_DEBIT');
     define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
@@ -756,7 +761,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('FEATURE_USER_PERMISSIONS', 'user_permissions');
 
     // Pro users who started paying on or before this date will be able to manage users
-    define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-05-15');
+    define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-06-04');
 
     // WePay
     define('WEPAY_PRODUCTION', 'production');

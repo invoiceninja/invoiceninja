@@ -384,25 +384,30 @@ class Account extends Eloquent
         return $format;
     }
 
-    public function getGatewayByType($type = PAYMENT_TYPE_ANY)
+    public function getGatewayByType($type = PAYMENT_TYPE_ANY, $exceptFor = null)
     {
         if ($type == PAYMENT_TYPE_STRIPE_ACH || $type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
             $type = PAYMENT_TYPE_STRIPE;
         }
 
-        if ($type == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-            $gateway = $this->getGatewayConfig(GATEWAY_BRAINTREE);
-
-            if (!$gateway || !$gateway->getPayPalEnabled()){
-                return false;
-            }
-            return $gateway;
+        if ($type == PAYMENT_TYPE_WEPAY_ACH) {
+            return $this->getGatewayConfig(GATEWAY_WEPAY);
         }
 
         foreach ($this->account_gateways as $gateway) {
+            if ($exceptFor && ($gateway->id == $exceptFor->id)) {
+                continue;
+            }
+
             if (!$type || $type == PAYMENT_TYPE_ANY) {
                 return $gateway;
             } elseif ($gateway->isPaymentType($type)) {
+                return $gateway;
+            } elseif ($type == PAYMENT_TYPE_CREDIT_CARD && $gateway->isPaymentType(PAYMENT_TYPE_STRIPE)) {
+                return $gateway;
+            } elseif ($type == PAYMENT_TYPE_DIRECT_DEBIT && $gateway->getAchEnabled()) {
+                return $gateway;
+            } elseif ($type == PAYMENT_TYPE_PAYPAL && $gateway->getPayPalEnabled()) {
                 return $gateway;
             }
         }
@@ -545,7 +550,7 @@ class Account extends Eloquent
 
             if ($this->hasClientNumberPattern($invoice) && !$clientId) {
                 // do nothing, we don't yet know the value
-            } else {
+            } elseif ( ! $invoice->invoice_number) {
                 $invoice->invoice_number = $this->getNextInvoiceNumber($invoice);
             }
         }
@@ -649,7 +654,7 @@ class Account extends Eloquent
         return $this->getNextInvoiceNumber($invoice);
     }
 
-    public function getNextInvoiceNumber($invoice)
+    public function getNextInvoiceNumber($invoice, $validateUnique = true)
     {
         if ($this->hasNumberPattern($invoice->invoice_type_id)) {
             $number = $this->getNumberPattern($invoice);
@@ -657,13 +662,16 @@ class Account extends Eloquent
             $counter = $this->getCounter($invoice->invoice_type_id);
             $prefix = $this->getNumberPrefix($invoice->invoice_type_id);
             $counterOffset = 0;
+            $check = false;
 
             // confirm the invoice number isn't already taken
             do {
                 $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
-                $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
-                $counter++;
-                $counterOffset++;
+                if ($validateUnique) {
+                    $check = Invoice::scope(false, $this->id)->whereInvoiceNumber($number)->withTrashed()->first();
+                    $counter++;
+                    $counterOffset++;
+                }
             } while ($check);
 
             // update the invoice counter to be caught up
@@ -688,7 +696,7 @@ class Account extends Eloquent
     public function incrementCounter($invoice)
     {
         // if they didn't use the counter don't increment it
-        if ($invoice->invoice_number != $this->getNextInvoiceNumber($invoice)) {
+        if ($invoice->invoice_number != $this->getNextInvoiceNumber($invoice, false)) {
             return;
         }
 
@@ -1421,37 +1429,26 @@ class Account extends Eloquent
     }
 
     public function canAddGateway($type){
+        if ($type == PAYMENT_TYPE_STRIPE) {
+            $type == PAYMENT_TYPE_CREDIT_CARD;
+        }
+
         if($this->getGatewayByType($type)) {
             return false;
-        }
-        if ($type == PAYMENT_TYPE_CREDIT_CARD && $this->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
-            // Stripe is already handling credit card payments
-            return false;
-        }
-
-        if ($type == PAYMENT_TYPE_STRIPE && $this->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD)) {
-            // Another gateway is already handling credit card payments
-            return false;
-        }
-
-        if ($type == PAYMENT_TYPE_DIRECT_DEBIT && $stripeGateway = $this->getGatewayByType(PAYMENT_TYPE_STRIPE)) {
-            if (!empty($stripeGateway->getAchEnabled())) {
-                // Stripe is already handling ACH payments
-                return false;
-            }
-        }
-
-        if ($type == PAYMENT_TYPE_PAYPAL && $braintreeGateway = $this->getGatewayConfig(GATEWAY_BRAINTREE)) {
-            if (!empty($braintreeGateway->getPayPalEnabled())) {
-                // PayPal is already enabled
-                return false;
-            }
         }
 
         return true;
     }
 }
 
-Account::updated(function ($account) {
+Account::updated(function ($account)
+{
+    // prevent firing event if the invoice/quote counter was changed
+    // TODO: remove once counters are moved to separate table
+    $dirty = $account->getDirty();
+    if (isset($dirty['invoice_number_counter']) || isset($dirty['quote_number_counter'])) {
+        return;
+    }
+
     Event::fire(new UserSettingsChanged());
 });

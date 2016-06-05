@@ -42,11 +42,22 @@ class ExportController extends BaseController
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
 
+        // eager load data, include archived but exclude deleted
         $account = Auth::user()->account;
-        $account->loadAllData();
+        $account->load(['clients' => function($query) {
+            $query->withArchived()
+                  ->with(['contacts', 'invoices' => function($query) {
+                      $query->withArchived()
+                            ->with(['invoice_items', 'payments' => function($query) {
+                                $query->withArchived();
+                            }]);
+                  }]);
+        }]);
 
         $resource = new Item($account, new AccountTransformer);
-        $data = $manager->createData($resource)->toArray();
+        $data = $manager->parseIncludes('clients.invoices.payments')
+                    ->createData($resource)
+                    ->toArray();
 
         return response()->json($data);
     }

@@ -45,6 +45,14 @@
     .form-signin .form-control:focus {
         z-index: 2;
     }
+
+    .modal-header a:link,
+    .modal-header a:visited,
+    .modal-header a:hover,
+    .modal-header a:active {
+        text-decoration: none;
+        color: white;
+    }
 </style>
 
 @stop

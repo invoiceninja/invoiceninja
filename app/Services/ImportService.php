@@ -17,6 +17,7 @@ use App\Ninja\Repositories\ProductRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\EntityModel;
 
 class ImportService
 {
@@ -25,9 +26,13 @@ class ImportService
     protected $clientRepo;
     protected $contactRepo;
     protected $productRepo;
-    protected $processedRows = array();
+    protected $processedRows = [];
+
+    private $maps = [];
+    public $results = [];
 
     public static $entityTypes = [
+        IMPORT_JSON,
         ENTITY_CLIENT,
         ENTITY_CONTACT,
         ENTITY_INVOICE,
@@ -39,6 +44,7 @@ class ImportService
 
     public static $sources = [
         IMPORT_CSV,
+        IMPORT_JSON,
         IMPORT_FRESHBOOKS,
         //IMPORT_HARVEST,
         IMPORT_HIVEAGE,
@@ -68,10 +74,70 @@ class ImportService
         $this->productRepo = $productRepo;
     }
 
-    public function import($source, $files)
+    public function importJSON($file)
+    {
+        $this->init();
+
+        $file = file_get_contents($file);
+        $json = json_decode($file, true);
+        $json = $this->removeIdFields($json);
+
+        $this->checkClientCount(count($json['clients']));
+
+        foreach ($json['clients'] as $jsonClient) {
+
+            if ($this->validate($jsonClient, ENTITY_CLIENT) === true) {
+                $client = $this->clientRepo->save($jsonClient);
+                $this->addSuccess($client);
+            } else {
+                $this->addFailure(ENTITY_CLIENT, $jsonClient);
+                continue;
+            }
+
+            foreach ($jsonClient['invoices'] as $jsonInvoice) {
+                $jsonInvoice['client_id'] = $client->id;
+                if ($this->validate($jsonInvoice, ENTITY_INVOICE) === true) {
+                    $invoice = $this->invoiceRepo->save($jsonInvoice);
+                    $this->addSuccess($invoice);
+                } else {
+                    $this->addFailure(ENTITY_INVOICE, $jsonInvoice);
+                    continue;
+                }
+
+                foreach ($jsonInvoice['payments'] as $jsonPayment) {
+                    $jsonPayment['client_id'] = $jsonPayment['client'] = $client->id; // TODO: change to client_id once views are updated
+                    $jsonPayment['invoice_id'] = $jsonPayment['invoice'] = $invoice->id; // TODO: change to invoice_id once views are updated
+                    if ($this->validate($jsonPayment, ENTITY_PAYMENT) === true) {
+                        $payment = $this->paymentRepo->save($jsonPayment);
+                        $this->addSuccess($payment);
+                    } else {
+                        $this->addFailure(ENTITY_PAYMENT, $jsonPayment);
+                        continue;
+                    }
+                }
+            }
+        }
+
+        return $this->results;
+    }
+
+    public function removeIdFields($array)
+    {
+        foreach ($array as $key => $val) {
+            if (is_array($val)) {
+                $array[$key] = $this->removeIdFields($val);
+            } elseif ($key === 'id') {
+                unset($array[$key]);
+            }
+        }
+        return $array;
+    }
+
+    public function importFiles($source, $files)
     {
         $results = [];
         $imported_files = null;
+        $this->initMaps();
 
         foreach ($files as $entityType => $file) {
             $results[$entityType] = $this->execute($source, $entityType, $file);
@@ -89,12 +155,12 @@ class ImportService
 
         // Convert the data
         $row_list = array();
-        $maps = $this->createMaps();
-        Excel::load($file, function ($reader) use ($source, $entityType, $maps, &$row_list, &$results) {
+
+        Excel::load($file, function ($reader) use ($source, $entityType, &$row_list, &$results) {
             $this->checkData($entityType, count($reader->all()));
 
-            $reader->each(function ($row) use ($source, $entityType, $maps, &$row_list, &$results) {
-                $data_index = $this->transformRow($source, $entityType, $row, $maps);
+            $reader->each(function ($row) use ($source, $entityType, &$row_list, &$results) {
+                $data_index = $this->transformRow($source, $entityType, $row);
 
                 if ($data_index !== false) {
                     if ($data_index !== true) {
@@ -109,7 +175,7 @@ class ImportService
 
         // Save the data
         foreach ($row_list as $row_data) {
-            $result = $this->saveData($source, $entityType, $row_data['row'], $row_data['data_index'], $maps);
+            $result = $this->saveData($source, $entityType, $row_data['row'], $row_data['data_index']);
             if ($result) {
                 $results[RESULT_SUCCESS][] = $result;
             } else {
@@ -120,10 +186,10 @@ class ImportService
         return $results;
     }
 
-    private function transformRow($source, $entityType, $row, $maps)
+    private function transformRow($source, $entityType, $row)
     {
-        $transformer = $this->getTransformer($source, $entityType, $maps);
-        $resource = $transformer->transform($row, $maps);
+        $transformer = $this->getTransformer($source, $entityType, $this->maps);
+        $resource = $transformer->transform($row);
 
         if (!$resource) {
             return false;
@@ -138,7 +204,7 @@ class ImportService
             $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
         }
 
-        if ($this->validate($source, $data, $entityType) !== true) {
+        if ($this->validate($data, $entityType) !== true) {
             return false;
         }
 
@@ -160,14 +226,18 @@ class ImportService
         return key($this->processedRows);
     }
 
-    private function saveData($source, $entityType, $row, $data_index, $maps)
+    private function saveData($source, $entityType, $row, $data_index)
     {
         $data = $this->processedRows[$data_index];
         $entity = $this->{"{$entityType}Repo"}->save($data);
 
+        // update the entity maps
+        $mapFunction = 'add' . ucwords($entity->getEntityType()) . 'ToMaps';
+        $this->$mapFunction($entity);
+
         // if the invoice is paid we'll also create a payment record
         if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid'] > 0) {
-            $this->createPayment($source, $row, $maps, $data['client_id'], $entity->id);
+            $this->createPayment($source, $row, $data['client_id'], $entity->id);
         }
 
         return $entity;
@@ -200,21 +270,22 @@ class ImportService
         return new $className($maps);
     }
 
-    private function createPayment($source, $data, $maps, $clientId, $invoiceId)
+    private function createPayment($source, $data, $clientId, $invoiceId)
     {
-        $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT, $maps);
+        $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT, $this->maps);
 
         $data->client_id = $clientId;
         $data->invoice_id = $invoiceId;
 
-        if ($resource = $paymentTransformer->transform($data, $maps)) {
+        if ($resource = $paymentTransformer->transform($data)) {
             $data = $this->fractal->createData($resource)->toArray();
             $this->paymentRepo->save($data);
         }
     }
 
-    private function validate($source, $data, $entityType)
+    private function validate($data, $entityType)
     {
+        /*
         // Harvest's contacts are listed separately
         if ($entityType === ENTITY_CLIENT && $source != IMPORT_HARVEST) {
             $rules = [
@@ -234,69 +305,19 @@ class ImportService
                 'product_key' => 'required',
             ];
         }
+        */
+        $requestClass = 'App\\Http\\Requests\\Create' . ucwords($entityType) . 'Request';
+        $request = new $requestClass();
+        $request->setUserResolver(function() { return Auth::user(); });
+        $request->replace($data);
 
-        $validator = Validator::make($data, $rules);
+        $validator = Validator::make($data, $request->rules());
 
         if ($validator->fails()) {
-            $messages = $validator->messages();
-
-            return $messages->first();
+            return $validator->messages()->first();
         } else {
             return true;
         }
-    }
-
-    private function createMaps()
-    {
-        $clientMap = [];
-        $clients = $this->clientRepo->all();
-        foreach ($clients as $client) {
-            if ($name = strtolower(trim($client->name))) {
-                $clientMap[$name] = $client->id;
-            }
-        }
-
-        $invoiceMap = [];
-        $invoiceClientMap = [];
-        $invoices = $this->invoiceRepo->all();
-        foreach ($invoices as $invoice) {
-            if ($number = strtolower(trim($invoice->invoice_number))) {
-                $invoiceMap[$number] = $invoice->id;
-                $invoiceClientMap[$number] = $invoice->client_id;
-            }
-        }
-
-        $productMap = [];
-        $products = $this->productRepo->all();
-        foreach ($products as $product) {
-            if ($key = strtolower(trim($product->product_key))) {
-                $productMap[$key] = $product->id;
-            }
-        }
-
-        $countryMap = [];
-        $countryMap2 = [];
-        $countries = Cache::get('countries');
-        foreach ($countries as $country) {
-            $countryMap[strtolower($country->name)] = $country->id;
-            $countryMap2[strtolower($country->iso_3166_2)] = $country->id;
-        }
-
-        $currencyMap = [];
-        $currencies = Cache::get('currencies');
-        foreach ($currencies as $currency) {
-            $currencyMap[strtolower($currency->code)] = $currency->id;
-        }
-
-        return [
-            ENTITY_CLIENT => $clientMap,
-            ENTITY_INVOICE => $invoiceMap,
-            ENTITY_INVOICE.'_'.ENTITY_CLIENT => $invoiceClientMap,
-            ENTITY_PRODUCT => $productMap,
-            'countries' => $countryMap,
-            'countries2' => $countryMap2,
-            'currencies' => $currencyMap,
-        ];
     }
 
     public function mapCSV($files)
@@ -430,7 +451,7 @@ class ImportService
 
         $data = Session::get("{$entityType}-data");
         $this->checkData($entityType, count($data));
-        $maps = $this->createMaps();
+        $this->initMaps();
 
         // Convert the data
         $row_list = array();
@@ -441,7 +462,7 @@ class ImportService
             }
 
             $row = $this->convertToObject($entityType, $row, $map);
-            $data_index = $this->transformRow($source, $entityType, $row, $maps);
+            $data_index = $this->transformRow($source, $entityType, $row);
 
             if ($data_index !== false) {
                 if ($data_index !== true) {
@@ -455,7 +476,7 @@ class ImportService
 
         // Save the data
         foreach ($row_list as $row_data) {
-            $result = $this->saveData($source, $entityType, $row_data['row'], $row_data['data_index'], $maps);
+            $result = $this->saveData($source, $entityType, $row_data['row'], $row_data['data_index']);
 
             if ($result) {
                 $results[RESULT_SUCCESS][] = $result;
@@ -492,5 +513,94 @@ class ImportService
         }
 
         return $obj;
+    }
+
+    private function addSuccess($entity)
+    {
+        $this->results[$entity->getEntityType()][RESULT_SUCCESS][] = $entity;
+    }
+
+    private function addFailure($entityType, $data)
+    {
+        $this->results[$entityType][RESULT_FAILURE][] = $data;
+    }
+
+    private function init()
+    {
+        EntityModel::$notifySubscriptions = false;
+
+        foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT] as $entityType) {
+            $this->results[$entityType] = [
+                RESULT_SUCCESS => [],
+                RESULT_FAILURE => [],
+            ];
+        }
+    }
+
+    private function initMaps()
+    {
+        $this->init();
+
+        $this->maps = [
+            'client' => [],
+            'invoice' => [],
+            'invoice_client' => [],
+            'product' => [],
+            'countries' => [],
+            'countries2' => [],
+            'currencies' => [],
+            'client_ids' => [],
+            'invoice_ids' => [],
+        ];
+
+        $clients = $this->clientRepo->all();
+        foreach ($clients as $client) {
+            $this->addClientToMaps($client);
+        }
+
+        $invoices = $this->invoiceRepo->all();
+        foreach ($invoices as $invoice) {
+            $this->addInvoiceToMaps($invoice);
+        }
+
+        $products = $this->productRepo->all();
+        foreach ($products as $product) {
+            $this->addProductToMaps($product);
+        }
+
+        $countries = Cache::get('countries');
+        foreach ($countries as $country) {
+            $this->maps['countries'][strtolower($country->name)] = $country->id;
+            $this->maps['countries2'][strtolower($country->iso_3166_2)] = $country->id;
+        }
+
+        $currencies = Cache::get('currencies');
+        foreach ($currencies as $currency) {
+            $this->maps['currencies'][strtolower($currency->code)] = $currency->id;
+        }
+    }
+
+    private function addInvoiceToMaps($invoice)
+    {
+        if ($number = strtolower(trim($invoice->invoice_number))) {
+            $this->maps['invoice'][$number] = $invoice->id;
+            $this->maps['invoice_client'][$number] = $invoice->client_id;
+            $this->maps['invoice_ids'][$invoice->public_id] = $invoice->id;
+        }
+    }
+
+    private function addClientToMaps($client)
+    {
+        if ($name = strtolower(trim($client->name))) {
+            $this->maps['client'][$name] = $client->id;
+            $this->maps['client_ids'][$client->public_id] = $client->id;
+        }
+    }
+
+    private function addProductToMaps($product)
+    {
+        if ($key = strtolower(trim($product->product_key))) {
+            $this->maps['product'][$key] = $product->id;
+        }
     }
 }

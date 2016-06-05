@@ -59,6 +59,35 @@
                 })
             });
         </script>
+    @elseif(!empty($enableWePayACH))
+        <script type="text/javascript" src="https://static.wepay.com/js/tokenization.v2.js"></script>
+        <script type="text/javascript">
+            $(function() {
+                var achLink = $('.dropdown-menu a[href$="/wepay_ach"]'),
+                    achUrl = achLink.attr('href');
+                WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
+                achLink.click(function(e) {
+                    e.preventDefault();
+
+                    $('#wepay-error').remove();
+                    var email = {!! json_encode($contact->email) !!} || prompt('{{ trans('texts.ach_email_prompt') }}');
+                    if(!email)return;
+
+                    WePay.bank_account.create({
+                        'client_id': '{{ WEPAY_CLIENT_ID }}',
+                        'email':email
+                    }, function(data){
+                        dataObj = JSON.parse(data);
+                        if(dataObj.bank_account_id) {
+                            window.location.href = achLink.attr('href') + '/' + dataObj.bank_account_id + "?details=" + encodeURIComponent(data);
+                        } else if(dataObj.error) {
+                            $('#wepay-error').remove();
+                            achLink.closest('.container').prepend($('<div id="wepay-error" style="margin-top:20px" class="alert alert-danger"></div>').text(dataObj.error_description));
+                        }
+                    });
+                });
+            });
+        </script>
     @endif
 @stop
 

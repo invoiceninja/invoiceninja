@@ -4,12 +4,12 @@
     @if (isset($account) && $account instanceof \App\Models\Account && $account->hasFeature(FEATURE_WHITE_LABEL))
         <title>{{ trans('texts.client_portal') }}</title>
     @else
-        <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title> 
+        <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title>
         <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}" />
         <link href="{{ asset('favicon-v2.png') }}" rel="shortcut icon" type="image/png">
     @endif
 
-    <!-- Source: https://github.com/hillelcoren/invoice-ninja -->
+    <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Version: {{ NINJA_VERSION }} -->
 
     <meta charset="utf-8">
@@ -22,24 +22,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="msapplication-config" content="none"/> 
+    <meta name="msapplication-config" content="none"/>
 
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}" />
 
-    <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>    
+    <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
     <script type="text/javascript">
         var NINJA = NINJA || {};
         NINJA.fontSize = 9;
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
-        
+
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
             if (errorMsg.indexOf('Script error.') > -1) {
                 return;
             }
 
             try {
-                // Use StackTraceJS to parse the error context 
+                // Use StackTraceJS to parse the error context
                 if (error) {
                     var message = error.message ? error.message : error;
                     StackTrace.fromError(error).then(function(result) {
@@ -51,7 +51,7 @@
                 } else {
                     logError(errorMsg);
                 }
-                
+
                 trackEvent('/error', errorMsg);
             } catch(err) {}
 
@@ -78,7 +78,7 @@
                 'sSearch': ''
             }
         } );
-        
+
         /* This causes problems with some languages. ie, fr_CA
 		var appLocale = '{{App::getLocale()}}';
         $.extend( true, $.fn.datepicker.defaults, {
@@ -108,7 +108,7 @@
                 _fbq.loaded = true;
              }
             })();
-            
+
         @else
             function fbq() {
                 // do nothing
@@ -116,7 +116,7 @@
         @endif
 
         window._fbq = window._fbq || [];
-            
+
     </script>
 
 
@@ -132,7 +132,7 @@
 
 <body class="body">
 
-    @if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])  
+    @if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
     <!-- Google Tag Manager -->
     <noscript><iframe src="//www.googletagmanager.com/ns.html?id={{ $_ENV['TAG_MANAGER_KEY'] }}"
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
@@ -140,20 +140,20 @@
             new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
         j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         '//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-    })(window,document,'script','dataLayer','{{ $_ENV['TAG_MANAGER_KEY'] }}');</script>      
+    })(window,document,'script','dataLayer','{{ $_ENV['TAG_MANAGER_KEY'] }}');</script>
     <!-- End Google Tag Manager -->
 
     <script>
         function trackEvent(category, action) {}
     </script>
-    @elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])  
+    @elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
             (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
             m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-        ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}', 'auto');        
+        ga('create', '{{ $_ENV['ANALYTICS_KEY'] }}', 'auto');
         ga('send', 'pageview');
 
         function trackEvent(category, action) {
@@ -165,7 +165,7 @@
         function trackEvent(category, action) {}
     </script>
     @endif
-    
+
 @yield('body')
 
 <script type="text/javascript">
@@ -174,7 +174,7 @@
     $(function() {
         $('form.warn-on-exit input, form.warn-on-exit textarea, form.warn-on-exit select').change(function() {
             NINJA.formIsChanged = true;
-        }); 
+        });
 
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
             @if (Session::get('trackEventAction') === '/buy_pro_plan')
@@ -195,12 +195,12 @@
         } else {
             return undefined;
         }
-    }); 
+    });
     function openUrl(url, track) {
         trackEvent('/view_link', track ? track : url);
         window.open(url, '_blank');
     }
-</script> 
+</script>
 
 </body>
 

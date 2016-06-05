@@ -327,7 +327,12 @@
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
-                            <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.invoice_documents") }}</a></li>
+                            <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
+                                {{ trans("texts.invoice_documents") }}
+                                @if (count($invoice->documents))
+                                    ({{ count($invoice->documents) }})
+                                @endif
+                            </a></li>
                         @endif
                     </ul>
 
@@ -524,8 +529,10 @@
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-        @if ( ! $invoice->is_recurring)
-		    {!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}
+        @if ( $invoice->exists && ! $invoice->is_recurring)
+		    {!! Button::primary(trans('texts.download_pdf'))
+                    ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
+                    ->appendIcon(Icon::create('download-alt')) !!}
         @endif
 
         @if ($invoice->isClientTrashed())
@@ -923,6 +930,7 @@
 		}
 
 		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #start_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2').change(function() {
+            $('#downloadPdfButton').attr('disabled', true);
 			setTimeout(function() {
 				refreshPDF(true);
 			}, 1);
@@ -1078,6 +1086,7 @@
             if ($(event.target).hasClass('handled')) {
                 return;
             }
+            $('#downloadPdfButton').attr('disabled', true);
             onItemChange();
             refreshPDF(true);
 		});
@@ -1217,9 +1226,13 @@
 	}
 
 	function onSaveClick() {
+        @if(!empty($autoBillChangeWarning))
+        if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+        @endif
+
 		if (model.invoice().is_recurring()) {
             // warn invoice will be emailed when saving new recurring invoice
-            if ({{ $invoice->exists() ? 'false' : 'true' }}) {
+            if ({{ $invoice->exists ? 'false' : 'true' }}) {
                 if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
                     submitAction('');
                 }
@@ -1346,6 +1359,10 @@
 
     @if ($invoice->id)
     	function onPaymentClick() {
+            @if(!empty($autoBillChangeWarning))
+            if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+            @endif
+
     		window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
     	}
 
@@ -1476,7 +1493,9 @@
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
         window.countUploadingDocuments--;
-        refreshPDF(true);
+        @if ($account->invoice_embed_documents)
+            refreshPDF(true);
+        @endif
         if(response.document.preview_url){
             dropzone.emit('thumbnail', file, response.document.preview_url);
         }

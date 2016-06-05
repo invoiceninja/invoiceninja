@@ -180,6 +180,16 @@ class Payment extends EntityModel
         return PaymentMethod::lookupBankData($this->routing_number);
     }
 
+    public function getBankNameAttribute($bank_name)
+    {
+        if ($bank_name) {
+            return $bank_name;
+        }
+        $bankData = $this->bank_data;
+
+        return $bankData?$bankData->name:null;
+    }
+
     public function getLast4Attribute($value)
     {
         return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
