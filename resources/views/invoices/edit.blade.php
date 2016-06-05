@@ -222,7 +222,7 @@
                 @endif
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
 				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
-				<th style="min-width:180px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
+				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>
 			</tr>
@@ -1409,7 +1409,7 @@
     }
 
     window.countUploadingDocuments = 0;
-    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+
     function handleDocumentAdded(file){
         // open document when clicked
         if (file.url) {
@@ -1454,7 +1454,6 @@
     function handleDocumentError() {
         window.countUploadingDocuments--;
     }
-    @endif
 
 	</script>
     @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)

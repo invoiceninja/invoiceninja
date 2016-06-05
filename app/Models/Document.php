@@ -10,16 +10,16 @@ class Document extends EntityModel
         'jpg' => 'jpeg',
         'tif' => 'tiff',
     );
-    
+
     public static $allowedMimes = array(// Used by Dropzone.js; does not affect what the server accepts
         'image/png', 'image/jpeg', 'image/tiff', 'application/pdf', 'image/gif', 'image/vnd.adobe.photoshop', 'text/plain',
-        'application/zip', 'application/msword',
-        'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel', 
+        'application/msword',
+        'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/postscript', 'image/svg+xml',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint',
     );
-    
+
     public static $types = array(
         'png' => array(
             'mime' => 'image/png',
@@ -48,9 +48,6 @@ class Document extends EntityModel
         'txt' => array(
             'mime' => 'text/plain',
         ),
-        'zip' => array(
-            'mime' => 'application/zip',
-        ),
         'doc' => array(
             'mime' => 'application/msword',
         ),
@@ -70,18 +67,18 @@ class Document extends EntityModel
             'mime' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
         ),
     );
-    
+
     public function fill(array $attributes)
     {
         parent::fill($attributes);
-        
+
         if(empty($this->attributes['disk'])){
             $this->attributes['disk'] = env('DOCUMENT_FILESYSTEM', 'documents');
         }
-        
+
         return $this;
     }
-    
+
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
@@ -101,7 +98,7 @@ class Document extends EntityModel
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
-    
+
     public function getDisk(){
         return Storage::disk(!empty($this->disk)?$this->disk:env('DOCUMENT_FILESYSTEM', 'documents'));
     }
@@ -110,19 +107,19 @@ class Document extends EntityModel
     {
         $this->attributes['disk'] = $value?$value:env('DOCUMENT_FILESYSTEM', 'documents');
     }
-    
+
     public function getDirectUrl(){
         return static::getDirectFileUrl($this->path, $this->getDisk());
     }
-    
+
     public function getDirectPreviewUrl(){
         return $this->preview?static::getDirectFileUrl($this->preview, $this->getDisk(), true):null;
     }
-    
+
     public static function getDirectFileUrl($path, $disk, $prioritizeSpeed = false){
         $adapter = $disk->getAdapter();
         $fullPath = $adapter->applyPathPrefix($path);
-        
+
         if($adapter instanceof \League\Flysystem\AwsS3v3\AwsS3Adapter) {
             $client = $adapter->getClient();
             $command = $client->getCommand('GetObject', [
@@ -136,12 +133,12 @@ class Document extends EntityModel
             $secret = env('RACKSPACE_TEMP_URL_SECRET');
             if($secret){
                 $object = $adapter->getContainer()->getObject($fullPath);
-                
+
                 if(env('RACKSPACE_TEMP_URL_SECRET_SET')){
                     // Go ahead and set the secret too
                     $object->getService()->getAccount()->setTempUrlSecret($secret);
-                }            
-                
+                }
+
                 $url = $object->getUrl();
                 $expiry = strtotime('+10 minutes');
                 $urlPath = urldecode($url->getPath());
@@ -150,64 +147,64 @@ class Document extends EntityModel
                 return sprintf('%s?temp_url_sig=%s&temp_url_expires=%d', $url, $hash, $expiry);
             }
         }
-        
+
         return null;
     }
-    
+
     public function getRaw(){
         $disk = $this->getDisk();
-        
+
         return $disk->get($this->path);
     }
-    
+
     public function getStream(){
         $disk = $this->getDisk();
-        
+
         return $disk->readStream($this->path);
     }
-    
+
     public function getRawPreview(){
         $disk = $this->getDisk();
-        
+
         return $disk->get($this->preview);
     }
-    
+
     public function getUrl(){
         return url('documents/'.$this->public_id.'/'.$this->name);
     }
-    
+
     public function getClientUrl($invitation){
         return url('client/documents/'.$invitation->invitation_key.'/'.$this->public_id.'/'.$this->name);
     }
-    
+
     public function isPDFEmbeddable(){
         return $this->type == 'jpeg' || $this->type == 'png' || $this->preview;
     }
-    
+
     public function getVFSJSUrl(){
         if(!$this->isPDFEmbeddable())return null;
         return url('documents/js/'.$this->public_id.'/'.$this->name.'.js');
     }
-    
+
     public function getClientVFSJSUrl(){
         if(!$this->isPDFEmbeddable())return null;
         return url('client/documents/js/'.$this->public_id.'/'.$this->name.'.js');
     }
-    
+
     public function getPreviewUrl(){
         return $this->preview?url('documents/preview/'.$this->public_id.'/'.$this->name.'.'.pathinfo($this->preview, PATHINFO_EXTENSION)):null;
     }
-    
+
     public function toArray()
     {
         $array = parent::toArray();
-        
+
         if(empty($this->visible) || in_array('url', $this->visible))$array['url'] = $this->getUrl();
         if(empty($this->visible) || in_array('preview_url', $this->visible))$array['preview_url'] = $this->getPreviewUrl();
-        
+
         return $array;
     }
-    
+
     public function cloneDocument(){
         $document = Document::createNew($this);
         $document->path = $this->path;
@@ -219,7 +216,7 @@ class Document extends EntityModel
         $document->size = $this->size;
         $document->width = $this->width;
         $document->height = $this->height;
-        
+
         return $document;
     }
 }
@@ -230,11 +227,11 @@ Document::deleted(function ($document) {
         ->where('documents.path', '=', $document->path)
         ->where('documents.disk', '=', $document->disk)
         ->count();
-    
+
     if(!$same_path_count){
         $document->getDisk()->delete($document->path);
     }
-    
+
     if($document->preview){
         $same_preview_count = DB::table('documents')
             ->where('documents.account_id', '=', $document->account_id)
@@ -245,5 +242,5 @@ Document::deleted(function ($document) {
             $document->getDisk()->delete($document->preview);
         }
     }
-    
+
 });
