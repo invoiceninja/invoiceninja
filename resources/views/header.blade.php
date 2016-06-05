@@ -423,7 +423,7 @@
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
           @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-            {!! Button::success(trans('texts.go_pro'))->withAttributes(array('id' => 'proPlanButton', 'onclick' => 'showProPlan("")', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.plan_upgrade'))->asLinkTo(url('/settings/account_management?upgrade=true'))->withAttributes(array('style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
           @endif
         @endif
 

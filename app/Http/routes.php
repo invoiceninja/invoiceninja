@@ -328,7 +328,9 @@ Route::get('/forgot', function() {
 Route::get('/feed', function() {
     return Redirect::to(NINJA_WEB_URL.'/feed', 301);
 });
-
+Route::get('/comments/feed', function() {
+    return Redirect::to(NINJA_WEB_URL.'/comments/feed', 301);
+});
 
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));
