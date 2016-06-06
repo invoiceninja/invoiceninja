@@ -38,23 +38,23 @@ class EntityTransformer extends TransformerAbstract
     {
         return $date ? $date->getTimestamp() : null;
     }
-    
+
     public function getDefaultIncludes()
     {
         return $this->defaultIncludes;
     }
-    
+
     protected function getDefaults($entity)
     {
         $data = [
             'account_key' => $this->account->account_key,
-            'is_owner' => (bool) Auth::user()->owns($entity),
+            'is_owner' => (bool) (Auth::check() && Auth::user()->owns($entity)),
         ];
-        
+
         if ($entity->relationLoaded('user')) {
             $data['user_id'] = (int) $entity->user->public_id + 1;
         }
-        
+
         return $data;
     }
 }
