@@ -1005,7 +1005,7 @@ class PaymentService extends BaseService
                 'transactionReference' => $payment->transaction_reference,
             );
 
-            if ($amount != ($payment->amount - $payment->refunded)) {
+            if ($accountGateway->gateway_id != GATEWAY_WEPAY || $amount != ($payment->amount - $payment->refunded)) {
                 $details['amount'] = $amount;
             }
 
