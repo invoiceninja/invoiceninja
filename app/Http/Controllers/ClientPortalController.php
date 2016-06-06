@@ -225,6 +225,9 @@ class ClientPortalController extends BaseController
 
 
         foreach(Gateway::$paymentTypes as $type) {
+            if ($type == PAYMENT_TYPE_STRIPE) {
+                continue;
+            }
             if ($gateway = $account->getGatewayByType($type)) {
                 if ($type == PAYMENT_TYPE_DIRECT_DEBIT) {
                     if ($gateway->gateway_id == GATEWAY_STRIPE) {
