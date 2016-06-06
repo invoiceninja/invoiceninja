@@ -8,7 +8,7 @@
 		@foreach ($invoice->client->account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     	@endforeach
-        <script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
 		<style type="text/css">
 			body {

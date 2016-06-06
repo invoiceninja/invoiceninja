@@ -230,7 +230,7 @@ class AccountController extends BaseController
             Session::flash('message', trans('texts.updated_plan'));
         }
 
-        if (!empty($new_plan)) {
+        if (!empty($new_plan) && $new_plan['plan'] != PLAN_FREE) {
             $invitation = $this->accountRepo->enablePlan($new_plan['plan'], $new_plan['term'], $credit, !empty($pending_monthly));
             return Redirect::to('view/'.$invitation->invitation_key);
         }
@@ -1333,12 +1333,14 @@ class AccountController extends BaseController
         }
 
         $account = Auth::user()->account;
+        $invitation = $invoice->invitations->first();
 
         // replace the variables with sample data
         $data = [
             'account' => $account,
             'invoice' => $invoice,
-            'invitation' => $invoice->invitations->first(),
+            'invitation' => $invitation,
+            'link' => $invitation->getLink(),
             'client' => $invoice->client,
             'amount' => $invoice->amount
         ];

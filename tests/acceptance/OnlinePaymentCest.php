@@ -29,7 +29,6 @@ class OnlinePaymentCest
             $I->fillField(['name' =>'23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
             // Fails to load StripeJS causing "ReferenceError: Can't find variable: Stripe"
             //$I->fillField(['name' =>'stripe_publishable_key'], env('stripe_secret_key') ?: Fixtures::get('stripe_publishable_key'));
-            $I->selectOption('#token_billing_type_id', 4);
             $I->click('Save');
             $I->see('Successfully created gateway');
         }

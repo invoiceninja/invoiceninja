@@ -8,7 +8,7 @@
     @foreach ($account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
-	<script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
@@ -1463,7 +1463,7 @@
     }
 
     window.countUploadingDocuments = 0;
-    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+
     function handleDocumentAdded(file){
         // open document when clicked
         if (file.url) {
@@ -1508,7 +1508,6 @@
     function handleDocumentError() {
         window.countUploadingDocuments--;
     }
-    @endif
 
 	</script>
     @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)
