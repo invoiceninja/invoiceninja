@@ -67,18 +67,16 @@ class CheckBalanceCest
         $I->see('Balance $0.00');
         $I->see('Paid to Date $' . ($productPrice * 2));
 
-        /*
         // archive the invoice
-        $I->amOnPage('/invoices/' . $invoiceId);
+        $I->amOnPage('/invoices/' . $invoiceId . '/edit');
         $I->executeJS('submitBulkAction("archive")');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
         $I->see('Balance $0.00');
         $I->see('Paid to Date $' . ($productPrice * 2));
-        */
-        
+
         // delete the invoice
-        $I->amOnPage('/invoices/' . $invoiceId);
+        $I->amOnPage('/invoices/' . $invoiceId . '/edit');
         $I->executeJS('submitBulkAction("delete")');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
@@ -86,7 +84,7 @@ class CheckBalanceCest
         $I->see('Paid to Date $0.00');
 
         // restore the invoice
-        $I->amOnPage('/invoices/' . $invoiceId);
+        $I->amOnPage('/invoices/' . $invoiceId . '/edit');
         $I->executeJS('submitBulkAction("restore")');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
