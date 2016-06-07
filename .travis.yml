@@ -32,10 +32,10 @@ before_install:
 
 install:
   # install Composer dependencies
-  - rm composer.lock
+#  - rm composer.lock
   # these providers require referencing git commit's which cause Travis to fail
-  - sed -i '/mollie/d' composer.json
-  - sed -i '/2checkout/d' composer.json
+#  - sed -i '/mollie/d' composer.json
+#  - sed -i '/2checkout/d' composer.json
   - travis_retry composer install --prefer-dist;
 
 before_script:
@@ -67,18 +67,18 @@ before_script:
 
 script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance ExpenseCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance QuoteCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
-  - php ./vendor/codeception/codeception/codecept run acceptance OnlinePaymentCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ExpenseCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance QuoteCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
+  #- php ./vendor/codeception/codeception/codecept run acceptance OnlinePaymentCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
 
   #- sed -i 's/NINJA_DEV=true/NINJA_PROD=true/g' .env
   #- php ./vendor/codeception/codeception/codecept run acceptance GoProCest.php
