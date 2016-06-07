@@ -1490,9 +1490,9 @@
     }
 
     function handleDocumentUploaded(file, response){
+        window.countUploadingDocuments--;
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
-        window.countUploadingDocuments--;
         @if ($account->invoice_embed_documents)
             refreshPDF(true);
         @endif
