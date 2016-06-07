@@ -8,6 +8,8 @@
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
+We're often asked to recommend PHP developers, email us at contact@invoiceninja.com if you'd like us to consider you for the work.
+
 ### Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
 * White-label reseller (you pay us): 10% of revenue with a $100 sign up fee
