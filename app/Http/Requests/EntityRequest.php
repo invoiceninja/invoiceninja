@@ -31,15 +31,13 @@ class EntityRequest extends Request {
         }
 
         $class = Utils::getEntityClass($this->entityType);
-        \Log::info('entity ' . $this->entityType . ' - ' . $publicId);
+        
         if (method_exists($class, 'withTrashed')) {
-            \Log::info('has withTrashed')
             $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
         } else {
-            \Log::info('does not have withTrashed')
             $this->entity = $class::scope($publicId)->firstOrFail();
         }
-        \Log::info($this->entity);
+
         return $this->entity;
     }
 
