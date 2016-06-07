@@ -633,11 +633,11 @@ class Account extends Eloquent
 
     public function getNextInvoiceNumber($invoice)
     {
-        if ($this->hasNumberPattern($invoice->invoice_type_id)) {
+        if ($this->hasNumberPattern($invoice->is_quote)) {
             $number = $this->getNumberPattern($invoice);
         } else {
-            $counter = $this->getCounter($invoice->invoice_type_id);
-            $prefix = $this->getNumberPrefix($invoice->invoice_type_id);
+            $counter = $this->getCounter($invoice->is_quote);
+            $prefix = $this->getNumberPrefix($invoice->is_quote);
             $counterOffset = 0;
 
             // confirm the invoice number isn't already taken
