@@ -1005,7 +1005,11 @@ class PaymentService extends BaseService
                 'transactionReference' => $payment->transaction_reference,
             );
 
-            if ($accountGateway->gateway_id != GATEWAY_WEPAY || $amount != ($payment->amount - $payment->refunded)) {
+            if ($accountGateway->gateway_id == GATEWAY_WEPAY && $amount == $payment->getCompletedAmount()) {
+                // WePay issues a full refund when no amount is set. If an amount is set, it will try
+                // to issue a partial refund without refunding any fees. However, the Stripe driver
+                // (but not the API) requires the amount parameter to be set no matter what.
+            } else {
                 $details['amount'] = $amount;
             }
 
