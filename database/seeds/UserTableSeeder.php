@@ -42,6 +42,7 @@ class UserTableSeeder extends Seeder
             'primary_color' => $faker->hexcolor,
             'timezone_id' => 1,
             'company_id' => $company->id,
+            'is_admin' => 1,
         ]);
 
         $user = User::create([

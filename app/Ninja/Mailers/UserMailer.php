@@ -36,10 +36,10 @@ class UserMailer extends Mailer
 
     public function sendNotification(User $user, Invoice $invoice, $notificationType, Payment $payment = null)
     {
-        if (!$user->email) {
+        if (! $user->email || $user->cannot('view', $invoice)) {
             return;
         }
-        
+
         $entityType = $invoice->getEntityType();
         $view = ($notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE) . "_{$notificationType}";
         $account = $user->account;
@@ -65,7 +65,7 @@ class UserMailer extends Mailer
             'invoice' => $invoice->invoice_number,
             'client' => $client->getDisplayName()
         ]);
-        
+
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
@@ -89,7 +89,7 @@ class UserMailer extends Mailer
             'contactName' => $invitation->contact->getDisplayName(),
             'invoiceNumber' => $invoice->invoice_number,
         ];
-        
+
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 }
