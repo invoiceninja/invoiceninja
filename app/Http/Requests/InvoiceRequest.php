@@ -10,6 +10,7 @@ class InvoiceRequest extends EntityRequest {
     {
         $invoice = parent::entity();
 
+        /*
         // support loading an invoice by its invoice number
         if ($this->invoice_number && ! $invoice) {
             $invoice = Invoice::scope()
@@ -17,7 +18,8 @@ class InvoiceRequest extends EntityRequest {
                         ->withTrashed()
                         ->firstOrFail();
         }
-
+        */
+        
         // eager load the invoice items
         if ($invoice && ! $invoice->relationLoaded('invoice_items')) {
             $invoice->load('invoice_items');
