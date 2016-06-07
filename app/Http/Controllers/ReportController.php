@@ -299,7 +299,7 @@ class ReportController extends BaseController
                         $account->formatMoney($tax['paid'], $client)
                     ];
                 }
-    
+
                 $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $tax['amount']);
                 $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $tax['paid']);
             }
@@ -320,7 +320,7 @@ class ReportController extends BaseController
         $account = Auth::user()->account;
         $displayData = [];
         $reportTotals = [];
-        
+
         $payments = Payment::scope()
                         ->withTrashed()
                         ->where('is_deleted', '=', false)
@@ -350,7 +350,7 @@ class ReportController extends BaseController
             $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
             $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment->amount);
         }
-        
+
         return [
             'columns' => $columns,
             'displayData' => $displayData,
@@ -361,11 +361,11 @@ class ReportController extends BaseController
     private function generateInvoiceReport($startDate, $endDate, $isExport)
     {
         $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'payment_date', 'paid', 'method'];
-        
+
         $account = Auth::user()->account;
         $displayData = [];
         $reportTotals = [];
-        
+
         $clients = Client::scope()
                         ->withTrashed()
                         ->with('contacts')
@@ -383,10 +383,10 @@ class ReportController extends BaseController
                                   }, 'invoice_items'])
                                   ->withTrashed();
                         }]);
-        
+
         foreach ($clients->get() as $client) {
-            foreach ($client->invoices as $invoice) {               
-                
+            foreach ($client->invoices as $invoice) {
+
                 $payments = count($invoice->payments) ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
                     $displayData[] = [
@@ -397,10 +397,8 @@ class ReportController extends BaseController
                         $payment ? $payment->present()->payment_date : '',
                         $payment ? $account->formatMoney($payment->amount, $client) : '',
                         $payment ? $payment->present()->method : '',
-                    ];          
-                    if ($payment) {
-                        $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment->amount);
-                    }
+                    ];
+                    $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment ? $payment->amount : 0);
                 }
 
                 $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
@@ -491,7 +489,7 @@ class ReportController extends BaseController
 
             $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'amount', $amount);
             $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'amount', 0);
-            
+
             $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'invoiced', $invoiced);
             $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'invoiced', 0);
         }
@@ -518,14 +516,14 @@ class ReportController extends BaseController
     private function export($reportType, $data, $columns, $totals)
     {
         $output = fopen('php://output', 'w') or Utils::fatalError();
-        $reportType = trans("texts.{$reportType}s"); 
+        $reportType = trans("texts.{$reportType}s");
         $date = date('Y-m-d');
-        
+
         header('Content-Type:application/csv');
         header("Content-Disposition:attachment;filename={$date}_Ninja_{$reportType}.csv");
 
         Utils::exportData($output, $data, Utils::trans($columns));
-        
+
         fwrite($output, trans('texts.totals'));
         foreach ($totals as $currencyId => $fields) {
             foreach ($fields as $key => $value) {
