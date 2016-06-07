@@ -20,7 +20,7 @@ class UserTableSeeder extends Seeder
 
         $faker = Faker\Factory::create();
         $company = Company::create();
-        
+
         $account = Account::create([
             'name' => $faker->name,
             'address1' => $faker->streetAddress,
@@ -28,7 +28,7 @@ class UserTableSeeder extends Seeder
             'city' => $faker->city,
             'state' => $faker->state,
             'postal_code' => $faker->postcode,
-            'country_id' => Country::all()->random()->id, 
+            'country_id' => Country::all()->random()->id,
             'account_key' => str_random(RANDOM_KEY_LENGTH),
             'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),
             'work_phone' => $faker->phoneNumber,
@@ -50,12 +50,13 @@ class UserTableSeeder extends Seeder
             'confirmed' => true,
             'notify_sent' => false,
             'notify_paid' => false,
+	        'is_admin' => 1,
         ]);
 
         Affiliate::create([
             'affiliate_key' => SELF_HOST_AFFILIATE_KEY
         ]);
-        
+
 	}
 
 }
