@@ -269,8 +269,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
     Route::resource('clients', 'ClientApiController');
-    //Route::get('quotes', 'QuoteApiController@index');
-    //Route::resource('quotes', 'QuoteApiController');
+    Route::get('quotes', 'QuoteApiController@index');
     Route::get('invoices', 'InvoiceApiController@index');
     Route::get('download/{invoice_id}', 'InvoiceApiController@download');
     Route::resource('invoices', 'InvoiceApiController');
@@ -322,10 +321,15 @@ Route::get('/testimonials', function() {
 Route::get('/compare-online-invoicing{sites?}', function() {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
-Route::get('/forgot_password', function() {
-    return Redirect::to(NINJA_APP_URL.'/forgot', 301);
+Route::get('/forgot', function() {
+    return Redirect::to(NINJA_APP_URL.'/recover_password', 301);
 });
-
+Route::get('/feed', function() {
+    return Redirect::to(NINJA_WEB_URL.'/feed', 301);
+});
+Route::get('/comments/feed', function() {
+    return Redirect::to(NINJA_WEB_URL.'/comments/feed', 301);
+});
 
 if (!defined('CONTACT_EMAIL')) {
     define('CONTACT_EMAIL', Config::get('mail.from.address'));

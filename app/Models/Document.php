@@ -18,7 +18,7 @@ class Document extends EntityModel
 
     public static $allowedMimes = array(// Used by Dropzone.js; does not affect what the server accepts
         'image/png', 'image/jpeg', 'image/tiff', 'application/pdf', 'image/gif', 'image/vnd.adobe.photoshop', 'text/plain',
-        'application/zip', 'application/msword',
+        'application/msword',
         'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/postscript', 'image/svg+xml',
@@ -52,9 +52,6 @@ class Document extends EntityModel
         ),
         'txt' => array(
             'mime' => 'text/plain',
-        ),
-        'zip' => array(
-            'mime' => 'application/zip',
         ),
         'doc' => array(
             'mime' => 'application/msword',
