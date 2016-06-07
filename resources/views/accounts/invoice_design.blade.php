@@ -13,22 +13,22 @@
 
 @stop
 
-@section('content')	
+@section('content')
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_DESIGN, 'advanced' => true])
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-    var invoice = {!! json_encode($invoice) !!};      
-      
+    var invoice = {!! json_encode($invoice) !!};
+
     function getDesignJavascript() {
       var id = $('#invoice_design_id').val();
       if (id == '-1') {
-        showMoreDesigns(); 
+        showMoreDesigns();
         $('#invoice_design_id').val(1);
         return invoiceDesigns[0].javascript;
-      } else {        
+      } else {
         var design = _.find(invoiceDesigns, function(design){ return design.id == id});
         return design ? design.javascript : '';
       }
@@ -44,7 +44,7 @@
         jQuery.getScript({!! json_encode(asset('js/vfs_fonts/%s.js')) !!}.replace('%s', fontFolder), function(){window.loadingFonts=false;ninjaLoadFontVfs();refreshPDF()})
       }
     }
-    
+
     function getPDFString(cb) {
       invoice.features = {
           customize_invoice_design:{{ Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'true' : 'false' }},
@@ -56,21 +56,21 @@
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
       invoice.account.page_size = $('#page_size option:selected').text();
-      
+
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
       NINJA.fontSize = parseInt($('#font_size').val());
       NINJA.headerFont = $('#header_font_id option:selected').text();
       NINJA.bodyFont = $('#body_font_id option:selected').text();
-      
+
       var fields = [
-          'item', 
-          'description', 
-          'unit_cost', 
-          'quantity', 
-          'line_total', 
-          'terms', 
-          'balance_due', 
+          'item',
+          'description',
+          'unit_cost',
+          'quantity',
+          'line_total',
+          'terms',
+          'balance_due',
           'partial_due'
       ];
       invoiceLabels.old = {};
@@ -88,7 +88,7 @@
       generatePDF(invoice, getDesignJavascript(), true, cb);
     }
 
-    $(function() {   
+    $(function() {
       var options = {
         preferredFormat: 'hex',
         disabled: {!! Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ? 'false' : 'true' !!},
@@ -102,19 +102,19 @@
       $('#secondary_color').spectrum(options);
       $('#header_font_id').change(function(){loadFont($('#header_font_id').val())});
       $('#body_font_id').change(function(){loadFont($('#body_font_id').val())});
-      
-      
+
+
       refreshPDF();
     });
 
-  </script> 
+  </script>
 
 
   <div class="row">
     <div class="col-md-12">
 
       {!! Former::open()->addClass('warn-on-exit')->onchange('if(!window.loadingFonts)refreshPDF()') !!}
-      
+
       {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
       {!! Former::populateField('body_font_id', $account->body_font_id) !!}
       {!! Former::populateField('header_font_id', $account->header_font_id) !!}
@@ -158,7 +158,7 @@
                             {!! Former::select('invoice_design_id')
                                     ->fromQuery($invoiceDesigns, 'name', 'id')
                                     ->addOption(trans('texts.more_designs') . '...', '-1') !!}
-                          @else 
+                          @else
                             {!! Former::select('invoice_design_id')
                                     ->fromQuery($invoiceDesigns, 'name', 'id') !!}
                           @endif
@@ -167,7 +167,7 @@
                           {!! Former::select('header_font_id')
                                   ->fromQuery($invoiceFonts, 'name', 'id') !!}
 
-                          {!! Former::checkbox('live_preview')->text(trans('texts.enable')) !!}                        
+                          {!! Former::checkbox('live_preview')->text(trans('texts.enable')) !!}
 
                         </div>
                         <div class="col-md-6">
@@ -177,7 +177,7 @@
 
                           {!! Former::select('page_size')
                                   ->options($pageSizes) !!}
-                                  
+
                           {!! Former::text('font_size')
                                 ->type('number')
                                 ->min('0')
@@ -208,12 +208,15 @@
                               {!! Former::text('labels_description')->label(trans('texts.description')) !!}
                               {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
                               {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
+							  {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
+							  {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
                         </div>
                         <div class="col-md-6">
-                              {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
-                              {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
-                              {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
-                              {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
+                              {!! Former::text('labels_subtotal')->label(trans('texts.subtotal')) !!}
+							  {!! Former::text('labels_discount')->label(trans('texts.discount')) !!}
+							  {!! Former::text('labels_paid_to_date')->label(trans('texts.paid_to_date')) !!}
+							  {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
+							  {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
                         </div>
                       </div>
 
@@ -253,7 +256,7 @@
 
 
     <br/>
-    {!! Former::actions( 
+    {!! Former::actions(
             Button::primary(trans('texts.customize'))
                 ->appendIcon(Icon::create('edit'))
                 ->asLinkTo(URL::to('/settings/customize_design'))
@@ -267,10 +270,10 @@
 
       @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
         <script>
-              $(function() {   
+              $(function() {
                 $('form.warn-on-exit input, .save-button').prop('disabled', true);
               });
-          </script> 
+          </script>
       @endif
 
       {!! Former::close() !!}
