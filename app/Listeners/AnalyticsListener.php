@@ -11,30 +11,30 @@ class AnalyticsListener
         if ( ! Utils::isNinja() || ! env('ANALYTICS_KEY')) {
             return;
         }
-        
+
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $account = $payment->account;
-        
+
         if ($account->account_key != NINJA_ACCOUNT_KEY) {
             return;
         }
-        
+
         $analyticsId = env('ANALYTICS_KEY');
         $client = $payment->client;
         $amount = $payment->amount;
-        
-        $base = "v=1&tid={$analyticsId}&cid{$client->public_id}&cu=USD&ti={$invoice->invoice_number}";
-        
-        $url = $base . "&t=transaction&ta=ninja&tr={$amount}"; 
+
+        $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu=USD&ti={$invoice->invoice_number}";
+
+        $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
         //Log::info($url);
 
-        $url = $base . "&t=item&in=plan&ip={$amount}&iq=1"; 
+        $url = $base . "&t=item&in=plan&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
         //Log::info($url);
     }
-    
+
     private function sendAnalytics($data)
     {
         $data = json_encode($data);
