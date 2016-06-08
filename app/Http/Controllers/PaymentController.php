@@ -32,7 +32,7 @@ use App\Http\Requests\UpdatePaymentRequest;
 class PaymentController extends BaseController
 {
     protected $entityType = ENTITY_PAYMENT;
-    
+
     public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
     {
         // parent::__construct();
@@ -71,6 +71,7 @@ class PaymentController extends BaseController
     public function create(PaymentRequest $request)
     {
         $invoices = Invoice::scope()
+                    ->viewable()
                     ->where('is_recurring', '=', false)
                     ->where('is_quote', '=', false)
                     ->where('invoices.balance', '>', 0)
@@ -88,7 +89,7 @@ class PaymentController extends BaseController
             'title' => trans('texts.new_payment'),
             'paymentTypes' => Cache::get('paymentTypes'),
             'paymentTypeId' => Input::get('paymentTypeId'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
+            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(), );
 
         return View::make('payments.edit', $data);
     }
@@ -96,7 +97,7 @@ class PaymentController extends BaseController
     public function edit(PaymentRequest $request)
     {
         $payment = $request->entity();
-                
+
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
 
         $data = array(
@@ -565,7 +566,7 @@ class PaymentController extends BaseController
                     Session::flash('error', $message);
                 }
                 return Redirect::to($invitation->getLink());
-            } elseif (method_exists($gateway, 'completePurchase') 
+            } elseif (method_exists($gateway, 'completePurchase')
                 && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)
                 && !$accountGateway->isGateway(GATEWAY_CHECKOUT_COM)) {
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
@@ -597,7 +598,7 @@ class PaymentController extends BaseController
     public function store(CreatePaymentRequest $request)
     {
         $input = $request->input();
-                
+
         $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
         $input['client_id'] = Client::getPrivateId($input['client']);
         $payment = $this->paymentRepo->save($input);
