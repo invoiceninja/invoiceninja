@@ -9,7 +9,7 @@ class VendorContact extends EntityModel
     use SoftDeletes;
     protected $dates = ['deleted_at'];
     protected $table = 'vendor_contacts';
-    
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -30,7 +30,7 @@ class VendorContact extends EntityModel
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function vendor()

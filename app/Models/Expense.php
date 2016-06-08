@@ -35,7 +35,7 @@ class Expense extends EntityModel
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function vendor()
@@ -90,13 +90,13 @@ class Expense extends EntityModel
     {
         return round($this->amount * $this->exchange_rate, 2);
     }
-    
+
     public function toArray()
     {
         $array = parent::toArray();
-        
+
         if(empty($this->visible) || in_array('converted_amount', $this->visible))$array['converted_amount'] = $this->convertedAmount();
-        
+
         return $array;
     }
 }
