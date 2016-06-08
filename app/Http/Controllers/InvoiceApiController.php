@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Request;
 use Utils;
 use Response;
@@ -135,6 +134,7 @@ class InvoiceApiController extends BaseAPIController
                     'city',
                     'state',
                     'postal_code',
+                    'country_id',
                     'private_notes',
                     'currency_code',
                 ] as $field) {

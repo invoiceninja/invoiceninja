@@ -70,7 +70,7 @@
         var thousand = currency.thousand_separator;
         var decimal = currency.decimal_separator;
         var code = currency.code;
-        var swapSymbol = false;
+        var swapSymbol = currency.swap_currency_symbol;
 
         if (countryId && currencyId == {{ CURRENCY_EURO }}) {
             var country = countryMap[countryId];

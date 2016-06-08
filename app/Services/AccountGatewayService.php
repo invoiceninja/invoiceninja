@@ -1,9 +1,9 @@
 <?php namespace App\Services;
 
 use URL;
-use App\Models\Gateway;
 use App\Services\BaseService;
 use App\Ninja\Repositories\AccountGatewayRepository;
+use App\Ninja\Datatables\AccountGatewayDatatable;
 
 class AccountGatewayService extends BaseService
 {
@@ -21,48 +21,11 @@ class AccountGatewayService extends BaseService
         return $this->accountGatewayRepo;
     }
 
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
-
     public function getDatatable($accountId)
     {
         $query = $this->accountGatewayRepo->find($accountId);
 
-        return $this->createDatatable(ENTITY_ACCOUNT_GATEWAY, $query, false);
-    }
-
-    protected function getDatatableColumns($entityType, $hideClient)
-    {
-        return [
-            [
-                'name',
-                function ($model) {
-                    return link_to("gateways/{$model->public_id}/edit", $model->name)->toHtml();
-                }
-            ],
-            [
-                'payment_type',
-                function ($model) {
-                    return Gateway::getPrettyPaymentType($model->gateway_id);
-                }
-            ],
-        ];
-    }
-
-    protected function getDatatableActions($entityType)
-    {
-        return [
-            [
-                uctrans('texts.edit_gateway'),
-                function ($model) {
-                    return URL::to("gateways/{$model->public_id}/edit");
-                }
-            ]
-        ];
+        return $this->datatableService->createDatatable(new AccountGatewayDatatable(false), $query);
     }
 
 }

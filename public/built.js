@@ -30933,7 +30933,7 @@ function truncate(string, length){
 
 // Show/hide the 'Select' option in the datalists 
 function actionListHandler() {
-    $('tbody tr').mouseover(function() {
+    $('tbody tr .tr-action').closest('tr').mouseover(function() {
         $(this).closest('tr').find('.tr-action').show();
         $(this).closest('tr').find('.tr-status').hide();
     }).mouseout(function() {

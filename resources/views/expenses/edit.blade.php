@@ -15,10 +15,10 @@
 
 @section('content')
 
-    {!! Former::open($url)
-        ->addClass('warn-on-exit main-form')
-        ->onsubmit('return onFormSubmit(event)')
-        ->method($method) !!}
+	{!! Former::open($url)
+            ->addClass('warn-on-exit main-form')
+            ->onsubmit('return onFormSubmit(event)')
+            ->method($method) !!}
     <div style="display:none">
         {!! Former::text('action') !!}
     </div>
@@ -114,15 +114,8 @@
                 <div class="col-md-12 col-sm-8">
                     <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                         <div id="document-upload" class="dropzone">
-                            <div class="fallback">
-                                <input name="documents[]" type="file" multiple />
-                            </div>
                             <div data-bind="foreach: documents">
-                                <div class="fallback-doc">
-                                    <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
-                                    <span data-bind="text:name"></span>
-                                    <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
-                                </div>
+                                <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                             </div>
                         </div>
                     </div>
@@ -229,7 +222,7 @@
                 $('#amount').focus();
             @endif
 
-            @if (Auth::user()->account->isPro())
+            @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
             $('.main-form').submit(function(){
                 if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
                 else $(this).removeAttr('enctype')
@@ -237,15 +230,15 @@
 
             // Initialize document upload
             dropzone = new Dropzone('#document-upload', {
-                url:{!! json_encode(url('document')) !!},
+                url:{!! json_encode(url('documents')) !!},
                 params:{
                     _token:"{{ Session::getToken() }}"
                 },
                 acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
                 addRemoveLinks:true,
                 dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
-                @foreach(trans('texts.dropzone') as $key=>$text)
-    	            "dict{{strval($key)}}":"{{strval($text)}}",
+                @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
+                    "dict{{strval($key)}}":"{{trans('texts.dropzone_'.Utils::toClassCase($key))}}",
                 @endforeach
                 maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             });

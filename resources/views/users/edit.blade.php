@@ -38,6 +38,7 @@
 <div class="panel-body form-padding-right">
 
     @if ( ! Utils::hasFeature(FEATURE_USER_PERMISSIONS))
+      <div class="alert alert-warning">{{ trans('texts.upgrade_for_permissions') }}</div>
       <script>
           $(function() {
               $('input[type=checkbox]').prop('disabled', true);

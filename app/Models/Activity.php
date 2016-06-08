@@ -70,6 +70,8 @@ class Activity extends Eloquent
             'quote' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
             'contact' => $contactId ? $client->getDisplayName() : $user->getDisplayName(),
             'payment' => $payment ? $payment->transaction_reference : null,
+            'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
+            'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : asdf,
             'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
         ];
 

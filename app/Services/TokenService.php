@@ -3,6 +3,7 @@
 use URL;
 use App\Services\BaseService;
 use App\Ninja\Repositories\TokenRepository;
+use App\Ninja\Datatables\TokenDatatable;
 
 class TokenService extends BaseService
 {
@@ -20,48 +21,12 @@ class TokenService extends BaseService
         return $this->tokenRepo;
     }
 
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
-
     public function getDatatable($userId)
     {
+        $datatable = new TokenDatatable(false);
         $query = $this->tokenRepo->find($userId);
 
-        return $this->createDatatable(ENTITY_TOKEN, $query, false);
-    }
-
-    protected function getDatatableColumns($entityType, $hideClient)
-    {
-        return [
-            [
-                'name',
-                function ($model) {
-                    return link_to("tokens/{$model->public_id}/edit", $model->name)->toHtml();
-                }
-            ],
-            [
-                'token',
-                function ($model) {
-                    return $model->token;
-                }
-            ]
-        ];
-    }
-
-    protected function getDatatableActions($entityType)
-    {
-        return [
-            [
-                uctrans('texts.edit_token'),
-                function ($model) {
-                    return URL::to("tokens/{$model->public_id}/edit");
-                }
-            ]
-        ];
+        return $this->datatableService->createDatatable($datatable, $query);
     }
 
 }

@@ -42,11 +42,22 @@ class ExportController extends BaseController
         $manager = new Manager();
         $manager->setSerializer(new ArraySerializer());
 
+        // eager load data, include archived but exclude deleted
         $account = Auth::user()->account;
-        $account->loadAllData();
+        $account->load(['clients' => function($query) {
+            $query->withArchived()
+                  ->with(['contacts', 'invoices' => function($query) {
+                      $query->withArchived()
+                            ->with(['invoice_items', 'payments' => function($query) {
+                                $query->withArchived();
+                            }]);
+                  }]);
+        }]);
 
         $resource = new Item($account, new AccountTransformer);
-        $data = $manager->createData($resource)->toArray();
+        $data = $manager->parseIncludes('clients.invoices.payments')
+                    ->createData($resource)
+                    ->toArray();
 
         return response()->json($data);
     }
@@ -84,13 +95,14 @@ class ExportController extends BaseController
                 if ($key === 'account' || $key === 'title' || $key === 'multiUser') {
                     continue;
                 }
+                if ($key === 'recurringInvoices') {
+                    $key = 'recurring_invoices';
+                }
                 $label = trans("texts.{$key}");
                 $excel->sheet($label, function($sheet) use ($key, $data) {
                     if ($key === 'quotes') {
                         $key = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;
-                    } elseif ($key === 'recurringInvoices') {
-                        $key = 'recurring_invoices';
                     }
                     $sheet->loadView("export.{$key}", $data);
                 });
@@ -107,7 +119,7 @@ class ExportController extends BaseController
             'title' => 'Invoice Ninja v' . NINJA_VERSION . ' - ' . $account->formatDateTime($account->getDateTime()),
             'multiUser' => $account->users->count() > 1
         ];
-        
+
         if ($request->input(ENTITY_CLIENT)) {
             $data['clients'] = Client::scope()
                 ->with('user', 'contacts', 'country')
@@ -123,37 +135,37 @@ class ExportController extends BaseController
                 ->with('user', 'client.contacts')
                 ->get();
         }
-        
+
         if ($request->input(ENTITY_TASK)) {
             $data['tasks'] = Task::scope()
                 ->with('user', 'client.contacts')
                 ->withArchived()
                 ->get();
         }
-        
+
         if ($request->input(ENTITY_INVOICE)) {
             $data['invoices'] = Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->with('user', 'client.contacts', 'invoice_status')
                 ->withArchived()
-                ->where('is_quote', '=', false)
                 ->where('is_recurring', '=', false)
                 ->get();
-        
+
             $data['quotes'] = Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_QUOTE)
                 ->with('user', 'client.contacts', 'invoice_status')
                 ->withArchived()
-                ->where('is_quote', '=', true)
                 ->where('is_recurring', '=', false)
                 ->get();
 
             $data['recurringInvoices'] = Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->with('user', 'client.contacts', 'invoice_status', 'frequency')
                 ->withArchived()
-                ->where('is_quote', '=', false)
                 ->where('is_recurring', '=', true)
                 ->get();
         }
-        
+
         if ($request->input(ENTITY_PAYMENT)) {
             $data['payments'] = Payment::scope()
                 ->withArchived()
@@ -161,7 +173,7 @@ class ExportController extends BaseController
                 ->get();
         }
 
-        
+
         if ($request->input(ENTITY_VENDOR)) {
             $data['clients'] = Vendor::scope()
                 ->with('user', 'vendor_contacts', 'country')
@@ -172,14 +184,14 @@ class ExportController extends BaseController
                 ->with('user', 'vendor.vendor_contacts')
                 ->withTrashed()
                 ->get();
-            
+
             /*
             $data['expenses'] = Credit::scope()
                 ->with('user', 'client.contacts')
                 ->get();
             */
         }
-        
+
         return $data;
     }
 }

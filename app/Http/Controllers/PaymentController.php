@@ -15,14 +15,17 @@ use Cache;
 use App\Models\Invoice;
 use App\Models\Invitation;
 use App\Models\Client;
+use App\Models\Account;
 use App\Models\PaymentType;
 use App\Models\License;
 use App\Models\Payment;
 use App\Models\Affiliate;
+use App\Models\PaymentMethod;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Mailers\UserMailer;
 use App\Services\PaymentService;
 
 use App\Http\Requests\PaymentRequest;
@@ -33,7 +36,7 @@ class PaymentController extends BaseController
 {
     protected $entityType = ENTITY_PAYMENT;
     
-    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
+    public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService, UserMailer $userMailer)
     {
         // parent::__construct();
 
@@ -42,6 +45,7 @@ class PaymentController extends BaseController
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
         $this->paymentService = $paymentService;
+        $this->userMailer = $userMailer;
     }
 
     public function index()
@@ -56,8 +60,10 @@ class PaymentController extends BaseController
               'client',
               'transaction_reference',
               'method',
+              'source',
               'payment_amount',
               'payment_date',
+              'status',
               ''
             ]),
         ));
@@ -71,8 +77,8 @@ class PaymentController extends BaseController
     public function create(PaymentRequest $request)
     {
         $invoices = Invoice::scope()
+                    ->invoiceType(INVOICE_TYPE_STANDARD)
                     ->where('is_recurring', '=', false)
-                    ->where('is_quote', '=', false)
                     ->where('invoices.balance', '>', 0)
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
@@ -102,7 +108,7 @@ class PaymentController extends BaseController
         $data = array(
             'client' => null,
             'invoice' => null,
-            'invoices' => Invoice::scope()->where('is_recurring', '=', false)->where('is_quote', '=', false)
+            'invoices' => Invoice::scope()->invoiceType(INVOICE_TYPE_STANDARD)->where('is_recurring', '=', false)
                             ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'payment' => $payment,
             'method' => 'PUT',
@@ -128,9 +134,8 @@ class PaymentController extends BaseController
         ];
     }
 
-    public function show_payment($invitationKey, $paymentType = false)
+    public function show_payment($invitationKey, $paymentType = false, $sourceId = false)
     {
-
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
         $invoice = $invitation->invoice;
         $client = $invoice->client;
@@ -144,54 +149,98 @@ class PaymentController extends BaseController
                                 $account->account_gateways[0]->getPaymentType();
         }
 
-        if ($paymentType == PAYMENT_TYPE_TOKEN) {
-            $useToken = true;
-            $paymentType = PAYMENT_TYPE_CREDIT_CARD;
-        }
-        Session::put($invitation->id . 'payment_type', $paymentType);
+        $data = array();
 
-        $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
-        $gateway = $accountGateway->gateway;
+        Session::put($invitation->id.'payment_ref', $invoice->id.'_'.uniqid());
 
-        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
+        $details = json_decode(Input::get('details'));
+        $data['details'] = $details;
 
 
-        // Handle offsite payments
-        if ($useToken || $paymentType != PAYMENT_TYPE_CREDIT_CARD
-            || $gateway->id == GATEWAY_EWAY
-            || $gateway->id == GATEWAY_TWO_CHECKOUT
-            || $gateway->id == GATEWAY_PAYFAST
-            || $gateway->id == GATEWAY_MOLLIE) {
-            if (Session::has('error')) {
-                Session::reflash();
-                return Redirect::to('view/'.$invitationKey);
-            } else {
-                return self::do_payment($invitationKey, false, $useToken);
+        if ($paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
+            if ($deviceData = Input::get('device_data')) {
+                Session::put($invitation->id . 'device_data', $deviceData);
             }
+
+            Session::put($invitation->id . 'payment_type', PAYMENT_TYPE_BRAINTREE_PAYPAL);
+            if (!$sourceId || !$details) {
+                return Redirect::to('view/'.$invitationKey);
+            }
+        } elseif ($paymentType == PAYMENT_TYPE_WEPAY_ACH) {
+            Session::put($invitation->id . 'payment_type', PAYMENT_TYPE_WEPAY_ACH);
+
+            if (!$sourceId) {
+                return Redirect::to('view/'.$invitationKey);
+            }
+        } else {
+            if ($paymentType == PAYMENT_TYPE_TOKEN) {
+                $useToken = true;
+                $accountGateway = $invoice->client->account->getTokenGateway();
+                $paymentType = $accountGateway->getPaymentType();
+            } else {
+                $accountGateway = $invoice->client->account->getGatewayByType($paymentType);
+            }
+
+            Session::put($invitation->id . 'payment_type', $paymentType);
+
+            $gateway = $accountGateway->gateway;
+
+            $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
+
+            $isOffsite = ($paymentType != PAYMENT_TYPE_CREDIT_CARD && $accountGateway->getPaymentType() != PAYMENT_TYPE_STRIPE)
+                || $gateway->id == GATEWAY_EWAY
+                || $gateway->id == GATEWAY_TWO_CHECKOUT
+                || $gateway->id == GATEWAY_PAYFAST
+                || $gateway->id == GATEWAY_MOLLIE;
+
+            // Handle offsite payments
+            if ($useToken || $isOffsite) {
+                if (Session::has('error')) {
+                    Session::reflash();
+                    return Redirect::to('view/' . $invitationKey);
+                } else {
+                    return self::do_payment($invitationKey, false, $useToken, $sourceId);
+                }
+            }
+
+            $data += [
+                'accountGateway' => $accountGateway,
+                'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
+                'gateway' => $gateway,
+                'showAddress' => $accountGateway->show_address,
+            ];
+
+            if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
+                $data['currencies'] = Cache::get('currencies');
+            }
+
+            if ($gateway->id == GATEWAY_BRAINTREE) {
+                $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
+            }
+
+            if(!empty($data['braintreeClientToken']) || $accountGateway->getPublishableStripeKey()|| $accountGateway->gateway_id == GATEWAY_WEPAY) {
+                $data['tokenize'] = true;
+            }
+
         }
 
-        $data = [
+        $data += [
             'showBreadcrumbs' => false,
             'url' => 'payment/'.$invitationKey,
             'amount' => $invoice->getRequestedAmount(),
             'invoiceNumber' => $invoice->invoice_number,
             'client' => $client,
             'contact' => $invitation->contact,
-            'gateway' => $gateway,
-            'accountGateway' => $accountGateway,
-            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
+            'paymentType' => $paymentType,
             'countries' => Cache::get('countries'),
             'currencyId' => $client->getCurrencyId(),
             'currencyCode' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD'),
             'account' => $client->account,
-            'hideLogo' => $account->hasFeature(FEATURE_WHITE_LABEL),
-            'hideHeader' => $account->isNinjaAccount(),
-            'clientViewCSS' => $account->clientViewCSS(),
-            'clientFontUrl' => $account->getFontsUrl(),
-            'showAddress' => $accountGateway->show_address,
+            'sourceId' => $sourceId,
+            'clientFontUrl' => $client->account->getFontsUrl(),
         ];
 
-        return View::make('payments.payment', $data);
+        return View::make('payments.add_paymentmethod', $data);
     }
 
     public function show_license_payment()
@@ -222,7 +271,7 @@ class PaymentController extends BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD);
+        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_STRIPE_CREDIT_CARD);
         $gateway = $accountGateway->gateway;
         $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
 
@@ -247,7 +296,7 @@ class PaymentController extends BaseController
             'showAddress' => true,
         ];
 
-        return View::make('payments.payment', $data);
+        return View::make('payments.add_paymentmethod', $data);
     }
 
     public function do_license_payment()
@@ -278,7 +327,7 @@ class PaymentController extends BaseController
 
         $account = $this->accountRepo->getNinjaAccount();
         $account->load('account_gateways.gateway');
-        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD);
+        $accountGateway = $account->getGatewayByType(PAYMENT_TYPE_STRIPE_CREDIT_CARD);
 
         try {
             $affiliate = Affiliate::find(Session::get('affiliate_id'));
@@ -286,9 +335,8 @@ class PaymentController extends BaseController
             if ($testMode) {
                 $ref = 'TEST_MODE';
             } else {
-                $gateway = $this->paymentService->createGateway($accountGateway);
                 $details = self::getLicensePaymentDetails(Input::all(), $affiliate);
-                $response = $gateway->purchase($details)->send();
+                $response = $this->paymentService->purchase($accountGateway, $details);
                 $ref = $response->getTransactionReference();
 
                 if (!$response->isSuccessful() || !$ref) {
@@ -363,21 +411,13 @@ class PaymentController extends BaseController
         }
     }
 
-    public function do_payment($invitationKey, $onSite = true, $useToken = false)
-    {
-        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
-        $invoice = $invitation->invoice;
-        $client = $invoice->client;
-        $account = $client->account;
-        $accountGateway = $account->getGatewayByType(Session::get($invitation->id . 'payment_type'));
-
-
-        $rules = [
+    public static function processPaymentClientDetails($client, $accountGateway, $paymentType, $onSite = true){
+        $rules = ($paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH)? [] : [
             'first_name' => 'required',
             'last_name' => 'required',
         ];
 
-        if ( ! Input::get('stripeToken')) {
+        if ( !Input::get('sourceToken') && !(Input::get('plaidPublicToken') && Input::get('plaidAccountId'))) {
             $rules = array_merge(
                 $rules,
                 [
@@ -389,7 +429,9 @@ class PaymentController extends BaseController
             );
         }
 
-        if ($accountGateway->show_address) {
+        $requireAddress = $accountGateway->show_address && $paymentType != PAYMENT_TYPE_STRIPE_ACH && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH;
+
+        if ($requireAddress) {
             $rules = array_merge($rules, [
                 'address1' => 'required',
                 'city' => 'required',
@@ -403,12 +445,10 @@ class PaymentController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to('payment/'.$invitationKey)
-                    ->withErrors($validator)
-                    ->withInput(Request::except('cvv'));
+                return $validator;
             }
 
-            if ($accountGateway->update_address) {
+            if ($requireAddress && $accountGateway->update_address) {
                 $client->address1 = trim(Input::get('address1'));
                 $client->address2 = trim(Input::get('address2'));
                 $client->city = trim(Input::get('city'));
@@ -417,6 +457,51 @@ class PaymentController extends BaseController
                 $client->country_id = Input::get('country_id');
                 $client->save();
             }
+        }
+
+        return true;
+    }
+
+    public function do_payment($invitationKey, $onSite = true, $useToken = false, $sourceId = false)
+    {
+        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.currency', 'invoice.client.account.account_gateways.gateway')->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        $invoice = $invitation->invoice;
+        $client = $invoice->client;
+        $account = $client->account;
+        $paymentType = Session::get($invitation->id . 'payment_type');
+        $accountGateway = $account->getGatewayByType($paymentType);
+        $paymentMethod = null;
+
+        if ($useToken) {
+            if(!$sourceId) {
+                Session::flash('error', trans('texts.no_payment_method_specified'));
+                return Redirect::to('payment/' . $invitationKey)->withInput(Request::except('cvv'));
+            } else {
+                $customerReference = $client->getGatewayToken($accountGateway, $accountGatewayToken/* return parameter*/);
+                $paymentMethod = PaymentMethod::scope($sourceId, $account->id, $accountGatewayToken->id)->firstOrFail();
+                $sourceReference = $paymentMethod->source_reference;
+
+                // What type of payment is this?
+                if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
+                    if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+                        $paymentType = PAYMENT_TYPE_STRIPE_ACH;
+                    } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+                        $paymentType = PAYMENT_TYPE_WEPAY_ACH;
+                    }
+                } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL && $accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+                    $paymentType = PAYMENT_TYPE_BRAINTREE_PAYPAL;
+                } elseif ($accountGateway->gateway_id == GATEWAY_STRIPE) {
+                    $paymentType = PAYMENT_TYPE_STRIPE_CREDIT_CARD;
+                } else {
+                    $paymentType = PAYMENT_TYPE_CREDIT_CARD;
+                }
+            }
+        }
+
+        if (($validator = static::processPaymentClientDetails($client,  $accountGateway, $paymentType,  $onSite)) !== true) {
+            return Redirect::to('payment/'.$invitationKey)
+                ->withErrors($validator)
+                ->withInput(Request::except('cvv'));
         }
 
         try {
@@ -430,20 +515,62 @@ class PaymentController extends BaseController
 
             $gateway = $this->paymentService->createGateway($accountGateway);
             $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway, $data);
+            $details['paymentType'] = $paymentType;
+
+            // Check for authorization
+            if (($paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH) && !Input::get('authorize_ach')) {
+                Session::flash('error', trans('texts.ach_authorization_required'));
+                return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
+            }
+            if ($paymentType == PAYMENT_TYPE_WEPAY_ACH && !Input::get('tos_agree')) {
+                Session::flash('error', trans('texts.wepay_payment_tos_agree_required'));
+                return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
+            }
 
             // check if we're creating/using a billing token
+            $tokenBillingSupported = false;
+            $sourceReferenceParam = 'token';
             if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-                if ($token = Input::get('stripeToken')) {
-                    $details['token'] = $token;
-                    unset($details['card']);
+                $tokenBillingSupported = true;
+                $customerReferenceParam = 'customerReference';
+            } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
+                $tokenBillingSupported = true;
+                $sourceReferenceParam = 'paymentMethodToken';
+                $customerReferenceParam = 'customerId';
+
+                $deviceData = Input::get('device_data');
+                if (!$deviceData) {
+                    $deviceData = Session::get($invitation->id . 'device_data');
                 }
 
+                if($deviceData) {
+                    $details['device_data'] = $deviceData;
+                }
+            } elseif ($accountGateway->gateway_id == GATEWAY_WEPAY) {
+                $tokenBillingSupported = true;
+                $customerReferenceParam = false;
+            }
+
+            if ($tokenBillingSupported) {
                 if ($useToken) {
-                    $details['customerReference'] = $client->getGatewayToken();
-                } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing')) {
-                    $token = $this->paymentService->createToken($gateway, $details, $accountGateway, $client, $invitation->contact_id);
+                    if ($customerReferenceParam) {
+                        $details[$customerReferenceParam] = $customerReference;
+                    }
+                    $details[$sourceReferenceParam] = $sourceReference;
+                    unset($details['card']);
+                } elseif ($account->token_billing_type_id == TOKEN_BILLING_ALWAYS || Input::get('token_billing') || $paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH) {
+                    $token = $this->paymentService->createToken($paymentType, $gateway, $details, $accountGateway, $client, $invitation->contact_id, $customerReference/* return parameter */, $paymentMethod/* return parameter */);
                     if ($token) {
-                        $details['customerReference'] = $token;
+                        $details[$sourceReferenceParam] = $token;
+                        if ($customerReferenceParam) {
+                            $details[$customerReferenceParam] = $customerReference;
+                        }
+
+                        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty(Input::get('plaidPublicToken')) ) {
+                            // The user needs to complete verification
+                            Session::flash('message', trans('texts.bank_account_verification_next_steps'));
+                            return Redirect::to('/client/paymentmethods');
+                        }
                     } else {
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
                         return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
@@ -451,8 +578,7 @@ class PaymentController extends BaseController
                 }
             }
 
-            $response = $gateway->purchase($details)->send();
-
+            $response = $this->paymentService->purchase($accountGateway, $details);
 
             if ($accountGateway->gateway_id == GATEWAY_EWAY) {
                 $ref = $response->getData()['AccessCode'];
@@ -471,7 +597,7 @@ class PaymentController extends BaseController
             if (!$ref) {
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
-                if ($onSite) {
+                if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH) {
                     return Redirect::to('payment/'.$invitationKey)
                             ->withInput(Request::except('cvv'));
                 } else {
@@ -480,7 +606,7 @@ class PaymentController extends BaseController
             }
 
             if ($response->isSuccessful()) {
-                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref);
+                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, null, $details, $paymentMethod, $response);
                 Session::flash('message', trans('texts.applied_payment'));
 
                 if ($account->account_key == NINJA_ACCOUNT_KEY) {
@@ -499,7 +625,7 @@ class PaymentController extends BaseController
                 $response->redirect();
             } else {
                 $this->error('Unknown', $response->getMessage(), $accountGateway);
-                if ($onSite) {
+                if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH) {
                     return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
                 } else {
                     return Redirect::to('view/'.$invitationKey);
@@ -507,7 +633,7 @@ class PaymentController extends BaseController
             }
         } catch (\Exception $e) {
             $this->error('Uncaught', false, $accountGateway, $e);
-            if ($onSite) {
+            if ($onSite && $paymentType != PAYMENT_TYPE_BRAINTREE_PAYPAL && $paymentType != PAYMENT_TYPE_WEPAY_ACH) {
                 return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
             } else {
                 return Redirect::to('view/'.$invitationKey);
@@ -568,7 +694,7 @@ class PaymentController extends BaseController
             } elseif (method_exists($gateway, 'completePurchase') 
                 && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)
                 && !$accountGateway->isGateway(GATEWAY_CHECKOUT_COM)) {
-                $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
+                $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway, array());
 
                 $response = $this->paymentService->completePurchase($gateway, $accountGateway, $details, $token);
 
@@ -577,7 +703,7 @@ class PaymentController extends BaseController
                 if ($response->isCancelled()) {
                     // do nothing
                 } elseif ($response->isSuccessful()) {
-                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId);
+                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId, $details, null, $purchaseResponse);
                     Session::flash('message', trans('texts.applied_payment'));
                 } else {
                     $this->error('offsite', $response->getMessage(), $accountGateway);
@@ -624,11 +750,12 @@ class PaymentController extends BaseController
     public function bulk()
     {
         $action = Input::get('action');
+        $amount = Input::get('amount');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
-        $count = $this->paymentService->bulk($ids, $action);
+        $count = $this->paymentService->bulk($ids, $action, array('amount'=>$amount));
 
         if ($count > 0) {
-            $message = Utils::pluralize($action.'d_payment', $count);
+            $message = Utils::pluralize($action=='refund'?'refunded_payment':$action.'d_payment', $count);
             Session::flash('message', $message);
         }
 
@@ -645,5 +772,232 @@ class PaymentController extends BaseController
 
         Session::flash('error', $message);
         Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
+    }
+
+    public function getBankInfo($routingNumber) {
+        if (strlen($routingNumber) != 9 || !preg_match('/\d{9}/', $routingNumber)) {
+            return response()->json([
+                'message' => 'Invalid routing number',
+            ], 400);
+        }
+
+        $data = PaymentMethod::lookupBankData($routingNumber);
+
+        if (is_string($data)) {
+            return response()->json([
+                'message' => $data,
+            ], 500);
+        } elseif (!empty($data)) {
+            return response()->json($data);
+        }
+        
+        return response()->json([
+            'message' => 'Bank not found',
+        ], 404);
+    }
+
+    public function handlePaymentWebhook($accountKey, $gatewayId)
+    {
+        $gatewayId = intval($gatewayId);
+
+        $account = Account::where('accounts.account_key', '=', $accountKey)->first();
+
+        if (!$account) {
+            return response()->json([
+                'message' => 'Unknown account',
+            ], 404);
+        }
+
+        $accountGateway = $account->getGatewayConfig(intval($gatewayId));
+
+        if (!$accountGateway) {
+            return response()->json([
+                'message' => 'Unknown gateway',
+            ], 404);
+        }
+
+        switch($gatewayId) {
+            case GATEWAY_STRIPE:
+                return $this->handleStripeWebhook($accountGateway);
+            case GATEWAY_WEPAY:
+                return $this->handleWePayWebhook($accountGateway);
+            default:
+                return response()->json([
+                    'message' => 'Unsupported gateway',
+                ], 404);
+        }
+    }
+
+    protected function handleWePayWebhook($accountGateway) {
+        $data = Input::all();
+        $accountId = $accountGateway->account_id;
+
+        foreach (array_keys($data) as $key) {
+            if ('_id' == substr($key, -3)) {
+                $objectType = substr($key, 0, -3);
+                $objectId = $data[$key];
+                break;
+            }
+        }
+
+        if (!isset($objectType)) {
+            return response()->json([
+                'message' => 'Could not find object id parameter',
+            ], 400);
+        }
+
+        if ($objectType == 'credit_card') {
+            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $objectId)->first();
+
+            if (!$paymentMethod) {
+                return array('message' => 'Unknown payment method');
+            }
+
+            $wepay = \Utils::setupWePay($accountGateway);
+            $source = $wepay->request('credit_card', array(
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                'credit_card_id' => intval($objectId),
+            ));
+
+            if ($source->state == 'deleted') {
+                $paymentMethod->delete();
+            } else {
+                $this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
+            }
+
+            return array('message' => 'Processed successfully');
+        } elseif ($objectType == 'account') {
+            $config = $accountGateway->getConfig();
+            if ($config->accountId != $objectId) {
+                return array('message' => 'Unknown account');
+            }
+
+            $wepay = \Utils::setupWePay($accountGateway);
+            $wepayAccount = $wepay->request('account', array(
+                'account_id' => intval($objectId),
+            ));
+
+            if ($wepayAccount->state == 'deleted') {
+                $accountGateway->delete();
+            } else {
+                $config->state = $wepayAccount->state;
+                $accountGateway->setConfig($config);
+                $accountGateway->save();
+            }
+
+            return array('message' => 'Processed successfully');
+        } elseif ($objectType == 'checkout') {
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
+
+            if (!$payment) {
+                return array('message' => 'Unknown payment');
+            }
+
+            $wepay = \Utils::setupWePay($accountGateway);
+            $checkout = $wepay->request('checkout', array(
+                'checkout_id' => intval($objectId),
+            ));
+
+            if ($checkout->state == 'refunded') {
+                $payment->recordRefund();
+            } elseif (!empty($checkout->refund) && !empty($checkout->refund->amount_refunded) && ($checkout->refund->amount_refunded - $payment->refunded) > 0) {
+                $payment->recordRefund($checkout->refund->amount_refunded - $payment->refunded);
+            }
+
+            if ($checkout->state == 'captured') {
+                $payment->markComplete();
+            } elseif ($checkout->state == 'cancelled') {
+                $payment->markCancelled();
+            } elseif ($checkout->state == 'failed') {
+                $payment->markFailed();
+            }
+
+            return array('message' => 'Processed successfully');
+        } else {
+            return array('message' => 'Ignoring event');
+        }
+    }
+
+    protected function handleStripeWebhook($accountGateway) {
+        $eventId = Input::get('id');
+        $eventType= Input::get('type');
+        $accountId = $accountGateway->account_id;
+
+        if (!$eventId) {
+            return response()->json(['message' => 'Missing event id'], 400);
+        }
+
+        if (!$eventType) {
+            return response()->json(['message' => 'Missing event type'], 400);
+        }
+
+        $supportedEvents = array(
+            'charge.failed',
+            'charge.succeeded',
+            'customer.source.updated',
+            'customer.source.deleted',
+        );
+
+        if (!in_array($eventType, $supportedEvents)) {
+            return array('message' => 'Ignoring event');
+        }
+
+        // Fetch the event directly from Stripe for security
+        $eventDetails = $this->paymentService->makeStripeCall($accountGateway, 'GET', 'events/'.$eventId);
+
+        if (is_string($eventDetails) || !$eventDetails) {
+            return response()->json([
+                'message' => $eventDetails ? $eventDetails : 'Could not get event details.',
+            ], 500);
+        }
+
+        if ($eventType != $eventDetails['type']) {
+            return response()->json(['message' => 'Event type mismatch'], 400);
+        }
+
+        if (!$eventDetails['pending_webhooks']) {
+            return response()->json(['message' => 'This is not a pending event'], 400);
+        }
+
+
+        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded') {
+            $charge = $eventDetails['data']['object'];
+            $transactionRef = $charge['id'];
+
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $transactionRef)->first();
+
+            if (!$payment) {
+                return array('message' => 'Unknown payment');
+            }
+
+            if ($eventType == 'charge.failed') {
+                if (!$payment->isFailed()) {
+                    $payment->markFailed($charge['failure_message']);
+                    $this->userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
+                }
+            } elseif ($eventType == 'charge.succeeded') {
+                $payment->markComplete();
+            } elseif ($eventType == 'charge.refunded') {
+                $payment->recordRefund($charge['amount_refunded'] / 100 - $payment->refunded);
+            }
+        } elseif($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted') {
+            $source = $eventDetails['data']['object'];
+            $sourceRef = $source['id'];
+
+            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
+
+            if (!$paymentMethod) {
+                return array('message' => 'Unknown payment method');
+            }
+
+            if ($eventType == 'customer.source.deleted') {
+                $paymentMethod->delete();
+            } elseif ($eventType == 'customer.source.updated') {
+                $this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
+            }
+        }
+
+        return array('message' => 'Processed successfully');
     }
 }

@@ -4,9 +4,7 @@
     @parent
 
     <style type="text/css">
-        .contact-file,
-        .task-file,
-        .payment-file {
+        .import-file {
             display: none;
         }
     </style>
@@ -34,7 +32,7 @@
 
         @foreach (\App\Services\ImportService::$entityTypes as $entityType)
             {!! Former::file("{$entityType}_file")
-                    ->addGroupClass("{$entityType}-file") !!}
+                    ->addGroupClass("import-file {$entityType}-file") !!}
         @endforeach
 
         {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}
@@ -55,7 +53,8 @@
                 ->addOption('CSV', 'CSV')
                 ->addOption('XLS', 'XLS')
                 ->addOption('JSON', 'JSON')
-                ->style('max-width: 200px') !!}
+                ->style('max-width: 200px')
+                ->inlineHelp('export_help') !!}
 
         {!! Former::checkbox('entity_types')
                 ->label('include')
@@ -67,13 +66,17 @@
                     trans('texts.payments') => array('name' => ENTITY_PAYMENT, 'value' => 1),
                 ])->check(ENTITY_CLIENT)->check(ENTITY_TASK)->check(ENTITY_INVOICE)->check(ENTITY_PAYMENT) !!}
 
-        {!! Former::actions( Button::primary(trans('texts.download'))->submit()->large()->appendIcon(Icon::create('download-alt'))) !!}            
+        {!! Former::actions( Button::primary(trans('texts.download'))->submit()->large()->appendIcon(Icon::create('download-alt'))) !!}
     </div>
 </div>
 {!! Former::close() !!}
 
 
 <script type="text/javascript">
+  $(function() {
+      setFileTypesVisible();
+  });
+
   function setEntityTypesVisible() {
     var selector = '.entity-types input[type=checkbox]';
     if ($('#format').val() === 'JSON') {
@@ -98,6 +101,11 @@
                 @endif
             @endforeach
         }
+        @if ($source === IMPORT_JSON)
+            if (val === '{{ $source }}') {
+                $('.JSON-file').show();
+            }
+        @endif
     @endforeach
   }
 

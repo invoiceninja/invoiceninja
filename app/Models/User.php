@@ -20,8 +20,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'create_all' => 0b0001,
         'view_all' => 0b0010,
         'edit_all' => 0b0100,
-    );    
-    
+    );
+
     use Authenticatable, Authorizable, CanResetPassword;
 
     /**
@@ -168,7 +168,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     {
         return Session::get(SESSION_COUNTER, 0);
     }
-    
+
     public function afterSave($success = true, $forced = false)
     {
         if ($this->email) {
@@ -199,8 +199,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
         return MAX_NUM_VENDORS;
     }
-    
-    
+
+
     public function getRememberToken()
     {
         return $this->remember_token;
@@ -265,9 +265,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
                 && $this->email != $this->getOriginal('email')
                 && $this->getOriginal('confirmed');
     }
-    
-    
-    
+
+
+
     /**
      * Set the permissions attribute on the model.
      *
@@ -277,7 +277,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      protected function setPermissionsAttribute($value){
          if(empty($value)) {
              $this->attributes['permissions'] = 0;
-         } else {         
+         } else {
              $bitmask = 0;
              foreach($value as $permission){
                 $bitmask = $bitmask | static::$all_permissions[$permission];
@@ -285,10 +285,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
              $this->attributes['permissions'] = $bitmask;
          }
-         
+
          return $this;
     }
-    
+
     /**
      * Expands the value of the permissions attribute
      *
@@ -302,10 +302,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
                 $permissions[$permission] = $permission;
             }
         }
-         
+
         return $permissions;
     }
-    
+
     /**
      * Checks to see if the user has the required permission
      *
@@ -325,12 +325,16 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
                 return count(array_intersect($permission, $this->permissions)) > 0;
             }
         }
-        
+
         return false;
     }
-    
+
     public function owns($entity) {
         return !empty($entity->user_id) && $entity->user_id == $this->id;
+    }
+
+    public function filterId() {
+        return $this->hasPermission('view_all') ? false : $this->id;
     }
 }
 

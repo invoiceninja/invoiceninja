@@ -91,12 +91,14 @@ class ActivityRepository
                         'invoices.public_id as invoice_public_id',
                         'invoices.is_recurring',
                         'clients.name as client_name',
+                        'accounts.name as account_name',
                         'clients.public_id as client_public_id',
                         'contacts.id as contact',
                         'contacts.first_name as first_name',
                         'contacts.last_name as last_name',
                         'contacts.email as email',
                         'payments.transaction_reference as payment',
+                        'payments.amount as payment_amount',
                         'credits.amount as credit'
                     );
     }

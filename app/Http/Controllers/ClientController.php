@@ -72,7 +72,10 @@ class ClientController extends BaseController
 
     public function getDatatable()
     {
-        return $this->clientService->getDatatable(Input::get('sSearch'));
+        $search = Input::get('sSearch');
+        $userId = Auth::user()->filterId();
+
+        return $this->clientService->getDatatable($search, $userId);
     }
 
     /**
@@ -97,8 +100,8 @@ class ClientController extends BaseController
      */
     public function show(ClientRequest $request)
     {
-        $client = $request->entity();         
-        
+        $client = $request->entity();
+
         $user = Auth::user();
         Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 
@@ -109,19 +112,19 @@ class ClientController extends BaseController
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
         }
-        
+
         if(!empty($actionLinks)){
             $actionLinks[] = \DropdownButton::DIVIDER;
         }
-        
+
         if($user->can('create', ENTITY_PAYMENT)){
             $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/'.$client->public_id)];
         }
-        
+
         if($user->can('create', ENTITY_CREDIT)){
             $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/'.$client->public_id)];
         }
-        
+
         if($user->can('create', ENTITY_EXPENSE)){
             $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/'.$client->public_id)];
         }
@@ -133,9 +136,10 @@ class ClientController extends BaseController
             'credit' => $client->getTotalCredit(),
             'title' => trans('texts.view_client'),
             'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0,
-            'hasQuotes' => Invoice::scope()->where('is_quote', '=', true)->whereClientId($client->id)->count() > 0,
+            'hasQuotes' => Invoice::scope()->invoiceType(INVOICE_TYPE_QUOTE)->whereClientId($client->id)->count() > 0,
             'hasTasks' => Task::scope()->whereClientId($client->id)->count() > 0,
-            'gatewayLink' => $client->getGatewayLink(),
+            'gatewayLink' => $client->getGatewayLink($accountGateway),
+            'gateway' => $accountGateway
         );
 
         return View::make('clients.show', $data);
@@ -173,7 +177,7 @@ class ClientController extends BaseController
     public function edit(ClientRequest $request)
     {
         $client = $request->entity();
-                
+
         $data = [
             'client' => $client,
             'method' => 'PUT',

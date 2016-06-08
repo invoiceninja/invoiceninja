@@ -110,7 +110,7 @@ class UserController extends BaseController
         if (Utils::isNinja()) {
             $count = User::where('account_id', '=', Auth::user()->account_id)->count();
             if ($count >= MAX_NUM_USERS) {
-                Session::flash('error', trans('texts.limit_users'));
+                Session::flash('error', trans('texts.limit_users', ['limit' => MAX_NUM_USERS]));
                 return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
             }
         }
@@ -291,7 +291,7 @@ class UserController extends BaseController
                 $account = Auth::user()->account;
                 $this->accountRepo->unlinkAccount($account);
                 if ($account->company->accounts->count() == 1) {
-                    $account->company->forceDelete();    
+                    $account->company->forceDelete();
                 }
                 $account->forceDelete();
             }

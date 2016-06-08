@@ -3,7 +3,7 @@
 </p>
 
 # Invoice Ninja
-### [http://www.invoiceninja.org](http://www.invoiceninja.org)
+### [https://invoiceninja.org](https://invoiceninja.org)
 
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=master)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
@@ -33,10 +33,11 @@
 ### Features
 * Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
-* Integrates with 50+ payment providers with [OmniPay](https://github.com/thephpleague/omnipay)
+* Integrates with 50+ payment providers with [Omnipay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
 * Expenses and vendors
 * Tasks with time-tracking
+* File Attachments
 * Multi-user/multi-company support
 * Tax rates and payment terms
 * Reminder emails
@@ -55,7 +56,8 @@
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 ### Pull Requests
-We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-model/) model of branching and releasing, **please create pull requests against the develop branch**.
+* Please create pull requests against the develop branch
+* Submit translations through [Transifex](https://www.transifex.com/invoice-ninja/invoice-ninja/)
 
 ### Contributors
 * [Troels Liebe Bentsen](https://github.com/tlbdk)
@@ -71,6 +73,7 @@ We're using the [Git-Flow](http://nvie.com/posts/a-successful-git-branching-mode
 * [patricktalmadge/bootstrapper](https://github.com/patricktalmadge/bootstrapper) - Laravel Twitter Bootstrap Bundle
 * [danielfarrell/bootstrap-combobox](https://github.com/danielfarrell/bootstrap-combobox) - A combobox plugin
 * [eternicode/bootstrap-datepicker](https://github.com/eternicode/bootstrap-datepicker) - A datepicker for @twitter bootstrap
+* [xdan/datetimepicker](https://github.com/xdan/datetimepicker) - jQuery Plugin Date and Time Picker
 * [twitter/typeahead.js](https://github.com/twitter/typeahead.js) - a fast and fully-featured autocomplete library
 * [krisk/Fuse](https://github.com/krisk/Fuse) - Lightweight fuzzy-search, in JavaScript
 * [knockout/knockout](https://github.com/knockout/knockout) - Knockout makes it easier to create rich, responsive UIs with JavaScript

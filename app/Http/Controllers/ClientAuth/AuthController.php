@@ -10,7 +10,7 @@ use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\AuthService;
-use App\Models\Invitation;
+use App\Models\Contact;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class AuthController extends Controller {
@@ -22,19 +22,15 @@ class AuthController extends Controller {
 
 	public function showLoginForm()
 	{
-        $data = array(
-        );
+        $data = array();
         
-        $invitation_key = session('invitation_key');
-        if($invitation_key){
-            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
-            if ($invitation && !$invitation->is_deleted) {
-                $invoice = $invitation->invoice;
-                $client = $invoice->client;
-                $account = $client->account;
-                
-                $data['hideLogo'] = $account->hasFeature(FEATURE_WHITE_LABEL);
-                $data['clientViewCSS'] = $account->clientViewCSS();
+        $contactKey = session('contact_key');
+        if($contactKey){
+            $contact = Contact::where('contact_key', '=', $contactKey)->first();
+            if ($contact && !$contact->is_deleted) {
+                $account = $contact->account;
+
+                $data['account'] = $account;
                 $data['clientFontUrl'] = $account->getFontsUrl();
             }
         }
@@ -52,12 +48,12 @@ class AuthController extends Controller {
     {
         $credentials = $request->only('password');
         $credentials['id'] = null;
-        
-        $invitation_key = session('invitation_key');
-        if($invitation_key){
-            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
-            if ($invitation && !$invitation->is_deleted) {
-                $credentials['id'] = $invitation->contact_id;
+
+        $contactKey = session('contact_key');
+        if($contactKey){
+            $contact = Contact::where('contact_key', '=', $contactKey)->first();
+            if ($contact && !$contact->is_deleted) {
+                $credentials['id'] = $contact->id;
             }
         }
         
@@ -75,5 +71,10 @@ class AuthController extends Controller {
         $this->validate($request, [
             'password' => 'required',
         ]);
+    }
+
+    public function getSessionExpired()
+    {
+        return view('clientauth.sessionexpired');
     }
 }

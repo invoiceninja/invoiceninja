@@ -2230,7 +2230,7 @@ border-bottom: 1px solid #dfe0e1;
 table.dataTable.no-footer {
 border-bottom: none;
 }
-.table-striped>tbody>tr:nth-child(odd)>tr, 
+.table-striped>tbody>tr:nth-child(odd)>tr,
 .table-striped>tbody>tr:nth-child(odd)>th {
 background-color: #FDFDFD;
 }
@@ -2321,7 +2321,7 @@ opacity: 1;
 filter: alpha(opacity=100);
 }
 /*buttons*/
-.btn { font-weight: bold; 
+.btn { font-weight: bold;
     border-radius: 3px;
     padding: 9px 12px;
 }
@@ -2387,8 +2387,8 @@ border-color: #0b4d78;
 }
 
 .form-actions .btn,
-.form-actions div.btn-group { 
-    margin-left: 10px; 
+.form-actions div.btn-group {
+    margin-left: 10px;
 }
 
 .form-actions .btn.btn-success:first-child {
@@ -2506,7 +2506,7 @@ border: none;
 border-radius: 0;
 color: #fff;
 background-color: #9b9b9b;
- 
+
 }
 .nav-tabs.nav-justified>li:first-child>a {
     border-radius: 3px 0 0 3px;
@@ -2535,7 +2535,7 @@ font-weight: bold;
 ul.dropdown-menu,
 .twitter-typeahead .tt-menu {
     x-moz-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
-    x-webkit-box-shadow: 0 0 10px 2px rgba(0,0,0,.05); 
+    x-webkit-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
     box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
 }
 
@@ -2595,7 +2595,7 @@ background-clip: padding-box;
 
 
 /***********************************************
-   Dashboard 
+   Dashboard
 ************************************************/
 
 .in-bold {
@@ -2757,14 +2757,14 @@ div.discount-group span {
 .navbar-default .navbar-nav > li > a:focus {
     color: #ffffff;
 }
-.navbar-default .navbar-nav > .active > a, 
-.navbar-default .navbar-nav > .active > a:hover, 
+.navbar-default .navbar-nav > .active > a,
+.navbar-default .navbar-nav > .active > a:hover,
 .navbar-default .navbar-nav > .active > a:focus {
     color: #ffffff;
     background-color: #3276b1;
 }
-.navbar-default .navbar-nav > .open > a, 
-.navbar-default .navbar-nav > .open > a:hover, 
+.navbar-default .navbar-nav > .open > a,
+.navbar-default .navbar-nav > .open > a:hover,
 .navbar-default .navbar-nav > .open > a:focus {
     color: #ffffff;
     background-color: #3276b1;
@@ -2778,8 +2778,8 @@ div.discount-group span {
     border-top-color: #ffffff;
     border-bottom-color: #ffffff;
 }
-.navbar-default .navbar-nav > .open > a .caret, 
-.navbar-default .navbar-nav > .open > a:hover .caret, 
+.navbar-default .navbar-nav > .open > a .caret,
+.navbar-default .navbar-nav > .open > a:hover .caret,
 .navbar-default .navbar-nav > .open > a:focus .caret {
     border-top-color: #ffffff;
     border-bottom-color: #ffffff;
@@ -2818,7 +2818,7 @@ div.fb_iframe_widget {
     display: inline;
 }
 div.fb_iframe_widget > span {
-    vertical-align: top !important;  
+    vertical-align: top !important;
 }
 .pro-label {
     font-size:9px;
@@ -2857,12 +2857,12 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
 .plans-table .glyphicon-remove {background-color: #da4830;}
 .plans-table .glyphicon-ok {background-color: #35c156;}
 .plans-table .glyphicon-star {border-radius: 0; background-color: #2e2b2b;
-    display: block;  
-    width: 60px;  
-    height: 30px;  
-    position: absolute;  
-    top: -5px;  
-    right: -20px;  
+    display: block;
+    width: 60px;
+    height: 30px;
+    position: absolute;
+    top: -5px;
+    right: -20px;
     -webkit-transform: rotate(45deg);
     -moz-transform: rotate(45deg);
     -o-transform: rotate(45deg);
@@ -2892,11 +2892,11 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
 .ellipsis {
     overflow: hidden;
     white-space: nowrap;
-    text-overflow: ellipsis;    
+    text-overflow: ellipsis;
 }
 
 .entityArchived {
-    color: #888 !important;    
+    color: #888 !important;
 }
 
 .entityDeleted {
@@ -2904,12 +2904,12 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
 }
 
 
-/* Custom, iPhone Retina */ 
+/* Custom, iPhone Retina */
 @media only screen and (min-width : 320px) {
-    
+
 }
 
-/* Extra Small Devices, Phones */ 
+/* Extra Small Devices, Phones */
 @media only screen and (min-width : 480px) {
 
 }
@@ -2957,7 +2957,7 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
 @media (max-width: 992px) {
     .hide-phone {
         display: none !important;
-    }    
+    }
 }
 
 @media (max-width: 767px) {
@@ -2975,8 +2975,8 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     .plans-table .free .cell { padding-right: 0; }
     .plans-table .free .cell:first-child {margin-right: 0;}
     .plans-table .cell div:first-child {margin-bottom: 5px;}
-    .plans-table .cell .cta {margin-bottom: 0 !important;}    
-    .plans-table .pro {margin-top: 40px;}    
+    .plans-table .cell .cta {margin-bottom: 0 !important;}
+    .plans-table .pro {margin-top: 40px;}
 }
 
 label[for=recommendedGateway_id2].radio{
@@ -3105,14 +3105,14 @@ button .glyphicon {
 
 .pro-plan-modal a.button {
     font-family: 'roboto_slabregular', Georgia, Times, serif;
-    background: #f38c4f; 
-    background: -moz-linear-gradient(top,  #f38c4f 0%, #db7134 100%); 
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f38c4f), color-stop(100%,#db7134)); 
-    background: -webkit-linear-gradient(top,  #f38c4f 0%,#db7134 100%); 
-    background: -o-linear-gradient(top,  #f38c4f 0%,#db7134 100%); 
-    background: -ms-linear-gradient(top,  #f38c4f 0%,#db7134 100%); 
-    background: linear-gradient(to bottom,  #f38c4f 0%,#db7134 100%); 
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f38c4f', endColorstr='#db7134',GradientType=0 ); 
+    background: #f38c4f;
+    background: -moz-linear-gradient(top,  #f38c4f 0%, #db7134 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f38c4f), color-stop(100%,#db7134));
+    background: -webkit-linear-gradient(top,  #f38c4f 0%,#db7134 100%);
+    background: -o-linear-gradient(top,  #f38c4f 0%,#db7134 100%);
+    background: -ms-linear-gradient(top,  #f38c4f 0%,#db7134 100%);
+    background: linear-gradient(to bottom,  #f38c4f 0%,#db7134 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f38c4f', endColorstr='#db7134',GradientType=0 );
     text-shadow: 1px 1px 1px rgba(0, 0, 0, .25);
     width: 68%;
     margin-top: 20px;
@@ -3175,7 +3175,7 @@ ul.user-accounts a:hover div.remove {
 
 .invoice-contact .tooltip-inner {
     text-align:left;
-    width: 350px; 
+    width: 350px;
 }
 
 .smaller {
@@ -3231,11 +3231,4 @@ div.panel-body div.panel-body {
     object-fit: cover;
     width: 100%;
     height: 100%;
-}
-
-.dropzone .fallback-doc{
-    display:none;
-}
-.dropzone.dz-browser-not-supported .fallback-doc{
-    display:block;
 }

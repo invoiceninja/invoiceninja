@@ -36,8 +36,11 @@ class ImportController extends BaseController
             if ($source === IMPORT_CSV) {
                 $data = $this->importService->mapCSV($files);
                 return View::make('accounts.import_map', ['data' => $data]);
+            } elseif ($source === IMPORT_JSON) {
+                $results = $this->importService->importJSON($files[IMPORT_JSON]);
+                return $this->showResult($results);
             } else {
-                $results = $this->importService->import($source, $files);
+                $results = $this->importService->importFiles($source, $files);
                 return $this->showResult($results);
             }
         } catch (Exception $exception) {
