@@ -269,8 +269,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
     Route::resource('clients', 'ClientApiController');
-    //Route::get('quotes', 'QuoteApiController@index');
-    //Route::resource('quotes', 'QuoteApiController');
+    Route::get('quotes', 'QuoteApiController@index');
     Route::get('invoices', 'InvoiceApiController@index');
     Route::get('download/{invoice_id}', 'InvoiceApiController@download');
     Route::resource('invoices', 'InvoiceApiController');
