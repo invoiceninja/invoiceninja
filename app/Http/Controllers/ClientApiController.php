@@ -82,9 +82,6 @@ class ClientApiController extends BaseAPIController
     {
         $client = $this->clientRepo->save($request->input());
 
-        // refresh contacts
-        $client->load(['contacts']);
-
         return $this->itemResponse($client);
     }
 
