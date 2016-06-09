@@ -415,6 +415,16 @@ class Account extends Eloquent
         return false;
     }
 
+    public function gatewayIds()
+    {
+        return $this->account_gateways()->pluck('gateway_id')->toArray();
+    }
+
+    public function hasGatewayId($gatewayId)
+    {
+        return in_array($gatewayId, $this->gatewayIds());
+    }
+
     public function getGatewayConfig($gatewayId)
     {
         foreach ($this->account_gateways as $gateway) {

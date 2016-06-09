@@ -1350,6 +1350,7 @@ $LANG = array(
     'verification_pending' => 'Verification Pending',
 
     'update_font_cache' => 'Please force refresh the page to update the font cache.',
+    'more_options' => 'More options',
 
 );
 

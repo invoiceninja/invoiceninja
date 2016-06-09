@@ -244,9 +244,9 @@ Route::group([
     Route::post('/import', 'ImportController@doImport');
     Route::post('/import_csv', 'ImportController@doImportCSV');
 
+    Route::get('gateways/create/{show_wepay?}', 'AccountGatewayController@create');
     Route::resource('gateways', 'AccountGatewayController');
     Route::get('gateways/{public_id}/resend_confirmation', 'AccountGatewayController@resendConfirmation');
-    Route::get('gateways/switch/wepay', 'AccountGatewayController@switchToWepay');
     Route::get('api/gateways', array('as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable'));
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 

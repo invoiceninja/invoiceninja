@@ -424,20 +424,13 @@ class AccountController extends BaseController
         if ($trashedCount == 0) {
             return Redirect::to('gateways/create');
         } else {
-            $switchToWepay = WEPAY_CLIENT_ID && !$account->getGatewayConfig(GATEWAY_WEPAY);
-
-            if ($switchToWepay && $account->token_billing_type_id != TOKEN_BILLING_DISABLED) {
-                $switchToWepay = !$account->getGatewayConfig(GATEWAY_BRAINTREE) && !$account->getGatewayConfig(GATEWAY_STRIPE);
-            }
-
             $tokenBillingOptions = [];
             for ($i=1; $i<=4; $i++) {
                 $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
             }
 
             return View::make('accounts.payments', [
-                'showSwitchToWepay' => $switchToWepay,
-                'showAdd' => $count < count(Gateway::$paymentTypes),
+                'showAdd' => $count < count(Gateway::$alternate) + 1,
                 'title' => trans('texts.online_payments'),
                 'tokenBillingOptions' => $tokenBillingOptions,
                 'account' => $account,
