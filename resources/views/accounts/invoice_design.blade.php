@@ -208,12 +208,15 @@
                               {!! Former::text('labels_description')->label(trans('texts.description')) !!}
                               {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
                               {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
+							  {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
+							  {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
                         </div>
                         <div class="col-md-6">
-                              {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
-                              {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
-                              {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
-                              {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
+                              {!! Former::text('labels_subtotal')->label(trans('texts.subtotal')) !!}
+							  {!! Former::text('labels_discount')->label(trans('texts.discount')) !!}
+							  {!! Former::text('labels_paid_to_date')->label(trans('texts.paid_to_date')) !!}
+							  {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
+							  {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
                         </div>
                       </div>
 
