@@ -8,6 +8,25 @@ class Gateway extends Eloquent
 {
     public $timestamps = true;
 
+    // these will appear in the primary gateway select
+    // the rest are shown when selecting 'more options'
+    public static $preferred = [
+        GATEWAY_PAYPAL_EXPRESS,
+        GATEWAY_BITPAY,
+        GATEWAY_DWOLLA,
+        GATEWAY_STRIPE,
+        GATEWAY_BRAINTREE,
+    ];
+
+    // allow adding these gateway if another gateway
+    // is already configured
+    public static $alternate = [
+        GATEWAY_PAYPAL_EXPRESS,
+        GATEWAY_BITPAY,
+        GATEWAY_DWOLLA,
+    ];
+
+    // TODO remove this
     public static $paymentTypes = [
         PAYMENT_TYPE_STRIPE,
         PAYMENT_TYPE_CREDIT_CARD,
@@ -50,6 +69,38 @@ class Gateway extends Eloquent
     public static function getPaymentTypeName($type)
     {
         return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
+    }
+
+    public static function hasStandardGateway($gatewayIds)
+    {
+        $diff = array_diff($gatewayIds, static::$alternate);
+
+        return count($diff);
+    }
+
+    public function scopePrimary($query, $accountGatewaysIds)
+    {
+        $query->where('payment_library_id', '=', 1)
+            ->where('id', '!=', GATEWAY_WEPAY)
+            ->whereIn('id', Gateway::$preferred)
+            ->whereNotIn('id', $accountGatewaysIds);
+
+        // if the user has a credit card gateway only show alternate options
+        if (static::hasStandardGateway($accountGatewaysIds)) {
+            $query->whereNotIn('id', array_diff(static::$preferred, static::$alternate));
+        }
+    }
+
+    public function scopeSecondary($query, $accountGatewaysIds)
+    {
+        // if the user has a credit card don't show an secondary options
+        if (static::hasStandardGateway($accountGatewaysIds)) {
+            $query->where('id', '=', 0);
+        } else {
+            $query->where('payment_library_id', '=', 1)
+                ->where('id', '!=', GATEWAY_WEPAY)
+                ->whereNotIn('id', static::$preferred);
+        }
     }
 
     /*

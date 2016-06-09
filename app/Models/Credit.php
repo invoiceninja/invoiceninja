@@ -8,7 +8,7 @@ class Credit extends EntityModel
 {
     use SoftDeletes;
     use PresentableTrait;
-    
+
     protected $dates = ['deleted_at'];
     protected $presenter = 'App\Ninja\Presenters\CreditPresenter';
 
@@ -19,7 +19,7 @@ class Credit extends EntityModel
 
     public function user()
     {
-        return $this->belongsTo('App\Models\User');
+        return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
     public function invoice()
@@ -59,7 +59,7 @@ class Credit extends EntityModel
 }
 
 Credit::creating(function ($credit) {
-    
+
 });
 
 Credit::created(function ($credit) {

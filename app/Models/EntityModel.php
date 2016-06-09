@@ -33,7 +33,7 @@ class EntityModel extends Eloquent
         $entity->setRelation('user', $user);
         $entity->setRelation('account', $account);
 
-        if (method_exists($className, 'withTrashed')){
+        if (method_exists($className, 'trashed')){
             $lastEntity = $className::withTrashed()
                         ->scope(false, $entity->account_id);
         } else {

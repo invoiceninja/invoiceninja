@@ -82,27 +82,34 @@ class AccountGatewayController extends BaseController
      * Displays the form for account creation
      *
      */
-    public function create()
+    public function create($showWepay = true)
     {
-        $data = self::getViewModel();
-        $data['url'] = 'gateways';
-        $data['method'] = 'POST';
-        $data['title'] = trans('texts.add_gateway');
-        $data['selectGateways'] = Gateway::where('payment_library_id', '=', 1)
-                                    ->where('id', '!=', GATEWAY_PAYPAL_EXPRESS)
-                                    ->where('id', '!=', GATEWAY_BITPAY)
-                                    ->where('id', '!=', GATEWAY_GOCARDLESS)
-                                    ->where('id', '!=', GATEWAY_DWOLLA)
-                                    ->where('id', '!=', GATEWAY_STRIPE)
-                                    ->where('id', '!=', GATEWAY_WEPAY)
-                                    ->orderBy('name')->get();
-        $data['hiddenFields'] = Gateway::$hiddenFields;
-
         if ( ! \Request::secure() && ! Utils::isNinjaDev()) {
             Session::flash('warning', trans('texts.enable_https'));
         }
 
-        return View::make('accounts.account_gateway', $data);
+        $account = Auth::user()->account;
+        $accountGatewaysIds = $account->gatewayIds();
+        $showWepay = filter_var($showWepay, FILTER_VALIDATE_BOOLEAN);
+
+        if ( ! Utils::isNinja() || Gateway::hasStandardGateway($accountGatewaysIds)) {
+            $showWepay = false;
+        }
+
+        $data = self::getViewModel();
+        $data['url'] = 'gateways';
+        $data['method'] = 'POST';
+        $data['title'] = trans('texts.add_gateway');
+
+        if ($showWepay) {
+            return View::make('accounts.account_gateway_wepay', $data);
+        } else {
+            $data['primaryGateways'] = Gateway::primary($accountGatewaysIds)->orderBy('name', 'desc')->get();
+            $data['secondaryGateways'] = Gateway::secondary($accountGatewaysIds)->orderBy('name')->get();
+            $data['hiddenFields'] = Gateway::$hiddenFields;
+
+            return View::make('accounts.account_gateway', $data);
+        }
     }
 
     private function getViewModel($accountGateway = false)
@@ -110,20 +117,6 @@ class AccountGatewayController extends BaseController
         $selectedCards = $accountGateway ? $accountGateway->accepted_credit_cards : 0;
         $user = Auth::user();
         $account =$user->account;
-
-        $paymentTypes = [];
-        foreach (Gateway::$paymentTypes as $type) {
-            if ($accountGateway || $account->canAddGateway($type)) {
-                $paymentTypes[$type] = $type == PAYMENT_TYPE_CREDIT_CARD ? trans('texts.other_providers'): trans('texts.'.strtolower($type));
-
-                if ($type == PAYMENT_TYPE_BITCOIN) {
-                    $paymentTypes[$type] .= ' - BitPay';
-                }
-                if ($type == PAYMENT_TYPE_DIRECT_DEBIT) {
-                    $paymentTypes[$type] .= ' - GoCardless';
-                }
-            }
-        }
 
         $creditCardsArray = unserialize(CREDIT_CARDS);
         $creditCards = [];
@@ -149,7 +142,6 @@ class AccountGatewayController extends BaseController
         }
 
         return [
-            'paymentTypes' => $paymentTypes,
             'account' => $account,
             'user' => $user,
             'accountGateway' => $accountGateway,
@@ -178,29 +170,10 @@ class AccountGatewayController extends BaseController
      */
     public function save($accountGatewayPublicId = false)
     {
-        $rules = array();
-        $paymentType = Input::get('payment_type_id');
-        $gatewayId = Input::get('gateway_id');
-
-        if ($paymentType == PAYMENT_TYPE_PAYPAL) {
-            $gatewayId = GATEWAY_PAYPAL_EXPRESS;
-        } elseif ($paymentType == PAYMENT_TYPE_BITCOIN) {
-            $gatewayId = GATEWAY_BITPAY;
-        } elseif ($paymentType == PAYMENT_TYPE_DIRECT_DEBIT) {
-            $gatewayId = GATEWAY_GOCARDLESS;
-        } elseif ($paymentType == PAYMENT_TYPE_DWOLLA) {
-            $gatewayId = GATEWAY_DWOLLA;
-        } elseif ($paymentType == PAYMENT_TYPE_STRIPE) {
-            $gatewayId = GATEWAY_STRIPE;
-        }
-
-        if (!$gatewayId) {
-            Session::flash('error', trans('validation.required', ['attribute' => 'gateway']));
-            return Redirect::to('gateways/create')
-                ->withInput();
-        }
-
+        $gatewayId = Input::get('primary_gateway_id') ?: Input::get('secondary_gateway_id');
         $gateway = Gateway::findOrFail($gatewayId);
+
+        $rules = array();
         $fields = $gateway->getFields();
         $optional = array_merge(Gateway::$hiddenFields, Gateway::$optionalFields);
 
@@ -438,10 +411,6 @@ class AccountGatewayController extends BaseController
                 }
             }
 
-            if (($gateway = $account->getGatewayByType(PAYMENT_TYPE_CREDIT_CARD)) || ($gateway = $account->getGatewayByType(PAYMENT_TYPE_STRIPE))) {
-                $gateway->delete();
-            }
-
             $accountGateway->gateway_id = GATEWAY_WEPAY;
             $accountGateway->setConfig(array(
                 'userId' => $wepayUser->user_id,
@@ -495,17 +464,4 @@ class AccountGatewayController extends BaseController
         return Redirect::to("gateways/{$accountGateway->public_id}/edit");
     }
 
-    public function switchToWepay()
-    {
-        $data = self::getViewModel();
-        $data['url'] = 'gateways';
-        $data['method'] = 'POST';
-        unset($data['gateways']);
-
-        if ( ! \Request::secure() && ! Utils::isNinjaDev()) {
-            Session::flash('warning', trans('texts.enable_https'));
-        }
-
-        return View::make('accounts.account_gateway_switch_wepay', $data);
-    }
 }
