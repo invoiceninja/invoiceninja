@@ -55,6 +55,7 @@ class UserTableSeeder extends Seeder
             'confirmed' => true,
             'notify_sent' => false,
             'notify_paid' => false,
+            'is_admin' => 1,
         ]);
 
         $client = Client::create([

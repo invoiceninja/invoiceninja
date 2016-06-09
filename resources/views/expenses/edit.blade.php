@@ -371,7 +371,7 @@
         }
 
         window.countUploadingDocuments = 0;
-        
+
         function handleDocumentAdded(file){
             // open document when clicked
             if (file.url) {
@@ -397,9 +397,9 @@
         }
 
         function handleDocumentUploaded(file, response){
+            window.countUploadingDocuments--;
             file.public_id = response.document.public_id
             model.documents()[file.index].update(response.document);
-            window.countUploadingDocuments--;
             if(response.document.preview_url){
                 dropzone.emit('thumbnail', file, response.document.preview_url);
             }

@@ -149,14 +149,16 @@
                                         ->label('') !!}
                             </div>
                         </div>
-                        <div class="row" style="display:{{ isset($paymentTitle) ? 'block' : 'none' }}">
-                            <div class="col-md-12">
-                                {!! Former::text('email')
-                                        ->placeholder(trans('texts.email'))
-                                        ->autocomplete('email')
-                                        ->label('') !!}
+                        @if (isset($paymentTitle) || ! empty($contact->email))
+                            <div class="row" style="display:{{ isset($paymentTitle) ? 'block' : 'none' }}">
+                                <div class="col-md-12">
+                                    {!! Former::text('email')
+                                            ->placeholder(trans('texts.email'))
+                                            ->autocomplete('email')
+                                            ->label('') !!}
+                                </div>
                             </div>
-                        </div>
+                        @endif
 
                         <p>&nbsp;<br/>&nbsp;</p>
 

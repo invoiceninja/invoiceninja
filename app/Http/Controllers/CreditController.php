@@ -64,7 +64,7 @@ class CreditController extends BaseController
             'method' => 'POST',
             'url' => 'credits',
             'title' => trans('texts.new_credit'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), 
+            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(), 
         );
 
         return View::make('credits.edit', $data);
@@ -74,9 +74,9 @@ class CreditController extends BaseController
     public function edit($publicId)
     {
         $credit = Credit::scope($publicId)->firstOrFail();
-        
+
         $this->authorize('edit', $credit);
-        
+
         $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
 
         $data = array(
@@ -90,7 +90,7 @@ class CreditController extends BaseController
         return View::make('credit.edit', $data);
     }
     */
-    
+
     public function store(CreateCreditRequest $request)
     {
         $credit = $this->creditRepo->save($request->input());

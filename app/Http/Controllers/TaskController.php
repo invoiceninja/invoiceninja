@@ -117,7 +117,7 @@ class TaskController extends BaseController
         $this->checkTimezone();
 
         $task = $request->entity();
-        
+
         $actions = [];
         if ($task->invoice) {
             $actions[] = ['url' => URL::to("invoices/{$task->invoice->public_id}/edit"), 'label' => trans("texts.view_invoice")];
@@ -167,14 +167,14 @@ class TaskController extends BaseController
     public function update(UpdateTaskRequest $request)
     {
         $task = $request->entity();
-        
+
         return $this->save($task->public_id);
     }
 
     private static function getViewModel()
     {
         return [
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(),
             'account' => Auth::user()->account,
         ];
     }
@@ -182,7 +182,7 @@ class TaskController extends BaseController
     private function save($publicId = null)
     {
         $action = Input::get('action');
-        
+
         if (in_array($action, ['archive', 'delete', 'restore'])) {
             return self::bulk();
         }
@@ -210,7 +210,7 @@ class TaskController extends BaseController
             $tasks = Task::scope($ids)->with('client')->get();
             $clientPublicId = false;
             $data = [];
-            
+
             foreach ($tasks as $task) {
                 if ($task->client) {
                     if (!$clientPublicId) {
@@ -228,7 +228,7 @@ class TaskController extends BaseController
                     Session::flash('error', trans('texts.task_error_invoiced'));
                     return Redirect::to('tasks');
                 }
-                
+
                 $account = Auth::user()->account;
                 $data[] = [
                     'publicId' => $task->public_id,

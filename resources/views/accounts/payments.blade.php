@@ -1,7 +1,7 @@
 @extends('header')
 
-@section('content')	
-	@parent	
+@section('content')
+	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
     {!! Former::open()->addClass('warn-on-exit') !!}
@@ -31,12 +31,6 @@
     </div>
     {!! Former::close() !!}
 
-  @if ($showSwitchToWepay)
-      {!! Button::success(trans('texts.switch_to_wepay'))
-            ->asLinkTo(URL::to('/gateways/switch/wepay'))
-            ->appendIcon(Icon::create('circle-arrow-up')) !!}
-      &nbsp;
-  @endif
   <label for="trashed" style="font-weight:normal; margin-left: 10px;">
     <input id="trashed" type="checkbox" onclick="setTrashVisible()"
       {{ Session::get("show_trash:gateway") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText('gateways') }}
