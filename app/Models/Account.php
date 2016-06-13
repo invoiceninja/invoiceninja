@@ -200,7 +200,7 @@ class Account extends Eloquent
 
     public function expenseCategories()
     {
-        $this->hasMany('App\Models\ExpenseCategory','account_id','id')->withTrashed();
+        return $this->hasMany('App\Models\ExpenseCategory','account_id','id')->withTrashed();
     }
 
     public function setIndustryIdAttribute($value)
