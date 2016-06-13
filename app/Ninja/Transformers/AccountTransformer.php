@@ -26,7 +26,7 @@ class AccountTransformer extends EntityTransformer
 
     public function includeExpenseCategories(Account $account)
     {
-        $transformer = new ExpenseTransformer($account, $this->serializer);
+        $transformer = new ExpenseCategoryTransformer($account, $this->serializer);
         return $this->includeCollection($account->expenseCategories, $transformer, ENTITY_EXPENSE_CATEGORIES);
     }
 
