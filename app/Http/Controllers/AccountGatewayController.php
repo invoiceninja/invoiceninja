@@ -62,7 +62,6 @@ class AccountGatewayController extends BaseController
         $data['title'] = trans('texts.edit_gateway') . ' - ' . $accountGateway->gateway->name;
         $data['config'] = $config;
         $data['hiddenFields'] = Gateway::$hiddenFields;
-        $data['paymentTypeId'] = $accountGateway->getPaymentType();
         $data['selectGateways'] = Gateway::where('id', '=', $accountGateway->gateway_id)->get();
 
         return View::make('accounts.account_gateway', $data);
@@ -82,7 +81,7 @@ class AccountGatewayController extends BaseController
      * Displays the form for account creation
      *
      */
-    public function create($showWepay = true)
+    public function create()
     {
         if ( ! \Request::secure() && ! Utils::isNinjaDev()) {
             Session::flash('warning', trans('texts.enable_https'));
@@ -90,10 +89,10 @@ class AccountGatewayController extends BaseController
 
         $account = Auth::user()->account;
         $accountGatewaysIds = $account->gatewayIds();
-        $showWepay = filter_var($showWepay, FILTER_VALIDATE_BOOLEAN);
+        $otherProviders = Input::get('other_providers');
 
         if ( ! Utils::isNinja() || Gateway::hasStandardGateway($accountGatewaysIds)) {
-            $showWepay = false;
+            $otherProviders = true;
         }
 
         $data = self::getViewModel();
@@ -101,14 +100,14 @@ class AccountGatewayController extends BaseController
         $data['method'] = 'POST';
         $data['title'] = trans('texts.add_gateway');
 
-        if ($showWepay) {
-            return View::make('accounts.account_gateway_wepay', $data);
-        } else {
+        if ($otherProviders) {
             $data['primaryGateways'] = Gateway::primary($accountGatewaysIds)->orderBy('name', 'desc')->get();
             $data['secondaryGateways'] = Gateway::secondary($accountGatewaysIds)->orderBy('name')->get();
             $data['hiddenFields'] = Gateway::$hiddenFields;
 
             return View::make('accounts.account_gateway', $data);
+        } else {
+            return View::make('accounts.account_gateway_wepay', $data);
         }
     }
 

@@ -35,14 +35,19 @@ class InvoiceService extends BaseService
     {
         if (isset($data['client'])) {
             $canSaveClient = false;
+            $canViewClient = false;
             $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id');
             if (empty($clientPublicId) || $clientPublicId == '-1') {
                 $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
             } else {
-                $canSaveClient = Auth::user()->can('edit', Client::scope($clientPublicId)->first());
+                $client = Client::scope($clientPublicId)->first();
+                $canSaveClient = Auth::user()->can('edit', $client);
+                $canViewClient = Auth::user()->can('view', $client);
             }
             if ($canSaveClient) {
                 $client = $this->clientRepo->save($data['client']);
+            }
+            if ($canSaveClient || $canViewClient) {
                 $data['client_id'] = $client->id;
             }
         }

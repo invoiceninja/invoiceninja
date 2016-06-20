@@ -129,6 +129,8 @@ class ClientController extends BaseController
             $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/'.$client->public_id)];
         }
 
+        $token = $client->getGatewayToken();
+
         $data = array(
             'actionLinks' => $actionLinks,
             'showBreadcrumbs' => false,
@@ -138,8 +140,8 @@ class ClientController extends BaseController
             'hasRecurringInvoices' => Invoice::scope()->where('is_recurring', '=', true)->whereClientId($client->id)->count() > 0,
             'hasQuotes' => Invoice::scope()->invoiceType(INVOICE_TYPE_QUOTE)->whereClientId($client->id)->count() > 0,
             'hasTasks' => Task::scope()->whereClientId($client->id)->count() > 0,
-            'gatewayLink' => $client->getGatewayLink($accountGateway),
-            'gateway' => $accountGateway
+            'gatewayLink' => $token ? $token->gatewayLink() : false,
+            'gatewayName' => $token ? $token->gatewayName() : false,
         );
 
         return View::make('clients.show', $data);

@@ -39,7 +39,9 @@
                 </div>
 
                 @if ($gatewayLink)
-                    {!! Button::normal(trans('texts.view_in_gateway', ['gateway'=>$gateway->gateway->name]))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
+                    {!! Button::normal(trans('texts.view_in_gateway', ['gateway'=>$gatewayName]))
+                            ->asLinkTo($gatewayLink)
+                            ->withAttributes(['target' => '_blank']) !!}
                 @endif
 
                 @if ($client->trashed())
@@ -115,13 +117,13 @@
             @if ($client->private_notes)
                 <p><i>{{ $client->private_notes }}</i></p>
             @endif
-		  	
+
   	        @if ($client->client_industry)
                 {{ $client->client_industry->name }}<br/>
             @endif
             @if ($client->client_size)
                 {{ $client->client_size->name }}<br/>
-            @endif            
+            @endif
 
 		  	@if ($client->website)
 		  	   <p>{!! Utils::formatWebsite($client->website) !!}</p>
@@ -383,14 +385,14 @@
 
             var map = new google.maps.Map(mapCanvas, mapOptions)
             var address = "{{ "{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->name : '') }}";
-            
+
             geocoder = new google.maps.Geocoder();
             geocoder.geocode( { 'address': address}, function(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                   if (status != google.maps.GeocoderStatus.ZERO_RESULTS) {
                     var result = results[0];
                     map.setCenter(result.geometry.location);
-                    
+
                     var infowindow = new google.maps.InfoWindow(
                         { content: '<b>'+result.formatted_address+'</b>',
                         size: new google.maps.Size(150, 50)
@@ -398,9 +400,9 @@
 
                     var marker = new google.maps.Marker({
                         position: result.geometry.location,
-                        map: map, 
+                        map: map,
                         title:address,
-                    }); 
+                    });
                     google.maps.event.addListener(marker, 'click', function() {
                         infowindow.open(map, marker);
                     });

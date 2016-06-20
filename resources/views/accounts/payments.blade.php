@@ -31,11 +31,13 @@
     </div>
     {!! Former::close() !!}
 
+  <!--
   <label for="trashed" style="font-weight:normal; margin-left: 10px;">
     <input id="trashed" type="checkbox" onclick="setTrashVisible()"
       {{ Session::get("show_trash:gateway") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText('gateways') }}
   </label>
-
+  -->
+  
   @if ($showAdd)
       {!! Button::primary(trans('texts.add_gateway'))
             ->asLinkTo(URL::to('/gateways/create'))
@@ -48,14 +50,13 @@
   {!! Datatable::table()
       ->addColumn(
         trans('texts.name'),
-        trans('texts.payment_type_id'),
         trans('texts.action'))
       ->setUrl(url('api/gateways/'))
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "50%" ], [ "sWidth"=> "30%" ], ["sWidth"=> "20%"]])
-      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[2]]])
+      ->setOptions('aoColumns', [[ "sWidth"=> "80%" ], ["sWidth"=> "20%"]])
+      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
       ->render('datatable') !!}
 
   <script>

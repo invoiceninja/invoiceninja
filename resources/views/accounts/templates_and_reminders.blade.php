@@ -132,10 +132,10 @@
                             <li>$customInvoice1</li>
                         @endif
                         @if (count($account->account_gateways) > 1)
-                            @foreach (\App\Models\Gateway::$paymentTypes as $type)
+                            @foreach (\App\Models\Gateway::$gatewayTypes as $type)
                                 @if ($account->getGatewayByType($type))
-                                    <li>${{ \App\Models\Gateway::getPaymentTypeName($type) }}Link</li>
-                                    <li>${{ \App\Models\Gateway::getPaymentTypeName($type) }}Button</li>
+                                    <li>${{ Utils::toCamelCase($type) }}Link</li>
+                                    <li>${{ Utils::toCamelCase($type) }}Button</li>
                                 @endif
                             @endforeach
                         @endif
@@ -180,7 +180,7 @@
                     var previewName = '#' + entityType + '_' + stringType + '_preview';
                     $(previewName).html(processVariables(value));
                 }
-            }            
+            }
         }
 
         function serverPreview(field) {
@@ -189,14 +189,14 @@
             var template = $('#email_template_' + field).val();
             var url = '{{ URL::to('settings/email_preview') }}?template=' + template;
             $('#server-preview').attr('src', url).load(function() {
-                // disable links in the preview 
+                // disable links in the preview
                 $('iframe').contents().find('a').each(function(index) {
                     $(this).on('click', function(event) {
                         event.preventDefault();
                         event.stopPropagation();
                     });
                 });
-            });            
+            });
         }
 
         $(function() {
@@ -219,7 +219,7 @@
             refreshPreview();
         });
 
-        function enableReminder(id) {            
+        function enableReminder(id) {
             var checked = $('#enable_reminder' + id).is(':checked');
             $('.enable-reminder' + id).attr('disabled', !checked)
         }
@@ -242,29 +242,29 @@
 
             var keys = {!! json_encode(\App\Ninja\Mailers\ContactMailer::$variableFields) !!};
             var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<p>'.trans('texts.password').': 6h2NWNdw6<p>':'' !!}";
-            
+
             @if ($account->isPro())
             var documentsHtml = "{!! trans('texts.email_documents_header').'<ul><li><a>'.trans('texts.email_documents_example_1').'</a></li><li><a>'.trans('texts.email_documents_example_2').'</a></li></ul>' !!}";
             @else
             var documentsHtml = "";
             @endif
-            
+
             var vals = [
-                {!! json_encode($emailFooter) !!}, 
-                "{{ $account->getDisplayName() }}", 
+                {!! json_encode($emailFooter) !!},
+                "{{ $account->getDisplayName() }}",
                 "{{ $account->formatDate($account->getDateTime()) }}",
                 "{{ $account->formatDate($account->getDateTime()) }}",
-                "Client Name", 
-                formatMoney(100), 
-                "Contact Name", 
+                "Client Name",
+                formatMoney(100),
+                "Contact Name",
                 "First Name",
-                "0001", 
+                "0001",
                 "0001",
                 passwordHtml,
                 documentsHtml,
-                "{{ URL::to('/view/...') }}$password", 
+                "{{ URL::to('/view/...') }}$password",
                 '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
-                "{{ URL::to('/payment/...') }}$password", 
+                "{{ URL::to('/payment/...') }}$password",
                 '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
                 '{{ trans('texts.auto_bill_notification_placeholder') }}',
             ];
@@ -274,21 +274,21 @@
             vals.push('custom value', 'custom value', 'custom value', 'custom value');
 
             // Add any available payment method links
-            @foreach (\App\Models\Gateway::$paymentTypes as $type)
-                {!! "keys.push('" . \App\Models\Gateway::getPaymentTypeName($type).'Link' . "');" !!}
+            @foreach (\App\Models\Gateway::$gatewayTypes as $type)
+                {!! "keys.push('" . Utils::toCamelCase($type).'Link' . "');" !!}
                 {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
 
-                {!! "keys.push('" . \App\Models\Gateway::getPaymentTypeName($type).'Button' . "');" !!}
+                {!! "keys.push('" . Utils::toCamelCase($type).'Button' . "');" !!}
                 {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
             @endforeach
 
             var includesPasswordPlaceholder = str.indexOf('$password') != -1;
-                
+
             for (var i=0; i<keys.length; i++) {
                 var regExp = new RegExp('\\$'+keys[i], 'g');
                 str = str.replace(regExp, vals[i]);
             }
-                 
+
             if(!includesPasswordPlaceholder){
                 var lastSpot = str.lastIndexOf('$password')
                 str = str.slice(0, lastSpot) + str.slice(lastSpot).replace('$password', passwordHtml);

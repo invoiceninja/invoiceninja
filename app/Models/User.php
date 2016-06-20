@@ -280,6 +280,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
          } else {
              $bitmask = 0;
              foreach($value as $permission){
+                if ( ! $permission) {
+                    continue;
+                }
                 $bitmask = $bitmask | static::$all_permissions[$permission];
              }
 

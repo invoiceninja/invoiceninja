@@ -3,10 +3,14 @@
 use Crypt;
 use App\Models\Gateway;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 class AccountGateway extends EntityModel
 {
     use SoftDeletes;
+    use PresentableTrait;
+
+    protected $presenter = 'App\Ninja\Presenters\AccountGatewayPresenter';
     protected $dates = ['deleted_at'];
 
     public function getEntityType()
@@ -33,14 +37,18 @@ class AccountGateway extends EntityModel
         return $arrayOfImages;
     }
 
-    public function getPaymentType()
+    public function paymentDriver($invitation = false, $gatewayType = false)
     {
-        return Gateway::getPaymentType($this->gateway_id);
-    }
-    
-    public function isPaymentType($type)
-    {
-        return $this->getPaymentType() == $type;
+        $folder = "App\\Ninja\\PaymentDrivers\\";
+        $class = $folder . $this->gateway->provider . 'PaymentDriver';
+        $class = str_replace('_', '', $class);
+
+        if (class_exists($class)) {
+            return new $class($this, $invitation, $gatewayType);
+        } else {
+            $baseClass = $folder . "BasePaymentDriver";
+            return new $baseClass($this, $invitation, $gatewayType);
+        }
     }
 
     public function isGateway($gatewayId)
@@ -131,4 +139,3 @@ class AccountGateway extends EntityModel
         return \URL::to(env('WEBHOOK_PREFIX','').'paymenthook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX',''));
     }
 }
-

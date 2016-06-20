@@ -61,7 +61,7 @@ class InvoiceListener
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
-        $adjustment = $payment->amount - $payment->refunded;
+        $adjustment = $payment->getCompletedAmount();
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
@@ -91,7 +91,7 @@ class InvoiceListener
     {
         $payment = $event->payment;
         $invoice = $payment->invoice;
-        $adjustment = $payment->amount - $payment->refunded;
+        $adjustment = $payment->getCompletedAmount();
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
@@ -105,7 +105,7 @@ class InvoiceListener
 
         $payment = $event->payment;
         $invoice = $payment->invoice;
-        $adjustment = ($payment->amount - $payment->refunded) * -1;
+        $adjustment = $payment->getCompletedAmount() * -1;
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();

@@ -200,7 +200,7 @@ class InvoiceController extends BaseController
         $data = array_merge($data, self::getViewModel($invoice));
 
         if ($invoice->isSent() && $invoice->getAutoBillEnabled() && !$invoice->isPaid()) {
-            $data['autoBillChangeWarning'] = $this->paymentService->getClientRequiresDelayedAutoBill($invoice->client);
+            $data['autoBillChangeWarning'] = $invoice->client->autoBillLater();
         }
 
         if ($clone) {

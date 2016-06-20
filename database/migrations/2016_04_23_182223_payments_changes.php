@@ -28,6 +28,7 @@ class PaymentsChanges extends Migration
         {
             $table->increments('id');
             $table->unsignedInteger('account_id');
+            $table->unsignedInteger('user_id');
             $table->unsignedInteger('contact_id')->nullable();
             $table->unsignedInteger('account_gateway_token_id');
             $table->unsignedInteger('payment_type_id');
@@ -44,6 +45,7 @@ class PaymentsChanges extends Migration
             $table->softDeletes();
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('account_gateway_token_id')->references('id')->on('account_gateway_tokens');
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
@@ -107,7 +109,7 @@ class PaymentsChanges extends Migration
             $table->dropColumn('refunded');
             $table->dropForeign('payments_payment_status_id_foreign');
             $table->dropColumn('payment_status_id');
-            
+
             $table->dropColumn('routing_number');
             $table->dropColumn('last4');
             $table->dropColumn('expiration');
@@ -139,7 +141,7 @@ class PaymentsChanges extends Migration
         Schema::table('invoices', function ($table) {
             $table->dropColumn('client_enable_auto_bill');
         });
-        
+
         Schema::dropIfExists('payment_statuses');
 
         Schema::table('account_gateway_tokens', function($table)

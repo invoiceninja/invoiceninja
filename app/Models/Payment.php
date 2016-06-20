@@ -118,33 +118,41 @@ class Payment extends EntityModel
 
     public function recordRefund($amount = null)
     {
-        if (!$this->isRefunded() && !$this->isVoided()) {
-            if (!$amount) {
-                $amount = $this->amount;
-            }
-
-            $new_refund = min($this->amount, $this->refunded + $amount);
-            $refund_change = $new_refund - $this->refunded;
-
-            if ($refund_change) {
-                $this->refunded = $new_refund;
-                $this->payment_status_id = $this->refunded == $this->amount ? PAYMENT_STATUS_REFUNDED : PAYMENT_STATUS_PARTIALLY_REFUNDED;
-                $this->save();
-
-                Event::fire(new PaymentWasRefunded($this, $refund_change));
-            }
+        if ($this->isRefunded() || $this->isVoided()) {
+            return false;
         }
+
+        if (!$amount) {
+            $amount = $this->amount;
+        }
+
+        $new_refund = min($this->amount, $this->refunded + $amount);
+        $refund_change = $new_refund - $this->refunded;
+
+        if ($refund_change) {
+            $this->refunded = $new_refund;
+            $this->payment_status_id = $this->refunded == $this->amount ? PAYMENT_STATUS_REFUNDED : PAYMENT_STATUS_PARTIALLY_REFUNDED;
+            $this->save();
+
+            Event::fire(new PaymentWasRefunded($this, $refund_change));
+        }
+
+        return true;
     }
 
     public function markVoided()
     {
-        if (!$this->isVoided() && !$this->isPartiallyRefunded() && !$this->isRefunded()) {
-            $this->refunded = $this->amount;
-            $this->payment_status_id = PAYMENT_STATUS_VOIDED;
-            $this->save();
-
-            Event::fire(new PaymentWasVoided($this));
+        if ($this->isVoided() || $this->isPartiallyRefunded() || $this->isRefunded()) {
+            return false;
         }
+
+        $this->refunded = $this->amount;
+        $this->payment_status_id = PAYMENT_STATUS_VOIDED;
+        $this->save();
+
+        Event::fire(new PaymentWasVoided($this));
+
+        return true;
     }
 
     public function markComplete()

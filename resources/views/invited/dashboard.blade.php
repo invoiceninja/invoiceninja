@@ -68,11 +68,11 @@
             background-color: {{ $color }} !important;
         }
 
-        .pagination>.active>a, 
-        .pagination>.active>span, 
-        .pagination>.active>a:hover, 
-        .pagination>.active>span:hover, 
-        .pagination>.active>a:focus, 
+        .pagination>.active>a,
+        .pagination>.active>span,
+        .pagination>.active>a:hover,
+        .pagination>.active>span:hover,
+        .pagination>.active>a:focus,
         .pagination>.active>span:focus {
             background-color: {{ $color }};
             border-color: {{ $color }};
@@ -161,14 +161,15 @@
                 </div>
             </div>
         </div>
+
         @if (!empty($account->getTokenGatewayId()))
                 <div class="row">
                     <div class="col-xs-12">
-                    <h3>{{ trans('texts.payment_methods') }}</h3>
                     @include('payments.paymentmethods_list')
                 </div>
         </div>
         @endif
+
         <div style="min-height: 550px">
             {!! Datatable::table()
                 ->addColumn(

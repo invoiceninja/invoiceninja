@@ -69,7 +69,7 @@
             @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
                 {{-- Per our license, please do not remove or modify this link. --}}
                 <a class="navbar-brand" href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank"><img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px"></a>
-            @endif            
+            @endif
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             @if (!isset($account) || $account->isNinjaAccount() || $account->enable_client_portal)
@@ -91,13 +91,13 @@
                     </li>
                 @endif
                 @if (isset($account) && $account->getTokenGatewayId() && !$account->enable_client_portal_dashboard)
-                    <li {{ Request::is('*client/paymentmethods') ? 'class="active"' : '' }}>
-                        {!! link_to('/client/paymentmethods', trans('texts.payment_methods') ) !!}
+                    <li {{ Request::is('*client/payment_methods') ? 'class="active"' : '' }}>
+                        {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
                     </li>
                 @endif
                 <li {{ Request::is('*client/payments') ? 'class="active"' : '' }}>
                     {!! link_to('/client/payments', trans('texts.payments') ) !!}
-                </li>                
+                </li>
             </ul>
             @endif
         </div><!--/.nav-collapse -->
@@ -137,16 +137,16 @@
                     </li>
                     <li id="menu-item-33" class="menu-item-33">
                         {!! link_to('#', 'GitHub', ['target' => '_blank', 'onclick' => 'openUrl("https://github.com/hillelcoren/invoice-ninja", "/footer/social/github")']) !!}
-                    </li>                    
+                    </li>
                     <li id="menu-item-30" class="menu-item-30">
                         {!! link_to(NINJA_WEB_URL . '/contact', trans('texts.contact')) !!}
                     </li>
                 </ul>
-            </div>      
-            @endif   
+            </div>
+            @endif
         </div><!-- .wrap -->
     </div><!-- .top -->
-    
+
     <div class="bottom">
         <div class="wrap">
             @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))

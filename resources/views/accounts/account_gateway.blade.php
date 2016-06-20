@@ -13,8 +13,7 @@
     {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
 
     @if ($accountGateway)
-        {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
-        {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
+        {!! Former::populateField('primary_gateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
@@ -39,14 +38,13 @@
         {!! Former::populateField('update_address', 1) !!}
 
         @if (Utils::isNinjaDev())
-            {!! Former::populateField('23_apiKey', env('STRIPE_TEST_SECRET_KEY')) !!}
-            {!! Former::populateField('publishable_key', env('STRIPE_TEST_PUBLISHABLE_KEY')) !!}
+            @include('accounts.partials.payment_credentials')
         @endif
     @endif
 
     @if ($accountGateway)
         <div style="display: none">
-            {!! Former::text('primary_gateway_id')->value($accountGateway->gateway_id) !!}
+            {!! Former::text('primary_gateway_id') !!}
         </div>
     @else
         {!! Former::select('primary_gateway_id')
@@ -168,7 +166,7 @@
             </div>
         </div>
     @endif
-    
+
     </div>
     </div>
 
@@ -202,6 +200,12 @@
             $('.onsite-fields').hide();
         } else {
             $('.onsite-fields').show();
+        }
+
+        if (gateway.id == {{ GATEWAY_STRIPE }}) {
+            $('.stripe-ach').show();
+        } else {
+            $('.stripe-ach').hide();
         }
     }
 
