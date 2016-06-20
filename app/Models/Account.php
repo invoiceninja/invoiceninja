@@ -384,35 +384,42 @@ class Account extends Eloquent
         return $format;
     }
 
-    public function getGatewayByType($type = PAYMENT_TYPE_ANY, $exceptFor = null)
+    /*
+    public function defaultGatewayType()
     {
-        if ($type == PAYMENT_TYPE_STRIPE_ACH || $type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
-            $type = PAYMENT_TYPE_STRIPE;
+        $accountGateway = $this->account_gateways[0];
+        $paymentDriver = $accountGateway->paymentDriver();
+
+        return $paymentDriver->gatewayTypes()[0];
+    }
+    */
+
+    public function getGatewayByType($type = false)
+    {
+        if ( ! $this->relationLoaded('account_gateways')) {
+            $this->load('account_gateways');
         }
 
-        if ($type == PAYMENT_TYPE_WEPAY_ACH) {
-            return $this->getGatewayConfig(GATEWAY_WEPAY);
-        }
-
-        foreach ($this->account_gateways as $gateway) {
-            if ($exceptFor && ($gateway->id == $exceptFor->id)) {
-                continue;
+        foreach ($this->account_gateways as $accountGateway) {
+            if ( ! $type) {
+                return $accountGateway;
             }
 
-            if (!$type || $type == PAYMENT_TYPE_ANY) {
-                return $gateway;
-            } elseif ($gateway->isPaymentType($type)) {
-                return $gateway;
-            } elseif ($type == PAYMENT_TYPE_CREDIT_CARD && $gateway->isPaymentType(PAYMENT_TYPE_STRIPE)) {
-                return $gateway;
-            } elseif ($type == PAYMENT_TYPE_DIRECT_DEBIT && $gateway->getAchEnabled()) {
-                return $gateway;
-            } elseif ($type == PAYMENT_TYPE_PAYPAL && $gateway->getPayPalEnabled()) {
-                return $gateway;
+            $paymentDriver = $accountGateway->paymentDriver();
+
+            if ($paymentDriver->handles($type)) {
+                return $accountGateway;
             }
         }
 
         return false;
+    }
+
+    public function paymentDriver($invitation = false, $gatewayType = false)
+    {
+        $accountGateway = $this->getGatewayByType($gatewayType);
+
+        return $accountGateway->paymentDriver($invitation, $gatewayType);
     }
 
     public function gatewayIds()
@@ -1436,18 +1443,6 @@ class Account extends Eloquent
 
     public function getFontFolders(){
         return array_map(function($item){return $item['folder'];}, $this->getFontsData());
-    }
-
-    public function canAddGateway($type){
-        if ($type == PAYMENT_TYPE_STRIPE) {
-            $type == PAYMENT_TYPE_CREDIT_CARD;
-        }
-
-        if($this->getGatewayByType($type)) {
-            return false;
-        }
-
-        return true;
     }
 }
 

@@ -445,7 +445,7 @@ $LANG = array(
     'token_billing_4' => 'Always',
     'token_billing_checkbox' => 'Store credit card details',
     'view_in_gateway' => 'View in :gateway',
-    'use_card_on_file' => 'Use card on file',
+    'use_card_on_file' => 'Use Card on File',
     'edit_payment_details' => 'Edit payment details',
     'token_billing' => 'Save card details',
     'token_billing_secure' => 'The data is stored securely by :link',
@@ -1351,6 +1351,12 @@ $LANG = array(
 
     'update_font_cache' => 'Please force refresh the page to update the font cache.',
     'more_options' => 'More options',
+    'credit_card' => 'Credit Card',
+    'bank_transfer' => 'Bank Transfer',
+    'no_transaction_reference' => 'We did not recieve a payment transaction reference from the gateway.',
+    'use_bank_on_file' => 'Use Bank on File',
+    'auto_bill_email_message' => 'This invoice will automatically be billed to the payment method on file on the due date.',
+    'bitcoin' => 'Bitcoin',
 
 );
 

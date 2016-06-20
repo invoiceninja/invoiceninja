@@ -8,6 +8,15 @@ class Gateway extends Eloquent
 {
     public $timestamps = true;
 
+    public static $gatewayTypes = [
+        GATEWAY_TYPE_CREDIT_CARD,
+        GATEWAY_TYPE_BANK_TRANSFER,
+        GATEWAY_TYPE_PAYPAL,
+        GATEWAY_TYPE_BITCOIN,
+        GATEWAY_TYPE_DWOLLA,
+        GATEWAY_TYPE_TOKEN,
+    ];
+
     // these will appear in the primary gateway select
     // the rest are shown when selecting 'more options'
     public static $preferred = [
@@ -24,16 +33,6 @@ class Gateway extends Eloquent
         GATEWAY_PAYPAL_EXPRESS,
         GATEWAY_BITPAY,
         GATEWAY_DWOLLA,
-    ];
-
-    // TODO remove this
-    public static $paymentTypes = [
-        PAYMENT_TYPE_STRIPE,
-        PAYMENT_TYPE_CREDIT_CARD,
-        PAYMENT_TYPE_PAYPAL,
-        PAYMENT_TYPE_BITCOIN,
-        PAYMENT_TYPE_DIRECT_DEBIT,
-        PAYMENT_TYPE_DWOLLA,
     ];
 
     public static $hiddenFields = [
@@ -103,21 +102,11 @@ class Gateway extends Eloquent
         }
     }
 
-    /*
-    public static function getPaymentTypeLinks() {
-        $data = [];
-        foreach (self::$paymentTypes as $type) {
-            $data[] = Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
-        }
-        return $data;
-    }
-    */
-
     public function getHelp()
     {
         $link = '';
 
-        if ($this->id == GATEWAY_AUTHORIZE_NET || $this->id == GATEWAY_AUTHORIZE_NET_SIM) {
+        if ($this->id == GATEWAY_AUTHORIZE_NET) {
             $link = 'http://reseller.authorize.net/application/?id=5560364';
         } elseif ($this->id == GATEWAY_PAYPAL_EXPRESS) {
             $link = 'https://www.paypal.com/us/cgi-bin/webscr?cmd=_login-api-run';
@@ -140,25 +129,5 @@ class Gateway extends Eloquent
     public function getFields()
     {
         return Omnipay::create($this->provider)->getDefaultParameters();
-    }
-
-    public static function getPaymentType($gatewayId) {
-        if ($gatewayId == GATEWAY_PAYPAL_EXPRESS) {
-            return PAYMENT_TYPE_PAYPAL;
-        } else if ($gatewayId == GATEWAY_BITPAY) {
-            return PAYMENT_TYPE_BITCOIN;
-        } else if ($gatewayId == GATEWAY_DWOLLA) {
-            return PAYMENT_TYPE_DWOLLA;
-        } else if ($gatewayId == GATEWAY_GOCARDLESS) {
-            return PAYMENT_TYPE_DIRECT_DEBIT;
-        } else if ($gatewayId == GATEWAY_STRIPE) {
-            return PAYMENT_TYPE_STRIPE;
-        } else {
-            return PAYMENT_TYPE_CREDIT_CARD;
-        }
-    }
-
-    public static function getPrettyPaymentType($gatewayId) {
-        return trans('texts.' . strtolower(Gateway::getPaymentType($gatewayId)));
     }
 }

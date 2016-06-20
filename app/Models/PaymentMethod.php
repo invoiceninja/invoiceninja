@@ -8,30 +8,10 @@ class PaymentMethod extends EntityModel
 {
     use SoftDeletes;
 
-    protected $dates = ['deleted_at'];
     public $timestamps = true;
+
+    protected $dates = ['deleted_at'];
     protected $hidden = ['id'];
-
-    public static function createNew($accountGatewayToken = null)
-    {
-        $entity = new PaymentMethod();
-
-        $entity->account_id = $accountGatewayToken->account_id;
-        $entity->account_gateway_token_id = $accountGatewayToken->id;
-
-        $lastEntity = static::scope(false, $entity->account_id);
-
-        $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
-            ->first();
-
-        if ($lastEntity) {
-            $entity->public_id = $lastEntity->public_id + 1;
-        } else {
-            $entity->public_id = 1;
-        }
-
-        return $entity;
-    }
 
     public function account()
     {
@@ -86,15 +66,25 @@ class PaymentMethod extends EntityModel
         return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
     }
 
-    public function scopeScope($query, $publicId = false, $accountId = false, $accountGatewayTokenId = false)
+    public function scopeClientId($query, $clientId)
     {
-        $query = parent::scopeScope($query, $publicId, $accountId);
+        return $query->with(['contact' => function($query) use ($clientId) {
+            return $query->whereClientId($clientId);
+        }]);
+    }
 
-        if ($accountGatewayTokenId) {
-            $query->where($this->getTable() . '.account_gateway_token_id', '=', $accountGatewayTokenId);
+    public function scopeIsBankAccount($query, $isBank)
+    {
+        if ($isBank) {
+            $query->where('payment_type_id', '=', PAYMENT_TYPE_ACH);
+        } else {
+            $query->where('payment_type_id', '!=', PAYMENT_TYPE_ACH);
         }
+    }
 
-        return $query;
+    public function imageUrl()
+    {
+        return url(sprintf('/images/credit_cards/%s.png', str_replace(' ', '', strtolower($this->payment_type->name))));
     }
 
     public static function lookupBankData($routingNumber) {

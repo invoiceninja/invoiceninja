@@ -16,6 +16,7 @@
         display:inline-block;
     }
 </style>
+
 @if (!empty($braintreeClientToken))
     <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
     <script type="text/javascript" >
@@ -75,72 +76,84 @@
         });
     </script>
 @endif
-@if(!empty($paymentMethods))
-@foreach ($paymentMethods as $paymentMethod)
-<div class="payment_method">
-            <span class="payment_method_img_container">
-                <img height="22" src="{{URL::to('/images/credit_cards/'.str_replace(' ', '', strtolower($paymentMethod->payment_type->name).'.png'))}}" alt="{{trans("texts.card_" . str_replace(' ', '', strtolower($paymentMethod->payment_type->name)))}}">
-            </span>
-    @if(!empty($paymentMethod->last4))
-    <span class="payment_method_number">&bull;&bull;&bull;&bull;&bull;{{$paymentMethod->last4}}</span>
-    @endif
-    @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
-        @if($paymentMethod->bank_name)
-            {{ $paymentMethod->bank_name }}
-        @endif
-        @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
-            @if($gateway->gateway_id == GATEWAY_STRIPE)
-            <a href="#" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
+
+@if(!empty($paymentMethods) && count($paymentMethods))
+    <h3>{{ trans('texts.payment_methods') }}</h3>
+
+    @foreach ($paymentMethods as $paymentMethod)
+    <div class="payment_method">
+                <span class="payment_method_img_container">
+                    <img height="22" src="{{ $paymentMethod->imageUrl() }}"
+                        alt="{{ trans("texts.card_" . str_replace(' ', '', strtolower($paymentMethod->payment_type->name))) }}">
+                </span>
+
+        @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
+            @if($paymentMethod->bank_name)
+                {{ $paymentMethod->bank_name }}
             @else
-            ({{  trans('texts.verification_pending') }})
+                {{ trans('texts.bank_account') }}
             @endif
-        @elseif($paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFICATION_FAILED)
-        ({{trans('texts.verification_failed')}})
+            @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
+                @if($gateway->gateway_id == GATEWAY_STRIPE)
+                    <a href="#" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
+                @else
+                ({{  trans('texts.verification_pending') }})
+                @endif
+            @elseif($paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFICATION_FAILED)
+            ({{trans('texts.verification_failed')}})
+            @endif
+        @elseif($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL)
+            {{ trans('texts.paypal') . ': ' . $paymentMethod->email }}
+        @else
+            {{ trans('texts.credit_card') }}
         @endif
-    @elseif($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL)
-        {{ $paymentMethod->email }}
-    @elseif($paymentMethod->expiration)
-        {!! trans('texts.card_expiration', array('expires'=>Utils::fromSqlDate($paymentMethod->expiration, false)->format('m/y'))) !!}
-    @endif
-    @if($paymentMethod->id == $paymentMethod->account_gateway_token->default_payment_method_id)
-        ({{trans('texts.used_for_auto_bill')}})
-    @elseif($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED)
-        <a href="#" onclick="setDefault('{{$paymentMethod->public_id}}')">({{trans('texts.use_for_auto_bill')}})</a>
-    @endif
-    <a href="#" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">&times;</a>
-</div>
-@endforeach
+
+        @if($paymentMethod->id == $paymentMethod->account_gateway_token->default_payment_method_id)
+            ({{trans('texts.used_for_auto_bill')}})
+        @elseif($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED)
+            <a href="#" onclick="setDefault('{{$paymentMethod->public_id}}')">({{trans('texts.use_for_auto_bill')}})</a>
+        @endif
+        <a href="#" title="{{ trans('texts.remove') }}" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">&times;</a>
+
+    </div>
+    @endforeach
 @endif
 
-@if($gateway->gateway_id != GATEWAY_STRIPE || $gateway->getPublishableStripeKey())
+
 <center>
-    {!! Button::success(strtoupper(trans('texts.add_credit_card')))
-    ->asLinkTo(URL::to('/client/paymentmethods/add/'.($gateway->getPaymentType() == PAYMENT_TYPE_STRIPE ? 'stripe_credit_card' : 'credit_card'))) !!}
-    @if($gateway->getACHEnabled())
-    &nbsp;
-        @if($gateway->gateway_id == GATEWAY_STRIPE)
-        {!! Button::success(strtoupper(trans('texts.add_bank_account')))
-            ->asLinkTo(URL::to('/client/paymentmethods/add/stripe_ach')) !!}
-        @elseif($gateway->gateway_id == GATEWAY_WEPAY)
-            {!! Button::success(strtoupper(trans('texts.add_bank_account')))
-                ->withAttributes(['id'=>'add-ach'])
-                ->asLinkTo(URL::to('/client/paymentmethods/add/wepay_ach')) !!}
-        @endif
-    @endif
-    @if($gateway->getPayPalEnabled())
+    @if (false && $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD) && $account->getGatewayByType(GATEWAY_TYPE_TOKEN))
+        {!! Button::success(strtoupper(trans('texts.add_credit_card')))
+        ->asLinkTo(URL::to('/client/add/credit_card')) !!}
         &nbsp;
+    @endif
+    @if (false && $account->getGatewayByType(GATEWAY_TYPE_BANK_TRANSFER) && $account->getGatewayByType(GATEWAY_TYPE_TOKEN))
+        {!! Button::success(strtoupper(trans('texts.add_bank_account')))
+            ->withAttributes(['id'=>'add-ach'])
+            ->asLinkTo(URL::to('/client/add/bank_transfer')) !!}
+        &nbsp;
+    @endif
+    @if (false && $account->getGatewayByType(GATEWAY_TYPE_PAYPAL) && $account->getGatewayByType(GATEWAY_TYPE_TOKEN))
         {!! Button::success(strtoupper(trans('texts.add_paypal_account')))
             ->withAttributes(['id'=>'add-paypal'])
-            ->asLinkTo(URL::to('/client/paymentmethods/add/braintree_paypal')) !!}
+            ->asLinkTo(URL::to('/client/add/paypal')) !!}
         <div id="paypal-container"></div>
     @endif
 </center>
-@endif
 
 <div class="modal fade" id="completeVerificationModal" tabindex="-1" role="dialog" aria-labelledby="completeVerificationModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="min-width:150px">
         <div class="modal-content">
-            {!! Former::open('/client/paymentmethods/verify') !!}
+            {!! Former::open('/client/payment_methods/verify') !!}
+
+            @if (Utils::isNinjaDev())
+                <script>
+                    $(function() {
+                        $('#verification1').val('32');
+                        $('#verification2').val('45');
+                    })
+                </script>
+            @endif
+
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="completeVerificationModalLabel">{{ trans('texts.complete_verification') }}</h4>
@@ -199,8 +212,9 @@
         </div>
     </div>
 </div>
-{!! Former::open(URL::to('/client/paymentmethods/default'))->id('defaultSourceForm') !!}
-<input type="hidden" name="source" id="default_id">
+
+{!! Former::open(URL::to('/client/payment_methods/default'))->id('defaultSourceForm') !!}
+    <input type="hidden" name="source" id="default_id">
 {!! Former::close() !!}
 
 <script type="text/javascript">
@@ -212,7 +226,7 @@
     }
 
     function removePaymentMethod(sourceId) {
-        $('#removeForm').attr('action', '{{ URL::to('/client/paymentmethods/%s/remove') }}'.replace('%s', sourceId))
+        $('#removeForm').attr('action', '{{ URL::to('/client/payment_methods/%s/remove') }}'.replace('%s', sourceId))
         $('#removePaymentMethodModal').modal('show');
     }
 

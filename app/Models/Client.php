@@ -5,6 +5,7 @@ use DB;
 use Carbon;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\AccountGatewayToken;
 
 class Client extends EntityModel
 {
@@ -154,7 +155,7 @@ class Client extends EntityModel
             $contact = Contact::createNew();
             $contact->send_invoice = true;
         }
-        
+
         if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password){
             if(!empty($data['password']) && $data['password']!='-%unchanged%-'){
                 $contact->password = bcrypt($data['password']);
@@ -162,7 +163,7 @@ class Client extends EntityModel
                 $contact->password = null;
             }
         }
-            
+
         $contact->fill($data);
         $contact->is_primary = $isPrimary;
 
@@ -177,7 +178,7 @@ class Client extends EntityModel
 
         $this->balance = $this->balance + $balanceAdjustment;
         $this->paid_to_date = $this->paid_to_date + $paidToDateAdjustment;
-        
+
         $this->save();
     }
 
@@ -198,20 +199,20 @@ class Client extends EntityModel
     {
         return $this->name;
     }
-    
+
     public function getPrimaryContact()
     {
         return $this->contacts()
                     ->whereIsPrimary(true)
                     ->first();
     }
-    
+
     public function getDisplayName()
     {
         if ($this->name) {
             return $this->name;
         }
-        
+
         if ( ! count($this->contacts)) {
             return '';
         }
@@ -260,49 +261,28 @@ class Client extends EntityModel
         }
     }
 
-
-    public function getGatewayToken(&$accountGateway = null, &$token = null)
+    public function getGatewayToken()
     {
-        $account = $this->account;
-        
-        if ( ! $account->relationLoaded('account_gateways')) {
-            $account->load('account_gateways');
-        }
+        $accountGateway = $this->account->getGatewayByType(GATEWAY_TYPE_TOKEN);
 
-        if (!count($account->account_gateways)) {
-            return false;
-        }
-        
-        if (!$accountGateway){
-            $accountGateway = $account->getTokenGateway();
-        }
-
-        if (!$accountGateway) {
+        if ( ! $accountGateway) {
             return false;
         }
 
-        $token = AccountGatewayToken::where('client_id', '=', $this->id)
-                    ->where('account_gateway_id', '=', $accountGateway->id)->first();
-
-        return $token ? $token->token : false;
+        return AccountGatewayToken::clientAndGateway($this->id, $accountGateway->id)->first();
     }
 
-    public function getGatewayLink(&$accountGateway = null)
+    public function autoBillLater()
     {
-        $token = $this->getGatewayToken($accountGateway);
-        if (!$token) {
-            return false;
+        if ($token = $this->getGatewayToken()) {
+            if ($this->account->auto_bill_on_due_date) {
+                return true;
+            }
+
+            return $token->autoBillLater();
         }
 
-        if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
-            return "https://dashboard.stripe.com/customers/{$token}";
-        } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
-            $merchantId = $accountGateway->getConfig()->merchantId;
-            $testMode = $accountGateway->getConfig()->testMode;
-            return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$token}";
-        } else {
-            return false;
-        }
+        return false;
     }
 
     public function getAmount()
@@ -321,6 +301,19 @@ class Client extends EntityModel
         }
 
         return $this->account->currency_id ?: DEFAULT_CURRENCY;
+    }
+
+    public function getCurrencyCode()
+    {
+        if ($this->currency) {
+            return $this->currency->code;
+        }
+
+        if (!$this->account) {
+            $this->load('account');
+        }
+
+        return $this->account->currency ? $this->account->currency->code : 'USD';
     }
 
     public function getCounter($isQuote)

@@ -22,15 +22,17 @@
             }
 		</style>
 
-    @if (!empty($braintreeClientToken))
+    @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE && !empty($transactionToken))
+        <div id="paypal-container"></div>
         <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
         <script type="text/javascript" >
             $(function() {
-                var paypalLink = $('.dropdown-menu a[href$="/braintree_paypal"]'),
+                var paypalLink = $('.dropdown-menu a[href$="paypal"]'),
                     paypalUrl = paypalLink.attr('href'),
                     checkout;
+                console.log(paypalUrl);
                 paypalLink.parent().attr('id', 'paypal-container');
-                braintree.setup("{{ $braintreeClientToken }}", "custom", {
+                braintree.setup("{{ $transactionToken }}", "custom", {
                     onReady: function (integration) {
                         checkout = integration;
                         $('.dropdown-menu a[href$="#braintree_paypal"]').each(function(){
@@ -44,13 +46,13 @@
                         enableShippingAddress: false,
                         enableBillingAddress: false,
                         headless: true,
-                        locale: "{{$invoice->client->language?$invoice->client->language->locale:$invoice->account->language->locale}}"
+                        locale: "{{ $invoice->client->language ? $invoice->client->language->locale : $invoice->account->language->locale }}"
                     },
                     dataCollector: {
                         paypal: true
                     },
                     onPaymentMethodReceived: function (obj) {
-                        window.location.href = paypalUrl + '/' + encodeURIComponent(obj.nonce) + "?details=" + encodeURIComponent(JSON.stringify(obj.details))
+                        window.location.href = paypalUrl.replace('#braintree_paypal', '') + '/' + encodeURIComponent(obj.nonce) + "?device_data=" + encodeURIComponent(JSON.stringify(obj.details));
                     }
                 });
                 paypalLink.click(function(e){
@@ -95,8 +97,8 @@
 
 	<div class="container">
 
-        @if ($checkoutComToken)
-            @include('partials.checkout_com_payment')
+        @if ($partialView)
+            @include($partialView)
         @else
             <div class="pull-right" style="text-align:right">
             @if ($invoice->isQuote())
@@ -118,12 +120,13 @@
                 @endif
     		@endif
     		</div>
-    		<div class="pull-left">
-                @if(!empty($documentsZipURL))
-                    {!! Button::normal(trans('texts.download_documents', array('size'=>Form::human_filesize($documentsZipSize))))->asLinkTo($documentsZipURL)->large() !!}
-                @endif
-            </div>
         @endif
+
+        <div class="pull-left">
+            @if(!empty($documentsZipURL))
+                {!! Button::normal(trans('texts.download_documents', array('size'=>Form::human_filesize($documentsZipSize))))->asLinkTo($documentsZipURL)->large() !!}
+            @endif
+        </div>
 
 		<div class="clearfix"></div><p>&nbsp;</p>
         @if ($account->isPro() && $invoice->hasDocuments())

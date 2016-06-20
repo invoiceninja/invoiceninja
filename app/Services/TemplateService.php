@@ -28,7 +28,7 @@ class TemplateService
             }
             $documentsHTML .= '</ul>';
         }
-        
+
         $variables = [
             '$footer' => $account->getEmailFooter(),
             '$client' => $client->getDisplayName(),
@@ -55,15 +55,14 @@ class TemplateService
         ];
 
         // Add variables for available payment types
-        foreach (Gateway::$paymentTypes as $type) {
-            $camelType = Gateway::getPaymentTypeName($type);
-            $type = Utils::toSnakeCase($camelType);
+        foreach (Gateway::$gatewayTypes as $type) {
+            $camelType = Utils::toCamelCase($type);
             $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
             $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
         }
-        
+
         $includesPasswordPlaceholder = strpos($template, '$password') !== false;
-                
+
         $str = str_replace(array_keys($variables), array_values($variables), $template);
 
         if (!$includesPasswordPlaceholder && $passwordHTML) {
@@ -72,10 +71,10 @@ class TemplateService
             {
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
             }
-        }        
+        }
         $str = str_replace('$password', '', $str);
         $str = autolink($str, 100);
-        
+
         return $str;
-    }    
+    }
 }

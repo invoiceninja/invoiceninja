@@ -41,15 +41,16 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
-    Route::get('payment/{invitation_key}/{payment_type?}/{source_id?}', 'PaymentController@show_payment');
-    Route::post('payment/{invitation_key}', 'PaymentController@do_payment');
-    Route::match(['GET', 'POST'], 'complete', 'PaymentController@offsite_payment');
-    Route::get('client/paymentmethods', 'ClientPortalController@paymentMethods');
-    Route::post('client/paymentmethods/verify', 'ClientPortalController@verifyPaymentMethod');
-    Route::get('client/paymentmethods/add/{payment_type}/{source_id?}', 'ClientPortalController@addPaymentMethod');
-    Route::post('client/paymentmethods/add/{payment_type}', 'ClientPortalController@postAddPaymentMethod');
-    Route::post('client/paymentmethods/default', 'ClientPortalController@setDefaultPaymentMethod');
-    Route::post('client/paymentmethods/{source_id}/remove', 'ClientPortalController@removePaymentMethod');
+    Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
+    Route::post('payment/{invitation_key}', 'OnlinePaymentController@doPayment');
+    Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
+    Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
+    Route::get('client/payment_methods', 'ClientPortalController@paymentMethods');
+    Route::post('client/payment_methods/verify', 'ClientPortalController@verifyPaymentMethod');
+    //Route::get('client/payment_methods/add/{gateway_type}/{source_id?}', 'ClientPortalController@addPaymentMethod');
+    //Route::post('client/payment_methods/add/{gateway_type}', 'ClientPortalController@postAddPaymentMethod');
+    Route::post('client/payment_methods/default', 'ClientPortalController@setDefaultPaymentMethod');
+    Route::post('client/payment_methods/{source_id}/remove', 'ClientPortalController@removePaymentMethod');
     Route::get('client/quotes', 'ClientPortalController@quoteIndex');
     Route::get('client/invoices', 'ClientPortalController@invoiceIndex');
     Route::get('client/invoices/recurring', 'ClientPortalController@recurringInvoiceIndex');
@@ -71,11 +72,10 @@ Route::group(['middleware' => 'auth:client'], function() {
 });
 
 
-Route::get('bank/{routing_number}', 'PaymentController@getBankInfo');
 Route::post('paymenthook/{accountKey}/{gatewayId}', 'PaymentController@handlePaymentWebhook');
-Route::get('license', 'PaymentController@show_license_payment');
-Route::post('license', 'PaymentController@do_license_payment');
-Route::get('claim_license', 'PaymentController@claim_license');
+Route::get('license', 'NinjaController@show_license_payment');
+Route::post('license', 'NinjaController@do_license_payment');
+Route::get('claim_license', 'NinjaController@claim_license');
 
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
@@ -557,7 +557,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
 
     define('GATEWAY_AUTHORIZE_NET', 1);
-    define('GATEWAY_AUTHORIZE_NET_SIM', 2);
     define('GATEWAY_EWAY', 4);
     define('GATEWAY_MOLLIE', 9);
     define('GATEWAY_PAYFAST', 13);
@@ -661,7 +660,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_TYPE_EUROCARD', 11);
     define('PAYMENT_TYPE_NOVA', 12);
     define('PAYMENT_TYPE_CREDIT_CARD_OTHER', 13);
-    define('PAYMENT_TYPE_ID_PAYPAL', 14);
+    define('PAYMENT_TYPE_PAYPAL', 14);
     define('PAYMENT_TYPE_CARTE_BLANCHE', 17);
     define('PAYMENT_TYPE_UNIONPAY', 18);
     define('PAYMENT_TYPE_JCB', 19);
@@ -674,18 +673,12 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
     define('PAYMENT_METHOD_STATUS_VERIFIED', 'verified');
 
-    define('PAYMENT_TYPE_PAYPAL', 'PAYMENT_TYPE_PAYPAL');
-    define('PAYMENT_TYPE_STRIPE', 'PAYMENT_TYPE_STRIPE');
-    define('PAYMENT_TYPE_STRIPE_CREDIT_CARD', 'PAYMENT_TYPE_STRIPE_CREDIT_CARD');
-    define('PAYMENT_TYPE_STRIPE_ACH', 'PAYMENT_TYPE_STRIPE_ACH');
-    define('PAYMENT_TYPE_BRAINTREE_PAYPAL', 'PAYMENT_TYPE_BRAINTREE_PAYPAL');
-    define('PAYMENT_TYPE_WEPAY_ACH', 'PAYMENT_TYPE_WEPAY_ACH');
-    define('PAYMENT_TYPE_CREDIT_CARD', 'PAYMENT_TYPE_CREDIT_CARD');
-    define('PAYMENT_TYPE_DIRECT_DEBIT', 'PAYMENT_TYPE_DIRECT_DEBIT');
-    define('PAYMENT_TYPE_BITCOIN', 'PAYMENT_TYPE_BITCOIN');
-    define('PAYMENT_TYPE_DWOLLA', 'PAYMENT_TYPE_DWOLLA');
-    define('PAYMENT_TYPE_TOKEN', 'PAYMENT_TYPE_TOKEN');
-    define('PAYMENT_TYPE_ANY', 'PAYMENT_TYPE_ANY');
+    define('GATEWAY_TYPE_CREDIT_CARD', 'credit_card');
+    define('GATEWAY_TYPE_BANK_TRANSFER', 'bank_transfer');
+    define('GATEWAY_TYPE_PAYPAL', 'paypal');
+    define('GATEWAY_TYPE_BITCOIN', 'bitcoin');
+    define('GATEWAY_TYPE_DWOLLA', 'dwolla');
+    define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('REMINDER1', 'reminder1');
     define('REMINDER2', 'reminder2');

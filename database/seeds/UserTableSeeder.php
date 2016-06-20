@@ -68,7 +68,8 @@ class UserTableSeeder extends Seeder
             'city' => $faker->city,
             'state' => $faker->state,
             'postal_code' => $faker->postcode,
-            'country_id' => Country::all()->random()->id,
+            'country_id' => DEFAULT_COUNTRY,
+            'currency_id' => DEFAULT_CURRENCY,
         ]);
 
         Contact::create([
@@ -77,6 +78,7 @@ class UserTableSeeder extends Seeder
             'client_id' => $client->id,
             'public_id' => 1,
             'email' => TEST_USERNAME,
+            'is_primary' => true,
         ]);
 
         Product::create([

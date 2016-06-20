@@ -49,12 +49,6 @@ class AccountGatewayDatatable extends EntityDatatable
                     }
                 }
             ],
-            [
-                'payment_type',
-                function ($model) {
-                    return Gateway::getPrettyPaymentType($model->gateway_id);
-                }
-            ],
         ];
     }
 

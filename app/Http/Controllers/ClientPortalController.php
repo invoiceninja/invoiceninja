@@ -98,7 +98,7 @@ class ClientPortalController extends BaseController
         ]);
 
         $data = array();
-        $paymentTypes = $this->getPaymentTypes($client, $invitation);
+        $paymentTypes = $this->getPaymentTypes($account, $client, $invitation);
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
@@ -107,11 +107,9 @@ class ClientPortalController extends BaseController
             }
         }
 
-        if ($braintreeGateway = $account->getGatewayConfig(GATEWAY_BRAINTREE)){
-            if($braintreeGateway->getPayPalEnabled()) {
-                $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
-            }
-        } elseif ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)){
+        $paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_CREDIT_CARD);
+
+        if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)){
             $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
         }
 
@@ -121,19 +119,6 @@ class ClientPortalController extends BaseController
         }
         if ($invoice->invoice_status_id >= INVOICE_STATUS_APPROVED) {
             $showApprove = false;
-        }
-
-        // Checkout.com requires first getting a payment token
-        $checkoutComToken = false;
-        $checkoutComKey = false;
-        $checkoutComDebug = false;
-        if ($accountGateway = $account->getGatewayConfig(GATEWAY_CHECKOUT_COM)) {
-            $checkoutComDebug = $accountGateway->getConfigField('testMode');
-            if ($checkoutComToken = $this->paymentService->getCheckoutComToken($invitation)) {
-                $checkoutComKey = $accountGateway->getConfigField('publicApiKey');
-                $invitation->transaction_reference = $checkoutComToken;
-                $invitation->save();
-            }
         }
 
         $data += array(
@@ -147,9 +132,9 @@ class ClientPortalController extends BaseController
             'contact' => $contact,
             'paymentTypes' => $paymentTypes,
             'paymentURL' => $paymentURL,
-            'checkoutComToken' => $checkoutComToken,
-            'checkoutComKey' => $checkoutComKey,
-            'checkoutComDebug' => $checkoutComDebug,
+            'transactionToken' => $paymentDriver->createTransactionToken(),
+            'partialView' => $paymentDriver->partialView(),
+            'accountGateway' => $paymentDriver->accountGateway,
             'phantomjs' => Input::has('phantomjs'),
         );
 
@@ -164,7 +149,7 @@ class ClientPortalController extends BaseController
 
         return View::make('invoices.view', $data);
     }
-    
+
     public function contactIndex($contactKey) {
         if (!$contact = Contact::where('contact_key', '=', $contactKey)->first()) {
             return $this->returnError();
@@ -177,95 +162,17 @@ class ClientPortalController extends BaseController
         return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/invoices/');
     }
 
-    private function getPaymentTypes($client, $invitation)
+    private function getPaymentTypes($account, $client, $invitation)
     {
-        $paymentTypes = [];
-        $account = $client->account;
+        $links = [];
 
-        $paymentMethods = $this->paymentService->getClientPaymentMethods($client);
-
-        if ($paymentMethods) {
-            foreach ($paymentMethods as $paymentMethod) {
-                if ($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED) {
-                    $code = htmlentities(str_replace(' ', '', strtolower($paymentMethod->payment_type->name)));
-                    $html = '';
-
-                    if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
-                        if ($paymentMethod->bank_name) {
-                            $html = '<div>' . htmlentities($paymentMethod->bank_name) . '</div>';
-                        } else {
-                            $html = '<img height="22" src="'.URL::to('/images/credit_cards/ach.png').'" style="float:left" alt="'.trans("texts.direct_debit").'">';
-                        }
-                    } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL) {
-                        $html = '<img height="22" src="'.URL::to('/images/credit_cards/paypal.png').'" alt="'.trans("texts.card_".$code).'">';
-                    } else {
-                        $html = '<img height="22" src="'.URL::to('/images/credit_cards/'.$code.'.png').'" alt="'.trans("texts.card_".$code).'">';
-                    }
-
-                    $url = URL::to("/payment/{$invitation->invitation_key}/token/".$paymentMethod->public_id);
-
-                    if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ID_PAYPAL) {
-                        $html .= '&nbsp;&nbsp;<span>'.$paymentMethod->email.'</span>';
-                        $url .= '#braintree_paypal';
-                    } elseif ($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH) {
-                        $html .= '<div class="pull-right" style="text-align:right">'.trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($paymentMethod->expiration, false)->format('m/y'))).'<br>';
-                        $html .= '&bull;&bull;&bull;'.$paymentMethod->last4.'</div>';
-                    } else {
-                        $html .= '<div style="text-align:right">';
-                        $html .= '&bull;&bull;&bull;'.$paymentMethod->last4.'</div>';
-                    }
-
-                    $paymentTypes[] = [
-                        'url' => $url,
-                        'label' => $html,
-                    ];
-                }
-            }
+        foreach ($account->account_gateways as $accountGateway) {
+            $paymentDriver = $accountGateway->paymentDriver($invitation);
+            $links = array_merge($links, $paymentDriver->tokenLinks());
+            $links = array_merge($links, $paymentDriver->paymentLinks());
         }
 
-
-        foreach(Gateway::$paymentTypes as $type) {
-            if ($type == PAYMENT_TYPE_STRIPE) {
-                continue;
-            }
-            if ($gateway = $account->getGatewayByType($type)) {
-                if ($type == PAYMENT_TYPE_DIRECT_DEBIT) {
-                    if ($gateway->gateway_id == GATEWAY_STRIPE) {
-                        $type = PAYMENT_TYPE_STRIPE_ACH;
-                    } elseif ($gateway->gateway_id == GATEWAY_WEPAY) {
-                        $type = PAYMENT_TYPE_WEPAY_ACH;
-                    }
-                } elseif ($type == PAYMENT_TYPE_PAYPAL && $gateway->gateway_id == GATEWAY_BRAINTREE) {
-                    $type = PAYMENT_TYPE_BRAINTREE_PAYPAL;
-                } elseif ($type == PAYMENT_TYPE_CREDIT_CARD && $gateway->gateway_id == GATEWAY_STRIPE) {
-                    $type = PAYMENT_TYPE_STRIPE_CREDIT_CARD;
-                }
-
-                $typeLink = strtolower(str_replace('PAYMENT_TYPE_', '', $type));
-                $url = URL::to("/payment/{$invitation->invitation_key}/{$typeLink}");
-
-                // PayPal doesn't allow being run in an iframe so we need to open in new tab
-                if ($type === PAYMENT_TYPE_PAYPAL && $account->iframe_url) {
-                    $url = 'javascript:window.open("' . $url . '", "_blank")';
-                }
-
-                if ($type == PAYMENT_TYPE_STRIPE_CREDIT_CARD) {
-                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_CREDIT_CARD));
-                } elseif ($type == PAYMENT_TYPE_STRIPE_ACH || $type == PAYMENT_TYPE_WEPAY_ACH) {
-                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_DIRECT_DEBIT));
-                } elseif ($type == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-                    $label = trans('texts.' . strtolower(PAYMENT_TYPE_PAYPAL));
-                } else {
-                    $label = trans('texts.' . strtolower($type));
-                }
-
-                $paymentTypes[] = [
-                    'url' => $url, 'label' => $label
-                ];
-            }
-        }
-
-        return $paymentTypes;
+        return $links;
     }
 
     public function download($invitationKey)
@@ -303,6 +210,9 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
+        $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
+        $customer = $paymentDriver->customer($client->id);
+
         $data = [
             'color' => $color,
             'contact' => $contact,
@@ -310,14 +220,9 @@ class ClientPortalController extends BaseController
             'client' => $client,
             'clientFontUrl' => $account->getFontsUrl(),
             'gateway' => $account->getTokenGateway(),
-            'paymentMethods' => $this->paymentService->getClientPaymentMethods($client),
+            'paymentMethods' => $customer ? $customer->payment_methods : false,
+            'transactionToken' => $paymentDriver->createTransactionToken(),
         ];
-
-        if ($braintreeGateway = $account->getGatewayConfig(GATEWAY_BRAINTREE)){
-            if($braintreeGateway->getPayPalEnabled()) {
-                $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
-            }
-        }
 
         return response()->view('invited.dashboard', $data);
     }
@@ -767,7 +672,9 @@ class ClientPortalController extends BaseController
 
         $client = $contact->client;
         $account = $client->account;
-        $paymentMethods = $this->paymentService->getClientPaymentMethods($client);
+
+        $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
+        $customer = $paymentDriver->customer($client->id);
 
         $data = array(
             'account' => $account,
@@ -776,16 +683,11 @@ class ClientPortalController extends BaseController
             'client' => $client,
             'clientViewCSS' => $account->clientViewCSS(),
             'clientFontUrl' => $account->getFontsUrl(),
-            'paymentMethods' => $paymentMethods,
+            'paymentMethods' => $customer ? $customer->payment_methods : false,
             'gateway' => $account->getTokenGateway(),
-            'title' => trans('texts.payment_methods')
+            'title' => trans('texts.payment_methods'),
+            'transactionToken' => $paymentDriver->createTransactionToken(),
         );
-
-        if ($braintreeGateway = $account->getGatewayConfig(GATEWAY_BRAINTREE)){
-            if($braintreeGateway->getPayPalEnabled()) {
-                $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
-            }
-        }
 
         return response()->view('payments.paymentmethods', $data);
     }
@@ -801,7 +703,10 @@ class ClientPortalController extends BaseController
         }
 
         $client = $contact->client;
-        $result = $this->paymentService->verifyClientPaymentMethod($client, $publicId, $amount1, $amount2);
+        $account = $client->account;
+
+        $paymentDriver = $account->paymentDriver(null, GATEWAY_TYPE_BANK_TRANSFER);
+        $result = $paymentDriver->verifyBankAccount($client, $publicId, $amount1, $amount2);
 
         if (is_string($result)) {
             Session::flash('error', $result);
@@ -809,7 +714,7 @@ class ClientPortalController extends BaseController
             Session::flash('message', trans('texts.payment_method_verified'));
         }
 
-        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
+        return redirect()->to($account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
     }
 
     public function removePaymentMethod($publicId)
@@ -819,161 +724,48 @@ class ClientPortalController extends BaseController
         }
 
         $client = $contact->client;
-        $result = $this->paymentService->removeClientPaymentMethod($client, $publicId);
+        $account = $contact->account;
 
-        if (is_string($result)) {
-            Session::flash('error', $result);
-        } else {
+        $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
+        $paymentMethod = PaymentMethod::clientId($client->id)
+            ->wherePublicId($publicId)
+            ->firstOrFail();
+
+        try {
+            $paymentDriver->removePaymentMethod($paymentMethod);
             Session::flash('message', trans('texts.payment_method_removed'));
+        } catch (Exception $exception) {
+            Session::flash('error', $exception->getMessage());
         }
 
-        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
+        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
     }
-
-    public function addPaymentMethod($paymentType, $token=false)
-    {
-        if (!$contact = $this->getContact()) {
-            return $this->returnError();
-        }
-
-        $client = $contact->client;
-        $account = $client->account;
-
-        $typeLink = $paymentType;
-        $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
-        $accountGateway = $client->account->getTokenGateway();
-        $gateway = $accountGateway->gateway;
-
-        if ($token && $paymentType == PAYMENT_TYPE_BRAINTREE_PAYPAL) {
-            $sourceReference = $this->paymentService->createToken($paymentType, $this->paymentService->createGateway($accountGateway), array('token'=>$token), $accountGateway, $client, $contact->id);
-
-            if(empty($sourceReference)) {
-                $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-            } else {
-                Session::flash('message', trans('texts.payment_method_added'));
-            }
-            return redirect()->to($account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
-        }
-
-        $acceptedCreditCardTypes = $accountGateway->getCreditcardTypes();
-
-
-        $data = [
-            'showBreadcrumbs' => false,
-            'client' => $client,
-            'contact' => $contact,
-            'gateway' => $gateway,
-            'accountGateway' => $accountGateway,
-            'acceptedCreditCardTypes' => $acceptedCreditCardTypes,
-            'paymentType' => $paymentType,
-            'countries' => Cache::get('countries'),
-            'currencyId' => $client->getCurrencyId(),
-            'currencyCode' => $client->currency ? $client->currency->code : ($account->currency ? $account->currency->code : 'USD'),
-            'account' => $account,
-            'url' => URL::to('client/paymentmethods/add/'.$typeLink),
-            'clientFontUrl' => $account->getFontsUrl(),
-            'showAddress' => $accountGateway->show_address,
-            'paymentTitle' => trans('texts.add_payment_method'),
-            'sourceId' => $token,
-        ];
-
-        $details = json_decode(Input::get('details'));
-        $data['details'] = $details;
-
-        if ($paymentType == PAYMENT_TYPE_STRIPE_ACH) {
-            $data['currencies'] = Cache::get('currencies');
-        }
-
-        if ($gateway->id == GATEWAY_BRAINTREE) {
-            $data['braintreeClientToken'] = $this->paymentService->getBraintreeClientToken($account);
-        }
-
-        if(!empty($data['braintreeClientToken']) || $accountGateway->getPublishableStripeKey()|| ($accountGateway->gateway_id == GATEWAY_WEPAY && $paymentType != PAYMENT_TYPE_WEPAY_ACH)) {
-            $data['tokenize'] = true;
-        }
-
-        return View::make('payments.add_paymentmethod', $data);
-    }
-
-    public function postAddPaymentMethod($paymentType)
-    {
-        if (!$contact = $this->getContact()) {
-            return $this->returnError();
-        }
-
-        $client = $contact->client;
-
-        $typeLink = $paymentType;
-        $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
-        $account = $client->account;
-
-        $accountGateway = $account->getGatewayByType($paymentType);
-        $sourceToken = Input::get('sourceToken');
-
-        if (($validator = PaymentController::processPaymentClientDetails($client,  $accountGateway, $paymentType)) !== true) {
-            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)
-                ->withErrors($validator)
-                ->withInput(Request::except('cvv'));
-        }
-
-        if ($sourceToken) {
-            $details = array('token' => $sourceToken);
-        } elseif (Input::get('plaidPublicToken')) {
-            $usingPlaid = true;
-            $details = array('plaidPublicToken' => Input::get('plaidPublicToken'), 'plaidAccountId' => Input::get('plaidAccountId'));
-        }
-
-        if (($paymentType == PAYMENT_TYPE_STRIPE_ACH || $paymentType == PAYMENT_TYPE_WEPAY_ACH) && !Input::get('authorize_ach')) {
-            Session::flash('error', trans('texts.ach_authorization_required'));
-            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
-        }
-
-        if ($paymentType == PAYMENT_TYPE_WEPAY_ACH && !Input::get('tos_agree')) {
-            Session::flash('error', trans('texts.wepay_payment_tos_agree_required'));
-            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
-        }
-
-        if (!empty($details)) {
-            $gateway = $this->paymentService->createGateway($accountGateway);
-            $sourceReference = $this->paymentService->createToken($paymentType, $gateway, $details, $accountGateway, $client, $contact->id);
-        } else {
-            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
-        }
-
-        if(empty($sourceReference)) {
-            $this->paymentMethodError('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-            return Redirect::to('client/paymentmethods/add/' . $typeLink.'/'.$sourceToken)->withInput(Request::except('cvv'));
-        } else if ($paymentType == PAYMENT_TYPE_STRIPE_ACH && empty($usingPlaid) ) {
-            // The user needs to complete verification
-            Session::flash('message', trans('texts.bank_account_verification_next_steps'));
-            return Redirect::to($account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
-        } else {
-            Session::flash('message', trans('texts.payment_method_added'));
-            return redirect()->to($account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
-        }
-    }
-
+    
     public function setDefaultPaymentMethod(){
         if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
         $client = $contact->client;
+        $account = $client->account;
 
         $validator = Validator::make(Input::all(), array('source' => 'required'));
         if ($validator->fails()) {
-            return Redirect::to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
+            return Redirect::to($client->account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
         }
 
-        $result = $this->paymentService->setClientDefaultPaymentMethod($client, Input::get('source'));
+        $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
+        $paymentMethod = PaymentMethod::clientId($client->id)
+            ->wherePublicId(Input::get('source'))
+            ->firstOrFail();
 
-        if (is_string($result)) {
-            Session::flash('error', $result);
-        } else {
-            Session::flash('message', trans('texts.payment_method_set_as_default'));
-        }
+        $customer = $paymentDriver->customer($client->id);
+        $customer->default_payment_method_id = $paymentMethod->id;
+        $customer->save();
 
-        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/paymentmethods/');
+        Session::flash('message', trans('texts.payment_method_set_as_default'));
+
+        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
     }
 
     private function paymentMethodError($type, $error, $accountGateway = false, $exception = false)

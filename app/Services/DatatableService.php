@@ -114,10 +114,8 @@ class DatatableService
                             . trans("texts.archive_{$datatable->entityType}") . "</a></li>";
                 }
             } else if($can_edit) {
-                if ($datatable->entityType != ENTITY_ACCOUNT_GATEWAY || Auth::user()->account->canAddGateway(\App\Models\Gateway::getPaymentType($model->gateway_id))) {
-                    $dropdown_contents .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
-                        . trans("texts.restore_{$datatable->entityType}") . "</a></li>";
-                }
+                $dropdown_contents .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
+                    . trans("texts.restore_{$datatable->entityType}") . "</a></li>";
             }
 
             if (property_exists($model, 'is_deleted') && !$model->is_deleted && $can_edit) {

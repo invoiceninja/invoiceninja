@@ -62,18 +62,9 @@
                     ->label('Accepted Credit Cards')
                     ->checkboxes($creditCardTypes)
                     ->class('creditcard-types') !!}
-            @if ($account->getGatewayByType(PAYMENT_TYPE_DIRECT_DEBIT))
-                {!! Former::checkbox('enable_ach')
-                    ->label(trans('texts.ach'))
-                    ->text(trans('texts.enable_ach'))
-                    ->value(null)
-                    ->disabled(true)
-                    ->help(trans('texts.ach_disabled')) !!}
-            @else
-                {!! Former::checkbox('enable_ach')
+            {!! Former::checkbox('enable_ach')
                     ->label(trans('texts.ach'))
                     ->text(trans('texts.enable_ach')) !!}
-            @endif
 
             {!! Former::checkbox('tos_agree')->label(' ')->text(trans('texts.wepay_tos_agree',
                     ['link'=>'<a id="wepay-tos-link" href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.wepay_tos_link_text').'</a>']
@@ -83,7 +74,7 @@
 
         <br/>
         <center>
-            {!! Button::normal(trans('texts.use_another_provider'))->large()->asLinkTo(URL::to('/gateways/create/0')) !!}
+            {!! Button::normal(trans('texts.use_another_provider'))->large()->asLinkTo(URL::to('/gateways/create?other_providers=true')) !!}
             {!! Button::success(trans('texts.sign_up_with_wepay'))->submit()->large() !!}
         </center>
 
@@ -108,7 +99,7 @@
         })
     </script>
 
-    <input type="hidden" name="gateway_id" value="{{ GATEWAY_WEPAY }}">
+    <input type="hidden" name="primary_gateway_id" value="{{ GATEWAY_WEPAY }}">
     {!! Former::close() !!}
 
 @stop
