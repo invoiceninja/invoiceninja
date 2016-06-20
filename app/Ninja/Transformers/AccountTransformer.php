@@ -104,7 +104,8 @@ class AccountTransformer extends EntityTransformer
             'custom_label1' => $account->custom_label1,
             'custom_label2' => $account->custom_label2,
             'custom_value1' => $account->custom_value1,
-            'custom_value2' => $account->custom_value2
+            'custom_value2' => $account->custom_value2,
+            'logo' => $account->logo,
         ];
     }
 }
