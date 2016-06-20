@@ -11,7 +11,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         ];
     }
 
-    public function startPurchase($input, $sourceId)
+    public function startPurchase($input = false, $sourceId = false)
     {
         $data = parent::startPurchase($input, $sourceId);
 

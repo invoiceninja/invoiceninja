@@ -23,7 +23,7 @@ class OnlinePaymentCest
 
         // set gateway info
         $I->wantTo('create a gateway');
-        $I->amOnPage('/gateways/create/0');
+        $I->amOnPage('/gateways/create?other_providers=true');
 
         $I->fillField(['name' =>'23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
         // Fails to load StripeJS causing "ReferenceError: Can't find variable: Stripe"
