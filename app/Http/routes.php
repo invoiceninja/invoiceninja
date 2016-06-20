@@ -365,6 +365,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_EXPENSE_ACTIVITY', 'expense_activity');
     define('ENTITY_BANK_ACCOUNT', 'bank_account');
     define('ENTITY_BANK_SUBACCOUNT', 'bank_subaccount');
+    define('ENTITY_EXPENSE_CATEGORIES', 'expense_categories');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);

@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\TaxRate;
 use League\Fractal;
 use League\Fractal\TransformerAbstract;
+use App\Models\ExpenseCategory;
 
 class AccountTransformer extends EntityTransformer
 {
@@ -14,6 +15,7 @@ class AccountTransformer extends EntityTransformer
         'users',
         'products',
         'taxRates',
+        'expense_categories'
     ];
 
     protected $availableIncludes = [
@@ -21,6 +23,12 @@ class AccountTransformer extends EntityTransformer
         'invoices',
         'payments',
     ];
+
+    public function includeExpenseCategories(Account $account)
+    {
+        $transformer = new ExpenseCategoryTransformer($account, $this->serializer);
+        return $this->includeCollection($account->expenseCategories, $transformer, ENTITY_EXPENSE_CATEGORIES);
+    }
 
     public function includeUsers(Account $account)
     {
@@ -96,7 +104,8 @@ class AccountTransformer extends EntityTransformer
             'custom_label1' => $account->custom_label1,
             'custom_label2' => $account->custom_label2,
             'custom_value1' => $account->custom_value1,
-            'custom_value2' => $account->custom_value2
+            'custom_value2' => $account->custom_value2,
+            'logo' => $account->logo,
         ];
     }
 }

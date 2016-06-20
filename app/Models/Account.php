@@ -198,6 +198,11 @@ class Account extends Eloquent
         return $this->belongsTo('App\Models\Company');
     }
 
+    public function expenseCategories()
+    {
+        return $this->hasMany('App\Models\ExpenseCategory','account_id','id')->withTrashed();
+    }
+
     public function setIndustryIdAttribute($value)
     {
         $this->attributes['industry_id'] = $value ?: null;
@@ -212,8 +217,6 @@ class Account extends Eloquent
     {
         $this->attributes['size_id'] = $value ?: null;
     }
-
-
 
     public function isGatewayConfigured($gatewayId = 0)
     {
@@ -736,6 +739,7 @@ class Account extends Eloquent
             'tax_rates' => [],
             'expenses' => ['client', 'invoice', 'vendor'],
             'payments' => ['invoice'],
+            'expenseCategories' => [],
         ];
 
         foreach ($map as $key => $values) {
