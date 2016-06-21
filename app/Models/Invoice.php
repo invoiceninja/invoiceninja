@@ -29,9 +29,9 @@ class Invoice extends EntityModel implements BalanceAffecting
         'tax_name1',
         'tax_rate1',
         'tax_name2',
-        'tax_rate2',    
+        'tax_rate2',
     ];
-    
+
     protected $casts = [
         'is_recurring' => 'boolean',
         'has_tasks' => 'boolean',
@@ -515,12 +515,12 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'name',
             ]);
         }
-        
+
         foreach ($this->expenses as $expense) {
             $expense->setVisible([
                 'documents',
             ]);
-            
+
             foreach ($expense->documents as $document) {
                 $document->setVisible([
                     'public_id',
@@ -579,12 +579,12 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         return $schedule[1]->getStart();
     }
-    
+
     public function getDueDate($invoice_date = null){
         if(!$this->is_recurring) {
             return $this->due_date ? $this->due_date : null;
         }
-        else{ 
+        else{
             $now = time();
             if($invoice_date) {
                 // If $invoice_date is specified, all calculations are based on that date
@@ -598,7 +598,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                     $now = $invoice_date->getTimestamp();
                 }
             }
-            
+
             if($this->due_date && $this->due_date != '0000-00-00'){
                 // This is a recurring invoice; we're using a custom format here.
                 // The year is always 1998; January is 1st, 2nd, last day of the month.
@@ -607,7 +607,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 $monthVal = (int)date('n', $dueDateVal);
                 $dayVal = (int)date('j', $dueDateVal);
                 $dueDate = false;
-                
+
                 if($monthVal == 1) {// January; day of month
                     $currentDay = (int)date('j', $now);
                     $lastDayOfMonth = (int)date('t', $now);
@@ -634,7 +634,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                         if($dueDay > $lastDayOfMonth){
                             // No later than the end of the month
                             $dueDay = $lastDayOfMonth;
-                        }                    
+                        }
                     }
 
                     $dueDate = mktime(0, 0, 0, $dueMonth, $dueDay, $dueYear);
@@ -663,7 +663,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 return date('Y-m-d', strtotime('+'.$days.' day', $now));
             }
         }
-        
+
         // Couldn't calculate one
         return null;
     }
@@ -681,11 +681,11 @@ class Invoice extends EntityModel implements BalanceAffecting
             $dateStart = $date->getStart();
             $date = $this->account->formatDate($dateStart);
             $dueDate = $this->getDueDate($dateStart);
-            
+
             if($dueDate) {
                 $date .= ' <small>(' . trans('texts.due') . ' ' . $this->account->formatDate($dueDate) . ')</small>';
             }
-            
+
             $dates[] = $date;
         }
 
@@ -799,16 +799,16 @@ class Invoice extends EntityModel implements BalanceAffecting
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
         $key = env('PHANTOMJS_CLOUD_KEY');
-        
+
         if (Utils::isNinjaDev()) {
             $link = env('TEST_LINK');
         }
 
         $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
-        
+
         $pdfString = file_get_contents($url);
         $pdfString = strip_tags($pdfString);
-        
+
         if ( ! $pdfString || strlen($pdfString) < 200) {
             Utils::logError("PhantomJSCloud - failed to create pdf: {$pdfString}");
             return false;
@@ -861,55 +861,55 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $total;
     }
 
-    // if $calculatePaid is true we'll loop through each payment to  
+    // if $calculatePaid is true we'll loop through each payment to
     // determine the sum, otherwise we'll use the cached paid_to_date amount
     public function getTaxes($calculatePaid = false)
     {
         $taxes = [];
         $taxable = $this->getTaxable();
         $paidAmount = $this->getAmountPaid($calculatePaid);
-                
+
         if ($this->tax_name1) {
             $invoiceTaxAmount = round($taxable * ($this->tax_rate1 / 100), 2);
-            $invoicePaidAmount = $this->amount && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
+            $invoicePaidAmount = floatVal($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
             $this->calculateTax($taxes, $this->tax_name1, $this->tax_rate1, $invoiceTaxAmount, $invoicePaidAmount);
         }
 
         if ($this->tax_name2) {
             $invoiceTaxAmount = round($taxable * ($this->tax_rate2 / 100), 2);
-            $invoicePaidAmount = $this->amount && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
+            $invoicePaidAmount = floatVal($this->amount) && $invoiceTaxAmount ? ($paidAmount / $this->amount * $invoiceTaxAmount) : 0;
             $this->calculateTax($taxes, $this->tax_name2, $this->tax_rate2, $invoiceTaxAmount, $invoicePaidAmount);
         }
 
         foreach ($this->invoice_items as $invoiceItem) {
             $itemTaxAmount = $this->getItemTaxable($invoiceItem, $taxable);
-            
+
             if ($invoiceItem->tax_name1) {
                 $itemTaxAmount = round($taxable * ($invoiceItem->tax_rate1 / 100), 2);
-                $itemPaidAmount = $this->amount && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
+                $itemPaidAmount = floatVal($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
                 $this->calculateTax($taxes, $invoiceItem->tax_name1, $invoiceItem->tax_rate1, $itemTaxAmount, $itemPaidAmount);
             }
 
             if ($invoiceItem->tax_name2) {
                 $itemTaxAmount = round($taxable * ($invoiceItem->tax_rate2 / 100), 2);
-                $itemPaidAmount = $this->amount && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
+                $itemPaidAmount = floatVal($this->amount) && $itemTaxAmount ? ($paidAmount / $this->amount * $itemTaxAmount) : 0;
                 $this->calculateTax($taxes, $invoiceItem->tax_name2, $invoiceItem->tax_rate2, $itemTaxAmount, $itemPaidAmount);
             }
         }
-        
+
         return $taxes;
     }
     
-    private function calculateTax(&$taxes, $name, $rate, $amount, $paid) 
-    {    
+    private function calculateTax(&$taxes, $name, $rate, $amount, $paid)
+    {
         if ( ! $amount) {
             return;
-        } 
-        
+        }
+
         $amount = round($amount, 2);
         $paid = round($paid, 2);
         $key = $rate . ' ' . $name;
-        
+
         if ( ! isset($taxes[$key])) {
             $taxes[$key] = [
                 'name' => $name,
@@ -920,14 +920,14 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         $taxes[$key]['amount'] += $amount;
-        $taxes[$key]['paid'] += $paid;        
+        $taxes[$key]['paid'] += $paid;
     }
-    
+
     public function hasDocuments(){
         if(count($this->documents))return true;
         return $this->hasExpenseDocuments();
     }
-    
+
     public function hasExpenseDocuments(){
         foreach($this->expenses as $expense){
             if(count($expense->documents))return true;

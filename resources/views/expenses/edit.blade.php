@@ -108,7 +108,7 @@
 
                 </div>
             </div>
-            @if ($account->isPro())
+            @if ($account->hasFeature(FEATURE_DOCUMENTS))
             <div clas="row">
                 <div class="col-md-2 col-sm-4"><div class="control-label" style="margin-bottom:10px;">{{trans('texts.expense_documents')}}</div></div>
                 <div class="col-md-12 col-sm-8">
@@ -419,7 +419,7 @@
         function handleDocumentError() {
             window.countUploadingDocuments--;
         }
-        
+
     </script>
 
 @stop
