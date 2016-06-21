@@ -33,7 +33,8 @@ class UserAccountTransformer extends EntityTransformer
             'account_key' => $user->account->account_key,
             'name' => $user->account->present()->name,
             'token' => $user->account->getToken($user->id, $this->tokenName),
-            'default_url' => SITE_URL
+            'default_url' => SITE_URL,
+            'logo' => $user->account->logo,
         ];
     }
 }
