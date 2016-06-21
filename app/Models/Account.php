@@ -420,9 +420,11 @@ class Account extends Eloquent
 
     public function paymentDriver($invitation = false, $gatewayType = false)
     {
-        $accountGateway = $this->getGatewayByType($gatewayType);
+        if ($accountGateway = $this->getGatewayByType($gatewayType)) {
+            return $accountGateway->paymentDriver($invitation, $gatewayType);
+        }
 
-        return $accountGateway->paymentDriver($invitation, $gatewayType);
+        return false;
     }
 
     public function gatewayIds()

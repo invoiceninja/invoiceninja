@@ -26,7 +26,7 @@ class BasePaymentDriver
     protected $tokenResponse;
     protected $purchaseResponse;
 
-    protected $sourceReferenceParam;
+    protected $sourceReferenceParam = 'token';
     protected $customerReferenceParam;
     protected $transactionReferenceParam;
 
@@ -119,6 +119,7 @@ class BasePaymentDriver
         }
 
         $data = [
+            'details' => ! empty($input['details']) ? json_decode($input['details']) : false,
             'accountGateway' => $this->accountGateway,
             'acceptedCreditCardTypes' => $this->accountGateway->getCreditcardTypes(),
             'gateway' => $gateway,

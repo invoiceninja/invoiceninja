@@ -74,7 +74,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Secure Trading', 'provider' => 'SecureTrading'],
             ['name' => 'SecPay', 'provider' => 'SecPay'],
             ['name' => 'WeChat Express', 'provider' => 'WeChat_Express'],
-            ['name' => 'WePay', 'provider' => 'WePay'],
+            ['name' => 'WePay', 'provider' => 'WePay', 'is_offsite' => false],
             ['name' => 'Braintree', 'provider' => 'Braintree'],
         ];
 
@@ -82,7 +82,7 @@ class PaymentLibrariesSeeder extends Seeder
             $record = Gateway::where('name', '=', $gateway['name'])->first();
             if ($record) {
                 $record->provider = $gateway['provider'];
-                $record->is_offsite = isset($gateway['is_offsite']);
+                $record->is_offsite = isset($gateway['is_offsite']) ? boolval($gateway['is_offsite']) : false;
                 $record->save();
             } else {
                 Gateway::create($gateway);

@@ -30,7 +30,6 @@
                 var paypalLink = $('.dropdown-menu a[href$="paypal"]'),
                     paypalUrl = paypalLink.attr('href'),
                     checkout;
-                console.log(paypalUrl);
                 paypalLink.parent().attr('id', 'paypal-container');
                 braintree.setup("{{ $transactionToken }}", "custom", {
                     onReady: function (integration) {
@@ -65,7 +64,7 @@
         <script type="text/javascript" src="https://static.wepay.com/js/tokenization.v2.js"></script>
         <script type="text/javascript">
             $(function() {
-                var achLink = $('.dropdown-menu a[href$="/wepay_ach"]'),
+                var achLink = $('.dropdown-menu a[href$="/bank_transfer"]'),
                     achUrl = achLink.attr('href');
                 WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
                 achLink.click(function(e) {
