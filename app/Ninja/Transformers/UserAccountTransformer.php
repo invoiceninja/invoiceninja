@@ -35,6 +35,7 @@ class UserAccountTransformer extends EntityTransformer
             'token' => $user->account->getToken($user->id, $this->tokenName),
             'default_url' => SITE_URL,
             'logo' => $user->account->logo,
+            'logo_url' => $user->account->getLogoURL(),
         ];
     }
 }
