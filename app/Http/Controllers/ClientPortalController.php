@@ -107,8 +107,6 @@ class ClientPortalController extends BaseController
             }
         }
 
-        $paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_CREDIT_CARD);
-
         if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)){
             $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
         }
@@ -132,11 +130,18 @@ class ClientPortalController extends BaseController
             'contact' => $contact,
             'paymentTypes' => $paymentTypes,
             'paymentURL' => $paymentURL,
-            'transactionToken' => $paymentDriver->createTransactionToken(),
-            'partialView' => $paymentDriver->partialView(),
-            'accountGateway' => $paymentDriver->accountGateway,
             'phantomjs' => Input::has('phantomjs'),
         );
+
+        if ($paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_CREDIT_CARD)) {
+            $data += [
+                'transactionToken' => $paymentDriver->createTransactionToken(),
+                'partialView' => $paymentDriver->partialView(),
+                'accountGateway' => $paymentDriver->accountGateway,                
+            ];
+        }
+
+
 
         if($account->hasFeature(FEATURE_DOCUMENTS) && $this->canCreateZip()){
             $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
@@ -740,7 +745,7 @@ class ClientPortalController extends BaseController
 
         return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
     }
-    
+
     public function setDefaultPaymentMethod(){
         if (!$contact = $this->getContact()) {
             return $this->returnError();

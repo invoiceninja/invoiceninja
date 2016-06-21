@@ -22,7 +22,7 @@
             }
 		</style>
 
-    @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE && !empty($transactionToken))
+    @if (!empty($transactionToken) && $accountGateway->gateway_id == GATEWAY_BRAINTREE)
         <div id="paypal-container"></div>
         <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
         <script type="text/javascript" >
@@ -97,7 +97,7 @@
 
 	<div class="container">
 
-        @if ($partialView)
+        @if (!empty($partialView))
             @include($partialView)
         @else
             <div class="pull-right" style="text-align:right">
