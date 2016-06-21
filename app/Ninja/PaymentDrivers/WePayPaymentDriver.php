@@ -1,5 +1,7 @@
 <?php namespace App\Ninja\PaymentDrivers;
 
+use Exception;
+
 class WePayPaymentDriver extends BasePaymentDriver
 {
     protected function gatewayTypes()
