@@ -216,6 +216,16 @@ class AccountGatewayController extends BaseController
                 $accountGateway = AccountGateway::scope($accountGatewayPublicId)->firstOrFail();
                 $oldConfig = $accountGateway->getConfig();
             } else {
+                // check they don't already have an active gateway for this provider
+                // TODO complete this
+                $accountGateway = AccountGateway::scope()
+                                    ->whereGatewayId($gatewayId)
+                                    ->first();
+                if ($accountGateway) {
+                    Session::flash('error', trans('texts.gateway_exists'));
+                    return Redirect::to("gateways/{$accountGateway->public_id}/edit");
+                }
+
                 $accountGateway = AccountGateway::createNew();
                 $accountGateway->gateway_id = $gatewayId;
 
