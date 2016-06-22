@@ -30,7 +30,7 @@ class BasePaymentDriver
     protected $customerReferenceParam;
     protected $transactionReferenceParam;
 
-    public function __construct($accountGateway, $invitation = false, $gatewayType = false)
+    public function __construct($accountGateway = false, $invitation = false, $gatewayType = false)
     {
         $this->accountGateway = $accountGateway;
         $this->invitation = $invitation;
@@ -47,7 +47,7 @@ class BasePaymentDriver
         return $this->gatewayType === $gatewayType;
     }
 
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         return [
             GATEWAY_TYPE_CREDIT_CARD

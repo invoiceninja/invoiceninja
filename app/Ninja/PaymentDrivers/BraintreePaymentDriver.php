@@ -9,14 +9,14 @@ class BraintreePaymentDriver extends BasePaymentDriver
     protected $customerReferenceParam = 'customerId';
     protected $sourceReferenceParam = 'paymentMethodToken';
 
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         $types = [
             GATEWAY_TYPE_CREDIT_CARD,
             GATEWAY_TYPE_TOKEN,
         ];
 
-        if ($this->accountGateway->getPayPalEnabled()) {
+        if ($this->accountGateway && $this->accountGateway->getPayPalEnabled()) {
             $types[] = GATEWAY_TYPE_PAYPAL;
         }
 

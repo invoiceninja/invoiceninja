@@ -4,7 +4,7 @@ use Exception;
 
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         return [
             GATEWAY_TYPE_PAYPAL

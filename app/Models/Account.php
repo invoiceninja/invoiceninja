@@ -9,6 +9,7 @@ use Cache;
 use App;
 use File;
 use App\Models\Document;
+use App\Models\AccountGateway;
 use App\Events\UserSettingsChanged;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -416,6 +417,39 @@ class Account extends Eloquent
         }
 
         return false;
+    }
+
+    public function availableGatewaysIds()
+    {
+        if ( ! $this->relationLoaded('account_gateways')) {
+            $this->load('account_gateways');
+        }
+
+        $gatewayTypes = [];
+        $gatewayIds = [];
+
+        foreach ($this->account_gateways as $accountGateway) {
+            $paymentDriver = $accountGateway->paymentDriver();
+            $gatewayTypes = array_unique(array_merge($gatewayTypes, $paymentDriver->gatewayTypes()));
+        }
+
+        foreach (Cache::get('gateways') as $gateway) {
+            $paymentDriverClass = AccountGateway::paymentDriverClass($gateway->provider);
+            $paymentDriver = new $paymentDriverClass();
+            $available = true;
+
+            foreach ($gatewayTypes as $type) {
+                if ($paymentDriver->handles($type)) {
+                    $available = false;
+                    break;
+                }
+            }
+            if ($available) {
+                $gatewayIds[] = $gateway->id;
+            }
+        }
+
+        return $gatewayIds;
     }
 
     public function paymentDriver($invitation = false, $gatewayType = false)

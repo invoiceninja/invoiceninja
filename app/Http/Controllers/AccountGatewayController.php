@@ -101,8 +101,9 @@ class AccountGatewayController extends BaseController
         $data['title'] = trans('texts.add_gateway');
 
         if ($otherProviders) {
-            $data['primaryGateways'] = Gateway::primary($accountGatewaysIds)->orderBy('name', 'desc')->get();
-            $data['secondaryGateways'] = Gateway::secondary($accountGatewaysIds)->orderBy('name')->get();
+            $availableGatewaysIds = $account->availableGatewaysIds();
+            $data['primaryGateways'] = Gateway::primary($availableGatewaysIds)->orderBy('name', 'desc')->get();
+            $data['secondaryGateways'] = Gateway::secondary($availableGatewaysIds)->orderBy('name')->get();
             $data['hiddenFields'] = Gateway::$hiddenFields;
 
             return View::make('accounts.account_gateway', $data);

@@ -8,14 +8,14 @@ class StripePaymentDriver extends BasePaymentDriver
 {
     protected $customerReferenceParam = 'customerReference';
 
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         $types =  [
             GATEWAY_TYPE_CREDIT_CARD,
             GATEWAY_TYPE_TOKEN
         ];
 
-        if ($this->accountGateway->getAchEnabled()) {
+        if ($this->accountGateway && $this->accountGateway->getAchEnabled()) {
             $types[] = GATEWAY_TYPE_BANK_TRANSFER;
         }
 

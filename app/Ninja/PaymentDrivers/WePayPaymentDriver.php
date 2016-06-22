@@ -6,13 +6,18 @@ use Exception;
 
 class WePayPaymentDriver extends BasePaymentDriver
 {
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
-        return [
+        $types =  [
             GATEWAY_TYPE_CREDIT_CARD,
-            GATEWAY_TYPE_BANK_TRANSFER,
             GATEWAY_TYPE_TOKEN
         ];
+
+        if ($this->accountGateway && $this->accountGateway->getAchEnabled()) {
+            $types[] = GATEWAY_TYPE_BANK_TRANSFER;
+        }
+
+        return $types;
     }
 
     /*

@@ -37,18 +37,24 @@ class AccountGateway extends EntityModel
         return $arrayOfImages;
     }
 
-    public function paymentDriver($invitation = false, $gatewayType = false)
+    public static function paymentDriverClass($provider)
     {
         $folder = "App\\Ninja\\PaymentDrivers\\";
-        $class = $folder . $this->gateway->provider . 'PaymentDriver';
+        $class = $folder . $provider . 'PaymentDriver';
         $class = str_replace('_', '', $class);
 
         if (class_exists($class)) {
-            return new $class($this, $invitation, $gatewayType);
+            return $class;
         } else {
-            $baseClass = $folder . "BasePaymentDriver";
-            return new $baseClass($this, $invitation, $gatewayType);
+            return $folder . "BasePaymentDriver";
         }
+    }
+
+    public function paymentDriver($invitation = false, $gatewayType = false)
+    {
+        $class = static::paymentDriverClass($this->gateway->provider);
+
+        return new $class($this, $invitation, $gatewayType);
     }
 
     public function isGateway($gatewayId)

@@ -25,6 +25,8 @@ class Gateway extends Eloquent
         GATEWAY_DWOLLA,
         GATEWAY_STRIPE,
         GATEWAY_BRAINTREE,
+        GATEWAY_AUTHORIZE_NET,
+        GATEWAY_MOLLIE,
     ];
 
     // allow adding these gateway if another gateway
@@ -81,25 +83,16 @@ class Gateway extends Eloquent
     {
         $query->where('payment_library_id', '=', 1)
             ->where('id', '!=', GATEWAY_WEPAY)
-            ->whereIn('id', Gateway::$preferred)
-            ->whereNotIn('id', $accountGatewaysIds);
-
-        // if the user has a credit card gateway only show alternate options
-        if (static::hasStandardGateway($accountGatewaysIds)) {
-            $query->whereNotIn('id', array_diff(static::$preferred, static::$alternate));
-        }
+            ->whereIn('id', static::$preferred)
+            ->whereIn('id', $accountGatewaysIds);
     }
 
     public function scopeSecondary($query, $accountGatewaysIds)
     {
-        // if the user has a credit card don't show an secondary options
-        if (static::hasStandardGateway($accountGatewaysIds)) {
-            $query->where('id', '=', 0);
-        } else {
-            $query->where('payment_library_id', '=', 1)
-                ->where('id', '!=', GATEWAY_WEPAY)
-                ->whereNotIn('id', static::$preferred);
-        }
+        $query->where('payment_library_id', '=', 1)
+            ->where('id', '!=', GATEWAY_WEPAY)
+            ->whereNotIn('id', static::$preferred)
+            ->whereIn('id', $accountGatewaysIds);
     }
 
     public function getHelp()
