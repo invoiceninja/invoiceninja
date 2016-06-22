@@ -137,7 +137,7 @@ class ClientPortalController extends BaseController
             $data += [
                 'transactionToken' => $paymentDriver->createTransactionToken(),
                 'partialView' => $paymentDriver->partialView(),
-                'accountGateway' => $paymentDriver->accountGateway,                
+                'accountGateway' => $paymentDriver->accountGateway,
             ];
         }
 
@@ -356,7 +356,7 @@ class ClientPortalController extends BaseController
             'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
-            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'source', 'payment_amount', 'payment_date', 'status'])
+            'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'status'])
         ];
 
         return response()->view('public_list', $data);
@@ -373,32 +373,6 @@ class ClientPortalController extends BaseController
                 ->addColumn('invoice_number', function ($model) { return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number; })
                 ->addColumn('transaction_reference', function ($model) { return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>'; })
                 ->addColumn('payment_type', function ($model) { return ($model->payment_type && !$model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : ''); })
-                ->addColumn('payment_source', function ($model) {
-                    $code = str_replace(' ', '', strtolower($model->payment_type));
-                    $card_type = trans("texts.card_" . $code);
-                    if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
-                        if($model->last4) {
-                            $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
-                            return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
-                        } elseif ($model->email) {
-                            return $model->email;
-                        }
-                    } elseif ($model->last4) {
-                        if($model->bank_name) {
-                            $bankName = $model->bank_name;
-                        } else {
-                            $bankData = PaymentMethod::lookupBankData($model->routing_number);
-                            if($bankData) {
-                                $bankName = $bankData->name;
-                            }
-                        }
-                        if (!empty($bankName)) {
-                            return $bankName.'&nbsp; &bull;&bull;&bull;' . $model->last4;
-                        } elseif($model->last4) {
-                            return '<img height="22" src="' . URL::to('/images/credit_cards/ach.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4;
-                        }
-                    }
-                })
                 ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
                 ->addColumn('payment_date', function ($model) { return Utils::dateToString($model->payment_date); })
                 ->addColumn('status', function ($model) { return $this->getPaymentStatusLabel($model); })

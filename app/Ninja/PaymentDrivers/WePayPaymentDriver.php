@@ -15,6 +15,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         ];
     }
 
+    /*
     public function startPurchase($input = false, $sourceId = false)
     {
         $data = parent::startPurchase($input, $sourceId);
@@ -27,6 +28,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
         return $data;
     }
+    */
 
     public function tokenize()
     {
@@ -167,7 +169,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         if ($response->state == 'deleted') {
             return parent::removePaymentMethod($paymentMethod);
         } else {
-            throw new Exception();
+            throw new Exception(trans('texts.failed_remove_payment_method'));
         }
     }
 

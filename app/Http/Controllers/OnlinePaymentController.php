@@ -58,7 +58,7 @@ class OnlinePaymentController extends BaseController
             }
             return redirect()->to('view/' . $invitation->invitation_key);
         } catch (Exception $exception) {
-            return $this->error($paymentDriver, $exception);
+            return $this->error($paymentDriver, $exception, true);
         }
     }
 
@@ -84,7 +84,7 @@ class OnlinePaymentController extends BaseController
         }
     }
 
-    private function error($paymentDriver, $exception)
+    private function error($paymentDriver, $exception, $showPayment)
     {
         if (is_string($exception)) {
             $displayError = $exception;
@@ -100,7 +100,8 @@ class OnlinePaymentController extends BaseController
         $message = sprintf('Payment Error [%s]: %s', $paymentDriver->providerName(), $logError);
         Utils::logError($message, 'PHP', true);
 
-        return redirect()->to('view/' . $paymentDriver->invitation->invitation_key);
+        $route = $showPayment ? 'payment/' : 'view/';
+        return redirect()->to($route . $paymentDriver->invitation->invitation_key);
     }
 
     public function getBankInfo($routingNumber) {

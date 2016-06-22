@@ -1357,6 +1357,8 @@ $LANG = array(
     'use_bank_on_file' => 'Use Bank on File',
     'auto_bill_email_message' => 'This invoice will automatically be billed to the payment method on file on the due date.',
     'bitcoin' => 'Bitcoin',
+    'added_on' => 'Added :date',
+    'failed_remove_payment_method' => 'Failed to remove the payment method',
 
 );
 

@@ -31,7 +31,7 @@ class PaymentController extends BaseController
         return View::make('list', array(
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
-            'sortCol' => '6',
+            'sortCol' => '7',
             'columns' => Utils::trans([
               'checkbox',
               'invoice',

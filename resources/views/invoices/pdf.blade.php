@@ -1,4 +1,4 @@
-<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></iframe>
+<iframe id="theFrame" style="display:block" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></iframe>
 <canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 @if (!Utils::isNinja() || !Utils::isPro())
@@ -140,6 +140,7 @@
           canvas.width = viewport.width;
 
           page.render({canvasContext: context, viewport: viewport});
+          $('#theFrame').hide();
           $('#theCanvas').show();
           isRefreshing = false;
           if (needsRefresh) {

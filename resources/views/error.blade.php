@@ -16,13 +16,4 @@
 <p>&nbsp;<p>
 <p>&nbsp;<p>
 
-<script type="text/javascript">
-    
-$(function() {
-    var height = $(window).height() - ($('.navbar').height() + $('footer').height() + 200);
-    $('.well').height(Math.max(200, height));
-});
-
-</script>
-
 @stop

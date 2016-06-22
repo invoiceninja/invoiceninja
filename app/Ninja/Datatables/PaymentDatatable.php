@@ -59,7 +59,7 @@ class PaymentDatatable extends EntityDatatable
                     $card_type = trans("texts.card_" . $code);
                     if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
                         if($model->last4) {
-                            $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
+                            $expiration = Utils::fromSqlDate($model->expiration, false)->format('m/y');
                             return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
                         } elseif ($model->email) {
                             return $model->email;
