@@ -21,6 +21,7 @@ use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Services\InvoiceService;
+use App\Services\PaymentService;
 
 class InvoiceApiController extends BaseAPIController
 {
@@ -28,7 +29,7 @@ class InvoiceApiController extends BaseAPIController
 
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer)
+    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer, PaymentService $paymentService)
     {
         parent::__construct();
 
@@ -37,6 +38,7 @@ class InvoiceApiController extends BaseAPIController
         $this->paymentRepo = $paymentRepo;
         $this->invoiceService = $invoiceService;
         $this->mailer = $mailer;
+        $this->paymentService = $paymentService;
     }
 
     /**
@@ -163,8 +165,9 @@ class InvoiceApiController extends BaseAPIController
         $invoice = $this->invoiceService->save($data);
         $payment = false;
 
-        // Optionally create payment with invoice
-        if (isset($data['paid']) && $data['paid']) {
+        if (isset($data['auto_bill']) && boolval($data['auto_bill'])) {
+            $payment = $this->paymentService->autoBillInvoice($invoice);
+        } else if (isset($data['paid']) && $data['paid']) {
             $payment = $this->paymentRepo->save([
                 'invoice_id' => $invoice->id,
                 'client_id' => $client->id,
