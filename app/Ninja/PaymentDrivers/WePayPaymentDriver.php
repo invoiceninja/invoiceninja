@@ -211,7 +211,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         return floor(min($fee, $amount * 0.2));// Maximum fee is 20% of the amount.
     }
 
-    protected function handleWebHook($input)
+    public function handleWebHook($input)
     {
         $accountId = $accountGateway->account_id;
 

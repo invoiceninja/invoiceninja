@@ -303,7 +303,7 @@ class StripePaymentDriver extends BasePaymentDriver
         }
     }
 
-    protected function handleWebHook($input)
+    public function handleWebHook($input)
     {
         $eventId = array_get($input, 'id');
         $eventType= array_get($input, 'type');
