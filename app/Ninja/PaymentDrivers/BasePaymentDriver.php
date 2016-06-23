@@ -42,9 +42,14 @@ class BasePaymentDriver
         return $this->accountGateway->gateway_id == $gatewayId;
     }
 
-    protected function isGatewayType($gatewayType)
+    // optionally pass a paymentMethod to determine the type from the token
+    protected function isGatewayType($gatewayType, $paymentMethod = false)
     {
-        return $this->gatewayType === $gatewayType;
+        if ($paymentMethod) {
+            return $paymentMethod->gatewayType() == $gatewayType;
+        } else {
+            return $this->gatewayType === $gatewayType;
+        }
     }
 
     public function gatewayTypes()
@@ -547,7 +552,7 @@ class BasePaymentDriver
         $payment->payment_date = date_create()->format('Y-m-d');
         $payment->ip = Request::ip();
 
-        $payment = $this->creatingPayment($payment);
+        $payment = $this->creatingPayment($payment, $paymentMethod);
 
         if ($paymentMethod) {
             $payment->last4 = $paymentMethod->last4;
@@ -618,7 +623,7 @@ class BasePaymentDriver
         return $payment;
     }
 
-    protected function creatingPayment($payment)
+    protected function creatingPayment($payment, $paymentMethod)
     {
         return $payment;
     }

@@ -70,7 +70,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             $data['device_data'] = $deviceData;
         }
 
-        if ($this->isGatewayType(GATEWAY_TYPE_PAYPAL)) {
+        if ($this->isGatewayType(GATEWAY_TYPE_PAYPAL, $paymentMethod)) {
             $data['ButtonSource'] = 'InvoiceNinja_SP';
         }
 

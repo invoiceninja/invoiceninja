@@ -149,8 +149,20 @@ class PaymentMethod extends EntityModel
         }
     }
 
-    public function requiresDelayedAutoBill(){
+    public function requiresDelayedAutoBill()
+    {
         return $this->payment_type_id == PAYMENT_TYPE_ACH;
+    }
+
+    public function gatewayType()
+    {
+        if ($this->payment_type_id == PAYMENT_TYPE_ACH) {
+            return GATEWAY_TYPE_BANK_TRANSFER;
+        } elseif ($this->payment_type_id == PAYMENT_TYPE_PAYPAL) {
+            return GATEWAY_TYPE_PAYPAL;
+        } else {
+            return GATEWAY_TYPE_TOKEN;
+        }
     }
 }
 

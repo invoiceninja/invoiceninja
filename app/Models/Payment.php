@@ -88,12 +88,12 @@ class Payment extends EntityModel
 
     public function isPending()
     {
-        return $this->payment_status_id = PAYMENT_STATUS_PENDING;
+        return $this->payment_status_id == PAYMENT_STATUS_PENDING;
     }
 
     public function isFailed()
     {
-        return $this->payment_status_id = PAYMENT_STATUS_FAILED;
+        return $this->payment_status_id == PAYMENT_STATUS_FAILED;
     }
 
     public function isCompleted()

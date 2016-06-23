@@ -168,9 +168,9 @@ class StripePaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
-    protected function creatingPayment($payment)
+    protected function creatingPayment($payment, $paymentMethod)
     {
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
             $payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
         }
 

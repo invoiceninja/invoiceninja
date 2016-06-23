@@ -20,7 +20,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    protected function creatingPayment($payment)
+    protected function creatingPayment($payment, $paymentMethod)
     {
         $payment->payer_id = $this->input['PayerID'];
 
