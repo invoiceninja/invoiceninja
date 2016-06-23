@@ -22,7 +22,7 @@ class VerifyCsrfToken extends BaseVerifier {
         'hook/email_opened',
         'hook/email_bounced',
         'reseller_stats',
-		'paymenthook/*',
+		'payment_hook/*',
     ];
 
 	/**

@@ -143,6 +143,6 @@ class AccountGateway extends EntityModel
     {
         $account = $this->account ? $this->account : Account::find($this->account_id);
 
-        return \URL::to(env('WEBHOOK_PREFIX','').'paymenthook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX',''));
+        return \URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.$this->gateway_id.env('WEBHOOK_SUFFIX',''));
     }
 }

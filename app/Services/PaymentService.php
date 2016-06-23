@@ -28,7 +28,6 @@ use App\Ninja\Datatables\PaymentDatatable;
 
 class PaymentService extends BaseService
 {
-    public $lastError;
     protected $datatableService;
 
     public function __construct(PaymentRepository $paymentRepo, AccountRepository $accountRepo, DatatableService $datatableService)

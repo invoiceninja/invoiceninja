@@ -794,4 +794,9 @@ class BasePaymentDriver
             return PAYMENT_TYPE_CREDIT_CARD_OTHER;
         }
     }
+
+    public function handleWebHook($input)
+    {
+        throw new Exception('Unsupported gateway');
+    }
 }
