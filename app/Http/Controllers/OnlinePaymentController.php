@@ -152,7 +152,7 @@ class OnlinePaymentController extends BaseController
             $result = $paymentDriver->handleWebHook(Input::all());
             return response()->json(['message' => $result]);
         } catch (Exception $exception) {
-            return response()->json(['message' => ]$exception->getMessage()], 500);
+            return response()->json(['message' => $exception->getMessage()], 500);
         }
     }
 
