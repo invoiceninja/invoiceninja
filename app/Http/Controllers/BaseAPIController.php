@@ -215,4 +215,15 @@ class BaseAPIController extends Controller
 
         return $data;
     }
+
+    protected function fileReponse($name, $data)
+    {
+        header('Content-Type: application/pdf');
+        header('Content-Length: ' . strlen($data));
+        header('Content-disposition: attachment; filename="' . $name . '"');
+        header('Cache-Control: public, must-revalidate, max-age=0');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+
+        return $data;
+    }
 }
