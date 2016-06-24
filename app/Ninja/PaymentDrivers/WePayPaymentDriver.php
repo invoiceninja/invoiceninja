@@ -215,6 +215,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input)
     {
+        $accountGateway = $this->accountGateway;
         $accountId = $accountGateway->account_id;
 
         foreach (array_keys($input) as $key) {

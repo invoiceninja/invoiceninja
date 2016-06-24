@@ -84,7 +84,7 @@ class OnlinePaymentController extends BaseController
         }
     }
 
-    private function error($paymentDriver, $exception, $showPayment)
+    private function error($paymentDriver, $exception, $showPayment = false)
     {
         if (is_string($exception)) {
             $displayError = $exception;

@@ -162,7 +162,7 @@ class Payment extends EntityModel
         Event::fire(new PaymentCompleted($this));
     }
 
-    public function markFailed($failureMessage)
+    public function markFailed($failureMessage = '')
     {
         $this->payment_status_id = PAYMENT_STATUS_FAILED;
         $this->gateway_error = $failureMessage;
