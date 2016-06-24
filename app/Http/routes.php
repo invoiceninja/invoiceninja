@@ -84,7 +84,7 @@ Route::get('/auth_unlink', 'Auth\AuthController@authUnlink');
 
 Route::post('/hook/email_bounced', 'AppController@emailBounced');
 Route::post('/hook/email_opened', 'AppController@emailOpened');
-Route::post('/payment_hook/{accountKey}/{gatewayId}', 'PaymentController@handlePaymentWebhook');
+Route::post('/payment_hook/{accountKey}/{gatewayId}', 'OnlinePaymentController@handlePaymentWebhook');
 
 // Laravel auth routes
 Route::get('/signup', array('as' => 'signup', 'uses' => 'Auth\AuthController@getRegister'));

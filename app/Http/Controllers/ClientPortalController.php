@@ -13,6 +13,7 @@ use Datatable;
 use Validator;
 use Cache;
 use Redirect;
+use Exception;
 use App\Models\Gateway;
 use App\Models\Invitation;
 use App\Models\Document;

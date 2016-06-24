@@ -165,6 +165,8 @@ class WePayPaymentDriver extends BasePaymentDriver
 
     public function removePaymentMethod($paymentMethod)
     {
+        parent::removePaymentMethod($paymentMethod);
+
         $wepay = Utils::setupWePay($this->accountGateway);
         $response = $wepay->request('/credit_card/delete', [
             'client_id' => WEPAY_CLIENT_ID,
@@ -173,7 +175,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         ]);
 
         if ($response->state == 'deleted') {
-            return parent::removePaymentMethod($paymentMethod);
+            return true;
         } else {
             throw new Exception(trans('texts.failed_remove_payment_method'));
         }

@@ -179,6 +179,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function removePaymentMethod($paymentMethod)
     {
+        parent::removePaymentMethod($paymentMethod);
+
         if ( ! $paymentMethod->relationLoaded('account_gateway_token')) {
             $paymentMethod->load('account_gateway_token');
         }
@@ -189,7 +191,7 @@ class StripePaymentDriver extends BasePaymentDriver
         ])->send();
 
         if ($response->isSuccessful()) {
-            return parent::removePaymentMethod($paymentMethod);
+            return true;
         } else {
             throw new Exception($response->getMessage());
         }
@@ -322,8 +324,10 @@ class StripePaymentDriver extends BasePaymentDriver
         $supportedEvents = array(
             'charge.failed',
             'charge.succeeded',
+            'charge.refunded',
             'customer.source.updated',
             'customer.source.deleted',
+            'customer.bank_account.deleted',
         );
 
         if (!in_array($eventType, $supportedEvents)) {
@@ -345,7 +349,7 @@ class StripePaymentDriver extends BasePaymentDriver
             throw new Exception('This is not a pending event');
         }
 
-        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded') {
+        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded' || $eventType == 'charge.refunded') {
             $charge = $eventDetails['data']['object'];
             $transactionRef = $charge['id'];
 
@@ -367,7 +371,7 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($eventType == 'charge.refunded') {
                 $payment->recordRefund($charge['amount_refunded'] / 100 - $payment->refunded);
             }
-        } elseif($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted') {
+        } elseif($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
             $source = $eventDetails['data']['object'];
             $sourceRef = $source['id'];
 
@@ -377,7 +381,7 @@ class StripePaymentDriver extends BasePaymentDriver
                 throw new Exception('Unknown payment method');
             }
 
-            if ($eventType == 'customer.source.deleted') {
+            if ($eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
                 $paymentMethod->delete();
             }
 

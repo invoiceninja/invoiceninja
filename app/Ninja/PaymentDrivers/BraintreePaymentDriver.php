@@ -154,12 +154,14 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     public function removePaymentMethod($paymentMethod)
     {
+        parent::removePaymentMethod($paymentMethod);
+
         $response = $this->gateway()->deletePaymentMethod([
             'token' => $paymentMethod->source_reference
         ])->send();
 
         if ($response->isSuccessful()) {
-            return parent::removePaymentMethod($paymentMethod);
+            return true;
         } else {
             throw new Exception($response->getMessage());
         }
