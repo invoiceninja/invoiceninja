@@ -5,7 +5,7 @@
 
 <center>
     @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-        {!! Button::success(trans('texts.add_company'))->asLinkTo('/login?new_company=true') !!}
+        {!! Button::success(trans('texts.add_company'))->asLinkTo(url('/login?new_company=true')) !!}
     @endif
 </center>
 
@@ -27,7 +27,7 @@
                     @if (isset($account->logo_url))
                         {!! HTML::image($account->logo_url.'?no_cache='.time(), 'Logo', ['width' => 100]) !!}
                     @endif
-                    </td>                    
+                    </td>
                     <td>
                         <h3>{{ $account->account_name }}<br/>
                         <small>{{ $account->user_name }}
@@ -53,13 +53,13 @@
         <h4 class="modal-title" id="myModalLabel">{{ trans('texts.unlink_account') }}</h4>
       </div>
 
-      <div class="container">        
-        <h3>{{ trans('texts.are_you_sure') }}</h3>        
+      <div class="container">
+        <h3>{{ trans('texts.are_you_sure') }}</h3>
       </div>
 
-      <div class="modal-footer" id="signUpFooter">          
+      <div class="modal-footer" id="signUpFooter">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-        <button type="button" class="btn btn-primary" onclick="unlinkAccount()">{{ trans('texts.unlink') }}</button>           
+        <button type="button" class="btn btn-primary" onclick="unlinkAccount()">{{ trans('texts.unlink') }}</button>
       </div>
     </div>
   </div>
@@ -67,17 +67,17 @@
 
 
     <script type="text/javascript">
-      function showUnlink(userAccountId, userId) {    
+      function showUnlink(userAccountId, userId) {
         NINJA.unlink = {
             'userAccountId': userAccountId,
             'userId': userId
         };
-        $('#unlinkModal').modal('show');    
+        $('#unlinkModal').modal('show');
         return false;
       }
 
-      function unlinkAccount() {    
-        window.location = '{{ URL::to('/unlink_account') }}' + '/' + NINJA.unlink.userAccountId + '/' + NINJA.unlink.userId;    
+      function unlinkAccount() {
+        window.location = '{{ URL::to('/unlink_account') }}' + '/' + NINJA.unlink.userAccountId + '/' + NINJA.unlink.userId;
       }
 
     </script>
