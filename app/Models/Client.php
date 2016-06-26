@@ -272,6 +272,15 @@ class Client extends EntityModel
         return AccountGatewayToken::clientAndGateway($this->id, $accountGateway->id)->first();
     }
 
+    public function defaultPaymentMethod()
+    {
+        if ($token = $this->getGatewayToken()) {
+            return $token->default_payment_method;
+        }
+
+        return false;
+    }
+
     public function autoBillLater()
     {
         if ($token = $this->getGatewayToken()) {

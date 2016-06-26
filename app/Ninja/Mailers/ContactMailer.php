@@ -138,12 +138,10 @@ class ContactMailer extends Mailer
             'amount' => $invoice->getRequestedAmount()
         ];
 
-        /*
+        // Let the client know they'll be billed later
         if ($client->autoBillLater()) {
-            // Let the client know they'll be billed later
-            $variables['autobill'] = $this->createAutoBillNotifyString($invoice->autoBillPaymentMethod);
+            $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
         }
-        */
 
         if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
             // The contact needs a password
@@ -282,19 +280,4 @@ class ContactMailer extends Mailer
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    /*
-    private function createAutoBillNotifyString($paymentMethod) {
-        if ($paymentMethod->payment_type_id == PAYMENT_TYPE_DIRECT_DEBIT) {
-            $paymentMethodString = trans('texts.auto_bill_payment_method_bank', ['bank'=>$paymentMethod->getBankName(), 'last4'=>$paymentMethod->last4]);
-        } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL) {
-            $paymentMethodString = trans('texts.auto_bill_payment_method_paypal', ['email'=>$paymentMethod->email]);
-        } else {
-            $code = str_replace(' ', '', strtolower($paymentMethod->payment_type->name));
-            $cardType = trans("texts.card_" . $code);
-            $paymentMethodString = trans('texts.auto_bill_payment_method_credit_card', ['type'=>$cardType,'last4'=>$paymentMethod->last4]);
-        }
-
-        return trans('texts.auto_bill_notification', ['payment_method'=>$paymentMethodString]);
-    }
-    */
 }

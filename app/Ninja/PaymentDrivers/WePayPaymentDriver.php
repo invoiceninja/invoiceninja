@@ -7,6 +7,8 @@ use Exception;
 
 class WePayPaymentDriver extends BasePaymentDriver
 {
+    protected $sourceReferenceParam = 'accessToken';
+
     public function gatewayTypes()
     {
         $types =  [

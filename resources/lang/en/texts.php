@@ -1328,11 +1328,11 @@ $LANG = array(
     'client_session_expired' => 'Session Expired',
     'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.',
 
-    'auto_bill_notification' => 'This invoice will automatically be billed to :payment_method on the due date.',
-    'auto_bill_payment_method_bank' => 'your :bank account ending in :last4',
-    'auto_bill_payment_method_credit_card' => 'your :type card ending in :last4',
-    'auto_bill_payment_method_paypal' => 'your PayPal account (:email)',
-    'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your Visa card ending in 4242 on the due date.',
+    'auto_bill_notification' => 'This invoice will automatically be billed to your :payment_method on file on :due_date.',
+    'auto_bill_payment_method_bank_transfer' => 'bank account',
+    'auto_bill_payment_method_credit_card' => 'credit card',
+    'auto_bill_payment_method_paypal' => 'PayPal account',
+    'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your credit card on file on the due date.',
     'payment_settings' => 'Payment Settings',
 
     'on_send_date' => 'On send date',

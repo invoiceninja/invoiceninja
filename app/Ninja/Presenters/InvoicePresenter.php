@@ -73,4 +73,29 @@ class InvoicePresenter extends EntityPresenter {
         $client = $this->entity->client;
         return count($client->contacts) ? $client->contacts[0]->email : '';
     }
+
+    public function autoBillEmailMessage()
+    {
+        $client = $this->entity->client;
+        $paymentMethod = $client->defaultPaymentMethod();
+
+        if ( ! $paymentMethod) {
+            return false;
+        }
+
+        if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
+            $paymentMethodString = trans('texts.auto_bill_payment_method_bank_transfer');
+        } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL) {
+            $paymentMethodString = trans('texts.auto_bill_payment_method_paypal');
+        } else {
+            $paymentMethodString = trans('texts.auto_bill_payment_method_credit_card');
+        }
+
+        $data = [
+            'payment_method' => $paymentMethodString,
+            'due_date' => $this->due_date(),
+        ];
+
+        return trans('texts.auto_bill_notification', $data);
+    }
 }
