@@ -74,7 +74,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             $data['ButtonSource'] = 'InvoiceNinja_SP';
         }
 
-        if ( ! empty($this->input['sourceToken'])) {
+        if ( ! $paymentMethod && ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
         }
 

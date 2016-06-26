@@ -74,7 +74,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         $data['feePayer'] = WEPAY_FEE_PAYER;
         $data['callbackUri'] = $this->accountGateway->getWebhookUrl();
 
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
             $data['paymentMethodType'] = 'payment_bank';
         }
 

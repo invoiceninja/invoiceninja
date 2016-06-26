@@ -72,6 +72,10 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails($paymentMethod);
 
+        if ($paymentMethod) {
+            return $data;
+        }
+
         if ( ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
             unset($data['card']);
