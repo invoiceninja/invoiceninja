@@ -483,6 +483,7 @@ class ClientPortalController extends BaseController
         return response()->view('error', [
             'error' => $error ?: trans('texts.invoice_not_found'),
             'hideHeader' => true,
+            'account' => $this->getContact()->account,
         ]);
     }
 
