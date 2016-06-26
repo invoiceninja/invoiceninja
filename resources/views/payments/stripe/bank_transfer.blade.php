@@ -127,6 +127,36 @@
 
 @section('payment_details')
 
+    {!! Former::open($url)
+            ->autocomplete('on')
+            ->addClass('payment-form')
+            ->id('payment-form')
+            ->rules(array(
+                'country_id' => 'required',
+                'currency_id' => 'required',
+                'account_number' => 'required',
+                'routing_number' => 'required',
+                'account_holder_name' => 'required',
+                'account_holder_type' => 'required',
+                'authorize_ach' => 'required',
+            )) !!}
+
+    {!! Former::populateField('account_holder_type', 'individual') !!}
+    {!! Former::populateField('country_id', $client->country_id) !!}
+    {!! Former::populateField('currency_id', $client->getCurrencyCode()) !!}
+
+    @if (Utils::isNinjaDev())
+        {!! Former::populateField('account_holder_name', 'Test Client') !!}
+        <script>
+            $(function() {
+                $('#routing_number').val('110000000');
+                $('#account_number').val('000123456789');
+                $('#confirm_account_number').val('000123456789');
+                $('#authorize_ach').prop('checked', true);
+            })
+        </script>
+    @endif
+
     @if ($accountGateway->getPlaidEnabled())
         <div id="plaid_container">
             <a class="btn btn-default btn-lg" id="plaid_link_button">
@@ -149,35 +179,6 @@
 
         <p>{{ trans('texts.ach_verification_delay_help') }}</p><br/>
 
-        {!! Former::open($url)
-                ->autocomplete('on')
-                ->addClass('payment-form')
-                ->id('payment-form')
-                ->rules(array(
-                    'country_id' => 'required',
-                    'currency_id' => 'required',
-                    'account_number' => 'required',
-                    'routing_number' => 'required',
-                    'account_holder_name' => 'required',
-                    'account_holder_type' => 'required',
-                    'authorize_ach' => 'required',
-                )) !!}
-
-        {!! Former::populateField('account_holder_type', 'individual') !!}
-        {!! Former::populateField('country_id', $client->country_id) !!}
-        {!! Former::populateField('currency_id', $client->getCurrencyCode()) !!}
-
-        @if (Utils::isNinjaDev())
-            {!! Former::populateField('account_holder_name', 'Test Client') !!}
-            <script>
-                $(function() {
-                    $('#routing_number').val('110000000');
-                    $('#account_number').val('000123456789');
-                    $('#confirm_account_number').val('000123456789');
-                    $('#authorize_ach').prop('checked', true);
-                })
-            </script>
-        @endif
 
         {!! Former::radios('account_holder_type')->radios(array(
                 trans('texts.individual_account') => array('value' => 'individual'),
@@ -235,7 +236,7 @@
                         ->withAttributes(['id'=>'add_account_button'])
                         ->large() !!}
 
-        @if($accountGateway->getPlaidEnabled() && !empty($amount))
+        @if ($accountGateway->getPlaidEnabled() && !empty($amount))
             {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
                         ->submit()
                         ->withAttributes(['style'=>'display:none', 'id'=>'pay_now_button'])
@@ -243,6 +244,9 @@
         @endif
 
     </div>
+
+    {!! Former::close() !!}
+
 
     <script type="text/javascript">
         var routingNumberCache = {};

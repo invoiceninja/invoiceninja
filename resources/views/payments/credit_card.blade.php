@@ -256,4 +256,6 @@
     </center>
     <p>&nbsp;</p>
 
+    {!! Former::close() !!}
+    
 @stop

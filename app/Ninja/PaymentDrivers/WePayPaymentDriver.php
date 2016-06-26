@@ -210,7 +210,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
     private function calculateApplicationFee($amount)
     {
-        $fee = WEPAY_APP_FEE_MULTIPLIER * $amount + WEPAY_APP_FEE_FIXED;
+        $fee = (WEPAY_APP_FEE_MULTIPLIER * $amount) + WEPAY_APP_FEE_FIXED;
 
         return floor(min($fee, $amount * 0.2));// Maximum fee is 20% of the amount.
     }

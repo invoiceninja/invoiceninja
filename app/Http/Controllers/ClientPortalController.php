@@ -165,7 +165,7 @@ class ClientPortalController extends BaseController
 
         Session::put('contact_key', $contactKey);// track current contact
 
-        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/invoices/');
+        return redirect()->to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/invoices/');
     }
 
     private function getPaymentTypes($account, $client, $invitation)
@@ -694,7 +694,7 @@ class ClientPortalController extends BaseController
             Session::flash('message', trans('texts.payment_method_verified'));
         }
 
-        return redirect()->to($account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
+        return redirect()->to($account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
     }
 
     public function removePaymentMethod($publicId)
@@ -718,7 +718,7 @@ class ClientPortalController extends BaseController
             Session::flash('error', $exception->getMessage());
         }
 
-        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
+        return redirect()->to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
     }
 
     public function setDefaultPaymentMethod(){
@@ -731,7 +731,7 @@ class ClientPortalController extends BaseController
 
         $validator = Validator::make(Input::all(), array('source' => 'required'));
         if ($validator->fails()) {
-            return Redirect::to($client->account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
+            return Redirect::to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
         }
 
         $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
@@ -745,7 +745,7 @@ class ClientPortalController extends BaseController
 
         Session::flash('message', trans('texts.payment_method_set_as_default'));
 
-        return redirect()->to($client->account->enable_client_portal?'/client/dashboard':'/client/payment_methods/');
+        return redirect()->to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
     }
 
     private function paymentMethodError($type, $error, $accountGateway = false, $exception = false)
