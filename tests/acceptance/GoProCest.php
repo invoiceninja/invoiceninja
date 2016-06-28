@@ -32,10 +32,13 @@ class GoProCest
         $I->wait(1);
 
         $I->amOnPage('/dashboard');
-        $I->click('Go Pro');
+        $I->click('Upgrade');
         $I->wait(1);
 
-        $I->click('Upgrade Now!');
+        $I->click('#changePlanButton');
+        $I->wait(1);
+
+        $I->click('Pay Now');
         $I->wait(1);
 
         $I->fillField(['name' => 'address1'], $this->faker->streetAddress);
