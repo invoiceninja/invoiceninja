@@ -181,9 +181,10 @@ class AccountController extends BaseController
                     $account->company->pending_plan = null;
                     $account->company->pending_term = null;
 
-                    if ($account->company->payment) {
-                        $payment = $account->company->payment;
-                        $this->paymentService->refund($payment);
+                    if ($payment = $account->company->payment) {
+                        $ninjaAccount = $this->accountRepo->getNinjaAccount();
+                        $paymentDriver = $ninjaAccount->paymentDriver();
+                        $paymentDriver->refundPayment($payment);
                         Session::flash('message', trans('texts.plan_refunded'));
                         \Log::info("Refunded Plan Payment: {$account->name} - {$user->email}");
                     } else {

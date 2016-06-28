@@ -76,6 +76,9 @@ class StripePaymentDriver extends BasePaymentDriver
             return $data;
         }
 
+        // Stripe complains if the email field is set
+        unset($data['email']);
+
         if ( ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
             unset($data['card']);
@@ -387,13 +390,9 @@ class StripePaymentDriver extends BasePaymentDriver
 
             if ($eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
                 $paymentMethod->delete();
-            }
-
-            /*
             } elseif ($eventType == 'customer.source.updated') {
-                $this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
+                //$this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
             }
-            */
         }
 
         return 'Processed successfully';

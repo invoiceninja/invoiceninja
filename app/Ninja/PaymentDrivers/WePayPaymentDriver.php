@@ -249,7 +249,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             if ($source->state == 'deleted') {
                 $paymentMethod->delete();
             } else {
-                $this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
+                //$this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
             }
 
             return 'Processed successfully';

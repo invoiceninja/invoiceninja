@@ -6,7 +6,9 @@ use Request;
 use Omnipay;
 use Exception;
 use CreditCard;
+use DateTime;
 use App\Models\AccountGatewayToken;
+use App\Models\Account;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Country;
@@ -628,9 +630,13 @@ class BasePaymentDriver
         return $payment;
     }
 
-    public function refundPayment($payment, $amount)
+    public function refundPayment($payment, $amount = 0)
     {
-        $amount = min($amount, $payment->getCompletedAmount());
+        if ($amount) {
+            $amount = min($amount, $payment->getCompletedAmount());
+        } else {
+            $amount = $payment->getCompletedAmount();
+        }
 
         if ( ! $amount) {
             return false;
