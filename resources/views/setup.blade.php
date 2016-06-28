@@ -37,7 +37,7 @@
                 <pre>sudo chown www-data:www-data /path/to/ninja/.env</pre>
             </div>
         @endif
-        If you need help you can either post to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> 
+        If you need help you can either post to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using 
         or email us at <a href="mailto:contact@invoiceninja.com" target="_blank">contact@invoiceninja.com</a>.
         <p>
 <pre>-- Commands to create a MySQL database and user

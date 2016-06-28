@@ -134,9 +134,9 @@
 						<div class="modal-footer" style="margin-top: 0px">
 							<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
 							@if ($planDetails && $planDetails['active'])
-								<button type="button" class="btn btn-primary" onclick="confirmChangePlan()">{{ trans('texts.plan_change') }}</button>
+								<button type="button" class="btn btn-primary" id="changePlanButton" onclick="confirmChangePlan()">{{ trans('texts.plan_change') }}</button>
 							@else
-								<button type="button" class="btn btn-success" onclick="confirmChangePlan()">{{ trans('texts.plan_upgrade') }}</button>
+								<button type="button" class="btn btn-success" id="changePlanButton" onclick="confirmChangePlan()">{{ trans('texts.plan_upgrade') }}</button>
 							@endif
 						</div>
 					</div>

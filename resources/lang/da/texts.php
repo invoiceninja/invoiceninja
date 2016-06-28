@@ -735,7 +735,7 @@ return array(
     'help' => 'Hjælp',
     'customize_help' => '<p>Vi bruger <a href="http://pdfmake.org/" target="_blank">pdfmake</a> til at definere faktura design felter. pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">legeplads</a> giver en god mulighed for at se biblioteket i aktion.</p>
                 <p>For at tilgå under indstillingerne ved hjælp af dot notation. For eksempel kan man for at vise klient navnet bruge <code>$client.name</code>.</p>
-                <p>Hvis du mangler svar på nogen spørgsmål så post et spørgsmål i vores <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a>.</p>',
+                <p>Hvis du mangler svar på nogen spørgsmål så post et spørgsmål i vores <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
 
     'invoice_due_date' => 'Due Date',
     'quote_due_date' => 'Valid Until',

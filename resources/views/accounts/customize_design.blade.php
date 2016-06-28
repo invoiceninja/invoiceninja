@@ -222,7 +222,7 @@
           </div>
 
           <div class="panel-body" style="background-color: #fff">
-            {!! trans('texts.customize_help') !!}
+            {!! trans('texts.customize_help') !!}<br/>
 
             <pre id="sampleData" style="display:none;height:200px;padding-top:16px;"></pre>
             @if (empty($sampleInvoice))
