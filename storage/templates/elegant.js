@@ -103,8 +103,13 @@
     }],    
     "footer": [
     {
-        "text": "$invoiceFooter",
-        "margin": [40, -40, 40, 20]
+        "columns": [
+            {
+                "text": "$invoiceFooter",
+                "alignment": "left"
+            }
+        ],
+        "margin": [40, -20, 40, 0]
     },
     {"canvas": [{ "type": "line", "x1": 35, "y1": 5, "x2": 555, "y2": 5, "lineWidth": 2,"margin": [30,0,0,0]}]},
     {"canvas": [{ "type": "line", "x1": 35, "y1": 3, "x2": 555, "y2": 3, "lineWidth": 1,"margin": [30,0,0,0]}]}

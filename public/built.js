@@ -31096,7 +31096,9 @@ function GetPdfMake(invoice, javascript, callback) {
     if (!invoice.features.remove_created_by) {
         var footer = dd.footer();
         if (footer) {
-            if (designId == NINJA.TEMPLATES.PLAYFUL) {
+            if (designId == NINJA.TEMPLATES.ELEGANT) {
+                footer[0].columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
+            } else if (designId == NINJA.TEMPLATES.PLAYFUL) {
                 footer.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 10, 10]})
             } else if (designId == NINJA.TEMPLATES.BOLD) {
                 footer[1].columns.push({image: logoImages.imageLogo2, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
