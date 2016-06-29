@@ -908,7 +908,6 @@ class Account extends Eloquent
         switch ($feature) {
             // Pro
             case FEATURE_CUSTOMIZE_INVOICE_DESIGN:
-            case FEATURE_REMOVE_CREATED_BY:
             case FEATURE_DIFFERENT_DESIGNS:
             case FEATURE_EMAIL_TEMPLATES_REMINDERS:
             case FEATURE_INVOICE_SETTINGS:
@@ -933,6 +932,7 @@ class Account extends Eloquent
                 }
                 // Fallthrough
             case FEATURE_CLIENT_PORTAL_CSS:
+            case FEATURE_REMOVE_CREATED_BY:
                 return !empty($planDetails);// A plan is required even for self-hosted users
 
             // Enterprise; No Trial allowed; grandfathered for old pro users

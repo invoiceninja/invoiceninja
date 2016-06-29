@@ -116,8 +116,8 @@
       {!! Former::open()->addClass('warn-on-exit')->onchange('if(!window.loadingFonts)refreshPDF()') !!}
 
       {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
-      {!! Former::populateField('body_font_id', $account->body_font_id) !!}
-      {!! Former::populateField('header_font_id', $account->header_font_id) !!}
+      {!! Former::populateField('body_font_id', $account->getBodyFontId()) !!}
+      {!! Former::populateField('header_font_id', $account->getHeaderFontId()) !!}
       {!! Former::populateField('live_preview', intval($account->live_preview)) !!}
       {!! Former::populateField('font_size', $account->font_size) !!}
       {!! Former::populateField('page_size', $account->page_size) !!}
@@ -261,20 +261,14 @@
                 ->appendIcon(Icon::create('edit'))
                 ->asLinkTo(URL::to('/settings/customize_design'))
                 ->large(),
-            Button::success(trans('texts.save'))
-                ->submit()->large()
-                ->appendIcon(Icon::create('floppy-disk'))
-                ->withAttributes(['class' => 'save-button'])
+            Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ?
+                Button::success(trans('texts.save'))
+                    ->submit()->large()
+                    ->appendIcon(Icon::create('floppy-disk'))
+                    ->withAttributes(['class' => 'save-button']) :
+                false
         ) !!}
     <br/>
-
-      @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
-        <script>
-              $(function() {
-                $('form.warn-on-exit input, .save-button').prop('disabled', true);
-              });
-          </script>
-      @endif
 
       {!! Former::close() !!}
 

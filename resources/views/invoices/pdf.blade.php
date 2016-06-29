@@ -70,7 +70,7 @@
   logoImages.imageLogoWidth2 =325/2;
   logoImages.imageLogoHeight2 = 81/2;
 
-  logoImages.imageLogo3 = "{{ Form::image_data('images/report_logo3.jpg') }}";
+  logoImages.imageLogo3 = "{{ Form::image_data('images/report_logo3.png') }}";
   logoImages.imageLogoWidth3 =325/2;
   logoImages.imageLogoHeight3 = 81/2;
 
