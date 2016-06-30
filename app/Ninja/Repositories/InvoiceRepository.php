@@ -185,9 +185,9 @@ class InvoiceRepository extends BaseRepository
             ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
             ->addColumn('client_enable_auto_bill', function ($model) {
                 if ($model->client_enable_auto_bill) {
-                    return trans('texts.enabled') . ' <a href="javascript:setAutoBill('.$model->public_id.',false)">('.trans('texts.disable').')</a>';
+                    return trans('texts.enabled') . ' - <a href="javascript:setAutoBill('.$model->public_id.',false)">'.trans('texts.disable').'</a>';
                 } else {
-                    return trans('texts.disabled') . ' <a href="javascript:setAutoBill('.$model->public_id.',true)">('.trans('texts.enable').')</a>';
+                    return trans('texts.disabled') . ' - <a href="javascript:setAutoBill('.$model->public_id.',true)">'.trans('texts.enable').'</a>';
                 }
             });
 
