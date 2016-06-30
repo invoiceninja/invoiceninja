@@ -445,7 +445,7 @@ $LANG = array(
     'token_billing_4' => 'Uvijek',
     'token_billing_checkbox' => 'Pohrani detalje kreditne kartice',
     'view_in_gateway' => 'View in :gateway',
-    'use_card_on_file' => 'Koristi karticu na datoteci',
+    'use_card_on_file' => 'Use Card on File',
     'edit_payment_details' => 'Uredi detalje plaćanja',
     'token_billing' => 'Pohrani detalje kartice',
     'token_billing_secure' => 'The data is stored securely by :link',
@@ -1163,7 +1163,7 @@ $LANG = array(
     'preview' => 'Preview',
     'list_vendors' => 'List Vendors',
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
-    'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
+    'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments, :link to see the full list of features.',
     'return_to_app' => 'Return to app',
 
 
@@ -1203,7 +1203,7 @@ $LANG = array(
     'ach' => 'ACH',
     'enable_ach' => 'Enable ACH',
     'stripe_ach_help' => 'ACH support must also be enabled at Stripe.',
-    'stripe_ach_disabled' => 'Another gateway is already configured for direct debit.',
+    'ach_disabled' => 'Another gateway is already configured for direct debit.',
 
     'plaid' => 'Plaid',
     'client_id' => 'Client Id',
@@ -1257,7 +1257,7 @@ $LANG = array(
     'plaid_linked_status' => 'Your bank account at :bank',
     'add_payment_method' => 'Add Payment Method',
     'account_holder_type' => 'Account Holder Type',
-    'ach_authorization' => 'I authorize :company to electronically debit my account and, if necessary, electronically credit my account to correct erroneous debits.',
+    'ach_authorization' => 'I authorize :company to use my bank account for future payments and, if necessary, electronically credit my account to correct erroneous debits. I understand that I may cancel this authorization at any time by removing the payment method or by contacting :email.',
     'ach_authorization_required' => 'You must consent to ACH transactions.',
     'off' => 'Off',
     'opt_in' => 'Opt-in',
@@ -1301,9 +1301,69 @@ $LANG = array(
     'switch' => 'Switch',
     'restore_account_gateway' => 'Restore Gateway',
     'restored_account_gateway' => 'Successfully restored gateway',
+    'united_states' => 'United States',
+    'canada' => 'Canada',
+    'accept_debit_cards' => 'Accept Debit Cards',
+    'debit_cards' => 'Debit Cards',
+
+    'warn_start_date_changed' => 'The next invoice will be sent on the new start date.',
+    'original_start_date' => 'Original start date',
+    'new_start_date' => 'New start date',
+    'security' => 'Security',
+    'see_whats_new' => 'See what\'s new in v:version',
+    'wait_for_upload' => 'Please wait for the document upload to complete.',
+    'upgrade_for_permissions' => 'Upgrade to our Enterprise plan to enable permissions.',
+    'enable_second_tax_rate' => 'Enable specifying a <b>second tax rate</b>',
+    'payment_file' => 'Payment File',
+    'expense_file' => 'Expense File',
+    'product_file' => 'Product File',
+    'import_products' => 'Import Products',
+    'products_will_create' => 'products will be created.',
+    'product_key' => 'Product',
+    'created_products' => 'Successfully created :count product(s)',
+    'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.',
+    'JSON_file' => 'JSON File',
+
+    'view_dashboard' => 'View Dashboard',
+    'client_session_expired' => 'Session Expired',
+    'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.',
+
+    'auto_bill_notification' => 'This invoice will automatically be billed to your :payment_method on file on :due_date.',
+    'auto_bill_payment_method_bank_transfer' => 'bank account',
+    'auto_bill_payment_method_credit_card' => 'credit card',
+    'auto_bill_payment_method_paypal' => 'PayPal account',
+    'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your credit card on file on the due date.',
+    'payment_settings' => 'Payment Settings',
+
+    'on_send_date' => 'On send date',
+    'on_due_date' => 'On due date',
+    'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
+    'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
+
+    'bank_account' => 'Bank Account',
+    'payment_processed_through_wepay' => 'ACH payments will be processed using WePay.',
+    'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
+    'privacy_policy' => 'Privacy Policy',
+    'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
+    'payment_settings_supported_gateways' => 'These options are supported by the WePay, Stripe, and Braintree gateways.',
+    'ach_email_prompt' => 'Please enter your email address:',
+    'verification_pending' => 'Verification Pending',
+
+    'update_font_cache' => 'Please force refresh the page to update the font cache.',
+    'more_options' => 'More options',
+    'credit_card' => 'Credit Card',
+    'bank_transfer' => 'Bank Transfer',
+    'no_transaction_reference' => 'We did not recieve a payment transaction reference from the gateway.',
+    'use_bank_on_file' => 'Use Bank on File',
+    'auto_bill_email_message' => 'This invoice will automatically be billed to the payment method on file on the due date.',
+    'bitcoin' => 'Bitcoin',
+    'added_on' => 'Added :date',
+    'failed_remove_payment_method' => 'Failed to remove the payment method',
+    'gateway_exists' => 'This gateway already exists',
+    'manual_entry' => 'Manual entry',
 
 );
 
 return $LANG;
 
-?>.
+?>

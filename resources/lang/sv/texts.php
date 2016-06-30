@@ -1,8 +1,6 @@
 <?php
 
-return array(
-
-    // client
+$LANG = array(
     'organization' => 'Organisation',
     'name' => 'Namn',
     'website' => 'Hemsida',
@@ -25,8 +23,6 @@ return array(
     'size_id' => 'Storlek',
     'industry_id' => 'Branch',
     'private_notes' => 'Privata anteckningar',
-
-    // invoice
     'invoice' => 'Faktura',
     'client' => 'Kund',
     'invoice_date' => 'Fakturadatum',
@@ -50,7 +46,6 @@ return array(
     'invoice_design_id' => 'Utseende',
     'terms' => 'Villkor',
     'your_invoice' => 'Din faktura',
-
     'remove_contact' => 'Ta bort kontakt',
     'add_contact' => 'Lägg till kontakt',
     'create_new_client' => 'Skapa ny kund',
@@ -74,8 +69,6 @@ return array(
     'settings' => 'Inställningar',
     'enable_invoice_tax' => 'Slå på <b>moms per faktura</b>',
     'enable_line_item_tax' => 'Slå på <b>moms per rad</b>',
-
-    // navigation
     'dashboard' => 'Översikt',
     'clients' => 'Kunder',
     'invoices' => 'Fakturor',
@@ -100,8 +93,6 @@ return array(
     'provide_email' => 'Du måste ange en giltig e-postadress',
     'powered_by' => 'Powered by',
     'no_items' => 'Tomt',
-
-    // recurring invoices
     'recurring_invoices' => 'Återkommande fakturor',
     'recurring_help' => '<p>Skicka automatiskt fakturor till kund varje vecka, månad, kvartal eller årsvis.</p>
     <p>Använd :MONTH, :QUARTER eller :YEAR för dynamiskt datum. Enkla formler fungerar också, t.ex. :MONTH-1</p>
@@ -111,8 +102,6 @@ return array(
     <li>":YEAR+1 årlig prenumeration" => "2015 årlig prenumeration"</li>
     <li>"Underhåll för :QUARTER+1" => "Underhåll för Q2"</li>
     </ul>',
-
-    // dashboard
     'in_total_revenue' => 'i totala intäkter',
     'billed_client' => 'fakturerad kund',
     'billed_clients' => 'fakturerade kunder',
@@ -121,8 +110,6 @@ return array(
     'invoices_past_due' => 'Försenade fakturor',
     'upcoming_invoices' => 'Kommande fakturor',
     'average_invoice' => 'Genomsnittlig faktura',
-
-    // list pages
     'archive' => 'Arkiv',
     'delete' => 'Ta bort',
     'archive_client' => 'Arkiverade kunder',
@@ -158,8 +145,6 @@ return array(
     'select' => 'Välj',
     'edit_client' => 'Ändra kund',
     'edit_invoice' => 'Ändra faktura',
-
-    // client view page
     'create_invoice' => 'Skapa faktura',
     'enter_credit' => 'Ange kredit',
     'last_logged_in' => 'Senast inloggad',
@@ -171,12 +156,8 @@ return array(
     'message' => 'Meddelande',
     'adjustment' => 'Justering',
     'are_you_sure' => 'Är du säker?',
-
-    // payment pages
     'payment_type_id' => 'Betalningssätt',
     'amount' => 'Summa',
-
-    // account/company pages
     'work_email' => 'E-postadress',
     'language_id' => 'Språk',
     'timezone_id' => 'Tidszon',
@@ -194,11 +175,7 @@ return array(
     'email_paid' => 'Skicka mail när faktura <b>betalas</b>',
     'site_updates' => 'Sajt-uppdateringar',
     'custom_messages' => 'Anpassat meddelande',
-    'default_invoice_terms' => 'Ange standard <b>fakturavillkor</b>',
     'default_email_footer' => 'Ange standard <b>mailsignatur</b>',
-    'import_clients' => 'Importera kunder',
-    'csv_file' => 'Välj CSV-fil',
-    'export_clients' => 'Exportera kunder',
     'select_file' => 'Välj fil',
     'first_row_headers' => 'Använd första raden som rubrik',
     'column' => 'Kolumn',
@@ -207,9 +184,12 @@ return array(
     'client_will_create' => 'kund kommer skapas',
     'clients_will_create' => 'kunder kommer skapas',
     'email_settings' => 'Mail-inställningar',
+    'client_view_styling' => 'Client View Styling',
     'pdf_email_attachment' => 'bifoga PDF till mail',
-
-    // application messages
+    'custom_css' => 'Custom CSS',
+    'import_clients' => 'Importera kunder',
+    'csv_file' => 'Välj CSV-fil',
+    'export_clients' => 'Exportera kunder',
     'created_client' => 'Kund skapad',
     'created_clients' => ':count kunder skapade',
     'updated_settings' => 'Inställningar uppdaterade',
@@ -220,14 +200,12 @@ return array(
     'payment_error' => 'Något blev fel när din betalning bearbetades. Var vänlig och försök igen lite senare.',
     'registration_required' => 'Du måste registrera dig för att kunna skicka en faktura som e-post',
     'confirmation_required' => 'Var vänlig och bekräfta din e-postadress',
-
     'updated_client' => 'Kund uppdaterad',
     'created_client' => 'Kund skapad',
     'archived_client' => 'Kund arkiverad',
     'archived_clients' => ':count kunder arkiverade',
     'deleted_client' => 'kund borttagen',
     'deleted_clients' => ':count kunder borttagna',
-
     'updated_invoice' => 'Faktura uppdaterad',
     'created_invoice' => 'Faktura skapad',
     'cloned_invoice' => 'Faktura kopierad',
@@ -237,21 +215,25 @@ return array(
     'archived_invoices' => ':count fakturor arkiverade',
     'deleted_invoice' => 'Faktura borttagen',
     'deleted_invoices' => ':count fakturor borttagna',
-
     'created_payment' => 'Betalning registrerad',
+    'created_payments' => 'Successfully created :count payment(s)',
     'archived_payment' => 'Betalning arkiverad',
     'archived_payments' => ':count betalningar arkiverade',
     'deleted_payment' => 'Betalning borttagen',
     'deleted_payments' => ':count betalningar borttagna',
     'applied_payment' => 'Betalning applicerad',
-
     'created_credit' => 'Kreditfaktura skapad',
     'archived_credit' => 'Kreditfaktura arkiverad',
     'archived_credits' => ':count kreditfakturor arkiverade',
     'deleted_credit' => 'Kreditfaktura borttagen',
     'deleted_credits' => ':count kreditfakturor borttagna',
-
-    // Emails
+    'imported_file' => 'Successfully imported file',
+    'updated_vendor' => 'Successfully updated vendor',
+    'created_vendor' => 'Successfully created vendor',
+    'archived_vendor' => 'Successfully archived vendor',
+    'archived_vendors' => 'Successfully archived :count vendors',
+    'deleted_vendor' => 'Successfully deleted vendor',
+    'deleted_vendors' => 'Successfully deleted :count vendors',
     'confirmation_subject' => 'Bekräfta ditt Invoice Ninja konto',
     'confirmation_header' => 'Bekräfta ditt konto',
     'confirmation_message' => 'Vänligen klick på länken nedan för att bekräfta ditt konto.',
@@ -262,7 +244,6 @@ return array(
     'email_salutation' => 'Hej :name,',
     'email_signature' => 'Vänliga hälsningar,',
     'email_from' => 'Invoice Ninja teamet',
-    'user_email_footer' => 'För att anpassa dina e-post notifieringar gå till :link',
     'invoice_link_message' => 'För att se din kundfaktura klicka på länken nedan:',
     'notification_invoice_paid_subject' => 'Faktura :invoice är betald av :client',
     'notification_invoice_sent_subject' => 'Faktura :invoice är skickad till :client',
@@ -271,19 +252,11 @@ return array(
     'notification_invoice_sent' => 'Följande kund :client har mailats fakturan :invoice på :amount.',
     'notification_invoice_viewed' => 'Följande kund :client har sett fakturan :invoice på :amount.',
     'reset_password' => 'Du kan återställa ditt lösenord genom att klicka på länken nedan:',
-    'reset_password_footer' => 'Om du inte begärt en återställning av ditt lösenord så var snäll och maila vår support: :email',
-
-    // Payment page
     'secure_payment' => 'Säker betalning',
     'card_number' => 'Kortnummer',
     'expiration_month' => 'Giltig till månad',
     'expiration_year' => 'Giltig till år',
     'cvv' => 'CVV',
-
-    // Pro Plan
-    'pro_plan_remove_logo' => ':link för att ta bort Invoice Ninja loggan genom att uppgradera till Pro Plan',
-    'pro_plan_remove_logo_link' => 'Klicka här',
-
     'logout' => 'Logga ut',
     'sign_up_to_save' => 'Registrera dig för att spara ditt arbete',
     'agree_to_terms' => 'Jag godkänner Invoice Ninja :terms',
@@ -294,16 +267,13 @@ return array(
     'success_message' => 'Du har nu registrerat dig. Klicka på länken i ditt bekräftelsemail för att verifiera din e-postadress.',
     'erase_data' => 'Detta kommer radera all din data och går ej att ångra!',
     'password' => 'Lösenord',
-
     'pro_plan_product' => 'Pro Plan',
-    'pro_plan_description' => 'Ett års prenumeration på Invoice Ninja Pro.',
     'pro_plan_success' => 'Tack för att du väljer Invoice Ninja\'s Pro!<p/>&nbsp;<br/>
           <b>Nästa steg</b><p/>En faktura har skickats till din angivna e-postadress.
           Var vänlig och följ instruktionerna på fakturan för att betala för ett års
           Pro fakturering och få tillgång till alla fantastiska Pro-funktioner.<p/>
           Hittar du inte fakturan? Behöver du support? Vi hjälper dig!
           -- maila oss på contact@invoiceninja.com',
-
     'unsaved_changes' => 'Du har osparade ändringar',
     'custom_fields' => 'Anpassade fält',
     'company_fields' => 'Företagsfält',
@@ -313,8 +283,6 @@ return array(
     'edit' => 'Ändra',
     'set_name' => 'Ange ditt företagsnamn',
     'view_as_recipient' => 'Se som mottagare',
-
-    // product management
     'product_library' => 'Produktbibliotek',
     'product' => 'Produkt',
     'products' => 'Produkter',
@@ -329,18 +297,14 @@ return array(
     'created_product' => 'Produkt skapad',
     'archived_product' => 'Produkt arkiverad',
     'pro_plan_custom_fields' => ':link för att slå på anpassade fält genom att uppgradera till Pro',
-
     'advanced_settings' => 'Avancerade inställningar',
     'pro_plan_advanced_settings' => ':link för att slå på avancerade inställningar genom att uppgradera till Pro',
     'invoice_design' => 'Fakturadesign',
     'specify_colors' => 'Ange färger',
     'specify_colors_label' => 'Välj färger som ska användas på fakturan',
-
     'chart_builder' => 'Diagrambyggare',
     'ninja_email_footer' => 'Använda :site för att fakturera dina kunder och få betalt online gratis!',
     'go_pro' => 'Uppgradera till Pro',
-
-    // Quotes
     'quote' => 'Offert',
     'quotes' => 'Offerter',
     'quote_number' => 'Offertnummer',
@@ -350,7 +314,6 @@ return array(
     'your_quote' => 'Din offert',
     'total' => 'Totalsumma',
     'clone' => 'Kopiera',
-
     'new_quote' => 'Ny offert',
     'create_quote' => 'Skapa offert',
     'edit_quote' => 'Ändra offert',
@@ -363,7 +326,6 @@ return array(
     'view_invoice' => 'Visa faktura',
     'view_client' => 'Visa kund',
     'view_quote' => 'Visa offert',
-
     'updated_quote' => 'Offert uppdaterad',
     'created_quote' => 'Offert skapad',
     'cloned_quote' => 'Offert kopierad',
@@ -373,7 +335,6 @@ return array(
     'deleted_quote' => 'Offert borttagen',
     'deleted_quotes' => ':count offerter borttagna',
     'converted_to_invoice' => 'Offert konverterad till faktura',
-
     'quote_subject' => 'Ny offert från :account',
     'quote_message' => 'Klicka på länken nedan för att visa din offert på :amount.',
     'quote_link_message' => 'Klicka på länken nedan för att visa din offert:',
@@ -381,16 +342,13 @@ return array(
     'notification_quote_viewed_subject' => 'Offert :invoice har setts av :client',
     'notification_quote_sent' => 'Följande kunder :client har skickats offerten :invoice på :amount.',
     'notification_quote_viewed' => 'Följande kunder :client har sett offerten :invoice på :amount.',
-
     'session_expired' => 'Din session har avslutats.',
-
     'invoice_fields' => 'Fakturafält',
     'invoice_options' => 'Fakturainställningar',
     'hide_quantity' => 'Dölj antal',
     'hide_quantity_help' => 'Om antal alltid är 1 så kan du göra fakturan tydligare genom att dölja detta fält.',
     'hide_paid_to_date' => 'Dölj "Betald till"',
     'hide_paid_to_date_help' => 'Visa bara "Betald till"-sektionen på fakturan när en betalning har mottagits.',
-
     'charge_taxes' => 'Inkludera moms',
     'user_management' => 'Användarhantering',
     'add_user' => 'Lägg till användare',
@@ -405,21 +363,16 @@ return array(
     'active' => 'Aktiv',
     'pending' => 'Avvaktar',
     'deleted_user' => 'Användare borttagen',
-    'limit_users' => 'Ledsen, men du får skapa max :limit användare',
-
     'confirm_email_invoice' => 'Är du säker på att du vill maila denna fakturan?',
     'confirm_email_quote' => 'Är du säker på att du vill maila denna offerten?',
     'confirm_recurring_email_invoice' => 'Återkommande fakturor är påslaget, är du säker på att du vill maila denna fakturan?',
-
     'cancel_account' => 'Avsluta konto',
     'cancel_account_message' => 'Varning: Detta kommer att ta bort all din data och går inte att ångra!',
     'go_back' => 'Tillbaka',
-
     'data_visualizations' => 'Datavisualisering',
     'sample_data' => 'Exempeldata visas',
     'hide' => 'Dölj',
     'new_version_available' => 'En ny version av :releases_link finns tillgänglig. Du kör just nu v:user_version och senaste är v:latest_version',
-
     'invoice_settings' => 'Fakturainställningar',
     'invoice_number_prefix' => 'Fakturaprefix',
     'invoice_number_counter' => 'Fakturaräknare',
@@ -429,59 +382,48 @@ return array(
     'invoice_issued_to' => 'Faktura ställd till',
     'invalid_counter' => 'För att undvika nummerkonflikt så bör antingen faktura- eller offertprefix anges',
     'mark_sent' => 'Markering skickad',
-
     'gateway_help_1' => ':link för att registrera dig på Authorize.net.',
     'gateway_help_2' => ':link för att registrera dig på Authorize.net.',
     'gateway_help_17' => ':link för att hämta din PayPal API-nyckel.',
     'gateway_help_27' => ':link för att registrera dig för TwoCheckout.',
-
     'more_designs' => 'Fler fakturalayouter',
     'more_designs_title' => 'Fler fakturalayouter',
     'more_designs_cloud_header' => 'Uppgrader till Pro för fler fakturalayouter',
     'more_designs_cloud_text' => '',
-    'more_designs_self_host_header' => 'Få ytterliggare 6 fakturalayouter för bara $:price',
     'more_designs_self_host_text' => '',
     'buy' => 'Köp',
     'bought_designs' => 'Fler fakturalayouter tillagda',
     'sent' => 'skickat',
-
     'vat_number' => 'Momsregistreringsnummer',
     'timesheets' => 'Tidrapporter',
-
     'payment_title' => 'Ange din fakturaadress och betalkortsinformation',
     'payment_cvv' => '*Detta är det 3-4 siffriga nummret på baksidan av kortet',
     'payment_footer1' => '*Fakturaadressen måste stämma överens med adressen kopplad till betalkortet.',
     'payment_footer2' => '*Klicka bara en gång på "BETALA NU" - transaktionen kan ta upp till 1 minut att behandla.',
-
     'id_number' => 'ID-nummer',
     'white_label_link' => 'White label',
     'white_label_header' => 'White Label',
     'bought_white_label' => 'White label licens köpt',
     'white_labeled' => 'White labeled',
-
     'restore' => 'Återställ',
     'restore_invoice' => 'Återställ faktura',
     'restore_quote' => 'Återställ offert',
     'restore_client' => 'Återställ kund',
     'restore_credit' => 'Återställ kreditfaktura',
     'restore_payment' => 'Återställ betalning',
-
     'restored_invoice' => 'Faktura återställd',
     'restored_quote' => 'Offert återställd',
     'restored_client' => 'Kund återställd',
     'restored_payment' => 'betalning återställd',
     'restored_credit' => 'Kreditfaktura återställd',
-
     'reason_for_canceling' => 'Hjälp oss bli bättre genom att berätta varför du lämnar oss.',
     'discount_percent' => 'Procent',
     'discount_amount' => 'Summa',
-
     'invoice_history' => 'Fakturahistorik',
     'quote_history' => 'Offerthistorik',
     'current_version' => 'Nuvarande version',
     'select_version' => 'Välj version',
     'view_history' => 'Visa historik',
-
     'edit_payment' => 'Ändra betalning',
     'updated_payment' => 'Betalning uppdaterad',
     'deleted' => 'Ta bort',
@@ -494,7 +436,6 @@ return array(
     'quote_email' => 'Offert-mail',
     'reset_all' => 'Återställ allt',
     'approve' => 'Godkänn',
-
     'token_billing_type_id' => 'Token fakturering',
     'token_billing_help' => 'Låter dig spara kortinformation i din gateway, och ta betalt vid ett senare tillfälle.',
     'token_billing_1' => 'Avstängd',
@@ -503,11 +444,10 @@ return array(
     'token_billing_4' => 'alltid',
     'token_billing_checkbox' => 'Spara betalkortsinformation',
     'view_in_gateway' => 'Visa i :gateway',
-    'use_card_on_file' => 'Använd kort på fil',
+    'use_card_on_file' => 'Use Card on File',
     'edit_payment_details' => 'Ändra betalningsdetaljer',
     'token_billing' => 'Spara kortinformation',
     'token_billing_secure' => 'Data sparas säkert med :link',
-
     'support' => 'Support',
     'contact_information' => 'Kontaktinformation',
     '256_encryption' => '256-bitars kryptering',
@@ -517,11 +457,8 @@ return array(
     'order_overview' => 'Orderöversikt',
     'match_address' => '*Adressen måste stämma överens med adressen kopplad till betalkortet.',
     'click_once' => '*Klicka bara en gång på "BETALA NU" - transaktionen kan ta upp till 1 minut att behandla.',
-
-    'default_invoice_footer' => 'Ange som standard <b>faktura sidfot</b>',
     'invoice_footer' => 'Faktura sidfot',
     'save_as_default_footer' => 'Spara som standard sidfot',
-
     'token_management' => 'Token hantering',
     'tokens' => 'Tokens',
     'add_token' => 'Lägg till token',
@@ -532,7 +469,6 @@ return array(
     'edit_token' => 'Ändra token',
     'delete_token' => 'Ta bort token',
     'token' => 'Token',
-
     'add_gateway' => 'Lägg till gateway',
     'delete_gateway' => 'Ta bort gateway',
     'edit_gateway' => 'Ändra gateway',
@@ -541,7 +477,6 @@ return array(
     'deleted_gateway' => 'Gateway borttagen',
     'pay_with_paypal' => 'PayPal',
     'pay_with_card' => 'Betalkort',
-
     'change_password' => 'Ändra lösenord',
     'current_password' => 'Nuvarande lösenord',
     'new_password' => 'Nytt lösenord',
@@ -549,7 +484,6 @@ return array(
     'password_error_incorrect' => 'Nuvarande lösenord är felaktigt.',
     'password_error_invalid' => 'Det nya lösenordet är felaktigt.',
     'updated_password' => 'Lösenord uppdaterat',
-
     'api_tokens' => 'API Tokens',
     'users_and_tokens' => 'Användare och tokens',
     'account_login' => 'Inloggning',
@@ -561,13 +495,11 @@ return array(
     'send_email' => 'Skicka mail',
     'set_password' => 'Ange lösenord',
     'converted' => 'Konvertera',
-
     'email_approved' => 'Email me when a quote is <b>approved</b>',
     'notification_quote_approved_subject' => 'Quote :invoice was approved by :client',
     'notification_quote_approved' => 'The following client :client approved Quote :invoice for :amount.',
     'resend_confirmation' => 'Resend confirmation email',
     'confirmation_resent' => 'The confirmation email was resent',
-
     'gateway_help_42' => ':link to sign up for BitPay.<br/>Note: use a Legacy API Key, not an API token.',
     'payment_type_credit_card' => 'Credit card',
     'payment_type_paypal' => 'PayPal',
@@ -575,7 +507,6 @@ return array(
     'knowledge_base' => 'Knowledge Base',
     'partial' => 'Partial',
     'partial_remaining' => ':partial of :balance',
-
     'more_fields' => 'More Fields',
     'less_fields' => 'Less Fields',
     'client_name' => 'Client Name',
@@ -586,7 +517,6 @@ return array(
     'view_documentation' => 'View Documentation',
     'app_title' => 'Free Open-Source Online Invoicing',
     'app_description' => 'Invoice Ninja is a free, open-source solution for invoicing and billing customers. With Invoice Ninja, you can easily build and send beautiful invoices from any device that has access to the web. Your clients can print your invoices, download them as pdf files, and even pay you online from within the system.',
-
     'rows' => 'rows',
     'www' => 'www',
     'logo' => 'Logo',
@@ -606,7 +536,6 @@ return array(
     'zapier' => 'Zapier',
     'recurring' => 'Recurring',
     'last_invoice_sent' => 'Last invoice sent :date',
-
     'processed_updates' => 'Successfully completed update',
     'tasks' => 'Tasks',
     'new_task' => 'New Task',
@@ -652,12 +581,10 @@ return array(
     'invoice_labels' => 'Invoice Labels',
     'prefix' => 'Prefix',
     'counter' => 'Counter',
-
     'payment_type_dwolla' => 'Dwolla',
     'gateway_help_43' => ':link to sign up for Dwolla.',
     'partial_value' => 'Must be greater than zero and less than the total',
     'more_actions' => 'More Actions',
-
     'pro_plan_title' => 'NINJA PRO',
     'pro_plan_call_to_action' => 'Upgrade Now!',
     'pro_plan_feature1' => 'Create Unlimited Clients',
@@ -668,14 +595,12 @@ return array(
     'pro_plan_feature6' => 'Create Quotes & Pro-forma Invoices',
     'pro_plan_feature7' => 'Customize Invoice Field Titles & Numbering',
     'pro_plan_feature8' => 'Option to Attach PDFs to Client Emails',
-
     'resume' => 'Resume',
     'break_duration' => 'Break',
     'edit_details' => 'Edit Details',
     'work' => 'Work',
     'timezone_unset' => 'Please :link to set your timezone',
     'click_here' => 'click here',
-
     'email_receipt' => 'Email payment receipt to the client',
     'created_payment_emailed_client' => 'Successfully created payment and emailed client',
     'add_company' => 'Add Company',
@@ -685,10 +610,8 @@ return array(
     'unlinked_account' => 'Successfully unlinked accounts',
     'login' => 'Login',
     'or' => 'or',
-
     'email_error' => 'There was a problem sending the email',
     'confirm_recurring_timing' => 'Note: emails are sent at the start of the hour.',
-    'old_browser' => 'Please use a <a href=":link" target="_blank">newer browser</a>',
     'payment_terms_help' => 'Sets the default invoice due date',
     'unlink_account' => 'Unlink Account',
     'unlink' => 'Unlink',
@@ -709,7 +632,6 @@ return array(
     'primary_color' => 'Primary Color',
     'secondary_color' => 'Secondary Color',
     'customize_design' => 'Customize Design',
-
     'content' => 'Content',
     'styles' => 'Styles',
     'defaults' => 'Defaults',
@@ -723,7 +645,6 @@ return array(
     'outstanding' => 'Outstanding',
     'manage_companies' => 'Manage Companies',
     'total_revenue' => 'Total Revenue',
-
     'current_user' => 'Current User',
     'new_recurring_invoice' => 'New Recurring Invoice',
     'recurring_invoice' => 'Recurring Invoice',
@@ -732,9 +653,8 @@ return array(
     'primary_user' => 'Primary User',
     'help' => 'Help',
     'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
-        <p>You can access a child property using dot notation. For example to show the client name you could use <code>$client.name</code>.</p>
-        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
-
+                        <p>You can access a child property using dot notation. For example to show the client name you could use <code>$client.name</code>.</p>
+                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
     'invoice_due_date' => 'Due Date',
     'quote_due_date' => 'Valid Until',
     'valid_until' => 'Valid Until',
@@ -747,15 +667,12 @@ return array(
     'status_partial' => 'Partial',
     'status_paid' => 'Paid',
     'show_line_item_tax' => 'Display <b>line item taxes</b> inline',
-
     'iframe_url' => 'Website',
     'iframe_url_help1' => 'Copy the following code to a page on your site.',
     'iframe_url_help2' => 'You can test the feature by clicking \'View as recipient\' for an invoice.',
-
     'auto_bill' => 'Auto Bill',
     'military_time' => '24 Hour Time',
     'last_sent' => 'Last Sent',
-
     'reminder_emails' => 'Reminder Emails',
     'templates_and_reminders' => 'Templates & Reminders',
     'subject' => 'Subject',
@@ -767,15 +684,12 @@ return array(
     'reminder_subject' => 'Reminder: Invoice :invoice from :account',
     'reset' => 'Reset',
     'invoice_not_found' => 'The requested invoice is not available',
-
     'referral_program' => 'Referral Program',
     'referral_code' => 'Referral Code',
     'last_sent_on' => 'Last sent on :date',
-
     'page_expire' => 'This page will expire soon, :click_here to keep working',
     'upcoming_quotes' => 'Upcoming Quotes',
     'expired_quotes' => 'Expired Quotes',
-
     'sign_up_using' => 'Sign up using',
     'invalid_credentials' => 'These credentials do not match our records',
     'show_all_options' => 'Show all options',
@@ -784,16 +698,10 @@ return array(
     'disable' => 'Disable',
     'invoice_quote_number' => 'Invoice and Quote Numbers',
     'invoice_charges' => 'Invoice Charges',
-
-    'invitation_status_sent' => 'Email Sent',
-    'invitation_status_opened' => 'Email Openend',
-    'invitation_status_viewed' => 'Invoice Viewed',
-
     'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact.',
     'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
     'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
     'notification_quote_bounced_subject' => 'Unable to deliver Quote :invoice',
-
     'custom_invoice_link' => 'Custom Invoice Link',
     'total_invoiced' => 'Total Invoiced',
     'open_balance' => 'Open Balance',
@@ -801,14 +709,12 @@ return array(
     'basic_settings' => 'Basic Settings',
     'pro' => 'Pro',
     'gateways' => 'Payment Gateways',
-
     'next_send_on' => 'Send Next: :date',
     'no_longer_running' => 'This invoice is not scheduled to run',
     'general_settings' => 'General Settings',
     'customize' => 'Customize',
     'oneclick_login_help' => 'Connect an account to login without a password',
     'referral_code_help' => 'Earn money by sharing our app online',
-
     'enable_with_stripe' => 'Enable | Requires Stripe',
     'tax_settings' => 'Tax Settings',
     'create_tax_rate' => 'Add Tax Rate',
@@ -829,7 +735,6 @@ return array(
     'invoice_counter' => 'Invoice Counter',
     'quote_counter' => 'Quote Counter',
     'type' => 'Type',
-
     'activity_1' => ':user created client :client',
     'activity_2' => ':user archived client :client',
     'activity_3' => ':user deleted client :client',
@@ -859,18 +764,24 @@ return array(
     'activity_27' => ':user restored payment :payment',
     'activity_28' => ':user restored :credit credit',
     'activity_29' => ':contact approved quote :quote',
-
+    'activity_30' => ':user created :vendor',
+    'activity_31' => ':user created :vendor',
+    'activity_32' => ':user created :vendor',
+    'activity_33' => ':user created :vendor',
+    'activity_34' => ':user created expense :expense',
+    'activity_35' => ':user created :vendor',
+    'activity_36' => ':user created :vendor',
+    'activity_37' => ':user created :vendor',
     'payment' => 'Payment',
     'system' => 'System',
     'signature' => 'Email Signature',
     'default_messages' => 'Default Messages',
     'quote_terms' => 'Quote Terms',
     'default_quote_terms' => 'Default Quote Terms',
-    'default_invoice_terms' => 'Default Invoice Terms',
-    'default_invoice_footer' => 'Default Invoice Footer',
+    'default_invoice_terms' => 'Ange standard <b>fakturavillkor</b>',
+    'default_invoice_footer' => 'Ange som standard <b>faktura sidfot</b>',
     'quote_footer' => 'Quote Footer',
     'free' => 'Free',
-
     'quote_is_approved' => 'This quote is approved',
     'apply_credit' => 'Apply Credit',
     'system_settings' => 'System Settings',
@@ -888,7 +799,6 @@ return array(
     'restored_recurring_invoice' => 'Successfully restored recurring invoice',
     'archived' => 'Archived',
     'untitled_account' => 'Untitled Company',
-
     'before' => 'Before',
     'after' => 'After',
     'reset_terms_help' => 'Reset to the default account terms',
@@ -897,7 +807,6 @@ return array(
     'user' => 'User',
     'country' => 'Country',
     'include' => 'Include',
-
     'logo_too_large' => 'Your logo is :size, for better PDF performance we suggest uploading an image file less than 200KB',
     'import_freshbooks' => 'Import From FreshBooks',
     'import_data' => 'Import Data',
@@ -908,14 +817,6 @@ return array(
     'task_file' => 'Task File',
     'no_mapper' => 'No valid mapping for file',
     'invalid_csv_header' => 'Invalid CSV Header',
-
-    'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
-    'email_error_inactive_contact' => 'Emails can not be sent to inactive contacts',
-    'email_error_inactive_invoice' => 'Emails can not be sent to inactive invoices',
-    'email_error_user_unregistered' => 'Please register your account to send emails',
-    'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
-    'email_error_invalid_contact_email' => 'Invalid contact email',
-
     'client_portal' => 'Client Portal',
     'admin' => 'Admin',
     'disabled' => 'Disabled',
@@ -924,11 +825,9 @@ return array(
     'invoice_will_create' => 'client will be created',
     'invoices_will_create' => 'invoices will be created',
     'failed_to_import' => 'The following records failed to import, they either already exist or are missing required fields.',
-
     'publishable_key' => 'Publishable Key',
     'secret_key' => 'Secret Key',
     'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
-
     'email_design' => 'Email Design',
     'due_by' => 'Due by :date',
     'enable_email_markup' => 'Enable Markup',
@@ -940,7 +839,6 @@ return array(
     'plain' => 'Plain',
     'light' => 'Light',
     'dark' => 'Dark',
-
     'industry_help' => 'Used to provide comparisons against the averages of companies of similar size and industry.',
     'subdomain_help' => 'Customize the invoice link subdomain or display the invoice on your own website.',
     'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
@@ -949,8 +847,6 @@ return array(
     'custom_account_fields_helps' => 'Add a label and value to the company details section of the PDF.',
     'custom_invoice_fields_helps' => 'Add a text input to the invoice create/edit page and display the label and value on the PDF.',
     'custom_invoice_charges_helps' => 'Add a text input to the invoice create/edit page and include the charge in the invoice subtotals.',
-    'color_help' => 'Note: the primary color is also used in the client portal and custom email designs.',
-
     'token_expired' => 'Validation token was expired. Please try again.',
     'invoice_link' => 'Invoice Link',
     'button_confirmation_message' => 'Click to confirm your email address.',
@@ -959,7 +855,6 @@ return array(
     'created_invoices' => 'Successfully created :count invoice(s)',
     'next_invoice_number' => 'The next invoice number is :number.',
     'next_quote_number' => 'The next quote number is :number.',
-
     'days_before' => 'days before',
     'days_after' => 'days after',
     'field_due_date' => 'due date',
@@ -967,11 +862,7 @@ return array(
     'schedule' => 'Schedule',
     'email_designs' => 'Email Designs',
     'assigned_when_sent' => 'Assigned when sent',
-
-    'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
     'white_label_purchase_link' => 'Purchase a white label license',
-
-    // Expense / vendor
     'expense' => 'Expense',
     'expenses' => 'Expenses',
     'new_expense' => 'Enter Expense',
@@ -988,8 +879,6 @@ return array(
     'archived_expense' => 'Successfully archived expense',
     'deleted_expenses' => 'Successfully deleted expenses',
     'archived_expenses' => 'Successfully archived expenses',
-
-    // Expenses
     'expense_amount' => 'Expense Amount',
     'expense_balance' => 'Expense Balance',
     'expense_date' => 'Expense Date',
@@ -1014,15 +903,11 @@ return array(
     'expense_error_multiple_clients' => 'The expenses can\'t belong to different clients',
     'expense_error_invoiced' => 'Expense has already been invoiced',
     'convert_currency' => 'Convert currency',
-
-    // Payment terms
     'num_days' => 'Number of days',
     'create_payment_term' => 'Create Payment Term',
     'edit_payment_terms' => 'Edit Payment Term',
     'edit_payment_term' => 'Edit Payment Term',
     'archive_payment_term' => 'Archive Payment Term',
-
-    // recurring due dates
     'recurring_due_dates' => 'Recurring Invoice Due Dates',
     'recurring_due_date_help' => '<p>Automatically sets a due date for the invoice.</p>
     <p>Invoices on a monthly or yearly cycle set to be due on or before the day they are created will be due the next month. Invoices set to be due on the 29th or 30th in months that don\'t have that day will be due the last day of the month.</p>
@@ -1050,15 +935,11 @@ return array(
     'thursday' => 'Thursday',
     'friday' => 'Friday',
     'saturday' => 'Saturday',
-
-    // Fonts
     'header_font_id' => 'Header Font',
     'body_font_id' => 'Body Font',
     'color_font_help' => 'Note: the primary color and fonts are also used in the client portal and custom email designs.',
-
     'live_preview' => 'Live Preview',
     'invalid_mail_config' => 'Unable to send email, please check that the mail settings are correct.',
-
     'invoice_message_button' => 'To view your invoice for :amount, click the button below.',
     'quote_message_button' => 'To view your quote for :amount, click the button below.',
     'payment_message_button' => 'Thank you for your payment of :amount.',
@@ -1075,7 +956,6 @@ return array(
     'archived_bank_account' => 'Successfully archived bank account',
     'created_bank_account' => 'Successfully created bank account',
     'validate_bank_account' => 'Validate Bank Account',
-    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
     'bank_password_help' => 'Note: your password is transmitted securely and never stored on our servers.',
     'bank_password_warning' => 'Warning: your password may be transmitted in plain text, consider enabling HTTPS.',
     'username' => 'Username',
@@ -1089,7 +969,6 @@ return array(
     'validate' => 'Validate',
     'info' => 'Info',
     'imported_expenses' => 'Successfully created :count_vendors vendor(s) and :count_expenses expense(s)',
-
     'iframe_url_help3' => 'Note: if you plan on accepting credit cards details we strongly recommend enabling HTTPS on your site.',
     'expense_error_multiple_currencies' => 'The expenses can\'t have different currencies.',
     'expense_error_mismatch_currencies' => 'The client\'s currency does not match the expense currency.',
@@ -1110,7 +989,28 @@ return array(
     'trial_call_to_action' => 'Start Free Trial',
     'trial_success' => 'Successfully enabled two week free pro plan trial',
     'overdue' => 'Overdue',
+
+
     'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the client portal and help support our project.',
+    'user_email_footer' => 'För att anpassa dina e-post notifieringar gå till :link',
+    'reset_password_footer' => 'Om du inte begärt en återställning av ditt lösenord så var snäll och maila vår support: :email',
+    'limit_users' => 'Ledsen, men du får skapa max :limit användare',
+    'more_designs_self_host_header' => 'Få ytterliggare 6 fakturalayouter för bara $:price',
+    'old_browser' => 'Please use a <a href=":link" target="_blank">newer browser</a>',
+    'white_label_custom_css' => ':link for $:price to enable custom styling and help support our project.',
+    'bank_accounts_help' => 'Connect a bank account to automatically import expenses and create vendors. Supports American Express and <a href=":link" target="_blank">400+ US banks.</a>',
+
+    'pro_plan_remove_logo' => ':link för att ta bort Invoice Ninja loggan genom att uppgradera till Pro Plan',
+    'pro_plan_remove_logo_link' => 'Klicka här',
+    'invitation_status_sent' => 'Email Sent',
+    'invitation_status_opened' => 'Email Openend',
+    'invitation_status_viewed' => 'Invoice Viewed',
+    'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
+    'email_error_inactive_contact' => 'Emails can not be sent to inactive contacts',
+    'email_error_inactive_invoice' => 'Emails can not be sent to inactive invoices',
+    'email_error_user_unregistered' => 'Please register your account to send emails',
+    'email_error_user_unconfirmed' => 'Please confirm your account to send emails',
+    'email_error_invalid_contact_email' => 'Invalid contact email',
 
     'navigation' => 'Navigation',
     'list_invoices' => 'List Invoices',
@@ -1133,8 +1033,6 @@ return array(
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
     'recurring_invoice_number' => 'Recurring Invoice Number',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
-    'enable_client_portal' => 'Dashboard',
-    'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
 
     // Client Passwords
     'enable_portal_password'=>'Password protect invoices',
@@ -1206,8 +1104,8 @@ return array(
     'document_date' => 'Document Date',
     'document_size' => 'Size',
 
-    'enable_client_portal' => 'Client Portal',
-    'enable_client_portal_help' => 'Show/hide the client portal.',
+    'enable_client_portal' => 'Dashboard',
+    'enable_client_portal_help' => 'Show/hide the dashboard page in the client portal.',
     'enable_client_portal_dashboard' => 'Dashboard',
     'enable_client_portal_dashboard_help' => 'Show/hide the dashboard page in the client portal.',
 
@@ -1264,7 +1162,207 @@ return array(
     'preview' => 'Preview',
     'list_vendors' => 'List Vendors',
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
-    'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
+    'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments, :link to see the full list of features.',
     'return_to_app' => 'Return to app',
 
+
+    // Payment updates
+    'refund_payment' => 'Refund Payment',
+    'refund_max' => 'Max:',
+    'refund' => 'Refund',
+    'are_you_sure_refund' => 'Refund selected payments?',
+    'status_pending' => 'Pending',
+    'status_completed' => 'Completed',
+    'status_failed' => 'Failed',
+    'status_partially_refunded' => 'Partially Refunded',
+    'status_partially_refunded_amount' => ':amount Refunded',
+    'status_refunded' => 'Refunded',
+    'status_voided' => 'Cancelled',
+    'refunded_payment' => 'Refunded Payment',
+    'activity_39' => ':user cancelled a :payment_amount payment (:payment)',
+    'activity_40' => ':user refunded :adjustment of a :payment_amount payment (:payment)',
+    'card_expiration' => 'Exp:&nbsp:expires',
+
+    'card_creditcardother' => 'Unknown',
+    'card_americanexpress' => 'American Express',
+    'card_carteblanche' => 'Carte Blanche',
+    'card_unionpay' => 'UnionPay',
+    'card_diners' => 'Diners Club',
+    'card_discover' => 'Discover',
+    'card_jcb' => 'JCB',
+    'card_laser' => 'Laser',
+    'card_maestro' => 'Maestro',
+    'card_mastercard' => 'MasterCard',
+    'card_solo' => 'Solo',
+    'card_switch' => 'Switch',
+    'card_visacard' => 'Visa',
+    'card_ach' => 'ACH',
+
+    'payment_type_stripe' => 'Stripe',
+    'ach' => 'ACH',
+    'enable_ach' => 'Enable ACH',
+    'stripe_ach_help' => 'ACH support must also be enabled at Stripe.',
+    'ach_disabled' => 'Another gateway is already configured for direct debit.',
+
+    'plaid' => 'Plaid',
+    'client_id' => 'Client Id',
+    'secret' => 'Secret',
+    'public_key' => 'Public Key',
+    'plaid_optional' => '(optional)',
+    'plaid_environment_help' => 'When a Stripe test key is given, Plaid\'s development environement (tartan) will be used.',
+    'other_providers' => 'Other Providers',
+    'country_not_supported' => 'That country is not supported.',
+    'invalid_routing_number' => 'The routing number is not valid.',
+    'invalid_account_number' => 'The account number is not valid.',
+    'account_number_mismatch' => 'The account numbers do not match.',
+    'missing_account_holder_type' => 'Please select an individual or company account.',
+    'missing_account_holder_name' => 'Please enter the account holder\'s name.',
+    'routing_number' => 'Routing Number',
+    'confirm_account_number' => 'Confirm Account Number',
+    'individual_account' => 'Individual Account',
+    'company_account' => 'Company Account',
+    'account_holder_name' => 'Account Holder Name',
+    'add_account' => 'Add Account',
+    'payment_methods' => 'Payment Methods',
+    'complete_verification' => 'Complete Verification',
+    'verification_amount1' => 'Amount 1',
+    'verification_amount2' => 'Amount 2',
+    'payment_method_verified' => 'Verification completed successfully',
+    'verification_failed' => 'Verification Failed',
+    'remove_payment_method' => 'Remove Payment Method',
+    'confirm_remove_payment_method' => 'Are you sure you want to remove this payment method?',
+    'remove' => 'Remove',
+    'payment_method_removed' => 'Removed payment method.',
+    'bank_account_verification_help' => 'We have made two deposits into your account with the description "VERIFICATION". These deposits will take 1-2 business days to appear on your statement. Please enter the amounts below.',
+    'bank_account_verification_next_steps' => 'We have made two deposits into your account with the description "VERIFICATION". These deposits will take 1-2 business days to appear on your statement.
+        Once you have the amounts, come back to this payment methods page and click "Complete Verification" next to the account.',
+    'unknown_bank' => 'Unknown Bank',
+    'ach_verification_delay_help' => 'You will be able to use the account after completing verification. Verification usually takes 1-2 business days.',
+    'add_credit_card' => 'Add Credit Card',
+    'payment_method_added' => 'Added payment method.',
+    'use_for_auto_bill' => 'Use For Autobill',
+    'used_for_auto_bill' => 'Autobill Payment Method',
+    'payment_method_set_as_default' => 'Set Autobill payment method.',
+    'activity_41' => ':payment_amount payment (:payment) failed',
+    'webhook_url' => 'Webhook URL',
+    'stripe_webhook_help' => 'You must :link.',
+    'stripe_webhook_help_link_text' => 'add this URL as an endpoint at Stripe',
+    'payment_method_error' => 'There was an error adding your payment methd. Please try again later.',
+    'notification_invoice_payment_failed_subject' => 'Payment failed for Invoice :invoice',
+    'notification_invoice_payment_failed' => 'A payment made by client :client towards Invoice :invoice failed. The payment has been marked as failed and :amount has been added to the client\'s balance.',
+    'link_with_plaid' => 'Link Account Instantly with Plaid',
+    'link_manually' => 'Link Manually',
+    'secured_by_plaid' => 'Secured by Plaid',
+    'plaid_linked_status' => 'Your bank account at :bank',
+    'add_payment_method' => 'Add Payment Method',
+    'account_holder_type' => 'Account Holder Type',
+    'ach_authorization' => 'I authorize :company to use my bank account for future payments and, if necessary, electronically credit my account to correct erroneous debits. I understand that I may cancel this authorization at any time by removing the payment method or by contacting :email.',
+    'ach_authorization_required' => 'You must consent to ACH transactions.',
+    'off' => 'Off',
+    'opt_in' => 'Opt-in',
+    'opt_out' => 'Opt-out',
+    'always' => 'Always',
+    'opted_out' => 'Opted out',
+    'opted_in' => 'Opted in',
+    'manage_auto_bill' => 'Manage Auto-bill',
+    'enabled' => 'Enabled',
+    'paypal' => 'PayPal',
+    'braintree_enable_paypal' => 'Enable PayPal payments through BrainTree',
+    'braintree_paypal_disabled_help' => 'The PayPal gateway is processing PayPal payments',
+    'braintree_paypal_help' => 'You must also :link.',
+    'braintree_paypal_help_link_text' => 'link PayPal to your BrainTree account',
+    'token_billing_braintree_paypal' => 'Save payment details',
+    'add_paypal_account' => 'Add PayPal Account',
+
+
+    'no_payment_method_specified' => 'No payment method specified',
+    'chart_type' => 'Chart Type',
+    'format' => 'Format',
+    'import_ofx' => 'Import OFX',
+    'ofx_file' => 'OFX File',
+    'ofx_parse_failed' => 'Failed to parse OFX file',
+
+    // WePay
+    'wepay' => 'WePay',
+    'sign_up_with_wepay' => 'Sign up with WePay',
+    'use_another_provider' => 'Use another provider',
+    'company_name' => 'Company Name',
+    'wepay_company_name_help' => 'This will appear on client\'s credit card statements.',
+    'wepay_description_help' => 'The purpose of this account.',
+    'wepay_tos_agree' => 'I agree to the :link.',
+    'wepay_tos_link_text' => 'WePay Terms of Service',
+    'resend_confirmation_email' => 'Resend Confirmation Email',
+    'manage_wepay_account' => 'Manage WePay Account',
+    'action_required' => 'Action Required',
+    'finish_setup' => 'Finish Setup',
+    'created_wepay_confirmation_required' => 'Please check your email and confirm your email address with WePay.',
+    'switch_to_wepay' => 'Switch to WePay',
+    'switch' => 'Switch',
+    'restore_account_gateway' => 'Restore Gateway',
+    'restored_account_gateway' => 'Successfully restored gateway',
+    'united_states' => 'United States',
+    'canada' => 'Canada',
+    'accept_debit_cards' => 'Accept Debit Cards',
+    'debit_cards' => 'Debit Cards',
+
+    'warn_start_date_changed' => 'The next invoice will be sent on the new start date.',
+    'original_start_date' => 'Original start date',
+    'new_start_date' => 'New start date',
+    'security' => 'Security',
+    'see_whats_new' => 'See what\'s new in v:version',
+    'wait_for_upload' => 'Please wait for the document upload to complete.',
+    'upgrade_for_permissions' => 'Upgrade to our Enterprise plan to enable permissions.',
+    'enable_second_tax_rate' => 'Enable specifying a <b>second tax rate</b>',
+    'payment_file' => 'Payment File',
+    'expense_file' => 'Expense File',
+    'product_file' => 'Product File',
+    'import_products' => 'Import Products',
+    'products_will_create' => 'products will be created.',
+    'product_key' => 'Product',
+    'created_products' => 'Successfully created :count product(s)',
+    'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.',
+    'JSON_file' => 'JSON File',
+
+    'view_dashboard' => 'View Dashboard',
+    'client_session_expired' => 'Session Expired',
+    'client_session_expired_message' => 'Your session has expired. Please click the link in your email again.',
+
+    'auto_bill_notification' => 'This invoice will automatically be billed to your :payment_method on file on :due_date.',
+    'auto_bill_payment_method_bank_transfer' => 'bank account',
+    'auto_bill_payment_method_credit_card' => 'credit card',
+    'auto_bill_payment_method_paypal' => 'PayPal account',
+    'auto_bill_notification_placeholder' => 'This invoice will automatically be billed to your credit card on file on the due date.',
+    'payment_settings' => 'Payment Settings',
+
+    'on_send_date' => 'On send date',
+    'on_due_date' => 'On due date',
+    'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
+    'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
+
+    'bank_account' => 'Bank Account',
+    'payment_processed_through_wepay' => 'ACH payments will be processed using WePay.',
+    'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
+    'privacy_policy' => 'Privacy Policy',
+    'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
+    'payment_settings_supported_gateways' => 'These options are supported by the WePay, Stripe, and Braintree gateways.',
+    'ach_email_prompt' => 'Please enter your email address:',
+    'verification_pending' => 'Verification Pending',
+
+    'update_font_cache' => 'Please force refresh the page to update the font cache.',
+    'more_options' => 'More options',
+    'credit_card' => 'Credit Card',
+    'bank_transfer' => 'Bank Transfer',
+    'no_transaction_reference' => 'We did not recieve a payment transaction reference from the gateway.',
+    'use_bank_on_file' => 'Use Bank on File',
+    'auto_bill_email_message' => 'This invoice will automatically be billed to the payment method on file on the due date.',
+    'bitcoin' => 'Bitcoin',
+    'added_on' => 'Added :date',
+    'failed_remove_payment_method' => 'Failed to remove the payment method',
+    'gateway_exists' => 'This gateway already exists',
+    'manual_entry' => 'Manual entry',
+
 );
+
+return $LANG;
+
+?>
