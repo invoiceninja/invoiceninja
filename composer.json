@@ -24,12 +24,10 @@
         "symfony/css-selector": "~3.0",
         "patricktalmadge/bootstrapper": "5.5.x",
         "anahkiasen/former": "4.0.*@dev",
-        "barryvdh/laravel-debugbar": "~2.0",
         "chumper/datatable": "dev-develop#04ef2bf",
         "omnipay/omnipay": "~2.3",
         "intervention/image": "dev-master",
         "webpatser/laravel-countries": "dev-master",
-        "barryvdh/laravel-ide-helper": "dev-master",
         "doctrine/dbal": "2.5.x",
         "jsanc623/phpbenchtime": "2.x",
         "lokielse/omnipay-alipay": "dev-master",
@@ -84,7 +82,9 @@
         "phpspec/phpspec": "~2.1",
         "codeception/codeception": "*",
         "codeception/c3": "~2.0",
-        "symfony/dom-crawler": "~3.0"
+        "symfony/dom-crawler": "~3.0",
+        "barryvdh/laravel-ide-helper": "~2.2",
+        "barryvdh/laravel-debugbar": "~2.2"
     },
     "autoload": {
         "classmap": [
