@@ -25,6 +25,7 @@ return array(
     'size_id' => 'Taille',
     'industry_id' => 'Secteur',
     'private_notes' => 'Note personnelle',
+    'manual_entry' => 'Entrée manuel',
 
     // invoice
     'invoice' => 'Facture',

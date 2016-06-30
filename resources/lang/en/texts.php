@@ -1360,6 +1360,7 @@ $LANG = array(
     'added_on' => 'Added :date',
     'failed_remove_payment_method' => 'Failed to remove the payment method',
     'gateway_exists' => 'This gateway already exists',
+    'manual_entry' => 'Manual entry',
 
 );
 

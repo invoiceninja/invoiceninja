@@ -25,6 +25,7 @@ return array(
     'size_id' => 'Firmengröße',
     'industry_id' => 'Kategorie',
     'private_notes' => 'Notizen',
+    'manual_entry' => 'Manuelle Eingabe',
 
     // invoice
     'invoice' => 'Rechnung',
