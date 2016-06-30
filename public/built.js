@@ -31094,7 +31094,7 @@ function GetPdfMake(invoice, javascript, callback) {
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
     if (!invoice.features.remove_created_by) {
-        var footer = dd.footer();
+        var footer = (typeof dd.footer === 'function') ? dd.footer() : dd.footer;
         if (footer) {
             if (designId == NINJA.TEMPLATES.ELEGANT) {
                 footer[0].columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
