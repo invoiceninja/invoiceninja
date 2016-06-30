@@ -558,7 +558,7 @@ return array(
     'converted' => 'Modificada',
 
     //------Texto extraido -----------------------------------------------------------------------------------------
-    '<i>Manual entry</i>' => '<i>Entrada Manual</i>',
+    'manual_entry' => 'Entrada Manual',
 
     // Error
     'Whoops, looks like something went wrong.' => 'Vaya, parece que algo salió mal',
