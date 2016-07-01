@@ -42,12 +42,14 @@ class SendRecurringInvoices extends Command
         $this->info(count($invoices).' recurring invoice(s) found');
 
         foreach ($invoices as $recurInvoice) {
-            if (!$recurInvoice->user->confirmed) {
+            $shouldSendToday = $recurInvoice->shouldSendToday();
+            $this->info('Processing Invoice '.$recurInvoice->id.' - Should send '.($shouldSendToday ? 'YES' : 'NO'));
+
+            if ( ! $shouldSendToday) {
                 continue;
             }
 
             $recurInvoice->account->loadLocalizationSettings($recurInvoice->client);
-            $this->info('Processing Invoice '.$recurInvoice->id.' - Should send '.($recurInvoice->shouldSendToday() ? 'YES' : 'NO'));
             $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 
             if ($invoice && !$invoice->isPaid()) {

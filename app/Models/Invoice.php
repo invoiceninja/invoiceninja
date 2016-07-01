@@ -759,7 +759,11 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function shouldSendToday()
     {
-        if (!$this->start_date || strtotime($this->start_date) > strtotime('now')) {
+        if ( ! $this->user->confirmed) {
+            return false;
+        }
+
+        if ( ! $this->start_date || strtotime($this->start_date) > strtotime('now')) {
             return false;
         }
 
