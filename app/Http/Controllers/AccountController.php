@@ -347,9 +347,7 @@ class AccountController extends BaseController
 
         $data = [
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'countries' => Cache::get('countries'),
             'sizes' => Cache::get('sizes'),
-            'industries' => Cache::get('industries'),
             'title' => trans('texts.company_details'),
         ];
 
