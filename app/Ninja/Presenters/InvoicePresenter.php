@@ -62,9 +62,16 @@ class InvoicePresenter extends Presenter {
         return Utils::fromSqlDate($this->entity->due_date);
     }
 
+    /**
+     * Returns the translated string for a frequency
+     *
+     * @return mixed
+     */
     public function frequency()
     {
-        return $this->entity->frequency ? $this->entity->frequency->name : '';
+        $frequency = $this->entity->frequency ? $this->entity->frequency->name : '';
+        $frequency = strtolower($frequency);
+        return trans('texts.frequencies.'.$frequency);
     }
 
     public function url()

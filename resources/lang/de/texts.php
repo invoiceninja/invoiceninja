@@ -1288,5 +1288,33 @@ return array(
     'add_users_not_supported' => 'Upgrade to the Enterprise plan to add additional users to your account.',
     'enterprise_plan_features' => 'The Enterprise plan adds support for multiple users and file attachments.',
     'return_to_app' => 'Return to app',
-   
+
+    'frequencies' => [
+        'weekly' => 'wöchentlich',
+        'two_weeks' => 'zweiwöchentlich',
+        'four_weeks' => 'vierwöchentlich',
+        'monthly' => 'monatlich',
+        'three_months' => 'dreimonatlich',
+        'six_months' => 'halbjährlich',
+        'annually' => 'jährlich',
+    ],
+    
+    'payment_types' => [
+        'Apply Credit' => 'Kredit',
+        'Bank Transfer' => 'Überweisung',
+        'Cash' => 'Bar',
+        'Debit' => 'Guthaben',
+        'ACH' => 'ACH',
+        'Visa Card' => 'VISA',
+        'MasterCard' => 'MasterCard',
+        'American Express' => 'American Express',
+        'Discover Card' => 'Discover Card',
+        'Diners Card' => 'Diners Card',
+        'EuroCard' => 'EuroCard',
+        'Nova' => 'Nova',
+        'Credit Card Other' => 'Andere Kreditkarte',
+        'PayPal' => 'PayPal',
+        'Google Wallet' => 'Google Wallet',
+        'Check' => 'Scheck',
+    ],
 );

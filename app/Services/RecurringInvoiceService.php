@@ -24,7 +24,7 @@ class RecurringInvoiceService extends BaseService
         if(!Utils::hasPermission('view_all')){
             $query->where('invoices.user_id', '=', Auth::user()->id);
         }
-        
+
         return $this->createDatatable(ENTITY_RECURRING_INVOICE, $query, !$clientPublicId);
     }
 
@@ -34,7 +34,9 @@ class RecurringInvoiceService extends BaseService
             [
                 'frequency',
                 function ($model) {
-                    return link_to("invoices/{$model->public_id}", $model->frequency)->toHtml();
+                    $frequency = strtolower($model->frequency);
+                    $frequency = preg_replace('/\s/', '_', $frequency);
+                    return link_to("invoices/{$model->public_id}", trans('texts.frequencies.'.$frequency))->toHtml();
                 }
             ],
             [
