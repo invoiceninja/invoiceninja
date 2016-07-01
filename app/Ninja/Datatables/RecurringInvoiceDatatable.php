@@ -14,7 +14,9 @@ class RecurringInvoiceDatatable extends EntityDatatable
             [
                 'frequency',
                 function ($model) {
-                    return link_to("invoices/{$model->public_id}", $model->frequency)->toHtml();
+                    $frequency = strtolower($model->frequency);
+                    $frequency = preg_replace('/\s/', '_', $frequency);
+                    return link_to("invoices/{$model->public_id}", trans('texts.frequencies.'.$frequency))->toHtml();
                 }
             ],
             [

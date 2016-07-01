@@ -1,6 +1,6 @@
 <?php
 
-$LANG = array(
+return [
     'organization' => 'Organization',
     'name' => 'Name',
     'website' => 'Website',
@@ -1361,8 +1361,35 @@ $LANG = array(
     'failed_remove_payment_method' => 'Failed to remove the payment method',
     'gateway_exists' => 'This gateway already exists',
 
-);
+    'frequencies' => [
+        'weekly' => 'Weekly',
+        'two_weeks' => 'Two weeks',
+        'four_weeks' => 'Four weeks',
+        'monthly' => 'Monthly',
+        'three_months' => 'Three months',
+        'six_months' => 'Six months',
+        'annually' => 'Annually',
+    ],
 
-return $LANG;
+    'payment_types' => [
+        'Apply Credit' => 'Apply Credit',
+        'Bank Transfer' => 'Bank Transfer',
+        'Cash' => 'Cash',
+        'Debit' => 'Debit',
+        'ACH' => 'ACH',
+        'Visa Card' => 'Visa Card',
+        'MasterCard' => 'MasterCard',
+        'American Express' => 'American Express',
+        'Discover Card' => 'Discover Card',
+        'Diners Card' => 'Diners Card',
+        'EuroCard' => 'EuroCard',
+        'Nova' => 'Nova',
+        'Credit Card Other' => 'Credit Card Other',
+        'PayPal' => 'PayPal',
+        'Google Wallet' => 'Google Wallet',
+        'Check' => 'Check',
+    ],
+    
+];
 
-?>
+

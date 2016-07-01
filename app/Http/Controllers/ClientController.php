@@ -205,10 +205,8 @@ class ClientController extends BaseController
             'account' => Auth::user()->account,
             'sizes' => Cache::get('sizes'),
             'paymentTerms' => Cache::get('paymentTerms'),
-            'industries' => Cache::get('industries'),
             'currencies' => Cache::get('currencies'),
             'languages' => Cache::get('languages'),
-            'countries' => Cache::get('countries'),
             'customLabel1' => Auth::user()->account->custom_client_label1,
             'customLabel2' => Auth::user()->account->custom_client_label2,
         ];

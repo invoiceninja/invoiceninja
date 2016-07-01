@@ -161,6 +161,7 @@ return [
         'App\Providers\AuthServiceProvider',
         'App\Providers\AppServiceProvider',
         //'App\Providers\BusServiceProvider',
+        'App\Providers\ComposerServiceProvider',
         'App\Providers\ConfigServiceProvider',
         'App\Providers\EventServiceProvider',
         'App\Providers\RouteServiceProvider',
