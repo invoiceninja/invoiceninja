@@ -1420,7 +1420,11 @@ $LANG = array(
     'industry_Travel & Luxury' => 'Reisen und Luxus',
     'industry_Other' => 'Andere',
     'industry_Photography' => 'Fotografie',
+<<<<<<< b13b9a2d7d8ac931c44189a9ef85c8aeaf165f52
 
+=======
+    
+>>>>>>> - Fix #426, closes #426
     // Countries
     'country_Afghanistan' => '',
     'country_Albania' => 'Albanien',
@@ -1672,7 +1676,10 @@ $LANG = array(
     'country_Yemen' => '',
     'country_Zambi' => '',
 );
+<<<<<<< b13b9a2d7d8ac931c44189a9ef85c8aeaf165f52
 
 return $LANG;
 
 ?>
+=======
+>>>>>>> - Fix #426, closes #426

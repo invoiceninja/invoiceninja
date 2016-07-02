@@ -67,7 +67,7 @@ class InvoicePresenter extends EntityPresenter {
     {
         $frequency = $this->entity->frequency ? $this->entity->frequency->name : '';
         $frequency = strtolower($frequency);
-        return trans('texts.frequencies.'.$frequency);
+        return trans('texts.freq_'.$frequency);
     }
 
     public function email()
