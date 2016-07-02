@@ -119,7 +119,6 @@ return [
          */
         'Illuminate\Auth\AuthServiceProvider',
         'Collective\Html\HtmlServiceProvider',
-        'Collective\Bus\BusServiceProvider',
         'Illuminate\Cache\CacheServiceProvider',
         'Illuminate\Foundation\Providers\ConsoleSupportServiceProvider',
         'Illuminate\Cookie\CookieServiceProvider',
@@ -160,7 +159,6 @@ return [
          */
         'App\Providers\AuthServiceProvider',
         'App\Providers\AppServiceProvider',
-        //'App\Providers\BusServiceProvider',
         'App\Providers\ConfigServiceProvider',
         'App\Providers\EventServiceProvider',
         'App\Providers\RouteServiceProvider',
