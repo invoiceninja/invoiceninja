@@ -22,19 +22,19 @@ class TranslationComposer
     public function compose(View $view)
     {
         $view->with('industries', Cache::get('industries')->each(function ($industry) {
-            $industry->name = trans('industries.'.$industry->name);
+            $industry->name = trans('texts.industry_'.$industry->name);
         })->sortBy(function ($industry) {
             return $industry->name;
         }));
 
         $view->with('countries', Cache::get('countries')->each(function ($country) {
-            $country->name = trans('countries.'.$country->name);
+            $country->name = trans('texts.country_'.$country->name);
         })->sortBy(function ($country) {
             return $country->name;
         }));
 
         $view->with('paymentTypes', Cache::get('paymentTypes')->each(function ($pType) {
-            $pType->name = trans('texts.payment_types.'.$pType->name);
+            $pType->name = trans('texts.payment_type_'.$pType->name);
         })->sortBy(function ($pType) {
             return $pType->name;
         }));
