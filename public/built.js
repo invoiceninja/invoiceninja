@@ -31450,7 +31450,7 @@ NINJA.invoiceDocuments = function(invoice) {
     if(invoice.expenses){
         for (var i = 0; i < invoice.expenses.length; i++) {
             var expense = invoice.expenses[i];
-            for (var i = 0; i < expense.documents.length; i++)addDoc(expense.documents[i]);
+            for (var j = 0; j < expense.documents.length; j++)addDoc(expense.documents[j]);
         }
     }
 
