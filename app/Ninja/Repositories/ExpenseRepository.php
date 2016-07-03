@@ -131,7 +131,7 @@ class ExpenseRepository extends BaseRepository
             $expense->private_notes = trim($input['private_notes']);
         }
         $expense->public_notes = trim($input['public_notes']);
-        $expense->should_be_invoiced = isset($input['should_be_invoiced']) || $expense->client_id ? true : false;
+        $expense->should_be_invoiced = floatval($input['should_be_invoiced']) || $expense->client_id ? true : false;
 
         if ( ! $expense->expense_currency_id) {
             $expense->expense_currency_id = \Auth::user()->account->getCurrencyId();
