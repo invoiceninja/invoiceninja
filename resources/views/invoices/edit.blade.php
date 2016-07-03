@@ -529,7 +529,7 @@
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-        @if ( $invoice->exists && ! $invoice->is_recurring)
+        @if ( $invoice->exists && $invoice->id && ! $invoice->is_recurring)
 		    {!! Button::primary(trans('texts.download_pdf'))
                     ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
                     ->appendIcon(Icon::create('download-alt')) !!}
