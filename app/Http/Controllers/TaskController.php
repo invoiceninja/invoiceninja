@@ -5,30 +5,54 @@ use View;
 use URL;
 use Utils;
 use Input;
-use Datatable;
-use Validator;
 use Redirect;
 use Session;
 use DropdownButton;
-use DateTime;
-use DateTimeZone;
 use App\Models\Client;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\TaskService;
-
 use App\Http\Requests\TaskRequest;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 
+/**
+ * Class TaskController
+ */
 class TaskController extends BaseController
 {
+    /**
+     * @var TaskRepository
+     */
     protected $taskRepo;
+
+    /**
+     * @var TaskService
+     */
     protected $taskService;
+
+    /**
+     * @var
+     */
     protected $entityType = ENTITY_TASK;
 
-    public function __construct(TaskRepository $taskRepo, InvoiceRepository $invoiceRepo, TaskService $taskService)
+    /**
+     * @var InvoiceRepository
+     */
+    protected $invoiceRepo;
+
+    /**
+     * TaskController constructor.
+     * @param TaskRepository $taskRepo
+     * @param InvoiceRepository $invoiceRepo
+     * @param TaskService $taskService
+     */
+    public function __construct(
+        TaskRepository $taskRepo,
+        InvoiceRepository $invoiceRepo,
+        TaskService $taskService
+    )
     {
         // parent::__construct();
 
@@ -38,13 +62,11 @@ class TaskController extends BaseController
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @return Response
+     * @return \Illuminate\Contracts\View\View
      */
     public function index()
     {
-        return View::make('list', array(
+        return View::make('list', [
             'entityType' => ENTITY_TASK,
             'title' => trans('texts.tasks'),
             'sortCol' => '2',
@@ -57,9 +79,13 @@ class TaskController extends BaseController
               'status',
               ''
             ]),
-        ));
+        ]);
     }
 
+    /**
+     * @param null $clientPublicId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($clientPublicId = null)
     {
         return $this->taskService->getDatatable($clientPublicId, Input::get('sSearch'));
@@ -68,13 +94,19 @@ class TaskController extends BaseController
     /**
      * Store a newly created resource in storage.
      *
-     * @return Response
+     * @param CreateTaskRequest $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function store(CreateTaskRequest $request)
     {
         return $this->save();
     }
 
+    /**
+     * @param $publicId
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function show($publicId)
     {
         Session::reflash();
@@ -85,7 +117,9 @@ class TaskController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
-     * @return Response
+     * @param TaskRequest $request
+     *
+     * @return \Illuminate\Contracts\View\View
      */
     public function create(TaskRequest $request)
     {
@@ -109,8 +143,9 @@ class TaskController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
-     * @return Response
+     * @param TaskRequest $request
+     *
+     * @return \Illuminate\Contracts\View\View
      */
     public function edit(TaskRequest $request)
     {
@@ -120,15 +155,15 @@ class TaskController extends BaseController
 
         $actions = [];
         if ($task->invoice) {
-            $actions[] = ['url' => URL::to("invoices/{$task->invoice->public_id}/edit"), 'label' => trans("texts.view_invoice")];
+            $actions[] = ['url' => URL::to("invoices/{$task->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
         } else {
-            $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans("texts.invoice_task")];
+            $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_task')];
 
             // check for any open invoices
             $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id) : [];
 
             foreach ($invoices as $invoice) {
-                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans("texts.add_to_invoice", ["invoice" => $invoice->invoice_number])];
+                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
             }
         }
 
@@ -161,8 +196,9 @@ class TaskController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
-     * @return Response
+     * @param UpdateTaskRequest $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdateTaskRequest $request)
     {
@@ -171,6 +207,9 @@ class TaskController extends BaseController
         return $this->save($task->public_id);
     }
 
+    /**
+     * @return array
+     */
     private static function getViewModel()
     {
         return [
@@ -179,6 +218,10 @@ class TaskController extends BaseController
         ];
     }
 
+    /**
+     * @param null $publicId
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function save($publicId = null)
     {
         $action = Input::get('action');
@@ -197,6 +240,9 @@ class TaskController extends BaseController
         return Redirect::to("tasks/{$task->public_id}/edit");
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function bulk()
     {
         $action = Input::get('action');
@@ -256,7 +302,7 @@ class TaskController extends BaseController
             }
         }
     }
-
+    
     private function checkTimezone()
     {
         if (!Auth::user()->account->timezone) {

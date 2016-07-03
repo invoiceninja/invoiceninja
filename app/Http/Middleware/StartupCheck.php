@@ -1,7 +1,7 @@
 <?php namespace App\Http\Middleware;
 
-use Request;
 use Closure;
+use Illuminate\Http\Request;
 use Utils;
 use App;
 use Auth;
@@ -15,16 +15,19 @@ use App\Models\Language;
 use App\Models\InvoiceDesign;
 use App\Events\UserSettingsChanged;
 
+/**
+ * Class StartupCheck
+ */
 class StartupCheck
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
+     * @param  Request $request
+     * @param  Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         // Set up trusted X-Forwarded-Proto proxies
         // TRUSTED_PROXIES accepts a comma delimited list of subnets

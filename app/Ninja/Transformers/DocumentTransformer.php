@@ -1,11 +1,16 @@
 <?php namespace App\Ninja\Transformers;
 
-use App\Models\Account;
 use App\Models\Document;
-use League\Fractal;
 
+/**
+ * Class DocumentTransformer
+ */
 class DocumentTransformer extends EntityTransformer
 {
+    /**
+     * @param Document $document
+     * @return array
+     */
     public function transform(Document $document)
     {
         return array_merge($this->getDefaults($document), [

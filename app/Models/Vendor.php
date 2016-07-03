@@ -2,20 +2,31 @@
 
 use Utils;
 use DB;
-use Carbon;
 use App\Events\VendorWasCreated;
 use App\Events\VendorWasUpdated;
 use App\Events\VendorWasDeleted;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Class Vendor
+ */
 class Vendor extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
 
+    /**
+     * @var string
+     */
     protected $presenter    = 'App\Ninja\Presenters\VendorPresenter';
+    /**
+     * @var array
+     */
     protected $dates        = ['deleted_at'];
+    /**
+     * @var array
+     */
     protected $fillable     = [
         'name',
         'id_number',
@@ -33,16 +44,46 @@ class Vendor extends EntityModel
         'transaction_name',
     ];
 
+    /**
+     * @var string
+     */
     public static $fieldName        = 'name';
+    /**
+     * @var string
+     */
     public static $fieldPhone       = 'work_phone';
+    /**
+     * @var string
+     */
     public static $fieldAddress1    = 'address1';
+    /**
+     * @var string
+     */
     public static $fieldAddress2    = 'address2';
+    /**
+     * @var string
+     */
     public static $fieldCity        = 'city';
+    /**
+     * @var string
+     */
     public static $fieldState       = 'state';
+    /**
+     * @var string
+     */
     public static $fieldPostalCode  = 'postal_code';
+    /**
+     * @var string
+     */
     public static $fieldNotes       = 'notes';
+    /**
+     * @var string
+     */
     public static $fieldCountry     = 'country';
 
+    /**
+     * @return array
+     */
     public static function getImportColumns()
     {
         return [
@@ -62,6 +103,9 @@ class Vendor extends EntityModel
         ];
     }
 
+    /**
+     * @return array
+     */
     public static function getImportMap()
     {
         return [
@@ -80,56 +124,91 @@ class Vendor extends EntityModel
         ];
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
     }
 
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function payments()
     {
         return $this->hasMany('App\Models\Payment');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function vendor_contacts()
     {
         return $this->hasMany('App\Models\VendorContact');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function country()
     {
         return $this->belongsTo('App\Models\Country');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function currency()
     {
         return $this->belongsTo('App\Models\Currency');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function language()
     {
         return $this->belongsTo('App\Models\Language');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function size()
     {
         return $this->belongsTo('App\Models\Size');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function industry()
     {
         return $this->belongsTo('App\Models\Industry');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function expenses()
     {
         return $this->hasMany('App\Models\Expense','vendor_id','id');
     }
 
+    /**
+     * @param $data
+     * @param bool $isPrimary
+     * @return \Illuminate\Database\Eloquent\Model
+     */
     public function addVendorContact($data, $isPrimary = false)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
@@ -146,32 +225,50 @@ class Vendor extends EntityModel
         return $this->vendor_contacts()->save($contact);
     }
 
+    /**
+     * @return string
+     */
     public function getRoute()
     {
         return "/vendors/{$this->public_id}";
     }
 
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return $this->name;
     }
 
+    /**
+     * @return mixed
+     */
     public function getDisplayName()
     {
         return $this->getName();
     }
 
+    /**
+     * @return string
+     */
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
+    /**
+     * @return string
+     */
     public function getEntityType()
     {
         return 'vendor';
     }
 
+    /**
+     * @return bool
+     */
     public function hasAddress()
     {
         $fields = [
@@ -192,6 +289,9 @@ class Vendor extends EntityModel
         return false;
     }
 
+    /**
+     * @return string
+     */
     public function getDateCreated()
     {
         if ($this->created_at == '0000-00-00 00:00:00') {
@@ -201,6 +301,9 @@ class Vendor extends EntityModel
         }
     }
 
+    /**
+     * @return mixed
+     */
     public function getCurrencyId()
     {
         if ($this->currency_id) {
@@ -214,6 +317,9 @@ class Vendor extends EntityModel
         return $this->account->currency_id ?: DEFAULT_CURRENCY;
     }
 
+    /**
+     * @return float|int
+     */
     public function getTotalExpense()
     {
         return DB::table('expenses')

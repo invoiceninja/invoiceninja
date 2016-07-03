@@ -2,7 +2,6 @@
 
 use Auth;
 use Cache;
-use DB;
 use App;
 use Schema;
 use Session;
@@ -16,8 +15,6 @@ use DateTime;
 use stdClass;
 use Carbon;
 use WePay;
-
-use App\Models\Currency;
 
 class Utils
 {
@@ -223,7 +220,7 @@ class Utils
         $data = [];
 
         foreach ($input as $field) {
-            if ($field == "checkbox") {
+            if ($field == 'checkbox') {
                 $data[] = $field;
             } elseif ($field) {
                 $data[] = trans("texts.$field");
@@ -238,7 +235,7 @@ class Utils
     public static function fatalError($message = false, $exception = false)
     {
         if (!$message) {
-            $message = "An error occurred, please try again later.";
+            $message = 'An error occurred, please try again later.';
         }
 
         static::logError($message.' '.$exception);
@@ -534,7 +531,7 @@ class Utils
     {
         // http://stackoverflow.com/a/3172665
         $f = ':';
-        return sprintf("%02d%s%02d%s%02d", floor($t/3600), $f, ($t/60)%60, $f, $t%60);
+        return sprintf('%02d%s%02d%s%02d', floor($t/3600), $f, ($t/60)%60, $f, $t%60);
     }
 
     public static function today($formatResult = true)
@@ -646,8 +643,8 @@ class Utils
 
     private static function getMonth($offset)
     {
-        $months = [ "january", "february", "march", "april", "may", "june",
-            "july", "august", "september", "october", "november", "december", ];
+        $months = ['january', 'february', 'march', 'april', 'may', 'june',
+            'july', 'august', 'september', 'october', 'november', 'december', ];
 
         $month = intval(date('n')) - 1;
 
@@ -800,12 +797,12 @@ class Utils
 
     public static function startsWith($haystack, $needle)
     {
-        return $needle === "" || strpos($haystack, $needle) === 0;
+        return $needle === '' || strpos($haystack, $needle) === 0;
     }
 
     public static function endsWith($haystack, $needle)
     {
-        return $needle === "" || substr($haystack, -strlen($needle)) === $needle;
+        return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
     }
 
     public static function getEntityRowClass($model)
@@ -909,7 +906,7 @@ class Utils
         $name = trim($name);
         $lastName = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
         $firstName = trim(preg_replace('#'.$lastName.'#', '', $name));
-        return array($firstName, $lastName);
+        return [$firstName, $lastName];
     }
 
     public static function decodePDF($string)
@@ -952,7 +949,7 @@ class Utils
             $link = $prefix.$link;
         }
 
-        return link_to($link, $title, array('target' => '_blank'));
+        return link_to($link, $title, ['target' => '_blank']);
     }
 
     public static function wrapAdjustment($adjustment, $currencyId, $countryId)
@@ -990,8 +987,8 @@ class Utils
 
     public static function addHttp($url)
     {
-        if (!preg_match("~^(?:f|ht)tps?://~i", $url)) {
-            $url = "http://" . $url;
+        if (!preg_match('~^(?:f|ht)tps?://~i', $url)) {
+            $url = 'http://' . $url;
         }
 
         return $url;

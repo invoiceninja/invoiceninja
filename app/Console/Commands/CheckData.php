@@ -1,11 +1,9 @@
 <?php namespace App\Console\Commands;
 
 use DB;
-use DateTime;
 use Carbon;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 
 /*
 
@@ -38,9 +36,19 @@ Options:
 */
 
 
+/**
+ * Class CheckData
+ */
 class CheckData extends Command {
 
+    /**
+     * @var string
+     */
     protected $name = 'ninja:check-data';
+
+    /**
+     * @var string
+     */
     protected $description = 'Check/fix data';
     
     public function fire()
@@ -101,7 +109,7 @@ class CheckData extends Command {
                 }
                 
                 $records = $records->where("{$table}.account_id", '!=', DB::raw("{$entityType}s.account_id"))
-                                ->get(["{$table}.id", "clients.account_id", "clients.user_id"]);
+                                ->get(["{$table}.id", 'clients.account_id', 'clients.user_id']);
 
                 if (count($records)) {
                     $this->info(count($records) . " {$table} records with incorrect {$entityType} account id");
@@ -327,19 +335,23 @@ class CheckData extends Command {
         }
     }
 
+    /**
+     * @return array
+     */
     protected function getArguments()
     {
-        return array(
-            //array('example', InputArgument::REQUIRED, 'An example argument.'),
-        );
+        return [];
     }
 
+    /**
+     * @return array
+     */
     protected function getOptions()
     {
-        return array(
-            array('fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null),
-            array('client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null),
-        );
+        return [
+            ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],
+            ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
+        ];
     }
 
 }

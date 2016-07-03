@@ -7,11 +7,22 @@ use App\Models\Gateway;
 
 class TemplateService
 {
-    public function processVariables($template, $data)
+    /**
+     * @param $template
+     * @param array $data
+     * @return mixed|string
+     */
+    public function processVariables($template, array $data)
     {
+        /** @var \App\Models\Account $account */
         $account = $data['account'];
+
+        /** @var \App\Models\Client $client */
         $client = $data['client'];
+
+        /** @var \App\Models\Invitation $invitation */
         $invitation = $data['invitation'];
+
         $invoice = $invitation->invoice;
         $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
         $documentsHTML = '';

@@ -1,21 +1,33 @@
 <?php namespace App\Listeners;
 
-use App\Events\PaymentFailed;
 use Carbon;
 use App\Models\Credit;
 use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
 use App\Ninja\Repositories\CreditRepository;
 
+/**
+ * Class CreditListener
+ */
 class CreditListener
 {
+    /**
+     * @var CreditRepository
+     */
     protected $creditRepo;
 
+    /**
+     * CreditListener constructor.
+     * @param CreditRepository $creditRepo
+     */
     public function __construct(CreditRepository $creditRepo)
     {
         $this->creditRepo = $creditRepo;
     }
 
+    /**
+     * @param PaymentWasDeleted $event
+     */
     public function deletedPayment(PaymentWasDeleted $event)
     {
         $payment = $event->payment;
@@ -33,6 +45,9 @@ class CreditListener
         $credit->save();
     }
 
+    /**
+     * @param PaymentWasRefunded $event
+     */
     public function refundedPayment(PaymentWasRefunded $event)
     {
         $payment = $event->payment;

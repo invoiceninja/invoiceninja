@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use App\Models\AccountGateway;
+use App\Services\TemplateService;
 use Auth;
 use File;
 use Image;
@@ -33,21 +34,55 @@ use App\Events\UserSignedUp;
 use App\Events\UserSettingsChanged;
 use App\Services\AuthService;
 use App\Services\PaymentService;
-
 use App\Http\Requests\UpdateAccountRequest;
 
+/**
+ * Class AccountController
+ */
 class AccountController extends BaseController
 {
+    /**
+     * @var AccountRepository
+     */
     protected $accountRepo;
+
+    /**
+     * @var UserMailer
+     */
     protected $userMailer;
+
+    /**
+     * @var ContactMailer
+     */
     protected $contactMailer;
+
+    /**
+     * @var ReferralRepository
+     */
     protected $referralRepository;
+
+    /**
+     * @var PaymentService
+     */
     protected $paymentService;
 
-    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, PaymentService $paymentService)
+    /**
+     * AccountController constructor.
+     *
+     * @param AccountRepository $accountRepo
+     * @param UserMailer $userMailer
+     * @param ContactMailer $contactMailer
+     * @param ReferralRepository $referralRepository
+     * @param PaymentService $paymentService
+     */
+    public function __construct(
+        AccountRepository $accountRepo,
+        UserMailer $userMailer,
+        ContactMailer $contactMailer,
+        ReferralRepository $referralRepository,
+        PaymentService $paymentService
+    )
     {
-        //parent::__construct();
-
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
@@ -55,6 +90,9 @@ class AccountController extends BaseController
         $this->paymentService = $paymentService;
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function demo()
     {
         $demoAccountId = Utils::getDemoAccountId();
@@ -71,6 +109,9 @@ class AccountController extends BaseController
         return Redirect::to('invoices/create');
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function getStarted()
     {
         $user = false;
@@ -113,6 +154,9 @@ class AccountController extends BaseController
         return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
     }
 
+    /**
+     * @return bool|mixed
+     */
     public function enableProPlan()
     {
         if (Auth::user()->isPro() && ! Auth::user()->isTrial()) {
@@ -124,6 +168,9 @@ class AccountController extends BaseController
         return $invitation->invitation_key;
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function changePlan() {
         $user = Auth::user();
         $account = $user->account;
@@ -143,22 +190,22 @@ class AccountController extends BaseController
                     $term = PLAN_TERM_YEARLY;
                 }
 
-                $new_plan = array(
+                $new_plan = [
                     'plan' => PLAN_ENTERPRISE,
                     'term' => $term,
-                );
+                ];
             } elseif ($planDetails['plan'] == $plan) {
                 // Term switch
                 if ($planDetails['term'] == PLAN_TERM_YEARLY && $term == PLAN_TERM_MONTHLY) {
-                    $pending_change = array(
+                    $pending_change = [
                         'plan' => $plan,
                         'term' => $term
-                    );
+                    ];
                 } elseif ($planDetails['term'] == PLAN_TERM_MONTHLY && $term == PLAN_TERM_YEARLY) {
-                    $new_plan = array(
+                    $new_plan = [
                         'plan' => $plan,
                         'term' => $term,
-                    );
+                    ];
                 } else {
                     // Cancel the pending change
                     $account->company->pending_plan = null;
@@ -194,10 +241,10 @@ class AccountController extends BaseController
                     $account->company->save();
 
                 } else {
-                    $pending_change = array(
+                    $pending_change = [
                         'plan' => $plan,
                         'term' => $plan == PLAN_FREE ? null : $term,
-                    );
+                    ];
                 }
             }
 
@@ -217,10 +264,10 @@ class AccountController extends BaseController
                 $credit = $old_plan_price * (1 - $percent_used);
             }
         } else {
-             $new_plan = array(
+             $new_plan = [
                 'plan' => $plan,
                 'term' => $term,
-            );
+            ];
         }
 
         if (!empty($pending_change) && empty($new_plan)) {
@@ -239,6 +286,11 @@ class AccountController extends BaseController
         return Redirect::to('/settings/'.ACCOUNT_MANAGEMENT, 301);
     }
 
+    /**
+     * @param $entityType
+     * @param $visible
+     * @return mixed
+     */
     public function setTrashVisible($entityType, $visible)
     {
         Session::put("show_trash:{$entityType}", $visible == 'true');
@@ -246,6 +298,9 @@ class AccountController extends BaseController
         return RESULT_SUCCESS;
     }
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getSearchData()
     {
         $data = $this->accountRepo->getSearchData(Auth::user());
@@ -253,6 +308,10 @@ class AccountController extends BaseController
         return Response::json($data);
     }
 
+    /**
+     * @param bool $section
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function showSection($section = false)
     {
         if (!$section) {
@@ -298,6 +357,9 @@ class AccountController extends BaseController
         }
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     */
     private function showSystemSettings()
     {
         if (Utils::isNinjaProd()) {
@@ -306,13 +368,16 @@ class AccountController extends BaseController
 
         $data = [
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'title' => trans("texts.system_settings"),
+            'title' => trans('texts.system_settings'),
             'section' => ACCOUNT_SYSTEM_SETTINGS,
         ];
 
-        return View::make("accounts.system_settings", $data);
+        return View::make('accounts.system_settings', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showInvoiceSettings()
     {
         $account = Auth::user()->account;
@@ -329,14 +394,17 @@ class AccountController extends BaseController
 
         $data = [
             'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
-            'title' => trans("texts.invoice_settings"),
+            'title' => trans('texts.invoice_settings'),
             'section' => ACCOUNT_INVOICE_SETTINGS,
             'recurringHours' => $recurringHours,
         ];
 
-        return View::make("accounts.invoice_settings", $data);
+        return View::make('accounts.invoice_settings', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showCompanyDetails()
     {
         // check that logo is less than the max file size
@@ -356,6 +424,9 @@ class AccountController extends BaseController
         return View::make('accounts.details', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showAccountManagement()
     {
         $account = Auth::user()->account;
@@ -368,6 +439,9 @@ class AccountController extends BaseController
         return View::make('accounts.management', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function showUserDetails()
     {
         $oauthLoginUrls = [];
@@ -387,6 +461,9 @@ class AccountController extends BaseController
         return View::make('accounts.user_details', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showLocalization()
     {
         $data = [
@@ -402,6 +479,9 @@ class AccountController extends BaseController
         return View::make('accounts.localization', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showBankAccounts()
     {
         return View::make('accounts.banks', [
@@ -409,6 +489,9 @@ class AccountController extends BaseController
         ]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     */
     private function showOnlinePayments()
     {
         $account = Auth::user()->account;
@@ -439,6 +522,9 @@ class AccountController extends BaseController
         }
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showProducts()
     {
         $columns = ['product', 'description', 'unit_cost'];
@@ -456,6 +542,9 @@ class AccountController extends BaseController
         return View::make('accounts.products', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showTaxRates()
     {
         $data = [
@@ -467,6 +556,9 @@ class AccountController extends BaseController
         return View::make('accounts.tax_rates', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showPaymentTerms()
     {
         $data = [
@@ -478,6 +570,10 @@ class AccountController extends BaseController
         return View::make('accounts.payment_terms', $data);
     }
 
+    /**
+     * @param $section
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showInvoiceDesign($section)
     {
         $account = Auth::user()->account->load('country');
@@ -608,6 +704,9 @@ class AccountController extends BaseController
         return View::make("accounts.{$section}", $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showClientPortal()
     {
         $account = Auth::user()->account->load('country');
@@ -616,8 +715,8 @@ class AccountController extends BaseController
         if (Utils::isNinja() && $css) {
             // Unescape the CSS for display purposes
             $css = str_replace(
-                array('\3C ', '\3E ', '\26 '),
-                array('<', '>', '&'),
+                ['\3C ', '\3E ', '\26 '],
+                ['<', '>', '&'],
                 $css
             );
         }
@@ -626,14 +725,17 @@ class AccountController extends BaseController
             'client_view_css' => $css,
             'enable_portal_password' => $account->enable_portal_password,
             'send_portal_password' => $account->send_portal_password,
-            'title' => trans("texts.client_portal"),
+            'title' => trans('texts.client_portal'),
             'section' => ACCOUNT_CLIENT_PORTAL,
             'account' => $account,
         ];
 
-        return View::make("accounts.client_portal", $data);
+        return View::make('accounts.client_portal', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     private function showTemplates()
     {
         $account = Auth::user()->account->load('country');
@@ -656,6 +758,10 @@ class AccountController extends BaseController
         return View::make('accounts.templates_and_reminders', $data);
     }
 
+    /**
+     * @param $section
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function doSection($section = ACCOUNT_COMPANY_DETAILS)
     {
         if ($section === ACCOUNT_COMPANY_DETAILS) {
@@ -689,6 +795,9 @@ class AccountController extends BaseController
         }
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveCustomizeDesign()
     {
         if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
@@ -703,6 +812,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_CUSTOMIZE_DESIGN);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveClientPortal()
     {
         $account = Auth::user()->account;
@@ -756,6 +868,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_CLIENT_PORTAL);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveEmailTemplates()
     {
         if (Auth::user()->account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
@@ -790,6 +905,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_TEMPLATES_AND_REMINDERS);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveTaxRates()
     {
         $account = Auth::user()->account;
@@ -801,6 +919,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_TAX_RATES);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveProducts()
     {
         $account = Auth::user()->account;
@@ -814,13 +935,16 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_PRODUCTS);
     }
 
+    /**
+     * @return $this|\Illuminate\Http\RedirectResponse
+     */
     private function saveEmailSettings()
     {
         if (Auth::user()->account->hasFeature(FEATURE_CUSTOM_EMAILS)) {
             $rules = [];
             $user = Auth::user();
             $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
-            $iframeURL = rtrim($iframeURL, "/");
+            $iframeURL = rtrim($iframeURL, '/');
 
             $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
             if ($iframeURL) {
@@ -857,6 +981,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_EMAIL_SETTINGS);
     }
 
+    /**
+     * @return $this|\Illuminate\Http\RedirectResponse
+     */
     private function saveInvoiceSettings()
     {
         if (Auth::user()->account->hasFeature(FEATURE_INVOICE_SETTINGS)) {
@@ -938,6 +1065,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveInvoiceDesign()
     {
         if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
@@ -982,6 +1112,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_INVOICE_DESIGN);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveNotifications()
     {
         $user = Auth::user();
@@ -996,6 +1129,10 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_NOTIFICATIONS);
     }
 
+    /**
+     * @param UpdateAccountRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function updateDetails(UpdateAccountRequest $request)
     {
         $account = Auth::user()->account;
@@ -1018,7 +1155,7 @@ class AccountController extends BaseController
                 $documentType = $extension;
             }
 
-            if(!in_array($documentType, array('jpeg', 'png', 'gif'))){
+            if(!in_array($documentType, ['jpeg', 'png', 'gif'])){
                 Session::flash('warning', 'Unsupported file type');
             } else {
                 $documentTypeData = Document::$types[$documentType];
@@ -1082,8 +1219,12 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
     }
 
+    /**
+     * @return $this|\Illuminate\Http\RedirectResponse
+     */
     public function saveUserDetails()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
         $validator = Validator::make(Input::all(), $rules);
@@ -1117,9 +1258,14 @@ class AccountController extends BaseController
         }
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveLocalization()
     {
+        /** @var \App\Models\Account $account */
         $account = Auth::user()->account;
+
         $account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
         $account->date_format_id = Input::get('date_format_id') ? Input::get('date_format_id') : null;
         $account->datetime_format_id = Input::get('datetime_format_id') ? Input::get('datetime_format_id') : null;
@@ -1136,6 +1282,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_LOCALIZATION);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function saveOnlinePayments()
     {
         $account = Auth::user()->account;
@@ -1150,6 +1299,9 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_PAYMENTS);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function removeLogo()
     {
         $account = Auth::user()->account;
@@ -1168,25 +1320,33 @@ class AccountController extends BaseController
         return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
     }
 
+    /**
+     * @return string
+     */
     public function checkEmail()
     {
-        $email = User::withTrashed()->where('email', '=', Input::get('email'))->where('id', '<>', Auth::user()->id)->first();
+        $email = User::withTrashed()->where('email', '=', Input::get('email'))
+                                    ->where('id', '<>', Auth::user()->id)
+                                    ->first();
 
         if ($email) {
-            return "taken";
+            return 'taken';
         } else {
-            return "available";
+            return 'available';
         }
     }
 
+    /**
+     * @return string
+     */
     public function submitSignup()
     {
-        $rules = array(
+        $rules = [
             'new_first_name' => 'required',
             'new_last_name' => 'required',
             'new_password' => 'required|min:6',
             'new_email' => 'email|required|unique:users,email,'.Auth::user()->id.',id',
-        );
+        ];
 
         $validator = Validator::make(Input::all(), $rules);
 
@@ -1194,6 +1354,7 @@ class AccountController extends BaseController
             return '';
         }
 
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $user->first_name = trim(Input::get('new_first_name'));
         $user->last_name = trim(Input::get('new_last_name'));
@@ -1212,6 +1373,9 @@ class AccountController extends BaseController
         return "{$user->first_name} {$user->last_name}";
     }
 
+    /**
+     * @return mixed
+     */
     public function doRegister()
     {
         $affiliate = Affiliate::where('affiliate_key', '=', SELF_HOST_AFFILIATE_KEY)->first();
@@ -1235,6 +1399,9 @@ class AccountController extends BaseController
         return RESULT_SUCCESS;
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function cancelAccount()
     {
         if ($reason = trim(Input::get('reason'))) {
@@ -1275,16 +1442,25 @@ class AccountController extends BaseController
         return Redirect::to('/')->with('clearGuestKey', true);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function resendConfirmation()
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
         $this->userMailer->sendConfirmation($user);
 
         return Redirect::to('/settings/'.ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
     }
 
+    /**
+     * @param $plan
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function startTrial($plan)
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         if ($user->isEligibleForTrial($plan)) {
@@ -1294,6 +1470,11 @@ class AccountController extends BaseController
         return Redirect::back()->with('message', trans('texts.trial_success'));
     }
 
+    /**
+     * @param $section
+     * @param bool $subSection
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function redirectLegacy($section, $subSection = false)
     {
         if ($section === 'details') {
@@ -1314,7 +1495,11 @@ class AccountController extends BaseController
         return Redirect::to("/settings/$section/", 301);
     }
 
-    public function previewEmail(\App\Services\TemplateService $templateService)
+    /**
+     * @param TemplateService $templateService
+     * @return \Illuminate\Http\Response
+     */
+    public function previewEmail(TemplateService $templateService)
     {
         $template = Input::get('template');
         $invoice = Invoice::scope()
@@ -1326,6 +1511,7 @@ class AccountController extends BaseController
             return trans('texts.create_invoice_for_sample');
         }
 
+        /** @var \App\Models\Account $account */
         $account = Auth::user()->account;
         $invitation = $invoice->invitations->first();
 

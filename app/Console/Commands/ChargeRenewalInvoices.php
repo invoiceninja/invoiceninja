@@ -1,22 +1,47 @@
 <?php namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Input\InputArgument;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use App\Models\Invoice;
 
+/**
+ * Class ChargeRenewalInvoices
+ */
 class ChargeRenewalInvoices extends Command
 {
+    /**
+     * @var string
+     */
     protected $name = 'ninja:charge-renewals';
+
+    /**
+     * @var string
+     */
     protected $description = 'Charge renewal invoices';
-    
+
+    /**
+     * @var Mailer
+     */
     protected $mailer;
+
+    /**
+     * @var AccountRepository
+     */
     protected $accountRepo;
+
+    /**
+     * @var PaymentService
+     */
     protected $paymentService;
 
+    /**
+     * ChargeRenewalInvoices constructor.
+     * @param Mailer $mailer
+     * @param AccountRepository $repo
+     * @param PaymentService $paymentService
+     */
     public function __construct(Mailer $mailer, AccountRepository $repo, PaymentService $paymentService)
     {
         parent::__construct();
@@ -47,17 +72,19 @@ class ChargeRenewalInvoices extends Command
         $this->info('Done');
     }
 
+    /**
+     * @return array
+     */
     protected function getArguments()
     {
-        return array(
-            //array('example', InputArgument::REQUIRED, 'An example argument.'),
-        );
+        return [];
     }
 
+    /**
+     * @return array
+     */
     protected function getOptions()
     {
-        return array(
-            //array('example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null),
-        );
+        return [];
     }
 }

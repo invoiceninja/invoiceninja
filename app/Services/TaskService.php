@@ -1,38 +1,43 @@
 <?php namespace App\Services;
 
 use Auth;
-use URL;
 use Utils;
-use App\Models\Task;
-use App\Models\Invoice;
-use App\Models\Client;
 use App\Ninja\Repositories\TaskRepository;
-use App\Services\BaseService;
 use App\Ninja\Datatables\TaskDatatable;
 
+/**
+ * Class TaskService
+ */
 class TaskService extends BaseService
 {
     protected $datatableService;
     protected $taskRepo;
 
+    /**
+     * TaskService constructor.
+     *
+     * @param TaskRepository $taskRepo
+     * @param DatatableService $datatableService
+     */
     public function __construct(TaskRepository $taskRepo, DatatableService $datatableService)
     {
         $this->taskRepo = $taskRepo;
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @return TaskRepository
+     */
     protected function getRepo()
     {
         return $this->taskRepo;
     }
 
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
-
+    /**
+     * @param $clientPublicId
+     * @param $search
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($clientPublicId, $search)
     {
         $datatable = new TaskDatatable( ! $clientPublicId, $clientPublicId);
@@ -44,5 +49,4 @@ class TaskService extends BaseService
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
-
 }

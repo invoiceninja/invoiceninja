@@ -7,7 +7,6 @@ use Input;
 use Session;
 use Redirect;
 use App\Services\ImportService;
-use App\Http\Controllers\BaseController;
 
 class ImportController extends BaseController
 {

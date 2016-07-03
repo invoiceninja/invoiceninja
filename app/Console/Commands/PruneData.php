@@ -3,9 +3,19 @@
 use DB;
 use Illuminate\Console\Command;
 
+/**
+ * Class PruneData
+ */
 class PruneData extends Command
 {
+    /**
+     * @var string
+     */
     protected $name = 'ninja:prune-data';
+    
+    /**
+     * @var string
+     */
     protected $description = 'Delete inactive accounts';
 
     public function fire()
@@ -41,17 +51,19 @@ class PruneData extends Command
         $this->info('Done');
     }
 
+    /**
+     * @return array
+     */
     protected function getArguments()
     {
-        return array(
-            //array('example', InputArgument::REQUIRED, 'An example argument.'),
-        );
+        return [];
     }
 
+    /**
+     * @return array
+     */
     protected function getOptions()
     {
-        return array(
-            //array('example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null),
-        );
+        return [];
     }
 }

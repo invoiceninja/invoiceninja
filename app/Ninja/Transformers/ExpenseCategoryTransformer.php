@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Transformers;
 
 use App\Models\ExpenseCategory;
-use League\Fractal;
 
 class ExpenseCategoryTransformer extends EntityTransformer
 {

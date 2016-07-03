@@ -9,42 +9,47 @@ use Illuminate\Support\Facades\Password;
 use App\Models\Contact;
 use App\Models\Invitation;
 
+class PasswordController extends Controller
+{
 
-class PasswordController extends Controller {
+    /*
+    |--------------------------------------------------------------------------
+    | Password Reset Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller is responsible for handling password reset requests
+    | and uses a simple trait to include this behavior. You're free to
+    | explore this trait and override any methods you wish to tweak.
+    |
+    */
 
-	/*
-	|--------------------------------------------------------------------------
-	| Password Reset Controller
-	|--------------------------------------------------------------------------
-	|
-	| This controller is responsible for handling password reset requests
-	| and uses a simple trait to include this behavior. You're free to
-	| explore this trait and override any methods you wish to tweak.
-	|
-	*/
+    use ResetsPasswords;
 
-	use ResetsPasswords;
-
+    /**
+     * @var string
+     */
     protected $redirectTo = '/client/dashboard';
-    
-	/**
-	 * Create a new password controller instance.
-	 *
-	 * @param  \Illuminate\Contracts\Auth\Guard  $auth
-	 * @param  \Illuminate\Contracts\Auth\PasswordBroker  $passwords
-	 * @return void
-	 */
-	public function __construct()
-	{
-		$this->middleware('guest');
-        Config::set("auth.defaults.passwords","client");
-	}
 
-	public function showLinkRequestForm()
-	{
-        $data = array();
+    /**
+     * Create a new password controller instance.
+     *
+     * @internal param \Illuminate\Contracts\Auth\Guard $auth
+     * @internal param \Illuminate\Contracts\Auth\PasswordBroker $passwords
+     */
+    public function __construct()
+    {
+        $this->middleware('guest');
+        Config::set('auth.defaults.passwords', 'client');
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function showLinkRequestForm()
+    {
+        $data = [];
         $contactKey = session('contact_key');
-        if($contactKey){
+        if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
             if ($contact && !$contact->is_deleted) {
                 $account = $contact->account;
@@ -54,14 +59,15 @@ class PasswordController extends Controller {
         } else {
             return \Redirect::to('/client/sessionexpired');
         }
-        
-		return view('clientauth.password')->with($data);
-	}
-	
-	/**
+
+        return view('clientauth.password')->with($data);
+    }
+
+    /**
      * Send a reset link to the given user.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
+     * 
      * @return \Illuminate\Http\Response
      */
     public function sendResetLinkEmail(Request $request)
@@ -70,14 +76,14 @@ class PasswordController extends Controller {
 
         $contactId = null;
         $contactKey = session('contact_key');
-        if($contactKey){
+        if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
             if ($contact && !$contact->is_deleted) {
                 $contactId = $contact->id;
             }
         }
-        
-        $response = Password::broker($broker)->sendResetLink(array('id'=>$contactId), function (Message $message) {
+
+        $response = Password::broker($broker)->sendResetLink(['id' => $contactId], function (Message $message) {
             $message->subject($this->getEmailSubject());
         });
 
@@ -90,15 +96,15 @@ class PasswordController extends Controller {
                 return $this->getSendResetLinkEmailFailureResponse($response);
         }
     }
-    
+
     /**
      * Display the password reset view for the given token.
      *
      * If no token is present, display the link request form.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string|null  $key
-     * @param  string|null  $token
+     * @param  \Illuminate\Http\Request $request
+     * @param  string|null $key
+     * @param  string|null $token
      * @return \Illuminate\Http\Response
      */
     public function showResetForm(Request $request, $key = null, $token = null)
@@ -106,9 +112,9 @@ class PasswordController extends Controller {
         if (is_null($token)) {
             return $this->getEmail();
         }
-        
+
         $data = compact('token');
-        if($key) {
+        if ($key) {
             $contact = Contact::where('contact_key', '=', $key)->first();
             if ($contact && !$contact->is_deleted) {
                 $account = $contact->account;
@@ -132,28 +138,27 @@ class PasswordController extends Controller {
 
         return view('clientauth.reset')->with($data);
     }
-    
-    
+
 
     /**
      * Display the password reset view for the given token.
      *
      * If no token is present, display the link request form.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string|null  $key
-     * @param  string|null  $token
+     * @param  \Illuminate\Http\Request $request
+     * @param  string|null $key
+     * @param  string|null $token
      * @return \Illuminate\Http\Response
      */
     public function getReset(Request $request, $key = null, $token = null)
     {
         return $this->showResetForm($request, $key, $token);
     }
-    
+
     /**
      * Reset the given user's password.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function reset(Request $request)
@@ -163,11 +168,11 @@ class PasswordController extends Controller {
         $credentials = $request->only(
             'password', 'password_confirmation', 'token'
         );
-        
+
         $credentials['id'] = null;
 
         $contactKey = session('contact_key');
-        if($contactKey){
+        if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
             if ($contact && !$contact->is_deleted) {
                 $credentials['id'] = $contact->id;
@@ -188,7 +193,7 @@ class PasswordController extends Controller {
                 return $this->getResetFailureResponse($request, $response);
         }
     }
-    
+
     /**
      * Get the password reset validation rules.
      *
