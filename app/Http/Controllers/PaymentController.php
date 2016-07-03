@@ -4,7 +4,6 @@ use Input;
 use Session;
 use Utils;
 use View;
-use Omnipay;
 use Cache;
 use App\Models\Invoice;
 use App\Models\Client;
@@ -17,18 +16,50 @@ use App\Http\Requests\UpdatePaymentRequest;
 
 class PaymentController extends BaseController
 {
+    /**
+     * @var string
+     */
     protected $entityType = ENTITY_PAYMENT;
 
-    public function __construct(PaymentRepository $paymentRepo, ContactMailer $contactMailer, PaymentService $paymentService)
+    /**
+     * @var PaymentRepository
+     */
+    protected $paymentRepo;
+
+    /**
+     * @var ContactMailer
+     */
+    protected $contactMailer;
+
+    /**
+     * @var PaymentService
+     */
+    protected $paymentService;
+
+    /**
+     * PaymentController constructor.
+     *
+     * @param PaymentRepository $paymentRepo
+     * @param ContactMailer $contactMailer
+     * @param PaymentService $paymentService
+     */
+    public function __construct(
+        PaymentRepository $paymentRepo,
+        ContactMailer $contactMailer,
+        PaymentService $paymentService
+    )
     {
         $this->paymentRepo = $paymentRepo;
         $this->contactMailer = $contactMailer;
         $this->paymentService = $paymentService;
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function index()
     {
-        return View::make('list', array(
+        return View::make('list', [
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
             'sortCol' => '7',
@@ -44,14 +75,22 @@ class PaymentController extends BaseController
               'status',
               ''
             ]),
-        ));
+        ]);
     }
 
+    /**
+     * @param null $clientPublicId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($clientPublicId = null)
     {
         return $this->paymentService->getDatatable($clientPublicId, Input::get('sSearch'));
     }
 
+    /**
+     * @param PaymentRequest $request
+     * @return \Illuminate\Contracts\View\View
+     */
     public function create(PaymentRequest $request)
     {
         $invoices = Invoice::scope()
@@ -62,29 +101,33 @@ class PaymentController extends BaseController
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
 
-        $data = array(
+        $data = [
             'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
             'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : ($request->invoice_id ?: 0),
             'invoice' => null,
             'invoices' => $invoices,
             'payment' => null,
             'method' => 'POST',
-            'url' => "payments",
+            'url' => 'payments',
             'title' => trans('texts.new_payment'),
             'paymentTypes' => Cache::get('paymentTypes'),
             'paymentTypeId' => Input::get('paymentTypeId'),
-            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(), );
+            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(), ];
 
         return View::make('payments.edit', $data);
     }
 
+    /**
+     * @param PaymentRequest $request
+     * @return \Illuminate\Contracts\View\View
+     */
     public function edit(PaymentRequest $request)
     {
         $payment = $request->entity();
 
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
 
-        $data = array(
+        $data = [
             'client' => null,
             'invoice' => null,
             'invoices' => Invoice::scope()->invoiceType(INVOICE_TYPE_STANDARD)->where('is_recurring', '=', false)
@@ -94,11 +137,15 @@ class PaymentController extends BaseController
             'url' => 'payments/'.$payment->public_id,
             'title' => trans('texts.edit_payment'),
             'paymentTypes' => Cache::get('paymentTypes'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), ];
 
         return View::make('payments.edit', $data);
     }
 
+    /**
+     * @param CreatePaymentRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(CreatePaymentRequest $request)
     {
         $input = $request->input();
@@ -117,6 +164,10 @@ class PaymentController extends BaseController
         return redirect()->to($payment->client->getRoute());
     }
 
+    /**
+     * @param UpdatePaymentRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(UpdatePaymentRequest $request)
     {
         $payment = $this->paymentRepo->save($request->input(), $request->entity());
@@ -126,12 +177,15 @@ class PaymentController extends BaseController
         return redirect()->to($payment->getRoute());
     }
 
+    /**
+     * @return mixed
+     */
     public function bulk()
     {
         $action = Input::get('action');
         $amount = Input::get('amount');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
-        $count = $this->paymentService->bulk($ids, $action, array('amount'=>$amount));
+        $count = $this->paymentService->bulk($ids, $action, ['amount'=>$amount]);
 
         if ($count > 0) {
             $message = Utils::pluralize($action=='refund'?'refunded_payment':$action.'d_payment', $count);
@@ -140,5 +194,4 @@ class PaymentController extends BaseController
 
         return redirect()->to('payments');
     }
-
 }

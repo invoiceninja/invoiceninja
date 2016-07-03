@@ -1,20 +1,26 @@
 <?php namespace App\Events;
-// vendor
-use App\Events\Event;
+
+use App\Models\Vendor;
 use Illuminate\Queue\SerializesModels;
 
+/**
+ * Class VendorWasUpdated
+ */
 class VendorWasUpdated extends Event
 {
     use SerializesModels;
 
+    /**
+     * @var Vendor
+     */
     public $vendor;
 
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param Vendor $vendor
      */
-    public function __construct($vendor)
+    public function __construct(Vendor $vendor)
     {
         $this->vendor = $vendor;
     }

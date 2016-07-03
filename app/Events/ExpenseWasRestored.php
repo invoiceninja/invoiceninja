@@ -1,21 +1,27 @@
 <?php namespace App\Events;
 
-use App\Events\Event;
 
+use App\Models\Expense;
 use Illuminate\Queue\SerializesModels;
 
-class ExpenseWasRestored extends Event {
-    // Expenses
-	use SerializesModels;
+/**
+ * Class ExpenseWasRestored
+ */
+class ExpenseWasRestored extends Event
+{
+    use SerializesModels;
 
+    /**
+     * @var Expense
+     */
     public $expense;
-    
-	/**
-	 * Create a new event instance.
-	 *
-	 * @return void
-	 */
-    public function __construct($expense)
+
+    /**
+     * Create a new event instance.
+     *
+     * @param Expense $expense
+     */
+    public function __construct(Expense $expense)
     {
         $this->expense = $expense;
     }

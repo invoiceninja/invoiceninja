@@ -1,13 +1,9 @@
 <?php namespace App\Http\Controllers;
 
-use Debugbar;
-use DB;
 use Auth;
-use Datatable;
 use Utils;
 use View;
 use URL;
-use Validator;
 use Input;
 use Session;
 use Redirect;
@@ -17,7 +13,6 @@ use App\Models\Expense;
 use App\Models\Client;
 use App\Services\ExpenseService;
 use App\Ninja\Repositories\ExpenseRepository;
-
 use App\Http\Requests\ExpenseRequest;
 use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
@@ -44,7 +39,7 @@ class ExpenseController extends BaseController
      */
     public function index()
     {
-        return View::make('list', array(
+        return View::make('list', [
             'entityType' => ENTITY_EXPENSE,
             'title' => trans('texts.expenses'),
             'sortCol' => '3',
@@ -58,7 +53,7 @@ class ExpenseController extends BaseController
               'status',
               ''
             ]),
-        ));
+        ]);
     }
 
     public function getDatatable($expensePublicId = null)
@@ -79,7 +74,7 @@ class ExpenseController extends BaseController
             $vendor = null;
         }
         
-        $data = array(
+        $data = [
             'vendorPublicId' => Input::old('vendor') ? Input::old('vendor') : $request->vendor_id,
             'expense' => null,
             'method' => 'POST',
@@ -89,7 +84,7 @@ class ExpenseController extends BaseController
             'vendor' => $vendor,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $request->client_id,
-        );
+        ];
 
         $data = array_merge($data, self::getViewModel());
 
@@ -104,9 +99,9 @@ class ExpenseController extends BaseController
         
         $actions = [];
         if ($expense->invoice) {
-            $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans("texts.view_invoice")];
+            $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
         } else {
-            $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans("texts.invoice_expense")];
+            $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_expense')];
         }
 
         $actions[] = \DropdownButton::DIVIDER;
@@ -117,7 +112,7 @@ class ExpenseController extends BaseController
             $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_expense')];
         }
 
-        $data = array(
+        $data = [
             'vendor' => null,
             'expense' => $expense,
             'method' => 'PUT',
@@ -128,7 +123,7 @@ class ExpenseController extends BaseController
             'vendorPublicId' => $expense->vendor ? $expense->vendor->public_id : null,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $expense->client ? $expense->client->public_id : null,
-        );
+        ];
 
         $data = array_merge($data, self::getViewModel());
 

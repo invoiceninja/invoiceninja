@@ -16,8 +16,16 @@ use App\Models\Payment;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 
+/**
+ * Class ExportController
+ */
 class ExportController extends BaseController
 {
+    /**
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function doExport(Request $request)
     {
         $format = $request->input('format');
@@ -33,6 +41,12 @@ class ExportController extends BaseController
         }
     }
 
+    /**
+     * @param $request
+     * @param $fileName
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     private function returnJSON($request, $fileName)
     {
         $output = fopen('php://output', 'w') or Utils::fatalError();
@@ -62,7 +76,12 @@ class ExportController extends BaseController
         return response()->json($data);
     }
 
-
+    /**
+     * @param $request
+     * @param $fileName
+     *
+     * @return mixed
+     */
     private function returnCSV($request, $fileName)
     {
         $data = $this->getData($request);
@@ -74,6 +93,12 @@ class ExportController extends BaseController
         })->download('csv');
     }
 
+    /**
+     * @param $request
+     * @param $fileName
+     *
+     * @return mixed
+     */
     private function returnXLS($request, $fileName)
     {
         $user = Auth::user();
@@ -110,6 +135,11 @@ class ExportController extends BaseController
         })->download('xls');
     }
 
+    /**
+     * @param $request
+     *
+     * @return array
+     */
     private function getData($request)
     {
         $account = Auth::user()->account;
@@ -184,12 +214,6 @@ class ExportController extends BaseController
                 ->with('user', 'vendor.vendor_contacts')
                 ->withTrashed()
                 ->get();
-
-            /*
-            $data['expenses'] = Credit::scope()
-                ->with('user', 'client.contacts')
-                ->get();
-            */
         }
 
         return $data;

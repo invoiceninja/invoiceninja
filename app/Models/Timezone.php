@@ -2,7 +2,13 @@
 
 use Eloquent;
 
+/**
+ * Class Timezone
+ */
 class Timezone extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 }

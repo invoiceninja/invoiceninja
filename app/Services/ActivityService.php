@@ -1,22 +1,40 @@
 <?php namespace App\Services;
 
-use Utils;
 use App\Models\Client;
-use App\Services\BaseService;
 use App\Ninja\Repositories\ActivityRepository;
 use App\Ninja\Datatables\ActivityDatatable;
 
+/**
+ * Class ActivityService
+ */
 class ActivityService extends BaseService
 {
+    /**
+     * @var ActivityRepository
+     */
     protected $activityRepo;
+
+    /**
+     * @var DatatableService
+     */
     protected $datatableService;
 
+    /**
+     * ActivityService constructor.
+     *
+     * @param ActivityRepository $activityRepo
+     * @param DatatableService $datatableService
+     */
     public function __construct(ActivityRepository $activityRepo, DatatableService $datatableService)
     {
         $this->activityRepo = $activityRepo;
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @param null $clientPublicId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($clientPublicId = null)
     {
         $clientId = Client::getPrivateId($clientPublicId);
@@ -25,5 +43,4 @@ class ActivityService extends BaseService
 
         return $this->datatableService->createDatatable(new ActivityDatatable(false), $query);
     }
-
 }

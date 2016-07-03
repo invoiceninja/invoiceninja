@@ -1,11 +1,8 @@
 <?php namespace App\Ninja\Repositories;
 
 use Auth;
-use Carbon;
 use Session;
 use App\Models\Client;
-use App\Models\Contact;
-use App\Models\Activity;
 use App\Models\Task;
 
 class TaskRepository

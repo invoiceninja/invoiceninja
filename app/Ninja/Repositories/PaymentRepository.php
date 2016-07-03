@@ -5,8 +5,6 @@ use Utils;
 use App\Models\Payment;
 use App\Models\Credit;
 use App\Models\Invoice;
-use App\Models\Client;
-use App\Ninja\Repositories\BaseRepository;
 
 class PaymentRepository extends BaseRepository
 {

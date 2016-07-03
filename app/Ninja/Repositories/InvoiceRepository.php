@@ -1,8 +1,8 @@
 <?php namespace App\Ninja\Repositories;
 
+use App\Models\Account;
 use DB;
 use Utils;
-use Session;
 use Auth;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -12,7 +12,6 @@ use App\Models\Task;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Services\PaymentService;
-use App\Ninja\Repositories\BaseRepository;
 
 class InvoiceRepository extends BaseRepository
 {
@@ -248,8 +247,14 @@ class InvoiceRepository extends BaseRepository
             ->make();
     }
 
-    public function save($data, $invoice = null)
+    /**
+     * @param array $data
+     * @param Invoice|null $invoice
+     * @return Invoice|mixed
+     */
+    public function save(array $data, Invoice $invoice = null)
     {
+        /** @var Account $account */
         $account = \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
@@ -477,7 +482,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_items()->forceDelete();
         }
 
-        $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):array();;
+        $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):[];;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
             if($document && Auth::user()->can('edit', $document)){
@@ -581,7 +586,12 @@ class InvoiceRepository extends BaseRepository
         return $invoice;
     }
 
-    public function cloneInvoice($invoice, $quotePublicId = null)
+    /**
+     * @param Invoice $invoice
+     * @param null $quotePublicId
+     * @return mixed
+     */
+    public function cloneInvoice(Invoice $invoice, $quotePublicId = null)
     {
         $invoice->load('invitations', 'invoice_items');
         $account = $invoice->account;
@@ -683,13 +693,21 @@ class InvoiceRepository extends BaseRepository
         return $clone;
     }
 
-    public function markSent($invoice)
+    /**
+     * @param Invoice $invoice
+     */
+    public function markSent(Invoice $invoice)
     {
         $invoice->markInvitationsSent();
     }
 
+    /**
+     * @param $invitationKey
+     * @return Invitation|bool
+     */
     public function findInvoiceByInvitation($invitationKey)
     {
+        /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
         if (!$invitation) {
@@ -711,6 +729,10 @@ class InvoiceRepository extends BaseRepository
         return $invitation;
     }
 
+    /**
+     * @param $clientId
+     * @return mixed
+     */
     public function findOpenInvoices($clientId)
     {
         return Invoice::scope()
@@ -724,7 +746,11 @@ class InvoiceRepository extends BaseRepository
                 ->get();
     }
 
-    public function createRecurringInvoice($recurInvoice)
+    /**
+     * @param Invoice $recurInvoice
+     * @return mixed
+     */
+    public function createRecurringInvoice(Invoice $recurInvoice)
     {
         $recurInvoice->load('account.timezone', 'invoice_items', 'client', 'user');
 
@@ -811,7 +837,11 @@ class InvoiceRepository extends BaseRepository
         return $invoice;
     }
 
-    public function findNeedingReminding($account)
+    /**
+     * @param Account $account
+     * @return mixed
+     */
+    public function findNeedingReminding(Account $account)
     {
         $dates = [];
 

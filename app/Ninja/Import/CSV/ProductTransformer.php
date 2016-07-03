@@ -3,8 +3,15 @@
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
+/**
+ * Class ProductTransformer
+ */
 class ProductTransformer extends BaseTransformer
 {
+    /**
+     * @param $data
+     * @return bool|Item
+     */
     public function transform($data)
     {
         if (empty($data->product_key) || $this->hasProduct($data->product_key)) {

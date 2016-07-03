@@ -1,24 +1,30 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Str;
-use DB;
-use Datatable;
-use Utils;
 use URL;
 use View;
 use Input;
 use Session;
 use Redirect;
-
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Services\ProductService;
 
+/**
+ * Class ProductController
+ */
 class ProductController extends BaseController
 {
+    /**
+     * @var ProductService
+     */
     protected $productService;
 
+    /**
+     * ProductController constructor.
+     * 
+     * @param ProductService $productService
+     */
     public function __construct(ProductService $productService)
     {
         //parent::__construct();
@@ -26,16 +32,26 @@ class ProductController extends BaseController
         $this->productService = $productService;
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function index()
     {
         return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
     }
 
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable()
     {
         return $this->productService->getDatatable(Auth::user()->account_id);
     }
 
+    /**
+     * @param $publicId
+     * @return \Illuminate\Contracts\View\View
+     */
     public function edit($publicId)
     {
         $account = Auth::user()->account;
@@ -52,6 +68,9 @@ class ProductController extends BaseController
         return View::make('accounts.product', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function create()
     {
         $account = Auth::user()->account;
@@ -68,16 +87,27 @@ class ProductController extends BaseController
         return View::make('accounts.product', $data);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store()
     {
         return $this->save();
     }
 
+    /**
+     * @param $publicId
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update($publicId)
     {
         return $this->save($publicId);
     }
 
+    /**
+     * @param bool $productPublicId
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function save($productPublicId = false)
     {
         if ($productPublicId) {
@@ -99,6 +129,9 @@ class ProductController extends BaseController
         return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function bulk()
     {
         $action = Input::get('bulk_action');

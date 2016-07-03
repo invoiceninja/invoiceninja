@@ -1,24 +1,31 @@
 <?php namespace App\Services;
 
-use Utils;
-use URL;
 use Auth;
-use App\Services\BaseService;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Credit;
-use App\Models\Expense;
-use App\Models\Payment;
-use App\Models\Task;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\NinjaRepository;
 use App\Ninja\Datatables\ClientDatatable;
 
+/**
+ * Class ClientService
+ */
 class ClientService extends BaseService
 {
+    /**
+     * @var ClientRepository
+     */
     protected $clientRepo;
+
+    /**
+     * @var DatatableService
+     */
     protected $datatableService;
 
+    /**
+     * ClientService constructor.
+     * @param ClientRepository $clientRepo
+     * @param DatatableService $datatableService
+     * @param NinjaRepository $ninjaRepo
+     */
     public function __construct(ClientRepository $clientRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
         $this->clientRepo = $clientRepo;
@@ -26,11 +33,19 @@ class ClientService extends BaseService
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @return ClientRepository
+     */
     protected function getRepo()
     {
         return $this->clientRepo;
     }
 
+    /**
+     * @param $data
+     * @param null $client
+     * @return mixed|null
+     */
     public function save($data, $client = null)
     {
         if (Auth::user()->account->isNinjaAccount() && isset($data['plan'])) {
@@ -40,6 +55,11 @@ class ClientService extends BaseService
         return $this->clientRepo->save($data, $client);
     }
 
+    /**
+     * @param $search
+     * @param $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($search, $userId)
     {
         $datatable = new ClientDatatable();
@@ -48,5 +68,4 @@ class ClientService extends BaseService
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
-
 }

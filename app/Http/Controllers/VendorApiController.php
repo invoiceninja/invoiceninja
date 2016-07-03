@@ -3,12 +3,9 @@
 use Utils;
 use Response;
 use Input;
-use Auth;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
 use App\Http\Requests\CreateVendorRequest;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\VendorTransformer;
 
 class VendorApiController extends BaseAPIController
 {

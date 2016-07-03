@@ -35,9 +35,9 @@ class CreatePaymentAPIRequest extends PaymentRequest
             'client_id' => $invoice->client->id,
         ]);
             
-        $rules = array(
+        $rules = [
             'amount' => "required|less_than:{$invoice->balance}|positive",
-        );
+        ];
 
         if ($this->payment_type_id == PAYMENT_TYPE_CREDIT) {
             $rules['payment_type_id'] = 'has_credit:' . $invoice->client->public_id . ',' . $this->amount;

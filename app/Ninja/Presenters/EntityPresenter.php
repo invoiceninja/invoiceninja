@@ -3,8 +3,12 @@
 use URL;
 use Laracasts\Presenter\Presenter;
 
-class EntityPresenter extends Presenter {
+class EntityPresenter extends Presenter
+{
 
+    /**
+     * @return string
+     */
     public function url()
     {
         $type = $this->entity->getEntityType();
@@ -14,6 +18,9 @@ class EntityPresenter extends Presenter {
         return URL::to($link);
     }
 
+    /**
+     * @return mixed
+     */
     public function link()
     {
         $name = $this->entity->getDisplayName();
@@ -21,5 +28,4 @@ class EntityPresenter extends Presenter {
 
         return link_to($link, $name)->toHtml();
     }
-
 }
