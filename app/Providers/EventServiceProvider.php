@@ -42,6 +42,7 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\InvoiceWasDeleted' => [
             'App\Listeners\ActivityListener@deletedInvoice',
             'App\Listeners\TaskListener@deletedInvoice',
+            'App\Listeners\ExpenseListener@deletedInvoice',
         ],
         'App\Events\InvoiceWasRestored' => [
             'App\Listeners\ActivityListener@restoredInvoice',
