@@ -1,6 +1,7 @@
 <?php
 
-return [
+$LANG = array(
+
     'organization' => 'Organization',
     'name' => 'Name',
     'website' => 'Website',
@@ -1671,7 +1672,10 @@ return [
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yemen',
     'country_Zambi' => 'Zambi',
-    
-];
 
+);
+
+return $LANG;
+
+?>
 

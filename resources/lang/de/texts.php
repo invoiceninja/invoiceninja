@@ -1,6 +1,6 @@
 <?php
 
-return array(
+$LANG = array(
 
     // client
     'organization' => 'Organisation',
@@ -1581,4 +1581,9 @@ return array(
     'country_Samoa' => '',
     'country_Yemen' => '',
     'country_Zambi' => '',
+
 );
+
+return $LANG;
+
+?>
