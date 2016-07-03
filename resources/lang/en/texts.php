@@ -993,7 +993,7 @@ $LANG = array(
     'overdue' => 'Overdue',
 
 
-    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the client portal and help support our project.',
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding and help support our project.',
     'user_email_footer' => 'To adjust your email notification settings please visit :link',
     'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
     'limit_users' => 'Sorry, this will exceed the limit of :limit users',
@@ -1990,4 +1990,3 @@ $LANG = array(
 return $LANG;
 
 ?>
-
