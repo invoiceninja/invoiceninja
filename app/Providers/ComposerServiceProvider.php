@@ -14,7 +14,7 @@ class ComposerServiceProvider extends ServiceProvider
     public function boot()
     {
         view()->composer(
-            ['accounts.details', 'clients.edit', 'payments.edit', 'invoices.edit'],
+            ['accounts.details', 'clients.edit', 'payments.edit', 'invoices.edit', 'accounts.localization'],
             'App\Http\ViewComposers\TranslationComposer'
         );
     }
