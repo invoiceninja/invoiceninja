@@ -5,7 +5,6 @@ use App\Ninja\Repositories\UserRepository;
 use App\Ninja\Transformers\UserTransformer;
 use Auth;
 use App\Models\User;
-
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 

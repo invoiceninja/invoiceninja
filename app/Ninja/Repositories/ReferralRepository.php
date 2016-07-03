@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
 use App\Models\Account;
-use Utils;
 
 class ReferralRepository
 {

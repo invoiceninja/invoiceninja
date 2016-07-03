@@ -1,6 +1,5 @@
 <?php namespace App\Ninja\PaymentDrivers;
 
-use Exception;
 
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {

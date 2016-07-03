@@ -1,34 +1,52 @@
 <?php namespace App\Services;
 
 use Auth;
-use DB;
 use Utils;
-use URL;
-use App\Services\BaseService;
 use App\Ninja\Repositories\ExpenseRepository;
-use App\Models\Expense;
-use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\ExpenseDatatable;
 
+/**
+ * Class ExpenseService
+ */
 class ExpenseService extends BaseService
 {
-       // Expenses
+    /**
+     * @var ExpenseRepository
+     */
     protected $expenseRepo;
+
+    /**
+     * @var DatatableService
+     */
     protected $datatableService;
 
+    /**
+     * ExpenseService constructor.
+     *
+     * @param ExpenseRepository $expenseRepo
+     * @param DatatableService $datatableService
+     */
     public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
     {
         $this->expenseRepo = $expenseRepo;
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @return ExpenseRepository
+     */
     protected function getRepo()
     {
         return $this->expenseRepo;
     }
 
+    /**
+     * @param $data
+     * @param null $expense
+     * @return mixed|null
+     */
     public function save($data, $expense = null)
     {
         if (isset($data['client_id']) && $data['client_id']) {
@@ -42,6 +60,10 @@ class ExpenseService extends BaseService
         return $this->expenseRepo->save($data, $expense);
     }
 
+    /**
+     * @param $search
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($search)
     {
         $query = $this->expenseRepo->find($search);
@@ -53,6 +75,10 @@ class ExpenseService extends BaseService
         return $this->datatableService->createDatatable(new ExpenseDatatable(), $query);
     }
 
+    /**
+     * @param $vendorPublicId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatableVendor($vendorPublicId)
     {
         $datatable = new ExpenseDatatable(false, true);
@@ -65,41 +91,4 @@ class ExpenseService extends BaseService
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
-
-
-    protected function getDatatableColumnsVendor($entityType, $hideClient)
-    {
-        return [
-            [
-                'expense_date',
-                function ($model) {
-                    return Utils::dateToString($model->expense_date);
-                }
-            ],
-            [
-                'amount',
-                function ($model) {
-                    return Utils::formatMoney($model->amount, false, false);
-                }
-            ],
-            [
-                'public_notes',
-                function ($model) {
-                    return $model->public_notes != null ? $model->public_notes : '';
-                }
-            ],
-            [
-                'invoice_id',
-                function ($model) {
-                    return '';
-                }
-            ],
-        ];
-    }
-
-    protected function getDatatableActionsVendor($entityType)
-    {
-        return [];
-    }
-
 }

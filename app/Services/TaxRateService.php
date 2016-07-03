@@ -1,27 +1,47 @@
 <?php namespace App\Services;
 
-use URL;
-use Auth;
-use App\Services\BaseService;
 use App\Ninja\Repositories\TaxRateRepository;
 use App\Ninja\Datatables\TaxRateDatatable;
 
+/**
+ * Class TaxRateService
+ */
 class TaxRateService extends BaseService
 {
+    /**
+     * @var TaxRateRepository
+     */
     protected $taxRateRepo;
+
+    /**
+     * @var DatatableService
+     */
     protected $datatableService;
 
+    /**
+     * TaxRateService constructor.
+     *
+     * @param TaxRateRepository $taxRateRepo
+     * @param DatatableService $datatableService
+     */
     public function __construct(TaxRateRepository $taxRateRepo, DatatableService $datatableService)
     {
         $this->taxRateRepo = $taxRateRepo;
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @return TaxRateRepository
+     */
     protected function getRepo()
     {
         return $this->taxRateRepo;
     }
 
+    /**
+     * @param $accountId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($accountId)
     {
         $datatable = new TaxRateDatatable(false);
@@ -29,5 +49,4 @@ class TaxRateService extends BaseService
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
-    
 }

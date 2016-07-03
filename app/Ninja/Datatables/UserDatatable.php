@@ -1,8 +1,6 @@
 <?php namespace App\Ninja\Datatables;
 
-use Utils;
 use URL;
-use Auth;
 
 class UserDatatable extends EntityDatatable
 {

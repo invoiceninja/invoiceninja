@@ -4,7 +4,6 @@ use Auth;
 use Request;
 use Session;
 use Utils;
-use DB;
 use URL;
 use stdClass;
 use Validator;
@@ -281,7 +280,7 @@ class AccountRepository
             $pending_monthly_item = InvoiceItem::createNew($invoice);
             $item->qty = 1;
             $pending_monthly_item->cost = 0;
-            $pending_monthly_item->notes = trans("texts.plan_pending_monthly", array('date', Utils::dateToString($term_end)));
+            $pending_monthly_item->notes = trans('texts.plan_pending_monthly', ['date', Utils::dateToString($term_end)]);
 
             // Don't change this without updating the text in PaymentService->createPayment()
             $pending_monthly_item->product_key = 'Pending Monthly';

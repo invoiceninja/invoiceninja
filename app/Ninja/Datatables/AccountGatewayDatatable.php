@@ -1,10 +1,6 @@
 <?php namespace App\Ninja\Datatables;
 
-use Utils;
 use URL;
-use Auth;
-
-use App\Models\Gateway;
 use App\Models\AccountGateway;
 
 class AccountGatewayDatatable extends EntityDatatable
@@ -29,7 +25,7 @@ class AccountGatewayDatatable extends EntityDatatable
                         $wepayState = isset($config->state)?$config->state:null;
                         $linkText = $model->name;
                         $url = $endpoint.'account/'.$wepayAccountId;
-                        $html = link_to($url, $linkText, array('target'=>'_blank'))->toHtml();
+                        $html = link_to($url, $linkText, ['target'=>'_blank'])->toHtml();
 
                         try {
                             if ($wepayState == 'action_required') {
@@ -84,10 +80,10 @@ class AccountGatewayDatatable extends EntityDatatable
                 function ($model) {
                     $accountGateway = AccountGateway::find($model->id);
                     $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
-                    return array(
+                    return [
                         'url' => $endpoint.'account/'.$accountGateway->getConfig()->accountId,
                         'attributes' => 'target="_blank"'
-                    );
+                    ];
                 },
                 function($model) {
                     return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY;

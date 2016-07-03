@@ -2,11 +2,8 @@
 
 use DB;
 use Utils;
-use Response;
 use App\Models\Document;
-use App\Ninja\Repositories\BaseRepository;
 use Intervention\Image\ImageManager;
-use Session;
 use Form;
 
 class DocumentRepository extends BaseRepository
@@ -30,11 +27,7 @@ class DocumentRepository extends BaseRepository
         $query = DB::table('clients')
                     ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                     ->leftjoin('clients', 'clients.id', '=', 'clients.client_id')
-                    /*->leftJoin('expenses', 'expenses.id', '=', 'clients.expense_id')
-                    ->leftJoin('invoices', 'invoices.id', '=', 'clients.invoice_id')*/
                     ->where('documents.account_id', '=', $accountid)
-                    /*->where('vendors.deleted_at', '=', null)
-                    ->where('clients.deleted_at', '=', null)*/
                     ->select(
                         'documents.account_id',
                         'documents.path',
@@ -101,20 +94,20 @@ class DocumentRepository extends BaseRepository
         }
 
         // This is an image; check if we need to create a preview
-        if(in_array($documentType, array('jpeg','png','gif','bmp','tiff','psd'))){
+        if(in_array($documentType, ['jpeg','png','gif','bmp','tiff','psd'])){
             $makePreview = false;
             $imageSize = getimagesize($filePath);
             $width = $imageSize[0];
             $height = $imageSize[1];
-            $imgManagerConfig = array();
-            if(in_array($documentType, array('gif','bmp','tiff','psd'))){
+            $imgManagerConfig = [];
+            if(in_array($documentType, ['gif','bmp','tiff','psd'])){
                 // Needs to be converted
                 $makePreview = true;
             } else if($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE){
                 $makePreview = true;
             }
 
-            if(in_array($documentType,array('bmp','tiff','psd'))){
+            if(in_array($documentType,['bmp','tiff','psd'])){
                 if(!class_exists('Imagick')){
                     // Cant't read this
                     $makePreview = false;
@@ -125,7 +118,7 @@ class DocumentRepository extends BaseRepository
 
             if($makePreview){
                 $previewType = 'jpeg';
-                if(in_array($documentType, array('png','gif','tiff','psd'))){
+                if(in_array($documentType, ['png','gif','tiff','psd'])){
                     // Has transparency
                     $previewType = 'png';
                 }
@@ -197,7 +190,7 @@ class DocumentRepository extends BaseRepository
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', false)
-          // This needs to be a setting to also hide the activity on the dashboard page
+          // TODO: This needs to be a setting to also hide the activity on the dashboard page
           //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
           ->select(
                 'invitations.invitation_key',

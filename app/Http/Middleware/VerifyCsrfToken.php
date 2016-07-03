@@ -2,17 +2,25 @@
 
 use Closure;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
+use Illuminate\Http\Request;
 
-class VerifyCsrfToken extends BaseVerifier {
+/**
+ * Class VerifyCsrfToken
+ */
+class VerifyCsrfToken extends BaseVerifier
+{
 
+    /**
+     * @var array
+     */
     private $openRoutes = [
         'complete',
         'signup/register',
         'api/v1/*',
         'api/v1/login',
-		'api/v1/clients/*',
+        'api/v1/clients/*',
         'api/v1/clients',
-		'api/v1/invoices/*',
+        'api/v1/invoices/*',
         'api/v1/invoices',
         'api/v1/quotes',
         'api/v1/payments',
@@ -22,26 +30,25 @@ class VerifyCsrfToken extends BaseVerifier {
         'hook/email_opened',
         'hook/email_bounced',
         'reseller_stats',
-		'payment_hook/*',
+        'payment_hook/*',
     ];
 
-	/**
-	 * Handle an incoming request.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  \Closure  $next
-	 * @return mixed
-	 */
-	public function handle($request, Closure $next)
-	{
-        foreach($this->openRoutes as $route) {
+    /**
+     * Handle an incoming request.
+     *
+     * @param  Request $request
+     * @param  Closure $next
+     * @return mixed
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        foreach ($this->openRoutes as $route) {
 
-          if ($request->is($route)) {
-            return $next($request);
-          }
+            if ($request->is($route)) {
+                return $next($request);
+            }
         }
 
-		return parent::handle($request, $next);
-	}
-
+        return parent::handle($request, $next);
+    }
 }

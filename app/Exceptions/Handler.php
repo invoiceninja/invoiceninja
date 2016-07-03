@@ -4,13 +4,17 @@ use Redirect;
 use Utils;
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Exception\HttpResponseException; 
+use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
-use Illuminate\Foundation\Validation\ValidationException;
+use Illuminate\Validation\ValidationException;
 
-class Handler extends ExceptionHandler {
+/**
+ * Class Handler
+ */
+class Handler extends ExceptionHandler
+{
 
 	/**
 	 * A list of the exception types that should not be reported.
@@ -24,14 +28,14 @@ class Handler extends ExceptionHandler {
         ValidationException::class,
 	];
 
-	/**
-	 * Report or log an exception.
-	 *
-	 * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
-	 *
-	 * @param  \Exception  $e
-	 * @return void
-	 */
+    /**
+     * Report or log an exception.
+     *
+     * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
+     *
+     * @param  \Exception $e
+     * @return bool|void
+     */
 	public function report(Exception $e)
 	{
         // don't show these errors in the logs

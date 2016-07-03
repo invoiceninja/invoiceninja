@@ -1,17 +1,30 @@
 <?php namespace App\Ninja\Presenters;
 
-class TaskPresenter extends EntityPresenter {
-
+/**
+ * Class TaskPresenter
+ */
+class TaskPresenter extends EntityPresenter
+{
+    /**
+     * @return string
+     */
     public function client()
     {
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';
     }
 
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->entity->user->getDisplayName();
     }
 
+    /**
+     * @param $account
+     * @return mixed
+     */
     public function times($account)
     {
         $parts = json_decode($this->entity->time_log) ?: [];
@@ -34,6 +47,9 @@ class TaskPresenter extends EntityPresenter {
         return implode("\n", $times);
     }
 
+    /**
+     * @return string
+     */
     public function status()
     {
         $class = $text = '';
@@ -51,5 +67,4 @@ class TaskPresenter extends EntityPresenter {
 
         return "<span class=\"label label-{$class}\">{$text}</span>";
     }
-
 }

@@ -2,7 +2,6 @@
 
 use Auth;
 use App\Models\Account;
-use App\Models\Client;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract

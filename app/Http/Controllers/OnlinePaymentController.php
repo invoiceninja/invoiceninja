@@ -2,11 +2,8 @@
 
 use Session;
 use Input;
-use Request;
 use Utils;
 use View;
-use Validator;
-use Cache;
 use Exception;
 use App\Models\Invitation;
 use App\Models\Account;
@@ -16,14 +13,39 @@ use App\Services\PaymentService;
 use App\Ninja\Mailers\UserMailer;
 use App\Http\Requests\CreateOnlinePaymentRequest;
 
+/**
+ * Class OnlinePaymentController
+ */
 class OnlinePaymentController extends BaseController
 {
+    /**
+     * @var PaymentService
+     */
+    protected $paymentService;
+
+    /**
+     * @var UserMailer
+     */
+    protected $userMailer;
+
+    /**
+     * OnlinePaymentController constructor.
+     *
+     * @param PaymentService $paymentService
+     * @param UserMailer $userMailer
+     */
     public function __construct(PaymentService $paymentService, UserMailer $userMailer)
     {
         $this->paymentService = $paymentService;
         $this->userMailer = $userMailer;
     }
 
+    /**
+     * @param $invitationKey
+     * @param bool $gatewayType
+     * @param bool $sourceId
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function showPayment($invitationKey, $gatewayType = false, $sourceId = false)
     {
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
@@ -42,6 +64,10 @@ class OnlinePaymentController extends BaseController
         }
     }
 
+    /**
+     * @param CreateOnlinePaymentRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function doPayment(CreateOnlinePaymentRequest $request)
     {
         $invitation = $request->invitation;
@@ -62,6 +88,11 @@ class OnlinePaymentController extends BaseController
         }
     }
 
+    /**
+     * @param bool $invitationKey
+     * @param bool $gatewayType
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function offsitePayment($invitationKey = false, $gatewayType = false)
     {
         $invitationKey = $invitationKey ?: Session::get('invitation_key');
@@ -84,6 +115,12 @@ class OnlinePaymentController extends BaseController
         }
     }
 
+    /**
+     * @param $paymentDriver
+     * @param $exception
+     * @param bool $showPayment
+     * @return \Illuminate\Http\RedirectResponse
+     */
     private function error($paymentDriver, $exception, $showPayment = false)
     {
         if (is_string($exception)) {
@@ -104,6 +141,10 @@ class OnlinePaymentController extends BaseController
         return redirect()->to($route . $paymentDriver->invitation->invitation_key);
     }
 
+    /**
+     * @param $routingNumber
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getBankInfo($routingNumber) {
         if (strlen($routingNumber) != 9 || !preg_match('/\d{9}/', $routingNumber)) {
             return response()->json([
@@ -126,6 +167,11 @@ class OnlinePaymentController extends BaseController
         ], 404);
     }
 
+    /**
+     * @param $accountKey
+     * @param $gatewayId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function handlePaymentWebhook($accountKey, $gatewayId)
     {
         $gatewayId = intval($gatewayId);

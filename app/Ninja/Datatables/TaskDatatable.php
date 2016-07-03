@@ -3,7 +3,6 @@
 use Utils;
 use URL;
 use Auth;
-
 use App\Models\Task;
 
 class TaskDatatable extends EntityDatatable

@@ -3,7 +3,6 @@
 use App\Models\Account;
 use App\Models\Task;
 use App\Models\Client;
-use League\Fractal;
 
 /**
  * @SWG\Definition(definition="Task", @SWG\Xml(name="Task"))

@@ -2,12 +2,10 @@
 
 use stdClass;
 use Utils;
-use URL;
 use Hash;
 use App\Models\BankSubaccount;
 use App\Models\Vendor;
 use App\Models\Expense;
-use App\Services\BaseService;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
@@ -15,13 +13,39 @@ use App\Ninja\Datatables\BankAccountDatatable;
 use App\Libraries\Finance;
 use App\Libraries\Login;
 
+/**
+ * Class BankAccountService
+ */
 class BankAccountService extends BaseService
 {
+    /**
+     * @var BankAccountRepository
+     */
     protected $bankAccountRepo;
+
+    /**
+     * @var ExpenseRepository
+     */
     protected $expenseRepo;
+
+    /**
+     * @var VendorRepository
+     */
     protected $vendorRepo;
+
+    /**
+     * @var DatatableService
+     */
     protected $datatableService;
 
+    /**
+     * BankAccountService constructor.
+     *
+     * @param BankAccountRepository $bankAccountRepo
+     * @param ExpenseRepository $expenseRepo
+     * @param VendorRepository $vendorRepo
+     * @param DatatableService $datatableService
+     */
     public function __construct(BankAccountRepository $bankAccountRepo, ExpenseRepository $expenseRepo, VendorRepository $vendorRepo, DatatableService $datatableService)
     {
         $this->bankAccountRepo = $bankAccountRepo;
@@ -30,11 +54,18 @@ class BankAccountService extends BaseService
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @return BankAccountRepository
+     */
     protected function getRepo()
     {
         return $this->bankAccountRepo;
     }
 
+    /**
+     * @param null $bankId
+     * @return array
+     */
     private function getExpenses($bankId = null)
     {
         $expenses = Expense::scope()
@@ -50,6 +81,13 @@ class BankAccountService extends BaseService
         return $expenses;
     }
 
+    /**
+     * @param $bankId
+     * @param $username
+     * @param $password
+     * @param bool $includeTransactions
+     * @return array|bool
+     */
     public function loadBankAccounts($bankId, $username, $password, $includeTransactions = true)
     {
         if (! $bankId || ! $username || ! $password) {
@@ -90,6 +128,14 @@ class BankAccountService extends BaseService
         }
     }
 
+    /**
+     * @param $account
+     * @param $bankAccounts
+     * @param $expenses
+     * @param $includeTransactions
+     * @param $vendorMap
+     * @return bool|stdClass
+     */
     private function parseBankAccount($account, $bankAccounts, $expenses, $includeTransactions, $vendorMap)
     {
         $obj = new stdClass();
@@ -119,6 +165,13 @@ class BankAccountService extends BaseService
         return $obj;
     }
 
+    /**
+     * @param $account
+     * @param $data
+     * @param $expenses
+     * @param $vendorMap
+     * @return mixed
+     */
     private function parseTransactions($account, $data, $expenses, $vendorMap)
     {
         $ofxParser = new \OfxParser\Parser();
@@ -153,11 +206,19 @@ class BankAccountService extends BaseService
         return $account;
     }
 
+    /**
+     * @param $value
+     * @return string
+     */
     private function prepareValue($value)
     {
         return ucwords(strtolower(trim($value)));
     }
 
+    /**
+     * @param $data
+     * @return mixed
+     */
     public function parseOFX($data)
     {
         $account = new stdClass;
@@ -167,6 +228,9 @@ class BankAccountService extends BaseService
         return $this->parseTransactions($account, $data, $expenses, $vendorMap);
     }
 
+    /**
+     * @return array
+     */
     private function createVendorMap()
     {
         $vendorMap = [];

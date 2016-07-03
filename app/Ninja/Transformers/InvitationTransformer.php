@@ -1,9 +1,6 @@
 <?php namespace App\Ninja\Transformers;
 
-use App\Models\Account;
-use App\Models\Contact;
 use App\Models\Invitation;
-use League\Fractal;
 
 class InvitationTransformer extends EntityTransformer
 {

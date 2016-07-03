@@ -4,10 +4,19 @@ use Eloquent;
 use Omnipay;
 use Utils;
 
+/**
+ * Class Gateway
+ */
 class Gateway extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = true;
 
+    /**
+     * @var array
+     */
     public static $gatewayTypes = [
         GATEWAY_TYPE_CREDIT_CARD,
         GATEWAY_TYPE_BANK_TRANSFER,
@@ -19,6 +28,9 @@ class Gateway extends Eloquent
 
     // these will appear in the primary gateway select
     // the rest are shown when selecting 'more options'
+    /**
+     * @var array
+     */
     public static $preferred = [
         GATEWAY_PAYPAL_EXPRESS,
         GATEWAY_BITPAY,
@@ -31,12 +43,18 @@ class Gateway extends Eloquent
 
     // allow adding these gateway if another gateway
     // is already configured
+    /**
+     * @var array
+     */
     public static $alternate = [
         GATEWAY_PAYPAL_EXPRESS,
         GATEWAY_BITPAY,
         GATEWAY_DWOLLA,
     ];
 
+    /**
+     * @var array
+     */
     public static $hiddenFields = [
         // PayPal
         'headerImageUrl',
@@ -49,6 +67,9 @@ class Gateway extends Eloquent
         'returnUrl',
     ];
 
+    /**
+     * @var array
+     */
     public static $optionalFields = [
         // PayPal
         'testMode',
@@ -57,21 +78,36 @@ class Gateway extends Eloquent
         'sandbox',
     ];
 
+    /**
+     * @return string
+     */
     public function getLogoUrl()
     {
         return '/images/gateways/logo_'.$this->provider.'.png';
     }
 
+    /**
+     * @param $gatewayId
+     * @return bool
+     */
     public function isGateway($gatewayId)
     {
         return $this->id == $gatewayId;
     }
 
+    /**
+     * @param $type
+     * @return string
+     */
     public static function getPaymentTypeName($type)
     {
         return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
     }
 
+    /**
+     * @param $gatewayIds
+     * @return int
+     */
     public static function hasStandardGateway($gatewayIds)
     {
         $diff = array_diff($gatewayIds, static::$alternate);
@@ -79,6 +115,10 @@ class Gateway extends Eloquent
         return count($diff);
     }
 
+    /**
+     * @param $query
+     * @param $accountGatewaysIds
+     */
     public function scopePrimary($query, $accountGatewaysIds)
     {
         $query->where('payment_library_id', '=', 1)
@@ -87,6 +127,10 @@ class Gateway extends Eloquent
             ->whereIn('id', $accountGatewaysIds);
     }
 
+    /**
+     * @param $query
+     * @param $accountGatewaysIds
+     */
     public function scopeSecondary($query, $accountGatewaysIds)
     {
         $query->where('payment_library_id', '=', 1)
@@ -95,6 +139,9 @@ class Gateway extends Eloquent
             ->whereIn('id', $accountGatewaysIds);
     }
 
+    /**
+     * @return string|\Symfony\Component\Translation\TranslatorInterface
+     */
     public function getHelp()
     {
         $link = '';
@@ -119,6 +166,9 @@ class Gateway extends Eloquent
         return $key != $str ? $str : '';
     }
 
+    /**
+     * @return mixed
+     */
     public function getFields()
     {
         return Omnipay::create($this->provider)->getDefaultParameters();
