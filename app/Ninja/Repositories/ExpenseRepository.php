@@ -79,6 +79,7 @@ class ExpenseRepository extends BaseRepository
                         'expenses.user_id',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
+                        'invoices.balance',
                         'vendors.name as vendor_name',
                         'vendors.public_id as vendor_public_id',
                         'vendors.user_id as vendor_user_id',
@@ -158,7 +159,7 @@ class ExpenseRepository extends BaseRepository
                 }
             }
         }
-        
+
         // prevent loading all of the documents if we don't have to
         if ( ! $expense->wasRecentlyCreated) {
             foreach ($expense->documents as $document){

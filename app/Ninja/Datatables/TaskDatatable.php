@@ -96,13 +96,18 @@ class TaskDatatable extends EntityDatatable
     private function getStatusLabel($model)
     {
         if ($model->invoice_number) {
-            $class = 'success';
-            $label = trans('texts.invoiced');
+            if (floatval($model->balance)) {
+                $label = trans('texts.invoiced');
+                $class = 'default';
+            } else {
+                $class = 'success';
+                $label = trans('texts.paid');
+            }
         } elseif ($model->is_running) {
             $class = 'primary';
             $label = trans('texts.running');
         } else {
-            $class = 'default';
+            $class = 'warning';
             $label = trans('texts.logged');
         }
 

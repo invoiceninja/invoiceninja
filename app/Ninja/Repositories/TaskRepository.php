@@ -38,6 +38,7 @@ class TaskRepository
                         'invoices.invoice_number',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
+                        'invoices.balance',
                         'tasks.is_running',
                         'tasks.time_log',
                         'tasks.created_at',
@@ -89,7 +90,7 @@ class TaskRepository
         } else {
             $timeLog = [];
         }
-        
+
         array_multisort($timeLog);
 
         if (isset($data['action'])) {
