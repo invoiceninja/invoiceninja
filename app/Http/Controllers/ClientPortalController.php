@@ -211,13 +211,15 @@ class ClientPortalController extends BaseController
         $client = $contact->client;
         $account = $client->account;
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $customer = false;
 
         if (!$account->enable_client_portal || !$account->enable_client_portal_dashboard) {
             return $this->returnError();
         }
 
-        $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
-        $customer = $paymentDriver->customer($client->id);
+        if ($paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN)) {
+            $customer = $paymentDriver->customer($client->id);
+        }
 
         $data = [
             'color' => $color,
@@ -227,7 +229,7 @@ class ClientPortalController extends BaseController
             'clientFontUrl' => $account->getFontsUrl(),
             'gateway' => $account->getTokenGateway(),
             'paymentMethods' => $customer ? $customer->payment_methods : false,
-            'transactionToken' => $paymentDriver->createTransactionToken(),
+            'transactionToken' => $paymentDriver ? $paymentDriver->createTransactionToken() : false,
         ];
 
         return response()->view('invited.dashboard', $data);
@@ -777,7 +779,7 @@ class ClientPortalController extends BaseController
         $publicId = Input::get('public_id');
         $enable = Input::get('enable');
         $invoice = $client->invoices()->where('public_id', intval($publicId))->first();
-        
+
         if ($invoice && $invoice->is_recurring && ($invoice->auto_bill == AUTO_BILL_OPT_IN || $invoice->auto_bill == AUTO_BILL_OPT_OUT)) {
             $invoice->client_enable_auto_bill = $enable ? true : false;
             $invoice->save();
