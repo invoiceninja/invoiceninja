@@ -100,6 +100,8 @@ class AppController extends BaseController
         $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
         $_ENV['MAIL_PASSWORD'] = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
+        $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
+        $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
 
         $config = '';
         foreach ($_ENV as $key => $val) {
@@ -174,6 +176,8 @@ class AppController extends BaseController
             $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
             $_ENV['MAIL_PASSWORD'] = $mail['password'];
             $_ENV['MAIL_FROM_ADDRESS'] = $mail['username'];
+            $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
+            $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
         }
 
         $config = '';
