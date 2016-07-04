@@ -148,7 +148,7 @@
                 @if ($contact->phone)
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
                 @endif
-                <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}">{{ trans('texts.view_dashboard') }}</a><br/>
+                <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}" target="_blank">{{ trans('texts.view_dashboard') }}</a><br/>
 		  	@endforeach
 		</div>
 
