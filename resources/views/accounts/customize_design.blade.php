@@ -193,16 +193,13 @@
     <div class="pull-right">
         {!! Button::normal(trans('texts.help'))->withAttributes(['onclick' => 'showHelp()'])->appendIcon(Icon::create('question-sign')) !!}
         {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
-        {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk'))->withAttributes(['class' => 'save-button']) !!}
+        @if (Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
+            {!! Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitForm()'])->appendIcon(Icon::create('floppy-disk'))->withAttributes(['class' => 'save-button']) !!}
+        @endif
     </div>
     </div>
 
       <script>
-      @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
-        $(function() {
-            $('form.warn-on-exit input, .save-button').prop('disabled', true);
-        });
-      @endif
 
         function showHelp() {
             $('#helpModal').modal('show');
