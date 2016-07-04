@@ -18,6 +18,7 @@
         "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
         "omnipay/gocardless": "dev-master",
         "omnipay/stripe": "dev-master",
+        "doctrine/dbal": "2.5.x",
         "laravel/framework": "5.2.*",
         "laravelcollective/html": "5.2.*",
         "symfony/css-selector": "~3.0",
