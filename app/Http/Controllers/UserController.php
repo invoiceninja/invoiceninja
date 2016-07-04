@@ -257,15 +257,18 @@ class UserController extends BaseController
                 $token = Password::getRepository()->create($user);
 
                 return Redirect::to("/password/reset/{$token}");
-            } else {
-                if (Session::has(REQUESTED_PRO_PLAN)) {
-                    Session::forget(REQUESTED_PRO_PLAN);
-                    $invitation = $this->accountRepo->enableProPlan();
-
-                    return Redirect::to($invitation->getLink());
+            } else {                
+                if (Auth::check()) {
+                    if (Session::has(REQUESTED_PRO_PLAN)) {
+                        Session::forget(REQUESTED_PRO_PLAN);
+                        $url = '/settings/account_management?upgrade=true';
+                    } else {
+                        $url = '/dashboard';
+                    }
                 } else {
-                    return Redirect::to(Auth::check() ? '/dashboard' : '/login')->with('message', $notice_msg);
+                    $url = '/login';
                 }
+                return Redirect::to($url)->with('message', $notice_msg);
             }
         } else {
             $error_msg = trans('texts.security.wrong_confirmation');
