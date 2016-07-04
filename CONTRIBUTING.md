@@ -12,7 +12,8 @@ Thanks for your contributions!
  * Check if your branch is still in sync with the repositorys **`develop`** branch
    * _Read:_ [Syncing a fork](https://help.github.com/articles/syncing-a-fork/)
    * _Also read:_ [How to rebase a pull request](https://github.com/edx/edx-platform/wiki/How-to-Rebase-a-Pull-Request) 
- * Push your branch and create a PR against the Invoice Ninja **`develop`** branch 
+ * Push your branch and create a PR against the Invoice Ninja **`develop`** branch
+ * Update the [Changelog](CHANGELOG.md)
 
 ### Some rules
 To make the contribution process nice and easy for anyone, please follow some rules:
