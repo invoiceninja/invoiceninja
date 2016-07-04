@@ -265,7 +265,7 @@
 
     if (!window.loadedSearchData) {
         trackEvent('/activity', '/search');
-        $.get('{{ URL::route('getSearchData') }}', function(data) {
+        var request = $.get('{{ URL::route('getSearchData') }}', function(data) {
           $('#search').typeahead({
             hint: true,
             highlight: true,
@@ -307,6 +307,13 @@
             window.location = datum.url;
           }).focus();
           window.loadedSearchData = true;
+        });
+
+        request.error(function(httpObj, textStatus) {
+            // if the session has expried show login page
+            if (httpObj.status == 401) {
+                location.reload();
+            }
         });
     }
   }
