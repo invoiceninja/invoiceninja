@@ -2,7 +2,6 @@
 
 use Closure;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as BaseVerifier;
-use Illuminate\Http\Request;
 
 /**
  * Class VerifyCsrfToken
@@ -40,7 +39,7 @@ class VerifyCsrfToken extends BaseVerifier
      * @param  Closure $next
      * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle($request, Closure $next)
     {
         foreach ($this->openRoutes as $route) {
 

@@ -17,7 +17,7 @@ class UserSettingsChanged extends Event
      *
      * @param User $user
      */
-    public function __construct(User $user = false)
+    public function __construct(User $user = null)
     {
         $this->user = $user;
     }
