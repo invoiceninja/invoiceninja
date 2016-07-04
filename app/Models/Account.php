@@ -283,7 +283,7 @@ class Account extends Eloquent
     /**
      * @return mixed
      */
-    public function expenseCategories()
+    public function expense_categories()
     {
         return $this->hasMany('App\Models\ExpenseCategory','account_id','id')->withTrashed();
     }
@@ -1024,7 +1024,7 @@ class Account extends Eloquent
             'tax_rates' => [],
             'expenses' => ['client', 'invoice', 'vendor'],
             'payments' => ['invoice'],
-            'expenseCategories' => [],
+            'expense_categories' => [],
         ];
 
         foreach ($map as $key => $values) {
