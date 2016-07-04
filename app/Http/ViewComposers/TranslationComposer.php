@@ -39,5 +39,10 @@ class TranslationComposer
             return $pType->name;
         }));
 
+        $view->with('languages', Cache::get('languages')->each(function ($lang) {
+            $lang->name = trans('texts.lang_'.$lang->name);
+        })->sortBy(function ($lang) {
+            return $lang->name;
+        }));
     }
 }

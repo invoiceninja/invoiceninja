@@ -1674,6 +1674,24 @@ $LANG = array(
     'country_Yemen' => '',
     'country_Zambi' => '',
 
+    // Languages
+    'lang_Brazilian Portuguese' => 'Brazilian Portuguese',
+    'lang_Croatian' => 'Kroatisch',
+    'lang_Czech' => 'Tschechisch',
+    'lang_Danish' => 'Dänisch',
+    'lang_Dutch' => 'Niederländisch',
+    'lang_English' => 'Englisch',
+    'lang_French' => 'Französisch',
+    'lang_French - Canada' => 'French - Canada',
+    'lang_German' => 'Deutsch',
+    'lang_Italian' => 'Italian',
+    'lang_Japanese' => 'Japanese',
+    'lang_Lithuanian' => 'Lithuanian',
+    'lang_Norwegian' => 'Norwegian',
+    'lang_Polish' => 'Polish',
+    'lang_Spanish' => 'Spanish',
+    'lang_Spanish - Spain' => 'Spanish - Spain',
+    'lang_Swedish' => 'Swedish',
 );
 
 return $LANG;

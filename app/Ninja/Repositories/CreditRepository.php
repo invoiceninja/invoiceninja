@@ -4,7 +4,6 @@ use DB;
 use Utils;
 use App\Models\Credit;
 use App\Models\Client;
-use App\Ninja\Repositories\BaseRepository;
 
 class CreditRepository extends BaseRepository
 {

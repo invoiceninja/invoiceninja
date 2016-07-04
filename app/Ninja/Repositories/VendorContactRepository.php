@@ -2,6 +2,7 @@
 
 use App\Models\Vendor;
 use App\Models\VendorContact;
+
 // vendor
 class VendorContactRepository extends BaseRepository
 {

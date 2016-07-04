@@ -2,7 +2,6 @@
 
 use Auth;
 use View;
-use DB;
 use URL;
 use Input;
 use Utils;
@@ -98,7 +97,7 @@ class ClientPortalController extends BaseController
             'phone',
         ]);
 
-        $data = array();
+        $data = [];
         $paymentTypes = $this->getPaymentTypes($account, $client, $invitation);
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
@@ -120,7 +119,7 @@ class ClientPortalController extends BaseController
             $showApprove = false;
         }
 
-        $data += array(
+        $data += [
             'account' => $account,
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
@@ -132,7 +131,7 @@ class ClientPortalController extends BaseController
             'paymentTypes' => $paymentTypes,
             'paymentURL' => $paymentURL,
             'phantomjs' => Input::has('phantomjs'),
-        );
+        ];
 
         if ($paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_CREDIT_CARD)) {
             $data += [
@@ -385,7 +384,7 @@ class ClientPortalController extends BaseController
 
     private function getPaymentStatusLabel($model)
     {
-        $label = trans("texts.status_" . strtolower($model->payment_status_name));
+        $label = trans('texts.status_' . strtolower($model->payment_status_name));
         $class = 'default';
         switch ($model->payment_status_id) {
             case PAYMENT_STATUS_PENDING:
@@ -514,7 +513,7 @@ class ClientPortalController extends BaseController
 
 
         if(!$document->isPDFEmbeddable()){
-            return Response::view('error', array('error'=>'Image does not exist!'), 404);
+            return Response::view('error', ['error'=>'Image does not exist!'], 404);
         }
 
         $authorized = false;
@@ -525,7 +524,7 @@ class ClientPortalController extends BaseController
         }
 
         if(!$authorized){
-            return Response::view('error', array('error'=>'Not authorized'), 403);
+            return Response::view('error', ['error'=>'Not authorized'], 403);
         }
 
         if(substr($name, -3)=='.js'){
@@ -556,7 +555,7 @@ class ClientPortalController extends BaseController
 
         $size = 0;
         $maxSize = MAX_ZIP_DOCUMENTS_SIZE * 1000;
-        $toZip = array();
+        $toZip = [];
         foreach($documents as $document){
             if($size + $document->size > $maxSize)break;
 
@@ -602,7 +601,7 @@ class ClientPortalController extends BaseController
         $toZip = $this->getInvoiceZipDocuments($invoice);
 
         if(!count($toZip)){
-            return Response::view('error', array('error'=>'No documents small enough'), 404);
+            return Response::view('error', ['error'=>'No documents small enough'], 404);
         }
 
         $zip = new ZipArchive($invitation->account->name.' Invoice '.$invoice->invoice_number.'.zip');
@@ -610,7 +609,7 @@ class ClientPortalController extends BaseController
             foreach($toZip as $name=>$document){
                 $fileStream = $document->getStream();
                 if($fileStream){
-                    $zip->init_file_stream_transfer($name, $document->size, array('time'=>$document->created_at->timestamp));
+                    $zip->init_file_stream_transfer($name, $document->size, ['time'=>$document->created_at->timestamp]);
                     while ($buffer = fread($fileStream, 256000))$zip->stream_file_part($buffer);
                     fclose($fileStream);
                     $zip->complete_file_stream();
@@ -641,7 +640,7 @@ class ClientPortalController extends BaseController
         }
 
         if(!$authorized){
-            return Response::view('error', array('error'=>'Not authorized'), 403);
+            return Response::view('error', ['error'=>'Not authorized'], 403);
         }
 
         return DocumentController::getDownloadResponse($document);
@@ -659,7 +658,7 @@ class ClientPortalController extends BaseController
         $paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN);
         $customer = $paymentDriver->customer($client->id);
 
-        $data = array(
+        $data = [
             'account' => $account,
             'contact' => $contact,
             'color' => $account->primary_color ? $account->primary_color : '#0b4d78',
@@ -670,7 +669,7 @@ class ClientPortalController extends BaseController
             'gateway' => $account->getTokenGateway(),
             'title' => trans('texts.payment_methods'),
             'transactionToken' => $paymentDriver->createTransactionToken(),
-        );
+        ];
 
         return response()->view('payments.paymentmethods', $data);
     }
@@ -732,7 +731,7 @@ class ClientPortalController extends BaseController
         $client = $contact->client;
         $account = $client->account;
 
-        $validator = Validator::make(Input::all(), array('source' => 'required'));
+        $validator = Validator::make(Input::all(), ['source' => 'required']);
         if ($validator->fails()) {
             return Redirect::to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/payment_methods/');
         }
@@ -770,7 +769,7 @@ class ClientPortalController extends BaseController
 
         $client = $contact->client;
 
-        $validator = Validator::make(Input::all(), array('public_id' => 'required'));
+        $validator = Validator::make(Input::all(), ['public_id' => 'required']);
 
         if ($validator->fails()) {
             return Redirect::to('client/invoices/recurring');

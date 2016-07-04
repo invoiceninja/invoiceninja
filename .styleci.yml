@@ -1,0 +1,18 @@
+preset: laravel
+
+risky: false
+
+enabled:
+  - no_useless_else
+  - phpdoc_align
+  - phpdoc_no_empty_return
+  - phpdoc_order
+  - phpdoc_separation
+
+finder:
+  exclude:
+    - "resources"
+    - "storage"
+    - "tests"
+  not-path:
+    - "bootstrap/cache"

@@ -1,15 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Utils;
 use Response;
 use Input;
-use Auth;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\ClientTransformer;
 use App\Http\Requests\UpdateClientRequest;
 
 class ClientApiController extends BaseAPIController

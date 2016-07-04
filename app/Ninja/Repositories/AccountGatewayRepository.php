@@ -1,10 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
 use DB;
-use Utils;
-use Session;
-use App\Models\AccountGateway;
-use App\Ninja\Repositories\BaseRepository;
 
 class AccountGatewayRepository extends BaseRepository
 {

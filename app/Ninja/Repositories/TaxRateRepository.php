@@ -3,7 +3,6 @@
 use DB;
 use Utils;
 use App\Models\TaxRate;
-use App\Ninja\Repositories\BaseRepository;
 
 class TaxRateRepository extends BaseRepository
 {

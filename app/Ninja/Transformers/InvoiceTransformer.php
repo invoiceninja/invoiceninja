@@ -3,7 +3,6 @@
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Invoice;
-use League\Fractal;
 
 /**
  * @SWG\Definition(definition="Invoice", required={"invoice_number"}, @SWG\Xml(name="Invoice"))

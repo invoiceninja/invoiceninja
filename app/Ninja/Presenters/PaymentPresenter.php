@@ -1,6 +1,5 @@
 <?php namespace App\Ninja\Presenters;
 
-use URL;
 use Utils;
 
 class PaymentPresenter extends EntityPresenter {

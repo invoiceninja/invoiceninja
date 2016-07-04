@@ -1,10 +1,8 @@
 <?php namespace App\Ninja\Repositories;
 
 use DB;
-use App\Ninja\Repositories\BaseRepository;
 use App\Models\Vendor;
-use App\Models\VendorContact;
-use App\Models\Activity;
+
 // vendor
 class VendorRepository extends BaseRepository
 {

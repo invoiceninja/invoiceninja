@@ -1,10 +1,8 @@
 <?php namespace App\Ninja\Repositories;
 
 use DB;
-use Utils;
 use Session;
 use App\Models\Token;
-use App\Ninja\Repositories\BaseRepository;
 
 class TokenRepository extends BaseRepository
 {

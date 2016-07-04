@@ -2,55 +2,85 @@
 
 use Auth;
 use Eloquent;
-use Utils;
-use Session;
-use Request;
-use Carbon;
 
+/**
+ * Class Activity
+ */
 class Activity extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = true;
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeScope($query)
     {
         return $query->whereAccountId(Auth::user()->account_id);
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
     }
 
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function contact()
     {
         return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function client()
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function credit()
     {
         return $this->belongsTo('App\Models\Credit')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function payment()
     {
         return $this->belongsTo('App\Models\Payment')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function getMessage()
     {
         $activityTypeId = $this->activity_type_id;

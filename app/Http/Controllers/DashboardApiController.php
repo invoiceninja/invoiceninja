@@ -2,8 +2,6 @@
 
 use Auth;
 use DB;
-use View;
-use App\Models\Activity;
 
 class DashboardApiController extends BaseAPIController
 {

@@ -96,7 +96,7 @@ class InvoiceDatatable extends EntityDatatable
                 }
             ],
             [
-                trans("texts.view_history"),
+                trans('texts.view_history'),
                 function ($model) use ($entityType) {
                     return URL::to("{$entityType}s/{$entityType}_history/{$model->public_id}");
                 }
@@ -108,7 +108,7 @@ class InvoiceDatatable extends EntityDatatable
                 }
             ],
             [
-                trans("texts.mark_sent"),
+                trans('texts.mark_sent'),
                 function ($model) {
                     return "javascript:markEntity({$model->public_id})";
                 },
@@ -126,7 +126,7 @@ class InvoiceDatatable extends EntityDatatable
                 }
             ],
             [
-                trans("texts.view_quote"),
+                trans('texts.view_quote'),
                 function ($model) {
                     return URL::to("quotes/{$model->quote_id}/edit");
                 },
@@ -135,7 +135,7 @@ class InvoiceDatatable extends EntityDatatable
                 }
             ],
             [
-                trans("texts.view_invoice"),
+                trans('texts.view_invoice'),
                 function ($model) {
                     return URL::to("invoices/{$model->quote_invoice_id}/edit");
                 },
@@ -144,7 +144,7 @@ class InvoiceDatatable extends EntityDatatable
                 }
             ],
             [
-                trans("texts.convert_to_invoice"),
+                trans('texts.convert_to_invoice'),
                 function ($model) {
                     return "javascript:convertEntity({$model->public_id})";
                 },
@@ -161,13 +161,13 @@ class InvoiceDatatable extends EntityDatatable
 
         // check if invoice is overdue
         if (Utils::parseFloat($model->balance) && $model->due_date && $model->due_date != '0000-00-00') {
-            if (\DateTime::createFromFormat('Y-m-d', $model->due_date) < new \DateTime("now")) {
+            if (\DateTime::createFromFormat('Y-m-d', $model->due_date) < new \DateTime('now')) {
                 $label = $entityType == ENTITY_INVOICE ? trans('texts.overdue') : trans('texts.expired');
-                return "<h4><div class=\"label label-danger\">" . $label . "</div></h4>";
+                return '<h4><div class="label label-danger">' . $label . '</div></h4>';
             }
         }
 
-        $label = trans("texts.status_" . strtolower($model->invoice_status_name));
+        $label = trans('texts.status_' . strtolower($model->invoice_status_name));
         $class = 'default';
         switch ($model->invoice_status_id) {
             case INVOICE_STATUS_SENT:

@@ -1,26 +1,47 @@
 <?php namespace App\Services;
 
-use URL;
-use App\Services\BaseService;
 use App\Ninja\Repositories\TokenRepository;
 use App\Ninja\Datatables\TokenDatatable;
 
+/**
+ * Class TokenService
+ */
 class TokenService extends BaseService
 {
+    /**
+     * @var TokenRepository
+     */
     protected $tokenRepo;
+
+    /**
+     * @var DatatableService
+     */
     protected $datatableService;
 
+    /**
+     * TokenService constructor.
+     *
+     * @param TokenRepository $tokenRepo
+     * @param DatatableService $datatableService
+     */
     public function __construct(TokenRepository $tokenRepo, DatatableService $datatableService)
     {
         $this->tokenRepo = $tokenRepo;
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @return TokenRepository
+     */
     protected function getRepo()
     {
         return $this->tokenRepo;
     }
 
+    /**
+     * @param $userId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($userId)
     {
         $datatable = new TokenDatatable(false);
@@ -28,5 +49,4 @@ class TokenService extends BaseService
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
-
 }

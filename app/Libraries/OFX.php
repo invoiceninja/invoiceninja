@@ -24,7 +24,7 @@ class OFX
         curl_setopt($c, CURLOPT_URL, $this->bank->url);
         curl_setopt($c, CURLOPT_POST, 1);
         // User-Agent: http://www.ofxhome.com/ofxforum/viewtopic.php?pid=108091#p108091
-        curl_setopt($c, CURLOPT_HTTPHEADER, array('Content-Type: application/x-ofx', 'User-Agent: httpclient'));
+        curl_setopt($c, CURLOPT_HTTPHEADER, ['Content-Type: application/x-ofx', 'User-Agent: httpclient']);
         curl_setopt($c, CURLOPT_POSTFIELDS, $this->request);
         curl_setopt($c, CURLOPT_RETURNTRANSFER, 1);
 
@@ -106,13 +106,13 @@ class Login
 			"<SIGNONMSGSRQV1>\n".
 				"<SONRQ>\n".
 					"<DTCLIENT>20110412162900.000[-7:MST]\n".
-					"<USERID>".$this->id."\n".
-					"<USERPASS>".$this->pass."\n".
+					'<USERID>'.$this->id."\n".
+					'<USERPASS>'.$this->pass."\n".
 					"<GENUSERKEY>N\n".
 					"<LANGUAGE>ENG\n".
 					"<FI>\n".
-						"<ORG>".$this->bank->org."\n".
-						"<FID>".$this->bank->fid."\n".
+						'<ORG>'.$this->bank->org."\n".
+						'<FID>'.$this->bank->fid."\n".
 					"</FI>\n".
 					"<APPID>QWIN\n".
 					"<APPVER>2500\n".
@@ -120,7 +120,7 @@ class Login
 			"</SIGNONMSGSRQV1>\n".
 			"<SIGNUPMSGSRQV1>\n".
 				"<ACCTINFOTRNRQ>\n".
-					"<TRNUID>".md5(time().$this->bank->url.$this->id)."\n".
+					'<TRNUID>'.md5(time().$this->bank->url.$this->id)."\n".
 					"<ACCTINFORQ>\n".
 						"<DTACCTUP>19900101\n".
 					"</ACCTINFORQ>\n".
@@ -174,12 +174,12 @@ class Account
 				"<SIGNONMSGSRQV1>\n".
 					"<SONRQ>\n".
 						"<DTCLIENT>20110412162900.000[-7:MST]\n".
-						"<USERID>".$this->login->id."\n".
-						"<USERPASS>".$this->login->pass."\n".
+						'<USERID>'.$this->login->id."\n".
+						'<USERPASS>'.$this->login->pass."\n".
 						"<LANGUAGE>ENG\n".
 						"<FI>\n".
-							"<ORG>".$this->login->bank->org."\n".
-							"<FID>".$this->login->bank->fid."\n".
+							'<ORG>'.$this->login->bank->org."\n".
+							'<FID>'.$this->login->bank->fid."\n".
 						"</FI>\n".
 						"<APPID>QWIN\n".
 						"<APPVER>2500\n".
@@ -189,16 +189,16 @@ class Account
             $ofxRequest .=
 				"	<BANKMSGSRQV1>\n".
 				"		<STMTTRNRQ>\n".
-				"			<TRNUID>".md5(time().$this->login->bank->url.$this->id)."\n".
+				'			<TRNUID>'.md5(time().$this->login->bank->url.$this->id)."\n".
 				"			<STMTRQ>\n".
 				"				<BANKACCTFROM>\n".
-				"					<BANKID>".$this->bankId."\n".
-				"					<ACCTID>".$this->id."\n".
-				"					<ACCTTYPE>".$this->subType."\n".
+				'					<BANKID>'.$this->bankId."\n".
+				'					<ACCTID>'.$this->id."\n".
+				'					<ACCTTYPE>'.$this->subType."\n".
 				"				</BANKACCTFROM>\n".
 				"				<INCTRAN>\n".
 				"					<DTSTART>20110301\n".
-				"					<INCLUDE>".($includeTransactions ? 'Y' : 'N')."\n".
+				'					<INCLUDE>'.($includeTransactions ? 'Y' : 'N')."\n".
 				"				</INCTRAN>\n".
 				"			</STMTRQ>\n".
 				"		</STMTTRNRQ>\n".
@@ -207,21 +207,21 @@ class Account
             $ofxRequest .=
 				"	<CREDITCARDMSGSRQV1>\n".
 				"		<CCSTMTTRNRQ>\n".
-				"			<TRNUID>".md5(time().$this->login->bank->url.$this->id)."\n".
+				'			<TRNUID>'.md5(time().$this->login->bank->url.$this->id)."\n".
 				"			<CCSTMTRQ>\n".
 				"				<CCACCTFROM>\n".
-				"					<ACCTID>".$this->id."\n".
+				'					<ACCTID>'.$this->id."\n".
 				"				</CCACCTFROM>\n".
 				"				<INCTRAN>\n".
 				"					<DTSTART>20110320\n".
-				"					<INCLUDE>".($includeTransactions ? 'Y' : 'N')."\n".
+				'					<INCLUDE>'.($includeTransactions ? 'Y' : 'N')."\n".
 				"				</INCTRAN>\n".
 				"			</CCSTMTRQ>\n".
 				"		</CCSTMTTRNRQ>\n".
 				"	</CREDITCARDMSGSRQV1>\n";
         }
         $ofxRequest .=
-			"</OFX>";
+			'</OFX>';
         $o = new OFX($this->login->bank, $ofxRequest);
         $o->go();
         $this->response = $o->response;

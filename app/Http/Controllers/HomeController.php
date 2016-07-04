@@ -9,12 +9,22 @@ use Session;
 use App\Models\Account;
 use App\Libraries\Utils;
 use App\Ninja\Mailers\Mailer;
-use Symfony\Component\Security\Core\Util\StringUtils;
 
+/**
+ * Class HomeController
+ */
 class HomeController extends BaseController
 {
+    /**
+     * @var Mailer
+     */
     protected $mailer;
 
+    /**
+     * HomeController constructor.
+     *
+     * @param Mailer $mailer
+     */
     public function __construct(Mailer $mailer)
     {
         //parent::__construct();
@@ -22,6 +32,9 @@ class HomeController extends BaseController
         $this->mailer = $mailer;
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function showIndex()
     {
         Session::reflash();
@@ -35,16 +48,25 @@ class HomeController extends BaseController
         }
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function showTerms()
     {
         return View::make('public.terms', ['hideHeader' => true]);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function viewLogo()
     {
         return View::make('public.logo');
     }
-    
+
+    /**
+     * @return \Illuminate\Contracts\View\View|\Illuminate\Http\RedirectResponse
+     */
     public function invoiceNow()
     {
         if (Auth::check() && Input::get('new_company')) {
@@ -68,6 +90,11 @@ class HomeController extends BaseController
         }
     }
 
+    /**
+     * @param $userType
+     * @param $version
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function newsFeed($userType, $version)
     {
         $response = Utils::getNewsFeedResponse($userType);
@@ -75,6 +102,9 @@ class HomeController extends BaseController
         return Response::json($response);
     }
 
+    /**
+     * @return string
+     */
     public function hideMessage()
     {
         if (Auth::check() && Session::has('news_feed_id')) {
@@ -91,11 +121,17 @@ class HomeController extends BaseController
         return 'success';
     }
 
+    /**
+     * @return string
+     */
     public function logError()
     {
         return Utils::logError(Input::get('error'), 'JavaScript');
     }
 
+    /**
+     * @return mixed
+     */
     public function keepAlive()
     {
         return RESULT_SUCCESS;

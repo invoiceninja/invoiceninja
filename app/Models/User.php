@@ -1,7 +1,6 @@
 <?php namespace App\Models;
 
 use Session;
-use Auth;
 use Event;
 use App\Libraries\Utils;
 use App\Events\UserSettingsChanged;
@@ -15,12 +14,18 @@ use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Class User
+ */
 class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
-    public static $all_permissions = array(
+    /**
+     * @var array
+     */
+    public static $all_permissions = [
         'create_all' => 0b0001,
         'view_all' => 0b0010,
         'edit_all' => 0b0100,
-    );
+    ];
 
     use Authenticatable, Authorizable, CanResetPassword;
 
@@ -52,28 +57,46 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     protected $hidden = ['password', 'remember_token', 'confirmation_code'];
 
     use SoftDeletes;
+    /**
+     * @var array
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function theme()
     {
         return $this->belongsTo('App\Models\Theme');
     }
 
+    /**
+     * @param $value
+     */
     public function setEmailAttribute($value)
     {
         $this->attributes['email'] = $this->attributes['username'] = $value;
     }
 
+    /**
+     * @return mixed|string
+     */
     public function getName()
     {
         return $this->getDisplayName();
     }
 
+    /**
+     * @return mixed
+     */
     public function getPersonType()
     {
         return PERSON_USER;
@@ -109,36 +132,59 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return $this->email;
     }
 
+    /**
+     * @return mixed
+     */
     public function isPro()
     {
         return $this->account->isPro();
     }
 
+    /**
+     * @param $feature
+     * @return mixed
+     */
     public function hasFeature($feature)
     {
         return $this->account->hasFeature($feature);
     }
 
+    /**
+     * @return bool
+     */
     public function isPaidPro()
     {
         return $this->isPro($accountDetails) && !$accountDetails['trial'];
     }
 
+    /**
+     * @return mixed
+     */
     public function isTrial()
     {
         return $this->account->isTrial();
     }
 
+    /**
+     * @param null $plan
+     * @return mixed
+     */
     public function isEligibleForTrial($plan = null)
     {
         return $this->account->isEligibleForTrial($plan);
     }
 
+    /**
+     * @return int
+     */
     public function maxInvoiceDesignId()
     {
         return $this->hasFeature(FEATURE_MORE_INVOICE_DESIGNS) ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
     }
 
+    /**
+     * @return mixed|string
+     */
     public function getDisplayName()
     {
         if ($this->getFullName()) {
@@ -150,6 +196,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
     }
 
+    /**
+     * @return string
+     */
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
@@ -159,16 +208,27 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
     }
 
+    /**
+     * @return bool
+     */
     public function showGreyBackground()
     {
         return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
     }
 
+    /**
+     * @return mixed
+     */
     public function getRequestsCount()
     {
         return Session::get(SESSION_COUNTER, 0);
     }
 
+    /**
+     * @param bool $success
+     * @param bool $forced
+     * @return bool
+     */
     public function afterSave($success = true, $forced = false)
     {
         if ($this->email) {
@@ -178,6 +238,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
     }
 
+    /**
+     * @return mixed
+     */
     public function getMaxNumClients()
     {
         if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
@@ -191,6 +254,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return MAX_NUM_CLIENTS;
     }
 
+    /**
+     * @return mixed
+     */
     public function getMaxNumVendors()
     {
         if ($this->hasFeature(FEATURE_MORE_CLIENTS)) {
@@ -201,16 +267,25 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
 
+    /**
+     * @return mixed
+     */
     public function getRememberToken()
     {
         return $this->remember_token;
     }
 
+    /**
+     * @param string $value
+     */
     public function setRememberToken($value)
     {
         $this->remember_token = $value;
     }
 
+    /**
+     * @return string
+     */
     public function getRememberTokenName()
     {
         return 'remember_token';
@@ -234,6 +309,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
     }
 
+    /**
+     * @param $user
+     */
     public static function onUpdatingUser($user)
     {
         if ($user->password != $user->getOriginal('password')) {
@@ -247,6 +325,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
     }
 
+    /**
+     * @param $user
+     */
     public static function onUpdatedUser($user)
     {
         if (!$user->getOriginal('email')
@@ -259,6 +340,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         event(new UserSettingsChanged($user));
     }
 
+    /**
+     * @return bool
+     */
     public function isEmailBeingChanged()
     {
         return Utils::isNinjaProd()
@@ -299,7 +383,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @return mixed
      */
     protected function getPermissionsAttribute($value){
-        $permissions = array();
+        $permissions = [];
         foreach(static::$all_permissions as $permission => $bitmask){
             if(($value & $bitmask) == $bitmask) {
                 $permissions[$permission] = $permission;
@@ -332,10 +416,17 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return false;
     }
 
+    /**
+     * @param $entity
+     * @return bool
+     */
     public function owns($entity) {
         return !empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
+    /**
+     * @return bool|mixed
+     */
     public function filterId() {
         return $this->hasPermission('view_all') ? false : $this->id;
     }

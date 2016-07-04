@@ -1,25 +1,31 @@
 <?php namespace App\Events;
 
-use App\Events\Event;
-
+use App\Models\Payment;
 use Illuminate\Queue\SerializesModels;
 
-class PaymentWasRefunded extends Event {
+/**
+ * Class PaymentWasRefunded
+ */
+class PaymentWasRefunded extends Event
+{
+    use SerializesModels;
 
-	use SerializesModels;
-
+    /**
+     * @var Payment
+     */
     public $payment;
+
     public $refundAmount;
 
-	/**
-	 * Create a new event instance.
-	 *
-	 * @return void
-	 */
-    public function __construct($payment, $refundAmount)
+    /**
+     * Create a new event instance.
+     *
+     * @param Payment $payment
+     * @param $refundAmount
+     */
+    public function __construct(Payment $payment, $refundAmount)
     {
         $this->payment = $payment;
         $this->refundAmount = $refundAmount;
     }
-
 }
