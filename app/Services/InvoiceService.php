@@ -113,18 +113,9 @@ class InvoiceService extends BaseService
      * @param Invitation|null $invitation
      * @return mixed
      */
-    public function convertQuote($quote, Invitation $invitation = null)
+    public function convertQuote($quote)
     {
-        $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
-        if (!$invitation) {
-            return $invoice;
-        }
-
-        foreach ($invoice->invitations as $invoiceInvitation) {
-            if ($invitation->contact_id == $invoiceInvitation->contact_id) {
-                return $invoiceInvitation->invitation_key;
-            }
-        }
+        return $this->invoiceRepo->cloneInvoice($quote, $quote->id);
     }
 
     /**
@@ -141,7 +132,13 @@ class InvoiceService extends BaseService
         }
 
         if ($account->auto_convert_quote || ! $account->hasFeature(FEATURE_QUOTES)) {
-            $invoice = $this->convertQuote($quote, $invitation);
+            $invoice = $this->convertQuote($quote);
+
+            foreach ($invoice->invitations as $invoiceInvitation) {
+                if ($invitation->contact_id == $invoiceInvitation->contact_id) {
+                    $invitation = $invoiceInvitation;
+                }
+            }
 
             event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));
 
