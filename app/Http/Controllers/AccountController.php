@@ -393,7 +393,6 @@ class AccountController extends BaseController
             'dateFormats' => Cache::get('dateFormats'),
             'datetimeFormats' => Cache::get('datetimeFormats'),
             'currencies' => Cache::get('currencies'),
-            'languages' => Cache::get('languages'),
             'title' => trans('texts.localization'),
         ];
 

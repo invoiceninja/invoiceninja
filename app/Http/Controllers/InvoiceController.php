@@ -369,7 +369,6 @@ class InvoiceController extends BaseController
             'taxRateOptions' => $options,
             'defaultTax' => $defaultTax,
             'currencies' => Cache::get('currencies'),
-            'languages' => Cache::get('languages'),
             'sizes' => Cache::get('sizes'),
             'paymentTerms' => Cache::get('paymentTerms'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
