@@ -63,6 +63,8 @@ class TemplateService
             '$customInvoice2' => $account->custom_invoice_text_label2,
             '$documents' => $documentsHTML,
             '$autoBill' => empty($data['autobill'])?'':$data['autobill'],
+            '$portalLink' => $invitation->contact->link,
+            '$portalButton' => Form::emailViewButton($invitation->contact->link, 'portal'),
         ];
 
         // Add variables for available payment types

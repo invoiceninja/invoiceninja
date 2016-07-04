@@ -33,6 +33,8 @@ class ContactMailer extends Mailer
         'paymentLink',
         'paymentButton',
         'autoBill',
+        'portalLink',
+        'portalButton',
     ];
 
     /**

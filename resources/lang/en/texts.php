@@ -1692,7 +1692,7 @@ $LANG = array(
     'lang_Spanish' => 'Spanish',
     'lang_Spanish - Spain' => 'Spanish - Spain',
     'lang_Swedish' => 'Swedish',
-    
+
     // Frequencies
     'freq_weekly' => 'Weekly',
     'freq_two_weeks' => 'Two weeks',
@@ -2004,6 +2004,8 @@ $LANG = array(
     'country_Yemen' => 'Yemen',
     'country_Zambi' => 'Zambi',
 
+    'view_client_portal' => 'View client portal',
+    'view_portal' => 'View Portal',
 );
 
 return $LANG;
