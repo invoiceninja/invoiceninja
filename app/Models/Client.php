@@ -85,6 +85,10 @@ class Client extends EntityModel
      * @var string
      */
     public static $fieldCountry = 'country';
+    /**
+     * @var string
+     */
+    public static $fieldWebsite = 'website';
 
     /**
      * @return array
@@ -101,6 +105,7 @@ class Client extends EntityModel
             Client::$fieldPostalCode,
             Client::$fieldCountry,
             Client::$fieldNotes,
+            Client::$fieldWebsite,
             Contact::$fieldFirstName,
             Contact::$fieldLastName,
             Contact::$fieldPhone,
@@ -126,6 +131,7 @@ class Client extends EntityModel
             'zip|postal|code' => 'postal_code',
             'country' => 'country',
             'note' => 'notes',
+            'site|website' => 'website',
         ];
     }
 
