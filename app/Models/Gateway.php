@@ -161,7 +161,10 @@ class Gateway extends Eloquent
         }
 
         $key = 'texts.gateway_help_'.$this->id;
-        $str = trans($key, ['link' => "<a href='$link' target='_blank'>Click here</a>"]);
+        $str = trans($key, [
+            'link' => "<a href='$link' target='_blank'>Click here</a>",
+            'complete_link' => url('/complete'),
+        ]);
 
         return $key != $str ? $str : '';
     }
