@@ -181,7 +181,7 @@ class Utils
         $response = new stdClass();
         $response->message = isset($_ENV["{$userType}_MESSAGE"]) ? $_ENV["{$userType}_MESSAGE"] : '';
         $response->id = isset($_ENV["{$userType}_ID"]) ? $_ENV["{$userType}_ID"] : '';
-        $response->version = NINJA_VERSION;
+        $response->version = env('NINJA_SELF_HOST_VERSION', NINJA_VERSION);
 
         return $response;
     }
