@@ -21,6 +21,11 @@ use App\Models\Currency;
 
 class Utils
 {
+    private static $weekdayNames = [
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+    ];
+
+
     public static function isRegistered()
     {
         return Auth::check() && Auth::user()->registered;
@@ -1012,5 +1017,29 @@ class Utils
         } else {
             return new WePay(null);
         }
+    }
+
+    /**
+     * Gets an array of weekday names (in English)
+     *
+     * @see getTranslatedWeekdayNames()
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getWeekdayNames()
+    {
+        return collect(static::$weekdayNames);
+    }
+
+    /**
+     * Gets an array of translated weekday names
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getTranslatedWeekdayNames()
+    {
+        return collect(static::$weekdayNames)->transform(function ($day) {
+             return trans('texts.'.strtolower($day));
+        });
     }
 }
