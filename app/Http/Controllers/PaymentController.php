@@ -94,7 +94,6 @@ class PaymentController extends BaseController
     public function create(PaymentRequest $request)
     {
         $invoices = Invoice::scope()
-                    ->viewable()
                     ->invoiceType(INVOICE_TYPE_STANDARD)
                     ->where('is_recurring', '=', false)
                     ->where('invoices.balance', '>', 0)
@@ -111,7 +110,7 @@ class PaymentController extends BaseController
             'url' => 'payments',
             'title' => trans('texts.new_payment'),
             'paymentTypeId' => Input::get('paymentTypeId'),
-            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(), ];
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), ];
 
         return View::make('payments.edit', $data);
     }

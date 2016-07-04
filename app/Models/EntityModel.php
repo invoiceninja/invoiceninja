@@ -121,15 +121,6 @@ class EntityModel extends Eloquent
             }
         }
 
-        return $query;
-    }
-
-    /**
-     * @param $query
-     * @return mixed
-     */
-    public function scopeViewable($query)
-    {
         if (Auth::check() && ! Auth::user()->hasPermission('view_all')) {
             $query->where($this->getEntityType(). 's.user_id', '=', Auth::user()->id);
         }

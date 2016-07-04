@@ -62,7 +62,7 @@ class CreditController extends BaseController
             'method' => 'POST',
             'url' => 'credits',
             'title' => trans('texts.new_credit'),
-            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(), 
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), 
         ];
 
         return View::make('credits.edit', $data);
