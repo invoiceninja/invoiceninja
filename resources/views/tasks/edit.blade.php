@@ -178,7 +178,8 @@
                 $(element).datetimepicker({
                     value: current_time
                 });
-            }
+            },
+            dayOfWeekStart: {{ Session::get('start_of_week') }}
          });
 
          $(element).change(function() {
