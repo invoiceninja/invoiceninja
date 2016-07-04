@@ -7,12 +7,20 @@ use Input;
 use Socialite;
 use App\Ninja\Repositories\AccountRepository;
 use App\Events\UserLoggedIn;
-use App\Events\UserSignedUp;
 
+/**
+ * Class AuthService
+ */
 class AuthService
 {
+    /**
+     * @var AccountRepository
+     */
     private $accountRepo;
 
+    /**
+     * @var array
+     */
     public static $providers = [
         1 => SOCIAL_GOOGLE,
         2 => SOCIAL_FACEBOOK,
@@ -20,6 +28,11 @@ class AuthService
         4 => SOCIAL_LINKEDIN
     ];
 
+    /**
+     * AuthService constructor.
+     *
+     * @param AccountRepository $repo
+     */
     public function __construct(AccountRepository $repo)
     {
         $this->accountRepo = $repo;
@@ -27,11 +40,13 @@ class AuthService
 
     public static function getProviders()
     {
-        $providers = [];
-
-        
     }
 
+    /**
+     * @param $provider
+     * @param $hasCode
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function execute($provider, $hasCode)
     {
         if (!$hasCode) {
@@ -75,16 +90,28 @@ class AuthService
         return redirect()->to($redirectTo);
     }
 
+    /**
+     * @param $provider
+     * @return mixed
+     */
     private function getAuthorization($provider)
     {
         return Socialite::driver($provider)->redirect();
     }
 
+    /**
+     * @param $provider
+     * @return mixed
+     */
     public static function getProviderId($provider)
     {
         return array_search(strtolower($provider), array_map('strtolower', AuthService::$providers));
     }
 
+    /**
+     * @param $providerId
+     * @return mixed|string
+     */
     public static function getProviderName($providerId)
     {
         return $providerId ? AuthService::$providers[$providerId] : '';

@@ -4,8 +4,6 @@ use App\Models\Account;
 use App\Models\Payment;
 use App\Models\Invoice;
 use App\Models\Client;
-use League\Fractal;
-use App\Ninja\Transformers\InvoiceTransformer;
 
 /**
  * @SWG\Definition(definition="Payment", required={"invoice_id"}, @SWG\Xml(name="Payment"))

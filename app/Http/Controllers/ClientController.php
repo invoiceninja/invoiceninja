@@ -1,33 +1,21 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Datatable;
 use Utils;
 use View;
 use URL;
-use Validator;
 use Input;
 use Session;
 use Redirect;
 use Cache;
-
-use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Account;
 use App\Models\Contact;
 use App\Models\Invoice;
-use App\Models\Size;
-use App\Models\PaymentTerm;
-use App\Models\Industry;
-use App\Models\Currency;
-use App\Models\Payment;
 use App\Models\Credit;
-use App\Models\Expense;
-use App\Models\Country;
 use App\Models\Task;
 use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
-
 use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
@@ -53,7 +41,7 @@ class ClientController extends BaseController
      */
     public function index()
     {
-        return View::make('list', array(
+        return View::make('list', [
             'entityType' => ENTITY_CLIENT,
             'title' => trans('texts.clients'),
             'sortCol' => '4',
@@ -67,7 +55,7 @@ class ClientController extends BaseController
               'balance',
               ''
             ]),
-        ));
+        ]);
     }
 
     public function getDatatable()
@@ -131,7 +119,7 @@ class ClientController extends BaseController
 
         $token = $client->getGatewayToken();
 
-        $data = array(
+        $data = [
             'actionLinks' => $actionLinks,
             'showBreadcrumbs' => false,
             'client' => $client,
@@ -142,7 +130,7 @@ class ClientController extends BaseController
             'hasTasks' => Task::scope()->whereClientId($client->id)->count() > 0,
             'gatewayLink' => $token ? $token->gatewayLink() : false,
             'gatewayName' => $token ? $token->gatewayName() : false,
-        );
+        ];
 
         return View::make('clients.show', $data);
     }
@@ -155,7 +143,7 @@ class ClientController extends BaseController
     public function create(ClientRequest $request)
     {
         if (Client::scope()->withTrashed()->count() > Auth::user()->getMaxNumClients()) {
-            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients()." clients"]);
+            return View::make('error', ['hideHeader' => true, 'error' => "Sorry, you've exceeded the limit of ".Auth::user()->getMaxNumClients().' clients']);
         }
 
         $data = [

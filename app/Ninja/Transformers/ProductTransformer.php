@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Transformers;
 
 use App\Models\Product;
-use League\Fractal;
 
 class ProductTransformer extends EntityTransformer
 {

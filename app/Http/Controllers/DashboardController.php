@@ -7,8 +7,14 @@ use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
 
+/**
+ * Class DashboardController
+ */
 class DashboardController extends BaseController
 {
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function index()
     {
         $view_all = Auth::user()->hasPermission('view_all');

@@ -17,13 +17,35 @@ use App\Ninja\Mailers\ContactMailer;
 
 class NinjaController extends BaseController
 {
+    /**
+     * @var AccountRepository
+     */
+    protected $accountRepo;
+
+    /**
+     * @var ContactMailer
+     */
+    protected $contactMailer;
+
+    /**
+     * NinjaController constructor.
+     *
+     * @param AccountRepository $accountRepo
+     * @param ContactMailer $contactMailer
+     */
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer)
     {
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
     }
 
-    private function getLicensePaymentDetails($input, $affiliate)
+    /**
+     * @param array $input
+     * @param Affiliate $affiliate
+     *
+     * @return array
+     */
+    private function getLicensePaymentDetails(array $input, Affiliate $affiliate)
     {
         $country = Country::find($input['country_id']);
 
@@ -60,6 +82,9 @@ class NinjaController extends BaseController
         ];
     }
 
+    /**
+     * @return $this|\Illuminate\Contracts\View\View
+     */
     public function show_license_payment()
     {
         if (Input::has('return_url')) {
@@ -116,11 +141,14 @@ class NinjaController extends BaseController
         return View::make('payments.stripe.credit_card', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function do_license_payment()
     {
         $testMode = Session::get('test_mode') === 'true';
 
-        $rules = array(
+        $rules = [
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required',
@@ -133,7 +161,7 @@ class NinjaController extends BaseController
             'state' => 'required',
             'postal_code' => 'required',
             'country_id' => 'required',
-        );
+        ];
 
         $validator = Validator::make(Input::all(), $rules);
 
@@ -192,7 +220,7 @@ class NinjaController extends BaseController
 
             if (Session::has('return_url')) {
                 $data['redirectTo'] = Session::get('return_url')."?license_key={$license->license_key}&product_id=".Session::get('product_id');
-                $data['message'] = "Redirecting to " . Session::get('return_url');
+                $data['message'] = 'Redirecting to ' . Session::get('return_url');
             }
 
             return View::make('public.license', $data);
@@ -202,6 +230,9 @@ class NinjaController extends BaseController
         }
     }
 
+    /**
+     * @return string
+     */
     public function claim_license()
     {
         $licenseKey = Input::get('license_key');

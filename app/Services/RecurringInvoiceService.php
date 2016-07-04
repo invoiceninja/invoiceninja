@@ -1,9 +1,7 @@
 <?php namespace App\Services;
 
-use URL;
 use Auth;
 use Utils;
-use App\Models\Invoice;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Datatables\RecurringInvoiceDatatable;
 

@@ -2,10 +2,8 @@
 
 use DB;
 use Cache;
-use App\Ninja\Repositories\BaseRepository;
 use App\Models\Client;
 use App\Models\Contact;
-use App\Models\Activity;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasUpdated;
 

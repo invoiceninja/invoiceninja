@@ -1,33 +1,59 @@
 <?php namespace App\Services;
 
-use Utils;
-use URL;
-use Auth;
 use App\Models\Vendor;
-use App\Models\Expense;
-use App\Services\BaseService;
+use Utils;
+use Auth;
 use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\NinjaRepository;
 use App\Ninja\Datatables\VendorDatatable;
 
+/**
+ * Class VendorService
+ */
 class VendorService extends BaseService
 {
+    /**
+     * @var VendorRepository
+     */
     protected $vendorRepo;
+
+    /**
+     * @var DatatableService
+     */
     protected $datatableService;
 
-    public function __construct(VendorRepository $vendorRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
+    /**
+     * VendorService constructor.
+     *
+     * @param VendorRepository $vendorRepo
+     * @param DatatableService $datatableService
+     * @param NinjaRepository $ninjaRepo
+     */
+    public function __construct(
+        VendorRepository $vendorRepo,
+        DatatableService $datatableService,
+        NinjaRepository $ninjaRepo
+    )
     {
         $this->vendorRepo       = $vendorRepo;
         $this->ninjaRepo        = $ninjaRepo;
         $this->datatableService = $datatableService;
     }
 
+    /**
+     * @return VendorRepository
+     */
     protected function getRepo()
     {
         return $this->vendorRepo;
     }
 
-    public function save($data, $vendor = null)
+    /**
+     * @param array $data
+     * @param Vendor|null $vendor
+     * @return mixed|null
+     */
+    public function save(array $data, Vendor $vendor = null)
     {
         if (Auth::user()->account->isNinjaAccount() && isset($data['plan'])) {
             $this->ninjaRepo->updatePlanDetails($data['public_id'], $data);
@@ -36,6 +62,10 @@ class VendorService extends BaseService
         return $this->vendorRepo->save($data, $vendor);
     }
 
+    /**
+     * @param $search
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getDatatable($search)
     {
         $datatable = new VendorDatatable();
@@ -47,5 +77,4 @@ class VendorService extends BaseService
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
-
 }

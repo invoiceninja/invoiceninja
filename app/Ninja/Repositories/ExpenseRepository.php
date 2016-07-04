@@ -6,8 +6,6 @@ use Auth;
 use App\Models\Expense;
 use App\Models\Vendor;
 use App\Models\Document;
-use App\Ninja\Repositories\BaseRepository;
-use Session;
 
 class ExpenseRepository extends BaseRepository
 {
@@ -147,7 +145,7 @@ class ExpenseRepository extends BaseRepository
         $expense->save();
 
         // Documents
-        $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):array();;
+        $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):[];;
         foreach ($document_ids as $document_id){
             // check document completed upload before user submitted form
             if ($document_id) {

@@ -4,16 +4,25 @@ use DateTime;
 use App\Models\Document;
 use Illuminate\Console\Command;
 
+/**
+ * Class RemoveOrphanedDocuments
+ */
 class RemoveOrphanedDocuments extends Command
 {
+    /**
+     * @var string
+     */
     protected $name = 'ninja:remove-orphaned-documents';
+    /**
+     * @var string
+     */
     protected $description = 'Removes old documents not associated with an expense or invoice';
     
     public function fire()
     {
         $this->info(date('Y-m-d').' Running RemoveOrphanedDocuments...');
 
-        $documents = Document::whereRaw('invoice_id IS NULL AND expense_id IS NULL AND updated_at <= ?', array(new DateTime('-1 hour')))
+        $documents = Document::whereRaw('invoice_id IS NULL AND expense_id IS NULL AND updated_at <= ?', [new DateTime('-1 hour')])
             ->get();
         
         $this->info(count($documents).' orphaned document(s) found');
@@ -25,17 +34,19 @@ class RemoveOrphanedDocuments extends Command
         $this->info('Done');
     }
 
+    /**
+     * @return array
+     */
     protected function getArguments()
     {
-        return array(
-            //array('example', InputArgument::REQUIRED, 'An example argument.'),
-        );
+        return [];
     }
 
+    /**
+     * @return array
+     */
     protected function getOptions()
     {
-        return array(
-            //array('example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null),
-        );
+        return [];
     }
 }

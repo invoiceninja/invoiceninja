@@ -1,10 +1,6 @@
 <?php namespace App\Http\Requests;
 
-use Auth;
-use App\Http\Requests\Request;
 use Illuminate\Http\Request as InputRequest;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Validation\Factory;
 use App\Libraries\Utils;
 use Response;
 

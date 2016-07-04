@@ -8,10 +8,7 @@ use Input;
 use Cache;
 use Redirect;
 use DB;
-use Event;
 use URL;
-use Datatable;
-use Request;
 use DropdownButton;
 use App\Models\Invoice;
 use App\Models\Client;
@@ -28,7 +25,6 @@ use App\Ninja\Repositories\DocumentRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use App\Services\RecurringInvoiceService;
-
 use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\CreateInvoiceRequest;
 use App\Http\Requests\UpdateInvoiceRequest;
@@ -139,23 +135,23 @@ class InvoiceController extends BaseController
 
         $actions = [
             ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
-            ['url' => URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans("texts.view_history")],
+            ['url' => URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')],
             DropdownButton::DIVIDER
         ];
 
         if ($invoice->invoice_status_id < INVOICE_STATUS_SENT && !$invoice->is_recurring) {
-            $actions[] = ['url' => 'javascript:onMarkClick()', 'label' => trans("texts.mark_sent")];
+            $actions[] = ['url' => 'javascript:onMarkClick()', 'label' => trans('texts.mark_sent')];
         }
 
         if ($entityType == ENTITY_QUOTE) {
             if ($invoice->quote_invoice_id) {
-                $actions[] = ['url' => URL::to("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans("texts.view_invoice")];
+                $actions[] = ['url' => URL::to("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans('texts.view_invoice')];
             } else {
-                $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans("texts.convert_to_invoice")];
+                $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans('texts.convert_to_invoice')];
             }
         } elseif ($entityType == ENTITY_INVOICE) {
             if ($invoice->quote_id) {
-                $actions[] = ['url' => URL::to("quotes/{$invoice->quote_id}/edit"), 'label' => trans("texts.view_quote")];
+                $actions[] = ['url' => URL::to("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
             if (!$invoice->is_recurring && $invoice->balance > 0) {
@@ -163,7 +159,7 @@ class InvoiceController extends BaseController
             }
 
             foreach ($invoice->payments as $payment) {
-                $label = trans("texts.view_payment");
+                $label = trans('texts.view_payment');
                 if (count($invoice->payments) > 1) {
                     $label .= ' - ' . $account->formatMoney($payment->amount, $invoice->client);
                 }
@@ -184,7 +180,7 @@ class InvoiceController extends BaseController
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
-        $data = array(
+        $data = [
                 'clients' => $clients->get(),
                 'entityType' => $entityType,
                 'showBreadcrumbs' => $clone,
@@ -196,7 +192,7 @@ class InvoiceController extends BaseController
                 'client' => $invoice->client,
                 'isRecurring' => $invoice->is_recurring,
                 'actions' => $actions,
-                'lastSent' => $lastSent);
+                'lastSent' => $lastSent];
         $data = array_merge($data, self::getViewModel($invoice));
 
         if ($invoice->isSent() && $invoice->getAutoBillEnabled() && !$invoice->isPaid()) {
@@ -280,7 +276,7 @@ class InvoiceController extends BaseController
     {
         $recurringHelp = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_help')) as $line) {
-            $parts = explode("=>", $line);
+            $parts = explode('=>', $line);
             if (count($parts) > 1) {
                 $line = $parts[0].' => '.Utils::processVariables($parts[0]);
                 $recurringHelp .= '<li>'.strip_tags($line).'</li>';
@@ -291,7 +287,7 @@ class InvoiceController extends BaseController
 
         $recurringDueDateHelp = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_due_date_help')) as $line) {
-            $parts = explode("=>", $line);
+            $parts = explode('=>', $line);
             if (count($parts) > 1) {
                 $line = $parts[0].' => '.Utils::processVariables($parts[0]);
                 $recurringDueDateHelp .= '<li>'.strip_tags($line).'</li>';
@@ -301,24 +297,24 @@ class InvoiceController extends BaseController
         }
 
         // Create due date options
-        $recurringDueDates = array(
-            trans('texts.use_client_terms') => array('value' => '', 'class' => 'monthly weekly'),
-        );
+        $recurringDueDates = [
+            trans('texts.use_client_terms') => ['value' => '', 'class' => 'monthly weekly'],
+        ];
 
-        $ends = array('th','st','nd','rd','th','th','th','th','th','th');
+        $ends = ['th','st','nd','rd','th','th','th','th','th','th'];
         for($i = 1; $i < 31; $i++){
             if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
             else $ordinal = $i . $ends[$i % 10];
 
             $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
-            $str = trans('texts.day_of_month', array('ordinal'=>$ordinal));
+            $str = trans('texts.day_of_month', ['ordinal'=>$ordinal]);
 
-            $recurringDueDates[$str] = array('value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly');
+            $recurringDueDates[$str] = ['value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly'];
         }
-        $recurringDueDates[trans('texts.last_day_of_month')] = array('value' => "1998-01-31", 'data-num' => 31, 'class' => 'monthly');
+        $recurringDueDates[trans('texts.last_day_of_month')] = ['value' => '1998-01-31', 'data-num' => 31, 'class' => 'monthly'];
 
 
-        $daysOfWeek = array(
+        $daysOfWeek = [
             trans('texts.sunday'),
             trans('texts.monday'),
             trans('texts.tuesday'),
@@ -326,14 +322,14 @@ class InvoiceController extends BaseController
             trans('texts.thursday'),
             trans('texts.friday'),
             trans('texts.saturday'),
-        );
-        foreach(array('1st','2nd','3rd','4th') as $i=>$ordinal){
+        ];
+        foreach(['1st','2nd','3rd','4th'] as $i=>$ordinal){
             foreach($daysOfWeek as $j=>$dayOfWeek){
-                $str = trans('texts.day_of_week_after', array('ordinal' => $ordinal, 'day' => $dayOfWeek));
+                $str = trans('texts.day_of_week_after', ['ordinal' => $ordinal, 'day' => $dayOfWeek]);
 
                 $day = $i * 7 + $j  + 1;
                 $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
-                $recurringDueDates[$str] = array('value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly');
+                $recurringDueDates[$str] = ['value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly'];
             }
         }
 
@@ -373,7 +369,7 @@ class InvoiceController extends BaseController
             'paymentTerms' => Cache::get('paymentTerms'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
             'invoiceFonts' => Cache::get('fonts'),
-            'frequencies' => array(
+            'frequencies' => [
                 1 => trans('texts.freq_weekly'),
                 2 => trans('texts.freq_two_weeks'),
                 3 => trans('texts.freq_four_weeks'),
@@ -381,7 +377,7 @@ class InvoiceController extends BaseController
                 5 => trans('texts.freq_three_months'),
                 6 => trans('texts.freq_six_months'),
                 7 => trans('texts.freq_annually'),
-            ),
+            ],
             'recurringDueDates' => $recurringDueDates,
             'recurringHelp' => $recurringHelp,
             'recurringDueDateHelp' => $recurringDueDateHelp,

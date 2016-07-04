@@ -1,23 +1,27 @@
 <?php namespace App\Events;
 
-use App\Events\Event;
-
+use App\Models\Payment;
 use Illuminate\Queue\SerializesModels;
 
-class PaymentFailed extends Event {
-
+/**
+ * Class PaymentFailed
+ */
+class PaymentFailed extends Event
+{
     use SerializesModels;
 
+    /**
+     * @var Payment
+     */
     public $payment;
 
     /**
      * Create a new event instance.
      *
-     * @return void
+     * @param Payment $payment
      */
-    public function __construct($payment)
+    public function __construct(Payment $payment)
     {
         $this->payment = $payment;
     }
-
 }

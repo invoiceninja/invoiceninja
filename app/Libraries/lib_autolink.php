@@ -15,13 +15,13 @@
 	# functions to change the output.
 	#
 
-	$GLOBALS['autolink_options'] = array(
+	$GLOBALS['autolink_options'] = [
 
 		# Should http:// be visibly stripped from the front
 		# of URLs?
 		'strip_protocols' => false,
 
-	);
+	];
 
 	####################################################################
 
@@ -69,7 +69,7 @@
 				# substring found - first check to see if we're inside a link tag already...
 				#
 
-				$bits = preg_split("!</a>!i", $pre);
+				$bits = preg_split('!</a>!i', $pre);
 				$last_bit = array_pop($bits);
 				if (preg_match("!<a\s!i", $last_bit)){
 
@@ -123,7 +123,7 @@
 						$url = substr($url, 0, strlen($url)-1);
 						$cursor--;
 					}
-					foreach (array('()', '[]', '{}') as $pair){
+					foreach (['()', '[]', '{}'] as $pair){
 						$o = substr($pair, 0, 1);
 						$c = substr($pair, 1, 1);
 						if (preg_match("!^(\\$c|^)[^\\$o]+\\$c$!", $url)){
@@ -247,7 +247,7 @@
 				# substring found - first check to see if we're inside a link tag already...
 				#
 
-				$bits = preg_split("!</a>!i", $pre);
+				$bits = preg_split('!</a>!i', $pre);
 				$last_bit = array_pop($bits);
 				if (preg_match("!<a\s!i", $last_bit)){
 

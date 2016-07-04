@@ -764,7 +764,7 @@ class BasePaymentDriver
 
         // PayPal doesn't allow being run in an iframe so we need to open in new tab
         if ($gatewayType === GATEWAY_TYPE_PAYPAL) {
-            $url .= "#braintree_paypal";
+            $url .= '#braintree_paypal';
 
             if ($account->iframe_url) {
                 return 'javascript:window.open("' . $url . '", "_blank")';
@@ -775,7 +775,7 @@ class BasePaymentDriver
     }
 
     protected function parseCardType($cardName) {
-        $cardTypes = array(
+        $cardTypes = [
             'visa' => PAYMENT_TYPE_VISA,
             'americanexpress' => PAYMENT_TYPE_AMERICAN_EXPRESS,
             'amex' => PAYMENT_TYPE_AMERICAN_EXPRESS,
@@ -790,9 +790,9 @@ class BasePaymentDriver
             'maestro' => PAYMENT_TYPE_MAESTRO,
             'solo' => PAYMENT_TYPE_SOLO,
             'switch' => PAYMENT_TYPE_SWITCH
-        );
+        ];
 
-        $cardName = strtolower(str_replace(array(' ', '-', '_'), '', $cardName));
+        $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
 
         if (empty($cardTypes[$cardName]) && 1 == preg_match('/^('.implode('|', array_keys($cardTypes)).')/', $cardName, $matches)) {
             // Some gateways return extra stuff after the card name

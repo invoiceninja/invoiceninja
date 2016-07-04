@@ -88,33 +88,33 @@ class WePayPaymentDriver extends BasePaymentDriver
 
         if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
             // Persist bank details
-            $this->tokenResponse = $wepay->request('/payment_bank/persist', array(
+            $this->tokenResponse = $wepay->request('/payment_bank/persist', [
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'payment_bank_id' => $token,
-            ));
+            ]);
         } else {
             // Authorize credit card
-            $tokenResponse = $wepay->request('credit_card/authorize', array(
+            $tokenResponse = $wepay->request('credit_card/authorize', [
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'credit_card_id' => $token,
-            ));
+            ]);
 
             // Update the callback uri and get the card details
-            $tokenResponse = $wepay->request('credit_card/modify', array(
+            $tokenResponse = $wepay->request('credit_card/modify', [
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'credit_card_id' => $token,
                 'auto_update' => WEPAY_AUTO_UPDATE,
                 'callback_uri' => $this->accountGateway->getWebhookUrl(),
-            ));
+            ]);
 
-            $this->tokenResponse = $wepay->request('credit_card', array(
+            $this->tokenResponse = $wepay->request('credit_card', [
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'credit_card_id' => $token,
-            ));
+            ]);
         }
 
         return parent::createToken();
@@ -240,11 +240,11 @@ class WePayPaymentDriver extends BasePaymentDriver
             }
 
             $wepay = Utils::setupWePay($accountGateway);
-            $source = $wepay->request('credit_card', array(
+            $source = $wepay->request('credit_card', [
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'credit_card_id' => intval($objectId),
-            ));
+            ]);
 
             if ($source->state == 'deleted') {
                 $paymentMethod->delete();
@@ -260,9 +260,9 @@ class WePayPaymentDriver extends BasePaymentDriver
             }
 
             $wepay = Utils::setupWePay($accountGateway);
-            $wepayAccount = $wepay->request('account', array(
+            $wepayAccount = $wepay->request('account', [
                 'account_id' => intval($objectId),
-            ));
+            ]);
 
             if ($wepayAccount->state == 'deleted') {
                 $accountGateway->delete();
@@ -272,7 +272,7 @@ class WePayPaymentDriver extends BasePaymentDriver
                 $accountGateway->save();
             }
 
-            return array('message' => 'Processed successfully');
+            return ['message' => 'Processed successfully'];
         } elseif ($objectType == 'checkout') {
             $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
 
@@ -281,9 +281,9 @@ class WePayPaymentDriver extends BasePaymentDriver
             }
 
             $wepay = Utils::setupWePay($accountGateway);
-            $checkout = $wepay->request('checkout', array(
+            $checkout = $wepay->request('checkout', [
                 'checkout_id' => intval($objectId),
-            ));
+            ]);
 
             if ($checkout->state == 'refunded') {
                 $payment->recordRefund();

@@ -225,12 +225,12 @@ class StripePaymentDriver extends BasePaymentDriver
                 [
                     'allow_redirects' => false,
                     'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
-                    'body' => http_build_query(array(
+                    'body' => http_build_query([
                         'client_id' => $clientId,
                         'secret' => $secret,
                         'public_token' => $publicToken,
                         'account_id' => $accountId,
-                    ))
+                    ])
                 ]
             );
             return json_decode($response->getBody(), true);
@@ -328,17 +328,17 @@ class StripePaymentDriver extends BasePaymentDriver
             throw new Exception('Missing event type');
         }
 
-        $supportedEvents = array(
+        $supportedEvents = [
             'charge.failed',
             'charge.succeeded',
             'charge.refunded',
             'customer.source.updated',
             'customer.source.deleted',
             'customer.bank_account.deleted',
-        );
+        ];
 
         if (!in_array($eventType, $supportedEvents)) {
-            return array('message' => 'Ignoring event');
+            return ['message' => 'Ignoring event'];
         }
 
         // Fetch the event directly from Stripe for security
