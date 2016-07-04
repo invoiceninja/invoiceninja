@@ -1,0 +1,6 @@
+exclude_paths:
+  - "bootstrap/cache"
+  - "resources/"
+  - "storage/"
+  - "tests/"
+  - "**.md"
