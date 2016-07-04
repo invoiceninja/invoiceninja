@@ -123,13 +123,13 @@
 								->addOption(trans('texts.plan_free'), PLAN_FREE)!!}
 							@else
 							{!! Former::select('plan')
-								->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE)
-								->addOption(trans('texts.plan_pro'), PLAN_PRO)!!}
+                                ->addOption(trans('texts.plan_pro'), PLAN_PRO)
+								->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE) !!}
 							@endif
 							{!! Former::select('plan_term')
-								->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
 								->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)
-                                ->inlineHelp(trans('texts.enterprise_plan_features', ['link' => link_to(NINJA_WEB_URL . '/plans-pricing', trans('texts.click_here'), ['target' => '_blank'])])) !!}
+                                ->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
+								->inlineHelp(trans('texts.enterprise_plan_features', ['link' => link_to(NINJA_WEB_URL . '/plans-pricing', trans('texts.click_here'), ['target' => '_blank'])])) !!}
 						</div>
 						<div class="modal-footer" style="margin-top: 0px">
 							<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>

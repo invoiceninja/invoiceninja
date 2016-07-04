@@ -1,7 +1,7 @@
 @if (!Utils::isPro() && isset($advanced) && $advanced)
 <div class="alert alert-warning" style="font-size:larger;">
 <center>
-    {!! trans('texts.pro_plan_advanced_settings', ['link'=>'<a href="#" onclick="showProPlan(\''.$selected.'\')">'.trans('texts.pro_plan_remove_logo_link').'</a>']) !!}
+    {!! trans('texts.pro_plan_advanced_settings', ['link'=>link_to('/settings/account_management?upgrade=true', trans('texts.pro_plan_remove_logo_link'))]) !!}
 </center>
 </div>
 @endif
