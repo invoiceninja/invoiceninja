@@ -56,11 +56,11 @@ class Invitation extends EntityModel
      */
     public function getLink($type = 'view', $forceOnsite = false)
     {
-        if (!$this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
-        $url = SITE_URL;
+        $url = trim(SITE_URL, '/');
         $iframe_url = $this->account->iframe_url;
 
         if ($this->account->hasFeature(FEATURE_CUSTOM_URL)) {
