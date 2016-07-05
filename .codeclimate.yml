@@ -31,3 +31,5 @@ exclude_paths:
 - "storage/"
 - "tests/"
 - "**.md"
+- "**.min.js"
+- "**.min.php"
