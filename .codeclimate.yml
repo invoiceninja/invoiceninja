@@ -33,3 +33,4 @@ exclude_paths:
 - "**.md"
 - "**.min.js"
 - "**.min.php"
+- "**.min.css"
