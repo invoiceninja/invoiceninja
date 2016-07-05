@@ -1,5 +1,7 @@
 <?php namespace App\Http\Controllers;
 
+use App\Events\TaskWasCreated;
+use App\Events\TaskWasUpdated;
 use Auth;
 use View;
 use URL;
@@ -231,7 +233,14 @@ class TaskController extends BaseController
         }
 
         $task = $this->taskRepo->save($publicId, Input::all());
-        Session::flash('message', trans($publicId ? 'texts.updated_task' : 'texts.created_task'));
+
+        if($publicId) {
+            Session::flash('message', trans('texts.updated_task'));
+            event(new TaskWasUpdated($task));
+        } else {
+            Session::flash('message', trans('texts.created_task'));
+            event(new TaskWasCreated($task));
+        }
 
         if (in_array($action, ['invoice', 'add_to_invoice'])) {
             return self::bulk();

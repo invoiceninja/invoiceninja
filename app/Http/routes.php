@@ -459,6 +459,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_ARCHIVE_EXPENSE', 35);
     define('ACTIVITY_TYPE_DELETE_EXPENSE', 36);
     define('ACTIVITY_TYPE_RESTORE_EXPENSE', 37);
+    
+    // tasks
+    define('ACTIVITY_TYPE_CREATE_TASK', 42);
+    define('ACTIVITY_TYPE_UPDATE_TASK', 43);
 
     define('DEFAULT_INVOICE_NUMBER', '0001');
     define('RECENTLY_VIEWED_LIMIT', 8);
