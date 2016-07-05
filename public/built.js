@@ -30319,6 +30319,34 @@ if (window.ko) {
         trigger: "hover"
     }
   };
+
+  ko.bindingHandlers.typeahead = {
+      init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+          var $element = $(element);
+          var allBindings = allBindingsAccessor();
+
+          $element.typeahead({
+              highlight: true,
+              minLength: 0,
+          },
+          {
+              name: 'data',
+              display: allBindings.key,
+              limit: 50,
+              source: searchData(allBindings.items, allBindings.key)
+          }).on('typeahead:change', function(element, datum, name) {
+              var value = valueAccessor();
+              value(datum);
+          });
+      },
+
+      update: function (element, valueAccessor) {
+          var value = ko.utils.unwrapObservable(valueAccessor());
+          if (value) {
+              $(element).typeahead('val', value);
+          }
+      }
+  };
 }
 
 function getContactDisplayName(contact)
@@ -30450,7 +30478,7 @@ function formatAddress(city, state, zip, swap) {
         str += zip ? zip + ' ' : '';
         str += city ? city : '';
         str += (city && state) ? ', ' : (city ? ' ' : '');
-        str += state;        
+        str += state;
     } else {
         str += city ? city : '';
         str += (city && state) ? ', ' : (state ? ' ' : '');
@@ -30484,7 +30512,7 @@ function calculateAmounts(invoice) {
   var hasTaxes = false;
   var taxes = {};
   invoice.has_product_key = false;
-  
+
   // Bold designs currently breaks w/o the product column
   if (invoice.invoice_design_id == 2) {
       invoice.has_product_key = true;
@@ -30532,7 +30560,7 @@ function calculateAmounts(invoice) {
             lineTotal -= roundToTwo(lineTotal * (invoice.discount/100));
         }
     }
-    
+
     var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
     if (taxAmount1) {
       var key = taxName1 + taxRate1;
@@ -30609,7 +30637,7 @@ function calculateAmounts(invoice) {
   invoice.tax_amount1 = taxAmount1;
   invoice.tax_amount2 = taxAmount2;
   invoice.item_taxes = taxes;
-  
+
   if (NINJA.parseFloat(invoice.partial)) {
     invoice.balance_amount = roundToTwo(invoice.partial);
   } else {
@@ -30934,7 +30962,7 @@ function truncate(string, length){
    }
 };
 
-// Show/hide the 'Select' option in the datalists 
+// Show/hide the 'Select' option in the datalists
 function actionListHandler() {
     $('tbody tr .tr-action').closest('tr').mouseover(function() {
         $(this).closest('tr').find('.tr-action').show();
@@ -31000,11 +31028,12 @@ function searchData(data, key, fuzzy) {
     }
     cb(matches);
     }
-}; 
+};
 
 function escapeRegExp(str) {
   return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 }
+
 var NINJA = NINJA || {};
 
 NINJA.TEMPLATES = {

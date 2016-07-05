@@ -822,7 +822,7 @@ var ExpenseModel = function(data) {
 };
 
 /* Custom binding for product key typeahead */
-ko.bindingHandlers.typeahead = {
+ko.bindingHandlers.productTypeahead = {
     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var $element = $(element);
         var allBindings = allBindingsAccessor();

@@ -39,7 +39,16 @@ class Expense extends EntityModel
         'public_notes',
         'bank_id',
         'transaction_id',
+        'expense_category_id',
     ];
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function expense_category()
+    {
+        return $this->belongsTo('App\Models\ExpenseCategory');
+    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

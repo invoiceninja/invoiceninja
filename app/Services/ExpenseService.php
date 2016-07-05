@@ -5,6 +5,7 @@ use Utils;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Models\Client;
 use App\Models\Vendor;
+use App\Models\ExpenseCategory;
 use App\Ninja\Datatables\ExpenseDatatable;
 
 /**
@@ -55,6 +56,19 @@ class ExpenseService extends BaseService
 
         if (isset($data['vendor_id']) && $data['vendor_id']) {
             $data['vendor_id'] = Vendor::getPrivateId($data['vendor_id']);
+        }
+
+        if ( ! empty($data['category'])) {
+            $name = trim($data['category']);
+            $category = ExpenseCategory::scope()->whereName($name)->first();
+            if ( ! $category) {
+                $category = ExpenseCategory::createNew();
+                $category->name = $name;
+                $category->save();
+            }
+            $data['expense_category_id'] = $category->id;
+        } elseif (isset($data['category'])) {
+            $data['expense_category_id'] = null;
         }
 
         return $this->expenseRepo->save($data, $expense);

@@ -10,6 +10,7 @@ use Redirect;
 use Cache;
 use App\Models\Vendor;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\Client;
 use App\Services\ExpenseService;
 use App\Ninja\Repositories\ExpenseRepository;
@@ -73,7 +74,7 @@ class ExpenseController extends BaseController
         } else {
             $vendor = null;
         }
-        
+
         $data = [
             'vendorPublicId' => Input::old('vendor') ? Input::old('vendor') : $request->vendor_id,
             'expense' => null,
@@ -94,7 +95,7 @@ class ExpenseController extends BaseController
     public function edit(ExpenseRequest $request)
     {
         $expense = $request->entity();
-                
+
         $expense->expense_date = Utils::fromSqlDate($expense->expense_date);
         
         $actions = [];
@@ -140,7 +141,7 @@ class ExpenseController extends BaseController
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
-                
+
         $expense = $this->expenseService->save($data, $request->entity());
 
         Session::flash('message', trans('texts.updated_expense'));
@@ -157,7 +158,7 @@ class ExpenseController extends BaseController
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
-                
+
         $expense = $this->expenseService->save($data);
 
         Session::flash('message', trans('texts.created_expense'));
@@ -176,7 +177,7 @@ class ExpenseController extends BaseController
                 $expenses = Expense::scope($ids)->with('client')->get();
                 $clientPublicId = null;
                 $currencyId = null;
-                
+
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
                 foreach ($expenses as $expense)
                 {
@@ -232,6 +233,7 @@ class ExpenseController extends BaseController
             'countries' => Cache::get('countries'),
             'customLabel1' => Auth::user()->account->custom_vendor_label1,
             'customLabel2' => Auth::user()->account->custom_vendor_label2,
+            'categories' => ExpenseCategory::scope()->get()
         ];
     }
 

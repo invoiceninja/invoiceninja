@@ -26,6 +26,7 @@
 	@if ($expense)
 		{!! Former::populate($expense) !!}
         {!! Former::populateField('should_be_invoiced', intval($expense->should_be_invoiced)) !!}
+        {!! Former::populateField('category', $expense->expense_category ? $expense->expense_category->name : '') !!}
         {!! Former::hidden('public_id') !!}
 	@endif
 
@@ -33,10 +34,15 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-6">
+
     				{!! Former::select('vendor_id')->addOption('', '')
                             ->data_bind('combobox: vendor_id')
                             ->label(trans('texts.vendor'))
                             ->addGroupClass('vendor-select') !!}
+
+                    {!! Former::text('category')
+                            ->data_bind("typeahead: category, items: categories, key: 'name', valueUpdate: 'afterkeydown'")
+                            ->label(trans('texts.category')) !!}
 
                     {!! Former::text('expense_date')
                             ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
@@ -279,6 +285,10 @@
         var ViewModel = function(data) {
             var self = this;
 
+            self.categories = {!! $categories !!};
+            console.log(self.categories[0].name);
+
+            self.category = ko.observable();
             self.expense_currency_id = ko.observable();
             self.invoice_currency_id = ko.observable();
             self.documents = ko.observableArray();

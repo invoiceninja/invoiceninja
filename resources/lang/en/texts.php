@@ -2009,7 +2009,8 @@ $LANG = array(
     'vendor_contacts' => 'Vendor Contacts',
     'all' => 'All',
     'selected' => 'Selected',
-    
+    'category' => 'Category',
+
 );
 
 return $LANG;
