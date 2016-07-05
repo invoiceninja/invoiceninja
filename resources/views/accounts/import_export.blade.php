@@ -56,15 +56,33 @@
                 ->style('max-width: 200px')
                 ->inlineHelp('export_help') !!}
 
-        {!! Former::checkbox('entity_types')
-                ->label('include')
-                ->addGroupClass('entity-types')
-                ->checkboxes([
-                    trans('texts.clients') => array('name' => ENTITY_CLIENT, 'value' => 1),
-                    trans('texts.tasks') => array('name' => ENTITY_TASK, 'value' => 1),
-                    trans('texts.invoices') => array('name' => ENTITY_INVOICE, 'value' => 1),
-                    trans('texts.payments') => array('name' => ENTITY_PAYMENT, 'value' => 1),
-                ])->check(ENTITY_CLIENT)->check(ENTITY_TASK)->check(ENTITY_INVOICE)->check(ENTITY_PAYMENT) !!}
+
+        {!! Former::inline_radios('include_radio')
+                ->onchange('onIncludeChange()')
+                ->label(trans('texts.include'))
+                ->radios([
+                    trans('texts.all') => ['value' => 'all', 'name' => 'include'],
+                    trans('texts.selected') => ['value' => 'selected', 'name' => 'include'],
+                ])->check('all') !!}
+
+
+        <div class="form-group entity-types">
+            <label class="control-label col-lg-4 col-sm-4"></label>
+            <div class="col-lg-3 col-sm-2">
+                @include('partials/checkbox', ['field' => 'clients'])
+                @include('partials/checkbox', ['field' => 'contacts'])
+                @include('partials/checkbox', ['field' => 'credits'])
+                @include('partials/checkbox', ['field' => 'tasks'])
+                @include('partials/checkbox', ['field' => 'invoices'])
+            </div>
+            <div class="col-lg-3 col-sm-3">
+                @include('partials/checkbox', ['field' => 'quotes'])
+                @include('partials/checkbox', ['field' => 'recurring'])
+                @include('partials/checkbox', ['field' => 'payments'])
+                @include('partials/checkbox', ['field' => 'vendors'])
+                @include('partials/checkbox', ['field' => 'vendor_contacts'])
+            </div>
+        </div>
 
         {!! Former::actions( Button::primary(trans('texts.download'))->submit()->large()->appendIcon(Icon::create('download-alt'))) !!}
     </div>
@@ -75,6 +93,7 @@
 <script type="text/javascript">
   $(function() {
       setFileTypesVisible();
+      onIncludeChange();
   });
 
   function setEntityTypesVisible() {
@@ -107,6 +126,16 @@
             }
         @endif
     @endforeach
+  }
+
+  function onIncludeChange() {
+      var $checkboxes = $('input[type=checkbox]');
+      var val = $('input[name=include]:checked').val()
+      if (val == 'all') {
+          $checkboxes.attr('disabled', true);
+      } else {
+          $checkboxes.removeAttr('disabled');
+      }
   }
 
 </script>

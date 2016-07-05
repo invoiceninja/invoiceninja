@@ -10,7 +10,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Removed `invoiceninja.komodoproject` from Git #932
-- `APP_CIPHER` changed from `rinjdael-128` to `AES-256-CBC` #898 
+- `APP_CIPHER` changed from `rinjdael-128` to `AES-256-CBC` #898
+- Improved options when exporting data 
 
 ### Fixed
 - "Manual entry" untranslatable #562

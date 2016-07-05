@@ -2006,6 +2006,10 @@ $LANG = array(
 
     'view_client_portal' => 'View client portal',
     'view_portal' => 'View Portal',
+    'vendor_contacts' => 'Vendor Contacts',
+    'all' => 'All',
+    'selected' => 'Selected',
+    
 );
 
 return $LANG;
