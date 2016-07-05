@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3df372a562007661d4fc39e70870efcb",
-    "content-hash": "0cc47cbbb7852e086cfd67f87895f4ed",
+    "hash": "96184bcd2d0fb39c87a98b223efc5c1c",
+    "content-hash": "361daf07da39682d74bdc2bfead14fb9",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -2945,6 +2945,51 @@
                 "oauth"
             ],
             "time": "2016-06-22 12:40:16"
+        },
+        {
+            "name": "laravelcollective/bus",
+            "version": "v5.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/LaravelCollective/bus.git",
+                "reference": "e48b4d44d49f820e1b85ff16b9402e01c770c83a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/LaravelCollective/bus/zipball/e48b4d44d49f820e1b85ff16b9402e01c770c83a",
+                "reference": "e48b4d44d49f820e1b85ff16b9402e01c770c83a",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/container": "5.2.*",
+                "illuminate/contracts": "5.2.*",
+                "illuminate/pipeline": "5.2.*",
+                "illuminate/support": "5.2.*",
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Collective\\Bus\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylorotwell@gmail.com"
+                }
+            ],
+            "description": "The Laravel Bus (5.1) package for use in Laravel 5.2.",
+            "homepage": "http://laravelcollective.com",
+            "time": "2015-12-23 07:43:33"
         },
         {
             "name": "laravelcollective/html",
@@ -8514,16 +8559,16 @@
         },
         {
             "name": "barryvdh/laravel-ide-helper",
-            "version": "v2.2.0",
+            "version": "v2.2.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-ide-helper.git",
-                "reference": "a9484c67d1305e9e2c71d2dfaaed6639200d874c"
+                "reference": "28af7cd19ca41cc0c63dd1de2b46c2b84d31c463"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/a9484c67d1305e9e2c71d2dfaaed6639200d874c",
-                "reference": "a9484c67d1305e9e2c71d2dfaaed6639200d874c",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/28af7cd19ca41cc0c63dd1de2b46c2b84d31c463",
+                "reference": "28af7cd19ca41cc0c63dd1de2b46c2b84d31c463",
                 "shasum": ""
             },
             "require": {
@@ -8546,7 +8591,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.1-dev"
+                    "dev-master": "2.2-dev"
                 }
             },
             "autoload": {
@@ -8576,7 +8621,7 @@
                 "phpstorm",
                 "sublime"
             ],
-            "time": "2016-06-13 19:36:24"
+            "time": "2016-07-04 11:52:48"
         },
         {
             "name": "barryvdh/reflection-docblock",
