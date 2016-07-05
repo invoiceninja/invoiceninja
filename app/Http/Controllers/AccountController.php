@@ -938,18 +938,18 @@ class AccountController extends BaseController
     private function saveEmailSettings()
     {
         if (Auth::user()->account->hasFeature(FEATURE_CUSTOM_EMAILS)) {
-            $rules = [];
             $user = Auth::user();
-            $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
-            $iframeURL = rtrim($iframeURL, '/');
+            $subdomain = null;
+            $iframeURL = null;
+            $rules = [];
 
-            $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-            if ($iframeURL) {
-                $subdomain = null;
-            }
-            if ($subdomain) {
+            if (Input::get('custom_link') == 'subdomain') {
+                $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
                 $exclude = ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja'];
                 $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
+            } else {
+                $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
+                $iframeURL = rtrim($iframeURL, '/');
             }
 
             $validator = Validator::make(Input::all(), $rules);
