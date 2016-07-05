@@ -1,5 +1,7 @@
 <?php namespace App\Listeners;
 
+use App\Events\TaskWasCreated;
+use App\Events\TaskWasUpdated;
 use App\Models\Invoice;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasDeleted;
@@ -464,6 +466,32 @@ class ActivityListener
             ACTIVITY_TYPE_RESTORE_PAYMENT,
             $event->fromDeleted ? $payment->getCompletedAmount() * -1 : 0,
             $event->fromDeleted ? $payment->getCompletedAmount() : 0
+        );
+    }
+
+    /**
+     * Creates an activity when a task was created
+     *
+     * @param TaskWasCreated $event
+     */
+    public function createdTask(TaskWasCreated $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_CREATE_TASK
+        );
+    }
+
+    /**
+     * Creates an activity when a task was updated
+     *
+     * @param TaskWasUpdated $event
+     */
+    public function updatedTask(TaskWasUpdated $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_UPDATE_TASK
         );
     }
 }

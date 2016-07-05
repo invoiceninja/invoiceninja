@@ -131,4 +131,14 @@ class Task extends EntityModel
     {
         return round($this->getDuration() / (60 * 60), 2);
     }
+
+    /**
+     * Gets the route to the tasks edit action
+     *
+     * @return string
+     */
+    public function getRoute()
+    {
+        return "/tasks/{$this->public_id}/edit";
+    }
 }
