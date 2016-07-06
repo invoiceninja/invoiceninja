@@ -286,8 +286,6 @@
             var self = this;
 
             self.categories = {!! $categories !!};
-            console.log(self.categories[0].name);
-
             self.category = ko.observable();
             self.expense_currency_id = ko.observable();
             self.invoice_currency_id = ko.observable();
