@@ -92,6 +92,7 @@ after_script:
   - mysql -u root -e 'select * from invoice_items;' ninja
   - mysql -u root -e 'select * from payments;' ninja
   - mysql -u root -e 'select * from credits;' ninja
+  - mysql -u root -e 'select * from expenses;' ninja
   - cat storage/logs/laravel-error.log
   - cat storage/logs/laravel-info.log
   - FILES=$(find tests/_output -type f -name '*.png')
