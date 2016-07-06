@@ -142,7 +142,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         return $this->is_recurring
             ? trans('texts.recurring')
-            : $this->invoice_number.' ('.$this->client->name.')';
+            : $this->invoice_number.' ('.$this->client->display_name.')';
     }
 
     /**
