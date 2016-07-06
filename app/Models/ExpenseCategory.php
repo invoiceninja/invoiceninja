@@ -18,11 +18,27 @@ class ExpenseCategory extends EntityModel
     ];
 
     /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_EXPENSE_CATEGORY;
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function expense()
     {
         return $this->belongsTo('App\Models\Expense');
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoute()
+    {
+        return "/expense_categories/{$this->public_id}/edit";
     }
 
 }

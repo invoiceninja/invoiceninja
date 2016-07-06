@@ -67,6 +67,12 @@ class ExpenseDatatable extends EntityDatatable
                 }
             ],
             [
+                'category',
+                function ($model) {
+                    return $model->category != null ? substr($model->category, 0, 100) : '';
+                }
+            ],
+            [
                 'public_notes',
                 function ($model) {
                     return $model->public_notes != null ? substr($model->public_notes, 0, 100) : '';
@@ -123,7 +129,7 @@ class ExpenseDatatable extends EntityDatatable
                 $class = 'default';
             } else {
                 $label = trans('texts.paid');
-                $class = 'success';                
+                $class = 'success';
             }
         } elseif ($shouldBeInvoiced) {
             $label = trans('texts.pending');

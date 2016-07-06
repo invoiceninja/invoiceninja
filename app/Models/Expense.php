@@ -47,7 +47,7 @@ class Expense extends EntityModel
      */
     public function expense_category()
     {
-        return $this->belongsTo('App\Models\ExpenseCategory');
+        return $this->belongsTo('App\Models\ExpenseCategory')->withTrashed();
     }
 
     /**

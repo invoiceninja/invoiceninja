@@ -195,6 +195,13 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('api/expense', ['as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable']);
     Route::get('api/vendor_expense/{id}', ['as'=>'api.expense', 'uses'=>'ExpenseController@getDatatableVendor']);
     Route::post('expenses/bulk', 'ExpenseController@bulk');
+    Route::get('expense_categories', 'ExpenseCategoryController@index');
+    Route::get('api/expense_categories', ['as'=>'api.expense_categories', 'uses'=>'ExpenseCategoryController@getDatatable']);
+    Route::get('expense_categories/create', 'ExpenseCategoryController@create');
+    Route::post('expense_categories', 'ExpenseCategoryController@store');
+    Route::put('expense_categories/{expense_categories}', 'ExpenseCategoryController@update');
+    Route::get('expense_categories/{expense_categories}/edit', 'ExpenseCategoryController@edit');
+    Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk');
 });
 
 Route::group([
@@ -365,7 +372,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_EXPENSE_ACTIVITY', 'expense_activity');
     define('ENTITY_BANK_ACCOUNT', 'bank_account');
     define('ENTITY_BANK_SUBACCOUNT', 'bank_subaccount');
-    define('ENTITY_EXPENSE_CATEGORIES', 'expense_categories');
+    define('ENTITY_EXPENSE_CATEGORY', 'expense_category');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);

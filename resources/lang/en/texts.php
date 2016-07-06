@@ -2010,6 +2010,18 @@ $LANG = array(
     'all' => 'All',
     'selected' => 'Selected',
     'category' => 'Category',
+    'categories' => 'Categories',
+    'new_expense_category' => 'New Expense Category',
+    'edit_category' => 'Edit Category',
+    'archive_expense_category' => 'Archive Category',
+    'expense_categories' => 'Expense Categories',
+    'list_expense_categories' => 'List Expense Categories',
+    'updated_expense_category' => 'Successfully updated expense category',
+    'created_expense_category' => 'Successfully created expense category',
+    'archived_expense_category' => 'Successfully archived expense category',
+    'archived_expense_categories' => 'Successfully archived :count expense category',
+    'restore_expense_category' => 'Restore expense category',
+    'restored_expense_category' => 'Successfully restored expense category',
 
 );
 

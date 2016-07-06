@@ -50,6 +50,7 @@ class ExpenseController extends BaseController
               'client',
               'expense_date',
               'amount',
+              'category',
               'public_notes',
               'status',
               ''
@@ -97,7 +98,7 @@ class ExpenseController extends BaseController
         $expense = $request->entity();
 
         $expense->expense_date = Utils::fromSqlDate($expense->expense_date);
-        
+
         $actions = [];
         if ($expense->invoice) {
             $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];

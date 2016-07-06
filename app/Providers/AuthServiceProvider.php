@@ -17,6 +17,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Credit::class => \App\Policies\CreditPolicy::class,
         \App\Models\Document::class => \App\Policies\DocumentPolicy::class,
         \App\Models\Expense::class => \App\Policies\ExpensePolicy::class,
+        \App\Models\ExpenseCategory::class => \App\Policies\ExpenseCategoryPolicy::class,
         \App\Models\Invoice::class => \App\Policies\InvoicePolicy::class,
         \App\Models\Payment::class => \App\Policies\PaymentPolicy::class,
         \App\Models\Task::class => \App\Policies\TaskPolicy::class,
@@ -40,7 +41,7 @@ class AuthServiceProvider extends ServiceProvider
         foreach (get_class_methods(new \App\Policies\GenericEntityPolicy) as $method) {
             $gate->define($method, "App\Policies\GenericEntityPolicy@{$method}");
         }
-        
+
         $this->registerPolicies($gate);
     }
 }

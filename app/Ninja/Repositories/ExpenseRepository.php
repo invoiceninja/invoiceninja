@@ -49,6 +49,7 @@ class ExpenseRepository extends BaseRepository
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftjoin('vendors', 'vendors.id', '=', 'expenses.vendor_id')
                     ->leftJoin('invoices', 'invoices.id', '=', 'expenses.invoice_id')
+                    ->leftJoin('expense_categories', 'expenses.expense_category_id', '=', 'expense_categories.id')
                     ->where('expenses.account_id', '=', $accountid)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('vendors.deleted_at', '=', null)
@@ -75,6 +76,7 @@ class ExpenseRepository extends BaseRepository
                         'expenses.expense_currency_id',
                         'expenses.invoice_currency_id',
                         'expenses.user_id',
+                        'expense_categories.name as category',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
                         'invoices.balance',
@@ -100,7 +102,8 @@ class ExpenseRepository extends BaseRepository
             $query->where(function ($query) use ($filter) {
                 $query->where('expenses.public_notes', 'like', '%'.$filter.'%')
                       ->orWhere('clients.name', 'like', '%'.$filter.'%')
-                      ->orWhere('vendors.name', 'like', '%'.$filter.'%');
+                      ->orWhere('vendors.name', 'like', '%'.$filter.'%')
+                      ->orWhere('expense_categories.name', 'like', '%'.$filter.'%');;
             });
         }
 

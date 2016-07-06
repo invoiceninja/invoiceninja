@@ -16,10 +16,14 @@ class EntityRequest extends Request {
 
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
-        foreach (['_id', 's'] as $suffix) {
-            $field = $this->entityType . $suffix;
-            if ($this->$field) {
-                $publicId= $this->$field;
+        $field = $this->entityType . '_id';
+        if ( ! empty($this->$field)) {
+            $publicId = $this->$field;
+        }
+        if ( ! $publicId) {
+            $field = Utils::pluralizeEntityType($this->entityType);
+            if ( ! empty($this->$field)) {
+                $publicId = $this->$field;
             }
         }
         if ( ! $publicId) {

@@ -176,6 +176,7 @@ class AccountRepository
             ENTITY_QUOTE,
             ENTITY_TASK,
             ENTITY_EXPENSE,
+            ENTITY_EXPENSE_CATEGORY,
             ENTITY_VENDOR,
             ENTITY_RECURRING_INVOICE,
             ENTITY_PAYMENT,
@@ -185,11 +186,11 @@ class AccountRepository
         foreach ($entityTypes as $entityType) {
             $features[] = [
                 "new_{$entityType}",
-                "/{$entityType}s/create",
+                Utils::pluralizeEntityType($entityType) . '/create'
             ];
             $features[] = [
-                "list_{$entityType}s",
-                "/{$entityType}s",
+                'list_' . Utils::pluralizeEntityType($entityType),
+                Utils::pluralizeEntityType($entityType)
             ];
         }
 

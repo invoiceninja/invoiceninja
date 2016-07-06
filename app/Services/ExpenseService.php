@@ -60,7 +60,7 @@ class ExpenseService extends BaseService
 
         if ( ! empty($data['category'])) {
             $name = trim($data['category']);
-            $category = ExpenseCategory::scope()->whereName($name)->first();
+            $category = ExpenseCategory::scope()->withTrashed()->whereName($name)->first();
             if ( ! $category) {
                 $category = ExpenseCategory::createNew();
                 $category->name = $name;

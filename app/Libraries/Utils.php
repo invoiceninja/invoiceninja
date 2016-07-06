@@ -374,6 +374,15 @@ class Utils
         return $string;
     }
 
+    public static function pluralizeEntityType($type)
+    {
+        if ($type === ENTITY_EXPENSE_CATEGORY) {
+            return 'expense_categories';
+        } else {
+            return $type . 's';
+        }
+    }
+
     public static function maskAccountNumber($value)
     {
         $length = strlen($value);
@@ -849,6 +858,7 @@ class Utils
     }
 
     // nouns in German and French should be uppercase
+    // TODO remove this
     public static function transFlowText($key)
     {
         $str = trans("texts.$key");
