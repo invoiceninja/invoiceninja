@@ -1,19 +1,19 @@
 <?php namespace App\Http\Middleware;
 
-use Request;
-use Closure;
-use Utils;
 use App;
+use App\Events\UserSettingsChanged;
+use App\Models\InvoiceDesign;
+use App\Models\Language;
 use Auth;
+use Cache;
+use Closure;
+use Event;
 use Input;
 use Redirect;
-use Cache;
-use Session;
-use Event;
+use Request;
 use Schema;
-use App\Models\Language;
-use App\Models\InvoiceDesign;
-use App\Events\UserSettingsChanged;
+use Session;
+use Utils;
 
 class StartupCheck
 {
@@ -21,7 +21,7 @@ class StartupCheck
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
+     * @param  \Closure $next
      * @return mixed
      */
     public function handle($request, Closure $next)
@@ -68,7 +68,7 @@ class StartupCheck
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
                 } else {
-                    $file = @file_get_contents(NINJA_APP_URL.'/news_feed/'.Utils::getUserType().'/'.NINJA_VERSION);
+                    $file = @file_get_contents(NINJA_APP_URL . '/news_feed/' . Utils::getUserType() . '/' . NINJA_VERSION);
                     $data = @json_decode($file);
                 }
                 if ($data) {
@@ -124,9 +124,9 @@ class StartupCheck
                 $licenseKey = Input::get('license_key');
                 $productId = Input::get('product_id');
 
-                $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true"; 
+                $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
                 $data = trim(file_get_contents($url));
-                
+
                 if ($productId == PRODUCT_INVOICE_DESIGNS) {
                     if ($data = json_decode($data)) {
                         foreach ($data as $item) {
@@ -163,7 +163,7 @@ class StartupCheck
         foreach ($cachedTables as $name => $class) {
             if (Input::has('clear_cache') || !Cache::has($name)) {
                 // check that the table exists in case the migration is pending
-                if ( ! Schema::hasTable((new $class)->getTable())) {
+                if (!Schema::hasTable((new $class)->getTable())) {
                     continue;
                 }
                 if ($name == 'paymentTerms') {
@@ -181,14 +181,13 @@ class StartupCheck
                 }
             }
         }
-        
+
         // Show message to IE 8 and before users
         if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
             Session::flash('error', trans('texts.old_browser'));
         }
 
         $response = $next($request);
-        //$response->headers->set('X-Frame-Options', 'DENY');
 
         return $response;
     }

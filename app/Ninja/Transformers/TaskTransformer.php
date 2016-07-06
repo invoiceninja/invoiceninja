@@ -2,20 +2,18 @@
 
 use App\Models\Account;
 use App\Models\Task;
-use App\Models\Client;
 use League\Fractal;
 
 /**
  * @SWG\Definition(definition="Task", @SWG\Xml(name="Task"))
  */
-
 class TaskTransformer extends EntityTransformer
 {
     /**
-    * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-    * @SWG\Property(property="amount", type="float", example=10, readOnly=true)
-    * @SWG\Property(property="invoice_id", type="integer", example=1)
-    */
+     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+     * @SWG\Property(property="amount", type="float", example=10, readOnly=true)
+     * @SWG\Property(property="invoice_id", type="integer", example=1)
+     */
     protected $availableIncludes = [
         'client',
     ];
@@ -40,7 +38,7 @@ class TaskTransformer extends EntityTransformer
     public function transform(Task $task)
     {
         return array_merge($this->getDefaults($task), [
-            'id' => (int) $task->public_id,
+            'id' => (int)$task->public_id,
             'description' => $task->description,
             'duration' => $task->getDuration()
         ]);

@@ -1,8 +1,7 @@
 <?php namespace App\Services;
 
-use URL;
-use App\Services\BaseService;
 use App\Ninja\Repositories\UserRepository;
+use URL;
 
 class UserService extends BaseService
 {
@@ -20,13 +19,6 @@ class UserService extends BaseService
         return $this->userRepo;
     }
 
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
-
     public function getDatatable($accountId)
     {
         $query = $this->userRepo->find($accountId);
@@ -40,7 +32,7 @@ class UserService extends BaseService
             [
                 'first_name',
                 function ($model) {
-                    return $model->public_id ? link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name)->toHtml() : ($model->first_name.' '.$model->last_name);
+                    return $model->public_id ? link_to('users/' . $model->public_id . '/edit', $model->first_name . ' ' . $model->last_name)->toHtml() : ($model->first_name . ' ' . $model->last_name);
                 }
             ],
             [
@@ -57,7 +49,7 @@ class UserService extends BaseService
                     } elseif ($model->deleted_at) {
                         return self::getStatusLabel(USER_STATE_DISABLED);
                     } elseif ($model->confirmed) {
-                        if($model->is_admin){
+                        if ($model->is_admin) {
                             return self::getStatusLabel(USER_STATE_ADMIN);
                         } else {
                             return self::getStatusLabel(USER_STATE_ACTIVE);
@@ -88,7 +80,7 @@ class UserService extends BaseService
                     return URL::to("send_confirmation/{$model->public_id}");
                 },
                 function ($model) {
-                    return $model->public_id && ! $model->confirmed;
+                    return $model->public_id && !$model->confirmed;
                 }
             ]
         ];

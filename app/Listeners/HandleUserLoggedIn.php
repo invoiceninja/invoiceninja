@@ -7,18 +7,17 @@ use Session;
 use App\Events\UserLoggedIn;
 use App\Events\UserSignedUp;
 use App\Ninja\Repositories\AccountRepository;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 
 class HandleUserLoggedIn {
 
     protected $accountRepo;
 
-	/**
-	 * Create the event handler.
-	 *
-	 * @return void
-	 */
+    /**
+     * Create the event handler.
+     *
+     * @param AccountRepository $accountRepo
+     */
 	public function __construct(AccountRepository $accountRepo)
 	{
         $this->accountRepo = $accountRepo;
@@ -54,5 +53,4 @@ class HandleUserLoggedIn {
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 	}
-
 }

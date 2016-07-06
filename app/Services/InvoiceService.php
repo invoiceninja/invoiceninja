@@ -1,16 +1,13 @@
 <?php namespace App\Services;
 
-use Auth;
-use Utils;
-use URL;
-use App\Services\BaseService;
-use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Repositories\ClientRepository;
 use App\Events\QuoteInvitationWasApproved;
-use App\Models\Invitation;
-use App\Models\Invoice;
 use App\Models\Client;
-use App\Models\Payment;
+use App\Models\Invitation;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\InvoiceRepository;
+use Auth;
+use URL;
+use Utils;
 
 class InvoiceService extends BaseService
 {
@@ -34,12 +31,12 @@ class InvoiceService extends BaseService
     {
         if (isset($data['client'])) {
             $canSaveClient = false;
-            $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id'); 
+            $clientPublicId = array_get($data, 'client.public_id') ?: array_get($data, 'client.id');
             if (empty($clientPublicId) || $clientPublicId == '-1') {
                 $canSaveClient = Auth::user()->can('create', ENTITY_CLIENT);
             } else {
                 $canSaveClient = Auth::user()->can('edit', Client::scope($clientPublicId)->first());
-            }            
+            }
             if ($canSaveClient) {
                 $client = $this->clientRepo->save($data['client']);
                 $data['client_id'] = $client->id;
@@ -92,12 +89,12 @@ class InvoiceService extends BaseService
     public function approveQuote($quote, $invitation = null)
     {
         $account = $quote->account;
-        
+
         if (!$quote->is_quote || $quote->quote_invoice_id) {
             return null;
         }
 
-        if ($account->auto_convert_quote || ! $account->hasFeature(FEATURE_QUOTES)) {
+        if ($account->auto_convert_quote || !$account->hasFeature(FEATURE_QUOTES)) {
             $invoice = $this->convertQuote($quote, $invitation);
 
             event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));
@@ -119,12 +116,12 @@ class InvoiceService extends BaseService
     public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
     {
         $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
-                    ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE ? true : false);
+            ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE ? true : false);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('invoices.user_id', '=', Auth::user()->id);
         }
-        
+
         return $this->createDatatable($entityType, $query, !$clientPublicId);
     }
 
@@ -134,22 +131,22 @@ class InvoiceService extends BaseService
             [
                 'invoice_number',
                 function ($model) use ($entityType) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id])){
+                    if (!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id])) {
                         return $model->invoice_number;
                     }
-                    
+
                     return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
                     return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                 },
-                ! $hideClient
+                !$hideClient
             ],
             [
                 'invoice_date',
@@ -168,8 +165,8 @@ class InvoiceService extends BaseService
                 function ($model) {
                     return $model->partial > 0 ?
                         trans('texts.partial_remaining', [
-                            'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
-                            'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id)]
+                                'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
+                                'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id)]
                         ) :
                         Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
                 },
@@ -218,7 +215,9 @@ class InvoiceService extends BaseService
                 }
             ],
             [
-                '--divider--', function(){return false;},
+                '--divider--', function () {
+                return false;
+            },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]) || Auth::user()->can('create', ENTITY_PAYMENT);
                 }
@@ -265,7 +264,7 @@ class InvoiceService extends BaseService
                     return "javascript:convertEntity({$model->public_id})";
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return $entityType == ENTITY_QUOTE && !$model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
             ]
         ];

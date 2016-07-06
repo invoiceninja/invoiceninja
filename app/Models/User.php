@@ -172,7 +172,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function afterSave($success = true, $forced = false)
     {
         if ($this->email) {
-            return parent::afterSave($success = true, $forced = false);
+            return parent::afterSave($success, $forced);
         } else {
             return true;
         }

@@ -1,23 +1,19 @@
 <?php namespace App\Services;
 
-use Utils;
+use App\Models\Account;
+use App\Models\AccountGatewayToken;
+use App\Models\Country;
+use App\Models\Payment;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\PaymentRepository;
 use Auth;
-use URL;
+use CreditCard;
 use DateTime;
 use Event;
 use Omnipay;
 use Session;
-use CreditCard;
-use App\Models\Payment;
-use App\Models\Account;
-use App\Models\Country;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\AccountGatewayToken;
-use App\Ninja\Repositories\PaymentRepository;
-use App\Ninja\Repositories\AccountRepository;
-use App\Services\BaseService;
-use App\Events\PaymentWasCreated;
+use URL;
+use Utils;
 
 class PaymentService extends BaseService
 {
@@ -39,7 +35,7 @@ class PaymentService extends BaseService
     public function createGateway($accountGateway)
     {
         $gateway = Omnipay::create($accountGateway->gateway->provider);
-        $gateway->initialize((array) $accountGateway->getConfig());
+        $gateway->initialize((array)$accountGateway->getConfig());
 
         if ($accountGateway->isGateway(GATEWAY_DWOLLA)) {
             if ($gateway->getSandbox() && isset($_ENV['DWOLLA_SANDBOX_KEY']) && isset($_ENV['DWOLLA_SANSBOX_SECRET'])) {
@@ -58,7 +54,7 @@ class PaymentService extends BaseService
     {
         $invoice = $invitation->invoice;
         $account = $invoice->account;
-        $key = $invoice->account_id.'-'.$invoice->invoice_number;
+        $key = $invoice->account_id . '-' . $invoice->invoice_number;
         $currencyCode = $invoice->client->currency ? $invoice->client->currency->code : ($invoice->account->currency ? $invoice->account->currency->code : 'USD');
 
         if ($input) {
@@ -99,12 +95,12 @@ class PaymentService extends BaseService
             'expiryMonth' => isset($input['expiration_month']) ? $input['expiration_month'] : null,
             'expiryYear' => isset($input['expiration_year']) ? $input['expiration_year'] : null,
         ];
-        
+
         // allow space until there's a setting to disable
         if (isset($input['cvv']) && $input['cvv'] != ' ') {
             $data['cvv'] = $input['cvv'];
         }
-        
+
         if (isset($input['country_id'])) {
             $country = Country::find($input['country_id']);
 
@@ -162,7 +158,7 @@ class PaymentService extends BaseService
 
         if ($cardReference) {
             $token = AccountGatewayToken::where('client_id', '=', $client->id)
-            ->where('account_gateway_id', '=', $accountGateway->id)->first();
+                ->where('account_gateway_id', '=', $accountGateway->id)->first();
 
             if (!$token) {
                 $token = new AccountGatewayToken();
@@ -218,7 +214,7 @@ class PaymentService extends BaseService
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
         $payment->payment_date = date_create()->format('Y-m-d');
-        
+
         if ($payerId) {
             $payment->payer_id = $payerId;
         }
@@ -236,11 +232,11 @@ class PaymentService extends BaseService
                     $pending_monthly = true;
                 }
             }
-            
-            if (!empty($plan)) { 
+
+            if (!empty($plan)) {
                 $account = Account::with('users')->find($invoice->client->public_id);
-                
-                if(
+
+                if (
                     $account->company->plan != $plan
                     || DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create('-7 days')
                 ) {
@@ -248,10 +244,10 @@ class PaymentService extends BaseService
                     // Reset any grandfathering
                     $account->company->plan_started = date_create()->format('Y-m-d');
                 }
-                            
+
                 if (
                     $account->company->plan == $plan
-                    && $account->company->plan_term == $term 
+                    && $account->company->plan_term == $term
                     && DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create()
                 ) {
                     // This is a renewal; mark it paid as of when this term expires
@@ -259,13 +255,13 @@ class PaymentService extends BaseService
                 } else {
                     $account->company->plan_paid = date_create()->format('Y-m-d');
                 }
-                
+
                 $account->company->payment_id = $payment->id;
                 $account->company->plan = $plan;
                 $account->company->plan_term = $term;
                 $account->company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
                     ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
-                                
+
                 if (!empty($pending_monthly)) {
                     $account->company->pending_plan = $plan;
                     $account->company->pending_term = PLAN_TERM_MONTHLY;
@@ -273,7 +269,7 @@ class PaymentService extends BaseService
                     $account->company->pending_plan = null;
                     $account->company->pending_term = null;
                 }
-                
+
                 $account->company->save();
             }
         }
@@ -325,7 +321,7 @@ class PaymentService extends BaseService
     {
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
 
@@ -338,23 +334,23 @@ class PaymentService extends BaseService
             [
                 'invoice_number',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id])){
+                    if (!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id])) {
                         return $model->invoice_number;
                     }
-                    
+
                     return link_to("invoices/{$model->invoice_public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
                 }
             ],
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
-                    
+
                     return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
-                ! $hideClient
+                !$hideClient
             ],
             [
                 'transaction_reference',

@@ -6,7 +6,6 @@ use Auth;
 use App\Models\Expense;
 use App\Models\Vendor;
 use App\Models\Document;
-use App\Ninja\Repositories\BaseRepository;
 use Session;
 
 class ExpenseRepository extends BaseRepository
@@ -222,6 +221,6 @@ class ExpenseRepository extends BaseRepository
             }
         }
 
-        return count($tasks);
+        return count($expenses);
     }
 }

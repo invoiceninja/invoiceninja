@@ -3,7 +3,6 @@
 use Eloquent;
 use Auth;
 use Cache;
-use App\Models\InvoiceDesign;
 
 class InvoiceDesign extends Eloquent
 {

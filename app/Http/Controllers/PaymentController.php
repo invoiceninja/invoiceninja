@@ -1,33 +1,30 @@
 <?php namespace App\Http\Controllers;
 
+use App\Http\Requests\CreatePaymentRequest;
+use App\Http\Requests\PaymentRequest;
+use App\Http\Requests\UpdatePaymentRequest;
+use App\Models\Affiliate;
+use App\Models\Client;
+use App\Models\Invitation;
+use App\Models\Invoice;
+use App\Models\License;
+use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\PaymentRepository;
+use App\Services\PaymentService;
+use Cache;
+use CreditCard;
 use Datatable;
 use Input;
+use Omnipay;
 use Redirect;
 use Request;
 use Session;
-use Utils;
-use View;
-use Validator;
-use Omnipay;
-use CreditCard;
 use URL;
-use Cache;
-use App\Models\Invoice;
-use App\Models\Invitation;
-use App\Models\Client;
-use App\Models\PaymentType;
-use App\Models\License;
-use App\Models\Payment;
-use App\Models\Affiliate;
-use App\Ninja\Repositories\PaymentRepository;
-use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Repositories\AccountRepository;
-use App\Ninja\Mailers\ContactMailer;
-use App\Services\PaymentService;
-
-use App\Http\Requests\PaymentRequest;
-use App\Http\Requests\CreatePaymentRequest;
-use App\Http\Requests\UpdatePaymentRequest;
+use Utils;
+use Validator;
+use View;
 
 class PaymentController extends BaseController
 {
@@ -35,8 +32,6 @@ class PaymentController extends BaseController
 
     public function __construct(PaymentRepository $paymentRepo, InvoiceRepository $invoiceRepo, AccountRepository $accountRepo, ContactMailer $contactMailer, PaymentService $paymentService)
     {
-        // parent::__construct();
-
         $this->paymentRepo = $paymentRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->accountRepo = $accountRepo;
@@ -51,14 +46,14 @@ class PaymentController extends BaseController
             'title' => trans('texts.payments'),
             'sortCol' => '6',
             'columns' => Utils::trans([
-              'checkbox',
-              'invoice',
-              'client',
-              'transaction_reference',
-              'method',
-              'payment_amount',
-              'payment_date',
-              ''
+                'checkbox',
+                'invoice',
+                'client',
+                'transaction_reference',
+                'method',
+                'payment_amount',
+                'payment_date',
+                ''
             ]),
         ));
     }
@@ -71,12 +66,12 @@ class PaymentController extends BaseController
     public function create(PaymentRequest $request)
     {
         $invoices = Invoice::scope()
-                    ->viewable()
-                    ->where('is_recurring', '=', false)
-                    ->where('is_quote', '=', false)
-                    ->where('invoices.balance', '>', 0)
-                    ->with('client', 'invoice_status')
-                    ->orderBy('invoice_number')->get();
+            ->viewable()
+            ->where('is_recurring', '=', false)
+            ->where('is_quote', '=', false)
+            ->where('invoices.balance', '>', 0)
+            ->with('client', 'invoice_status')
+            ->orderBy('invoice_number')->get();
 
         $data = array(
             'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
@@ -89,7 +84,7 @@ class PaymentController extends BaseController
             'title' => trans('texts.new_payment'),
             'paymentTypes' => Cache::get('paymentTypes'),
             'paymentTypeId' => Input::get('paymentTypeId'),
-            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(), );
+            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(),);
 
         return View::make('payments.edit', $data);
     }
@@ -104,13 +99,13 @@ class PaymentController extends BaseController
             'client' => null,
             'invoice' => null,
             'invoices' => Invoice::scope()->where('is_recurring', '=', false)->where('is_quote', '=', false)
-                            ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
+                ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'payment' => $payment,
             'method' => 'PUT',
-            'url' => 'payments/'.$payment->public_id,
+            'url' => 'payments/' . $payment->public_id,
             'title' => trans('texts.edit_payment'),
             'paymentTypes' => Cache::get('paymentTypes'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),);
 
         return View::make('payments.edit', $data);
     }
@@ -142,7 +137,7 @@ class PaymentController extends BaseController
             $paymentType = 'PAYMENT_TYPE_' . strtoupper($paymentType);
         } else {
             $paymentType = Session::get($invitation->id . 'payment_type') ?:
-                                $account->account_gateways[0]->getPaymentType();
+                $account->account_gateways[0]->getPaymentType();
         }
 
         if ($paymentType == PAYMENT_TYPE_TOKEN) {
@@ -162,10 +157,11 @@ class PaymentController extends BaseController
             || $gateway->id == GATEWAY_EWAY
             || $gateway->id == GATEWAY_TWO_CHECKOUT
             || $gateway->id == GATEWAY_PAYFAST
-            || $gateway->id == GATEWAY_MOLLIE) {
+            || $gateway->id == GATEWAY_MOLLIE
+        ) {
             if (Session::has('error')) {
                 Session::reflash();
-                return Redirect::to('view/'.$invitationKey);
+                return Redirect::to('view/' . $invitationKey);
             } else {
                 return self::do_payment($invitationKey, false, $useToken);
             }
@@ -173,7 +169,7 @@ class PaymentController extends BaseController
 
         $data = [
             'showBreadcrumbs' => false,
-            'url' => 'payment/'.$invitationKey,
+            'url' => 'payment/' . $invitationKey,
             'amount' => $invoice->getRequestedAmount(),
             'invoiceNumber' => $invoice->invoice_number,
             'client' => $client,
@@ -322,7 +318,7 @@ class PaymentController extends BaseController
             $this->contactMailer->sendLicensePaymentConfirmation($name, $license->email, $affiliate->price, $license->license_key, $license->product_id);
 
             if (Session::has('return_url')) {
-                $data['redirectTo'] = Session::get('return_url')."?license_key={$license->license_key}&product_id=".Session::get('product_id');
+                $data['redirectTo'] = Session::get('return_url') . "?license_key={$license->license_key}&product_id=" . Session::get('product_id');
                 $data['message'] = "Redirecting to " . Session::get('return_url');
             }
 
@@ -339,9 +335,9 @@ class PaymentController extends BaseController
         $productId = Input::get('product_id', PRODUCT_ONE_CLICK_INSTALL);
 
         $license = License::where('license_key', '=', $licenseKey)
-                    ->where('is_claimed', '<', 5)
-                    ->where('product_id', '=', $productId)
-                    ->first();
+            ->where('is_claimed', '<', 5)
+            ->where('product_id', '=', $productId)
+            ->first();
 
         if ($license) {
             if ($license->transaction_reference != 'TEST_MODE') {
@@ -378,7 +374,7 @@ class PaymentController extends BaseController
             'last_name' => 'required',
         ];
 
-        if ( ! Input::get('stripeToken')) {
+        if (!Input::get('stripeToken')) {
             $rules = array_merge(
                 $rules,
                 [
@@ -404,7 +400,7 @@ class PaymentController extends BaseController
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to('payment/'.$invitationKey)
+                return Redirect::to('payment/' . $invitationKey)
                     ->withErrors($validator)
                     ->withInput(Request::except('cvv'));
             }
@@ -447,7 +443,7 @@ class PaymentController extends BaseController
                         $details['customerReference'] = $token;
                     } else {
                         $this->error('Token-No-Ref', $this->paymentService->lastError, $accountGateway);
-                        return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+                        return Redirect::to('payment/' . $invitationKey)->withInput(Request::except('cvv'));
                     }
                 }
             }
@@ -473,10 +469,10 @@ class PaymentController extends BaseController
                 $this->error('No-Ref', $response->getMessage(), $accountGateway);
 
                 if ($onSite) {
-                    return Redirect::to('payment/'.$invitationKey)
-                            ->withInput(Request::except('cvv'));
+                    return Redirect::to('payment/' . $invitationKey)
+                        ->withInput(Request::except('cvv'));
                 } else {
-                    return Redirect::to('view/'.$invitationKey);
+                    return Redirect::to('view/' . $invitationKey);
                 }
             }
 
@@ -490,7 +486,7 @@ class PaymentController extends BaseController
                     Session::flash('trackEventAmount', $payment->amount);
                 }
 
-                return Redirect::to('view/'.$payment->invitation->invitation_key);
+                return Redirect::to('view/' . $payment->invitation->invitation_key);
             } elseif ($response->isRedirect()) {
 
                 $invitation->transaction_reference = $ref;
@@ -501,17 +497,17 @@ class PaymentController extends BaseController
             } else {
                 $this->error('Unknown', $response->getMessage(), $accountGateway);
                 if ($onSite) {
-                    return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+                    return Redirect::to('payment/' . $invitationKey)->withInput(Request::except('cvv'));
                 } else {
-                    return Redirect::to('view/'.$invitationKey);
+                    return Redirect::to('view/' . $invitationKey);
                 }
             }
         } catch (\Exception $e) {
             $this->error('Uncaught', false, $accountGateway, $e);
             if ($onSite) {
-                return Redirect::to('payment/'.$invitationKey)->withInput(Request::except('cvv'));
+                return Redirect::to('payment/' . $invitationKey)->withInput(Request::except('cvv'));
             } else {
-                return Redirect::to('view/'.$invitationKey);
+                return Redirect::to('view/' . $invitationKey);
             }
         }
     }
@@ -568,7 +564,8 @@ class PaymentController extends BaseController
                 return Redirect::to($invitation->getLink());
             } elseif (method_exists($gateway, 'completePurchase')
                 && !$accountGateway->isGateway(GATEWAY_TWO_CHECKOUT)
-                && !$accountGateway->isGateway(GATEWAY_CHECKOUT_COM)) {
+                && !$accountGateway->isGateway(GATEWAY_CHECKOUT_COM)
+            ) {
                 $details = $this->paymentService->getPaymentDetails($invitation, $accountGateway);
 
                 $response = $this->paymentService->completePurchase($gateway, $accountGateway, $details, $token);
@@ -578,14 +575,14 @@ class PaymentController extends BaseController
                 if ($response->isCancelled()) {
                     // do nothing
                 } elseif ($response->isSuccessful()) {
-                    $payment = $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId);
+                    $this->paymentService->createPayment($invitation, $accountGateway, $ref, $payerId);
                     Session::flash('message', trans('texts.applied_payment'));
                 } else {
                     $this->error('offsite', $response->getMessage(), $accountGateway);
                 }
                 return Redirect::to($invitation->getLink());
             } else {
-                $payment = $this->paymentService->createPayment($invitation, $accountGateway, $token, $payerId);
+                $this->paymentService->createPayment($invitation, $accountGateway, $token, $payerId);
                 Session::flash('message', trans('texts.applied_payment'));
                 return Redirect::to($invitation->getLink());
             }
@@ -629,7 +626,7 @@ class PaymentController extends BaseController
         $count = $this->paymentService->bulk($ids, $action);
 
         if ($count > 0) {
-            $message = Utils::pluralize($action.'d_payment', $count);
+            $message = Utils::pluralize($action . 'd_payment', $count);
             Session::flash('message', $message);
         }
 

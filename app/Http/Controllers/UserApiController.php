@@ -33,13 +33,6 @@ class UserApiController extends BaseAPIController
         return $this->listResponse($users);
     }
 
-    /*
-    public function store(CreateUserRequest $request)
-    {
-        return $this->save($request);
-    }
-    */
-
     public function update(UpdateUserRequest $request, $userPublicId)
     {
         $user = Auth::user();

@@ -4,17 +4,17 @@ use Auth;
 use Session;
 use App\Events\UserSettingsChanged;
 use App\Ninja\Repositories\AccountRepository;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldBeQueued;
 use App\Ninja\Mailers\UserMailer;
 
 class HandleUserSettingsChanged {
 
-	/**
-	 * Create the event handler.
-	 *
-	 * @return void
-	 */
+    /**
+     * Create the event handler.
+     *
+     * @param AccountRepository $accountRepo
+     * @param UserMailer $userMailer
+     */
 	public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
 	{
         $this->accountRepo = $accountRepo;

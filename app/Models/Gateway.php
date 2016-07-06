@@ -24,7 +24,6 @@ class Gateway extends Eloquent
         'brandName',
         'logoImageUrl',
         'borderColor',
-        // Dwolla
         'returnUrl',
     ];
 
@@ -32,7 +31,6 @@ class Gateway extends Eloquent
         // PayPal
         'testMode',
         'developerMode',
-        // Dwolla
         'sandbox',
     ];
 
@@ -50,16 +48,6 @@ class Gateway extends Eloquent
     {
         return Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
     }
-
-    /*
-    public static function getPaymentTypeLinks() {
-        $data = [];
-        foreach (self::$paymentTypes as $type) {
-            $data[] = Utils::toCamelCase(strtolower(str_replace('PAYMENT_TYPE_', '', $type)));
-        }
-        return $data;
-    }
-    */
 
     public function getHelp()
     {

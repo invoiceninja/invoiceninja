@@ -1,12 +1,9 @@
 <?php namespace App\Ninja\Repositories;
 
+use App\Models\Credit;
+use App\Models\Payment;
 use DB;
 use Utils;
-use App\Models\Payment;
-use App\Models\Credit;
-use App\Models\Invoice;
-use App\Models\Client;
-use App\Ninja\Repositories\BaseRepository;
 
 class PaymentRepository extends BaseRepository
 {
@@ -18,41 +15,41 @@ class PaymentRepository extends BaseRepository
     public function find($clientPublicId = null, $filter = null)
     {
         $query = DB::table('payments')
-                    ->join('accounts', 'accounts.id', '=', 'payments.account_id')
-                    ->join('clients', 'clients.id', '=', 'payments.client_id')
-                    ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-                    ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-                    ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
-                    ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
-                    ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
-                    ->where('payments.account_id', '=', \Auth::user()->account_id)
-                    ->where('clients.deleted_at', '=', null)
-                    ->where('contacts.is_primary', '=', true)
-                    ->where('contacts.deleted_at', '=', null)
-                    ->where('invoices.is_deleted', '=', false)
-                    ->select('payments.public_id',
-                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
-                        'payments.transaction_reference',
-                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
-                        'clients.public_id as client_public_id',
-                        'clients.user_id as client_user_id',
-                        'payments.amount',
-                        'payments.payment_date',
-                        'invoices.public_id as invoice_public_id',
-                        'invoices.user_id as invoice_user_id',
-                        'invoices.invoice_number',
-                        'contacts.first_name',
-                        'contacts.last_name',
-                        'contacts.email',
-                        'payment_types.name as payment_type',
-                        'payments.account_gateway_id',
-                        'payments.deleted_at',
-                        'payments.is_deleted',
-                        'payments.user_id',
-                        'invoices.is_deleted as invoice_is_deleted',
-                        'gateways.name as gateway_name'
-                    );
+            ->join('accounts', 'accounts.id', '=', 'payments.account_id')
+            ->join('clients', 'clients.id', '=', 'payments.client_id')
+            ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
+            ->join('contacts', 'contacts.client_id', '=', 'clients.id')
+            ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
+            ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
+            ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
+            ->where('payments.account_id', '=', \Auth::user()->account_id)
+            ->where('clients.deleted_at', '=', null)
+            ->where('contacts.is_primary', '=', true)
+            ->where('contacts.deleted_at', '=', null)
+            ->where('invoices.is_deleted', '=', false)
+            ->select('payments.public_id',
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                'payments.transaction_reference',
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                'clients.public_id as client_public_id',
+                'clients.user_id as client_user_id',
+                'payments.amount',
+                'payments.payment_date',
+                'invoices.public_id as invoice_public_id',
+                'invoices.user_id as invoice_user_id',
+                'invoices.invoice_number',
+                'contacts.first_name',
+                'contacts.last_name',
+                'contacts.email',
+                'payment_types.name as payment_type',
+                'payments.account_gateway_id',
+                'payments.deleted_at',
+                'payments.is_deleted',
+                'payments.user_id',
+                'invoices.is_deleted as invoice_is_deleted',
+                'gateways.name as gateway_name'
+            );
 
         if (!\Session::get('show_trash:payment')) {
             $query->where('payments.deleted_at', '=', null);
@@ -64,14 +61,14 @@ class PaymentRepository extends BaseRepository
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
-                $query->where('clients.name', 'like', '%'.$filter.'%')
-                      ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%')
-                      ->orWhere('payments.transaction_reference', 'like', '%'.$filter.'%')
-                      ->orWhere('gateways.name', 'like', '%'.$filter.'%')
-                      ->orWhere('payment_types.name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.email', 'like', '%'.$filter.'%');
+                $query->where('clients.name', 'like', '%' . $filter . '%')
+                    ->orWhere('invoices.invoice_number', 'like', '%' . $filter . '%')
+                    ->orWhere('payments.transaction_reference', 'like', '%' . $filter . '%')
+                    ->orWhere('gateways.name', 'like', '%' . $filter . '%')
+                    ->orWhere('payment_types.name', 'like', '%' . $filter . '%')
+                    ->orWhere('contacts.first_name', 'like', '%' . $filter . '%')
+                    ->orWhere('contacts.last_name', 'like', '%' . $filter . '%')
+                    ->orWhere('contacts.email', 'like', '%' . $filter . '%');
             });
         }
 
@@ -81,42 +78,42 @@ class PaymentRepository extends BaseRepository
     public function findForContact($contactId = null, $filter = null)
     {
         $query = DB::table('payments')
-                    ->join('accounts', 'accounts.id', '=', 'payments.account_id')
-                    ->join('clients', 'clients.id', '=', 'payments.client_id')
-                    ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-                    ->join('contacts', 'contacts.client_id', '=', 'clients.id')
-                    ->leftJoin('invitations', function ($join) {
-                        $join->on('invitations.invoice_id', '=', 'invoices.id')
-                             ->on('invitations.contact_id', '=', 'contacts.id');
-                    })
-                    ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
-                    ->where('clients.is_deleted', '=', false)
-                    ->where('payments.is_deleted', '=', false)
-                    ->where('invitations.deleted_at', '=', null)
-                    ->where('invoices.deleted_at', '=', null)
-                    ->where('invitations.contact_id', '=', $contactId)
-                    ->select(
-                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
-                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
-                        'invitations.invitation_key',
-                        'payments.public_id',
-                        'payments.transaction_reference',
-                        DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
-                        'clients.public_id as client_public_id',
-                        'payments.amount',
-                        'payments.payment_date',
-                        'invoices.public_id as invoice_public_id',
-                        'invoices.invoice_number',
-                        'contacts.first_name',
-                        'contacts.last_name',
-                        'contacts.email',
-                        'payment_types.name as payment_type',
-                        'payments.account_gateway_id'
-                    );
+            ->join('accounts', 'accounts.id', '=', 'payments.account_id')
+            ->join('clients', 'clients.id', '=', 'payments.client_id')
+            ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
+            ->join('contacts', 'contacts.client_id', '=', 'clients.id')
+            ->leftJoin('invitations', function ($join) {
+                $join->on('invitations.invoice_id', '=', 'invoices.id')
+                    ->on('invitations.contact_id', '=', 'contacts.id');
+            })
+            ->leftJoin('payment_types', 'payment_types.id', '=', 'payments.payment_type_id')
+            ->where('clients.is_deleted', '=', false)
+            ->where('payments.is_deleted', '=', false)
+            ->where('invitations.deleted_at', '=', null)
+            ->where('invoices.deleted_at', '=', null)
+            ->where('invitations.contact_id', '=', $contactId)
+            ->select(
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                'invitations.invitation_key',
+                'payments.public_id',
+                'payments.transaction_reference',
+                DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
+                'clients.public_id as client_public_id',
+                'payments.amount',
+                'payments.payment_date',
+                'invoices.public_id as invoice_public_id',
+                'invoices.invoice_number',
+                'contacts.first_name',
+                'contacts.last_name',
+                'contacts.email',
+                'payment_types.name as payment_type',
+                'payments.account_gateway_id'
+            );
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
-                $query->where('clients.name', 'like', '%'.$filter.'%');
+                $query->where('clients.name', 'like', '%' . $filter . '%');
             });
         }
 
@@ -160,7 +157,7 @@ class PaymentRepository extends BaseRepository
 
             if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
                 $credits = Credit::scope()->where('client_id', '=', $clientId)
-                            ->where('balance', '>', 0)->orderBy('created_at')->get();
+                    ->where('balance', '>', 0)->orderBy('created_at')->get();
                 $applied = 0;
 
                 foreach ($credits as $credit) {

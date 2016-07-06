@@ -1,7 +1,6 @@
 <?php namespace App\Models;
 
 use Crypt;
-use App\Models\Gateway;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AccountGateway extends EntityModel

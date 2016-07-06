@@ -21,8 +21,6 @@ class ProductController extends BaseController
 
     public function __construct(ProductService $productService)
     {
-        //parent::__construct();
-
         $this->productService = $productService;
     }
 
@@ -103,7 +101,7 @@ class ProductController extends BaseController
     {
         $action = Input::get('bulk_action');
         $ids = Input::get('bulk_public_id');
-        $count = $this->productService->bulk($ids, $action);
+        $this->productService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_product'));
 

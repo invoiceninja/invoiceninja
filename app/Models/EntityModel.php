@@ -55,18 +55,6 @@ class EntityModel extends Eloquent
         return '[' . $this->getEntityType().':'.$this->public_id.':'.$this->getDisplayName() . ']';
     }
 
-    /*
-    public function getEntityType()
-    {
-        return '';
-    }
-
-    public function getNmae()
-    {
-        return '';
-    }
-    */
-
     public function scopeScope($query, $publicId = false, $accountId = false)
     {
         if (!$accountId) {

@@ -1,9 +1,7 @@
 <?php namespace App\Listeners;
 
-use Carbon;
-use App\Events\QuoteWasEmailed;
 use App\Events\QuoteInvitationWasViewed;
-use App\Events\QuoteInvitationWasEmailed;
+use Carbon;
 
 class QuoteListener
 {

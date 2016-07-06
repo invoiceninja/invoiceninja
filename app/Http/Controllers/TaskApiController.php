@@ -6,7 +6,6 @@ use Response;
 use Input;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
-use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\TaskTransformer;
 
 class TaskApiController extends BaseAPIController
@@ -37,7 +36,7 @@ class TaskApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     */
+     **/
     public function index()
     {
         $payments = Task::scope()
@@ -67,7 +66,7 @@ class TaskApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     */
+     **/
     public function store()
     {
         $data = Input::all();

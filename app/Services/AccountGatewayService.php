@@ -2,7 +2,6 @@
 
 use URL;
 use App\Models\Gateway;
-use App\Services\BaseService;
 use App\Ninja\Repositories\AccountGatewayRepository;
 
 class AccountGatewayService extends BaseService
@@ -20,13 +19,6 @@ class AccountGatewayService extends BaseService
     {
         return $this->accountGatewayRepo;
     }
-
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
 
     public function getDatatable($accountId)
     {

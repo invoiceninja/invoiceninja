@@ -14,8 +14,6 @@ use Utils;
 use App\Models\Gateway;
 use App\Models\Account;
 use App\Models\AccountGateway;
-
-use App\Ninja\Repositories\AccountRepository;
 use App\Services\AccountGatewayService;
 
 class AccountGatewayController extends BaseController
@@ -24,8 +22,6 @@ class AccountGatewayController extends BaseController
 
     public function __construct(AccountGatewayService $accountGatewayService)
     {
-        //parent::__construct();
-
         $this->accountGatewayService = $accountGatewayService;
     }
 
@@ -177,6 +173,9 @@ class AccountGatewayController extends BaseController
     /**
      * Stores new account
      *
+     * @param bool $accountGatewayPublicId
+     *
+     * @return mixed
      */
     public function save($accountGatewayPublicId = false)
     {
@@ -300,5 +299,4 @@ class AccountGatewayController extends BaseController
             return Redirect::to("gateways/{$accountGateway->public_id}/edit");
         }
     }
-
 }

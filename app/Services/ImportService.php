@@ -5,7 +5,6 @@ use Excel;
 use Cache;
 use Exception;
 use Auth;
-use parsecsv;
 use Session;
 use Validator;
 use League\Fractal\Manager;
@@ -36,7 +35,6 @@ class ImportService
     public static $sources = [
         IMPORT_CSV,
         IMPORT_FRESHBOOKS,
-        //IMPORT_HARVEST,
         IMPORT_HIVEAGE,
         IMPORT_INVOICEABLE,
         IMPORT_NUTCACHE,

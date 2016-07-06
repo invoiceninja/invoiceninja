@@ -1,13 +1,10 @@
 <?php namespace App\Services;
 
+use App\Models\Task;
+use App\Ninja\Repositories\TaskRepository;
 use Auth;
 use URL;
 use Utils;
-use App\Models\Task;
-use App\Models\Invoice;
-use App\Models\Client;
-use App\Ninja\Repositories\TaskRepository;
-use App\Services\BaseService;
 
 class TaskService extends BaseService
 {
@@ -25,18 +22,11 @@ class TaskService extends BaseService
         return $this->taskRepo;
     }
 
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
-
     public function getDatatable($clientPublicId, $search)
     {
         $query = $this->taskRepo->find($clientPublicId, $search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('tasks.user_id', '=', Auth::user()->id);
         }
 
@@ -49,13 +39,13 @@ class TaskService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
-                    
+
                     return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
-                ! $hideClient
+                !$hideClient
             ],
             [
                 'created_at',
@@ -65,7 +55,7 @@ class TaskService extends BaseService
             ],
             [
                 'time_log',
-                function($model) {
+                function ($model) {
                     return Utils::formatTime(Task::calcDuration($model));
                 }
             ],
@@ -90,7 +80,7 @@ class TaskService extends BaseService
             [
                 trans('texts.edit_task'),
                 function ($model) {
-                    return URL::to('tasks/'.$model->public_id.'/edit');
+                    return URL::to('tasks/' . $model->public_id . '/edit');
                 },
                 function ($model) {
                     return (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]);
@@ -120,7 +110,7 @@ class TaskService extends BaseService
                     return "javascript:invoiceEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_number && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return !$model->invoice_number && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
                 }
             ]
         ];

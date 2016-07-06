@@ -2,7 +2,6 @@
 
 use Utils;
 use Auth;
-use App\Events\InvoiceWasEmailed;
 use App\Events\InvoiceWasUpdated;
 use App\Events\InvoiceWasCreated;
 use App\Events\PaymentWasCreated;

@@ -7,7 +7,6 @@ use Input;
 use Socialite;
 use App\Ninja\Repositories\AccountRepository;
 use App\Events\UserLoggedIn;
-use App\Events\UserSignedUp;
 
 class AuthService
 {
@@ -28,8 +27,6 @@ class AuthService
     public static function getProviders()
     {
         $providers = [];
-
-        
     }
 
     public function execute($provider, $hasCode)

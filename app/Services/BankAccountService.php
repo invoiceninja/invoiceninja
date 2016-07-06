@@ -1,18 +1,17 @@
 <?php namespace App\Services;
 
-use stdClass;
-use Utils;
-use URL;
-use Hash;
+use App\Libraries\Finance;
+use App\Libraries\Login;
 use App\Models\BankSubaccount;
-use App\Models\Vendor;
 use App\Models\Expense;
-use App\Services\BaseService;
+use App\Models\Vendor;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
-use App\Libraries\Finance;
-use App\Libraries\Login;
+use Hash;
+use stdClass;
+use URL;
+use Utils;
 
 class BankAccountService extends BaseService
 {
@@ -36,26 +35,26 @@ class BankAccountService extends BaseService
 
     public function loadBankAccounts($bankId, $username, $password, $includeTransactions = true)
     {
-        if (! $bankId || ! $username || ! $password) {
+        if (!$bankId || !$username || !$password) {
             return false;
         }
 
         $expenses = Expense::scope()
-                        ->whereBankId($bankId)
-                        ->where('transaction_id', '!=', '')
-                        ->withTrashed()
-                        ->get(['transaction_id'])
-                        ->toArray();
+            ->whereBankId($bankId)
+            ->where('transaction_id', '!=', '')
+            ->withTrashed()
+            ->get(['transaction_id'])
+            ->toArray();
         $expenses = array_flip(array_map(function ($val) {
             return $val['transaction_id'];
         }, $expenses));
 
         $vendorMap = $this->createVendorMap();
         $bankAccounts = BankSubaccount::scope()
-                            ->whereHas('bank_account', function ($query) use ($bankId) {
-                                $query->where('bank_id', '=', $bankId);
-                            })
-                            ->get();
+            ->whereHas('bank_account', function ($query) use ($bankId) {
+                $query->where('bank_id', '=', $bankId);
+            })
+            ->get();
         $bank = Utils::getFromCache($bankId, 'banks');
         $data = [];
 
@@ -96,7 +95,7 @@ class BankAccountService extends BaseService
         }
 
         // if we can't find a match skip the account
-        if (count($bankAccounts) && ! $obj->account_name) {
+        if (count($bankAccounts) && !$obj->account_name) {
             return false;
         }
 
@@ -148,8 +147,8 @@ class BankAccountService extends BaseService
     {
         $vendorMap = [];
         $vendors = Vendor::scope()
-                        ->withTrashed()
-                        ->get(['id', 'name', 'transaction_name']);
+            ->withTrashed()
+            ->get(['id', 'name', 'transaction_name']);
         foreach ($vendors as $vendor) {
             $vendorMap[strtolower($vendor->name)] = $vendor;
             $vendorMap[strtolower($vendor->transaction_name)] = $vendor;

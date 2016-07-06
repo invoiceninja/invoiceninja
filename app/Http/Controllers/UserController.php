@@ -30,8 +30,6 @@ class UserController extends BaseController
 
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer, UserMailer $userMailer, UserService $userService)
     {
-        //parent::__construct();
-
         $this->accountRepo = $accountRepo;
         $this->contactMailer = $contactMailer;
         $this->userMailer = $userMailer;
@@ -160,7 +158,8 @@ class UserController extends BaseController
 
     /**
      * Stores new account
-     *
+     * @param bool $userPublicId
+     * @return
      */
     public function save($userPublicId = false)
     {
@@ -258,7 +257,6 @@ class UserController extends BaseController
             $user->save();
 
             if ($user->public_id) {
-                //Auth::login($user);
                 $token = Password::getRepository()->create($user);
 
                 return Redirect::to("/password/reset/{$token}");
@@ -278,31 +276,6 @@ class UserController extends BaseController
             return Redirect::to('/login')->with('error', $error_msg);
         }
     }
-
-    /**
-     * Log the user out of the application.
-     *
-     */
-    /*
-    public function logout()
-    {
-        if (Auth::check()) {
-            if (!Auth::user()->registered) {
-                $account = Auth::user()->account;
-                $this->accountRepo->unlinkAccount($account);
-                if ($account->company->accounts->count() == 1) {
-                    $account->company->forceDelete();    
-                }
-                $account->forceDelete();
-            }
-        }
-
-        Auth::logout();
-        Session::flush();
-
-        return Redirect::to('/')->with('clearGuestKey', true);
-    }
-    */
 
     public function changePassword()
     {
@@ -353,8 +326,6 @@ class UserController extends BaseController
     public function unlinkAccount($userAccountId, $userId)
     {
         $this->accountRepo->unlinkUser($userAccountId, $userId);
-        $referer = Request::header('referer');
-
         $users = $this->accountRepo->loadAccounts(Auth::user()->id);
         Session::put(SESSION_USER_ACCOUNTS, $users);
 
@@ -366,5 +337,4 @@ class UserController extends BaseController
     {
         return View::make('users.account_management');
     }
-
 }

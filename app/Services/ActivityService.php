@@ -2,7 +2,6 @@
 
 use Utils;
 use App\Models\Client;
-use App\Services\BaseService;
 use App\Ninja\Repositories\ActivityRepository;
 
 class ActivityService extends BaseService

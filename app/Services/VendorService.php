@@ -1,13 +1,10 @@
 <?php namespace App\Services;
 
-use Utils;
-use URL;
-use Auth;
-use App\Models\Vendor;
-use App\Models\Expense;
-use App\Services\BaseService;
-use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Repositories\NinjaRepository;
+use App\Ninja\Repositories\VendorRepository;
+use Auth;
+use URL;
+use Utils;
 
 class VendorService extends BaseService
 {
@@ -16,8 +13,8 @@ class VendorService extends BaseService
 
     public function __construct(VendorRepository $vendorRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
-        $this->vendorRepo       = $vendorRepo;
-        $this->ninjaRepo        = $ninjaRepo;
+        $this->vendorRepo = $vendorRepo;
+        $this->ninjaRepo = $ninjaRepo;
         $this->datatableService = $datatableService;
     }
 
@@ -38,8 +35,8 @@ class VendorService extends BaseService
     public function getDatatable($search)
     {
         $query = $this->vendorRepo->find($search);
-        
-        if(!Utils::hasPermission('view_all')){
+
+        if (!Utils::hasPermission('view_all')) {
             $query->where('vendors.user_id', '=', Auth::user()->id);
         }
 
@@ -95,11 +92,13 @@ class VendorService extends BaseService
                 }
             ],
             [
-                '--divider--', function(){return false;},
+                '--divider--', function () {
+                return false;
+            },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_VENDOR, $model->user_id]) && Auth::user()->can('create', ENTITY_EXPENSE);
                 }
-                
+
             ],
             [
                 trans('texts.enter_expense'),

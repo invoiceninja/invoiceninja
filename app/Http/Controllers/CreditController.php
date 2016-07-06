@@ -22,8 +22,6 @@ class CreditController extends BaseController
 
     public function __construct(CreditRepository $creditRepo, CreditService $creditService)
     {
-        // parent::__construct();
-
         $this->creditRepo = $creditRepo;
         $this->creditService = $creditService;
     }
@@ -69,27 +67,6 @@ class CreditController extends BaseController
 
         return View::make('credits.edit', $data);
     }
-
-    /*
-    public function edit($publicId)
-    {
-        $credit = Credit::scope($publicId)->firstOrFail();
-
-        $this->authorize('edit', $credit);
-
-        $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
-
-        $data = array(
-            'client' => null,
-            'credit' => $credit,
-            'method' => 'PUT',
-            'url' => 'credits/'.$publicId,
-            'title' => 'Edit Credit',
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
-
-        return View::make('credit.edit', $data);
-    }
-    */
 
     public function store(CreateCreditRequest $request)
     {

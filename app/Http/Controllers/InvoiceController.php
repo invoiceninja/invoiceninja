@@ -13,9 +13,7 @@ use URL;
 use Datatable;
 use Request;
 use DropdownButton;
-use App\Models\Invoice;
 use App\Models\Client;
-use App\Models\Account;
 use App\Models\Product;
 use App\Models\Expense;
 use App\Models\TaxRate;
@@ -44,8 +42,6 @@ class InvoiceController extends BaseController
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService)
     {
-        // parent::__construct();
-
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
@@ -426,7 +422,8 @@ class InvoiceController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param UpdateInvoiceRequest $request
+     *
      * @return Response
      */
     public function update(UpdateInvoiceRequest $request)
@@ -507,7 +504,7 @@ class InvoiceController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int      $id
+     * @param  int      $publicId
      * @return Response
      */
     public function show($publicId)
@@ -520,7 +517,8 @@ class InvoiceController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
+     * @param string $entityType
+     *
      * @return Response
      */
     public function bulk($entityType = ENTITY_INVOICE)

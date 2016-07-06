@@ -1,10 +1,8 @@
 <?php namespace App\Ninja\Repositories;
 
 use DB;
-use Utils;
 use Session;
-use App\Models\User;
-use App\Ninja\Repositories\BaseRepository;
+use Utils;
 
 class UserRepository extends BaseRepository
 {
@@ -16,7 +14,7 @@ class UserRepository extends BaseRepository
     public function find($accountId)
     {
         $query = DB::table('users')
-                  ->where('users.account_id', '=', $accountId);
+            ->where('users.account_id', '=', $accountId);
 
         if (!Session::get('show_trash:user')) {
             $query->where('users.deleted_at', '=', null);

@@ -28,11 +28,9 @@ class AnalyticsListener
 
         $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
-        //Log::info($url);
 
         $url = $base . "&t=item&in=plan&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
-        //Log::info($url);
     }
 
     private function sendAnalytics($data)
@@ -48,7 +46,7 @@ class AnalyticsListener
         ];
 
         curl_setopt_array($curl, $opts);
-        $response = curl_exec($curl);
+        curl_exec($curl);
         curl_close($curl);
     }
 }

@@ -2,12 +2,11 @@
 
 use App\Models\Expense;
 use app\Ninja\Repositories\ExpenseRepository;
-use App\Ninja\Transformers\ExpenseTransformer;
 use App\Services\ExpenseService;
-use Utils;
-use Response;
-use Input;
 use Auth;
+use Input;
+use Response;
+use Utils;
 
 
 class ExpenseApiController extends BaseAPIController
@@ -31,7 +30,7 @@ class ExpenseApiController extends BaseAPIController
         $expenses = Expense::scope()
             ->withTrashed()
             ->with('client', 'invoice', 'vendor')
-            ->orderBy('created_at','desc');
+            ->orderBy('created_at', 'desc');
 
         return $this->listResponse($expenses);
     }

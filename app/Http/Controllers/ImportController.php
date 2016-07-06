@@ -7,14 +7,11 @@ use Input;
 use Session;
 use Redirect;
 use App\Services\ImportService;
-use App\Http\Controllers\BaseController;
 
 class ImportController extends BaseController
 {
     public function __construct(ImportService $importService)
     {
-        //parent::__construct();
-
         $this->importService = $importService;
     }
 

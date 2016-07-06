@@ -1,12 +1,9 @@
 <?php namespace App\Services;
 
-use Utils;
-use URL;
-use Auth;
-use App\Services\BaseService;
-use App\Models\Client;
-use App\Models\Payment;
 use App\Ninja\Repositories\CreditRepository;
+use Auth;
+use URL;
+use Utils;
 
 
 class CreditService extends BaseService
@@ -33,8 +30,8 @@ class CreditService extends BaseService
     public function getDatatable($clientPublicId, $search)
     {
         $query = $this->creditRepo->find($clientPublicId, $search);
-        
-        if(!Utils::hasPermission('view_all')){
+
+        if (!Utils::hasPermission('view_all')) {
             $query->where('credits.user_id', '=', Auth::user()->id);
         }
 
@@ -47,18 +44,18 @@ class CreditService extends BaseService
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
-                    
+
                     return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
-                ! $hideClient
+                !$hideClient
             ],
             [
                 'amount',
                 function ($model) {
-                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span '.Utils::getEntityRowClass($model).'/>';
+                    return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id) . '<span ' . Utils::getEntityRowClass($model) . '/>';
                 }
             ],
             [
