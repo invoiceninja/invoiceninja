@@ -9,12 +9,9 @@ use Redirect;
 use Session;
 use View;
 use Validator;
-use stdClass;
 use Crypt;
 use URL;
 use Utils;
-use App\Models\Gateway;
-use App\Models\Account;
 use App\Models\BankAccount;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
@@ -27,8 +24,6 @@ class BankAccountController extends BaseController
 
     public function __construct(BankAccountService $bankAccountService, BankAccountRepository $bankAccountRepo)
     {
-        //parent::__construct();
-
         $this->bankAccountService = $bankAccountService;
         $this->bankAccountRepo = $bankAccountRepo;
     }
@@ -108,7 +103,7 @@ class BankAccountController extends BaseController
 
     public function store(CreateBankAccountRequest $request)
     {
-        $bankAccount = $this->bankAccountRepo->save(Input::all());
+        $this->bankAccountRepo->save(Input::all());
 
         $bankId = Input::get('bank_id');
         $username = trim(Input::get('bank_username'));

@@ -15,7 +15,6 @@ use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use League\Fractal\Serializer\JsonApiSerializer;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * @SWG\Swagger(

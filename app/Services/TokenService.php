@@ -1,8 +1,7 @@
 <?php namespace App\Services;
 
-use URL;
-use App\Services\BaseService;
 use App\Ninja\Repositories\TokenRepository;
+use URL;
 
 class TokenService extends BaseService
 {
@@ -19,13 +18,6 @@ class TokenService extends BaseService
     {
         return $this->tokenRepo;
     }
-
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
 
     public function getDatatable($userId)
     {

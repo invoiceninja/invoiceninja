@@ -4,7 +4,6 @@ use DB;
 use Utils;
 use Response;
 use App\Models\Document;
-use App\Ninja\Repositories\BaseRepository;
 use Intervention\Image\ImageManager;
 use Session;
 use Form;
@@ -30,11 +29,7 @@ class DocumentRepository extends BaseRepository
         $query = DB::table('clients')
                     ->join('accounts', 'accounts.id', '=', 'clients.account_id')
                     ->leftjoin('clients', 'clients.id', '=', 'clients.client_id')
-                    /*->leftJoin('expenses', 'expenses.id', '=', 'clients.expense_id')
-                    ->leftJoin('invoices', 'invoices.id', '=', 'clients.invoice_id')*/
                     ->where('documents.account_id', '=', $accountid)
-                    /*->where('vendors.deleted_at', '=', null)
-                    ->where('clients.deleted_at', '=', null)*/
                     ->select(
                         'documents.account_id',
                         'documents.path',

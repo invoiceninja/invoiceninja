@@ -2,7 +2,6 @@
 
 use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Services\DatatableService;
 
 class BaseService
 {
@@ -15,14 +14,14 @@ class BaseService
 
     public function bulk($ids, $action)
     {
-        if ( ! $ids ) {
+        if (!$ids) {
             return 0;
         }
 
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            if(Auth::user()->can('edit', $entity)){
+            if (Auth::user()->can('edit', $entity)) {
                 $this->getRepo()->$action($entity);
             }
         }

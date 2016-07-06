@@ -2,7 +2,6 @@
 
 use DB;
 use App\Models\Product;
-use App\Ninja\Repositories\BaseRepository;
 
 class ProductRepository extends BaseRepository
 {

@@ -1,9 +1,8 @@
 <?php namespace App\Services;
 
-use URL;
-use Auth;
-use App\Services\BaseService;
 use App\Ninja\Repositories\TaxRateRepository;
+use Auth;
+use URL;
 
 class TaxRateService extends BaseService
 {
@@ -20,13 +19,6 @@ class TaxRateService extends BaseService
     {
         return $this->taxRateRepo;
     }
-
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
 
     public function getDatatable($accountId)
     {

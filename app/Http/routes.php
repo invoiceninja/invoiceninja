@@ -11,15 +11,6 @@
 |
 */
 
-//Crypt::decrypt();
-//apc_clear_cache();
-//dd(DB::getQueryLog());
-//dd(Client::getPrivateId(1));
-//dd(new DateTime());
-//dd(App::environment());
-//dd(gethostname());
-//Log::error('test');
-
 // Application setup
 Route::get('/setup', 'AppController@showSetup');
 Route::post('/setup', 'AppController@doSetup');
@@ -744,11 +735,3 @@ if (!defined('CONTACT_EMAIL')) {
         }
     }
 }
-
-/*
-if (Utils::isNinjaDev())
-{
-  //ini_set('memory_limit','1024M');
-  //Auth::loginUsingId(1);
-}
-*/

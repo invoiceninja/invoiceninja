@@ -39,8 +39,6 @@ class TaskPresenter extends Presenter {
 
     public function status()
     {
-        $class = $text = '';
-
         if ($this->entity->is_deleted) {
             $class = 'danger';
             $text = trans('texts.deleted');

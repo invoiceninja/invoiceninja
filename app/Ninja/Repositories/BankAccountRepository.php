@@ -6,7 +6,6 @@ use Utils;
 use Session;
 use App\Models\BankAccount;
 use App\Models\BankSubaccount;
-use App\Ninja\Repositories\BaseRepository;
 
 class BankAccountRepository extends BaseRepository
 {

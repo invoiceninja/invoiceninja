@@ -45,8 +45,6 @@ class AccountController extends BaseController
 
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer, ContactMailer $contactMailer, ReferralRepository $referralRepository, PaymentService $paymentService)
     {
-        //parent::__construct();
-
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
@@ -520,7 +518,6 @@ class AccountController extends BaseController
 
         $invoice->client = $client;
         $invoice->invoice_items = [$invoiceItem];
-        //$invoice->documents = $account->hasFeature(FEATURE_DOCUMENTS) ? [$document] : [];
         $invoice->documents = [];
 
         $data['account'] = $account;

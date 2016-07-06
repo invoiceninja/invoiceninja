@@ -12,7 +12,6 @@ use App\Models\Task;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Services\PaymentService;
-use App\Ninja\Repositories\BaseRepository;
 
 class InvoiceRepository extends BaseRepository
 {

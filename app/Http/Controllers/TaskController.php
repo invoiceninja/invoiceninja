@@ -10,8 +10,6 @@ use Validator;
 use Redirect;
 use Session;
 use DropdownButton;
-use DateTime;
-use DateTimeZone;
 use App\Models\Client;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
@@ -30,8 +28,6 @@ class TaskController extends BaseController
 
     public function __construct(TaskRepository $taskRepo, InvoiceRepository $invoiceRepo, TaskService $taskService)
     {
-        // parent::__construct();
-
         $this->taskRepo = $taskRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->taskService = $taskService;
@@ -109,7 +105,8 @@ class TaskController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
+     * @param TaskRequest $request
+     *
      * @return Response
      */
     public function edit(TaskRequest $request)
@@ -150,7 +147,6 @@ class TaskController extends BaseController
             'actions' => $actions,
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
-            //'entityStatus' => $task->present()->status,
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -161,7 +157,8 @@ class TaskController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param UpdateTaskRequest $request
+     *
      * @return Response
      */
     public function update(UpdateTaskRequest $request)

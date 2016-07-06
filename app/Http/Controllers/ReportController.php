@@ -125,7 +125,6 @@ class ReportController extends BaseController
 
     private function generateChart($groupBy, $startDate, $endDate)
     {
-        $width = 10;
         $datasets = [];
         $labels = [];
         $maxTotals = 0;
@@ -464,7 +463,6 @@ class ReportController extends BaseController
     {
         $columns = ['vendor', 'client', 'date', 'expense_amount', 'invoiced_amount'];
 
-        $account = Auth::user()->account;
         $displayData = [];
         $reportTotals = [];
 

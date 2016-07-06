@@ -1,8 +1,8 @@
 <?php namespace App\Models;
 
-use Utils;
 use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Utils;
 
 class Invitation extends EntityModel
 {
@@ -39,7 +39,7 @@ class Invitation extends EntityModel
 
         $url = SITE_URL;
         $iframe_url = $this->account->iframe_url;
-        
+
         if ($this->account->hasFeature(FEATURE_CUSTOM_URL)) {
             if ($iframe_url && !$forceOnsite) {
                 return "{$iframe_url}?{$this->invitation_key}";
@@ -47,7 +47,7 @@ class Invitation extends EntityModel
                 $url = Utils::replaceSubdomain($url, $this->account->subdomain);
             }
         }
-        
+
         return "{$url}/{$type}/{$this->invitation_key}";
     }
 

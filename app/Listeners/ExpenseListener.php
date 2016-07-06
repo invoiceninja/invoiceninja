@@ -2,7 +2,6 @@
 
 use Carbon;
 use App\Models\Expense;
-use App\Events\PaymentWasDeleted;
 use App\Events\InvoiceWasDeleted;
 use App\Ninja\Repositories\ExpenseRepository;
 

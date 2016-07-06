@@ -172,12 +172,6 @@ class ExportController extends BaseController
                 ->with('user', 'vendor.vendor_contacts')
                 ->withTrashed()
                 ->get();
-            
-            /*
-            $data['expenses'] = Credit::scope()
-                ->with('user', 'client.contacts')
-                ->get();
-            */
         }
         
         return $data;

@@ -1,6 +1,5 @@
 <?php namespace App\Ninja\Repositories;
 
-use App\Models\Client;
 use App\Models\Contact;
 
 class ContactRepository extends BaseRepository

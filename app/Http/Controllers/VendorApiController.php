@@ -1,14 +1,12 @@
 <?php namespace App\Http\Controllers;
-// vendor
-use Utils;
-use Response;
-use Input;
-use Auth;
+
+use App\Http\Requests\CreateVendorRequest;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
-use App\Http\Requests\CreateVendorRequest;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\VendorTransformer;
+use Auth;
+use Input;
+use Response;
+use Utils;
 
 class VendorApiController extends BaseAPIController
 {
@@ -45,12 +43,12 @@ class VendorApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     */
+     **/
     public function index()
     {
         $vendors = Vendor::scope()
-                    ->withTrashed()
-                    ->orderBy('created_at', 'desc');
+            ->withTrashed()
+            ->orderBy('created_at', 'desc');
 
         return $this->listResponse($vendors);
     }
@@ -75,14 +73,14 @@ class VendorApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     */
+     **/
     public function store(CreateVendorRequest $request)
     {
         $vendor = $this->vendorRepo->save($request->input());
 
         $vendor = Vendor::scope($vendor->public_id)
-                    ->with('country', 'vendor_contacts', 'industry', 'size', 'currency')
-                    ->first();
+            ->with('country', 'vendor_contacts', 'industry', 'size', 'currency')
+            ->first();
 
         return $this->itemResponse($vendor);
     }

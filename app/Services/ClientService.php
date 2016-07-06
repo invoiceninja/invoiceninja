@@ -1,17 +1,10 @@
 <?php namespace App\Services;
 
-use Utils;
-use URL;
-use Auth;
-use App\Services\BaseService;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Credit;
-use App\Models\Expense;
-use App\Models\Payment;
-use App\Models\Task;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\NinjaRepository;
+use Auth;
+use URL;
+use Utils;
 
 class ClientService extends BaseService
 {
@@ -43,7 +36,7 @@ class ClientService extends BaseService
     {
         $query = $this->clientRepo->find($search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('clients.user_id', '=', Auth::user()->id);
         }
 
@@ -62,7 +55,7 @@ class ClientService extends BaseService
             [
                 'first_name',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->first_name.' '.$model->last_name)->toHtml();
+                    return link_to("clients/{$model->public_id}", $model->first_name . ' ' . $model->last_name)->toHtml();
                 }
             ],
             [
@@ -105,7 +98,9 @@ class ClientService extends BaseService
                 }
             ],
             [
-                '--divider--', function(){return false;},
+                '--divider--', function () {
+                return false;
+            },
                 function ($model) {
                     $user = Auth::user();
                     return $user->can('editByOwner', [ENTITY_CLIENT, $model->user_id]) && ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE));
@@ -139,7 +134,9 @@ class ClientService extends BaseService
                 }
             ],
             [
-                '--divider--', function(){return false;},
+                '--divider--', function () {
+                return false;
+            },
                 function ($model) {
                     $user = Auth::user();
                     return ($user->can('create', ENTITY_TASK) || $user->can('create', ENTITY_INVOICE)) && ($user->can('create', ENTITY_PAYMENT) || $user->can('create', ENTITY_CREDIT) || $user->can('create', ENTITY_EXPENSE));

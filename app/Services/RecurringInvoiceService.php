@@ -1,10 +1,9 @@
 <?php namespace App\Services;
 
-use URL;
-use Auth;
-use Utils;
-use App\Models\Invoice;
 use App\Ninja\Repositories\InvoiceRepository;
+use Auth;
+use URL;
+use Utils;
 
 class RecurringInvoiceService extends BaseService
 {
@@ -21,10 +20,10 @@ class RecurringInvoiceService extends BaseService
     {
         $query = $this->invoiceRepo->getRecurringInvoices($accountId, $clientPublicId, $search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('invoices.user_id', '=', Auth::user()->id);
         }
-        
+
         return $this->createDatatable(ENTITY_RECURRING_INVOICE, $query, !$clientPublicId);
     }
 
@@ -42,7 +41,7 @@ class RecurringInvoiceService extends BaseService
                 function ($model) {
                     return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                 },
-                ! $hideClient
+                !$hideClient
             ],
             [
                 'start_date',

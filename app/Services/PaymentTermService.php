@@ -1,9 +1,8 @@
 <?php namespace App\Services;
 
-use URL;
-use Auth;
-use App\Services\BaseService;
 use App\Ninja\Repositories\PaymentTermRepository;
+use Auth;
+use URL;
 
 class PaymentTermService extends BaseService
 {

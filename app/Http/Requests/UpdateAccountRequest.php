@@ -1,8 +1,5 @@
 <?php namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
-
 class UpdateAccountRequest extends Request
 {
     /**
@@ -24,7 +21,7 @@ class UpdateAccountRequest extends Request
     {
         return [
             'name' => 'required',
-            'logo' => 'sometimes|max:'.MAX_LOGO_FILE_SIZE.'|mimes:jpeg,gif,png',
+            'logo' => 'sometimes|max:' . MAX_LOGO_FILE_SIZE . '|mimes:jpeg,gif,png',
         ];
     }
 }

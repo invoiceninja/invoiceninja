@@ -455,10 +455,8 @@ class PublicClientController extends BaseController
             return $this->returnError();
         }
         
-        $clientId = $invitation->invoice->client_id;
         $document = Document::scope($publicId, $invitation->account_id)->first();
         
-                
         if(!$document->isPDFEmbeddable()){
             return Response::view('error', array('error'=>'Image does not exist!'), 404);
         }
@@ -536,7 +534,8 @@ class PublicClientController extends BaseController
         return $toZip;
     }
     
-    public function getInvoiceDocumentsZip($invitationKey){
+    public function getInvoiceDocumentsZip($invitationKey)
+    {
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();
         }
@@ -576,7 +575,6 @@ class PublicClientController extends BaseController
         
         Session::put('invitation_key', $invitationKey); // track current invitation
         
-        $clientId = $invitation->invoice->client_id;
         $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
         
         $authorized = false;
@@ -592,5 +590,4 @@ class PublicClientController extends BaseController
         
         return DocumentController::getDownloadResponse($document);
     }
-
 }

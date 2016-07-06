@@ -5,7 +5,6 @@ use Str;
 use DB;
 use Auth;
 use URL;
-use App\Services\BaseService;
 use App\Ninja\Repositories\ProductRepository;
 
 class ProductService extends BaseService
@@ -23,13 +22,6 @@ class ProductService extends BaseService
     {
         return $this->productRepo;
     }
-
-    /*
-    public function save()
-    {
-        return null;
-    }
-    */
 
     public function getDatatable($accountId)
     {

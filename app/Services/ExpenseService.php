@@ -1,19 +1,16 @@
 <?php namespace App\Services;
 
-use Auth;
-use DB;
-use Utils;
-use URL;
-use App\Services\BaseService;
-use App\Ninja\Repositories\ExpenseRepository;
-use App\Models\Expense;
-use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Vendor;
+use App\Ninja\Repositories\ExpenseRepository;
+use Auth;
+use DB;
+use URL;
+use Utils;
 
 class ExpenseService extends BaseService
 {
-       // Expenses
+    // Expenses
     protected $expenseRepo;
     protected $datatableService;
 
@@ -45,7 +42,7 @@ class ExpenseService extends BaseService
     {
         $query = $this->expenseRepo->find($search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
@@ -56,10 +53,10 @@ class ExpenseService extends BaseService
     {
         $query = $this->expenseRepo->findVendor($vendorPublicId);
         return $this->datatableService->createDatatable(ENTITY_EXPENSE,
-                                                        $query,
-                                                        $this->getDatatableColumnsVendor(ENTITY_EXPENSE,false),
-                                                        $this->getDatatableActionsVendor(ENTITY_EXPENSE),
-                                                        false);
+            $query,
+            $this->getDatatableColumnsVendor(ENTITY_EXPENSE, false),
+            $this->getDatatableActionsVendor(ENTITY_EXPENSE),
+            false);
     }
 
     protected function getDatatableColumns($entityType, $hideClient)
@@ -67,13 +64,12 @@ class ExpenseService extends BaseService
         return [
             [
                 'vendor_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->vendor_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])){
+                        if (!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])) {
                             return $model->vendor_name;
                         }
-                        
+
                         return link_to("vendors/{$model->vendor_public_id}", $model->vendor_name)->toHtml();
                     } else {
                         return '';
@@ -82,13 +78,12 @@ class ExpenseService extends BaseService
             ],
             [
                 'client_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->client_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                        if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                             return Utils::getClientDisplayName($model);
                         }
-                        
+
                         return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
                     } else {
                         return '';
@@ -98,10 +93,10 @@ class ExpenseService extends BaseService
             [
                 'expense_date',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id])){
+                    if (!Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id])) {
                         return Utils::fromSqlDate($model->expense_date);
                     }
-                    
+
                     return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date))->toHtml();
                 }
             ],
@@ -112,7 +107,7 @@ class ExpenseService extends BaseService
                     if ($model->exchange_rate != 1) {
                         $converted = round($model->amount * $model->exchange_rate, 2);
                         return Utils::formatMoney($model->amount, $model->expense_currency_id) . ' | ' .
-                            Utils::formatMoney($converted, $model->invoice_currency_id);
+                        Utils::formatMoney($converted, $model->invoice_currency_id);
                     } else {
                         return Utils::formatMoney($model->amount, $model->expense_currency_id);
                     }
@@ -169,7 +164,7 @@ class ExpenseService extends BaseService
             [
                 trans('texts.edit_expense'),
                 function ($model) {
-                    return URL::to("expenses/{$model->public_id}/edit") ;
+                    return URL::to("expenses/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id]);
@@ -190,7 +185,7 @@ class ExpenseService extends BaseService
                     return "javascript:invoiceEntity({$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return !$model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
                 }
             ],
         ];

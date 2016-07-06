@@ -9,8 +9,6 @@ class RecurringInvoiceController extends BaseController
 
     public function __construct(InvoiceRepository $invoiceRepo)
     {
-        //parent::__construct();
-
         $this->invoiceRepo = $invoiceRepo;
     }
 

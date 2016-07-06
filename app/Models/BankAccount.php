@@ -1,7 +1,6 @@
 <?php namespace App\Models;
 
 use Crypt;
-use App\Models\Bank;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BankAccount extends EntityModel

@@ -1,32 +1,24 @@
 <?php namespace App\Http\Controllers;
 
+use App\Http\Requests\InvoiceRequest;
+use App\Models\Client;
+use App\Models\Invitation;
+use App\Models\Invoice;
+use App\Models\InvoiceDesign;
+use App\Models\Product;
+use App\Models\TaxRate;
+use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Services\InvoiceService;
 use Auth;
-use Input;
-use Redirect;
-use Utils;
-use View;
 use Cache;
 use Event;
+use Input;
+use Redirect;
 use Session;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Country;
-use App\Models\Currency;
-use App\Models\Industry;
-use App\Models\InvoiceDesign;
-use App\Models\PaymentTerm;
-use App\Models\Product;
-use App\Models\Size;
-use App\Models\TaxRate;
-use App\Models\Invitation;
-use App\Models\Activity;
-use App\Models\Invoice;
-use App\Ninja\Mailers\ContactMailer as Mailer;
-use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Repositories\ClientRepository;
-use App\Events\QuoteInvitationWasApproved;
-use App\Services\InvoiceService;
-use App\Http\Requests\InvoiceRequest;
+use Utils;
+use View;
 
 class QuoteController extends BaseController
 {
@@ -38,8 +30,6 @@ class QuoteController extends BaseController
 
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService)
     {
-        // parent::__construct();
-
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
@@ -53,19 +43,19 @@ class QuoteController extends BaseController
         }
 
         $data = [
-          'title' => trans('texts.quotes'),
-          'entityType' => ENTITY_QUOTE,
-          'sortCol' => '3',
-          'columns' => Utils::trans([
-            'checkbox',
-            'quote_number',
-            'client',
-            'quote_date',
-            'quote_total',
-            'valid_until',
-            'status',
-            'action'
-          ]),
+            'title' => trans('texts.quotes'),
+            'entityType' => ENTITY_QUOTE,
+            'sortCol' => '3',
+            'columns' => Utils::trans([
+                'checkbox',
+                'quote_number',
+                'client',
+                'quote_date',
+                'quote_total',
+                'valid_until',
+                'status',
+                'action'
+            ]),
         ];
 
         return response()->view('list', $data);
@@ -115,7 +105,7 @@ class QuoteController extends BaseController
         $defaultTax = false;
 
         foreach ($rates as $rate) {
-            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';
+            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate + 0) . '%';
 
             // load default invoice tax
             if ($rate->id == $account->default_tax_rate_id) {
@@ -124,23 +114,23 @@ class QuoteController extends BaseController
         }
 
         return [
-          'entityType' => ENTITY_QUOTE,
-          'account' => Auth::user()->account,
-          'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
-          'taxRateOptions' => $options,
-          'defaultTax' => $defaultTax,
-          'countries' => Cache::get('countries'),
-          'clients' => Client::scope()->viewable()->with('contacts', 'country')->orderBy('name')->get(),
-          'taxRates' => TaxRate::scope()->orderBy('name')->get(),
-          'currencies' => Cache::get('currencies'),
-          'sizes' => Cache::get('sizes'),
-          'paymentTerms' => Cache::get('paymentTerms'),
-          'languages' => Cache::get('languages'),
-          'industries' => Cache::get('industries'),
-          'invoiceDesigns' => InvoiceDesign::getDesigns(),
-          'invoiceFonts' => Cache::get('fonts'),
-          'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
-          'isRecurring' => false,
+            'entityType' => ENTITY_QUOTE,
+            'account' => Auth::user()->account,
+            'products' => Product::scope()->orderBy('id')->get(array('product_key', 'notes', 'cost', 'qty')),
+            'taxRateOptions' => $options,
+            'defaultTax' => $defaultTax,
+            'countries' => Cache::get('countries'),
+            'clients' => Client::scope()->viewable()->with('contacts', 'country')->orderBy('name')->get(),
+            'taxRates' => TaxRate::scope()->orderBy('name')->get(),
+            'currencies' => Cache::get('currencies'),
+            'sizes' => Cache::get('sizes'),
+            'paymentTerms' => Cache::get('paymentTerms'),
+            'languages' => Cache::get('languages'),
+            'industries' => Cache::get('industries'),
+            'invoiceDesigns' => InvoiceDesign::getDesigns(),
+            'invoiceFonts' => Cache::get('fonts'),
+            'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
+            'isRecurring' => false,
         ];
     }
 
@@ -154,7 +144,7 @@ class QuoteController extends BaseController
             $clone = $this->invoiceService->convertQuote($invoice);
 
             Session::flash('message', trans('texts.converted_to_invoice'));
-            return Redirect::to('invoices/'.$clone->public_id);
+            return Redirect::to('invoices/' . $clone->public_id);
         }
 
         $count = $this->invoiceService->bulk($ids, $action);
@@ -166,7 +156,7 @@ class QuoteController extends BaseController
         }
 
         if ($action == 'restore' && $count == 1) {
-            return Redirect::to("quotes/".Utils::getFirst($ids));
+            return Redirect::to("quotes/" . Utils::getFirst($ids));
         } else {
             return Redirect::to("quotes");
         }

@@ -14,7 +14,6 @@ use Session;
 use Cookie;
 use Response;
 use Redirect;
-use App\Models\User;
 use App\Models\Account;
 use App\Models\Industry;
 use App\Ninja\Mailers\Mailer;
@@ -30,8 +29,6 @@ class AppController extends BaseController
 
     public function __construct(AccountRepository $accountRepo, Mailer $mailer, EmailService $emailService)
     {
-        //parent::__construct();
-
         $this->accountRepo = $accountRepo;
         $this->mailer = $mailer;
         $this->emailService = $emailService;
@@ -52,7 +49,6 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        $valid = false;
         $test = Input::get('test');
 
         $app = Input::get('app');
@@ -131,8 +127,7 @@ class AppController extends BaseController
         $lastName = trim(Input::get('last_name'));
         $email = trim(strtolower(Input::get('email')));
         $password = trim(Input::get('password'));
-        $account = $this->accountRepo->create($firstName, $lastName, $email, $password);
-        $user = $account->users()->first();
+        $this->accountRepo->create($firstName, $lastName, $email, $password);
 
         return Redirect::to('/login');
     }
@@ -159,7 +154,7 @@ class AppController extends BaseController
         $_ENV['APP_URL'] = $app['url'];
         $_ENV['APP_DEBUG'] = Input::get('debug') ? 'true' : 'false';
 
-        $_ENV['DB_TYPE'] = 'mysql'; // $db['default'];
+        $_ENV['DB_TYPE'] = 'mysql';
         $_ENV['DB_HOST'] = $db['type']['host'];
         $_ENV['DB_DATABASE'] = $db['type']['database'];
         $_ENV['DB_USERNAME'] = $db['type']['username'];
@@ -197,7 +192,7 @@ class AppController extends BaseController
 
     private function testDatabase($database)
     {
-        $dbType = 'mysql'; // $database['default'];
+        $dbType = 'mysql';
         Config::set('database.default', $dbType);
         foreach ($database['connections'][$dbType] as $key => $val) {
             Config::set("database.connections.{$dbType}.{$key}", $val);

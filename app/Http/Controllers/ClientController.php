@@ -10,24 +10,12 @@ use Input;
 use Session;
 use Redirect;
 use Cache;
-
-use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Account;
-use App\Models\Contact;
 use App\Models\Invoice;
-use App\Models\Size;
-use App\Models\PaymentTerm;
-use App\Models\Industry;
-use App\Models\Currency;
-use App\Models\Payment;
-use App\Models\Credit;
-use App\Models\Expense;
-use App\Models\Country;
 use App\Models\Task;
 use App\Ninja\Repositories\ClientRepository;
 use App\Services\ClientService;
-
 use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
@@ -40,8 +28,6 @@ class ClientController extends BaseController
 
     public function __construct(ClientRepository $clientRepo, ClientService $clientService)
     {
-        //parent::__construct();
-
         $this->clientRepo = $clientRepo;
         $this->clientService = $clientService;
     }
@@ -92,7 +78,7 @@ class ClientController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int      $id
+     * @param ClientRequest $request
      * @return Response
      */
     public function show(ClientRequest $request)
@@ -144,6 +130,8 @@ class ClientController extends BaseController
     /**
      * Show the form for creating a new resource.
      *
+     * @param ClientRequest $request
+     *
      * @return Response
      */
     public function create(ClientRequest $request)
@@ -167,7 +155,8 @@ class ClientController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
+     * @param ClientRequest $request
+     *
      * @return Response
      */
     public function edit(ClientRequest $request)
@@ -211,7 +200,8 @@ class ClientController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param UpdateClientRequest $request
+     *
      * @return Response
      */
     public function update(UpdateClientRequest $request)

@@ -25,8 +25,6 @@ class TaxRateController extends BaseController
 
     public function __construct(TaxRateService $taxRateService, TaxRateRepository $taxRateRepo)
     {
-        //parent::__construct();
-
         $this->taxRateService = $taxRateService;
         $this->taxRateRepo = $taxRateRepo;
     }

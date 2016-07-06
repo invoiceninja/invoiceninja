@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Utils;
 use Response;
 use Input;
@@ -8,8 +7,6 @@ use Auth;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\ClientTransformer;
 use App\Http\Requests\UpdateClientRequest;
 
 class ClientApiController extends BaseAPIController
@@ -40,7 +37,7 @@ class ClientApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     */
+     **/
     public function index()
     {
         $clients = Client::scope()
@@ -77,7 +74,7 @@ class ClientApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     */
+     **/
     public function store(CreateClientRequest $request)
     {
         $client = $this->clientRepo->save($request->input());
@@ -105,8 +102,7 @@ class ClientApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     */
-
+     **/
     public function update(UpdateClientRequest $request, $publicId)
     {
         if ($request->action) {
@@ -143,8 +139,7 @@ class ClientApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     */
-
+     **/
     public function destroy(UpdateClientRequest $request)
     {
         $client = $request->entity();
@@ -153,5 +148,4 @@ class ClientApiController extends BaseAPIController
 
         return $this->itemResponse($client);
     }
-
 }

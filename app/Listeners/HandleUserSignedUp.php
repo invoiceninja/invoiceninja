@@ -3,7 +3,6 @@
 use Utils;
 use Auth;
 use App\Events\UserSignedUp;
-use App\Models\Activity;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\UserMailer;
 
@@ -15,7 +14,8 @@ class HandleUserSignedUp
     /**
      * Create the event handler.
      *
-     * @return void
+     * @param AccountRepository $accountRepo
+     * @param UserMailer $userMailer
      */
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
     {

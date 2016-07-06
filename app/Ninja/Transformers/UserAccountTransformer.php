@@ -1,10 +1,8 @@
 <?php namespace App\Ninja\Transformers;
 
-use App\Models\User;
 use App\Models\Account;
+use App\Models\User;
 use League\Fractal;
-use League\Fractal\TransformerAbstract;
-use League\Fractal\Resource\Item;
 
 class UserAccountTransformer extends EntityTransformer
 {
@@ -13,7 +11,7 @@ class UserAccountTransformer extends EntityTransformer
     ];
 
     protected $tokenName;
-    
+
     public function __construct(Account $account, $serializer, $tokenName)
     {
         parent::__construct($account, $serializer);

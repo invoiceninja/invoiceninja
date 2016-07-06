@@ -12,7 +12,6 @@ use URL;
 
 use App\Models\AccountToken;
 use App\Services\TokenService;
-use App\Ninja\Repositories\AccountRepository;
 
 class TokenController extends BaseController
 {
@@ -20,8 +19,6 @@ class TokenController extends BaseController
 
     public function __construct(TokenService $tokenService)
     {
-        //parent::__construct();
-
         $this->tokenService = $tokenService;
     }
 
@@ -89,7 +86,8 @@ class TokenController extends BaseController
 
     /**
      * Stores new account
-     *
+     * @param bool $tokenPublicId
+     * @return
      */
     public function save($tokenPublicId = false)
     {
