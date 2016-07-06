@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Jobs\SendInvoiceEmail;
 use Auth;
 use Session;
 use Utils;
@@ -469,7 +470,8 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $response = $this->mailer->sendInvoice($invoice, false, $pdfUpload);
+            //$response = $this->mailer->sendInvoice($invoice, false, $pdfUpload);
+            $this->dispatch(new SendInvoiceEmail($invoice, $pdfUpload));
         }
 
         if ($response === true) {
