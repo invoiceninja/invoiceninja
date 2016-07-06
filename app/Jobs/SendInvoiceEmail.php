@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Jobs;
-
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
 use Carbon;
@@ -9,28 +7,21 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Monolog\Logger;
-
 class SendInvoiceEmail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
-
     /**
      * @var Invoice
      */
     protected $invoice;
-
     /**
      * @var bool
      */
     protected $reminder;
-
     /**
      * @var string
      */
     protected $pdf;
-
-
-
     /**
      * Create a new job instance.
      *
@@ -44,7 +35,6 @@ class SendInvoiceEmail extends Job implements ShouldQueue
         $this->reminder = $reminder;
         $this->pdf = $pdf;
     }
-
     /**
      * Execute the job.
      *
@@ -58,7 +48,6 @@ class SendInvoiceEmail extends Job implements ShouldQueue
         $this->invoice->last_sent_date = Carbon::now()->toDateString();
         $this->invoice->update();
     }
-
     /**
      * Handle a job failure.
      *
