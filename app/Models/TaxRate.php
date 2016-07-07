@@ -36,4 +36,13 @@ class TaxRate extends EntityModel
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
+
+    /**
+     * @return bool|string
+     */
+    public function __toString()
+    {
+        return sprintf('%s: %s%%', $this->name, $this->rate);
+    }
+
 }

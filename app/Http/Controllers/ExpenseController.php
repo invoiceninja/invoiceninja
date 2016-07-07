@@ -12,6 +12,7 @@ use App\Models\Vendor;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Client;
+use App\Models\TaxRate;
 use App\Services\ExpenseService;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Http\Requests\ExpenseRequest;
@@ -237,6 +238,7 @@ class ExpenseController extends BaseController
             'customLabel1' => Auth::user()->account->custom_vendor_label1,
             'customLabel2' => Auth::user()->account->custom_vendor_label2,
             'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->orderBy('name')->get(),
+            'taxRates' => TaxRate::scope()->orderBy('name')->get(),
         ];
     }
 

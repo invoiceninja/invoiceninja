@@ -2022,6 +2022,8 @@ $LANG = array(
     'archived_expense_categories' => 'Successfully archived :count expense category',
     'restore_expense_category' => 'Restore expense category',
     'restored_expense_category' => 'Successfully restored expense category',
+    'apply_taxes' => 'Apply taxes',
+
 
 );
 

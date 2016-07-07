@@ -40,6 +40,10 @@ class Expense extends EntityModel
         'bank_id',
         'transaction_id',
         'expense_category_id',
+        'tax_rate1',
+        'tax_name1',
+        'tax_rate2',
+        'tax_name2',
     ];
 
     /**

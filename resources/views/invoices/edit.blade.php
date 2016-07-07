@@ -867,6 +867,10 @@
                     item.qty(1);
                     item.expense_public_id(expense.public_id());
 					item.cost(expense.converted_amount());
+                    item.tax_rate1(expense.tax_rate1());
+                    item.tax_name1(expense.tax_name1());
+                    item.tax_rate2(expense.tax_rate2());
+                    item.tax_name2(expense.tax_name2());
                 }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_expenses(true);
