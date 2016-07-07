@@ -132,12 +132,20 @@
     </div>
 
 	<center class="buttons">
-        {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/expenses'))->appendIcon(Icon::create('remove-circle')) !!}
-        {!! Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) !!}
-        {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
+        {!! Button::normal(trans('texts.cancel'))
+                ->asLinkTo(URL::to('/expenses'))
+                ->appendIcon(Icon::create('remove-circle'))
+                ->large() !!}
+
+        {!! Button::success(trans('texts.save'))
+                ->appendIcon(Icon::create('floppy-disk'))
+                ->large()
+                ->submit() !!}
+
         @if ($expense)
             {!! DropdownButton::normal(trans('texts.more_actions'))
                   ->withContents($actions)
+                  ->large()
                   ->dropup() !!}
         @endif
 	</center>

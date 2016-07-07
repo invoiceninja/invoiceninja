@@ -10,7 +10,7 @@ class CreateExpenseCategoryRequest extends ExpenseCategoryRequest
      */
     public function authorize()
     {
-        return $this->user()->is_admin;
+        return $this->user()->can('create', ENTITY_EXPENSE_CATEGORY);
     }
 
     /**

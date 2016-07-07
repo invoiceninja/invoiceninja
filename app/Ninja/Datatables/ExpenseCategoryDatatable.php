@@ -15,7 +15,11 @@ class ExpenseCategoryDatatable extends EntityDatatable
                 'name',
                 function ($model)
                 {
-                    return link_to("expense_categories/{$model->public_id}/edit", $model->category ?: '')->toHtml();
+                    if ( ! Auth::user()->can('editByOwner', [ENTITY_EXPENSE_CATEGORY, $model->user_id])) {
+                        return $model->category;
+                    }
+
+                    return link_to("expense_categories/{$model->public_id}/edit", $model->category)->toHtml();
                 }
             ],
         ];
@@ -30,7 +34,7 @@ class ExpenseCategoryDatatable extends EntityDatatable
                     return URL::to("expense_categories/{$model->public_id}/edit") ;
                 },
                 function ($model) {
-                    return Auth::user()->is_admin;
+                    return Auth::user()->can('editByOwner', [ENTITY_EXPENSE_CATEGORY, $model->user_id]);
                 }
             ],
         ];

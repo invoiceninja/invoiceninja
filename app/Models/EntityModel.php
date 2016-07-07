@@ -50,10 +50,9 @@ class EntityModel extends Eloquent
         $entity->setRelation('account', $account);
 
         if (method_exists($className, 'trashed')){
-            $lastEntity = $className::withTrashed()
-                        ->scope(false, $entity->account_id);
+            $lastEntity = $className::whereAccountId($entity->account_id)->withTrashed();
         } else {
-            $lastEntity = $className::scope(false, $entity->account_id);
+            $lastEntity = $className::whereAccountId($entity->account_id);
         }
 
         $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
@@ -122,7 +121,7 @@ class EntityModel extends Eloquent
         }
 
         if (Auth::check() && ! Auth::user()->hasPermission('view_all')) {
-            $query->where($this->getEntityType(). 's.user_id', '=', Auth::user()->id);
+            $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
         return $query;

@@ -19,6 +19,7 @@ class ExpenseCategoryRepository extends BaseRepository
                 ->select(
                     'expense_categories.name as category',
                     'expense_categories.public_id',
+                    'expense_categories.user_id',
                     'expense_categories.deleted_at'
                 );
 

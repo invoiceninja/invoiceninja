@@ -45,7 +45,7 @@
             {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
 
-		@if (Auth::user()->hasPermission('create_all'))
+		@if (Auth::user()->can('create', $entityType))
         	{!! Button::primary(trans("texts.new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create'))->appendIcon(Icon::create('plus-sign')) !!}
 		@endif
 
