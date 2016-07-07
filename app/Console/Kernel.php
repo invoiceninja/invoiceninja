@@ -46,6 +46,14 @@ class Kernel extends ConsoleKernel
             ->sendOutputTo($logFile)
             ->daily();
 
+        // Process the job queue, used especially for invoice emials
+        $schedule
+            ->command('queue:work')
+            ->description('Process the job queue.')
+            ->runInBackground()
+            ->sendOutputTo($logFile)
+            ->everyMinute();
+
         if (Utils::isNinja()) {
             $schedule
                 ->command('ninja:send-renewals --force')
