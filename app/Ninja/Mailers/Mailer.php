@@ -21,7 +21,7 @@ class Mailer
     public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
     {
         // check the username is set
-        if ( ! env('POSTMARK_API_TOKEN') && ! env('MAIL_USERNAME')) {
+        if ( ! env('POSTMARK_API_TOKEN') && ! config('mail.username')) {
             return trans('texts.invalid_mail_config');
         }
 
