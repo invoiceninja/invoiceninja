@@ -799,6 +799,19 @@ function DocumentModel(data) {
     }
 }
 
+function CategoryModel(data) {
+    var self = this;
+    self.name = ko.observable('')
+
+    self.update = function(data){
+        ko.mapping.fromJS(data, {}, this);
+    }
+
+    if (data) {
+        self.update(data);
+    }
+}
+
 var ExpenseModel = function(data) {
     var self = this;
 
@@ -806,6 +819,11 @@ var ExpenseModel = function(data) {
         'documents': {
             create: function(options) {
                 return new DocumentModel(options.data);
+            }
+        },
+        'expense_category': {
+            create: function(options) {
+                return new CategoryModel(options.data);
             }
         }
     }

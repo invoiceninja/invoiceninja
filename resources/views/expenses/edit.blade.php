@@ -26,7 +26,6 @@
 	@if ($expense)
 		{!! Former::populate($expense) !!}
         {!! Former::populateField('should_be_invoiced', intval($expense->should_be_invoiced)) !!}
-        {!! Former::populateField('category', $expense->expense_category ? $expense->expense_category->name : '') !!}
         {!! Former::hidden('public_id') !!}
 	@endif
 
@@ -40,9 +39,10 @@
                             ->label(trans('texts.vendor'))
                             ->addGroupClass('vendor-select') !!}
 
-                    {!! Former::text('category')
-                            ->data_bind("typeahead: category, items: categories, key: 'name', valueUpdate: 'afterkeydown'")
-                            ->label(trans('texts.category')) !!}
+                    {!! Former::select('expense_category_id')->addOption('', '')
+                            ->data_bind('combobox: expense_category_id')
+                            ->label(trans('texts.category'))
+                            ->addGroupClass('category-select') !!}
 
                     {!! Former::text('expense_date')
                             ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
@@ -132,12 +132,12 @@
     </div>
 
 	<center class="buttons">
-        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/expenses'))->appendIcon(Icon::create('remove-circle')) !!}
-        {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+        {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/expenses'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) !!}
+        {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
         @if ($expense)
             {!! DropdownButton::normal(trans('texts.more_actions'))
                   ->withContents($actions)
-                  ->large()
                   ->dropup() !!}
         @endif
 	</center>
@@ -149,6 +149,7 @@
 
         var vendors = {!! $vendors !!};
         var clients = {!! $clients !!};
+        var categories = {!! $categories !!};
 
         var clientMap = {};
         for (var i=0; i<clients.length; i++) {
@@ -192,6 +193,13 @@
                 $vendorSelect.append(new Option(getClientDisplayName(vendor), vendor.public_id));
             }
             $vendorSelect.combobox();
+
+            var $categorySelect = $('select#expense_category_id');
+            for (var i = 0; i < categories.length; i++) {
+                var category = categories[i];
+                $categorySelect.append(new Option(category.name, category.public_id));
+            }
+            $categorySelect.combobox();
 
             $('#expense_date').datepicker('update', '{{ $expense ? $expense->expense_date : 'new Date()' }}');
 
@@ -285,8 +293,6 @@
         var ViewModel = function(data) {
             var self = this;
 
-            self.categories = {!! $categories !!};
-            self.category = ko.observable();
             self.expense_currency_id = ko.observable();
             self.invoice_currency_id = ko.observable();
             self.documents = ko.observableArray();
@@ -310,6 +316,7 @@
             self.account_currency_id = ko.observable({{ $account->getCurrencyId() }});
             self.client_id = ko.observable({{ $clientPublicId }});
             self.vendor_id = ko.observable({{ $vendorPublicId }});
+            self.expense_category_id = ko.observable({{ $categoryPublicId }});
 
             self.convertedAmount = ko.computed({
                 read: function () {

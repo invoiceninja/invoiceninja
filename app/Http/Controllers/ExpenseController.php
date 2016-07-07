@@ -86,6 +86,7 @@ class ExpenseController extends BaseController
             'vendor' => $vendor,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $request->client_id,
+            'categoryPublicId' => $request->category_id,
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -125,6 +126,7 @@ class ExpenseController extends BaseController
             'vendorPublicId' => $expense->vendor ? $expense->vendor->public_id : null,
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $expense->client ? $expense->client->public_id : null,
+            'categoryPublicId' => $expense->expense_category ? $expense->expense_category->public_id : null,
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -234,7 +236,7 @@ class ExpenseController extends BaseController
             'countries' => Cache::get('countries'),
             'customLabel1' => Auth::user()->account->custom_vendor_label1,
             'customLabel2' => Auth::user()->account->custom_vendor_label2,
-            'categories' => ExpenseCategory::scope()->get()
+            'categories' => ExpenseCategory::scope()->orderBy('name')->get(),
         ];
     }
 

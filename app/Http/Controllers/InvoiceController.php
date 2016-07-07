@@ -245,7 +245,7 @@ class InvoiceController extends BaseController
         $invoice->public_id = 0;
 
         if (Session::get('expenses')) {
-            $invoice->expenses = Expense::scope(Session::get('expenses'))->with('documents')->get();
+            $invoice->expenses = Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get();
         }
 
 
