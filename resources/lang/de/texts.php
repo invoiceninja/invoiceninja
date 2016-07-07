@@ -60,6 +60,7 @@ $LANG = array(
     'save_as_default_terms' => 'Als Standardbedingungen speichern',
     'download_pdf' => 'PDF herunterladen',
     'pay_now' => 'Jetzt bezahlen',
+    'send_invoice' => 'Rechnung senden',
     'save_invoice' => 'Rechnung speichern',
     'clone_invoice' => 'Rechnung duplizieren',
     'archive_invoice' => 'Rechnung archivieren',
