@@ -1,5 +1,7 @@
 <?php
+
 namespace App\Jobs;
+
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
 use Carbon;
@@ -7,6 +9,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Monolog\Logger;
+
 class SendInvoiceEmail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
@@ -22,6 +25,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @var string
      */
     protected $pdf;
+
     /**
      * Create a new job instance.
      *
