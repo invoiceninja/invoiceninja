@@ -59,6 +59,7 @@ $LANG = array(
     'save_as_default_terms' => 'Save as default terms',
     'download_pdf' => 'Download PDF',
     'pay_now' => 'Pay Now',
+    'send_invoice' => 'Send invoice',
     'save_invoice' => 'Save Invoice',
     'clone_invoice' => 'Clone Invoice',
     'archive_invoice' => 'Archive Invoice',
@@ -210,7 +211,7 @@ $LANG = array(
     'updated_invoice' => 'Successfully updated invoice',
     'created_invoice' => 'Successfully created invoice',
     'cloned_invoice' => 'Successfully cloned invoice',
-    'emailed_invoice' => 'Successfully emailed invoice',
+    'email_invoice_dispatched' => 'The invoice email has successfully been dispatched.',
     'and_created_client' => 'and created client',
     'archived_invoice' => 'Successfully archived invoice',
     'archived_invoices' => 'Successfully archived :count invoices',
@@ -2023,7 +2024,7 @@ $LANG = array(
     'restore_expense_category' => 'Restore expense category',
     'restored_expense_category' => 'Successfully restored expense category',
     'apply_taxes' => 'Apply taxes',
-
+    'job_failed' => 'Job (:name) failed!',
 
 );
 

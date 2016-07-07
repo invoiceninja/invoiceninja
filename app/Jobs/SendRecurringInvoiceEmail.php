@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Monolog\Logger;
 
-class SendInvoiceEmail extends Job implements ShouldQueue
+class SendRecurringInvoiceEmail extends Job implements ShouldQueue
 {
     use InteractsWithQueue, SerializesModels;
 
@@ -20,41 +20,25 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     protected $invoice;
 
     /**
-     * @var bool
-     */
-    protected $reminder;
-
-    /**
-     * @var string
-     */
-    protected $pdf;
-
-
-
-    /**
      * Create a new job instance.
      *
      * @param Invoice $invoice
-     * @param string $pdf
-     * @param bool $reminder
      */
-    public function __construct(Invoice $invoice, $pdf = '', $reminder = false)
+    public function __construct(Invoice $invoice)
     {
         $this->invoice = $invoice;
-        $this->reminder = $reminder;
-        $this->pdf = $pdf;
     }
 
     /**
      * Execute the job.
      *
      * @param ContactMailer $mailer
+     *
+     * @return bool
      */
     public function handle(ContactMailer $mailer)
     {
-        $mailer->sendInvoice(
-            $this->invoice, $this->reminder, $this->pdf
-        );
+        $mailer->sendInvoice($this->invoice);
         $this->invoice->last_sent_date = Carbon::now()->toDateString();
         $this->invoice->update();
     }
