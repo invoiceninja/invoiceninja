@@ -166,6 +166,7 @@ return [
 
         'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
         'Davibennun\LaravelPushNotification\LaravelPushNotificationServiceProvider',
+        'AltThree\Bus\BusServiceProvider',
     ],
 
     /*

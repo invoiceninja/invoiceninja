@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3df372a562007661d4fc39e70870efcb",
-    "content-hash": "0cc47cbbb7852e086cfd67f87895f4ed",
+    "hash": "3a37cb049a7acb9735634f3a7001e8f1",
+    "content-hash": "81d63dae04152e4c3ad581ac6d947c80",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -116,6 +116,75 @@
                 "skrill"
             ],
             "time": "2016-01-13 16:33:07"
+        },
+        {
+            "name": "alt-three/bus",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AltThree/Bus.git",
+                "reference": "5c8399e0ca67ba6b499aa1e8db6a278711446090"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AltThree/Bus/zipball/5c8399e0ca67ba6b499aa1e8db6a278711446090",
+                "reference": "5c8399e0ca67ba6b499aa1e8db6a278711446090",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/container": "5.2.*|5.3.*",
+                "illuminate/contracts": "5.2.*|5.3.*",
+                "illuminate/pipeline": "5.2.*|5.3.*",
+                "illuminate/support": "5.2.*|5.3.*",
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "graham-campbell/testbench-core": "^1.1",
+                "mockery/mockery": "^0.9.4",
+                "phpunit/phpunit": "^4.8|^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AltThree\\Bus\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylorotwell@gmail.com"
+                },
+                {
+                    "name": "James Brooks",
+                    "email": "james@alt-three.com"
+                },
+                {
+                    "name": "Graham Campbell",
+                    "email": "graham@alt-three.com"
+                },
+                {
+                    "name": "Joseph Cohen",
+                    "email": "joe@alt-three.com"
+                }
+            ],
+            "description": "An improved command bus for Laravel 5.2+",
+            "keywords": [
+                "Alt Three",
+                "bus",
+                "command",
+                "command bus",
+                "job"
+            ],
+            "time": "2016-04-22 17:24:19"
         },
         {
             "name": "anahkiasen/former",
@@ -1904,8 +1973,13 @@
                 "url": "git@github.com:gatepay/FedACHdir.git",
                 "reference": "origin/master"
             },
-            "type": "library",
-            "time": "2016-06-03 12:00:26"
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
+                "reference": "origin/master",
+                "shasum": null
+            },
+            "type": "library"
         },
         {
             "name": "google/apiclient",
