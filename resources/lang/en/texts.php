@@ -2025,7 +2025,6 @@ $LANG = array(
     'restored_expense_category' => 'Successfully restored expense category',
     'apply_taxes' => 'Apply taxes',
     'job_failed' => 'Job (:name) failed!',
-
 );
 
 return $LANG;
