@@ -107,7 +107,7 @@ return array(
     |
     */
 
-    'attributes' => array(
+    'attributes' => [
         "name" => "Nom",
         "username" => "Pseudo",
         "email" => "Courriel",
@@ -137,6 +137,7 @@ return array(
         "time" => "Heure",
         "available" => "Disponible",
         "size" => "Taille",
-    ),
+        '42_apiKey' => 'Api Key',
+    ],
 
 );
