@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\SendRecurringInvoices',
         'App\Console\Commands\RemoveOrphanedDocuments',
         'App\Console\Commands\ResetData',
+        'App\Console\Commands\ResetInvoiceSchemaCounter',
         'App\Console\Commands\CheckData',
         'App\Console\Commands\PruneData',
         'App\Console\Commands\CreateTestData',
@@ -52,5 +53,9 @@ class Kernel extends ConsoleKernel
                 ->sendOutputTo($logFile)
                 ->daily();
         }
+
+        $schedule
+            ->command('ninja:reset-invoice-schema-counter')
+            ->daily();
     }
 }
