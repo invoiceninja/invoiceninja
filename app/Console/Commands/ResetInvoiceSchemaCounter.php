@@ -15,6 +15,7 @@ class ResetInvoiceSchemaCounter extends Command
      * @var string
      */
     protected $signature = 'ninja:reset-invoice-schema-counter
+                            {account : The ID of the account}
                             {--force : Force setting the counter back to "1", regardless if the year changed}';
 
     /**
@@ -25,11 +26,6 @@ class ResetInvoiceSchemaCounter extends Command
     protected $description = 'Reset the invoice schema counter at the turn of the year.';
 
     /**
-     * @var Account
-     */
-    protected $account;
-
-    /**
      * @var Invoice
      */
     protected $invoice;
@@ -37,13 +33,11 @@ class ResetInvoiceSchemaCounter extends Command
     /**
      * Create a new command instance.
      *
-     * @param Account $account
      * @param Invoice $invoice
      */
-    public function __construct(Account $account, Invoice $invoice)
+    public function __construct(Invoice $invoice)
     {
         parent::__construct();
-        $this->account = $account;
         $this->invoice = $invoice;
     }
 
@@ -58,8 +52,10 @@ class ResetInvoiceSchemaCounter extends Command
         $invoiceYear = Carbon::parse($latestInvoice->created_at)->year;
 
         if(Carbon::now()->year > $invoiceYear || $this->option('force')) {
-            $this->account->invoice_number_counter = 1;
-            $this->account->update();
+            $account = Account::find($this->argument('account'))->first();
+            $account->invoice_number_counter = 1;
+            $account->update();
+            $this->info('The counter has been resetted successfully.');
         }
     }
 }
