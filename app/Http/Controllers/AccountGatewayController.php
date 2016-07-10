@@ -30,12 +30,18 @@ class AccountGatewayController extends BaseController
     {
         $this->accountGatewayService = $accountGatewayService;
         $this->attributeNames = [
+            'apiLoginId' => trans('texts.api_login_id'),
             'apiKey' => trans('texts.secret_key'),
-            'testMode' => 'Test Mode',
-            'username' => 'API Username',
-            'password' => 'API Password',
-            'signature' => 'Signature',
-            'destinationId' => 'Destination Id',
+            'testMode' => trans('texts.test_mode'),
+            'username' => trans('texts.api_username'),
+            'password' => trans('texts.api_password'),
+            'signature' => trans('texts.signature'),
+            'destinationId' => trans('texts.destination_id'),
+            'merchantId' => trans('texts.merchant_id'),
+            'publishable_key' => trans('texts.publishable_key'),
+            'publicKey' => trans('texts.public_key'),
+            'privateKey' => trans('texts.private_key'),
+            'transactionKey' => trans('texts.transaction_key'),
         ];
     }
 
@@ -214,6 +220,8 @@ class AccountGatewayController extends BaseController
                     $attributeNames[$gateway->id.'_'.$field] = $this->attributeNames[$field];
                 }
             }
+
+            $attributeNames['publishable_key'] = $this->attributeNames['publishable_key'];
         }
 
         $creditcards = Input::get('creditCardTypes');
