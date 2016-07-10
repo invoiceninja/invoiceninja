@@ -151,6 +151,14 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\UserSettingsChanged' => [
             'App\Listeners\HandleUserSettingsChanged',
         ],
+
+        // Task events
+        'App\Events\TaskWasCreated' => [
+            'App\Listeners\ActivityListener@createdTask',
+        ],
+        'App\Events\TaskWasUpdated' => [
+            'App\Listeners\ActivityListener@updatedTask',
+        ],
 	];
 
 	/**
