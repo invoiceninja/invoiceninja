@@ -102,7 +102,7 @@ class Activity extends Eloquent
         $task = $this->task;
 
         $data = [
-            'client' => link_to($client->getRoute(), $client->getDisplayName()),
+            'client' => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
             'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : $user->getDisplayName(),
             'invoice' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
             'quote' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,

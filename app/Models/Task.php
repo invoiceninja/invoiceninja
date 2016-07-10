@@ -3,6 +3,8 @@
 use Utils;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use App\Events\TaskWasCreated;
+use App\Events\TaskWasUpdated;
 
 /**
  * Class Task
@@ -142,3 +144,12 @@ class Task extends EntityModel
         return "/tasks/{$this->public_id}/edit";
     }
 }
+
+
+Task::created(function ($task) {
+    event(new TaskWasCreated($task));
+});
+
+Task::updated(function ($task) {
+    event(new TaskWasUpdated($task));
+});
