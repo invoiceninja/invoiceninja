@@ -471,6 +471,7 @@ class AccountController extends BaseController
             'datetimeFormats' => Cache::get('datetimeFormats'),
             'currencies' => Cache::get('currencies'),
             'title' => trans('texts.localization'),
+            'weekdays' => Utils::getTranslatedWeekdayNames(),
         ];
 
         return View::make('accounts.localization', $data);
@@ -1270,6 +1271,7 @@ class AccountController extends BaseController
         $account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
         $account->military_time = Input::get('military_time') ? true : false;
         $account->show_currency_code = Input::get('show_currency_code') ? true : false;
+        $account->start_of_week = Input::get('start_of_week') ? Input::get('start_of_week') : 0;
         $account->save();
 
         event(new UserSettingsChanged());

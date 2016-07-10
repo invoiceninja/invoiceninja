@@ -1362,6 +1362,7 @@ $LANG = array(
     'failed_remove_payment_method' => 'Failed to remove the payment method',
     'gateway_exists' => 'This gateway already exists',
     'manual_entry' => 'Manual entry',
+    'start_of_week' => 'First day of the week',
 
     // Frequencies
     'freq_weekly' => 'Weekly',

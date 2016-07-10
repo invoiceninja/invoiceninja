@@ -30,6 +30,8 @@
                     ->fromQuery($dateFormats) !!}
                 {!! Former::select('datetime_format_id')->addOption('','')
                     ->fromQuery($datetimeFormats) !!}
+                {!! Former::select('start_of_week')->addOption('','')
+                    ->fromQuery($weekdays) !!}
                 {!! Former::checkbox('military_time')->text(trans('texts.enable')) !!}
                 {{-- Former::checkbox('show_currency_code')->text(trans('texts.enable')) --}}
 

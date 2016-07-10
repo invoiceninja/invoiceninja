@@ -79,6 +79,7 @@ class Account extends Eloquent
         'show_item_taxes',
         'default_tax_rate_id',
         'enable_second_tax_rate',
+        'start_of_week',
     ];
 
     /**
@@ -1063,6 +1064,8 @@ class Account extends Eloquent
             $format = str_replace('g:i a', 'H:i', $format);
         }
         Session::put(SESSION_DATETIME_FORMAT, $format);
+
+        Session::put('start_of_week', $this->start_of_week);
     }
 
     /**
