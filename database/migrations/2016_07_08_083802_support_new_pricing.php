@@ -21,10 +21,10 @@ class SupportNewPricing extends Migration
         });
 
         // lock in existing prices
-        DB::table('companies')->where('plan', 'pro')->where('plan_term', 'month')->update(['price' => 5]);
-        DB::table('companies')->where('plan', 'pro')->where('plan_term', 'year')->update(['price' => 50]);
-        DB::table('companies')->where('plan', 'enterprise')->where('plan_term', 'month')->update(['price' => 10]);
-        DB::table('companies')->where('plan', 'enterprise')->where('plan_term', 'year')->update(['price' => 100]);
+        DB::table('companies')->where('plan', 'pro')->where('plan_term', 'month')->update(['plan_price' => 5]);
+        DB::table('companies')->where('plan', 'pro')->where('plan_term', 'year')->update(['plan_price' => 50]);
+        DB::table('companies')->where('plan', 'enterprise')->where('plan_term', 'month')->update(['plan_price' => 10]);
+        DB::table('companies')->where('plan', 'enterprise')->where('plan_term', 'year')->update(['plan_price' => 100]);
         DB::table('companies')->where('plan', 'enterprise')->update(['num_users' => 5]);
 
         // https://github.com/invoiceninja/invoiceninja/pull/955
