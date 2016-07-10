@@ -54,6 +54,7 @@ class Kernel extends ConsoleKernel
                 ->daily();
         }
 
+        // Reset the invoice schema counter at the turn of the year
         $schedule
             ->command('ninja:reset-invoice-schema-counter')
             ->daily();
