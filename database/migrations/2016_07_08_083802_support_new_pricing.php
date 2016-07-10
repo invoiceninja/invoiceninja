@@ -15,7 +15,9 @@ class SupportNewPricing extends Migration
         Schema::table('companies', function (Blueprint $table)
         {
             $table->decimal('plan_price', 7, 2)->nullable();
+            $table->decimal('pending_plan_price', 7, 2)->nullable();
             $table->smallInteger('num_users')->default(1);
+            $table->smallInteger('pending_num_users')->default(1);
         });
 
         // lock in existing prices
@@ -67,8 +69,10 @@ class SupportNewPricing extends Migration
     {
         Schema::table('companies', function (Blueprint $table)
         {
-            $table->dropColumn('price');
+            $table->dropColumn('plan_price');
+            $table->dropColumn('pending_plan_price');
             $table->dropColumn('num_users');
+            $table->dropColumn('pending_num_users');
         });
 
         Schema::table('activities', function (Blueprint $table) {
