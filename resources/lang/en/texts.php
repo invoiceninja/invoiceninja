@@ -244,6 +244,7 @@ $LANG = array(
     'payment_message' => 'Thank you for your payment of :amount.',
     'email_salutation' => 'Dear :name,',
     'email_signature' => 'Regards,',
+    'email_signature_title' => 'Email Signature',
     'email_from' => 'The Invoice Ninja Team',
     'invoice_link_message' => 'To view the invoice click the link below:',
     'notification_invoice_paid_subject' => 'Invoice :invoice was paid by :client',
@@ -487,6 +488,9 @@ $LANG = array(
     'password_error_invalid' => 'The new password is invalid.',
     'updated_password' => 'Successfully updated password',
     'api_tokens' => 'API Tokens',
+    'api_password' => 'API Password',
+    'api_username' => 'API Username',
+    'api_login_id' => 'Api Login Id',
     'users_and_tokens' => 'Users & Tokens',
     'account_login' => 'Account Login',
     'recover_password' => 'Recover your password',
@@ -776,7 +780,7 @@ $LANG = array(
     'activity_37' => ':user created :vendor',
     'payment' => 'Payment',
     'system' => 'System',
-    'signature' => 'Email Signature',
+    'signature' => 'Signature',
     'default_messages' => 'Default Messages',
     'quote_terms' => 'Quote Terms',
     'default_quote_terms' => 'Default Quote Terms',
@@ -1210,6 +1214,7 @@ $LANG = array(
     'client_id' => 'Client Id',
     'secret' => 'Secret',
     'public_key' => 'Public Key',
+    'private_key' => 'Private Key',
     'plaid_optional' => '(optional)',
     'plaid_environment_help' => 'When a Stripe test key is given, Plaid\'s development environement (tartan) will be used.',
     'other_providers' => 'Other Providers',
@@ -2023,7 +2028,11 @@ $LANG = array(
     'restore_expense_category' => 'Restore expense category',
     'restored_expense_category' => 'Successfully restored expense category',
     'apply_taxes' => 'Apply taxes',
-
+    'test_mode' => 'Test Mode',
+    'publishable_key' => 'Publishable Key',
+    'merchant_id' => 'Merchant Id',
+    'destination_id' => 'Destination Id',
+    'transaction_key' => 'Transaction Key',
 
 );
 
