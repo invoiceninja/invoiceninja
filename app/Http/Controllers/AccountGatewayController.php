@@ -19,11 +19,24 @@ class AccountGatewayController extends BaseController
 {
     protected $accountGatewayService;
 
+    /**
+     * Mapping of attribute names to more user friendly names
+     *
+     * @var array
+     */
+    protected $attributeNames = [];
+
     public function __construct(AccountGatewayService $accountGatewayService)
     {
-        //parent::__construct();
-
         $this->accountGatewayService = $accountGatewayService;
+        $this->attributeNames = [
+            'apiKey' => trans('texts.secret_key'),
+            'testMode' => 'Test Mode',
+            'username' => 'API Username',
+            'password' => 'API Password',
+            'signature' => 'Signature',
+            'destinationId' => 'Destination Id',
+        ];
     }
 
     public function index()
@@ -170,6 +183,7 @@ class AccountGatewayController extends BaseController
         $gateway = Gateway::findOrFail($gatewayId);
 
         $rules = [];
+        $attributeNames = [];
         $fields = $gateway->getFields();
         $optional = array_merge(Gateway::$hiddenFields, Gateway::$optionalFields);
 
@@ -195,11 +209,17 @@ class AccountGatewayController extends BaseController
                         $rules[$gateway->id . '_' . $field] = 'required';
                     }
                 }
+
+                if(key_exists($field, $this->attributeNames)) {
+                    $attributeNames[$gateway->id.'_'.$field] = $this->attributeNames[$field];
+                }
             }
         }
 
         $creditcards = Input::get('creditCardTypes');
+
         $validator = Validator::make(Input::all(), $rules);
+        $validator->setAttributeNames($attributeNames);
 
         if ($validator->fails()) {
             return Redirect::to('gateways/create')
