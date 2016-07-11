@@ -11,7 +11,7 @@
 </tr>
 
 @foreach ($payments as $payment)
-    @if (!$payment->client->is_deleted)
+    @if ( ! $payment->client->is_deleted && ! $payment->invoice->is_deleted)
         <tr>
             <td>{{ $payment->present()->client }}</td>
             @if ($multiUser)
