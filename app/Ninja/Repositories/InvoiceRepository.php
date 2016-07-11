@@ -539,7 +539,7 @@ class InvoiceRepository extends BaseRepository
             }
 
             if ($productKey = trim($item['product_key'])) {
-                if (\Auth::user()->account->update_products && ! strtotime($productKey)) {
+                if (\Auth::user()->account->update_products && ! strtotime($productKey) && ! $task && ! $expense) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
                         if (Auth::user()->can('create', ENTITY_PRODUCT)) {
