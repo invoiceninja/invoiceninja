@@ -31,6 +31,10 @@ body {
     font-weight: 400;
 }
 
+.container select {
+    color: #999999;
+}
+
 .form-control.braintree-hosted-fields-focused{
     border-color: #66afe9;
     outline: 0;
