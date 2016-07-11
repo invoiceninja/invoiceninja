@@ -7,9 +7,9 @@
     <script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 @stop
 
-@section('content')	
+@section('content')
 	@parent
-	
+
 	<style type="text/css">
 
 	#logo {
@@ -23,10 +23,11 @@
             ->autocomplete('on')
             ->rules([
                 'name' => 'required',
+                'website' => 'url',
             ]) !!}
 
 	{{ Former::populate($account) }}
-    
+
     @include('accounts.nav', ['selected' => ACCOUNT_COMPANY_DETAILS])
 
 	<div class="row">
@@ -76,7 +77,7 @@
             <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
           </div>
             <div class="panel-body form-padding-right">
-            
+
             {!! Former::text('address1')->autocomplete('address-line1') !!}
             {!! Former::text('address2')->autocomplete('address-line2') !!}
             {!! Former::text('city')->autocomplete('address-level2') !!}
@@ -88,7 +89,7 @@
 
             </div>
         </div>
-        
+
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.signature') !!}</h3>
@@ -96,25 +97,25 @@
             <div class="panel-body">
 
                 <div class="col-md-10 col-md-offset-1">
-                    {!! Former::textarea('email_footer')->style('display:none')->raw() !!} 
+                    {!! Former::textarea('email_footer')->style('display:none')->raw() !!}
                     <div id="signatureEditor" class="form-control" style="min-height:160px" onclick="focusEditor()"></div>
                     @include('partials/quill_toolbar', ['name' => 'signature'])
                 </div>
-            
+
             </div>
         </div>
         </div>
-    
+
 
 	</div>
-	
+
 	<center>
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
 
     {!! Former::close() !!}
 
-	{!! Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) !!}	
+	{!! Form::open(['url' => 'remove_logo', 'class' => 'removeLogoForm']) !!}
 	{!! Form::close() !!}
 
 

@@ -1,20 +1,14 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Str;
-use DB;
-use Datatable;
-use Utils;
 use URL;
 use View;
 use Input;
 use Session;
 use Redirect;
-
 use App\Models\TaxRate;
 use App\Services\TaxRateService;
 use App\Ninja\Repositories\TaxRateRepository;
-
 use App\Http\Requests\CreateTaxRateRequest;
 use App\Http\Requests\UpdateTaxRateRequest;
 

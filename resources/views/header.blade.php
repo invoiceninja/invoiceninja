@@ -169,40 +169,9 @@
     $('#signUpModal').modal('hide');
   }
 
-  NINJA.proPlanFeature = '';
-  function showProPlan(feature) {
-    $('#proPlanModal').modal('show');
-    fbq('track', 'InitiateCheckout');
-    trackEvent('/account', '/show_pro_plan/' + feature);
-    NINJA.proPlanFeature = feature;
-  }
-
-  function hideProPlan() {
-    $('#proPlanModal').modal('hide');
-  }
-
   function buyProduct(affiliateKey, productId) {
     window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
   }
-
-  @if (Auth::check() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-  function submitProPlan() {
-    fbq('track', 'AddPaymentInfo');
-    trackEvent('/account', '/submit_pro_plan/' + NINJA.proPlanFeature);
-    if (NINJA.isRegistered) {
-      if (window.showChangePlan) {
-        $('#proPlanModal').modal('hide');
-        showChangePlan();
-      } else {
-        window.location = '/settings/account_management#changePlanModel';
-      }
-    } else {
-      $('#proPlanModal').modal('hide');
-      $('#go_pro').val('true');
-      showSignUp();
-    }
-  }
-  @endif
 
   function hideMessage() {
     $('.alert-info').fadeOut();
@@ -265,7 +234,7 @@
 
     if (!window.loadedSearchData) {
         trackEvent('/activity', '/search');
-        $.get('{{ URL::route('getSearchData') }}', function(data) {
+        var request = $.get('{{ URL::route('getSearchData') }}', function(data) {
           $('#search').typeahead({
             hint: true,
             highlight: true,
@@ -308,6 +277,13 @@
           }).focus();
           window.loadedSearchData = true;
         });
+
+        request.error(function(httpObj, textStatus) {
+            // if the session has expried show login page
+            if (httpObj.status == 401) {
+                location.reload();
+            }
+        });
     }
   }
 
@@ -325,6 +301,11 @@
         if (window.loadedSearchData) {
             hideSearch();
         }
+    });
+
+    /* Set the defaults for Bootstrap datepicker */
+    $.extend(true, $.fn.datepicker.defaults, {
+        weekStart: {{ Session::get('start_of_week') }}
     });
 
     if (isStorageSupported()) {
@@ -710,48 +691,6 @@
 </div>
 @endif
 
-@if (Auth::check() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-  <div class="modal fade" id="proPlanModal" tabindex="-1" role="dialog" aria-labelledby="proPlanModalLabel" aria-hidden="true">
-    <div class="modal-dialog large-dialog">
-      <div class="modal-content pro-plan-modal">
-
-        <div class="pull-right">
-            <img onclick="hideProPlan()" class="close" src="{{ asset('images/pro_plan/close.png') }}"/>
-        </div>
-        <div class="row">
-
-            <div class="col-md-7 left-side">
-                <center>
-                    <h2>{{ trans('texts.pro_plan_title') }}</h2>
-                    <img class="img-responsive price" alt="Only $50 Per Year" src="{{ asset('images/pro_plan/price.png') }}"/>
-                    @if (Auth::user()->isEligibleForTrial(PLAN_PRO))
-                        <a class="button" href="{{ URL::to('start_trial/'.PLAN_PRO) }}">{{ trans('texts.trial_call_to_action') }}</a>
-                    @else
-                        <a class="button" href="#" onclick="submitProPlan()">{{ trans('texts.pro_plan_call_to_action') }}</a>
-                    @endif
-                </center>
-            </div>
-            <div class="col-md-5">
-                <ul>
-                    <li>{{ trans('texts.pro_plan_feature1') }}</li>
-                    <li>{{ trans('texts.pro_plan_feature2') }}</li>
-                    <li>{{ trans('texts.pro_plan_feature3') }}</li>
-                    <li>{{ trans('texts.pro_plan_feature4') }}</li>
-                    <li>{{ trans('texts.pro_plan_feature5') }}</li>
-                    <li>{{ trans('texts.pro_plan_feature6') }}</li>
-                    <li>{{ trans('texts.pro_plan_feature7') }}</li>
-                    <li>{{ trans('texts.pro_plan_feature8') }}</li>
-                </ul>
-            </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
-
-
-@endif
-
 </div>
 <br/>
 <div class="container">
@@ -759,7 +698,7 @@
   @if (Auth::check() && Auth::user()->isTrial())
     {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
             'count' => Auth::user()->account->getCountTrialDaysLeft(),
-            'link' => '<a href="javascript:submitProPlan()">' . trans('texts.click_here') . '</a>'
+            'link' => link_to('/settings/account_management?upgrade=true', trans('texts.click_here'))
         ]) !!}
   @endif
 @else
@@ -781,7 +720,7 @@
           </div>
 
           <div class="panel-body">
-            <p>{{ trans('texts.white_label_text')}}</p>
+            <p>{{ trans('texts.white_label_text', ['price' => WHITE_LABEL_PRICE])}}</p>
             <div class="row">
                 <div class="col-md-6">
                     <h4>{{ trans('texts.before') }}</h4>

@@ -12,7 +12,7 @@ class AddDanishTranslation extends Migration {
 	 */
 	public function up()
 	{
-		DB::table('languages')->insert(['name' => 'Danish', 'locale' => 'da']);
+		//DB::table('languages')->insert(['name' => 'Danish', 'locale' => 'da']);
 	}
 
 	/**
@@ -22,8 +22,8 @@ class AddDanishTranslation extends Migration {
 	 */
 	public function down()
 	{
-        $language = \App\Models\Language::whereLocale('da')->first();
-		$language->delete();
+        //$language = \App\Models\Language::whereLocale('da')->first();
+		//$language->delete();
 	}
 
 }

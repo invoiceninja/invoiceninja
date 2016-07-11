@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Import\FreshBooks;
 
 use App\Ninja\Import\BaseTransformer;
-use League\Fractal\Resource\Item;
 
 /*
 class TaskTransformer extends BaseTransformer

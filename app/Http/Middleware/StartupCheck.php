@@ -1,7 +1,7 @@
 <?php namespace App\Http\Middleware;
 
-use Request;
 use Closure;
+use Illuminate\Http\Request;
 use Utils;
 use App;
 use Auth;
@@ -15,16 +15,19 @@ use App\Models\Language;
 use App\Models\InvoiceDesign;
 use App\Events\UserSettingsChanged;
 
+/**
+ * Class StartupCheck
+ */
 class StartupCheck
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
+     * @param  Request $request
+     * @param  Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         // Set up trusted X-Forwarded-Proto proxies
         // TRUSTED_PROXIES accepts a comma delimited list of subnets
@@ -124,9 +127,9 @@ class StartupCheck
                 $licenseKey = Input::get('license_key');
                 $productId = Input::get('product_id');
 
-                $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true"; 
+                $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
                 $data = trim(file_get_contents($url));
-                
+
                 if ($productId == PRODUCT_INVOICE_DESIGNS) {
                     if ($data = json_decode($data)) {
                         foreach ($data as $item) {
@@ -181,10 +184,10 @@ class StartupCheck
                 }
             }
         }
-        
+
         // Show message to IE 8 and before users
         if (isset($_SERVER['HTTP_USER_AGENT']) && preg_match('/(?i)msie [2-8]/', $_SERVER['HTTP_USER_AGENT'])) {
-            Session::flash('error', trans('texts.old_browser'));
+            Session::flash('error', trans('texts.old_browser', ['link' => OUTDATE_BROWSER_URL]));
         }
 
         $response = $next($request);

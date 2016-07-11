@@ -116,8 +116,8 @@
       {!! Former::open()->addClass('warn-on-exit')->onchange('if(!window.loadingFonts)refreshPDF()') !!}
 
       {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
-      {!! Former::populateField('body_font_id', $account->body_font_id) !!}
-      {!! Former::populateField('header_font_id', $account->header_font_id) !!}
+      {!! Former::populateField('body_font_id', $account->getBodyFontId()) !!}
+      {!! Former::populateField('header_font_id', $account->getHeaderFontId()) !!}
       {!! Former::populateField('live_preview', intval($account->live_preview)) !!}
       {!! Former::populateField('font_size', $account->font_size) !!}
       {!! Former::populateField('page_size', $account->page_size) !!}
@@ -208,12 +208,15 @@
                               {!! Former::text('labels_description')->label(trans('texts.description')) !!}
                               {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
                               {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
+							  {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
+							  {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
                         </div>
                         <div class="col-md-6">
-                              {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
-                              {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
-                              {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
-                              {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
+                              {!! Former::text('labels_subtotal')->label(trans('texts.subtotal')) !!}
+							  {!! Former::text('labels_discount')->label(trans('texts.discount')) !!}
+							  {!! Former::text('labels_paid_to_date')->label(trans('texts.paid_to_date')) !!}
+							  {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
+							  {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
                         </div>
                       </div>
 
@@ -258,20 +261,14 @@
                 ->appendIcon(Icon::create('edit'))
                 ->asLinkTo(URL::to('/settings/customize_design'))
                 ->large(),
-            Button::success(trans('texts.save'))
-                ->submit()->large()
-                ->appendIcon(Icon::create('floppy-disk'))
-                ->withAttributes(['class' => 'save-button'])
+            Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ?
+                Button::success(trans('texts.save'))
+                    ->submit()->large()
+                    ->appendIcon(Icon::create('floppy-disk'))
+                    ->withAttributes(['class' => 'save-button']) :
+                false
         ) !!}
     <br/>
-
-      @if (!Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN))
-        <script>
-              $(function() {
-                $('form.warn-on-exit input, .save-button').prop('disabled', true);
-              });
-          </script>
-      @endif
 
       {!! Former::close() !!}
 

@@ -1,8 +1,6 @@
 <?php namespace App\Ninja\Transformers;
 
-use App\Models\Account;
 use App\Models\TaxRate;
-use League\Fractal;
 
 /**
  * @SWG\Definition(definition="TaxRate", @SWG\Xml(name="TaxRate"))

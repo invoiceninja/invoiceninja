@@ -4,26 +4,44 @@ use Utils;
 use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Class Invitation
+ */
 class Invitation extends EntityModel
 {
     use SoftDeletes;
+    /**
+     * @var array
+     */
     protected $dates = ['deleted_at'];
 
+    /**
+     * @return mixed
+     */
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function contact()
     {
         return $this->belongsTo('App\Models\Contact')->withTrashed();
     }
 
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function account()
     {
         return $this->belongsTo('App\Models\Account');
@@ -31,15 +49,20 @@ class Invitation extends EntityModel
 
     // If we're getting the link for PhantomJS to generate the PDF
     // we need to make sure it's served from our site
+    /**
+     * @param string $type
+     * @param bool $forceOnsite
+     * @return string
+     */
     public function getLink($type = 'view', $forceOnsite = false)
     {
-        if (!$this->account) {
+        if ( ! $this->account) {
             $this->load('account');
         }
 
-        $url = SITE_URL;
+        $url = trim(SITE_URL, '/');
         $iframe_url = $this->account->iframe_url;
-        
+
         if ($this->account->hasFeature(FEATURE_CUSTOM_URL)) {
             if ($iframe_url && !$forceOnsite) {
                 return "{$iframe_url}?{$this->invitation_key}";
@@ -47,10 +70,13 @@ class Invitation extends EntityModel
                 $url = Utils::replaceSubdomain($url, $this->account->subdomain);
             }
         }
-        
+
         return "{$url}/{$type}/{$this->invitation_key}";
     }
 
+    /**
+     * @return bool|string
+     */
     public function getStatus()
     {
         $hasValue = false;
@@ -64,17 +90,23 @@ class Invitation extends EntityModel
                 $date = Utils::dateToString($this->$field);
                 $hasValue = true;
             }
-            $parts[] = trans('texts.invitation_status.' . $status) . ': ' . $date;
+            $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
         }
 
         return $hasValue ? implode($parts, '<br/>') : false;
     }
 
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return $this->invitation_key;
     }
 
+    /**
+     * @param null $messageId
+     */
     public function markSent($messageId = null)
     {
         $this->message_id = $messageId;

@@ -20,14 +20,14 @@ class ActivityRepository
         }
 
         // init activity and copy over context
-        $activity = self::getBlank($altEntity ?: $client);
+        $activity = self::getBlank($altEntity ?: ($client ?: $entity));
         $activity = Utils::copyContext($activity, $entity);
         $activity = Utils::copyContext($activity, $altEntity);
 
-        $activity->client_id = $client->id;
         $activity->activity_type_id = $activityTypeId;
         $activity->adjustment = $balanceChange;
-        $activity->balance = $client->balance + $balanceChange;
+        $activity->client_id = $client ? $client->id : 0;
+        $activity->balance = $client ? ($client->balance + $balanceChange) : 0;
 
         $keyField = $entity->getKeyField();
         $activity->$keyField = $entity->id;
@@ -35,7 +35,9 @@ class ActivityRepository
         $activity->ip = Request::getClientIp();
         $activity->save();
 
-        $client->updateBalances($balanceChange, $paidToDateChange);
+        if ($client) {
+            $client->updateBalances($balanceChange, $paidToDateChange);
+        }
 
         return $activity;
     }
@@ -91,12 +93,14 @@ class ActivityRepository
                         'invoices.public_id as invoice_public_id',
                         'invoices.is_recurring',
                         'clients.name as client_name',
+                        'accounts.name as account_name',
                         'clients.public_id as client_public_id',
                         'contacts.id as contact',
                         'contacts.first_name as first_name',
                         'contacts.last_name as last_name',
                         'contacts.email as email',
                         'payments.transaction_reference as payment',
+                        'payments.amount as payment_amount',
                         'credits.amount as credit'
                     );
     }

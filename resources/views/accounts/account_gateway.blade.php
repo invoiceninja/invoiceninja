@@ -5,23 +5,24 @@
 
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
 
-    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
-    {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
-
-
     <div class="panel panel-default">
     <div class="panel-heading">
         <h3 class="panel-title">{!! trans($title) !!}</h3>
     </div>
     <div class="panel-body form-padding-right">
+    {!! Former::open($url)->method($method)->rule()->addClass('warn-on-exit') !!}
 
     @if ($accountGateway)
-        {!! Former::populateField('gateway_id', $accountGateway->gateway_id) !!}
-        {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
+        {!! Former::populateField('primary_gateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('recommendedGateway_id', $accountGateway->gateway_id) !!}
         {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
+        {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? '1' : null) !!}
+        {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? '1' : null) !!}
+        {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
+        {!! Former::populateField('plaid_secret', $accountGateway->getPlaidSecret() ? str_repeat('*', strlen($accountGateway->getPlaidSecret())) : '') !!}
+        {!! Former::populateField('plaid_public_key', $accountGateway->getPlaidPublicKey() ? str_repeat('*', strlen($accountGateway->getPlaidPublicKey())) : '') !!}
 
         @if ($config)
             @foreach ($accountGateway->fields as $field => $junk)
@@ -33,34 +34,36 @@
             @endforeach
         @endif
     @else
-        {!! Former::populateField('gateway_id', GATEWAY_STRIPE) !!}
         {!! Former::populateField('show_address', 1) !!}
         {!! Former::populateField('update_address', 1) !!}
+
+        @if (Utils::isNinjaDev())
+            @include('accounts.partials.payment_credentials')
+        @endif
     @endif
 
-    {!! Former::select('payment_type_id')
-        ->options($paymentTypes)
-        ->addGroupClass('payment-type-option')
-        ->onchange('setPaymentType()') !!}
+    @if ($accountGateway)
+        <div style="display: none">
+            {!! Former::text('primary_gateway_id') !!}
+        </div>
+    @else
+        {!! Former::select('primary_gateway_id')
+            ->fromQuery($primaryGateways, 'name', 'id')
+            ->label(trans('texts.gateway_id'))
+            ->onchange('setFieldsShown()') !!}
 
-    {!! Former::select('gateway_id')
-        ->dataClass('gateway-dropdown')
-        ->addGroupClass('gateway-option')
-        ->fromQuery($selectGateways, 'name', 'id')
-        ->onchange('setFieldsShown()') !!}
+        @if (count($secondaryGateways))
+            {!! Former::select('secondary_gateway_id')
+                ->fromQuery($secondaryGateways, 'name', 'id')
+                ->addGroupClass('secondary-gateway')
+                ->label(' ')
+                ->onchange('setFieldsShown()') !!}
+        @endif
+    @endif
 
     @foreach ($gateways as $gateway)
 
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
-            @if ($gateway->getHelp())
-                <div class="form-group">
-                    <label class="control-label col-lg-4 col-sm-4"></label>
-                    <div class="col-lg-8 col-sm-8 help-block">
-                        {!! $gateway->getHelp() !!}
-                    </div>
-                </div>
-            @endif
-
             @foreach ($gateway->fields as $field => $details)
 
                 @if ($details && !$accountGateway && !is_array($details))
@@ -85,70 +88,125 @@
             @if ($gateway->id == GATEWAY_STRIPE)
                 {!! Former::text('publishable_key') !!}
 
-                {!! Former::select('token_billing_type_id')
-                        ->options($tokenBillingOptions)
-                        ->help(trans('texts.token_billing_help')) !!}
+                <div class="form-group">
+                    <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
+                    <div class="col-lg-8 col-sm-8 help-block">
+                        <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
+                        <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
+                        'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
+                    ]) !!}</strong></div>
+                    </div>
+                </div>
+            @elseif ($gateway->id == GATEWAY_BRAINTREE)
+                @if ($account->hasGatewayId(GATEWAY_PAYPAL_EXPRESS))
+                    {!! Former::checkbox('enable_paypal')
+                        ->label(trans('texts.paypal'))
+                        ->text(trans('texts.braintree_enable_paypal'))
+                        ->value(null)
+                        ->disabled(true)
+                        ->help(trans('texts.braintree_paypal_disabled_help')) !!}
+                @else
+                    {!! Former::checkbox('enable_paypal')
+                           ->label(trans('texts.paypal'))
+                           ->help(trans('texts.braintree_paypal_help', [
+                                'link'=>'<a href="https://articles.braintreepayments.com/guides/paypal/setup-guide" target="_blank">'.
+                                    trans('texts.braintree_paypal_help_link_text').'</a>'
+                            ]))
+                           ->text(trans('texts.braintree_enable_paypal')) !!}
+                @endif
+            @endif
+
+            @if ($gateway->getHelp())
+                <div class="form-group">
+                    <label class="control-label col-lg-4 col-sm-4"></label>
+                    <div class="col-lg-8 col-sm-8 help-block">
+                        {!! $gateway->getHelp() !!}
+                    </div>
+                </div>
             @endif
         </div>
 
     @endforeach
 
-    {!! Former::checkbox('show_address')
-            ->label(trans('texts.billing_address'))
-            ->text(trans('texts.show_address_help'))
-            ->addGroupClass('gateway-option') !!}
-    {!! Former::checkbox('update_address')
-            ->label(' ')
-            ->text(trans('texts.update_address_help'))
-            ->addGroupClass('gateway-option') !!}
+    <div class="onsite-fields" style="display:none">
+        {!! Former::checkbox('show_address')
+                ->label(trans('texts.billing_address'))
+                ->text(trans('texts.show_address_help'))
+                ->addGroupClass('gateway-option') !!}
+        {!! Former::checkbox('update_address')
+                ->label(' ')
+                ->text(trans('texts.update_address_help'))
+                ->addGroupClass('gateway-option') !!}
 
-    {!! Former::checkboxes('creditCardTypes[]')
-            ->label('Accepted Credit Cards')
-            ->checkboxes($creditCardTypes)
-            ->class('creditcard-types')
-            ->addGroupClass('gateway-option')
-    !!}
+        {!! Former::checkboxes('creditCardTypes[]')
+                ->label('Accepted Credit Cards')
+                ->checkboxes($creditCardTypes)
+                ->class('creditcard-types')
+                ->addGroupClass('gateway-option')
+        !!}
+    </div>
+
+    @if (!$accountGateway || $accountGateway->gateway_id == GATEWAY_STRIPE)
+        <div class="stripe-ach">
+            {!! Former::checkbox('enable_ach')
+                ->label(trans('texts.ach'))
+                ->text(trans('texts.enable_ach'))
+                ->help(trans('texts.stripe_ach_help')) !!}
+            <div class="stripe-ach-options">
+                <div class="form-group">
+                    <div class="col-sm-8 col-sm-offset-4">
+                        <h4>{{trans('texts.plaid')}}</h4>
+                        <div class="help-block">{{trans('texts.plaid_optional')}}</div>
+                    </div>
+                </div>
+                {!! Former::text('plaid_client_id')->label(trans('texts.client_id')) !!}
+                {!! Former::text('plaid_secret')->label(trans('texts.secret')) !!}
+                {!! Former::text('plaid_public_key')->label(trans('texts.public_key'))
+                    ->help(trans('texts.plaid_environment_help')) !!}
+            </div>
+        </div>
+    @endif
 
     </div>
     </div>
 
-    <p/>&nbsp;<p/>
+    <br/>
 
-    {!! Former::actions(
-        $countGateways > 0 ? Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/online_payments'))->appendIcon(Icon::create('remove-circle')) : false,
-        Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
+    <center>
+        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/online_payments'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+    </center>
+
     {!! Former::close() !!}
-
 
     <script type="text/javascript">
 
-    function setPaymentType() {
-        var val = $('#payment_type_id').val();
-        if (val == 'PAYMENT_TYPE_CREDIT_CARD') {
-            $('.gateway-option').show();
-            setFieldsShown();
+    function setFieldsShown() {
+        var primaryId = $('#primary_gateway_id').val();
+        var secondaryId = $('#secondary_gateway_id').val();
+
+        if (primaryId) {
+            $('.secondary-gateway').hide();
         } else {
-            $('.gateway-option').hide();
-
-            if (val == 'PAYMENT_TYPE_PAYPAL') {
-                setFieldsShown({{ GATEWAY_PAYPAL_EXPRESS }});
-            } else if (val == 'PAYMENT_TYPE_DWOLLA') {
-                setFieldsShown({{ GATEWAY_DWOLLA }});
-            } else if (val == 'PAYMENT_TYPE_DIRECT_DEBIT') {
-                setFieldsShown({{ GATEWAY_GOCARDLESS }});
-            } else {
-                setFieldsShown({{ GATEWAY_BITPAY }});
-            }
-        }
-    }
-
-    function setFieldsShown(val) {
-        if (!val) {
-            val = $('#gateway_id').val();
+            $('.secondary-gateway').show();
         }
 
+        var val = primaryId || secondaryId;
         $('.gateway-fields').hide();
         $('#gateway_' + val + '_div').show();
+
+        var gateway = _.findWhere(gateways, {'id': parseInt(val)});
+        if (parseInt(gateway.is_offsite)) {
+            $('.onsite-fields').hide();
+        } else {
+            $('.onsite-fields').show();
+        }
+
+        if (gateway.id == {{ GATEWAY_STRIPE }}) {
+            $('.stripe-ach').show();
+        } else {
+            $('.stripe-ach').hide();
+        }
     }
 
     function gatewayLink(url) {
@@ -169,14 +227,29 @@
         }
     }
 
+    function enablePlaidSettings() {
+        var visible = $('#enable_ach').is(':checked');
+        $('.stripe-ach-options').toggle(visible);
+    }
+
+    var gateways = {!! Cache::get('gateways') !!};
+
     $(function() {
-        setPaymentType();
-        @if ($accountGateway)
-            $('.payment-type-option').hide();
-        @endif
+
+        setFieldsShown();
+        enablePlaidSettings();
 
         $('#show_address').change(enableUpdateAddress);
         enableUpdateAddress();
+
+        $('#enable_ach').change(enablePlaidSettings)
+
+        @if (!$accountGateway && count($secondaryGateways))
+            $('#primary_gateway_id').append($('<option>', {
+                value: '',
+                text: "{{ trans('texts.more_options') }}"
+            }));
+        @endif
     })
 
     </script>

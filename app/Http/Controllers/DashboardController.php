@@ -7,17 +7,25 @@ use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Payment;
 
+/**
+ * Class DashboardController
+ */
 class DashboardController extends BaseController
 {
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function index()
     {
         $view_all = Auth::user()->hasPermission('view_all');
         $user_id = Auth::user()->id;
 
         // total_income, billed_clients, invoice_sent and active_clients
-        $select = DB::raw('COUNT(DISTINCT CASE WHEN invoices.id IS NOT NULL THEN clients.id ELSE null END) billed_clients,
-                        SUM(CASE WHEN invoices.invoice_status_id >= '.INVOICE_STATUS_SENT.' THEN 1 ELSE 0 END) invoices_sent,
-                        COUNT(DISTINCT clients.id) active_clients');
+        $select = DB::raw(
+            'COUNT(DISTINCT CASE WHEN '.DB::getQueryGrammar()->wrap('invoices.id', true).' IS NOT NULL THEN '.DB::getQueryGrammar()->wrap('clients.id', true).' ELSE null END) billed_clients,
+            SUM(CASE WHEN '.DB::getQueryGrammar()->wrap('invoices.invoice_status_id', true).' >= '.INVOICE_STATUS_SENT.' THEN 1 ELSE 0 END) invoices_sent,
+            COUNT(DISTINCT '.DB::getQueryGrammar()->wrap('clients.id', true).') active_clients'
+        );
         $metrics = DB::table('accounts')
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
@@ -26,7 +34,7 @@ class DashboardController extends BaseController
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_recurring', '=', false)
-            ->where('invoices.is_quote', '=', false);
+            ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD);
 
         if(!$view_all){
             $metrics = $metrics->where(function($query) use($user_id){
@@ -41,7 +49,10 @@ class DashboardController extends BaseController
         $metrics = $metrics->groupBy('accounts.id')
             ->first();
 
-        $select = DB::raw('SUM(clients.paid_to_date) as value, clients.currency_id as currency_id');
+        $select = DB::raw(
+            'SUM('.DB::getQueryGrammar()->wrap('clients.paid_to_date', true).') as value,'
+                  .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id'
+        );
         $paidToDate = DB::table('accounts')
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
@@ -53,10 +64,13 @@ class DashboardController extends BaseController
         }
 
         $paidToDate = $paidToDate->groupBy('accounts.id')
-            ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
+            ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN CASE WHEN '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' IS NULL THEN 1 ELSE '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' END ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'))
             ->get();
 
-        $select = DB::raw('AVG(invoices.amount) as invoice_avg, clients.currency_id as currency_id');
+        $select = DB::raw(
+            'AVG('.DB::getQueryGrammar()->wrap('invoices.amount', true).') as invoice_avg, '
+                  .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id'
+        );
         $averageInvoice = DB::table('accounts')
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
@@ -64,7 +78,7 @@ class DashboardController extends BaseController
             ->where('accounts.id', '=', Auth::user()->account_id)
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
-            ->where('invoices.is_quote', '=', false)
+            ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('invoices.is_recurring', '=', false);
 
         if(!$view_all){
@@ -72,17 +86,20 @@ class DashboardController extends BaseController
         }
 
         $averageInvoice = $averageInvoice->groupBy('accounts.id')
-            ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'))
+            ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN CASE WHEN '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' IS NULL THEN 1 ELSE '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' END ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'))
             ->get();
 
-        $select = DB::raw('SUM(clients.balance) as value, clients.currency_id as currency_id');
+        $select = DB::raw(
+            'SUM('.DB::getQueryGrammar()->wrap('clients.balance', true).') as value, '
+                  .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id'
+        );
         $balances = DB::table('accounts')
             ->select($select)
             ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
             ->where('accounts.id', '=', Auth::user()->account_id)
             ->where('clients.is_deleted', '=', false)
             ->groupBy('accounts.id')
-            ->groupBy(DB::raw('CASE WHEN clients.currency_id IS NULL THEN CASE WHEN accounts.currency_id IS NULL THEN 1 ELSE accounts.currency_id END ELSE clients.currency_id END'));
+            ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN CASE WHEN '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' IS NULL THEN 1 ELSE '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' END ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'));
 
         if (!$view_all) {
             $balances->where('clients.user_id', '=', $user_id);
@@ -121,7 +138,7 @@ class DashboardController extends BaseController
             $pastDue = $pastDue->where('invoices.user_id', '=', $user_id);
         }
 
-        $pastDue = $pastDue->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'is_quote'])
+        $pastDue = $pastDue->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
                     ->orderBy('invoices.due_date', 'asc')
                     ->take(50)
                     ->get();
@@ -147,7 +164,7 @@ class DashboardController extends BaseController
         }
 
         $upcoming = $upcoming->take(50)
-                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'is_quote'])
+                    ->select(['invoices.due_date', 'invoices.balance', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id', 'invoice_type_id'])
                     ->get();
 
         $payments = DB::table('payments')
@@ -173,7 +190,7 @@ class DashboardController extends BaseController
         $hasQuotes = false;
         foreach ([$upcoming, $pastDue] as $data) {
             foreach ($data as $invoice) {
-                if ($invoice->is_quote) {
+                if ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE) {
                     $hasQuotes = true;
                 }
             }

@@ -7,10 +7,20 @@ use App\Http\Requests\UpdateTaxRateRequest;
 
 class TaxRateApiController extends BaseAPIController
 {
+    /**
+     * @var TaxRateRepository
+     */
     protected $taxRateRepo;
-    
+
+    /**
+     * @var string
+     */
     protected $entityType = ENTITY_TAX_RATE;
 
+    /**
+     * TaxRateApiController constructor.
+     * @param TaxRateRepository $taxRateRepo
+     */
     public function __construct(TaxRateRepository $taxRateRepo)
     {
         parent::__construct();
@@ -34,6 +44,11 @@ class TaxRateApiController extends BaseAPIController
         return $this->itemResponse($taxRate);
     }
 
+    /**
+     * @param UpdateTaxRateRequest $request
+     * @param $publicId
+     * @return \Illuminate\Http\Response
+     */
     public function update(UpdateTaxRateRequest $request, $publicId)
     {
         if ($request->action) {
@@ -45,10 +60,5 @@ class TaxRateApiController extends BaseAPIController
         $taxRate = $this->taxRateRepo->save($data, $request->entity());
 
         return $this->itemResponse($taxRate);
-    }
-
-    public function destroy($publicId)
-    {
-       //stub
     }
 }

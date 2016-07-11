@@ -17,21 +17,18 @@
         "omnipay/mollie": "dev-master#22956c1a62a9662afa5f5d119723b413770ac525",
         "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
         "omnipay/gocardless": "dev-master",
-        "omnipay/stripe": "2.3.0",
+        "omnipay/stripe": "dev-master",
+        "doctrine/dbal": "2.5.x",
+        "laravelcollective/bus": "5.2.*",
         "laravel/framework": "5.2.*",
         "laravelcollective/html": "5.2.*",
-        "laravelcollective/bus": "5.2.*",
         "symfony/css-selector": "~3.0",
         "patricktalmadge/bootstrapper": "5.5.x",
         "anahkiasen/former": "4.0.*@dev",
-        "barryvdh/laravel-debugbar": "~2.0",
         "chumper/datatable": "dev-develop#04ef2bf",
         "omnipay/omnipay": "~2.3",
         "intervention/image": "dev-master",
         "webpatser/laravel-countries": "dev-master",
-        "barryvdh/laravel-ide-helper": "dev-master",
-        "doctrine/dbal": "2.5.x",
-        "jsanc623/phpbenchtime": "2.x",
         "lokielse/omnipay-alipay": "dev-master",
         "coatesap/omnipay-datacash": "~2.0",
         "mfauveau/omnipay-pacnet": "~2.0",
@@ -63,7 +60,6 @@
         "meebio/omnipay-secure-trading": "dev-master",
         "justinbusschau/omnipay-secpay": "~2.0",
         "labs7in0/omnipay-wechat": "dev-master",
-        "collizo4sky/omnipay-wepay": "~1.0",
         "laracasts/presenter": "dev-master",
         "jlapp/swaggervel": "master-dev",
         "maatwebsite/excel": "~2.0",
@@ -73,15 +69,21 @@
         "league/flysystem-aws-s3-v3": "~1.0",
         "league/flysystem-rackspace": "~1.0",
         "barracudanetworks/archivestream-php": "^1.0",
+        "omnipay/braintree": "~2.0@dev",
+        "gatepay/FedACHdir": "dev-master@dev",
         "websight/l5-google-cloud-storage": "^1.0",
-        "fzaninotto/faker": "^1.5"
+        "wepay/php-sdk": "^0.2",
+        "collizo4sky/omnipay-wepay": "dev-additional-calls"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
         "phpspec/phpspec": "~2.1",
         "codeception/codeception": "*",
         "codeception/c3": "~2.0",
-        "symfony/dom-crawler": "~3.0"
+        "symfony/dom-crawler": "~3.0",
+        "barryvdh/laravel-ide-helper": "~2.2",
+        "barryvdh/laravel-debugbar": "~2.2",
+        "fzaninotto/faker": "^1.5"
     },
     "autoload": {
         "classmap": [
@@ -122,5 +124,27 @@
     },
     "config": {
         "preferred-install": "dist"
-    }
+    },
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "gatepay/FedACHdir",
+                "version": "dev-master",
+                "dist": {
+                    "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
+                    "type": "zip"
+                },
+                "source": {
+                    "url": "git@github.com:gatepay/FedACHdir.git",
+                    "type": "git",
+                    "reference": "origin/master"
+                }
+            }
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/sometechie/omnipay-wepay"
+        }
+    ]
 }

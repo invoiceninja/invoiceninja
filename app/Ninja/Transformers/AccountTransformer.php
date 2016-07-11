@@ -1,63 +1,106 @@
 <?php namespace App\Ninja\Transformers;
 
 use App\Models\Account;
-use App\Models\AccountToken;
-use App\Models\Contact;
-use App\Models\Product;
-use App\Models\TaxRate;
-use League\Fractal;
-use League\Fractal\TransformerAbstract;
 
+/**
+ * Class AccountTransformer
+ */
 class AccountTransformer extends EntityTransformer
 {
+    /**
+     * @var array
+     */
     protected $defaultIncludes = [
         'users',
         'products',
         'taxRates',
+        'expense_categories'
     ];
 
+    /**
+     * @var array
+     */
     protected $availableIncludes = [
         'clients',
         'invoices',
         'payments',
     ];
 
+    /**
+     * @param Account $account
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeExpenseCategories(Account $account)
+    {
+        $transformer = new ExpenseCategoryTransformer($account, $this->serializer);
+        return $this->includeCollection($account->expense_categories, $transformer, 'expense_categories');
+    }
+
+    /**
+     * @param Account $account
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeUsers(Account $account)
     {
         $transformer = new UserTransformer($account, $this->serializer);
         return $this->includeCollection($account->users, $transformer, 'users');
     }
 
+    /**
+     * @param Account $account
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeClients(Account $account)
     {
         $transformer = new ClientTransformer($account, $this->serializer);
         return $this->includeCollection($account->clients, $transformer, 'clients');
     }
 
+    /**
+     * @param Account $account
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeInvoices(Account $account)
     {
         $transformer = new InvoiceTransformer($account, $this->serializer);
         return $this->includeCollection($account->invoices, $transformer, 'invoices');
     }
 
+    /**
+     * @param Account $account
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeProducts(Account $account)
     {
         $transformer = new ProductTransformer($account, $this->serializer);
         return $this->includeCollection($account->products, $transformer, 'products');
     }
 
+    /**
+     * @param Account $account
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeTaxRates(Account $account)
     {
         $transformer = new TaxRateTransformer($account, $this->serializer);
         return $this->includeCollection($account->tax_rates, $transformer, 'taxRates');
     }
 
+    /**
+     * @param Account $account
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includePayments(Account $account)
     {
         $transformer = new PaymentTransformer($account, $this->serializer);
         return $this->includeCollection($account->payments, $transformer, 'payments');
     }
 
+    /**
+     * @param Account $account
+     * @return array
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     */
     public function transform(Account $account)
     {
         return [
@@ -96,7 +139,8 @@ class AccountTransformer extends EntityTransformer
             'custom_label1' => $account->custom_label1,
             'custom_label2' => $account->custom_label2,
             'custom_value1' => $account->custom_value1,
-            'custom_value2' => $account->custom_value2
+            'custom_value2' => $account->custom_value2,
+            'logo' => $account->logo,
         ];
     }
 }

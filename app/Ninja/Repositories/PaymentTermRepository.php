@@ -1,9 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
 use DB;
-use Utils;
-use App\Models\PaymentTerm;
-use App\Ninja\Repositories\BaseRepository;
 
 class PaymentTermRepository extends BaseRepository
 {

@@ -14,8 +14,14 @@ use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Expense;
 
+/**
+ * Class ReportController
+ */
 class ReportController extends BaseController
 {
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function d3()
     {
         $message = '';
@@ -42,6 +48,9 @@ class ReportController extends BaseController
         return View::make('reports.d3', $data);
     }
 
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
     public function showReports()
     {
         $action = Input::get('action');
@@ -123,6 +132,12 @@ class ReportController extends BaseController
         return View::make('reports.chart_builder', $params);
     }
 
+    /**
+     * @param $groupBy
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     */
     private function generateChart($groupBy, $startDate, $endDate)
     {
         $width = 10;
@@ -168,7 +183,7 @@ class ReportController extends BaseController
                 ->groupBy($groupBy);
 
             if ($entityType == ENTITY_INVOICE) {
-                $records->where('is_quote', '=', false)
+                $records->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                         ->where('is_recurring', '=', false);
             } elseif ($entityType == ENTITY_PAYMENT) {
                 $records->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
@@ -221,6 +236,14 @@ class ReportController extends BaseController
         ];
     }
 
+    /**
+     * @param $reportType
+     * @param $startDate
+     * @param $endDate
+     * @param $dateField
+     * @param $isExport
+     * @return array
+     */
     private function generateReport($reportType, $startDate, $endDate, $dateField, $isExport)
     {
         if ($reportType == ENTITY_CLIENT) {
@@ -236,6 +259,13 @@ class ReportController extends BaseController
         }
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $dateField
+     * @param $isExport
+     * @return array
+     */
     private function generateTaxRateReport($startDate, $endDate, $dateField, $isExport)
     {
         $columns = ['tax_name', 'tax_rate', 'amount', 'paid'];
@@ -313,6 +343,12 @@ class ReportController extends BaseController
 
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $isExport
+     * @return array
+     */
     private function generatePaymentReport($startDate, $endDate, $isExport)
     {
         $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'payment_date', 'paid', 'method'];
@@ -358,6 +394,12 @@ class ReportController extends BaseController
         ];
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $isExport
+     * @return array
+     */
     private function generateInvoiceReport($startDate, $endDate, $isExport)
     {
         $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'payment_date', 'paid', 'method'];
@@ -374,7 +416,7 @@ class ReportController extends BaseController
                             $query->where('invoice_date', '>=', $startDate)
                                   ->where('invoice_date', '<=', $endDate)
                                   ->where('is_deleted', '=', false)
-                                  ->where('is_quote', '=', false)
+                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                                   ->where('is_recurring', '=', false)
                                   ->with(['payments' => function($query) {
                                         $query->withTrashed()
@@ -405,7 +447,7 @@ class ReportController extends BaseController
                 $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'balance', $invoice->balance);
             }
         }
-        
+
         return [
             'columns' => $columns,
             'displayData' => $displayData,
@@ -413,6 +455,12 @@ class ReportController extends BaseController
         ];
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $isExport
+     * @return array
+     */
     private function generateClientReport($startDate, $endDate, $isExport)
     {
         $columns = ['client', 'amount', 'paid', 'balance'];
@@ -427,7 +475,7 @@ class ReportController extends BaseController
                         ->with(['invoices' => function($query) use ($startDate, $endDate) {
                             $query->where('invoice_date', '>=', $startDate)
                                   ->where('invoice_date', '<=', $endDate)
-                                  ->where('is_quote', '=', false)
+                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                                   ->where('is_recurring', '=', false)
                                   ->withArchived();
                         }]);
@@ -460,6 +508,12 @@ class ReportController extends BaseController
         ];
     }
 
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $isExport
+     * @return array
+     */
     private function generateExpenseReport($startDate, $endDate, $isExport)
     {
         $columns = ['vendor', 'client', 'date', 'expense_amount', 'invoiced_amount'];
@@ -501,6 +555,13 @@ class ReportController extends BaseController
         ];
     }
 
+    /**
+     * @param $data
+     * @param $currencyId
+     * @param $field
+     * @param $value
+     * @return mixed
+     */
     private function addToTotals($data, $currencyId, $field, $value) {
         $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
 
@@ -513,6 +574,12 @@ class ReportController extends BaseController
         return $data;
     }
 
+    /**
+     * @param $reportType
+     * @param $data
+     * @param $columns
+     * @param $totals
+     */
     private function export($reportType, $data, $columns, $totals)
     {
         $output = fopen('php://output', 'w') or Utils::fatalError();

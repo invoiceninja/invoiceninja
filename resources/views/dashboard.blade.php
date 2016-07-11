@@ -150,7 +150,7 @@
                     </thead>
                     <tbody>
                         @foreach ($upcoming as $invoice)
-                            @if (!$invoice->is_quote)
+                            @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
                                     @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
@@ -185,7 +185,7 @@
                     </thead>
                     <tbody>
                         @foreach ($pastDue as $invoice)
-                            @if (!$invoice->is_quote)
+                            @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                 <tr>
                                     <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
                                     @can('viewByOwner', [ENTITY_CLIENT, $invoice->client_user_id])
@@ -224,7 +224,7 @@
                         </thead>
                         <tbody>
                             @foreach ($upcoming as $invoice)
-                                @if ($invoice->is_quote)
+                                @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                     <tr>
                                         <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
@@ -255,7 +255,7 @@
                         </thead>
                         <tbody>
                             @foreach ($pastDue as $invoice)
-                                @if ($invoice->is_quote)
+                                @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
                                     <tr>
                                         <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>

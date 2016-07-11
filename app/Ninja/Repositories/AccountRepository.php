@@ -4,7 +4,6 @@ use Auth;
 use Request;
 use Session;
 use Utils;
-use DB;
 use URL;
 use stdClass;
 use Validator;
@@ -28,7 +27,7 @@ class AccountRepository
     {
         $company = new Company();
         $company->save();
-        
+
         $account = new Account();
         $account->ip = Request::getClientIp();
         $account->account_key = str_random(RANDOM_KEY_LENGTH);
@@ -87,7 +86,7 @@ class AccountRepository
     private function getAccountSearchData($user)
     {
         $account = $user->account;
-        
+
         $data = [
             'clients' => [],
             'contacts' => [],
@@ -102,7 +101,7 @@ class AccountRepository
         if ($account->custom_client_label2) {
             $data[$account->custom_client_label2] = [];
         }
-        
+
         if ($user->hasPermission('view_all')) {
             $clients = Client::scope()
                         ->with('contacts', 'invoices')
@@ -114,7 +113,7 @@ class AccountRepository
                             $query->where('user_id', '=', $user->id);
                         }])->get();
         }
-        
+
         foreach ($clients as $client) {
             if ($client->name) {
                 $data['clients'][] = [
@@ -122,20 +121,20 @@ class AccountRepository
                     'tokens' => $client->name,
                     'url' => $client->present()->url,
                 ];
-            } 
+            }
 
             if ($client->custom_value1) {
                 $data[$account->custom_client_label1][] = [
                     'value' => "{$client->custom_value1}: " . $client->getDisplayName(),
                     'tokens' => $client->custom_value1,
-                    'url' => $client->present()->url,                    
+                    'url' => $client->present()->url,
                 ];
-            }           
+            }
             if ($client->custom_value2) {
                 $data[$account->custom_client_label2][] = [
                     'value' => "{$client->custom_value2}: " . $client->getDisplayName(),
                     'tokens' => $client->custom_value2,
-                    'url' => $client->present()->url,                    
+                    'url' => $client->present()->url,
                 ];
             }
 
@@ -177,6 +176,7 @@ class AccountRepository
             ENTITY_QUOTE,
             ENTITY_TASK,
             ENTITY_EXPENSE,
+            ENTITY_EXPENSE_CATEGORY,
             ENTITY_VENDOR,
             ENTITY_RECURRING_INVOICE,
             ENTITY_PAYMENT,
@@ -186,11 +186,11 @@ class AccountRepository
         foreach ($entityTypes as $entityType) {
             $features[] = [
                 "new_{$entityType}",
-                "/{$entityType}s/create",
+                Utils::pluralizeEntityType($entityType) . '/create'
             ];
             $features[] = [
-                "list_{$entityType}s",
-                "/{$entityType}s",
+                'list_' . Utils::pluralizeEntityType($entityType),
+                Utils::pluralizeEntityType($entityType)
             ];
         }
 
@@ -228,23 +228,26 @@ class AccountRepository
         return $data;
     }
 
-    public function enablePlan($plan = PLAN_PRO, $term = PLAN_TERM_MONTHLY, $credit = 0, $pending_monthly = false)
+    public function enablePlan($plan, $credit = 0, $pending_monthly = false)
     {
         $account = Auth::user()->account;
         $client = $this->getNinjaClient($account);
-        $invitation = $this->createNinjaInvoice($client, $account, $plan, $term, $credit, $pending_monthly);
+        $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit, $pending_monthly);
 
         return $invitation;
     }
 
-    public function createNinjaInvoice($client, $clientAccount, $plan = PLAN_PRO, $term = PLAN_TERM_MONTHLY, $credit = 0, $pending_monthly = false)
+    public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0, $pending_monthly = false)
     {
+        $term = $plan['term'];
+        $plan_cost = $plan['price'];
+        $num_users = $plan['num_users'];
+        $plan = $plan['plan'];
+
         if ($credit < 0) {
             $credit = 0;
         }
-        
-        $plan_cost = Account::$plan_prices[$plan][$term];
-        
+
         $account = $this->getNinjaAccount();
         $lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
         $publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
@@ -266,28 +269,33 @@ class AccountRepository
             $credit_item->product_key = trans('texts.plan_credit_product');
             $invoice->invoice_items()->save($credit_item);
         }
-        
+
         $item = InvoiceItem::createNew($invoice);
         $item->qty = 1;
         $item->cost = $plan_cost;
         $item->notes = trans("texts.{$plan}_plan_{$term}_description");
-        
+
+        if ($plan == PLAN_ENTERPRISE) {
+            $min = Utils::getMinNumUsers($num_users);
+            $item->notes .= "\n\n###" . trans('texts.min_to_max_users', ['min' => $min, 'max' => $num_users]);
+        }
+
         // Don't change this without updating the regex in PaymentService->createPayment()
         $item->product_key = 'Plan - '.ucfirst($plan).' ('.ucfirst($term).')';
         $invoice->invoice_items()->save($item);
-        
+
         if ($pending_monthly) {
             $term_end = $term == PLAN_MONTHLY ? date_create('+1 month') : date_create('+1 year');
             $pending_monthly_item = InvoiceItem::createNew($invoice);
             $item->qty = 1;
             $pending_monthly_item->cost = 0;
-            $pending_monthly_item->notes = trans("texts.plan_pending_monthly", array('date', Utils::dateToString($term_end)));
-            
+            $pending_monthly_item->notes = trans('texts.plan_pending_monthly', ['date', Utils::dateToString($term_end)]);
+
             // Don't change this without updating the text in PaymentService->createPayment()
             $pending_monthly_item->product_key = 'Pending Monthly';
             $invoice->invoice_items()->save($pending_monthly_item);
         }
-        
+
 
         $invitation = new Invitation();
         $invitation->account_id = $account->id;
@@ -328,12 +336,14 @@ class AccountRepository
             $user->notify_paid = true;
             $account->users()->save($user);
 
-            $accountGateway = new AccountGateway();
-            $accountGateway->user_id = $user->id;
-            $accountGateway->gateway_id = NINJA_GATEWAY_ID;
-            $accountGateway->public_id = 1;
-            $accountGateway->setConfig(json_decode(env(NINJA_GATEWAY_CONFIG)));
-            $account->account_gateways()->save($accountGateway);
+            if ($config = env(NINJA_GATEWAY_CONFIG)) {
+                $accountGateway = new AccountGateway();
+                $accountGateway->user_id = $user->id;
+                $accountGateway->gateway_id = NINJA_GATEWAY_ID;
+                $accountGateway->public_id = 1;
+                $accountGateway->setConfig(json_decode($config));
+                $account->account_gateways()->save($accountGateway);
+            }
         }
 
         return $account;
@@ -356,11 +366,11 @@ class AccountRepository
             $client->user_id = $ninjaUser->id;
             $client->currency_id = 1;
         }
-        
+
         foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
             $client->$field = $account->$field;
         }
-        
+
         $client->save();
 
         if ($clientExists) {
@@ -372,7 +382,7 @@ class AccountRepository
             $contact->public_id = $account->id;
             $contact->is_primary = true;
         }
-        
+
         $user = $account->getPrimaryUser();
         foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
             $contact->$field = $user->$field;
@@ -513,7 +523,7 @@ class AccountRepository
         if ($with) {
             $users->with($with);
         }
-        
+
         return $users->get();
     }
 
@@ -565,7 +575,7 @@ class AccountRepository
         $record->save();
 
         $users = $this->getUserAccounts($record);
-        
+
         // Pick the primary user
         foreach ($users as $user) {
             if (!$user->public_id) {
@@ -573,16 +583,16 @@ class AccountRepository
                 if(empty($primaryUser)) {
                     $useAsPrimary = true;
                 }
-                
+
                 $planDetails = $user->account->getPlanDetails(false, false);
                 $planLevel = 0;
-                
+
                 if ($planDetails) {
                     $planLevel = 1;
                     if ($planDetails['plan'] == PLAN_ENTERPRISE) {
                         $planLevel = 2;
                     }
-                    
+
                     if (!$useAsPrimary && (
                         $planLevel > $primaryUserPlanLevel
                         || ($planLevel == $primaryUserPlanLevel && $planDetails['expires'] > $primaryUserPlanExpires)
@@ -590,7 +600,7 @@ class AccountRepository
                         $useAsPrimary = true;
                     }
                 }
-                                                
+
                 if  ($useAsPrimary) {
                     $primaryUser = $user;
                     $primaryUserPlanLevel = $planLevel;
@@ -600,14 +610,14 @@ class AccountRepository
                 }
             }
         }
-        
+
         // Merge other companies into the primary user's company
         if (!empty($primaryUser)) {
             foreach ($users as $user) {
                 if ($user == $primaryUser || $user->public_id) {
                     continue;
                 }
-                
+
                 if ($user->account->company_id != $primaryUser->account->company_id) {
                     foreach ($user->account->company->accounts as $account) {
                         $account->company_id = $primaryUser->account->company_id;
@@ -636,9 +646,9 @@ class AccountRepository
             $userAccount->removeUserId($userId);
             $userAccount->save();
         }
-        
+
         $user = User::whereId($userId)->first();
-        
+
         if (!$user->public_id && $user->account->company->accounts->count() > 1) {
             $company = Company::create();
             $company->save();
@@ -660,7 +670,7 @@ class AccountRepository
                         ->withTrashed()
                         ->first();
         } while ($match);
-        
+
         return $code;
     }
 
@@ -668,7 +678,7 @@ class AccountRepository
     {
         $name = trim($name) ?: 'TOKEN';
         $users = $this->findUsers($user);
-        
+
         foreach ($users as $user) {
             if ($token = AccountToken::whereUserId($user->id)->whereName($name)->first()) {
                 continue;

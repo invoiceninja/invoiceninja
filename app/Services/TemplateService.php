@@ -7,11 +7,22 @@ use App\Models\Gateway;
 
 class TemplateService
 {
-    public function processVariables($template, $data)
+    /**
+     * @param $template
+     * @param array $data
+     * @return mixed|string
+     */
+    public function processVariables($template, array $data)
     {
+        /** @var \App\Models\Account $account */
         $account = $data['account'];
+
+        /** @var \App\Models\Client $client */
         $client = $data['client'];
+
+        /** @var \App\Models\Invitation $invitation */
         $invitation = $data['invitation'];
+
         $invoice = $invitation->invoice;
         $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
         $documentsHTML = '';
@@ -28,7 +39,7 @@ class TemplateService
             }
             $documentsHTML .= '</ul>';
         }
-        
+
         $variables = [
             '$footer' => $account->getEmailFooter(),
             '$client' => $client->getDisplayName(),
@@ -51,18 +62,20 @@ class TemplateService
             '$customInvoice1' => $account->custom_invoice_text_label1,
             '$customInvoice2' => $account->custom_invoice_text_label2,
             '$documents' => $documentsHTML,
+            '$autoBill' => empty($data['autobill'])?'':$data['autobill'],
+            '$portalLink' => $invitation->contact->link,
+            '$portalButton' => Form::emailViewButton($invitation->contact->link, 'portal'),
         ];
 
         // Add variables for available payment types
-        foreach (Gateway::$paymentTypes as $type) {
-            $camelType = Gateway::getPaymentTypeName($type);
-            $type = Utils::toSnakeCase($camelType);
+        foreach (Gateway::$gatewayTypes as $type) {
+            $camelType = Utils::toCamelCase($type);
             $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
             $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
         }
-        
+
         $includesPasswordPlaceholder = strpos($template, '$password') !== false;
-                
+
         $str = str_replace(array_keys($variables), array_values($variables), $template);
 
         if (!$includesPasswordPlaceholder && $passwordHTML) {
@@ -71,10 +84,10 @@ class TemplateService
             {
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
             }
-        }        
+        }
         $str = str_replace('$password', '', $str);
         $str = autolink($str, 100);
-        
+
         return $str;
-    }    
+    }
 }

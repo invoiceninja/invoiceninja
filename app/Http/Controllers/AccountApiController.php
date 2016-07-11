@@ -3,22 +3,12 @@
 use Auth;
 use Utils;
 use Response;
-use Input;
-use Validator;
 use Cache;
-use App\Models\Client;
 use App\Models\Account;
-use App\Models\AccountToken;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Http\Request;
-use League\Fractal;
-use League\Fractal\Manager;
-use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
-use App\Http\Controllers\BaseAPIController;
-use Swagger\Annotations as SWG;
-
 use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
@@ -182,8 +172,6 @@ class AccountApiController extends BaseAPIController
                     'notify_approved' => $request->notify_approved,
                     'notify_paid' => $request->notify_paid,
                 ];
-
-                //unset($devices[$x]);
 
                 $devices[$x] = $newDevice;
                 $account->devices = json_encode($devices);

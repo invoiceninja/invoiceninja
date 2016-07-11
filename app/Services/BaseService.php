@@ -2,17 +2,27 @@
 
 use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Services\DatatableService;
 
+/**
+ * Class BaseService
+ */
 class BaseService
 {
     use DispatchesJobs;
 
+    /**
+     * @return null
+     */
     protected function getRepo()
     {
         return null;
     }
 
+    /**
+     * @param $ids
+     * @param $action
+     * @return int
+     */
     public function bulk($ids, $action)
     {
         if ( ! $ids ) {
@@ -28,23 +38,5 @@ class BaseService
         }
 
         return count($entities);
-    }
-
-    public function createDatatable($entityType, $query, $showCheckbox = true, $hideClient = false)
-    {
-        $columns = $this->getDatatableColumns($entityType, !$showCheckbox);
-        $actions = $this->getDatatableActions($entityType);
-
-        return $this->datatableService->createDatatable($entityType, $query, $columns, $actions, $showCheckbox);
-    }
-
-    protected function getDatatableColumns($entityType, $hideClient)
-    {
-        return [];
-    }
-
-    protected function getDatatableActions($entityType)
-    {
-        return [];
     }
 }

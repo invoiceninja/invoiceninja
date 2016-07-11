@@ -1,13 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use Session;
 use Utils;
 use Auth;
-use Log;
 use Input;
 use Response;
 use Request;
-use League\Fractal;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 use League\Fractal\Resource\Collection;
@@ -15,7 +12,6 @@ use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use League\Fractal\Serializer\JsonApiSerializer;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * @SWG\Swagger(
@@ -169,7 +165,7 @@ class BaseAPIController extends Controller
         if (Utils::isNinjaDev()) {
             $count = count(\DB::getQueryLog());
             Log::info(Request::method() . ' - ' . Request::url() . ": $count queries");
-            Log::info(json_encode(\DB::getQueryLog()));
+            //Log::info(json_encode(\DB::getQueryLog()));
         }
 
         $index = Request::get('index') ?: 'data';

@@ -7,9 +7,11 @@ use Session;
 use Response;
 use Auth;
 use Cache;
-
 use App\Models\AccountToken;
 
+/**
+ * Class ApiCheck
+ */
 class ApiCheck {
 
     /**

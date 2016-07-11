@@ -2,23 +2,18 @@
 
 use Cache;
 use Auth;
-use Datatable;
-use DB;
 use Input;
 use Redirect;
 use Session;
 use View;
-use Validator;
-use stdClass;
 use Crypt;
-use URL;
-use Utils;
-use App\Models\Gateway;
+use File;
 use App\Models\Account;
 use App\Models\BankAccount;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
 use App\Http\Requests\CreateBankAccountRequest;
+use Illuminate\Http\Request;
 
 class BankAccountController extends BaseController
 {
@@ -122,4 +117,28 @@ class BankAccountController extends BaseController
         return $this->bankAccountService->importExpenses($bankId, Input::all());
     }
 
+    public function showImportOFX()
+    {
+        return view('accounts.import_ofx');
+    }
+
+    public function doImportOFX(Request $request)
+    {
+        $file = File::get($request->file('ofx_file'));
+
+        try {
+            $data = $this->bankAccountService->parseOFX($file);
+        } catch (\Exception $e) {
+            Session::flash('error', trans('texts.ofx_parse_failed'));
+            return view('accounts.import_ofx');
+        }
+
+        $data = [
+            'banks' => null,
+            'bankAccount' => null,
+            'transactions' => json_encode([$data])
+        ];
+
+        return View::make('accounts.bank_account', $data);
+    }
 }

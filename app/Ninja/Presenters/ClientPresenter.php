@@ -1,10 +1,7 @@
 <?php namespace App\Ninja\Presenters;
 
-use URL;
-use Utils;
-use Laracasts\Presenter\Presenter;
 
-class ClientPresenter extends Presenter {
+class ClientPresenter extends EntityPresenter {
 
     public function country()
     {
@@ -27,15 +24,5 @@ class ClientPresenter extends Presenter {
         }
 
         return "<span class=\"label label-{$class}\">{$text}</span>";
-    }
-
-    public function url()
-    {
-        return URL::to('/clients/' . $this->entity->public_id);
-    }
-
-    public function link()
-    {
-        return link_to('/clients/' . $this->entity->public_id, $this->entity->getDisplayName());
     }
 }
