@@ -213,7 +213,7 @@ class TaskController extends BaseController
     private static function getViewModel()
     {
         return [
-            'clients' => Client::scope()->viewable()->with('contacts')->orderBy('name')->get(),
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'account' => Auth::user()->account,
         ];
     }
