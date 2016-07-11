@@ -235,7 +235,7 @@ class AccountController extends BaseController
                 }
             }
 
-            if (!empty($new_plan)) {
+            if (!empty($new_plan) && $new_plan['plan'] != PLAN_FREE) {
                 $time_used = $planDetails['paid']->diff(date_create());
                 $days_used = $time_used->days;
 
