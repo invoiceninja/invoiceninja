@@ -4,7 +4,7 @@ namespace App\Policies;
 
 use App\Models\User;
 
-class TaskPolicy extends EntityPolicy
+class QuotePolicy extends EntityPolicy
 {
     /**
      * @param User $user
@@ -15,7 +15,7 @@ class TaskPolicy extends EntityPolicy
             return false;
         }
 
-        return $user->hasFeature(FEATURE_TASKS);
+        return $user->hasFeature(FEATURE_QUOTES);
     }
 
 }

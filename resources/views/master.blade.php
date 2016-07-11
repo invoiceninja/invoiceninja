@@ -93,11 +93,6 @@
             }
         });
 
-        /* Set the defaults for Bootstrap datepicker */
-        $.extend(true, $.fn.datepicker.defaults, {
-            weekStart: {{ Session::get('start_of_week') }}
-        });
-
         /* This causes problems with some languages. ie, fr_CA
          var appLocale = '{{App::getLocale()}}';
          */

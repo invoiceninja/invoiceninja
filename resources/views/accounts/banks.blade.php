@@ -4,14 +4,16 @@
 @parent
 @include('accounts.nav', ['selected' => ACCOUNT_BANKS])
 
-<div class="pull-right">
-    {!! Button::normal(trans('texts.import_ofx'))
-        ->asLinkTo(URL::to('/bank_accounts/import_ofx'))
-        ->appendIcon(Icon::create('open')) !!}
-    {!! Button::primary(trans('texts.add_bank_account'))
-        ->asLinkTo(URL::to('/bank_accounts/create'))
-        ->appendIcon(Icon::create('plus-sign')) !!}
-</div>
+@if (Auth::user()->hasFeature(FEATURE_EXPENSES))
+    <div class="pull-right">
+        {!! Button::normal(trans('texts.import_ofx'))
+            ->asLinkTo(URL::to('/bank_accounts/import_ofx'))
+            ->appendIcon(Icon::create('open')) !!}
+        {!! Button::primary(trans('texts.add_bank_account'))
+            ->asLinkTo(URL::to('/bank_accounts/create'))
+            ->appendIcon(Icon::create('plus-sign')) !!}
+    </div>
+@endif
 
 @include('partials.bulk_form', ['entityType' => ENTITY_BANK_ACCOUNT])
 

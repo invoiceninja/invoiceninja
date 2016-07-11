@@ -21,20 +21,6 @@ class Account extends Eloquent
     use SoftDeletes;
 
     /**
-     * @var array
-     */
-    public static $plan_prices = [
-        PLAN_PRO => [
-            PLAN_TERM_MONTHLY => PLAN_PRICE_PRO_MONTHLY,
-            PLAN_TERM_YEARLY => PLAN_PRICE_PRO_YEARLY,
-        ],
-        PLAN_ENTERPRISE => [
-            PLAN_TERM_MONTHLY => PLAN_PRICE_ENTERPRISE_MONTHLY,
-            PLAN_TERM_YEARLY => PLAN_PRICE_ENTERPRISE_YEARLY,
-        ],
-    ];
-
-    /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\AccountPresenter';
@@ -90,7 +76,6 @@ class Account extends Eloquent
         ACCOUNT_USER_DETAILS,
         ACCOUNT_LOCALIZATION,
         ACCOUNT_PAYMENTS,
-        ACCOUNT_BANKS,
         ACCOUNT_TAX_RATES,
         ACCOUNT_PRODUCTS,
         ACCOUNT_NOTIFICATIONS,
@@ -106,6 +91,7 @@ class Account extends Eloquent
         ACCOUNT_INVOICE_DESIGN,
         ACCOUNT_EMAIL_SETTINGS,
         ACCOUNT_TEMPLATES_AND_REMINDERS,
+        ACCOUNT_BANKS,
         ACCOUNT_CLIENT_PORTAL,
         ACCOUNT_CHARTS_AND_REPORTS,
         ACCOUNT_DATA_VISUALIZATIONS,
@@ -1189,6 +1175,10 @@ class Account extends Eloquent
             case FEATURE_CUSTOM_URL:
                 return $selfHost || !empty($planDetails);
 
+            case FEATURE_TASKS:
+            case FEATURE_EXPENSES:
+                return $selfHost || !empty($planDetails) || $planDetails['company_id'] < EXTRAS_GRANDFATHER_COMPANY_ID;
+
             // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
             case FEATURE_MORE_CLIENTS:
                 return $selfHost || !empty($planDetails) && (!$planDetails['trial'] || !empty($this->getPlanDetails(false, false)));
@@ -1272,6 +1262,7 @@ class Account extends Eloquent
         }
 
         $plan = $this->company->plan;
+        $price = $this->company->plan_price;
         $trial_plan = $this->company->trial_plan;
 
         if(!$plan && (!$trial_plan || !$include_trial)) {
@@ -1335,6 +1326,9 @@ class Account extends Eloquent
 
         if ($use_plan) {
             return [
+                'company_id' => $this->company->id,
+                'num_users' => $this->company->num_users,
+                'plan_price' => $price,
                 'trial' => false,
                 'plan' => $plan,
                 'started' => DateTime::createFromFormat('Y-m-d', $this->company->plan_started),
@@ -1345,6 +1339,9 @@ class Account extends Eloquent
             ];
         } else {
             return [
+                'company_id' => $this->company->id,
+                'num_users' => 1,
+                'plan_price' => 0,
                 'trial' => true,
                 'plan' => $trial_plan,
                 'started' => $trial_started,

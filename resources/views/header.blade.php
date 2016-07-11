@@ -303,6 +303,11 @@
         }
     });
 
+    /* Set the defaults for Bootstrap datepicker */
+    $.extend(true, $.fn.datepicker.defaults, {
+        weekStart: {{ Session::get('start_of_week') }}
+    });
+
     if (isStorageSupported()) {
       @if (Auth::check() && !Auth::user()->registered)
       localStorage.setItem('guest_key', '{{ Auth::user()->password }}');

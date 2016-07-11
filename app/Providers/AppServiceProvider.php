@@ -60,17 +60,17 @@ class AppServiceProvider extends ServiceProvider
 
             $items = [];
 
-            if($user->can('create', $type))$items[] = '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
+            if ($user->can('create', $type)) {
+                $items[] = '<li><a href="'.URL::to($types.'/create').'">'.trans("texts.new_$type").'</a></li>';
+            }
 
             if ($type == ENTITY_INVOICE) {
                 if(!empty($items))$items[] = '<li class="divider"></li>';
                 $items[] = '<li><a href="'.URL::to('recurring_invoices').'">'.trans('texts.recurring_invoices').'</a></li>';
                 if($user->can('create', ENTITY_INVOICE))$items[] = '<li><a href="'.URL::to('recurring_invoices/create').'">'.trans('texts.new_recurring_invoice').'</a></li>';
-                if ($user->hasFeature(FEATURE_QUOTES)) {
-                    $items[] = '<li class="divider"></li>';
-                    $items[] = '<li><a href="'.URL::to('quotes').'">'.trans('texts.quotes').'</a></li>';
-                    if($user->can('create', ENTITY_INVOICE))$items[] = '<li><a href="'.URL::to('quotes/create').'">'.trans('texts.new_quote').'</a></li>';
-                }
+                $items[] = '<li class="divider"></li>';
+                $items[] = '<li><a href="'.URL::to('quotes').'">'.trans('texts.quotes').'</a></li>';
+                if($user->can('create', ENTITY_QUOTE))$items[] = '<li><a href="'.URL::to('quotes/create').'">'.trans('texts.new_quote').'</a></li>';
             } else if ($type == ENTITY_CLIENT) {
                 if(!empty($items))$items[] = '<li class="divider"></li>';
                 $items[] = '<li><a href="'.URL::to('credits').'">'.trans('texts.credits').'</a></li>';

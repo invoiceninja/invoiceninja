@@ -41,10 +41,6 @@ class QuoteController extends BaseController
 
     public function index()
     {
-        if (!Utils::hasFeature(FEATURE_QUOTES)) {
-            return Redirect::to('/invoices/create');
-        }
-
         $data = [
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,

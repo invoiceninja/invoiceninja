@@ -214,7 +214,6 @@ Route::group([
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('start_trial/{plan}', 'AccountController@startTrial')
         ->where(['plan'=>'pro']);
-    Route::get('restore_user/{user_id}', 'UserController@restoreUser');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
@@ -245,7 +244,6 @@ Route::group([
 
     Route::post('user/setTheme', 'UserController@setTheme');
     Route::post('remove_logo', 'AccountController@removeLogo');
-    Route::post('account/go_pro', 'AccountController@enableProPlan');
 
     Route::post('/export', 'ExportController@doExport');
     Route::post('/import', 'ImportController@doImport');
@@ -466,7 +464,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_ARCHIVE_EXPENSE', 35);
     define('ACTIVITY_TYPE_DELETE_EXPENSE', 36);
     define('ACTIVITY_TYPE_RESTORE_EXPENSE', 37);
-    
+
     // tasks
     define('ACTIVITY_TYPE_CREATE_TASK', 42);
     define('ACTIVITY_TYPE_UPDATE_TASK', 43);
@@ -638,10 +636,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_DESIGNS_AFFILIATE_KEY', 'T3RS74');
     define('SELF_HOST_AFFILIATE_KEY', '8S69AD');
 
-    define('PLAN_PRICE_PRO_MONTHLY', env('PLAN_PRICE_PRO_MONTHLY', 5));
-    define('PLAN_PRICE_PRO_YEARLY', env('PLAN_PRICE_PRO_YEARLY', 50));
-    define('PLAN_PRICE_ENTERPRISE_MONTHLY', env('PLAN_PRICE_ENTERPRISE_MONTHLY', 10));
-    define('PLAN_PRICE_ENTERPRISE_YEARLY', env('PLAN_PRICE_ENTERPRISE_YEARLY', 100));
+    define('PLAN_PRICE_PRO_MONTHLY', env('PLAN_PRICE_PRO_MONTHLY', 12));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY_2', env('PLAN_PRICE_ENTERPRISE_MONTHLY_2', 18));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY_5', env('PLAN_PRICE_ENTERPRISE_MONTHLY_5', 26));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY_10', env('PLAN_PRICE_ENTERPRISE_MONTHLY_10', 38));
     define('WHITE_LABEL_PRICE', env('WHITE_LABEL_PRICE', 20));
     define('INVOICE_DESIGNS_PRICE', env('INVOICE_DESIGNS_PRICE', 10));
 
@@ -751,6 +749,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('FEATURE_PDF_ATTACHMENT', 'pdf_attachment');
     define('FEATURE_MORE_INVOICE_DESIGNS', 'more_invoice_designs');
     define('FEATURE_QUOTES', 'quotes');
+    define('FEATURE_TASKS', 'tasks');
+    define('FEATURE_EXPENSES', 'expenses');
     define('FEATURE_REPORTS', 'reports');
     define('FEATURE_API', 'api');
     define('FEATURE_CLIENT_PORTAL_PASSWORD', 'client_portal_password');
@@ -771,6 +771,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     // Pro users who started paying on or before this date will be able to manage users
     define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-06-04');
+    define('EXTRAS_GRANDFATHER_COMPANY_ID', 0);
 
     // WePay
     define('WEPAY_PRODUCTION', 'production');

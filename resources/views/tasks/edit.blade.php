@@ -38,7 +38,7 @@
         {!! Former::text('action') !!}
         {!! Former::text('time_log') !!}
     </div>
-    
+
     <div class="row">
         <div class="col-md-12">
 
@@ -51,10 +51,10 @@
             @if ($task)
 
                 <div class="form-group simple-time" id="editDetailsLink">
-                    <label for="simple-time" class="control-label col-lg-4 col-sm-4">  
+                    <label for="simple-time" class="control-label col-lg-4 col-sm-4">
                     </label>
                     <div class="col-lg-8 col-sm-8" style="padding-top: 10px">
-                        <p>{{ $task->getStartTime() }} - 
+                        <p>{{ $task->getStartTime() }} -
                         @if (Auth::user()->account->timezone_id)
                             {{ $timezone }}
                         @else
@@ -73,7 +73,7 @@
                 </div>
 
                 @if ($task->is_running)
-                    <center>                    
+                    <center>
                         <div id="duration-text" style="font-size: 36px; font-weight: 300; padding: 30px 0 20px 0"/>
                     </center>
                 @endif
@@ -96,20 +96,20 @@
                         <tr data-bind="event: { mouseover: showActions, mouseout: hideActions }">
                             <td style="padding: 0px 12px 12px 0 !important">
                                 <div data-bind="css: { 'has-error': !isStartValid() }">
-                                    <input type="text" data-bind="dateTimePicker: startTime.pretty, event:{ change: $root.refresh }" 
+                                    <input type="text" data-bind="dateTimePicker: startTime.pretty, event:{ change: $root.refresh }"
                                         class="form-control time-input" placeholder="{{ trans('texts.start_time') }}"/>
                                 </div>
                             </td>
                             <td style="padding: 0px 12px 12px 0 !important">
                                 <div data-bind="css: { 'has-error': !isEndValid() }">
-                                    <input type="text" data-bind="dateTimePicker: endTime.pretty, event:{ change: $root.refresh }" 
+                                    <input type="text" data-bind="dateTimePicker: endTime.pretty, event:{ change: $root.refresh }"
                                         class="form-control time-input" placeholder="{{ trans('texts.end_time') }}"/>
                                 </div>
                             </td>
-                            <td style="width:100px">                                
+                            <td style="width:100px">
                                 <div data-bind="text: duration.pretty, visible: !isEmpty()"></div>
                                 <a href="#" data-bind="click: function() { setNow(), $root.refresh() }, visible: isEmpty()">{{ trans('texts.set_now') }}</a>
-                            </td>                            
+                            </td>
                             <td style="width:30px" class="td-icon">
                                 <i style="width:12px;cursor:pointer" data-bind="click: $root.removeItem, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle redlink" title="Remove item"/>
                             </td>
@@ -122,30 +122,34 @@
             </div>
             </div>
 
-        </div>        
+        </div>
     </div>
 
 
     <center class="buttons">
-        @if ($task && $task->is_running)
-            {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}            
-            {!! Button::primary(trans('texts.stop'))->large()->appendIcon(Icon::create('stop'))->withAttributes(['id' => 'stop-button']) !!}            
-        @elseif ($task && $task->trashed())
-            {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
-            {!! Button::success(trans('texts.restore'))->large()->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+        @if (Auth::user()->hasFeature(FEATURE_TASKS))
+            @if ($task && $task->is_running)
+                {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
+                {!! Button::primary(trans('texts.stop'))->large()->appendIcon(Icon::create('stop'))->withAttributes(['id' => 'stop-button']) !!}
+            @elseif ($task && $task->trashed())
+                {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+                {!! Button::success(trans('texts.restore'))->large()->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+            @else
+                {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+                @if ($task)
+                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
+                    {!! Button::primary(trans('texts.resume'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'resume-button']) !!}
+                    {!! DropdownButton::normal(trans('texts.more_actions'))
+                          ->withContents($actions)
+                          ->large()
+                          ->dropup() !!}
+                @else
+                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
+                    {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
+                @endif
+            @endif
         @else
             {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
-            @if ($task)
-                {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
-                {!! Button::primary(trans('texts.resume'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'resume-button']) !!}
-                {!! DropdownButton::normal(trans('texts.more_actions'))
-                      ->withContents($actions)
-                      ->large()
-                      ->dropup() !!}
-            @else
-                {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
-                {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
-            @endif
         @endif
     </center>
 
@@ -199,7 +203,7 @@
         timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
         timeLabels['{{ $period }}s'] = '{{ trans("texts.{$period}s") }}';
     @endforeach
-    
+
     function tock(duration) {
         var str = convertDurationToString(duration);
         $('#duration-text').html(str);
@@ -217,7 +221,7 @@
         for (var i=0; i<periods.length; i++) {
             var period = periods[i];
             var letter = period.charAt(0);
-            var value = parts[letter];            
+            var value = parts[letter];
             if (!value) {
                 continue;
             }
@@ -244,9 +248,9 @@
     }
 
     function onDeleteClick() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {       
-            submitAction('delete');     
-        }       
+        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+            submitAction('delete');
+        }
     }
 
     function showTimeDetails() {
@@ -277,9 +281,9 @@
         });
 
         self.startTime.pretty = ko.computed({
-            read: function() {                
-                return self.startTime() ? moment.unix(self.startTime()).tz(timezone).format(dateTimeFormat) : '';    
-            }, 
+            read: function() {
+                return self.startTime() ? moment.unix(self.startTime()).tz(timezone).format(dateTimeFormat) : '';
+            },
             write: function(data) {
                 self.startTime(moment(data, dateTimeFormat).tz(timezone).unix());
             }
@@ -288,7 +292,7 @@
         self.endTime.pretty = ko.computed({
             read: function() {
                 return self.endTime() ? moment.unix(self.endTime()).tz(timezone).format(dateTimeFormat) : '';
-            }, 
+            },
             write: function(data) {
                 self.endTime(moment(data, dateTimeFormat).tz(timezone).unix());
             }
@@ -316,7 +320,7 @@
         self.isEmpty = function() {
             return false;
         };
-        */        
+        */
 
         self.hideActions = function() {
             self.actionsVisible(false);
@@ -324,7 +328,7 @@
 
         self.showActions = function() {
             self.actionsVisible(true);
-        };       
+        };
     }
 
     function loadTimeLog(data) {
@@ -385,7 +389,7 @@
                     if (timeLog.endTime() < Math.min(timeLog.startTime(), lastTime)) {
                         endValid = false;
                     }
-                    lastTime = Math.max(lastTime, timeLog.endTime());                    
+                    lastTime = Math.max(lastTime, timeLog.endTime());
                 }
                 timeLog.isStartValid(startValid);
                 timeLog.isEndValid(endValid);
@@ -394,25 +398,25 @@
 
         self.addItem = function() {
             self.time_log.push(new TimeModel());
-        }            
+        }
     }
 
     window.model = new ViewModel({!! $task !!});
     ko.applyBindings(model);
 
     $(function() {
-        var $clientSelect = $('select#client');     
+        var $clientSelect = $('select#client');
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
             $clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
-        }   
+        }
 
         if ({{ $clientPublicId ? 'true' : 'false' }}) {
             $clientSelect.val({{ $clientPublicId }});
         }
 
         $clientSelect.combobox();
-     
+
         @if (!$task && !$clientPublicId)
             $('.client-select input.form-control').focus();
         @else
@@ -466,7 +470,7 @@
             model.showTimeOverlaps();
             showTimeDetails();
         @endif
-    });    
+    });
 
     </script>
 

@@ -228,22 +228,25 @@ class AccountRepository
         return $data;
     }
 
-    public function enablePlan($plan = PLAN_PRO, $term = PLAN_TERM_MONTHLY, $credit = 0, $pending_monthly = false)
+    public function enablePlan($plan, $credit = 0, $pending_monthly = false)
     {
         $account = Auth::user()->account;
         $client = $this->getNinjaClient($account);
-        $invitation = $this->createNinjaInvoice($client, $account, $plan, $term, $credit, $pending_monthly);
+        $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit, $pending_monthly);
 
         return $invitation;
     }
 
-    public function createNinjaInvoice($client, $clientAccount, $plan = PLAN_PRO, $term = PLAN_TERM_MONTHLY, $credit = 0, $pending_monthly = false)
+    public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0, $pending_monthly = false)
     {
+        $term = $plan['term'];
+        $plan_cost = $plan['price'];
+        $num_users = $plan['num_users'];
+        $plan = $plan['plan'];
+
         if ($credit < 0) {
             $credit = 0;
         }
-
-        $plan_cost = Account::$plan_prices[$plan][$term];
 
         $account = $this->getNinjaAccount();
         $lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
@@ -271,6 +274,11 @@ class AccountRepository
         $item->qty = 1;
         $item->cost = $plan_cost;
         $item->notes = trans("texts.{$plan}_plan_{$term}_description");
+
+        if ($plan == PLAN_ENTERPRISE) {
+            $min = Utils::getMinNumUsers($num_users);
+            $item->notes .= "\n\n###" . trans('texts.min_to_max_users', ['min' => $min, 'max' => $num_users]);
+        }
 
         // Don't change this without updating the regex in PaymentService->createPayment()
         $item->product_key = 'Plan - '.ucfirst($plan).' ('.ucfirst($term).')';

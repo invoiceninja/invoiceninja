@@ -576,6 +576,12 @@ class BasePaymentDriver
                 if (1 == preg_match('/^Plan - (.+) \((.+)\)$/', $invoice_item->product_key, $matches)) {
                     $plan = strtolower($matches[1]);
                     $term = strtolower($matches[2]);
+                    if ($plan == PLAN_ENTERPRISE) {
+                        preg_match('/###[\d] [\w]* (\d*)/', $invoice_item->notes, $matches);
+                        $numUsers = $matches[1];
+                    } else {
+                        $numUsers = 1;
+                    }
                 } elseif ($invoice_item->product_key == 'Pending Monthly') {
                     $pending_monthly = true;
                 }
@@ -607,6 +613,8 @@ class BasePaymentDriver
                 $account->company->payment_id = $payment->id;
                 $account->company->plan = $plan;
                 $account->company->plan_term = $term;
+                $account->company->plan_price = $payment->amount;
+                $account->company->num_users = $numUsers;
                 $account->company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
                     ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
 
