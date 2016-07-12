@@ -2,10 +2,8 @@
 
 use DB;
 use Cache;
-use App\Ninja\Repositories\BaseRepository;
 use App\Models\Client;
 use App\Models\Contact;
-use App\Models\Activity;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasUpdated;
 
@@ -25,7 +23,7 @@ class ClientRepository extends BaseRepository
                 ->get();
     }
 
-    public function find($filter = null)
+    public function find($filter = null, $userId = false)
     {
         $query = DB::table('clients')
                     ->join('accounts', 'accounts.id', '=', 'clients.account_id')
@@ -63,9 +61,13 @@ class ClientRepository extends BaseRepository
             });
         }
 
+        if ($userId) {
+            $query->where('clients.user_id', '=', $userId);
+        }
+
         return $query;
     }
-    
+
     public function save($data, $client = null)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
@@ -78,7 +80,7 @@ class ClientRepository extends BaseRepository
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
             \Log::warning('Entity not set in client repo save');
         }
-        
+
         // convert currency code to id
         if (isset($data['currency_code'])) {
             $currencyCode = strtolower($data['currency_code']);
@@ -98,7 +100,7 @@ class ClientRepository extends BaseRepository
             return $client;
         }
         */
-        
+
         $first = true;
         $contacts = isset($data['contact']) ? [$data['contact']] : $data['contacts'];
         $contactIds = [];
@@ -107,16 +109,18 @@ class ClientRepository extends BaseRepository
         usort($contacts, function ($left, $right) {
             return (isset($right['is_primary']) ? $right['is_primary'] : 1) - (isset($left['is_primary']) ? $left['is_primary'] : 0);
         });
-        
+
         foreach ($contacts as $contact) {
             $contact = $client->addContact($contact, $first);
             $contactIds[] = $contact->public_id;
             $first = false;
         }
 
-        foreach ($client->contacts as $contact) {
-            if (!in_array($contact->public_id, $contactIds)) {
-                $contact->delete();
+        if ( ! $client->wasRecentlyCreated) {
+            foreach ($client->contacts as $contact) {
+                if (!in_array($contact->public_id, $contactIds)) {
+                    $contact->delete();
+                }
             }
         }
 

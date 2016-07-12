@@ -2,10 +2,20 @@
 
 use Eloquent;
 
+/**
+ * Class UserAccount
+ */
 class UserAccount extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 
+    /**
+     * @param $userId
+     * @return bool
+     */
     public function hasUserId($userId)
     {
         if (!$userId) {
@@ -21,6 +31,9 @@ class UserAccount extends Eloquent
         return false;
     }
 
+    /**
+     * @param $userId
+     */
     public function setUserId($userId)
     {
         if (self::hasUserId($userId)) {
@@ -36,6 +49,9 @@ class UserAccount extends Eloquent
         }
     }
 
+    /**
+     * @param $userId
+     */
     public function removeUserId($userId)
     {
         if (!$userId || !self::hasUserId($userId)) {

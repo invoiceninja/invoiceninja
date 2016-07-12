@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 $I = new AcceptanceTester($scenario);
 $I->checkIfLogin($I);
@@ -55,8 +55,8 @@ $I->see('Create');
 $I->amOnPage('/settings/company_details');
 $I->see('Details');
 
-$I->amOnPage('/gateways/create');
-$I->see('Add Gateway');
+//$I->amOnPage('/gateways/create');
+//$I->see('Add Gateway');
 
 $I->amOnPage('/settings/products');
 $I->see('Product Settings');
@@ -75,9 +75,6 @@ $I->see('Invoice Email');
 
 $I->amOnPage('/settings/charts_and_reports');
 $I->see('Data Visualizations');
-
-$I->amOnPage('/settings/user_management');
-$I->see('Add User');
 
 //try to logout
 //$I->click('#myAccountButton');

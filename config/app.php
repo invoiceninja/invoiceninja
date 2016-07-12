@@ -82,9 +82,9 @@ return [
     |
     */
 
-    'key' => env('APP_KEY', ''),
+    'key' => env('APP_KEY', 'SomeRandomString'),
 
-    'cipher' => env('APP_CIPHER', MCRYPT_RIJNDAEL_128),
+    'cipher' => env('APP_CIPHER', 'AES-256-CBC'),
 
     /*
     |--------------------------------------------------------------------------
@@ -160,7 +160,7 @@ return [
          */
         'App\Providers\AuthServiceProvider',
         'App\Providers\AppServiceProvider',
-        //'App\Providers\BusServiceProvider',
+        'App\Providers\ComposerServiceProvider',
         'App\Providers\ConfigServiceProvider',
         'App\Providers\EventServiceProvider',
         'App\Providers\RouteServiceProvider',

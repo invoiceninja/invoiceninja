@@ -39,7 +39,9 @@
                 </div>
 
                 @if ($gatewayLink)
-                    {!! Button::normal(trans('texts.view_in_stripe'))->asLinkTo($gatewayLink)->withAttributes(['target' => '_blank']) !!}
+                    {!! Button::normal(trans('texts.view_in_gateway', ['gateway'=>$gatewayName]))
+                            ->asLinkTo($gatewayLink)
+                            ->withAttributes(['target' => '_blank']) !!}
                 @endif
 
                 @if ($client->trashed())
@@ -115,13 +117,13 @@
             @if ($client->private_notes)
                 <p><i>{{ $client->private_notes }}</i></p>
             @endif
-		  	
+
   	        @if ($client->client_industry)
                 {{ $client->client_industry->name }}<br/>
             @endif
             @if ($client->client_size)
                 {{ $client->client_size->name }}<br/>
-            @endif            
+            @endif
 
 		  	@if ($client->website)
 		  	   <p>{!! Utils::formatWebsite($client->website) !!}</p>
@@ -145,7 +147,10 @@
                 @endif
                 @if ($contact->phone)
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
-                @endif		  		
+                @endif
+                @if ($client->account->enable_client_portal)
+                    <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}" target="_blank">{{ trans('texts.view_client_portal') }}</a><br/>
+                @endif
 		  	@endforeach
 		</div>
 
@@ -290,8 +295,10 @@
 			    			trans('texts.invoice'),
 			    			trans('texts.transaction_reference'),
 			    			trans('texts.method'),
+                            trans('texts.source'),
 			    			trans('texts.payment_amount'),
-			    			trans('texts.payment_date'))
+			    			trans('texts.payment_date'),
+                            trans('texts.status'))
 				->setUrl(url('api/payments/' . $client->public_id))
                 ->setCustomValues('entityType', 'payments')
 				->setOptions('sPaginationType', 'bootstrap')
@@ -380,14 +387,14 @@
 
             var map = new google.maps.Map(mapCanvas, mapOptions)
             var address = "{{ "{$client->address1} {$client->address2} {$client->city} {$client->state} {$client->postal_code} " . ($client->country ? $client->country->name : '') }}";
-            
+
             geocoder = new google.maps.Geocoder();
             geocoder.geocode( { 'address': address}, function(results, status) {
                 if (status == google.maps.GeocoderStatus.OK) {
                   if (status != google.maps.GeocoderStatus.ZERO_RESULTS) {
                     var result = results[0];
                     map.setCenter(result.geometry.location);
-                    
+
                     var infowindow = new google.maps.InfoWindow(
                         { content: '<b>'+result.formatted_address+'</b>',
                         size: new google.maps.Size(150, 50)
@@ -395,9 +402,9 @@
 
                     var marker = new google.maps.Marker({
                         position: result.geometry.location,
-                        map: map, 
+                        map: map,
                         title:address,
-                    }); 
+                    });
                     google.maps.event.addListener(marker, 'click', function() {
                         infowindow.open(map, marker);
                     });

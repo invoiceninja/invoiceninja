@@ -18,7 +18,7 @@
             font-weight: normal !important;
         }
 
-        select.xtax-select {
+        select.tax-select {
             width: 50%;
             float: left;
         }
@@ -164,12 +164,33 @@
                         ->label(trans("texts.{$entityType}_number_short"))
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
+            @if($account->getTokenGatewayId())
             <span data-bind="visible: is_recurring()" style="display: none">
-            {!! Former::checkbox('auto_bill')
-                        ->label(trans('texts.auto_bill'))
-                        ->text(trans('texts.enable_with_stripe'))
-                        ->data_bind("checked: auto_bill, valueUpdate: 'afterkeydown'") !!}
+                <div data-bind="visible: !(auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()) &amp;&amp; !(auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill())" style="display: none">
+                {!! Former::select('auto_bill')
+                        ->data_bind("value: auto_bill, valueUpdate: 'afterkeydown', event:{change:function(){if(auto_bill()==".AUTO_BILL_OPT_IN.")client_enable_auto_bill(0);if(auto_bill()==".AUTO_BILL_OPT_OUT.")client_enable_auto_bill(1)}}")
+                        ->options([
+                            AUTO_BILL_OFF => trans('texts.off'),
+                            AUTO_BILL_OPT_IN => trans('texts.opt_in'),
+                            AUTO_BILL_OPT_OUT => trans('texts.opt_out'),
+                            AUTO_BILL_ALWAYS => trans('texts.always'),
+                        ]) !!}
+                </div>
+                <input type="hidden" name="client_enable_auto_bill" data-bind="attr: { value: client_enable_auto_bill() }" />
+                <div class="form-group" data-bind="visible: auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()">
+                    <div class="col-sm-4 control-label">{{trans('texts.auto_bill')}}</div>
+                    <div class="col-sm-8" style="padding-top:10px;padding-bottom:9px">
+                        {{trans('texts.opted_in')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(false)}">({{trans('texts.disable')}})</a>
+                    </div>
+                </div>
+                <div class="form-group" data-bind="visible: auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill()">
+                    <div class="col-sm-4 control-label">{{trans('texts.auto_bill')}}</div>
+                    <div class="col-sm-8" style="padding-top:10px;padding-bottom:9px">
+                        {{trans('texts.opted_out')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(true)}">({{trans('texts.enable')}})</a>
+                    </div>
+                </div>
             </span>
+            @endif
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
@@ -222,7 +243,7 @@
                 @endif
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
 				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
-				<th style="min-width:120px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
+				<th style="min-width:{{ $account->enable_second_tax_rate ? 180 : 120 }}px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>
 			</tr>
@@ -235,7 +256,7 @@
 				</td>
 				<td>
                     <div id="scrollable-dropdown-menu">
-                        <input id="product_key" type="text" data-bind="typeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
+                        <input id="product_key" type="text" data-bind="productTypeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
                     </div>
 				</td>
 				<td>
@@ -267,20 +288,20 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->data_bind('value: tax1')
-                            ->addClass('tax-select')
+                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
                             ->raw() !!}
                     <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
-                    <div style="display:none">
+                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
                         {!! Former::select('')
                                 ->addOption('', '')
                                 ->options($taxRateOptions)
                                 ->data_bind('value: tax2')
                                 ->addClass('tax-select')
                                 ->raw() !!}
-                        <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
-                        <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
                     </div>
+                    <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
+                    <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
 				</td>
 				<td style="text-align:right;padding-top:9px !important" nowrap>
 					<div class="line-total" data-bind="text: totals.total"></div>
@@ -348,15 +369,8 @@
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                             <div id="document-upload">
                                 <div class="dropzone">
-                                    <div class="fallback">
-                                        <input name="documents[]" type="file" multiple />
-                                    </div>
                                     <div data-bind="foreach: documents">
-                                        <div class="fallback-doc">
-                                            <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
-                                            <span data-bind="text:name"></span>
-                                            <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
-                                        </div>
+                                        <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                                     </div>
                                 </div>
                                 @if ($invoice->hasExpenseDocuments())
@@ -424,21 +438,21 @@
                             ->id('taxRateSelect1')
                             ->addOption('', '')
                             ->options($taxRateOptions)
-                            ->addClass('tax-select')
+                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
                             ->data_bind('value: tax1')
                             ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
-                    <div style="display:none">
-                        {!! Former::select('')
-                                ->addOption('', '')
-                                ->options($taxRateOptions)
-                                ->addClass('tax-select')
-                                ->data_bind('value: tax2')
-                                ->raw() !!}
-                        <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
-                        <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
+                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
+                    {!! Former::select('')
+                            ->addOption('', '')
+                            ->options($taxRateOptions)
+                            ->addClass('tax-select')
+                            ->data_bind('value: tax2')
+                            ->raw() !!}
                     </div>
+                    <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
+                    <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
                 </td>
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 			</tr>
@@ -515,7 +529,11 @@
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}
+        @if ( $invoice->exists && $invoice->id && ! $invoice->is_recurring)
+		    {!! Button::primary(trans('texts.download_pdf'))
+                    ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
+                    ->appendIcon(Icon::create('download-alt')) !!}
+        @endif
 
         @if ($invoice->isClientTrashed())
             <!-- do nothing -->
@@ -538,7 +556,7 @@
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
-			{!! trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan(\'remove_logo\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) !!}
+			{!! trans('texts.pro_plan_remove_logo', ['link'=>link_to('/settings/account_management?upgrade=true', trans('texts.pro_plan_remove_logo_link'))]) !!}
 		</div>
 	@endif
 
@@ -795,6 +813,7 @@
             var invoice = {!! $invoice !!};
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
+            model.invoice().start_date_orig(model.invoice().start_date());
 
             @if ($invoice->id)
                 var invitationContactIds = {!! json_encode($invitationContactIds) !!};
@@ -843,10 +862,15 @@
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];
                     var item = model.invoice().addItem();
+                    item.product_key(expense.expense_category ? expense.expense_category.name() : '');
                     item.notes(expense.public_notes());
                     item.qty(1);
                     item.expense_public_id(expense.public_id());
 					item.cost(expense.converted_amount());
+                    item.tax_rate1(expense.tax_rate1());
+                    item.tax_name1(expense.tax_name1());
+                    item.tax_rate2(expense.tax_rate2());
+                    item.tax_name2(expense.tax_name2());
                 }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_expenses(true);
@@ -911,6 +935,7 @@
 		}
 
 		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #start_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2').change(function() {
+            $('#downloadPdfButton').attr('disabled', true);
 			setTimeout(function() {
 				refreshPDF(true);
 			}, 1);
@@ -995,15 +1020,15 @@
             }
 
             window.dropzone = new Dropzone('#document-upload .dropzone', {
-                url:{!! json_encode(url('document')) !!},
+                url:{!! json_encode(url('documents')) !!},
                 params:{
                     _token:"{{ Session::getToken() }}"
                 },
                 acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
                 addRemoveLinks:true,
                 dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
-                @foreach(trans('texts.dropzone') as $key=>$text)
-    	            "dict{{strval($key)}}":"{{strval($text)}}",
+                @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
+                    "dict{{Utils::toClassCase($key)}}":"{{trans('texts.dropzone_'.$key)}}",
                 @endforeach
                 maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
             });
@@ -1066,6 +1091,7 @@
             if ($(event.target).hasClass('handled')) {
                 return;
             }
+            $('#downloadPdfButton').attr('disabled', true);
             onItemChange();
             refreshPDF(true);
 		});
@@ -1185,22 +1211,50 @@
         if (!isEmailValid()) {
             alert("{!! trans('texts.provide_email') !!}");
             return;
-        }
+8        }
 
 		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
-			preparePdfData('email');
+            var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
+            var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
+            var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
+
+            // if they aren't attaching the pdf no need to generate it
+            if ( ! attachPDF) {
+                submitAction('email');
+            // if the client's language is different then we can't use the browser version of the PDF
+            } else if (clientLanguageId && clientLanguageId != accountLanguageId) {
+                submitAction('email');
+            } else {
+                preparePdfData('email');
+            }
 		}
 	}
 
 	function onSaveClick() {
-		if (model.invoice().is_recurring() && {{ $invoice ? 'false' : 'true' }}) {
-			if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
-				submitAction('');
-			}
-		} else {
-            submitAction('');
-		}
-	}
+        @if(!empty($autoBillChangeWarning))
+        if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+        @endif
+
+		if (model.invoice().is_recurring()) {
+            // warn invoice will be emailed when saving new recurring invoice
+            if ({{ $invoice->exists ? 'false' : 'true' }}) {
+                if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
+                    submitAction('');
+                }
+                return;
+            // warn invoice will be emailed again if start date is changed
+            } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
+                if (confirm("{!! trans("texts.warn_start_date_changed") !!}" + '\n\n'
+                    + "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
+                    + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date())) {
+                        submitAction('');
+                }
+                return;
+            }
+        }
+
+        submitAction('');
+    }
 
     function getSendToEmails() {
         var client = model.invoice().client();
@@ -1235,6 +1289,7 @@
 
     function onFormSubmit(event) {
         if (window.countUploadingDocuments > 0) {
+            alert("{!! trans('texts.wait_for_upload') !!}");
             return false;
         }
 
@@ -1309,6 +1364,10 @@
 
     @if ($invoice->id)
     	function onPaymentClick() {
+            @if(!empty($autoBillChangeWarning))
+            if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+            @endif
+
     		window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
     	}
 
@@ -1436,9 +1495,9 @@
     }
 
     function handleDocumentUploaded(file, response){
+        window.countUploadingDocuments--;
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
-        window.countUploadingDocuments--;
         @if ($account->invoice_embed_documents)
             refreshPDF(true);
         @endif

@@ -1,24 +1,27 @@
 <?php namespace App\Listeners;
 
-use Utils;
 use Auth;
 use Carbon;
 use Session;
 use App\Events\UserLoggedIn;
 use App\Events\UserSignedUp;
 use App\Ninja\Repositories\AccountRepository;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldBeQueued;
 
+/**
+ * Class HandleUserLoggedIn
+ */
 class HandleUserLoggedIn {
 
+    /**
+     * @var AccountRepository
+     */
     protected $accountRepo;
 
-	/**
-	 * Create the event handler.
-	 *
-	 * @return void
-	 */
+    /**
+     * Create the event handler.
+     * 
+     * @param AccountRepository $accountRepo
+     */
 	public function __construct(AccountRepository $accountRepo)
 	{
         $this->accountRepo = $accountRepo;
@@ -28,6 +31,7 @@ class HandleUserLoggedIn {
 	 * Handle the event.
 	 *
 	 * @param  UserLoggedIn  $event
+     *
 	 * @return void
 	 */
 	public function handle(UserLoggedIn $event)
@@ -54,5 +58,4 @@ class HandleUserLoggedIn {
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 	}
-
 }

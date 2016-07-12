@@ -1,17 +1,11 @@
 <?php namespace App\Http\Controllers;
 
 use App\Ninja\Mailers\ContactMailer;
-use Auth;
-use Illuminate\Http\Request;
 use Input;
-use Utils;
 use Response;
 use App\Models\Payment;
 use App\Models\Invoice;
 use App\Ninja\Repositories\PaymentRepository;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\PaymentTransformer;
-use App\Ninja\Transformers\InvoiceTransformer;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Http\Requests\CreatePaymentAPIRequest;
 

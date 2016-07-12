@@ -2,7 +2,13 @@
 
 use Eloquent;
 
+/**
+ * Class Font
+ */
 class Font extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = false;
 }

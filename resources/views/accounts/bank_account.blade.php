@@ -2,7 +2,7 @@
 
 @section('head')
     @parent
-    
+
     @include('money_script')
 
     <style type="text/css">
@@ -37,7 +37,7 @@
                             ->data_bind('combobox: bank_id')
                             ->addOption('', '')
                             ->fromQuery($banks, 'name', 'id')
-                            ->blockHelp('texts.bank_accounts_help')  !!}
+                            ->blockHelp(trans('texts.bank_accounts_help', ['link' => OFX_HOME_URL]))  !!}
                 @endif
 
                 {!! Former::password('bank_username')
@@ -70,7 +70,7 @@
                         <td data-bind="text: masked_account_number"></td>
                         <td data-bind="text: balance"></td>
                         <td style="text-align:center">
-                            <input type="checkbox" value="1" 
+                            <input type="checkbox" value="1"
                                 data-bind="checked: includeAccount, attr: {name: 'bank_accounts[' + $index() + '][include]'}"/>
                         </td>
                     </tr>
@@ -110,19 +110,19 @@
                     <tbody data-bind="foreach: filteredTransactions">
                         <tr>
                             <td style="text-align:center">
-                                <input type="checkbox" value="1" 
+                                <input type="checkbox" value="1"
                                     data-bind="checked: includeTransaction, attr: {name: 'bank_accounts[' + $index() + '][include]'}"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" 
+                                <input type="text" class="form-control"
                                     data-bind="value: vendor.pretty, valueUpdate: 'afterkeydown'"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" 
+                                <input type="text" class="form-control"
                                     data-bind="value: info, valueUpdate: 'afterkeydown'"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" 
+                                <input type="text" class="form-control"
                                     data-bind="value: memo, valueUpdate: 'afterkeydown'"/>
                             </td>
                             <td data-bind="text: date" nowrap></td>
@@ -161,39 +161,41 @@
 
     <p/>&nbsp;<p/>
 
-    {!! Former::actions(
-        count(Cache::get('banks')) > 0 ? 
-            Button::normal(trans('texts.cancel'))
+    @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
+        {!! Former::actions(
+            count(Cache::get('banks')) > 0 ?
+                Button::normal(trans('texts.cancel'))
+                    ->withAttributes([
+                        'data-bind' => 'visible: !importResults()',
+                    ])
+                    ->large()
+                    ->asLinkTo(URL::to('/settings/bank_accounts'))
+                    ->appendIcon(Icon::create('remove-circle')) : false,
+            Button::success(trans('texts.validate'))
                 ->withAttributes([
-                    'data-bind' => 'visible: !importResults()',
+                    'data-bind' => 'css: {disabled: disableValidate}, visible: page() == "login"',
+                    'onclick' => 'validate()'
                 ])
                 ->large()
-                ->asLinkTo(URL::to('/settings/bank_accounts'))
-                ->appendIcon(Icon::create('remove-circle')) : false,
-        Button::success(trans('texts.validate'))
-            ->withAttributes([
-                'data-bind' => 'css: {disabled: disableValidate}, visible: page() == "login"',
-                'onclick' => 'validate()'
-            ])
-            ->large()
-            ->appendIcon(Icon::create('lock')),
-        Button::success(trans('texts.save'))
-            ->withAttributes([
-                'data-bind' => 'css: {disabled: disableSave}, visible: page() == "setup"',
-                'style' => 'display:none',
-                'onclick' => 'save()'
-            ])
-            ->large()
-            ->appendIcon(Icon::create('floppy-disk'))   ,
-        Button::success(trans('texts.import'))
-            ->withAttributes([
-                'data-bind' => 'css: {disabled: disableSaveExpenses}, visible: page() == "import"',
-                'style' => 'display:none',
-                'onclick' => 'saveExpenses()'
-            ])
-            ->large()
-            ->appendIcon(Icon::create('floppy-disk'))) !!}
-
+                ->appendIcon(Icon::create('lock')),
+            Button::success(trans('texts.save'))
+                ->withAttributes([
+                    'data-bind' => 'css: {disabled: disableSave}, visible: page() == "setup"',
+                    'style' => 'display:none',
+                    'onclick' => 'save()'
+                ])
+                ->large()
+                ->appendIcon(Icon::create('floppy-disk'))   ,
+            Button::success(trans('texts.import'))
+                ->withAttributes([
+                    'data-bind' => 'css: {disabled: disableSaveExpenses}, visible: page() == "import"',
+                    'style' => 'display:none',
+                    'onclick' => 'saveExpenses()'
+                ])
+                ->large()
+                ->appendIcon(Icon::create('floppy-disk'))) !!}
+    @endif
+    
     {!! Former::close() !!}
 
     <script type="text/javascript">
@@ -308,9 +310,9 @@
                         }
                     }
                 }
-                
+
             },
-            owner: self            
+            owner: self
         })
 
         self.amount.pretty = ko.computed({
@@ -351,7 +353,7 @@
 
         self.filteredTransactions = ko.computed(function() {
             if (!model.filter()) {
-                return self.transactions(); 
+                return self.transactions();
             } else {
                 return ko.utils.arrayFilter(self.transactions(), function(transaction) {
                     return transaction.isMatch(model.filter());
@@ -478,11 +480,16 @@
             return self.countExpenses() == 0;
         }, self);
     };
-     
+
     window.model = new ViewModel();
     ko.applyBindings(model);
 
+    @if (!empty($transactions))
+        loadTransactions({!! $transactions !!});
+        model.setPage('import');
+    @endif
+
     </script>
 
-    
+
 @stop

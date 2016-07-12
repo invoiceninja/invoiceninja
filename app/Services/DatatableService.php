@@ -1,27 +1,36 @@
 <?php namespace App\Services;
 
-use HtmlString;
 use Utils;
 use Datatable;
 use Auth;
+use App\Ninja\Datatables\EntityDatatable;
+use Chumper\Datatable\Table;
 
+/**
+ * Class DatatableService
+ */
 class DatatableService
 {
-    public function createDatatable($entityType, $query, $columns, $actions = null, $showCheckbox = true)
+    /**
+     * @param EntityDatatable $datatable
+     * @param $query
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
+    public function createDatatable(EntityDatatable $datatable, $query)
     {
         $table = Datatable::query($query);
-        $orderColumns = [];
 
-        if ($actions && $showCheckbox) {
+        if ($datatable->isBulkEdit) {
             $table->addColumn('checkbox', function ($model) {
                 $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
-                
+
                 return !$can_edit?'':'<input type="checkbox" name="ids[]" value="' . $model->public_id
                         . '" ' . Utils::getEntityRowClass($model) . '>';
             });
         }
 
-        foreach ($columns as $column) {
+        foreach ($datatable->columns() as $column) {
             // set visible to true by default
             if (count($column) == 2) {
                 $column[] = true;
@@ -35,21 +44,25 @@ class DatatableService
             }
         }
 
-        if ($actions) {
-            $this->createDropdown($entityType, $table, $actions);
+        if (count($datatable->actions())) {
+            $this->createDropdown($datatable, $table);
         }
 
         return $table->orderColumns($orderColumns)->make();
     }
 
-    private function createDropdown($entityType, $table, $actions)
+    /**
+     * @param EntityDatatable $datatable
+     * @param Table $table
+     */
+    private function createDropdown(EntityDatatable $datatable, $table)
     {
-        $table->addColumn('dropdown', function ($model) use ($entityType, $actions) {
+        $table->addColumn('dropdown', function ($model) use ($datatable) {
             $hasAction = false;
             $str = '<center style="min-width:100px">';
 
             $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
-            
+
             if (property_exists($model, 'is_deleted') && $model->is_deleted) {
                 $str .= '<button type="button" class="btn btn-sm btn-danger tr-status">'.trans('texts.deleted').'</button>';
             } elseif ($model->deleted_at && $model->deleted_at !== '0000-00-00') {
@@ -58,15 +71,11 @@ class DatatableService
                 $str .= '<div class="tr-status"></div>';
             }
 
-            $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
-                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
-                        '.trans('texts.select').' <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu">';
+            $dropdown_contents = '';
 
             $lastIsDivider = false;
             if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
-                foreach ($actions as $action) {
+                foreach ($datatable->actions() as $action) {
                     if (count($action)) {
                         if (count($action) == 2) {
                             $action[] = function() {
@@ -76,17 +85,24 @@ class DatatableService
                         list($value, $url, $visible) = $action;
                         if ($visible($model)) {
                             if($value == '--divider--'){
-                                $str .= "<li class=\"divider\"></li>";
+                                $dropdown_contents .= '<li class="divider"></li>';
                                 $lastIsDivider = true;
                             }
                             else {
-                                $str .= "<li><a href=\"{$url($model)}\">{$value}</a></li>";
+                                $urlVal = $url($model);
+                                $urlStr = is_string($urlVal) ? $urlVal : $urlVal['url'];
+                                $attributes = '';
+                                if (!empty($urlVal['attributes'])) {
+                                    $attributes = ' '.$urlVal['attributes'];
+                                }
+
+                                $dropdown_contents .= "<li><a href=\"$urlStr\"{$attributes}>{$value}</a></li>";
                                 $hasAction = true;
                                 $lastIsDivider = false;
                             }
                         }
                     } elseif ( ! $lastIsDivider) {
-                        $str .= "<li class=\"divider\"></li>";
+                        $dropdown_contents .= '<li class="divider"></li>';
                         $lastIsDivider = true;
                     }
                 }
@@ -96,25 +112,33 @@ class DatatableService
                 }
 
                 if ( $can_edit && ! $lastIsDivider) {
-                    $str .= "<li class=\"divider\"></li>";
+                    $dropdown_contents .= '<li class="divider"></li>';
                 }
 
-                if (($entityType != ENTITY_USER || $model->public_id) && $can_edit) {
-                    $str .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">"
-                            . trans("texts.archive_{$entityType}") . "</a></li>";
+                if (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit) {
+                    $dropdown_contents .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">"
+                            . trans("texts.archive_{$datatable->entityType}") . '</a></li>';
                 }
             } else if($can_edit) {
-                $str .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
-                        . trans("texts.restore_{$entityType}") . "</a></li>";
+                $dropdown_contents .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
+                    . trans("texts.restore_{$datatable->entityType}") . '</a></li>';
             }
 
             if (property_exists($model, 'is_deleted') && !$model->is_deleted && $can_edit) {
-                $str .= "<li><a href=\"javascript:deleteEntity({$model->public_id})\">"
-                        . trans("texts.delete_{$entityType}") . "</a></li>";
+                $dropdown_contents .= "<li><a href=\"javascript:deleteEntity({$model->public_id})\">"
+                        . trans("texts.delete_{$datatable->entityType}") . '</a></li>';
             }
 
-            return $str.'</ul></div></center>';
+            if (!empty($dropdown_contents)) {
+                $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
+                    <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
+                        '.trans('texts.select').' <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">';
+                $str .= $dropdown_contents . '</ul>';
+            }
+
+            return $str.'</div></center>';
         });
     }
-
 }

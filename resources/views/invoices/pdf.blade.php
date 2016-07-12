@@ -1,4 +1,4 @@
-<iframe id="theFrame" style="display:none" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></iframe>
+<iframe id="theFrame" style="display:block" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></iframe>
 <canvas id="theCanvas" style="display:none;width:100%;border:solid 1px #CCCCCC;"></canvas>
 
 @if (!Utils::isNinja() || !Utils::isPro())
@@ -13,9 +13,9 @@
       <div class="container">
         @if (Utils::isNinja())
           <h3>{{ trans('texts.more_designs_cloud_header') }}</h3>
-          <p>{{ trans('texts.more_designs_cloud_text') }}</p>          
+          <p>{{ trans('texts.more_designs_cloud_text') }}</p>
         @else
-          <h3>{{ trans('texts.more_designs_self_host_header') }}</h3>
+          <h3>{{ trans('texts.more_designs_self_host_header', ['price' => INVOICE_DESIGNS_PRICE]) }}</h3>
           <p>{{ trans('texts.more_designs_self_host_text') }}</p>
         @endif
       </div>
@@ -44,11 +44,11 @@
         <p>&nbsp;</p>
       </center>
 
-      <div class="modal-footer" id="signUpFooter">          
+      <div class="modal-footer" id="signUpFooter">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-        
+
         @if (Utils::isNinjaProd())
-          <button type="button" class="btn btn-primary" onclick="showProPlan('invoice_designs')">{{ trans('texts.go_pro') }}</button>
+          <a class="btn btn-primary" href="{{ url('/settings/account_management?upgrade=true') }}">{{ trans('texts.go_pro') }}</a>
         @else
           <button type="button" class="btn btn-primary" onclick="buyProduct('{{ INVOICE_DESIGNS_AFFILIATE_KEY }}', '{{ PRODUCT_INVOICE_DESIGNS }}')">{{ trans('texts.buy') }}</button>
         @endif
@@ -61,7 +61,7 @@
 
 <script type="text/javascript">
   window.logoImages = {};
-  
+
   logoImages.imageLogo1 = "{{ Form::image_data('images/report_logo1.jpg') }}";
   logoImages.imageLogoWidth1 =120;
   logoImages.imageLogoHeight1 = 40
@@ -70,7 +70,7 @@
   logoImages.imageLogoWidth2 =325/2;
   logoImages.imageLogoHeight2 = 81/2;
 
-  logoImages.imageLogo3 = "{{ Form::image_data('images/report_logo3.jpg') }}";
+  logoImages.imageLogo3 = "{{ Form::image_data('images/report_logo3.png') }}";
   logoImages.imageLogoWidth3 =325/2;
   logoImages.imageLogoHeight3 = 81/2;
 
@@ -79,7 +79,7 @@
   if (window.invoice) {
     invoice.image = window.accountLogo;
     invoice.imageWidth = {{ $account->getLogoWidth() }};
-    invoice.imageHeight = {{ $account->getLogoHeight() }};    
+    invoice.imageHeight = {{ $account->getLogoHeight() }};
   }
   @endif
 
@@ -95,9 +95,9 @@
       NINJA.secondaryColor = "";
       NINJA.fontSize = 9;
       NINJA.headerFont = "Roboto";
-      NINJA.bodyFont = "Roboto";    
+      NINJA.bodyFont = "Roboto";
   @endif
-  
+
   var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
 
   if (window.invoice) {
@@ -113,21 +113,21 @@
     //console.log('refresh PDF - force: ' + force + ' ' + (new Date()).getTime())
     return getPDFString(refreshPDFCB, force);
   }
-  
+
   function refreshPDFCB(string) {
     if (!string) return;
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
     var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }};
-    // Temporarily workaround for: https://code.google.com/p/chromium/issues/detail?id=574648 
-    if (forceJS && (isFirefox || (isChrome && (!isChrome48 || {{ isset($viewPDF) && $viewPDF ? 'true' : 'false' }})))) { 
+    // Temporarily workaround for: https://code.google.com/p/chromium/issues/detail?id=574648
+    if (forceJS && (isFirefox || (isChrome && (!isChrome48 || {{ isset($viewPDF) && $viewPDF ? 'true' : 'false' }})))) {
       $('#theFrame').attr('src', string).show();
-    } else {      
+    } else {
       if (isRefreshing) {
         needsRefresh = true;
         return;
       }
       isRefreshing = true;
-      var pdfAsArray = convertDataURIToBinary(string);  
+      var pdfAsArray = convertDataURIToBinary(string);
       PDFJS.getDocument(pdfAsArray).then(function getPdfHelloWorld(pdf) {
 
         pdf.getPage(1).then(function getPageHelloWorld(page) {
@@ -140,6 +140,7 @@
           canvas.width = viewport.width;
 
           page.render({canvasContext: context, viewport: viewport});
+          $('#theFrame').hide();
           $('#theCanvas').show();
           isRefreshing = false;
           if (needsRefresh) {
@@ -147,7 +148,7 @@
             refreshPDF();
           }
         });
-      }); 
+      });
     }
   }
 

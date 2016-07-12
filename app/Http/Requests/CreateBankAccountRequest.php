@@ -1,7 +1,6 @@
 <?php namespace App\Http\Requests;
 
-use App\Http\Requests\Request;
-use Illuminate\Validation\Factory;
+
 
 class CreateBankAccountRequest extends Request
 {

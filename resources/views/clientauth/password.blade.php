@@ -45,6 +45,14 @@
     .form-signin .form-control:focus {
         z-index: 2;
     }
+
+    .modal-header a:link,
+    .modal-header a:visited,
+    .modal-header a:hover,
+    .modal-header a:active {
+        text-decoration: none;
+        color: white;
+    }
 </style>
 
 @stop
@@ -54,7 +62,7 @@
 
 {!! Former::open('client/recover_password')->addClass('form-signin') !!}
     <div class="modal-header">
-        @if (!isset($hideLogo) || !$hideLogo)
+        @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
             <a href="{{ NINJA_WEB_URL }}" target="_blank">
                 <img src="{{ asset('images/icon-login.png') }}" /> 
                 <h4>Invoice Ninja | {{ trans('texts.password_recovery') }}</h4>

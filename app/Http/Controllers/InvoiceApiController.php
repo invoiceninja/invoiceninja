@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Request;
 use Utils;
 use Response;
 use Input;
@@ -11,13 +9,10 @@ use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Product;
-use App\Models\Invitation;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\InvoiceTransformer;
 use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
@@ -137,6 +132,7 @@ class InvoiceApiController extends BaseAPIController
                     'city',
                     'state',
                     'postal_code',
+                    'country_id',
                     'private_notes',
                     'currency_code',
                 ] as $field) {

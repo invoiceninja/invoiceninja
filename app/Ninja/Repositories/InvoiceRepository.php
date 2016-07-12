@@ -1,8 +1,8 @@
 <?php namespace App\Ninja\Repositories;
 
+use App\Models\Account;
 use DB;
 use Utils;
-use Session;
 use Auth;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
@@ -12,7 +12,6 @@ use App\Models\Task;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Services\PaymentService;
-use App\Ninja\Repositories\BaseRepository;
 
 class InvoiceRepository extends BaseRepository
 {
@@ -32,9 +31,9 @@ class InvoiceRepository extends BaseRepository
     public function all()
     {
         return Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->with('user', 'client.contacts', 'invoice_status')
                 ->withTrashed()
-                ->where('is_quote', '=', false)
                 ->where('is_recurring', '=', false)
                 ->get();
     }
@@ -106,7 +105,7 @@ class InvoiceRepository extends BaseRepository
                     ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
-                    ->where('invoices.is_quote', '=', false)
+                    ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('invoices.is_recurring', '=', true)
                     ->where('contacts.is_primary', '=', true)
@@ -147,6 +146,53 @@ class InvoiceRepository extends BaseRepository
         return $query;
     }
 
+    public function getClientRecurringDatatable($contactId)
+    {
+        $query = DB::table('invitations')
+          ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
+          ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
+          ->join('clients', 'clients.id', '=', 'invoices.client_id')
+          ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
+          ->where('invitations.contact_id', '=', $contactId)
+          ->where('invitations.deleted_at', '=', null)
+          ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+          ->where('invoices.is_deleted', '=', false)
+          ->where('clients.deleted_at', '=', null)
+          ->where('invoices.is_recurring', '=', true)
+          ->whereIn('invoices.auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])
+          //->where('invoices.start_date', '>=', date('Y-m-d H:i:s'))
+          ->select(
+                DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                'invitations.invitation_key',
+                'invoices.invoice_number',
+                'invoices.due_date',
+                'clients.public_id as client_public_id',
+                'clients.name as client_name',
+                'invoices.public_id',
+                'invoices.amount',
+                'invoices.start_date',
+                'invoices.end_date',
+                'invoices.client_enable_auto_bill',
+                'frequencies.name as frequency'
+            );
+
+        $table = \Datatable::query($query)
+            ->addColumn('frequency', function ($model) { return $model->frequency; })
+            ->addColumn('start_date', function ($model) { return Utils::fromSqlDate($model->start_date); })
+            ->addColumn('end_date', function ($model) { return Utils::fromSqlDate($model->end_date); })
+            ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
+            ->addColumn('client_enable_auto_bill', function ($model) {
+                if ($model->client_enable_auto_bill) {
+                    return trans('texts.enabled') . ' - <a href="javascript:setAutoBill('.$model->public_id.',false)">'.trans('texts.disable').'</a>';
+                } else {
+                    return trans('texts.disabled') . ' - <a href="javascript:setAutoBill('.$model->public_id.',true)">'.trans('texts.enable').'</a>';
+                }
+            });
+
+        return $table->make();
+    }
+
     public function getClientDatatable($contactId, $entityType, $search)
     {
         $query = DB::table('invitations')
@@ -156,7 +202,7 @@ class InvoiceRepository extends BaseRepository
           ->join('contacts', 'contacts.client_id', '=', 'clients.id')
           ->where('invitations.contact_id', '=', $contactId)
           ->where('invitations.deleted_at', '=', null)
-          ->where('invoices.is_quote', '=', $entityType == ENTITY_QUOTE)
+          ->where('invoices.invoice_type_id', '=', $entityType == ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD)
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('contacts.deleted_at', '=', null)
@@ -201,8 +247,14 @@ class InvoiceRepository extends BaseRepository
             ->make();
     }
 
-    public function save($data, $invoice = null)
+    /**
+     * @param array $data
+     * @param Invoice|null $invoice
+     * @return Invoice|mixed
+     */
+    public function save(array $data, Invoice $invoice = null)
     {
+        /** @var Account $account */
         $account = \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
@@ -276,7 +328,12 @@ class InvoiceRepository extends BaseRepository
             $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
             $invoice->start_date = Utils::toSqlDate($data['start_date']);
             $invoice->end_date = Utils::toSqlDate($data['end_date']);
-            $invoice->auto_bill = isset($data['auto_bill']) && $data['auto_bill'] ? true : false;
+            $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
+            $invoice->auto_bill = isset($data['auto_bill']) ? intval($data['auto_bill']) : AUTO_BILL_OFF;
+
+            if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS ) {
+                $invoice->auto_bill = AUTO_BILL_OFF;
+            }
 
             if (isset($data['recurring_due_date'])) {
                 $invoice->due_date = $data['recurring_due_date'];
@@ -425,7 +482,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_items()->forceDelete();
         }
 
-        $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):array();;
+        $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):[];;
         foreach ($document_ids as $document_id){
             $document = Document::scope($document_id)->first();
             if($document && Auth::user()->can('edit', $document)){
@@ -442,32 +499,15 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        if(!empty($data['documents']) && Auth::user()->can('create', ENTITY_DOCUMENT)){
-            // Fallback upload
-            $doc_errors = array();
-            foreach($data['documents'] as $upload){
-                $result = $this->documentRepo->upload($upload);
-                if(is_string($result)){
-                    $doc_errors[] = $result;
-                }
-                else{
-                    $result->invoice_id = $invoice->id;
-                    $result->save();
-                    $document_ids[] = $result->public_id;
-                }
-            }
-            if(!empty($doc_errors)){
-                Session::flash('error', implode('<br>',array_map('htmlentities',$doc_errors)));
-            }
-        }
-
-        foreach ($invoice->documents as $document){
-            if(!in_array($document->public_id, $document_ids)){
-                // Removed
-                // Not checking permissions; deleting a document is just editing the invoice
-                if($document->invoice_id == $invoice->id){
-                    // Make sure the document isn't on a clone
-                    $document->delete();
+        if ( ! $invoice->wasRecentlyCreated) {
+            foreach ($invoice->documents as $document){
+                if(!in_array($document->public_id, $document_ids)){
+                    // Removed
+                    // Not checking permissions; deleting a document is just editing the invoice
+                    if($document->invoice_id == $invoice->id){
+                        // Make sure the document isn't on a clone
+                        $document->delete();
+                    }
                 }
             }
         }
@@ -499,7 +539,7 @@ class InvoiceRepository extends BaseRepository
             }
 
             if ($productKey = trim($item['product_key'])) {
-                if (\Auth::user()->account->update_products && ! strtotime($productKey)) {
+                if (\Auth::user()->account->update_products && ! strtotime($productKey) && ! $task && ! $expense) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
                         if (Auth::user()->can('create', ENTITY_PRODUCT)) {
@@ -546,7 +586,12 @@ class InvoiceRepository extends BaseRepository
         return $invoice;
     }
 
-    public function cloneInvoice($invoice, $quotePublicId = null)
+    /**
+     * @param Invoice $invoice
+     * @param null $quotePublicId
+     * @return mixed
+     */
+    public function cloneInvoice(Invoice $invoice, $quotePublicId = null)
     {
         $invoice->load('invitations', 'invoice_items');
         $account = $invoice->account;
@@ -590,7 +635,7 @@ class InvoiceRepository extends BaseRepository
           'tax_name2',
           'tax_rate2',
           'amount',
-          'is_quote',
+          'invoice_type_id',
           'custom_value1',
           'custom_value2',
           'custom_taxes1',
@@ -602,7 +647,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         if ($quotePublicId) {
-            $clone->is_quote = false;
+            $clone->invoice_type_id = INVOICE_TYPE_STANDARD;
             $clone->quote_id = $quotePublicId;
         }
 
@@ -648,13 +693,21 @@ class InvoiceRepository extends BaseRepository
         return $clone;
     }
 
-    public function markSent($invoice)
+    /**
+     * @param Invoice $invoice
+     */
+    public function markSent(Invoice $invoice)
     {
         $invoice->markInvitationsSent();
     }
 
+    /**
+     * @param $invitationKey
+     * @return Invitation|bool
+     */
     public function findInvoiceByInvitation($invitationKey)
     {
+        /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
         if (!$invitation) {
@@ -676,11 +729,15 @@ class InvoiceRepository extends BaseRepository
         return $invitation;
     }
 
+    /**
+     * @param $clientId
+     * @return mixed
+     */
     public function findOpenInvoices($clientId)
     {
         return Invoice::scope()
+                ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->whereClientId($clientId)
-                ->whereIsQuote(false)
                 ->whereIsRecurring(false)
                 ->whereDeletedAt(null)
                 ->whereHasTasks(true)
@@ -689,7 +746,11 @@ class InvoiceRepository extends BaseRepository
                 ->get();
     }
 
-    public function createRecurringInvoice($recurInvoice)
+    /**
+     * @param Invoice $recurInvoice
+     * @return mixed
+     */
+    public function createRecurringInvoice(Invoice $recurInvoice)
     {
         $recurInvoice->load('account.timezone', 'invoice_items', 'client', 'user');
 
@@ -706,6 +767,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         $invoice = Invoice::createNew($recurInvoice);
+        $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
         $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber($invoice);
@@ -763,7 +825,8 @@ class InvoiceRepository extends BaseRepository
         $recurInvoice->last_sent_date = date('Y-m-d');
         $recurInvoice->save();
 
-        if ($recurInvoice->auto_bill) {
+        if ($recurInvoice->getAutoBillEnabled() && !$recurInvoice->account->auto_bill_on_due_date) {
+            // autoBillInvoice will check for ACH, so we're not checking here
             if ($this->paymentService->autoBillInvoice($invoice)) {
                 // update the invoice reference to match its actual state
                 // this is to ensure a 'payment received' email is sent
@@ -774,7 +837,11 @@ class InvoiceRepository extends BaseRepository
         return $invoice;
     }
 
-    public function findNeedingReminding($account)
+    /**
+     * @param Account $account
+     * @return mixed
+     */
+    public function findNeedingReminding(Account $account)
     {
         $dates = [];
 
@@ -786,9 +853,9 @@ class InvoiceRepository extends BaseRepository
         }
 
         $sql = implode(' OR ', $dates);
-        $invoices = Invoice::whereAccountId($account->id)
+        $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
+                    ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
-                    ->where('is_quote', '=', false)
                     ->where('is_recurring', '=', false)
                     ->whereRaw('('.$sql.')')
                     ->get();

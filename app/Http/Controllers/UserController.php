@@ -1,10 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Config;
-use Datatable;
-use DB;
-use Event;
 use Input;
 use View;
 use Request;
@@ -15,7 +11,6 @@ use Password;
 use Utils;
 use Validator;
 use App\Models\User;
-use App\Http\Requests;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
@@ -98,21 +93,19 @@ class UserController extends BaseController
      */
     public function create()
     {
-        if (!Auth::user()->registered) {
+        if ( ! Auth::user()->registered) {
             Session::flash('error', trans('texts.register_to_add_user'));
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
-        if (!Auth::user()->confirmed) {
+
+        if ( ! Auth::user()->confirmed) {
             Session::flash('error', trans('texts.confirmation_required'));
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
-        if (Utils::isNinja()) {
-            $count = User::where('account_id', '=', Auth::user()->account_id)->count();
-            if ($count >= MAX_NUM_USERS) {
-                Session::flash('error', trans('texts.limit_users'));
-                return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
-            }
+        if (Utils::isNinja() && ! Auth::user()->caddAddUsers()) {
+            Session::flash('error', trans('texts.max_users_reached'));
+            return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
         $data = [
@@ -137,23 +130,15 @@ class UserController extends BaseController
         if ($action === 'archive') {
             $user->delete();
         } else {
+            if ( ! Auth::user()->caddAddUsers()) {
+                return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT)
+                    ->with('error', trans('texts.max_users_reached'));
+            }
+
             $user->restore();
         }
 
         Session::flash('message', trans("texts.{$action}d_user"));
-
-        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
-    }
-
-    public function restoreUser($userPublicId)
-    {
-        $user = User::where('account_id', '=', Auth::user()->account_id)
-                    ->where('public_id', '=', $userPublicId)
-                    ->withTrashed()->firstOrFail();
-
-        $user->restore();
-
-        Session::flash('message', trans('texts.restored_user'));
 
         return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
@@ -263,14 +248,17 @@ class UserController extends BaseController
 
                 return Redirect::to("/password/reset/{$token}");
             } else {
-                if (Session::has(REQUESTED_PRO_PLAN)) {
-                    Session::forget(REQUESTED_PRO_PLAN);
-                    $invitation = $this->accountRepo->enableProPlan();
-
-                    return Redirect::to($invitation->getLink());
+                if (Auth::check()) {
+                    if (Session::has(REQUESTED_PRO_PLAN)) {
+                        Session::forget(REQUESTED_PRO_PLAN);
+                        $url = '/settings/account_management?upgrade=true';
+                    } else {
+                        $url = '/dashboard';
+                    }
                 } else {
-                    return Redirect::to(Auth::check() ? '/dashboard' : '/login')->with('message', $notice_msg);
+                    $url = '/login';
                 }
+                return Redirect::to($url)->with('message', $notice_msg);
             }
         } else {
             $error_msg = trans('texts.security.wrong_confirmation');
@@ -291,7 +279,7 @@ class UserController extends BaseController
                 $account = Auth::user()->account;
                 $this->accountRepo->unlinkAccount($account);
                 if ($account->company->accounts->count() == 1) {
-                    $account->company->forceDelete();    
+                    $account->company->forceDelete();
                 }
                 $account->forceDelete();
             }

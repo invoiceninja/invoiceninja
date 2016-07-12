@@ -2,17 +2,28 @@
 
 use League\Fractal\Serializer\ArraySerializer as FractalArraySerializer;
 
+/**
+ * Class ArraySerializer
+ */
 class ArraySerializer extends FractalArraySerializer
 {
+    /**
+     * @param string $resourceKey
+     * @param array $data
+     * @return array
+     */
     public function collection($resourceKey, array $data)
     {
         return $data;
-        //return ($resourceKey && $resourceKey !== 'data') ? array($resourceKey => $data) : $data;
     }
 
+    /**
+     * @param string $resourceKey
+     * @param array $data
+     * @return array
+     */
     public function item($resourceKey, array $data)
     {
         return $data;
-        //return ($resourceKey && $resourceKey !== 'data') ? array($resourceKey => $data) : $data;
     }
 }

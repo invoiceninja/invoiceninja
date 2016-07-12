@@ -1,13 +1,8 @@
 <?php namespace App\Http\Controllers;
 
-use Auth;
-use Input;
-use Utils;
 use Response;
 use App\Models\Invoice;
 use App\Ninja\Repositories\InvoiceRepository;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\QuoteTransformer;
 
 class QuoteApiController extends BaseAPIController
 {
@@ -42,7 +37,7 @@ class QuoteApiController extends BaseAPIController
      {
          $invoices = Invoice::scope()
                          ->withTrashed()
-                         ->where('is_quote', '=', '1')
+                         ->quotes()
                          ->with('invoice_items', 'client')
                          ->orderBy('created_at', 'desc');
 
