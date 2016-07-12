@@ -63,10 +63,6 @@ class BaseAPIController extends Controller
         } else {
             $this->manager->setSerializer(new ArraySerializer());
         }
-
-        if (Utils::isNinjaDev()) {
-            \DB::enableQueryLog();
-        }
     }
 
     protected function handleAction($request)
@@ -162,12 +158,6 @@ class BaseAPIController extends Controller
 
     protected function response($response)
     {
-        if (Utils::isNinjaDev()) {
-            $count = count(\DB::getQueryLog());
-            Log::info(Request::method() . ' - ' . Request::url() . ": $count queries");
-            //Log::info(json_encode(\DB::getQueryLog()));
-        }
-
         $index = Request::get('index') ?: 'data';
 
         if ($index == 'none') {
