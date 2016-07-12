@@ -25,7 +25,6 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @var string
      */
     protected $pdf;
-
     /**
      * Create a new job instance.
      *
