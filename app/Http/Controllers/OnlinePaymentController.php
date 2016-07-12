@@ -4,14 +4,20 @@ use Session;
 use Input;
 use Utils;
 use View;
+use Auth;
+use URL;
 use Exception;
+use Validator;
 use App\Models\Invitation;
 use App\Models\Account;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\PaymentMethod;
 use App\Services\PaymentService;
 use App\Ninja\Mailers\UserMailer;
 use App\Http\Requests\CreateOnlinePaymentRequest;
+use App\Ninja\Repositories\ClientRepository;
+use App\Services\InvoiceService;
 
 /**
  * Class OnlinePaymentController
@@ -203,4 +209,57 @@ class OnlinePaymentController extends BaseController
         }
     }
 
+    public function handleBuyNow(ClientRepository $clientRepo, InvoiceService $invoiceService, $gatewayType = false)
+    {
+        $account = Account::whereAccountKey(Input::get('account_key'))->first();
+        $redirectUrl = Input::get('redirect_url', URL::previous());
+
+        if ( ! $account) {
+            return redirect()->to("{$redirectUrl}/?error=invalid account");
+        }
+
+        Auth::onceUsingId($account->users[0]->id);
+        $product = Product::scope(Input::get('product_id'))->first();
+
+        if ( ! $product) {
+            return redirect()->to("{$redirectUrl}/?error=invalid product");
+        }
+
+        $rules = [
+            'first_name' => 'string|max:100',
+            'last_name' => 'string|max:100',
+            'email' => 'email|string|max:100',
+        ];
+
+        $validator = Validator::make(Input::all(), $rules);
+        if ($validator->fails()) {
+            return redirect()->to("{$redirectUrl}/?error=" . $validator->errors()->first());
+        }
+
+        $data = [
+            'contact' => Input::all()
+        ];
+        $client = $clientRepo->save($data);
+
+        $data = [
+            'client_id' => $client->public_id,
+            'invoice_items' => [[
+                'product_key' => $product->product_key,
+                'notes' => $product->notes,
+                'cost' => $product->cost,
+                'qty' => 1,
+                'tax_rate1' => $product->default_tax_rate ? $product->default_tax_rate->rate : 0,
+                'tax_name1' => $product->default_tax_rate ? $product->default_tax_rate->name : '',
+            ]]
+        ];
+        $invoice = $invoiceService->save($data);
+        $invitation = $invoice->invitations[0];
+        $link = $invitation->getLink();
+
+        if ($gatewayType) {
+            return redirect()->to($invitation->getLink('payment') . "/{$gatewayType}");
+        } else {
+            return redirect()->to($invitation->getLink());
+        }
+    }
 }

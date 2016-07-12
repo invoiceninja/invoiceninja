@@ -2027,7 +2027,14 @@ $LANG = array(
     'restored_expense_category' => 'Successfully restored expense category',
     'apply_taxes' => 'Apply taxes',
     'min_to_max_users' => ':min to :max users',
-    'max_users_reached' => 'The maximum number of users has been reached.'
+    'max_users_reached' => 'The maximum number of users has been reached.',
+    'buy_now_buttons' => 'Buy Now Buttons',
+    'landing_page' => 'Landing Page',
+    'payment_type' => 'Payment Type',
+    'form' => 'Form',
+    'link' => 'Link',
+    'fields' => 'Fields',
+    'buy_now_buttons_warning' => 'Note: client and invoice records are created even if the transaction isn\'t completed.',
 
 );
 

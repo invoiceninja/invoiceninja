@@ -13,21 +13,6 @@ use App\Ninja\Datatables\PaymentDatatable;
 class PaymentService extends BaseService
 {
     /**
-     * @var DatatableService
-     */
-    protected $datatableService;
-
-    /**
-     * @var PaymentRepository
-     */
-    protected $paymentRepo;
-
-    /**
-     * @var AccountRepository
-     */
-    protected $accountRepo;
-
-    /**
      * PaymentService constructor.
      *
      * @param PaymentRepository $paymentRepo
@@ -157,5 +142,4 @@ class PaymentService extends BaseService
             return parent::bulk($ids, $action);
         }
     }
-
 }

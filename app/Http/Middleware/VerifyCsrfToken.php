@@ -30,6 +30,7 @@ class VerifyCsrfToken extends BaseVerifier
         'hook/email_bounced',
         'reseller_stats',
         'payment_hook/*',
+        'buy_now/*',
     ];
 
     /**
@@ -42,7 +43,6 @@ class VerifyCsrfToken extends BaseVerifier
     public function handle($request, Closure $next)
     {
         foreach ($this->openRoutes as $route) {
-
             if ($request->is($route)) {
                 return $next($request);
             }

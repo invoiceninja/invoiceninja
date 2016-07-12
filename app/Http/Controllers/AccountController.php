@@ -25,6 +25,7 @@ use App\Models\Document;
 use App\Models\Gateway;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
+use App\Models\Product;
 use App\Models\PaymentTerm;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ReferralRepository;
@@ -714,6 +715,14 @@ class AccountController extends BaseController
             );
         }
 
+        $types = [GATEWAY_TYPE_CREDIT_CARD, GATEWAY_TYPE_BANK_TRANSFER, GATEWAY_TYPE_PAYPAL, GATEWAY_TYPE_BITCOIN, GATEWAY_TYPE_DWOLLA];
+        $options = [];
+        foreach ($types as $type) {
+            if ($account->getGatewayByType($type)) {
+                $options[$type] = trans("texts.{$type}");
+            }
+        }
+
         $data = [
             'client_view_css' => $css,
             'enable_portal_password' => $account->enable_portal_password,
@@ -721,6 +730,8 @@ class AccountController extends BaseController
             'title' => trans('texts.client_portal'),
             'section' => ACCOUNT_CLIENT_PORTAL,
             'account' => $account,
+            'products' => Product::scope()->orderBy('product_key')->get(),
+            'gateway_types' => $options,
         ];
 
         return View::make('accounts.client_portal', $data);

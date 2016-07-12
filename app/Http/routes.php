@@ -81,6 +81,7 @@ Route::post('signup/submit', 'AccountController@submitSignup');
 
 Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
 Route::get('/auth_unlink', 'Auth\AuthController@authUnlink');
+Route::match(['GET', 'POST'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
 
 Route::post('/hook/email_bounced', 'AppController@emailBounced');
 Route::post('/hook/email_opened', 'AppController@emailOpened');

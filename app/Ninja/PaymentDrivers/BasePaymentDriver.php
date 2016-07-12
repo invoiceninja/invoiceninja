@@ -227,7 +227,7 @@ class BasePaymentDriver
         $gateway = $this->gateway();
 
         if ($input) {
-            $this->updateAddress();
+            $this->updateClient();
         }
 
         // load or create token
@@ -280,8 +280,13 @@ class BasePaymentDriver
         }
     }
 
-    private function updateAddress()
+    private function updateClient()
     {
+        if ( ! $this->contact()->email && $this->input['email']) {
+            $this->contact()->email = $this->input['email'];
+            $this->contact()->save();
+        }
+
         if ( ! $this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
             return;
         }
