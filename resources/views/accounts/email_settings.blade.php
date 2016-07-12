@@ -86,6 +86,16 @@
         </div>
     </div>
 
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.email_queue') !!}</h3>
+        </div>
+        <div class="panel-body form-padding-right">
+            {!! Former::select('email_queue_option')->options($queue_options) !!}
+            {!! Former::select('email_queue_frequency')->options($queue_frequencies) !!}
+        </div>
+    </div>
+
     @if (Auth::user()->hasFeature(FEATURE_CUSTOM_EMAILS))
         <center>
             {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}

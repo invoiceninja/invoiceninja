@@ -59,6 +59,7 @@ $LANG = array(
     'save_as_default_terms' => 'Save as default terms',
     'download_pdf' => 'Download PDF',
     'pay_now' => 'Pay Now',
+    'send_invoice' => 'Send invoice',
     'save_invoice' => 'Save Invoice',
     'clone_invoice' => 'Clone Invoice',
     'archive_invoice' => 'Archive Invoice',
@@ -210,7 +211,7 @@ $LANG = array(
     'updated_invoice' => 'Successfully updated invoice',
     'created_invoice' => 'Successfully created invoice',
     'cloned_invoice' => 'Successfully cloned invoice',
-    'emailed_invoice' => 'Successfully emailed invoice',
+    'email_invoice_dispatched' => 'The invoice email has successfully been dispatched.',
     'and_created_client' => 'and created client',
     'archived_invoice' => 'Successfully archived invoice',
     'archived_invoices' => 'Successfully archived :count invoices',
@@ -833,6 +834,15 @@ $LANG = array(
     'secret_key' => 'Secret Key',
     'missing_publishable_key' => 'Set your Stripe publishable key for an improved checkout process',
     'email_design' => 'Email Design',
+    'email_queue' => 'Email Queue',
+    'email_queue_option' => 'Option',
+    'email_queue_frequency' => 'Frequency',
+    'email_queue_frequency_every_minute' => 'Every minute',
+    'email_queue_frequency_every_five_minutes' => 'Every five minutes',
+    'email_queue_frequency_every_ten_minutes' => 'Every ten minutes',
+    'email_queue_frequency_every_thirty_minutes' => 'Every thirty minutes',
+    'email_queue_frequency_daily' => 'Daily at 0:00',
+    'email_queue_frequency_daily_at' => 'Daily at ...',
     'due_by' => 'Due by :date',
     'enable_email_markup' => 'Enable Markup',
     'enable_email_markup_help' => 'Make it easier for your clients to pay you by adding schema.org markup to your emails.',
@@ -2027,8 +2037,8 @@ $LANG = array(
     'restored_expense_category' => 'Successfully restored expense category',
     'apply_taxes' => 'Apply taxes',
     'min_to_max_users' => ':min to :max users',
-    'max_users_reached' => 'The maximum number of users has been reached.'
-
+    'max_users_reached' => 'The maximum number of users has been reached.',
+    'job_failed' => 'Job (:name) failed!',
 );
 
 return $LANG;

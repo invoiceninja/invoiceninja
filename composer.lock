@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "96184bcd2d0fb39c87a98b223efc5c1c",
-    "content-hash": "361daf07da39682d74bdc2bfead14fb9",
+    "hash": "3a37cb049a7acb9735634f3a7001e8f1",
+    "content-hash": "81d63dae04152e4c3ad581ac6d947c80",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -116,6 +116,75 @@
                 "skrill"
             ],
             "time": "2016-01-13 16:33:07"
+        },
+        {
+            "name": "alt-three/bus",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/AltThree/Bus.git",
+                "reference": "5c8399e0ca67ba6b499aa1e8db6a278711446090"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/AltThree/Bus/zipball/5c8399e0ca67ba6b499aa1e8db6a278711446090",
+                "reference": "5c8399e0ca67ba6b499aa1e8db6a278711446090",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/container": "5.2.*|5.3.*",
+                "illuminate/contracts": "5.2.*|5.3.*",
+                "illuminate/pipeline": "5.2.*|5.3.*",
+                "illuminate/support": "5.2.*|5.3.*",
+                "php": ">=5.5.9"
+            },
+            "require-dev": {
+                "graham-campbell/testbench-core": "^1.1",
+                "mockery/mockery": "^0.9.4",
+                "phpunit/phpunit": "^4.8|^5.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.1-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "AltThree\\Bus\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylorotwell@gmail.com"
+                },
+                {
+                    "name": "James Brooks",
+                    "email": "james@alt-three.com"
+                },
+                {
+                    "name": "Graham Campbell",
+                    "email": "graham@alt-three.com"
+                },
+                {
+                    "name": "Joseph Cohen",
+                    "email": "joe@alt-three.com"
+                }
+            ],
+            "description": "An improved command bus for Laravel 5.2+",
+            "keywords": [
+                "Alt Three",
+                "bus",
+                "command",
+                "command bus",
+                "job"
+            ],
+            "time": "2016-04-22 17:24:19"
         },
         {
             "name": "anahkiasen/former",
@@ -323,16 +392,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.18.27",
+            "version": "3.18.24",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "8cc3d3231d9fb9da528205f3b905097a37ac3df3"
+                "reference": "c74f6f316282b0ac6a3cd8a681171343c0e07ec3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/8cc3d3231d9fb9da528205f3b905097a37ac3df3",
-                "reference": "8cc3d3231d9fb9da528205f3b905097a37ac3df3",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/c74f6f316282b0ac6a3cd8a681171343c0e07ec3",
+                "reference": "c74f6f316282b0ac6a3cd8a681171343c0e07ec3",
                 "shasum": ""
             },
             "require": {
@@ -399,7 +468,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2016-07-07 23:09:15"
+            "time": "2016-07-01 21:27:27"
         },
         {
             "name": "barracudanetworks/archivestream-php",
@@ -1904,8 +1973,13 @@
                 "url": "git@github.com:gatepay/FedACHdir.git",
                 "reference": "origin/master"
             },
-            "type": "library",
-            "time": "2016-06-03 12:00:26"
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
+                "reference": "origin/master",
+                "shasum": null
+            },
+            "type": "library"
         },
         {
             "name": "google/apiclient",
@@ -2945,51 +3019,6 @@
                 "oauth"
             ],
             "time": "2016-06-22 12:40:16"
-        },
-        {
-            "name": "laravelcollective/bus",
-            "version": "v5.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/LaravelCollective/bus.git",
-                "reference": "e48b4d44d49f820e1b85ff16b9402e01c770c83a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/LaravelCollective/bus/zipball/e48b4d44d49f820e1b85ff16b9402e01c770c83a",
-                "reference": "e48b4d44d49f820e1b85ff16b9402e01c770c83a",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/container": "5.2.*",
-                "illuminate/contracts": "5.2.*",
-                "illuminate/pipeline": "5.2.*",
-                "illuminate/support": "5.2.*",
-                "php": ">=5.5.9"
-            },
-            "require-dev": {
-                "mockery/mockery": "~0.9",
-                "phpunit/phpunit": "~4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Collective\\Bus\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Taylor Otwell",
-                    "email": "taylorotwell@gmail.com"
-                }
-            ],
-            "description": "The Laravel Bus (5.1) package for use in Laravel 5.2.",
-            "homepage": "http://laravelcollective.com",
-            "time": "2015-12-23 07:43:33"
         },
         {
             "name": "laravelcollective/html",
@@ -6233,12 +6262,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/simshaun/recurr.git",
-                "reference": "9839002cf916eaad4c3172185349360a555374c1"
+                "reference": "4d875b0237dcef75ee0de80d9bd63609349568d4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simshaun/recurr/zipball/9839002cf916eaad4c3172185349360a555374c1",
-                "reference": "9839002cf916eaad4c3172185349360a555374c1",
+                "url": "https://api.github.com/repos/simshaun/recurr/zipball/4d875b0237dcef75ee0de80d9bd63609349568d4",
+                "reference": "4d875b0237dcef75ee0de80d9bd63609349568d4",
                 "shasum": ""
             },
             "require": {
@@ -6279,41 +6308,39 @@
                 "recurring",
                 "rrule"
             ],
-            "time": "2016-07-06 18:49:34"
+            "time": "2016-02-22 17:40:00"
         },
         {
             "name": "sly/notification-pusher",
-            "version": "v2.2.12",
+            "version": "v2.2.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Ph3nol/NotificationPusher.git",
-                "reference": "f9a99edb4e26254baf1f7fb1354aa5a3f2c3b0ae"
+                "reference": "6112841c4b679bc4f6cf01f6cf655e24794bc670"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Ph3nol/NotificationPusher/zipball/f9a99edb4e26254baf1f7fb1354aa5a3f2c3b0ae",
-                "reference": "f9a99edb4e26254baf1f7fb1354aa5a3f2c3b0ae",
+                "url": "https://api.github.com/repos/Ph3nol/NotificationPusher/zipball/6112841c4b679bc4f6cf01f6cf655e24794bc670",
+                "reference": "6112841c4b679bc4f6cf01f6cf655e24794bc670",
                 "shasum": ""
             },
             "require": {
-                "doctrine/inflector": "~1.0",
-                "php": ">=5.5",
-                "symfony/console": "~2.3",
-                "symfony/options-resolver": "~2.3",
-                "symfony/process": "~2.3",
-                "zendframework/zendservice-apple-apns": "^1.1.0",
+                "php": ">=5.3.2",
+                "symfony/console": ">=2.3",
+                "symfony/options-resolver": ">=2.3",
+                "symfony/process": ">=2.3",
+                "zendframework/zendservice-apple-apns": "1.*",
                 "zendframework/zendservice-google-gcm": "1.*"
             },
             "require-dev": {
                 "atoum/atoum": "dev-master"
             },
-            "bin": [
-                "np"
-            ],
             "type": "standalone",
             "autoload": {
                 "psr-0": {
-                    "Sly": "src/"
+                    "Sly": [
+                        "src/"
+                    ]
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -6343,7 +6370,7 @@
                 "push",
                 "pusher"
             ],
-            "time": "2015-10-01 07:56:41"
+            "time": "2013-12-08 20:35:03"
         },
         {
             "name": "softcommerce/omnipay-paytrace",
@@ -6446,23 +6473,23 @@
         },
         {
             "name": "swiftmailer/swiftmailer",
-            "version": "v5.4.3",
+            "version": "v5.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/swiftmailer/swiftmailer.git",
-                "reference": "4cc92842069c2bbc1f28daaaf1d2576ec4dfe153"
+                "reference": "d8db871a54619458a805229a057ea2af33c753e8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/4cc92842069c2bbc1f28daaaf1d2576ec4dfe153",
-                "reference": "4cc92842069c2bbc1f28daaaf1d2576ec4dfe153",
+                "url": "https://api.github.com/repos/swiftmailer/swiftmailer/zipball/d8db871a54619458a805229a057ea2af33c753e8",
+                "reference": "d8db871a54619458a805229a057ea2af33c753e8",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
             "require-dev": {
-                "mockery/mockery": "~0.9.1"
+                "mockery/mockery": "~0.9.1,<0.9.4"
             },
             "type": "library",
             "extra": {
@@ -6495,30 +6522,30 @@
                 "mail",
                 "mailer"
             ],
-            "time": "2016-07-08 11:51:25"
+            "time": "2016-05-01 08:45:47"
         },
         {
             "name": "symfony/console",
-            "version": "v2.8.8",
+            "version": "v3.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/console.git",
-                "reference": "c392a6ec72f2122748032c2ad6870420561ffcfa"
+                "reference": "a7abb7153f6d1da47f87ec50274844e246b09d9f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/console/zipball/c392a6ec72f2122748032c2ad6870420561ffcfa",
-                "reference": "c392a6ec72f2122748032c2ad6870420561ffcfa",
+                "url": "https://api.github.com/repos/symfony/console/zipball/a7abb7153f6d1da47f87ec50274844e246b09d9f",
+                "reference": "a7abb7153f6d1da47f87ec50274844e246b09d9f",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.9",
+                "php": ">=5.5.9",
                 "symfony/polyfill-mbstring": "~1.0"
             },
             "require-dev": {
                 "psr/log": "~1.0",
-                "symfony/event-dispatcher": "~2.1|~3.0.0",
-                "symfony/process": "~2.1|~3.0.0"
+                "symfony/event-dispatcher": "~2.8|~3.0",
+                "symfony/process": "~2.8|~3.0"
             },
             "suggest": {
                 "psr/log": "For using the console logger",
@@ -6528,7 +6555,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.8-dev"
+                    "dev-master": "3.0-dev"
                 }
             },
             "autoload": {
@@ -6555,7 +6582,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-06-29 07:02:14"
+            "time": "2016-06-29 07:02:21"
         },
         {
             "name": "symfony/css-selector",
@@ -6915,25 +6942,25 @@
         },
         {
             "name": "symfony/options-resolver",
-            "version": "v2.8.8",
+            "version": "v3.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/options-resolver.git",
-                "reference": "b6f982782a0624d37b5416c2c96fb99ce5ab74d5"
+                "reference": "30605874d99af0cde6c41fd39e18546330c38100"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/b6f982782a0624d37b5416c2c96fb99ce5ab74d5",
-                "reference": "b6f982782a0624d37b5416c2c96fb99ce5ab74d5",
+                "url": "https://api.github.com/repos/symfony/options-resolver/zipball/30605874d99af0cde6c41fd39e18546330c38100",
+                "reference": "30605874d99af0cde6c41fd39e18546330c38100",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.9"
+                "php": ">=5.5.9"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.8-dev"
+                    "dev-master": "3.1-dev"
                 }
             },
             "autoload": {
@@ -6965,7 +6992,7 @@
                 "configuration",
                 "options"
             ],
-            "time": "2016-06-29 05:29:29"
+            "time": "2016-05-12 15:59:27"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -7250,25 +7277,25 @@
         },
         {
             "name": "symfony/process",
-            "version": "v2.8.8",
+            "version": "v3.0.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/process.git",
-                "reference": "89f33c16796415ccfd8bb3cf8d520cbb79899bfe"
+                "reference": "d7cde1f9d94d87060204f863779389b61c382eeb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/process/zipball/89f33c16796415ccfd8bb3cf8d520cbb79899bfe",
-                "reference": "89f33c16796415ccfd8bb3cf8d520cbb79899bfe",
+                "url": "https://api.github.com/repos/symfony/process/zipball/d7cde1f9d94d87060204f863779389b61c382eeb",
+                "reference": "d7cde1f9d94d87060204f863779389b61c382eeb",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.9"
+                "php": ">=5.5.9"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.8-dev"
+                    "dev-master": "3.0-dev"
                 }
             },
             "autoload": {
@@ -7295,7 +7322,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2016-06-29 05:29:29"
+            "time": "2016-06-29 05:40:00"
         },
         {
             "name": "symfony/routing",
@@ -8561,16 +8588,16 @@
         },
         {
             "name": "barryvdh/laravel-ide-helper",
-            "version": "v2.2.1",
+            "version": "v2.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-ide-helper.git",
-                "reference": "28af7cd19ca41cc0c63dd1de2b46c2b84d31c463"
+                "reference": "a9484c67d1305e9e2c71d2dfaaed6639200d874c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/28af7cd19ca41cc0c63dd1de2b46c2b84d31c463",
-                "reference": "28af7cd19ca41cc0c63dd1de2b46c2b84d31c463",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/a9484c67d1305e9e2c71d2dfaaed6639200d874c",
+                "reference": "a9484c67d1305e9e2c71d2dfaaed6639200d874c",
                 "shasum": ""
             },
             "require": {
@@ -8593,7 +8620,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.2-dev"
+                    "dev-master": "2.1-dev"
                 }
             },
             "autoload": {
@@ -8623,7 +8650,7 @@
                 "phpstorm",
                 "sublime"
             ],
-            "time": "2016-07-04 11:52:48"
+            "time": "2016-06-13 19:36:24"
         },
         {
             "name": "barryvdh/reflection-docblock",

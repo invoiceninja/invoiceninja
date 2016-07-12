@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Jobs\SendInvoiceEmail;
 use Auth;
 use Session;
 use Utils;
@@ -469,17 +470,30 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $response = $this->mailer->sendInvoice($invoice, false, $pdfUpload);
+            $response = $this->emailNormalInvoice($invoice, $pdfUpload);
         }
 
-        if ($response === true) {
-            $message = trans("texts.emailed_{$entityType}");
+        if ($response) {
+            $message = trans("texts.email_{$entityType}_dispatched");
             Session::flash('message', $message);
         } else {
             Session::flash('error', $response);
         }
 
         return Redirect::to("{$entityType}s/{$invoice->public_id}/edit");
+    }
+
+    /**
+     * Dispatch event for sending invoice email
+     *
+     * @param Invoice $invoice
+     * @param $pdf
+     *
+     * @return mixed
+     */
+    private function emailNormalInvoice(Invoice $invoice, $pdf)
+    {
+        return $this->dispatch(new SendInvoiceEmail($invoice, $pdf));
     }
 
     private function emailRecurringInvoice(&$invoice)
@@ -501,7 +515,7 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            return $this->mailer->sendInvoice($invoice);
+            return $this->dispatch(new SendRecurringInvoiceEmail($invoice));
         }
     }
 
@@ -521,7 +535,8 @@ class InvoiceController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
+     * @param $entityType
+     *
      * @return Response
      */
     public function bulk($entityType = ENTITY_INVOICE)

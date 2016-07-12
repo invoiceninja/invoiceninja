@@ -35,6 +35,12 @@ class Kernel extends ConsoleKernel
     {
         $logFile = storage_path() . '/logs/cron.log';
 
+        // Process the job queue, used especially for invoice emials
+//        $schedule
+//            ->command('queue:work')
+//            ->ever
+
+        // Processes recurring invoices
         $schedule
             ->command('ninja:send-invoices --force')
             ->sendOutputTo($logFile)

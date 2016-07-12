@@ -326,6 +326,8 @@ class AccountController extends BaseController
             return View::make('accounts.import_export', ['title' => trans('texts.import_export')]);
         } elseif ($section == ACCOUNT_MANAGEMENT) {
             return self::showAccountManagement();
+        } elseif ($section == 'email_settings') {
+            return self::showEmailSettings();
         } elseif ($section == ACCOUNT_INVOICE_DESIGN || $section == ACCOUNT_CUSTOMIZE_DESIGN) {
             return self::showInvoiceDesign($section);
         } elseif ($section == ACCOUNT_CLIENT_PORTAL) {
@@ -429,6 +431,30 @@ class AccountController extends BaseController
         ];
 
         return View::make('accounts.management', $data);
+    }
+
+    /**
+     * @return \Illuminate\Contracts\View\View
+     */
+    private function showEmailSettings()
+    {
+        $queue_frequencies = [
+            'one' => trans('texts.email_queue_frequency_every_minute'),
+            'five' => trans('texts.email_queue_frequency_every_five_minutes'),
+            'ten' => trans('texts.email_queue_frequency_every_ten_minutes'),
+            'thirty' => trans('texts.email_queue_frequency_every_thirty_minutes'),
+            'daily' => trans('texts.email_queue_frequency_daily'),
+            'daily_at' => trans('texts.email_queue_frequency_daily_at'),
+        ];
+
+        $data = [
+            'account' => Account::with('users')->findOrFail(Auth::user()->account_id),
+            'title' => trans("texts.email_settings"),
+            'queue_options' => config('queue.options'),
+            'queue_frequencies' => $queue_frequencies,
+        ];
+
+        return View::make('accounts.email_settings', $data);
     }
 
     /**
