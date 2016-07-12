@@ -775,6 +775,8 @@ $LANG = array(
     'activity_35' => ':user created :vendor',
     'activity_36' => ':user created :vendor',
     'activity_37' => ':user created :vendor',
+    'activity_42' => ':user erstellte Aufgabe ":task"',
+    'activity_43' => ':user aktualisierte Aufgabe ":task"',
     'payment' => 'Zahlung',
     'system' => 'System',
     'signature' => 'Email-Signatur',
@@ -1362,6 +1364,7 @@ $LANG = array(
     'failed_remove_payment_method' => 'Failed to remove the payment method',
     'gateway_exists' => 'This gateway already exists',
     'manual_entry' => 'Manual entry',
+    'start_of_week' => 'Erster Tag der Woche',
 
     // Frequencies
     'freq_weekly' => 'wöchentlich',

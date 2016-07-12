@@ -173,16 +173,18 @@
                 ->appendIcon(Icon::create('remove-circle'))
                 ->large() !!}
 
-        {!! Button::success(trans('texts.save'))
-                ->appendIcon(Icon::create('floppy-disk'))
-                ->large()
-                ->submit() !!}
+        @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
+            {!! Button::success(trans('texts.save'))
+                    ->appendIcon(Icon::create('floppy-disk'))
+                    ->large()
+                    ->submit() !!}
 
-        @if ($expense)
-            {!! DropdownButton::normal(trans('texts.more_actions'))
-                  ->withContents($actions)
-                  ->large()
-                  ->dropup() !!}
+            @if ($expense)
+                {!! DropdownButton::normal(trans('texts.more_actions'))
+                      ->withContents($actions)
+                      ->large()
+                      ->dropup() !!}
+            @endif
         @endif
 	</center>
 

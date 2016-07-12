@@ -24,6 +24,9 @@
 								@elseif ($planDetails['expires'])
 									({{ trans('texts.plan_term_'.$planDetails['term'].'ly') }})
 								@endif
+                                @if ($planDetails['plan'] == PLAN_ENTERPRISE)
+                                    {{ trans('texts.min_to_max_users', ['min' => Utils::getMinNumUsers($planDetails['num_users']), 'max' => $planDetails['num_users']])}}
+                                @endif
 							@elseif(Utils::isNinjaProd())
 								{{ trans('texts.plan_free') }}
 							@else
@@ -116,20 +119,33 @@
 							</h4>
 						</div>
 						<div class="modal-body">
+
 							@if ($planDetails && $planDetails['active'])
-							{!! Former::select('plan')
-								->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE)
-								->addOption(trans('texts.plan_pro'), PLAN_PRO)
-								->addOption(trans('texts.plan_free'), PLAN_FREE)!!}
+    							{!! Former::select('plan')
+                                    ->onchange('onPlanChange()')
+                                    ->addOption(trans('texts.plan_free'), PLAN_FREE)
+    								->addOption(trans('texts.plan_pro'), PLAN_PRO)
+                                    ->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE) !!}
 							@else
-							{!! Former::select('plan')
-                                ->addOption(trans('texts.plan_pro'), PLAN_PRO)
-								->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE) !!}
+    							{!! Former::select('plan')
+                                    ->onchange('onPlanChange()')
+                                    ->addOption(trans('texts.plan_pro'), PLAN_PRO)
+    								->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE) !!}
 							@endif
+
+                            <div id="numUsersDiv">
+                                {!! Former::select('num_users')
+                                    ->label(trans('texts.users'))
+                                    ->addOption('1 to 2', 2)
+    								->addOption('3 to 5', 5)
+                                    ->addOption('6 to 10', 10) !!}
+                            </div>
+
 							{!! Former::select('plan_term')
 								->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)
                                 ->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
 								->inlineHelp(trans('texts.enterprise_plan_features', ['link' => link_to(NINJA_WEB_URL . '/plans-pricing', trans('texts.click_here'), ['target' => '_blank'])])) !!}
+
 						</div>
 						<div class="modal-footer" style="margin-top: 0px">
 							<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
@@ -197,30 +213,48 @@
 		$('form.cancel-account').submit();
 	}
 
+    function onPlanChange() {
+        if ($('#plan').val() == '{{ PLAN_ENTERPRISE }}') {
+            $('#numUsersDiv').show();
+        } else {
+            $('#numUsersDiv').hide();
+        }
+    }
+
 	@if ($account->company->pending_plan)
-	function cancelPendingChange(){
-		$('#plan').val('{{ $planDetails['plan'] }}')
-		$('#plan_term').val('{{ $planDetails['term'] }}')
-		confirmChangePlan();
-		return false;
-	}
+    	function cancelPendingChange(){
+    		$('#plan').val('{{ $planDetails['plan'] }}')
+    		$('#plan_term').val('{{ $planDetails['term'] }}')
+    		confirmChangePlan();
+    		return false;
+    	}
 	@endif
 
   	jQuery(document).ready(function($){
 		function updatePlanModal() {
 			var plan = $('#plan').val();
+            var numUsers = $('#num_users').val();
 	 		$('#plan_term').closest('.form-group').toggle(plan!='free');
 
 			if(plan=='{{PLAN_PRO}}'){
 				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_PRO_MONTHLY])) !!});
-				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_PRO_YEARLY])) !!});
+				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_PRO_MONTHLY * 10])) !!});
 			} else if(plan=='{{PLAN_ENTERPRISE}}') {
-				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY])) !!});
-				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_YEARLY])) !!});
+                if (numUsers == 2) {
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_2])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_2 * 10])) !!});
+                } else if (numUsers == 5) {
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10])) !!});
+                } else {
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10])) !!});
+                }
 			}
   	  	}
-		$('#plan_term, #plan').change(updatePlanModal);
+		$('#plan_term, #plan, #num_users').change(updatePlanModal);
 	  	updatePlanModal();
+        onPlanChange();
 
 		if(window.location.hash) {
 			var hash = window.location.hash;

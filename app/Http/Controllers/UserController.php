@@ -93,21 +93,19 @@ class UserController extends BaseController
      */
     public function create()
     {
-        if (!Auth::user()->registered) {
+        if ( ! Auth::user()->registered) {
             Session::flash('error', trans('texts.register_to_add_user'));
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
-        if (!Auth::user()->confirmed) {
+
+        if ( ! Auth::user()->confirmed) {
             Session::flash('error', trans('texts.confirmation_required'));
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
-        if (Utils::isNinja()) {
-            $count = User::where('account_id', '=', Auth::user()->account_id)->count();
-            if ($count >= MAX_NUM_USERS) {
-                Session::flash('error', trans('texts.limit_users', ['limit' => MAX_NUM_USERS]));
-                return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
-            }
+        if (Utils::isNinja() && ! Auth::user()->caddAddUsers()) {
+            Session::flash('error', trans('texts.max_users_reached'));
+            return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
         $data = [
@@ -132,23 +130,15 @@ class UserController extends BaseController
         if ($action === 'archive') {
             $user->delete();
         } else {
+            if ( ! Auth::user()->caddAddUsers()) {
+                return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT)
+                    ->with('error', trans('texts.max_users_reached'));
+            }
+
             $user->restore();
         }
 
         Session::flash('message', trans("texts.{$action}d_user"));
-
-        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
-    }
-
-    public function restoreUser($userPublicId)
-    {
-        $user = User::where('account_id', '=', Auth::user()->account_id)
-                    ->where('public_id', '=', $userPublicId)
-                    ->withTrashed()->firstOrFail();
-
-        $user->restore();
-
-        Session::flash('message', trans('texts.restored_user'));
 
         return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
@@ -257,7 +247,7 @@ class UserController extends BaseController
                 $token = Password::getRepository()->create($user);
 
                 return Redirect::to("/password/reset/{$token}");
-            } else {                
+            } else {
                 if (Auth::check()) {
                     if (Session::has(REQUESTED_PRO_PLAN)) {
                         Session::forget(REQUESTED_PRO_PLAN);

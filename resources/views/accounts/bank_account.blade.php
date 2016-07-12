@@ -161,39 +161,41 @@
 
     <p/>&nbsp;<p/>
 
-    {!! Former::actions(
-        count(Cache::get('banks')) > 0 ?
-            Button::normal(trans('texts.cancel'))
+    @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
+        {!! Former::actions(
+            count(Cache::get('banks')) > 0 ?
+                Button::normal(trans('texts.cancel'))
+                    ->withAttributes([
+                        'data-bind' => 'visible: !importResults()',
+                    ])
+                    ->large()
+                    ->asLinkTo(URL::to('/settings/bank_accounts'))
+                    ->appendIcon(Icon::create('remove-circle')) : false,
+            Button::success(trans('texts.validate'))
                 ->withAttributes([
-                    'data-bind' => 'visible: !importResults()',
+                    'data-bind' => 'css: {disabled: disableValidate}, visible: page() == "login"',
+                    'onclick' => 'validate()'
                 ])
                 ->large()
-                ->asLinkTo(URL::to('/settings/bank_accounts'))
-                ->appendIcon(Icon::create('remove-circle')) : false,
-        Button::success(trans('texts.validate'))
-            ->withAttributes([
-                'data-bind' => 'css: {disabled: disableValidate}, visible: page() == "login"',
-                'onclick' => 'validate()'
-            ])
-            ->large()
-            ->appendIcon(Icon::create('lock')),
-        Button::success(trans('texts.save'))
-            ->withAttributes([
-                'data-bind' => 'css: {disabled: disableSave}, visible: page() == "setup"',
-                'style' => 'display:none',
-                'onclick' => 'save()'
-            ])
-            ->large()
-            ->appendIcon(Icon::create('floppy-disk'))   ,
-        Button::success(trans('texts.import'))
-            ->withAttributes([
-                'data-bind' => 'css: {disabled: disableSaveExpenses}, visible: page() == "import"',
-                'style' => 'display:none',
-                'onclick' => 'saveExpenses()'
-            ])
-            ->large()
-            ->appendIcon(Icon::create('floppy-disk'))) !!}
-
+                ->appendIcon(Icon::create('lock')),
+            Button::success(trans('texts.save'))
+                ->withAttributes([
+                    'data-bind' => 'css: {disabled: disableSave}, visible: page() == "setup"',
+                    'style' => 'display:none',
+                    'onclick' => 'save()'
+                ])
+                ->large()
+                ->appendIcon(Icon::create('floppy-disk'))   ,
+            Button::success(trans('texts.import'))
+                ->withAttributes([
+                    'data-bind' => 'css: {disabled: disableSaveExpenses}, visible: page() == "import"',
+                    'style' => 'display:none',
+                    'onclick' => 'saveExpenses()'
+                ])
+                ->large()
+                ->appendIcon(Icon::create('floppy-disk'))) !!}
+    @endif
+    
     {!! Former::close() !!}
 
     <script type="text/javascript">

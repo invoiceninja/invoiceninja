@@ -76,9 +76,6 @@ $I->see('Invoice Email');
 $I->amOnPage('/settings/charts_and_reports');
 $I->see('Data Visualizations');
 
-$I->amOnPage('/settings/user_management');
-$I->see('Add User');
-
 //try to logout
 //$I->click('#myAccountButton');
 //$I->see('Log Out');

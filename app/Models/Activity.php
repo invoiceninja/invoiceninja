@@ -78,6 +78,11 @@ class Activity extends Eloquent
         return $this->belongsTo('App\Models\Payment')->withTrashed();
     }
 
+    public function task()
+    {
+        return $this->belongsTo('App\Models\Task')->withTrashed();
+    }
+
     /**
      * @return mixed
      */
@@ -93,8 +98,11 @@ class Activity extends Eloquent
         $credit = $this->credit;
         $isSystem = $this->is_system;
 
+        /** @var Task $task */
+        $task = $this->task;
+
         $data = [
-            'client' => link_to($client->getRoute(), $client->getDisplayName()),
+            'client' => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
             'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : $user->getDisplayName(),
             'invoice' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
             'quote' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
@@ -103,6 +111,7 @@ class Activity extends Eloquent
             'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
             'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : asdf,
             'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
+            'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30).'...') : null,
         ];
 
         return trans("texts.activity_{$activityTypeId}", $data);

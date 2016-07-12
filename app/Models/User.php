@@ -430,6 +430,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function filterId() {
         return $this->hasPermission('view_all') ? false : $this->id;
     }
+
+
+    public function caddAddUsers() {
+        if ( ! $this->hasFeature(FEATURE_USERS)) {
+            return false;
+        }
+
+        $account = $this->account;
+        $company = $account->company;
+
+        $numUsers = 1;
+        foreach ($company->accounts as $account) {
+            $numUsers += $account->users->count() - 1;
+        }
+
+        return $numUsers < $company->num_users;
+    }
 }
 
 User::updating(function ($user) {

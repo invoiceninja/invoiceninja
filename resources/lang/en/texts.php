@@ -778,6 +778,8 @@ $LANG = array(
     'activity_35' => ':user created :vendor',
     'activity_36' => ':user created :vendor',
     'activity_37' => ':user created :vendor',
+    'activity_42' => ':user created task ":task"',
+    'activity_43' => ':user updated task ":task"',
     'payment' => 'Payment',
     'system' => 'System',
     'signature' => 'Signature',
@@ -1367,6 +1369,7 @@ $LANG = array(
     'failed_remove_payment_method' => 'Failed to remove the payment method',
     'gateway_exists' => 'This gateway already exists',
     'manual_entry' => 'Manual entry',
+    'start_of_week' => 'First day of the week',
 
     // Frequencies
     'freq_weekly' => 'Weekly',
@@ -2033,6 +2036,8 @@ $LANG = array(
     'merchant_id' => 'Merchant Id',
     'destination_id' => 'Destination Id',
     'transaction_key' => 'Transaction Key',
+    'min_to_max_users' => ':min to :max users',
+    'max_users_reached' => 'The maximum number of users has been reached.',
 
 );
 

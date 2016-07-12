@@ -496,6 +496,7 @@ function InvoiceModel(data) {
         for (var key in taxes) {
             if (taxes.hasOwnProperty(key)) {
                 total += taxes[key].amount;
+                total = roundToTwo(total);
             }
         }
 

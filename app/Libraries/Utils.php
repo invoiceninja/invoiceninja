@@ -18,6 +18,11 @@ use WePay;
 
 class Utils
 {
+    private static $weekdayNames = [
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+    ];
+
+
     public static function isRegistered()
     {
         return Auth::check() && Auth::user()->registered;
@@ -207,6 +212,46 @@ class Utils
             return '&nbsp;<sup class="pro-label">PRO</sup>';
         } else {
             return '';
+        }
+    }
+
+    public static function getPlanPrice($plan)
+    {
+        $term = $plan['term'];
+        $numUsers = $plan['num_users'];
+        $plan = $plan['plan'];
+
+        if ($plan == PLAN_FREE) {
+            $price = 0;
+        } elseif ($plan == PLAN_PRO) {
+            $price = PLAN_PRICE_PRO_MONTHLY;
+        } elseif ($plan == PLAN_ENTERPRISE) {
+            if ($numUsers <= 2) {
+                $price = PLAN_PRICE_ENTERPRISE_MONTHLY_2;
+            } elseif ($numUsers <= 5) {
+                $price = PLAN_PRICE_ENTERPRISE_MONTHLY_5;
+            } elseif ($numUsers <= 10) {
+                $price = PLAN_PRICE_ENTERPRISE_MONTHLY_10;
+            } else {
+                static::fatalError('Invalid number of users: ' . $numUsers);
+            }
+        }
+
+        if ($term == PLAN_TERM_YEARLY) {
+            $price = $price * 10;
+        }
+
+        return $price;
+    }
+
+    public static function getMinNumUsers($max)
+    {
+        if ($max <= 2) {
+            return 1;
+        } elseif ($max <= 5) {
+            return 3;
+        } else {
+            return 6;
         }
     }
 
@@ -1019,5 +1064,29 @@ class Utils
         } else {
             return new WePay(null);
         }
+    }
+
+    /**
+     * Gets an array of weekday names (in English)
+     *
+     * @see getTranslatedWeekdayNames()
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getWeekdayNames()
+    {
+        return collect(static::$weekdayNames);
+    }
+
+    /**
+     * Gets an array of translated weekday names
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public static function getTranslatedWeekdayNames()
+    {
+        return collect(static::$weekdayNames)->transform(function ($day) {
+             return trans('texts.'.strtolower($day));
+        });
     }
 }

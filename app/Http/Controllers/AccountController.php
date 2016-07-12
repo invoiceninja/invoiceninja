@@ -155,20 +155,6 @@ class AccountController extends BaseController
     }
 
     /**
-     * @return bool|mixed
-     */
-    public function enableProPlan()
-    {
-        if (Auth::user()->isPro() && ! Auth::user()->isTrial()) {
-            return false;
-        }
-
-        $invitation = $this->accountRepo->enablePlan();
-
-        return $invitation->invitation_key;
-    }
-
-    /**
      * @return \Illuminate\Http\RedirectResponse
      */
     public function changePlan() {
@@ -201,7 +187,8 @@ class AccountController extends BaseController
                         'plan' => $plan,
                         'term' => $term
                     ];
-                } elseif ($planDetails['term'] == PLAN_TERM_MONTHLY && $term == PLAN_TERM_YEARLY) {
+                } elseif ($planDetails['term'] == PLAN_TERM_MONTHLY && $term == PLAN_TERM_YEARLY
+                    || $planDetails['num_users'] != Input::get('num_users')) {
                     $new_plan = [
                         'plan' => $plan,
                         'term' => $term,
@@ -248,7 +235,7 @@ class AccountController extends BaseController
                 }
             }
 
-            if (!empty($new_plan)) {
+            if (!empty($new_plan) && $new_plan['plan'] != PLAN_FREE) {
                 $time_used = $planDetails['paid']->diff(date_create());
                 $days_used = $time_used->days;
 
@@ -260,8 +247,7 @@ class AccountController extends BaseController
                 $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
 
                 $percent_used = $days_used / $days_total;
-                $old_plan_price = Account::$plan_prices[$planDetails['plan']][$planDetails['term']];
-                $credit = $old_plan_price * (1 - $percent_used);
+                $credit = $planDetails['plan_price'] * (1 - $percent_used);
             }
         } else {
              $new_plan = [
@@ -271,15 +257,23 @@ class AccountController extends BaseController
         }
 
         if (!empty($pending_change) && empty($new_plan)) {
+            $pending_change['num_users'] = Input::get('num_users');
             $account->company->pending_plan = $pending_change['plan'];
             $account->company->pending_term = $pending_change['term'];
+            $account->company->pending_num_users = $pending_change['num_users'];
+            $account->company->pending_plan_price = Utils::getPlanPrice($pending_change);
             $account->company->save();
 
             Session::flash('message', trans('texts.updated_plan'));
         }
 
         if (!empty($new_plan) && $new_plan['plan'] != PLAN_FREE) {
-            $invitation = $this->accountRepo->enablePlan($new_plan['plan'], $new_plan['term'], $credit, !empty($pending_monthly));
+            $new_plan['num_users'] = 1;
+            if ($new_plan['plan'] == PLAN_ENTERPRISE) {
+                $new_plan['num_users'] = Input::get('num_users');
+            }
+            $new_plan['price'] = Utils::getPlanPrice($new_plan);
+            $invitation = $this->accountRepo->enablePlan($new_plan, $credit, !empty($pending_monthly));
             return Redirect::to('view/'.$invitation->invitation_key);
         }
 
@@ -471,6 +465,7 @@ class AccountController extends BaseController
             'datetimeFormats' => Cache::get('datetimeFormats'),
             'currencies' => Cache::get('currencies'),
             'title' => trans('texts.localization'),
+            'weekdays' => Utils::getTranslatedWeekdayNames(),
         ];
 
         return View::make('accounts.localization', $data);
@@ -482,7 +477,8 @@ class AccountController extends BaseController
     private function showBankAccounts()
     {
         return View::make('accounts.banks', [
-            'title' => trans('texts.bank_accounts')
+            'title' => trans('texts.bank_accounts'),
+            'advanced' => ! Auth::user()->hasFeature(FEATURE_EXPENSES),
         ]);
     }
 
@@ -1270,6 +1266,7 @@ class AccountController extends BaseController
         $account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
         $account->military_time = Input::get('military_time') ? true : false;
         $account->show_currency_code = Input::get('show_currency_code') ? true : false;
+        $account->start_of_week = Input::get('start_of_week') ? Input::get('start_of_week') : 0;
         $account->save();
 
         event(new UserSettingsChanged());
