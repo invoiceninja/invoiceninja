@@ -737,8 +737,6 @@ NINJA.processItem = function(item, section) {
 
 NINJA.parseMarkdownText = function(val, groupText)
 {
-    val = val + "\n";
-
     var rules = [
         ['\\\*\\\*(\\\w.+?)\\\*\\\*', {'bold': true}], // **value**
         ['\\\*(\\\w.+?)\\\*', {'italics': true}], // *value*
