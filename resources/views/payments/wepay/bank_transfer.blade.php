@@ -39,4 +39,6 @@
         @endif
     </center>
 
+    {!! Former::close() !!}
+
 @stop
