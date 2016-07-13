@@ -789,6 +789,9 @@
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
             var clientName = getClientDisplayName(client);
+            if (!clientName) {
+                continue;
+            }
             for (var j=0; j<client.contacts.length; j++) {
                 var contact = client.contacts[j];
                 var contactName = getContactDisplayName(contact);

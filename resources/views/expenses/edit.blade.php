@@ -257,7 +257,11 @@
             var $clientSelect = $('select#client_id');
             for (var i=0; i<clients.length; i++) {
                 var client = clients[i];
-                $clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
+                var clientName = getClientDisplayName(client);
+                if (!clientName) {
+                    continue;
+                }
+                $clientSelect.append(new Option(clientName, client.public_id));
             }
             $clientSelect.combobox().change(function() {
                 onClientChange();

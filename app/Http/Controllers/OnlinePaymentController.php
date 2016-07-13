@@ -214,7 +214,7 @@ class OnlinePaymentController extends BaseController
         $account = Account::whereAccountKey(Input::get('account_key'))->first();
         $redirectUrl = Input::get('redirect_url', URL::previous());
 
-        if ( ! $account) {
+        if ( ! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
             return redirect()->to("{$redirectUrl}/?error=invalid account");
         }
 
@@ -237,6 +237,7 @@ class OnlinePaymentController extends BaseController
         }
 
         $data = [
+            'currency_id' => $account->currency_id,
             'contact' => Input::all()
         ];
         $client = $clientRepo->save($data);

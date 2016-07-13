@@ -827,6 +827,7 @@ class AccountController extends BaseController
         $account->enable_client_portal_dashboard = !!Input::get('enable_client_portal_dashboard');
         $account->enable_portal_password = !!Input::get('enable_portal_password');
         $account->send_portal_password = !!Input::get('send_portal_password');
+        $account->enable_buy_now_buttons = !!Input::get('enable_buy_now_buttons');
 
         // Only allowed for pro Invoice Ninja users or white labeled self-hosted users
         if (Auth::user()->account->hasFeature(FEATURE_CLIENT_PORTAL_CSS)) {

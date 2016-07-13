@@ -1170,6 +1170,7 @@ class Account extends Eloquent
             case FEATURE_MORE_INVOICE_DESIGNS:
             case FEATURE_QUOTES:
             case FEATURE_REPORTS:
+            case FEATURE_BUY_NOW_BUTTONS:
             case FEATURE_API:
             case FEATURE_CLIENT_PORTAL_PASSWORD:
             case FEATURE_CUSTOM_URL:

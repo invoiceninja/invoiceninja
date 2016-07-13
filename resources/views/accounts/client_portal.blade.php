@@ -26,6 +26,7 @@
 {!! Former::populateField('client_view_css', $client_view_css) !!}
 {!! Former::populateField('enable_portal_password', intval($enable_portal_password)) !!}
 {!! Former::populateField('send_portal_password', intval($send_portal_password)) !!}
+{!! Former::populateField('enable_buy_now_buttons', intval($account->enable_buy_now_buttons)) !!}
 
 @if (!Utils::isNinja() && !Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
 <div class="alert alert-warning" style="font-size:larger;">
@@ -83,55 +84,73 @@
                 <h3 class="panel-title">{!! trans('texts.buy_now_buttons') !!}</h3>
             </div>
             <div class="panel-body">
-                <div class="col-md-10 col-md-offset-1">
+                <div class="col-md-10 col-md-offset-1" id="buyNow">
 
-                    {!! Former::select('product')
-                        ->onchange('updateBuyNowButtons()')
-                        ->addOption('', '')
-                        ->inlineHelp('buy_now_buttons_warning')
-                        ->addGroupClass('product-select') !!}
+                    @if (count($gateway_types) && count($products))
 
-                    {!! Former::inline_checkboxes('client_fields')
-                            ->onchange('updateBuyNowButtons()')
-                            ->checkboxes([
-                                trans('texts.first_name') => ['value' => 'first_name', 'name' => 'first_name'],
-                                trans('texts.last_name') => ['value' => 'last_name', 'name' => 'last_name'],
-                                trans('texts.email') => ['value' => 'email', 'name' => 'email'],
-                            ]) !!}
+                        {!! Former::checkbox('enable_buy_now_buttons')
+                            ->text(trans('texts.enable'))
+                            ->label(' ')
+                            ->help(trans('texts.enable_buy_now_buttons_help')) !!}
 
-                    {!! Former::inline_radios('landing_page')
-                            ->onchange('showPaymentTypes();updateBuyNowButtons();')
-                            ->radios([
-                                trans('texts.invoice') => ['value' => 'invoice', 'name' => 'landing_page_type'],
-                                trans('texts.payment') => ['value' => 'payment', 'name' => 'landing_page_type'],
-                            ])->check('invoice') !!}
+                        @if ($account->enable_buy_now_buttons)
+                            {!! Former::select('product')
+                                ->onchange('updateBuyNowButtons()')
+                                ->addOption('', '')
+                                ->inlineHelp('buy_now_buttons_warning')
+                                ->addGroupClass('product-select') !!}
 
-                    <div id="paymentTypesDiv" style="display:none">
-                        {!! Former::select('payment_type')
-                            ->onchange('updateBuyNowButtons()')
-                            ->options($gateway_types) !!}
-                    </div>
+                            {!! Former::checkboxes('client_fields')
+                                    ->onchange('updateBuyNowButtons()')
+                                    ->checkboxes([
+                                        trans('texts.first_name') => ['value' => 'first_name', 'name' => 'first_name'],
+                                        trans('texts.last_name') => ['value' => 'last_name', 'name' => 'last_name'],
+                                        trans('texts.email') => ['value' => 'email', 'name' => 'email'],
+                                    ]) !!}
 
-                    <p>&nbsp;</p>
+                            {!! Former::inline_radios('landing_page')
+                                    ->onchange('showPaymentTypes();updateBuyNowButtons();')
+                                    ->radios([
+                                        trans('texts.invoice') => ['value' => 'invoice', 'name' => 'landing_page_type'],
+                                        trans('texts.payment') => ['value' => 'payment', 'name' => 'landing_page_type'],
+                                    ])->check('invoice') !!}
 
-                    <div role="tabpanel">
-                        <ul class="nav nav-tabs" role="tablist" style="border: none">
-                            <li role="presentation" class="active">
-                                <a href="#form" aria-controls="form" role="tab" data-toggle="tab">{{ trans('texts.form') }}</a>
-                            </li>
-                            <li role="presentation">
-                                <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="form">
-                            <textarea id="formTextarea" class="form-control" rows="4" readonly></textarea>
-                        </div>
-                        <div role="tabpanel" class="tab-pane" id="link">
-                            <textarea id="linkTextarea" class="form-control" rows="4" readonly></textarea>
-                        </div>
-                    </div>
+                            <div id="paymentTypesDiv" style="display:none">
+                                {!! Former::select('payment_type')
+                                    ->onchange('updateBuyNowButtons()')
+                                    ->options($gateway_types) !!}
+                            </div>
+
+                            <p>&nbsp;</p>
+
+                            <div role="tabpanel">
+                                <ul class="nav nav-tabs" role="tablist" style="border: none">
+                                    <li role="presentation" class="active">
+                                        <a href="#form" aria-controls="form" role="tab" data-toggle="tab">{{ trans('texts.form') }}</a>
+                                    </li>
+                                    <li role="presentation">
+                                        <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="form">
+                                    <textarea id="formTextarea" class="form-control" rows="4" readonly></textarea>
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="link">
+                                    <textarea id="linkTextarea" class="form-control" rows="4" readonly></textarea>
+                                </div>
+                            </div>
+
+                        @endif
+
+                    @else
+
+                        <center style="font-size:16px;color:#888888;">
+                            {{ trans('texts.buy_now_buttons_disabled') }}
+                        </center>
+
+                    @endif
 
                 </div>
             </div>
@@ -148,7 +167,6 @@
                     ->label(trans('texts.custom_css'))
                     ->rows(10)
                     ->raw()
-                    ->autofocus()
                     ->maxlength(60000)
                     ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
             </div>

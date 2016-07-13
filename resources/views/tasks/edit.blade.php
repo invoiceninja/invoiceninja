@@ -408,7 +408,11 @@
         var $clientSelect = $('select#client');
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
-            $clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
+            var clientName = getClientDisplayName(client);
+            if (!clientName) {
+                continue;
+            }
+            $clientSelect.append(new Option(clientName, client.public_id));
         }
 
         if ({{ $clientPublicId ? 'true' : 'false' }}) {

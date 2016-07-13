@@ -282,19 +282,29 @@ class BasePaymentDriver
 
     private function updateClient()
     {
-        if ( ! $this->contact()->email && $this->input['email']) {
-            $this->contact()->email = $this->input['email'];
-            $this->contact()->save();
-        }
-
         if ( ! $this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
             return;
+        }
+
+        // update the contact info
+        if ( ! $this->contact()->getFullName()) {
+            $this->contact()->first_name = $this->input['first_name'];
+            $this->contact()->last_name = $this->input['last_name'];
+        }
+
+        if ( ! $this->contact()->email) {
+            $this->contact()->email = $this->input['email'];
+        }
+
+        if ($this->contact()->isDirty()) {
+            $this->contact()->save();
         }
 
         if ( ! $this->accountGateway->show_address || ! $this->accountGateway->update_address) {
             return;
         }
 
+        // update the address info
         $client = $this->client();
         $client->address1 = trim($this->input['address1']);
         $client->address2 = trim($this->input['address2']);

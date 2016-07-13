@@ -2034,7 +2034,10 @@ $LANG = array(
     'form' => 'Form',
     'link' => 'Link',
     'fields' => 'Fields',
+    'dwolla' => 'Dwolla',
     'buy_now_buttons_warning' => 'Note: client and invoice records are created even if the transaction isn\'t completed.',
+    'buy_now_buttons_disabled' => 'This feature requires that a product is created and a payment gateway is configured.',
+    'enable_buy_now_buttons_help' => 'Enable support for buy now buttons',
 
 );
 

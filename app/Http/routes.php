@@ -753,6 +753,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('FEATURE_TASKS', 'tasks');
     define('FEATURE_EXPENSES', 'expenses');
     define('FEATURE_REPORTS', 'reports');
+    define('FEATURE_BUY_NOW_BUTTONS', 'buy_now_buttons');
     define('FEATURE_API', 'api');
     define('FEATURE_CLIENT_PORTAL_PASSWORD', 'client_portal_password');
     define('FEATURE_CUSTOM_URL', 'custom_url');
