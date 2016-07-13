@@ -2028,6 +2028,7 @@ $LANG = array(
     'apply_taxes' => 'Apply taxes',
     'min_to_max_users' => ':min to :max users',
     'max_users_reached' => 'The maximum number of users has been reached.'
+    'dwolla' => 'Dwolla',
 
 );
 
