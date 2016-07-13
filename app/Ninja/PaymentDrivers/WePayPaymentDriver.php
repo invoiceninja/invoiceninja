@@ -7,8 +7,6 @@ use Exception;
 
 class WePayPaymentDriver extends BasePaymentDriver
 {
-    protected $sourceReferenceParam = 'accessToken';
-
     public function gatewayTypes()
     {
         $types =  [
@@ -22,21 +20,6 @@ class WePayPaymentDriver extends BasePaymentDriver
 
         return $types;
     }
-
-    /*
-    public function startPurchase($input = false, $sourceId = false)
-    {
-        $data = parent::startPurchase($input, $sourceId);
-
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
-            if ( ! $sourceId) {
-                throw new Exception();
-            }
-        }
-
-        return $data;
-    }
-    */
 
     public function tokenize()
     {
