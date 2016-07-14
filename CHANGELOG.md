@@ -26,3 +26,4 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 - "Manual entry" untranslatable #562
 - Using a database table prefix breaks the dashboard #203
+- Request statically called in StartupCheck.php #977
