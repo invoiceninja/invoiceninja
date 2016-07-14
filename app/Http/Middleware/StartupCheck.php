@@ -33,12 +33,12 @@ class StartupCheck
         // TRUSTED_PROXIES accepts a comma delimited list of subnets
         // ie, TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
         if (isset($_ENV['TRUSTED_PROXIES'])) {
-            Request::setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
+            $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
         }
 
         // Ensure all request are over HTTPS in production
-        if (Utils::requireHTTPS() && !Request::secure()) {
-            return Redirect::secure(Request::path());
+        if (Utils::requireHTTPS() && !$request->secure()) {
+            return Redirect::secure($request->path());
         }
 
         // If the database doens't yet exist we'll skip the rest
