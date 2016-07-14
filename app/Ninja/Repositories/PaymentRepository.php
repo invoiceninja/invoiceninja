@@ -227,11 +227,11 @@ class PaymentRepository extends BaseRepository
     }
 
     /**
-     * @param Payment $payment
+     * @param $payment
      *
      * @return bool
      */
-    public function delete(Payment $payment)
+    public function delete($payment)
     {
         if ($payment->invoice->is_deleted) {
             return false;
@@ -241,11 +241,11 @@ class PaymentRepository extends BaseRepository
     }
 
     /**
-     * @param Payment $payment
+     * @param $payment
      * 
      * @return bool
      */
-    public function restore(Payment $payment)
+    public function restore($payment)
     {
         if ($payment->invoice->is_deleted) {
             return false;
