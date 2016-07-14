@@ -82,23 +82,31 @@ function GetPdfMake(invoice, javascript, callback) {
         return val;
     }
 
-
     // Add ninja logo to the footer
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
     if (!invoice.features.remove_created_by) {
         var footer = (typeof dd.footer === 'function') ? dd.footer() : dd.footer;
         if (footer) {
-            if (designId == NINJA.TEMPLATES.ELEGANT) {
-                footer[0].columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
-            } else if (designId == NINJA.TEMPLATES.PLAYFUL) {
-                footer.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 10, 10]})
-            } else if (designId == NINJA.TEMPLATES.BOLD) {
-                footer[1].columns.push({image: logoImages.imageLogo2, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
-            } else if (designId == NINJA.TEMPLATES.MODERN) {
-                footer[1].columns[0].stack.push({image: logoImages.imageLogo3, alignment: 'left', width: 130, margin: [40, 6, 0, 0]});
-            } else {
+            if (footer.hasOwnProperty('columns')) {
                 footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 0, 0]})
+            } else {
+                var foundColumns;
+                for (var i=0; i<footer.length; i++) {
+                    var item = footer[i];
+                    if (item.hasOwnProperty('columns')) {
+                        foundColumns = true;
+                        var columns = item.columns;
+                        if (columns[0].hasOwnProperty('stack')) {
+                            columns[0].stack.push({image: logoImages.imageLogo3, alignment: 'left', width: 130, margin: [40, 6, 0, 0]});
+                        } else {
+                            columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
+                        }
+                    }
+                }
+                if (!foundColumns) {
+                    footer.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 10, 10]})
+                }
             }
         }
     }
