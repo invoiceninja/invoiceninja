@@ -7,6 +7,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 ### Added
 - Added 'Buy Now' buttons
 
+### Fixed
+- Setting default tax rate breaks invoice creation #974
+
+
 ## [2.6] - 2016-07-12
 
 ### Added
