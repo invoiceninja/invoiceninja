@@ -433,7 +433,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
 
     public function caddAddUsers() {
-        if ( ! $this->hasFeature(FEATURE_USERS)) {
+        if ( ! Utils::isNinja()) {
+            return true;
+        } elseif ( ! $this->hasFeature(FEATURE_USERS)) {
             return false;
         }
 

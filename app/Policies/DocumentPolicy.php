@@ -24,7 +24,7 @@ class DocumentPolicy extends EntityPolicy
      * @param Document $document
      * @return bool
      */
-    public static function view(User $user, Document $document)
+    public static function view(User $user, $document)
     {
         if ($user->hasPermission('view_all')) {
             return true;
