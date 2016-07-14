@@ -229,16 +229,16 @@ class AccountRepository
         return $data;
     }
 
-    public function enablePlan($plan, $credit = 0, $pending_monthly = false)
+    public function enablePlan($plan, $credit = 0)
     {
         $account = Auth::user()->account;
         $client = $this->getNinjaClient($account);
-        $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit, $pending_monthly);
+        $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit);
 
         return $invitation;
     }
 
-    public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0, $pending_monthly = false)
+    public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0)
     {
         $term = $plan['term'];
         $plan_cost = $plan['price'];
@@ -284,19 +284,6 @@ class AccountRepository
         // Don't change this without updating the regex in PaymentService->createPayment()
         $item->product_key = 'Plan - '.ucfirst($plan).' ('.ucfirst($term).')';
         $invoice->invoice_items()->save($item);
-
-        if ($pending_monthly) {
-            $term_end = $term == PLAN_MONTHLY ? date_create('+1 month') : date_create('+1 year');
-            $pending_monthly_item = InvoiceItem::createNew($invoice);
-            $item->qty = 1;
-            $pending_monthly_item->cost = 0;
-            $pending_monthly_item->notes = trans('texts.plan_pending_monthly', ['date', Utils::dateToString($term_end)]);
-
-            // Don't change this without updating the text in PaymentService->createPayment()
-            $pending_monthly_item->product_key = 'Pending Monthly';
-            $invoice->invoice_items()->save($pending_monthly_item);
-        }
-
 
         $invitation = new Invitation();
         $invitation->account_id = $account->id;

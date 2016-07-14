@@ -161,6 +161,85 @@ class AccountController extends BaseController
     public function changePlan() {
         $user = Auth::user();
         $account = $user->account;
+        $company = $account->company;
+
+        $plan = Input::get('plan');
+        $term = Input::get('plan_term');
+        $numUsers = Input::get('num_users');
+
+        $planDetails = $account->getPlanDetails(false, false);
+
+        $newPlan = [
+            'plan' => $plan,
+            'term' => $term,
+            'num_users' => $numUsers,
+        ];
+        $newPlan['price'] = Utils::getPlanPrice($newPlan);
+        $credit = 0;
+
+        if (!empty($planDetails['started']) && $plan == PLAN_FREE) {
+            // Downgrade
+            $refund_deadline = clone $planDetails['started'];
+            $refund_deadline->modify('+30 days');
+
+            if ($plan == PLAN_FREE && $refund_deadline >= date_create()) {
+                // Refund
+                $company->plan = null;
+                $company->plan_term = null;
+                $company->plan_started = null;
+                $company->plan_expires = null;
+                $company->plan_paid = null;
+
+                if ($payment = $account->company->payment) {
+                    $ninjaAccount = $this->accountRepo->getNinjaAccount();
+                    $paymentDriver = $ninjaAccount->paymentDriver();
+                    $paymentDriver->refundPayment($payment);
+                    Session::flash('message', trans('texts.plan_refunded'));
+                    \Log::info("Refunded Plan Payment: {$account->name} - {$user->email}");
+                } else {
+                    Session::flash('message', trans('texts.updated_plan'));
+                }
+
+                $account->company->save();
+            }
+        }
+
+        if (!empty($planDetails['paid']) && $plan != PLAN_FREE) {
+            $time_used = $planDetails['paid']->diff(date_create());
+            $days_used = $time_used->days;
+
+            if ($time_used->invert) {
+                // They paid in advance
+                $days_used *= -1;
+            }
+
+            $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
+            $percent_used = $days_used / $days_total;
+            $credit = $planDetails['plan_price'] * (1 - $percent_used);
+        }
+
+        if ($newPlan['price'] > $credit) {
+            $invitation = $this->accountRepo->enablePlan($newPlan, $credit);
+            return Redirect::to('view/' . $invitation->invitation_key);
+        } else {
+
+            $company->plan = $plan;
+            $company->plan_term = $term;
+            $company->plan_price = $newPlan['price'];
+            $company->num_users = $numUsers;
+            $company->plan_expires = DateTime::createFromFormat('Y-m-d', $company->plan_paid)->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+
+            // TODO change plan
+            var_dump($newPlan);
+            var_dump($credit);
+            dd('0');
+        }
+    }
+
+    /*
+    public function changePlan() {
+        $user = Auth::user();
+        $account = $user->account;
 
         $plan = Input::get('plan');
         $term = Input::get('plan_term');
@@ -280,6 +359,8 @@ class AccountController extends BaseController
 
         return Redirect::to('/settings/'.ACCOUNT_MANAGEMENT, 301);
     }
+    */
+
 
     /**
      * @param $entityType

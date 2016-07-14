@@ -591,57 +591,49 @@ class BasePaymentDriver
                 if (1 == preg_match('/^Plan - (.+) \((.+)\)$/', $invoice_item->product_key, $matches)) {
                     $plan = strtolower($matches[1]);
                     $term = strtolower($matches[2]);
+                    $price = $invoice_item->cost;
                     if ($plan == PLAN_ENTERPRISE) {
                         preg_match('/###[\d] [\w]* (\d*)/', $invoice_item->notes, $matches);
                         $numUsers = $matches[1];
                     } else {
                         $numUsers = 1;
                     }
-                } elseif ($invoice_item->product_key == 'Pending Monthly') {
-                    $pending_monthly = true;
                 }
             }
 
             if (!empty($plan)) {
                 $account = Account::with('users')->find($invoice->client->public_id);
+                $company = $account->company;
 
                 if(
-                    $account->company->plan != $plan
+                    $company->plan != $plan
                     || DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create('-7 days')
                 ) {
                     // Either this is a different plan, or the subscription expired more than a week ago
                     // Reset any grandfathering
-                    $account->company->plan_started = date_create()->format('Y-m-d');
+                    $company->plan_started = date_create()->format('Y-m-d');
                 }
 
                 if (
-                    $account->company->plan == $plan
-                    && $account->company->plan_term == $term
-                    && DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create()
+                    $company->plan == $plan
+                    && $company->plan_term == $term
+                    && DateTime::createFromFormat('Y-m-d', $company->plan_expires) >= date_create()
                 ) {
                     // This is a renewal; mark it paid as of when this term expires
-                    $account->company->plan_paid = $account->company->plan_expires;
+                    $company->plan_paid = $company->plan_expires;
                 } else {
-                    $account->company->plan_paid = date_create()->format('Y-m-d');
+                    $company->plan_paid = date_create()->format('Y-m-d');
                 }
 
-                $account->company->payment_id = $payment->id;
-                $account->company->plan = $plan;
-                $account->company->plan_term = $term;
-                $account->company->plan_price = $payment->amount;
-                $account->company->num_users = $numUsers;
-                $account->company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
+                $company->payment_id = $payment->id;
+                $company->plan = $plan;
+                $company->plan_term = $term;
+                $company->plan_price = $price;
+                $company->num_users = $numUsers;
+                $company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
                     ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
 
-                if (!empty($pending_monthly)) {
-                    $account->company->pending_plan = $plan;
-                    $account->company->pending_term = PLAN_TERM_MONTHLY;
-                } else {
-                    $account->company->pending_plan = null;
-                    $account->company->pending_term = null;
-                }
-
-                $account->company->save();
+                $company->save();
             }
         }
 

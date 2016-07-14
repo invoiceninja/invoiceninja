@@ -53,7 +53,7 @@ class SendRenewalInvoices extends Command
         $companies = Company::whereRaw('datediff(plan_expires, curdate()) = 10')
                         ->orderBy('id')
                         ->get();
-        $this->info(count($companies).' companies found');
+        $this->info(count($companies).' companies found renewing in 10 days');
 
         foreach ($companies as $company) {
             if (!count($company->accounts)) {

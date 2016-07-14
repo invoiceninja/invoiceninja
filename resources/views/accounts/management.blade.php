@@ -38,11 +38,7 @@
 				@if ($planDetails && $planDetails['active'])
 					<div class="form-group">
 						<label class="col-sm-4 control-label">
-							@if((!$account->company->pending_plan || $account->company->pending_plan == $planDetails['plan']) && $planDetails['expires'] && !$planDetails['trial'])
-								{{ trans('texts.renews') }}
-							@else
-								{{ trans('texts.expires') }}
-							@endif
+							{{ trans('texts.renews') }}
 						</label>
 						<div class="col-sm-8">
 							<p class="form-control-static">
@@ -54,28 +50,6 @@
 							</p>
 						</div>
 					</div>
-					@if ($account->company->pending_plan)
-					<div class="form-group">
-						<label class="col-sm-4 control-label">{{ trans('texts.pending_change_to') }}</label>
-						<div class="col-sm-8">
-							<p class="form-control-static">
-								@if ($account->company->pending_plan == PLAN_FREE)
-									{{ trans('texts.plan_changes_to', [
-										'plan'=>trans('texts.plan_free'),
-										'date'=>Utils::dateToString($planDetails['expires'])
-									]) }}
-								@else
-									{{ trans('texts.plan_term_changes_to', [
-										'plan'=>trans('texts.plan_'.$account->company->pending_plan),
-										'term'=>trans('texts.plan_term_'.$account->company->pending_term.'ly'),
-										'date'=>Utils::dateToString($planDetails['expires'])
-									]) }}
-								@endif<br>
-								<a href="#" onclick="cancelPendingChange()">{{ trans('texts.cancel_plan_change') }}</a>
-							</p>
-						</div>
-					</div>
-					@endif
 					@if (Utils::isNinjaProd())
 						{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
 					@endif
@@ -220,15 +194,6 @@
             $('#numUsersDiv').hide();
         }
     }
-
-	@if ($account->company->pending_plan)
-    	function cancelPendingChange(){
-    		$('#plan').val('{{ $planDetails['plan'] }}')
-    		$('#plan_term').val('{{ $planDetails['term'] }}')
-    		confirmChangePlan();
-    		return false;
-    	}
-	@endif
 
   	jQuery(document).ready(function($){
 		function updatePlanModal() {
