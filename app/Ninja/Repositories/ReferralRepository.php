@@ -1,9 +1,19 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use App\Models\Account;
 
+/**
+ * Class ReferralRepository
+ */
 class ReferralRepository
 {
+    /**
+     * @param $userId
+     * 
+     * @return array
+     */
     public function getCounts($userId)
     {
         $accounts = Account::where('referral_user_id', $userId)->get();

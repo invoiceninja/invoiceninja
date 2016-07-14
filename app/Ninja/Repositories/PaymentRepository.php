@@ -1,18 +1,31 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use DB;
 use Utils;
 use App\Models\Payment;
 use App\Models\Credit;
-use App\Models\Invoice;
 
+/**
+ * Class PaymentRepository
+ */
 class PaymentRepository extends BaseRepository
 {
+    /**
+     * @return string
+     */
     public function getClassName()
     {
         return 'App\Models\Payment';
     }
 
+    /**
+     * @param null $clientPublicId
+     * @param null $filter
+     *
+     * @return $this
+     */
     public function find($clientPublicId = null, $filter = null)
     {
         $query = DB::table('payments')
@@ -87,6 +100,12 @@ class PaymentRepository extends BaseRepository
         return $query;
     }
 
+    /**
+     * @param null $contactId
+     * @param null $filter
+     *
+     * @return $this
+     */
     public function findForContact($contactId = null, $filter = null)
     {
         $query = DB::table('payments')
@@ -142,7 +161,13 @@ class PaymentRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input, $payment = null)
+    /**
+     * @param array $input
+     * @param Payment|null $payment
+     *
+     * @return Payment|mixed
+     */
+    public function save(array $input, Payment $payment = null)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
 
@@ -201,7 +226,12 @@ class PaymentRepository extends BaseRepository
         return $payment;
     }
 
-    public function delete($payment)
+    /**
+     * @param Payment $payment
+     *
+     * @return bool
+     */
+    public function delete(Payment $payment)
     {
         if ($payment->invoice->is_deleted) {
             return false;
@@ -210,7 +240,12 @@ class PaymentRepository extends BaseRepository
         parent::delete($payment);
     }
 
-    public function restore($payment)
+    /**
+     * @param Payment $payment
+     * 
+     * @return bool
+     */
+    public function restore(Payment $payment)
     {
         if ($payment->invoice->is_deleted) {
             return false;

@@ -1,12 +1,20 @@
-<?php namespace App\Ninja\Datatables;
+<?php
+
+namespace App\Ninja\Datatables;
 
 use URL;
 use App\Models\AccountGateway;
 
+/**
+ * Class AccountGatewayDatatable
+ */
 class AccountGatewayDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_ACCOUNT_GATEWAY;
 
+    /**
+     * @return array
+     */
     public function columns()
     {
         return [
@@ -48,6 +56,9 @@ class AccountGatewayDatatable extends EntityDatatable
         ];
     }
 
+    /**
+     * @return array
+     */
     public function actions()
     {
         return [

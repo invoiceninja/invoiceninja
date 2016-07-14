@@ -1,14 +1,22 @@
-<?php namespace App\Ninja\Datatables;
+<?php
+
+namespace App\Ninja\Datatables;
 
 use Utils;
 use URL;
 use Auth;
 use Str;
 
+/**
+ * Class ProductDatatable
+ */
 class ProductDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PRODUCT;
 
+    /**
+     * @return array
+     */
     public function columns()
     {
         return [
@@ -40,6 +48,9 @@ class ProductDatatable extends EntityDatatable
         ];
     }
 
+    /**
+     * @return array
+     */
     public function actions()
     {
         return [
@@ -51,5 +62,4 @@ class ProductDatatable extends EntityDatatable
             ]
         ];
     }
-
 }

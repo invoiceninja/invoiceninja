@@ -4,6 +4,9 @@ namespace App\Policies;
 
 use App\Models\User;
 
+/**
+ * Class ExpensePolicy
+ */
 class ExpensePolicy extends EntityPolicy
 {
     /**

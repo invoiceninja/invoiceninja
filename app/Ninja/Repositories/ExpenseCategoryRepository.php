@@ -1,17 +1,26 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use DB;
-use Utils;
 use Auth;
 use App\Models\ExpenseCategory;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
+    /**
+     * @return string
+     */
     public function getClassName()
     {
         return 'App\Models\ExpenseCategory';
     }
 
+    /**
+     * @param null $filter
+     *
+     * @return $this
+     */
     public function find($filter = null)
     {
         $query = DB::table('expense_categories')
@@ -36,10 +45,14 @@ class ExpenseCategoryRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input, $category = false)
+    /**
+     * @param array $input
+     * @param ExpenseCategory $category
+     *
+     * @return ExpenseCategory|mixed
+     */
+    public function save(array $input, ExpenseCategory $category = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
-
         if ( ! $category) {
             $category = ExpenseCategory::createNew();
         }

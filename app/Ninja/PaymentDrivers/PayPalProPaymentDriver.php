@@ -1,7 +1,17 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
 
+namespace App\Ninja\PaymentDrivers;
+
+use App\Models\PaymentMethod;
+
+/**
+ * Class PayPalProPaymentDriver
+ */
 class PayPalProPaymentDriver extends BasePaymentDriver
 {
+    /**
+     * @return array
+     */
     public function gatewayTypes()
     {
         return [
@@ -9,7 +19,12 @@ class PayPalProPaymentDriver extends BasePaymentDriver
         ];
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    /**
+     * @param PaymentMethod $paymentMethod
+     *
+     * @return array
+     */
+    protected function paymentDetails(PaymentMethod $paymentMethod = false)
     {
         $data = parent::paymentDetails();
 

@@ -1,13 +1,20 @@
-<?php namespace App\Ninja\Datatables;
+<?php
 
-use Utils;
+namespace App\Ninja\Datatables;
+
 use URL;
 use Auth;
 
+/**
+ * Class ExpenseCategoryDatatable
+ */
 class ExpenseCategoryDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE_CATEGORY;
 
+    /**
+     * @return array
+     */
     public function columns()
     {
         return [
@@ -25,6 +32,9 @@ class ExpenseCategoryDatatable extends EntityDatatable
         ];
     }
 
+    /**
+     * @return array
+     */
     public function actions()
     {
         return [
