@@ -13,6 +13,7 @@ use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Language;
 use App\Models\Contact;
 use App\Models\Account;
@@ -236,6 +237,24 @@ class AccountRepository
         $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit);
 
         return $invitation;
+    }
+
+    public function createNinjaCredit($client, $amount)
+    {
+        $account = $this->getNinjaAccount();
+
+        $lastCredit = Credit::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
+        $publicId = $lastCredit ? ($lastCredit->public_id + 1) : 1;
+
+        $credit = new Credit();
+        $credit->public_id = $publicId;
+        $credit->account_id = $account->id;
+        $credit->user_id = $account->users()->first()->id;
+        $credit->client_id = $client->id;
+        $credit->amount = $amount;
+        $credit->save();
+
+        return $credit;
     }
 
     public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0)

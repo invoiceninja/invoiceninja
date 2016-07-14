@@ -183,13 +183,6 @@ class AccountController extends BaseController
             $refund_deadline->modify('+30 days');
 
             if ($plan == PLAN_FREE && $refund_deadline >= date_create()) {
-                // Refund
-                $company->plan = null;
-                $company->plan_term = null;
-                $company->plan_started = null;
-                $company->plan_expires = null;
-                $company->plan_paid = null;
-
                 if ($payment = $account->company->payment) {
                     $ninjaAccount = $this->accountRepo->getNinjaAccount();
                     $paymentDriver = $ninjaAccount->paymentDriver();
@@ -199,8 +192,6 @@ class AccountController extends BaseController
                 } else {
                     Session::flash('message', trans('texts.updated_plan'));
                 }
-
-                $account->company->save();
             }
         }
 
@@ -223,16 +214,24 @@ class AccountController extends BaseController
             return Redirect::to('view/' . $invitation->invitation_key);
         } else {
 
-            $company->plan = $plan;
-            $company->plan_term = $term;
-            $company->plan_price = $newPlan['price'];
-            $company->num_users = $numUsers;
-            $company->plan_expires = DateTime::createFromFormat('Y-m-d', $company->plan_paid)->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+            // create a credit
+            $credit = $credit - $newPlan['price'];
+            if ($credit > 0) {
+                $client = $this->accountRepo->getNinjaClient($account, $credit);
+                $this->accountRepo->createNinjaCredit();
+            }
 
-            // TODO change plan
-            var_dump($newPlan);
-            var_dump($credit);
-            dd('0');
+            if ($plan != PLAN_FREE) {
+                $company->plan_term = $term;
+                $company->plan_price = $newPlan['price'];
+                $company->num_users = $numUsers;
+                $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+            }
+
+            $company->plan = $plan;
+            $company->save();
+
+            return Redirect::to('settings/account_management');
         }
     }
 
