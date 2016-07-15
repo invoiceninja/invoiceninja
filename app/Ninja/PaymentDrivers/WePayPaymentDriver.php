@@ -53,7 +53,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             $data['transaction_id'] = $transactionId;
         }
 
-        $data['applicationFee'] = $this->calculateApplicationFee($data['amount']);
+        $data['applicationFee'] = (WEPAY_APP_FEE_MULTIPLIER * $data['amount']) + WEPAY_APP_FEE_FIXED;
         $data['feePayer'] = WEPAY_FEE_PAYER;
         $data['callbackUri'] = $this->accountGateway->getWebhookUrl();
 
@@ -189,13 +189,6 @@ class WePayPaymentDriver extends BasePaymentDriver
         }
 
         return $response->getCode() == 4004;
-    }
-
-    private function calculateApplicationFee($amount)
-    {
-        $fee = (WEPAY_APP_FEE_MULTIPLIER * $amount) + WEPAY_APP_FEE_FIXED;
-
-        return floor(min($fee, $amount * 0.2));// Maximum fee is 20% of the amount.
     }
 
     public function handleWebHook($input)
