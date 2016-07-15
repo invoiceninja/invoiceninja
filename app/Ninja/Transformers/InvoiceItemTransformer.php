@@ -17,7 +17,7 @@ class InvoiceItemTransformer extends EntityTransformer
             'qty' => (float) $item->qty,
             'tax_name1' => $item->tax_name1 ? $item->tax_name1 : '',
             'tax_rate1' => (float) $item->tax_rate1,
-            'tax_name2' => $item->tax_name2 ? $item->tax_name1 : '',
+            'tax_name2' => $item->tax_name2 ? $item->tax_name2 : '',
             'tax_rate2' => (float) $item->tax_rate2,
         ]);
     }
