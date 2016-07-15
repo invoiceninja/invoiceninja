@@ -516,6 +516,7 @@ class BasePaymentDriver
     public function createPaymentMethod($customer)
     {
         $paymentMethod = PaymentMethod::createNew($this->invitation);
+        $paymentMethod->contact_id = $this->contact()->id;
         $paymentMethod->ip = Request::ip();
         $paymentMethod->account_gateway_token_id = $customer->id;
         $paymentMethod->setRelation('account_gateway_token', $customer);
