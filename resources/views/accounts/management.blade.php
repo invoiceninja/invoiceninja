@@ -122,6 +122,11 @@
 
 						</div>
 						<div class="modal-footer" style="margin-top: 0px">
+                            @if (Utils::isPro())
+                                <div class="pull-left" style="padding-top: 8px;color:#888888">
+                                    {{ trans('texts.changes_take_effect_immediately') }}
+                                </div>
+                            @endif
 							<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
 							@if ($planDetails && $planDetails['active'])
 								<button type="button" class="btn btn-primary" id="changePlanButton" onclick="confirmChangePlan()">{{ trans('texts.plan_change') }}</button>
