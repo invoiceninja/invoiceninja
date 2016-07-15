@@ -999,32 +999,6 @@ class Account extends Eloquent
     }
 
     /**
-     * @param null $updatedAt
-     */
-    public function loadAllData($updatedAt = null)
-    {
-        $map = [
-            'users' => [],
-            'clients' => ['contacts'],
-            'invoices' => ['invoice_items', 'user', 'client', 'payments'],
-            'products' => [],
-            'tax_rates' => [],
-            'expenses' => ['client', 'invoice', 'vendor'],
-            'payments' => ['invoice'],
-            'expense_categories' => [],
-        ];
-
-        foreach ($map as $key => $values) {
-            $this->load([$key => function($query) use ($values, $updatedAt) {
-                $query->withTrashed()->with($values);
-                if ($updatedAt) {
-                    $query->where('updated_at', '>=', $updatedAt);
-                }
-            }]);
-        }
-    }
-
-    /**
      * @param bool $client
      */
     public function loadLocalizationSettings($client = false)

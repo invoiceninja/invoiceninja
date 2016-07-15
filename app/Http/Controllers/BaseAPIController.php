@@ -87,16 +87,8 @@ class BaseAPIController extends Controller
 
         $query->with($includes);
 
-        if ($updatedAt = Input::get('updated_at')) {
-            $updatedAt = date('Y-m-d H:i:s', $updatedAt);
-            $query->where(function($query) use ($includes, $updatedAt) {
-                $query->where('updated_at', '>=', $updatedAt);
-                foreach ($includes as $include) {
-                    $query->orWhereHas($include, function($query) use ($updatedAt) {
-                        $query->where('updated_at', '>=', $updatedAt);
-                    });
-                }
-            });
+        if ($updatedAt = intval(Input::get('updated_at'))) {
+            $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
 
         if ($clientPublicId = Input::get('client_id')) {

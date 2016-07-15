@@ -34,12 +34,12 @@ class AccountApiController extends BaseAPIController
     public function register(RegisterRequest $request)
     {
 
-        $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);        
+        $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
         $user = $account->users()->first();
-        
+
         Auth::login($user, true);
         event(new UserSignedUp());
-        
+
         return $this->processLogin($request);
     }
 
@@ -71,9 +71,8 @@ class AccountApiController extends BaseAPIController
         $account = Auth::user()->account;
         $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
-        $account->loadAllData($updatedAt);
-
         $transformer = new AccountTransformer(null, $request->serializer);
+        $account->load($transformer->getDefaultIncludes());
         $account = $this->createItem($account, $transformer, 'account');
 
         return $this->response($account);
