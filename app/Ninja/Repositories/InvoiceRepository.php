@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
 use App\Jobs\SendInvoiceEmail;
-use App\Jobs\SendRecurringInvoiceEmail;
 use App\Models\Account;
 use DB;
 use Illuminate\Foundation\Bus\DispatchesJobs;
@@ -706,11 +705,7 @@ class InvoiceRepository extends BaseRepository
      */
     public function send(Invoice $invoice)
     {
-        if($invoice->is_recurring) {
-            $this->dispatch(new SendRecurringInvoiceEmail($invoice));
-        } else {
-            $this->dispatch(new SendInvoiceEmail($invoice));
-        }
+        $this->dispatch(new SendInvoiceEmail($invoice));
     }
 
     /**

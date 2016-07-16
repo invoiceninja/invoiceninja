@@ -11,7 +11,6 @@ use DB;
 use URL;
 use DropdownButton;
 use App\Jobs\SendInvoiceEmail;
-use App\Jobs\SendRecurringInvoiceEmail;
 use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Product;
@@ -515,7 +514,7 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            return $this->dispatch(new SendRecurringInvoiceEmail($invoice));
+            return $this->dispatch(new SendInvoiceEmail($invoice));
         }
     }
 
