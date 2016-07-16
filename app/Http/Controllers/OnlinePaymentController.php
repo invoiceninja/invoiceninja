@@ -243,7 +243,7 @@ class OnlinePaymentController extends BaseController
         $client = $clientRepo->save($data);
 
         $data = [
-            'client_id' => $client->public_id,
+            'client_id' => $client->id,
             'invoice_items' => [[
                 'product_key' => $product->product_key,
                 'notes' => $product->notes,
