@@ -3,7 +3,16 @@
 @section('head')
 @parent
 
-<link href='https://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
+    @include('money_script')
+
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
+
+    <style>
+    .checkbox-inline input[type="checkbox"] {
+        margin-left:-20px !important;
+    }
+    </style>
+
 @stop
 
 @section('content')
@@ -17,6 +26,7 @@
 {!! Former::populateField('client_view_css', $client_view_css) !!}
 {!! Former::populateField('enable_portal_password', intval($enable_portal_password)) !!}
 {!! Former::populateField('send_portal_password', intval($send_portal_password)) !!}
+{!! Former::populateField('enable_buy_now_buttons', intval($account->enable_buy_now_buttons)) !!}
 
 @if (!Utils::isNinja() && !Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
 <div class="alert alert-warning" style="font-size:larger;">
@@ -69,6 +79,83 @@
             </div>
         </div>
 
+        <div class="panel panel-default" id="buyNow">
+            <div class="panel-heading">
+                <h3 class="panel-title">{!! trans('texts.buy_now_buttons') !!}</h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-10 col-md-offset-1">
+
+                    @if (count($gateway_types) && count($products))
+
+                        {!! Former::checkbox('enable_buy_now_buttons')
+                            ->text(trans('texts.enable'))
+                            ->label(' ')
+                            ->help(trans('texts.enable_buy_now_buttons_help')) !!}
+
+                        @if ($account->enable_buy_now_buttons)
+                            {!! Former::select('product')
+                                ->onchange('updateBuyNowButtons()')
+                                ->addOption('', '')
+                                ->inlineHelp('buy_now_buttons_warning')
+                                ->addGroupClass('product-select') !!}
+
+                            {!! Former::checkboxes('client_fields')
+                                    ->onchange('updateBuyNowButtons()')
+                                    ->checkboxes([
+                                        trans('texts.first_name') => ['value' => 'first_name', 'name' => 'first_name'],
+                                        trans('texts.last_name') => ['value' => 'last_name', 'name' => 'last_name'],
+                                        trans('texts.email') => ['value' => 'email', 'name' => 'email'],
+                                    ]) !!}
+
+                            {!! Former::inline_radios('landing_page')
+                                    ->onchange('showPaymentTypes();updateBuyNowButtons();')
+                                    ->radios([
+                                        trans('texts.invoice') => ['value' => 'invoice', 'name' => 'landing_page_type'],
+                                        trans('texts.payment') => ['value' => 'payment', 'name' => 'landing_page_type'],
+                                    ])->check('invoice') !!}
+
+                            <div id="paymentTypesDiv" style="display:none">
+                                {!! Former::select('payment_type')
+                                    ->onchange('updateBuyNowButtons()')
+                                    ->options($gateway_types) !!}
+                            </div>
+
+                            <p>&nbsp;</p>
+
+                            <div role="tabpanel">
+                                <ul class="nav nav-tabs" role="tablist" style="border: none">
+                                    <li role="presentation" class="active">
+                                        <a href="#form" aria-controls="form" role="tab" data-toggle="tab">{{ trans('texts.form') }}</a>
+                                    </li>
+                                    <li role="presentation">
+                                        <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="tab-content">
+                                <div role="tabpanel" class="tab-pane active" id="form">
+                                    <textarea id="formTextarea" class="form-control" rows="4" readonly></textarea>
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="link">
+                                    <textarea id="linkTextarea" class="form-control" rows="4" readonly></textarea>
+                                </div>
+                            </div>
+
+                        @endif
+
+                    @else
+
+                        <center style="font-size:16px;color:#888888;">
+                            {{ trans('texts.buy_now_buttons_disabled') }}
+                        </center>
+
+                    @endif
+
+                </div>
+            </div>
+        </div>
+
         @if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_CSS))
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -80,7 +167,6 @@
                     ->label(trans('texts.custom_css'))
                     ->rows(10)
                     ->raw()
-                    ->autofocus()
                     ->maxlength(60000)
                     ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
             </div>
@@ -95,12 +181,74 @@
 </center>
 
 {!! Former::close() !!}
+
 <script>
+
+    var products = {!! $products !!};
+    console.log(products);
+
+    $(function() {
+        var $productSelect = $('select#product');
+        for (var i=0; i<products.length; i++) {
+            var product = products[i];
+
+            $productSelect.append(new Option(formatMoney(product.cost) + ' - ' + product.product_key, product.public_id));
+        }
+        $productSelect.combobox();
+
+        fixCheckboxes();
+        updateBuyNowButtons();
+    })
+
 	$('#enable_portal_password').change(fixCheckboxes);
-	function fixCheckboxes(){
+
+	function fixCheckboxes() {
 		var checked = $('#enable_portal_password').is(':checked');
 		$('#send_portal_password').prop('disabled', !checked);
 	}
-	fixCheckboxes();
+
+    function showPaymentTypes() {
+        var val = $('input[name=landing_page_type]:checked').val()
+        if (val == '{{ ENTITY_PAYMENT }}') {
+            $('#paymentTypesDiv').fadeIn();
+        } else {
+            $('#paymentTypesDiv').hide();
+        }
+    }
+
+    function updateBuyNowButtons() {
+        var productId = $('#product').val();
+        var landingPage = $('input[name=landing_page_type]:checked').val()
+        var paymentType = landingPage == 'payment' ? '/' + $('#payment_type').val() : '';
+
+        var form = '';
+        var link = '';
+
+        if (productId) {
+            var link = '{{ url('/buy_now') }}' + paymentType +
+                '?account_key={{ $account->account_key }}' +
+                '&product_id=' + productId;
+
+            var form = '<form action="{{ url('/buy_now') }}' + paymentType + '" method="post" target="_top">' + "\n" +
+                        '<input type="hidden" name="account_key" value="{{ $account->account_key }}"/>' + "\n" +
+                        '<input type="hidden" name="product_id" value="' + productId + '"/>' + "\n";
+
+            @foreach (['first_name', 'last_name', 'email'] as $field)
+                if ($('input#{{ $field }}').is(':checked')) {
+                    form += '<input type="{{ $field == 'email' ? 'email' : 'text' }}" name="{{ $field }}" placeholder="{{ trans("texts.{$field}") }}" required/>' + "\n";
+                    link += '&{{ $field }}=';
+                }
+            @endforeach
+
+            form += '<input type="submit" value="Buy Now" name="submit"/>' + "\n" + '</form>';
+        }
+
+        $('#formTextarea').text(form);
+        $('#linkTextarea').text(link);
+    }
+
+
+
 </script>
+
 @stop

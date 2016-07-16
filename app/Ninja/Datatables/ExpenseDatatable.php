@@ -67,6 +67,12 @@ class ExpenseDatatable extends EntityDatatable
                 }
             ],
             [
+                'category',
+                function ($model) {
+                    return $model->category != null ? substr($model->category, 0, 100) : '';
+                }
+            ],
+            [
                 'public_notes',
                 function ($model) {
                     return $model->public_notes != null ? substr($model->public_notes, 0, 100) : '';
@@ -75,7 +81,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'expense_status_id',
                 function ($model) {
-                    return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced);
+                    return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance);
                 }
             ],
         ];
@@ -115,11 +121,16 @@ class ExpenseDatatable extends EntityDatatable
     }
 
 
-    private function getStatusLabel($invoiceId, $shouldBeInvoiced)
+    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance)
     {
         if ($invoiceId) {
-            $label = trans('texts.invoiced');
-            $class = 'success';
+            if (floatval($balance)) {
+                $label = trans('texts.invoiced');
+                $class = 'default';
+            } else {
+                $label = trans('texts.paid');
+                $class = 'success';
+            }
         } elseif ($shouldBeInvoiced) {
             $label = trans('texts.pending');
             $class = 'warning';

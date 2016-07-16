@@ -4,13 +4,29 @@ use Auth;
 use Eloquent;
 use Utils;
 
+/**
+ * Class EntityModel
+ */
 class EntityModel extends Eloquent
 {
+    /**
+     * @var bool
+     */
     public $timestamps = true;
+    /**
+     * @var array
+     */
     protected $hidden = ['id'];
 
+    /**
+     * @var bool
+     */
     public static $notifySubscriptions = true;
 
+    /**
+     * @param null $context
+     * @return mixed
+     */
     public static function createNew($context = null)
     {
         $className = get_called_class();
@@ -34,10 +50,9 @@ class EntityModel extends Eloquent
         $entity->setRelation('account', $account);
 
         if (method_exists($className, 'trashed')){
-            $lastEntity = $className::withTrashed()
-                        ->scope(false, $entity->account_id);
+            $lastEntity = $className::whereAccountId($entity->account_id)->withTrashed();
         } else {
-            $lastEntity = $className::scope(false, $entity->account_id);
+            $lastEntity = $className::whereAccountId($entity->account_id);
         }
 
         $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
@@ -52,6 +67,10 @@ class EntityModel extends Eloquent
         return $entity;
     }
 
+    /**
+     * @param $publicId
+     * @return mixed
+     */
     public static function getPrivateId($publicId)
     {
         $className = get_called_class();
@@ -59,6 +78,9 @@ class EntityModel extends Eloquent
         return $className::scope($publicId)->withTrashed()->value('id');
     }
 
+    /**
+     * @return string
+     */
     public function getActivityKey()
     {
         return '[' . $this->getEntityType().':'.$this->public_id.':'.$this->getDisplayName() . ']';
@@ -76,6 +98,12 @@ class EntityModel extends Eloquent
     }
     */
 
+    /**
+     * @param $query
+     * @param bool $publicId
+     * @param bool $accountId
+     * @return mixed
+     */
     public function scopeScope($query, $publicId = false, $accountId = false)
     {
         if (!$accountId) {
@@ -92,38 +120,51 @@ class EntityModel extends Eloquent
             }
         }
 
-        return $query;
-    }
-
-    public function scopeViewable($query)
-    {
         if (Auth::check() && ! Auth::user()->hasPermission('view_all')) {
-            $query->where($this->getEntityType(). 's.user_id', '=', Auth::user()->id);
+            $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
         return $query;
     }
 
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeWithArchived($query)
     {
         return $query->withTrashed()->where('is_deleted', '=', false);
     }
 
+    /**
+     * @return mixed
+     */
     public function getName()
     {
         return $this->public_id;
     }
 
+    /**
+     * @return mixed
+     */
     public function getDisplayName()
     {
         return $this->getName();
     }
 
+    /**
+     * @param $entityType
+     * @return string
+     */
     public static function getClassName($entityType)
     {
         return 'App\\Models\\' . ucwords(Utils::toCamelCase($entityType));
     }
 
+    /**
+     * @param $entityType
+     * @return string
+     */
     public static function getTransformerName($entityType)
     {
         return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
@@ -139,6 +180,9 @@ class EntityModel extends Eloquent
     }
 
     // converts "App\Models\Client" to "client_id"
+    /**
+     * @return string
+     */
     public function getKeyField()
     {
         $class = get_class($this);

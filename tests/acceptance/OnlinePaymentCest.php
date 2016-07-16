@@ -22,14 +22,16 @@ class OnlinePaymentCest
         $productKey = $this->faker->text(10);
 
         // set gateway info
-        $I->wantTo('create a gateway');
-        $I->amOnPage('/gateways/create?other_providers=true');
+        if ( ! $I->grabFromDatabase('account_gateways', 'id', ['id' => 1])) {
+            $I->wantTo('create a gateway');
+            $I->amOnPage('/gateways/create?other_providers=true');
 
-        $I->fillField(['name' =>'23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
-        // Fails to load StripeJS causing "ReferenceError: Can't find variable: Stripe"
-        //$I->fillField(['name' =>'stripe_publishable_key'], env('stripe_secret_key') ?: Fixtures::get('stripe_publishable_key'));
-        $I->click('Save');
-        $I->see('Successfully created gateway');
+            $I->fillField(['name' =>'23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
+            // Fails to load StripeJS causing "ReferenceError: Can't find variable: Stripe"
+            //$I->fillField(['name' =>'stripe_publishable_key'], env('stripe_secret_key') ?: Fixtures::get('stripe_publishable_key'));
+            $I->click('Save');
+            $I->see('Successfully created gateway');
+        }
 
         // create client
         $I->amOnPage('/clients/create');
@@ -63,6 +65,7 @@ class OnlinePaymentCest
         $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
             $I->amOnPage('/view/' . $invitationKey);
             $I->click('Pay Now');
+            $I->click('Credit Card');
 
             /*
             $I->fillField(['name' => 'first_name'], $this->faker->firstName);
@@ -88,7 +91,8 @@ class OnlinePaymentCest
 
         // create recurring invoice and auto-bill
         $I->amOnPage('/recurring_invoices/create');
-        $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
+        //$I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
+        $I->selectDropdown($I, 'Test Test', '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->selectOption('#auto_bill', 3);

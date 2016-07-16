@@ -2,6 +2,8 @@
 
 @section('payment_details')
 
+    {!! Former::vertical_open($url) !!}
+
     <h3>{{ trans('texts.bank_account') }}</h3>
 
     @if (!empty($details))
@@ -36,5 +38,7 @@
                         ->large() !!}
         @endif
     </center>
+
+    {!! Former::close() !!}
 
 @stop

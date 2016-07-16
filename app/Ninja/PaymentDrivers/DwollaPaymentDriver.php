@@ -2,7 +2,7 @@
 
 class DwollaPaymentDriver extends BasePaymentDriver
 {
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         return [GATEWAY_TYPE_DWOLLA];
     }

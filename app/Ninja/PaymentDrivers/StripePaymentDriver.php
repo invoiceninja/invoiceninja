@@ -2,20 +2,21 @@
 
 use Exception;
 use Cache;
+use App\Models\Payment;
 use App\Models\PaymentMethod;
 
 class StripePaymentDriver extends BasePaymentDriver
 {
     protected $customerReferenceParam = 'customerReference';
 
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         $types =  [
             GATEWAY_TYPE_CREDIT_CARD,
             GATEWAY_TYPE_TOKEN
         ];
 
-        if ($this->accountGateway->getAchEnabled()) {
+        if ($this->accountGateway && $this->accountGateway->getAchEnabled()) {
             $types[] = GATEWAY_TYPE_BANK_TRANSFER;
         }
 
@@ -70,6 +71,13 @@ class StripePaymentDriver extends BasePaymentDriver
     protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails($paymentMethod);
+
+        if ($paymentMethod) {
+            return $data;
+        }
+
+        // Stripe complains if the email field is set
+        unset($data['email']);
 
         if ( ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
@@ -167,9 +175,9 @@ class StripePaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
-    protected function creatingPayment($payment)
+    protected function creatingPayment($payment, $paymentMethod)
     {
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
             $payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
         }
 
@@ -178,6 +186,8 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function removePaymentMethod($paymentMethod)
     {
+        parent::removePaymentMethod($paymentMethod);
+
         if ( ! $paymentMethod->relationLoaded('account_gateway_token')) {
             $paymentMethod->load('account_gateway_token');
         }
@@ -188,7 +198,7 @@ class StripePaymentDriver extends BasePaymentDriver
         ])->send();
 
         if ($response->isSuccessful()) {
-            return parent::removePaymentMethod($paymentMethod);
+            return true;
         } else {
             throw new Exception($response->getMessage());
         }
@@ -215,12 +225,12 @@ class StripePaymentDriver extends BasePaymentDriver
                 [
                     'allow_redirects' => false,
                     'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
-                    'body' => http_build_query(array(
+                    'body' => http_build_query([
                         'client_id' => $clientId,
                         'secret' => $secret,
                         'public_token' => $publicToken,
                         'account_id' => $accountId,
-                    ))
+                    ])
                 ]
             );
             return json_decode($response->getBody(), true);
@@ -300,5 +310,91 @@ class StripePaymentDriver extends BasePaymentDriver
 
             return $e->getMessage();
         }
+    }
+
+    public function handleWebHook($input)
+    {
+        $eventId = array_get($input, 'id');
+        $eventType= array_get($input, 'type');
+
+        $accountGateway = $this->accountGateway;
+        $accountId = $accountGateway->account_id;
+
+        if (!$eventId) {
+            throw new Exception('Missing event id');
+        }
+
+        if (!$eventType) {
+            throw new Exception('Missing event type');
+        }
+
+        $supportedEvents = [
+            'charge.failed',
+            'charge.succeeded',
+            'charge.refunded',
+            'customer.source.updated',
+            'customer.source.deleted',
+            'customer.bank_account.deleted',
+        ];
+
+        if (!in_array($eventType, $supportedEvents)) {
+            return ['message' => 'Ignoring event'];
+        }
+
+        // Fetch the event directly from Stripe for security
+        $eventDetails = $this->makeStripeCall('GET', 'events/'.$eventId);
+
+        if (is_string($eventDetails) || !$eventDetails) {
+            throw new Exception('Could not get event details');
+        }
+
+        if ($eventType != $eventDetails['type']) {
+            throw new Exception('Event type mismatch');
+        }
+
+        if (!$eventDetails['pending_webhooks']) {
+            throw new Exception('This is not a pending event');
+        }
+
+        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded' || $eventType == 'charge.refunded') {
+            $charge = $eventDetails['data']['object'];
+            $transactionRef = $charge['id'];
+
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $transactionRef)->first();
+
+            if (!$payment) {
+                throw new Exception('Unknown payment');
+            }
+
+            if ($eventType == 'charge.failed') {
+                if (!$payment->isFailed()) {
+                    $payment->markFailed($charge['failure_message']);
+
+                    $userMailer = app('App\Ninja\Mailers\UserMailer');
+                    $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
+                }
+            } elseif ($eventType == 'charge.succeeded') {
+                $payment->markComplete();
+            } elseif ($eventType == 'charge.refunded') {
+                $payment->recordRefund($charge['amount_refunded'] / 100 - $payment->refunded);
+            }
+        } elseif($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+            $source = $eventDetails['data']['object'];
+            $sourceRef = $source['id'];
+
+            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
+
+            if (!$paymentMethod) {
+                throw new Exception('Unknown payment method');
+            }
+
+            if ($eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+                $paymentMethod->delete();
+            } elseif ($eventType == 'customer.source.updated') {
+                //$this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
+            }
+        }
+
+        return 'Processed successfully';
     }
 }

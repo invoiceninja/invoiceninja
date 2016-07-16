@@ -1,27 +1,24 @@
 <?php namespace App\Ninja\PaymentDrivers;
 
+use Session;
+use Utils;
+use App\Models\Payment;
+use Exception;
+
 class WePayPaymentDriver extends BasePaymentDriver
 {
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
-        return [
+        $types =  [
             GATEWAY_TYPE_CREDIT_CARD,
-            GATEWAY_TYPE_BANK_TRANSFER,
             GATEWAY_TYPE_TOKEN
         ];
-    }
 
-    public function startPurchase($input = false, $sourceId = false)
-    {
-        $data = parent::startPurchase($input, $sourceId);
-
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
-            if ( ! $sourceId) {
-                throw new Exception();
-            }
+        if ($this->accountGateway && $this->accountGateway->getAchEnabled()) {
+            $types[] = GATEWAY_TYPE_BANK_TRANSFER;
         }
 
-        return $data;
+        return $types;
     }
 
     public function tokenize()
@@ -52,40 +49,126 @@ class WePayPaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails($paymentMethod);
 
-        if ($transactionId = Session::get($invitation->id . 'payment_ref')) {
+        if ($transactionId = Session::get($this->invitation->id . 'payment_ref')) {
             $data['transaction_id'] = $transactionId;
         }
 
-        $data['applicationFee'] = $this->calculateApplicationFee($data['amount']);
+        $data['applicationFee'] = (WEPAY_APP_FEE_MULTIPLIER * $data['amount']) + WEPAY_APP_FEE_FIXED;
         $data['feePayer'] = WEPAY_FEE_PAYER;
         $data['callbackUri'] = $this->accountGateway->getWebhookUrl();
 
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
             $data['paymentMethodType'] = 'payment_bank';
         }
 
         return $data;
     }
 
-    public function removePaymentMethod($paymentMethod)
+    public function createToken()
     {
         $wepay = Utils::setupWePay($this->accountGateway);
-        $wepay->request('/credit_card/delete', [
+        $token = intval($this->input['sourceToken']);
+
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
+            // Persist bank details
+            $this->tokenResponse = $wepay->request('/payment_bank/persist', [
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                'payment_bank_id' => $token,
+            ]);
+        } else {
+            // Authorize credit card
+            $tokenResponse = $wepay->request('credit_card/authorize', [
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                'credit_card_id' => $token,
+            ]);
+
+            // Update the callback uri and get the card details
+            $tokenResponse = $wepay->request('credit_card/modify', [
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                'credit_card_id' => $token,
+                'auto_update' => WEPAY_AUTO_UPDATE,
+                'callback_uri' => $this->accountGateway->getWebhookUrl(),
+            ]);
+
+            $this->tokenResponse = $wepay->request('credit_card', [
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                'credit_card_id' => $token,
+            ]);
+        }
+
+        return parent::createToken();
+    }
+
+    /*
+    public function creatingCustomer($customer)
+    {
+        if ($gatewayResponse instanceof \Omnipay\WePay\Message\CustomCheckoutResponse) {
+            $wepay = \Utils::setupWePay($accountGateway);
+            $paymentMethodType = $gatewayResponse->getData()['payment_method']['type'];
+
+            $gatewayResponse = $wepay->request($paymentMethodType, array(
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                $paymentMethodType.'_id' => $gatewayResponse->getData()['payment_method'][$paymentMethodType]['id'],
+            ));
+        }
+    }
+    */
+
+    protected function creatingPaymentMethod($paymentMethod)
+    {
+        $source = $this->tokenResponse;
+
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
+            $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
+            $paymentMethod->last4 = $source->account_last_four;
+            $paymentMethod->bank_name = $source->bank_name;
+            $paymentMethod->source_reference = $source->payment_bank_id;
+
+            switch($source->state) {
+                case 'new':
+                case 'pending':
+                    $paymentMethod->status = 'new';
+                    break;
+                case 'authorized':
+                    $paymentMethod->status = 'verified';
+                    break;
+            }
+        } else {
+            $paymentMethod->last4 = $source->last_four;
+            $paymentMethod->payment_type_id = $this->parseCardType($source->credit_card_name);
+            $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-01';
+            $paymentMethod->source_reference = $source->credit_card_id;
+        }
+
+        return $paymentMethod;
+    }
+
+    public function removePaymentMethod($paymentMethod)
+    {
+        parent::removePaymentMethod($paymentMethod);
+
+        $wepay = Utils::setupWePay($this->accountGateway);
+        $response = $wepay->request('/credit_card/delete', [
             'client_id' => WEPAY_CLIENT_ID,
             'client_secret' => WEPAY_CLIENT_SECRET,
             'credit_card_id' => intval($paymentMethod->source_reference),
         ]);
 
-        if ($response->isSuccessful()) {
-            return parent::removePaymentMethod($paymentMethod);
+        if ($response->state == 'deleted') {
+            return true;
         } else {
-            throw new Exception($response->getMessage());
+            throw new Exception(trans('texts.failed_remove_payment_method'));
         }
     }
 
     protected function refundDetails($payment, $amount)
     {
-        $data = parent::refundDetails($parent);
+        $data = parent::refundDetails($payment, $amount);
 
         $data['refund_reason'] = 'Refund issued by merchant.';
 
@@ -108,11 +191,94 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $response->getCode() == 4004;
     }
 
-    private function calculateApplicationFee($amount)
+    public function handleWebHook($input)
     {
-        $fee = WEPAY_APP_FEE_MULTIPLIER * $amount + WEPAY_APP_FEE_FIXED;
+        $accountGateway = $this->accountGateway;
+        $accountId = $accountGateway->account_id;
 
-        return floor(min($fee, $amount * 0.2));// Maximum fee is 20% of the amount.
+        foreach (array_keys($input) as $key) {
+            if ('_id' == substr($key, -3)) {
+                $objectType = substr($key, 0, -3);
+                $objectId = $input[$key];
+                break;
+            }
+        }
+
+        if (!isset($objectType)) {
+            throw new Exception('Could not find object id parameter');
+        }
+
+        if ($objectType == 'credit_card') {
+            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $objectId)->first();
+
+            if (!$paymentMethod) {
+                throw new Exception('Unknown payment method');
+            }
+
+            $wepay = Utils::setupWePay($accountGateway);
+            $source = $wepay->request('credit_card', [
+                'client_id' => WEPAY_CLIENT_ID,
+                'client_secret' => WEPAY_CLIENT_SECRET,
+                'credit_card_id' => intval($objectId),
+            ]);
+
+            if ($source->state == 'deleted') {
+                $paymentMethod->delete();
+            } else {
+                //$this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
+            }
+
+            return 'Processed successfully';
+        } elseif ($objectType == 'account') {
+            $config = $accountGateway->getConfig();
+            if ($config->accountId != $objectId) {
+                throw new Exception('Unknown account');
+            }
+
+            $wepay = Utils::setupWePay($accountGateway);
+            $wepayAccount = $wepay->request('account', [
+                'account_id' => intval($objectId),
+            ]);
+
+            if ($wepayAccount->state == 'deleted') {
+                $accountGateway->delete();
+            } else {
+                $config->state = $wepayAccount->state;
+                $accountGateway->setConfig($config);
+                $accountGateway->save();
+            }
+
+            return ['message' => 'Processed successfully'];
+        } elseif ($objectType == 'checkout') {
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
+
+            if (!$payment) {
+                throw new Exception('Unknown payment');
+            }
+
+            $wepay = Utils::setupWePay($accountGateway);
+            $checkout = $wepay->request('checkout', [
+                'checkout_id' => intval($objectId),
+            ]);
+
+            if ($checkout->state == 'refunded') {
+                $payment->recordRefund();
+            } elseif (!empty($checkout->refund) && !empty($checkout->refund->amount_refunded) && ($checkout->refund->amount_refunded - $payment->refunded) > 0) {
+                $payment->recordRefund($checkout->refund->amount_refunded - $payment->refunded);
+            }
+
+            if ($checkout->state == 'captured') {
+                $payment->markComplete();
+            } elseif ($checkout->state == 'cancelled') {
+                $payment->markCancelled();
+            } elseif ($checkout->state == 'failed') {
+                $payment->markFailed();
+            }
+
+            return 'Processed successfully';
+        } else {
+            return 'Ignoring event';
+        }
     }
 
 }

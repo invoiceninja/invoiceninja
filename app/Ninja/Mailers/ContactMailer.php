@@ -1,18 +1,20 @@
 <?php namespace App\Ninja\Mailers;
 
+use App\Models\Invitation;
 use Utils;
 use Event;
-use URL;
 use Auth;
 use App\Services\TemplateService;
 use App\Models\Invoice;
 use App\Models\Payment;
-use App\Models\Activity;
 use App\Events\InvoiceWasEmailed;
 use App\Events\QuoteWasEmailed;
 
 class ContactMailer extends Mailer
 {
+    /**
+     * @var array
+     */
     public static $variableFields = [
         'footer',
         'account',
@@ -31,13 +33,30 @@ class ContactMailer extends Mailer
         'paymentLink',
         'paymentButton',
         'autoBill',
+        'portalLink',
+        'portalButton',
     ];
 
+    /**
+     * @var TemplateService
+     */
+    protected $templateService;
+
+    /**
+     * ContactMailer constructor.
+     * @param TemplateService $templateService
+     */
     public function __construct(TemplateService $templateService)
     {
         $this->templateService = $templateService;
     }
 
+    /**
+     * @param Invoice $invoice
+     * @param bool $reminder
+     * @param bool $pdfString
+     * @return bool|null|string
+     */
     public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
     {
         $invoice->load('invitations', 'client.language', 'account');
@@ -64,7 +83,7 @@ class ContactMailer extends Mailer
             $pdfString = $invoice->getPDFString();
         }
 
-        $documentStrings = array();
+        $documentStrings = [];
         if ($account->document_email_attachment && $invoice->hasDocuments()) {
             $documents = $invoice->documents;
 
@@ -80,10 +99,10 @@ class ContactMailer extends Mailer
                 $size += $document->size;
                 if($size > $maxSize)break;
 
-                $documentStrings[] = array(
+                $documentStrings[] = [
                     'name' => $document->name,
                     'data' => $document->getRaw(),
-                );
+                ];
             }
         }
 
@@ -107,8 +126,26 @@ class ContactMailer extends Mailer
         return $response;
     }
 
-    private function sendInvitation($invitation, $invoice, $body, $subject, $pdfString, $documentStrings)
+    /**
+     * @param Invitation $invitation
+     * @param Invoice $invoice
+     * @param $body
+     * @param $subject
+     * @param $pdfString
+     * @param $documentStrings
+     * @return bool|string
+     * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     */
+    private function sendInvitation(
+        Invitation$invitation,
+        Invoice $invoice,
+        $body,
+        $subject,
+        $pdfString,
+        $documentStrings
+    )
     {
+
         $client = $invoice->client;
         $account = $invoice->account;
 
@@ -138,12 +175,10 @@ class ContactMailer extends Mailer
             'amount' => $invoice->getRequestedAmount()
         ];
 
-        /*
+        // Let the client know they'll be billed later
         if ($client->autoBillLater()) {
-            // Let the client know they'll be billed later
-            $variables['autobill'] = $this->createAutoBillNotifyString($invoice->autoBillPaymentMethod);
+            $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
         }
-        */
 
         if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
             // The contact needs a password
@@ -182,13 +217,17 @@ class ContactMailer extends Mailer
         }
     }
 
+    /**
+     * @param int $length
+     * @return string
+     */
     protected function generatePassword($length = 9)
     {
-        $sets = array(
+        $sets = [
             'abcdefghjkmnpqrstuvwxyz',
             'ABCDEFGHJKMNPQRSTUVWXYZ',
             '23456789',
-        );
+        ];
         $all = '';
         $password = '';
         foreach($sets as $set)
@@ -204,6 +243,9 @@ class ContactMailer extends Mailer
         return $password;
     }
 
+    /**
+     * @param Payment $payment
+     */
     public function sendPaymentConfirmation(Payment $payment)
     {
         $account = $payment->account;
@@ -260,6 +302,13 @@ class ContactMailer extends Mailer
         $account->loadLocalizationSettings();
     }
 
+    /**
+     * @param $name
+     * @param $email
+     * @param $amount
+     * @param $license
+     * @param $productId
+     */
     public function sendLicensePaymentConfirmation($name, $email, $amount, $license, $productId)
     {
         $view = 'license_confirmation';
@@ -282,19 +331,4 @@ class ContactMailer extends Mailer
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
 
-    /*
-    private function createAutoBillNotifyString($paymentMethod) {
-        if ($paymentMethod->payment_type_id == PAYMENT_TYPE_DIRECT_DEBIT) {
-            $paymentMethodString = trans('texts.auto_bill_payment_method_bank', ['bank'=>$paymentMethod->getBankName(), 'last4'=>$paymentMethod->last4]);
-        } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL) {
-            $paymentMethodString = trans('texts.auto_bill_payment_method_paypal', ['email'=>$paymentMethod->email]);
-        } else {
-            $code = str_replace(' ', '', strtolower($paymentMethod->payment_type->name));
-            $cardType = trans("texts.card_" . $code);
-            $paymentMethodString = trans('texts.auto_bill_payment_method_credit_card', ['type'=>$cardType,'last4'=>$paymentMethod->last4]);
-        }
-
-        return trans('texts.auto_bill_notification', ['payment_method'=>$paymentMethodString]);
-    }
-    */
 }

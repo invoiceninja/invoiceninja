@@ -6,7 +6,9 @@ use Request;
 use Omnipay;
 use Exception;
 use CreditCard;
+use DateTime;
 use App\Models\AccountGatewayToken;
+use App\Models\Account;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Country;
@@ -26,11 +28,11 @@ class BasePaymentDriver
     protected $tokenResponse;
     protected $purchaseResponse;
 
-    protected $sourceReferenceParam;
+    protected $sourceReferenceParam = 'token';
     protected $customerReferenceParam;
     protected $transactionReferenceParam;
 
-    public function __construct($accountGateway, $invitation = false, $gatewayType = false)
+    public function __construct($accountGateway = false, $invitation = false, $gatewayType = false)
     {
         $this->accountGateway = $accountGateway;
         $this->invitation = $invitation;
@@ -42,12 +44,17 @@ class BasePaymentDriver
         return $this->accountGateway->gateway_id == $gatewayId;
     }
 
-    protected function isGatewayType($gatewayType)
+    // optionally pass a paymentMethod to determine the type from the token
+    protected function isGatewayType($gatewayType, $paymentMethod = false)
     {
-        return $this->gatewayType === $gatewayType;
+        if ($paymentMethod) {
+            return $paymentMethod->gatewayType() == $gatewayType;
+        } else {
+            return $this->gatewayType === $gatewayType;
+        }
     }
 
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         return [
             GATEWAY_TYPE_CREDIT_CARD
@@ -119,6 +126,7 @@ class BasePaymentDriver
         }
 
         $data = [
+            'details' => ! empty($input['details']) ? json_decode($input['details']) : false,
             'accountGateway' => $this->accountGateway,
             'acceptedCreditCardTypes' => $this->accountGateway->getCreditcardTypes(),
             'gateway' => $gateway,
@@ -219,7 +227,7 @@ class BasePaymentDriver
         $gateway = $this->gateway();
 
         if ($input) {
-            $this->updateAddress();
+            $this->updateClient();
         }
 
         // load or create token
@@ -272,16 +280,31 @@ class BasePaymentDriver
         }
     }
 
-    private function updateAddress()
+    private function updateClient()
     {
         if ( ! $this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
             return;
+        }
+
+        // update the contact info
+        if ( ! $this->contact()->getFullName()) {
+            $this->contact()->first_name = $this->input['first_name'];
+            $this->contact()->last_name = $this->input['last_name'];
+        }
+
+        if ( ! $this->contact()->email) {
+            $this->contact()->email = $this->input['email'];
+        }
+
+        if ($this->contact()->isDirty()) {
+            $this->contact()->save();
         }
 
         if ( ! $this->accountGateway->show_address || ! $this->accountGateway->update_address) {
             return;
         }
 
+        // update the address info
         $client = $this->client();
         $client->address1 = trim($this->input['address1']);
         $client->address2 = trim($this->input['address2']);
@@ -508,6 +531,7 @@ class BasePaymentDriver
     public function createPaymentMethod($customer)
     {
         $paymentMethod = PaymentMethod::createNew($this->invitation);
+        $paymentMethod->contact_id = $this->contact()->id;
         $paymentMethod->ip = Request::ip();
         $paymentMethod->account_gateway_token_id = $customer->id;
         $paymentMethod->setRelation('account_gateway_token', $customer);
@@ -546,7 +570,7 @@ class BasePaymentDriver
         $payment->payment_date = date_create()->format('Y-m-d');
         $payment->ip = Request::ip();
 
-        $payment = $this->creatingPayment($payment);
+        $payment = $this->creatingPayment($payment, $paymentMethod);
 
         if ($paymentMethod) {
             $payment->last4 = $paymentMethod->last4;
@@ -568,63 +592,67 @@ class BasePaymentDriver
                 if (1 == preg_match('/^Plan - (.+) \((.+)\)$/', $invoice_item->product_key, $matches)) {
                     $plan = strtolower($matches[1]);
                     $term = strtolower($matches[2]);
-                } elseif ($invoice_item->product_key == 'Pending Monthly') {
-                    $pending_monthly = true;
+                    $price = $invoice_item->cost;
+                    if ($plan == PLAN_ENTERPRISE) {
+                        preg_match('/###[\d] [\w]* (\d*)/', $invoice_item->notes, $matches);
+                        $numUsers = $matches[1];
+                    } else {
+                        $numUsers = 1;
+                    }
                 }
             }
 
             if (!empty($plan)) {
                 $account = Account::with('users')->find($invoice->client->public_id);
+                $company = $account->company;
 
                 if(
-                    $account->company->plan != $plan
+                    $company->plan != $plan
                     || DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create('-7 days')
                 ) {
                     // Either this is a different plan, or the subscription expired more than a week ago
                     // Reset any grandfathering
-                    $account->company->plan_started = date_create()->format('Y-m-d');
+                    $company->plan_started = date_create()->format('Y-m-d');
                 }
 
                 if (
-                    $account->company->plan == $plan
-                    && $account->company->plan_term == $term
-                    && DateTime::createFromFormat('Y-m-d', $account->company->plan_expires) >= date_create()
+                    $company->plan == $plan
+                    && $company->plan_term == $term
+                    && DateTime::createFromFormat('Y-m-d', $company->plan_expires) >= date_create()
                 ) {
                     // This is a renewal; mark it paid as of when this term expires
-                    $account->company->plan_paid = $account->company->plan_expires;
+                    $company->plan_paid = $company->plan_expires;
                 } else {
-                    $account->company->plan_paid = date_create()->format('Y-m-d');
+                    $company->plan_paid = date_create()->format('Y-m-d');
                 }
 
-                $account->company->payment_id = $payment->id;
-                $account->company->plan = $plan;
-                $account->company->plan_term = $term;
-                $account->company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
+                $company->payment_id = $payment->id;
+                $company->plan = $plan;
+                $company->plan_term = $term;
+                $company->plan_price = $price;
+                $company->num_users = $numUsers;
+                $company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
                     ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
 
-                if (!empty($pending_monthly)) {
-                    $account->company->pending_plan = $plan;
-                    $account->company->pending_term = PLAN_TERM_MONTHLY;
-                } else {
-                    $account->company->pending_plan = null;
-                    $account->company->pending_term = null;
-                }
-
-                $account->company->save();
+                $company->save();
             }
         }
 
         return $payment;
     }
 
-    protected function creatingPayment($payment)
+    protected function creatingPayment($payment, $paymentMethod)
     {
         return $payment;
     }
 
-    public function refundPayment($payment, $amount)
+    public function refundPayment($payment, $amount = 0)
     {
-        $amount = min($amount, $payment->getCompletedAmount());
+        if ($amount) {
+            $amount = min($amount, $payment->getCompletedAmount());
+        } else {
+            $amount = $payment->getCompletedAmount();
+        }
 
         if ( ! $amount) {
             return false;
@@ -752,7 +780,7 @@ class BasePaymentDriver
 
         // PayPal doesn't allow being run in an iframe so we need to open in new tab
         if ($gatewayType === GATEWAY_TYPE_PAYPAL) {
-            $url .= "#braintree_paypal";
+            $url .= '#braintree_paypal';
 
             if ($account->iframe_url) {
                 return 'javascript:window.open("' . $url . '", "_blank")';
@@ -763,7 +791,7 @@ class BasePaymentDriver
     }
 
     protected function parseCardType($cardName) {
-        $cardTypes = array(
+        $cardTypes = [
             'visa' => PAYMENT_TYPE_VISA,
             'americanexpress' => PAYMENT_TYPE_AMERICAN_EXPRESS,
             'amex' => PAYMENT_TYPE_AMERICAN_EXPRESS,
@@ -778,9 +806,9 @@ class BasePaymentDriver
             'maestro' => PAYMENT_TYPE_MAESTRO,
             'solo' => PAYMENT_TYPE_SOLO,
             'switch' => PAYMENT_TYPE_SWITCH
-        );
+        ];
 
-        $cardName = strtolower(str_replace(array(' ', '-', '_'), '', $cardName));
+        $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
 
         if (empty($cardTypes[$cardName]) && 1 == preg_match('/^('.implode('|', array_keys($cardTypes)).')/', $cardName, $matches)) {
             // Some gateways return extra stuff after the card name
@@ -792,5 +820,10 @@ class BasePaymentDriver
         } else {
             return PAYMENT_TYPE_CREDIT_CARD_OTHER;
         }
+    }
+
+    public function handleWebHook($input)
+    {
+        throw new Exception('Unsupported gateway');
     }
 }

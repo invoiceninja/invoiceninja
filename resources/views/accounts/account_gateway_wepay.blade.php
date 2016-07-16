@@ -27,6 +27,10 @@
     {!! Former::populateField('show_address', 1) !!}
     {!! Former::populateField('update_address', 1) !!}
 
+    @if (WEPAY_ENABLE_CANADA)
+        {!! Former::populateField('country', 'US') !!}
+    @endif
+
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.online_payments') !!}</h3>

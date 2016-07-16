@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Datatable;
-use DB;
 use Input;
 use Redirect;
 use Session;
@@ -15,8 +13,6 @@ use WePay;
 use App\Models\Gateway;
 use App\Models\Account;
 use App\Models\AccountGateway;
-
-use App\Ninja\Repositories\AccountRepository;
 use App\Services\AccountGatewayService;
 
 class AccountGatewayController extends BaseController
@@ -101,8 +97,9 @@ class AccountGatewayController extends BaseController
         $data['title'] = trans('texts.add_gateway');
 
         if ($otherProviders) {
-            $data['primaryGateways'] = Gateway::primary($accountGatewaysIds)->orderBy('name', 'desc')->get();
-            $data['secondaryGateways'] = Gateway::secondary($accountGatewaysIds)->orderBy('name')->get();
+            $availableGatewaysIds = $account->availableGatewaysIds();
+            $data['primaryGateways'] = Gateway::primary($availableGatewaysIds)->orderBy('name', 'desc')->get();
+            $data['secondaryGateways'] = Gateway::secondary($availableGatewaysIds)->orderBy('name')->get();
             $data['hiddenFields'] = Gateway::$hiddenFields;
 
             return View::make('accounts.account_gateway', $data);
@@ -172,7 +169,7 @@ class AccountGatewayController extends BaseController
         $gatewayId = Input::get('primary_gateway_id') ?: Input::get('secondary_gateway_id');
         $gateway = Gateway::findOrFail($gatewayId);
 
-        $rules = array();
+        $rules = [];
         $fields = $gateway->getFields();
         $optional = array_merge(Gateway::$hiddenFields, Gateway::$optionalFields);
 
@@ -216,6 +213,16 @@ class AccountGatewayController extends BaseController
                 $accountGateway = AccountGateway::scope($accountGatewayPublicId)->firstOrFail();
                 $oldConfig = $accountGateway->getConfig();
             } else {
+                // check they don't already have an active gateway for this provider
+                // TODO complete this
+                $accountGateway = AccountGateway::scope()
+                                    ->whereGatewayId($gatewayId)
+                                    ->first();
+                if ($accountGateway) {
+                    Session::flash('error', trans('texts.gateway_exists'));
+                    return Redirect::to("gateways/{$accountGateway->public_id}/edit");
+                }
+
                 $accountGateway = AccountGateway::createNew();
                 $accountGateway->gateway_id = $gatewayId;
 
@@ -323,11 +330,11 @@ class AccountGatewayController extends BaseController
 
         $wepay = Utils::setupWePay($accountGateway);
 
-        $update_uri_data = $wepay->request('account/get_update_uri', array(
+        $update_uri_data = $wepay->request('account/get_update_uri', [
             'account_id'    => $accountGateway->getConfig()->accountId,
             'mode'          => 'iframe',
             'redirect_uri' => URL::to('/gateways'),
-        ));
+        ]);
 
         return $update_uri_data->uri;
     }
@@ -337,14 +344,14 @@ class AccountGatewayController extends BaseController
         $user = Auth::user();
         $account = $user->account;
 
-        $rules = array(
+        $rules = [
             'company_name' => 'required',
             'description' => 'required',
             'tos_agree' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required',
-        );
+        ];
 
         if (WEPAY_ENABLE_CANADA) {
             $rules['country'] = 'required|in:US,CA';
@@ -361,7 +368,7 @@ class AccountGatewayController extends BaseController
         try{
             $wepay = Utils::setupWePay();
 
-            $userDetails = array(
+            $userDetails = [
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
                 'email' => Input::get('email'),
@@ -372,7 +379,7 @@ class AccountGatewayController extends BaseController
                 'tos_acceptance_time' => time(),
                 'redirect_uri' => URL::to('gateways'),
                 'scope' => 'manage_accounts,collect_payments,view_user,preapprove_payments,send_money',
-            );
+            ];
 
             $wepayUser = $wepay->request('user/register/', $userDetails);
 
@@ -381,12 +388,12 @@ class AccountGatewayController extends BaseController
 
             $wepay = new WePay($accessToken);
 
-            $accountDetails = array(
+            $accountDetails = [
                 'name'         => Input::get('company_name'),
                 'description'  => Input::get('description'),
                 'theme_object' => json_decode(WEPAY_THEME),
                 'callback_uri' => $accountGateway->getWebhookUrl(),
-            );
+            ];
 
             if (WEPAY_ENABLE_CANADA) {
                 $accountDetails['country'] = Input::get('country');
@@ -411,7 +418,7 @@ class AccountGatewayController extends BaseController
             }
 
             $accountGateway->gateway_id = GATEWAY_WEPAY;
-            $accountGateway->setConfig(array(
+            $accountGateway->setConfig([
                 'userId' => $wepayUser->user_id,
                 'accessToken' => $accessToken,
                 'tokenType' => $wepayUser->token_type,
@@ -420,15 +427,15 @@ class AccountGatewayController extends BaseController
                 'state' => $wepayAccount->state,
                 'testMode' => WEPAY_ENVIRONMENT == WEPAY_STAGE,
                 'country' => WEPAY_ENABLE_CANADA ? Input::get('country') : 'US',
-            ));
+            ]);
 
             if ($confirmationRequired) {
                 Session::flash('message', trans('texts.created_wepay_confirmation_required'));
             } else {
-                $updateUri = $wepay->request('/account/get_update_uri', array(
+                $updateUri = $wepay->request('/account/get_update_uri', [
                     'account_id' => $wepayAccount->account_id,
                     'redirect_uri' => URL::to('gateways'),
-                ));
+                ]);
 
                 $response = Redirect::to($updateUri->uri);
                 return true;

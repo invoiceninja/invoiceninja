@@ -267,6 +267,8 @@
                 "{{ URL::to('/payment/...') }}$password",
                 '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
                 '{{ trans('texts.auto_bill_notification_placeholder') }}',
+                "{{ URL::to('/client/portal/...') }}",
+                '{!! Form::flatButton('view_portal', '#36c157') !!}',
             ];
 
             // Add blanks for custom values

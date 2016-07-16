@@ -1,12 +1,10 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Utils;
 use Response;
 use Input;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
-use App\Http\Controllers\BaseAPIController;
 use App\Ninja\Transformers\TaskTransformer;
 
 class TaskApiController extends BaseAPIController

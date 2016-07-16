@@ -10,7 +10,7 @@ html {
 
 .navbar-header {
     padding-top: 4px;
-    padding-bottom: 4px;        
+    padding-bottom: 4px;
 }
 .navbar li a {
     padding-top: 18px;
@@ -23,7 +23,7 @@ html {
 
 .navbar {
     x-moz-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
-    x-webkit-box-shadow: 0 0 10px 2px rgba(0,0,0,.05); 
+    x-webkit-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
     box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
 }
 
@@ -111,7 +111,7 @@ table.table thead .sorting_desc_disabled:after { content: '' !important }
     font-weight: 500;
 }
 
-@media screen and (min-width: 700px) { 
+@media screen and (min-width: 700px) {
     #footer .top {
         padding: 27px 0;
     }
@@ -152,7 +152,7 @@ th {border-left: 1px solid #FFFFFF; }
 table.dataTable.no-footer {
     border-bottom: none;
 }
-.table-striped>tbody>tr:nth-child(odd)>td, 
+.table-striped>tbody>tr:nth-child(odd)>td,
 .table-striped>tbody>tr:nth-child(odd)>th {
     background-color: #FDFDFD;
 }

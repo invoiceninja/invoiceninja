@@ -2,12 +2,12 @@
 
 @section('content')
 
-	
+
 	{!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
 			'client' => 'required',
-  		'amount' => 'required',		
+  		'amount' => 'required',
 	)) !!}
-	
+
 	<div class="row">
         <div class="col-md-10 col-md-offset-1">
 
@@ -38,23 +38,27 @@
 
 	<script type="text/javascript">
 
-	
+
 	var clients = {!! $clients !!};
 
 	$(function() {
 
-		var $clientSelect = $('select#client');		
+		var $clientSelect = $('select#client');
 		for (var i=0; i<clients.length; i++) {
 			var client = clients[i];
-			$clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
-		}	
+            var clientName = getClientDisplayName(client);
+            if (!clientName) {
+                continue;
+            }
+			$clientSelect.append(new Option(clientName, client.public_id));
+		}
 
 		if ({{ $clientPublicId ? 'true' : 'false' }}) {
 			$clientSelect.val({{ $clientPublicId }});
 		}
 
 		$clientSelect.combobox();
-		
+
 		$('#currency_id').combobox();
 		$('#credit_date').datepicker('update', new Date());
 

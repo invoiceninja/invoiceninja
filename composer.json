@@ -18,20 +18,17 @@
         "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
         "omnipay/gocardless": "dev-master",
         "omnipay/stripe": "dev-master",
+        "doctrine/dbal": "2.5.x",
+        "laravelcollective/bus": "5.2.*",        
         "laravel/framework": "5.2.*",
         "laravelcollective/html": "5.2.*",
-        "laravelcollective/bus": "5.2.*",
         "symfony/css-selector": "~3.0",
         "patricktalmadge/bootstrapper": "5.5.x",
         "anahkiasen/former": "4.0.*@dev",
-        "barryvdh/laravel-debugbar": "~2.0",
         "chumper/datatable": "dev-develop#04ef2bf",
         "omnipay/omnipay": "~2.3",
         "intervention/image": "dev-master",
         "webpatser/laravel-countries": "dev-master",
-        "barryvdh/laravel-ide-helper": "dev-master",
-        "doctrine/dbal": "2.5.x",
-        "jsanc623/phpbenchtime": "2.x",
         "lokielse/omnipay-alipay": "dev-master",
         "coatesap/omnipay-datacash": "~2.0",
         "mfauveau/omnipay-pacnet": "~2.0",
@@ -75,7 +72,6 @@
         "omnipay/braintree": "~2.0@dev",
         "gatepay/FedACHdir": "dev-master@dev",
         "websight/l5-google-cloud-storage": "^1.0",
-        "fzaninotto/faker": "^1.5",
         "wepay/php-sdk": "^0.2",
         "collizo4sky/omnipay-wepay": "dev-additional-calls"
     },
@@ -84,7 +80,10 @@
         "phpspec/phpspec": "~2.1",
         "codeception/codeception": "*",
         "codeception/c3": "~2.0",
-        "symfony/dom-crawler": "~3.0"
+        "symfony/dom-crawler": "~3.0",
+        "barryvdh/laravel-ide-helper": "~2.2",
+        "barryvdh/laravel-debugbar": "~2.2",
+        "fzaninotto/faker": "^1.5"
     },
     "autoload": {
         "classmap": [

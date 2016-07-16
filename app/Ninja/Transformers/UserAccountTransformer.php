@@ -2,9 +2,6 @@
 
 use App\Models\User;
 use App\Models\Account;
-use League\Fractal;
-use League\Fractal\TransformerAbstract;
-use League\Fractal\Resource\Item;
 
 class UserAccountTransformer extends EntityTransformer
 {

@@ -1,7 +1,7 @@
 <?php namespace App\Http\Middleware;
 
-use Request;
 use Closure;
+use Illuminate\Http\Request;
 use Utils;
 use App;
 use Auth;
@@ -15,27 +15,30 @@ use App\Models\Language;
 use App\Models\InvoiceDesign;
 use App\Events\UserSettingsChanged;
 
+/**
+ * Class StartupCheck
+ */
 class StartupCheck
 {
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  \Closure                 $next
+     * @param  Request $request
+     * @param  Closure $next
      * @return mixed
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next)
     {
         // Set up trusted X-Forwarded-Proto proxies
         // TRUSTED_PROXIES accepts a comma delimited list of subnets
         // ie, TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
         if (isset($_ENV['TRUSTED_PROXIES'])) {
-            Request::setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
+            $request->setTrustedProxies(array_map('trim', explode(',', env('TRUSTED_PROXIES'))));
         }
 
         // Ensure all request are over HTTPS in production
-        if (Utils::requireHTTPS() && !Request::secure()) {
-            return Redirect::secure(Request::path());
+        if (Utils::requireHTTPS() && !$request->secure()) {
+            return Redirect::secure($request->path());
         }
 
         // If the database doens't yet exist we'll skip the rest

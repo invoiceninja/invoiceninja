@@ -122,7 +122,7 @@
                 ->placeholder($account->currency ? $account->currency->name : '')
                 ->fromQuery($currencies, 'name', 'id') !!}
             {!! Former::select('language_id')->addOption('','')
-                ->placeholder($account->language ? $account->language->name : '')
+                ->placeholder($account->language ? trans('texts.lang_'.$account->language->name) : '')
                 ->fromQuery($languages, 'name', 'id') !!}
 			{!! Former::select('payment_terms')->addOption('','')
 				->fromQuery($paymentTerms, 'name', 'num_days')

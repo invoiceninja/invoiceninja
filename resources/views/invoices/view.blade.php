@@ -22,7 +22,7 @@
             }
 		</style>
 
-    @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE && !empty($transactionToken))
+    @if (!empty($transactionToken) && $accountGateway->gateway_id == GATEWAY_BRAINTREE)
         <div id="paypal-container"></div>
         <script type="text/javascript" src="https://js.braintreegateway.com/js/braintree-2.23.0.min.js"></script>
         <script type="text/javascript" >
@@ -30,7 +30,6 @@
                 var paypalLink = $('.dropdown-menu a[href$="paypal"]'),
                     paypalUrl = paypalLink.attr('href'),
                     checkout;
-                console.log(paypalUrl);
                 paypalLink.parent().attr('id', 'paypal-container');
                 braintree.setup("{{ $transactionToken }}", "custom", {
                     onReady: function (integration) {
@@ -65,7 +64,7 @@
         <script type="text/javascript" src="https://static.wepay.com/js/tokenization.v2.js"></script>
         <script type="text/javascript">
             $(function() {
-                var achLink = $('.dropdown-menu a[href$="/wepay_ach"]'),
+                var achLink = $('.dropdown-menu a[href$="/bank_transfer"]'),
                     achUrl = achLink.attr('href');
                 WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
                 achLink.click(function(e) {
@@ -97,7 +96,7 @@
 
 	<div class="container">
 
-        @if ($partialView)
+        @if (!empty($partialView))
             @include($partialView)
         @else
             <div class="pull-right" style="text-align:right">
@@ -116,7 +115,7 @@
     		@else
     			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
                 @if ($account->isNinjaAccount())
-                    {!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/dashboard'))->large() !!}
+                    {!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/settings/account_management'))->large() !!}
                 @endif
     		@endif
     		</div>
@@ -204,7 +203,6 @@
 
 		@include('invoices.pdf', ['account' => $invoice->client->account, 'viewPDF' => true])
 
-		<p>&nbsp;</p>
 		<p>&nbsp;</p>
 
 	</div>

@@ -2,7 +2,6 @@
 
 use App\Models\Account;
 use App\Models\User;
-use League\Fractal;
 
 class UserTransformer extends EntityTransformer
 {

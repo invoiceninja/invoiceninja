@@ -12,40 +12,55 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Services\AuthService;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 
-class AuthController extends Controller {
+class AuthController extends Controller
+{
 
-	/*
-	|--------------------------------------------------------------------------
-	| Registration & Login Controller
-	|--------------------------------------------------------------------------
-	|
-	| This controller handles the registration of new users, as well as the
-	| authentication of existing users. By default, this controller uses
-	| a simple trait to add these behaviors. Why don't you explore it?
-	|
-	*/
+    /*
+    |--------------------------------------------------------------------------
+    | Registration & Login Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles the registration of new users, as well as the
+    | authentication of existing users. By default, this controller uses
+    | a simple trait to add these behaviors. Why don't you explore it?
+    |
+    */
 
-	use AuthenticatesAndRegistersUsers;
+    use AuthenticatesAndRegistersUsers;
 
+    /**
+     * @var string
+     */
     protected $redirectTo = '/dashboard';
+
+    /**
+     * @var AuthService
+     */
     protected $authService;
+
+    /**
+     * @var AccountRepository
+     */
     protected $accountRepo;
 
-	/**
-	 * Create a new authentication controller instance.
-	 *
-	 * @param  \Illuminate\Contracts\Auth\Guard  $auth
-	 * @param  \Illuminate\Contracts\Auth\Registrar  $registrar
-	 * @return void
-	 */
-	public function __construct(AccountRepository $repo, AuthService $authService)
-	{
+    /**
+     * Create a new authentication controller instance.
+     *
+     * @param AccountRepository $repo
+     * @param AuthService $authService
+     * @internal param \Illuminate\Contracts\Auth\Guard $auth
+     * @internal param \Illuminate\Contracts\Auth\Registrar $registrar
+     */
+    public function __construct(AccountRepository $repo, AuthService $authService)
+    {
         $this->accountRepo = $repo;
         $this->authService = $authService;
+    }
 
-		//$this->middleware('guest', ['except' => 'getLogout']);
-	}
-
+    /**
+     * @param array $data
+     * @return mixed
+     */
     public function validator(array $data)
     {
         return Validator::make($data, [
@@ -58,7 +73,8 @@ class AuthController extends Controller {
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array  $data
+     * @param  array $data
+     *
      * @return User
      */
     public function create(array $data)
@@ -70,11 +86,20 @@ class AuthController extends Controller {
         ]);
     }
 
+    /**
+     * @param $provider
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function authLogin($provider, Request $request)
     {
         return $this->authService->execute($provider, $request->has('code'));
     }
 
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function authUnlink()
     {
         $this->accountRepo->unlinkUserFromOauth(Auth::user());
@@ -83,6 +108,9 @@ class AuthController extends Controller {
         return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);
     }
 
+    /**
+     * @return \Illuminate\Http\Response
+     */
     public function getLoginWrapper()
     {
         if (!Utils::isNinja() && !User::count()) {
@@ -92,6 +120,11 @@ class AuthController extends Controller {
         return self::getLogin();
     }
 
+    /**
+     * @param Request $request
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function postLoginWrapper(Request $request)
     {
 
@@ -113,7 +146,7 @@ class AuthController extends Controller {
             if ($request->link_accounts && $userId && Auth::user()->id != $userId) {
                 $users = $this->accountRepo->associateAccounts($userId, Auth::user()->id);
                 Session::flash('message', trans('texts.associated_accounts'));
-            // check if other accounts are linked
+                // check if other accounts are linked
             } else {
                 $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             }
@@ -127,14 +160,16 @@ class AuthController extends Controller {
         return $response;
     }
 
-
+    /**
+     * @return \Illuminate\Http\Response
+     */
     public function getLogoutWrapper()
     {
         if (Auth::check() && !Auth::user()->registered) {
             $account = Auth::user()->account;
             $this->accountRepo->unlinkAccount($account);
             if ($account->company->accounts->count() == 1) {
-                $account->company->forceDelete();    
+                $account->company->forceDelete();
             }
             $account->forceDelete();
         }

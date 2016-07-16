@@ -116,7 +116,7 @@
             </div>
             <div class="col-md-3 address-details">
                 @if ($account->website)
-                    <i class="fa fa-globe" style="width: 20px"></i><a href="{{ $account->website }}" target="_blank">{{ $account->website }}</a><br/>
+                    <i class="fa fa-globe" style="width: 20px"></i><a href="{{ Utils::addHttp($account->website) }}" target="_blank">{{ $account->website }}</a><br/>
                 @endif
                 @if ($account->work_phone)
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $account->work_phone }}<br/>

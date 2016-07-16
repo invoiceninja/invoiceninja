@@ -91,10 +91,8 @@ class PaymentsChanges extends Migration
             $table->unsignedInteger('default_payment_method_id')->nullable();
             $table->foreign('default_payment_method_id')->references('id')->on('payment_methods');
 
-            $table->boolean('uses_local_payment_methods')->default(true);
         });
-
-        \DB::table('account_gateway_tokens')->update(array('uses_local_payment_methods' => false));
+        
     }
 
     /**
@@ -148,7 +146,6 @@ class PaymentsChanges extends Migration
         {
             $table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
             $table->dropColumn('default_payment_method_id');
-            $table->dropColumn('uses_local_payment_methods');
         });
 
         Schema::dropIfExists('payment_methods');

@@ -3,18 +3,17 @@
 use Utils;
 use URL;
 use Auth;
-
 use App\Models\PaymentMethod;
 
 class PaymentDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PAYMENT;
 
-    protected static $refundableGateways = array(
+    protected static $refundableGateways = [
         GATEWAY_STRIPE,
         GATEWAY_BRAINTREE,
         GATEWAY_WEPAY,
-    );
+    ];
 
     public function columns()
     {
@@ -43,7 +42,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'transaction_reference',
                 function ($model) {
-                    return $model->transaction_reference ? $model->transaction_reference : '<i>Manual entry</i>';
+                    return $model->transaction_reference ? $model->transaction_reference : '<i>'.trans('texts.manual_entry').'</i>';
                 }
             ],
             [
@@ -56,10 +55,10 @@ class PaymentDatatable extends EntityDatatable
                 'source',
                 function ($model) {
                     $code = str_replace(' ', '', strtolower($model->payment_type));
-                    $card_type = trans("texts.card_" . $code);
+                    $card_type = trans('texts.card_' . $code);
                     if ($model->payment_type_id != PAYMENT_TYPE_ACH) {
                         if($model->last4) {
-                            $expiration = trans('texts.card_expiration', array('expires' => Utils::fromSqlDate($model->expiration, false)->format('m/y')));
+                            $expiration = Utils::fromSqlDate($model->expiration, false)->format('m/y');
                             return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
                         } elseif ($model->email) {
                             return $model->email;
@@ -137,7 +136,7 @@ class PaymentDatatable extends EntityDatatable
 
     private function getStatusLabel($model)
     {
-        $label = trans("texts.status_" . strtolower($model->payment_status_name));
+        $label = trans('texts.status_' . strtolower($model->payment_status_name));
         $class = 'default';
         switch ($model->payment_status_id) {
             case PAYMENT_STATUS_PENDING:

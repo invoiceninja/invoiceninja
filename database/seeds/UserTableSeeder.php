@@ -77,7 +77,7 @@ class UserTableSeeder extends Seeder
             'account_id' => $account->id,
             'client_id' => $client->id,
             'public_id' => 1,
-            'email' => TEST_USERNAME,
+            'email' => env('TEST_EMAIL', TEST_USERNAME),
             'is_primary' => true,
         ]);
 

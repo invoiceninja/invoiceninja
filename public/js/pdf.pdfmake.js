@@ -82,17 +82,32 @@ function GetPdfMake(invoice, javascript, callback) {
         return val;
     }
 
-
     // Add ninja logo to the footer
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
     if (!invoice.features.remove_created_by) {
-        if (designId == NINJA.TEMPLATES.CLEAN || designId == NINJA.TEMPLATES.NORMAL) {
-            dd.footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 0, 0]})
-        } else if (designId == NINJA.TEMPLATES.BOLD) {
-            dd.footer[1].columns.push({image: logoImages.imageLogo2, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
-        } else if (designId == NINJA.TEMPLATES.MODERN) {
-            dd.footer[1].columns[0].stack.push({image: logoImages.imageLogo3, alignment: 'left', width: 130, margin: [40, 6, 0, 0]});
+        var footer = (typeof dd.footer === 'function') ? dd.footer() : dd.footer;
+        if (footer) {
+            if (footer.hasOwnProperty('columns')) {
+                footer.columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 0, 0]})
+            } else {
+                var foundColumns;
+                for (var i=0; i<footer.length; i++) {
+                    var item = footer[i];
+                    if (item.hasOwnProperty('columns')) {
+                        foundColumns = true;
+                        var columns = item.columns;
+                        if (columns[0].hasOwnProperty('stack')) {
+                            columns[0].stack.push({image: logoImages.imageLogo3, alignment: 'left', width: 130, margin: [40, 6, 0, 0]});
+                        } else {
+                            columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
+                        }
+                    }
+                }
+                if (!foundColumns) {
+                    footer.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, 0, 10, 10]})
+                }
+            }
         }
     }
 
@@ -436,7 +451,7 @@ NINJA.invoiceDocuments = function(invoice) {
     if(invoice.expenses){
         for (var i = 0; i < invoice.expenses.length; i++) {
             var expense = invoice.expenses[i];
-            for (var i = 0; i < expense.documents.length; i++)addDoc(expense.documents[i]);
+            for (var j = 0; j < expense.documents.length; j++)addDoc(expense.documents[j]);
         }
     }
 

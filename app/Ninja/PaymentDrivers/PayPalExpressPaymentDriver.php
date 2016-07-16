@@ -1,10 +1,9 @@
 <?php namespace App\Ninja\PaymentDrivers;
 
-use Exception;
 
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         return [
             GATEWAY_TYPE_PAYPAL
@@ -20,7 +19,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    protected function creatingPayment($payment)
+    protected function creatingPayment($payment, $paymentMethod)
     {
         $payment->payer_id = $this->input['PayerID'];
 

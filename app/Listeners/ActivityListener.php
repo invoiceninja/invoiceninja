@@ -1,5 +1,7 @@
 <?php namespace App\Listeners;
 
+use App\Events\TaskWasCreated;
+use App\Events\TaskWasUpdated;
 use App\Models\Invoice;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasDeleted;
@@ -33,16 +35,28 @@ use App\Events\CreditWasArchived;
 use App\Events\CreditWasRestored;
 use App\Ninja\Repositories\ActivityRepository;
 
+/**
+ * Class ActivityListener
+ */
 class ActivityListener
 {
+    /**
+     * @var ActivityRepository
+     */
     protected $activityRepo;
 
+    /**
+     * ActivityListener constructor.
+     * @param ActivityRepository $activityRepo
+     */
     public function __construct(ActivityRepository $activityRepo)
     {
         $this->activityRepo = $activityRepo;
     }
 
-    // Clients
+    /**
+     * @param ClientWasCreated $event
+     */
     public function createdClient(ClientWasCreated $event)
     {
         $this->activityRepo->create(
@@ -51,6 +65,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param ClientWasDeleted $event
+     */
     public function deletedClient(ClientWasDeleted $event)
     {
         $this->activityRepo->create(
@@ -59,6 +76,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param ClientWasArchived $event
+     */
     public function archivedClient(ClientWasArchived $event)
     {
         if ($event->client->is_deleted) {
@@ -71,6 +91,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param ClientWasRestored $event
+     */
     public function restoredClient(ClientWasRestored $event)
     {
         $this->activityRepo->create(
@@ -79,7 +102,9 @@ class ActivityListener
         );
     }
 
-    // Invoices
+    /**
+     * @param InvoiceWasCreated $event
+     */
     public function createdInvoice(InvoiceWasCreated $event)
     {
         $this->activityRepo->create(
@@ -89,6 +114,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param InvoiceWasUpdated $event
+     */
     public function updatedInvoice(InvoiceWasUpdated $event)
     {
         if (! $event->invoice->isChanged()) {
@@ -107,6 +135,9 @@ class ActivityListener
         $activity->save();
     }
 
+    /**
+     * @param InvoiceWasDeleted $event
+     */
     public function deletedInvoice(InvoiceWasDeleted $event)
     {
         $invoice = $event->invoice;
@@ -119,6 +150,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param InvoiceWasArchived $event
+     */
     public function archivedInvoice(InvoiceWasArchived $event)
     {
         if ($event->invoice->is_deleted) {
@@ -131,6 +165,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param InvoiceWasRestored $event
+     */
     public function restoredInvoice(InvoiceWasRestored $event)
     {
         $invoice = $event->invoice;
@@ -143,6 +180,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param InvoiceInvitationWasEmailed $event
+     */
     public function emailedInvoice(InvoiceInvitationWasEmailed $event)
     {
         $this->activityRepo->create(
@@ -154,6 +194,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param InvoiceInvitationWasViewed $event
+     */
     public function viewedInvoice(InvoiceInvitationWasViewed $event)
     {
         $this->activityRepo->create(
@@ -165,7 +208,9 @@ class ActivityListener
         );
     }
 
-    // Quotes
+    /**
+     * @param QuoteWasCreated $event
+     */
     public function createdQuote(QuoteWasCreated $event)
     {
         $this->activityRepo->create(
@@ -174,6 +219,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param QuoteWasUpdated $event
+     */
     public function updatedQuote(QuoteWasUpdated $event)
     {
         if (! $event->quote->isChanged()) {
@@ -191,6 +239,9 @@ class ActivityListener
         $activity->save();
     }
 
+    /**
+     * @param QuoteWasDeleted $event
+     */
     public function deletedQuote(QuoteWasDeleted $event)
     {
         $this->activityRepo->create(
@@ -199,6 +250,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param QuoteWasArchived $event
+     */
     public function archivedQuote(QuoteWasArchived $event)
     {
         if ($event->quote->is_deleted) {
@@ -211,6 +265,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param QuoteWasRestored $event
+     */
     public function restoredQuote(QuoteWasRestored $event)
     {
         $this->activityRepo->create(
@@ -219,6 +276,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param QuoteInvitationWasEmailed $event
+     */
     public function emailedQuote(QuoteInvitationWasEmailed $event)
     {
         $this->activityRepo->create(
@@ -230,6 +290,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param QuoteInvitationWasViewed $event
+     */
     public function viewedQuote(QuoteInvitationWasViewed $event)
     {
         $this->activityRepo->create(
@@ -241,6 +304,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param QuoteInvitationWasApproved $event
+     */
     public function approvedQuote(QuoteInvitationWasApproved $event)
     {
         $this->activityRepo->create(
@@ -252,7 +318,9 @@ class ActivityListener
         );
     }
 
-    // Credits
+    /**
+     * @param CreditWasCreated $event
+     */
     public function createdCredit(CreditWasCreated $event)
     {
         $this->activityRepo->create(
@@ -261,6 +329,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param CreditWasDeleted $event
+     */
     public function deletedCredit(CreditWasDeleted $event)
     {
         $this->activityRepo->create(
@@ -269,6 +340,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param CreditWasArchived $event
+     */
     public function archivedCredit(CreditWasArchived $event)
     {
         if ($event->credit->is_deleted) {
@@ -281,6 +355,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param CreditWasRestored $event
+     */
     public function restoredCredit(CreditWasRestored $event)
     {
         $this->activityRepo->create(
@@ -289,7 +366,9 @@ class ActivityListener
         );
     }
 
-    // Payments
+    /**
+     * @param PaymentWasCreated $event
+     */
     public function createdPayment(PaymentWasCreated $event)
     {
         $this->activityRepo->create(
@@ -300,6 +379,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param PaymentWasDeleted $event
+     */
     public function deletedPayment(PaymentWasDeleted $event)
     {
         $payment = $event->payment;
@@ -312,6 +394,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param PaymentWasRefunded $event
+     */
     public function refundedPayment(PaymentWasRefunded $event)
     {
         $payment = $event->payment;
@@ -324,6 +409,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param PaymentWasVoided $event
+     */
     public function voidedPayment(PaymentWasVoided $event)
     {
         $payment = $event->payment;
@@ -336,6 +424,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param PaymentFailed $event
+     */
     public function failedPayment(PaymentFailed $event)
     {
         $payment = $event->payment;
@@ -348,6 +439,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param PaymentWasArchived $event
+     */
     public function archivedPayment(PaymentWasArchived $event)
     {
         if ($event->payment->is_deleted) {
@@ -360,6 +454,9 @@ class ActivityListener
         );
     }
 
+    /**
+     * @param PaymentWasRestored $event
+     */
     public function restoredPayment(PaymentWasRestored $event)
     {
         $payment = $event->payment;
@@ -369,6 +466,32 @@ class ActivityListener
             ACTIVITY_TYPE_RESTORE_PAYMENT,
             $event->fromDeleted ? $payment->getCompletedAmount() * -1 : 0,
             $event->fromDeleted ? $payment->getCompletedAmount() : 0
+        );
+    }
+
+    /**
+     * Creates an activity when a task was created
+     *
+     * @param TaskWasCreated $event
+     */
+    public function createdTask(TaskWasCreated $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_CREATE_TASK
+        );
+    }
+
+    /**
+     * Creates an activity when a task was updated
+     *
+     * @param TaskWasUpdated $event
+     */
+    public function updatedTask(TaskWasUpdated $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_UPDATE_TASK
         );
     }
 }

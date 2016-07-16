@@ -4,8 +4,6 @@ use App\Models\Account;
 use App\Models\Payment;
 use App\Models\Invoice;
 use App\Models\Client;
-use League\Fractal;
-use App\Ninja\Transformers\InvoiceTransformer;
 
 /**
  * @SWG\Definition(definition="Payment", required={"invoice_id"}, @SWG\Xml(name="Payment"))
@@ -29,7 +27,7 @@ class PaymentTransformer extends EntityTransformer
     public function __construct($account = null, $serializer = null, $invoice = null)
     {
         parent::__construct($account, $serializer);
-        
+
         $this->invoice = $invoice;
     }
 
@@ -57,6 +55,7 @@ class PaymentTransformer extends EntityTransformer
             'is_deleted' => (bool) $payment->is_deleted,
             'payment_type_id' => (int) $payment->payment_type_id,
             'invoice_id' => (int) ($this->invoice ? $this->invoice->public_id : $payment->invoice->public_id),
+            'invoice_number' => $this->invoice ? $this->invoice->invoice_number : $payment->invoice->invoice_number,
         ]);
     }
 }

@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Transformers;
 
 use App\Models\Invoice;
-use League\Fractal;
 
 class QuoteTransformer extends EntityTransformer
 {

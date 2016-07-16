@@ -1,5 +1,6 @@
 <?php namespace App\Services;
 
+use App\Models\Product;
 use stdClass;
 use Excel;
 use Cache;
@@ -19,18 +20,54 @@ use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\EntityModel;
 
+/**
+ * Class ImportService
+ */
 class ImportService
 {
+    /**
+     * @var
+     */
     protected $transformer;
+
+    /**
+     * @var InvoiceRepository
+     */
     protected $invoiceRepo;
+
+    /**
+     * @var ClientRepository
+     */
     protected $clientRepo;
+
+    /**
+     * @var ContactRepository
+     */
     protected $contactRepo;
+
+    /**
+     * @var ProductRepository
+     */
     protected $productRepo;
+
+    /**
+     * @var array
+     */
     protected $processedRows = [];
 
+    /**
+     * @var array
+     */
     private $maps = [];
+
+    /**
+     * @var array
+     */
     public $results = [];
 
+    /**
+     * @var array
+     */
     public static $entityTypes = [
         IMPORT_JSON,
         ENTITY_CLIENT,
@@ -42,11 +79,13 @@ class ImportService
         ENTITY_EXPENSE,
     ];
 
+    /**
+     * @var array
+     */
     public static $sources = [
         IMPORT_CSV,
         IMPORT_JSON,
         IMPORT_FRESHBOOKS,
-        //IMPORT_HARVEST,
         IMPORT_HIVEAGE,
         IMPORT_INVOICEABLE,
         IMPORT_NUTCACHE,
@@ -55,6 +94,16 @@ class ImportService
         IMPORT_ZOHO,
     ];
 
+    /**
+     * ImportService constructor.
+     *
+     * @param Manager $manager
+     * @param ClientRepository $clientRepo
+     * @param InvoiceRepository $invoiceRepo
+     * @param PaymentRepository $paymentRepo
+     * @param ContactRepository $contactRepo
+     * @param ProductRepository $productRepo
+     */
     public function __construct(
         Manager $manager,
         ClientRepository $clientRepo,
@@ -74,6 +123,11 @@ class ImportService
         $this->productRepo = $productRepo;
     }
 
+    /**
+     * @param $file
+     * @return array
+     * @throws Exception
+     */
     public function importJSON($file)
     {
         $this->init();
@@ -121,6 +175,10 @@ class ImportService
         return $this->results;
     }
 
+    /**
+     * @param $array
+     * @return mixed
+     */
     public function removeIdFields($array)
     {
         foreach ($array as $key => $val) {
@@ -133,6 +191,11 @@ class ImportService
         return $array;
     }
 
+    /**
+     * @param $source
+     * @param $files
+     * @return array
+     */
     public function importFiles($source, $files)
     {
         $results = [];
@@ -146,6 +209,12 @@ class ImportService
         return $results;
     }
 
+    /**
+     * @param $source
+     * @param $entityType
+     * @param $file
+     * @return array
+     */
     private function execute($source, $entityType, $file)
     {
         $results = [
@@ -154,7 +223,7 @@ class ImportService
         ];
 
         // Convert the data
-        $row_list = array();
+        $row_list = [];
 
         Excel::load($file, function ($reader) use ($source, $entityType, &$row_list, &$results) {
             $this->checkData($entityType, count($reader->all()));
@@ -165,7 +234,7 @@ class ImportService
                 if ($data_index !== false) {
                     if ($data_index !== true) {
                         // Wasn't merged with another row
-                        $row_list[] = array('row' => $row, 'data_index' => $data_index);
+                        $row_list[] = ['row' => $row, 'data_index' => $data_index];
                     }
                 } else {
                     $results[RESULT_FAILURE][] = $row;
@@ -186,6 +255,12 @@ class ImportService
         return $results;
     }
 
+    /**
+     * @param $source
+     * @param $entityType
+     * @param $row
+     * @return bool|mixed
+     */
     private function transformRow($source, $entityType, $row)
     {
         $transformer = $this->getTransformer($source, $entityType, $this->maps);
@@ -226,6 +301,13 @@ class ImportService
         return key($this->processedRows);
     }
 
+    /**
+     * @param $source
+     * @param $entityType
+     * @param $row
+     * @param $data_index
+     * @return mixed
+     */
     private function saveData($source, $entityType, $row, $data_index)
     {
         $data = $this->processedRows[$data_index];
@@ -243,6 +325,11 @@ class ImportService
         return $entity;
     }
 
+    /**
+     * @param $entityType
+     * @param $count
+     * @throws Exception
+     */
     private function checkData($entityType, $count)
     {
         if ($entityType === ENTITY_CLIENT) {
@@ -250,6 +337,10 @@ class ImportService
         }
     }
 
+    /**
+     * @param $count
+     * @throws Exception
+     */
     private function checkClientCount($count)
     {
         $totalClients = $count + Client::scope()->withTrashed()->count();
@@ -258,11 +349,22 @@ class ImportService
         }
     }
 
+    /**
+     * @param $source
+     * @param $entityType
+     * @return string
+     */
     public static function getTransformerClassName($source, $entityType)
     {
         return 'App\\Ninja\\Import\\'.$source.'\\'.ucwords($entityType).'Transformer';
     }
 
+    /**
+     * @param $source
+     * @param $entityType
+     * @param $maps
+     * @return mixed
+     */
     public static function getTransformer($source, $entityType, $maps)
     {
         $className = self::getTransformerClassName($source, $entityType);
@@ -270,6 +372,12 @@ class ImportService
         return new $className($maps);
     }
 
+    /**
+     * @param $source
+     * @param $data
+     * @param $clientId
+     * @param $invoiceId
+     */
     private function createPayment($source, $data, $clientId, $invoiceId)
     {
         $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT, $this->maps);
@@ -283,29 +391,13 @@ class ImportService
         }
     }
 
+    /**
+     * @param $data
+     * @param $entityType
+     * @return bool|string
+     */
     private function validate($data, $entityType)
     {
-        /*
-        // Harvest's contacts are listed separately
-        if ($entityType === ENTITY_CLIENT && $source != IMPORT_HARVEST) {
-            $rules = [
-                'contacts' => 'valid_contacts',
-            ];
-        }
-        if ($entityType === ENTITY_INVOICE) {
-            $rules = [
-                'client.contacts' => 'valid_contacts',
-                'invoice_items' => 'valid_invoice_items',
-                'invoice_number' => 'required|unique:invoices,invoice_number,,id,account_id,'.Auth::user()->account_id,
-                'discount' => 'positive',
-            ];
-        }
-        if ($entityType === ENTITY_PRODUCT) {
-            $rules = [
-                'product_key' => 'required',
-            ];
-        }
-        */
         $requestClass = 'App\\Http\\Requests\\Create' . ucwords($entityType) . 'Request';
         $request = new $requestClass();
         $request->setUserResolver(function() { return Auth::user(); });
@@ -320,12 +412,17 @@ class ImportService
         }
     }
 
-    public function mapCSV($files)
+    /**
+     * @param array $files
+     * @return array
+     * @throws Exception
+     */
+    public function mapCSV(array $files)
     {
         $data = [];
 
         foreach ($files as $entityType => $filename) {
-            $class = "App\\Models\\" . ucwords($entityType);
+            $class = 'App\\Models\\' . ucwords($entityType);
             $columns = $class::getImportColumns();
             $map = $class::getImportMap();
 
@@ -348,6 +445,13 @@ class ImportService
         return $data;
     }
 
+    /**
+     * @param $entityType
+     * @param $filename
+     * @param $columns
+     * @param $map
+     * @return array
+     */
     public function mapFile($entityType, $filename, $columns, $map)
     {
         require_once app_path().'/Includes/parsecsv.lib.php';
@@ -359,7 +463,7 @@ class ImportService
 
         $headers = false;
         $hasHeaders = false;
-        $mapped = array();
+        $mapped = [];
 
         if (count($csv->data) > 0) {
             $headers = $csv->data[0];
@@ -385,18 +489,23 @@ class ImportService
             }
         }
 
-        $data = array(
+        $data = [
             'entityType' => $entityType,
             'data' => $csv->data,
             'headers' => $headers,
             'hasHeaders' => $hasHeaders,
             'columns' => $columns,
             'mapped' => $mapped,
-        );
+        ];
 
         return $data;
     }
 
+    /**
+     * @param $column
+     * @param $pattern
+     * @return bool
+     */
     private function checkForMatch($column, $pattern)
     {
         if (strpos($column, 'sec') === 0) {
@@ -430,7 +539,12 @@ class ImportService
         return false;
     }
 
-    public function importCSV($maps, $headers)
+    /**
+     * @param array $maps
+     * @param $headers
+     * @return array
+     */
+    public function importCSV(array $maps, $headers)
     {
         $results = [];
 
@@ -441,6 +555,12 @@ class ImportService
         return $results;
     }
 
+    /**
+     * @param $entityType
+     * @param $map
+     * @param $hasHeaders
+     * @return array
+     */
     private function executeCSV($entityType, $map, $hasHeaders)
     {
         $results = [
@@ -454,7 +574,7 @@ class ImportService
         $this->initMaps();
 
         // Convert the data
-        $row_list = array();
+        $row_list = [];
         foreach ($data as $row) {
             if ($hasHeaders) {
                 $hasHeaders = false;
@@ -467,7 +587,7 @@ class ImportService
             if ($data_index !== false) {
                 if ($data_index !== true) {
                     // Wasn't merged with another row
-                    $row_list[] = array('row' => $row, 'data_index' => $data_index);
+                    $row_list[] = ['row' => $row, 'data_index' => $data_index];
                 }
             } else {
                 $results[RESULT_FAILURE][] = $row;
@@ -490,10 +610,16 @@ class ImportService
         return $results;
     }
 
+    /**
+     * @param $entityType
+     * @param $data
+     * @param $map
+     * @return stdClass
+     */
     private function convertToObject($entityType, $data, $map)
     {
         $obj = new stdClass();
-        $class = "App\\Models\\" . ucwords($entityType);
+        $class = 'App\\Models\\' . ucwords($entityType);
         $columns = $class::getImportColumns();
 
         foreach ($columns as $column) {
@@ -515,11 +641,18 @@ class ImportService
         return $obj;
     }
 
+    /**
+     * @param $entity
+     */
     private function addSuccess($entity)
     {
         $this->results[$entity->getEntityType()][RESULT_SUCCESS][] = $entity;
     }
 
+    /**
+     * @param $entityType
+     * @param $data
+     */
     private function addFailure($entityType, $data)
     {
         $this->results[$entityType][RESULT_FAILURE][] = $data;
@@ -580,7 +713,10 @@ class ImportService
         }
     }
 
-    private function addInvoiceToMaps($invoice)
+    /**
+     * @param Invoice $invoice
+     */
+    private function addInvoiceToMaps(Invoice $invoice)
     {
         if ($number = strtolower(trim($invoice->invoice_number))) {
             $this->maps['invoice'][$number] = $invoice->id;
@@ -589,7 +725,10 @@ class ImportService
         }
     }
 
-    private function addClientToMaps($client)
+    /**
+     * @param Client $client
+     */
+    private function addClientToMaps(Client $client)
     {
         if ($name = strtolower(trim($client->name))) {
             $this->maps['client'][$name] = $client->id;
@@ -597,7 +736,10 @@ class ImportService
         }
     }
 
-    private function addProductToMaps($product)
+    /**
+     * @param Product $product
+     */
+    private function addProductToMaps(Product $product)
     {
         if ($key = strtolower(trim($product->product_key))) {
             $this->maps['product'][$key] = $product->id;

@@ -496,6 +496,7 @@ function InvoiceModel(data) {
         for (var key in taxes) {
             if (taxes.hasOwnProperty(key)) {
                 total += taxes[key].amount;
+                total = roundToTwo(total);
             }
         }
 
@@ -799,6 +800,19 @@ function DocumentModel(data) {
     }
 }
 
+function CategoryModel(data) {
+    var self = this;
+    self.name = ko.observable('')
+
+    self.update = function(data){
+        ko.mapping.fromJS(data, {}, this);
+    }
+
+    if (data) {
+        self.update(data);
+    }
+}
+
 var ExpenseModel = function(data) {
     var self = this;
 
@@ -806,6 +820,11 @@ var ExpenseModel = function(data) {
         'documents': {
             create: function(options) {
                 return new DocumentModel(options.data);
+            }
+        },
+        'expense_category': {
+            create: function(options) {
+                return new CategoryModel(options.data);
             }
         }
     }
@@ -822,7 +841,7 @@ var ExpenseModel = function(data) {
 };
 
 /* Custom binding for product key typeahead */
-ko.bindingHandlers.typeahead = {
+ko.bindingHandlers.productTypeahead = {
     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var $element = $(element);
         var allBindings = allBindingsAccessor();

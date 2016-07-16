@@ -9,14 +9,14 @@ class BraintreePaymentDriver extends BasePaymentDriver
     protected $customerReferenceParam = 'customerId';
     protected $sourceReferenceParam = 'paymentMethodToken';
 
-    protected function gatewayTypes()
+    public function gatewayTypes()
     {
         $types = [
             GATEWAY_TYPE_CREDIT_CARD,
             GATEWAY_TYPE_TOKEN,
         ];
 
-        if ($this->accountGateway->getPayPalEnabled()) {
+        if ($this->accountGateway && $this->accountGateway->getPayPalEnabled()) {
             $types[] = GATEWAY_TYPE_PAYPAL;
         }
 
@@ -70,11 +70,11 @@ class BraintreePaymentDriver extends BasePaymentDriver
             $data['device_data'] = $deviceData;
         }
 
-        if ($this->isGatewayType(GATEWAY_TYPE_PAYPAL)) {
+        if ($this->isGatewayType(GATEWAY_TYPE_PAYPAL, $paymentMethod)) {
             $data['ButtonSource'] = 'InvoiceNinja_SP';
         }
 
-        if ( ! empty($this->input['sourceToken'])) {
+        if ( ! $paymentMethod && ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
         }
 
@@ -154,12 +154,14 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     public function removePaymentMethod($paymentMethod)
     {
+        parent::removePaymentMethod($paymentMethod);
+
         $response = $this->gateway()->deletePaymentMethod([
             'token' => $paymentMethod->source_reference
         ])->send();
 
         if ($response->isSuccessful()) {
-            return parent::removePaymentMethod($paymentMethod);
+            return true;
         } else {
             throw new Exception($response->getMessage());
         }

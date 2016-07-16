@@ -1,13 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use Session;
 use Utils;
 use Auth;
-use Log;
 use Input;
 use Response;
 use Request;
-use League\Fractal;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
 use League\Fractal\Resource\Collection;
@@ -15,7 +12,6 @@ use League\Fractal\Pagination\IlluminatePaginatorAdapter;
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
 use League\Fractal\Serializer\JsonApiSerializer;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
  * @SWG\Swagger(
@@ -91,16 +87,8 @@ class BaseAPIController extends Controller
 
         $query->with($includes);
 
-        if ($updatedAt = Input::get('updated_at')) {
-            $updatedAt = date('Y-m-d H:i:s', $updatedAt);
-            $query->where(function($query) use ($includes, $updatedAt) {
-                $query->where('updated_at', '>=', $updatedAt);
-                foreach ($includes as $include) {
-                    $query->orWhereHas($include, function($query) use ($updatedAt) {
-                        $query->where('updated_at', '>=', $updatedAt);
-                    });
-                }
-            });
+        if ($updatedAt = intval(Input::get('updated_at'))) {
+            $query->where('updated_at', '>=', date('Y-m-d H:i:s', $updatedAt));
         }
 
         if ($clientPublicId = Input::get('client_id')) {
@@ -212,6 +200,17 @@ class BaseAPIController extends Controller
                 $data[] = $include;
             }
         }
+
+        return $data;
+    }
+
+    protected function fileReponse($name, $data)
+    {
+        header('Content-Type: application/pdf');
+        header('Content-Length: ' . strlen($data));
+        header('Content-disposition: attachment; filename="' . $name . '"');
+        header('Cache-Control: public, must-revalidate, max-age=0');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
         return $data;
     }

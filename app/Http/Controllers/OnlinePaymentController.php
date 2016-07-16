@@ -2,28 +2,56 @@
 
 use Session;
 use Input;
-use Request;
 use Utils;
 use View;
-use Validator;
-use Cache;
+use Auth;
+use URL;
 use Exception;
+use Validator;
 use App\Models\Invitation;
 use App\Models\Account;
 use App\Models\Payment;
+use App\Models\Product;
 use App\Models\PaymentMethod;
 use App\Services\PaymentService;
 use App\Ninja\Mailers\UserMailer;
 use App\Http\Requests\CreateOnlinePaymentRequest;
+use App\Ninja\Repositories\ClientRepository;
+use App\Services\InvoiceService;
 
+/**
+ * Class OnlinePaymentController
+ */
 class OnlinePaymentController extends BaseController
 {
+    /**
+     * @var PaymentService
+     */
+    protected $paymentService;
+
+    /**
+     * @var UserMailer
+     */
+    protected $userMailer;
+
+    /**
+     * OnlinePaymentController constructor.
+     *
+     * @param PaymentService $paymentService
+     * @param UserMailer $userMailer
+     */
     public function __construct(PaymentService $paymentService, UserMailer $userMailer)
     {
         $this->paymentService = $paymentService;
         $this->userMailer = $userMailer;
     }
 
+    /**
+     * @param $invitationKey
+     * @param bool $gatewayType
+     * @param bool $sourceId
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function showPayment($invitationKey, $gatewayType = false, $sourceId = false)
     {
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
@@ -42,6 +70,10 @@ class OnlinePaymentController extends BaseController
         }
     }
 
+    /**
+     * @param CreateOnlinePaymentRequest $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function doPayment(CreateOnlinePaymentRequest $request)
     {
         $invitation = $request->invitation;
@@ -58,10 +90,15 @@ class OnlinePaymentController extends BaseController
             }
             return redirect()->to('view/' . $invitation->invitation_key);
         } catch (Exception $exception) {
-            return $this->error($paymentDriver, $exception);
+            return $this->error($paymentDriver, $exception, true);
         }
     }
 
+    /**
+     * @param bool $invitationKey
+     * @param bool $gatewayType
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function offsitePayment($invitationKey = false, $gatewayType = false)
     {
         $invitationKey = $invitationKey ?: Session::get('invitation_key');
@@ -84,7 +121,13 @@ class OnlinePaymentController extends BaseController
         }
     }
 
-    private function error($paymentDriver, $exception)
+    /**
+     * @param $paymentDriver
+     * @param $exception
+     * @param bool $showPayment
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    private function error($paymentDriver, $exception, $showPayment = false)
     {
         if (is_string($exception)) {
             $displayError = $exception;
@@ -100,9 +143,14 @@ class OnlinePaymentController extends BaseController
         $message = sprintf('Payment Error [%s]: %s', $paymentDriver->providerName(), $logError);
         Utils::logError($message, 'PHP', true);
 
-        return redirect()->to('view/' . $paymentDriver->invitation->invitation_key);
+        $route = $showPayment ? 'payment/' : 'view/';
+        return redirect()->to($route . $paymentDriver->invitation->invitation_key);
     }
 
+    /**
+     * @param $routingNumber
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getBankInfo($routingNumber) {
         if (strlen($routingNumber) != 9 || !preg_match('/\d{9}/', $routingNumber)) {
             return response()->json([
@@ -125,6 +173,11 @@ class OnlinePaymentController extends BaseController
         ], 404);
     }
 
+    /**
+     * @param $accountKey
+     * @param $gatewayId
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function handlePaymentWebhook($accountKey, $gatewayId)
     {
         $gatewayId = intval($gatewayId);
@@ -145,189 +198,69 @@ class OnlinePaymentController extends BaseController
             ], 404);
         }
 
-        switch($gatewayId) {
-            case GATEWAY_STRIPE:
-                return $this->handleStripeWebhook($accountGateway);
-            case GATEWAY_WEPAY:
-                return $this->handleWePayWebhook($accountGateway);
-            default:
-                return response()->json([
-                    'message' => 'Unsupported gateway',
-                ], 404);
+        $paymentDriver = $accountGateway->paymentDriver();
+
+        try {
+            $result = $paymentDriver->handleWebHook(Input::all());
+            return response()->json(['message' => $result]);
+        } catch (Exception $exception) {
+            Utils::logError($exception->getMessage(), 'PHP');
+            return response()->json(['message' => $exception->getMessage()], 500);
         }
     }
 
-    protected function handleWePayWebhook($accountGateway) {
-        $data = Input::all();
-        $accountId = $accountGateway->account_id;
+    public function handleBuyNow(ClientRepository $clientRepo, InvoiceService $invoiceService, $gatewayType = false)
+    {
+        $account = Account::whereAccountKey(Input::get('account_key'))->first();
+        $redirectUrl = Input::get('redirect_url', URL::previous());
 
-        foreach (array_keys($data) as $key) {
-            if ('_id' == substr($key, -3)) {
-                $objectType = substr($key, 0, -3);
-                $objectId = $data[$key];
-                break;
-            }
+        if ( ! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
+            return redirect()->to("{$redirectUrl}/?error=invalid account");
         }
 
-        if (!isset($objectType)) {
-            return response()->json([
-                'message' => 'Could not find object id parameter',
-            ], 400);
+        Auth::onceUsingId($account->users[0]->id);
+        $product = Product::scope(Input::get('product_id'))->first();
+
+        if ( ! $product) {
+            return redirect()->to("{$redirectUrl}/?error=invalid product");
         }
 
-        if ($objectType == 'credit_card') {
-            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $objectId)->first();
+        $rules = [
+            'first_name' => 'string|max:100',
+            'last_name' => 'string|max:100',
+            'email' => 'email|string|max:100',
+        ];
 
-            if (!$paymentMethod) {
-                return array('message' => 'Unknown payment method');
-            }
+        $validator = Validator::make(Input::all(), $rules);
+        if ($validator->fails()) {
+            return redirect()->to("{$redirectUrl}/?error=" . $validator->errors()->first());
+        }
 
-            $wepay = \Utils::setupWePay($accountGateway);
-            $source = $wepay->request('credit_card', array(
-                'client_id' => WEPAY_CLIENT_ID,
-                'client_secret' => WEPAY_CLIENT_SECRET,
-                'credit_card_id' => intval($objectId),
-            ));
+        $data = [
+            'currency_id' => $account->currency_id,
+            'contact' => Input::all()
+        ];
+        $client = $clientRepo->save($data);
 
-            if ($source->state == 'deleted') {
-                $paymentMethod->delete();
-            } else {
-                $this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
-            }
+        $data = [
+            'client_id' => $client->public_id,
+            'invoice_items' => [[
+                'product_key' => $product->product_key,
+                'notes' => $product->notes,
+                'cost' => $product->cost,
+                'qty' => 1,
+                'tax_rate1' => $product->default_tax_rate ? $product->default_tax_rate->rate : 0,
+                'tax_name1' => $product->default_tax_rate ? $product->default_tax_rate->name : '',
+            ]]
+        ];
+        $invoice = $invoiceService->save($data);
+        $invitation = $invoice->invitations[0];
+        $link = $invitation->getLink();
 
-            return array('message' => 'Processed successfully');
-        } elseif ($objectType == 'account') {
-            $config = $accountGateway->getConfig();
-            if ($config->accountId != $objectId) {
-                return array('message' => 'Unknown account');
-            }
-
-            $wepay = \Utils::setupWePay($accountGateway);
-            $wepayAccount = $wepay->request('account', array(
-                'account_id' => intval($objectId),
-            ));
-
-            if ($wepayAccount->state == 'deleted') {
-                $accountGateway->delete();
-            } else {
-                $config->state = $wepayAccount->state;
-                $accountGateway->setConfig($config);
-                $accountGateway->save();
-            }
-
-            return array('message' => 'Processed successfully');
-        } elseif ($objectType == 'checkout') {
-            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
-
-            if (!$payment) {
-                return array('message' => 'Unknown payment');
-            }
-
-            $wepay = \Utils::setupWePay($accountGateway);
-            $checkout = $wepay->request('checkout', array(
-                'checkout_id' => intval($objectId),
-            ));
-
-            if ($checkout->state == 'refunded') {
-                $payment->recordRefund();
-            } elseif (!empty($checkout->refund) && !empty($checkout->refund->amount_refunded) && ($checkout->refund->amount_refunded - $payment->refunded) > 0) {
-                $payment->recordRefund($checkout->refund->amount_refunded - $payment->refunded);
-            }
-
-            if ($checkout->state == 'captured') {
-                $payment->markComplete();
-            } elseif ($checkout->state == 'cancelled') {
-                $payment->markCancelled();
-            } elseif ($checkout->state == 'failed') {
-                $payment->markFailed();
-            }
-
-            return array('message' => 'Processed successfully');
+        if ($gatewayType) {
+            return redirect()->to($invitation->getLink('payment') . "/{$gatewayType}");
         } else {
-            return array('message' => 'Ignoring event');
+            return redirect()->to($invitation->getLink());
         }
     }
-
-    protected function handleStripeWebhook($accountGateway) {
-        $eventId = Input::get('id');
-        $eventType= Input::get('type');
-        $accountId = $accountGateway->account_id;
-
-        if (!$eventId) {
-            return response()->json(['message' => 'Missing event id'], 400);
-        }
-
-        if (!$eventType) {
-            return response()->json(['message' => 'Missing event type'], 400);
-        }
-
-        $supportedEvents = array(
-            'charge.failed',
-            'charge.succeeded',
-            'customer.source.updated',
-            'customer.source.deleted',
-        );
-
-        if (!in_array($eventType, $supportedEvents)) {
-            return array('message' => 'Ignoring event');
-        }
-
-        // Fetch the event directly from Stripe for security
-        $eventDetails = $this->paymentService->makeStripeCall($accountGateway, 'GET', 'events/'.$eventId);
-
-        if (is_string($eventDetails) || !$eventDetails) {
-            return response()->json([
-                'message' => $eventDetails ? $eventDetails : 'Could not get event details.',
-            ], 500);
-        }
-
-        if ($eventType != $eventDetails['type']) {
-            return response()->json(['message' => 'Event type mismatch'], 400);
-        }
-
-        if (!$eventDetails['pending_webhooks']) {
-            return response()->json(['message' => 'This is not a pending event'], 400);
-        }
-
-
-        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded') {
-            $charge = $eventDetails['data']['object'];
-            $transactionRef = $charge['id'];
-
-            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $transactionRef)->first();
-
-            if (!$payment) {
-                return array('message' => 'Unknown payment');
-            }
-
-            if ($eventType == 'charge.failed') {
-                if (!$payment->isFailed()) {
-                    $payment->markFailed($charge['failure_message']);
-                    $this->userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
-                }
-            } elseif ($eventType == 'charge.succeeded') {
-                $payment->markComplete();
-            } elseif ($eventType == 'charge.refunded') {
-                $payment->recordRefund($charge['amount_refunded'] / 100 - $payment->refunded);
-            }
-        } elseif($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted') {
-            $source = $eventDetails['data']['object'];
-            $sourceRef = $source['id'];
-
-            $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
-
-            if (!$paymentMethod) {
-                return array('message' => 'Unknown payment method');
-            }
-
-            if ($eventType == 'customer.source.deleted') {
-                $paymentMethod->delete();
-            } elseif ($eventType == 'customer.source.updated') {
-                $this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
-            }
-        }
-
-        return array('message' => 'Processed successfully');
-    }
-
 }

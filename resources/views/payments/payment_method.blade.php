@@ -54,7 +54,7 @@
 
     </div>
 
-    {!! Former::close() !!}
+
 
     <script type="text/javascript">
 
