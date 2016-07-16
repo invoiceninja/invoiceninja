@@ -1296,7 +1296,7 @@ $LANG = array(
     'wepay_tos_agree' => 'I agree to the :link.',
     'wepay_tos_link_text' => 'WePay Terms of Service',
     'resend_confirmation_email' => 'Resend Confirmation Email',
-    'manage_wepay_account' => 'Manage WePay Account',
+    'manage_account' => 'Manage Account',
     'action_required' => 'Action Required',
     'finish_setup' => 'Finish Setup',
     'created_wepay_confirmation_required' => 'Please check your email and confirm your email address with WePay.',
@@ -2039,6 +2039,8 @@ $LANG = array(
     'buy_now_buttons_disabled' => 'This feature requires that a product is created and a payment gateway is configured.',
     'enable_buy_now_buttons_help' => 'Enable support for buy now buttons',
     'changes_take_effect_immediately' => 'Note: changes take effect immediately',
+    'wepay_account_description' => 'Payment gateway for Invoice Ninja',
+
 );
 
 return $LANG;
