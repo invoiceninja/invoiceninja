@@ -59,6 +59,7 @@ $LANG = array(
     'save_as_default_terms' => 'Save as default terms',
     'download_pdf' => 'Download PDF',
     'pay_now' => 'Pay Now',
+    'send_invoice' => 'Send invoice',
     'save_invoice' => 'Save Invoice',
     'clone_invoice' => 'Clone Invoice',
     'archive_invoice' => 'Archive Invoice',
@@ -210,7 +211,11 @@ $LANG = array(
     'updated_invoice' => 'Successfully updated invoice',
     'created_invoice' => 'Successfully created invoice',
     'cloned_invoice' => 'Successfully cloned invoice',
-    'emailed_invoice' => 'Successfully emailed invoice',
+    'email_invoice_dispatched' => 'The invoice email has successfully been dispatched.',
+    'email_invoice_bulk_send' => 'The invoice has been sent successfully.|:count invoices have been sent successfully.',
+    'email_invoice_bulk_archive' => 'The invoice has been archived successfully.|:count invoices have been archived successfully.',
+    'email_invoice_bulk_delete' => 'The invoice has been deleted successfully.|:count invoices have been deleted successfully.',
+    'email_invoice_bulk_markSent' => 'The invoice has been updated successfully.|:count invoices have been updated successfully.',
     'and_created_client' => 'and created client',
     'archived_invoice' => 'Successfully archived invoice',
     'archived_invoices' => 'Successfully archived :count invoices',
@@ -2038,7 +2043,8 @@ $LANG = array(
     'buy_now_buttons_warning' => 'Note: client and invoice records are created even if the transaction isn\'t completed.',
     'buy_now_buttons_disabled' => 'This feature requires that a product is created and a payment gateway is configured.',
     'enable_buy_now_buttons_help' => 'Enable support for buy now buttons',
-    'changes_take_effect_immediately' => 'Note: changes take effect immediately',
+    'job_failed' => 'Job (:name) failed!',
+
 );
 
 return $LANG;

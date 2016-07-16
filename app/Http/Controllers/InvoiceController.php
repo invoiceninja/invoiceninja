@@ -10,9 +10,9 @@ use Redirect;
 use DB;
 use URL;
 use DropdownButton;
+use App\Jobs\SendInvoiceEmail;
 use App\Models\Invoice;
 use App\Models\Client;
-use App\Models\Account;
 use App\Models\Product;
 use App\Models\Expense;
 use App\Models\TaxRate;
@@ -469,17 +469,30 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $response = $this->mailer->sendInvoice($invoice, false, $pdfUpload);
+            $response = $this->emailNormalInvoice($invoice, $pdfUpload);
         }
 
-        if ($response === true) {
-            $message = trans("texts.emailed_{$entityType}");
+        if ($response) {
+            $message = trans("texts.email_{$entityType}_dispatched");
             Session::flash('message', $message);
         } else {
             Session::flash('error', $response);
         }
 
         return Redirect::to("{$entityType}s/{$invoice->public_id}/edit");
+    }
+
+    /**
+     * Dispatch event for sending invoice email
+     *
+     * @param Invoice $invoice
+     * @param $pdf
+     *
+     * @return mixed
+     */
+    private function emailNormalInvoice(Invoice $invoice, $pdf)
+    {
+        return $this->dispatch(new SendInvoiceEmail($invoice, $pdf));
     }
 
     private function emailRecurringInvoice(&$invoice)
@@ -501,7 +514,7 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            return $this->mailer->sendInvoice($invoice);
+            return $this->dispatch(new SendInvoiceEmail($invoice));
         }
     }
 
@@ -521,7 +534,8 @@ class InvoiceController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
+     * @param $entityType
+     *
      * @return Response
      */
     public function bulk($entityType = ENTITY_INVOICE)
@@ -530,11 +544,8 @@ class InvoiceController extends BaseController
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
-        if ($count > 0) {
-            $key = $action == 'markSent' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
-            $message = Utils::pluralize($key, $count);
-            Session::flash('message', $message);
-        }
+        $message = trans_choice('texts.email_'.$entityType.'_bulk_'.$action, $count, ['count'=>$count]);
+        Session::flash('message', $message);
 
         if ($action == 'restore' && $count == 1) {
             return Redirect::to("{$entityType}s/".Utils::getFirst($ids));

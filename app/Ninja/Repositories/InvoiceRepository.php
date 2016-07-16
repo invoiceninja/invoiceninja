@@ -1,7 +1,9 @@
 <?php namespace App\Ninja\Repositories;
 
+use App\Jobs\SendInvoiceEmail;
 use App\Models\Account;
 use DB;
+use Illuminate\Foundation\Bus\DispatchesJobs;
 use Utils;
 use Auth;
 use App\Models\Invoice;
@@ -15,6 +17,8 @@ use App\Services\PaymentService;
 
 class InvoiceRepository extends BaseRepository
 {
+    use DispatchesJobs;
+
     protected $documentRepo;
 
     public function getClassName()
@@ -691,6 +695,17 @@ class InvoiceRepository extends BaseRepository
         }
 
         return $clone;
+    }
+
+    /**
+     * Create a new job in the queue for sending an invoice email.
+     * Used i. e. for bulk action 'send invoice'.
+     * 
+     * @param Invoice $invoice
+     */
+    public function send(Invoice $invoice)
+    {
+        $this->dispatch(new SendInvoiceEmail($invoice));
     }
 
     /**
