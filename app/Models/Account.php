@@ -1240,7 +1240,7 @@ class Account extends Eloquent
         $price = $this->company->plan_price;
         $trial_plan = $this->company->trial_plan;
 
-        if(!$plan && (!$trial_plan || !$include_trial)) {
+        if((!$plan || $plan == PLAN_FREE) && (!$trial_plan || !$include_trial)) {
             return null;
         }
 
