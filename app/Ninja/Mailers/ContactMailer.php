@@ -1,5 +1,7 @@
 <?php namespace App\Ninja\Mailers;
 
+use App\Models\Account;
+use App\Models\Client;
 use App\Models\Invitation;
 use Utils;
 use Event;
@@ -62,7 +64,10 @@ class ContactMailer extends Mailer
         $invoice->load('invitations', 'client.language', 'account');
         $entityType = $invoice->getEntityType();
 
+        /** @var Client $client */
         $client = $invoice->client;
+
+        /** @var Account $account */
         $account = $invoice->account;
 
         $response = null;
@@ -73,7 +78,7 @@ class ContactMailer extends Mailer
             return trans('texts.email_error_inactive_invoice');
         }
 
-        $account->loadLocalizationSettings($client);
+        $account->loadLocalizationSettingsForClient($client);
         $emailTemplate = $account->getEmailTemplate($reminder ?: $entityType);
         $emailSubject = $account->getEmailSubject($reminder ?: $entityType);
 
@@ -248,11 +253,14 @@ class ContactMailer extends Mailer
      */
     public function sendPaymentConfirmation(Payment $payment)
     {
-        $account = $payment->account;
+        /** @var Client $client */
         $client = $payment->client;
 
-        $account->loadLocalizationSettings($client);
+        /** @var Account $account */
+        $account = $payment->account;
+        $account->loadLocalizationSettingsForClient($client);
 
+        /** @var Invoice $invoice */
         $invoice = $payment->invoice;
         $accountName = $account->getDisplayName();
         $emailTemplate = $account->getEmailTemplate(ENTITY_PAYMENT);

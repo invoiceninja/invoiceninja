@@ -170,7 +170,7 @@
          var value = ko.utils.unwrapObservable(valueAccessor());
          // http://xdsoft.net/jqplugins/datetimepicker/
          $(element).datetimepicker({
-            lang: '{{ Utils::getLocaleRegion() }}',
+            lang: '{{ Session::get('language') }}',
             lazyInit: true,
             validateOnBlur: false,
             step: 30,

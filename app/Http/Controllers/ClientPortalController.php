@@ -1,5 +1,8 @@
 <?php namespace App\Http\Controllers;
 
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Invoice;
 use Auth;
 use View;
 use URL;
@@ -48,8 +51,13 @@ class ClientPortalController extends BaseController
             return $this->returnError();
         }
 
+        /** @var Invoice $invoice */
         $invoice = $invitation->invoice;
+
+        /** @var Client $client */
         $client = $invoice->client;
+
+        /** @var Account $account */
         $account = $invoice->account;
 
         if (!$account->checkSubdomain(Request::server('HTTP_HOST'))) {
@@ -73,7 +81,7 @@ class ClientPortalController extends BaseController
         Session::put($invitationKey, true); // track this invitation has been seen
         Session::put('contact_key', $invitation->contact->contact_key);// track current contact
 
-        $account->loadLocalizationSettings($client);
+        $account->loadLocalizationSettingsForClient($client);
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);

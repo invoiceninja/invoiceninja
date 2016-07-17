@@ -2,6 +2,7 @@
 
 use Auth;
 use Eloquent;
+use Session;
 use Utils;
 
 /**
@@ -85,18 +86,6 @@ class EntityModel extends Eloquent
     {
         return '[' . $this->getEntityType().':'.$this->public_id.':'.$this->getDisplayName() . ']';
     }
-
-    /*
-    public function getEntityType()
-    {
-        return '';
-    }
-
-    public function getNmae()
-    {
-        return '';
-    }
-    */
 
     /**
      * @param $query
@@ -189,5 +178,158 @@ class EntityModel extends Eloquent
         $parts = explode('\\', $class);
         $name = $parts[count($parts)-1];
         return strtolower($name) . '_id';
+    }
+
+    /**
+     * Load localization settings explicitly for a specific client
+     *
+     * @param Client $client
+     */
+    public function loadLocalizationSettingsForClient(Client $client)
+    {
+        $this->load('language');
+
+        $locale = $client->language_id
+            ? $client->language->locale
+            : $this->getLocale();
+
+        $currencyId = $client->currency_id ?: $this->getCurrencyId();
+
+        Session::put(SESSION_CURRENCY, $currencyId);
+        $this->setApplicationLocale($locale);
+    }
+
+    /**
+     * Load localisation settings and put it into the session
+     */
+    public function loadLocalizationSettings()
+    {
+        $this->load('timezone', 'date_format', 'datetime_format', 'language');
+
+        Session::put(SESSION_TIMEZONE, $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE);
+        Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
+
+        Session::put(
+            SESSION_DATE_PICKER_FORMAT,
+            $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT
+        );
+
+        Session::put(SESSION_DATETIME_FORMAT, $this->getDateTimeFormat());
+        Session::put('start_of_week', $this->start_of_week);
+        Session::put(SESSION_CURRENCY, $this->getCurrencyId());
+        Session::put('language', $this->getLanguage());
+
+        $this->setApplicationLocale($this->getLocale());
+    }
+
+    /**
+     * Get the currency id, if set. Otherwise return the default currency id.
+     *
+     * @return int
+     */
+    public function getCurrencyId()
+    {
+        return $this->currency_id ?: DEFAULT_CURRENCY;
+    }
+
+    /**
+     * Get the datetime format from the database. Also handles if military time is used.
+     *
+     * @return string
+     */
+    protected function getDateTimeFormat()
+    {
+        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
+
+        if ($this->military_time) {
+            $count = 1;
+            // Replace only first occurence to only return a string, not an array
+            $format = str_replace('g:i a', 'H:i', $format, $count);
+        }
+
+        return $format;
+    }
+
+    /**
+     * Get the locale for either the account or the client.
+     *
+     * @return string
+     */
+    protected function getLocale()
+    {
+        return $this->language_id ? $this->language->locale : DEFAULT_LOCALE;
+    }
+
+    /**
+     * Extract language code from locale.
+     * The locale format is <language code>_<region code>.
+     *
+     * Use the {@link getLanguage()} method to the the correct language code.
+     *
+     * @return  string
+     */
+    private function getLanguageCodeFromLocale()
+    {
+        $code = $this->getLocale();
+
+        if(preg_match('/_/', $code)) {
+            $codes = explode('_', $this->getLocale());
+            $code = $codes[0];
+        }
+
+        return $code;
+    }
+
+    /**
+     * Extract region code from locale.
+     * The locale format is <language code>_<region code>.
+     *
+     * * Use the {@link getRegion()} method to the the correct language code.
+     *
+     * @return string
+     */
+    private function getRegionCodeFromLocale()
+    {
+        $code = $this->getLocale();
+
+        if(preg_match('/_/', $code)) {
+            $codes = explode('_', $this->getLocale());
+            $code = $codes[1];
+        }
+
+        return $code;
+    }
+
+    /**
+     * Set the application locale if a new locale is specified
+     *
+     * @param $locale
+     */
+    private function setApplicationLocale($locale)
+    {
+        if(!app()->isLocale($locale)) {
+
+            app()->setLocale($locale);
+        }
+    }
+
+    /**
+     * Get the region code setting, i. e. 'DE', 'US', ...
+     *
+     * @return string
+     */
+    protected function getRegion()
+    {
+        return $this->getRegionCodeFromLocale();
+    }
+
+    /**
+     * Get the language code setting, i. e. 'de', 'en', ...
+     *
+     * @return string
+     */
+    protected function getLanguage()
+    {
+        return $this->getLanguageCodeFromLocale();
     }
 }
