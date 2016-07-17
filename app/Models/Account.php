@@ -1,12 +1,10 @@
 <?php namespace App\Models;
 
-use Eloquent;
 use Utils;
 use Session;
 use DateTime;
 use Event;
 use Cache;
-use App;
 use App\Events\UserSettingsChanged;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,7 +13,7 @@ use Laracasts\Presenter\PresentableTrait;
 /**
  * Class Account
  */
-class Account extends Eloquent
+class Account extends EntityModel
 {
     use PresentableTrait;
     use SoftDeletes;
@@ -451,15 +449,7 @@ class Account extends Eloquent
 
         return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
     }
-
-    /**
-     * @return mixed
-     */
-    public function getCurrencyId()
-    {
-        return $this->currency_id ?: DEFAULT_CURRENCY;
-    }
-
+    
     /**
      * @param $date
      * @return null|string
@@ -1023,36 +1013,7 @@ class Account extends Eloquent
             }]);
         }
     }
-
-    /**
-     * @param bool $client
-     */
-    public function loadLocalizationSettings($client = false)
-    {
-        $this->load('timezone', 'date_format', 'datetime_format', 'language');
-
-        $timezone = $this->timezone ? $this->timezone->name : DEFAULT_TIMEZONE;
-        Session::put(SESSION_TIMEZONE, $timezone);
-
-        Session::put(SESSION_DATE_FORMAT, $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT);
-        Session::put(SESSION_DATE_PICKER_FORMAT, $this->date_format ? $this->date_format->picker_format : DEFAULT_DATE_PICKER_FORMAT);
-
-        $currencyId = ($client && $client->currency_id) ? $client->currency_id : $this->currency_id ?: DEFAULT_CURRENCY;
-        $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE);
-
-        Session::put(SESSION_CURRENCY, $currencyId);
-        Session::put(SESSION_LOCALE, $locale);
-
-        App::setLocale($locale);
-
-        $format = $this->datetime_format ? $this->datetime_format->format : DEFAULT_DATETIME_FORMAT;
-        if ($this->military_time) {
-            $format = str_replace('g:i a', 'H:i', $format);
-        }
-        Session::put(SESSION_DATETIME_FORMAT, $format);
-
-        Session::put('start_of_week', $this->start_of_week);
-    }
+    
 
     /**
      * @return array

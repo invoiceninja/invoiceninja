@@ -3,7 +3,6 @@
 use App\Models\AccountGateway;
 use App\Services\TemplateService;
 use Auth;
-use File;
 use Image;
 use Input;
 use Redirect;
@@ -1349,7 +1348,7 @@ class AccountController extends BaseController
      */
     private function saveLocalization()
     {
-        /** @var \App\Models\Account $account */
+        /** @var Account $account */
         $account = Auth::user()->account;
 
         $account->timezone_id = Input::get('timezone_id') ? Input::get('timezone_id') : null;
@@ -1359,7 +1358,7 @@ class AccountController extends BaseController
         $account->language_id = Input::get('language_id') ? Input::get('language_id') : 1; // English
         $account->military_time = Input::get('military_time') ? true : false;
         $account->show_currency_code = Input::get('show_currency_code') ? true : false;
-        $account->start_of_week = Input::get('start_of_week') ? Input::get('start_of_week') : 0;
+        $account->start_of_week = Input::get('start_of_week') ? Input::get('start_of_week') : 0; // Sunday
         $account->save();
 
         event(new UserSettingsChanged());

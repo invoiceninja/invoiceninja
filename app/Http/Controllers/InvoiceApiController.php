@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Models\Account;
 use Auth;
 use Utils;
 use Response;
@@ -192,8 +193,9 @@ class InvoiceApiController extends BaseAPIController
 
     private function prepareData($data, $client)
     {
+        /** @var Account $account */
         $account = Auth::user()->account;
-        $account->loadLocalizationSettings($client);
+        $account->loadLocalizationSettingsForClient($client);
 
         // set defaults for optional fields
         $fields = [
