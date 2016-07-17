@@ -139,8 +139,10 @@ class BaseAPIController extends Controller
 
         if (is_a($query, "Illuminate\Database\Eloquent\Builder")) {
             $limit = min(MAX_API_PAGE_SIZE, Input::get('per_page', DEFAULT_API_PAGE_SIZE));
-            $resource = new Collection($query->get(), $transformer, $entityType);
-            $resource->setPaginator(new IlluminatePaginatorAdapter($query->paginate($limit)));
+            $paginator = $query->paginate($limit);
+            $query = $paginator->getCollection();
+            $resource = new Collection($query, $transformer, $entityType);
+            $resource->setPaginator(new IlluminatePaginatorAdapter($paginator));
         } else {
             $resource = new Collection($query, $transformer, $entityType);
         }
