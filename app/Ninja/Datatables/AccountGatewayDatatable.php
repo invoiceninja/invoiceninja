@@ -88,6 +88,14 @@ class AccountGatewayDatatable extends EntityDatatable
                 function($model) {
                     return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY;
                 }
+            ], [
+                uctrans('texts.terms_of_service'),
+                function ($model) {
+                    return 'https://go.wepay.com/terms-of-service-us';
+                },
+                function($model) {
+                    return $model->gateway_id == GATEWAY_WEPAY;
+                }
             ]
         ];
     }
