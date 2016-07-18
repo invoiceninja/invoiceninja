@@ -22,7 +22,9 @@ class CreatePaymentRequest extends PaymentRequest
     public function rules()
     {
         $input = $this->input();
-        $invoice = Invoice::scope($input['invoice'])->firstOrFail();
+        $invoice = Invoice::scope($input['invoice'])
+            ->invoices()
+            ->firstOrFail();
 
         $rules = [
             'client' => 'required', // TODO: change to client_id once views are updated
