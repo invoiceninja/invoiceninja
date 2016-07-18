@@ -388,34 +388,34 @@ class InvoiceRepository extends BaseRepository
                 continue;
             }
 
-            $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
-            $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
+            $invoiceItemCost = round(Utils::parseFloat($item['cost']), 3);
+            $invoiceItemQty = round(Utils::parseFloat($item['qty']), 3);
 
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
-            $total += round($lineTotal, 2);
+            $total += round($lineTotal, 3);
         }
 
         foreach ($data['invoice_items'] as $item) {
             $item = (array) $item;
-            $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
-            $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
+            $invoiceItemCost = round(Utils::parseFloat($item['cost']), 3);
+            $invoiceItemQty = round(Utils::parseFloat($item['qty']), 3);
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
 
             if ($invoice->discount > 0) {
                 if ($invoice->is_amount_discount) {
-                    $lineTotal -= round(($lineTotal/$total) * $invoice->discount, 2);
+                    $lineTotal -= round(($lineTotal/$total) * $invoice->discount, 3);
                 } else {
-                    $lineTotal -= round($lineTotal * ($invoice->discount/100), 2);
+                    $lineTotal -= round($lineTotal * ($invoice->discount/100), 3);
                 }
             }
 
             if (isset($item['tax_rate1']) && Utils::parseFloat($item['tax_rate1']) > 0) {
                 $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate1']);
-                $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 2);
+                $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 3);
             }
             if (isset($item['tax_rate2']) && Utils::parseFloat($item['tax_rate2']) > 0) {
                 $invoiceItemTaxRate = Utils::parseFloat($item['tax_rate2']);
-                $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 2);
+                $itemTax += round($lineTotal * $invoiceItemTaxRate / 100, 3);
             }
         }
 
@@ -424,18 +424,18 @@ class InvoiceRepository extends BaseRepository
                 $total -= $invoice->discount;
             } else {
                 $total *= (100 - $invoice->discount) / 100;
-                $total = round($total, 2);
+                $total = round($total, 3);
             }
         }
 
         if (isset($data['custom_value1'])) {
-            $invoice->custom_value1 = round($data['custom_value1'], 2);
+            $invoice->custom_value1 = round($data['custom_value1'], 3);
             if ($isNew) {
                 $invoice->custom_taxes1 = $account->custom_invoice_taxes1 ?: false;
             }
         }
         if (isset($data['custom_value2'])) {
-            $invoice->custom_value2 = round($data['custom_value2'], 2);
+            $invoice->custom_value2 = round($data['custom_value2'], 3);
             if ($isNew) {
                 $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
             }
@@ -456,9 +456,9 @@ class InvoiceRepository extends BaseRepository
             $total += $invoice->custom_value2;
         }
 
-        $taxAmount1 = round($total * $invoice->tax_rate1 / 100, 2);
-        $taxAmount2 = round($total * $invoice->tax_rate2 / 100, 2);
-        $total = round($total + $taxAmount1 + $taxAmount2, 2);
+        $taxAmount1 = round($total * $invoice->tax_rate1 / 100, 3);
+        $taxAmount2 = round($total * $invoice->tax_rate2 / 100, 3);
+        $total = round($total + $taxAmount1 + $taxAmount2, 3);
         $total += $itemTax;
 
         // custom fields not charged taxes

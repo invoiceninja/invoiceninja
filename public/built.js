@@ -30887,8 +30887,8 @@ function toggleDatePicker(field) {
 }
 
 function roundToTwo(num, toString) {
-  var val = +(Math.round(num + "e+2")  + "e-2");
-  return toString ? val.toFixed(2) : (val || 0);
+  var val = +(Math.round(num + "e+4")  + "e-4");
+  return toString ? val.toFixed(4) : (val || 0);
 }
 
 function roundToFour(num, toString) {

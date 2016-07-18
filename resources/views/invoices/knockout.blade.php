@@ -462,7 +462,7 @@ function InvoiceModel(data) {
     });
 
     self.totals.rawPaidToDate = ko.computed(function() {
-        return roundToTwo(accounting.toFixed(self.amount(),2) - accounting.toFixed(self.balance(),2));
+        return roundToTwo(accounting.toFixed(self.amount(),4) - accounting.toFixed(self.balance(),4));
     });
 
     self.totals.paidToDate = ko.computed(function() {
@@ -471,7 +471,7 @@ function InvoiceModel(data) {
     });
 
     self.totals.rawTotal = ko.computed(function() {
-        var total = accounting.toFixed(self.totals.rawSubtotal(),2);
+        var total = accounting.toFixed(self.totals.rawSubtotal(),4);
         var discount = self.totals.rawDiscounted();
         total -= discount;
 
