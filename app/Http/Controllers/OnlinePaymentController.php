@@ -68,6 +68,10 @@ class OnlinePaymentController extends BaseController
             ]);
         }
 
+        if ( ! floatval($invitation->invoice->balance)) {
+            return redirect()->to('view/' . $invitation->invitation_key);
+        }
+
         $invitation = $invitation->load('invoice.client.account.account_gateways.gateway');
 
         if ( ! $gatewayType) {

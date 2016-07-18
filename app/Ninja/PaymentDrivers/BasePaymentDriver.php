@@ -716,7 +716,7 @@ class BasePaymentDriver
         }
 
         // check invoice still has balance
-        if ( ! $this->invoice()->balance) {
+        if ( ! floatval($this->invoice()->balance)) {
             throw new Exception(trans('texts.payment_error_code', ['code' => 'NB']));
         }
 
