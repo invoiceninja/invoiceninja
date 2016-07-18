@@ -70,7 +70,8 @@
 
             {!! Former::checkbox('tos_agree')->label(' ')->text(trans('texts.wepay_tos_agree',
                     ['link'=>'<a id="wepay-tos-link" href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.wepay_tos_link_text').'</a>']
-                ))->value('true') !!}
+                ))->value('true')
+                  ->inlineHelp('standard_fees_apply') !!}
         </div>
         </div>
 
