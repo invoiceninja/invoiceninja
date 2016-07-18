@@ -95,8 +95,8 @@ class Account extends Eloquent
         ACCOUNT_CLIENT_PORTAL,
         ACCOUNT_CHARTS_AND_REPORTS,
         ACCOUNT_DATA_VISUALIZATIONS,
-        ACCOUNT_USER_MANAGEMENT,
         ACCOUNT_API_TOKENS,
+        ACCOUNT_USER_MANAGEMENT,
     ];
 
     /**
