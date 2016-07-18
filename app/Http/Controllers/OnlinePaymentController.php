@@ -17,6 +17,7 @@ use App\Services\PaymentService;
 use App\Ninja\Mailers\UserMailer;
 use App\Http\Requests\CreateOnlinePaymentRequest;
 use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
 
 /**
@@ -35,15 +36,21 @@ class OnlinePaymentController extends BaseController
     protected $userMailer;
 
     /**
+     * @var InvoiceRepository
+     */
+    protected $invoiceRepo;
+
+    /**
      * OnlinePaymentController constructor.
      *
      * @param PaymentService $paymentService
      * @param UserMailer $userMailer
      */
-    public function __construct(PaymentService $paymentService, UserMailer $userMailer)
+    public function __construct(PaymentService $paymentService, UserMailer $userMailer, InvoiceRepository $invoiceRepo)
     {
         $this->paymentService = $paymentService;
         $this->userMailer = $userMailer;
+        $this->invoiceRepo = $invoiceRepo;
     }
 
     /**
@@ -54,8 +61,14 @@ class OnlinePaymentController extends BaseController
      */
     public function showPayment($invitationKey, $gatewayType = false, $sourceId = false)
     {
-        $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
-                        ->where('invitation_key', '=', $invitationKey)->firstOrFail();
+        if ( ! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
+        }
+
+        $invitation = $invitation->load('invoice.client.account.account_gateways.gateway');
 
         if ( ! $gatewayType) {
             $gatewayType = Session::get($invitation->id . 'gateway_type');
