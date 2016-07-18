@@ -652,7 +652,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
     define('DEFAULT_API_PAGE_SIZE', 15);
-    define('MAX_API_PAGE_SIZE', 100);
+    define('MAX_API_PAGE_SIZE', 500);
 
     define('IOS_PUSH_CERTIFICATE', env('IOS_PUSH_CERTIFICATE', ''));
 
