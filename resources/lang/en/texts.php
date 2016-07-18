@@ -2040,6 +2040,8 @@ $LANG = array(
     'enable_buy_now_buttons_help' => 'Enable support for buy now buttons',
     'changes_take_effect_immediately' => 'Note: changes take effect immediately',
     'wepay_account_description' => 'Payment gateway for Invoice Ninja',
+    'payment_error_code' => 'There was an error processing your payment [:code]. Please try again later.',
+
 
 );
 

@@ -715,6 +715,18 @@ class BasePaymentDriver
             }
         }
 
+        // check invoice still has balance
+        if ( ! $this->invoice()->balance) {
+            throw new Exception(trans('texts.payment_error_code', ['code' => 'NB']));
+        }
+
+        // check this isn't a duplicate transaction reference
+        if (Payment::whereAccountId($this->invitation->account_id)
+                ->whereTransactionReference($ref)
+                ->first()) {
+            throw new Exception(trans('texts.payment_error_code', ['code' => 'DT']));
+        }
+
         return $this->createPayment($ref);
     }
 
