@@ -6,7 +6,7 @@
     @else
     <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
     @endif
-    <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('css/built.public.min.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
     <style type="text/css">{!! isset($account)?$account->clientViewCSS():'' !!}</style>
 @stop
 
