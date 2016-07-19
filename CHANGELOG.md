@@ -2,7 +2,14 @@
 All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](http://semver.org/).
 
+
 ## [Unreleased]
+
+### Changed
+- Auto billing uses credits if they exist
+
+
+## [2.6.4] - 2016-07-19
 
 ### Added
 - Added 'Buy Now' buttons
