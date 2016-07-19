@@ -85,7 +85,7 @@ function GetPdfMake(invoice, javascript, callback) {
     // Add ninja logo to the footer
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
-    if (!invoice.features.remove_created_by) {
+    if (!invoice.features.remove_created_by && ! isEdge) {
         var footer = (typeof dd.footer === 'function') ? dd.footer() : dd.footer;
         if (footer) {
             if (footer.hasOwnProperty('columns')) {
@@ -154,14 +154,14 @@ NINJA.decodeJavascript = function(invoice, javascript)
     // search/replace variables
     var json = {
         'accountName': account.name || ' ',
-        'accountLogo': window.accountLogo || blankImage,
+        'accountLogo': ( ! isEdge && window.accountLogo) ? window.accountLogo : blankImage,
         'accountDetails': NINJA.accountDetails(invoice),
         'accountAddress': NINJA.accountAddress(invoice),
         'invoiceDetails': NINJA.invoiceDetails(invoice),
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
         'invoiceLineItems': NINJA.invoiceLines(invoice),
         'invoiceLineItemColumns': NINJA.invoiceColumns(invoice),
-        'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
+        'invoiceDocuments' : isEdge ? [] : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
