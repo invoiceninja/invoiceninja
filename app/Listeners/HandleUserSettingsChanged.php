@@ -1,5 +1,6 @@
 <?php namespace App\Listeners;
 
+use App\Models\Account;
 use Auth;
 use Session;
 use App\Events\UserSettingsChanged;
@@ -9,33 +10,35 @@ use App\Ninja\Mailers\UserMailer;
 /**
  * Class HandleUserSettingsChanged
  */
-class HandleUserSettingsChanged {
+class HandleUserSettingsChanged
+{
 
-	/**
-	 * Create the event handler.
-	 * 
-	 * @param AccountRepository $accountRepo
-	 * @param UserMailer $userMailer
-	 */
-	public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
-	{
+    /**
+     * Create the event handler.
+     *
+     * @param AccountRepository $accountRepo
+     * @param UserMailer $userMailer
+     */
+    public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
+    {
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
-	}
+    }
 
-	/**
-	 * Handle the event.
-	 *
-	 * @param  UserSettingsChanged  $event
-	 *
-	 * @return void
-	 */
-	public function handle(UserSettingsChanged $event)
-	{
+    /**
+     * Handle the event.
+     *
+     * @param  UserSettingsChanged $event
+     *
+     * @return void
+     */
+    public function handle(UserSettingsChanged $event)
+    {
         if (!Auth::check()) {
             return;
         }
 
+        /** @var Account $account */
         $account = Auth::user()->account;
         $account->loadLocalizationSettings();
 
@@ -46,5 +49,5 @@ class HandleUserSettingsChanged {
             $this->userMailer->sendConfirmation($event->user);
             Session::flash('warning', trans('texts.verify_email'));
         }
-	}
+    }
 }
