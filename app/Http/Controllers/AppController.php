@@ -85,7 +85,7 @@ class AppController extends BaseController
         $_ENV['APP_DEBUG'] = $app['debug'];
         $_ENV['APP_URL'] = $app['url'];
         $_ENV['APP_KEY'] = $app['key'];
-        $_ENV['APP_CIPHER'] = 'AES-256-CBC';
+        $_ENV['APP_CIPHER'] = env('APP_CIPHER', 'AES-256-CBC');
         $_ENV['DB_TYPE'] = $dbType;
         $_ENV['DB_HOST'] = $database['type']['host'];
         $_ENV['DB_DATABASE'] = $database['type']['database'];
@@ -277,6 +277,13 @@ class AppController extends BaseController
                 Artisan::call('migrate', ['--force' => true]);
                 Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
                 Event::fire(new UserSettingsChanged());
+
+                // legacy fix: check cipher is in .env file
+                if ( ! env('APP_CIPHER')) {
+                    $fp = fopen(base_path().'/.env', 'a');
+                    fwrite($fp, "\nAPP_CIPHER=rijndael-128");
+                    fclose($fp);
+                }
 
                 // show message with link to Trello board
                 $message = trans('texts.see_whats_new', ['version' => NINJA_VERSION]);
