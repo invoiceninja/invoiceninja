@@ -1,7 +1,7 @@
 <?php namespace App\Events;
 
 
-use App\Models\Client;
+use App\Models\Credit;
 use Illuminate\Queue\SerializesModels;
 
 /**
@@ -22,7 +22,7 @@ class CreditWasArchived extends Event
      *
      * @param Client $credit
      */
-    public function __construct(Client $credit)
+    public function __construct(Credit $credit)
     {
         $this->credit = $credit;
     }
