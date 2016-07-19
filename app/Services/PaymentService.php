@@ -58,6 +58,11 @@ class PaymentService extends BaseService
         }
 
         $paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_TOKEN);
+
+        if ( ! $paymentDriver) {
+            return false;
+        }
+
         $customer = $paymentDriver->customer();
 
         if ( ! $customer) {
