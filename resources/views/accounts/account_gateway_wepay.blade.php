@@ -9,7 +9,6 @@
                 'first_name' => 'required',
                 'last_name' => 'required',
                 'email' => 'required',
-                'description' => 'required',
                 'company_name' => 'required',
                 'tos_agree' => 'required',
                 'country' => 'required',
@@ -40,7 +39,6 @@
             {!! Former::text('last_name') !!}
             {!! Former::text('email') !!}
             {!! Former::text('company_name')->help('wepay_company_name_help')->maxlength(255) !!}
-            {!! Former::text('description')->help('wepay_description_help') !!}
 
             @if (WEPAY_ENABLE_CANADA)
                 <div id="wepay-country">
@@ -72,7 +70,8 @@
 
             {!! Former::checkbox('tos_agree')->label(' ')->text(trans('texts.wepay_tos_agree',
                     ['link'=>'<a id="wepay-tos-link" href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.wepay_tos_link_text').'</a>']
-                ))->value('true') !!}
+                ))->value('true')
+                  ->inlineHelp('standard_fees_apply') !!}
         </div>
         </div>
 

@@ -150,14 +150,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * @return bool
-     */
-    public function isPaidPro()
-    {
-        return $this->isPro($accountDetails) && !$accountDetails['trial'];
-    }
-
-    /**
      * @return mixed
      */
     public function isTrial()
@@ -432,7 +424,8 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
 
-    public function caddAddUsers() {
+    public function caddAddUsers()
+    {
         if ( ! Utils::isNinja()) {
             return true;
         } elseif ( ! $this->hasFeature(FEATURE_USERS)) {

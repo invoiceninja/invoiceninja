@@ -13,6 +13,7 @@ use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Language;
 use App\Models\Contact;
 use App\Models\Account;
@@ -202,6 +203,7 @@ class AccountRepository
             ['new_user', '/users/create'],
             ['custom_fields', '/settings/invoice_settings'],
             ['invoice_number', '/settings/invoice_settings'],
+            ['buy_now_buttons', '/settings/client_portal#buyNow']
         ]);
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
@@ -228,16 +230,34 @@ class AccountRepository
         return $data;
     }
 
-    public function enablePlan($plan, $credit = 0, $pending_monthly = false)
+    public function enablePlan($plan, $credit = 0)
     {
         $account = Auth::user()->account;
         $client = $this->getNinjaClient($account);
-        $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit, $pending_monthly);
+        $invitation = $this->createNinjaInvoice($client, $account, $plan, $credit);
 
         return $invitation;
     }
 
-    public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0, $pending_monthly = false)
+    public function createNinjaCredit($client, $amount)
+    {
+        $account = $this->getNinjaAccount();
+
+        $lastCredit = Credit::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
+        $publicId = $lastCredit ? ($lastCredit->public_id + 1) : 1;
+
+        $credit = new Credit();
+        $credit->public_id = $publicId;
+        $credit->account_id = $account->id;
+        $credit->user_id = $account->users()->first()->id;
+        $credit->client_id = $client->id;
+        $credit->amount = $amount;
+        $credit->save();
+
+        return $credit;
+    }
+
+    public function createNinjaInvoice($client, $clientAccount, $plan, $credit = 0)
     {
         $term = $plan['term'];
         $plan_cost = $plan['price'];
@@ -283,19 +303,6 @@ class AccountRepository
         // Don't change this without updating the regex in PaymentService->createPayment()
         $item->product_key = 'Plan - '.ucfirst($plan).' ('.ucfirst($term).')';
         $invoice->invoice_items()->save($item);
-
-        if ($pending_monthly) {
-            $term_end = $term == PLAN_MONTHLY ? date_create('+1 month') : date_create('+1 year');
-            $pending_monthly_item = InvoiceItem::createNew($invoice);
-            $item->qty = 1;
-            $pending_monthly_item->cost = 0;
-            $pending_monthly_item->notes = trans('texts.plan_pending_monthly', ['date', Utils::dateToString($term_end)]);
-
-            // Don't change this without updating the text in PaymentService->createPayment()
-            $pending_monthly_item->product_key = 'Pending Monthly';
-            $invoice->invoice_items()->save($pending_monthly_item);
-        }
-
 
         $invitation = new Invitation();
         $invitation->account_id = $account->id;

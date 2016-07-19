@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-use App\Models\Document;
 use App\Models\User;
 
 /**

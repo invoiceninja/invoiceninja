@@ -13,7 +13,7 @@ class AccountTransformer extends EntityTransformer
     protected $defaultIncludes = [
         'users',
         'products',
-        'taxRates',
+        'tax_rates',
         'expense_categories'
     ];
 

@@ -25,6 +25,7 @@ use App\Models\Document;
 use App\Models\Gateway;
 use App\Models\InvoiceDesign;
 use App\Models\TaxRate;
+use App\Models\Product;
 use App\Models\PaymentTerm;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ReferralRepository;
@@ -160,125 +161,73 @@ class AccountController extends BaseController
     public function changePlan() {
         $user = Auth::user();
         $account = $user->account;
+        $company = $account->company;
 
         $plan = Input::get('plan');
         $term = Input::get('plan_term');
+        $numUsers = Input::get('num_users');
 
         $planDetails = $account->getPlanDetails(false, false);
 
+        $newPlan = [
+            'plan' => $plan,
+            'term' => $term,
+            'num_users' => $numUsers,
+        ];
+        $newPlan['price'] = Utils::getPlanPrice($newPlan);
         $credit = 0;
-        if ($planDetails) {
-            if ($planDetails['plan'] == PLAN_PRO && $plan == PLAN_ENTERPRISE) {
-                // Upgrade from pro to enterprise
-                if($planDetails['term'] == PLAN_TERM_YEARLY && $term == PLAN_TERM_MONTHLY) {
-                    // Upgrade to yearly for now; switch to monthly in a year
-                    $pending_monthly = true;
-                    $term = PLAN_TERM_YEARLY;
-                }
 
-                $new_plan = [
-                    'plan' => PLAN_ENTERPRISE,
-                    'term' => $term,
-                ];
-            } elseif ($planDetails['plan'] == $plan) {
-                // Term switch
-                if ($planDetails['term'] == PLAN_TERM_YEARLY && $term == PLAN_TERM_MONTHLY) {
-                    $pending_change = [
-                        'plan' => $plan,
-                        'term' => $term
-                    ];
-                } elseif ($planDetails['term'] == PLAN_TERM_MONTHLY && $term == PLAN_TERM_YEARLY
-                    || $planDetails['num_users'] != Input::get('num_users')) {
-                    $new_plan = [
-                        'plan' => $plan,
-                        'term' => $term,
-                    ];
+        if (!empty($planDetails['started']) && $plan == PLAN_FREE) {
+            // Downgrade
+            $refund_deadline = clone $planDetails['started'];
+            $refund_deadline->modify('+30 days');
+
+            if ($plan == PLAN_FREE && $refund_deadline >= date_create()) {
+                if ($payment = $account->company->payment) {
+                    $ninjaAccount = $this->accountRepo->getNinjaAccount();
+                    $paymentDriver = $ninjaAccount->paymentDriver();
+                    $paymentDriver->refundPayment($payment);
+                    Session::flash('message', trans('texts.plan_refunded'));
+                    \Log::info("Refunded Plan Payment: {$account->name} - {$user->email}");
                 } else {
-                    // Cancel the pending change
-                    $account->company->pending_plan = null;
-                    $account->company->pending_term = null;
-                    $account->company->save();
                     Session::flash('message', trans('texts.updated_plan'));
                 }
-            } elseif (!empty($planDetails['started'])) {
-                // Downgrade
-                $refund_deadline = clone $planDetails['started'];
-                $refund_deadline->modify('+30 days');
+            }
+        }
 
-                if ($plan == PLAN_FREE && $refund_deadline >= date_create()) {
-                    // Refund
-                    $account->company->plan = null;
-                    $account->company->plan_term = null;
-                    $account->company->plan_started = null;
-                    $account->company->plan_expires = null;
-                    $account->company->plan_paid = null;
-                    $account->company->pending_plan = null;
-                    $account->company->pending_term = null;
+        if (!empty($planDetails['paid']) && $plan != PLAN_FREE) {
+            $time_used = $planDetails['paid']->diff(date_create());
+            $days_used = $time_used->days;
 
-                    if ($payment = $account->company->payment) {
-                        $ninjaAccount = $this->accountRepo->getNinjaAccount();
-                        $paymentDriver = $ninjaAccount->paymentDriver();
-                        $paymentDriver->refundPayment($payment);
-                        Session::flash('message', trans('texts.plan_refunded'));
-                        \Log::info("Refunded Plan Payment: {$account->name} - {$user->email}");
-                    } else {
-                        Session::flash('message', trans('texts.updated_plan'));
-                    }
-
-                    $account->company->save();
-
-                } else {
-                    $pending_change = [
-                        'plan' => $plan,
-                        'term' => $plan == PLAN_FREE ? null : $term,
-                    ];
-                }
+            if ($time_used->invert) {
+                // They paid in advance
+                $days_used *= -1;
             }
 
-            if (!empty($new_plan) && $new_plan['plan'] != PLAN_FREE) {
-                $time_used = $planDetails['paid']->diff(date_create());
-                $days_used = $time_used->days;
+            $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
+            $percent_used = $days_used / $days_total;
+            $credit = $planDetails['plan_price'] * (1 - $percent_used);
+        }
 
-                if ($time_used->invert) {
-                    // They paid in advance
-                    $days_used *= -1;
-                }
-
-                $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
-
-                $percent_used = $days_used / $days_total;
-                $credit = $planDetails['plan_price'] * (1 - $percent_used);
-            }
+        if ($newPlan['price'] > $credit) {
+            $invitation = $this->accountRepo->enablePlan($newPlan, $credit);
+            return Redirect::to('view/' . $invitation->invitation_key);
         } else {
-             $new_plan = [
-                'plan' => $plan,
-                'term' => $term,
-            ];
-        }
 
-        if (!empty($pending_change) && empty($new_plan)) {
-            $pending_change['num_users'] = Input::get('num_users');
-            $account->company->pending_plan = $pending_change['plan'];
-            $account->company->pending_term = $pending_change['term'];
-            $account->company->pending_num_users = $pending_change['num_users'];
-            $account->company->pending_plan_price = Utils::getPlanPrice($pending_change);
-            $account->company->save();
-
-            Session::flash('message', trans('texts.updated_plan'));
-        }
-
-        if (!empty($new_plan) && $new_plan['plan'] != PLAN_FREE) {
-            $new_plan['num_users'] = 1;
-            if ($new_plan['plan'] == PLAN_ENTERPRISE) {
-                $new_plan['num_users'] = Input::get('num_users');
+            if ($plan != PLAN_FREE) {
+                $company->plan_term = $term;
+                $company->plan_price = $newPlan['price'];
+                $company->num_users = $numUsers;
+                $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
             }
-            $new_plan['price'] = Utils::getPlanPrice($new_plan);
-            $invitation = $this->accountRepo->enablePlan($new_plan, $credit, !empty($pending_monthly));
-            return Redirect::to('view/'.$invitation->invitation_key);
-        }
 
-        return Redirect::to('/settings/'.ACCOUNT_MANAGEMENT, 301);
+            $company->plan = $plan;
+            $company->save();
+
+            return Redirect::to('settings/account_management');
+        }
     }
+
 
     /**
      * @param $entityType
@@ -714,6 +663,14 @@ class AccountController extends BaseController
             );
         }
 
+        $types = [GATEWAY_TYPE_CREDIT_CARD, GATEWAY_TYPE_BANK_TRANSFER, GATEWAY_TYPE_PAYPAL, GATEWAY_TYPE_BITCOIN, GATEWAY_TYPE_DWOLLA];
+        $options = [];
+        foreach ($types as $type) {
+            if ($account->getGatewayByType($type)) {
+                $options[$type] = trans("texts.{$type}");
+            }
+        }
+
         $data = [
             'client_view_css' => $css,
             'enable_portal_password' => $account->enable_portal_password,
@@ -721,6 +678,8 @@ class AccountController extends BaseController
             'title' => trans('texts.client_portal'),
             'section' => ACCOUNT_CLIENT_PORTAL,
             'account' => $account,
+            'products' => Product::scope()->orderBy('product_key')->get(),
+            'gateway_types' => $options,
         ];
 
         return View::make('accounts.client_portal', $data);
@@ -816,6 +775,7 @@ class AccountController extends BaseController
         $account->enable_client_portal_dashboard = !!Input::get('enable_client_portal_dashboard');
         $account->enable_portal_password = !!Input::get('enable_portal_password');
         $account->send_portal_password = !!Input::get('send_portal_password');
+        $account->enable_buy_now_buttons = !!Input::get('enable_buy_now_buttons');
 
         // Only allowed for pro Invoice Ninja users or white labeled self-hosted users
         if (Auth::user()->account->hasFeature(FEATURE_CLIENT_PORTAL_CSS)) {
@@ -1407,10 +1367,6 @@ class AccountController extends BaseController
             ];
 
             $subject = 'Invoice Ninja - Canceled Account';
-
-            if (Auth::user()->isPaidPro()) {
-                $subject .= ' [PRO]';
-            }
 
             $this->userMailer->sendTo(CONTACT_EMAIL, $email, $name, $subject, 'contact', $data);
         }

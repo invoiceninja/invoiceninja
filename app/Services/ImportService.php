@@ -6,6 +6,7 @@ use Excel;
 use Cache;
 use Exception;
 use Auth;
+use Utils;
 use parsecsv;
 use Session;
 use Validator;
@@ -332,6 +333,10 @@ class ImportService
      */
     private function checkData($entityType, $count)
     {
+        if (Utils::isNinja() && $count > MAX_IMPORT_ROWS) {
+            throw new Exception(trans('texts.limit_import_rows', ['count' => MAX_IMPORT_ROWS]));
+        }
+
         if ($entityType === ENTITY_CLIENT) {
             $this->checkClientCount($count);
         }

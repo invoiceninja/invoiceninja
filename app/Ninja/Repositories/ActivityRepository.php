@@ -6,6 +6,7 @@ use Utils;
 use Request;
 use App\Models\Activity;
 use App\Models\Client;
+use App\Models\Invitation;
 
 class ActivityRepository
 {

@@ -87,7 +87,7 @@ class AccountGatewayController extends BaseController
         $accountGatewaysIds = $account->gatewayIds();
         $otherProviders = Input::get('other_providers');
 
-        if ( ! Utils::isNinja() || Gateway::hasStandardGateway($accountGatewaysIds)) {
+        if ( ! Utils::isNinja() || ! env('WEPAY_CLIENT_ID') || Gateway::hasStandardGateway($accountGatewaysIds)) {
             $otherProviders = true;
         }
 
@@ -346,7 +346,6 @@ class AccountGatewayController extends BaseController
 
         $rules = [
             'company_name' => 'required',
-            'description' => 'required',
             'tos_agree' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
@@ -390,7 +389,7 @@ class AccountGatewayController extends BaseController
 
             $accountDetails = [
                 'name'         => Input::get('company_name'),
-                'description'  => Input::get('description'),
+                'description'  => trans('texts.wepay_account_description'),
                 'theme_object' => json_decode(WEPAY_THEME),
                 'callback_uri' => $accountGateway->getWebhookUrl(),
             ];

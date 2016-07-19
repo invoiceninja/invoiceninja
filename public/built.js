@@ -30395,7 +30395,11 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
   $clientSelect.append(new Option('', ''));
   for (var i=0; i<clients.length; i++) {
     var client = clients[i];
-    $clientSelect.append(new Option(getClientDisplayName(client), client.public_id));
+    var clientName = getClientDisplayName(client);
+    if (!clientName) {
+        continue;
+    }
+    $clientSelect.append(new Option(clientName, client.public_id));
   }
 
   if (clientId) {
@@ -30419,7 +30423,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     for (var i=0; i<list.length; i++) {
       var invoice = list[i];
       var client = clientMap[invoice.client.public_id];
-      if (!client) continue; // client is deleted/archived
+      if (!client || !getClientDisplayName(client)) continue; // client is deleted/archived
       $invoiceCombobox.append(new Option(invoice.invoice_number + ' - ' + invoice.invoice_status.name + ' - ' +
                 getClientDisplayName(client) + ' - ' + formatMoneyInvoice(invoice.amount, invoice) + ' | ' +
                 formatMoneyInvoice(invoice.balance, invoice),  invoice.public_id));
@@ -31121,7 +31125,7 @@ function GetPdfMake(invoice, javascript, callback) {
     // Add ninja logo to the footer
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
-    if (!invoice.features.remove_created_by) {
+    if (!invoice.features.remove_created_by && ! isEdge) {
         var footer = (typeof dd.footer === 'function') ? dd.footer() : dd.footer;
         if (footer) {
             if (footer.hasOwnProperty('columns')) {
@@ -31190,14 +31194,14 @@ NINJA.decodeJavascript = function(invoice, javascript)
     // search/replace variables
     var json = {
         'accountName': account.name || ' ',
-        'accountLogo': window.accountLogo || blankImage,
+        'accountLogo': ( ! isEdge && window.accountLogo) ? window.accountLogo : blankImage,
         'accountDetails': NINJA.accountDetails(invoice),
         'accountAddress': NINJA.accountAddress(invoice),
         'invoiceDetails': NINJA.invoiceDetails(invoice),
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
         'invoiceLineItems': NINJA.invoiceLines(invoice),
         'invoiceLineItemColumns': NINJA.invoiceColumns(invoice),
-        'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
+        'invoiceDocuments' : isEdge ? [] : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),

@@ -95,8 +95,8 @@ class Account extends Eloquent
         ACCOUNT_CLIENT_PORTAL,
         ACCOUNT_CHARTS_AND_REPORTS,
         ACCOUNT_DATA_VISUALIZATIONS,
-        ACCOUNT_USER_MANAGEMENT,
         ACCOUNT_API_TOKENS,
+        ACCOUNT_USER_MANAGEMENT,
     ];
 
     /**
@@ -999,32 +999,6 @@ class Account extends Eloquent
     }
 
     /**
-     * @param null $updatedAt
-     */
-    public function loadAllData($updatedAt = null)
-    {
-        $map = [
-            'users' => [],
-            'clients' => ['contacts'],
-            'invoices' => ['invoice_items', 'user', 'client', 'payments'],
-            'products' => [],
-            'tax_rates' => [],
-            'expenses' => ['client', 'invoice', 'vendor'],
-            'payments' => ['invoice'],
-            'expense_categories' => [],
-        ];
-
-        foreach ($map as $key => $values) {
-            $this->load([$key => function($query) use ($values, $updatedAt) {
-                $query->withTrashed()->with($values);
-                if ($updatedAt) {
-                    $query->where('updated_at', '>=', $updatedAt);
-                }
-            }]);
-        }
-    }
-
-    /**
      * @param bool $client
      */
     public function loadLocalizationSettings($client = false)
@@ -1170,6 +1144,7 @@ class Account extends Eloquent
             case FEATURE_MORE_INVOICE_DESIGNS:
             case FEATURE_QUOTES:
             case FEATURE_REPORTS:
+            case FEATURE_BUY_NOW_BUTTONS:
             case FEATURE_API:
             case FEATURE_CLIENT_PORTAL_PASSWORD:
             case FEATURE_CUSTOM_URL:
@@ -1265,7 +1240,7 @@ class Account extends Eloquent
         $price = $this->company->plan_price;
         $trial_plan = $this->company->trial_plan;
 
-        if(!$plan && (!$trial_plan || !$include_trial)) {
+        if((!$plan || $plan == PLAN_FREE) && (!$trial_plan || !$include_trial)) {
             return null;
         }
 
