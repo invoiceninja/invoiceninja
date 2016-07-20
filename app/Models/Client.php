@@ -50,6 +50,13 @@ class Client extends EntityModel
     ];
 
     /**
+     * @var array
+     */
+    protected $appends = [
+        'display_name',
+    ];
+
+    /**
      * @var string
      */
     public static $fieldName = 'name';
@@ -329,6 +336,17 @@ class Client extends EntityModel
 
         $contact = $this->contacts[0];
         return $contact->getDisplayName();
+    }
+
+    /**
+     * Making the virtual property display_name accessible
+     * via an accessor
+     *
+     * @return mixed|string
+     */
+    public function getDisplayNameAttribute()
+    {
+        return $this->getDisplayName();
     }
 
     /**
