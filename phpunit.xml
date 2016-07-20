@@ -10,7 +10,7 @@
          stopOnFailure="false"
          syntaxCheck="false">
     <testsuites>
-        <testsuite name="Application Test Suite">
+        <testsuite name="Invoice Ninja Test Suite">
             <directory>./tests/</directory>
         </testsuite>
     </testsuites>
