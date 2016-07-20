@@ -19,11 +19,30 @@ class AccountGatewayController extends BaseController
 {
     protected $accountGatewayService;
 
+    /**
+     * Mapping of attribute names to more user friendly names
+     *
+     * @var array
+     */
+    protected $attributeNames = [];
+
     public function __construct(AccountGatewayService $accountGatewayService)
     {
-        //parent::__construct();
-
         $this->accountGatewayService = $accountGatewayService;
+        $this->attributeNames = [
+            'apiLoginId' => trans('texts.api_login_id'),
+            'apiKey' => trans('texts.secret_key'),
+            'testMode' => trans('texts.test_mode'),
+            'username' => trans('texts.api_username'),
+            'password' => trans('texts.api_password'),
+            'signature' => trans('texts.signature'),
+            'destinationId' => trans('texts.destination_id'),
+            'merchantId' => trans('texts.merchant_id'),
+            'publishable_key' => trans('texts.publishable_key'),
+            'publicKey' => trans('texts.public_key'),
+            'privateKey' => trans('texts.private_key'),
+            'transactionKey' => trans('texts.transaction_key'),
+        ];
     }
 
     public function index()
@@ -170,6 +189,7 @@ class AccountGatewayController extends BaseController
         $gateway = Gateway::findOrFail($gatewayId);
 
         $rules = [];
+        $attributeNames = [];
         $fields = $gateway->getFields();
         $optional = array_merge(Gateway::$hiddenFields, Gateway::$optionalFields);
 
@@ -195,11 +215,19 @@ class AccountGatewayController extends BaseController
                         $rules[$gateway->id . '_' . $field] = 'required';
                     }
                 }
+
+                if(key_exists($field, $this->attributeNames)) {
+                    $attributeNames[$gateway->id.'_'.$field] = $this->attributeNames[$field];
+                }
             }
+
+            $attributeNames['publishable_key'] = $this->attributeNames['publishable_key'];
         }
 
         $creditcards = Input::get('creditCardTypes');
+
         $validator = Validator::make(Input::all(), $rules);
+        $validator->setAttributeNames($attributeNames);
 
         if ($validator->fails()) {
             return Redirect::to('gateways/create')

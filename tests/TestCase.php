@@ -1,19 +1,17 @@
 <?php
 
-class TestCase extends Illuminate\Foundation\Testing\TestCase {
+namespace Tests\Unit;
 
-	/**
-	 * Creates the application.
-	 *
-	 * @return Symfony\Component\HttpKernel\HttpKernelInterface
-	 */
-	public function createApplication()
-	{
-		$unitTesting = true;
+use Codeception\TestCase\Test;
 
-		$testEnvironment = 'testing';
+abstract class TestCase extends Test
+{
+    protected function createApplication()
+    {
+        $app = require __DIR__ .'/../../../bootstrap/app.php';
+        $app->make('Illuminate\Contracts\Http\Kernel')->bootstrap();
 
-		return require __DIR__.'/../../bootstrap/start.php';
-	}
+        return $app;
+    }
 
 }
