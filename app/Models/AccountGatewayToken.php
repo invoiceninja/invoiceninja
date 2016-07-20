@@ -52,7 +52,11 @@ class AccountGatewayToken extends Eloquent
      */
     public function autoBillLater()
     {
-        return $this->default_payment_method->requiresDelayedAutoBill();
+        if ($this->default_payment_method) {
+            return $this->default_payment_method->requiresDelayedAutoBill();
+        }
+
+        return false;
     }
 
     /**
