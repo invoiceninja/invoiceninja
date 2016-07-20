@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use Utils;
 use Redirect;
 use View;
 use Response;
