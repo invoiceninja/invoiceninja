@@ -1461,7 +1461,6 @@ class AccountController extends BaseController
             return trans('texts.create_invoice_for_sample');
         }
 
-        /** @var \App\Models\Account $account */
         $account = Auth::user()->account;
         $invitation = $invoice->invitations->first();
 
