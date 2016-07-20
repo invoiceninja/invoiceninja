@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Models\Document;
 use App\Models\User;
 
 /**
@@ -11,6 +12,7 @@ class DocumentPolicy extends EntityPolicy
 {
     /**
      * @param User $user
+     *
      * @return bool
      */
     public static function create(User $user)
@@ -20,10 +22,11 @@ class DocumentPolicy extends EntityPolicy
 
     /**
      * @param User $user
-     * @param Document $document
+     * @param $item
+     * 
      * @return bool
      */
-    public static function view(User $user, $document)
+    public static function view(User $user, $item)
     {
         if ($user->hasPermission('view_all')) {
             return true;

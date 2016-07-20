@@ -748,6 +748,7 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param Invoice $recurInvoice
+     * 
      * @return mixed
      */
     public function createRecurringInvoice(Invoice $recurInvoice)
@@ -839,6 +840,7 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param Account $account
+     *
      * @return mixed
      */
     public function findNeedingReminding(Account $account)

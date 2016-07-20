@@ -1,16 +1,28 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use DB;
-use Utils;
 use App\Models\TaxRate;
 
+/**
+ * Class TaxRateRepository
+ */
 class TaxRateRepository extends BaseRepository
 {
+    /**
+     * @return string
+     */
     public function getClassName()
     {
         return 'App\Models\TaxRate';
     }
 
+    /**
+     * @param $accountId
+     *
+     * @return $this
+     */
     public function find($accountId)
     {
         return DB::table('tax_rates')
@@ -19,7 +31,13 @@ class TaxRateRepository extends BaseRepository
                 ->select('tax_rates.public_id', 'tax_rates.name', 'tax_rates.rate', 'tax_rates.deleted_at');
     }
 
-    public function save($data, $taxRate = null)
+    /**
+     * @param array $data
+     * @param TaxRate|null $taxRate
+     *
+     * @return TaxRate|mixed
+     */
+    public function save(array $data, TaxRate $taxRate = null)
     {
         if ($taxRate) {
             // do nothing
@@ -35,41 +53,4 @@ class TaxRateRepository extends BaseRepository
 
         return $taxRate;
     }
-
-    /*
-    public function save($taxRates)
-    {
-        $taxRateIds = [];
-
-        foreach ($taxRates as $record) {
-            if (!isset($record->rate) || (isset($record->is_deleted) && $record->is_deleted)) {
-                continue;
-            }
-
-            if (!isset($record->name) || !trim($record->name)) {
-                continue;
-            }
-
-            if ($record->public_id) {
-                $taxRate = TaxRate::scope($record->public_id)->firstOrFail();
-            } else {
-                $taxRate = TaxRate::createNew();
-            }
-
-            $taxRate->rate = Utils::parseFloat($record->rate);
-            $taxRate->name = trim($record->name);
-            $taxRate->save();
-
-            $taxRateIds[] = $taxRate->public_id;
-        }
-
-        $taxRates = TaxRate::scope()->get();
-
-        foreach ($taxRates as $taxRate) {
-            if (!in_array($taxRate->public_id, $taxRateIds)) {
-                $taxRate->delete();
-            }
-        }
-    }
-    */
 }

@@ -1,12 +1,23 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
 
+namespace App\Ninja\PaymentDrivers;
+
+/**
+ * Class DwollaPaymentDriver
+ */
 class DwollaPaymentDriver extends BasePaymentDriver
 {
+    /**
+     * @return array
+     */
     public function gatewayTypes()
     {
         return [GATEWAY_TYPE_DWOLLA];
     }
 
+    /**
+     * @return mixed
+     */
     protected function gateway()
     {
         $gateway = parent::gateway();

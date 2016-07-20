@@ -1,17 +1,31 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use DB;
 use Utils;
 use App\Models\Credit;
 use App\Models\Client;
 
+/**
+ * Class CreditRepository
+ */
 class CreditRepository extends BaseRepository
 {
+    /**
+     * @return string
+     */
     public function getClassName()
     {
         return 'App\Models\Credit';
     }
 
+    /**
+     * @param null $clientPublicId
+     * @param null $filter
+     *
+     * @return $this
+     */
     public function find($clientPublicId = null, $filter = null)
     {
         $query = DB::table('credits')
@@ -58,7 +72,13 @@ class CreditRepository extends BaseRepository
         return $query;
     }
 
-    public function save($input, $credit = null)
+    /**
+     * @param $input
+     * @param Credit|null $credit
+     * 
+     * @return Credit|mixed
+     */
+    public function save($input, Credit $credit = null)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
         

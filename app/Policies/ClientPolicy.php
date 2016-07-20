@@ -2,4 +2,10 @@
 
 namespace App\Policies;
 
-class ClientPolicy extends EntityPolicy {}
+/**
+ * Class ClientPolicy
+ */
+class ClientPolicy extends EntityPolicy
+{
+
+}

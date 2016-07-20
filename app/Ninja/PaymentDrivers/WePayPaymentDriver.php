@@ -1,12 +1,21 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
 
+namespace App\Ninja\PaymentDrivers;
+
+use App\Models\PaymentMethod;
 use Session;
 use Utils;
 use App\Models\Payment;
 use Exception;
 
+/**
+ * Class WePayPaymentDriver
+ */
 class WePayPaymentDriver extends BasePaymentDriver
 {
+    /**
+     * @return array
+     */
     public function gatewayTypes()
     {
         $types =  [
@@ -21,16 +30,27 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $types;
     }
 
+    /**
+     * @return bool
+     */
     public function tokenize()
     {
         return true;
     }
 
+    /**
+     * @param $customer
+     *
+     * @return bool
+     */
     protected function checkCustomerExists($customer)
     {
         return true;
     }
 
+    /**
+     * @return array
+     */
     public function rules()
     {
         $rules = parent::rules();
@@ -45,7 +65,12 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $rules;
     }
 
-    protected function paymentDetails($paymentMethod = false)
+    /**
+     * @param PaymentMethod $paymentMethod
+     *
+     * @return array
+     */
+    protected function paymentDetails(PaymentMethod $paymentMethod = false)
     {
         $data = parent::paymentDetails($paymentMethod);
 
@@ -64,6 +89,9 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
+    /**
+     * @return PaymentMethod
+     */
     public function createToken()
     {
         $wepay = Utils::setupWePay($this->accountGateway);
@@ -77,22 +105,6 @@ class WePayPaymentDriver extends BasePaymentDriver
                 'payment_bank_id' => $token,
             ]);
         } else {
-            // Authorize credit card
-            $tokenResponse = $wepay->request('credit_card/authorize', [
-                'client_id' => WEPAY_CLIENT_ID,
-                'client_secret' => WEPAY_CLIENT_SECRET,
-                'credit_card_id' => $token,
-            ]);
-
-            // Update the callback uri and get the card details
-            $tokenResponse = $wepay->request('credit_card/modify', [
-                'client_id' => WEPAY_CLIENT_ID,
-                'client_secret' => WEPAY_CLIENT_SECRET,
-                'credit_card_id' => $token,
-                'auto_update' => WEPAY_AUTO_UPDATE,
-                'callback_uri' => $this->accountGateway->getWebhookUrl(),
-            ]);
-
             $this->tokenResponse = $wepay->request('credit_card', [
                 'client_id' => WEPAY_CLIENT_ID,
                 'client_secret' => WEPAY_CLIENT_SECRET,
@@ -103,23 +115,12 @@ class WePayPaymentDriver extends BasePaymentDriver
         return parent::createToken();
     }
 
-    /*
-    public function creatingCustomer($customer)
-    {
-        if ($gatewayResponse instanceof \Omnipay\WePay\Message\CustomCheckoutResponse) {
-            $wepay = \Utils::setupWePay($accountGateway);
-            $paymentMethodType = $gatewayResponse->getData()['payment_method']['type'];
-
-            $gatewayResponse = $wepay->request($paymentMethodType, array(
-                'client_id' => WEPAY_CLIENT_ID,
-                'client_secret' => WEPAY_CLIENT_SECRET,
-                $paymentMethodType.'_id' => $gatewayResponse->getData()['payment_method'][$paymentMethodType]['id'],
-            ));
-        }
-    }
-    */
-
-    protected function creatingPaymentMethod($paymentMethod)
+    /**
+     * @param PaymentMethod $paymentMethod
+     *
+     * @return PaymentMethod
+     */
+    protected function creatingPaymentMethod(PaymentMethod $paymentMethod)
     {
         $source = $this->tokenResponse;
 
@@ -148,7 +149,13 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
-    public function removePaymentMethod($paymentMethod)
+    /**
+     * @param PaymentMethod $paymentMethod
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function removePaymentMethod(PaymentMethod $paymentMethod)
     {
         parent::removePaymentMethod($paymentMethod);
 
@@ -166,7 +173,13 @@ class WePayPaymentDriver extends BasePaymentDriver
         }
     }
 
-    protected function refundDetails($payment, $amount)
+    /**
+     * @param Payment $payment
+     * @param $amount
+     *
+     * @return array
+     */
+    protected function refundDetails(Payment $payment, $amount)
     {
         $data = parent::refundDetails($payment, $amount);
 
@@ -182,7 +195,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    protected function attemptVoidPayment($response, $payment, $amount)
+    protected function attemptVoidPayment($response, Payment $payment, $amount)
     {
         if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;
@@ -224,8 +237,6 @@ class WePayPaymentDriver extends BasePaymentDriver
 
             if ($source->state == 'deleted') {
                 $paymentMethod->delete();
-            } else {
-                //$this->paymentService->convertPaymentMethodFromWePay($source, null, $paymentMethod)->save();
             }
 
             return 'Processed successfully';

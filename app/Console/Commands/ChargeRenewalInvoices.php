@@ -1,4 +1,6 @@
-<?php namespace App\Console\Commands;
+<?php
+
+namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Ninja\Mailers\ContactMailer as Mailer;
@@ -39,6 +41,7 @@ class ChargeRenewalInvoices extends Command
 
     /**
      * ChargeRenewalInvoices constructor.
+     *
      * @param Mailer $mailer
      * @param AccountRepository $repo
      * @param PaymentService $paymentService

@@ -1,20 +1,32 @@
-<?php namespace App\Ninja\Datatables;
+<?php
 
+namespace App\Ninja\Datatables;
+
+use App\Models\Payment;
 use Utils;
 use URL;
 use Auth;
 use App\Models\PaymentMethod;
 
+/**
+ * Class PaymentDatatable
+ */
 class PaymentDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PAYMENT;
 
+    /**
+     * @var array
+     */
     protected static $refundableGateways = [
         GATEWAY_STRIPE,
         GATEWAY_BRAINTREE,
         GATEWAY_WEPAY,
     ];
 
+    /**
+     * @return array
+     */
     public function columns()
     {
         return [
@@ -101,7 +113,9 @@ class PaymentDatatable extends EntityDatatable
         ];
     }
 
-
+    /**
+     * @return array
+     */
     public function actions()
     {
         return [
@@ -134,7 +148,12 @@ class PaymentDatatable extends EntityDatatable
         ];
     }
 
-    private function getStatusLabel($model)
+    /**
+     * @param Payment $model
+     *
+     * @return string
+     */
+    private function getStatusLabel(Payment $model)
     {
         $label = trans('texts.status_' . strtolower($model->payment_status_name));
         $class = 'default';
