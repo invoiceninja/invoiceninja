@@ -639,8 +639,8 @@ NINJA.invoiceDetails = function(invoice) {
 NINJA.clientDetails = function(invoice) {
     var client = invoice.client;
     var data;
-    if (!client) {
-        return;
+    if (!client || !client.contacts.length) {
+        return [];
     }
     var account = invoice.account;
     var contact = client.contacts[0];
