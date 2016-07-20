@@ -315,6 +315,22 @@
       @endif
     }
 
+    function isStorageSupported() {
+        if ('localStorage' in window && window['localStorage'] !== null) {
+            var storage = window.localStorage;
+        } else {
+            return false;
+        }
+        var testKey = 'test';
+        try {
+            storage.setItem(testKey, '1');
+            storage.removeItem(testKey);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
     @if (!Auth::check() || !Auth::user()->registered)
     validateSignUp();
 
