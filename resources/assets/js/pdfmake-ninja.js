@@ -643,9 +643,16 @@ NINJA.clientDetails = function(invoice) {
         return [];
     }
     var account = invoice.account;
-    var contact = client.contacts[0];
+    var contact = {
+        'first_name': '',
+        'last_name': '',
+        'email': ''
+    };
+    if(client.contacts.length > 0) {
+        contact = client.contacts[0];
+    }
     var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
-    var clientEmail = client.contacts[0].email == clientName ? '' : client.contacts[0].email;
+    var clientEmail = contact.email == clientName ? '' : contact.email;
 
     var cityStatePostal = '';
     if (client.city || client.state || client.postal_code) {
