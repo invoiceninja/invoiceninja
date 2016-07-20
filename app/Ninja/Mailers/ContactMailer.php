@@ -1,8 +1,9 @@
-<?php namespace App\Ninja\Mailers;
+<?php
+
+namespace App\Ninja\Mailers;
 
 use App\Models\Invitation;
 use Utils;
-use Event;
 use Auth;
 use App\Services\TemplateService;
 use App\Models\Invoice;

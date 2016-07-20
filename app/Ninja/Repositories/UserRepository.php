@@ -1,16 +1,29 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
+namespace App\Ninja\Repositories;
+
+use App\Models\User;
 use DB;
 use Session;
-use App\Models\User;
 
+/**
+ * Class UserRepository
+ */
 class UserRepository extends BaseRepository
 {
+    /**
+     * @return string
+     */
     public function getClassName()
     {
         return 'App\Models\User';
     }
 
+    /**
+     * @param $accountId
+     *
+     * @return $this
+     */
     public function find($accountId)
     {
         $query = DB::table('users')
@@ -25,7 +38,13 @@ class UserRepository extends BaseRepository
         return $query;
     }
 
-    public function save($data, $user)
+    /**
+     * @param array $data
+     * @param User $user
+     * 
+     * @return User
+     */
+    public function save(array $data, User $user)
     {
         $user->fill($data);
         $user->save();

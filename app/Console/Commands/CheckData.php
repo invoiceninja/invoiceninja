@@ -1,4 +1,6 @@
-<?php namespace App\Console\Commands;
+<?php
+
+namespace App\Console\Commands;
 
 use DB;
 use Carbon;
@@ -174,7 +176,6 @@ class CheckData extends Command {
 
         foreach ($clients as $client) {
             $this->info("=== Client:{$client->id} Balance:{$client->balance} Actual Balance:{$client->actual_balance} ===");
-            $foundProblem = false;
             $lastBalance = 0;
             $lastAdjustment = 0;
             $lastCreatedAt = null;
@@ -182,8 +183,16 @@ class CheckData extends Command {
             $activities = DB::table('activities')
                         ->where('client_id', '=', $client->id)
                         ->orderBy('activities.id')
-                        ->get(['activities.id', 'activities.created_at', 'activities.activity_type_id', 'activities.adjustment', 'activities.balance', 'activities.invoice_id']);
-            //$this->info(var_dump($activities));
+                        ->get(
+                            [
+                                'activities.id',
+                                'activities.created_at',
+                                'activities.activity_type_id',
+                                'activities.adjustment',
+                                'activities.balance',
+                                'activities.invoice_id'
+                            ]
+                        );
 
             foreach ($activities as $activity) {
 
@@ -231,13 +240,11 @@ class CheckData extends Command {
                     // **Fix for allowing converting a recurring invoice to a normal one without updating the balance**
                     if ($noAdjustment && $invoice->invoice_type_id == INVOICE_TYPE_STANDARD && !$invoice->is_recurring) {
                         $this->info("No adjustment for new invoice:{$activity->invoice_id} amount:{$invoice->amount} invoiceTypeId:{$invoice->invoice_type_id} isRecurring:{$invoice->is_recurring}");
-                        $foundProblem = true;
                         $clientFix += $invoice->amount;
                         $activityFix = $invoice->amount;
                     // **Fix for updating balance when creating a quote or recurring invoice**
                     } elseif ($activity->adjustment != 0 && ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE || $invoice->is_recurring)) {
                         $this->info("Incorrect adjustment for new invoice:{$activity->invoice_id} adjustment:{$activity->adjustment} invoiceTypeId:{$invoice->invoice_type_id} isRecurring:{$invoice->is_recurring}");
-                        $foundProblem = true;
                         $clientFix -= $activity->adjustment;
                         $activityFix = 0;
                     }
@@ -245,7 +252,6 @@ class CheckData extends Command {
                     // **Fix for updating balance when deleting a recurring invoice**
                     if ($activity->adjustment != 0 && $invoice->is_recurring) {
                         $this->info("Incorrect adjustment for deleted invoice adjustment:{$activity->adjustment}");
-                        $foundProblem = true;
                         if ($activity->balance != $lastBalance) {
                             $clientFix -= $activity->adjustment;
                         }
@@ -255,7 +261,6 @@ class CheckData extends Command {
                     // **Fix for updating balance when archiving an invoice**
                     if ($activity->adjustment != 0 && !$invoice->is_recurring) {
                         $this->info("Incorrect adjustment for archiving invoice adjustment:{$activity->adjustment}");
-                        $foundProblem = true;
                         $activityFix = 0;
                         $clientFix += $activity->adjustment;
                     }
@@ -263,12 +268,10 @@ class CheckData extends Command {
                     // **Fix for updating balance when updating recurring invoice**
                     if ($activity->adjustment != 0 && $invoice->is_recurring) {
                         $this->info("Incorrect adjustment for updated recurring invoice adjustment:{$activity->adjustment}");
-                        $foundProblem = true;
                         $clientFix -= $activity->adjustment;
                         $activityFix = 0;
                     } else if ((strtotime($activity->created_at) - strtotime($lastCreatedAt) <= 1) && $activity->adjustment > 0 && $activity->adjustment == $lastAdjustment) {
                         $this->info("Duplicate adjustment for updated invoice adjustment:{$activity->adjustment}");
-                        $foundProblem = true;
                         $clientFix -= $activity->adjustment;
                         $activityFix = 0;
                     }
@@ -276,7 +279,6 @@ class CheckData extends Command {
                     // **Fix for updating balance when updating a quote**
                     if ($activity->balance != $lastBalance) {
                         $this->info("Incorrect adjustment for updated quote adjustment:{$activity->adjustment}");
-                        $foundProblem = true;
                         $clientFix += $lastBalance - $activity->balance;
                         $activityFix = 0;
                     }
@@ -284,7 +286,6 @@ class CheckData extends Command {
                     // **Fix for deleting payment after deleting invoice**
                     if ($activity->adjustment != 0 && $invoice->is_deleted && $activity->created_at > $invoice->deleted_at) {
                         $this->info("Incorrect adjustment for deleted payment adjustment:{$activity->adjustment}");
-                        $foundProblem = true;
                         $activityFix = 0;
                         $clientFix -= $activity->adjustment;
                     }

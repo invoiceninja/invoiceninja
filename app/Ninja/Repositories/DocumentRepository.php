@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use DB;
 use Utils;
@@ -6,14 +8,22 @@ use App\Models\Document;
 use Intervention\Image\ImageManager;
 use Form;
 
+/**
+ * Class DocumentRepository
+ */
 class DocumentRepository extends BaseRepository
 {
-    // Expenses
+    /**
+     * @return string
+     */
     public function getClassName()
     {
         return 'App\Models\Document';
     }
 
+    /**
+     * @return mixed
+     */
     public function all()
     {
         return Document::scope()
@@ -21,6 +31,9 @@ class DocumentRepository extends BaseRepository
                 ->get();
     }
 
+    /**
+     * @return $this
+     */
     public function find()
     {
         $accountid = \Auth::user()->account_id;
@@ -50,6 +63,12 @@ class DocumentRepository extends BaseRepository
         return $query;
     }
 
+    /**
+     * @param $data
+     * @param null $doc_array
+     *
+     * @return mixed
+     */
     public function upload($data, &$doc_array=null)
     {
         $uploaded = $data['file'];
@@ -177,6 +196,14 @@ class DocumentRepository extends BaseRepository
         return $document;
     }
 
+    /**
+     * @param $contactId
+     * @param $entityType
+     * @param $search
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     * @throws \Exception
+     */
     public function getClientDatatable($contactId, $entityType, $search)
     {
 

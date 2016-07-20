@@ -1,13 +1,21 @@
-<?php namespace App\Ninja\Datatables;
+<?php
+
+namespace App\Ninja\Datatables;
 
 use Utils;
 use URL;
 use Auth;
 
+/**
+ * Class CreditDatatable
+ */
 class CreditDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CREDIT;
 
+    /**
+     * @return array
+     */
     public function columns()
     {
         return [
@@ -49,6 +57,9 @@ class CreditDatatable extends EntityDatatable
         ];
     }
 
+    /**
+     * @return array
+     */
     public function actions()
     {
         return [
@@ -57,7 +68,7 @@ class CreditDatatable extends EntityDatatable
                 function ($model) {
                     return URL::to("payments/create/{$model->client_public_id}") . '?paymentTypeId=1';
                 },
-                function ($model) {
+                function () {
                     return Auth::user()->can('create', ENTITY_PAYMENT);
                 }
             ]
