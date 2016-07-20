@@ -17,7 +17,7 @@ class CheckBalanceCest
     public function checkBalance(AcceptanceTester $I)
     {
         $I->wantTo('ensure the balance is correct');
-        
+
         $clientEmail = $this->faker->safeEmail;
         $productKey = $this->faker->text(10);
         $productPrice = $this->faker->numberBetween(1, 20);
@@ -30,7 +30,7 @@ class CheckBalanceCest
         $I->see($clientEmail);
 
         $clientId = $I->grabFromCurrentUrl('~clients/(\d+)~');
-        
+
         // create product
         $I->amOnPage('/products/create');
         $I->fillField(['name' => 'product_key'], $productKey);
@@ -39,7 +39,7 @@ class CheckBalanceCest
         $I->click('Save');
         $I->wait(1);
         $I->see($productKey);
-        
+
         // create invoice
         $I->amOnPage('/invoices/create');
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
@@ -51,7 +51,7 @@ class CheckBalanceCest
         $invoiceId = $I->grabFromCurrentUrl('~invoices/(\d+)~');
         $I->amOnPage("/clients/{$clientId}");
         $I->see('Balance $' . $productPrice);
-        
+
         // update the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
         $I->fillField(['name' => 'invoice_items[0][qty]'], 2);

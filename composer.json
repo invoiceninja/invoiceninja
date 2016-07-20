@@ -19,7 +19,7 @@
         "omnipay/gocardless": "dev-master",
         "omnipay/stripe": "dev-master",
         "doctrine/dbal": "2.5.x",
-        "laravelcollective/bus": "5.2.*",        
+        "laravelcollective/bus": "5.2.*",
         "laravel/framework": "5.2.*",
         "laravelcollective/html": "5.2.*",
         "symfony/css-selector": "~3.0",
