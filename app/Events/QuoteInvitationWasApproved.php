@@ -12,11 +12,6 @@ class QuoteInvitationWasApproved extends Event
     public $quote;
 
     /**
-     * @var Invoice
-     */
-    public $invoice;
-
-    /**
      * @var Invitation
      */
     public $invitation;
@@ -28,10 +23,9 @@ class QuoteInvitationWasApproved extends Event
      * @param Invoice $invoice
      * @param Invitation $invitation
      */
-    public function __construct($quote, Invoice $invoice, Invitation $invitation)
+    public function __construct(Invoice $quote, Invitation $invitation)
     {
         $this->quote = $quote;
-        $this->invoice = $invoice;
         $this->invitation = $invitation;
     }
 }
