@@ -502,11 +502,11 @@ NINJA.subtotals = function(invoice, hideBalance)
         }
     }
 
-    if (invoice.tax_amount1) {
+    if (invoice.tax_name1) {
         var taxStr = invoice.tax_name1 + ' ' + (invoice.tax_rate1*1).toString() + '%';
         data.push([{text: taxStr, style: ['subtotalsLabel', 'tax1Label']}, {text: formatMoneyInvoice(invoice.tax_amount1, invoice), style: ['subtotals', 'tax1']}]);
     }
-    if (invoice.tax_amount2) {
+    if (invoice.tax_name2) {
         var taxStr = invoice.tax_name2 + ' ' + (invoice.tax_rate2*1).toString() + '%';
         data.push([{text: taxStr, style: ['subtotalsLabel', 'tax2Label']}, {text: formatMoneyInvoice(invoice.tax_amount2, invoice), style: ['subtotals', 'tax2']}]);
     }
