@@ -127,11 +127,11 @@ class InvoiceService extends BaseService
     {
         $account = $quote->account;
 
-        if (!$quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
+        if ( ! $account->hasFeature(FEATURE_QUOTES) || ! $quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
             return null;
         }
 
-        if ($account->auto_convert_quote || ! $account->hasFeature(FEATURE_QUOTES)) {
+        if ($account->auto_convert_quote) {
             $invoice = $this->convertQuote($quote);
 
             foreach ($invoice->invitations as $invoiceInvitation) {
@@ -139,21 +139,13 @@ class InvoiceService extends BaseService
                     $invitation = $invoiceInvitation;
                 }
             }
-
-            event(new QuoteInvitationWasApproved($quote, $invoice, $invitation));
-
-            return $invoice;
         } else {
             $quote->markApproved();
-
-            event(new QuoteInvitationWasApproved($quote, null, $invitation));
-
-            foreach ($quote->invitations as $invoiceInvitation) {
-                if ($invitation->contact_id == $invoiceInvitation->contact_id) {
-                    return $invoiceInvitation->invitation_key;
-                }
-            }
         }
+
+        event(new QuoteInvitationWasApproved($quote, $invitation));
+
+        return $invitation->invitation_key;
     }
 
     public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
