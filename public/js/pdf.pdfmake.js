@@ -425,7 +425,7 @@ NINJA.invoiceLines = function(invoice) {
                 str += tax1.toString() + '%';
             }
             if (item.tax_name2) {
-                if (tax1) {
+                if (item.tax_name1) {
                     str += '  ';
                 }
                 str += tax2.toString() + '%';
