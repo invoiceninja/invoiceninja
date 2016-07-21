@@ -33,10 +33,10 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
     /**
      * @param PaymentMethod $paymentMethod
-     * 
+     *
      * @return array
      */
-    protected function paymentDetails(PaymentMethod $paymentMethod = false)
+    protected function paymentDetails(PaymentMethod $paymentMethod = null)
     {
         $data = parent::paymentDetails();
 

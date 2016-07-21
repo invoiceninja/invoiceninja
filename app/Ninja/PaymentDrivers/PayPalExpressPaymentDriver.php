@@ -25,7 +25,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
      *
      * @return array
      */
-    protected function paymentDetails(PaymentMethod $paymentMethod = false)
+    protected function paymentDetails(PaymentMethod $paymentMethod = null)
     {
         $data = parent::paymentDetails();
 
@@ -37,7 +37,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
     /**
      * @param Payment $payment
      * @param PaymentMethod $paymentMethod
-     * 
+     *
      * @return Payment
      */
     protected function creatingPayment(Payment $payment, PaymentMethod $paymentMethod)

@@ -9,10 +9,10 @@ class MolliePaymentDriver extends BasePaymentDriver
 {
     /**
      * @param $input
-     * 
+     *
      * @return \App\Models\Payment|mixed
      */
-    public function completeOffsitePurchase($input)
+    public function completeOffsitePurchase(array $input)
     {
         $details = $this->paymentDetails();
 

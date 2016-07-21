@@ -66,8 +66,8 @@ class BasePaymentDriver
      * @param bool $gatewayType
      */
     public function __construct(
-        AccountGateway $accountGateway = false,
-        Invitation $invitation = false,
+        AccountGateway $accountGateway = null,
+        Invitation $invitation = null,
         $gatewayType = false
     )
     {
@@ -173,7 +173,7 @@ class BasePaymentDriver
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      * @throws Exception
      */
-    public function startPurchase(array $input = false, $sourceId = false)
+    public function startPurchase(array $input = null, $sourceId = false)
     {
         $this->input = $input;
         $this->sourceId = $sourceId;
@@ -312,7 +312,7 @@ class BasePaymentDriver
      * @return Payment|mixed|void
      * @throws Exception
      */
-    public function completeOnsitePurchase($input = false, PaymentMethod $paymentMethod = false)
+    public function completeOnsitePurchase($input = false, PaymentMethod $paymentMethod = null)
     {
         $this->input = count($input) ? $input : false;
         $gateway = $this->gateway();
@@ -411,7 +411,7 @@ class BasePaymentDriver
      *
      * @return array
      */
-    protected function paymentDetails(PaymentMethod $paymentMethod = false)
+    protected function paymentDetails(PaymentMethod $paymentMethod = null)
     {
         $invoice = $this->invoice();
         $completeUrl = url('complete/' . $this->invitation->invitation_key . '/' . $this->gatewayType);
@@ -779,7 +779,7 @@ class BasePaymentDriver
      *
      * @return Payment
      */
-    protected function creatingPayment(Payment $payment, $paymentMethod)
+    protected function creatingPayment(Payment $payment, PaymentMethod $paymentMethod)
     {
         return $payment;
     }
@@ -860,7 +860,7 @@ class BasePaymentDriver
      * @return bool|mixed
      * @throws Exception
      */
-    public function completeOffsitePurchase($input)
+    public function completeOffsitePurchase(array $input)
     {
         $this->input = $input;
         $ref = array_get($this->input, 'token') ?: $this->invitation->transaction_reference;

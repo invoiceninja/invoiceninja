@@ -24,7 +24,7 @@ class PayPalProPaymentDriver extends BasePaymentDriver
      *
      * @return array
      */
-    protected function paymentDetails(PaymentMethod $paymentMethod = false)
+    protected function paymentDetails(PaymentMethod $paymentMethod = null)
     {
         $data = parent::paymentDetails();
 

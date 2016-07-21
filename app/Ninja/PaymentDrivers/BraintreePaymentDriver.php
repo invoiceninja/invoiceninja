@@ -6,6 +6,7 @@ use App\Models\PaymentMethod;
 use Exception;
 use Session;
 use Braintree\Customer;
+use App\Models\Payment;
 
 /**
  * Class BraintreePaymentDriver
@@ -53,7 +54,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
      *
      * @return \Illuminate\Contracts\View\Factory|\Illuminate\Http\RedirectResponse|\Illuminate\View\View
      */
-    public function startPurchase(array $input = false, $sourceId = false)
+    public function startPurchase(array $input = null, $sourceId = false)
     {
         $data = parent::startPurchase($input, $sourceId);
 
@@ -87,7 +88,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
      *
      * @return array
      */
-    protected function paymentDetails(PaymentMethod $paymentMethod = false)
+    protected function paymentDetails(PaymentMethod $paymentMethod = null)
     {
         $data = parent::paymentDetails($paymentMethod);
 

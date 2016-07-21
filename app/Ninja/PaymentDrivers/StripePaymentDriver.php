@@ -98,7 +98,7 @@ class StripePaymentDriver extends BasePaymentDriver
      *
      * @return array
      */
-    protected function paymentDetails(PaymentMethod $paymentMethod = false)
+    protected function paymentDetails(PaymentMethod $paymentMethod = null)
     {
         $data = parent::paymentDetails($paymentMethod);
 
@@ -394,7 +394,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     /**
      * @param $input
-     * 
+     *
      * @return array|string
      * @throws Exception
      */
