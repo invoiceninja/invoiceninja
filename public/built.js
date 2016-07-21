@@ -30545,12 +30545,12 @@ function calculateAmounts(invoice) {
         invoice.has_product_key = true;
     }
 
-    if (item.tax_rate1 && parseFloat(item.tax_rate1)) {
+    if (item.tax_name1) {
       taxRate1 = parseFloat(item.tax_rate1);
       taxName1 = item.tax_name1;
     }
 
-    if (item.tax_rate2 && parseFloat(item.tax_rate2)) {
+    if (item.tax_name2) {
       taxRate2 = parseFloat(item.tax_rate2);
       taxName2 = item.tax_name2;
     }
@@ -30566,7 +30566,7 @@ function calculateAmounts(invoice) {
     }
 
     var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
-    if (taxAmount1) {
+    if (taxName1) {
       var key = taxName1 + taxRate1;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount1;
@@ -30576,7 +30576,7 @@ function calculateAmounts(invoice) {
     }
 
     var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
-    if (taxAmount2) {
+    if (taxName2) {
       var key = taxName2 + taxRate2;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount2;
@@ -31542,11 +31542,11 @@ NINJA.subtotals = function(invoice, hideBalance)
         }
     }
 
-    if (invoice.tax_amount1) {
+    if (invoice.tax_name1) {
         var taxStr = invoice.tax_name1 + ' ' + (invoice.tax_rate1*1).toString() + '%';
         data.push([{text: taxStr, style: ['subtotalsLabel', 'tax1Label']}, {text: formatMoneyInvoice(invoice.tax_amount1, invoice), style: ['subtotals', 'tax1']}]);
     }
-    if (invoice.tax_amount2) {
+    if (invoice.tax_name2) {
         var taxStr = invoice.tax_name2 + ' ' + (invoice.tax_rate2*1).toString() + '%';
         data.push([{text: taxStr, style: ['subtotalsLabel', 'tax2Label']}, {text: formatMoneyInvoice(invoice.tax_amount2, invoice), style: ['subtotals', 'tax2']}]);
     }
