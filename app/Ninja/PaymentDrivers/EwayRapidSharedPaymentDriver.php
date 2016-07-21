@@ -1,14 +1,6 @@
-<?php
+<?php namespace App\Ninja\PaymentDrivers;
 
-namespace App\Ninja\PaymentDrivers;
-
-/**
- * Class EwayRapidSharedPaymentDriver
- */
 class EwayRapidSharedPaymentDriver extends BasePaymentDriver
 {
-    /**
-     * @var string
-     */
     protected $transactionReferenceParam = 'AccessCode';
 }

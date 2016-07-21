@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use Auth;
 use Request;
@@ -24,9 +22,6 @@ use App\Models\User;
 use App\Models\UserAccount;
 use App\Models\AccountToken;
 
-/**
- * Class AccountRepository
- */
 class AccountRepository
 {
     public function create($firstName = '', $lastName = '', $email = '', $password = '')
@@ -643,10 +638,7 @@ class AccountRepository
         return $users;
     }
 
-    /**
-     * @param Account $account
-     */
-    public function unlinkAccount(Account $account) {
+    public function unlinkAccount($account) {
         foreach ($account->users as $user) {
             if ($userAccount = self::findUserAccounts($user->id)) {
                 $userAccount->removeUserId($user->id);
@@ -689,11 +681,7 @@ class AccountRepository
         return $code;
     }
 
-    /**
-     * @param User $user
-     * @param $name
-     */
-    public function createTokens(User $user, $name)
+    public function createTokens($user, $name)
     {
         $name = trim($name) ?: 'TOKEN';
         $users = $this->findUsers($user);
@@ -710,12 +698,7 @@ class AccountRepository
         }
     }
 
-    /**
-     * @param Account $account
-     *
-     * @return bool|mixed
-     */
-    public function getUserAccountId(Account $account)
+    public function getUserAccountId($account)
     {
         $user = $account->users()->first();
         $userAccount = $this->findUserAccounts($user->id);
@@ -723,11 +706,7 @@ class AccountRepository
         return $userAccount ? $userAccount->id : false;
     }
 
-    /**
-     * @param $data
-     * @param Account $account
-     */
-    public function save($data, Account $account)
+    public function save($data, $account)
     {
         $account->fill($data);
         $account->save();

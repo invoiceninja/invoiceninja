@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Console\Commands;
+<?php namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Ninja\Mailers\ContactMailer as Mailer;
@@ -41,7 +39,6 @@ class ChargeRenewalInvoices extends Command
 
     /**
      * ChargeRenewalInvoices constructor.
-     *
      * @param Mailer $mailer
      * @param AccountRepository $repo
      * @param PaymentService $paymentService
@@ -70,11 +67,8 @@ class ChargeRenewalInvoices extends Command
 
         foreach ($invoices as $invoice) {
 
-            // check if account has switched to free since the invoice was created
+            // check if account has switched to free since the invoice was created 
             $account = Account::find($invoice->client->public_id);
-            if ( ! $account) {
-                continue;
-            }
             $company = $account->company;
             if ( ! $company->plan || $company->plan == PLAN_FREE) {
                 continue;

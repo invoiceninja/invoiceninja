@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 use Auth;
@@ -10,20 +8,8 @@ use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invitation;
 
-/**
- * Class ActivityRepository
- */
 class ActivityRepository
 {
-    /**
-     * @param $entity
-     * @param $activityTypeId
-     * @param int $balanceChange
-     * @param int $paidToDateChange
-     * @param null $altEntity
-     * 
-     * @return Activity|mixed
-     */
     public function create($entity, $activityTypeId, $balanceChange = 0, $paidToDateChange = 0, $altEntity = null)
     {
         if ($entity instanceof Client) {
@@ -57,11 +43,6 @@ class ActivityRepository
         return $activity;
     }
 
-    /**
-     * @param $entity
-     *
-     * @return Activity
-     */
     private function getBlank($entity)
     {
         $activity = new Activity();
@@ -83,11 +64,6 @@ class ActivityRepository
         return $activity;
     }
 
-    /**
-     * @param $clientId
-     *
-     * @return $this
-     */
     public function findByClientId($clientId)
     {
         return DB::table('activities')

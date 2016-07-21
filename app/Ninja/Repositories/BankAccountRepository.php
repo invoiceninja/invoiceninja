@@ -1,30 +1,17 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 use Crypt;
 use App\Models\BankAccount;
 use App\Models\BankSubaccount;
 
-/**
- * Class BankAccountRepository
- */
 class BankAccountRepository extends BaseRepository
 {
-    /**
-     * @return string
-     */
     public function getClassName()
     {
         return 'App\Models\BankAccount';
     }
 
-    /**
-     * @param $accountId
-     *
-     * @return $this
-     */
     public function find($accountId)
     {
         return DB::table('bank_accounts')
@@ -39,11 +26,6 @@ class BankAccountRepository extends BaseRepository
                     );
     }
 
-    /**
-     * @param $input
-     * 
-     * @return mixed
-     */
     public function save($input)
     {
         $bankAccount = BankAccount::createNew();

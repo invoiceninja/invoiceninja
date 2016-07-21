@@ -1,21 +1,13 @@
-<?php
-
-namespace App\Ninja\Datatables;
+<?php namespace App\Ninja\Datatables;
 
 use Utils;
 use URL;
 use Auth;
 
-/**
- * Class InvoiceDatatable
- */
 class InvoiceDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_INVOICE;
 
-    /**
-     * @return array
-     */
     public function columns()
     {
         $entityType = $this->entityType;
@@ -80,9 +72,6 @@ class InvoiceDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @return array
-     */
     public function actions()
     {
         $entityType = $this->entityType;
@@ -102,7 +91,7 @@ class InvoiceDatatable extends EntityDatatable
                 function ($model) use ($entityType) {
                     return URL::to("{$entityType}s/{$model->public_id}/clone");
                 },
-                function () {
+                function ($model) {
                     return Auth::user()->can('create', ENTITY_INVOICE);
                 }
             ],
@@ -166,11 +155,6 @@ class InvoiceDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @param $model
-     *
-     * @return string
-     */
     private function getStatusLabel($model)
     {
         $entityType = $this->entityType;
@@ -205,4 +189,5 @@ class InvoiceDatatable extends EntityDatatable
         
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
+
 }

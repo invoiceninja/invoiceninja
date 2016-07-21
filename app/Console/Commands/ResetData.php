@@ -1,6 +1,5 @@
-<?php
+<?php namespace App\Console\Commands;
 
-namespace App\Console\Commands;
 
 use Utils;
 use Illuminate\Console\Command;
@@ -10,6 +9,7 @@ use Illuminate\Console\Command;
  */
 class ResetData extends Command
 {
+
     /**
      * @var string
      */

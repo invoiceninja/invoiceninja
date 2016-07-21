@@ -10,7 +10,7 @@
     @endforeach
 	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
-    <link href="{{ asset('css/lightbox.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
     <style type="text/css">
         /* the value is auto set so we're removing the bold formatting */

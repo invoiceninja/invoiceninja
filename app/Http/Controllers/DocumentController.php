@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use Utils;
 use Redirect;
 use View;
 use Response;
@@ -96,10 +95,6 @@ class DocumentController extends BaseController
 
     public function postUpload(CreateDocumentRequest $request)
     {
-        if (!Utils::hasFeature(FEATURE_DOCUMENTS)) {
-            return;
-        }
-
         $result = $this->documentRepo->upload($request->all(), $doc_array);
 
         if(is_string($result)){

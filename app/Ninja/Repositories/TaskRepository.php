@@ -1,23 +1,12 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use Auth;
 use Session;
 use App\Models\Client;
 use App\Models\Task;
 
-/**
- * Class TaskRepository
- */
 class TaskRepository
 {
-    /**
-     * @param null $clientPublicId
-     * @param null $filter
-     *
-     * @return $this
-     */
     public function find($clientPublicId = null, $filter = null)
     {
         $query = \DB::table('tasks')
@@ -73,14 +62,7 @@ class TaskRepository
         return $query;
     }
 
-    /**
-     * @param $publicId
-     * @param array $data
-     * @param Task|null $task
-     *
-     * @return Task|mixed
-     */
-    public function save($publicId, array $data, Task $task = null)
+    public function save($publicId, $data, $task = null)
     {
         if ($task) {
             // do nothing
@@ -127,12 +109,6 @@ class TaskRepository
         return $task;
     }
 
-    /**
-     * @param $ids
-     * @param $action
-     * 
-     * @return int
-     */
     public function bulk($ids, $action)
     {
         $tasks = Task::withTrashed()->scope($ids)->get();

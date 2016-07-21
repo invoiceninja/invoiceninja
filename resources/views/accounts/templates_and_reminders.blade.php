@@ -4,7 +4,7 @@
     @parent
 
     @include('money_script')
-    <link href="{{ asset('css/quill.snow.min.css') }}" rel="stylesheet" type="text/css"/>
+    <link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
     <script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 
     <style type="text/css">

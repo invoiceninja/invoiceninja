@@ -2,10 +2,4 @@
 
 namespace App\Policies;
 
-/**
- * Class PaymentPolicy
- */
-class PaymentPolicy extends EntityPolicy
-{
-    
-}
+class PaymentPolicy extends EntityPolicy {}

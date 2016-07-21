@@ -1,19 +1,11 @@
-<?php
-
-namespace App\Ninja\Datatables;
+<?php namespace App\Ninja\Datatables;
 
 use URL;
 
-/**
- * Class UserDatatable
- */
 class UserDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_USER;
 
-    /**
-     * @return array
-     */
     public function columns()
     {
         return [
@@ -50,9 +42,6 @@ class UserDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @return array
-     */
     public function actions()
     {
         return [
@@ -77,11 +66,6 @@ class UserDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @param $state
-     * 
-     * @return string
-     */
     private function getStatusLabel($state)
     {
         $label = trans("texts.{$state}");

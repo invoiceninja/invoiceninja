@@ -1,6 +1,4 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 use Utils;
@@ -9,37 +7,21 @@ use App\Models\Expense;
 use App\Models\Vendor;
 use App\Models\Document;
 
-/**
- * Class ExpenseRepository
- */
 class ExpenseRepository extends BaseRepository
 {
-    /**
-     * @var DocumentRepository
-     */
     protected $documentRepo;
 
-    /**
-     * @return string
-     */
+    // Expenses
     public function getClassName()
     {
         return 'App\Models\Expense';
     }
 
-    /**
-     * ExpenseRepository constructor.
-     *
-     * @param DocumentRepository $documentRepo
-     */
     public function __construct(DocumentRepository $documentRepo)
     {
         $this->documentRepo = $documentRepo;
     }
 
-    /**
-     * @return mixed
-     */
     public function all()
     {
         return Expense::scope()
@@ -49,11 +31,6 @@ class ExpenseRepository extends BaseRepository
                 ->get();
     }
 
-    /**
-     * @param $vendorPublicId
-     *
-     * @return mixed
-     */
     public function findVendor($vendorPublicId)
     {
         $vendorId = Vendor::getPrivateId($vendorPublicId);
@@ -63,11 +40,6 @@ class ExpenseRepository extends BaseRepository
         return $query;
     }
 
-    /**
-     * @param null $filter
-     *
-     * @return $this
-     */
     public function find($filter = null)
     {
         $accountid = \Auth::user()->account_id;
@@ -138,13 +110,7 @@ class ExpenseRepository extends BaseRepository
         return $query;
     }
 
-    /**
-     * @param array $input
-     * @param Expense|null $expense
-     *
-     * @return Expense|mixed
-     */
-    public function save(array $input, Expense $expense = null)
+    public function save($input, $expense = null)
     {
         $publicId = isset($input['public_id']) ? $input['public_id'] : false;
 
@@ -208,12 +174,6 @@ class ExpenseRepository extends BaseRepository
         return $expense;
     }
 
-    /**
-     * @param $ids
-     * @param $action
-     *
-     * @return int
-     */
     public function bulk($ids, $action)
     {
         $expenses = Expense::withTrashed()->scope($ids)->get();
@@ -234,6 +194,6 @@ class ExpenseRepository extends BaseRepository
             }
         }
 
-        return $expenses->count();
+        return count($tasks);
     }
 }

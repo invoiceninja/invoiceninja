@@ -1,83 +1,51 @@
-<?php
+<?php namespace App\Handlers;
 
-namespace App\Handlers;
-
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Mailers\ContactMailer;
 
 class InvoiceEventHandler
 {
-    /**
-     * @var UserMailer
-     */
-    protected $userMailer;
+	protected $userMailer;
+	protected $contactMailer;
 
-    /**
-     * @var ContactMailer
-     */
-    protected $contactMailer;
+	public function __construct(UserMailer $userMailer, ContactMailer $contactMailer)
+	{
+		$this->userMailer = $userMailer;
+		$this->contactMailer = $contactMailer;
+	}	
 
-    /**
-     * InvoiceEventHandler constructor.
-     *
-     * @param UserMailer $userMailer
-     * @param ContactMailer $contactMailer
-     */
-    public function __construct(UserMailer $userMailer, ContactMailer $contactMailer)
-    {
-        $this->userMailer = $userMailer;
-        $this->contactMailer = $contactMailer;
-    }
+	public function subscribe($events)
+	{
+		$events->listen('invoice.sent', 'InvoiceEventHandler@onSent');
+		$events->listen('invoice.viewed', 'InvoiceEventHandler@onViewed');
+		$events->listen('invoice.paid', 'InvoiceEventHandler@onPaid');
+	}
 
-    /**
-     * @param $events
-     */
-    public function subscribe($events)
-    {
-        $events->listen('invoice.sent', 'InvoiceEventHandler@onSent');
-        $events->listen('invoice.viewed', 'InvoiceEventHandler@onViewed');
-        $events->listen('invoice.paid', 'InvoiceEventHandler@onPaid');
-    }
+	public function onSent($invoice)
+	{
+		$this->sendNotifications($invoice, 'sent');
+	}
 
-    /**
-     * @param Invoice $invoice
-     */
-    public function onSent(Invoice $invoice)
-    {
-        $this->sendNotifications($invoice, 'sent');
-    }
+	public function onViewed($invoice)
+	{
+		$this->sendNotifications($invoice, 'viewed');
+	}
 
-    /**
-     * @param Invoice $invoice
-     */
-    public function onViewed(Invoice $invoice)
-    {
-        $this->sendNotifications($invoice, 'viewed');
-    }
+	public function onPaid($payment)
+	{
+		$this->contactMailer->sendPaymentConfirmation($payment);
 
-    /**
-     * @param Payment $payment
-     */
-    public function onPaid(Payment $payment)
-    {
-        $this->contactMailer->sendPaymentConfirmation($payment);
+		$this->sendNotifications($payment->invoice, 'paid', $payment);		
+	}
 
-        $this->sendNotifications($payment->invoice, 'paid', $payment);
-    }
-
-    /**
-     * @param Invoice $invoice
-     * @param $type
-     * @param null $payment
-     */
-    private function sendNotifications(Invoice $invoice, $type, $payment = null)
-    {
-        foreach ($invoice->account->users as $user) {
-            if ($user->{'notify_' . $type}) {
+	private function sendNotifications($invoice, $type, $payment = null)
+	{
+		foreach ($invoice->account->users as $user)
+		{
+			if ($user->{'notify_' . $type})
+			{
                 $this->userMailer->sendNotification($user, $invoice, $type, $payment);
-            }
-        }
-    }
+			}
+		}
+	}
 }

@@ -1,20 +1,10 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use App\Models\Account;
-use App\Models\Company;
 
-/**
- * Class NinjaRepository
- */
 class NinjaRepository
 {
-    /**
-     * @param $clientPublicId
-     * @param array $data
-     */
-    public function updatePlanDetails($clientPublicId, array $data)
+    public function updatePlanDetails($clientPublicId, $data)
     {
         $account = Account::whereId($clientPublicId)->first();
 
@@ -22,7 +12,6 @@ class NinjaRepository
             return;
         }
 
-        /** @var Company $company */
         $company = $account->company;
         $company->plan = !empty($data['plan']) && $data['plan'] != PLAN_FREE?$data['plan']:null;
         $company->plan_term = !empty($data['plan_term'])?$data['plan_term']:null;

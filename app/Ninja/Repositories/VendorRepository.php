@@ -1,26 +1,16 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 use App\Models\Vendor;
 
-/**
- * Class VendorRepository
- */
+// vendor
 class VendorRepository extends BaseRepository
 {
-    /**
-     * @return string
-     */
     public function getClassName()
     {
         return 'App\Models\Vendor';
     }
 
-    /**
-     * @return mixed
-     */
     public function all()
     {
         return Vendor::scope()
@@ -30,11 +20,6 @@ class VendorRepository extends BaseRepository
                 ->get();
     }
 
-    /**
-     * @param null $filter
-     *
-     * @return $this
-     */
     public function find($filter = null)
     {
         $query = DB::table('vendors')
@@ -75,13 +60,7 @@ class VendorRepository extends BaseRepository
         return $query;
     }
 
-    /**
-     * @param array $data
-     * @param Vendor|null $vendor
-     *
-     * @return Vendor|mixed
-     */
-    public function save(array $data, Vendor $vendor = null)
+    public function save($data, $vendor = null)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
@@ -96,7 +75,15 @@ class VendorRepository extends BaseRepository
 
         $vendor->fill($data);
         $vendor->save();
-        
+
+        $first              = true;
+        $vendorcontacts     = isset($data['vendor_contact']) ? [$data['vendor_contact']] : $data['vendor_contacts'];
+
+        foreach ($vendorcontacts as $vendorcontact) {
+            $vendorcontact      = $vendor->addVendorContact($vendorcontact, $first);
+            $first              = false;
+        }
+
         return $vendor;
     }
 }

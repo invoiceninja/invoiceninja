@@ -1,15 +1,11 @@
-<?php
+<?php namespace App\Ninja\Mailers;
 
-namespace App\Ninja\Mailers;
 
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Models\User;
 
-/**
- * Class UserMailer
- */
 class UserMailer extends Mailer
 {
     /**

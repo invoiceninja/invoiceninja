@@ -1,8 +1,5 @@
-<?php
+<?php namespace App\Console\Commands;
 
-namespace App\Console\Commands;
-
-use App\Models\Vendor;
 use Auth;
 use Utils;
 use Illuminate\Console\Command;
@@ -35,7 +32,6 @@ class CreateTestData extends Command
 
     /**
      * CreateTestData constructor.
-     *
      * @param ClientRepository $clientRepo
      * @param InvoiceRepository $invoiceRepo
      * @param PaymentRepository $paymentRepo
@@ -130,9 +126,9 @@ class CreateTestData extends Command
 
     /**
      * @param $client
-     * @param Invoice $invoice
+     * @param $invoice
      */
-    private function createPayment($client, Invoice $invoice)
+    private function createPayment($client, $invoice)
     {
         $data = [
             'invoice_id' => $invoice->id,
@@ -171,9 +167,9 @@ class CreateTestData extends Command
     }
 
     /**
-     * @param Vendor $vendor
+     * @param $vendor
      */
-    private function createExpense(Vendor $vendor)
+    private function createExpense($vendor)
     {
         for ($i=0; $i<$this->count; $i++) {
             $data = [

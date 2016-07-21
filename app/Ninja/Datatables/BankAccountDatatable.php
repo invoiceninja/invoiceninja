@@ -1,19 +1,11 @@
-<?php
-
-namespace App\Ninja\Datatables;
+<?php namespace App\Ninja\Datatables;
 
 use URL;
 
-/**
- * Class BankAccountDatatable
- */
 class BankAccountDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_BANK_ACCOUNT;
 
-    /**
-     * @return array
-     */
     public function columns()
     {
         return [
@@ -25,16 +17,13 @@ class BankAccountDatatable extends EntityDatatable
             ],
             [
                 'bank_library_id',
-                function () {
+                function ($model) {
                     return 'OFX';
                 }
             ],
         ];
     }
 
-    /**
-     * @return array
-     */
     public function actions()
     {
         return [
@@ -46,4 +35,6 @@ class BankAccountDatatable extends EntityDatatable
             ]
         ];
     }
+
+
 }

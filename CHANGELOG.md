@@ -7,9 +7,6 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Changed
 - Auto billing uses credits if they exist
-- All assets (CSS, JS) are minfied now
-
-
 
 
 ## [2.6.4] - 2016-07-19

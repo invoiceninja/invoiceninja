@@ -1,18 +1,8 @@
-<?php
+<?php namespace App\Ninja\PaymentDrivers;
 
-namespace App\Ninja\PaymentDrivers;
-
-/**
- * Class MolliePaymentDriver
- */
 class MolliePaymentDriver extends BasePaymentDriver
 {
-    /**
-     * @param $input
-     *
-     * @return \App\Models\Payment|mixed
-     */
-    public function completeOffsitePurchase(array $input)
+    public function completeOffsitePurchase($input)
     {
         $details = $this->paymentDetails();
 

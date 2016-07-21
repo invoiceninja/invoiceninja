@@ -1,19 +1,9 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use App\Models\Contact;
 
-/**
- * Class ContactRepository
- */
 class ContactRepository extends BaseRepository
 {
-    /**
-     * @param $data
-     * 
-     * @return mixed
-     */
     public function save($data)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;

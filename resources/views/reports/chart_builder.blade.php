@@ -3,7 +3,7 @@
 @section('head')
 	@parent
 
-	<script src="{!! asset('js/Chart.min.js') !!}" type="text/javascript"></script>
+	<script src="{!! asset('js/Chart.js') !!}" type="text/javascript"></script>		
 @stop
 
 @section('content')

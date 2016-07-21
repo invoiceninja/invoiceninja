@@ -1,27 +1,14 @@
-<?php
-
-namespace App\Ninja\Repositories;
+<?php namespace App\Ninja\Repositories;
 
 use DB;
 
-/**
- * Class AccountGatewayRepository
- */
 class AccountGatewayRepository extends BaseRepository
 {
-    /**
-     * @return string
-     */
     public function getClassName()
     {
         return 'App\Models\AccountGateway';
     }
 
-    /**
-     * @param $accountId
-     *
-     * @return $this
-     */
     public function find($accountId)
     {
         $query = DB::table('account_gateways')

@@ -1,19 +1,11 @@
-<?php
-
-namespace App\Ninja\Datatables;
+<?php namespace App\Ninja\Datatables;
 
 use URL;
 
-/**
- * Class TokenDatatable
- */
 class TokenDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TOKEN;
 
-    /**
-     * @return array
-     */
     public function columns()
     {
         return [
@@ -32,9 +24,6 @@ class TokenDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @return array
-     */
     public function actions()
     {
         return [

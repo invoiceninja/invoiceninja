@@ -1,18 +1,8 @@
-<?php
+<?php namespace App\Ninja\PaymentDrivers;
 
-namespace App\Ninja\PaymentDrivers;
 
-use App\Models\Payment;
-use App\Models\PaymentMethod;
-
-/**
- * Class PayPalExpressPaymentDriver
- */
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
-    /**
-     * @return array
-     */
     public function gatewayTypes()
     {
         return [
@@ -20,12 +10,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         ];
     }
 
-    /**
-     * @param PaymentMethod $paymentMethod
-     *
-     * @return array
-     */
-    protected function paymentDetails(PaymentMethod $paymentMethod = null)
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails();
 
@@ -34,13 +19,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         return $data;
     }
 
-    /**
-     * @param Payment $payment
-     * @param PaymentMethod $paymentMethod
-     *
-     * @return Payment
-     */
-    protected function creatingPayment(Payment $payment, PaymentMethod $paymentMethod)
+    protected function creatingPayment($payment, $paymentMethod)
     {
         $payment->payer_id = $this->input['PayerID'];
 

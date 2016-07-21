@@ -1,9 +1,8 @@
-<?php
-
-namespace App\Ninja\Mailers;
+<?php namespace App\Ninja\Mailers;
 
 use Exception;
 use Mail;
+use App\Models\Invoice;
 
 /**
  * Class Mailer
@@ -97,7 +96,6 @@ class Mailer
 
     /**
      * @param $exception
-     * 
      * @return string
      */
     private function handleFailure($exception)

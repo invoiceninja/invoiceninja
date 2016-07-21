@@ -3,8 +3,8 @@
 @section('head')
     @parent
 
-    <script src="{{ asset('js/jquery.datetimepicker.min.js') }}" type="text/javascript"></script>
-    <link href="{{ asset('css/jquery.datetimepicker.min.css') }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/jquery.datetimepicker.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/jquery.datetimepicker.css') }}" rel="stylesheet" type="text/css"/>
 @stop
 
 @section('content')
@@ -170,7 +170,7 @@
          var value = ko.utils.unwrapObservable(valueAccessor());
          // http://xdsoft.net/jqplugins/datetimepicker/
          $(element).datetimepicker({
-            lang: '{{ $appLanguage }}',
+            lang: '{{ Utils::getLocaleRegion() }}',
             lazyInit: true,
             validateOnBlur: false,
             step: 30,

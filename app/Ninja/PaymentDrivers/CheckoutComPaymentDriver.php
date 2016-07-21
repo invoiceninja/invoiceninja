@@ -1,17 +1,7 @@
-<?php
+<?php namespace App\Ninja\PaymentDrivers;
 
-namespace App\Ninja\PaymentDrivers;
-
-use App\Models\PaymentMethod;
-
-/**
- * Class CheckoutComPaymentDriver
- */
 class CheckoutComPaymentDriver extends BasePaymentDriver
 {
-    /**
-     * @return bool
-     */
     public function createTransactionToken()
     {
         $response = $this->gateway()->purchase([
@@ -31,12 +21,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
         return false;
     }
 
-    /**
-     * @param PaymentMethod $paymentMethod
-     *
-     * @return array
-     */
-    protected function paymentDetails(PaymentMethod $paymentMethod = null)
+    protected function paymentDetails($paymentMethod = false)
     {
         $data = parent::paymentDetails();
 

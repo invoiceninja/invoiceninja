@@ -1,21 +1,13 @@
-<?php
-
-namespace App\Ninja\Datatables;
+<?php namespace App\Ninja\Datatables;
 
 use Utils;
 use URL;
 use Auth;
 
-/**
- * Class RecurringInvoiceDatatable
- */
 class RecurringInvoiceDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_RECURRING_INVOICE;
 
-    /**
-     * @return array
-     */
     public function columns()
     {
         return [
@@ -55,9 +47,6 @@ class RecurringInvoiceDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @return array
-     */
     public function actions()
     {
         return [
@@ -72,4 +61,5 @@ class RecurringInvoiceDatatable extends EntityDatatable
             ]
         ];
     }
+
 }

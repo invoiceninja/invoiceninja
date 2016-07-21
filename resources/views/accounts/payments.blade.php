@@ -30,6 +30,13 @@
         </div>
     </div>
     {!! Former::close() !!}
+
+  <!--
+  <label for="trashed" style="font-weight:normal; margin-left: 10px;">
+    <input id="trashed" type="checkbox" onclick="setTrashVisible()"
+      {{ Session::get("show_trash:gateway") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText('gateways') }}
+  </label>
+  -->
   
   @if ($showAdd)
       {!! Button::primary(trans('texts.add_gateway'))

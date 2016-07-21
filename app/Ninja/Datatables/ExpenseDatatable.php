@@ -1,21 +1,13 @@
-<?php
-
-namespace App\Ninja\Datatables;
+<?php namespace App\Ninja\Datatables;
 
 use Utils;
 use URL;
 use Auth;
 
-/**
- * Class ExpenseDatatable
- */
 class ExpenseDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE;
 
-    /**
-     * @return array
-     */
     public function columns()
     {
         return [
@@ -95,9 +87,6 @@ class ExpenseDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @return array
-     */
     public function actions()
     {
         return [
@@ -131,13 +120,7 @@ class ExpenseDatatable extends EntityDatatable
         ];
     }
 
-    /**
-     * @param $invoiceId
-     * @param $shouldBeInvoiced
-     * @param $balance
-     *
-     * @return string
-     */
+
     private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance)
     {
         if ($invoiceId) {
@@ -158,4 +141,5 @@ class ExpenseDatatable extends EntityDatatable
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
+
 }

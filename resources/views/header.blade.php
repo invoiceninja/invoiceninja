@@ -4,7 +4,7 @@
 @section('head')
 
   <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100|Roboto+Slab:400,300,700&subset=latin,latin-ext" rel="stylesheet" type="text/css">
-  <link href="{{ asset('css/built.min.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+  <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
   <style type="text/css">
 
@@ -305,7 +305,6 @@
 
     /* Set the defaults for Bootstrap datepicker */
     $.extend(true, $.fn.datepicker.defaults, {
-        language: '{{ $appLanguage }}',
         weekStart: {{ Session::get('start_of_week') }}
     });
 
@@ -313,22 +312,6 @@
       @if (Auth::check() && !Auth::user()->registered)
       localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
       @endif
-    }
-
-    function isStorageSupported() {
-        if ('localStorage' in window && window['localStorage'] !== null) {
-            var storage = window.localStorage;
-        } else {
-            return false;
-        }
-        var testKey = 'test';
-        try {
-            storage.setItem(testKey, '1');
-            storage.removeItem(testKey);
-            return true;
-        } catch (error) {
-            return false;
-        }
     }
 
     @if (!Auth::check() || !Auth::user()->registered)

@@ -1,3 +1,3 @@
 {
-  "directory": "resources/assets/bower"
+  "directory": "./public/vendor"
 }

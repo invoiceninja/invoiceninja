@@ -1,13 +1,11 @@
-<?php
+<?php namespace App\Libraries;
 
-namespace App\Libraries;
-
-use App\Models\AccountGateway;
 use Auth;
 use Cache;
 use App;
 use Schema;
 use Session;
+use Request;
 use Exception;
 use View;
 use DateTimeZone;
@@ -20,34 +18,21 @@ use WePay;
 
 class Utils
 {
-    /**
-     * Weekdays in English from Sunday to Saturday, 0 to 6
-     *
-     * @var array
-     */
     private static $weekdayNames = [
         "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
     ];
 
-    /**
-     * @return bool
-     */
+
     public static function isRegistered()
     {
         return Auth::check() && Auth::user()->registered;
     }
 
-    /**
-     * @return bool
-     */
     public static function isConfirmed()
     {
         return Auth::check() && Auth::user()->confirmed;
     }
 
-    /**
-     * @return bool
-     */
     public static function isDatabaseSetup()
     {
         try {
@@ -59,89 +44,59 @@ class Utils
         }
     }
 
-    /**
-     * @return bool
-     */
     public static function isDownForMaintenance()
     {
         return file_exists(storage_path() . '/framework/down');
     }
 
-    /**
-     * @return bool
-     */
     public static function isCron()
     {
         return php_sapi_name() == 'cli';
     }
 
-    /**
-     * @return bool
-     */
     public static function isTravis()
     {
         return env('TRAVIS') == 'true';
     }
 
-    /**
-     * @return bool
-     */
     public static function isNinja()
     {
         return self::isNinjaProd() || self::isNinjaDev();
     }
 
-    /**
-     * @return bool
-     */
     public static function isNinjaProd()
     {
-        if (static::isReseller()) {
+        if (Utils::isReseller()) {
             return true;
         }
 
         return env('NINJA_PROD') == 'true';
     }
 
-    /**
-     * @return bool
-     */
     public static function isNinjaDev()
     {
         return env('NINJA_DEV') == 'true';
     }
 
-    /**
-     * @return bool
-     */
     public static function requireHTTPS()
     {
-        if (app('request')->root() === 'http://ninja.dev' || app('request')->root() === 'http://ninja.dev:8000') {
+        if (Request::root() === 'http://ninja.dev' || Request::root() === 'http://ninja.dev:8000') {
             return false;
         }
 
-        return static::isNinjaProd() || env('REQUIRE_HTTPS');
+        return Utils::isNinjaProd() || (isset($_ENV['REQUIRE_HTTPS']) && $_ENV['REQUIRE_HTTPS'] == 'true');
     }
 
-    /**
-     * @return bool
-     */
     public static function isReseller()
     {
-        return self::getResellerType() ? true : false;
+        return Utils::getResllerType() ? true : false;
     }
 
-    /**
-     * @return array|bool
-     */
-    public static function getResellerType()
+    public static function getResllerType()
     {
         return isset($_ENV['RESELLER_TYPE']) ? $_ENV['RESELLER_TYPE'] : false;
     }
 
-    /**
-     * @return bool
-     */
     public static function isOAuthEnabled()
     {
         $providers = [
@@ -161,80 +116,46 @@ class Utils
         return false;
     }
 
-    /**
-     * @return bool
-     */
     public static function allowNewAccounts()
     {
-        return static::isNinja() || Auth::check();
+        return Utils::isNinja() || Auth::check();
     }
 
-    /**
-     * @return bool
-     */
     public static function isPro()
     {
         return Auth::check() && Auth::user()->isPro();
     }
 
-    /**
-     * @param $feature
-     *
-     * @return bool
-     */
     public static function hasFeature($feature)
     {
         return Auth::check() && Auth::user()->hasFeature($feature);
     }
 
-    /**
-     * @return bool
-     */
     public static function isAdmin()
     {
         return Auth::check() && Auth::user()->is_admin;
     }
 
-    /**
-     * @param $permission
-     * @param bool $requireAll
-     *
-     * @return bool
-     */
     public static function hasPermission($permission, $requireAll = false)
     {
         return Auth::check() && Auth::user()->hasPermission($permission, $requireAll);
     }
 
-    /**
-     * @param $permission
-     *
-     * @return bool
-     */
     public static function hasAllPermissions($permission)
     {
         return Auth::check() && Auth::user()->hasPermission($permission);
     }
 
-    /**
-     * @return bool
-     */
     public static function isTrial()
     {
         return Auth::check() && Auth::user()->isTrial();
     }
 
-    /**
-     * @return bool
-     */
     public static function isEnglish()
     {
         return App::getLocale() == 'en';
     }
 
-    /**
-     * @return string
-     */
     public static function getLocaleRegion()
     {
         $parts = explode('_', App::getLocale());
@@ -242,21 +163,15 @@ class Utils
         return count($parts) ? $parts[0] : 'en';
     }
 
-    /**
-     * @return mixed
-     */
     public static function getUserType()
     {
-        if (static::isNinja()) {
+        if (Utils::isNinja()) {
             return USER_TYPE_CLOUD_HOST;
+        } else {
+            return USER_TYPE_SELF_HOST;
         }
-
-        return USER_TYPE_SELF_HOST;
     }
 
-    /**
-     * @return array|bool
-     */
     public static function getDemoAccountId()
     {
         return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
@@ -265,7 +180,7 @@ class Utils
     public static function getNewsFeedResponse($userType = false)
     {
         if (!$userType) {
-            $userType = static::getUserType();
+            $userType = Utils::getUserType();
         }
 
         $response = new stdClass();
@@ -276,9 +191,6 @@ class Utils
         return $response;
     }
 
-    /**
-     * @return string
-     */
     public static function getLastURL()
     {
         if (!count(Session::get(RECENTLY_VIEWED))) {
@@ -289,31 +201,21 @@ class Utils
         $last = $history[0];
         $penultimate = count($history) > 1 ? $history[1] : $last;
 
-        return app('request')->url() == $last->url ? $penultimate->url : $last->url;
+        return Request::url() == $last->url ? $penultimate->url : $last->url;
     }
 
-    /**
-     * @param $feature
-     *
-     * @return string
-     */
     public static function getProLabel($feature)
     {
         if (Auth::check()
                 && !Auth::user()->isPro()
                 && $feature == ACCOUNT_ADVANCED_SETTINGS) {
             return '&nbsp;<sup class="pro-label">PRO</sup>';
+        } else {
+            return '';
         }
-
-        return '';
     }
 
-    /**
-     * @param array $plan
-     *
-     * @return int
-     */
-    public static function getPlanPrice(array $plan)
+    public static function getPlanPrice($plan)
     {
         $term = $plan['term'];
         $numUsers = $plan['num_users'];
@@ -342,11 +244,6 @@ class Utils
         return $price;
     }
 
-    /**
-     * @param $max
-     *
-     * @return int
-     */
     public static function getMinNumUsers($max)
     {
         if ($max <= 2) {
@@ -358,19 +255,11 @@ class Utils
         }
     }
 
-    /**
-     * @return string
-     */
     public static function basePath()
     {
         return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
     }
 
-    /**
-     * @param $input
-     *
-     * @return array
-     */
     public static function trans($input)
     {
         $data = [];
@@ -388,12 +277,6 @@ class Utils
         return $data;
     }
 
-    /**
-     * @param bool $message
-     * @param bool $exception
-     *
-     * @return $this
-     */
     public static function fatalError($message = false, $exception = false)
     {
         if (!$message) {
@@ -410,11 +293,6 @@ class Utils
         return View::make('error', $data)->with('error', $message);
     }
 
-    /**
-     * @param $exception
-     *
-     * @return string
-     */
     public static function getErrorString($exception)
     {
         $class = get_class($exception);
@@ -422,13 +300,6 @@ class Utils
         return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
     }
 
-    /**
-     * @param $error
-     * @param string $context
-     * @param bool $info
-     *
-     * @return string
-     */
     public static function logError($error, $context = 'PHP', $info = false)
     {
         if ($error instanceof Exception) {
@@ -446,10 +317,10 @@ class Utils
             'user_id' => Auth::check() ? Auth::user()->id : 0,
             'account_id' => Auth::check() ? Auth::user()->account_id : 0,
             'user_name' => Auth::check() ? Auth::user()->getDisplayName() : '',
-            'method' => app('request')->method(),
-            'url' => Input::get('url', app('request')->url()),
+            'method' => Request::method(),
+            'url' => Input::get('url', Request::url()),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
-            'ip' => app('request')->getClientIp(),
+            'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),
         ];
 
@@ -458,13 +329,15 @@ class Utils
         } else {
             Log::error($error."\n", $data);
         }
+
+        /*
+        Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
+        {
+            $message->to($email)->subject($subject);
+        });
+        */
     }
 
-    /**
-     * @param $value
-     *
-     * @return float
-     */
     public static function parseFloat($value)
     {
         $value = preg_replace('/[^0-9\.\-]/', '', $value);
@@ -472,11 +345,6 @@ class Utils
         return floatval($value);
     }
 
-    /**
-     * @param $value
-     *
-     * @return int
-     */
     public static function parseInt($value)
     {
         $value = preg_replace('/[^0-9]/', '', $value);
@@ -484,12 +352,6 @@ class Utils
         return intval($value);
     }
 
-    /**
-     * @param $id
-     * @param $type
-     *
-     * @return null
-     */
     public static function getFromCache($id, $type) {
         $cache = Cache::get($type);
 
@@ -498,19 +360,13 @@ class Utils
             return null;
         }
 
-       return $cache->filter(function($item) use ($id) {
+        $data = $cache->filter(function($item) use ($id) {
             return $item->id == $id;
-        })->first();
+        });
+
+        return $data->first();
     }
 
-    /**
-     * @param $value
-     * @param bool $currencyId
-     * @param bool $countryId
-     * @param bool $showCode
-     *
-     * @return string
-     */
     public static function formatMoney($value, $currencyId = false, $countryId = false, $showCode = false)
     {
         if (!$value) {
@@ -555,12 +411,6 @@ class Utils
         }
     }
 
-    /**
-     * @param $string
-     * @param $count
-     *
-     * @return mixed
-     */
     public static function pluralize($string, $count)
     {
         $field = $count == 1 ? $string : $string.'s';
@@ -569,11 +419,6 @@ class Utils
         return $string;
     }
 
-    /**
-     * @param $type
-     *
-     * @return string
-     */
     public static function pluralizeEntityType($type)
     {
         if ($type === ENTITY_EXPENSE_CATEGORY) {
@@ -583,11 +428,6 @@ class Utils
         }
     }
 
-    /**
-     * @param $value
-     *
-     * @return string
-     */
     public static function maskAccountNumber($value)
     {
         $length = strlen($value);
@@ -599,13 +439,7 @@ class Utils
         return str_repeat('*', $length - 4) . $lastDigits;
     }
 
-    /**
-     * http://wephp.co/detect-credit-card-type-php/
-     *
-     * @param $number
-     *
-     * @return string
-     */
+    // http://wephp.co/detect-credit-card-type-php/
     public static function getCardType($number)
     {
         $number = preg_replace('/[^\d]/', '', $number);
@@ -622,92 +456,52 @@ class Utils
             return 'MasterCard';
         } elseif (preg_match('/^4[0-9]{12}(?:[0-9]{3})?$/', $number)) {
             return 'Visa';
+        } else {
+            return 'Unknown';
         }
-
-        return 'Unknown';
     }
 
-    /**
-     * @param $data
-     *
-     * @return mixed
-     */
     public static function toArray($data)
     {
         return json_decode(json_encode((array) $data), true);
     }
 
-    /**
-     * @param $string
-     *
-     * @return mixed
-     */
     public static function toSpaceCase($string)
     {
         return preg_replace('/([a-z])([A-Z])/s', '$1 $2', $string);
     }
 
-    /**
-     * @param $string
-     *
-     * @return mixed
-     */
     public static function toSnakeCase($string)
     {
         return preg_replace('/([a-z])([A-Z])/s', '$1_$2', $string);
     }
 
-    /**
-     * @param $string
-     *
-     * @return string
-     */
     public static function toCamelCase($string)
     {
         return lcfirst(static::toClassCase($string));
     }
 
-    /**
-     * @param $string
-     *
-     * @return mixed
-     */
     public static function toClassCase($string)
     {
         return str_replace(' ', '', ucwords(str_replace('_', ' ', $string)));
     }
 
-    /**
-     * @param $timestamp
-     *
-     * @return string
-     */
     public static function timestampToDateTimeString($timestamp)
     {
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
 
-        return self::timestampToString($timestamp, $timezone, $format);
+        return Utils::timestampToString($timestamp, $timezone, $format);
     }
 
-    /**
-     * @param $timestamp
-     *
-     * @return string
-     */
     public static function timestampToDateString($timestamp)
     {
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        return self::timestampToString($timestamp, $timezone, $format);
+        return Utils::timestampToString($timestamp, $timezone, $format);
     }
 
-    /**
-     * @param $date
-     *
-     * @return bool|string
-     */
     public static function dateToString($date)
     {
         if (!$date) {
@@ -723,16 +517,9 @@ class Utils
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        return static::timestampToString($timestamp, false, $format);
+        return Utils::timestampToString($timestamp, false, $format);
     }
 
-    /**
-     * @param $timestamp
-     * @param bool $timezone
-     * @param $format
-     *
-     * @return string
-     */
     public static function timestampToString($timestamp, $timezone = false, $format)
     {
         if (!$timestamp) {
@@ -749,12 +536,6 @@ class Utils
         return $date->format($format);
     }
 
-    /**
-     * @param $date
-     * @param bool $formatResult
-     *
-     * @return DateTime|string|void
-     */
     public static function toSqlDate($date, $formatResult = true)
     {
         if (!$date) {
@@ -770,12 +551,6 @@ class Utils
             return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
     }
 
-    /**
-     * @param $date
-     * @param bool $formatResult
-     *
-     * @return DateTime|string
-     */
     public static function fromSqlDate($date, $formatResult = true)
     {
         if (!$date || $date == '0000-00-00') {
@@ -791,12 +566,6 @@ class Utils
             return $formatResult ? $dateTime->format($format) : $dateTime;
     }
 
-    /**
-     * @param $date
-     * @param bool $formatResult
-     *
-     * @return DateTime|string
-     */
     public static function fromSqlDateTime($date, $formatResult = true)
     {
         if (!$date || $date == '0000-00-00 00:00:00') {
@@ -812,23 +581,13 @@ class Utils
         return $formatResult ? $dateTime->format($format) : $dateTime;
     }
 
-    /**
-     * @param $time
-     *
-     * @return mixed
-     */
-    public static function formatTime($time)
+    public static function formatTime($t)
     {
         // http://stackoverflow.com/a/3172665
         $f = ':';
-        return sprintf('%02d%s%02d%s%02d', floor($time/3600), $f, ($time/60)%60, $f, $time%60);
+        return sprintf('%02d%s%02d%s%02d', floor($t/3600), $f, ($t/60)%60, $f, $t%60);
     }
 
-    /**
-     * @param bool $formatResult
-     *
-     * @return mixed
-     */
     public static function today($formatResult = true)
     {
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
@@ -843,15 +602,10 @@ class Utils
         }
     }
 
-    /**
-     * @param $name
-     * @param $type
-     * @param bool $url
-     */
     public static function trackViewed($name, $type, $url = false)
     {
         if (!$url) {
-            $url = app('request')->url();
+            $url = Request::url();
         }
 
         $viewed = Session::get(RECENTLY_VIEWED);
@@ -893,11 +647,6 @@ class Utils
         Session::put(RECENTLY_VIEWED, $data);
     }
 
-    /**
-     * @param $str
-     *
-     * @return mixed|string
-     */
     public static function processVariables($str)
     {
         if (!$str) {
@@ -926,7 +675,7 @@ class Utils
                     $offset = intval($minArray[1]) * -1;
                 }
 
-                $val = self::getDatePart($variable, $offset);
+                $val = Utils::getDatePart($variable, $offset);
                 $str = str_replace($match, $val, $str);
             }
         }
@@ -934,29 +683,18 @@ class Utils
         return $str;
     }
 
-    /**
-     * @param $part
-     * @param $offset
-     *
-     * @return int|string|\Symfony\Component\Translation\TranslatorInterface
-     */
     private static function getDatePart($part, $offset)
     {
         $offset = intval($offset);
         if ($part == 'MONTH') {
-            return self::getMonth($offset);
+            return Utils::getMonth($offset);
         } elseif ($part == 'QUARTER') {
-            return self::getQuarter($offset);
+            return Utils::getQuarter($offset);
         } elseif ($part == 'YEAR') {
-            return self::getYear($offset);
+            return Utils::getYear($offset);
         }
     }
 
-    /**
-     * @param $offset
-     *
-     * @return string|\Symfony\Component\Translation\TranslatorInterface
-     */
     private static function getMonth($offset)
     {
         $months = ['january', 'february', 'march', 'april', 'may', 'june',
@@ -974,11 +712,6 @@ class Utils
         return trans('texts.' . $months[$month]);
     }
 
-    /**
-     * @param $offset
-     *
-     * @return string
-     */
     private static function getQuarter($offset)
     {
         $month = intval(date('n')) - 1;
@@ -992,11 +725,6 @@ class Utils
         return 'Q'.$quarter;
     }
 
-    /**
-     * @param $offset
-     *
-     * @return int
-     */
     private static function getYear($offset)
     {
         $year = intval(date('Y'));
@@ -1004,31 +732,16 @@ class Utils
         return $year + $offset;
     }
 
-    /**
-     * @param $entityType
-     *
-     * @return string
-     */
     public static function getEntityClass($entityType)
     {
         return 'App\\Models\\' . static::getEntityName($entityType);
     }
 
-    /**
-     * @param $entityType
-     *
-     * @return string
-     */
     public static function getEntityName($entityType)
     {
-        return ucwords(static::toCamelCase($entityType));
+        return ucwords(Utils::toCamelCase($entityType));
     }
 
-    /**
-     * @param $model
-     *
-     * @return string
-     */
     public static function getClientDisplayName($model)
     {
         if ($model->client_name) {
@@ -1040,31 +753,17 @@ class Utils
         }
     }
 
-    /**
-     * @param $model
-     *
-     * @return string
-     */
     public static function getVendorDisplayName($model)
     {
-        if(is_null($model)) {
+        if(is_null($model))
             return '';
-        }
 
-        if($model->vendor_name) {
+        if($model->vendor_name)
             return $model->vendor_name;
-        }
 
         return 'No vendor name';
     }
 
-    /**
-     * @param $firstName
-     * @param $lastName
-     * @param $email
-     *
-     * @return string
-     */
     public static function getPersonDisplayName($firstName, $lastName, $email)
     {
         if ($firstName || $lastName) {
@@ -1076,9 +775,6 @@ class Utils
         }
     }
 
-    /**
-     * @return mixed
-     */
     public static function generateLicense()
     {
         $parts = [];
@@ -1089,11 +785,6 @@ class Utils
         return implode('-', $parts);
     }
 
-    /**
-     * @param string $eventName
-     *
-     * @return bool
-     */
     public static function lookupEventId($eventName)
     {
         if ($eventName == 'create_client') {
@@ -1106,15 +797,11 @@ class Utils
             return EVENT_CREATE_PAYMENT;
         } elseif ($eventName == 'create_vendor') {
             return EVENT_CREATE_VENDOR;
+        } else {
+            return false;
         }
-
-        return false;
     }
 
-    /**
-     * @param $subscription
-     * @param $data
-     */
     public static function notifyZapier($subscription, $data)
     {
         $curl = curl_init();
@@ -1131,6 +818,7 @@ class Utils
 
         curl_setopt_array($curl, $opts);
 
+        $result = curl_exec($curl);
         $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
 
         curl_close($curl);
@@ -1140,57 +828,37 @@ class Utils
         }
     }
 
-    /**
-     * @param int $count
-     *
-     * @return array
-     */
     public static function getApiHeaders($count = 0)
     {
         return [
           'Content-Type' => 'application/json',
+          //'Access-Control-Allow-Origin' => '*',
+          //'Access-Control-Allow-Methods' => 'GET',
+          //'Access-Control-Allow-Headers' => 'Origin, Content-Type, Accept, Authorization, X-Requested-With',
+          //'Access-Control-Allow-Credentials' => 'true',
           'X-Total-Count' => $count,
           'X-Ninja-Version' => NINJA_VERSION,
+          //'X-Rate-Limit-Limit' - The number of allowed requests in the current period
+          //'X-Rate-Limit-Remaining' - The number of remaining requests in the current period
+          //'X-Rate-Limit-Reset' - The number of seconds left in the current period,
         ];
     }
 
-    /**
-     * @param $value
-     *
-     * @return bool
-     */
     public static function isEmpty($value)
     {
         return !$value || $value == '0' || $value == '0.00' || $value == '0,00';
     }
 
-    /**
-     * @param $haystack
-     * @param $needle
-     *
-     * @return bool
-     */
     public static function startsWith($haystack, $needle)
     {
         return $needle === '' || strpos($haystack, $needle) === 0;
     }
 
-    /**
-     * @param $haystack
-     * @param $needle
-     *
-     * @return bool
-     */
     public static function endsWith($haystack, $needle)
     {
         return $needle === '' || substr($haystack, -strlen($needle)) === $needle;
     }
 
-    /**
-     * @param $model
-     *
-     * @return string
-     */
     public static function getEntityRowClass($model)
     {
         $str = '';
@@ -1210,11 +878,6 @@ class Utils
         return $str;
     }
 
-    /**
-     * @param $output
-     * @param $data
-     * @param bool $headers
-     */
     public static function exportData($output, $data, $headers = false)
     {
         if ($headers) {
@@ -1230,23 +893,26 @@ class Utils
         fwrite($output, "\n");
     }
 
-    /**
-     * @param $values
-     *
-     * @return bool|mixed
-     */
     public static function getFirst($values)
     {
         if (is_array($values)) {
             return count($values) ? $values[0] : false;
+        } else {
+            return $values;
         }
-
-        return $values;
     }
 
-    /**
-     * @return string
-     */
+    // nouns in German and French should be uppercase
+    // TODO remove this
+    public static function transFlowText($key)
+    {
+        $str = trans("texts.$key");
+        if (!in_array(App::getLocale(), ['de', 'fr'])) {
+            $str = strtolower($str);
+        }
+        return $str;
+    }
+
     public static function getSubdomainPlaceholder()
     {
         $parts = parse_url(SITE_URL);
@@ -1260,9 +926,6 @@ class Utils
         return $subdomain;
     }
 
-    /**
-     * @return string
-     */
     public static function getDomainPlaceholder()
     {
         $parts = parse_url(SITE_URL);
@@ -1282,12 +945,6 @@ class Utils
         return $domain;
     }
 
-    /**
-     * @param string $domain
-     * @param $subdomain
-     *
-     * @return mixed
-     */
     public static function replaceSubdomain($domain, $subdomain)
     {
         $parsedUrl = parse_url($domain);
@@ -1299,11 +956,6 @@ class Utils
         return $domain;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return array
-     */
     public static function splitName($name)
     {
         $name = trim($name);
@@ -1312,25 +964,12 @@ class Utils
         return [$firstName, $lastName];
     }
 
-    /**
-     * @param string $string
-     *
-     * @return string
-     */
     public static function decodePDF($string)
     {
         $string = str_replace('data:application/pdf;base64,', '', $string);
         return base64_decode($string);
     }
 
-    /**
-     * @param $city
-     * @param $state
-     * @param $postalCode
-     * @param $swap
-     *
-     * @return string
-     */
     public static function cityStateZip($city, $state, $postalCode, $swap)
     {
         $str = $city;
@@ -1344,16 +983,11 @@ class Utils
 
         if ($swap) {
             return $postalCode . ' ' . $str;
+        } else {
+            return $str . ' ' . $postalCode;
         }
-
-        return $str . ' ' . $postalCode;
     }
 
-    /**
-     * @param $website
-     *
-     * @return string
-     */
     public static function formatWebsite($website)
     {
         if (!$website) {
@@ -1373,26 +1007,13 @@ class Utils
         return link_to($link, $title, ['target' => '_blank']);
     }
 
-    /**
-     * @param $adjustment
-     * @param $currencyId
-     * @param $countryId
-     *
-     * @return string
-     */
     public static function wrapAdjustment($adjustment, $currencyId, $countryId)
     {
         $class = $adjustment <= 0 ? 'success' : 'default';
-        $adjustment = self::formatMoney($adjustment, $currencyId, $countryId);
+        $adjustment = Utils::formatMoney($adjustment, $currencyId, $countryId);
         return "<h4><div class=\"label label-{$class}\">$adjustment</div></h4>";
     }
 
-    /**
-     * @param $entity1
-     * @param $entity2
-     *
-     * @return mixed
-     */
     public static function copyContext($entity1, $entity2)
     {
         if (!$entity2) {
@@ -1407,6 +1028,7 @@ class Utils
             'invitation_id'
         ];
 
+        $fields1 = $entity1->getAttributes();
         $fields2 = $entity2->getAttributes();
 
         foreach ($fields as $field) {
@@ -1418,11 +1040,6 @@ class Utils
         return $entity1;
     }
 
-    /**
-     * @param string $url
-     *
-     * @return string
-     */
     public static function addHttp($url)
     {
         if (!preg_match('~^(?:f|ht)tps?://~i', $url)) {
@@ -1432,12 +1049,7 @@ class Utils
         return $url;
     }
 
-    /**
-     * @param AccountGateway|null $accountGateway
-     *
-     * @return WePay
-     */
-    public static function setupWePay(AccountGateway $accountGateway = null)
+    public static function setupWePay($accountGateway = null)
     {
         if (WePay::getEnvironment() == 'none') {
             if (WEPAY_ENVIRONMENT == WEPAY_STAGE) {
@@ -1449,9 +1061,9 @@ class Utils
 
         if ($accountGateway) {
             return new WePay($accountGateway->getConfig()->accessToken);
+        } else {
+            return new WePay(null);
         }
-
-        return new WePay(null);
     }
 
     /**
