@@ -22,6 +22,7 @@ Thumbs.db
 /error_log
 /auth.json
 /public/error_log
+/resources/assets/bower
 
 /ninja.sublime-project
 /ninja.sublime-workspace
