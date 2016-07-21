@@ -2044,8 +2044,7 @@ $LANG = array(
     'payment_error_code' => 'There was an error processing your payment [:code]. Please try again later.',
     'standard_fees_apply' => 'Standard fees apply: 2.9% + $0.30 per successful charge.',
     'limit_import_rows' => 'Data needs to be imported in batches of :count rows or less',
-    'error_title' => 'Something went wrong',
-    'error_contact_text' => 'If you\'d like help please email us at :mailaddress',
+
 
 );
 
