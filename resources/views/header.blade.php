@@ -305,6 +305,7 @@
 
     /* Set the defaults for Bootstrap datepicker */
     $.extend(true, $.fn.datepicker.defaults, {
+        language: '{{ $appLanguage }}',
         weekStart: {{ Session::get('start_of_week') }}
     });
 
