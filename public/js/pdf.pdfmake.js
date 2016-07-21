@@ -421,10 +421,10 @@ NINJA.invoiceLines = function(invoice) {
         }
         if (showItemTaxes) {
             var str = ' ';
-            if (tax1) {
+            if (item.tax_name1) {
                 str += tax1.toString() + '%';
             }
-            if (tax2) {
+            if (item.tax_name2) {
                 if (tax1) {
                     str += '  ';
                 }
