@@ -42,11 +42,5 @@ elixir(function(mix) {
      * JS configuration
      */
 
-    // built.public.js
-    mix.scripts([
-        bowerDir + '/bootstrap/dist/js/bootstrap.js',
-        bowerDir + '/bootstrap-combobox/js/bootstrap-combobox.js'
-    ], elixir.config.publicPath + '/built.public.js');
-
 
 });
