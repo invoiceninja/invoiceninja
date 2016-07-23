@@ -48,5 +48,6 @@ elixir(function(mix) {
         bowerDir + '/bootstrap-combobox/js/bootstrap-combobox.js'
     ], elixir.config.publicPath + '/built.public.js');
 
+    mix.scripts(['resources/assets/js/Chart.js'], 'Chart.min.js');
 
 });
