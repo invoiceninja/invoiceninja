@@ -41,6 +41,7 @@ elixir(function(mix) {
     /**
      * JS configuration
      */
+    mix.scripts(['resources/assets/js/Chart.js'], 'public/js/Chart.min.js');
 
 
 });
