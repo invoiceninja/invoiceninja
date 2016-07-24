@@ -140,7 +140,7 @@
                     "type": "zip"
                 },
                 "source": {
-                    "url": "git@github.com:gatepay/FedACHdir.git",
+                    "url": "https://github.com/gatepay/FedACHdir.git",
                     "type": "git",
                     "reference": "origin/master"
                 }
