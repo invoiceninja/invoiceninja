@@ -4,6 +4,7 @@
   "dependencies": {
     "jquery": "1.11.3",
     "bootstrap": "3.3.1",
+    "bootstrap-combobox": "1.1.5",
     "jquery-ui": "1.11.2",
     "datatables": "1.10.4",
     "datatables-bootstrap3": "*",

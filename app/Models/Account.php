@@ -95,8 +95,8 @@ class Account extends Eloquent
         ACCOUNT_CLIENT_PORTAL,
         ACCOUNT_CHARTS_AND_REPORTS,
         ACCOUNT_DATA_VISUALIZATIONS,
-        ACCOUNT_USER_MANAGEMENT,
         ACCOUNT_API_TOKENS,
+        ACCOUNT_USER_MANAGEMENT,
     ];
 
     /**
@@ -1240,7 +1240,7 @@ class Account extends Eloquent
         $price = $this->company->plan_price;
         $trial_plan = $this->company->trial_plan;
 
-        if(!$plan && (!$trial_plan || !$include_trial)) {
+        if((!$plan || $plan == PLAN_FREE) && (!$trial_plan || !$include_trial)) {
             return null;
         }
 

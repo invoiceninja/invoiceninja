@@ -59,14 +59,6 @@ class AccountGatewayDatatable extends EntityDatatable
                 function($model) {
                     return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && !empty($model->resendConfirmationUrl);
                 }
-            ], [
-                uctrans('texts.finish_setup'),
-                function ($model) {
-                    return $model->setupUrl;
-                },
-                function($model) {
-                    return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && !empty($model->setupUrl);
-                }
             ] , [
                 uctrans('texts.edit_gateway'),
                 function ($model) {
@@ -76,7 +68,15 @@ class AccountGatewayDatatable extends EntityDatatable
                     return !$model->deleted_at;
                 }
             ], [
-                uctrans('texts.manage_wepay_account'),
+                uctrans('texts.finish_setup'),
+                function ($model) {
+                    return $model->setupUrl;
+                },
+                function($model) {
+                    return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && !empty($model->setupUrl);
+                }
+            ], [
+                uctrans('texts.manage_account'),
                 function ($model) {
                     $accountGateway = AccountGateway::find($model->id);
                     $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
@@ -87,6 +87,14 @@ class AccountGatewayDatatable extends EntityDatatable
                 },
                 function($model) {
                     return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY;
+                }
+            ], [
+                uctrans('texts.terms_of_service'),
+                function ($model) {
+                    return 'https://go.wepay.com/terms-of-service-us';
+                },
+                function($model) {
+                    return $model->gateway_id == GATEWAY_WEPAY;
                 }
             ]
         ];

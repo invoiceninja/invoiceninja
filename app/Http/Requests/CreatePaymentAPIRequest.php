@@ -27,14 +27,16 @@ class CreatePaymentAPIRequest extends PaymentRequest
                 'amount' => 'required',
             ];
         }
-        
-        $invoice = Invoice::scope($this->invoice_id)->firstOrFail();
+
+        $invoice = Invoice::scope($this->invoice_id)
+            ->invoices()
+            ->firstOrFail();
 
         $this->merge([
-            'invoice_id' => $invoice->id, 
+            'invoice_id' => $invoice->id,
             'client_id' => $invoice->client->id,
         ]);
-            
+
         $rules = [
             'amount' => "required|less_than:{$invoice->balance}|positive",
         ];

@@ -150,14 +150,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * @return bool
-     */
-    public function isPaidPro()
-    {
-        return $this->isPro($accountDetails) && !$accountDetails['trial'];
-    }
-
-    /**
      * @return mixed
      */
     public function isTrial()
