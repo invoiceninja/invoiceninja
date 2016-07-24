@@ -116,21 +116,19 @@ module.exports = function(grunt) {
         dest: 'public/built.js',
         nonull: true
       },
-      js_public: {
+      /*js_public: {
         src: [
-        /*
           'public/js/simpleexpand.js',
           'public/js/valign.js',
           'public/js/bootstrap.min.js',
           'public/js/simpleexpand.js',
-        */
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
           'public/js/bootstrap-combobox.js',
 
         ],
         dest: 'public/built.public.js',
         nonull: true
-      },
+      },*/
       css: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
