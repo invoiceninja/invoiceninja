@@ -41,6 +41,15 @@ elixir(function(mix) {
     /**
      * JS configuration
      */
+    mix.scripts(['resources/assets/js/Chart.js'], 'public/js/Chart.min.js')
+        .scripts(['resources/assets/js/d3.js'], 'public/js/d3.min.js');
+    
+    mix.scripts([
+        'public/js/pdf_viewer.js',
+        'public/js/compatibility.js',
+        'public/js/pdfmake.min.js',
+        'public/js/vfs.js'
+    ], 'public/pdf.built.js');
 
 
 });
