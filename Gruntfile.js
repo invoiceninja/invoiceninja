@@ -164,7 +164,7 @@ module.exports = function(grunt) {
             process: false
         }
       },
-      js_pdf: {
+      /*js_pdf: {
         src: [
           'public/js/pdf_viewer.js',
           'public/js/compatibility.js',
@@ -173,7 +173,7 @@ module.exports = function(grunt) {
         ],
         dest: 'public/pdf.built.js',
         nonull: true
-      }
+      }*/
     }
   });
 
