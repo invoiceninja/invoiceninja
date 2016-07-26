@@ -24,6 +24,14 @@ elixir.config.assetsPath = '';
 elixir.config.js.folder = '';
 
 /**
+ * Configuring CSS assets path.
+ * Explicitly setting it to empty, as we're not using Laravels resources/assets/css folder
+ *
+ * @type {string}
+ */
+elixir.config.css.folder = '';
+
+/**
  * Directory for bower source files.
  * If changing this, please also see .bowerrc
  *
@@ -36,7 +44,14 @@ elixir(function(mix) {
     /**
      * CSS configuration
      */
-
+    mix.styles([
+        bowerDir + '/bootstrap/dist/css/bootstrap.css',
+        bowerDir + '/font-awesome/css/font-awesome.css',
+        bowerDir + '/datatables/media/css/jquery.dataTables.css',
+        bowerDir + '/datatables-bootstrap3/BS3/assets/css/datatables.css',
+        'public/css/bootstrap-combobox.css',
+        'public/css/public.style.css'
+    ], 'public/css/built.public.css');
 
     /**
      * JS configuration
