@@ -31140,7 +31140,7 @@ function GetPdfMake(invoice, javascript, callback) {
                         if (columns[0].hasOwnProperty('stack')) {
                             columns[0].stack.push({image: logoImages.imageLogo3, alignment: 'left', width: 130, margin: [40, 6, 0, 0]});
                         } else {
-                            columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, -20, 20, 0]})
+                            columns.push({image: logoImages.imageLogo1, alignment: 'right', width: 130, margin: [0, -40, 20, 0]})
                         }
                     }
                 }
