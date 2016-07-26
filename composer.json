@@ -79,15 +79,15 @@
         "wepay/php-sdk": "^0.2",
         "collizo4sky/omnipay-wepay": "dev-additional-calls",
         "barryvdh/laravel-ide-helper": "~2.2",
-        "barryvdh/laravel-debugbar": "~2.2"
+        "barryvdh/laravel-debugbar": "~2.2",
+        "fzaninotto/faker": "^1.5"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
         "phpspec/phpspec": "~2.1",
         "codeception/codeception": "*",
         "codeception/c3": "~2.0",
-        "symfony/dom-crawler": "~3.0",
-        "fzaninotto/faker": "^1.5"
+        "symfony/dom-crawler": "~3.0"
     },
     "autoload": {
         "classmap": [
