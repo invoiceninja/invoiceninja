@@ -149,7 +149,7 @@ module.exports = function(grunt) {
             process: false
         }
       },
-      css_public: {
+      /*css_public: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
           'public/vendor/font-awesome/css/font-awesome.min.css',
@@ -162,7 +162,7 @@ module.exports = function(grunt) {
         nonull: true,
         options: {
             process: false
-        }
+        }*/
       },
       /*js_pdf: {
         src: [
