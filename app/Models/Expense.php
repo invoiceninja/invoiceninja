@@ -142,7 +142,7 @@ class Expense extends EntityModel
      */
     public function isExchanged()
     {
-        return $this->invoice_currency_id != $this->expense_currency_id;
+        return $this->invoice_currency_id != $this->expense_currency_id || $this->exchange_rate != 1;
     }
 
     /**
