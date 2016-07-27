@@ -116,6 +116,17 @@ class PaymentController extends BaseController
     }
 
     /**
+     * @param $publicId
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return redirect()->to("payments/{$publicId}/edit");
+    }
+
+    /**
      * @param PaymentRequest $request
      * @return \Illuminate\Contracts\View\View
      */
