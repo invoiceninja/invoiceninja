@@ -62,8 +62,8 @@ class ReportController extends BaseController
             $dateField = Input::get('date_field');
             $startDate = Utils::toSqlDate(Input::get('start_date'), false);
             $endDate = Utils::toSqlDate(Input::get('end_date'), false);
-            $enableReport = Input::get('enable_report') ? true : false;
-            $enableChart = Input::get('enable_chart') ? true : false;
+            $enableReport = boolval(Input::get('enable_report'));
+            $enableChart = boolval(Input::get('enable_chart'));
         } else {
             $groupBy = 'MONTH';
             $chartType = 'Bar';

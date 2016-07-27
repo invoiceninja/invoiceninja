@@ -11,7 +11,7 @@
 	@include('accounts.nav', ['selected' => ACCOUNT_CHARTS_AND_REPORTS, 'advanced' => true])
 
 
-    {!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required'])->addClass('warn-on-exit') !!}            
+    {!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required'])->addClass('warn-on-exit') !!}
 
     <div style="display:none">
     {!! Former::text('action') !!}
@@ -19,16 +19,14 @@
 
     {!! Former::populateField('start_date', $startDate) !!}
     {!! Former::populateField('end_date', $endDate) !!}
-    {!! Former::populateField('enable_report', intval($enableReport)) !!}
-    {!! Former::populateField('enable_chart', intval($enableChart)) !!}
 
 	<div class="row">
 		<div class="col-lg-12">
             <div class="panel panel-default">
             <div class="panel-heading">
                 <h3 class="panel-title">{!! trans('texts.report_settings') !!}</h3>
-            </div>            
-            <div class="panel-body">    
+            </div>
+            <div class="panel-body">
                 <div class="row">
                     <div class="col-md-6">
 
@@ -40,23 +38,23 @@
             					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
 
                         <p>&nbsp;</p>
-                        {!! Former::actions( 
+                        {!! Former::actions(
                                 Button::primary(trans('texts.export'))->withAttributes(array('onclick' => 'onExportClick()'))->appendIcon(Icon::create('export')),
                                 Button::success(trans('texts.run'))->withAttributes(array('id' => 'submitButton'))->submit()->appendIcon(Icon::create('play'))
                             ) !!}
 
                         @if (!Auth::user()->hasFeature(FEATURE_REPORTS))
                         <script>
-                            $(function() {   
+                            $(function() {
                                 $('form.warn-on-exit').find('input, button').prop('disabled', true);
                             });
-                        </script>   
+                        </script>
                         @endif
 
 
                     </div>
                     <div class="col-md-6">
-                        {!! Former::checkbox('enable_report')->text(trans('texts.enable')) !!}
+                        {!! Former::checkbox('enable_report')->text(trans('texts.enable'))->check($enableReport)->forceValue(1) !!}
                         {!! Former::select('report_type')->options($reportTypes, $reportType)->label(trans('texts.type')) !!}
                         <div id="dateField" style="display:{{ $reportType == ENTITY_TAX_RATE ? 'block' : 'none' }}">
                             {!! Former::select('date_field')->label(trans('texts.filter'))
@@ -64,11 +62,11 @@
                                     ->addOption(trans('texts.payment_date'), FILTER_PAYMENT_DATE) !!}
                         </div>
                         <p>&nbsp;</p>
-                        {!! Former::checkbox('enable_chart')->text(trans('texts.enable')) !!}
+                        {!! Former::checkbox('enable_chart')->text(trans('texts.enable'))->check($enableChart)->forceValue(1) !!}
                         {!! Former::select('group_by')->options($dateTypes, $groupBy) !!}
                         {!! Former::select('chart_type')->options($chartTypes, $chartType) !!}
 
-            			
+
 			 {!! Former::close() !!}
         </div>
         </div>
@@ -79,9 +77,9 @@
         <div class="panel panel-default">
         <div class="panel-body">
         <table class="table table-striped invoice-table">
-        <thead>                
+        <thead>
             <tr>
-                @foreach ($columns as $column)    
+                @foreach ($columns as $column)
                     <th>{{ trans("texts.{$column}") }}</th>
                 @endforeach
             </tr>
@@ -140,7 +138,7 @@
             <div style="padding-bottom:8px">
                 <div style="float:left; height:22px; width:60px; background-color:rgba(78,205,196,.5); border: 1px solid rgba(78,205,196,1)"></div>
                 <div style="vertical-align: middle">&nbsp;Invoices</div>
-            </div>          
+            </div>
             <div style="padding-bottom:8px; clear:both">
                 <div style="float:left; height:22px; width:60px; background-color:rgba(255,107,107,.5); border: 1px solid rgba(255,107,107,1)"></div>
                 <div style="vertical-align: middle">&nbsp;Payments</div>
@@ -161,7 +159,7 @@
     function onExportClick() {
         $('#action').val('export');
         $('#submitButton').click();
-        $('#action').val('');    
+        $('#action').val('');
     }
 
     @if ($enableChart)
@@ -179,7 +177,7 @@
     		]
     	}
 
-    	var options = {		
+    	var options = {
     		scaleOverride: true,
     		scaleSteps: 10,
     		scaleStepWidth: {!! $scaleStepWidth !!},
