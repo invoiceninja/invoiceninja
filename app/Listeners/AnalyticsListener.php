@@ -43,7 +43,7 @@ class AnalyticsListener
      */
     private function sendAnalytics($data)
     {
-        $data = json_encode($data);
+        $data = utf8_encode($data);
         $curl = curl_init();
 
         $opts = [
