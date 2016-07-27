@@ -153,7 +153,9 @@ class StripePaymentDriver extends BasePaymentDriver
         $paymentMethod->source_reference = $source['id'];
         $paymentMethod->last4 = $source['last4'];
 
-        if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
+        // For older users the Stripe account may just have the customer token but not the card version
+        // In that case we'd use GATEWAY_TYPE_TOKEN even though we're creating the credit card
+        if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD) || $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
 
             $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
             $paymentMethod->payment_type_id = $this->parseCardType($source['brand']);
