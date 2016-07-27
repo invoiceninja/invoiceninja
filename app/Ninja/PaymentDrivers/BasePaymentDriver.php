@@ -460,7 +460,7 @@ class BasePaymentDriver
                             ->with('payment_methods')
                             ->first();
 
-        if ($this->customer) {
+        if ($this->customer && $this->invitation) {
             $this->customer = $this->checkCustomerExists($this->customer) ? $this->customer : null;
         }
 
