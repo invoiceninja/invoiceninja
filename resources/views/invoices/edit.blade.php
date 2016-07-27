@@ -162,6 +162,8 @@
             <span data-bind="visible: !is_recurring()">
             {!! Former::text('invoice_number')
                         ->label(trans("texts.{$entityType}_number_short"))
+                        ->onchange('checkInvoiceNumber()')
+                        ->addGroupClass('invoice-number')
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
             @if($account->getTokenGatewayId())
@@ -1293,6 +1295,11 @@
     function onFormSubmit(event) {
         if (window.countUploadingDocuments > 0) {
             alert("{!! trans('texts.wait_for_upload') !!}");
+            return false;
+        }
+
+        // check invoice number is unique
+        if ($('.invoice-number').hasClass('has-error')) {
             return false;
         }
 
