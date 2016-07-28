@@ -1195,7 +1195,7 @@
             model.invoice().invoice_footer(model.invoice().default_footer());
             refreshPDF();
         });
-        
+
         return false;
     }
 
@@ -1215,10 +1215,22 @@
             return;
         }
 
+        var clientId = parseInt($('input[name=client]').val(), 10) || 0;
+        if (clientId == 0 ) {
+            swal("{!! trans('texts.no_client_selected') !!}");
+            return;
+        }
+
+        if (!isContactSelected()) {
+            swal("{!! trans('texts.no_contact_selected') !!}");
+            return;
+        }
+
         if (!isEmailValid()) {
             swal("{!! trans('texts.provide_email') !!}");
             return;
-8        }
+8       }
+
 
 		sweetConfirm(function() {
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
@@ -1349,8 +1361,7 @@
 		return isValid;
 	}
 
-	function isEmailValid() {
-		var isValid = true;
+    function isContactSelected() {
 		var sendTo = false;
 		var client = model.invoice().client();
 		for (var i=0; i<client.contacts().length; i++) {
@@ -1359,14 +1370,29 @@
                 continue;
             }
 			if (isValidEmailAddress(contact.email())) {
-				isValid = true;
 				sendTo = true;
+			}
+		}
+		return sendTo;
+
+    }
+
+	function isEmailValid() {
+		var isValid = true;
+		var client = model.invoice().client();
+		for (var i=0; i<client.contacts().length; i++) {
+			var contact = client.contacts()[i];
+            if ( ! contact.send_invoice()) {
+                continue;
+            }
+			if (isValidEmailAddress(contact.email())) {
+				isValid = true;
 			} else {
 				isValid = false;
 				break;
 			}
 		}
-		return (isValid && sendTo)
+		return isValid;
 	}
 
 	function onMarkClick() {

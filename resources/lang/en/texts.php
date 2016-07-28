@@ -2046,7 +2046,8 @@ $LANG = array(
     'error_title' => 'Something went wrong',
     'error_contact_text' => 'If you\'d like help please email us at :mailaddress',
     'no_undo' => 'Warning: this can\'t be undone.',
-
+    'no_contact_selected' => 'Please select a contact',
+    'no_client_selected' => 'Please select a client',
 
 );
 
