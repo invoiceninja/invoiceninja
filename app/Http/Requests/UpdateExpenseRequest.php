@@ -21,7 +21,6 @@ class UpdateExpenseRequest extends ExpenseRequest
     {
           return [
             'amount' => 'numeric',
-    		'expense_date' => 'required',
         ];
     }
 }
