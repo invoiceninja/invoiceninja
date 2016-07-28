@@ -28,13 +28,14 @@ class AnalyticsListener
         $analyticsId = env('ANALYTICS_KEY');
         $client = $payment->client;
         $amount = $payment->amount;
+        $item = $invoice->invoice_items->last()->product_key;
 
         $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu=USD&ti={$invoice->invoice_number}";
 
         $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
 
-        $url = $base . "&t=item&in=plan&ip={$amount}&iq=1";
+        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
     }
 
