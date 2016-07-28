@@ -206,7 +206,7 @@
 
         function onFormSubmit(event) {
             if (window.countUploadingDocuments > 0) {
-                alert("{!! trans('texts.wait_for_upload') !!}");
+                swal("{!! trans('texts.wait_for_upload') !!}");
                 return false;
             }
 
@@ -227,9 +227,9 @@
         }
 
         function onDeleteClick() {
-            if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+            sweetConfirm(function() {
                 submitAction('delete');
-            }
+            });
         }
 
         $(function() {

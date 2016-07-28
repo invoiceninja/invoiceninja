@@ -57,10 +57,6 @@
                 return;
             }
 
-            if (errorMsg.indexOf('No unicode cmap for font') > -1) {
-                alert("{{ trans('texts.update_font_cache') }}\n\n - Windows: Ctrl + F5\n - Mac/Apple: Apple + R or Command + R\n - Linux: F5");
-            }
-
             try {
                 // Use StackTraceJS to parse the error context
                 if (error) {
@@ -87,6 +83,24 @@
                 type: 'GET',
                 url: '{{ URL::to('log_error') }}',
                 data: 'error=' + encodeURIComponent(message) + '&url=' + encodeURIComponent(window.location)
+            });
+        }
+
+        // http://t4t5.github.io/sweetalert/
+        function sweetConfirm(success, text, title) {
+            title = title || "{!! trans("texts.are_you_sure") !!}";
+            swal({
+                type: "warning",
+                title: title,
+                text: text,
+                cancelButtonText: "{!! trans("texts.no") !!}",
+                confirmButtonText: "{!! trans("texts.yes") !!}",
+                confirmButtonColor: "#DD6B55",
+                showCancelButton: true,
+                closeOnConfirm: false
+            }, function() {
+                success();
+                swal.close();
             });
         }
 

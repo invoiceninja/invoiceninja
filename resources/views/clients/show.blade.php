@@ -370,10 +370,10 @@
 	}
 
 	function onDeleteClick() {
-		if (confirm("{!! trans('texts.are_you_sure') !!}")) {
+		sweetConfirm(function() {
 			$('#action').val('delete');
 			$('.mainForm').submit();
-		}
+		});
 	}
 
     @if ($client->hasAddress())

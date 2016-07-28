@@ -99,13 +99,14 @@
 
 	function submitForm(action) {
 		if (action == 'delete') {
-            if (!confirm('{!! trans("texts.are_you_sure") !!}')) {
-				return;
-			}
-		}
-
-		$('#action').val(action);
-		$('form.listForm').submit();
+            sweetConfirm(function() {
+                $('#action').val(action);
+        		$('form.listForm').submit();                
+            });
+		} else {
+    		$('#action').val(action);
+    		$('form.listForm').submit();
+        }
 	}
 
 	function deleteEntity(id) {

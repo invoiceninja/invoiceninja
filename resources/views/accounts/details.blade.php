@@ -148,9 +148,9 @@
         }
 
         function deleteLogo() {
-            if (confirm("{!! trans('texts.are_you_sure') !!}")) {
+            sweetConfirm(function() {
                 $('.removeLogoForm').submit();
-            }
+            });
         }
 
 	</script>

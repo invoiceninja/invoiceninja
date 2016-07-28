@@ -1182,18 +1182,20 @@
 	}
 
     function resetTerms() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+        sweetConfirm(function() {
             model.invoice().terms(model.invoice().default_terms());
             refreshPDF();
-        }
+        });
+
         return false;
     }
 
     function resetFooter() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+        sweetConfirm(function() {
             model.invoice().invoice_footer(model.invoice().default_footer());
             refreshPDF();
-        }
+        });
+        
         return false;
     }
 
@@ -1209,16 +1211,16 @@
 
 	function onEmailClick() {
         if (!NINJA.isRegistered) {
-            alert("{!! trans('texts.registration_required') !!}");
+            swal("{!! trans('texts.registration_required') !!}");
             return;
         }
 
         if (!isEmailValid()) {
-            alert("{!! trans('texts.provide_email') !!}");
+            swal("{!! trans('texts.provide_email') !!}");
             return;
 8        }
 
-		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
+		sweetConfirm(function() {
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
             var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
             var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
@@ -1232,31 +1234,38 @@
             } else {
                 preparePdfData('email');
             }
-		}
+		}, getSendToEmails());
 	}
 
 	function onSaveClick() {
-        @if(!empty($autoBillChangeWarning))
-        if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
-        @endif
-
 		if (model.invoice().is_recurring()) {
             // warn invoice will be emailed when saving new recurring invoice
             if ({{ $invoice->exists ? 'false' : 'true' }}) {
-                if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
+                var text = getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+                var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
+                sweetConfirm(function() {
                     submitAction('');
-                }
+                }, text, title);
                 return;
             // warn invoice will be emailed again if start date is changed
             } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
-                if (confirm("{!! trans("texts.warn_start_date_changed") !!}" + '\n\n'
-                    + "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
-                    + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date())) {
-                        submitAction('');
-                }
+                var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
+                            + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
+                var title = "{!! trans("texts.warn_start_date_changed") !!}";
+                sweetConfirm(function() {
+                    submitAction('');
+                }, text, title);
                 return;
             }
         }
+
+        @if (!empty($autoBillChangeWarning))
+            var text = "{!! trans('texts.warn_change_auto_bill') !!}";
+            sweetConfirm(function() {
+                submitAction('');
+            }, text);
+            return;
+        @endif
 
         submitAction('');
     }
@@ -1294,7 +1303,7 @@
 
     function onFormSubmit(event) {
         if (window.countUploadingDocuments > 0) {
-            alert("{!! trans('texts.wait_for_upload') !!}");
+            swal("{!! trans('texts.wait_for_upload') !!}");
             return false;
         }
 
@@ -1312,7 +1321,7 @@
         var expenseCurrencyId = model.expense_currency_id();
         var clientCurrencyId = model.invoice().client().currency_id() || {{ $account->getCurrencyId() }};
         if (expenseCurrencyId && expenseCurrencyId != clientCurrencyId) {
-            alert("{!! trans('texts.expense_error_mismatch_currencies') !!}");
+            swal("{!! trans('texts.expense_error_mismatch_currencies') !!}");
             return false;
         }
 
@@ -1374,11 +1383,13 @@
 
     @if ($invoice->id)
     	function onPaymentClick() {
-            @if(!empty($autoBillChangeWarning))
-            if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+            @if (!empty($autoBillChangeWarning))
+                sweetConfirm(function() {
+                    window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
+                }, "{!! trans('texts.warn_change_auto_bill') !!}");
+            @else
+                window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
             @endif
-
-    		window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
     	}
 
     	function onCreditClick() {
@@ -1391,9 +1402,9 @@
 	}
 
 	function onDeleteClick() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
-			submitBulkAction('delete');
-		}
+        sweetConfirm(function() {
+            submitBulkAction('delete');
+        });
 	}
 
 	function formEnterClick(event) {
