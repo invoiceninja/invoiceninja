@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a6356e15db7c99d1f5dfeb43de98c721",
-    "content-hash": "191054554cb908152a6a971de29a3180",
+    "hash": "17cb78668cb504134b1dbd2816fb791f",
+    "content-hash": "693e6b62fc426abd68893eca1b923ace",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -323,16 +323,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.18.32",
+            "version": "3.18.33",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "84b9927ee116b30babf90a9fc723764672543e29"
+                "reference": "d787cfc514f77f5bee6990a466bc6922c0cf1526"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/84b9927ee116b30babf90a9fc723764672543e29",
-                "reference": "84b9927ee116b30babf90a9fc723764672543e29",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/d787cfc514f77f5bee6990a466bc6922c0cf1526",
+                "reference": "d787cfc514f77f5bee6990a466bc6922c0cf1526",
                 "shasum": ""
             },
             "require": {
@@ -399,7 +399,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2016-07-21 22:30:58"
+            "time": "2016-07-26 18:19:04"
         },
         {
             "name": "barracudanetworks/archivestream-php",
@@ -2118,7 +2118,7 @@
             "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "git@github.com:gatepay/FedACHdir.git",
+                "url": "https://github.com/gatepay/FedACHdir.git",
                 "reference": "origin/master"
             },
             "type": "library",
@@ -2487,12 +2487,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/incube8/omnipay-multicards.git",
-                "reference": "1dea3ab13ed453d2b6828b451ccd847dfef6711d"
+                "reference": "54f051406d8620ca3e0279f92419d3c0b04f729c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/incube8/omnipay-multicards/zipball/1dea3ab13ed453d2b6828b451ccd847dfef6711d",
-                "reference": "1dea3ab13ed453d2b6828b451ccd847dfef6711d",
+                "url": "https://api.github.com/repos/incube8/omnipay-multicards/zipball/54f051406d8620ca3e0279f92419d3c0b04f729c",
+                "reference": "54f051406d8620ca3e0279f92419d3c0b04f729c",
                 "shasum": ""
             },
             "require": {
@@ -2534,7 +2534,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2015-12-21 10:07:51"
+            "time": "2016-07-28 08:44:49"
         },
         {
             "name": "intervention/image",
@@ -8292,16 +8292,16 @@
         },
         {
             "name": "wildbit/swiftmailer-postmark",
-            "version": "2.0.3",
+            "version": "2.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wildbit/swiftmailer-postmark.git",
-                "reference": "4032d3336ff97761edad3d0a88769820fb84e56f"
+                "reference": "175500a1f29b8a6192a2f0a147145aae345e6a21"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wildbit/swiftmailer-postmark/zipball/4032d3336ff97761edad3d0a88769820fb84e56f",
-                "reference": "4032d3336ff97761edad3d0a88769820fb84e56f",
+                "url": "https://api.github.com/repos/wildbit/swiftmailer-postmark/zipball/175500a1f29b8a6192a2f0a147145aae345e6a21",
+                "reference": "175500a1f29b8a6192a2f0a147145aae345e6a21",
                 "shasum": ""
             },
             "require": {
@@ -8331,7 +8331,7 @@
                 }
             ],
             "description": "A Swiftmailer Transport for Postmark.",
-            "time": "2016-04-18 14:38:52"
+            "time": "2016-07-26 11:42:22"
         },
         {
             "name": "zendframework/zend-escaper",
