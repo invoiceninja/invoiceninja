@@ -965,7 +965,7 @@
         }
 
         if (model.invoice().client().public_id() || {{ $invoice->id || count($clients) == 0 ? '1' : '0' }}) {
-            $('#invoice_number').focus();
+            // do nothing
         } else {
             $('.client_select input.form-control').focus();
         }
