@@ -128,7 +128,7 @@ module.exports = function(grunt) {
         ],
         dest: 'public/built.public.js',
         nonull: true
-      },*/
+      },
       css: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
@@ -148,7 +148,7 @@ module.exports = function(grunt) {
         options: {
             process: false
         }
-      },
+      },*/
       /*css_public: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
