@@ -2049,6 +2049,8 @@ $LANG = array(
     'no_contact_selected' => 'Please select a contact',
     'no_client_selected' => 'Please select a client',
 
+    'gateway_config_error' => 'It may help to set new passwords or generate new API keys.',
+
 );
 
 return $LANG;

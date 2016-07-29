@@ -44,6 +44,11 @@ class BasePaymentDriver
         return $this->accountGateway->gateway_id == $gatewayId;
     }
 
+    public function isValid()
+    {
+        return true;
+    }
+
     // optionally pass a paymentMethod to determine the type from the token
     protected function isGatewayType($gatewayType, $paymentMethod = false)
     {

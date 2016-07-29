@@ -39,6 +39,21 @@ class StripePaymentDriver extends BasePaymentDriver
         return $rules;
     }
 
+    public function isValid()
+    {
+        $result = $this->makeStripeCall(
+            'GET',
+            'charges',
+            'limit=1'
+        );
+
+        if (array_get($result, 'object') == 'list') {
+            return true;
+        } else {
+            return $result;
+        }
+    }
+
     protected function checkCustomerExists($customer)
     {
         $response = $this->gateway()
