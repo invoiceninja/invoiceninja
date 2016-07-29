@@ -30,6 +30,7 @@ exclude_paths:
 - "resources/"
 - "storage/"
 - "tests/"
+- "public/"
 - "**.md"
 - "**.min.js"
 - "**.min.php"
