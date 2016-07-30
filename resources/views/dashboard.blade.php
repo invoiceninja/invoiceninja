@@ -4,11 +4,11 @@
 @section('content')
 
 <div class="row">
-    <div class="col-md-4">  
+    <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-body">
-                <img src="{{ asset('images/totalinvoices.png') }}" 
-                    class="in-image" style="float:left"/>  
+                <img src="{{ asset('images/totalinvoices.png') }}"
+                    class="in-image" style="float:left"/>
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.total_revenue') }}
@@ -29,8 +29,8 @@
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-body">
-                <img src="{{ asset('images/clients.png') }}" 
-                    class="in-image" style="float:left"/>  
+                <img src="{{ asset('images/clients.png') }}"
+                    class="in-image" style="float:left"/>
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.average_invoice') }}
@@ -51,8 +51,8 @@
     <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-body">
-                <img src="{{ asset('images/totalincome.png') }}" 
-                    class="in-image" style="float:left"/>  
+                <img src="{{ asset('images/totalincome.png') }}"
+                    class="in-image" style="float:left"/>
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.outstanding') }}
@@ -94,7 +94,7 @@
                 </li>
                 @endforeach
             </ul>
-        </div>  
+        </div>
     </div>
 
     <div class="col-md-6">
@@ -133,7 +133,7 @@
 </div>
 
 <div class="row">
-    <div class="col-md-6">  
+    <div class="col-md-6">
         <div class="panel panel-default dashboard" style="height:320px;">
             <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
                 <h3 class="panel-title" style="color: black !important">
@@ -201,13 +201,13 @@
                     </tbody>
                 </table>
             </div>
-        </div>  
+        </div>
     </div>
 </div>
 
 @if ($hasQuotes)
     <div class="row">
-        <div class="col-md-6">  
+        <div class="col-md-6">
             <div class="panel panel-default dashboard" style="height:320px;">
                 <div class="panel-heading" style="margin:0; background-color: #f5f5f5 !important;">
                     <h3 class="panel-title" style="color: black !important">
@@ -224,7 +224,7 @@
                         </thead>
                         <tbody>
                             @foreach ($upcoming as $invoice)
-                                @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
+                                @if ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE)
                                     <tr>
                                         <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
@@ -238,7 +238,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6">  
+        <div class="col-md-6">
             <div class="panel panel-default dashboard" style="height:320px">
                 <div class="panel-heading" style="background-color:#e37329 !important">
                     <h3 class="panel-title in-bold-white">
@@ -255,7 +255,7 @@
                         </thead>
                         <tbody>
                             @foreach ($pastDue as $invoice)
-                                @if ($invoice->invoice_type_id == INVOICE_TYPE_STANDARD)
+                                @if ($invoice->invoice_type_id == INVOICE_TYPE_QUOTE)
                                     <tr>
                                         <td>{!! \App\Models\Invoice::calcLink($invoice) !!}</td>
                                         <td>{!! link_to('/clients/'.$invoice->client_public_id, trim($invoice->client_name) ?: (trim($invoice->first_name . ' ' . $invoice->last_name) ?: $invoice->email)) !!}</td>
@@ -267,7 +267,7 @@
                         </tbody>
                     </table>
                 </div>
-            </div>  
+            </div>
         </div>
     </div>
 @endif
