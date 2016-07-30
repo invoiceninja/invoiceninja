@@ -19,6 +19,17 @@
     <meta property="og:image" content="{{ SITE_URL }}/images/round_logo.png"/>
     <meta property="og:description" content="Simple, Intuitive Invoicing."/>
 
+    <!-- http://realfavicongenerator.net -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url('apple-touch-icon.png') }}">
+    <link rel="icon" type="image/png" href="{{ url('favicon-32x32.png') }}" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ url('favicon-16x16.png') }}" sizes="16x16">
+    <link rel="manifest" href="{{ url('manifest.json') }}">
+    <link rel="mask-icon" href="{{ url('safari-pinned-tab.svg') }}" color="#3bc65c">
+    <link rel="shortcut icon" href="{{ url('favicon.ico') }}">
+    <meta name="apple-mobile-web-app-title" content="Invoice Ninja">
+    <meta name="application-name" content="Invoice Ninja">
+    <meta name="theme-color" content="#ffffff">
+
     <!-- http://stackoverflow.com/questions/19012698/browser-cache-issues-in-laravel-4-application -->
     <meta http-equiv="cache-control" content="max-age=0"/>
     <meta http-equiv="cache-control" content="no-cache"/>
@@ -32,7 +43,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="msapplication-config" content="none"/>
-
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}"/>
 
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
@@ -45,10 +55,6 @@
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
             if (errorMsg.indexOf('Script error.') > -1) {
                 return;
-            }
-
-            if (errorMsg.indexOf('No unicode cmap for font') > -1) {
-                alert("{{ trans('texts.update_font_cache') }}\n\n - Windows: Ctrl + F5\n - Mac/Apple: Apple + R or Command + R\n - Linux: F5");
             }
 
             try {
@@ -77,6 +83,24 @@
                 type: 'GET',
                 url: '{{ URL::to('log_error') }}',
                 data: 'error=' + encodeURIComponent(message) + '&url=' + encodeURIComponent(window.location)
+            });
+        }
+
+        // http://t4t5.github.io/sweetalert/
+        function sweetConfirm(success, text, title) {
+            title = title || "{!! trans("texts.are_you_sure") !!}";
+            swal({
+                type: "warning",
+                title: title,
+                text: text,
+                cancelButtonText: "{!! trans("texts.no") !!}",
+                confirmButtonText: "{!! trans("texts.yes") !!}",
+                confirmButtonColor: "#DD6B55",
+                showCancelButton: true,
+                closeOnConfirm: false
+            }, function() {
+                success();
+                swal.close();
             });
         }
 

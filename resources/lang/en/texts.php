@@ -2045,7 +2045,11 @@ $LANG = array(
     'limit_import_rows' => 'Data needs to be imported in batches of :count rows or less',
     'error_title' => 'Something went wrong',
     'error_contact_text' => 'If you\'d like help please email us at :mailaddress',
+    'no_undo' => 'Warning: this can\'t be undone.',
+    'no_contact_selected' => 'Please select a contact',
+    'no_client_selected' => 'Please select a client',
 
+    'gateway_config_error' => 'It may help to set new passwords or generate new API keys.',
 
 );
 

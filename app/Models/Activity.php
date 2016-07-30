@@ -109,7 +109,7 @@ class Activity extends Eloquent
             'contact' => $contactId ? $client->getDisplayName() : $user->getDisplayName(),
             'payment' => $payment ? $payment->transaction_reference : null,
             'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
-            'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : asdf,
+            'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
             'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
             'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30).'...') : null,
         ];

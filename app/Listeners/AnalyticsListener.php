@@ -28,13 +28,14 @@ class AnalyticsListener
         $analyticsId = env('ANALYTICS_KEY');
         $client = $payment->client;
         $amount = $payment->amount;
+        $item = $invoice->invoice_items->last()->product_key;
 
         $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu=USD&ti={$invoice->invoice_number}";
 
         $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
 
-        $url = $base . "&t=item&in=plan&ip={$amount}&iq=1";
+        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
     }
 
@@ -43,7 +44,7 @@ class AnalyticsListener
      */
     private function sendAnalytics($data)
     {
-        $data = json_encode($data);
+        $data = utf8_encode($data);
         $curl = curl_init();
 
         $opts = [
@@ -54,6 +55,7 @@ class AnalyticsListener
         ];
 
         curl_setopt_array($curl, $opts);
+        curl_exec($curl);
         curl_close($curl);
     }
 }
