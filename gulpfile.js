@@ -53,6 +53,20 @@ elixir(function(mix) {
         'public/css/public.style.css'
     ], 'public/css/built.public.css');
 
+    mix.styles([
+        bowerDir + '/bootstrap/dist/css/bootstrap.css',
+        bowerDir + '/bootstrap-datepicker/dist/css/bootstrap-datepicker3.css',
+        bowerDir + '/datatables/media/css/jquery.dataTables.css',
+        bowerDir + '/datatables-bootstrap3/BS3/assets/css/datatables.css',
+        bowerDir + '/font-awesome/css/font-awesome.css',
+        bowerDir + '/dropzone/dist/dropzone.css',
+        bowerDir + '/spectrum/spectrum.css',
+        bowerDir + '/sweetalert/dist/sweetalert.css',
+        'public/css/bootstrap-combobox.css',
+        'public/css/typeahead.js-bootstrap.css',
+        'public/css/style.css'
+    ], 'public/css/built.css');
+
     /**
      * JS configuration
      */
