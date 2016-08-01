@@ -518,7 +518,7 @@ class BasePaymentDriver
 
         $paymentMethod = $this->createPaymentMethod($customer);
 
-        if ($paymentMethod && ! $customer->default_payment_method_id) {
+        if ($paymentMethod) {
             $customer->default_payment_method_id = $paymentMethod->id;
             $customer->save();
         }
