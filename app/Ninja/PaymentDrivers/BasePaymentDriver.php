@@ -502,7 +502,6 @@ class BasePaymentDriver
             $customer->save();
         }
 
-        /*
         // archive the old payment method
         $paymentMethod = PaymentMethod::clientId($this->client()->id)
             ->isBankAccount($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER))
@@ -511,7 +510,6 @@ class BasePaymentDriver
         if ($paymentMethod) {
             $paymentMethod->delete();
         }
-        */
 
         $paymentMethod = $this->createPaymentMethod($customer);
 
