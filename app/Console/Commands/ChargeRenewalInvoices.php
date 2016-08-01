@@ -59,6 +59,7 @@ class ChargeRenewalInvoices extends Command
         $ninjaAccount = $this->accountRepo->getNinjaAccount();
         $invoices = Invoice::whereAccountId($ninjaAccount->id)
                         ->whereDueDate(date('Y-m-d'))
+                        ->where('balance', '>', 0)
                         ->with('client')
                         ->orderBy('id')
                         ->get();
