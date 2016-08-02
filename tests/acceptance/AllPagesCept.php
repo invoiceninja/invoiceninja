@@ -5,6 +5,14 @@ $I->checkIfLogin($I);
 
 $I->wantTo('Test all pages load');
 
+// Check all language files 
+$count = $I->grabNumRecords('languages');
+for ($i=1; $i<=$count; $i++) {
+    $locale = $I->grabFromDatabase('languages', 'locale', ['id' => $i]);
+    $I->amOnPage("/dashboard?lang={$locale}");
+    $I->seeElement('.navbar-brand');
+}
+
 // Top level navigation
 $I->amOnPage('/dashboard');
 $I->see('Total Revenue');
