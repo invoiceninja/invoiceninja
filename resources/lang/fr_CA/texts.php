@@ -1033,7 +1033,7 @@ $LANG = array(
     'enable_portal_password'=>'Factures protégées',
     'enable_portal_password_help'=>'Permet de spécifier un mot de passe pour chaque contact. Si un mot de passe est spécifié, le contact devra saisir ce mot de passe pour visualiser ses factures.',
     'send_portal_password'=>'Génère automatiquement un mot de passe',
-    'send_portal_password_help'=>'Si aucun mot de passe n\\'est spécifié, le client recevra un mot de passe autogénéré lors de l\'envoi de la première facture.',
+    'send_portal_password_help'=>'Si aucun mot de passe n\'est spécifié, le client recevra un mot de passe autogénéré lors de l\'envoi de la première facture.',
 
     'expired' => 'Expiré',
     'invalid_card_number' => 'Le numéro de carte de crédit n\'est pas valide.',

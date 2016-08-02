@@ -305,7 +305,7 @@
 
     /* Set the defaults for Bootstrap datepicker */
     $.extend(true, $.fn.datepicker.defaults, {
-        language: '{{ $appLanguage }}',
+        //language: '{{ $appLanguage }}', // causes problems with some languages (ie, fr_CA) if the date includes strings (ie, July 31, 2016)
         weekStart: {{ Session::get('start_of_week') }}
     });
 

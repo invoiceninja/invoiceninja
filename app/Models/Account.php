@@ -1135,6 +1135,12 @@ class Account extends Eloquent
 
         switch ($feature) {
             // Pro
+            case FEATURE_TASKS:
+            case FEATURE_EXPENSES:
+                if (Utils::isNinja() && $this->company_id < EXTRAS_GRANDFATHER_COMPANY_ID) {
+                    return true;
+                }
+
             case FEATURE_CUSTOMIZE_INVOICE_DESIGN:
             case FEATURE_DIFFERENT_DESIGNS:
             case FEATURE_EMAIL_TEMPLATES_REMINDERS:
@@ -1149,10 +1155,6 @@ class Account extends Eloquent
             case FEATURE_CLIENT_PORTAL_PASSWORD:
             case FEATURE_CUSTOM_URL:
                 return $selfHost || !empty($planDetails);
-
-            case FEATURE_TASKS:
-            case FEATURE_EXPENSES:
-                return $selfHost || !empty($planDetails) || $planDetails['company_id'] < EXTRAS_GRANDFATHER_COMPANY_ID;
 
             // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
             case FEATURE_MORE_CLIENTS:
