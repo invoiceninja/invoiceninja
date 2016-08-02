@@ -79,7 +79,7 @@ class Payment extends EntityModel
      */
     public function account_gateway()
     {
-        return $this->belongsTo('App\Models\AccountGateway');
+        return $this->belongsTo('App\Models\AccountGateway')->withTrashed();
     }
 
     /**
