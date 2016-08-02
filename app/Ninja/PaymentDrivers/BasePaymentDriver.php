@@ -507,15 +507,6 @@ class BasePaymentDriver
             $customer->save();
         }
 
-        // archive the old payment method
-        $paymentMethod = PaymentMethod::clientId($this->client()->id)
-            ->isBankAccount($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER))
-            ->first();
-
-        if ($paymentMethod) {
-            $paymentMethod->delete();
-        }
-
         $paymentMethod = $this->createPaymentMethod($customer);
 
         if ($paymentMethod) {
@@ -539,6 +530,15 @@ class BasePaymentDriver
         $paymentMethod->account_gateway_token_id = $customer->id;
         $paymentMethod->setRelation('account_gateway_token', $customer);
         $paymentMethod = $this->creatingPaymentMethod($paymentMethod);
+
+        // archive the old payment method
+        $oldPaymentMethod = PaymentMethod::clientId($this->client()->id)
+            ->wherePaymentTypeId($paymentMethod->payment_type_id)
+            ->first();
+
+        if ($oldPaymentMethod) {
+            $oldPaymentMethod->delete();
+        }
 
         if ($paymentMethod) {
             $paymentMethod->save();
@@ -758,7 +758,7 @@ class BasePaymentDriver
             } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL) {
                 $label = 'PayPal: ' . $paymentMethod->email;
             } else {
-                $label = trans('texts.use_card_on_file');
+                $label = trans('texts.payment_type_on_file', ['type' => $paymentMethod->payment_type->name]);
             }
 
             $links[] = [
