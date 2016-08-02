@@ -18,7 +18,6 @@ We're often asked to recommend Laravel/PHP developers to help setup our app and 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
 * [Docker File](https://github.com/invoiceninja/dockerfiles) - Free
-* [Bitnami](https://bitnami.com/stack/invoice-ninja) - Free
 * [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
 
 ## Requirements
