@@ -81,9 +81,11 @@
             <div class="panel-heading" style="background-color:#0b4d78 !important">
                 <h3 class="panel-title in-bold-white">
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
-                    <div class="pull-right" style="font-size:14px;padding-top:4px">
-                        {{ trans_choice('texts.invoices_sent', $invoicesSent) }}
-                    </div>
+                    @if ($invoicesSent)
+                        <div class="pull-right" style="font-size:14px;padding-top:4px">
+                            {{ trans_choice('texts.invoices_sent', $invoicesSent) }}
+                        </div>
+                    @endif
                 </h3>
             </div>
             <ul class="panel-body list-group" style="height:276px;overflow-y:auto;">
