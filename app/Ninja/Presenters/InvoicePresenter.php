@@ -14,6 +14,14 @@ class InvoicePresenter extends EntityPresenter {
         return $this->entity->user->getDisplayName();
     }
 
+    public function amount()
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        return $account->formatMoney($invoice->amount, $invoice->client);
+    }
+
     public function balanceDueLabel()
     {
         if ($this->entity->partial > 0) {

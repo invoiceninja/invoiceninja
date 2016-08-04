@@ -85,6 +85,7 @@ Route::match(['GET', 'POST'], '/buy_now/{gateway_type?}', 'OnlinePaymentControll
 
 Route::post('/hook/email_bounced', 'AppController@emailBounced');
 Route::post('/hook/email_opened', 'AppController@emailOpened');
+Route::any('/hook/bot/{platform?}', 'BotController@handleMessage');
 Route::post('/payment_hook/{accountKey}/{gatewayId}', 'OnlinePaymentController@handlePaymentWebhook');
 
 // Laravel auth routes
@@ -609,7 +610,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.6.7' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.6.8' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -627,6 +628,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('OFX_HOME_URL', env('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all'));
     define('GOOGLE_ANALYITCS_URL', env('GOOGLE_ANALYITCS_URL', 'https://www.google-analytics.com/collect'));
     define('MSBOT_LOGIN_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/token');
+    define('MSBOT_LUIS_URL', 'https://api.projectoxford.ai/luis/v1/application');
+    define('SKYPE_API_URL', 'https://apis.skype.com/v3');
 
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
 

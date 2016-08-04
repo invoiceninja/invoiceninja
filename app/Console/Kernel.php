@@ -23,7 +23,6 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\SendReminders',
         'App\Console\Commands\GenerateResources',
         'App\Console\Commands\TestOFX',
-        'App\Console\Commands\TestBot',
     ];
 
     /**

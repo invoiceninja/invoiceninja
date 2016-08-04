@@ -2051,6 +2051,7 @@ $LANG = array(
 
     'gateway_config_error' => 'It may help to set new passwords or generate new API keys.',
     'payment_type_on_file' => ':type on file',
+    'invoice_for_client' => 'Invoice :invoice for :client',
 
 );
 
