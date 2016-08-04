@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PaymentStatus;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -20,7 +21,26 @@ class PaymentsChanges extends Migration
             $table->string('name');
         });
 
-        (new \PaymentStatusSeeder())->run();
+        $statuses = [
+            ['id' => '1', 'name' => 'Pending'],
+            ['id' => '2', 'name' => 'Voided'],
+            ['id' => '3', 'name' => 'Failed'],
+            ['id' => '4', 'name' => 'Completed'],
+            ['id' => '5', 'name' => 'Partially Refunded'],
+            ['id' => '6', 'name' => 'Refunded'],
+        ];
+
+        Eloquent::unguard();
+        foreach ($statuses as $status) {
+            $record = PaymentStatus::find($status['id']);
+            if ($record) {
+                $record->name = $status['name'];
+                $record->save();
+            } else {
+                PaymentStatus::create($status);
+            }
+        }
+        Eloquent::reguard();
 
         Schema::dropIfExists('payment_methods');
 
@@ -92,7 +112,7 @@ class PaymentsChanges extends Migration
             $table->foreign('default_payment_method_id')->references('id')->on('payment_methods');
 
         });
-        
+
     }
 
     /**
