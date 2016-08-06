@@ -32,6 +32,17 @@ elixir.config.js.folder = '';
 elixir.config.css.folder = '';
 
 /**
+ * Remove all CSS comments
+ *
+ * @type {{discardComments: {removeAll: boolean}}}
+ */
+elixir.config.css.cssnano.pluginOptions = {
+    discardComments: {
+        removeAll: true
+    }
+};
+
+/**
  * Directory for bower source files.
  * If changing this, please also see .bowerrc
  *
