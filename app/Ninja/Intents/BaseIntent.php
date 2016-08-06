@@ -5,15 +5,22 @@ class BaseIntent
 {
     protected $parameters;
 
-    public function __construct($parameters)
+    public function __construct($data)
     {
-        $this->parameters = $parameters;
+        $this->data = $data;
     }
 
-    public static function createIntent($intentType, $parameters)
+    public static function createIntent($data)
     {
+        if ( ! count($data->intents)) {
+            return false;
+        }
+
+        $intent = $data->intents[0];
+        $intentType = $intent->intent;
+
         $className = "App\\Ninja\\Intents\\{$intentType}Intent";
-        return new $className($parameters);
+        return new $className($data);
     }
 
     public function process()

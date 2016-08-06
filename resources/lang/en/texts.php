@@ -2052,6 +2052,8 @@ $LANG = array(
     'gateway_config_error' => 'It may help to set new passwords or generate new API keys.',
     'payment_type_on_file' => ':type on file',
     'invoice_for_client' => 'Invoice :invoice for :client',
+    'intent_not_found' => 'Sorry, I\'m not sure what you\'re asking.',
+    'client_not_found' => 'We weren\'t able to find the client',
 
 );
 
