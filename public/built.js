@@ -31206,6 +31206,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
         'notesAndTerms': NINJA.notesAndTerms(invoice),
+        'invoiceNotes': NINJA.invoiceNotes(invoice),
+        'invoiceTerms': NINJA.invoiceTerms(invoice),
         'subtotals': NINJA.subtotals(invoice),
         'subtotalsHeight': (NINJA.subtotals(invoice).length * 16) + 16,
         'subtotalsWithoutBalance': NINJA.subtotals(invoice, true),
@@ -31312,6 +31314,30 @@ NINJA.notesAndTerms = function(invoice)
     }
 
     return NINJA.prepareDataList(data, 'notesAndTerms');
+}
+
+NINJA.invoiceNotes = function(invoice)
+{
+    var data = [];
+
+    if (invoice.public_notes) {
+        data.push({text:invoiceLabels.notes, style: ['termsLabel']});
+        data.push({stack:[{text: invoice.public_notes, style: ['notes']}]});
+    }
+
+    return NINJA.prepareDataList(data, 'invoiceNotes');
+}
+
+NINJA.invoiceTerms = function(invoice)
+{
+    var data = [];
+
+    if (invoice.terms) {
+        data.push({text:invoiceLabels.terms, style: ['termsLabel']});
+        data.push({stack:[{text: invoice.terms, style: ['terms']}]});
+    }
+
+    return NINJA.prepareDataList(data, 'invoiceTerms');
 }
 
 NINJA.invoiceColumns = function(invoice)

@@ -1055,6 +1055,7 @@ class Account extends Eloquent
             'balance_due',
             'partial_due',
             'terms',
+            'notes',
             'your_invoice',
             'quote',
             'your_quote',
