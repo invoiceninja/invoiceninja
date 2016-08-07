@@ -2055,6 +2055,7 @@ $LANG = array(
     'intent_not_found' => 'Sorry, I\'m not sure what you\'re asking.',
     'intent_not_supported' => 'Sorry, I\'m not able to do that.',
     'client_not_found' => 'We weren\'t able to find the client',
+    'not_allowed' => 'Sorry, you don\'t have the needed permissions',
 
 );
 

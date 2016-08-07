@@ -8,6 +8,20 @@
                 'invoice' => link_to($invoice->getRoute(), $invoice->invoice_number),
                 'client' => link_to($invoice->client->getRoute(), $invoice->client->getDisplayName())
             ]) !!}',
+            "facts": [
+                {
+                    "key": "{{ trans('texts.email') }}:",
+                    "value": "{!! addslashes(HTML::mailto($invoice->client->contacts[0]->email)->toHtml()) !!}"
+                },
+                {
+                    "key": "{{ trans('texts.paid_to_date') }}:",
+                    "value": "{{ $invoice->client->present()->paid_to_date }}"
+                },
+                {
+                    "key": "{{ trans('texts.balance') }}:",
+                    "value": "{{ $invoice->client->present()->balance }}"
+                }
+            ],
             "items":[
                 @foreach ($invoice->invoice_items as $item)
                     @if ($invoice->invoice_items[0] != $item)
