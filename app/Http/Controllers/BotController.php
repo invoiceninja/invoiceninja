@@ -2,20 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Ninja\Repositories\InvoiceRepository;
+use Exception;
 use App\Ninja\Intents\BaseIntent;
 
 class BotController extends Controller
 {
-    protected $invoiceRepo;
-
-    public function __construct(InvoiceRepository $invoiceRepo)
-    {
-        //parent::__construct();
-
-        $this->invoiceRepo = $invoiceRepo;
-    }
-
     public function handleMessage($platform)
     {
         $message = 'invoice acme client for 2 tickets';
@@ -24,6 +15,35 @@ class BotController extends Controller
         //$message = view('bots.skype.message', ['message' => 'testing'])->render();
         //return $this->sendResponse($to, $message);
 
+        $message = '{
+  "type": "message/image",
+  "text": "Test message",
+  "attachments": [
+	{
+  	"contentType": "application/pdf",
+    "contentUrl": "http://www.orimi.com/pdf-test.pdf",
+    "thumbnailUrl": "http://www.orimi.com/pdf-test.pdf",
+    "filename": "test.pdf"
+	}
+  ]
+}';
+        return $this->sendResponse($to, $message);
+
+        try {
+            $data = $this->parseMessage($message);
+            $intent = BaseIntent::createIntent($data);
+            $message = $intent->process();
+        } catch (Exception $exception) {
+            $message = view('bots.skype.message', [
+                'message' => $exception->getMessage()
+            ])->render();
+        }
+
+        $this->sendResponse($to, $message);
+    }
+
+    private function parseMessage($message)
+    {
         $appId = env('MSBOT_LUIS_APP_ID');
         $subKey = env('MSBOT_LUIS_SUBSCRIPTION_KEY');
         $message = rawurlencode($message);
@@ -34,13 +54,7 @@ class BotController extends Controller
 
         var_dump($data->compositeEntities);
 
-        if ($intent = BaseIntent::createIntent($data)) {
-            $message = $intent->process();
-        } else {
-            $message = view('bots.skype.message', ['message' => trans('texts.intent_not_found')])->render();
-        }
-
-        $this->sendResponse($to, $message);
+        return $data;
     }
 
     private function sendResponse($to, $message)

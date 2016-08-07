@@ -2053,6 +2053,7 @@ $LANG = array(
     'payment_type_on_file' => ':type on file',
     'invoice_for_client' => 'Invoice :invoice for :client',
     'intent_not_found' => 'Sorry, I\'m not sure what you\'re asking.',
+    'intent_not_supported' => 'Sorry, I\'m not able to do that.',
     'client_not_found' => 'We weren\'t able to find the client',
 
 );

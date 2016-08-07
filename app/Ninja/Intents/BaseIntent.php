@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Intents;
 
+use Exception;
 
 class BaseIntent
 {
@@ -13,14 +14,19 @@ class BaseIntent
     public static function createIntent($data)
     {
         if ( ! count($data->intents)) {
-            return false;
+            throw new Exception(trans('texts.intent_not_found'));
         }
 
         $intent = $data->intents[0];
         $intentType = $intent->intent;
-
+        
         $className = "App\\Ninja\\Intents\\{$intentType}Intent";
-        return new $className($data);
+
+        if ( ! class_exists($className)) {
+            throw new Exception(trans('texts.intent_not_supported'));
+        }
+
+        return (new $className($data));
     }
 
     public function process()
