@@ -264,4 +264,14 @@ class NinjaController extends BaseController
         }
     }
 
+    private function error($type, $error, $accountGateway = false, $exception = false)
+    {
+        $message = '';
+        if ($accountGateway && $accountGateway->gateway) {
+            $message = $accountGateway->gateway->name . ': ';
+        }
+        $message .= $error ?: trans('texts.payment_error');
+        Session::flash('error', $message);
+        Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
+    }
 }
