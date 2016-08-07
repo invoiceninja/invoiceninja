@@ -773,7 +773,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     // Pro users who started paying on or before this date will be able to manage users
     define('PRO_USERS_GRANDFATHER_DEADLINE', '2016-06-04');
-    define('EXTRAS_GRANDFATHER_COMPANY_ID', 0);
+    define('EXTRAS_GRANDFATHER_COMPANY_ID', 35089);
 
     // WePay
     define('WEPAY_PRODUCTION', 'production');
