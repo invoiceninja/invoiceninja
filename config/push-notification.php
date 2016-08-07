@@ -4,13 +4,13 @@ return [
 
     'devNinjaIOS'     => [
         'environment' =>'development',
-        'certificate'=>storage_path().'/ninjaIOS.pem',
+        'certificate' =>storage_path().'/ninjaIOS.pem',
         'passPhrase'  =>'',
         'service'     =>'apns'
     ],
     'ninjaIOS'     => [
         'environment' =>'production',
-        'certificate'=>storage_path().'/productionNinjaIOS.pem',
+        'certificate' =>storage_path().'/productionNinjaIOS.pem',
         'passPhrase'  =>'',
         'service'     =>'apns'
     ],
