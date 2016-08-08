@@ -38,20 +38,46 @@ class BaseIntent
         // do nothing by default
     }
 
-    public function addState($entities)
+    public function setState($entityType, $entities)
     {
-        var_dump($this->state);
-        if (isset($this->state->current)) {
-            $this->state->previous = $this->state->current;
+        $state = $this->state;
+
+        if (isset($state->current->$entityType)) {
+            if ( ! isset($state->previous)) {
+                $state->previous = new stdClass;
+            }
+
+            $state->previous->$entityType = $state->current->$entityType;
         }
 
+        if ( ! isset($state->current)) {
+            $state->current = new stdClass;
+        }
 
-        $this->state->current = $entities;
+        if ($entities) {
+            $state->current->$entityType = $entities;
+        }
     }
 
     public function getState()
     {
         return $this->state;
+    }
+
+    public function getCurrentState($entityType = false, $first = false)
+    {
+        $current = $this->state->current;
+        $value = $entityType ? $current->$entityType : $current;
+
+        if ($value) {
+            if ($first && count($value)) {
+                return $value[0];
+            } else {
+                return $value;
+            }
+        } else {
+            return [];
+        }
     }
 
     protected function parseClient()

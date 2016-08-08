@@ -141,7 +141,7 @@ class ClientRepository extends BaseRepository
         $max = 0;
         $clientId = 0;
 
-        $clients = Client::scope()->get(['id', 'name']);
+        $clients = Client::scope()->get(['id', 'name', 'public_id']);
 
         foreach ($clients as $client) {
             if ( ! $client->name) {
@@ -157,7 +157,7 @@ class ClientRepository extends BaseRepository
             }
         }
 
-        $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name']);
+        $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name', 'public_id']);
 
         foreach ($contacts as $contact) {
             if ( ! $contact->getFullName()) {

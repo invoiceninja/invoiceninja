@@ -11,7 +11,7 @@ class BotController extends Controller
     public function handleMessage($platform)
     {
         $to = '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts';
-        $message = 'invoice acme client for 2 tickets';
+        $message = 'add 8 tickets';
         //$message = view('bots.skype.message', ['message' => $message])->render();
         //return $this->sendResponse($to, $message);
 
@@ -93,6 +93,7 @@ class BotController extends Controller
         ];
 
         $data = '{ eTag: "*", data: "' . addslashes(json_encode($data)) . '" }';
+        //$data = '{ eTag: "*", data: "" }';
         var_dump($data);
         $response = CurlUtils::post($url, $data, $headers);
 

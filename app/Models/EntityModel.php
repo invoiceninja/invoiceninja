@@ -202,9 +202,10 @@ class EntityModel extends Eloquent
      * @param $entityType
      * @return bool|string
      */
-    public static function validate($data, $entityType, $action = 'create')
+    public static function validate($data, $entityType, $entity = false)
     {
         // Use the API request if it exists
+        $action = $entity ? 'update' : 'create';
         $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), ucwords($entityType));
         if ( ! class_exists($requestClass)) {
             $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), ucwords($entityType));
@@ -212,6 +213,7 @@ class EntityModel extends Eloquent
 
         $request = new $requestClass();
         $request->setUserResolver(function() { return Auth::user(); });
+        $request->setEntity($entity);
         $request->replace($data);
 
         if ( ! $request->authorize()) {
