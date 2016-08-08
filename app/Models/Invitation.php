@@ -18,6 +18,14 @@ class Invitation extends EntityModel
     /**
      * @return mixed
      */
+    public function getEntityType()
+    {
+        return ENTITY_INVITATION;
+    }
+
+    /**
+     * @return mixed
+     */
     public function invoice()
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
