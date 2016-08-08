@@ -439,7 +439,7 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         $account->load('account_gateways');
         $count = count($account->account_gateways);
-        $trashedCount = AccountGateway::scope($account->id)->withTrashed()->count();
+        $trashedCount = AccountGateway::scope()->withTrashed()->count();
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
             if (! $accountGateway->getPublishableStripeKey()) {
