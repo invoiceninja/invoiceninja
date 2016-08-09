@@ -36,7 +36,7 @@ elixir.config.css.folder = '';
  *
  * @type {{discardComments: {removeAll: boolean}}}
  */
-elixir.config.css.cssnano.pluginOptions = {
+elixir.config.css.minifier.pluginOptions = {
     discardComments: {
         removeAll: true
     }
