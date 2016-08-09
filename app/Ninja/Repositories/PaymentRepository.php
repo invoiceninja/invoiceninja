@@ -180,12 +180,11 @@ class PaymentRepository extends BaseRepository
             if ($paymentTypeId == PAYMENT_TYPE_CREDIT) {
                 $credits = Credit::scope()->where('client_id', '=', $clientId)
                             ->where('balance', '>', 0)->orderBy('created_at')->get();
-                $applied = 0;
 
+                $remaining = $amount;
                 foreach ($credits as $credit) {
-                    $applied += $credit->apply($amount);
-
-                    if ($applied >= $amount) {
+                    $remaining -= $credit->apply($remaining);
+                    if ( ! $remaining) {
                         break;
                     }
                 }
