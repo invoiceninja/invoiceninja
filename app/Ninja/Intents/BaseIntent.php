@@ -11,8 +11,22 @@ class BaseIntent
 
     public function __construct($state, $data)
     {
-        $this->state = $state ?: new stdClass;
+        //if (true) {
+        if ( ! $state) {
+            $state = new stdClass;
+            foreach (['current', 'previous'] as $reference) {
+                $state->$reference = new stdClass;
+                $state->$reference->entityType = false;
+                foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
+                    $state->$reference->$entityType = [];
+                }
+            }
+        }
+
+        $this->state = $state;
         $this->data = $data;
+
+        var_dump($state);
     }
 
     public static function createIntent($state, $data)
@@ -21,10 +35,11 @@ class BaseIntent
             throw new Exception(trans('texts.intent_not_found'));
         }
 
-        $intent = $data->intents[0];
-        $intentType = $intent->intent;
+        $intent = $data->intents[0]->intent;
+        $entityType = false;
 
-        $className = "App\\Ninja\\Intents\\{$intentType}Intent";
+        echo "Intent: $intent<p>";
+        $className = "App\\Ninja\\Intents\\{$intent}Intent";
 
         if ( ! class_exists($className)) {
             throw new Exception(trans('texts.intent_not_supported'));
@@ -33,51 +48,62 @@ class BaseIntent
         return (new $className($state, $data));
     }
 
+
     public function process()
     {
         // do nothing by default
     }
 
-    public function setState($entityType, $entities)
+    public function setEntities($entityType, $entities)
+    {
+        if ( ! is_array($entities)) {
+            $entities = [$entities];
+        }
+
+        $state = $this->state;
+
+        $state->previous->$entityType = $state->current->$entityType;
+        $state->current->$entityType = $entities;
+    }
+
+    public function setEntityType($entityType)
     {
         $state = $this->state;
 
-        if (isset($state->current->$entityType)) {
-            if ( ! isset($state->previous)) {
-                $state->previous = new stdClass;
-            }
-
-            $state->previous->$entityType = $state->current->$entityType;
+        if ($state->current->entityType == $entityType) {
+            return;
         }
 
-        if ( ! isset($state->current)) {
-            $state->current = new stdClass;
-        }
-
-        if ($entities) {
-            $state->current->$entityType = $entities;
-        }
+        $state->previous->entityType = $state->current->entityType;
+        $state->current->entityType = $entityType;
     }
+
+    public function entities($entityType)
+    {
+        return $this->state->current->$entityType;
+    }
+
+    public function entity($entityType)
+    {
+        $entities = $this->state->current->$entityType;
+
+        return count($entities) ? $entities[0] : false;
+    }
+
+    public function previousEntities($entityType)
+    {
+        return $this->state->previous->$entityType;
+    }
+
+    public function entityType()
+    {
+        return $this->state->current->entityType;
+    }
+
 
     public function getState()
     {
         return $this->state;
-    }
-
-    public function getCurrentState($entityType = false, $first = false)
-    {
-        $current = $this->state->current;
-        $value = $entityType ? $current->$entityType : $current;
-
-        if ($value) {
-            if ($first && count($value)) {
-                return $value[0];
-            } else {
-                return $value;
-            }
-        } else {
-            return [];
-        }
     }
 
     protected function parseClient()
@@ -95,35 +121,61 @@ class BaseIntent
         return $client;
     }
 
-    protected function parseInvoiceItems()
+    protected function parseFields()
     {
-        $productRepo = app('App\Ninja\Repositories\ProductRepository');
+        $data = [];
 
-        $invoiceItems = [];
+        foreach ($this->data->compositeEntities as $compositeEntity) {
+            if ($compositeEntity->parentType != 'FieldValuePair') {
+                continue;
+            }
 
-        if ( ! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
-            return [];
-        }
+            $field = false;
+            $value = false;
 
-        foreach ($this->data->compositeEntities as $entity) {
-            if ($entity->parentType == 'InvoiceItem') {
-                $product = false;
-                $qty = 1;
-                foreach ($entity->children as $child) {
-                    if ($child->type == 'Product') {
-                        $product = $productRepo->findPhonetically($child->value);
-                    } else {
-                        $qty = $child->value;
-                    }
+            foreach ($compositeEntity->children as $child) {
+                if ($child->type == 'Field') {
+                    $field = $child->value;;
+                } elseif ($child->type == 'Value') {
+                    $value = $child->value;
                 }
+            }
 
-                $item = $product->toArray();
-                $item['qty'] = $qty;
-                $invoiceItems[] = $item;
+            if ($field && $value) {
+                $field = $this->processField($field);
+                $value = $this->processValue($value);
+
+                $data[$field] = $value;
             }
         }
 
-        return $invoiceItems;
+        return $data;
+    }
+
+    protected function processField($field)
+    {
+        $field = str_replace(' ', '_', $field);
+
+        if (strpos($field, 'date') !== false) {
+            $field .= '_sql';
+        }
+
+        return $field;
+    }
+
+    protected function processValue($value)
+    {
+        // look for LUIS pre-built entity matches
+        foreach ($this->data->entities as $entity) {
+            if ($entity->entity === $value) {
+                if ($entity->type == 'builtin.datetime.date') {
+                    $value = $entity->resolution->date;
+                    $value = str_replace('XXXX', date('Y'), $value);
+                }
+            }
+        }
+
+        return $value;
     }
 
 }

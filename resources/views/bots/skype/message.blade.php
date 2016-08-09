@@ -1,4 +1,4 @@
 {
     "type": "message/text",
-    "text": "{!! $message !!}"
+    "text": "{!! addslashes($message) !!}"
 }

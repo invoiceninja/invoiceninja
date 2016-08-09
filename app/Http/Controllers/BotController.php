@@ -11,17 +11,19 @@ class BotController extends Controller
     public function handleMessage($platform)
     {
         $to = '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts';
-        //$message = 'create a new invoice for Jenifer Altenwerth ';
-        $message = 'add 2 items';
+        //$message = 'create a new invoice for Mr. Gino  ';
+        $message = 'add 1 item';
+        //$message = 'set the cost to 20';
+        //$message = 'send the invoice';
+
         //$message = view('bots.skype.message', ['message' => $message])->render();
         //return $this->sendResponse($to, $message);
 
+        echo "Message: $message <p>";
         $token = $this->authenticate();
 
         //try {
             $state = $this->loadState($token);
-            var_dump($state);
-
             $data = $this->parseMessage($message);
 
             $intent = BaseIntent::createIntent($state, $data);
@@ -78,8 +80,6 @@ class BotController extends Controller
         $data = file_get_contents($url);
         $data = json_decode($data);
 
-        var_dump($data);
-
         return $data;
     }
 
@@ -111,6 +111,7 @@ class BotController extends Controller
 
         $response = CurlUtils::post($url, $message, $headers);
 
+        var_dump($message);
         var_dump($response);
     }
 
