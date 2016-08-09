@@ -32,7 +32,7 @@ class CreateInvoiceItemsIntent extends BaseIntent
             return $item['public_id'];
         }, $invoiceItems);
 
-        $this->setState(ENTITY_INVOICE_ITEM, [$invoiceItemId]);
+        $this->setState(ENTITY_INVOICE_ITEM, $invoiceItemIds);
 
         return view('bots.skype.invoice', [
                 'invoice' => $invoice

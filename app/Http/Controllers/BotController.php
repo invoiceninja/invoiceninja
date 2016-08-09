@@ -11,7 +11,8 @@ class BotController extends Controller
     public function handleMessage($platform)
     {
         $to = '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts';
-        $message = 'add 8 tickets';
+        //$message = 'create a new invoice for Jenifer Altenwerth ';
+        $message = 'add 2 items';
         //$message = view('bots.skype.message', ['message' => $message])->render();
         //return $this->sendResponse($to, $message);
 
@@ -77,7 +78,7 @@ class BotController extends Controller
         $data = file_get_contents($url);
         $data = json_decode($data);
 
-        var_dump($data->compositeEntities);
+        var_dump($data);
 
         return $data;
     }

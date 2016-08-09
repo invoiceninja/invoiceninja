@@ -262,6 +262,7 @@ class InvoiceRepository extends BaseRepository
 
         if ($invoice) {
             // do nothing
+            $entityType = $invoice->getEntityType();
         } elseif ($isNew) {
             $entityType = ENTITY_INVOICE;
             if (isset($data['is_recurring']) && filter_var($data['is_recurring'], FILTER_VALIDATE_BOOLEAN)) {

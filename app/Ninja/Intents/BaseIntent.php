@@ -101,6 +101,10 @@ class BaseIntent
 
         $invoiceItems = [];
 
+        if ( ! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
+            return [];
+        }
+
         foreach ($this->data->compositeEntities as $entity) {
             if ($entity->parentType == 'InvoiceItem') {
                 $product = false;
