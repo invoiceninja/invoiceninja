@@ -9,6 +9,14 @@ use DB;
 class Document extends EntityModel
 {
     /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_DOCUMENT;
+    }
+
+    /**
      * @var array
      */
     protected $fillable = [

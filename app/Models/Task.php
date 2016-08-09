@@ -15,6 +15,14 @@ class Task extends EntityModel
     use PresentableTrait;
 
     /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_TASK;
+    }
+
+    /**
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\TaskPresenter';
