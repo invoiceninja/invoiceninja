@@ -49,6 +49,6 @@ class UpdateInvoiceIntent extends InvoiceIntent
             ->present()
             ->skypeBot;
 
-        return $this->createResponse('message/card.receipt', $response);
+        return $this->createResponse(SKYPE_CARD_RECEIPT, $response);
     }
 }

@@ -203,7 +203,9 @@ class BaseIntent
         if (is_string($content)) {
             $response->setText($content);
         } else {
-            if ( ! is_array($content)) {
+            if ($content instanceof \Illuminate\Database\Eloquent\Collection) {
+                // do nothing
+            } elseif ( ! is_array($content)) {
                 $content = [$content];
             }
 

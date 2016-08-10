@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -7,11 +8,17 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class Product extends EntityModel
 {
+    use PresentableTrait;
     use SoftDeletes;
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\ProductPresenter';
 
     /**
      * @var array

@@ -2057,6 +2057,8 @@ $LANG = array(
     'client_not_found' => 'We weren\'t able to find the client',
     'not_allowed' => 'Sorry, you don\'t have the needed permissions',
     'bot_emailed_invoice' => 'Your invoice has been emailed',
+    'add_to_invoice' => 'Add to invoice',
+    'add_to_invoice_command' => 'Add 1 :product',
 
 );
 

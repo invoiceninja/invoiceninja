@@ -38,6 +38,6 @@ class CreateInvoiceIntent extends InvoiceIntent
         $this->setEntities(ENTITY_INVOICE, $invoice->public_id);
         $this->setEntities(ENTITY_INVOICE_ITEM, $invoiceItemIds);
 
-        return $this->createResponse('message/card.receipt', $invoice->present()->skypeBot);
+        return $this->createResponse(SKYPE_CARD_RECEIPT, $invoice->present()->skypeBot);
     }
 }

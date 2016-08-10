@@ -1,5 +1,7 @@
 <?php namespace App\Libraries\Skype;
 
+use stdClass;
+
 class HeroCard
 {
     public function __construct()
@@ -19,8 +21,13 @@ class HeroCard
         $this->content->subtitle = $subtitle;
     }
 
-    public function addButton($button)
+    public function setText($text)
     {
-        $this->content->buttons[] = $button;
+        $this->content->text = $text;
+    }
+
+    public function addButton($type, $title, $value)
+    {
+        $this->content->buttons[] = new ButtonCard($type, $title, $value);
     }
 }

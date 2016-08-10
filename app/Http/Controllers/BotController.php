@@ -13,10 +13,10 @@ class BotController extends Controller
     {
         $to = '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts';
         //$message = 'new invoice for john for 2 items due tomorrow';
-        //$message = 'create a new invoice for john smith for 2 tickets, set the invoice date to today, the due date to tomorrow, the deposit to 5 and the discount set to 10 percent';
+        $message = 'invoice acme client for 3 months support, set due date to next thursday and the discount to 10 percent';
         //$message = 'create a new invoice for john smith with a due date of September 7th';
         //$message = 'create a new invoice for john';
-        $message = 'add 2 tickets and set the due date to yesterday';
+        //$message = 'add 2 tickets and set the due date to yesterday';
         //$message = 'set the po number to 0004';
         //$message = 'set the quantity to 20';
         //$message = 'send the invoice';
@@ -80,7 +80,7 @@ class BotController extends Controller
         $url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
         $data = file_get_contents($url);
         $data = json_decode($data);
-
+        dd($data);
         return $data;
     }
 

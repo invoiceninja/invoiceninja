@@ -797,6 +797,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('WEPAY_APP_FEE_MULTIPLIER', env('WEPAY_APP_FEE_MULTIPLIER', 0.002));
     define('WEPAY_APP_FEE_FIXED', env('WEPAY_APP_FEE_MULTIPLIER', 0.00));
 
+    define('SKYPE_CARD_RECEIPT', 'message/card.receipt');
+    define('SKYPE_CARD_CAROUSEL', 'message/card.carousel');
+    define('SKYPE_CARD_HERO', '');
+
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
