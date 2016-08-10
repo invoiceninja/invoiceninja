@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Utils;
 use Exception;
 use App\Libraries\Skype\SkypeResponse;
 use App\Libraries\CurlUtils;
