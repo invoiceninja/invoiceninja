@@ -80,7 +80,7 @@ class BotController extends Controller
         $url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
         $data = file_get_contents($url);
         $data = json_decode($data);
-        dd($data);
+        
         return $data;
     }
 
