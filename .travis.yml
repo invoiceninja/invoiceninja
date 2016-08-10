@@ -9,6 +9,9 @@ php:
 #  - 7.0
 #  - hhvm
 
+rvm:
+  - 1.9.3
+
 addons:
   hosts:
     - ninja.dev
