@@ -2059,7 +2059,7 @@ $LANG = array(
     'bot_emailed_invoice' => 'Your invoice has been emailed',
     'add_to_invoice' => 'Add to invoice',
     'add_to_invoice_command' => 'Add 1 :product',
-
+    'not_authorized' => 'Your are not authorized',
 );
 
 return $LANG;

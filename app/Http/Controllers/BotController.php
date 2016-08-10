@@ -11,6 +11,15 @@ class BotController extends Controller
 {
     public function handleMessage($platform)
     {
+        $headers = getallheaders();
+        $token = isset($headers['Authorization']) ? $headers['Authorization'] : false;
+
+        if (Utils::isNinjaDev()) {
+            // skip validation for testing
+        } elseif ( ! $this->validateToken($token)) {
+            SkypeResponse::message(trans('texts.not_authorized'));
+        }
+
         $to = '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts';
         //$message = 'new invoice for john for 2 items due tomorrow';
         $message = 'invoice acme client for 3 months support, set due date to next thursday and the discount to 10 percent';
@@ -80,7 +89,7 @@ class BotController extends Controller
         $url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
         $data = file_get_contents($url);
         $data = json_decode($data);
-        
+
         return $data;
     }
 
@@ -110,6 +119,71 @@ class BotController extends Controller
 
         echo "<pre>" . htmlentities(json_encode(json_decode($message), JSON_PRETTY_PRINT)) . "</pre>";
         var_dump($response);
+    }
+
+    private function validateToken($token)
+    {
+        if ( ! $token) {
+            return false;
+        }
+
+        // https://blogs.msdn.microsoft.com/tsmatsuz/2016/07/12/developing-skype-bot/
+        // 0:Invalid, 1:Valid
+        $token_valid = 0;
+
+        // 1 separate token by dot (.)
+        $token_arr = explode('.', $token);
+        $headers_enc = $token_arr[0];
+        $claims_enc = $token_arr[1];
+        $sig_enc = $token_arr[2];
+
+        // 2 base 64 url decoding
+        $headers_arr = json_decode($this->base64_url_decode($headers_enc), TRUE);
+        $claims_arr = json_decode($this->base64_url_decode($claims_enc), TRUE);
+        $sig = $this->base64_url_decode($sig_enc);
+
+        // 3 get key list
+        $keylist = file_get_contents('https://api.aps.skype.com/v1/keys');
+        $keylist_arr = json_decode($keylist, TRUE);
+        foreach($keylist_arr['keys'] as $key => $value) {
+
+            // 4 select one key (which matches)
+            if($value['kid'] == $headers_arr['kid']) {
+
+                // 5 get public key from key info
+                $cert_txt = '-----BEGIN CERTIFICATE-----' . "\n" . chunk_split($value['x5c'][0], 64) . '-----END CERTIFICATE-----';
+                $cert_obj = openssl_x509_read($cert_txt);
+                $pkey_obj = openssl_pkey_get_public($cert_obj);
+                $pkey_arr = openssl_pkey_get_details($pkey_obj);
+                $pkey_txt = $pkey_arr['key'];
+
+                // 6 verify signature
+                $token_valid = openssl_verify($headers_enc . '.' . $claims_enc, $sig, $pkey_txt, OPENSSL_ALGO_SHA256);
+            }
+        }
+
+        // 7 show result
+        return ($token_valid == 1);
+    }
+
+    private function base64_url_decode($arg) {
+        $res = $arg;
+        $res = str_replace('-', '+', $res);
+        $res = str_replace('_', '/', $res);
+        switch (strlen($res) % 4) {
+            case 0:
+                break;
+            case 2:
+                $res .= "==";
+                break;
+            case 3:
+                $res .= "=";
+                break;
+            default:
+                break;
+        }
+        $res = base64_decode($res);
+        return $res;
     }
 
 }
