@@ -12,15 +12,25 @@
                 {
                     "key": "{{ trans('texts.email') }}:",
                     "value": "{!! addslashes(HTML::mailto($invoice->client->contacts[0]->email)->toHtml()) !!}"
-                },
-                {
-                    "key": "{{ trans('texts.paid_to_date') }}:",
-                    "value": "{{ $invoice->client->present()->paid_to_date }}"
-                },
-                {
-                    "key": "{{ trans('texts.balance') }}:",
-                    "value": "{{ $invoice->client->present()->balance }}"
                 }
+                @if ($invoice->due_date)
+                    , {
+                        "key": "{{ $invoice->present()->dueDateLabel }}:",
+                        "value": "{{ $invoice->present()->due_date }}"
+                    }
+                @endif
+                @if ($invoice->po_number)
+                    , {
+                        "key": "{{ trans('texts.po_number') }}:",
+                        "value": "{{ $invoice->po_number }}"
+                    }
+                @endif
+                @if ($invoice->discount)
+                    , {
+                        "key": "{{ trans('texts.discount') }}:",
+                        "value": "{{ $invoice->present()->discount }}"
+                    }
+                @endif
             ],
             "items":[
                 @foreach ($invoice->invoice_items as $item)
@@ -38,7 +48,7 @@
             @if (false)
                 "tax":"0.00",
             @endif
-            "total":"{{ $invoice->present()->amount }}",
+            "total":"{{ $invoice->present()->requestedAmount }}",
             "buttons":[
                 {
                    "type":"imBack",

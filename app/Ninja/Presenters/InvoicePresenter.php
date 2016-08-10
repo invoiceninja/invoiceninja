@@ -1,6 +1,7 @@
 <?php namespace App\Ninja\Presenters;
 
 use Utils;
+use App\Libraries\Skype\InvoiceCard;
 
 class InvoicePresenter extends EntityPresenter {
 
@@ -22,6 +23,14 @@ class InvoicePresenter extends EntityPresenter {
         return $account->formatMoney($invoice->amount, $invoice->client);
     }
 
+    public function requestedAmount()
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        return $account->formatMoney($invoice->getRequestedAmount(), $invoice->client);
+    }
+
     public function balanceDueLabel()
     {
         if ($this->entity->partial > 0) {
@@ -30,6 +39,26 @@ class InvoicePresenter extends EntityPresenter {
             return 'total';
         } else {
             return 'balance_due';
+        }
+    }
+
+    public function dueDateLabel()
+    {
+        if ($this->entity->isType(INVOICE_TYPE_STANDARD)) {
+            return trans('texts.due_date');
+        } else {
+            return trans('texts.valid_until');
+        }
+    }
+
+    public function discount()
+    {
+        $invoice = $this->entity;
+
+        if ($invoice->is_amount_discount) {
+            return $invoice->account->formatMoney($invoice->discount);
+        } else {
+            return $invoice->discount . '%';
         }
     }
 
@@ -106,5 +135,10 @@ class InvoicePresenter extends EntityPresenter {
         ];
 
         return trans('texts.auto_bill_notification', $data);
+    }
+
+    public function skypeBot()
+    {
+        return new InvoiceCard($this->entity);
     }
 }

@@ -4,6 +4,7 @@ use Auth;
 use Exception;
 use App\Models\EntityModel;
 use App\Models\Invoice;
+use App\Libraries\Skype\SkypeResponse;
 
 class EmailInvoiceIntent extends InvoiceIntent
 {
@@ -20,8 +21,6 @@ class EmailInvoiceIntent extends InvoiceIntent
 
         $message = trans('texts.bot_emailed_' . $invoice->getEntityType());
 
-        return view('bots.skype.message', [
-                'message' => $message
-            ])->render();
+        return SkypeResponse::message($message);
     }
 }

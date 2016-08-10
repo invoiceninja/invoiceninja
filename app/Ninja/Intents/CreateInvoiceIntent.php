@@ -11,17 +11,16 @@ class CreateInvoiceIntent extends InvoiceIntent
         $invoiceItems = $this->parseInvoiceItems();
 
         if ( ! $client) {
-            return view('bots.skype.message', [
-                    'message' => trans('texts.client_not_found')
-                ])->render();
+            throw new Exception(trans('texts.client_not_found'));
         }
 
-        $data = [
+        $data = array_merge($this->parseFields(), [
             'client_id' => $client->id,
             'invoice_items' => $invoiceItems,
-        ];
+        ]);
 
         var_dump($data);
+
         $valid = EntityModel::validate($data, ENTITY_INVOICE);
 
         if ($valid !== true) {
@@ -29,6 +28,7 @@ class CreateInvoiceIntent extends InvoiceIntent
         }
 
         $invoice = $this->invoiceRepo->save($data);
+
         $invoiceItemIds = array_map(function($item) {
             return $item['public_id'];
         }, $invoice->invoice_items->toArray());
@@ -38,8 +38,6 @@ class CreateInvoiceIntent extends InvoiceIntent
         $this->setEntities(ENTITY_INVOICE, $invoice->public_id);
         $this->setEntities(ENTITY_INVOICE_ITEM, $invoiceItemIds);
 
-        return view('bots.skype.invoice', [
-                'invoice' => $invoice
-            ])->render();
+        return $this->createResponse('message/card.receipt', $invoice->present()->skypeBot);
     }
 }

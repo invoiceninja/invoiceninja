@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Libraries\CurlUtils;
 use Exception;
+use App\Libraries\Skype\SkypeResponse;
+use App\Libraries\CurlUtils;
 use App\Ninja\Intents\BaseIntent;
 
 class BotController extends Controller
@@ -11,13 +12,15 @@ class BotController extends Controller
     public function handleMessage($platform)
     {
         $to = '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts';
-        //$message = 'create a new invoice for Mr. Gino  ';
-        $message = 'add 1 item';
-        //$message = 'set the cost to 20';
+        //$message = 'new invoice for john for 2 items due tomorrow';
+        //$message = 'create a new invoice for john smith for 2 tickets, set the invoice date to today, the due date to tomorrow, the deposit to 5 and the discount set to 10 percent';
+        //$message = 'create a new invoice for john smith with a due date of September 7th';
+        //$message = 'create a new invoice for john';
+        $message = 'add 2 tickets and set the due date to yesterday';
+        //$message = 'set the po number to 0004';
+        //$message = 'set the quantity to 20';
         //$message = 'send the invoice';
-
-        //$message = view('bots.skype.message', ['message' => $message])->render();
-        //return $this->sendResponse($to, $message);
+        //$message = 'show me my products';
 
         echo "Message: $message <p>";
         $token = $this->authenticate();
@@ -33,9 +36,7 @@ class BotController extends Controller
             $this->saveState($token, $state);
             /*
         } catch (Exception $exception) {
-            $message = view('bots.skype.message', [
-                'message' => $exception->getMessage()
-            ])->render();
+            SkypeResponse::message($exception->getMessage());
         }
         */
 
@@ -86,7 +87,6 @@ class BotController extends Controller
     private function saveState($token, $data)
     {
         $url = sprintf('%s/botstate/skype/conversations/%s', MSBOT_STATE_URL, '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts');
-        var_dump($url);
 
         $headers = [
             'Authorization: Bearer ' . $token,
@@ -94,11 +94,8 @@ class BotController extends Controller
         ];
 
         $data = '{ eTag: "*", data: "' . addslashes(json_encode($data)) . '" }';
-        //$data = '{ eTag: "*", data: "" }';
-        var_dump($data);
-        $response = CurlUtils::post($url, $data, $headers);
 
-        var_dump($response);
+        CurlUtils::post($url, $data, $headers);
     }
 
     private function sendResponse($token, $to, $message)
@@ -111,7 +108,7 @@ class BotController extends Controller
 
         $response = CurlUtils::post($url, $message, $headers);
 
-        var_dump($message);
+        echo "<pre>" . htmlentities(json_encode(json_decode($message), JSON_PRETTY_PRINT)) . "</pre>";
         var_dump($response);
     }
 

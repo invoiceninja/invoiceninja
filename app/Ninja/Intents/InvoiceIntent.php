@@ -6,6 +6,9 @@ use App\Models\Invoice;
 
 class InvoiceIntent extends BaseIntent
 {
+    private $_invoice;
+    private $_invoiceItem;
+
     public function __construct($state, $data)
     {
         $this->invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
@@ -15,6 +18,10 @@ class InvoiceIntent extends BaseIntent
 
     protected function invoice()
     {
+        if ($this->_invoice) {
+            return $this->_invoice;
+        }
+
         $invoiceId = $this->entity(ENTITY_INVOICE);
 
         if ( ! $invoiceId) {
@@ -32,6 +39,19 @@ class InvoiceIntent extends BaseIntent
         }
 
         return $invoice;
+    }
+
+    protected function invoiceItem()
+    {
+        if ($this->_invoiceItem) {
+            return $this->_invoiceItem;
+        }
+
+        $invoiceItemId = $this->entity(ENTITY_INVOICE_ITEM);
+
+        if ( ! $invoiceItemId) {
+            $invoice = $this->invoice();
+        }
     }
 
     protected function parseInvoiceItems()
@@ -58,6 +78,7 @@ class InvoiceIntent extends BaseIntent
 
                 $item = $product->toArray();
                 $item['qty'] = $qty;
+
                 $invoiceItems[] = $item;
             }
         }
@@ -65,4 +86,10 @@ class InvoiceIntent extends BaseIntent
         return $invoiceItems;
     }
 
+    protected function parseFields()
+    {
+        $data = parent::parseFields();
+
+        return $data;
+    }
 }

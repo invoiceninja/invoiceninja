@@ -3,6 +3,7 @@
 use stdClass;
 use Exception;
 use App\Libraries\CurlUtils;
+use App\Libraries\Skype\SkypeResponse;
 
 class BaseIntent
 {
@@ -26,7 +27,7 @@ class BaseIntent
         $this->state = $state;
         $this->data = $data;
 
-        var_dump($state);
+        //var_dump($state);
     }
 
     public static function createIntent($state, $data)
@@ -38,8 +39,22 @@ class BaseIntent
         $intent = $data->intents[0]->intent;
         $entityType = false;
 
-        echo "Intent: $intent<p>";
+        foreach ($data->entities as $entity) {
+            if ($entity->type === 'EntityType') {
+                $entityType = $entity->entity;
+                break;
+            }
+        }
+
+        if ( ! $entityType) {
+            $entityType = $state->current->entityType;
+        }
+
+        $entityType = ucwords(strtolower($entityType));
+        $intent = str_replace('Entity', $entityType, $intent);
         $className = "App\\Ninja\\Intents\\{$intent}Intent";
+
+        echo "Intent: $intent<p>";
 
         if ( ! class_exists($className)) {
             throw new Exception(trans('texts.intent_not_supported'));
@@ -109,11 +124,10 @@ class BaseIntent
     protected function parseClient()
     {
         $clientRepo = app('App\Ninja\Repositories\ClientRepository');
-
         $client = false;
 
         foreach ($this->data->entities as $param) {
-            if ($param->type == 'Client') {
+            if ($param->type == 'Name') {
                 $client = $clientRepo->findPhonetically($param->entity);
             }
         }
@@ -124,6 +138,10 @@ class BaseIntent
     protected function parseFields()
     {
         $data = [];
+
+        if ( ! isset($this->data->compositeEntities)) {
+            return [];
+        }
 
         foreach ($this->data->compositeEntities as $compositeEntity) {
             if ($compositeEntity->parentType != 'FieldValuePair') {
@@ -178,4 +196,22 @@ class BaseIntent
         return $value;
     }
 
+    protected function createResponse($type, $content)
+    {
+        $response = new SkypeResponse($type);
+
+        if (is_string($content)) {
+            $response->setText($content);
+        } else {
+            if ( ! is_array($content)) {
+                $content = [$content];
+            }
+
+            foreach ($content as $item) {
+                $response->addAttachment($item);
+            }
+        }
+
+        return json_encode($response);
+    }
 }
