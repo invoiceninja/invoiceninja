@@ -23,7 +23,7 @@
                         address_zip: $('#postal_code').val(),
                         address_country: $("#country_id option:selected").text(),
                         number: $('#card_number').val(),
-                        cvc: $('#cvv').val(),
+                        //cvc: $('#cvv').val(),
                         exp_month: $('#expiration_month').val(),
                         exp_year: $('#expiration_year').val()
                     };
@@ -37,9 +37,13 @@
                         $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
                         return false;
                     }
-                    if (!Stripe.card.validateCVC(data.cvc)) {
-                        $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
-                        return false;
+
+                    if ($('#cvv').val() != ' ') {
+                        data.cvv = $('#cvv').val();
+                        if (!Stripe.card.validateCVC(data.cvc)) {
+                            $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
+                            return false;
+                        }
                     }
 
                     // Disable the submit button to prevent repeated clicks
