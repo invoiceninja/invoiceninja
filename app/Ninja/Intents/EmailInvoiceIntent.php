@@ -10,7 +10,7 @@ class EmailInvoiceIntent extends InvoiceIntent
 {
     public function process()
     {
-        $invoice = $this->invoice();
+        $invoice = $this->stateInvoice();
 
         if ( ! Auth::user()->can('edit', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
@@ -20,6 +20,12 @@ class EmailInvoiceIntent extends InvoiceIntent
         $contactMailer->sendInvoice($invoice);
 
         $message = trans('texts.bot_emailed_' . $invoice->getEntityType());
+
+        if (Auth::user()->notify_viewed) {
+            $message .= '<br/>' . trans('texts.bot_emailed_notify_viewed');
+        } elseif (Auth::user()->notify_paid) {
+            $message .= '<br/>' . trans('texts.bot_emailed_notify_paid');
+        }
 
         return SkypeResponse::message($message);
     }

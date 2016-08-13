@@ -85,7 +85,7 @@ Route::match(['GET', 'POST'], '/buy_now/{gateway_type?}', 'OnlinePaymentControll
 
 Route::post('/hook/email_bounced', 'AppController@emailBounced');
 Route::post('/hook/email_opened', 'AppController@emailOpened');
-Route::any('/hook/bot/{platform?}', 'BotController@handleMessage');
+Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
 Route::post('/payment_hook/{accountKey}/{gatewayId}', 'OnlinePaymentController@handlePaymentWebhook');
 
 // Laravel auth routes
@@ -800,6 +800,21 @@ if (!defined('CONTACT_EMAIL')) {
     define('SKYPE_CARD_RECEIPT', 'message/card.receipt');
     define('SKYPE_CARD_CAROUSEL', 'message/card.carousel');
     define('SKYPE_CARD_HERO', '');
+
+    define('BOT_STATE_GET_EMAIL', 'get_email');
+    define('BOT_STATE_GET_CODE', 'get_code');
+    define('BOT_STATE_READY', 'ready');
+    define('SIMILAR_MIN_THRESHOLD', 50);
+
+    // https://docs.botframework.com/en-us/csharp/builder/sdkreference/attachments.html
+    define('SKYPE_BUTTON_OPEN_URL', 'openUrl');
+    define('SKYPE_BUTTON_IM_BACK', 'imBack');
+    define('SKYPE_BUTTON_POST_BACK', 'postBack');
+    define('SKYPE_BUTTON_CALL', 'call'); // "tel:123123123123"
+    define('SKYPE_BUTTON_PLAY_AUDIO', 'playAudio');
+    define('SKYPE_BUTTON_PLAY_VIDEO', 'playVideo');
+    define('SKYPE_BUTTON_SHOW_IMAGE', 'showImage');
+    define('SKYPE_BUTTON_DOWNLOAD_FILE', 'downloadFile');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

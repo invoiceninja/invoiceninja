@@ -2,15 +2,101 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
+use DB;
 use Utils;
+use Cache;
+use Input;
 use Exception;
 use App\Libraries\Skype\SkypeResponse;
 use App\Libraries\CurlUtils;
+use App\Models\User;
+use App\Models\SecurityCode;
 use App\Ninja\Intents\BaseIntent;
+use App\Ninja\Mailers\UserMailer;
 
 class BotController extends Controller
 {
+    protected $userMailer;
+
+    public function __construct(UserMailer $userMailer)
+    {
+        $this->userMailer = $userMailer;
+    }
+
     public function handleMessage($platform)
+    {
+        $input = Input::all();
+        $botUserId = $input['from']['id'];
+
+        if ( ! $token = $this->authenticate($input)) {
+            return SkypeResponse::message(trans('texts.not_authorized'));
+        }
+
+        try {
+            if ($input['type'] === 'contactRelationUpdate') {
+                // brand new user, ask for their email
+                if ($input['action'] === 'add') {
+                    $response = SkypeResponse::message(trans('texts.bot_get_email'));
+                    $state = BOT_STATE_GET_EMAIL;
+                } elseif ($input['action'] === 'remove') {
+                    $this->removeBot($botUserId);
+                    $this->saveState($token, false);
+                    return RESULT_SUCCESS;
+                }
+            } else {
+                $state = $this->loadState($token);
+                $text = strip_tags($input['text']);
+
+                // user gaves us their email
+                if ($state === BOT_STATE_GET_EMAIL) {
+                    if ($this->validateEmail($text, $botUserId)) {
+                        $response = SkypeResponse::message(trans('texts.bot_get_code'));
+                        $state = BOT_STATE_GET_CODE;
+                    } else {
+                        $response = SkypeResponse::message(trans('texts.email_not_found', ['email' => $text]));
+                    }
+                // user sent the scurity code
+                } elseif ($state === BOT_STATE_GET_CODE) {
+                    if ($this->validateCode($text, $botUserId)) {
+                        $response = SkypeResponse::message(trans('texts.bot_welcome') . trans('texts.bot_help_message'));
+                        $state = BOT_STATE_READY;
+                    } else {
+                        $response = SkypeResponse::message(trans('texts.invalid_code'));
+                    }
+                // regular chat message
+                } else {
+                    if ($message === 'help') {
+                        $response = SkypeResponse::message(trans('texts.bot_help_message'));
+                    } elseif ($message == 'status') {
+                        $response = SkypeResponse::message(trans('texts.intent_not_supported'));
+                    } else {
+                        if ( ! $user = User::whereBotUserId($botUserId)->with('account')->first()) {
+                            return SkypeResponse::message(trans('texts.not_authorized'));
+                        }
+
+                        Auth::onceUsingId($user->id);
+                        $user->account->loadLocalizationSettings();
+
+                        $data = $this->parseMessage($text);
+                        $intent = BaseIntent::createIntent($state, $data);
+                        $response = $intent->process();
+                        $state = $intent->getState();
+                    }
+                }
+            }
+
+            $this->saveState($token, $state);
+        } catch (Exception $exception) {
+            $response = SkypeResponse::message($exception->getMessage());
+        }
+
+        $this->sendResponse($token, $botUserId, $response);
+
+        return RESULT_SUCCESS;
+    }
+
+    private function authenticate($input)
     {
         $headers = getallheaders();
         $token = isset($headers['Authorization']) ? $headers['Authorization'] : false;
@@ -18,43 +104,13 @@ class BotController extends Controller
         if (Utils::isNinjaDev()) {
             // skip validation for testing
         } elseif ( ! $this->validateToken($token)) {
-            SkypeResponse::message(trans('texts.not_authorized'));
+            return false;
         }
 
-        $to = '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts';
-        //$message = 'new invoice for john for 2 items due tomorrow';
-        $message = 'invoice acme client for 3 months support, set due date to next thursday and the discount to 10 percent';
-        //$message = 'create a new invoice for john smith with a due date of September 7th';
-        //$message = 'create a new invoice for john';
-        //$message = 'add 2 tickets and set the due date to yesterday';
-        //$message = 'set the po number to 0004';
-        //$message = 'set the quantity to 20';
-        //$message = 'send the invoice';
-        //$message = 'show me my products';
-
-        echo "Message: $message <p>";
-        $token = $this->authenticate();
-
-        //try {
-            $state = $this->loadState($token);
-            $data = $this->parseMessage($message);
-
-            $intent = BaseIntent::createIntent($state, $data);
-            $message = $intent->process();
-            $state = $intent->getState();
-
-            $this->saveState($token, $state);
-            /*
-        } catch (Exception $exception) {
-            SkypeResponse::message($exception->getMessage());
+        if ($token = Cache::get('msbot_token')) {
+            return $token;
         }
-        */
 
-        $this->sendResponse($token, $to, $message);
-    }
-
-    private function authenticate()
-    {
         $clientId = env('MSBOT_CLIENT_ID');
         $clientSecret = env('MSBOT_CLIENT_SECRET');
         $scope = 'https://graph.microsoft.com/.default';
@@ -63,6 +119,9 @@ class BotController extends Controller
 
         $response = CurlUtils::post(MSBOT_LOGIN_URL, $data);
         $response = json_decode($response);
+
+        $expires = ($response->expires_in / 60) - 5;
+        Cache::put('msbot_token', $response->access_token, $expires);
 
         return $response->access_token;
     }
@@ -103,7 +162,10 @@ class BotController extends Controller
             'Content-Type: application/json',
         ];
 
+        //echo "STATE<pre>" . htmlentities(json_encode($data), JSON_PRETTY_PRINT) . "</pre>";
+
         $data = '{ eTag: "*", data: "' . addslashes(json_encode($data)) . '" }';
+
 
         CurlUtils::post($url, $data, $headers);
     }
@@ -116,10 +178,81 @@ class BotController extends Controller
             'Authorization: Bearer ' . $token,
         ];
 
+        //echo "<pre>" . htmlentities(json_encode(json_decode($message), JSON_PRETTY_PRINT)) . "</pre>";
+
         $response = CurlUtils::post($url, $message, $headers);
 
-        echo "<pre>" . htmlentities(json_encode(json_decode($message), JSON_PRETTY_PRINT)) . "</pre>";
-        var_dump($response);
+        //var_dump($response);
+    }
+
+    private function validateEmail($email, $botUserId)
+    {
+        if ( ! $email || ! $botUserId) {
+            return false;
+        }
+
+        // delete any expired codes
+        SecurityCode::whereBotUserId($botUserId)
+                    ->where('created_at', '<', DB::raw('now() - INTERVAL 10 MINUTE'))
+                    ->delete();
+
+        if (SecurityCode::whereBotUserId($botUserId)->first()) {
+            return false;
+        }
+
+        $user = User::whereEmail($email)
+                    ->whereNull('bot_user_id')
+                    ->first();
+
+        if ( ! $user) {
+            return false;
+        }
+
+        $code = new SecurityCode();
+        $code->user_id = $user->id;
+        $code->account_id = $user->account_id;
+        $code->code = mt_rand(100000, 999999);
+        $code->bot_user_id = $botUserId;
+        $code->save();
+
+        $this->userMailer->sendSecurityCode($user, $code->code);
+
+        return $code->code;
+    }
+
+    private function validateCode($input, $botUserId)
+    {
+        if ( ! $input || ! $botUserId) {
+            return false;
+        }
+
+        $code = SecurityCode::whereBotUserId($botUserId)
+                    ->where('created_at', '>', DB::raw('now() - INTERVAL 10 MINUTE'))
+                    ->where('attempts', '<', 5)
+                    ->first();
+
+        if ( ! $code) {
+            return false;
+        }
+
+        if ( ! hash_equals($code->code, $input)) {
+            $code->attempts += 1;
+            $code->save();
+            return false;
+        }
+
+        $user = User::find($code->user_id);
+        $user->bot_user_id = $code->bot_user_id;
+        $user->save();
+
+        return true;
+    }
+
+    private function removeBot($botUserId)
+    {
+        $user = User::whereBotUserId($botUserId)->first();
+        $user->bot_user_id = null;
+        $user->save();
     }
 
     private function validateToken($token)

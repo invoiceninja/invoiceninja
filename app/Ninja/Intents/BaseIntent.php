@@ -9,11 +9,12 @@ class BaseIntent
 {
     protected $state;
     protected $parameters;
+    protected $fieldMap = [];
 
     public function __construct($state, $data)
     {
         //if (true) {
-        if ( ! $state) {
+        if ( ! $state || is_string($state)) {
             $state = new stdClass;
             foreach (['current', 'previous'] as $reference) {
                 $state->$reference = new stdClass;
@@ -54,7 +55,7 @@ class BaseIntent
         $intent = str_replace('Entity', $entityType, $intent);
         $className = "App\\Ninja\\Intents\\{$intent}Intent";
 
-        echo "Intent: $intent<p>";
+        //echo "Intent: $intent<p>";
 
         if ( ! class_exists($className)) {
             throw new Exception(trans('texts.intent_not_supported'));
@@ -69,7 +70,7 @@ class BaseIntent
         // do nothing by default
     }
 
-    public function setEntities($entityType, $entities)
+    public function setStateEntities($entityType, $entities)
     {
         if ( ! is_array($entities)) {
             $entities = [$entities];
@@ -81,7 +82,7 @@ class BaseIntent
         $state->current->$entityType = $entities;
     }
 
-    public function setEntityType($entityType)
+    public function setStateEntityType($entityType)
     {
         $state = $this->state;
 
@@ -93,24 +94,24 @@ class BaseIntent
         $state->current->entityType = $entityType;
     }
 
-    public function entities($entityType)
+    public function stateEntities($entityType)
     {
         return $this->state->current->$entityType;
     }
 
-    public function entity($entityType)
+    public function stateEntity($entityType)
     {
         $entities = $this->state->current->$entityType;
 
         return count($entities) ? $entities[0] : false;
     }
 
-    public function previousEntities($entityType)
+    public function previousStateEntities($entityType)
     {
         return $this->state->previous->$entityType;
     }
 
-    public function entityType()
+    public function stateEntityType()
     {
         return $this->state->current->entityType;
     }
@@ -121,7 +122,7 @@ class BaseIntent
         return $this->state;
     }
 
-    protected function parseClient()
+    protected function requestClient()
     {
         $clientRepo = app('App\Ninja\Repositories\ClientRepository');
         $client = false;
@@ -135,7 +136,7 @@ class BaseIntent
         return $client;
     }
 
-    protected function parseFields()
+    protected function requestFields()
     {
         $data = [];
 
@@ -164,6 +165,13 @@ class BaseIntent
                 $value = $this->processValue($value);
 
                 $data[$field] = $value;
+            }
+        }
+
+        foreach ($this->fieldMap as $key => $value) {
+            if (isset($data[$key])) {
+                $data[$value] = $data[$key];
+                unset($data[$key]);
             }
         }
 

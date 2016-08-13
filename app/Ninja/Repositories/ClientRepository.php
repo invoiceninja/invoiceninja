@@ -138,7 +138,7 @@ class ClientRepository extends BaseRepository
         $clientNameMeta = metaphone($clientName);
 
         $map = [];
-        $max = 0;
+        $max = SIMILAR_MIN_THRESHOLD;
         $clientId = 0;
 
         $clients = Client::scope()->get(['id', 'name', 'public_id']);
@@ -160,7 +160,7 @@ class ClientRepository extends BaseRepository
         $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name', 'public_id']);
 
         foreach ($contacts as $contact) {
-            if ( ! $contact->getFullName()) {
+            if ( ! $contact->getFullName() || ! isset($map[$contact->client_id])) {
                 continue;
             }
 
@@ -172,7 +172,7 @@ class ClientRepository extends BaseRepository
             }
         }
 
-        return isset($map[$clientId]) ? $map[$clientId] : null;
+        return ($clientId && isset($map[$clientId])) ? $map[$clientId] : null;
     }
 
 }

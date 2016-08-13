@@ -61,10 +61,12 @@ class ProductRepository extends BaseRepository
         $productNameMeta = metaphone($productName);
 
         $map = [];
-        $max = 0;
+        $max = SIMILAR_MIN_THRESHOLD;
         $productId = 0;
 
-        $products = Product::scope()->get(['product_key', 'notes', 'cost']);
+        $products = Product::scope()
+                        ->with('default_tax_rate')
+                        ->get();
 
         foreach ($products as $product) {
             if ( ! $product->product_key) {
@@ -80,7 +82,7 @@ class ProductRepository extends BaseRepository
             }
         }
 
-        return $map[$productId];
+        return ($productId && isset($map[$productId])) ? $map[$productId] : null;
     }
 
 

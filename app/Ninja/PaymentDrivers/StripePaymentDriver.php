@@ -362,15 +362,15 @@ class StripePaymentDriver extends BasePaymentDriver
         $eventDetails = $this->makeStripeCall('GET', 'events/'.$eventId);
 
         if (is_string($eventDetails) || !$eventDetails) {
-            throw new Exception('Could not get event details');
+            return false;
         }
 
         if ($eventType != $eventDetails['type']) {
-            throw new Exception('Event type mismatch');
+            return false;
         }
 
         if (!$eventDetails['pending_webhooks']) {
-            throw new Exception('This is not a pending event');
+            return false;
         }
 
         if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded' || $eventType == 'charge.refunded') {
@@ -380,7 +380,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $transactionRef)->first();
 
             if (!$payment) {
-                throw new Exception('Unknown payment');
+                return false;
             }
 
             if ($eventType == 'charge.failed') {

@@ -8,10 +8,10 @@ class UpdateInvoiceIntent extends InvoiceIntent
 {
     public function process()
     {
-        $invoice = $this->invoice();
-        $invoiceItems = $this->parseInvoiceItems();
+        $invoice = $this->stateInvoice();
+        $invoiceItems = $this->requestInvoiceItems();
 
-        $data = array_merge($this->parseFields(), [
+        $data = array_merge($this->requestFields(), [
             'public_id' => $invoice->public_id,
             'invoice_items' => array_merge($invoice->invoice_items->toArray(), $invoiceItems),
         ]);
@@ -27,7 +27,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
             }
         }
 
-        var_dump($data);
+        //var_dump($data);
 
         $valid = EntityModel::validate($data, ENTITY_INVOICE, $invoice);
 
@@ -42,7 +42,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
             return $item['public_id'];
         }, $invoiceItems);
 
-        $this->setEntities(ENTITY_INVOICE_ITEM, $invoiceItemIds);
+        $this->setStateEntities(ENTITY_INVOICE_ITEM, $invoiceItemIds);
 
         $response = $invoice
             ->load('invoice_items')

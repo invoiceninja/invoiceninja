@@ -26,8 +26,8 @@ class HeroCard
         $this->content->text = $text;
     }
 
-    public function addButton($type, $title, $value)
+    public function addButton($type, $title, $value, $url = false)
     {
-        $this->content->buttons[] = new ButtonCard($type, $title, $value);
+        $this->content->buttons[] = new ButtonCard($type, $title, $value, $url);
     }
 }

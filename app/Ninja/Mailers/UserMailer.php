@@ -109,4 +109,20 @@ class UserMailer extends Mailer
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
+
+    public function sendSecurityCode($user, $code)
+    {
+        if (!$user->email) {
+            return;
+        }
+
+        $subject = trans('texts.security_code_email_subject');
+        $view = 'security_code';
+        $data = [
+            'userName' => $user->getDisplayName(),
+            'code' => $code,
+        ];
+
+        $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
 }

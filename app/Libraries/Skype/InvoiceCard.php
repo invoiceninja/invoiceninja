@@ -40,8 +40,12 @@ class InvoiceCard
 
         $this->setTotal($invoice->present()->requestedAmount);
 
-        $this->addButton('imBack', trans('texts.send_email'), 'send_email');
-        $this->addButton('imBack', trans('texts.download_pdf'), 'download_pdf');
+        if (floatval($invoice->amount)) {
+            $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('view', true));
+            $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.email_invoice'), trans('texts.email_invoice'));
+        } else {
+            $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.list_products'), trans('texts.list_products'));
+        }
     }
 
     public function setTitle($title)
@@ -68,8 +72,8 @@ class InvoiceCard
         $this->content->items[] = new InvoiceItemCard($item, $account);
     }
 
-    public function addButton($type, $title, $value)
+    public function addButton($type, $title, $value, $url = false)
     {
-        $this->content->buttons[] = new ButtonCard($type, $title, $value);
+        $this->content->buttons[] = new ButtonCard($type, $title, $value, $url);
     }
 }

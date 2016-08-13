@@ -2056,10 +2056,23 @@ $LANG = array(
     'intent_not_supported' => 'Sorry, I\'m not able to do that.',
     'client_not_found' => 'We weren\'t able to find the client',
     'not_allowed' => 'Sorry, you don\'t have the needed permissions',
-    'bot_emailed_invoice' => 'Your invoice has been emailed',
+    'bot_emailed_invoice' => 'Your invoice has been sent.',
+    'bot_emailed_notify_viewed' => 'I\'ll email you when it\'s viewed.',
+    'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
     'add_to_invoice' => 'Add to invoice',
-    'add_to_invoice_command' => 'Add 1 :product',
+    'add_product_to_invoice' => 'Add 1 :product',
     'not_authorized' => 'Your are not authorized',
+    'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>Send me your account email to get started.',
+    'bot_get_code' => 'Thanks! I\'ve sent a you an email with your security code.',
+    'bot_welcome' => 'That\'s it, your account is verified.<br/>',
+    'email_not_found' => 'I wasn\'t able to find an available account for :email',
+    'invalid_code' => 'The code is not correct',
+    'security_code_email_subject' => 'Security code for Invoice Ninja Bot',
+    'security_code_email_line1' => 'This is your Invoice Ninja Bot security code.',
+    'security_code_email_line2' => 'Note: it will expire in 10 minutes.',
+    'bot_help_message' => 'We currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
+    'list_products' => 'List Products',
+
 );
 
 return $LANG;

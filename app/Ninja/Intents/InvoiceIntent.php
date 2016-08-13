@@ -6,8 +6,10 @@ use App\Models\Invoice;
 
 class InvoiceIntent extends BaseIntent
 {
-    private $_invoice;
-    private $_invoiceItem;
+    protected $fieldMap = [
+        'deposit' => 'partial',
+        'due' => 'due_date',
+    ];
 
     public function __construct($state, $data)
     {
@@ -16,13 +18,9 @@ class InvoiceIntent extends BaseIntent
         parent::__construct($state, $data);
     }
 
-    protected function invoice()
+    protected function stateInvoice()
     {
-        if ($this->_invoice) {
-            return $this->_invoice;
-        }
-
-        $invoiceId = $this->entity(ENTITY_INVOICE);
+        $invoiceId = $this->stateEntity(ENTITY_INVOICE);
 
         if ( ! $invoiceId) {
             throw new Exception(trans('texts.intent_not_supported'));
@@ -41,20 +39,7 @@ class InvoiceIntent extends BaseIntent
         return $invoice;
     }
 
-    protected function invoiceItem()
-    {
-        if ($this->_invoiceItem) {
-            return $this->_invoiceItem;
-        }
-
-        $invoiceItemId = $this->entity(ENTITY_INVOICE_ITEM);
-
-        if ( ! $invoiceItemId) {
-            $invoice = $this->invoice();
-        }
-    }
-
-    protected function parseInvoiceItems()
+    protected function requestInvoiceItems()
     {
         $productRepo = app('App\Ninja\Repositories\ProductRepository');
 
@@ -76,20 +61,33 @@ class InvoiceIntent extends BaseIntent
                     }
                 }
 
-                $item = $product->toArray();
-                $item['qty'] = $qty;
+                if ($product) {
+                    $item['qty'] = $qty;
+                    $item['product_key'] = $product->product_key;
+                    $item['cost'] = $product->cost;
+                    $item['notes'] = $product->notes;
 
-                $invoiceItems[] = $item;
+                    if ($taxRate = $product->default_tax_rate) {
+                        $item['tax_name1'] = $taxRate->name;
+                        $item['tax_rate1'] = $taxRate->rate;
+                    }
+
+                    $invoiceItems[] = $item;
+                }
             }
         }
+
+        /*
+        if ( ! count($invoiceItems)) {
+            foreach ($this->data->entities as $param) {
+                if ($param->type == 'Product') {
+                    $product = $productRepo->findPhonetically($param->entity);
+                }
+            }
+        }
+        */
 
         return $invoiceItems;
     }
 
-    protected function parseFields()
-    {
-        $data = parent::parseFields();
-
-        return $data;
-    }
 }
