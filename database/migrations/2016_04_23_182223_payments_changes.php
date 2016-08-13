@@ -88,7 +88,7 @@ class PaymentsChanges extends Migration
             $table->string('email')->nullable();
 
             $table->unsignedInteger('payment_method_id')->nullable();
-            $table->foreign('payment_method_id')->references('id')->on('payment_methods');
+            //$table->foreign('payment_method_id')->references('id')->on('payment_methods');
         });
 
         Schema::table('invoices', function($table)
