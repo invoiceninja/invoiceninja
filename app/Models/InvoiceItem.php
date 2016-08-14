@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class InvoiceItem extends EntityModel
 {
+    use SoftDeletes;
+    /**
+     * @var array
+     */
+    protected $dates = ['deleted_at'];
+
     /**
      * @return mixed
      */
@@ -14,12 +20,6 @@ class InvoiceItem extends EntityModel
     {
         return ENTITY_INVOICE_ITEM;
     }
-
-    use SoftDeletes;
-    /**
-     * @var array
-     */
-    protected $dates = ['deleted_at'];
 
     /**
      * @var array
