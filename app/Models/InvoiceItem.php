@@ -7,14 +7,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class InvoiceItem extends EntityModel
 {
-    /**
-     * @return mixed
-     */
-    public function getEntityType()
-    {
-        return ENTITY_INVOICE_ITEM;
-    }
-
     use SoftDeletes;
     /**
      * @var array
