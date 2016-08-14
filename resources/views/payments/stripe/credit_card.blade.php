@@ -39,7 +39,7 @@
                     }
 
                     if ($('#cvv').val() != ' ') {
-                        data.cvv = $('#cvv').val();
+                        data.cvc = $('#cvv').val();
                         if (!Stripe.card.validateCVC(data.cvc)) {
                             $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
                             return false;
