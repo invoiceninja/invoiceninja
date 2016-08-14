@@ -162,6 +162,8 @@
             <span data-bind="visible: !is_recurring()">
             {!! Former::text('invoice_number')
                         ->label(trans("texts.{$entityType}_number_short"))
+                        ->onchange('checkInvoiceNumber()')
+                        ->addGroupClass('invoice-number')
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
             @if($account->getTokenGatewayId())
@@ -963,7 +965,7 @@
         }
 
         if (model.invoice().client().public_id() || {{ $invoice->id || count($clients) == 0 ? '1' : '0' }}) {
-            $('#invoice_number').focus();
+            // do nothing
         } else {
             $('.client_select input.form-control').focus();
         }
@@ -1180,18 +1182,20 @@
 	}
 
     function resetTerms() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+        sweetConfirm(function() {
             model.invoice().terms(model.invoice().default_terms());
             refreshPDF();
-        }
+        });
+
         return false;
     }
 
     function resetFooter() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+        sweetConfirm(function() {
             model.invoice().invoice_footer(model.invoice().default_footer());
             refreshPDF();
-        }
+        });
+
         return false;
     }
 
@@ -1207,16 +1211,28 @@
 
 	function onEmailClick() {
         if (!NINJA.isRegistered) {
-            alert("{!! trans('texts.registration_required') !!}");
+            swal("{!! trans('texts.registration_required') !!}");
+            return;
+        }
+
+        var clientId = parseInt($('input[name=client]').val(), 10) || 0;
+        if (clientId == 0 ) {
+            swal("{!! trans('texts.no_client_selected') !!}");
+            return;
+        }
+
+        if (!isContactSelected()) {
+            swal("{!! trans('texts.no_contact_selected') !!}");
             return;
         }
 
         if (!isEmailValid()) {
-            alert("{!! trans('texts.provide_email') !!}");
+            swal("{!! trans('texts.provide_email') !!}");
             return;
-8        }
+8       }
 
-		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
+
+		sweetConfirm(function() {
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
             var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
             var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
@@ -1230,31 +1246,38 @@
             } else {
                 preparePdfData('email');
             }
-		}
+		}, getSendToEmails());
 	}
 
 	function onSaveClick() {
-        @if(!empty($autoBillChangeWarning))
-        if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
-        @endif
-
 		if (model.invoice().is_recurring()) {
             // warn invoice will be emailed when saving new recurring invoice
             if ({{ $invoice->exists ? 'false' : 'true' }}) {
-                if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
+                var text = getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+                var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
+                sweetConfirm(function() {
                     submitAction('');
-                }
+                }, text, title);
                 return;
             // warn invoice will be emailed again if start date is changed
             } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
-                if (confirm("{!! trans("texts.warn_start_date_changed") !!}" + '\n\n'
-                    + "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
-                    + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date())) {
-                        submitAction('');
-                }
+                var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
+                            + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
+                var title = "{!! trans("texts.warn_start_date_changed") !!}";
+                sweetConfirm(function() {
+                    submitAction('');
+                }, text, title);
                 return;
             }
         }
+
+        @if (!empty($autoBillChangeWarning))
+            var text = "{!! trans('texts.warn_change_auto_bill') !!}";
+            sweetConfirm(function() {
+                submitAction('');
+            }, text);
+            return;
+        @endif
 
         submitAction('');
     }
@@ -1292,7 +1315,12 @@
 
     function onFormSubmit(event) {
         if (window.countUploadingDocuments > 0) {
-            alert("{!! trans('texts.wait_for_upload') !!}");
+            swal("{!! trans('texts.wait_for_upload') !!}");
+            return false;
+        }
+
+        // check invoice number is unique
+        if ($('.invoice-number').hasClass('has-error')) {
             return false;
         }
 
@@ -1305,7 +1333,7 @@
         var expenseCurrencyId = model.expense_currency_id();
         var clientCurrencyId = model.invoice().client().currency_id() || {{ $account->getCurrencyId() }};
         if (expenseCurrencyId && expenseCurrencyId != clientCurrencyId) {
-            alert("{!! trans('texts.expense_error_mismatch_currencies') !!}");
+            swal("{!! trans('texts.expense_error_mismatch_currencies') !!}");
             return false;
         }
 
@@ -1333,8 +1361,7 @@
 		return isValid;
 	}
 
-	function isEmailValid() {
-		var isValid = true;
+    function isContactSelected() {
 		var sendTo = false;
 		var client = model.invoice().client();
 		for (var i=0; i<client.contacts().length; i++) {
@@ -1343,14 +1370,29 @@
                 continue;
             }
 			if (isValidEmailAddress(contact.email())) {
-				isValid = true;
 				sendTo = true;
+			}
+		}
+		return sendTo;
+
+    }
+
+	function isEmailValid() {
+		var isValid = true;
+		var client = model.invoice().client();
+		for (var i=0; i<client.contacts().length; i++) {
+			var contact = client.contacts()[i];
+            if ( ! contact.send_invoice()) {
+                continue;
+            }
+			if (isValidEmailAddress(contact.email())) {
+				isValid = true;
 			} else {
 				isValid = false;
 				break;
 			}
 		}
-		return (isValid && sendTo)
+		return isValid;
 	}
 
 	function onMarkClick() {
@@ -1367,11 +1409,13 @@
 
     @if ($invoice->id)
     	function onPaymentClick() {
-            @if(!empty($autoBillChangeWarning))
-            if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+            @if (!empty($autoBillChangeWarning))
+                sweetConfirm(function() {
+                    window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
+                }, "{!! trans('texts.warn_change_auto_bill') !!}");
+            @else
+                window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
             @endif
-
-    		window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
     	}
 
     	function onCreditClick() {
@@ -1384,9 +1428,9 @@
 	}
 
 	function onDeleteClick() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
-			submitBulkAction('delete');
-		}
+        sweetConfirm(function() {
+            submitBulkAction('delete');
+        });
 	}
 
 	function formEnterClick(event) {

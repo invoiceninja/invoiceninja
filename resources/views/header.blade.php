@@ -234,7 +234,7 @@
 
     if (!window.loadedSearchData) {
         trackEvent('/activity', '/search');
-        var request = $.get('{{ URL::route('getSearchData') }}', function(data) {
+        var request = $.get('{{ URL::route('get_search_data') }}', function(data) {
           $('#search').typeahead({
             hint: true,
             highlight: true,
@@ -305,6 +305,7 @@
 
     /* Set the defaults for Bootstrap datepicker */
     $.extend(true, $.fn.datepicker.defaults, {
+        //language: '{{ $appLanguage }}', // causes problems with some languages (ie, fr_CA) if the date includes strings (ie, July 31, 2016)
         weekStart: {{ Session::get('start_of_week') }}
     });
 

@@ -44,6 +44,11 @@ class EntityRequest extends Request {
         return $this->entity;
     }
 
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+    }
+
     public function authorize()
     {
         if ($this->entity()) {

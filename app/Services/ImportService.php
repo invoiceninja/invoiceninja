@@ -9,7 +9,6 @@ use Auth;
 use Utils;
 use parsecsv;
 use Session;
-use Validator;
 use League\Fractal\Manager;
 use App\Ninja\Repositories\ContactRepository;
 use App\Ninja\Repositories\ClientRepository;
@@ -141,7 +140,7 @@ class ImportService
 
         foreach ($json['clients'] as $jsonClient) {
 
-            if ($this->validate($jsonClient, ENTITY_CLIENT) === true) {
+            if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
                 $client = $this->clientRepo->save($jsonClient);
                 $this->addSuccess($client);
             } else {
@@ -151,7 +150,7 @@ class ImportService
 
             foreach ($jsonClient['invoices'] as $jsonInvoice) {
                 $jsonInvoice['client_id'] = $client->id;
-                if ($this->validate($jsonInvoice, ENTITY_INVOICE) === true) {
+                if (EntityModel::validate($jsonInvoice, ENTITY_INVOICE) === true) {
                     $invoice = $this->invoiceRepo->save($jsonInvoice);
                     $this->addSuccess($invoice);
                 } else {
@@ -162,7 +161,7 @@ class ImportService
                 foreach ($jsonInvoice['payments'] as $jsonPayment) {
                     $jsonPayment['client_id'] = $jsonPayment['client'] = $client->id; // TODO: change to client_id once views are updated
                     $jsonPayment['invoice_id'] = $jsonPayment['invoice'] = $invoice->id; // TODO: change to invoice_id once views are updated
-                    if ($this->validate($jsonPayment, ENTITY_PAYMENT) === true) {
+                    if (EntityModel::validate($jsonPayment, ENTITY_PAYMENT) === true) {
                         $payment = $this->paymentRepo->save($jsonPayment);
                         $this->addSuccess($payment);
                     } else {
@@ -280,7 +279,7 @@ class ImportService
             $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
         }
 
-        if ($this->validate($data, $entityType) !== true) {
+        if (EntityModel::validate($data, $entityType) !== true) {
             return false;
         }
 
@@ -396,26 +395,6 @@ class ImportService
         }
     }
 
-    /**
-     * @param $data
-     * @param $entityType
-     * @return bool|string
-     */
-    private function validate($data, $entityType)
-    {
-        $requestClass = 'App\\Http\\Requests\\Create' . ucwords($entityType) . 'Request';
-        $request = new $requestClass();
-        $request->setUserResolver(function() { return Auth::user(); });
-        $request->replace($data);
-
-        $validator = Validator::make($data, $request->rules());
-
-        if ($validator->fails()) {
-            return $validator->messages()->first();
-        } else {
-            return true;
-        }
-    }
 
     /**
      * @param array $files

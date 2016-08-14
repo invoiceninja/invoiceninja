@@ -611,4 +611,15 @@ class InvoiceController extends BaseController
 
         return View::make('invoices.history', $data);
     }
+
+    public function checkInvoiceNumber($invoiceNumber)
+    {
+        $count = Invoice::scope()
+                    ->whereInvoiceNumber($invoiceNumber)
+                    ->withTrashed()
+                    ->count();
+
+        return $count ? RESULT_FAILURE : RESULT_SUCCESS;
+    }
+
 }

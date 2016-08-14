@@ -44,6 +44,11 @@ class BasePaymentDriver
         return $this->accountGateway->gateway_id == $gatewayId;
     }
 
+    public function isValid()
+    {
+        return true;
+    }
+
     // optionally pass a paymentMethod to determine the type from the token
     protected function isGatewayType($gatewayType, $paymentMethod = false)
     {
@@ -535,6 +540,15 @@ class BasePaymentDriver
         $paymentMethod->setRelation('account_gateway_token', $customer);
         $paymentMethod = $this->creatingPaymentMethod($paymentMethod);
 
+        // archive the old payment method
+        $oldPaymentMethod = PaymentMethod::clientId($this->client()->id)
+            ->wherePaymentTypeId($paymentMethod->payment_type_id)
+            ->first();
+
+        if ($oldPaymentMethod) {
+            $oldPaymentMethod->delete();
+        }
+
         if ($paymentMethod) {
             $paymentMethod->save();
         }
@@ -753,7 +767,7 @@ class BasePaymentDriver
             } elseif ($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL) {
                 $label = 'PayPal: ' . $paymentMethod->email;
             } else {
-                $label = trans('texts.use_card_on_file');
+                $label = trans('texts.payment_type_on_file', ['type' => $paymentMethod->payment_type->name]);
             }
 
             $links[] = [

@@ -262,6 +262,7 @@ class InvoiceRepository extends BaseRepository
 
         if ($invoice) {
             // do nothing
+            $entityType = $invoice->getEntityType();
         } elseif ($isNew) {
             $entityType = ENTITY_INVOICE;
             if (isset($data['is_recurring']) && filter_var($data['is_recurring'], FILTER_VALIDATE_BOOLEAN)) {
@@ -270,6 +271,7 @@ class InvoiceRepository extends BaseRepository
                 $entityType = ENTITY_QUOTE;
             }
             $invoice = $account->createInvoice($entityType, $data['client_id']);
+            $invoice->invoice_date = date_create()->format('Y-m-d');
             if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_tasks = true;
             }

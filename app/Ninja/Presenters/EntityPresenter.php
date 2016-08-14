@@ -5,7 +5,6 @@ use Laracasts\Presenter\Presenter;
 
 class EntityPresenter extends Presenter
 {
-
     /**
      * @return string
      */

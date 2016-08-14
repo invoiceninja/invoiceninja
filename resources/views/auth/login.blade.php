@@ -1,9 +1,9 @@
 @extends('master')
 
-@section('head')	
+@section('head')
 
-<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
+<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>
 
 <style type="text/css">
     body {
@@ -18,7 +18,7 @@
         margin:0;
     }
     .modal-header img {
-        float: left; 
+        float: left;
         margin-right: 20px;
     }
     .form-signin {
@@ -71,10 +71,10 @@
 
     <div class="modal-header">
         <a href="{{ NINJA_WEB_URL }}" target="_blank">
-            <img src="{{ asset('images/icon-login.png') }}" />        
+            <img src="{{ asset('images/icon-login.png') }}" />
             <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4>
         </a>
-    </div>    
+    </div>
         <div class="inner">
             <p>
                 {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
@@ -109,7 +109,6 @@
                 {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank', 'class' => 'pull-right']) !!}
             </p>
 
-
             @if (count($errors->all()))
                 <div class="alert alert-danger">
                     @foreach ($errors->all() as $error)
@@ -119,15 +118,15 @@
             @endif
 
             @if (Session::has('warning'))
-            <div class="alert alert-warning">{{ Session::get('warning') }}</div>
+            <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
             @endif
 
             @if (Session::has('message'))
-            <div class="alert alert-info">{{ Session::get('message') }}</div>
+            <div class="alert alert-info">{!! Session::get('message') !!}</div>
             @endif
 
             @if (Session::has('error'))
-            <div class="alert alert-danger"><li>{{ Session::get('error') }}</li></div>
+            <div class="alert alert-danger"><li>{!! Session::get('error') !!}</li></div>
             @endif
 
         </div>
@@ -160,7 +159,7 @@
             <!--
             <iframe allowTransparency="true" frameborder="0" scrolling="no" src="https://bitnami.com/product/invoice-ninja/widget" style="border:none;width:230px; height:100px;"></iframe>
             -->
-            
+
         </center>
 
     </div>

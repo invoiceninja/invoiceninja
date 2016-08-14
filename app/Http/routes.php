@@ -85,6 +85,7 @@ Route::match(['GET', 'POST'], '/buy_now/{gateway_type?}', 'OnlinePaymentControll
 
 Route::post('/hook/email_bounced', 'AppController@emailBounced');
 Route::post('/hook/email_opened', 'AppController@emailOpened');
+Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
 Route::post('/payment_hook/{accountKey}/{gatewayId}', 'OnlinePaymentController@handlePaymentWebhook');
 
 // Laravel auth routes
@@ -125,7 +126,8 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
-    Route::get('account/getSearchData', ['as' => 'getSearchData', 'uses' => 'AccountController@getSearchData']);
+    Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
+    Route::get('check_invoice_number/{invoice_number}', 'InvoiceController@checkInvoiceNumber');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
@@ -351,7 +353,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_CONTACT', 'contact');
     define('ENTITY_INVOICE', 'invoice');
     define('ENTITY_DOCUMENT', 'document');
-    define('ENTITY_INVOICE_ITEMS', 'invoice_items');
+    define('ENTITY_INVOICE_ITEM', 'invoice_item');
     define('ENTITY_INVITATION', 'invitation');
     define('ENTITY_RECURRING_INVOICE', 'recurring_invoice');
     define('ENTITY_PAYMENT', 'payment');
@@ -608,7 +610,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.6.8' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.6.9' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -625,6 +627,11 @@ if (!defined('CONTACT_EMAIL')) {
     define('EMAIL_MARKUP_URL', env('EMAIL_MARKUP_URL', 'https://developers.google.com/gmail/markup'));
     define('OFX_HOME_URL', env('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all'));
     define('GOOGLE_ANALYITCS_URL', env('GOOGLE_ANALYITCS_URL', 'https://www.google-analytics.com/collect'));
+
+    define('MSBOT_LOGIN_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/token');
+    define('MSBOT_LUIS_URL', 'https://api.projectoxford.ai/luis/v1/application');
+    define('SKYPE_API_URL', 'https://apis.skype.com/v3');
+    define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
 
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
 
@@ -789,6 +796,25 @@ if (!defined('CONTACT_EMAIL')) {
     define('WEPAY_FEE_PAYER', env('WEPAY_FEE_PAYER', 'payee'));
     define('WEPAY_APP_FEE_MULTIPLIER', env('WEPAY_APP_FEE_MULTIPLIER', 0.002));
     define('WEPAY_APP_FEE_FIXED', env('WEPAY_APP_FEE_MULTIPLIER', 0.00));
+
+    define('SKYPE_CARD_RECEIPT', 'message/card.receipt');
+    define('SKYPE_CARD_CAROUSEL', 'message/card.carousel');
+    define('SKYPE_CARD_HERO', '');
+
+    define('BOT_STATE_GET_EMAIL', 'get_email');
+    define('BOT_STATE_GET_CODE', 'get_code');
+    define('BOT_STATE_READY', 'ready');
+    define('SIMILAR_MIN_THRESHOLD', 50);
+
+    // https://docs.botframework.com/en-us/csharp/builder/sdkreference/attachments.html
+    define('SKYPE_BUTTON_OPEN_URL', 'openUrl');
+    define('SKYPE_BUTTON_IM_BACK', 'imBack');
+    define('SKYPE_BUTTON_POST_BACK', 'postBack');
+    define('SKYPE_BUTTON_CALL', 'call'); // "tel:123123123123"
+    define('SKYPE_BUTTON_PLAY_AUDIO', 'playAudio');
+    define('SKYPE_BUTTON_PLAY_VIDEO', 'playVideo');
+    define('SKYPE_BUTTON_SHOW_IMAGE', 'showImage');
+    define('SKYPE_BUTTON_DOWNLOAD_FILE', 'downloadFile');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

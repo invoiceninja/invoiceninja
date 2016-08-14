@@ -56,4 +56,34 @@ class ProductRepository extends BaseRepository
         return $product;
     }
 
+    public function findPhonetically($productName)
+    {
+        $productNameMeta = metaphone($productName);
+
+        $map = [];
+        $max = SIMILAR_MIN_THRESHOLD;
+        $productId = 0;
+
+        $products = Product::scope()
+                        ->with('default_tax_rate')
+                        ->get();
+
+        foreach ($products as $product) {
+            if ( ! $product->product_key) {
+                continue;
+            }
+
+            $map[$product->id] = $product;
+            $similar = similar_text($productNameMeta, metaphone($product->product_key), $percent);
+
+            if ($percent > $max) {
+                $productId = $product->id;
+                $max = $percent;
+            }
+        }
+
+        return ($productId && isset($map[$productId])) ? $map[$productId] : null;
+    }
+
+
 }
