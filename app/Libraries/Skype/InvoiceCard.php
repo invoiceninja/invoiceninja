@@ -41,7 +41,7 @@ class InvoiceCard
         $this->setTotal($invoice->present()->requestedAmount);
 
         if (floatval($invoice->amount)) {
-            $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('view', true));
+            $this->addButton(SKYPE_BUTTON_OPEN_URL, trans('texts.download_pdf'), $invoice->getInvitationLink('download', true));
             $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.email_invoice'), trans('texts.email_invoice'));
         } else {
             $this->addButton(SKYPE_BUTTON_IM_BACK, trans('texts.list_products'), trans('texts.list_products'));
