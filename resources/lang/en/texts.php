@@ -2054,7 +2054,7 @@ $LANG = array(
     'invoice_for_client' => 'Invoice :invoice for :client',
     'intent_not_found' => 'Sorry, I\'m not sure what you\'re asking.',
     'intent_not_supported' => 'Sorry, I\'m not able to do that.',
-    'client_not_found' => 'We weren\'t able to find the client',
+    'client_not_found' => 'I wasn\'t able to find the client',
     'not_allowed' => 'Sorry, you don\'t have the needed permissions',
     'bot_emailed_invoice' => 'Your invoice has been sent.',
     'bot_emailed_notify_viewed' => 'I\'ll email you when it\'s viewed.',
@@ -2070,7 +2070,7 @@ $LANG = array(
     'security_code_email_subject' => 'Security code for Invoice Ninja Bot',
     'security_code_email_line1' => 'This is your Invoice Ninja Bot security code.',
     'security_code_email_line2' => 'Note: it will expire in 10 minutes.',
-    'bot_help_message' => 'We currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
+    'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'List Products',
 
 );

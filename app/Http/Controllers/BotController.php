@@ -66,9 +66,9 @@ class BotController extends Controller
                     }
                 // regular chat message
                 } else {
-                    if ($message === 'help') {
+                    if ($text === 'help') {
                         $response = SkypeResponse::message(trans('texts.bot_help_message'));
-                    } elseif ($message == 'status') {
+                    } elseif ($text == 'status') {
                         $response = SkypeResponse::message(trans('texts.intent_not_supported'));
                     } else {
                         if ( ! $user = User::whereBotUserId($botUserId)->with('account')->first()) {
@@ -98,8 +98,7 @@ class BotController extends Controller
 
     private function authenticate($input)
     {
-        $headers = getallheaders();
-        $token = isset($headers['Authorization']) ? $headers['Authorization'] : false;
+        $token = isset($_SERVER['HTTP_AUTHORIZATION']) ? $_SERVER['HTTP_AUTHORIZATION'] : false;
 
         if (Utils::isNinjaDev()) {
             // skip validation for testing
@@ -261,6 +260,8 @@ class BotController extends Controller
             return false;
         }
 
+        $token = explode(' ', $token)[1];
+
         // https://blogs.msdn.microsoft.com/tsmatsuz/2016/07/12/developing-skype-bot/
         // 0:Invalid, 1:Valid
         $token_valid = 0;
@@ -319,5 +320,4 @@ class BotController extends Controller
         $res = base64_decode($res);
         return $res;
     }
-
 }

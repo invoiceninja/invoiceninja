@@ -12,7 +12,7 @@ class ListProductsIntent extends ProductIntent
         $account = Auth::user()->account;
         $products = Product::scope()
             ->orderBy('product_key')
-            ->limit(10)
+            ->limit(5)
             ->get()
             ->transform(function($item, $key) use ($account) {
                 $card = $item->present()->skypeBot($account);

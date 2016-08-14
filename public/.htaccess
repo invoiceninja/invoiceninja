@@ -12,7 +12,11 @@
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
-    
+
+    # http://stackoverflow.com/a/20865084/497368
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
     # In case of running InvoiceNinja in a Subdomain like invoiceninja.example.com,
     # you have to enable the following line:
     # RewriteBase /

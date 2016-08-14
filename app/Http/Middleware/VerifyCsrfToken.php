@@ -31,6 +31,7 @@ class VerifyCsrfToken extends BaseVerifier
         'reseller_stats',
         'payment_hook/*',
         'buy_now/*',
+        'hook/bot/*',
     ];
 
     /**

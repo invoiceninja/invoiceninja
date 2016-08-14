@@ -67,7 +67,7 @@ class BaseIntent
 
     public function process()
     {
-        // do nothing by default
+        throw new Exception(trans('texts.intent_not_supported'));
     }
 
     public function setStateEntities($entityType, $entities)
