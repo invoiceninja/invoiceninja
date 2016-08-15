@@ -8,7 +8,7 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <img src="{{ asset('images/totalinvoices.png') }}"
-                    class="in-image" style="float:left"/>
+                    class="in-image" style="float:left" width="80" height="80"/>
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.total_revenue') }}
@@ -30,7 +30,7 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <img src="{{ asset('images/clients.png') }}"
-                    class="in-image" style="float:left"/>
+                    class="in-image" style="float:left"  width="80" height="80"/>
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.average_invoice') }}
@@ -52,7 +52,7 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <img src="{{ asset('images/totalincome.png') }}"
-                    class="in-image" style="float:left"/>
+                    class="in-image" style="float:left"  width="80" height="80"/>
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.outstanding') }}
