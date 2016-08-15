@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use stdClass;
 use Auth;
 use DB;
 use View;
@@ -45,6 +46,14 @@ class DashboardController extends BaseController
                 }
             }
         }
+
+        $data = $activities->map(function($item, $key) {
+            $obj = new stdClass;
+            $obj->client_id = $item->client->public_id;
+            return $obj;
+        });
+        dd($data[0]);
+
 
         $data = [
             'account' => $user->account,

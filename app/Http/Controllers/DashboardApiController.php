@@ -3,11 +3,14 @@
 use Auth;
 use DB;
 use App\Ninja\Repositories\DashboardRepository;
+use App\Ninja\Transformers\ActivityTransformer;
 
 class DashboardApiController extends BaseAPIController
 {
     public function __construct(DashboardRepository $dashboardRepo)
     {
+        parent::__construct();
+
         $this->dashboardRepo = $dashboardRepo;
     }
 
@@ -47,7 +50,7 @@ class DashboardApiController extends BaseAPIController
             'averageInvoiceCurrency' => $averageInvoice[0]->currency_id ? $averageInvoice[0]->currency_id : 0,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,
-            //'activities' => $activities,
+            'activities' => $this->createCollection($activities, new ActivityTransformer(), ENTITY_ACTIVITY),
         ];
 
         return $this->response($data);
