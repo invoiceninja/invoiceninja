@@ -9,6 +9,8 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://invoiceninja.org)
 
+[![Invoice Ninja - Overview](https://app.invoiceninja.com/youtube.png)](https://www.youtube.com/watch?v=xHGKvadapbA)
+
 We're often asked to recommend Laravel/PHP developers to help setup our app and make small adjustments, email us at contact@invoiceninja.com if you're interested in taking on the work.
 
 ## Affiliates Programs
