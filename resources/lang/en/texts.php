@@ -2074,7 +2074,8 @@ $LANG = array(
     'list_products' => 'List Products',
 
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
-
+    'created_quotes' => 'Successfully created :count quotes(s)',
+    
 );
 
 return $LANG;
