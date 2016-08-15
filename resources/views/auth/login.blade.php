@@ -119,7 +119,7 @@
             @endif
 
             @if (Session::has('warning'))
-            <div class="alert alert-warning">{{ Session::get('warning') }}</div>
+            <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
             @endif
 
             @if (Session::has('message'))
