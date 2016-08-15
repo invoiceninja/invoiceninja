@@ -6,8 +6,8 @@ class PayFastPaymentDriver extends BasePaymentDriver
 
     public function completeOffsitePurchase($input)
     {
-        if ($accountGateway->isGateway(GATEWAY_PAYFAST) && Request::has('pt')) {
-            $token = Request::query('pt');
-        }
+        parent::completeOffsitePurchase([
+            'token' => Request::query('pt')
+        ]);
     }
 }
