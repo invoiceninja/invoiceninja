@@ -63,7 +63,7 @@ class AddPageSize extends Migration
         });
 
         Schema::table('expenses', function ($table) {
-            $table->dropForeign('expenses_expense_category_id_foreign');
+            //$table->dropForeign('expenses_expense_category_id_foreign');
             $table->dropColumn('expense_category_id');
         });
 

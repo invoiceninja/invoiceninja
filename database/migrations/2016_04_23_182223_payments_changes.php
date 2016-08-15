@@ -109,8 +109,7 @@ class PaymentsChanges extends Migration
         Schema::table('account_gateway_tokens', function($table)
         {
             $table->unsignedInteger('default_payment_method_id')->nullable();
-            $table->foreign('default_payment_method_id')->references('id')->on('payment_methods');
-
+            //$table->foreign('default_payment_method_id')->references('id')->on('payment_methods');
         });
 
     }
@@ -134,7 +133,7 @@ class PaymentsChanges extends Migration
             $table->dropColumn('gateway_error');
             $table->dropColumn('email');
 
-            $table->dropForeign('payments_payment_method_id_foreign');
+            //$table->dropForeign('payments_payment_method_id_foreign');
             $table->dropColumn('payment_method_id');
         });
 
@@ -164,7 +163,7 @@ class PaymentsChanges extends Migration
 
         Schema::table('account_gateway_tokens', function($table)
         {
-            $table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
+            //$table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
             $table->dropColumn('default_payment_method_id');
         });
 
