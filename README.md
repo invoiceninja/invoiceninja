@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
+    <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
 </p>
 
 # Invoice Ninja
@@ -8,6 +8,10 @@
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://invoiceninja.org)
+
+<p align="center">
+    [![Invoice Ninja - Overview](http://app.invoiceninja.com/youtube.png)](https://www.youtube.com/watch?v=xHGKvadapbA)
+</p>
 
 We're often asked to recommend Laravel/PHP developers to help setup our app and make small adjustments, email us at contact@invoiceninja.com if you're interested in taking on the work.
 
