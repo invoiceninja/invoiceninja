@@ -362,7 +362,6 @@ NINJA.invoiceLines = function(invoice) {
     }
 
     grid[0].push({text: invoiceLabels.line_total, style: ['tableHeader', 'lineTotalTableHeader']});
-
     for (var i = 0; i < invoice.invoice_items.length; i++) {
 
         var row = [];
@@ -401,6 +400,16 @@ NINJA.invoiceLines = function(invoice) {
         }
 
         var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
+        if (account.include_item_taxes_inline == '1') {
+            if (tax1) {
+                lineTotal += lineTotal * tax1 / 100;
+                lineTotal = roundToTwo(lineTotal);
+            }
+            if (tax2) {
+                lineTotal += lineTotal * tax2 / 100;
+                lineTotal = roundToTwo(lineTotal);
+            }
+        }
         lineTotal = formatMoneyInvoice(lineTotal, invoice);
 
         rowStyle = (i % 2 == 0) ? 'odd' : 'even';

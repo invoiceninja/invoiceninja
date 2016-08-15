@@ -65,6 +65,7 @@ class Account extends Eloquent
         'show_item_taxes',
         'default_tax_rate_id',
         'enable_second_tax_rate',
+        'include_item_taxes_inline',
         'start_of_week',
     ];
 

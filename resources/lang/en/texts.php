@@ -2073,6 +2073,8 @@ $LANG = array(
     'bot_help_message' => 'I currently support:<br/>• Create\update\email an invoice<br/>• List products<br/>For example:<br/><i>invoice bob for 2 tickets, set the due date to next thursday and the discount to 10 percent</i>',
     'list_products' => 'List Products',
 
+    'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
+
 );
 
 return $LANG;

@@ -11,6 +11,7 @@
   {{ Former::populateField('invoice_item_taxes', intval($account->invoice_item_taxes)) }}
   {{ Former::populateField('show_item_taxes', intval($account->show_item_taxes)) }}
   {{ Former::populateField('enable_second_tax_rate', intval($account->enable_second_tax_rate)) }}
+  {{ Former::populateField('include_item_taxes_inline', intval($account->include_item_taxes_inline)) }}
 
 
   <div class="panel panel-default">
@@ -19,21 +20,25 @@
   </div>
   <div class="panel-body">
 
-      {!! Former::checkbox('invoice_taxes')
-            ->text(trans('texts.enable_invoice_tax'))
-            ->label('&nbsp;') !!}
+    {!! Former::checkbox('invoice_taxes')
+        ->text(trans('texts.enable_invoice_tax'))
+        ->label('&nbsp;') !!}
 
-      {!! Former::checkbox('invoice_item_taxes')
-            ->text(trans('texts.enable_line_item_tax'))
-            ->label('&nbsp;') !!}
+    {!! Former::checkbox('invoice_item_taxes')
+        ->text(trans('texts.enable_line_item_tax'))
+        ->label('&nbsp;') !!}
 
-      {!! Former::checkbox('show_item_taxes')
-            ->text(trans('texts.show_line_item_tax'))
-            ->label('&nbsp;') !!}
+    {!! Former::checkbox('show_item_taxes')
+        ->text(trans('texts.show_line_item_tax'))
+        ->label('&nbsp;') !!}
 
-        {!! Former::checkbox('enable_second_tax_rate')
-              ->text(trans('texts.enable_second_tax_rate'))
-              ->label('&nbsp;') !!}
+    {!! Former::checkbox('include_item_taxes_inline')
+        ->text(trans('texts.include_item_taxes_inline'))
+        ->label('&nbsp;') !!}
+
+    {!! Former::checkbox('enable_second_tax_rate')
+        ->text(trans('texts.enable_second_tax_rate'))
+        ->label('&nbsp;') !!}
 
       &nbsp;
 
