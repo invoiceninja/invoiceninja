@@ -10,7 +10,7 @@
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://invoiceninja.org)
 
 <p align="center">
-    [![Invoice Ninja - Overview](http://app.invoiceninja.com/youtube.png)](https://www.youtube.com/watch?v=xHGKvadapbA)
+    [![Invoice Ninja - Overview](http://app.invoiceninja.com/youtube.png)](https://www.youtube.com/watch?v=xHGKvadapbA)]
 </p>
 
 We're often asked to recommend Laravel/PHP developers to help setup our app and make small adjustments, email us at contact@invoiceninja.com if you're interested in taking on the work.
