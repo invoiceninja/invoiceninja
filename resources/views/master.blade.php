@@ -90,12 +90,12 @@
         function sweetConfirm(success, text, title) {
             title = title || "{!! trans("texts.are_you_sure") !!}";
             swal({
-                type: "warning",
+                //type: "warning",
+                //confirmButtonColor: "#DD6B55",
                 title: title,
                 text: text,
                 cancelButtonText: "{!! trans("texts.no") !!}",
                 confirmButtonText: "{!! trans("texts.yes") !!}",
-                confirmButtonColor: "#DD6B55",
                 showCancelButton: true,
                 closeOnConfirm: false
             }, function() {
