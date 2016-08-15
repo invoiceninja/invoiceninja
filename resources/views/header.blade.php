@@ -385,7 +385,7 @@
       </button>
       <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand' target="_blank">
         {{-- Per our license, please do not remove or modify this link. --}}
-        <img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px;width:auto;padding-right:10px"/>
+        <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25"/>
       </a>
     </div>
 
