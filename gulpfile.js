@@ -61,7 +61,8 @@ elixir(function(mix) {
         bowerDir + '/datatables/media/css/jquery.dataTables.css',
         bowerDir + '/datatables-bootstrap3/BS3/assets/css/datatables.css',
         'public/css/bootstrap-combobox.css',
-        'public/css/public.style.css'
+        'public/css/public.style.css',
+        'public/css/fonts.css'
     ], 'public/css/built.public.css');
 
     mix.styles([
@@ -75,7 +76,8 @@ elixir(function(mix) {
         bowerDir + '/sweetalert/dist/sweetalert.css',
         'public/css/bootstrap-combobox.css',
         'public/css/typeahead.js-bootstrap.css',
-        'public/css/style.css'
+        'public/css/style.css',
+        'public/css/fonts.css'
     ], 'public/css/built.css');
 
     /**
@@ -91,7 +93,7 @@ elixir(function(mix) {
         'public/js/pdfmake.js',
         'public/js/vfs.js'
     ], 'public/pdf.built.js');
-    
+
     mix.scripts([
         bowerDir + '/jquery/dist/jquery.js',
         bowerDir + '/jquery-ui/jquery-ui.js',
