@@ -48,7 +48,7 @@ elixir.config.css.minifier.pluginOptions = {
  *
  * @type {string}
  */
-var bowerDir = 'public/vendor';
+var bowerDir = 'resources/assets/bower';
 
 elixir(function(mix) {
 
