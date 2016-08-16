@@ -486,7 +486,8 @@ background-clip: padding-box;
 }
 
 .in-image {
-    float:left;padding-right:25px;
+    float: left;
+    margin-right: 25px;
 }
 
 .in-white {
