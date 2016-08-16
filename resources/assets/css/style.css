@@ -1103,3 +1103,7 @@ div.panel-body div.panel-body {
     width: 100%;
     height: 100%;
 }
+
+.help-block {
+    font-size: 12px;
+}
