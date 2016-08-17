@@ -29,6 +29,7 @@ class ActivityTransformer extends EntityTransformer
             'invoice_id' => $activity->invoice ? $activity->invoice->public_id : null,
             'payment_id' => $activity->payment ? $activity->payment->public_id : null,
             'credit_id' => $activity->credit ? $activity->credit->public_id : null,
+            'updated_at' => $this->getTimestamp($activity->updated_at)
         ];
     }
 }
