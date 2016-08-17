@@ -22,6 +22,7 @@ class ActivityTransformer extends EntityTransformer
     public function transform(Activity $activity)
     {
         return [
+            'id' => $activity->key(),
             'activity_type_id' => $activity->activity_type_id,
             'client_id' => $activity->client->public_id,
             'user_id' => $activity->user->public_id + 1,

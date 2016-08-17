@@ -83,6 +83,11 @@ class Activity extends Eloquent
         return $this->belongsTo('App\Models\Task')->withTrashed();
     }
 
+    public function key()
+    {
+        return sprintf('%s-%s-%s', $this->activity_type_id, $this->client_id, $this->created_at->timestamp);
+    }
+
     /**
      * @return mixed
      */
