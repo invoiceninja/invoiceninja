@@ -154,6 +154,7 @@ return [
         'Jlapp\Swaggervel\SwaggervelServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
         Websight\GcsProvider\CloudStorageServiceProvider::class,
+        'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
 
         /*
          * Application Service Providers...
@@ -255,7 +256,8 @@ return [
         'Socialite'       => 'Laravel\Socialite\Facades\Socialite',
         'Excel'           => 'Maatwebsite\Excel\Facades\Excel',
         'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
-
+        'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
+        
     ],
 
 ];
