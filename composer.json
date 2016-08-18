@@ -81,7 +81,8 @@
         "barryvdh/laravel-ide-helper": "~2.2",
         "barryvdh/laravel-debugbar": "~2.2",
         "fzaninotto/faker": "^1.5",
-        "jaybizzle/laravel-crawler-detect": "1.*"
+        "jaybizzle/laravel-crawler-detect": "1.*",
+        "codedge/laravel-selfupdater": "5.x-dev"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",

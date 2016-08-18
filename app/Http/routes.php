@@ -265,6 +265,9 @@ Route::group([
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
     Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
     Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');
+    Route::get('self-update', 'SelfUpdateController@index');
+    Route::post('self-update', 'SelfUpdateController@update');
+    Route::get('self-update/download', 'SelfUpdateController@download');
 });
 
 // Route groups for API

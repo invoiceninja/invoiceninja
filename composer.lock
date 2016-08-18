@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "58fb4c4de809dbd2c62e2701e4c31b12",
-    "content-hash": "308faa59f58a34174062714c7c9c5c48",
+    "hash": "09fda381adad88df20782277ade92809",
+    "content-hash": "77223af5b09a5e08bf323379fe8e3f24",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -1022,6 +1022,62 @@
                 "realex"
             ],
             "time": "2015-01-08 10:05:58"
+        },
+        {
+            "name": "codedge/laravel-selfupdater",
+            "version": "5.x-dev",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/codedge/laravel-selfupdater.git",
+                "reference": "bc1272686ecaf11dd140400a072c1c98b845e44d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/codedge/laravel-selfupdater/zipball/bc1272686ecaf11dd140400a072c1c98b845e44d",
+                "reference": "bc1272686ecaf11dd140400a072c1c98b845e44d",
+                "shasum": ""
+            },
+            "require": {
+                "ext-zip": "*",
+                "guzzlehttp/guzzle": "6.*",
+                "illuminate/support": "5.*",
+                "php": ">=5.5"
+            },
+            "require-dev": {
+                "mockery/mockery": "^0.9.5",
+                "orchestra/testbench": "3.2.*",
+                "phpunit/phpunit": "^4.8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Codedge\\Updater\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Holger Lösken",
+                    "email": "holger.loesken@codedge.de",
+                    "homepage": "http://codedge.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Providing an auto-updating functionality for your self-hosted Laravel application.",
+            "keywords": [
+                "auto update",
+                "auto-update",
+                "laravel",
+                "laravel application",
+                "self update",
+                "self-hosted laravel application",
+                "self-update",
+                "update"
+            ],
+            "time": "2016-08-19 12:47:15"
         },
         {
             "name": "collizo4sky/omnipay-wepay",
@@ -2121,8 +2177,13 @@
                 "url": "https://github.com/gatepay/FedACHdir.git",
                 "reference": "origin/master"
             },
-            "type": "library",
-            "time": "2016-06-03 12:00:26"
+            "dist": {
+                "type": "zip",
+                "url": "https://github.com/gatepay/FedACHdir/archive/master.zip",
+                "reference": "origin/master",
+                "shasum": null
+            },
+            "type": "library"
         },
         {
             "name": "google/apiclient",
@@ -10537,7 +10598,8 @@
         "jlapp/swaggervel": 20,
         "omnipay/braintree": 20,
         "gatepay/fedachdir": 20,
-        "collizo4sky/omnipay-wepay": 20
+        "collizo4sky/omnipay-wepay": 20,
+        "codedge/laravel-selfupdater": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
