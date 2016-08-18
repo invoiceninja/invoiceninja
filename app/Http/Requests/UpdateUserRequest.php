@@ -2,7 +2,7 @@
 
 use Auth;
 
-class UpdateUserRequest extends EntityReques
+class UpdateUserRequest extends EntityRequest
 {
     // Expenses
     /**
