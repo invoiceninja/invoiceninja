@@ -42,7 +42,7 @@ class ApiCheck {
 
             // check if user is archived
             if ($token && $token->user) {
-                Auth::loginUsingId($token->user_id);
+                Auth::onceUsingId($token->user_id);
                 Session::set('token_id', $token->id);
             } else {
                 sleep(ERROR_DELAY);

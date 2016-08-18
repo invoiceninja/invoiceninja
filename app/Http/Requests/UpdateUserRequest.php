@@ -2,9 +2,9 @@
 
 use Auth;
 
-class UpdateUserRequest extends Request
+class UpdateUserRequest extends EntityReques
 {
-    // Expenses 
+    // Expenses
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -12,7 +12,7 @@ class UpdateUserRequest extends Request
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return Auth::user()->is_admin || $this->user()->id == Auth::user()->id;
     }
 
     /**

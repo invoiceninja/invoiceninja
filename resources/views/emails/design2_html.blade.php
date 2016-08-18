@@ -12,7 +12,7 @@
     </tr>
     <tr>
         <td style="border-collapse: collapse;">
-            <table cellpadding="10" cellspacing="0" border="0" bgcolor="#F4F5F5" width="600" align="center" 
+            <table cellpadding="10" cellspacing="0" border="0" bgcolor="#F4F5F5" width="600" align="center"
                 class="header" style="border-top-width: 6px; border-top-color: {{ $account->primary_color ?: '#2E2B2B' }}; border-top-style: solid;">
                 <tr>
                     <td class="logo" width="208" style="border-collapse: collapse; vertical-align: middle;" valign="middle">
@@ -22,7 +22,11 @@
                         <p class="left" style="line-height: 22px; margin: 0; padding: 2px 0 0;">
                             @if ($invoice->due_date)
                                 <span style="font-size: 11px; color: #8f8d8e;">
-                                    {{ strtoupper(trans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)])) }}
+                                    @if ($invoice->isQuote())
+                                        {{ strtoupper(trans('texts.valid_until')) }} {{ $account->formatDate($invoice->due_date) }}
+                                    @else
+                                        {{ strtoupper(trans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)])) }}
+                                    @endif
                                 </span><br />
                             @endif
                             <span style="font-size: 18px;">
