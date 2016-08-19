@@ -83,27 +83,27 @@
                 @if (!isset($account) || $account->enable_client_portal)
                 <ul class="nav navbar-nav navbar-right">
                     @if (isset($account) && $account->enable_client_portal_dashboard)
-                        <li {{ Request::is('*client/dashboard') ? 'class="active"' : '' }}>
+                        <li {!! Request::is('*client/dashboard') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
                         </li>
                     @endif
-                    <li {{ Request::is('*client/quotes') ? 'class="active"' : '' }}>
+                    <li {!! Request::is('*client/quotes') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
                     </li>
-                    <li {{ Request::is('*client/invoices') ? 'class="active"' : '' }}>
+                    <li {!! Request::is('*client/invoices') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                     </li>
                     @if (isset($account) && $account->hasFeature(FEATURE_DOCUMENTS))
-                        <li {{ Request::is('*client/documents') ? 'class="active"' : '' }}>
+                        <li {!! Request::is('*client/documents') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/documents', trans('texts.documents') ) !!}
                         </li>
                     @endif
                     @if (isset($account) && $account->getTokenGatewayId() && !$account->enable_client_portal_dashboard)
-                        <li {{ Request::is('*client/payment_methods') ? 'class="active"' : '' }}>
+                        <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
                         </li>
                     @endif
-                    <li {{ Request::is('*client/payments') ? 'class="active"' : '' }}>
+                    <li {!! Request::is('*client/payments') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/payments', trans('texts.payments') ) !!}
                     </li>
                 </ul>
