@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 #
-# Invoice Name documentation build configuration file, created by
+# Invoice Ninja documentation build configuration file, created by
 # sphinx-quickstart on Fri Aug 19 12:02:54 2016.
 #
 # This file is execfile()d with the current directory set to its
@@ -48,9 +48,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Invoice Name'
-copyright = u'2016, Hillel Coren'
-author = u'Hillel Coren'
+project = u'Invoice Ninja'
+copyright = u'2016, Invoice Ninja'
+author = u'Invoice Ninja'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -133,7 +133,7 @@ html_theme = 'default'
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
 #
-# html_title = u'Invoice Name v2.6.10'
+# html_title = u'Invoice Ninja v2.6.10'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #
@@ -259,7 +259,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'InvoiceName.tex', u'Invoice Name Documentation',
+    (master_doc, 'InvoiceName.tex', u'Invoice Ninja Documentation',
      u'Hillel Coren', 'manual'),
 ]
 
@@ -301,7 +301,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'invoicename', u'Invoice Name Documentation',
+    (master_doc, 'invoicename', u'Invoice Ninja Documentation',
      [author], 1)
 ]
 
@@ -316,7 +316,7 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'InvoiceName', u'Invoice Name Documentation',
+    (master_doc, 'InvoiceName', u'Invoice Ninja Documentation',
      author, 'InvoiceName', 'One line description of project.',
      'Miscellaneous'),
 ]
