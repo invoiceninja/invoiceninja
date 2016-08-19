@@ -2075,7 +2075,8 @@ $LANG = array(
 
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
     'created_quotes' => 'Successfully created :count quotes(s)',
-    
+    'limited_gateways' => 'Note: we support one credit card gateway per company.',
+
 );
 
 return $LANG;
