@@ -1,17 +1,20 @@
-Welcome to Invoice Ninja's documentation!
-========================================
+Invoice Ninja User Guide
+========================
 
-Contents:
+* :ref:`basic-features`
+* :ref:`advanced-settings`
+
+.. _basic-features:
 
 .. toctree::
    :maxdepth: 2
+   :caption: Basic Features
 
+   clients
+   
 
+.. _advanced-settings:
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
+.. toctree::
+   :maxdepth: 2
+   :caption: Advanced Settings
