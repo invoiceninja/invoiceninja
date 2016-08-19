@@ -133,7 +133,7 @@ class OnlinePaymentController extends BaseController
             if ($paymentDriver->completeOffsitePurchase(Input::all())) {
                 Session::flash('message', trans('texts.applied_payment'));
             }
-            return redirect()->to('view/' . $invitation->invitation_key);
+            return redirect()->to($invitation->getLink());
         } catch (Exception $exception) {
             return $this->error($paymentDriver, $exception);
         }
