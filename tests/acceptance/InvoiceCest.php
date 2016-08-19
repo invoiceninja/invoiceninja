@@ -121,7 +121,6 @@ class InvoiceCest
 
         $I->see($invoiceNumber);
     }
-    */
 
     /*
     public function deleteInvoice(AcceptanceTester $I)
