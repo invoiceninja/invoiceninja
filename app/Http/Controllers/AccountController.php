@@ -1071,7 +1071,7 @@ class AccountController extends BaseController
             }
 
             $labels = [];
-            foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms', 'balance_due', 'partial_due', 'subtotal', 'paid_to_date', 'discount'] as $field) {
+            foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms', 'balance_due', 'partial_due', 'subtotal', 'paid_to_date', 'discount', 'tax'] as $field) {
                 $labels[$field] = Input::get("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
