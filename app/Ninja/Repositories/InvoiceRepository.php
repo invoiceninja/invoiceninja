@@ -735,15 +735,21 @@ class InvoiceRepository extends BaseRepository
      * @param $clientId
      * @return mixed
      */
-    public function findOpenInvoices($clientId)
+    public function findOpenInvoices($clientId, $entityType = false)
     {
-        return Invoice::scope()
+        $query = Invoice::scope()
                 ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->whereClientId($clientId)
                 ->whereIsRecurring(false)
-                ->whereDeletedAt(null)
-                ->whereHasTasks(true)
-                ->where('invoice_status_id', '<', 5)
+                ->whereDeletedAt(null);
+
+        if ($entityType == ENTITY_TASK) {
+            $query->whereHasTasks(true);
+        } elseif ($entityType == ENTITY_EXPENSE) {
+            $query->whereHasExpenses(true);
+        }
+
+        return $query->where('invoice_status_id', '<', 5)
                 ->select(['public_id', 'invoice_number'])
                 ->get();
     }

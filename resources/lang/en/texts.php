@@ -2059,7 +2059,6 @@ $LANG = array(
     'bot_emailed_invoice' => 'Your invoice has been sent.',
     'bot_emailed_notify_viewed' => 'I\'ll email you when it\'s viewed.',
     'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
-    'add_to_invoice' => 'Add to invoice',
     'add_product_to_invoice' => 'Add 1 :product',
     'not_authorized' => 'Your are not authorized',
     'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>Send me your account email to get started.',

@@ -244,11 +244,6 @@ class InvoiceController extends BaseController
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
 
-        if (Session::get('expenses')) {
-            $invoice->expenses = Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get();
-        }
-
-
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
         if (!Auth::user()->hasPermission('view_all')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
@@ -384,6 +379,7 @@ class InvoiceController extends BaseController
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
+            'expenses' => Session::get('expenses') ? Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get() : [],
         ];
 
     }

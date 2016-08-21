@@ -26,7 +26,11 @@
 	@if ($expense)
 		{!! Former::populate($expense) !!}
         {!! Former::populateField('should_be_invoiced', intval($expense->should_be_invoiced)) !!}
-        {!! Former::hidden('public_id') !!}
+
+        <div style="display:none">
+            {!! Former::text('public_id') !!}
+            {!! Former::text('invoice_id') !!}
+        </div>
 	@endif
 
     <div class="panel panel-default">
@@ -221,8 +225,9 @@
             }
         }
 
-        function submitAction(action) {
+        function submitAction(action, invoice_id) {
             $('#action').val(action);
+            $('#invoice_id').val(invoice_id);
             $('.main-form').submit();
         }
 
