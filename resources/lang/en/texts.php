@@ -2076,6 +2076,16 @@ $LANG = array(
     'created_quotes' => 'Successfully created :count quotes(s)',
     'limited_gateways' => 'Note: we support one credit card gateway per company.',
 
+    'warning' => 'Warning',
+    'self-update' => 'Update Invoice Ninja',
+    'update_invoiceninja_title' => 'Update Invoice Ninja',
+    'update_invoiceninja_warning' => 'Before start upgrading Invoice Ninja create a backup of your database and files!',
+    'update_invoiceninja_available' => 'A new version of Invoice Ninja is available.',
+    'update_invoiceninja_unavailable' => 'No new version of Invoice Ninja available.',
+    'update_invoiceninja_decide_update_download' => 'You can decide to update directly to :version or to just download the new relase and update later.',
+    'update_invoiceninja_update_start' => 'Update now',
+    'update_invoiceninja_download_start' => 'Download :version',
+    
 );
 
 return $LANG;

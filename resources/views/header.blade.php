@@ -469,6 +469,18 @@
 
       </div>
 
+      @if (Utils::isAdmin())
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          @section('self-updater')
+            <a href="{{ URL::to('self-update') }}" class="dropdown-toggle">
+              <span class="glyphicon glyphicon-cloud-download" title="{{ trans('texts.update_invoiceninja_title') }}"></span>
+            </a>
+          @show
+        </li>
+      </ul>
+      @endif
+
       <ul class="nav navbar-nav navbar-right navbar-settings">
         <li class="dropdown">
           @if (Utils::isAdmin())
