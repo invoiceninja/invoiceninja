@@ -1,9 +1,9 @@
 @extends('master')
 
-@section('head')	
+@section('head')
 
-<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/> 
-<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>    
+<link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css"/>    
 
 <style type="text/css">
     body {
@@ -18,7 +18,7 @@
         margin:0;
     }
     .modal-header img {
-        float: left; 
+        float: left;
         margin-right: 20px;
     }
     .form-signin {
@@ -55,7 +55,7 @@
 
   {!! Former::open('/password/reset')->addClass('form-signin')->rules(array(
         'password' => 'required',
-        'password_confirmation' => 'required',        
+        'password_confirmation' => 'required',
   )) !!}
 
   <div class="modal-header">
@@ -66,8 +66,8 @@
       <input type="hidden" name="token" value="{{{ $token }}}">
 
       <p>
-        {!! Former::text('email')->placeholder(trans('texts.email'))->raw() !!}               
-        {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}               
+        {!! Former::text('email')->placeholder(trans('texts.email'))->raw() !!}
+        {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}
         {!! Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->raw() !!}
 
     </p>
@@ -104,7 +104,7 @@
 
 <script type="text/javascript">
     $(function() {
-        $('#email').focus();            
+        $('#email').focus();
     })
 </script>
 
