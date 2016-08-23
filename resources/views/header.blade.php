@@ -7,22 +7,147 @@
 
   <style type="text/css">
 
+  /*!
+   * Start Bootstrap - Simple Sidebar (http://startbootstrap.com/)
+   * Copyright 2013-2016 Start Bootstrap
+   * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
+   */
+
+   body {
+       overflow-x: hidden;
+   }
+
+  /* Toggle Styles */
+
+  #wrapper {
+      padding-left: 0;
+      -webkit-transition: all 0.5s ease;
+      -moz-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      transition: all 0.5s ease;
+  }
+
+  #wrapper.toggled {
+      padding-left: 250px;
+  }
+
+  #sidebar-wrapper {
+      z-index: 1000;
+      position: fixed;
+      left: 250px;
+      width: 0;
+      height: 100%;
+      margin-left: -250px;
+      overflow-y: auto;
+      background: #000;
+      xbackground: #09334f;
+      xbackground: #09334f;
+      -webkit-transition: all 0.5s ease;
+      -moz-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      transition: all 0.5s ease;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+      width: 250px;
+  }
+
+  #page-content-wrapper {
+      width: 100%;
+      position: absolute;
+      padding: 15px;
+  }
+
+  #wrapper.toggled #page-content-wrapper {
+      position: absolute;
+      margin-right: -250px;
+  }
+
+  /* Sidebar Styles */
+
+  .sidebar-nav {
+      position: absolute;
+      top: 0;
+      width: 250px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      height: 100%;
+  }
+
+  .sidebar-nav li {
+      text-indent: 20px;
+      line-height: 40px;
+  }
+
+  .sidebar-nav li a {
+      display: block;
+      text-decoration: none;
+      color: #999999;
+  }
+
+  .sidebar-nav li a:hover,
+  .sidebar-nav li a.active {
+      text-decoration: none;
+      color: #fff;
+      background: rgba(255,255,255,0.2);
+  }
+
+  .sidebar-nav li a:active,
+  .sidebar-nav li a:focus {
+      text-decoration: none;
+  }
+
+  .sidebar-nav > .sidebar-brand {
+      height: 65px;
+      font-size: 18px;
+      line-height: 60px;
+  }
+
+  .sidebar-nav > .sidebar-brand a {
+      color: #999999;
+  }
+
+  .sidebar-nav > .sidebar-brand a:hover {
+      color: #fff;
+      background: none;
+  }
+
+  @media(min-width:768px) {
+      #wrapper {
+          padding-left: 250px;
+      }
+
+      #wrapper.toggled {
+          padding-left: 0;
+      }
+
+      #sidebar-wrapper {
+          width: 250px;
+      }
+
+      #wrapper.toggled #sidebar-wrapper {
+          width: 0;
+      }
+
+      #page-content-wrapper {
+          padding: 20px;
+          position: relative;
+      }
+
+      #wrapper.toggled #page-content-wrapper {
+          position: relative;
+          margin-right: 0;
+      }
+  }
+
+
+
+
+
     body {
       background-color: #EEEEEE;
-      padding-top: 114px;
-    }
-
-    /* Fix for header covering stuff when the screen is narrower */
-    @media screen and (min-width: 1200px) {
-      body {
-        padding-top: 56px;
-      }
-    }
-
-    @media screen and (max-width: 768px) {
-      body {
-        padding-top: 56px;
-      }
+      padding-top: 56px;
     }
 
     @if (Auth::check() && Auth::user()->dark_mode)
@@ -227,7 +352,6 @@
   window.loadedSearchData = false;
   function showSearch() {
     $('#search').typeahead('val', '');
-    $('#navbar-options').hide();
     $('#search-form').show();
     $('#search').focus();
 
@@ -286,21 +410,10 @@
     }
   }
 
-  function hideSearch() {
-    $('#search-form').hide();
-    $('#navbar-options').show();
-  }
-
   $(function() {
     window.setTimeout(function() {
         $(".alert-hide").fadeOut();
     }, 3000);
-
-    $('#search').blur(function(event){
-        if (window.loadedSearchData) {
-            hideSearch();
-        }
-    });
 
     /* Set the defaults for Bootstrap datepicker */
     $.extend(true, $.fn.datepicker.defaults, {
@@ -372,8 +485,7 @@
 
 @section('body')
 
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="padding-right:30px; height:60px;">
 
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
@@ -382,14 +494,17 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand' target="_blank">
-        {{-- Per our license, please do not remove or modify this link. --}}
-        <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25"/>
-      </a>
+      <div class="navbar-brand">
+          <i class="fa fa-bars" style="color:white; width:30px"></i>
+          <a href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank">
+            {{-- Per our license, please do not remove or modify this link. --}}
+            <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25"/>
+          </a>
+      </div>
     </div>
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
-      <ul class="nav navbar-nav" style="font-weight: bold">
+      <ul class="nav navbar-nav hide-non-phone" style="font-weight: bold">
         {!! Form::nav_link('dashboard', 'dashboard') !!}
         {!! Form::menu_link('client') !!}
         {!! Form::menu_link('task') !!}
@@ -398,8 +513,8 @@
         {!! Form::menu_link('payment') !!}
       </ul>
 
-      <div id="navbar-options">
       <div class="navbar-form navbar-right">
+
         @if (Auth::check())
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
@@ -467,12 +582,21 @@
           </ul>
         </div>
 
+        <i class="fa fa-bars" style="color:white; width:30px; padding-left:14px"></i>
+
       </div>
 
-      @if (Utils::isAdmin())
+      <form id="search-form" class="navbar-form navbar-right" role="search">
+        <div class="form-group">
+          <input type="text" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px"
+            class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}">
+        </div>
+      </form>
+
+      @if (false && Utils::isAdmin())
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-          @section('self-updater')
+           @section('self-updater')
             <a href="{{ URL::to('self-update') }}" class="dropdown-toggle">
               <span class="glyphicon glyphicon-cloud-download" title="{{ trans('texts.update_invoiceninja_title') }}"></span>
             </a>
@@ -481,92 +605,81 @@
       </ul>
       @endif
 
-      <ul class="nav navbar-nav navbar-right navbar-settings">
-        <li class="dropdown">
-          @if (Utils::isAdmin())
-            <a href="{{ URL::to('/settings') }}" class="dropdown-toggle">
-              <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
-            </a>
-            <ul class="dropdown-menu">
-              @foreach (\App\Models\Account::$basicSettings as $setting)
-                  <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
-              @endforeach
-              <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
-            </ul>
-          @else
-            <a href="{{ URL::to('/settings/user_details') }}" class="dropdown-toggle">
-              <span class="glyphicon glyphicon-user" title="{{ trans('texts.settings') }}"/>
-            </a>
-          @endif
-        </li>
-      </ul>
-
-
-      <ul class="nav navbar-nav navbar-right navbar-search">
-        <li class="dropdown">
-          <a href="#" onclick="showSearch()">
-            <span class="glyphicon glyphicon-search" title="{{ trans('texts.search') }}"/>
-          </a>
-          <ul class="dropdown-menu">
-            @if (count(Session::get(RECENTLY_VIEWED)) == 0)
-                <li><a href="#">{{ trans('texts.no_items') }}</a></li>
-            @else
-                @foreach (Session::get(RECENTLY_VIEWED) as $link)
-                    @if (property_exists($link, 'accountId') && $link->accountId == Auth::user()->account_id)
-                        <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>
-                    @endif
-                @endforeach
-            @endif
-          </ul>
-        </li>
-      </ul>
-      </div>
-
-      <form id="search-form" class="navbar-form navbar-right" role="search" style="display:none">
-        <div class="form-group">
-          <input type="text" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px"
-            class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}">
-        </div>
-      </form>
-
-
     </div><!-- /.navbar-collapse -->
 
-
-  </div>
 </nav>
+<div id="wrapper">
 
-<br/>
-<div class="container">
-
-  @include('partials.warn_session', ['redirectTo' => '/dashboard'])
-
-  @if (Session::has('warning'))
-  <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
-  @endif
-
-  @if (Session::has('message'))
-    <div class="alert alert-info alert-hide">
-      {{ Session::get('message') }}
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav" style="padding-top:20px">
+            @foreach([
+                'dashboard' => 'tachometer',
+                'clients' => 'users',
+                'credits' => 'credit-card',
+                'tasks' => 'clock-o',
+                'expenses' => 'file-image-o',
+                'vendors' => 'building',
+                'quotes' => 'file-text-o',
+                'invoices' => 'file-pdf-o',
+                'recurring_invoices' => 'files-o',
+                'payments' => 'credit-card',
+                'settings' => 'cog',
+            ] as $option => $icon)
+            <li style="border-bottom:solid 1px">
+                <a href="{{ url($option) }}" style="font-size:16px; padding-top:6px; padding-bottom:6px"
+                    class="{{ Request::is("{$option}*") ? 'active' : '' }}">
+                    <i class="fa fa-{{ $icon }}" style="width:46px; color:white; padding-right:10px"></i>
+                    {{ trans("texts.{$option}")}}
+                </a>
+            </li>
+            @endforeach
+        </ul>
     </div>
-  @elseif (Session::has('news_feed_message'))
-    <div class="alert alert-info">
-      {!! Session::get('news_feed_message') !!}
-      <a href="#" onclick="hideMessage()" class="pull-right">{{ trans('texts.hide') }}</a>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+
+            <br/>
+            <div class="container">
+
+              @include('partials.warn_session', ['redirectTo' => '/dashboard'])
+
+              @if (Session::has('warning'))
+              <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+              @endif
+
+              @if (Session::has('message'))
+                <div class="alert alert-info alert-hide">
+                  {{ Session::get('message') }}
+                </div>
+              @elseif (Session::has('news_feed_message'))
+                <div class="alert alert-info">
+                  {!! Session::get('news_feed_message') !!}
+                  <a href="#" onclick="hideMessage()" class="pull-right">{{ trans('texts.hide') }}</a>
+                </div>
+              @endif
+
+              @if (Session::has('error'))
+                  <div class="alert alert-danger">{!! Session::get('error') !!}</div>
+              @endif
+
+              @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
+                {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
+              @endif
+
+              @yield('content')
+
+            </div>
+
+        </div>
     </div>
-  @endif
-
-  @if (Session::has('error'))
-      <div class="alert alert-danger">{!! Session::get('error') !!}</div>
-  @endif
-
-  @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-    {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
-  @endif
-
-  @yield('content')
+    <!-- /#page-content-wrapper -->
 
 </div>
+
 
 @if (!Auth::check() || !Auth::user()->registered)
 <div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
