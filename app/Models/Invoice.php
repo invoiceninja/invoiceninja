@@ -131,7 +131,12 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getRoute()
     {
-        $entityType = $this->getEntityType();
+        if ($this->is_recurring) {
+            $entityType = 'recurring_invoice';
+        } else {
+            $entityType = $this->getEntityType();
+        }
+
         return "/{$entityType}s/{$this->public_id}/edit";
     }
 

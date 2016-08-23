@@ -796,6 +796,7 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
    .form-padding-right {
         padding-right: 40px;
    }
+
    .hide-non-phone {
        display: none;
    }
@@ -817,29 +818,6 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
    }
 }
 
-/* Style to fix navigation by show icon instead of name */
-@media only screen and (min-width : 1200px) {
-   .nav-account-icon {
-        display: none;
-   }
-}
-@media only screen and (max-width : 992px) {
-   .nav-account-icon {
-        display: none;
-   }
-}
-@media only screen and (max-width : 1200px) and (min-width: 992px) {
-   .nav-account-name {
-        display: none;
-   }
-}
-
-@media (max-width: 992px) {
-    .hide-phone {
-        display: none !important;
-    }
-}
-
 @media (max-width: 767px) {
     .test-class{color:black;}
 
@@ -857,6 +835,10 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     .plans-table .cell div:first-child {margin-bottom: 5px;}
     .plans-table .cell .cta {margin-bottom: 0 !important;}
     .plans-table .pro {margin-top: 40px;}
+
+    .hide-phone {
+        display: none;
+    }
 }
 
 label[for=recommendedGateway_id2].radio{

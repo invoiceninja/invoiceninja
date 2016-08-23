@@ -257,6 +257,10 @@ class AccountController extends BaseController
      */
     public function showSection($section = false)
     {
+        if ( ! Auth::user()->is_admin) {
+            return Redirect::to('/settings/user_details');
+        }
+
         if (!$section) {
             return Redirect::to('/settings/'.ACCOUNT_COMPANY_DETAILS, 301);
         }
