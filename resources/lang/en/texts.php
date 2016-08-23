@@ -2085,7 +2085,8 @@ $LANG = array(
     'update_invoiceninja_decide_update_download' => 'You can decide to update directly to :version or to just download the new relase and update later.',
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'Download :version',
-    
+    'create_new' => 'Create New',
+
 );
 
 return $LANG;

@@ -7,6 +7,16 @@
 
   <style type="text/css">
 
+  .menu-toggle {
+      color: #999 !important;
+      text-decoration: none;
+  }
+
+  .menu-toggle:hover {
+      color: #fff !important;
+      text-decoration: none;
+  }
+
   /*!
    * Start Bootstrap - Simple Sidebar (http://startbootstrap.com/)
    * Copyright 2013-2016 Start Bootstrap
@@ -80,22 +90,30 @@
       line-height: 40px;
   }
 
-  .sidebar-nav li a {
+  .sidebar-nav li > div {
       display: block;
       text-decoration: none;
       color: #999999;
+      cursor: pointer;
   }
 
-  .sidebar-nav li a:hover,
-  .sidebar-nav li a.active {
+  .sidebar-nav li > div:hover {
       text-decoration: none;
       color: #fff;
       background: rgba(255,255,255,0.2);
   }
 
-  .sidebar-nav li a:active,
-  .sidebar-nav li a:focus {
+  .sidebar-nav li > div:hover {
       text-decoration: none;
+  }
+
+  .sidebar-nav li > div > div.btn {
+      display: none;
+  }
+
+  .sidebar-nav li > div.hover > div.btn,
+  .sidebar-nav li > div:hover > div.btn {
+      display: block;
   }
 
   .sidebar-nav > .sidebar-brand {
@@ -113,36 +131,31 @@
       background: none;
   }
 
-  @media(min-width:768px) {
-      #wrapper {
-          padding-left: 250px;
-      }
-
-      #wrapper.toggled {
-          padding-left: 0;
-      }
-
-      #sidebar-wrapper {
-          width: 250px;
-      }
-
-      #wrapper.toggled #sidebar-wrapper {
-          width: 0;
-      }
-
-      #page-content-wrapper {
-          padding: 20px;
-          position: relative;
-      }
-
-      #wrapper.toggled #page-content-wrapper {
-          position: relative;
-          margin-right: 0;
-      }
+  #wrapper {
+      padding-left: 250px;
   }
 
+  #wrapper.toggled {
+      padding-left: 0;
+  }
 
+  #sidebar-wrapper {
+      width: 250px;
+  }
 
+  #wrapper.toggled #sidebar-wrapper {
+      width: 0;
+  }
+
+  #page-content-wrapper {
+      padding: 20px;
+      position: relative;
+  }
+
+  #wrapper.toggled #page-content-wrapper {
+      position: relative;
+      margin-right: 0;
+  }
 
 
     body {
@@ -169,12 +182,6 @@
   </style>
 
 <script type="text/javascript">
-
-  function setTheme(id)
-  {
-    $('#theme_id').val(id);
-    $('form.themeForm').submit();
-  }
 
   @if (!Auth::check() || !Auth::user()->registered)
   function validateSignUp(showError)
@@ -477,6 +484,10 @@
         }
     });
 
+    $("#left-menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+    });
   });
 
 </script>
@@ -485,7 +496,7 @@
 
 @section('body')
 
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="padding-right:30px; height:60px;">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="height:60px;">
 
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
@@ -495,7 +506,9 @@
         <span class="icon-bar"></span>
       </button>
       <div class="navbar-brand">
-          <i class="fa fa-bars" style="color:white; width:30px"></i>
+          <a href="#" id="left-menu-toggle" class="menu-toggle">
+            <i class="fa fa-bars" style="width:30px;padding-right:10px"> </i>
+          </a>
           <a href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank">
             {{-- Per our license, please do not remove or modify this link. --}}
             <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25"/>
@@ -504,16 +517,7 @@
     </div>
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
-      <ul class="nav navbar-nav hide-non-phone" style="font-weight: bold">
-        {!! Form::nav_link('dashboard', 'dashboard') !!}
-        {!! Form::menu_link('client') !!}
-        {!! Form::menu_link('task') !!}
-        {!! Form::menu_link('expense') !!}
-        {!! Form::menu_link('invoice') !!}
-        {!! Form::menu_link('payment') !!}
-      </ul>
-
-      <div class="navbar-form navbar-right">
+      <div class="navbar-form navbar-right" style="padding-right:30px">
 
         @if (Auth::check())
           @if (!Auth::user()->registered)
@@ -627,11 +631,18 @@
                 'settings' => 'cog',
             ] as $option => $icon)
             <li style="border-bottom:solid 1px">
-                <a href="{{ url($option) }}" style="font-size:16px; padding-top:6px; padding-bottom:6px"
+                <div onclick="location.href='{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}'"
+                    style="font-size:16px; padding-top:6px; padding-bottom:6px"
                     class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                     <i class="fa fa-{{ $icon }}" style="width:46px; color:white; padding-right:10px"></i>
-                    {{ trans("texts.{$option}")}}
-                </a>
+                    {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
+                    @if ($option != 'dashboard' && $option != 'settings')
+                        <div type="button" class="btn btn-primary btn-sm pull-right" style="margin-top:5px;margin-right:10px;text-indent:0px"
+                            onclick="event.cancelBubble = true;if(event.stopPropagation) event.stopPropagation();location.href='{{ url("/{$option}/create") }}'">
+                            <i class="fa fa-plus-circle" style="color:white;width:20px" title="{{ trans('texts.create_new') }}"></i>
+                        </div>
+                    @endif
+                </div>
             </li>
             @endforeach
         </ul>
@@ -642,8 +653,7 @@
     <div id="page-content-wrapper">
         <div class="container-fluid">
 
-            <br/>
-            <div class="container">
+            <div class="xcontainer">
 
               @include('partials.warn_session', ['redirectTo' => '/dashboard'])
 

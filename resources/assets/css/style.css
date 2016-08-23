@@ -403,6 +403,10 @@ font-weight: bold;
   filter: none;
 }
 
+.navbar-collapse {
+    background-color: #0b4d78;
+}
+
 .navbar,
 ul.dropdown-menu,
 .twitter-typeahead .tt-menu {
