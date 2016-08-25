@@ -279,6 +279,7 @@ class AccountRepository
         $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
         $invoice->invoice_date = $clientAccount->getRenewalDate();
         $invoice->amount = $invoice->balance = $plan_cost - $credit;
+        $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
         $invoice->save();
 
         if ($credit) {
