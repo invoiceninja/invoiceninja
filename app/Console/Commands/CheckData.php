@@ -8,10 +8,10 @@ use Symfony\Component\Console\Input\InputOption;
 /*
 
 ##################################################################
-WARNING: Please backup your database before running this script 
+WARNING: Please backup your database before running this script
 ##################################################################
 
-Since the application was released a number of bugs have inevitably been found. 
+Since the application was released a number of bugs have inevitably been found.
 Although the bugs have always been fixed in some cases they've caused the client's
 balance, paid to date and/or activity records to become inaccurate. This script will
 check for errors and correct the data.
@@ -24,7 +24,7 @@ php artisan ninja:check-data
 
 Options:
 
---client_id:<value> 
+--client_id:<value>
 
     Limits the script to a single client
 
@@ -50,7 +50,7 @@ class CheckData extends Command {
      * @var string
      */
     protected $description = 'Check/fix data';
-    
+
     public function fire()
     {
         $this->info(date('Y-m-d') . ' Running CheckData...');
@@ -107,7 +107,7 @@ class CheckData extends Command {
                 if ($entityType != ENTITY_CLIENT) {
                     $records = $records->join('clients', 'clients.id', '=', "{$table}.client_id");
                 }
-                
+
                 $records = $records->where("{$table}.account_id", '!=', DB::raw("{$entityType}s.account_id"))
                                 ->get(["{$table}.id", 'clients.account_id', 'clients.user_id']);
 
@@ -136,12 +136,14 @@ class CheckData extends Command {
                     ->join('payments', 'payments.client_id', '=', 'clients.id')
                     ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
                     ->where('payments.is_deleted', '=', 0)
+                    ->where('payments.payment_status_id', '!=', 2)
+                    ->where('payments.payment_status_id', '!=', 3)
                     ->where('invoices.is_deleted', '=', 0)
                     ->groupBy('clients.id')
-                    ->havingRaw('clients.paid_to_date != sum(payments.amount) and clients.paid_to_date != 999999999.9999')
+                    ->havingRaw('clients.paid_to_date != sum(payments.amount - payments.refunded) and clients.paid_to_date != 999999999.9999')
                     ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(payments.amount) as amount')]);
         $this->info(count($clients) . ' clients with incorrect paid to date');
-        
+
         if ($this->option('fix') == 'true') {
             foreach ($clients as $client) {
                 DB::table('clients')
@@ -166,14 +168,14 @@ class CheckData extends Command {
                     ->where('invoices.is_recurring', '=', 0)
                     ->havingRaw('abs(clients.balance - sum(invoices.balance)) > .01 and clients.balance != 999999999.9999');
         }
-                    
+
         $clients = $clients->groupBy('clients.id', 'clients.balance', 'clients.created_at')
-                ->orderBy('clients.id', 'DESC')
-                ->get(['clients.account_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
+                ->orderBy('accounts.company_id', 'DESC')
+                ->get(['accounts.company_id', 'clients.account_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
         $this->info(count($clients) . ' clients with incorrect balance/activities');
 
         foreach ($clients as $client) {
-            $this->info("=== Client:{$client->id} Balance:{$client->balance} Actual Balance:{$client->actual_balance} ===");
+            $this->info("=== Company: {$client->company_id} Account:{$client->account_id} Client:{$client->id} Balance:{$client->balance} Actual Balance:{$client->actual_balance} ===");
             $foundProblem = false;
             $lastBalance = 0;
             $lastAdjustment = 0;
@@ -212,7 +214,7 @@ class CheckData extends Command {
 
                 if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_INVOICE
                     || $activity->activity_type_id == ACTIVITY_TYPE_CREATE_QUOTE) {
-                    
+
                     // Get original invoice amount
                     $update = DB::table('activities')
                                 ->where('invoice_id', '=', $activity->invoice_id)
