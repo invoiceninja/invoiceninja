@@ -50,7 +50,8 @@
         {!! Former::select('primary_gateway_id')
             ->fromQuery($primaryGateways, 'name', 'id')
             ->label(trans('texts.gateway_id'))
-            ->onchange('setFieldsShown()') !!}
+            ->onchange('setFieldsShown()')
+            ->help(count($secondaryGateways) ? false : 'limited_gateways') !!}
 
         @if (count($secondaryGateways))
             {!! Former::select('secondary_gateway_id')

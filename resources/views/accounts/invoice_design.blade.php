@@ -217,6 +217,7 @@
 							  {!! Former::text('labels_paid_to_date')->label(trans('texts.paid_to_date')) !!}
 							  {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
 							  {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
+                              {!! Former::text('labels_tax')->label(trans('texts.tax')) !!}
                         </div>
                       </div>
 

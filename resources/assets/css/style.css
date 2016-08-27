@@ -397,9 +397,14 @@ font-weight: bold;
 }
 .navbar {
   background-color: #0b4d78 !important;
+  xbackground-color: #343232 !important;
   background-image: none;
   background-repeat: no-repeat;
   filter: none;
+}
+
+.navbar-collapse {
+    background-color: #0b4d78;
 }
 
 .navbar,
@@ -791,6 +796,10 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
    .form-padding-right {
         padding-right: 40px;
    }
+
+   .hide-non-phone {
+       display: none;
+   }
 }
 
 /* Medium Devices, Desktops */
@@ -807,29 +816,6 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
    .hide-desktop {
         display: none;
    }
-}
-
-/* Style to fix navigation by show icon instead of name */
-@media only screen and (min-width : 1200px) {
-   .nav-account-icon {
-        display: none;
-   }
-}
-@media only screen and (max-width : 992px) {
-   .nav-account-icon {
-        display: none;
-   }
-}
-@media only screen and (max-width : 1200px) and (min-width: 992px) {
-   .nav-account-name {
-        display: none;
-   }
-}
-
-@media (max-width: 992px) {
-    .hide-phone {
-        display: none !important;
-    }
 }
 
 @media (max-width: 767px) {
@@ -849,6 +835,10 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     .plans-table .cell div:first-child {margin-bottom: 5px;}
     .plans-table .cell .cta {margin-bottom: 0 !important;}
     .plans-table .pro {margin-top: 40px;}
+
+    .hide-phone {
+        display: none;
+    }
 }
 
 label[for=recommendedGateway_id2].radio{

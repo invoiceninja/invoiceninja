@@ -44,12 +44,45 @@ class InvoiceCest
         $I->see($invoiceNumber);
     }
 
+    public function editInvoice(AcceptanceTester $I)
+    {
+        $I->wantTo('edit an invoice');
+
+
+        // Check all language files
+        $count = $I->grabNumRecords('date_formats');
+        for ($i=1; $i<=$count; $i++) {
+            $format = $I->grabFromDatabase('date_formats', 'format', ['id' => $i]);
+            $date = mktime(0, 0, 0, 12, 31, date('Y'));
+            $value = date($format, $date);
+
+            $I->amOnPage('/settings/localization');
+            $I->selectOption('date_format_id', $value);
+            $I->click('Save');
+
+            //change po_number with random number
+            $I->amOnPage('/invoices/1/edit');
+            $po_number = rand(100, 300);
+            $I->fillField('#po_number', $po_number);
+
+            //save
+            $I->executeJS('submitAction()');
+            $I->wait(1);
+
+            //check if po_number was updated
+            $I->seeInDatabase('invoices', [
+                'po_number' => $po_number,
+                'invoice_date' => date('Y-m-d')
+            ]);
+        }
+    }
+
     public function createRecurringInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
 
         $I->wantTo('create a recurring invoice');
-        
+
         $I->amOnPage('/clients/create');
         $I->fillField(['name' => 'contacts[0][email]'], $clientEmail);
         $I->click('Save');
@@ -60,9 +93,9 @@ class InvoiceCest
         $I->selectDataPicker($I, '#end_date', '+ 1 week');
         $I->fillField('#po_number', rand(100, 200));
         $I->fillField('#discount', rand(0, 20));
-        
+
         $this->fillItems($I);
-        
+
         $I->executeJS("submitAction('email')");
         $I->wait(2);
         $I->see($clientEmail);
@@ -75,29 +108,12 @@ class InvoiceCest
         $I->see($invoiceNumber);
     }
 
-    public function editInvoice(AcceptanceTester $I)
-    {
-        $I->wantTo('edit an invoice');
-        
-        $I->amOnPage('/invoices/1/edit');
-
-        //change po_number with random number
-        $po_number = rand(100, 300);
-        $I->fillField('#po_number', $po_number);
-
-        //save
-        $I->executeJS('submitAction()');
-        $I->wait(1);
-
-        //check if po_number was updated
-        $I->seeInDatabase('invoices', ['po_number' => $po_number]);
-    }
 
     public function cloneInvoice(AcceptanceTester $I)
     {
         $I->wantTo('clone an invoice');
         $I->amOnPage('/invoices/1/clone');
-        
+
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
         $I->executeJS('submitAction()');
@@ -105,7 +121,7 @@ class InvoiceCest
 
         $I->see($invoiceNumber);
     }
-    
+
     /*
     public function deleteInvoice(AcceptanceTester $I)
     {

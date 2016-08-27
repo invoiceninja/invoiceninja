@@ -70,8 +70,8 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Jeramy Simpson](https://github.com/JeramyMywork) - [MyWork](https://www.mywork.com.au)
 * [Sigitas Limontas](https://lt.linkedin.com/in/sigitaslimontas)
 * [Joshua Dwire](https://github.com/joshuadwire) - [Some Techie](https://www.sometechie.com)
-* [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de/)
-
+* [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
+* [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
 
 ## License
 Invoice Ninja is released under the Attribution Assurance License.  

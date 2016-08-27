@@ -541,7 +541,7 @@ class InvoiceRepository extends BaseRepository
             }
 
             if ($productKey = trim($item['product_key'])) {
-                if (\Auth::user()->account->update_products && ! strtotime($productKey) && ! $task && ! $expense) {
+                if (\Auth::user()->account->update_products && ! $invoice->has_tasks && ! $invoice->has_expenses) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
                         if (Auth::user()->can('create', ENTITY_PRODUCT)) {
@@ -735,15 +735,21 @@ class InvoiceRepository extends BaseRepository
      * @param $clientId
      * @return mixed
      */
-    public function findOpenInvoices($clientId)
+    public function findOpenInvoices($clientId, $entityType = false)
     {
-        return Invoice::scope()
+        $query = Invoice::scope()
                 ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->whereClientId($clientId)
                 ->whereIsRecurring(false)
-                ->whereDeletedAt(null)
-                ->whereHasTasks(true)
-                ->where('invoice_status_id', '<', 5)
+                ->whereDeletedAt(null);
+
+        if ($entityType == ENTITY_TASK) {
+            $query->whereHasTasks(true);
+        } elseif ($entityType == ENTITY_EXPENSE) {
+            $query->whereHasExpenses(true);
+        }
+
+        return $query->where('invoice_status_id', '<', 5)
                 ->select(['public_id', 'invoice_number'])
                 ->get();
     }

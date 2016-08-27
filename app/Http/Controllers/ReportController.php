@@ -89,9 +89,10 @@ class ReportController extends BaseController
         $reportTypes = [
             ENTITY_CLIENT => trans('texts.client'),
             ENTITY_INVOICE => trans('texts.invoice'),
+            ENTITY_PRODUCT => trans('texts.product'),
             ENTITY_PAYMENT => trans('texts.payment'),
-            ENTITY_EXPENSE => trans('texts.expenses'),
-            ENTITY_TAX_RATE => trans('texts.taxes'),
+            ENTITY_EXPENSE => trans('texts.expense'),
+            ENTITY_TAX_RATE => trans('texts.tax'),
         ];
 
         $params = [
@@ -250,6 +251,8 @@ class ReportController extends BaseController
             return $this->generateClientReport($startDate, $endDate, $isExport);
         } elseif ($reportType == ENTITY_INVOICE) {
             return $this->generateInvoiceReport($startDate, $endDate, $isExport);
+        } elseif ($reportType == ENTITY_PRODUCT) {
+            return $this->generateProductReport($startDate, $endDate, $isExport);
         } elseif ($reportType == ENTITY_PAYMENT) {
             return $this->generatePaymentReport($startDate, $endDate, $isExport);
         } elseif ($reportType == ENTITY_TAX_RATE) {
@@ -452,6 +455,60 @@ class ReportController extends BaseController
             'columns' => $columns,
             'displayData' => $displayData,
             'reportTotals' => $reportTotals,
+        ];
+    }
+
+    /**
+     * @param $startDate
+     * @param $endDate
+     * @param $isExport
+     * @return array
+     */
+    private function generateProductReport($startDate, $endDate, $isExport)
+    {
+        $columns = ['client', 'invoice_number', 'invoice_date', 'quantity', 'product'];
+
+        $account = Auth::user()->account;
+        $displayData = [];
+        $reportTotals = [];
+
+        $clients = Client::scope()
+                        ->withTrashed()
+                        ->with('contacts')
+                        ->where('is_deleted', '=', false)
+                        ->with(['invoices' => function($query) use ($startDate, $endDate) {
+                            $query->where('invoice_date', '>=', $startDate)
+                                  ->where('invoice_date', '<=', $endDate)
+                                  ->where('is_deleted', '=', false)
+                                  ->where('is_recurring', '=', false)
+                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                                  ->with(['invoice_items'])
+                                  ->withTrashed();
+                        }]);
+
+        foreach ($clients->get() as $client) {
+            foreach ($client->invoices as $invoice) {
+
+                foreach ($invoice->invoice_items as $invoiceItem) {
+                    $displayData[] = [
+                        $isExport ? $client->getDisplayName() : $client->present()->link,
+                        $isExport ? $invoice->invoice_number : $invoice->present()->link,
+                        $invoice->present()->invoice_date,
+                        $invoiceItem->qty,
+                        $invoiceItem->product_key,
+                    ];
+                    //$reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment ? $payment->amount : 0);
+                }
+
+                //$reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
+                //$reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'balance', $invoice->balance);
+            }
+        }
+
+        return [
+            'columns' => $columns,
+            'displayData' => $displayData,
+            'reportTotals' => [],
         ];
     }
 

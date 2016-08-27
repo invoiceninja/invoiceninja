@@ -349,7 +349,7 @@ NINJA.invoiceLines = function(invoice) {
     if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
         grid[0].push({text: account.custom_invoice_item_label1, style: ['tableHeader', 'custom1TableHeader']});
     }
-    if (invoice.features.invoice_ettings && account.custom_invoice_item_label2) {
+    if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
         grid[0].push({text: account.custom_invoice_item_label2, style: ['tableHeader', 'custom2TableHeader']});
     }
 

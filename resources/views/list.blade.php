@@ -35,14 +35,8 @@
 	<div id="top_right_buttons" class="pull-right">
 		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important"
             class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
-        @if (Auth::user()->hasFeature(FEATURE_QUOTES) && $entityType == ENTITY_INVOICE)
-            {!! Button::normal(trans('texts.quotes'))->asLinkTo(URL::to('/quotes'))->appendIcon(Icon::create('list')) !!}
-            {!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_invoices'))->appendIcon(Icon::create('list')) !!}
-        @elseif ($entityType == ENTITY_EXPENSE)
+        @if ($entityType == ENTITY_EXPENSE)
             {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
-            {!! Button::normal(trans('texts.vendors'))->asLinkTo(URL::to('/vendors'))->appendIcon(Icon::create('list')) !!}
-        @elseif ($entityType == ENTITY_CLIENT)
-            {!! Button::normal(trans('texts.credits'))->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('list')) !!}
         @endif
 
 		@if (Auth::user()->can('create', $entityType))
@@ -101,7 +95,7 @@
 		if (action == 'delete') {
             sweetConfirm(function() {
                 $('#action').val(action);
-        		$('form.listForm').submit();                
+        		$('form.listForm').submit();
             });
 		} else {
     		$('#action').val(action);

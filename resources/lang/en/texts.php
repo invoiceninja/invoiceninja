@@ -2059,7 +2059,6 @@ $LANG = array(
     'bot_emailed_invoice' => 'Your invoice has been sent.',
     'bot_emailed_notify_viewed' => 'I\'ll email you when it\'s viewed.',
     'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
-    'add_to_invoice' => 'Add to invoice',
     'add_product_to_invoice' => 'Add 1 :product',
     'not_authorized' => 'Your are not authorized',
     'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>Send me your account email to get started.',
@@ -2075,7 +2074,19 @@ $LANG = array(
 
     'include_item_taxes_inline' => 'Include <b>line item taxes in line total</b>',
     'created_quotes' => 'Successfully created :count quotes(s)',
-    
+    'limited_gateways' => 'Note: we support one credit card gateway per company.',
+
+    'warning' => 'Warning',
+    'self-update' => 'Update Invoice Ninja',
+    'update_invoiceninja_title' => 'Update Invoice Ninja',
+    'update_invoiceninja_warning' => 'Before start upgrading Invoice Ninja create a backup of your database and files!',
+    'update_invoiceninja_available' => 'A new version of Invoice Ninja is available.',
+    'update_invoiceninja_unavailable' => 'No new version of Invoice Ninja available.',
+    'update_invoiceninja_decide_update_download' => 'You can decide to update directly to :version or to just download the new relase and update later.',
+    'update_invoiceninja_update_start' => 'Update now',
+    'update_invoiceninja_download_start' => 'Download :version',
+    'create_new' => 'Create New',
+
 );
 
 return $LANG;

@@ -7,22 +7,162 @@
 
   <style type="text/css">
 
+  .menu-toggle {
+      color: #999 !important;
+      text-decoration: none;
+  }
+
+  .menu-toggle:hover {
+      color: #fff !important;
+      text-decoration: none;
+  }
+
+  /*!
+   * Start Bootstrap - Simple Sidebar (http://startbootstrap.com/)
+   * Copyright 2013-2016 Start Bootstrap
+   * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
+   */
+
+   body {
+       overflow-x: hidden;
+   }
+
+  /* Toggle Styles */
+
+  #wrapper {
+      padding-left: 0;
+      -webkit-transition: all 0.5s ease;
+      -moz-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      transition: all 0.5s ease;
+  }
+
+  #wrapper.toggled {
+      padding-left: 250px;
+  }
+
+  #sidebar-wrapper {
+      z-index: 1000;
+      position: fixed;
+      left: 250px;
+      width: 0;
+      height: 100%;
+      margin-left: -250px;
+      overflow-y: auto;
+      background: #000;
+      xbackground: #09334f;
+      xbackground: #09334f;
+      -webkit-transition: all 0.5s ease;
+      -moz-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      transition: all 0.5s ease;
+  }
+
+  #wrapper.toggled #sidebar-wrapper {
+      width: 250px;
+  }
+
+  #page-content-wrapper {
+      width: 100%;
+      position: absolute;
+      padding: 15px;
+  }
+
+  #wrapper.toggled #page-content-wrapper {
+      position: absolute;
+      margin-right: -250px;
+  }
+
+  /* Sidebar Styles */
+
+  .sidebar-nav {
+      position: absolute;
+      top: 0;
+      width: 250px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      height: 100%;
+  }
+
+  .sidebar-nav li {
+      text-indent: 20px;
+      line-height: 40px;
+  }
+
+  .sidebar-nav li > div {
+      display: block;
+      text-decoration: none;
+      color: #999999;
+      cursor: pointer;
+  }
+
+  .sidebar-nav li > div:hover,
+  .sidebar-nav li > div.active {
+      text-decoration: none;
+      color: #fff;
+      background: rgba(255,255,255,0.2);
+  }
+
+  .sidebar-nav li > div:hover {
+      text-decoration: none;
+  }
+
+  .sidebar-nav li > div > div.btn {
+      display: none;
+  }
+
+  .sidebar-nav li > div.hover > div.btn,
+  .sidebar-nav li > div:hover > div.btn {
+      display: block;
+  }
+
+  .sidebar-nav > .sidebar-brand {
+      height: 65px;
+      font-size: 18px;
+      line-height: 60px;
+  }
+
+  .sidebar-nav > .sidebar-brand a {
+      color: #999999;
+  }
+
+  .sidebar-nav > .sidebar-brand a:hover {
+      color: #fff;
+      background: none;
+  }
+
+    @media(min-width:768px) {
+      #wrapper {
+          padding-left: 250px;
+      }
+
+      #wrapper.toggled {
+          padding-left: 0;
+      }
+
+      #sidebar-wrapper {
+          width: 250px;
+      }
+
+      #wrapper.toggled #sidebar-wrapper {
+          width: 0;
+      }
+
+      #page-content-wrapper {
+          padding: 20px;
+          position: relative;
+      }
+
+      #wrapper.toggled #page-content-wrapper {
+          position: relative;
+          margin-right: 0;
+      }
+    }
+
     body {
       background-color: #EEEEEE;
-      padding-top: 114px;
-    }
-
-    /* Fix for header covering stuff when the screen is narrower */
-    @media screen and (min-width: 1200px) {
-      body {
-        padding-top: 56px;
-      }
-    }
-
-    @media screen and (max-width: 768px) {
-      body {
-        padding-top: 56px;
-      }
+      padding-top: 56px;
     }
 
     @if (Auth::check() && Auth::user()->dark_mode)
@@ -44,12 +184,6 @@
   </style>
 
 <script type="text/javascript">
-
-  function setTheme(id)
-  {
-    $('#theme_id').val(id);
-    $('form.themeForm').submit();
-  }
 
   @if (!Auth::check() || !Auth::user()->registered)
   function validateSignUp(showError)
@@ -225,13 +359,12 @@
   }
 
   window.loadedSearchData = false;
-  function showSearch() {
+  function onSearchFocus() {
     $('#search').typeahead('val', '');
-    $('#navbar-options').hide();
     $('#search-form').show();
-    $('#search').focus();
 
     if (!window.loadedSearchData) {
+        window.loadedSearchData = true;
         trackEvent('/activity', '/search');
         var request = $.get('{{ URL::route('get_search_data') }}', function(data) {
           $('#search').typeahead({
@@ -274,7 +407,6 @@
           ).on('typeahead:selected', function(element, datum, name) {
             window.location = datum.url;
           }).focus();
-          window.loadedSearchData = true;
         });
 
         request.error(function(httpObj, textStatus) {
@@ -286,21 +418,10 @@
     }
   }
 
-  function hideSearch() {
-    $('#search-form').hide();
-    $('#navbar-options').show();
-  }
-
   $(function() {
     window.setTimeout(function() {
         $(".alert-hide").fadeOut();
     }, 3000);
-
-    $('#search').blur(function(event){
-        if (window.loadedSearchData) {
-            hideSearch();
-        }
-    });
 
     /* Set the defaults for Bootstrap datepicker */
     $.extend(true, $.fn.datepicker.defaults, {
@@ -357,11 +478,21 @@
     @endif
 
     // Focus the search input if the user clicks forward slash
+    $('#search').focusin(onSearchFocus);
+
     $('body').keypress(function(event) {
         if (event.which == 47 && !$('*:focus').length) {
             event.preventDefault();
-            showSearch();
+            $('#search').focus();
         }
+    });
+
+    // manage sidebar state
+    $("#left-menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled");
+        var toggled = $("#wrapper").hasClass("toggled") ? '1' : '0';
+        $.get('{{ url('save_sidebar_state') }}?show_left=' + toggled);
     });
 
   });
@@ -372,8 +503,7 @@
 
 @section('body')
 
-<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
-  <div class="container">
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="height:60px;">
 
     <div class="navbar-header">
       <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse-1">
@@ -382,24 +512,20 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a href="{{ URL::to(NINJA_WEB_URL) }}" class='navbar-brand' target="_blank">
-        {{-- Per our license, please do not remove or modify this link. --}}
-        <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25"/>
-      </a>
+      <div class="navbar-brand">
+          <a href="#" id="left-menu-toggle" class="menu-toggle hide-phone">
+            <i class="fa fa-bars" style="width:30px;padding-right:10px"></i>
+          </a>
+          <a href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank">
+            {{-- Per our license, please do not remove or modify this link. --}}
+            <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25"/>
+          </a>
+      </div>
     </div>
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
-      <ul class="nav navbar-nav" style="font-weight: bold">
-        {!! Form::nav_link('dashboard', 'dashboard') !!}
-        {!! Form::menu_link('client') !!}
-        {!! Form::menu_link('task') !!}
-        {!! Form::menu_link('expense') !!}
-        {!! Form::menu_link('invoice') !!}
-        {!! Form::menu_link('payment') !!}
-      </ul>
+      <div class="navbar-form navbar-right" style="padding-right:30px">
 
-      <div id="navbar-options">
-      <div class="navbar-form navbar-right">
         @if (Auth::check())
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
@@ -410,7 +536,7 @@
 
         <div class="btn-group user-dropdown">
           <button type="button" class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
-            <div id="myAccountButton" class="ellipsis nav-account-name" style="max-width:{{ Utils::hasFeature(FEATURE_USERS) ? '130' : '100' }}px;">
+            <div id="myAccountButton" class="ellipsis" style="max-width:{{ Utils::hasFeature(FEATURE_USERS) ? '130' : '100' }}px;">
                 @if (session(SESSION_USER_ACCOUNTS) && count(session(SESSION_USER_ACCOUNTS)))
                     {{ Auth::user()->account->getDisplayName() }}
                 @else
@@ -418,8 +544,6 @@
                 @endif
               <span class="caret"></span>
             </div>
-            <span class="glyphicon glyphicon-user nav-account-icon" style="padding-left:0px"
-                title="{{ Auth::user()->account->getDisplayName() }}"/>
           </button>
           <ul class="dropdown-menu user-accounts">
             @if (session(SESSION_USER_ACCOUNTS))
@@ -467,94 +591,185 @@
           </ul>
         </div>
 
+        <a href="#" id="left-menu-toggle" class="menu-toggle hide-phone">
+          <i class="fa fa-bars" style="width:30px;padding-left:14px"></i>
+        </a>
+
       </div>
 
-      <ul class="nav navbar-nav navbar-right navbar-settings">
-        <li class="dropdown">
-          @if (Utils::isAdmin())
-            <a href="{{ URL::to('/settings') }}" class="dropdown-toggle">
-              <span class="glyphicon glyphicon-cog" title="{{ trans('texts.settings') }}"/>
-            </a>
-            <ul class="dropdown-menu">
-              @foreach (\App\Models\Account::$basicSettings as $setting)
-                  <li>{!! link_to('settings/' . $setting, uctrans("texts.{$setting}")) !!}</li>
-              @endforeach
-              <li><a href="{{ url('settings/' . ACCOUNT_INVOICE_SETTINGS) }}">{!! uctrans('texts.advanced_settings') . Utils::getProLabel(ACCOUNT_ADVANCED_SETTINGS) !!}</a></li>
-            </ul>
-          @else
-            <a href="{{ URL::to('/settings/user_details') }}" class="dropdown-toggle">
-              <span class="glyphicon glyphicon-user" title="{{ trans('texts.settings') }}"/>
-            </a>
-          @endif
-        </li>
-      </ul>
-
-
-      <ul class="nav navbar-nav navbar-right navbar-search">
-        <li class="dropdown">
-          <a href="#" onclick="showSearch()">
-            <span class="glyphicon glyphicon-search" title="{{ trans('texts.search') }}"/>
-          </a>
-          <ul class="dropdown-menu">
-            @if (count(Session::get(RECENTLY_VIEWED)) == 0)
-                <li><a href="#">{{ trans('texts.no_items') }}</a></li>
-            @else
-                @foreach (Session::get(RECENTLY_VIEWED) as $link)
-                    @if (property_exists($link, 'accountId') && $link->accountId == Auth::user()->account_id)
-                        <li><a href="{{ $link->url }}">{{ $link->name }}</a></li>
-                    @endif
-                @endforeach
-            @endif
-          </ul>
-        </li>
-      </ul>
-      </div>
-
-      <form id="search-form" class="navbar-form navbar-right" role="search" style="display:none">
+      <form id="search-form" class="navbar-form navbar-right" role="search">
         <div class="form-group">
           <input type="text" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px"
             class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}">
         </div>
       </form>
 
+      @if (false && Utils::isAdmin())
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+           @section('self-updater')
+            <a href="{{ URL::to('self-update') }}" class="dropdown-toggle">
+              <span class="glyphicon glyphicon-cloud-download" title="{{ trans('texts.update_invoiceninja_title') }}"></span>
+            </a>
+          @show
+        </li>
+      </ul>
+      @endif
+
+      <ul class="nav navbar-nav hide-non-phone" style="font-weight: bold">
+        @foreach ([
+            'dashboard' => false,
+            'clients' => false,
+            'credits' => false,
+            'tasks' => false,
+            'expenses' => false,
+            'vendors' => false,
+            'quotes' => false,
+            'invoices' => false,
+            'recurring_invoices' => 'recurring',
+            'payments' => false,
+            'settings' => false,
+        ] as $key => $value)
+            {!! Form::nav_link($key, $value ?: $key) !!}
+        @endforeach
+      </ul>
 
     </div><!-- /.navbar-collapse -->
 
-
-  </div>
 </nav>
+<div id="wrapper" {!! session(SESSION_LEFT_SIDEBAR) ? 'class="toggled"' : '' !!}>
 
-<br/>
-<div class="container">
-
-  @include('partials.warn_session', ['redirectTo' => '/dashboard'])
-
-  @if (Session::has('warning'))
-  <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
-  @endif
-
-  @if (Session::has('message'))
-    <div class="alert alert-info alert-hide">
-      {{ Session::get('message') }}
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        <ul class="sidebar-nav" style="padding-top:20px">
+            @foreach([
+                'dashboard' => 'tachometer',
+                'clients' => 'users',
+                'invoices' => 'file-pdf-o',
+                'payments' => 'credit-card',
+                'recurring_invoices' => 'files-o',
+                'credits' => 'credit-card',
+                'quotes' => 'file-text-o',
+                'tasks' => 'clock-o',
+                'expenses' => 'file-image-o',
+                'vendors' => 'building',
+                'settings' => 'cog',
+            ] as $option => $icon)
+            <li style="border-bottom:solid 1px">
+                <div onclick="location.href='{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}'"
+                    style="font-size:16px; padding-top:6px; padding-bottom:6px"
+                    class="{{ Request::is("{$option}*") ? 'active' : '' }}">
+                    <i class="fa fa-{{ $icon }}" style="width:46px; color:white; padding-right:10px"></i>
+                    {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
+                    @if ($option != 'dashboard' && $option != 'settings')
+                        @if (Auth::user()->can('create', substr($option, 0, -1)))
+                            <div type="button" class="btn btn-primary btn-sm pull-right" style="margin-top:5px;margin-right:10px;text-indent:0px"
+                                onclick="event.cancelBubble = true;if(event.stopPropagation) event.stopPropagation();location.href='{{ url("/{$option}/create") }}'">
+                                <i class="fa fa-plus-circle" style="color:white;width:20px" title="{{ trans('texts.create_new') }}"></i>
+                            </div>
+                        @endif
+                    @endif
+                </div>
+            </li>
+            @endforeach
+        </ul>
     </div>
-  @elseif (Session::has('news_feed_message'))
-    <div class="alert alert-info">
-      {!! Session::get('news_feed_message') !!}
-      <a href="#" onclick="hideMessage()" class="pull-right">{{ trans('texts.hide') }}</a>
+    <!-- /#sidebar-wrapper -->
+
+    <!-- Page Content -->
+    <div id="page-content-wrapper">
+        <div class="container-fluid">
+
+          @include('partials.warn_session', ['redirectTo' => '/dashboard'])
+
+          @if (Session::has('warning'))
+          <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+          @endif
+
+          @if (Session::has('message'))
+            <div class="alert alert-info alert-hide">
+              {{ Session::get('message') }}
+            </div>
+          @elseif (Session::has('news_feed_message'))
+            <div class="alert alert-info">
+              {!! Session::get('news_feed_message') !!}
+              <a href="#" onclick="hideMessage()" class="pull-right">{{ trans('texts.hide') }}</a>
+            </div>
+          @endif
+
+          @if (Session::has('error'))
+              <div class="alert alert-danger">{!! Session::get('error') !!}</div>
+          @endif
+
+          @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
+            {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
+          @endif
+
+          @yield('content')
+
+          <div class="row">
+            <div class="col-md-12">
+
+              @if (Utils::isNinjaProd())
+                @if (Auth::check() && Auth::user()->isTrial())
+                  {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
+                          'count' => Auth::user()->account->getCountTrialDaysLeft(),
+                          'link' => link_to('/settings/account_management?upgrade=true', trans('texts.click_here'))
+                      ]) !!}
+                @endif
+              @else
+                {{ trans('texts.powered_by') }}
+                {{-- Per our license, please do not remove or modify this section. --}}
+                {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
+                {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} |
+                @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
+                  {{ trans('texts.white_labeled') }}
+                @else
+                  <a href="#" onclick="loadImages('#whiteLabelModal');$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
+
+                  <div class="modal fade" id="whiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                          <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
+                        </div>
+
+                        <div class="panel-body">
+                          <p>{{ trans('texts.white_label_text', ['price' => WHITE_LABEL_PRICE])}}</p>
+                          <div class="row">
+                              <div class="col-md-6">
+                                  <h4>{{ trans('texts.before') }}</h4>
+                                  <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_before.png') }}" width="100%" alt="before">
+                              </div>
+                              <div class="col-md-6">
+                                  <h4>{{ trans('texts.after') }}</h4>
+                                  <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_after.png') }}" width="100%" alt="after">
+                              </div>
+                          </div>
+                        </div>
+
+                        <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
+                          <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
+                          {{-- DropdownButton::success_lg(trans('texts.buy'), [
+                              ['url' => URL::to(""), 'label' => trans('texts.pay_with_paypal')],
+                              ['url' => URL::to(""), 'label' => trans('texts.pay_with_card')]
+                          ])->addClass('btn-lg') --}}
+                          <button type="button" class="btn btn-primary" onclick="buyProduct('{{ WHITE_LABEL_AFFILIATE_KEY }}', '{{ PRODUCT_WHITE_LABEL }}')">{{ trans('texts.buy') }} </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                @endif
+              </div>
+              @endif
+            </div>
+        </div>
+
     </div>
-  @endif
-
-  @if (Session::has('error'))
-      <div class="alert alert-danger">{!! Session::get('error') !!}</div>
-  @endif
-
-  @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-    {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
-  @endif
-
-  @yield('content')
-
+    <!-- /#page-content-wrapper -->
 </div>
+
 
 @if (!Auth::check() || !Auth::user()->registered)
 <div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
@@ -692,61 +907,6 @@
 @endif
 
 </div>
-<br/>
-<div class="container">
-@if (Utils::isNinjaProd())
-  @if (Auth::check() && Auth::user()->isTrial())
-    {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
-            'count' => Auth::user()->account->getCountTrialDaysLeft(),
-            'link' => link_to('/settings/account_management?upgrade=true', trans('texts.click_here'))
-        ]) !!}
-  @endif
-@else
-  {{ trans('texts.powered_by') }}
-  {{-- Per our license, please do not remove or modify this section. --}}
-  {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
-  {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} |
-  @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
-    {{ trans('texts.white_labeled') }}
-  @else
-    <a href="#" onclick="loadImages('#whiteLabelModal');$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
-
-    <div class="modal fade" id="whiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
-          </div>
-
-          <div class="panel-body">
-            <p>{{ trans('texts.white_label_text', ['price' => WHITE_LABEL_PRICE])}}</p>
-            <div class="row">
-                <div class="col-md-6">
-                    <h4>{{ trans('texts.before') }}</h4>
-                    <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_before.png') }}" width="100%" alt="before">
-                </div>
-                <div class="col-md-6">
-                    <h4>{{ trans('texts.after') }}</h4>
-                    <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_after.png') }}" width="100%" alt="after">
-                </div>
-            </div>
-          </div>
-
-          <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
-            <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
-            {{-- DropdownButton::success_lg(trans('texts.buy'), [
-                ['url' => URL::to(""), 'label' => trans('texts.pay_with_paypal')],
-                ['url' => URL::to(""), 'label' => trans('texts.pay_with_card')]
-            ])->addClass('btn-lg') --}}
-            <button type="button" class="btn btn-primary" onclick="buyProduct('{{ WHITE_LABEL_AFFILIATE_KEY }}', '{{ PRODUCT_WHITE_LABEL }}')">{{ trans('texts.buy') }} </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  @endif
-</div>
-@endif
 
 <p>&nbsp;</p>
 
