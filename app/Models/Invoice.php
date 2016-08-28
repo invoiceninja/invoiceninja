@@ -389,6 +389,13 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return bool
+     */
+    public function isInvoice() {
+        return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring;
+    }
+
+    /**
      * @param bool $notify
      */
     public function markInvitationsSent($notify = false)

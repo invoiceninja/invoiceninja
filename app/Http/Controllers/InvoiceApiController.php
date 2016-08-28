@@ -161,14 +161,16 @@ class InvoiceApiController extends BaseAPIController
         $invoice = $this->invoiceService->save($data);
         $payment = false;
 
-        if (isset($data['auto_bill']) && boolval($data['auto_bill'])) {
-            $payment = $this->paymentService->autoBillInvoice($invoice);
-        } else if (isset($data['paid']) && $data['paid']) {
-            $payment = $this->paymentRepo->save([
-                'invoice_id' => $invoice->id,
-                'client_id' => $client->id,
-                'amount' => $data['paid']
-            ]);
+        if ($invoice->isInvoice()) {
+            if (isset($data['auto_bill']) && boolval($data['auto_bill'])) {
+                $payment = $this->paymentService->autoBillInvoice($invoice);
+            } else if (isset($data['paid']) && $data['paid']) {
+                $payment = $this->paymentRepo->save([
+                    'invoice_id' => $invoice->id,
+                    'client_id' => $client->id,
+                    'amount' => $data['paid']
+                ]);
+            }
         }
 
         if (isset($data['email_invoice']) && $data['email_invoice']) {
