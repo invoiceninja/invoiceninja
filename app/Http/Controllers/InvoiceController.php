@@ -578,24 +578,29 @@ class InvoiceController extends BaseController
         $lastId = false;
 
         foreach ($activities as $activity) {
-            $backup = json_decode($activity->json_backup);
-            $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
-            $backup->due_date = Utils::fromSqlDate($backup->due_date);
-            $backup->features = [
-                'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
-                'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
-                'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
-            ];
-            $backup->invoice_type_id = isset($backup->invoice_type_id) && intval($backup->invoice_type_id) == INVOICE_TYPE_QUOTE;
-            $backup->account = $invoice->account->toArray();
+            if ($backup = json_decode($activity->json_backup)) {
+                $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
+                $backup->due_date = Utils::fromSqlDate($backup->due_date);
+                $backup->features = [
+                    'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+                    'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+                    'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+                ];
+                $backup->invoice_type_id = isset($backup->invoice_type_id) && intval($backup->invoice_type_id) == INVOICE_TYPE_QUOTE;
+                $backup->account = $invoice->account->toArray();
 
-            $versionsJson[$activity->id] = $backup;
-            $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
-            $versionsSelect[$lastId ? $lastId : 0] = $key;
-            $lastId = $activity->id;
+                $versionsJson[$activity->id] = $backup;
+                $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
+                $versionsSelect[$lastId ? $lastId : 0] = $key;
+                $lastId = $activity->id;
+            } else {
+                Utils::logError('Failed to parse invoice backup');
+            }
         }
 
-        $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
+        if ($lastId) {
+            $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
+        }
 
         $data = [
             'invoice' => $invoice,
