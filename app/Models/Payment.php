@@ -184,6 +184,11 @@ class Payment extends EntityModel
         return $this->payment_status_id == PAYMENT_STATUS_VOIDED;
     }
 
+    public function isFailedOrVoided()
+    {
+        return $this->isFailed() || $this->isVoided();
+    }
+
     /**
      * @param null $amount
      * @return bool
