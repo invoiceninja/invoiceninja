@@ -188,7 +188,8 @@ class ReportController extends BaseController
                         ->where('is_recurring', '=', false);
             } elseif ($entityType == ENTITY_PAYMENT) {
                 $records->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-                        ->where('invoices.is_deleted', '=', false);
+                        ->where('invoices.is_deleted', '=', false)
+                        ->whereNotIn('payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
             }
 
             $totals = $records->lists('total');
@@ -361,8 +362,8 @@ class ReportController extends BaseController
         $reportTotals = [];
 
         $payments = Payment::scope()
-                        ->withTrashed()
-                        ->where('is_deleted', '=', false)
+                        ->withArchived()
+                        ->excludeFailed()
                         ->whereHas('client', function($query) {
                             $query->where('is_deleted', '=', false);
                         })
@@ -382,12 +383,12 @@ class ReportController extends BaseController
                 $invoice->present()->invoice_date,
                 $account->formatMoney($invoice->amount, $client),
                 $payment->present()->payment_date,
-                $account->formatMoney($payment->amount, $client),
+                $account->formatMoney($payment->getCompletedAmount(), $client),
                 $payment->present()->method,
             ];
 
             $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
-            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment->amount);
+            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment->getCompletedAmount());
         }
 
         return [
@@ -416,15 +417,14 @@ class ReportController extends BaseController
                         ->with('contacts')
                         ->where('is_deleted', '=', false)
                         ->with(['invoices' => function($query) use ($startDate, $endDate) {
-                            $query->where('invoice_date', '>=', $startDate)
+                            $query->invoices()
+                                  ->withArchived()
+                                  ->where('invoice_date', '>=', $startDate)
                                   ->where('invoice_date', '<=', $endDate)
-                                  ->where('is_deleted', '=', false)
-                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                                  ->where('is_recurring', '=', false)
                                   ->with(['payments' => function($query) {
-                                        $query->withTrashed()
-                                              ->with('payment_type', 'account_gateway.gateway')
-                                              ->where('is_deleted', '=', false);
+                                        $query->withArchived()
+                                              ->excludeFailed()
+                                              ->with('payment_type', 'account_gateway.gateway');
                                   }, 'invoice_items'])
                                   ->withTrashed();
                         }]);
@@ -440,10 +440,10 @@ class ReportController extends BaseController
                         $invoice->present()->invoice_date,
                         $account->formatMoney($invoice->amount, $client),
                         $payment ? $payment->present()->payment_date : '',
-                        $payment ? $account->formatMoney($payment->amount, $client) : '',
+                        $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',
                     ];
-                    $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment ? $payment->amount : 0);
+                    $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
                 }
 
                 $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);

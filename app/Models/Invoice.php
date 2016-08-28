@@ -216,7 +216,10 @@ class Invoice extends EntityModel implements BalanceAffecting
         if ($calculate) {
             $amount = 0;
             foreach ($this->payments as $payment) {
-                $amount += $payment->amount;
+                if ($payment->payment_status_id == PAYMENT_STATUS_VOIDED || $payment->payment_status_id == PAYMENT_STATUS_FAILED) {
+                    continue;
+                }
+                $amount += $payment->getCompletedAmount();
             }
             return $amount;
         } else {
