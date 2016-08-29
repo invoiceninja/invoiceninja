@@ -803,10 +803,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('WEPAY_ENABLE_CANADA', env('WEPAY_ENABLE_CANADA', false));
     define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
 
-    define('WEPAY_FEE_PAYER', env('WEPAY_FEE_PAYER', 'payee'));
-    define('WEPAY_APP_FEE_MULTIPLIER', env('WEPAY_APP_FEE_MULTIPLIER', 0.002));
-    define('WEPAY_APP_FEE_FIXED', env('WEPAY_APP_FEE_MULTIPLIER', 0.00));
-
     define('SKYPE_CARD_RECEIPT', 'message/card.receipt');
     define('SKYPE_CARD_CAROUSEL', 'message/card.carousel');
     define('SKYPE_CARD_HERO', '');
@@ -879,6 +875,7 @@ if (!defined('CONTACT_EMAIL')) {
 if (Utils::isNinjaDev())
 {
   //ini_set('memory_limit','1024M');
-  //Auth::loginUsingId(1);
+  //set_time_limit(0);
+  Auth::loginUsingId(1);
 }
 */
