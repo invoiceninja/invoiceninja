@@ -57,13 +57,26 @@ class CheckData extends Command {
 
         if (!$this->option('client_id')) {
             $this->checkPaidToDate();
+            $this->checkBlankInvoiceHistory();
         }
 
         $this->checkBalances();
 
-        $this->checkAccountData();
+        if (!$this->option('client_id')) {
+            $this->checkAccountData();
+        }
 
         $this->info('Done');
+    }
+
+    private function checkBlankInvoiceHistory()
+    {
+        $count = DB::table('activities')
+                    ->where('activity_type_id', '=', 5)
+                    ->where('json_backup', '=', '')
+                    ->count();
+
+        $this->info($count . ' activities with blank invoice backup');
     }
 
     private function checkAccountData()
@@ -97,6 +110,12 @@ class CheckData extends Command {
                 ENTITY_CLIENT,
                 ENTITY_USER
             ],
+            'expenses' => [
+                ENTITY_CLIENT,
+                ENTITY_VENDOR,
+                ENTITY_INVOICE,
+                ENTITY_USER
+            ]
         ];
 
         foreach ($tables as $table => $entityTypes) {
@@ -158,17 +177,17 @@ class CheckData extends Command {
         // find all clients where the balance doesn't equal the sum of the outstanding invoices
         $clients = DB::table('clients')
                     ->join('invoices', 'invoices.client_id', '=', 'clients.id')
-                    ->join('accounts', 'accounts.id', '=', 'clients.account_id');
-
-        if ($this->option('client_id')) {
-            $clients->where('clients.id', '=', $this->option('client_id'));
-        } else {
-            $clients->where('invoices.is_deleted', '=', 0)
+                    ->join('accounts', 'accounts.id', '=', 'clients.account_id')
+                    ->where('clients.is_deleted', '=', 0)
+                    ->where('invoices.is_deleted', '=', 0)
                     ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                     ->where('invoices.is_recurring', '=', 0)
                     ->havingRaw('abs(clients.balance - sum(invoices.balance)) > .01 and clients.balance != 999999999.9999');
-        }
 
+        if ($this->option('client_id')) {
+            $clients->where('clients.id', '=', $this->option('client_id'));
+        }
+        
         $clients = $clients->groupBy('clients.id', 'clients.balance', 'clients.created_at')
                 ->orderBy('accounts.company_id', 'DESC')
                 ->get(['accounts.company_id', 'clients.account_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
@@ -230,8 +249,14 @@ class CheckData extends Command {
                         && $activity->adjustment == 0
                         && $invoice->amount > 0;
 
+                    // **Fix for ninja invoices which didn't have the invoice_type_id value set
+                    if ($noAdjustment && $client->account_id == 20432) {
+                        $this->info("No adjustment for ninja invoice");
+                        $foundProblem = true;
+                        $clientFix += $invoice->amount;
+                        $activityFix = $invoice->amount;
                     // **Fix for allowing converting a recurring invoice to a normal one without updating the balance**
-                    if ($noAdjustment && $invoice->invoice_type_id == INVOICE_TYPE_STANDARD && !$invoice->is_recurring) {
+                    } elseif ($noAdjustment && $invoice->invoice_type_id == INVOICE_TYPE_STANDARD && !$invoice->is_recurring) {
                         $this->info("No adjustment for new invoice:{$activity->invoice_id} amount:{$invoice->amount} invoiceTypeId:{$invoice->invoice_type_id} isRecurring:{$invoice->is_recurring}");
                         $foundProblem = true;
                         $clientFix += $invoice->amount;
