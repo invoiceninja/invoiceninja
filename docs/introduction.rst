@@ -23,7 +23,7 @@ So let’s jump right in and take a look at the different elements that make up 
 When you login to your Invoice Ninja account, you’ll automatically arrive on the Dashboard page. To go to the Dashboard page from anywhere in the site, click the Dashboard tab on the main taskbar.
 
 Understanding the Dashboard Page
---------------------------------
+""""""""""""""""""""""""""""""""
 
 The first thing you’ll notice about the Dashboard page is the three large data boxes at the top of the screen. These are designed to offer a simple yet powerful overview of your total business accounts:
 
@@ -89,7 +89,7 @@ The Invoices Past Due list provides a summary of all unpaid invoices. The Invoic
 .. NOTE:: Archived invoices, payments and quotes will appear on the dashboard, and their amounts will be included in the account totals at the top of the page. Deleted invoices, payments and quotes will not appear, nor will their amounts be included on the Dashboard page.
 
 Quotes (Pro Plan Users Only)
-----------------------------
+""""""""""""""""""""""""""""
 
 If you have a Pro account, the Dashboard will also include two extra windows displaying your Upcoming Quotes and Expired Quotes.
 
