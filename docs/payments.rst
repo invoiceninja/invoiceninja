@@ -7,11 +7,11 @@ List Payments
 """""""""""""
 In the meantime, we’re going to take you through the Payments list page to give you an idea of the complete payment picture.
 
-Let’s Begin
-^^^^^^^^^^^
-
 To view the Payments list page, click on the Payments tab on the main taskbar. This will open the Payments list page.
 Understanding the Payments List Page
+
+Overview
+^^^^^^^^
 
 The Payments list page displays a summary of all payments once they have been received. Payments are recorded in two ways:
 
@@ -35,8 +35,8 @@ The final column to the right is the Action column. To view the actions, hover y
 
 .. TIP:: To sort the Payments list according to any of the columns, click on the orange column tab of your choice. A small arrow will appear. If the arrow is pointing up, data is sorted from lowest to highest value. If the arrow is pointing down, data is sorted from highest to lowest value. Click to change the arrow direction.
 
-Archiving/ Deleting Payments
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Archiving/Deleting
+^^^^^^^^^^^^^^^^^^
 
 To archive or delete a payment, hover over the payment entry row, and open the Action drop-down list. Select Archive Payment or Delete Payment from the list. The Payments table will automatically refresh, and archived or deleted payments will no longer appear in the list.
 
@@ -62,13 +62,7 @@ Enter Payment
 
 Once you’ve received payment, you’ll need to enter the payment on the Invoice Ninja system. If your client paid via one of Invoice Ninja’s 45+ payment partners, the system will automatically record the payment and send a downloadable PDF receipt to the client’s email address. If you were paid via cash, check, bank transfer, credit card, credit or any other payment method not automatically linked to the Invoice Ninja system, you will be required to enter the payment. The procedure of entering a payment is simple and lightning fast. Now, we’ll take you through the payment entry process, step by step.
 
-Let’s Begin
-^^^^^^^^^^^
-
-To enter a payment, click on the Payments tab on the main taskbar. Select Enter Payment from the drop-down menu and the Payments / Create page will open.
-
-How to Enter a Payment
-^^^^^^^^^^^^^^^^^^^^^^
+**Let’s Begin**
 
 The Payments / Create page features a number of fields that you’ll need to complete.
 
@@ -80,8 +74,8 @@ Apply Credit: Here, you can apply credit from the client’s existing credit acc
 - **Payment Date**: The date the payment was received. Click on the calendar icon to the right side of the Payment Date field and select the appropriate date.
 - **Transaction Reference**: Enter any information you wish for your future reference. This information can be useful when managing your accounts.
 
-Email payment receipt to the client
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Email payment receipt
+^^^^^^^^^^^^^^^^^^^^^
 
 If you wish to send a receipt to your client for the payment received, check the “Email payment receipt to the client” box. A downloadable PDF receipt will be generated and sent to the client’s email address.
 

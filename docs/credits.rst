@@ -8,8 +8,8 @@ Your workload and fee structure vary from client to client. What’s more, your 
 
 At times, payments can get really tricky. Perhaps you’ve been paid in advance for work that has been delayed, or maybe the scope of work changed and you were overpaid. Whatever the reason, there will come a time when you will need to issue a credit to your client’s account. This is where the Credits function comes in handy.
 
-Understanding the Credits List
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Overview
+^^^^^^^^
 
 The Credits list page is a summary of all credits issued to all clients.
 
@@ -23,8 +23,8 @@ On the Credits page, credit information is presented in a simple, user-friendly 
 - **Private Notes**: Comments or reminders that you included FYI
 - **Action**: Option to archive or delete the credit
 
-Archiving/Deleting Credits
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Archiving/Deleting
+^^^^^^^^^^^^^^^^^^
 
 To archive or delete a credit, hover over the credit entry row, and open the Action drop-down list. Select Archive credit or Delete credit from the list. The Credits table will automatically refresh, and archived or deleted credits will no longer appear in the list.
 
@@ -35,8 +35,8 @@ Want to view archived or deleted credits? Check the box marked Show archived/del
 - Deleted credits are displayed with a red Deleted button. To restore deleted credits, hover on the red Deleted button. A gray Select button will appear. Click on the Select arrow, and select Restore credit in the drop-down list.
 - Archived credits are displayed with an orange Archived button. To restore or delete the archived credit, hover on the orange Archived button. A gray Select button will appear. Click on the Select arrow, and choose Restore credit from the drop-down list. To delete an archived credit, select Delete credit from the drop-down list of the Select button.
 
-Sorting & Filtering Credit Information
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Sorting & Filtering
+^^^^^^^^^^^^^^^^^^^
 
 The sort and filter functions make it easy for you to manage and analyze your credits.
 
@@ -50,8 +50,7 @@ Enter Credit
 
 Creating a new credit is fast and simple. Remember, all credits you create will appear in the Credits list page.
 
-Let’s Begin
-^^^^^^^^^^^
+**Let’s Begin**
 
 To issue a credit, you’ll need to open the Credits / Create page.
 
@@ -63,8 +62,8 @@ There are three ways to open this page:
 
 Ok, so you’ve successfully landed on the Credits / Create page.
 
-How to Create a New Credit
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Overview
+^^^^^^^^
 
 The Credits / Create page has four fields for you to complete. Let’s take a closer look at each field:
 

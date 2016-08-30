@@ -12,13 +12,10 @@ As a freelancer, many jobs – whether big or small – will begin as a quote. H
 
 Once the price quote is accepted by the client, the Invoice Ninja system enables automatic creation of an invoice that imports all the quote data, so your quotes and invoices are linked, organized and easily traceable. An advanced Invoice Ninja feature, Quotes is truly the cherry on top, giving you maximum functionality from A to Z in your invoicing activity.
 
-Let’s Begin
-^^^^^^^^^^^
-
 To view your Quotes list page, click the Invoices tab on the main taskbar, and select Quotes from the drop-down menu. This will open the Quotes list page.
 
-Understanding the Quotes List page
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Overview
+^^^^^^^^
 
 The Quotes list page displays a table of all your quotes, at every stage, whether at the drafting stage, sent to the client, accepted by the client and converted to invoice, or archived/ deleted quotes. Use your Quotes list to get a better grasp of where you stand in terms of possible future projects and income.
 
@@ -53,8 +50,8 @@ Filter
 
 To filter the Quotes list, enter the filter data in the Filter field, situated at the top right of the page, to the left of the blue New Quote + button. Quotes can be filtered according to the client name or quote number, or elements of these data. Let’s filter the table for a client named “Best Ninja”. You can type “best ninja”, or “best” or “ninja”, or even “bes”, or “nin”, or “ja”, or any other grouping of letters in the client name. Alternatively, you can filter according to quote number. The filter function will automatically locate and present the relevant entries.
 
-Archiving/ Deleting Quotes
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Archiving/Deleting
+^^^^^^^^^^^^^^^^^^
 
 To archive or delete a quote, hover over the quote entry row, and open the Action drop-down list. Select Archive quote or Delete quote from the list. The Quotes table will automatically refresh, and archived or deleted quotes will no longer appear in the list.
 

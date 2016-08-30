@@ -12,15 +12,12 @@ The Tasks list page not only displays a summary of all your tasks, for all clien
 - **Logged**: A task that has been completed, recorded, but not yet invoiced.
 - **Invoiced**:  A task that has been completed and the invoice sent to the client.
 
-The Tasks list page provides a range of opportunities to carry out actions relating to each specific task. Now, we’ll explore the Tasks list and show you all the features and actions that make managing tasks so easy.
-
-Let’s Begin
-^^^^^^^^^^^
-
 To view your Tasks list page, click the Tasks tab on the main taskbar. This will open the Tasks list page.
 
-Understanding the Tasks List page
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Overview
+^^^^^^^^
+
+The Tasks list page provides a range of opportunities to carry out actions relating to each specific task. Now, we’ll explore the Tasks list and show you all the features and actions that make managing tasks so easy.
 
 The Tasks list page displays a table of all your tasks, at every stage, from Running to Logged to Invoiced, together with handy accompanying information about each task.
 
@@ -62,8 +59,8 @@ Tasks can be invoiced directly from the Tasks list page. To invoice a task, chec
 
 .. TIP:: You can invoice more than one task to the same client in a single invoice. To invoice more than one task in the same invoice, select the desired tasks in the check boxes to the left of the client name column, and then click the Invoice button. You’ll be redirected to the Invoices / Create page. All the selected tasks will be automatically included in the invoice. Each task will appear as a separate line item in the invoice.
 
-Archiving/ Deleting Tasks
-^^^^^^^^^^^^^^^^^^^^^^^^^
+Archiving/Deleting
+^^^^^^^^^^^^^^^^^^
 
 To archive or delete a task, hover over the task entry row, and open the Action drop-down list. Select Archive Task or Delete Task from the list. The Tasks table will automatically refresh, and archived or deleted tasks will no longer appear in the list.
 
@@ -83,13 +80,9 @@ With many clients, and any number of projects ongoing at the same time, you need
 
 Either way, the Tasks component of Invoice Ninja allows you to record and manage your tasks and sessions for every one of your clients.
 
-Let’s Begin
-^^^^^^^^^^^
+**Let’s Begin**
 
 To create a new task, go to the main taskbar and click the Tasks tab. Then, select New Task from the drop-down menu. The Tasks / Create page will open.
-
-How to Create a New Task
-^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. NOTE:: Before creating a new task, it is vital to ensure that the correct time zone is set. To set the time zone, go to the Settings button on the right side of the main taskbar.  Click to open the drop-down menu. Select Localization. The Localization window will open. Here you can choose your time zone, enable 24 hour time, and select your preferred Time/Date Format.
 
@@ -119,8 +112,8 @@ Want to save the task information and move on to something else? Click Save. The
 
 .. TIP:: With Manual entry, the dates and times you enter must be logical with no overlaps. If you’ve entered sessions that cannot exist simultaneously for the task, the relevant time fields will be highlighted in red, and you’ll be instructed to fix the incorrect times before leaving the page.
 
-How to Edit a Task
-^^^^^^^^^^^^^^^^^^
+Edit a Task
+^^^^^^^^^^^
 
 Whether Timer or Manual, once you’ve saved or stopped a task session, you’ll be automatically redirected to the Tasks / Edit page.  To edit the task, click the blue Edit Details button situated just below the task information. This will open a list of all sessions for this task accrued so far, both Timer-based and Manual sessions. Now you can manually edit them. If you wish to add a session manually, enter the start and end times in the new row below the list of existing sessions.
 

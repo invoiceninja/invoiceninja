@@ -10,6 +10,9 @@ List Invoices
 
 With numerous invoices to keep track of, the Invoices list page is your go-to guide for the entire history and status of all your invoices – including those that have been paid, those sent but unpaid, and those still in the drafting and editing stage.
 
+Overview
+^^^^^^^^
+
 The life of an invoice in the Invoice Ninja system is made up of a number of stages:
 
 - **Draft**: When you’ve created an invoice, but have not yet sent it. You may still need to edit.
@@ -20,13 +23,7 @@ The life of an invoice in the Invoice Ninja system is made up of a number of sta
 
 In order to understand exactly how the Invoices list page works, we’ll take you through it step by step.
 
-Let’s Begin
-^^^^^^^^^^^
-
 To view your Invoices list page, click the Invoices tab on the main taskbar. This will open the Invoices list page.
-
-Understanding the Invoices List page
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The Invoices list page displays a table of all your invoices, at every stage, from the moment you create a new invoice, to the moment you archive or delete an invoice.
 
@@ -60,8 +57,7 @@ Create Invoice
 
 Here, we’re going to focus on how to create a new invoice.
 
-Let’s Begin
-^^^^^^^^^^^
+**Let’s Begin**
 
 To create a new invoice, go to the Invoices tab on the main taskbar, open the drop-down menu, and click on New Invoice. This will open the Invoices / Create page.
 

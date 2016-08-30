@@ -10,13 +10,10 @@ List Clients
 
 The Clients page is a list page that presents a summary of all your clients in a user-friendly table. Think of your Clients page as the “central station” of your invoicing activity. Most of your day-to-day invoicing actions can be taken from the various links and buttons that appear on the Clients list page. Now, we’ll take a closer look at the setup of the Clients page, and the range of actions available to you on the Clients page.
 
-Let’s Begin
-^^^^^^^^^^^
-
 To view your client list page, go to the main taskbar and click the Clients tab.
 
-Understanding the Clients page
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Overview
+^^^^^^^^
 
 The Clients page presents a list summary of all your current clients in a table format. The main elements of the table include:
 
@@ -28,8 +25,8 @@ The Clients page presents a list summary of all your current clients in a table 
 - **Balance:** The client’s payment balance
 - **Action:** A range of actions you can take to manage activity relating to the selected client
 
-Action
-^^^^^^
+Actions
+^^^^^^^
 
 To select an action for a particular client, hover with your mouse anywhere in the row entry of the client. A gray Select button will appear. Click on the Select arrow and a drop-down list will open.
 
@@ -58,8 +55,8 @@ Filter the clients list by completing the Filter field, situated at the top righ
 
 .. Tip:: Need to search for a specific client in your Clients list? Start typing the first letters of the client's name and the filter will automatically present the relevant listings.
 
-Archiving/Deleting Clients
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+Archiving/Deleting
+^^^^^^^^^^^^^^^^^^
 
 To archive or delete a specific client, hover over the client entry row, and open the Action drop-down list. Select Archive client or Delete client from the list. The Clients table will automatically refresh. Archived clients will appear in the table with a lighter gray font color, while deleted clients are hidden from view.
 Note: You can also archive or delete one or more clients via the gray Archive button that appears at the top left side of the Clients table. To archive or delete clients, check the relevant clients in the check boxes that appear in the far left column next to the client name. Then click on the Archive button, open the drop-down list and select the desired action.
@@ -87,8 +84,7 @@ There are two ways to enter a new client:
 
 Here, we’re going to focus on entering a new client via the Create Client page.
 
-Let’s Begin
-^^^^^^^^^^^
+**Let’s Begin**
 
 To enter a new client, go to the Clients tab, open the drop-down menu, and click on New Client. This will open the Create Client page.
 

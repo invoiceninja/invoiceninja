@@ -8,8 +8,8 @@ List Recurring Invoices
 
 To view the Recurring Invoices list page, go to the Invoices tab on the main taskbar and click to open the drop-down menu. Select Recurring Invoices to open the Recurring Invoices list page.
 
-Let’s Begin
-^^^^^^^^^^^
+Overview
+^^^^^^^^
 
 The recurring invoices list provides a display of the information and settings for all recurring invoices. It is not a list of the actual invoices as they are sent. Invoices sent by the recurring invoices feature are recorded as regular numbered invoices in the Invoices list page.
 
@@ -36,8 +36,8 @@ Filter
 
 To filter the Recurring Invoices list, enter the filter data in the Filter field, situated at the top right of the page, to the left of the blue New Recurring Invoice + button. Recurring invoices can be filtered according to Frequency or Client name.  Enter the data or parts of the data, and the filter function will automatically locate and present the relevant entries.
 
-Archiving/ Deleting Recurring Invoices
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Archiving/Deleting
+^^^^^^^^^^^^^^^^^^
 
 To archive or delete a recurring invoice, hover over the Action area of the recurring invoice entry row, and open the Action drop-down list. Select Archive recurring invoice or Delete recurring invoice from the list. The Recurring Invoices table will automatically refresh, and archived or deleted recurring invoices will no longer appear in the list.
 You can also archive or delete one or more recurring invoice via the gray Archive button that appears at the top left side of the Recurring Invoices list page. To archive or delete recurring invoices, check the relevant recurring invoices in the check boxes that appear in the far left column next to the Frequency field. The number of recurring invoices selected for archiving/deleting will automatically update and show on the Archive button. Then click on the Archive button, open the drop-down list and select the desired action.
@@ -56,13 +56,7 @@ When you create a recurring invoice, you are creating a pre-defined frequency fo
 
 Now, we’ll explore how to set up a recurring invoice.
 
-Let’s Begin
-^^^^^^^^^^^
-
-To create a new recurring invoice, go to the Invoices tab on the main taskbar and click to open the drop-down menu. Select New Recurring Invoice to open the Recurring Invoices / Create page.
-
-How to Create a Recurring Invoice
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**Let’s Begin**
 
 To create a recurring invoice, you'll first need to complete the data fields in the top section of the Recurring Invoice / Create page. Let's go over the fields to get a better understanding:
 
