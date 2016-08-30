@@ -21,8 +21,8 @@ To view archived users, check the Show archived users box that appears at the to
 
 To add a user to your user list, click the blue Add User + button that appears at the top right of the User Management page. The Users/ Create page will open.
 
-Users/ Create
-"""""""""""""
+Create User
+"""""""""""
 
 Enter the user's First Name, Last Name, and Email Address.
 
