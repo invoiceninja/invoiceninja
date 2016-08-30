@@ -17,6 +17,7 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    credits
    quotes
    tasks
+   settings
 
 .. _advanced-settings:
 

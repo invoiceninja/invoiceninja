@@ -83,6 +83,7 @@ The Tax Rates pop-up box offers various settings for presentation of taxes on th
 After selecting the desired tax settings, you’ll need to choose a tax rate for the invoice, or for each line item. To select a tax rate, click on the arrow at the right side of each Tax field that appears on the invoice. A drop-down list will open, featuring all the tax rates you created. Choose the relevant tax rate from the list. It will automatically apply and the figures in the invoice will adjust accordingly.
 
 .. TIP:: The currency of the invoice will be according to the default currency specified for this client when you created the client.
+
 Now that we’ve completed the general invoice information, it’s time to finish creating your invoice by specifying the job/s you’re billing for, the amounts due for each job/line item, taxes, discounts and final balance due. Let's explore the various columns of the invoice, from left to right along the orange header bar:
 
 - **Item**: This is the name of the item you are billing for. You can either enter the details manually, or by selecting one of the set items created by you at the Product Settings stage. To select a set item, click on the arrow at the right side of the item bar and choose the relevant item from the drop-down list. To enter the item manually, click inside the field and enter the item. Here are some examples of an item: 1 hour programming services OR 5 pages translation OR 1 hour consulting.
