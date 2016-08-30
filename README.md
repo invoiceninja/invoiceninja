@@ -6,7 +6,7 @@
 
 [![Build Status](https://travis-ci.org/invoiceninja/invoiceninja.svg?branch=develop)](https://travis-ci.org/invoiceninja/invoiceninja)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Docs](https://readthedocs.org/projects/pip/badge/?version=latest)
+[![Docs](https://readthedocs.org/projects/pip/badge/?version=latest)](http://docs.invoiceninja.com/en/latest/)
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org)
 
