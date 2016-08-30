@@ -19,7 +19,7 @@ Thumbs.db
 /.env
 /.env.development.php
 /.env.php
-
+/docs/_build
 /error_log
 /auth.json
 /public/error_log
