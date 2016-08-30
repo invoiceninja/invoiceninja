@@ -51,7 +51,7 @@ We're often asked to recommend Laravel/PHP developers to help setup our app and 
 ## Documentation
 * [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
 * [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
-* [User Guide](https://www.invoiceninja.com/app-user-guide/)
+* [User Guide](http://docs.invoiceninja.com/en/latest/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
 * [API Documentation](https://www.invoiceninja.com/api-documentation/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
