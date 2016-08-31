@@ -72,8 +72,9 @@ class HistoryUtils
         $lastClientId = false;
         $clientMap = [];
         $str = '';
+        $history = Session::get(RECENTLY_VIEWED, []);
 
-        foreach (Session::get(RECENTLY_VIEWED) as $item)
+        foreach ($history as $item)
         {
             if ($item->entityType == ENTITY_CLIENT && isset($clientMap[$item->client_id])) {
                 continue;
