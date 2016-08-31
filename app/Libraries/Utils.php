@@ -369,9 +369,7 @@ class Utils
 
     public static function formatMoney($value, $currencyId = false, $countryId = false, $showCode = false)
     {
-        if (!$value) {
-            $value = 0;
-        }
+        $value = floatval($value);
 
         if (!$currencyId) {
             $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
