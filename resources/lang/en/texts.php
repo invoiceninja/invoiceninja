@@ -2089,6 +2089,8 @@ $LANG = array(
 
     'toggle_navigation' => 'Toggle Navigation',
     'toggle_history' => 'Toggle History',
+    'unassigned' => 'Unassigned',
+    'task' => 'Task',
 
 );
 

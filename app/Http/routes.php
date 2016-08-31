@@ -355,7 +355,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENV_DEVELOPMENT', 'local');
     define('ENV_STAGING', 'staging');
 
-    define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
+    define('RECENTLY_VIEWED', 'recent_history');
 
     define('ENTITY_CLIENT', 'client');
     define('ENTITY_CONTACT', 'contact');

@@ -602,6 +602,7 @@ class Utils
 
     public static function trackViewed($name, $type, $url = false)
     {
+        /*
         if (!$url) {
             $url = Request::url();
         }
@@ -643,6 +644,7 @@ class Utils
         }
 
         Session::put(RECENTLY_VIEWED, $data);
+        */
     }
 
     public static function processVariables($str)

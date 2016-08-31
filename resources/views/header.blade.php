@@ -64,7 +64,6 @@
   #right-sidebar-wrapper {
       z-index: 1000;
       position: fixed;
-      top: 0px;
       right: 250px;
       width: 0px;
       height: 100%;
@@ -104,18 +103,32 @@
   /* Sidebar Styles */
 
   .sidebar-nav {
+      padding-top: 16px;
       position: absolute;
       top: 0;
       width: 250px;
       margin: 0;
-      padding: 0;
       list-style: none;
       height: 100%;
   }
 
+  .sidebar-nav i.fa {
+      color: white;
+  }
+
   .sidebar-nav li {
+      border-bottom:solid 1px;
+  }
+
+  #left-sidebar-wrapper .sidebar-nav li {
       text-indent: 20px;
       line-height: 40px;
+  }
+
+  #right-sidebar-wrapper .sidebar-nav li {
+      text-indent: 10px;
+      font-size: 16px;
+      line-height: 44px;
   }
 
   .sidebar-nav li > a {
@@ -161,6 +174,17 @@
   .sidebar-nav > .sidebar-brand a:hover {
       color: #fff;
       background: none;
+  }
+
+  .sidebar-nav li div {
+      max-width:226px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+  }
+
+  .sidebar-nav li:hover div {
+      max-width:186px;
   }
 
     @media(min-width:768px) {
@@ -700,33 +724,33 @@
 
     <!-- Sidebar -->
     <div id="left-sidebar-wrapper">
-        <ul class="sidebar-nav" style="padding-top:20px">
+        <ul class="sidebar-nav">
             @foreach([
-                'dashboard' => 'tachometer',
-                'clients' => 'users',
-                'invoices' => 'file-pdf-o',
-                'payments' => 'credit-card',
-                'recurring_invoices' => 'files-o',
-                'credits' => 'credit-card',
-                'quotes' => 'file-text-o',
-                'tasks' => 'clock-o',
-                'expenses' => 'file-image-o',
-                'vendors' => 'building',
-                'settings' => 'cog',
-            ] as $option => $icon)
-            <li style="border-bottom:solid 1px" class="{{ Request::is("{$option}*") ? 'active' : '' }}">
+                'dashboard',
+                'clients',
+                'invoices',
+                'payments',
+                'recurring_invoices',
+                'credits',
+                'quotes',
+                'tasks',
+                'expenses',
+                'vendors',
+                'settings'
+            ] as $option)
+            <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                 @if ($option != 'dashboard' && $option != 'settings')
                     @if (Auth::user()->can('create', substr($option, 0, -1)))
                         <a type="button" class="btn btn-primary btn-sm pull-right" style="margin-top:10px;margin-right:10px;text-indent:0px"
                             href="{{ url("/{$option}/create") }}">
-                            <i class="fa fa-plus-circle" style="color:white;width:20px" title="{{ trans('texts.create_new') }}"></i>
+                            <i class="fa fa-plus-circle" style="width:20px" title="{{ trans('texts.create_new') }}"></i>
                         </a>
                     @endif
                 @endif
                 <a href="{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}"
                     style="font-size:16px; padding-top:6px; padding-bottom:6px"
                     class="{{ Request::is("{$option}*") ? 'active' : '' }}">
-                    <i class="fa fa-{{ $icon }}" style="width:46px; color:white; padding-right:10px"></i>
+                    <i class="fa fa-{{ \App\Models\EntityModel::getIcon($option) }}" style="width:46px; padding-right:10px"></i>
                     {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
                 </a>
             </li>
@@ -736,7 +760,9 @@
     <!-- /#left-sidebar-wrapper -->
 
     <div id="right-sidebar-wrapper">
-        SIDEBAR
+        <ul class="sidebar-nav">
+            {!! \App\Libraries\HistoryUtils::renderHtml() !!}
+        </ul>
     </div>
 
     <!-- Page Content -->

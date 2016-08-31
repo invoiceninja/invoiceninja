@@ -548,6 +548,15 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->isType(INVOICE_TYPE_QUOTE) ? ENTITY_QUOTE : ENTITY_INVOICE;
     }
 
+    public function subEntityType()
+    {
+        if ($this->is_recurring) {
+            return ENTITY_RECURRING_INVOICE;
+        } else {
+            return $this->getEntityType();
+        }
+    }
+
     /**
      * @return bool
      */

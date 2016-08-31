@@ -151,7 +151,13 @@ class Task extends EntityModel
     {
         return "/tasks/{$this->public_id}/edit";
     }
+
+    public function getName()
+    {
+        return '#' . $this->public_id;
+    }
 }
+
 
 
 Task::created(function ($task) {

@@ -89,9 +89,7 @@ class ClientController extends BaseController
     public function show(ClientRequest $request)
     {
         $client = $request->entity();
-
         $user = Auth::user();
-        Utils::trackViewed($client->getDisplayName(), ENTITY_CLIENT);
 
         $actionLinks = [];
         if($user->can('create', ENTITY_TASK)){
