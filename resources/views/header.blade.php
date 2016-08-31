@@ -31,17 +31,22 @@
 
   #wrapper {
       padding-left: 0;
+      padding-right: 0;
       -webkit-transition: all 0.5s ease;
       -moz-transition: all 0.5s ease;
       -o-transition: all 0.5s ease;
       transition: all 0.5s ease;
   }
 
-  #wrapper.toggled {
+  #wrapper.toggled-left {
       padding-left: 250px;
   }
 
-  #sidebar-wrapper {
+  #wrapper.toggled-right {
+      padding-right: 250px;
+  }
+
+  #left-sidebar-wrapper {
       z-index: 1000;
       position: fixed;
       left: 250px;
@@ -49,16 +54,34 @@
       height: 100%;
       margin-left: -250px;
       overflow-y: auto;
-      background: #000;
-      xbackground: #09334f;
-      xbackground: #09334f;
+      background: #222;
       -webkit-transition: all 0.5s ease;
       -moz-transition: all 0.5s ease;
       -o-transition: all 0.5s ease;
       transition: all 0.5s ease;
   }
 
-  #wrapper.toggled #sidebar-wrapper {
+  #right-sidebar-wrapper {
+      z-index: 1000;
+      position: fixed;
+      top: 0px;
+      right: 250px;
+      width: 0px;
+      height: 100%;
+      margin-right: -250px;
+      overflow-y: auto;
+      background: #222;
+      -webkit-transition: all 0.5s ease;
+      -moz-transition: all 0.5s ease;
+      -o-transition: all 0.5s ease;
+      transition: all 0.5s ease;
+  }
+
+  #wrapper.toggled-left #left-sidebar-wrapper {
+      width: 250px;
+  }
+
+  #wrapper.toggled-right #right-sidebar-wrapper {
       width: 250px;
   }
 
@@ -68,9 +91,14 @@
       padding: 15px;
   }
 
-  #wrapper.toggled #page-content-wrapper {
+  #wrapper.toggled-left #page-content-wrapper {
       position: absolute;
       margin-right: -250px;
+  }
+
+  #wrapper.toggled-right #page-content-wrapper {
+      position: absolute;
+      padding-right: -250px;
   }
 
   /* Sidebar Styles */
@@ -90,30 +118,33 @@
       line-height: 40px;
   }
 
-  .sidebar-nav li > div {
+  .sidebar-nav li > a {
       display: block;
       text-decoration: none;
       color: #999999;
       cursor: pointer;
   }
 
-  .sidebar-nav li > div:hover,
-  .sidebar-nav li > div.active {
+  .sidebar-nav li:hover > a,
+  .sidebar-nav li > a.active {
       text-decoration: none;
       color: #fff;
+  }
+
+  .sidebar-nav li:hover,
+  .sidebar-nav li.active {
       background: rgba(255,255,255,0.2);
   }
 
-  .sidebar-nav li > div:hover {
+  .sidebar-nav li > a:hover {
       text-decoration: none;
   }
 
-  .sidebar-nav li > div > div.btn {
+  .sidebar-nav li > a.btn {
       display: none;
   }
 
-  .sidebar-nav li > div.hover > div.btn,
-  .sidebar-nav li > div:hover > div.btn {
+  .sidebar-nav li:hover > a {
       display: block;
   }
 
@@ -135,17 +166,30 @@
     @media(min-width:768px) {
       #wrapper {
           padding-left: 250px;
+          padding-right: 250px;
       }
 
-      #wrapper.toggled {
+      #wrapper.toggled-left {
           padding-left: 0;
       }
 
-      #sidebar-wrapper {
+      #wrapper.toggled-right {
+          padding-right: 0;
+      }
+
+      #left-sidebar-wrapper {
           width: 250px;
       }
 
-      #wrapper.toggled #sidebar-wrapper {
+      #right-sidebar-wrapper {
+          width: 250px;
+      }
+
+      #wrapper.toggled-left #left-sidebar-wrapper {
+          width: 0;
+      }
+
+      #wrapper.toggled-right #right-sidebar-wrapper {
           width: 0;
       }
 
@@ -154,7 +198,12 @@
           position: relative;
       }
 
-      #wrapper.toggled #page-content-wrapper {
+      #wrapper.toggled-left #page-content-wrapper {
+          position: relative;
+          margin-right: 0;
+      }
+
+      #wrapper.toggled-right #page-content-wrapper {
           position: relative;
           margin-right: 0;
       }
@@ -490,9 +539,18 @@
     // manage sidebar state
     $("#left-menu-toggle").click(function(e) {
         e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-        var toggled = $("#wrapper").hasClass("toggled") ? '1' : '0';
+        $("#wrapper").toggleClass("toggled-left");
+
+        var toggled = $("#wrapper").hasClass("toggled-left") ? '1' : '0';
         $.get('{{ url('save_sidebar_state') }}?show_left=' + toggled);
+    });
+
+    $("#right-menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled-right");
+
+        var toggled = $("#wrapper").hasClass("toggled-right") ? '1' : '0';
+        $.get('{{ url('save_sidebar_state') }}?show_right=' + toggled);
     });
 
   });
@@ -513,7 +571,7 @@
         <span class="icon-bar"></span>
       </button>
       <div class="navbar-brand">
-          <a href="#" id="left-menu-toggle" class="menu-toggle hide-phone">
+          <a href="#" id="left-menu-toggle" class="menu-toggle hide-phone" title="{{ trans('texts.toggle_navigation') }}">
             <i class="fa fa-bars" style="width:30px;padding-right:10px"></i>
           </a>
           <a href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank">
@@ -591,7 +649,7 @@
           </ul>
         </div>
 
-        <a href="#" id="left-menu-toggle" class="menu-toggle hide-phone">
+        <a href="#" id="right-menu-toggle" class="menu-toggle hide-phone" title="{{ trans('texts.toggle_history') }}">
           <i class="fa fa-bars" style="width:30px;padding-left:14px"></i>
         </a>
 
@@ -637,10 +695,11 @@
     </div><!-- /.navbar-collapse -->
 
 </nav>
-<div id="wrapper" {!! session(SESSION_LEFT_SIDEBAR) ? 'class="toggled"' : '' !!}>
+
+<div id="wrapper" class='{!! session(SESSION_LEFT_SIDEBAR) ? 'toggled-left' : '' !!} {!! session(SESSION_RIGHT_SIDEBAR, true) ? 'toggled-right' : '' !!}'>
 
     <!-- Sidebar -->
-    <div id="sidebar-wrapper">
+    <div id="left-sidebar-wrapper">
         <ul class="sidebar-nav" style="padding-top:20px">
             @foreach([
                 'dashboard' => 'tachometer',
@@ -655,26 +714,30 @@
                 'vendors' => 'building',
                 'settings' => 'cog',
             ] as $option => $icon)
-            <li style="border-bottom:solid 1px">
-                <div onclick="location.href='{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}'"
+            <li style="border-bottom:solid 1px" class="{{ Request::is("{$option}*") ? 'active' : '' }}">
+                @if ($option != 'dashboard' && $option != 'settings')
+                    @if (Auth::user()->can('create', substr($option, 0, -1)))
+                        <a type="button" class="btn btn-primary btn-sm pull-right" style="margin-top:10px;margin-right:10px;text-indent:0px"
+                            href="{{ url("/{$option}/create") }}">
+                            <i class="fa fa-plus-circle" style="color:white;width:20px" title="{{ trans('texts.create_new') }}"></i>
+                        </a>
+                    @endif
+                @endif
+                <a href="{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}"
                     style="font-size:16px; padding-top:6px; padding-bottom:6px"
                     class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                     <i class="fa fa-{{ $icon }}" style="width:46px; color:white; padding-right:10px"></i>
                     {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
-                    @if ($option != 'dashboard' && $option != 'settings')
-                        @if (Auth::user()->can('create', substr($option, 0, -1)))
-                            <div type="button" class="btn btn-primary btn-sm pull-right" style="margin-top:5px;margin-right:10px;text-indent:0px"
-                                onclick="event.cancelBubble = true;if(event.stopPropagation) event.stopPropagation();location.href='{{ url("/{$option}/create") }}'">
-                                <i class="fa fa-plus-circle" style="color:white;width:20px" title="{{ trans('texts.create_new') }}"></i>
-                            </div>
-                        @endif
-                    @endif
-                </div>
+                </a>
             </li>
             @endforeach
         </ul>
     </div>
-    <!-- /#sidebar-wrapper -->
+    <!-- /#left-sidebar-wrapper -->
+
+    <div id="right-sidebar-wrapper">
+        SIDEBAR
+    </div>
 
     <!-- Page Content -->
     <div id="page-content-wrapper">

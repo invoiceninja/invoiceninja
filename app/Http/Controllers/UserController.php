@@ -364,6 +364,6 @@ class UserController extends BaseController
             Session::put(SESSION_RIGHT_SIDEBAR, boolval(Input::get('show_right')));
         }
 
-        return Session::get(SESSION_LEFT_SIDEBAR) ? 'true' : 'false';
+        return RESULT_SUCCESS;
     }
 }

@@ -2087,6 +2087,9 @@ $LANG = array(
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Create New',
 
+    'toggle_navigation' => 'Toggle Navigation',
+    'toggle_history' => 'Toggle History',
+
 );
 
 return $LANG;
