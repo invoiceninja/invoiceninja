@@ -33,7 +33,7 @@ class HistoryUtils
         ];
 
         $activities = Activity::scope()
-            ->with('client.contacts', 'invoice')
+            ->with(['client.contacts', 'invoice'])
             ->whereIn('user_id', $userIds)
             ->whereIn('activity_type_id', $activityTypes)
             ->orderBy('id', 'asc')
@@ -46,6 +46,7 @@ class HistoryUtils
                 $entity = $activity->client;
             } else {
                 $entity = $activity->invoice;
+                $entity->setRelation('client', $activity->client);
             }
 
             static::trackViewed($entity);
