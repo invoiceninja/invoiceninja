@@ -4,22 +4,70 @@ use Request;
 use stdClass;
 use Session;
 use App\Models\EntityModel;
+use App\Models\Activity;
 
 class HistoryUtils
 {
+    public static function loadHistory($users)
+    {
+        $userIds = [];
+
+        if (is_array($users)) {
+            foreach ($users as $user) {
+                $userIds[] = $user->user_id;
+            }
+        } else {
+            $userIds[] = $users;
+        }
+
+        $activityTypes = [
+            ACTIVITY_TYPE_CREATE_CLIENT,
+            ACTIVITY_TYPE_CREATE_INVOICE,
+            ACTIVITY_TYPE_UPDATE_INVOICE,
+            ACTIVITY_TYPE_EMAIL_INVOICE,
+            ACTIVITY_TYPE_CREATE_QUOTE,
+            ACTIVITY_TYPE_UPDATE_QUOTE,
+            ACTIVITY_TYPE_EMAIL_QUOTE,
+            ACTIVITY_TYPE_VIEW_INVOICE,
+            ACTIVITY_TYPE_VIEW_QUOTE,
+        ];
+
+        $activities = Activity::scope()
+            ->with('client.contacts', 'invoice')
+            ->whereIn('user_id', $userIds)
+            ->whereIn('activity_type_id', $activityTypes)
+            ->orderBy('id', 'asc')
+            ->limit(100)
+            ->get();
+
+        foreach ($activities as $activity)
+        {
+            if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_CLIENT) {
+                $entity = $activity->client;
+            } else {
+                $entity = $activity->invoice;
+            }
+
+            static::trackViewed($entity);
+        }
+    }
+
     public static function trackViewed(EntityModel $entity)
     {
-        if ($entity->isEntityType(ENTITY_CREDIT) || $entity->isEntityType(ENTITY_VENDOR)) {
+        if ($entity->isEntityType(ENTITY_CREDIT)
+                || $entity->isEntityType(ENTITY_PAYMENT)
+                || $entity->isEntityType(ENTITY_VENDOR)) {
             return;
         }
 
         $object =  static::convertToObject($entity);
-        $history = Session::get(RECENTLY_VIEWED);
+        $history = Session::get(RECENTLY_VIEWED) ?: [];
+        $accountHistory = isset($history[$entity->account_id]) ? $history[$entity->account_id] : [];
         $data = [];
 
         // Add to the list and make sure to only show each item once
-        for ($i = 0; $i<count($history); $i++) {
-            $item = $history[$i];
+        for ($i = 0; $i<count($accountHistory); $i++) {
+            $item = $accountHistory[$i];
 
             if ($object->url == $item->url) {
                 continue;
@@ -40,8 +88,9 @@ class HistoryUtils
             array_pop($data);
         }
 
-        //$data = [];
-        Session::put(RECENTLY_VIEWED, $data);
+        $history[$entity->account_id] = $data;
+
+        Session::put(RECENTLY_VIEWED, $history);
     }
 
     private static function convertToObject($entity)
@@ -67,12 +116,14 @@ class HistoryUtils
         return $object;
     }
 
-    public static function renderHtml()
+    public static function renderHtml($accountId)
     {
         $lastClientId = false;
         $clientMap = [];
         $str = '';
+
         $history = Session::get(RECENTLY_VIEWED, []);
+        $history = isset($history[$accountId]) ? $history[$accountId] : [];
 
         foreach ($history as $item)
         {
@@ -84,15 +135,14 @@ class HistoryUtils
 
             if ($lastClientId === false || $item->client_id != $lastClientId)
             {
-                $icon = '<i class="fa fa-users" style="width:30px"></i>';
+                $icon = '<i class="fa fa-users" style="width:32px"></i>';
                 if ($item->client_id) {
                     $link = url('/clients/' . $item->client_id);
                     $name = $item->client_name ;
 
                     $buttonLink = url('/invoices/create/' . $item->client_id);
-                    $button = '<a type="button" class="btn btn-primary btn-sm pull-right" style="margin-top:5px; margin-right:10px; text-indent:0px"
-                                    href="' . $buttonLink . '">
-                                    <i class="fa fa-plus-circle" style="width:20px" title="' . trans('texts.create_new') . '"></i>
+                    $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
+                                    <i class="fa fa-plus-circle" style="width:20px" title="' . trans('texts.create_invoice') . '"></i>
                                 </a>';
                 } else {
                     $link = '#';
@@ -108,11 +158,10 @@ class HistoryUtils
                 continue;
             }
 
-            $icon = '<i class="fa fa-' . EntityModel::getIcon($item->entityType . 's') . '"></i>';
-            $str .= sprintf('<li style="text-align:right; padding-right:20px;"><a href="%s">%s %s</a></li>', $item->url, $item->name, $icon);
+            $icon = '<i class="fa fa-' . EntityModel::getIcon($item->entityType . 's') . '" style="width:24px"></i>';
+            $str .= sprintf('<li style="text-align:right; padding-right:18px;"><a href="%s">%s %s</a></li>', $item->url, $item->name, $icon);
         }
 
-        //dd($str);
         return $str;
     }
 }

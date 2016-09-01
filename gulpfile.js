@@ -53,6 +53,7 @@ elixir(function(mix) {
         'bootstrap-combobox.css',
         'typeahead.js-bootstrap.css',
         'style.css',
+        'sidebar.css',
         'fonts.css'
     ], 'public/css/built.css');
 

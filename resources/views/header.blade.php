@@ -7,236 +7,117 @@
 
   <style type="text/css">
 
-  .menu-toggle {
-      color: #999 !important;
-      text-decoration: none;
+body {
+  background: #f8f8f8;
+}
+
+table.dataTable thead > tr > th,
+table.invoice-table thead > tr > th {
+    background-color: #e37329 !important;
+    color:#fff;
+}
+
+thead th {
+    border-left: 1px solid #d26b26;
+}
+
+.sidebar-nav {
+    background-color: #222;
+}
+
+.sidebar-nav li {
+    border-bottom:solid 1px;
+}
+
+.sidebar-nav i.fa {
+    color: white;
+}
+
+.menu-toggle i,
+.sidebar-nav li > a {
+    color: #999999;
+}
+
+.menu-toggle:hover i,
+.sidebar-nav li:hover > a,
+.sidebar-nav li > a.active {
+    color: #fff;
+}
+
+.sidebar-nav li:hover,
+.sidebar-nav li.active {
+    background: rgba(255,255,255,0.2);
+}
+
+.menu-toggle {
+    color: #999 !important;
+}
+
+.menu-toggle:hover {
+    color: #fff !important;
+}
+
+
+.menu-toggle {
+    text-decoration: none;
+}
+.menu-toggle:hover {
+    text-decoration: none;
+}
+
+/*
+  body {
+    background: white;
   }
 
-  .menu-toggle:hover {
-      color: #fff !important;
-      text-decoration: none;
+  div.panel-body {
+      background-color: #f2f5fe;
   }
 
-  /*!
-   * Start Bootstrap - Simple Sidebar (http://startbootstrap.com/)
-   * Copyright 2013-2016 Start Bootstrap
-   * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
-   */
-
-   body {
-       overflow-x: hidden;
-   }
-
-  /* Toggle Styles */
-
-  #wrapper {
-      padding-left: 0;
-      padding-right: 0;
-      -webkit-transition: all 0.5s ease;
-      -moz-transition: all 0.5s ease;
-      -o-transition: all 0.5s ease;
-      transition: all 0.5s ease;
+  table.dataTable thead > tr > th,
+  table.invoice-table thead > tr > th {
+      background-color: #0b4d78 !important;
+      color:#fff;
   }
 
-  #wrapper.toggled-left {
-      padding-left: 250px;
+  thead th {
+      border-left: 1px solid #7a8799;
   }
-
-  #wrapper.toggled-right {
-      padding-right: 250px;
-  }
-
-  #left-sidebar-wrapper {
-      z-index: 1000;
-      position: fixed;
-      left: 250px;
-      width: 0;
-      height: 100%;
-      margin-left: -250px;
-      overflow-y: auto;
-      background: #222;
-      -webkit-transition: all 0.5s ease;
-      -moz-transition: all 0.5s ease;
-      -o-transition: all 0.5s ease;
-      transition: all 0.5s ease;
-  }
-
-  #right-sidebar-wrapper {
-      z-index: 1000;
-      position: fixed;
-      right: 250px;
-      width: 0px;
-      height: 100%;
-      margin-right: -250px;
-      overflow-y: auto;
-      background: #222;
-      -webkit-transition: all 0.5s ease;
-      -moz-transition: all 0.5s ease;
-      -o-transition: all 0.5s ease;
-      transition: all 0.5s ease;
-  }
-
-  #wrapper.toggled-left #left-sidebar-wrapper {
-      width: 250px;
-  }
-
-  #wrapper.toggled-right #right-sidebar-wrapper {
-      width: 250px;
-  }
-
-  #page-content-wrapper {
-      width: 100%;
-      position: absolute;
-      padding: 15px;
-  }
-
-  #wrapper.toggled-left #page-content-wrapper {
-      position: absolute;
-      margin-right: -250px;
-  }
-
-  #wrapper.toggled-right #page-content-wrapper {
-      position: absolute;
-      padding-right: -250px;
-  }
-
-  /* Sidebar Styles */
 
   .sidebar-nav {
-      padding-top: 16px;
-      position: absolute;
-      top: 0;
-      width: 250px;
-      margin: 0;
-      list-style: none;
-      height: 100%;
+      background-color: #f2f5fe;
   }
 
   .sidebar-nav i.fa {
-      color: white;
+      color: #7a8799;
   }
 
   .sidebar-nav li {
-      border-bottom:solid 1px;
-  }
-
-  #left-sidebar-wrapper .sidebar-nav li {
-      text-indent: 20px;
-      line-height: 40px;
-  }
-
-  #right-sidebar-wrapper .sidebar-nav li {
-      text-indent: 10px;
-      font-size: 16px;
-      line-height: 44px;
+      border-bottom:solid 1px #7a8799;
   }
 
   .sidebar-nav li > a {
-      display: block;
-      text-decoration: none;
-      color: #999999;
-      cursor: pointer;
+      color: #7a8799;
   }
 
   .sidebar-nav li:hover > a,
   .sidebar-nav li > a.active {
-      text-decoration: none;
-      color: #fff;
+      color: #2b435d;
   }
 
   .sidebar-nav li:hover,
   .sidebar-nav li.active {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,1);
   }
 
-  .sidebar-nav li > a:hover {
-      text-decoration: none;
+  .menu-toggle {
+      color: #999 !important;
   }
 
-  .sidebar-nav li > a.btn {
-      display: none;
+  .menu-toggle:hover {
+      color: #fff !important;
   }
-
-  .sidebar-nav li:hover > a {
-      display: block;
-  }
-
-  .sidebar-nav > .sidebar-brand {
-      height: 65px;
-      font-size: 18px;
-      line-height: 60px;
-  }
-
-  .sidebar-nav > .sidebar-brand a {
-      color: #999999;
-  }
-
-  .sidebar-nav > .sidebar-brand a:hover {
-      color: #fff;
-      background: none;
-  }
-
-  .sidebar-nav li div {
-      max-width:226px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-  }
-
-  .sidebar-nav li:hover div {
-      max-width:186px;
-  }
-
-    @media(min-width:768px) {
-      #wrapper {
-          padding-left: 250px;
-          padding-right: 250px;
-      }
-
-      #wrapper.toggled-left {
-          padding-left: 0;
-      }
-
-      #wrapper.toggled-right {
-          padding-right: 0;
-      }
-
-      #left-sidebar-wrapper {
-          width: 250px;
-      }
-
-      #right-sidebar-wrapper {
-          width: 250px;
-      }
-
-      #wrapper.toggled-left #left-sidebar-wrapper {
-          width: 0;
-      }
-
-      #wrapper.toggled-right #right-sidebar-wrapper {
-          width: 0;
-      }
-
-      #page-content-wrapper {
-          padding: 20px;
-          position: relative;
-      }
-
-      #wrapper.toggled-left #page-content-wrapper {
-          position: relative;
-          margin-right: 0;
-      }
-
-      #wrapper.toggled-right #page-content-wrapper {
-          position: relative;
-          margin-right: 0;
-      }
-    }
-
-    body {
-      background-color: #EEEEEE;
-      padding-top: 56px;
-    }
+  */
 
     @if (Auth::check() && Auth::user()->dark_mode)
         body {
@@ -594,19 +475,21 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <div class="navbar-brand">
-          <a href="#" id="left-menu-toggle" class="menu-toggle hide-phone" title="{{ trans('texts.toggle_navigation') }}">
-            <i class="fa fa-bars" style="width:30px;padding-right:10px"></i>
-          </a>
-          <a href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank">
-            {{-- Per our license, please do not remove or modify this link. --}}
-            <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25"/>
-          </a>
-      </div>
+      <a href="#" id="left-menu-toggle" class="menu-toggle" title="{{ trans('texts.toggle_navigation') }}">
+          <div class="navbar-brand">
+                <i class="fa fa-bars hide-phone" style="width:30px;padding-top:2px;float:left"></i>
+                {{-- Per our license, please do not remove or modify this link. --}}
+                <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25" style="float:left"/>
+          </div>
+      </a>
     </div>
 
+    <a id="right-menu-toggle" class="menu-toggle hide-phone pull-right" title="{{ trans('texts.toggle_history') }}" style="cursor:pointer">
+      <div class="fa fa-bars" style="width:30px;margin-right:18px;margin-left:24px;margin-top:20px;margin-bottom:25px;text-align:center"></div>
+    </a>
+
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
-      <div class="navbar-form navbar-right" style="padding-right:30px">
+      <div class="navbar-form navbar-right">
 
         @if (Auth::check())
           @if (!Auth::user()->registered)
@@ -673,10 +556,6 @@
           </ul>
         </div>
 
-        <a href="#" id="right-menu-toggle" class="menu-toggle hide-phone" title="{{ trans('texts.toggle_history') }}">
-          <i class="fa fa-bars" style="width:30px;padding-left:14px"></i>
-        </a>
-
       </div>
 
       <form id="search-form" class="navbar-form navbar-right" role="search">
@@ -723,7 +602,7 @@
 <div id="wrapper" class='{!! session(SESSION_LEFT_SIDEBAR) ? 'toggled-left' : '' !!} {!! session(SESSION_RIGHT_SIDEBAR, true) ? 'toggled-right' : '' !!}'>
 
     <!-- Sidebar -->
-    <div id="left-sidebar-wrapper">
+    <div id="left-sidebar-wrapper" class="hide-phone">
         <ul class="sidebar-nav">
             @foreach([
                 'dashboard',
@@ -759,9 +638,9 @@
     </div>
     <!-- /#left-sidebar-wrapper -->
 
-    <div id="right-sidebar-wrapper">
+    <div id="right-sidebar-wrapper" class="hide-phone">
         <ul class="sidebar-nav">
-            {!! \App\Libraries\HistoryUtils::renderHtml() !!}
+            {!! \App\Libraries\HistoryUtils::renderHtml(Auth::user()->account_id) !!}
         </ul>
     </div>
 
@@ -795,7 +674,7 @@
           @endif
 
           @yield('content')
-
+          <br/>
           <div class="row">
             <div class="col-md-12">
 

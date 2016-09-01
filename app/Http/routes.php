@@ -481,7 +481,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_UPDATE_TASK', 43);
 
     define('DEFAULT_INVOICE_NUMBER', '0001');
-    define('RECENTLY_VIEWED_LIMIT', 8);
+    define('RECENTLY_VIEWED_LIMIT', 20);
     define('LOGGED_ERROR_LIMIT', 100);
     define('RANDOM_KEY_LENGTH', 32);
     define('MAX_NUM_USERS', 20);

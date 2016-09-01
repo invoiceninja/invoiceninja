@@ -139,8 +139,6 @@ class AccountController extends BaseController
             $account = $this->accountRepo->create();
             $user = $account->users()->first();
 
-            Session::forget(RECENTLY_VIEWED);
-
             if ($prevUserId) {
                 $users = $this->accountRepo->associateAccounts($user->id, $prevUserId);
                 Session::put(SESSION_USER_ACCOUNTS, $users);

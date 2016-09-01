@@ -1,4 +1,5 @@
-body { background: #f8f8f8 !important;
+body {
+    padding-top: 56px;
     font-family: 'Roboto', sans-serif;
     font-size: 15px;
 }
@@ -71,10 +72,7 @@ table.data-table td {
 
 table.dataTable { border-radius: 3px; border-collapse: collapse;
     /*border-spacing: 0;*/}
-table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
-    background-color: #e37329 !important;
-    color:#fff;
-}
+
 /*
 table.dataTable tr:hover {
     background-color: #F2F5FE !important;
@@ -89,7 +87,6 @@ th:last-child {
 }
 
 tr {border: none;}
-thead th {border-left: 1px solid #d26b26;}
 tbody td {border-left: 1px solid #FFFFFF;}
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
 vertical-align: middle;

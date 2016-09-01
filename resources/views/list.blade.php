@@ -88,7 +88,7 @@
 	@endif
 
     {!! Former::close() !!}
-
+    
     <script type="text/javascript">
 
 	function submitForm(action) {

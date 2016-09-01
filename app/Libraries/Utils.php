@@ -191,19 +191,6 @@ class Utils
         return $response;
     }
 
-    public static function getLastURL()
-    {
-        if (!count(Session::get(RECENTLY_VIEWED))) {
-            return '#';
-        }
-
-        $history = Session::get(RECENTLY_VIEWED);
-        $last = $history[0];
-        $penultimate = count($history) > 1 ? $history[1] : $last;
-
-        return Request::url() == $last->url ? $penultimate->url : $last->url;
-    }
-
     public static function getProLabel($feature)
     {
         if (Auth::check()
@@ -598,53 +585,6 @@ class Utils
         } else {
             return $date;
         }
-    }
-
-    public static function trackViewed($name, $type, $url = false)
-    {
-        /*
-        if (!$url) {
-            $url = Request::url();
-        }
-
-        $viewed = Session::get(RECENTLY_VIEWED);
-
-        if (!$viewed) {
-            $viewed = [];
-        }
-
-        $object = new stdClass();
-        $object->accountId = Auth::user()->account_id;
-        $object->url = $url;
-        $object->name = ucwords($type).': '.$name;
-
-        $data = [];
-        $counts = [];
-
-        for ($i = 0; $i<count($viewed); $i++) {
-            $item = $viewed[$i];
-
-            if ($object->url == $item->url || $object->name == $item->name) {
-                continue;
-            }
-
-            array_push($data, $item);
-
-            if (isset($counts[$item->accountId])) {
-                $counts[$item->accountId]++;
-            } else {
-                $counts[$item->accountId] = 1;
-            }
-        }
-
-        array_unshift($data, $object);
-
-        if (isset($counts[Auth::user()->account_id]) && $counts[Auth::user()->account_id] > RECENTLY_VIEWED_LIMIT) {
-            array_pop($data);
-        }
-
-        Session::put(RECENTLY_VIEWED, $data);
-        */
     }
 
     public static function processVariables($str)

@@ -115,7 +115,6 @@ class InvoiceController extends BaseController
             $method = 'POST';
             $url = "{$entityType}s";
         } else {
-            Utils::trackViewed($invoice->getDisplayName().' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
             $method = 'PUT';
             $url = "{$entityType}s/{$invoice->public_id}";
             $clients->whereId($invoice->client_id);
@@ -401,14 +400,10 @@ class InvoiceController extends BaseController
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");
 
-        // check if we created a new client with the invoice
-        // TODO: replace with HistoryListener
         $input = $request->input();
         $clientPublicId = isset($input['client']['public_id']) ? $input['client']['public_id'] : false;
         if ($clientPublicId == '-1') {
             $message = $message.' '.trans('texts.and_created_client');
-            $trackUrl = URL::to('clients/' . $invoice->client->public_id);
-            Utils::trackViewed($invoice->client->getDisplayName(), ENTITY_CLIENT, $trackUrl);
         }
 
         Session::flash('message', $message);
