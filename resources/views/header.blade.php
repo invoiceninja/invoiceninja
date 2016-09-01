@@ -477,7 +477,7 @@ thead th {
       </button>
       <a href="#" id="left-menu-toggle" class="menu-toggle" title="{{ trans('texts.toggle_navigation') }}">
           <div class="navbar-brand">
-                <i class="fa fa-bars hide-phone" style="width:30px;padding-top:2px;float:left"></i>
+                <i class="fa fa-bars hide-phone" style="width:32px;padding-top:2px;float:left"></i>
                 {{-- Per our license, please do not remove or modify this link. --}}
                 <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25" style="float:left"/>
           </div>
@@ -485,7 +485,7 @@ thead th {
     </div>
 
     <a id="right-menu-toggle" class="menu-toggle hide-phone pull-right" title="{{ trans('texts.toggle_history') }}" style="cursor:pointer">
-      <div class="fa fa-bars" style="width:30px;margin-right:18px;margin-left:24px;margin-top:20px;margin-bottom:25px;text-align:center"></div>
+      <div class="fa fa-bars"></div>
     </a>
 
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
