@@ -176,6 +176,12 @@
         width: 250px;
     }
 
+    #left-sidebar-wrapper a.btn {
+        margin-top:10px;
+        margin-right:10px;
+        text-indent:0px
+    }
+
     #right-sidebar-wrapper {
         width: 250px;
     }

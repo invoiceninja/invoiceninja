@@ -619,6 +619,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
+    define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
     define('NINJA_VERSION', '2.6.10' . env('NINJA_VERSION_SUFFIX'));
 
@@ -821,6 +822,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('SKYPE_BUTTON_PLAY_VIDEO', 'playVideo');
     define('SKYPE_BUTTON_SHOW_IMAGE', 'showImage');
     define('SKYPE_BUTTON_DOWNLOAD_FILE', 'downloadFile');
+
+    define('INVOICE_FIELDS_CLIENT', 'client_fields');
+    define('INVOICE_FIELDS_INVOICE', 'invoice_fields');
+    define('INVOICE_FIELDS_ACCOUNT', 'account_fields');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

@@ -8,25 +8,36 @@
   <style type="text/css">
 
 body {
-  background: #f8f8f8;
+  background-color: #fcfcfc;
 }
+
+.navbar {
+  background-color: #2980b9 !important;
+}
+
+.navbar-collapse {
+ background-color: #2980b9 !important;
+}
+
 
 table.dataTable thead > tr > th,
 table.invoice-table thead > tr > th {
-    background-color: #e37329 !important;
+    background-color: #777 !important;
+    xbackground-color: #8f8f8f !important;
+    xbackground-color: #34495E !important;
     color:#fff;
 }
 
 thead th {
-    border-left: 1px solid #d26b26;
+    border-left: 1px solid #999;
 }
 
 .sidebar-nav {
-    background-color: #222;
+    background-color: #313131;
 }
 
 .sidebar-nav li {
-    border-bottom:solid 1px;
+    border-bottom:solid 1px #4c4c4c;
 }
 
 .sidebar-nav i.fa {
@@ -64,6 +75,26 @@ thead th {
 .menu-toggle:hover {
     text-decoration: none;
 }
+
+.icon-footer {
+    text-align: center;
+    position:fixed;
+    bottom:12px;
+    left:16px;
+    color:white;
+    font-size:16px
+}
+
+.icon-footer i {
+    width: 40px;
+    color: #999999;
+}
+
+.icon-footer i:hover {
+    color: #fff;
+}
+
+
 
 /*
   body {
@@ -594,7 +625,6 @@ thead th {
             {!! Form::nav_link($key, $value ?: $key) !!}
         @endforeach
       </ul>
-
     </div><!-- /.navbar-collapse -->
 
 </nav>
@@ -618,9 +648,14 @@ thead th {
                 'settings'
             ] as $option)
             <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
-                @if ($option != 'dashboard' && $option != 'settings')
+                @if ($option == 'settings')
+                    <a type="button" class="btn btn-default btn-sm pull-right"
+                        href="{{ url(NINJA_DOCS_URL) }}" target="_blank">
+                        <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
+                    </a>
+                @elseif ($option != 'dashboard')
                     @if (Auth::user()->can('create', substr($option, 0, -1)))
-                        <a type="button" class="btn btn-primary btn-sm pull-right" style="margin-top:10px;margin-right:10px;text-indent:0px"
+                        <a type="button" class="btn btn-primary btn-sm pull-right"
                             href="{{ url("/{$option}/create") }}">
                             <i class="fa fa-plus-circle" style="width:20px" title="{{ trans('texts.create_new') }}"></i>
                         </a>
@@ -638,7 +673,7 @@ thead th {
     </div>
     <!-- /#left-sidebar-wrapper -->
 
-    <div id="right-sidebar-wrapper" class="hide-phone">
+    <div id="right-sidebar-wrapper" class="hide-phone" style="overflow-y:hidden">
         <ul class="sidebar-nav">
             {!! \App\Libraries\HistoryUtils::renderHtml(Auth::user()->account_id) !!}
         </ul>

@@ -143,6 +143,7 @@
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active"><a href="#generalSettings" aria-controls="generalSettings" role="tab" data-toggle="tab">{{ trans('texts.general_settings') }}</a></li>
                     <li role="presentation"><a href="#invoiceLabels" aria-controls="invoiceLabels" role="tab" data-toggle="tab">{{ trans('texts.invoice_labels') }}</a></li>
+                    <li role="presentation"><a href="#invoiceFields" aria-controls="invoiceFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a></li>
                     <li role="presentation"><a href="#invoiceOptions" aria-controls="invoiceOptions" role="tab" data-toggle="tab">{{ trans('texts.invoice_options') }}</a></li>
                     <li role="presentation"><a href="#headerFooter" aria-controls="headerFooter" role="tab" data-toggle="tab">{{ trans('texts.header_footer') }}</a></li>
                 </ul>
@@ -221,6 +222,13 @@
                         </div>
                       </div>
 
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="invoiceFields">
+                    <div class="panel-body">
+                      <div class="row">
+                          @include('accounts.partials.invoice_fields', ['section' => INVOICE_FIELDS_INVOICE])
+                      </div>
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="invoiceOptions">
