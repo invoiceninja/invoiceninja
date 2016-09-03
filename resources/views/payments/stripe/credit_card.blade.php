@@ -76,18 +76,5 @@
                 }
             };
         </script>
-    @else
-        <script type="text/javascript">
-            $(function() {
-                $('.payment-form').submit(function(event) {
-                    var $form = $(this);
-
-                    // Disable the submit button to prevent repeated clicks
-                    $form.find('button').prop('disabled', true);
-
-                    return true;
-                });
-            });
-        </script>
     @endif
 @stop
