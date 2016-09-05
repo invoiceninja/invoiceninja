@@ -54,6 +54,7 @@ elixir(function(mix) {
         'typeahead.js-bootstrap.css',
         'style.css',
         'sidebar.css',
+        'colors.css',
         'fonts.css'
     ], 'public/css/built.css');
 
