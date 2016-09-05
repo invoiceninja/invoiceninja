@@ -30,6 +30,7 @@ We're often asked to recommend Laravel/PHP developers to help setup our app and 
 * MySQL
 
 ## Recommended Providers
+* [WePay](https://www.invoiceninja.com/wepay-accept-online-payments-instantly/)
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
