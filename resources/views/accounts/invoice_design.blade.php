@@ -11,11 +11,13 @@
     <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
+
 @stop
 
 @section('content')
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_DESIGN, 'advanced' => true])
+    @include('accounts.partials.invoice_fields')
 
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
@@ -129,9 +131,14 @@
       {!! Former::populateField('all_pages_header', intval($account->all_pages_header)) !!}
       {!! Former::populateField('all_pages_footer', intval($account->all_pages_footer)) !!}
 
-        @foreach ($invoiceLabels as $field => $value)
+          @foreach ($invoiceLabels as $field => $value)
           {!! Former::populateField("labels_{$field}", $value) !!}
         @endforeach
+
+        <div style="display:none">
+            {!! Former::text('invoice_fields')->data_bind('value: ko.mapping.toJSON(model)') !!}
+		</div>
+
 
     <div class="panel panel-default">
       <div class="panel-heading">
@@ -227,7 +234,10 @@
                 <div role="tabpanel" class="tab-pane" id="invoiceFields">
                     <div class="panel-body">
                       <div class="row">
-                          @include('accounts.partials.invoice_fields', ['section' => INVOICE_FIELDS_INVOICE])
+                          @include('accounts.partials.invoice_fields_selector', ['section' => 'invoice_fields', 'fields' => INVOICE_FIELDS_INVOICE])
+                          @include('accounts.partials.invoice_fields_selector', ['section' => 'client_fields', 'fields' => INVOICE_FIELDS_CLIENT])
+                          @include('accounts.partials.invoice_fields_selector', ['section' => 'company_fields1', 'fields' => INVOICE_FIELDS_COMPANY])
+                          @include('accounts.partials.invoice_fields_selector', ['section' => 'company_fields2', 'fields' => INVOICE_FIELDS_COMPANY])
                       </div>
                     </div>
                 </div>

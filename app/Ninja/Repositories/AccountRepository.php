@@ -203,7 +203,7 @@ class AccountRepository
             ['new_user', '/users/create'],
             ['custom_fields', '/settings/invoice_settings'],
             ['invoice_number', '/settings/invoice_settings'],
-            ['buy_now_buttons', '/settings/client_portal#buyNow']
+            ['buy_now_buttons', '/settings/client_portal#buyNow'],
         ]);
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);

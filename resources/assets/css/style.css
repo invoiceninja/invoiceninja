@@ -143,7 +143,7 @@ line-height: 20px;
 .datepicker table {font-size: 12px; border-spacing:2px;}
 .datepicker td, .datepicker th { width:30px; }
 .datepicker table tr td.active.active, .datepicker table tr td.active:hover.active {
-background-color: #2980b9;
+background-color: #337ab7;
     background-image:none;
 }
 .datepicker table tr td.today { color: #333; background-color: #edd71e !important; background-image:none; text-shadow:none;}
@@ -158,7 +158,7 @@ padding: 20px;
 }
 .modal-header {
 border-bottom: none;
-background-color: #2980b9;
+background-color: #337ab7;
     padding: 20px;
     color: #fff;
 }
@@ -252,7 +252,7 @@ margin-left: 0px;
 .btn i.glyphicon {  font-size: 16px; margin-left:7px; top: 2px; }
 
 .btn-primary i{
-xborder-color: #2980b9;
+xborder-color: #337ab7;
 }
 
 .form-actions .btn,
@@ -394,14 +394,14 @@ font-weight: bold;
     color: #fff;
 }
 .navbar {
-  xbackground-color: #2980b9 !important;
+  xbackground-color: #337ab7 !important;
   background-image: none;
   background-repeat: no-repeat;
   filter: none;
 }
 
 .navbar-collapse {
-    xbackground-color: #2980b9;
+    xbackground-color: #337ab7;
 }
 
 .navbar,
@@ -910,7 +910,7 @@ div.checkbox > label {
 
 .panel-heading {
     /*background-color: #e37329 !important;*/
-    background-color: #34495E !important;
+    background-color: #286090 !important;
 }
 
 div.alert {

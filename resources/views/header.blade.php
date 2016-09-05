@@ -12,11 +12,11 @@ body {
 }
 
 .navbar {
-  background-color: #2980b9 !important;
+  background-color: #337ab7 !important;
 }
 
 .navbar-collapse {
- background-color: #2980b9 !important;
+ background-color: #337ab7 !important;
 }
 
 

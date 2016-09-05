@@ -1026,6 +1026,7 @@ class AccountController extends BaseController
                 $labels[$field] = Input::get("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
+            $account->invoice_fields = Input::get('invoice_fields');
 
             $account->save();
 
