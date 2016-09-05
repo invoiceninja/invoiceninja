@@ -497,10 +497,9 @@ thead th {
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         var target = $(e.target).attr("href") // activated tab
-        console.log(target);
         var scrollmem = $('html,body').scrollTop();
         window.location.hash = target;
-        $('html,body').scrollTop(scrollmem);        
+        $('html,body').scrollTop(scrollmem);
     });
 
   });
