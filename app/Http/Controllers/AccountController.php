@@ -1,6 +1,8 @@
 <?php namespace App\Http\Controllers;
 
 use App\Models\AccountGateway;
+use App\Models\AccountGatewaySettings;
+use App\Models\GatewayType;
 use App\Services\TemplateService;
 use Auth;
 use File;
@@ -458,10 +460,12 @@ class AccountController extends BaseController
             }
 
             return View::make('accounts.payments', [
-                'showAdd' => $count < count(Gateway::$alternate) + 1,
-                'title' => trans('texts.online_payments'),
+                'showAdd'             => $count < count(Gateway::$alternate) + 1,
+                'title'               => trans('texts.online_payments'),
                 'tokenBillingOptions' => $tokenBillingOptions,
-                'account' => $account,
+                'currency'            => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY),
+                    'currencies'),
+                'account'             => $account,
             ]);
         }
     }
@@ -1222,6 +1226,35 @@ class AccountController extends BaseController
         Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('settings/'.ACCOUNT_PAYMENTS);
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function savePaymentGatewayLimits()
+    {
+        $gateway_type_id = intval(Input::get('gateway_type_id'));
+        $gateway_settings = AccountGatewaySettings::scope()->where('gateway_type_id', '=', $gateway_type_id)->first();
+
+        if ( ! $gateway_settings) {
+            $gateway_settings = AccountGatewaySettings::createNew();
+            $gateway_settings->gateway_type_id = $gateway_type_id;
+        }
+
+        $gateway_settings->min_limit = Input::get('limit_min_enable') ? intval(Input::get('limit_min')) : 0;
+        $gateway_settings->max_limit = Input::get('limit_max_enable') ? intval(Input::get('limit_max')) : 0;
+
+        if ($gateway_settings->max_limit && $gateway_settings->min_limit > $gateway_settings->max_limit) {
+            $gateway_settings->max_limit = $gateway_settings->min_limit;
+        }
+
+        $gateway_settings->save();
+
+        event(new UserSettingsChanged());
+
+        Session::flash('message', trans('texts.updated_settings'));
+
+        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }
 
     /**

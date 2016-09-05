@@ -2095,6 +2095,17 @@ $LANG = array(
     'city_state_postal' => 'City/State/Postal',
     'custom_field' => 'Custom Field',
 
+    // Limits
+    'limit' => 'Limit',
+    'min_limit' => 'Min: :min',
+    'max_limit' => 'Max: :max',
+    'no_limit' => 'No Limits',
+    'set_limits' => 'Set :gateway_type Limits',
+    'enable_min' => 'Enable min',
+    'enable_max' => 'Enable max',
+    'min' => 'Min',
+    'max' => 'Max',
+
 );
 
 return $LANG;

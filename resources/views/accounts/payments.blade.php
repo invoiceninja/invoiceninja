@@ -50,14 +50,78 @@
   {!! Datatable::table()
       ->addColumn(
         trans('texts.name'),
+        trans('texts.limit'),
         trans('texts.action'))
       ->setUrl(url('api/gateways/'))
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "80%" ], ["sWidth"=> "20%"]])
+      ->setOptions('aoColumns', [[ "sWidth"=> "50%" ], ["sWidth"=> "30%"], ["sWidth"=> "20%"]])
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
       ->render('datatable') !!}
+
+    {!! Former::open( 'settings/payment_gateway_limits') !!}
+    <div class="modal fade" id="paymentLimitsModal" tabindex="-1" role="dialog"
+         aria-labelledby="paymentLimitsModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog" style="min-width:150px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="paymentLimitsModalLabel"></h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row" style="text-align:center">
+                        <div class="col-xs-12">
+                            <div id="payment-limits-slider"></div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="payment-limit-min-container">
+                                <label for="payment-limit-min">{{ trans('texts.min') }}</label><br>
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{ $currency->symbol }}</span>
+                                    <input type="number" class="form-control" min="0" id="payment-limit-min"
+                                           name="limit_min">
+                                    @if ($currency->precision)
+                                        <span class="input-group-addon">{{ $currency->decimal_separator }}{{ str_repeat( '0', $currency->precision) }}</span>
+                                    @endif
+                                </div>
+                                <label><input type="checkbox" id="payment-limit-min-enable"
+                                              name="limit_min_enable"> {{ trans('texts.enable_min') }}</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="payment-limit-max-container">
+                                <label for="payment-limit-max">{{ trans('texts.max') }}</label><br>
+
+                                <div class="input-group">
+                                    <span class="input-group-addon">{{ $currency->symbol }}</span>
+                                    <input type="number" class="form-control" min="0" id="payment-limit-max"
+                                           name="limit_max">
+                                    @if ($currency->precision)
+                                        <span class="input-group-addon">{{ $currency->decimal_separator }}{{ str_repeat( '9', $currency->precision) }}</span>
+                                    @endif
+                                </div>
+                                <label><input type="checkbox" id="payment-limit-max-enable"
+                                              name="limit_max_enable"> {{ trans('texts.enable_max') }}</label>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="hidden" name="gateway_type_id" id="payment-limit-gateway-type">
+                </div>
+
+                <div class="modal-footer" style="margin-top: 0px">
+                    <button type="button" class="btn btn-default"
+                            data-dismiss="modal">{{ trans('texts.cancel') }}</button>
+                    <button type="submit" class="btn btn-primary">{{ trans('texts.save') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {!! Former::close() !!}
 
   <script>
     window.onDatatableReady = actionListHandler;
@@ -69,6 +133,89 @@
             refreshDatatable();
         })
     }
+
+    function showLimitsModal(gateway_type, gateway_type_id, min_limit, max_limit) {
+        var modalLabel = {!! json_encode(trans('texts.set_limits')) !!};
+        $('#paymentLimitsModalLabel').text(modalLabel.replace(':gateway_type', gateway_type));
+
+        limitsSlider.noUiSlider.set([min_limit, max_limit ? max_limit : 100000]);
+
+        if (min_limit) {
+            $('#payment-limit-min').removeAttr('disabled');
+            $('#payment-limit-min-enable').prop('checked', true);
+        } else {
+            $('#payment-limit-min').attr('disabled', 'disabled');
+            $('#payment-limit-min-enable').prop('checked', false);
+        }
+
+        if (max_limit) {
+            $('#payment-limit-max').removeAttr('disabled');
+            $('#payment-limit-max-enable').prop('checked', true);
+        } else {
+            $('#payment-limit-max').attr('disabled', 'disabled');
+            $('#payment-limit-max-enable').prop('checked', false);
+        }
+
+        $('#payment-limit-gateway-type').val(gateway_type_id);
+
+        $('#paymentLimitsModal').modal('show');
+    }
+
+    var limitsSlider = document.getElementById('payment-limits-slider');
+    noUiSlider.create(limitsSlider, {
+        start: [0, 100000],
+        connect: true,
+        range: {
+            'min': [0, 1],
+            '30%': [500, 1],
+            '70%': [5000, 1],
+            'max': [100000, 1]
+        }
+    });
+
+    limitsSlider.noUiSlider.on('update', function (values, handle) {
+        var value = values[handle];
+        if (handle == 1) {
+            $('#payment-limit-max').val(Math.round(value)).removeAttr('disabled');
+            $('#payment-limit-max-enable').prop('checked', true);
+        } else {
+            $('#payment-limit-min').val(Math.round(value)).removeAttr('disabled');
+            $('#payment-limit-min-enable').prop('checked', true);
+        }
+    });
+
+    $('#payment-limit-min').on('change keyup', function () {
+        setTimeout(function () {
+            limitsSlider.noUiSlider.set([$('#payment-limit-min').val(), null]);
+        }, 100);
+        $('#payment-limit-min-enable').attr('checked', 'checked');
+    });
+
+    $('#payment-limit-max').on('change keyup', function () {
+        setTimeout(function () {
+            limitsSlider.noUiSlider.set([null, $('#payment-limit-max').val()]);
+        }, 100);
+        $('#payment-limit-max-enable').attr('checked', 'checked');
+    });
+
+    $('#payment-limit-min-enable').change(function () {
+        if ($(this).is(':checked')) {
+            $('#payment-limit-min').removeAttr('disabled');
+        } else {
+            $('#payment-limit-min').attr('disabled', 'disabled');
+        }
+    });
+
+    $('#payment-limit-max-enable').change(function () {
+        if ($(this).is(':checked')) {
+            $('#payment-limit-max').removeAttr('disabled');
+        } else {
+            $('#payment-limit-max').attr('disabled', 'disabled');
+        }
+    });
+
   </script>
+
+
 
 @stop

@@ -101,6 +101,7 @@ elixir(function(mix) {
         //bowerDir + '/stacktrace-js/dist/stacktrace-with-polyfills.min.js',
         bowerDir + '/fuse.js/src/fuse.js',
         bowerDir + '/sweetalert/dist/sweetalert-dev.js',
+        bowerDir + '/nouislider/distribute/nouislider.js',
         'bootstrap-combobox.js',
         'script.js',
         'pdf.pdfmake.js',
