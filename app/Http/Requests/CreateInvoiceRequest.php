@@ -24,10 +24,10 @@ class CreateInvoiceRequest extends InvoiceRequest
             'invoice_items' => 'valid_invoice_items',
             'invoice_number' => 'required|unique:invoices,invoice_number,,id,account_id,' . $this->user()->account_id,
             'discount' => 'positive',
-            'invoice_date' => 'date',
-            'due_date' => 'date',
-            'start_date' => 'date',
-            'end_date' => 'date',
+            'invoice_date' => 'required',
+            //'due_date' => 'date',
+            //'start_date' => 'date',
+            //'end_date' => 'date',
         ];
 
         /* There's a problem parsing the dates

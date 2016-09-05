@@ -26,10 +26,10 @@ class UpdateInvoiceRequest extends InvoiceRequest
             'invoice_items' => 'valid_invoice_items',
             'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
             'discount' => 'positive',
-            'invoice_date' => 'date',
-            'due_date' => 'date',
-            'start_date' => 'date',
-            'end_date' => 'date',
+            //'invoice_date' => 'date',
+            //'due_date' => 'date',
+            //'start_date' => 'date',
+            //'end_date' => 'date',
         ];
 
         /* There's a problem parsing the dates
