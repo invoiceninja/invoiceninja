@@ -5,26 +5,43 @@ function ViewModel(data) {
 
     self.invoice_fields = ko.observableArray();
     self.client_fields = ko.observableArray();
-    self.company_fields1 = ko.observableArray();
-    self.company_fields2 = ko.observableArray();
+    self.account_fields1 = ko.observableArray();
+    self.account_fields2 = ko.observableArray();
     window.field_map = [];
 
     self.addField = function(section, field, label) {
-        self[section].push(field);
-        window.field_map[field] = label;
+        if (self[section].indexOf(field) < 0) {
+            self[section].push(field);
+        }
+    }
+
+    self.resetFields = function() {
+        console.log('herey');
+        self.invoice_fields.removeAll();
+        self.client_fields.removeAll();
+        self.account_fields1.removeAll();
+        self.account_fields2.removeAll();
+    }
+
+    self.onDragged = function() {
+        refreshPDF();
     }
 
     self.removeInvoiceFields = function(item) {
         self.invoice_fields.remove(item);
+        refreshPDF();
     }
     self.removeClientFields = function(item) {
         self.client_fields.remove(item);
+        refreshPDF();
     }
-    self.removeCompanyFields1 = function(item) {
-        self.company_fields1.remove(item);
+    self.removeAccountFields1 = function(item) {
+        self.account_fields1.remove(item);
+        refreshPDF();
     }
-    self.removeCompanyFields2 = function(item) {
-        self.company_fields2.remove(item);
+    self.removeAccountFields2 = function(item) {
+        self.account_fields2.remove(item);
+        refreshPDF();
     }
 }
 
@@ -40,6 +57,38 @@ $(function() {
     window.model = new ViewModel();
 
     var selectedFields = {!! json_encode($account->getInvoiceFields()) !!};
+    var allFields = {!! json_encode($account->getAllInvoiceFields()) !!};
+
+    loadFields(selectedFields);
+    loadMap(allFields);
+
+    ko.applyBindings(model);
+})
+
+function resetFields() {
+    var defaultFields = {!! json_encode($account->getDefaultInvoiceFields()) !!};
+    window.model.resetFields();
+    loadFields(defaultFields);
+}
+
+function loadMap(allFields) {
+    for (var section in allFields) {
+        if ( ! allFields.hasOwnProperty(section)) {
+            continue;
+        }
+        var fields = allFields[section];
+        for (var field in fields) {
+            if ( ! fields.hasOwnProperty(field)) {
+                continue;
+            }
+            var label = fields[field];
+            window.field_map[field] = label;
+        }
+    }
+}
+
+function loadFields(selectedFields)
+{
     for (var section in selectedFields) {
         if ( ! selectedFields.hasOwnProperty(section)) {
             continue;
@@ -53,12 +102,7 @@ $(function() {
             model.addField(section, field, label);
         }
     }
-
-    console.log(selectedFields);
-
-
-    ko.applyBindings(model);
-})
+}
 
 </script>
 
@@ -89,7 +133,8 @@ $(function() {
 
 .field-list td div {
     float: left;
-    width: 146px;
+    xwidth: 146px;
+    width: 100%;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -102,7 +147,6 @@ $(function() {
 .field-list tr:hover div {
     width: 120px;
 }
-
 
 .field-list .fa {
     visibility: hidden;

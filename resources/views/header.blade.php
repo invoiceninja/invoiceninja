@@ -489,6 +489,13 @@ thead th {
         $.get('{{ url('save_sidebar_state') }}?show_right=' + toggled);
     });
 
+    if (window.location.hash) {
+        setTimeout(function() {
+            $('.nav-tabs a[href="' + window.location.hash + '"]').tab('show');
+        }, 1);
+
+    }
+
   });
 
 </script>

@@ -2094,6 +2094,7 @@ $LANG = array(
     'contact_name' => 'Contact Name',
     'city_state_postal' => 'City/State/Postal',
     'custom_field' => 'Custom Field',
+    'account_fields' => 'Company Fields',
 
 );
 

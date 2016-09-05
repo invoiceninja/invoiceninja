@@ -58,6 +58,7 @@
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
       invoice.account.page_size = $('#page_size option:selected').text();
+      invoice.account.invoice_fields = ko.mapping.toJSON(model);
 
       NINJA.primaryColor = $('#primary_color').val();
       NINJA.secondaryColor = $('#secondary_color').val();
@@ -105,7 +106,6 @@
       $('#header_font_id').change(function(){loadFont($('#header_font_id').val())});
       $('#body_font_id').change(function(){loadFont($('#body_font_id').val())});
 
-
       refreshPDF();
     });
 
@@ -136,7 +136,7 @@
         @endforeach
 
         <div style="display:none">
-            {!! Former::text('invoice_fields')->data_bind('value: ko.mapping.toJSON(model)') !!}
+            {!! Former::text('invoice_fields_json')->data_bind('value: ko.mapping.toJSON(model)') !!}
 		</div>
 
 
@@ -145,18 +145,18 @@
         <h3 class="panel-title">{!! trans('texts.invoice_design') !!}</h3>
       </div>
 
-        <div class="panel-body form-padding-right">
+        <div class="panel-body">
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
-                    <li role="presentation" class="active"><a href="#generalSettings" aria-controls="generalSettings" role="tab" data-toggle="tab">{{ trans('texts.general_settings') }}</a></li>
-                    <li role="presentation"><a href="#invoiceLabels" aria-controls="invoiceLabels" role="tab" data-toggle="tab">{{ trans('texts.invoice_labels') }}</a></li>
-                    <li role="presentation"><a href="#invoiceFields" aria-controls="invoiceFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a></li>
-                    <li role="presentation"><a href="#invoiceOptions" aria-controls="invoiceOptions" role="tab" data-toggle="tab">{{ trans('texts.invoice_options') }}</a></li>
-                    <li role="presentation"><a href="#headerFooter" aria-controls="headerFooter" role="tab" data-toggle="tab">{{ trans('texts.header_footer') }}</a></li>
+                    <li role="presentation" class="active"><a href="#general_settings" aria-controls="general_settings" role="tab" data-toggle="tab">{{ trans('texts.general_settings') }}</a></li>
+                    <li role="presentation"><a href="#invoice_labels" aria-controls="invoice_labels" role="tab" data-toggle="tab">{{ trans('texts.invoice_labels') }}</a></li>
+                    <li role="presentation"><a href="#invoice_fields" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a></li>
+                    <li role="presentation"><a href="#invoice_options" aria-controls="invoice_options" role="tab" data-toggle="tab">{{ trans('texts.invoice_options') }}</a></li>
+                    <li role="presentation"><a href="#header_footer" aria-controls="header_footer" role="tab" data-toggle="tab">{{ trans('texts.header_footer') }}</a></li>
                 </ul>
             </div>
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="generalSettings">
+                <div role="tabpanel" class="tab-pane active" id="general_settings">
                     <div class="panel-body">
 
                       <div class="row">
@@ -207,7 +207,7 @@
 
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="invoiceLabels">
+                <div role="tabpanel" class="tab-pane" id="invoice_labels">
                     <div class="panel-body">
 
                       <div class="row">
@@ -231,17 +231,26 @@
 
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="invoiceFields">
+                <div role="tabpanel" class="tab-pane" id="invoice_fields">
                     <div class="panel-body">
                       <div class="row">
                           @include('accounts.partials.invoice_fields_selector', ['section' => 'invoice_fields', 'fields' => INVOICE_FIELDS_INVOICE])
                           @include('accounts.partials.invoice_fields_selector', ['section' => 'client_fields', 'fields' => INVOICE_FIELDS_CLIENT])
-                          @include('accounts.partials.invoice_fields_selector', ['section' => 'company_fields1', 'fields' => INVOICE_FIELDS_COMPANY])
-                          @include('accounts.partials.invoice_fields_selector', ['section' => 'company_fields2', 'fields' => INVOICE_FIELDS_COMPANY])
+                          @include('accounts.partials.invoice_fields_selector', ['section' => 'account_fields1', 'fields' => INVOICE_FIELDS_ACCOUNT])
+                          @include('accounts.partials.invoice_fields_selector', ['section' => 'account_fields2', 'fields' => INVOICE_FIELDS_ACCOUNT])
+                      </div>
+                      <div class="row">
+                          <div class="pull-right" style="padding-top:18px;padding-right:14px">
+                              {!! Button::normal(trans('texts.reset'))
+                                    ->withAttributes(['onclick' => 'sweetConfirm(function() {
+                                        resetFields();
+                                    })'])
+                                    ->small() !!}
+                          </div>
                       </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="invoiceOptions">
+                <div role="tabpanel" class="tab-pane" id="invoice_options">
                     <div class="panel-body">
 
                       {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
@@ -250,7 +259,7 @@
 
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="headerFooter">
+                <div role="tabpanel" class="tab-pane" id="header_footer">
                     <div class="panel-body">
 
                     {!! Former::inline_radios('all_pages_header')

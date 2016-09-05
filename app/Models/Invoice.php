@@ -721,6 +721,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'invoice_embed_documents',
             'page_size',
             'include_item_taxes_inline',
+            'invoice_fields',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {

@@ -204,6 +204,7 @@ class AccountRepository
             ['custom_fields', '/settings/invoice_settings'],
             ['invoice_number', '/settings/invoice_settings'],
             ['buy_now_buttons', '/settings/client_portal#buyNow'],
+            ['invoice_fields', '/settings/invoice_design#invoice_fields'],
         ]);
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
