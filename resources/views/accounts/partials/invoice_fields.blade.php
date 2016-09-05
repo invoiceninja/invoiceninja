@@ -23,25 +23,30 @@ function ViewModel(data) {
         self.account_fields2.removeAll();
     }
 
-    self.onDragged = function() {
+    self.onChange = function() {
         refreshPDF();
+        NINJA.formIsChanged = true;
+    }
+
+    self.onDragged = function() {
+        self.onChange();
     }
 
     self.removeInvoiceFields = function(item) {
         self.invoice_fields.remove(item);
-        refreshPDF();
+        self.onChange();
     }
     self.removeClientFields = function(item) {
         self.client_fields.remove(item);
-        refreshPDF();
+        self.onChange();
     }
     self.removeAccountFields1 = function(item) {
         self.account_fields1.remove(item);
-        refreshPDF();
+        self.onChange();
     }
     self.removeAccountFields2 = function(item) {
         self.account_fields2.remove(item);
-        refreshPDF();
+        self.onChange();
     }
 }
 

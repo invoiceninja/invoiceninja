@@ -564,7 +564,7 @@ NINJA.subtotalsBalance = function(invoice) {
 NINJA.accountDetails = function(invoice) {
     var account = invoice.account;
     if (invoice.features.invoice_settings && account.invoice_fields) {
-        var fields = JSON.parse(account.invoice_fields);
+        var fields = JSON.parse(account.invoice_fields).account_fields1;
     } else {
         var fields = [
             'account.company_name',
@@ -578,8 +578,8 @@ NINJA.accountDetails = function(invoice) {
 
     var data = [];
 
-    for (var i=0; i < fields.account_fields1.length; i++) {
-        var field = fields.account_fields1[i];
+    for (var i=0; i < fields.length; i++) {
+        var field = fields[i];
         var value = NINJA.renderClientOrAccountField(invoice, field);
         if (value) {
             data.push(value);
@@ -592,7 +592,7 @@ NINJA.accountDetails = function(invoice) {
 NINJA.accountAddress = function(invoice) {
     var account = invoice.account;
     if (invoice.features.invoice_settings && account.invoice_fields) {
-        var fields = JSON.parse(account.invoice_fields);
+        var fields = JSON.parse(account.invoice_fields).account_fields2;
     } else {
         var fields = [
             'account.address1',
@@ -606,8 +606,8 @@ NINJA.accountAddress = function(invoice) {
 
     var data = [];
 
-    for (var i=0; i < fields.account_fields2.length; i++) {
-        var field = fields.account_fields2[i];
+    for (var i=0; i < fields.length; i++) {
+        var field = fields[i];
         var value = NINJA.renderClientOrAccountField(invoice, field);
         if (value) {
             data.push(value);
@@ -680,7 +680,7 @@ NINJA.invoiceDetails = function(invoice) {
 
     var account = invoice.account;
     if (invoice.features.invoice_settings && account.invoice_fields) {
-        var fields = JSON.parse(account.invoice_fields);
+        var fields = JSON.parse(account.invoice_fields).invoice_fields;
     } else {
         var fields = [
             'invoice.invoice_number',
@@ -695,8 +695,8 @@ NINJA.invoiceDetails = function(invoice) {
     }
     var data = [];
 
-    for (var i=0; i < fields.invoice_fields.length; i++) {
-        var field = fields.invoice_fields[i];
+    for (var i=0; i < fields.length; i++) {
+        var field = fields[i];
         var value = NINJA.renderInvoiceField(invoice, field);
         if (value) {
             data.push(value);
@@ -787,7 +787,7 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
 NINJA.clientDetails = function(invoice) {
     var account = invoice.account;
     if (invoice.features.invoice_settings && account.invoice_fields) {
-        var fields = JSON.parse(account.invoice_fields);
+        var fields = JSON.parse(account.invoice_fields).client_fields;
     } else {
         var fields = [
             'client.client_name',
@@ -804,8 +804,8 @@ NINJA.clientDetails = function(invoice) {
     }
     var data = [];
 
-    for (var i=0; i < fields.client_fields.length; i++) {
-        var field = fields.client_fields[i];
+    for (var i=0; i < fields.length; i++) {
+        var field = fields[i];
         var value = NINJA.renderClientOrAccountField(invoice, field);
         if (value) {
             data.push(value);
