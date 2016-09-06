@@ -619,7 +619,8 @@
                                   <h4>{{ trans('texts.after') }}</h4>
                                   <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_after.png') }}" width="100%" alt="after">
                               </div>
-                          </div>
+                          </div><br/>
+                          <p>{!! trans('texts.reseller_text', ['email' => HTML::mailto('contact@invoiceninja.com')]) !!}</p>
                         </div>
 
                         <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">

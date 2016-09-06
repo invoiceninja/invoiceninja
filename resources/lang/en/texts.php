@@ -995,7 +995,7 @@ $LANG = array(
     'overdue' => 'Overdue',
 
 
-    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding and help support our project.',
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the invoice and client portal.',
     'user_email_footer' => 'To adjust your email notification settings please visit :link',
     'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
     'limit_users' => 'Sorry, this will exceed the limit of :limit users',
@@ -2097,6 +2097,7 @@ $LANG = array(
     'account_fields' => 'Company Fields',
     'facebook_and_twitter' => 'Facebook and Twitter',
     'facebook_and_twitter_help' => 'Follow our feeds to help support our project',
+    'reseller_text' => 'Note: the white-label license is intended for personal use, please email us at :email if you\'d like to resell our app.',
 
 );
 
