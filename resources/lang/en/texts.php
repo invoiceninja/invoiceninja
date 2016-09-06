@@ -2095,6 +2095,8 @@ $LANG = array(
     'city_state_postal' => 'City/State/Postal',
     'custom_field' => 'Custom Field',
     'account_fields' => 'Company Fields',
+    'facebook_and_twitter' => 'Facebook and Twitter',
+    'facebook_and_twitter_help' => 'Follow our feeds to help support our project',
 
 );
 
