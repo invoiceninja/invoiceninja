@@ -40,6 +40,7 @@ We're often asked to recommend Laravel/PHP developers to help setup our app and 
 * Integrates with 50+ payment providers with [Omnipay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
 * Expenses and vendors
+* Import bank statements with [OFX](http://www.ofxhome.com/)
 * Tasks with time-tracking
 * File Attachments
 * Multi-user/multi-company support
