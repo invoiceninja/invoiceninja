@@ -19,7 +19,9 @@ class Kernel extends HttpKernel {
         'App\Http\Middleware\DuplicateSubmissionCheck',
 		'App\Http\Middleware\QueryLogging',
         'App\Http\Middleware\StartupCheck',
+        'App\Http\Middleware\SessionDataCheckMiddleware',
 	];
+
 
 	/**
 	 * The application's route middleware.
