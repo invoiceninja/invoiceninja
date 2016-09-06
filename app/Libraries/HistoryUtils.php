@@ -22,6 +22,8 @@ class HistoryUtils
 
         $activityTypes = [
             ACTIVITY_TYPE_CREATE_CLIENT,
+            ACTIVITY_TYPE_CREATE_TASK,
+            ACTIVITY_TYPE_UPDATE_TASK,
             ACTIVITY_TYPE_CREATE_INVOICE,
             ACTIVITY_TYPE_UPDATE_INVOICE,
             ACTIVITY_TYPE_EMAIL_INVOICE,
@@ -33,7 +35,7 @@ class HistoryUtils
         ];
 
         $activities = Activity::scope()
-            ->with(['client.contacts', 'invoice'])
+            ->with(['client.contacts', 'invoice', 'task'])
             ->whereIn('user_id', $userIds)
             ->whereIn('activity_type_id', $activityTypes)
             ->orderBy('id', 'asc')
@@ -44,6 +46,9 @@ class HistoryUtils
         {
             if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_CLIENT) {
                 $entity = $activity->client;
+            } else if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_TASK || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_TASK) {
+                $entity = $activity->task;
+                $entity->setRelation('client', $activity->client);
             } else {
                 $entity = $activity->invoice;
                 $entity->setRelation('client', $activity->client);
