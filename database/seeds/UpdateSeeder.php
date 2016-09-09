@@ -13,6 +13,7 @@ class UpdateSeeder extends Seeder
 
         $this->call('PaymentLibrariesSeeder');
         $this->call('FontsSeeder');
+        $this->call('GatewayTypesSeeder');
         $this->call('BanksSeeder');
         $this->call('InvoiceStatusSeeder');
         $this->call('PaymentStatusSeeder');
@@ -21,7 +22,6 @@ class UpdateSeeder extends Seeder
         $this->call('InvoiceDesignsSeeder');
         $this->call('PaymentTermsSeeder');
         $this->call('PaymentTypesSeeder');
-        $this->call('GatewayTypesSeeder');
         $this->call('LanguageSeeder');
         $this->call('IndustrySeeder');
     }

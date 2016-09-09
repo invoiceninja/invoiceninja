@@ -10,11 +10,11 @@ class GatewayTypesSeeder extends Seeder
 
 
         $gateway_types = [
-            ['name' => 'Credit Card'],
-            ['name' => 'Bank Transfer'],
-            ['name' => 'PayPal'],
-            ['name' => 'Bitcoin'],
-            ['name' => 'Dwolla'],
+            ['alias' => 'credit_card', 'name' => 'Credit Card'],
+            ['alias' => 'bank_transfer', 'name' => 'Bank Transfer'],
+            ['alias' => 'paypal', 'name' => 'PayPal'],
+            ['alias' => 'bitcoin', 'name' => 'Bitcoin'],
+            ['alias' => 'dwolla', 'name' => 'Dwolla'],
         ];
 
         foreach ($gateway_types as $gateway_type) {

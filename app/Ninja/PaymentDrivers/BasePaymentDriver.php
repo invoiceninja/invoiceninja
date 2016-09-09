@@ -14,6 +14,7 @@ use App\Models\Account;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Country;
+use App\Models\GatewayType;
 
 class BasePaymentDriver
 {
@@ -166,12 +167,14 @@ class BasePaymentDriver
     // check if a custom view exists for this provider
     protected function paymentView()
     {
-        $file = sprintf('%s/views/payments/%s/%s.blade.php', resource_path(), $this->providerName(), $this->gatewayType);
+        $gatewayTypeAlias = GatewayType::getAliasFromId($this->gatewayType);
+
+        $file = sprintf('%s/views/payments/%s/%s.blade.php', resource_path(), $this->providerName(), $gatewayTypeAlias);
 
         if (file_exists($file)) {
-            return sprintf('payments.%s/%s', $this->providerName(), $this->gatewayType);
+            return sprintf('payments.%s/%s', $this->providerName(), $gatewayTypeAlias);
         } else {
-            return sprintf('payments.%s', $this->gatewayType);
+            return sprintf('payments.%s', $gatewayTypeAlias);
         }
     }
 
@@ -331,7 +334,8 @@ class BasePaymentDriver
     protected function paymentDetails($paymentMethod = false)
     {
         $invoice = $this->invoice();
-        $completeUrl = url('complete/' . $this->invitation->invitation_key . '/' . $this->gatewayType);
+        $gatewayTypeAlias = GatewayType::getAliasFromId($this->gatewayType);
+        $completeUrl = url('complete/' . $this->invitation->invitation_key . '/' . $gatewayTypeAlias);
 
         $data = [
             'amount' => $invoice->getRequestedAmount(),
@@ -795,9 +799,11 @@ class BasePaymentDriver
                 continue;
             }
 
+            $gatewayTypeAlias = GatewayType::getAliasFromId($gatewayTypeId);
+
             $links[] = [
-                'url' => $this->paymentUrl($gatewayTypeId),
-                'label' => trans("texts.{$gatewayTypeId}")
+                'url'   => $this->paymentUrl($gatewayTypeAlias),
+                'label' => trans("texts.{$gatewayTypeAlias}")
             ];
         }
 
@@ -830,13 +836,15 @@ class BasePaymentDriver
         return true;
     }
 
-    protected function paymentUrl($gatewayType)
+    protected function paymentUrl($gatewayTypeAlias)
     {
         $account = $this->account();
-        $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayType}");
+        $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
+
+        $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
 
         // PayPal doesn't allow being run in an iframe so we need to open in new tab
-        if ($gatewayType === GATEWAY_TYPE_PAYPAL) {
+        if ($gatewayTypeId === GATEWAY_TYPE_PAYPAL) {
             $url .= '#braintree_paypal';
 
             if ($account->iframe_url) {

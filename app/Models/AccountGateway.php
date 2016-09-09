@@ -73,14 +73,14 @@ class AccountGateway extends EntityModel
 
     /**
      * @param bool $invitation
-     * @param bool $gatewayType
+     * @param mixed $gatewayTypeId
      * @return mixed
      */
-    public function paymentDriver($invitation = false, $gatewayType = false)
+    public function paymentDriver($invitation = false, $gatewayTypeId = false)
     {
         $class = static::paymentDriverClass($this->gateway->provider);
 
-        return new $class($this, $invitation, $gatewayType);
+        return new $class($this, $invitation, $gatewayTypeId);
     }
 
     /**

@@ -16,6 +16,7 @@ class CreateGatewayTypes extends Migration
         Schema::create('gateway_types', function($t)
         {
             $t->increments('id');
+            $t->string('alias');
             $t->string('name');
         });
 
@@ -39,6 +40,12 @@ class CreateGatewayTypes extends Migration
             $t->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
 
         });
+
+        Schema::table('payment_types', function($t)
+        {
+            $t->unsignedInteger('gateway_type_id')->nullable();
+            $t->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
+        });
     }
     /**
      * Reverse the migrations.
@@ -47,6 +54,12 @@ class CreateGatewayTypes extends Migration
      */
     public function down()
     {
+        Schema::table('payment_types', function($t)
+        {
+            $t->dropForeign('payment_types_gateway_type_id_foreign');
+            $t->dropColumn('gateway_type_id');
+        });
+
         Schema::dropIfExists('account_gateway_settings');
         Schema::dropIfExists('gateway_types');
     }
