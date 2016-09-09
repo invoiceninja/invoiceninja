@@ -12,6 +12,8 @@ class GatewayType extends Eloquent
      */
     public $timestamps = false;
 
+    public $incrementing = false;
+
     /**
      * @return mixed
      */

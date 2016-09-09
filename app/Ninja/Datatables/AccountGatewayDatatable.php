@@ -156,15 +156,14 @@ class AccountGatewayDatatable extends EntityDatatable
                     $min = $accountGatewaySettings ? $accountGatewaySettings->min_limit : 0;
                     $max = $accountGatewaySettings ? $accountGatewaySettings->max_limit : 0;
 
-                    return "javascript:showLimitsModal('{$gatewayType->name}',{$gatewayType->id},$min,$max)";
+                    return "javascript:showLimitsModal('{$gatewayType->name}','{$gatewayType->id}',$min,$max)";
                 },
                 function ($model) use ($gatewayType) {
                     // Only show this action if the given gateway supports this gateway type
                     $accountGateway = AccountGateway::find($model->id);
                     $paymentDriver = $accountGateway->paymentDriver();
-                    $gatewayTypes = $paymentDriver->gatewayTypes();
 
-                    return in_array($gatewayType->id, $gatewayTypes);
+                    return $paymentDriver->handles($gatewayType->id);
                 }
             ];
         }

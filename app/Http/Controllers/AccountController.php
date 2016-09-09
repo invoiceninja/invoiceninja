@@ -1235,7 +1235,7 @@ class AccountController extends BaseController
      */
     public function savePaymentGatewayLimits()
     {
-        $gateway_type_id = intval(Input::get('gateway_type_id'));
+        $gateway_type_id = Input::get('gateway_type_id');
         $gateway_settings = AccountGatewaySettings::scope()->where('gateway_type_id', '=', $gateway_type_id)->first();
 
         if ( ! $gateway_settings) {
