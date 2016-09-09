@@ -10,6 +10,8 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org)
 
+All Pro and Enterprise features from our hosted app are included in both the [self-host zip](https://www.invoiceninja.com/self-host/) and the GitHub repository. 
+
 [![Invoice Ninja - Overview](https://app.invoiceninja.com/youtube.png)](https://www.youtube.com/watch?v=xHGKvadapbA)
 
 We're often asked to recommend Laravel/PHP developers to help setup our app and make small adjustments, email us at contact@invoiceninja.com if you're interested in taking on the work.
@@ -30,6 +32,7 @@ We're often asked to recommend Laravel/PHP developers to help setup our app and 
 * MySQL
 
 ## Recommended Providers
+* [WePay](https://www.invoiceninja.com/wepay-accept-online-payments-instantly/)
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
@@ -39,6 +42,7 @@ We're often asked to recommend Laravel/PHP developers to help setup our app and 
 * Integrates with 50+ payment providers with [Omnipay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
 * Expenses and vendors
+* Import bank statements with [OFX](http://www.ofxhome.com/)
 * Tasks with time-tracking
 * File Attachments
 * Multi-user/multi-company support

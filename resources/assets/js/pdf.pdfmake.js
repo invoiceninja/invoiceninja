@@ -563,122 +563,254 @@ NINJA.subtotalsBalance = function(invoice) {
 
 NINJA.accountDetails = function(invoice) {
     var account = invoice.account;
-    var data = [
-        {text:account.name, style: ['accountName']},
-        {text:account.id_number, style: ['idNumber']},
-        {text:account.vat_number, style: ['vatNumber']},
-        {text:account.website, style: ['website']},
-        {text:account.work_email, style: ['email']},
-        {text:account.work_phone, style: ['phone']}
-    ];
+    if (invoice.features.invoice_settings && account.invoice_fields) {
+        var fields = JSON.parse(account.invoice_fields).account_fields1;
+    } else {
+        var fields = [
+            'account.company_name',
+            'account.id_number',
+            'account.vat_number',
+            'account.website',
+            'account.email',
+            'account.phone',
+        ];
+    }
+
+    var data = [];
+
+    for (var i=0; i < fields.length; i++) {
+        var field = fields[i];
+        var value = NINJA.renderClientOrAccountField(invoice, field);
+        if (value) {
+            data.push(value);
+        }
+    }
+
     return NINJA.prepareDataList(data, 'accountDetails');
 }
 
 NINJA.accountAddress = function(invoice) {
     var account = invoice.account;
-    var cityStatePostal = '';
-    if (account.city || account.state || account.postal_code) {
-        var swap = account.country && account.country.swap_postal_code;
-        cityStatePostal = formatAddress(account.city, account.state, account.postal_code, swap);
+    if (invoice.features.invoice_settings && account.invoice_fields) {
+        var fields = JSON.parse(account.invoice_fields).account_fields2;
+    } else {
+        var fields = [
+            'account.address1',
+            'account.address2',
+            'account.city_state_postal',
+            'account.country',
+            'account.custom_value1',
+            'account.custom_value2',
+        ]
     }
-    var data = [
-        {text: account.address1},
-        {text: account.address2},
-        {text: cityStatePostal},
-        {text: account.country ? account.country.name : ''},
-    ];
 
-    if (invoice.features.invoice_settings) {
-        data.push({text: invoice.account.custom_value1 ? invoice.account.custom_label1 + ' ' + invoice.account.custom_value1 : false});
-        data.push({text: invoice.account.custom_value2 ? invoice.account.custom_label2 + ' ' + invoice.account.custom_value2 : false});
+    var data = [];
+
+    for (var i=0; i < fields.length; i++) {
+        var field = fields[i];
+        var value = NINJA.renderClientOrAccountField(invoice, field);
+        if (value) {
+            data.push(value);
+        }
     }
 
     return NINJA.prepareDataList(data, 'accountAddress');
 }
 
+NINJA.renderInvoiceField = function(invoice, field) {
+
+    var account = invoice.account;
+
+    if (field == 'invoice.invoice_number') {
+        return [
+            {text: (invoice.is_quote ? invoiceLabels.quote_number : invoiceLabels.invoice_number), style: ['invoiceNumberLabel']},
+            {text: invoice.invoice_number, style: ['invoiceNumber']}
+        ];
+    } else if (field == 'invoice.po_number') {
+        return [
+            {text: invoiceLabels.po_number},
+            {text: invoice.po_number}
+        ];
+    } else if (field == 'invoice.invoice_date') {
+        return [
+            {text: (invoice.is_quote ? invoiceLabels.quote_date : invoiceLabels.invoice_date)},
+            {text: invoice.invoice_date}
+        ];
+    } else if (field == 'invoice.due_date') {
+        return [
+            {text: (invoice.is_quote ? invoiceLabels.valid_until : invoiceLabels.due_date)},
+            {text: invoice.is_recurring ? false : invoice.due_date}
+        ];
+    } else if (field == 'invoice.custom_text_value1') {
+        if (invoice.custom_text_value1 && account.custom_invoice_text_label1) {
+            return [
+                {text: invoice.account.custom_invoice_text_label1},
+                {text: invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1}
+            ];
+        } else {
+            return false;
+        }
+    } else if (field == 'invoice.custom_text_value2') {
+        if (invoice.custom_text_value2 && account.custom_invoice_text_label2) {
+            return [
+                {text: invoice.account.custom_invoice_text_label2},
+                {text: invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2}
+            ];
+        } else {
+            return false;
+        }
+    } else if (field == 'invoice.balance_due') {
+        return [
+            {text: invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
+            {text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['invoiceDetailBalanceDue']}
+        ];
+    } else if (field == invoice.partial_due) {
+        if (NINJA.parseFloat(invoice.partial)) {
+            return [
+                {text: invoiceLabels.partial_due, style: ['invoiceDetailBalanceDueLabel']},
+                {text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['invoiceDetailBalanceDue']}
+            ];
+        } else {
+            return false;
+        }
+    }
+}
+
 NINJA.invoiceDetails = function(invoice) {
 
-    var data = [
-    [
-        {text: (invoice.is_quote ? invoiceLabels.quote_number : invoiceLabels.invoice_number), style: ['invoiceNumberLabel']},
-        {text: invoice.invoice_number, style: ['invoiceNumber']}
-    ],
-    [
-        {text: invoiceLabels.po_number},
-        {text: invoice.po_number}
-    ],
-    [
-        {text:  (invoice.is_quote ? invoiceLabels.quote_date : invoiceLabels.invoice_date)},
-        {text: invoice.invoice_date}
-    ],
-    [
-        {text: (invoice.is_quote ? invoiceLabels.valid_until : invoiceLabels.due_date)},
-        {text: invoice.is_recurring ? false : invoice.due_date}
-    ]
-    ];
-
-    if (invoice.custom_text_value1) {
-        data.push([
-            {text: invoice.account.custom_invoice_text_label1},
-            {text: invoice.is_recurring ? processVariables(invoice.custom_text_value1) : invoice.custom_text_value1}
-        ])
+    var account = invoice.account;
+    if (invoice.features.invoice_settings && account.invoice_fields) {
+        var fields = JSON.parse(account.invoice_fields).invoice_fields;
+    } else {
+        var fields = [
+            'invoice.invoice_number',
+            'invoice.po_number',
+            'invoice.invoice_date',
+            'invoice.due_date',
+            'invoice.balance_due',
+            'invoice.partial_due',
+            'invoice.custom_text_value1',
+            'invoice.custom_text_value2',
+        ];
     }
-    if (invoice.custom_text_value2) {
-        data.push([
-            {text: invoice.account.custom_invoice_text_label2},
-            {text: invoice.is_recurring ? processVariables(invoice.custom_text_value2) : invoice.custom_text_value2}
-        ])
-    }
+    var data = [];
 
-    data.push([
-        {text: invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
-        {text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['invoiceDetailBalanceDue']}
-    ])
-
-    if (NINJA.parseFloat(invoice.partial)) {
-        data.push([
-            {text: invoiceLabels.partial_due, style: ['invoiceDetailBalanceDueLabel']},
-            {text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['invoiceDetailBalanceDue']}
-        ])
+    for (var i=0; i < fields.length; i++) {
+        var field = fields[i];
+        var value = NINJA.renderInvoiceField(invoice, field);
+        if (value) {
+            data.push(value);
+        }
     }
 
     return NINJA.prepareDataPairs(data, 'invoiceDetails');
 }
 
-NINJA.clientDetails = function(invoice) {
+
+NINJA.renderClientOrAccountField = function(invoice, field) {
     var client = invoice.client;
-    var data;
     if (!client) {
-        return;
+        return false;
     }
     var account = invoice.account;
     var contact = client.contacts[0];
-    var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
-    var clientEmail = client.contacts[0].email == clientName ? '' : client.contacts[0].email;
 
-    var cityStatePostal = '';
-    if (client.city || client.state || client.postal_code) {
-        var swap = client.country && client.country.swap_postal_code;
-        cityStatePostal = formatAddress(client.city, client.state, client.postal_code, swap);
+    if (field == 'client.client_name') {
+        var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
+        return {text:clientName || ' ', style: ['clientName']};
+    } else if (field == 'client.contact_name') {
+        return (contact.first_name || contact.last_name) ? {text:contact.first_name + ' ' + contact.last_name} : false;
+    } else if (field == 'client.id_number') {
+        return {text:client.id_number};
+    } else if (field == 'client.vat_number') {
+        return {text:client.vat_number};
+    } else if (field == 'client.address1') {
+        return {text:client.address1};
+    } else if (field == 'client.address2') {
+        return {text:client.address2};
+    } else if (field == 'client.city_state_postal') {
+        var cityStatePostal = '';
+        if (client.city || client.state || client.postal_code) {
+            var swap = client.country && client.country.swap_postal_code;
+            cityStatePostal = formatAddress(client.city, client.state, client.postal_code, swap);
+        }
+        return {text:cityStatePostal};
+    } else if (field == 'client.country') {
+        return {text:client.country ? client.country.name : ''};
+    } else if (field == 'client.email') {
+        var clientEmail = contact.email == clientName ? '' : contact.email;
+        return {text:clientEmail};
+    } else if (field == 'client.custom_value1') {
+        return {text: account.custom_client_label1 && client.custom_value1 ? account.custom_client_label1 + ' ' + client.custom_value1 : false};
+    } else if (field == 'client.custom_value2') {
+        return {text: account.custom_client_label2 && client.custom_value2 ? account.custom_client_label2 + ' ' + client.custom_value2 : false};
     }
 
-    // if a custom field is used in the invoice/quote number then we'll hide it from the PDF
-    var pattern = invoice.is_quote ? account.quote_number_pattern : account.invoice_number_pattern;
-    var custom1InPattern = (pattern && pattern.indexOf('{$custom1}') >= 0);
-    var custom2InPattern = (pattern && pattern.indexOf('{$custom2}') >= 0);
+    if (field == 'account.company_name') {
+        return {text:account.name, style: ['accountName']};
+    } else if (field == 'account.id_number') {
+        return {text:account.id_number, style: ['idNumber']};
+    } else if (field == 'account.vat_number') {
+        return {text:account.vat_number, style: ['vatNumber']};
+    } else if (field == 'account.website') {
+        return {text:account.website, style: ['website']};
+    } else if (field == 'account.email') {
+        return {text:account.work_email, style: ['email']};
+    } else if (field == 'account.phone') {
+        return {text:account.work_phone, style: ['phone']};
+    } else if (field == 'account.address1') {
+        return {text: account.address1};
+    } else if (field == 'account.address2') {
+        return {text: account.address2};
+    } else if (field == 'account.city_state_postal') {
+        var cityStatePostal = '';
+        if (account.city || account.state || account.postal_code) {
+            var swap = account.country && account.country.swap_postal_code;
+            cityStatePostal = formatAddress(account.city, account.state, account.postal_code, swap);
+        }
+        return {text: cityStatePostal};
+    } else if (field == 'account.country') {
+        return account.country ? {text: account.country.name} : false;
+    } else if (field == 'account.custom_value1') {
+        if (invoice.features.invoice_settings) {
+            return invoice.account.custom_label1 && invoice.account.custom_value1 ? {text: invoice.account.custom_label1 + ' ' + invoice.account.custom_value1} : false;
+        }
+    } else if (field == 'account.custom_value2') {
+        if (invoice.features.invoice_settings) {
+            return invoice.account.custom_label2 && invoice.account.custom_value2 ? {text: invoice.account.custom_label2 + ' ' + invoice.account.custom_value2} : false;
+        }
+    }
 
-    data = [
-        {text:clientName || ' ', style: ['clientName']},
-        {text:client.id_number},
-        {text:client.vat_number},
-        {text:client.address1},
-        {text:client.address2},
-        {text:cityStatePostal},
-        {text:client.country ? client.country.name : ''},
-        {text:clientEmail},
-        {text: client.custom_value1 && !custom1InPattern ? account.custom_client_label1 + ' ' + client.custom_value1 : false},
-        {text: client.custom_value2 && !custom2InPattern ? account.custom_client_label2 + ' ' + client.custom_value2 : false}
-    ];
+    return false;
+}
+
+NINJA.clientDetails = function(invoice) {
+    var account = invoice.account;
+    if (invoice.features.invoice_settings && account.invoice_fields) {
+        var fields = JSON.parse(account.invoice_fields).client_fields;
+    } else {
+        var fields = [
+            'client.client_name',
+            'client.id_number',
+            'client.vat_number',
+            'client.address1',
+            'client.address2',
+            'client.city_state_postal',
+            'client.country',
+            'client.email',
+            'client.custom_value1',
+            'client.custom_value2',
+        ];
+    }
+    var data = [];
+
+    for (var i=0; i < fields.length; i++) {
+        var field = fields[i];
+        var value = NINJA.renderClientOrAccountField(invoice, field);
+        if (value) {
+            data.push(value);
+        }
+    }
 
     return NINJA.prepareDataList(data, 'clientDetails');
 }

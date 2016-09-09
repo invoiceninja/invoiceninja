@@ -826,7 +826,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('INVOICE_FIELDS_CLIENT', 'client_fields');
     define('INVOICE_FIELDS_INVOICE', 'invoice_fields');
-    define('INVOICE_FIELDS_COMPANY', 'company_fields');
+    define('INVOICE_FIELDS_ACCOUNT', 'account_fields');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

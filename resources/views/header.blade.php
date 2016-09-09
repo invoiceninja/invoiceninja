@@ -7,149 +7,6 @@
 
   <style type="text/css">
 
-body {
-  background-color: #fcfcfc;
-}
-
-.navbar {
-  background-color: #337ab7 !important;
-}
-
-.navbar-collapse {
- background-color: #337ab7 !important;
-}
-
-
-table.dataTable thead > tr > th,
-table.invoice-table thead > tr > th {
-    background-color: #777 !important;
-    xbackground-color: #8f8f8f !important;
-    xbackground-color: #34495E !important;
-    color:#fff;
-}
-
-thead th {
-    border-left: 1px solid #999;
-}
-
-.sidebar-nav {
-    background-color: #313131;
-}
-
-.sidebar-nav li {
-    border-bottom:solid 1px #4c4c4c;
-}
-
-.sidebar-nav i.fa {
-    color: white;
-}
-
-.menu-toggle i,
-.sidebar-nav li > a {
-    color: #999999;
-}
-
-.menu-toggle:hover i,
-.sidebar-nav li:hover > a,
-.sidebar-nav li > a.active {
-    color: #fff;
-}
-
-.sidebar-nav li:hover,
-.sidebar-nav li.active {
-    background: rgba(255,255,255,0.2);
-}
-
-.menu-toggle {
-    color: #999 !important;
-}
-
-.menu-toggle:hover {
-    color: #fff !important;
-}
-
-
-.menu-toggle {
-    text-decoration: none;
-}
-.menu-toggle:hover {
-    text-decoration: none;
-}
-
-.icon-footer {
-    text-align: center;
-    position:fixed;
-    bottom:12px;
-    left:16px;
-    color:white;
-    font-size:16px
-}
-
-.icon-footer i {
-    width: 40px;
-    color: #999999;
-}
-
-.icon-footer i:hover {
-    color: #fff;
-}
-
-
-
-/*
-  body {
-    background: white;
-  }
-
-  div.panel-body {
-      background-color: #f2f5fe;
-  }
-
-  table.dataTable thead > tr > th,
-  table.invoice-table thead > tr > th {
-      background-color: #0b4d78 !important;
-      color:#fff;
-  }
-
-  thead th {
-      border-left: 1px solid #7a8799;
-  }
-
-  .sidebar-nav {
-      background-color: #f2f5fe;
-  }
-
-  .sidebar-nav i.fa {
-      color: #7a8799;
-  }
-
-  .sidebar-nav li {
-      border-bottom:solid 1px #7a8799;
-  }
-
-  .sidebar-nav li > a {
-      color: #7a8799;
-  }
-
-  .sidebar-nav li:hover > a,
-  .sidebar-nav li > a.active {
-      color: #2b435d;
-  }
-
-  .sidebar-nav li:hover,
-  .sidebar-nav li.active {
-      background: rgba(255,255,255,1);
-  }
-
-  .menu-toggle {
-      color: #999 !important;
-  }
-
-  .menu-toggle:hover {
-      color: #fff !important;
-  }
-  */
-
     @if (Auth::check() && Auth::user()->dark_mode)
         body {
             background: #000 !important;
@@ -487,6 +344,19 @@ thead th {
 
         var toggled = $("#wrapper").hasClass("toggled-right") ? '1' : '0';
         $.get('{{ url('save_sidebar_state') }}?show_right=' + toggled);
+    });
+
+    if (window.location.hash) {
+        setTimeout(function() {
+            $('.nav-tabs a[href="' + window.location.hash + '"]').tab('show');
+        }, 1);
+    }
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href") // activated tab
+        var scrollmem = $('html,body').scrollTop();
+        window.location.hash = target;
+        $('html,body').scrollTop(scrollmem);
     });
 
   });

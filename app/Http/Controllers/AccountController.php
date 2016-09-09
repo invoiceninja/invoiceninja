@@ -547,6 +547,8 @@ class AccountController extends BaseController
         $invoice->terms = trim($account->invoice_terms);
         $invoice->invoice_footer = trim($account->invoice_footer);
 
+        $contact->first_name = 'Test';
+        $contact->last_name = 'Contact';
         $contact->email = 'contact@gmail.com';
         $client->contacts = [$contact];
 
@@ -1030,7 +1032,7 @@ class AccountController extends BaseController
                 $labels[$field] = Input::get("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
-            $account->invoice_fields = Input::get('invoice_fields');
+            $account->invoice_fields = Input::get('invoice_fields_json');
 
             $account->save();
 
