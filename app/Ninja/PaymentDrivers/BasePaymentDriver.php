@@ -121,6 +121,12 @@ class BasePaymentDriver
 
         $gateway = $this->accountGateway->gateway;
 
+        if ( ! $this->meetsGatewayTypeLimits($this->gatewayType)) {
+            // The customer must have hacked the URL
+            Session::flash('error', trans('texts.limits_not_met'));
+            return redirect()->to('view/' . $this->invitation->invitation_key);
+        }
+
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
             if (Session::has('error')) {
                 Session::reflash();
@@ -735,7 +741,7 @@ class BasePaymentDriver
         return $this->createPayment($ref);
     }
 
-    public function tokenLinks($invoice)
+    public function tokenLinks()
     {
         if ( ! $this->customer()) {
             return [];
@@ -749,7 +755,7 @@ class BasePaymentDriver
                 continue;
             }
 
-            if ( !$this->invoiceMeetsGatewayTypeLimits($invoice, $paymentMethod->payment_type->gateway_type_id) ) {
+            if ( ! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 continue;
             }
 
@@ -776,7 +782,7 @@ class BasePaymentDriver
         return $links;
     }
 
-    public function paymentLinks($invoice)
+    public function paymentLinks()
     {
         $links = [];
 
@@ -785,7 +791,7 @@ class BasePaymentDriver
                 continue;
             }
 
-            if ( !$this->invoiceMeetsGatewayTypeLimits($invoice, $gatewayTypeId) ) {
+            if ( ! $this->meetsGatewayTypeLimits($gatewayTypeId)) {
                 continue;
             }
 
@@ -798,7 +804,8 @@ class BasePaymentDriver
         return $links;
     }
 
-    protected function invoiceMeetsGatewayTypeLimits( $invoice, $gatewayTypeId ) {
+    protected function meetsGatewayTypeLimits($gatewayTypeId)
+    {
         if ( !$gatewayTypeId ) {
             return true;
         }
@@ -807,6 +814,8 @@ class BasePaymentDriver
             '=', $gatewayTypeId)->first();
 
         if ($accountGatewaySettings) {
+            $invoice = $this->invoice();
+
             if ($accountGatewaySettings->min_limit && $invoice->balance < $accountGatewaySettings->min_limit) {
                 return false;
             }

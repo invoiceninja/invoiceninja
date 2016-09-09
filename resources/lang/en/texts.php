@@ -2106,6 +2106,7 @@ $LANG = array(
     'enable_max' => 'Enable max',
     'min' => 'Min',
     'max' => 'Max',
+    'limits_not_met' => 'This invoice does not meet the limits for that payment type.',
 
 );
 
