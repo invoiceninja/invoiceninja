@@ -10,15 +10,15 @@ class GatewayTypesSeeder extends Seeder
 
 
         $gateway_types = [
-            ['id' => 'credit_card', 'name' => 'Credit Card'],
-            ['id' => 'bank_transfer', 'name' => 'Bank Transfer'],
-            ['id' => 'paypal', 'name' => 'PayPal'],
-            ['id' => 'bitcoin', 'name' => 'Bitcoin'],
-            ['id' => 'dwolla', 'name' => 'Dwolla'],
+            ['name' => 'Credit Card'],
+            ['name' => 'Bank Transfer'],
+            ['name' => 'PayPal'],
+            ['name' => 'Bitcoin'],
+            ['name' => 'Dwolla'],
         ];
 
         foreach ($gateway_types as $gateway_type) {
-            $record = GatewayType::where('id', '=', $gateway_type['id'])->first();
+            $record = GatewayType::where('name', '=', $gateway_type['name'])->first();
             if (!$record) {
                 GatewayType::create($gateway_type);
             }

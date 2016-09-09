@@ -12,24 +12,21 @@ class CreateGatewayTypes extends Migration
      */
     public function up()
     {
-        Schema::dropIfExists('account_gateway_settings');
         Schema::dropIfExists('gateway_types');
-
         Schema::create('gateway_types', function($t)
         {
-            $t->string('id');
+            $t->increments('id');
             $t->string('name');
-
-            $t->primary('id');
         });
 
+        Schema::dropIfExists('account_gateway_settings');
         Schema::create('account_gateway_settings', function($t)
         {
             $t->increments('id');
 
             $t->unsignedInteger('account_id');
             $t->unsignedInteger('user_id');
-            $t->string('gateway_type_id')->nullable();
+            $t->unsignedInteger('gateway_type_id')->nullable();
 
             $t->timestamp('updated_at')->nullable();
 
@@ -41,12 +38,6 @@ class CreateGatewayTypes extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
 
-        });
-
-        Schema::table('payment_types', function($t)
-        {
-            $t->string('gateway_type_id')->nullable();
-            $t->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
         });
     }
     /**

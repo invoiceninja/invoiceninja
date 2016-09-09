@@ -704,11 +704,11 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
     define('PAYMENT_METHOD_STATUS_VERIFIED', 'verified');
 
-    define('GATEWAY_TYPE_CREDIT_CARD', 'credit_card');
-    define('GATEWAY_TYPE_BANK_TRANSFER', 'bank_transfer');
-    define('GATEWAY_TYPE_PAYPAL', 'paypal');
-    define('GATEWAY_TYPE_BITCOIN', 'bitcoin');
-    define('GATEWAY_TYPE_DWOLLA', 'dwolla');
+    define('GATEWAY_TYPE_CREDIT_CARD', 1);
+    define('GATEWAY_TYPE_BANK_TRANSFER', 2);
+    define('GATEWAY_TYPE_PAYPAL', 3);
+    define('GATEWAY_TYPE_BITCOIN', 4);
+    define('GATEWAY_TYPE_DWOLLA', 5);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('REMINDER1', 'reminder1');
