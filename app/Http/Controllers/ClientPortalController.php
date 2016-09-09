@@ -173,8 +173,8 @@ class ClientPortalController extends BaseController
 
         foreach ($account->account_gateways as $accountGateway) {
             $paymentDriver = $accountGateway->paymentDriver($invitation);
-            $links = array_merge($links, $paymentDriver->tokenLinks());
-            $links = array_merge($links, $paymentDriver->paymentLinks());
+            $links = array_merge($links, $paymentDriver->tokenLinks($invitation->invoice));
+            $links = array_merge($links, $paymentDriver->paymentLinks($invitation->invoice));
         }
 
         return $links;

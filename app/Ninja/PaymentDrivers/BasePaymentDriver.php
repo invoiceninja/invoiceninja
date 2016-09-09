@@ -2,12 +2,14 @@
 
 use URL;
 use Session;
+use Utils;
 use Request;
 use Omnipay;
 use Exception;
 use CreditCard;
 use DateTime;
 use App\Models\AccountGatewayToken;
+use App\Models\AccountGatewaySettings;
 use App\Models\Account;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
@@ -733,7 +735,7 @@ class BasePaymentDriver
         return $this->createPayment($ref);
     }
 
-    public function tokenLinks()
+    public function tokenLinks($invoice)
     {
         if ( ! $this->customer()) {
             return [];
@@ -744,6 +746,10 @@ class BasePaymentDriver
 
         foreach ($paymentMethods as $paymentMethod) {
             if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH && $paymentMethod->status != PAYMENT_METHOD_STATUS_VERIFIED) {
+                continue;
+            }
+
+            if ( !$this->invoiceMeetsGatewayTypeLimits($invoice, $paymentMethod->payment_type->gateway_type_id) ) {
                 continue;
             }
 
@@ -770,22 +776,49 @@ class BasePaymentDriver
         return $links;
     }
 
-    public function paymentLinks()
+    public function paymentLinks($invoice)
     {
         $links = [];
 
-        foreach ($this->gatewayTypes() as $gatewayType) {
-            if ($gatewayType === GATEWAY_TYPE_TOKEN) {
+        foreach ($this->gatewayTypes() as $gatewayTypeId) {
+            if ($gatewayTypeId === GATEWAY_TYPE_TOKEN) {
+                continue;
+            }
+
+            if ( !$this->invoiceMeetsGatewayTypeLimits($invoice, $gatewayTypeId) ) {
                 continue;
             }
 
             $links[] = [
-                'url' => $this->paymentUrl($gatewayType),
-                'label' => trans("texts.{$gatewayType}")
+                'url' => $this->paymentUrl($gatewayTypeId),
+                'label' => trans("texts.{$gatewayTypeId}")
             ];
         }
 
         return $links;
+    }
+
+    protected function invoiceMeetsGatewayTypeLimits( $invoice, $gatewayTypeId ) {
+        if ( !$gatewayTypeId ) {
+            return true;
+        }
+
+        $accountGatewaySettings = AccountGatewaySettings::scope()->where('account_gateway_settings.gateway_type_id',
+            '=', $gatewayTypeId)->first();
+
+        if ($accountGatewaySettings) {
+            if ($accountGatewaySettings->min_limit && $invoice->balance < $accountGatewaySettings->min_limit) {
+                return false;
+            }
+
+            if ($accountGatewaySettings->max_limit &&  $invoice->balance >= $accountGatewaySettings->max_limit + 1) {
+                // The max is limit_max + 0.99, so we add 1 to max_limit
+                // Then, if the balance is greater than or equal to that value, it's over the max.
+                return false;
+            }
+        }
+
+        return true;
     }
 
     protected function paymentUrl($gatewayType)
