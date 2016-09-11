@@ -111,8 +111,8 @@ class DashboardRepository
         $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
 
         $records = DB::table($entityType.'s')
-            ->join('clients', 'clients.id', '=', $entityType.'s.client_id')
-            ->where('clients.is_deleted', '=', false)
+            ->leftJoin('clients', 'clients.id', '=', $entityType.'s.client_id')
+            ->whereRaw('(clients.id IS NULL OR clients.is_deleted = 0)')
             ->where($entityType.'s.account_id', '=', $accountId)
             ->where($entityType.'s.is_deleted', '=', false)
             ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
@@ -320,13 +320,14 @@ class DashboardRepository
                     ->where('invoices.is_deleted', '=', false)
                     ->where('clients.is_deleted', '=', false)
                     ->where('contacts.deleted_at', '=', null)
-                    ->where('contacts.is_primary', '=', true);
+                    ->where('contacts.is_primary', '=', true)
+                    ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
         if (!$viewAll){
             $payments = $payments->where('payments.user_id', '=', $userId);
         }
 
-        return $payments->select(['payments.payment_date', 'payments.amount', 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id'])
+        return $payments->select(['payments.payment_date', DB::raw('(payments.amount - payments.refunded) as amount'), 'invoices.public_id', 'invoices.invoice_number', 'clients.name as client_name', 'contacts.email', 'contacts.first_name', 'contacts.last_name', 'clients.currency_id', 'clients.public_id as client_public_id', 'clients.user_id as client_user_id'])
                     ->orderBy('payments.payment_date', 'desc')
                     ->take(50)
                     ->get();

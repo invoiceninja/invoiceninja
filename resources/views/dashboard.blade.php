@@ -22,6 +22,7 @@
             if (window.myChart) {
                 window.myChart.config.data = data;
                 window.myChart.config.options.scales.xAxes[0].time.unit = chartGropuBy.toLowerCase();
+                window.myChart.config.options.scales.xAxes[0].time.round = chartGropuBy.toLowerCase();
                 window.myChart.update();
             } else {
                 $('#progress-div').hide();
@@ -63,6 +64,7 @@
                                 type: 'time',
                                 time: {
                                     unit: 'day',
+                                    round: 'day',
                                 },
                                 gridLines: {
                                     display: false,

@@ -81,8 +81,8 @@ $I->see('Invoice Design');
 $I->amOnPage('/settings/templates_and_reminders');
 $I->see('Invoice Email');
 
-$I->amOnPage('/settings/charts_and_reports');
-$I->see('Data Visualizations');
+$I->amOnPage('/settings/reports');
+$I->see('Report Settings');
 
 //try to logout
 //$I->click('#myAccountButton');
