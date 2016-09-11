@@ -14,18 +14,16 @@ class SessionDataCheckMiddleware {
      * @param  \Closure  $next
      * @return mixed
      */
-    public function handle($request, Closure $next) {
-
+    public function handle($request, Closure $next)
+    {
         $bag = Session::getMetadataBag();
+        $max = env('IDLE_TIMEOUT_MINUTES', 6 * 60) * 60; // minute to second conversion
+        $elapsed = time() - $bag->getLastUsed();
 
-        $max = config('session.lifetime') * 60; // minute to second conversion
-
-        if (($bag && $max < (time() - $bag->getLastUsed()))) {
-
-            $request->session()->flush(); // remove all the session data
-
-            Auth::logout(); // logout user
-
+        if ( ! $bag || $elapsed > $max) {
+            $request->session()->flush();
+            Auth::logout();
+            $request->session()->flash('warning', trans('texts.inactive_logout'));
         }
 
         return $next($request);

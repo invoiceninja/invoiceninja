@@ -96,7 +96,7 @@ class Account extends Eloquent
         ACCOUNT_TEMPLATES_AND_REMINDERS,
         ACCOUNT_BANKS,
         ACCOUNT_CLIENT_PORTAL,
-        ACCOUNT_CHARTS_AND_REPORTS,
+        ACCOUNT_REPORTS,
         ACCOUNT_DATA_VISUALIZATIONS,
         ACCOUNT_API_TOKENS,
         ACCOUNT_USER_MANAGEMENT,
@@ -401,11 +401,7 @@ class Account extends Eloquent
         }
     }
 
-    /**
-     * @param string $date
-     * @return DateTime|null|string
-     */
-    public function getDateTime($date = 'now')
+    public function getDate($date = 'now')
     {
         if ( ! $date) {
             return null;
@@ -413,6 +409,16 @@ class Account extends Eloquent
             $date = new \DateTime($date);
         }
 
+        return $date;
+    }
+
+    /**
+     * @param string $date
+     * @return DateTime|null|string
+     */
+    public function getDateTime($date = 'now')
+    {
+        $date = $this->getDate($date);
         $date->setTimeZone(new \DateTimeZone($this->getTimezone()));
 
         return $date;
@@ -469,7 +475,7 @@ class Account extends Eloquent
      */
     public function formatDate($date)
     {
-        $date = $this->getDateTime($date);
+        $date = $this->getDate($date);
 
         if ( ! $date) {
             return null;

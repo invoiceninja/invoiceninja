@@ -156,6 +156,15 @@ class Task extends EntityModel
     {
         return '#' . $this->public_id;
     }
+
+    public function getDisplayName()
+    {
+        if ($this->description) {
+            return mb_strimwidth($this->description, 0, 16, "...");
+        }
+
+        return '#' . $this->public_id;
+    }
 }
 
 

@@ -1,10 +1,148 @@
 <?php namespace App\Ninja\Repositories;
 
+use stdClass;
 use DB;
 use App\Models\Activity;
+use App\Models\Invoice;
+use App\Models\Task;
+use DateInterval;
+use DatePeriod;
 
 class DashboardRepository
 {
+    /**
+     * @param $groupBy
+     * @param $startDate
+     * @param $endDate
+     * @return array
+     */
+    public function chartData($account, $groupBy, $startDate, $endDate, $currencyId, $includeExpenses)
+    {
+        $accountId = $account->id;
+        $startDate = date_create($startDate);
+        $endDate = date_create($endDate);
+        $groupBy = strtoupper($groupBy);
+        if ($groupBy == 'DAY') {
+            $groupBy = 'DAYOFYEAR';
+        }
+
+        $datasets = [];
+        $labels = [];
+        $totals = new stdClass;
+
+        $entitTypes = [ENTITY_INVOICE, ENTITY_PAYMENT];
+        if ($includeExpenses) {
+            $entitTypes[] = ENTITY_EXPENSE;
+        }
+
+        foreach ($entitTypes as $entityType) {
+
+            $data = [];
+            $count = 0;
+            $records = $this->rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId);
+
+            array_map(function ($item) use (&$data, &$count, $groupBy) {
+                $data[$item->$groupBy] = $item->total;
+                $count += $item->count;
+            }, $records->get());
+
+            $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
+            $endDate->modify('+1 '.$padding);
+            $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
+            $period = new DatePeriod($startDate, $interval, $endDate);
+            $endDate->modify('-1 '.$padding);
+            $records = [];
+
+            foreach ($period as $d) {
+                $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
+                // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
+                $date = $groupBy == 'DAYOFYEAR' ? $d->format('Y').($d->format($dateFormat) + 1) : $d->format('Y'.$dateFormat);
+                $records[] = isset($data[$date]) ? $data[$date] : 0;
+
+                if ($entityType == ENTITY_INVOICE) {
+                    $labels[] = $d->format('r');
+                }
+            }
+
+            if ($entityType == ENTITY_INVOICE) {
+                $color = '51,122,183';
+            } elseif ($entityType == ENTITY_PAYMENT) {
+                $color = '54,193,87';
+            } elseif ($entityType == ENTITY_EXPENSE) {
+                $color = '128,128,128';
+            }
+
+            $record = new stdClass;
+            $record->data = $records;
+            $record->label = trans("texts.{$entityType}s");
+            $record->lineTension = 0;
+            $record->borderWidth = 4;
+            $record->borderColor = "rgba({$color}, 1)";
+            $record->backgroundColor = "rgba({$color}, 0.05)";
+            $datasets[] = $record;
+
+            if ($entityType == ENTITY_INVOICE) {
+                $totals->invoices = array_sum($data);
+                $totals->average = $count ? round($totals->invoices / $count, 2) : 0;
+            } elseif ($entityType == ENTITY_PAYMENT) {
+                $totals->revenue = array_sum($data);
+                $totals->balance = $totals->invoices - $totals->revenue;
+            } elseif ($entityType == ENTITY_EXPENSE) {
+                //$totals->profit = $totals->revenue - array_sum($data);
+                $totals->expenses = array_sum($data);
+            }
+        }
+
+        $data = new stdClass;
+        $data->labels = $labels;
+        $data->datasets = $datasets;
+
+        $response = new stdClass;
+        $response->data = $data;
+        $response->totals = $totals;
+
+        return $response;
+    }
+
+    private function rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId)
+    {
+        $accountId = $account->id;
+        $currencyId = intval($currencyId);
+        $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
+
+        $records = DB::table($entityType.'s')
+            ->join('clients', 'clients.id', '=', $entityType.'s.client_id')
+            ->where('clients.is_deleted', '=', false)
+            ->where($entityType.'s.account_id', '=', $accountId)
+            ->where($entityType.'s.is_deleted', '=', false)
+            ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
+            ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
+            ->groupBy($groupBy);
+
+        if ($entityType == ENTITY_EXPENSE) {
+            $records->where('expenses.expense_currency_id', '=', $currencyId);
+        } elseif ($currencyId == $account->getCurrencyId()) {
+            $records->whereRaw("(clients.currency_id = {$currencyId} or coalesce(clients.currency_id, 0) = 0)");
+        } else {
+            $records->where('clients.currency_id', '=', $currencyId);
+        }
+
+        if ($entityType == ENTITY_INVOICE) {
+            $records->select(DB::raw('sum(invoices.amount) as total, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
+                    ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                    ->where('is_recurring', '=', false);
+        } elseif ($entityType == ENTITY_PAYMENT) {
+            $records->select(DB::raw('sum(payments.amount - payments.refunded) as total, count(payments.id) as count, '.$timeframe.' as '.$groupBy))
+                    ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
+                    ->where('invoices.is_deleted', '=', false)
+                    ->whereNotIn('payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
+        } elseif ($entityType == ENTITY_EXPENSE) {
+            $records->select(DB::raw('sum(expenses.amount) as total, count(expenses.id) as count, '.$timeframe.' as '.$groupBy));
+        }
+
+        return $records;
+    }
+
     public function totals($accountId, $userId, $viewAll)
     {
         // total_income, billed_clients, invoice_sent and active_clients
@@ -192,5 +330,34 @@ class DashboardRepository
                     ->orderBy('payments.payment_date', 'desc')
                     ->take(50)
                     ->get();
+    }
+
+    public function expenses($accountId, $userId, $viewAll)
+    {
+        $select = DB::raw(
+            'SUM('.DB::getQueryGrammar()->wrap('expenses.amount', true).') as value,'
+                  .DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true).' as currency_id'
+        );
+        $paidToDate = DB::table('accounts')
+            ->select($select)
+            ->leftJoin('expenses', 'accounts.id', '=', 'expenses.account_id')
+            ->where('accounts.id', '=', $accountId)
+            ->where('expenses.is_deleted', '=', false);
+
+        if (!$viewAll){
+            $paidToDate = $paidToDate->where('expenses.user_id', '=', $userId);
+        }
+
+        return $paidToDate->groupBy('accounts.id')
+            ->groupBy('expenses.expense_currency_id')
+            ->get();
+    }
+
+    public function tasks($accountId, $userId, $viewAll)
+    {
+        return Task::scope()
+            ->withArchived()
+            ->whereIsRunning(true)
+            ->get();
     }
 }

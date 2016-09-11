@@ -6,7 +6,6 @@
   <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
   <style type="text/css">
-
     @if (Auth::check() && Auth::user()->dark_mode)
         body {
             background: #000 !important;

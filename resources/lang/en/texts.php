@@ -2099,6 +2099,15 @@ $LANG = array(
     'facebook_and_twitter_help' => 'Follow our feeds to help support our project',
     'reseller_text' => 'Note: the white-label license is intended for personal use, please email us at :email if you\'d like to resell our app.',
     'unnamed_client' => 'Unnamed Client',
+
+    'day' => 'Day',
+    'week' => 'Week',
+    'month' => 'Month',
+    'inactive_logout' => 'You have been logged out due to inactivity',
+    'reports' => 'Reports',
+    'total_profit' => 'Total Profit',
+    'total_expenses' => 'Total Expenses',
+
 );
 
 return $LANG;
