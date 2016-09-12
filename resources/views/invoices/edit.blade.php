@@ -1469,7 +1469,7 @@
 			model.invoice().addItem();
 		}
 
-        NINJA.formIsChanged = true;
+        //NINJA.formIsChanged = true;
 	}
 
     function onPartialChange(silent)
