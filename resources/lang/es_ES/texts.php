@@ -1688,6 +1688,7 @@ $LANG = array(
     'lang_Spanish' => 'Spanish',
     'lang_Spanish - Spain' => 'Spanish - Spain',
     'lang_Swedish' => 'Swedish',
+    'lang_Albanian' => 'Albanian',
 
     // Frequencies
     'freq_weekly' => 'Weekly',

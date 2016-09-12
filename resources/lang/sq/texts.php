@@ -1693,6 +1693,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'lang_Spanish' => 'Spanish',
     'lang_Spanish - Spain' => 'Spanish - Spain',
     'lang_Swedish' => 'Swedish',
+    'lang_Albanian' => 'Albanian',
 
     // Frequencies
     'freq_weekly' => 'Javore',

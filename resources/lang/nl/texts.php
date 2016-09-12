@@ -1686,6 +1686,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'lang_Spanish' => 'Spanish',
     'lang_Spanish - Spain' => 'Spanish - Spain',
     'lang_Swedish' => 'Swedish',
+    'lang_Albanian' => 'Albanian',
 
     // Frequencies
     'freq_weekly' => 'Weekly',
