@@ -213,7 +213,9 @@
                                 </div>
                             @endforeach
                         @else
-                            {{ Utils::formatMoney(0) }}
+                            <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
+                                {{ Utils::formatMoney(0) }}
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -251,7 +253,9 @@
                                     </div>
                                 @endforeach
                             @else
-                                {{ Utils::formatMoney(0) }}
+                                <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
+                                    {{ Utils::formatMoney(0) }}
+                                </div>
                             @endif
                         </div>
                     @endif
@@ -276,7 +280,9 @@
                                 </div>
                             @endforeach
                         @else
-                            {{ Utils::formatMoney(0) }}
+                            <div class="currency currency_{{ $account->getCurrencyId() }}" style="display:none">
+                                {{ Utils::formatMoney(0) }}
+                            </div>
                         @endif
                     </div>
                 </div>
