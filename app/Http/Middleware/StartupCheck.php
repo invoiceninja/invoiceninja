@@ -14,6 +14,7 @@ use Schema;
 use App\Models\Language;
 use App\Models\InvoiceDesign;
 use App\Events\UserSettingsChanged;
+use App\Libraries\CurlUtils;
 
 /**
  * Class StartupCheck
@@ -71,7 +72,7 @@ class StartupCheck
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
                 } else {
-                    $file = @file_get_contents(NINJA_APP_URL.'/news_feed/'.Utils::getUserType().'/'.NINJA_VERSION);
+                    $file = @CurlUtils::get(NINJA_APP_URL.'/news_feed/'.Utils::getUserType().'/'.NINJA_VERSION);
                     $data = @json_decode($file);
                 }
                 if ($data) {
@@ -128,7 +129,7 @@ class StartupCheck
                 $productId = Input::get('product_id');
 
                 $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
-                $data = trim(file_get_contents($url));
+                $data = trim(CurlUtils::get($url));
 
                 if ($productId == PRODUCT_INVOICE_DESIGNS) {
                     if ($data = json_decode($data)) {
