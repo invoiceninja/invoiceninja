@@ -1229,8 +1229,7 @@
         if (!isEmailValid()) {
             swal("{!! trans('texts.provide_email') !!}");
             return;
-8       }
-
+        }
 
 		sweetConfirm(function() {
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
@@ -1469,6 +1468,8 @@
 		if (!hasEmpty) {
 			model.invoice().addItem();
 		}
+
+        NINJA.formIsChanged = true;
 	}
 
     function onPartialChange(silent)
