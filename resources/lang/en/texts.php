@@ -2107,6 +2107,7 @@ $LANG = array(
     'reports' => 'Reports',
     'total_profit' => 'Total Profit',
     'total_expenses' => 'Total Expenses',
+    'quote_to' => 'Quote to',
 
 );
 
