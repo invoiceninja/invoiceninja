@@ -354,4 +354,16 @@ class UserController extends BaseController
         return View::make('users.account_management');
     }
 
+    public function saveSidebarState()
+    {
+        if (Input::has('show_left')) {
+            Session::put(SESSION_LEFT_SIDEBAR, boolval(Input::get('show_left')));
+        }
+
+        if (Input::has('show_right')) {
+            Session::put(SESSION_RIGHT_SIDEBAR, boolval(Input::get('show_right')));
+        }
+
+        return RESULT_SUCCESS;
+    }
 }

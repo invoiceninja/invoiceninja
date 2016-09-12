@@ -8,6 +8,7 @@
 /public/build
 /public/packages
 /public/vendor
+/resources/assets/bower
 /storage
 /bootstrap/compiled.php
 /bootstrap/environment.php
@@ -18,7 +19,7 @@ Thumbs.db
 /.env
 /.env.development.php
 /.env.php
-
+/docs/_build
 /error_log
 /auth.json
 /public/error_log

@@ -90,14 +90,15 @@
         function sweetConfirm(success, text, title) {
             title = title || "{!! trans("texts.are_you_sure") !!}";
             swal({
-                type: "warning",
+                //type: "warning",
+                //confirmButtonColor: "#DD6B55",
                 title: title,
                 text: text,
                 cancelButtonText: "{!! trans("texts.no") !!}",
                 confirmButtonText: "{!! trans("texts.yes") !!}",
-                confirmButtonColor: "#DD6B55",
                 showCancelButton: true,
-                closeOnConfirm: false
+                closeOnConfirm: false,
+                allowOutsideClick: true,
             }, function() {
                 success();
                 swal.close();
@@ -181,7 +182,7 @@
 
 <body class="body">
 
-@if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
+@if (Utils::isNinjaProd() && isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
     <!-- Google Tag Manager -->
     <noscript>
         <iframe src="//www.googletagmanager.com/ns.html?id={{ $_ENV['TAG_MANAGER_KEY'] }}"
@@ -205,7 +206,7 @@
         function trackEvent(category, action) {
         }
     </script>
-@elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
+@elseif (Utils::isNinjaProd() && isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
     <script>
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;

@@ -92,6 +92,16 @@ class EntityModel extends Eloquent
         return $this->public_id . ':' . $this->getEntityType();
     }
 
+    public function subEntityType()
+    {
+        return $this->getEntityType();
+    }
+
+    public function isEntityType($type)
+    {
+        return $this->getEntityType() === $type;
+    }
+
     /*
     public function getEntityType()
     {
@@ -227,6 +237,25 @@ class EntityModel extends Eloquent
         } else {
             return true;
         }
+    }
+
+    public static function getIcon($entityType)
+    {
+        $icons = [
+            'dashboard' => 'tachometer',
+            'clients' => 'users',
+            'invoices' => 'file-pdf-o',
+            'payments' => 'credit-card',
+            'recurring_invoices' => 'files-o',
+            'credits' => 'credit-card',
+            'quotes' => 'file-text-o',
+            'tasks' => 'clock-o',
+            'expenses' => 'file-image-o',
+            'vendors' => 'building',
+            'settings' => 'cog',
+        ];
+
+        return array_get($icons, $entityType);
     }
 
 }

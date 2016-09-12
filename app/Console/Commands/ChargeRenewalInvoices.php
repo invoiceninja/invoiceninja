@@ -6,6 +6,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use App\Models\Invoice;
 use App\Models\Account;
+use Exception;
 
 /**
  * Class ChargeRenewalInvoices
@@ -80,8 +81,12 @@ class ChargeRenewalInvoices extends Command
                 continue;
             }
 
-            $this->info("Charging invoice {$invoice->invoice_number}");
-            $this->paymentService->autoBillInvoice($invoice);
+            try {
+                $this->info("Charging invoice {$invoice->invoice_number}");
+                $this->paymentService->autoBillInvoice($invoice);
+            } catch (Exception $exception) {
+                $this->info('Error: ' . $exception->getMessage());
+            }
         }
 
         $this->info('Done');

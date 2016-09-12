@@ -1,4 +1,5 @@
-body { background: #f8f8f8 !important;
+body {
+    padding-top: 56px;
     font-family: 'Roboto', sans-serif;
     font-size: 15px;
 }
@@ -6,7 +7,6 @@ html {
   /* overflow-y: scroll; */
 }
 .bold { font-weight: 700; }
-a {color:#0b4d78;}
 /*a:hover { text-decoration: none; color: #0a3857;}*/
 .breadcrumb {
 padding: 8px 0!important;
@@ -71,10 +71,7 @@ table.data-table td {
 
 table.dataTable { border-radius: 3px; border-collapse: collapse;
     /*border-spacing: 0;*/}
-table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
-    background-color: #e37329 !important;
-    color:#fff;
-}
+
 /*
 table.dataTable tr:hover {
     background-color: #F2F5FE !important;
@@ -89,7 +86,6 @@ th:last-child {
 }
 
 tr {border: none;}
-thead th {border-left: 1px solid #d26b26;}
 tbody td {border-left: 1px solid #FFFFFF;}
 .table>thead>tr>th, .table>tbody>tr>th, .table>tfoot>tr>th, .table>thead>tr>td, .table>tbody>tr>td, .table>tfoot>tr>td {
 vertical-align: middle;
@@ -146,7 +142,7 @@ line-height: 20px;
 .datepicker table {font-size: 12px; border-spacing:2px;}
 .datepicker td, .datepicker th { width:30px; }
 .datepicker table tr td.active.active, .datepicker table tr td.active:hover.active {
-background-color: #0b4d78;
+background-color: #337ab7;
     background-image:none;
 }
 .datepicker table tr td.today { color: #333; background-color: #edd71e !important; background-image:none; text-shadow:none;}
@@ -161,7 +157,7 @@ padding: 20px;
 }
 .modal-header {
 border-bottom: none;
-background-color: #0b4d78;
+background-color: #337ab7;
     padding: 20px;
     color: #fff;
 }
@@ -208,14 +204,16 @@ padding: 5px 10px;
 -webkit-box-shadow: none;
 box-shadow: none;
 }
-.btn-primary {
-background-color: #0b4d78;
-border-color: #0b4d78;
+/*
+.xbtn-primary {
+background-color: #34495E;
+border-color: #34495E;
 }
-.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
+.xbtn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .open .dropdown-toggle.btn-primary {
 background-color: #0a456c;
 border-color: #0a456c;
 }
+*/
 .btn-default {background-color: #808080;
 border-color: #808080;
     color: #fff;
@@ -253,8 +251,9 @@ border-radius: 3px;
 margin-left: 0px;
 }
 .btn i.glyphicon {  font-size: 16px; margin-left:7px; top: 2px; }
+
 .btn-primary i{
-border-color: #0b4d78;
+xborder-color: #337ab7;
 }
 
 .form-actions .btn,
@@ -331,10 +330,6 @@ table.table thead > tr > th {
 table td {
     max-width: 250px;
 }
-.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
-background-color: #0b4d78;
-border-color: #0b4d78;
-}
 .pagination>li:first-child>a, .pagination>li:first-child>span {
 border-bottom-left-radius: 3px;
 border-top-left-radius: 3px;
@@ -391,15 +386,18 @@ background-color: #9b9b9b;
 }
 .nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:hover, .nav-tabs.nav-justified>.active>a:focus {
     border: none;
-background-color: #808080;
-font-weight: bold;
+    font-weight: bold;
     color: #fff;
 }
 .navbar {
-  background-color: #0b4d78 !important;
+  xbackground-color: #337ab7 !important;
   background-image: none;
   background-repeat: no-repeat;
   filter: none;
+}
+
+.navbar-collapse {
+    xbackground-color: #337ab7;
 }
 
 .navbar,
@@ -445,9 +443,6 @@ canvas {
     top: 11px;
     left: -6px;
 }
-.navbar .dropdown-menu {
-    border-top: 1px solid #0b4d78;
-}
 .navbar-brand {
 padding-top:20px;
 }
@@ -486,7 +481,8 @@ background-clip: padding-box;
 }
 
 .in-image {
-    float:left;padding-right:25px;
+    float: left;
+    margin-right: 25px;
 }
 
 .in-white {
@@ -495,7 +491,6 @@ background-clip: padding-box;
 
 
 .active-clients {
-    background-color: #0b4d78;
     background-image:url('../images/activeclients.png');
     background-position:center;
     background-repeat: no-repeat;
@@ -790,6 +785,10 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
    .form-padding-right {
         padding-right: 40px;
    }
+
+   .hide-non-phone {
+       display: none;
+   }
 }
 
 /* Medium Devices, Desktops */
@@ -806,29 +805,6 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
    .hide-desktop {
         display: none;
    }
-}
-
-/* Style to fix navigation by show icon instead of name */
-@media only screen and (min-width : 1200px) {
-   .nav-account-icon {
-        display: none;
-   }
-}
-@media only screen and (max-width : 992px) {
-   .nav-account-icon {
-        display: none;
-   }
-}
-@media only screen and (max-width : 1200px) and (min-width: 992px) {
-   .nav-account-name {
-        display: none;
-   }
-}
-
-@media (max-width: 992px) {
-    .hide-phone {
-        display: none !important;
-    }
 }
 
 @media (max-width: 767px) {
@@ -848,6 +824,10 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
     .plans-table .cell div:first-child {margin-bottom: 5px;}
     .plans-table .cell .cta {margin-bottom: 0 !important;}
     .plans-table .pro {margin-top: 40px;}
+
+    .hide-phone {
+        display: none;
+    }
 }
 
 label[for=recommendedGateway_id2].radio{
@@ -918,11 +898,6 @@ div.checkbox > label {
 .panel-title {
     font-size: 18px;
     color: white;
-}
-
-.panel-heading {
-    /*background-color: #e37329 !important;*/
-    background-color: #0b4d78 !important;
 }
 
 div.alert {

@@ -11,6 +11,7 @@ use App\Events\UserSettingsChanged;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use App\Models\Traits\PresentsInvoice;
 
 /**
  * Class Account
@@ -19,6 +20,7 @@ class Account extends Eloquent
 {
     use PresentableTrait;
     use SoftDeletes;
+    use PresentsInvoice;
 
     /**
      * @var string
@@ -65,6 +67,7 @@ class Account extends Eloquent
         'show_item_taxes',
         'default_tax_rate_id',
         'enable_second_tax_rate',
+        'include_item_taxes_inline',
         'start_of_week',
     ];
 
@@ -93,7 +96,7 @@ class Account extends Eloquent
         ACCOUNT_TEMPLATES_AND_REMINDERS,
         ACCOUNT_BANKS,
         ACCOUNT_CLIENT_PORTAL,
-        ACCOUNT_CHARTS_AND_REPORTS,
+        ACCOUNT_REPORTS,
         ACCOUNT_DATA_VISUALIZATIONS,
         ACCOUNT_API_TOKENS,
         ACCOUNT_USER_MANAGEMENT,
@@ -398,11 +401,7 @@ class Account extends Eloquent
         }
     }
 
-    /**
-     * @param string $date
-     * @return DateTime|null|string
-     */
-    public function getDateTime($date = 'now')
+    public function getDate($date = 'now')
     {
         if ( ! $date) {
             return null;
@@ -410,6 +409,16 @@ class Account extends Eloquent
             $date = new \DateTime($date);
         }
 
+        return $date;
+    }
+
+    /**
+     * @param string $date
+     * @return DateTime|null|string
+     */
+    public function getDateTime($date = 'now')
+    {
+        $date = $this->getDate($date);
         $date->setTimeZone(new \DateTimeZone($this->getTimezone()));
 
         return $date;
@@ -466,7 +475,7 @@ class Account extends Eloquent
      */
     public function formatDate($date)
     {
-        $date = $this->getDateTime($date);
+        $date = $this->getDate($date);
 
         if ( ! $date) {
             return null;
@@ -1026,68 +1035,6 @@ class Account extends Eloquent
         Session::put(SESSION_DATETIME_FORMAT, $format);
 
         Session::put('start_of_week', $this->start_of_week);
-    }
-
-    /**
-     * @return array
-     */
-    public function getInvoiceLabels()
-    {
-        $data = [];
-        $custom = (array) json_decode($this->invoice_labels);
-
-        $fields = [
-            'invoice',
-            'invoice_date',
-            'due_date',
-            'invoice_number',
-            'po_number',
-            'discount',
-            'taxes',
-            'tax',
-            'item',
-            'description',
-            'unit_cost',
-            'quantity',
-            'line_total',
-            'subtotal',
-            'paid_to_date',
-            'balance_due',
-            'partial_due',
-            'terms',
-            'your_invoice',
-            'quote',
-            'your_quote',
-            'quote_date',
-            'quote_number',
-            'total',
-            'invoice_issued_to',
-            'quote_issued_to',
-            //'date',
-            'rate',
-            'hours',
-            'balance',
-            'from',
-            'to',
-            'invoice_to',
-            'details',
-            'invoice_no',
-            'valid_until',
-        ];
-
-        foreach ($fields as $field) {
-            if (isset($custom[$field]) && $custom[$field]) {
-                $data[$field] = $custom[$field];
-            } else {
-                $data[$field] = $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
-            }
-        }
-
-        foreach (['item', 'quantity', 'unit_cost'] as $field) {
-            $data["{$field}_orig"] = $data[$field];
-        }
-
-        return $data;
     }
 
     /**

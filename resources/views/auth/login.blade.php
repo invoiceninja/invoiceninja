@@ -3,7 +3,7 @@
 @section('head')
 
 <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
-<link href="{{ asset('css/style.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css"/>
 
 <style type="text/css">
     body {

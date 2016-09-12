@@ -216,6 +216,8 @@
                 enableReminder(i);
             }
 
+            $('.show-when-ready').show();
+
             refreshPreview();
         });
 

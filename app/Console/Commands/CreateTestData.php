@@ -39,8 +39,8 @@ class CreateTestData extends Command
      * @param ExpenseRepository $expenseRepo
      */
     public function __construct(
-        ClientRepository $clientRepo, 
-        InvoiceRepository $invoiceRepo, 
+        ClientRepository $clientRepo,
+        InvoiceRepository $invoiceRepo,
         PaymentRepository $paymentRepo,
         VendorRepository $vendorRepo,
         ExpenseRepository $expenseRepo)
@@ -48,7 +48,7 @@ class CreateTestData extends Command
         parent::__construct();
 
         $this->faker = Factory::create();
-                
+
         $this->clientRepo = $clientRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
@@ -64,18 +64,18 @@ class CreateTestData extends Command
         if (Utils::isNinjaProd()) {
             return false;
         }
-        
+
         $this->info(date('Y-m-d').' Running CreateTestData...');
 
         Auth::loginUsingId(1);
         $this->count = $this->argument('count');
-        
+
         $this->createClients();
         $this->createVendors();
-        
+
         $this->info('Done');
     }
-    
+
     private function createClients()
     {
         for ($i=0; $i<$this->count; $i++) {
@@ -89,14 +89,14 @@ class CreateTestData extends Command
                 'contacts' => [[
                     'first_name' => $this->faker->firstName,
                     'last_name' => $this->faker->lastName,
-                    'email' => $this->faker->safeEmail, 
+                    'email' => $this->faker->safeEmail,
                     'phone' => $this->faker->phoneNumber,
                 ]]
             ];
 
             $client = $this->clientRepo->save($data);
             $this->info('Client: ' . $client->name);
-            
+
             $this->createInvoices($client);
         }
     }
@@ -105,10 +105,12 @@ class CreateTestData extends Command
      * @param $client
      */
     private function createInvoices($client)
-    {   
+    {
         for ($i=0; $i<$this->count; $i++) {
             $data = [
                 'client_id' => $client->id,
+                'invoice_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
+                'due_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
                 'invoice_items' => [[
                     'product_key' => $this->faker->word,
                     'qty' => $this->faker->randomDigit + 1,
@@ -119,7 +121,7 @@ class CreateTestData extends Command
 
             $invoice = $this->invoiceRepo->save($data);
             $this->info('Invoice: ' . $invoice->invoice_number);
-            
+
             $this->createPayment($client, $invoice);
         }
     }
@@ -133,14 +135,15 @@ class CreateTestData extends Command
         $data = [
             'invoice_id' => $invoice->id,
             'client_id' => $client->id,
-            'amount' => $this->faker->randomFloat(2, 0, $invoice->amount)
+            'amount' => $this->faker->randomFloat(2, 0, $invoice->amount),
+            'payment_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
         ];
-        
+
         $payment = $this->paymentRepo->save($data);
-        
+
         $this->info('Payment: ' . $payment->amount);
     }
-    
+
     private function createVendors()
     {
         for ($i=0; $i<$this->count; $i++) {
@@ -154,14 +157,14 @@ class CreateTestData extends Command
                 'vendor_contacts' => [[
                     'first_name' => $this->faker->firstName,
                     'last_name' => $this->faker->lastName,
-                    'email' => $this->faker->safeEmail, 
+                    'email' => $this->faker->safeEmail,
                     'phone' => $this->faker->phoneNumber,
                 ]]
             ];
 
             $vendor = $this->vendorRepo->save($data);
             $this->info('Vendor: ' . $vendor->name);
-            
+
             $this->createExpense($vendor);
         }
     }
@@ -178,7 +181,7 @@ class CreateTestData extends Command
                 'expense_date' => null,
                 'public_notes' => null,
             ];
-            
+
             $expense = $this->expenseRepo->save($data);
             $this->info('Expense: ' . $expense->amount);
         }

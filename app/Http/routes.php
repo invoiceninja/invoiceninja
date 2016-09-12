@@ -122,11 +122,13 @@ if (Utils::isReseller()) {
 
 Route::group(['middleware' => 'auth:user'], function() {
     Route::get('dashboard', 'DashboardController@index');
+    Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
     Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
     Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
     Route::get('check_invoice_number/{invoice_number}', 'InvoiceController@checkInvoiceNumber');
+    Route::get('save_sidebar_state', 'UserController@saveSidebarState');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
@@ -152,6 +154,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
     Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
     Route::get('recurring_invoices', 'RecurringInvoiceController@index');
+    Route::get('recurring_invoices/{invoices}/edit', 'InvoiceController@edit');
     Route::get('invoices/{invoices}/clone', 'InvoiceController@cloneInvoice');
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
@@ -235,13 +238,12 @@ Route::group([
     Route::get('settings/email_preview', 'AccountController@previewEmail');
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
-    Route::get('settings/charts_and_reports', 'ReportController@showReports');
-    Route::post('settings/charts_and_reports', 'ReportController@showReports');
+    Route::get('settings/reports', 'ReportController@showReports');
+    Route::post('settings/reports', 'ReportController@showReports');
 
     Route::post('settings/change_plan', 'AccountController@changePlan');
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
     Route::post('settings/company_details', 'AccountController@updateDetails');
-    Route::get('settings/{section?}', 'AccountController@showSection');
     Route::post('settings/{section?}', 'AccountController@doSection');
 
     Route::post('user/setTheme', 'UserController@setTheme');
@@ -264,6 +266,13 @@ Route::group([
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
     Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
     Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');
+    Route::get('self-update', 'SelfUpdateController@index');
+    Route::post('self-update', 'SelfUpdateController@update');
+    Route::get('self-update/download', 'SelfUpdateController@download');
+});
+
+Route::group(['middleware' => 'auth:user'], function() {
+    Route::get('settings/{section?}', 'AccountController@showSection');
 });
 
 // Route groups for API
@@ -346,7 +355,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENV_DEVELOPMENT', 'local');
     define('ENV_STAGING', 'staging');
 
-    define('RECENTLY_VIEWED', 'RECENTLY_VIEWED');
+    define('RECENTLY_VIEWED', 'recent_history');
 
     define('ENTITY_CLIENT', 'client');
     define('ENTITY_CONTACT', 'contact');
@@ -402,7 +411,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACCOUNT_INVOICE_DESIGN', 'invoice_design');
     define('ACCOUNT_CLIENT_PORTAL', 'client_portal');
     define('ACCOUNT_EMAIL_SETTINGS', 'email_settings');
-    define('ACCOUNT_CHARTS_AND_REPORTS', 'charts_and_reports');
+    define('ACCOUNT_REPORTS', 'reports');
     define('ACCOUNT_USER_MANAGEMENT', 'user_management');
     define('ACCOUNT_DATA_VISUALIZATIONS', 'data_visualizations');
     define('ACCOUNT_TEMPLATES_AND_REMINDERS', 'templates_and_reminders');
@@ -472,7 +481,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_UPDATE_TASK', 43);
 
     define('DEFAULT_INVOICE_NUMBER', '0001');
-    define('RECENTLY_VIEWED_LIMIT', 8);
+    define('RECENTLY_VIEWED_LIMIT', 20);
     define('LOGGED_ERROR_LIMIT', 100);
     define('RANDOM_KEY_LENGTH', 32);
     define('MAX_NUM_USERS', 20);
@@ -544,6 +553,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('SESSION_LOCALE', 'sessionLocale');
     define('SESSION_USER_ACCOUNTS', 'userAccounts');
     define('SESSION_REFERRAL_CODE', 'referralCode');
+    define('SESSION_LEFT_SIDEBAR', 'showLeftSidebar');
+    define('SESSION_RIGHT_SIDEBAR', 'showRightSidebar');
 
     define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
     define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
@@ -608,8 +619,9 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
+    define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.6.11' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.7.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -792,10 +804,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('WEPAY_ENABLE_CANADA', env('WEPAY_ENABLE_CANADA', false));
     define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
 
-    define('WEPAY_FEE_PAYER', env('WEPAY_FEE_PAYER', 'payee'));
-    define('WEPAY_APP_FEE_MULTIPLIER', env('WEPAY_APP_FEE_MULTIPLIER', 0.002));
-    define('WEPAY_APP_FEE_FIXED', env('WEPAY_APP_FEE_MULTIPLIER', 0.00));
-
     define('SKYPE_CARD_RECEIPT', 'message/card.receipt');
     define('SKYPE_CARD_CAROUSEL', 'message/card.carousel');
     define('SKYPE_CARD_HERO', '');
@@ -814,6 +822,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('SKYPE_BUTTON_PLAY_VIDEO', 'playVideo');
     define('SKYPE_BUTTON_SHOW_IMAGE', 'showImage');
     define('SKYPE_BUTTON_DOWNLOAD_FILE', 'downloadFile');
+
+    define('INVOICE_FIELDS_CLIENT', 'client_fields');
+    define('INVOICE_FIELDS_INVOICE', 'invoice_fields');
+    define('INVOICE_FIELDS_ACCOUNT', 'account_fields');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],
@@ -868,6 +880,7 @@ if (!defined('CONTACT_EMAIL')) {
 if (Utils::isNinjaDev())
 {
   //ini_set('memory_limit','1024M');
-  //Auth::loginUsingId(1);
+  //set_time_limit(0);
+  Auth::loginUsingId(1);
 }
 */

@@ -52,5 +52,10 @@ class Kernel extends ConsoleKernel
                 ->sendOutputTo($logFile)
                 ->daily();
         }
+
+        $schedule
+            ->command('updater:check-for-update --prefixVersionWith=v')
+            ->sendOutputTo($logFile)
+            ->daily();
     }
 }

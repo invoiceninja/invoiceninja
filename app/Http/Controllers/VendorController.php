@@ -82,8 +82,6 @@ class VendorController extends BaseController
     {
         $vendor = $request->entity();
                 
-        Utils::trackViewed($vendor->getDisplayName(), 'vendor');
-
         $actionLinks = [
             ['label' => trans('texts.new_vendor'), 'url' => URL::to('/vendors/create/' . $vendor->public_id)]
         ];
@@ -134,7 +132,7 @@ class VendorController extends BaseController
     public function edit(VendorRequest $request)
     {
         $vendor = $request->entity();
-        
+
         $data = [
             'vendor' => $vendor,
             'method' => 'PUT',

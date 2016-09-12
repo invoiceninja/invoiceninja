@@ -131,7 +131,12 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getRoute()
     {
-        $entityType = $this->getEntityType();
+        if ($this->is_recurring) {
+            $entityType = 'recurring_invoice';
+        } else {
+            $entityType = $this->getEntityType();
+        }
+
         return "/{$entityType}s/{$this->public_id}/edit";
     }
 
@@ -211,7 +216,10 @@ class Invoice extends EntityModel implements BalanceAffecting
         if ($calculate) {
             $amount = 0;
             foreach ($this->payments as $payment) {
-                $amount += $payment->amount;
+                if ($payment->payment_status_id == PAYMENT_STATUS_VOIDED || $payment->payment_status_id == PAYMENT_STATUS_FAILED) {
+                    continue;
+                }
+                $amount += $payment->getCompletedAmount();
             }
             return $amount;
         } else {
@@ -381,6 +389,13 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return bool
+     */
+    public function isInvoice() {
+        return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring;
+    }
+
+    /**
      * @param bool $notify
      */
     public function markInvitationsSent($notify = false)
@@ -531,6 +546,15 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getEntityType()
     {
         return $this->isType(INVOICE_TYPE_QUOTE) ? ENTITY_QUOTE : ENTITY_INVOICE;
+    }
+
+    public function subEntityType()
+    {
+        if ($this->is_recurring) {
+            return ENTITY_RECURRING_INVOICE;
+        } else {
+            return $this->getEntityType();
+        }
     }
 
     /**
@@ -696,6 +720,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'custom_invoice_item_label2',
             'invoice_embed_documents',
             'page_size',
+            'include_item_taxes_inline',
+            'invoice_fields',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {

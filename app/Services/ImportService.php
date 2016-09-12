@@ -646,7 +646,7 @@ class ImportService
     {
         EntityModel::$notifySubscriptions = false;
 
-        foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT] as $entityType) {
+        foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_QUOTE] as $entityType) {
             $this->results[$entityType] = [
                 RESULT_SUCCESS => [],
                 RESULT_FAILURE => [],

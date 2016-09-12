@@ -3,11 +3,13 @@
 use Redirect;
 use Utils;
 use Exception;
+use Crawler;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -39,10 +41,14 @@ class Handler extends ExceptionHandler
 	public function report(Exception $e)
 	{
         // don't show these errors in the logs
-        if ($e instanceof HttpResponseException) {
+        if ($e instanceof NotFoundHttpException) {
+            if (Crawler::isCrawler()) {
+                return false;
+            }
+        } elseif ($e instanceof HttpResponseException) {
             return false;
         }
-        
+
         if (Utils::isNinja() && ! Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
             return false;
@@ -83,7 +89,7 @@ class Handler extends ExceptionHandler
                 'error' => get_class($e),
                 'hideHeader' => true,
             ];
-            
+
             return response()->view('error', $data);
         } else {
             return parent::render($request, $e);

@@ -44,6 +44,7 @@ class InvoiceIntent extends BaseIntent
         $productRepo = app('App\Ninja\Repositories\ProductRepository');
 
         $invoiceItems = [];
+        $offset = 0;
 
         if ( ! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
             return [];
@@ -55,7 +56,19 @@ class InvoiceIntent extends BaseIntent
                 $qty = 1;
                 foreach ($entity->children as $child) {
                     if ($child->type == 'Product') {
-                        $product = $productRepo->findPhonetically($child->value);
+                        // check additional words in product name
+                        // https://social.msdn.microsoft.com/Forums/azure/en-US/a508e039-0f76-4280-8156-4a017bcfc6dd/none-of-your-composite-entities-contain-all-of-the-highlighted-entities?forum=LUIS
+                        $query = $this->data->query;
+                        $startIndex = strpos($query, $child->value, $offset);
+                        $endIndex = strlen($query);
+                        $offset = $startIndex + 1;
+                        foreach ($this->data->entities as $indexChild) {
+                            if ($indexChild->startIndex > $startIndex) {
+                                $endIndex = min($endIndex, $indexChild->startIndex);
+                            }
+                        }
+                        $productName = substr($query, $startIndex, ($endIndex - $startIndex));
+                        $product = $productRepo->findPhonetically($productName);
                     } else {
                         $qty = $child->value;
                     }

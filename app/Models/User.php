@@ -286,7 +286,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function clearSession()
     {
         $keys = [
-            RECENTLY_VIEWED,
             SESSION_USER_ACCOUNTS,
             SESSION_TIMEZONE,
             SESSION_DATE_FORMAT,

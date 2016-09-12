@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
+    <img src="https://raw.githubusercontent.com/hillelcoren/invoice-ninja/master/public/images/round_logo.png" alt="Sublime's custom image"/>
 </p>
 
 # Invoice Ninja
@@ -8,7 +8,7 @@
 [![Docs](https://readthedocs.org/projects/pip/badge/?version=latest)](http://docs.invoiceninja.com/en/latest/)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://invoiceninja.org)
+## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org)
 
 All Pro and Enterprise features from our hosted app are included in both the [self-host zip](https://www.invoiceninja.com/self-host/) and the GitHub repository.
 
@@ -42,6 +42,7 @@ Our [iPhone app](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware
 * Integrates with 50+ payment providers with [Omnipay](https://github.com/thephpleague/omnipay)
 * Recurring invoices with auto-billing
 * Expenses and vendors
+* Import bank statements with [OFX](http://www.ofxhome.com/)
 * Tasks with time-tracking
 * File Attachments
 * Multi-user/multi-company support

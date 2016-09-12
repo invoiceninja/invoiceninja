@@ -139,8 +139,6 @@ class AccountController extends BaseController
             $account = $this->accountRepo->create();
             $user = $account->users()->first();
 
-            Session::forget(RECENTLY_VIEWED);
-
             if ($prevUserId) {
                 $users = $this->accountRepo->associateAccounts($user->id, $prevUserId);
                 Session::put(SESSION_USER_ACCOUNTS, $users);
@@ -257,6 +255,10 @@ class AccountController extends BaseController
      */
     public function showSection($section = false)
     {
+        if ( ! Auth::user()->is_admin) {
+            return Redirect::to('/settings/user_details');
+        }
+
         if (!$section) {
             return Redirect::to('/settings/'.ACCOUNT_COMPANY_DETAILS, 301);
         }
@@ -541,6 +543,8 @@ class AccountController extends BaseController
         $invoice->terms = trim($account->invoice_terms);
         $invoice->invoice_footer = trim($account->invoice_footer);
 
+        $contact->first_name = 'Test';
+        $contact->last_name = 'Contact';
         $contact->email = 'contact@gmail.com';
         $client->contacts = [$contact];
 
@@ -563,58 +567,7 @@ class AccountController extends BaseController
         $data['invoiceDesigns'] = InvoiceDesign::getDesigns();
         $data['invoiceFonts'] = Cache::get('fonts');
         $data['section'] = $section;
-
-        $pageSizes = [
-            'A0',
-            'A1',
-            'A2',
-            'A3',
-            'A4',
-            'A5',
-            'A6',
-            'A7',
-            'A8',
-            'A9',
-            'A10',
-            'B0',
-            'B1',
-            'B2',
-            'B3',
-            'B4',
-            'B5',
-            'B6',
-            'B7',
-            'B8',
-            'B9',
-            'B10',
-            'C0',
-            'C1',
-            'C2',
-            'C3',
-            'C4',
-            'C5',
-            'C6',
-            'C7',
-            'C8',
-            'C9',
-            'C10',
-            'RA0',
-            'RA1',
-            'RA2',
-            'RA3',
-            'RA4',
-            'SRA0',
-            'SRA1',
-            'SRA2',
-            'SRA3',
-            'SRA4',
-            'Executive',
-            'Folio',
-            'Legal',
-            'Letter',
-            'Tabloid',
-        ];
-        $data['pageSizes'] = array_combine($pageSizes, $pageSizes);
+        $data['pageSizes'] = array_combine(InvoiceDesign::$pageSizes, InvoiceDesign::$pageSizes);
 
         $design = false;
         foreach ($data['invoiceDesigns'] as $item) {
@@ -901,7 +854,26 @@ class AccountController extends BaseController
 
             if (Input::get('custom_link') == 'subdomain') {
                 $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-                $exclude = ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja'];
+                $exclude = [
+                    'www',
+                    'app',
+                    'mail',
+                    'admin',
+                    'blog',
+                    'user',
+                    'contact',
+                    'payment',
+                    'payments',
+                    'billing',
+                    'invoice',
+                    'business',
+                    'owner',
+                    'info',
+                    'ninja',
+                    'docs',
+                    'doc',
+                    'documents'
+                ];
                 $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
             } else {
                 $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
@@ -1052,10 +1024,11 @@ class AccountController extends BaseController
             }
 
             $labels = [];
-            foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms', 'balance_due', 'partial_due', 'subtotal', 'paid_to_date', 'discount'] as $field) {
+            foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms', 'balance_due', 'partial_due', 'subtotal', 'paid_to_date', 'discount', 'tax'] as $field) {
                 $labels[$field] = Input::get("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
+            $account->invoice_fields = Input::get('invoice_fields_json');
 
             $account->save();
 

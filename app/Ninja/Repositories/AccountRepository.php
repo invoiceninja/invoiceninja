@@ -203,7 +203,8 @@ class AccountRepository
             ['new_user', '/users/create'],
             ['custom_fields', '/settings/invoice_settings'],
             ['invoice_number', '/settings/invoice_settings'],
-            ['buy_now_buttons', '/settings/client_portal#buyNow']
+            ['buy_now_buttons', '/settings/client_portal#buy_now'],
+            ['invoice_fields', '/settings/invoice_design#invoice_fields'],
         ]);
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
@@ -279,6 +280,7 @@ class AccountRepository
         $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
         $invoice->invoice_date = $clientAccount->getRenewalDate();
         $invoice->amount = $invoice->balance = $plan_cost - $credit;
+        $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
         $invoice->save();
 
         if ($credit) {

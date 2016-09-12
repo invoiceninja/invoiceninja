@@ -144,11 +144,12 @@ class ClientRepository extends BaseRepository
         $clients = Client::scope()->get(['id', 'name', 'public_id']);
 
         foreach ($clients as $client) {
+            $map[$client->id] = $client;
+
             if ( ! $client->name) {
                 continue;
             }
 
-            $map[$client->id] = $client;
             $similar = similar_text($clientNameMeta, metaphone($client->name), $percent);
 
             if ($percent > $max) {

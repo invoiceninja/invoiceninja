@@ -6,6 +6,7 @@ use Utils;
 use View;
 use Auth;
 use URL;
+use Crawler;
 use Exception;
 use Validator;
 use App\Models\Invitation;
@@ -133,7 +134,7 @@ class OnlinePaymentController extends BaseController
             if ($paymentDriver->completeOffsitePurchase(Input::all())) {
                 Session::flash('message', trans('texts.applied_payment'));
             }
-            return redirect()->to('view/' . $invitation->invitation_key);
+            return redirect()->to($invitation->getLink());
         } catch (Exception $exception) {
             return $this->error($paymentDriver, $exception);
         }
@@ -229,6 +230,10 @@ class OnlinePaymentController extends BaseController
 
     public function handleBuyNow(ClientRepository $clientRepo, InvoiceService $invoiceService, $gatewayType = false)
     {
+        if (Crawler::isCrawler()) {
+            return redirect()->to(NINJA_WEB_URL, 301);
+        }
+
         $account = Account::whereAccountKey(Input::get('account_key'))->first();
         $redirectUrl = Input::get('redirect_url', URL::previous());
 

@@ -46,7 +46,7 @@ class DateFormatsSeeder extends Seeder
             ['format' => 'M j, Y g:i a', 'format_moment' => 'MMM D, YYYY h:mm:ss a'],
             ['format' => 'F j, Y g:i a', 'format_moment' => 'MMMM D, YYYY h:mm:ss a'],
             ['format' => 'D M jS, Y g:i a', 'format_moment' => 'ddd MMM Do, YYYY h:mm:ss a'],
-            ['format' => 'Y-m-d g:i a', 'format_moment' => 'YYYY-MMM-DD h:mm:ss a'],
+            ['format' => 'Y-m-d g:i a', 'format_moment' => 'YYYY-MM-DD h:mm:ss a'],
             ['format' => 'd-m-Y g:i a', 'format_moment' => 'DD-MM-YYYY h:mm:ss a'],
             ['format' => 'm/d/Y g:i a', 'format_moment' => 'MM/DD/YYYY h:mm:ss a'],
             ['format' => 'd.m.Y g:i a', 'format_moment' => 'D.MM.YYYY h:mm:ss a'],

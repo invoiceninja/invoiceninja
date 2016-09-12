@@ -389,8 +389,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_DELETE_PAYMENT,
-            $payment->getCompletedAmount(),
-            $payment->getCompletedAmount() * -1
+            $payment->isFailedOrVoided() ? 0 : $payment->getCompletedAmount(),
+            $payment->isFailedOrVoided() ? 0 : $payment->getCompletedAmount() * -1
         );
     }
 
@@ -419,8 +419,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_VOIDED_PAYMENT,
-            $payment->amount,
-            $payment->amount * -1
+            $payment->is_deleted ? 0 : $payment->getCompletedAmount(),
+            $payment->is_deleted ? 0 : $payment->getCompletedAmount() * -1
         );
     }
 
@@ -434,8 +434,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_FAILED_PAYMENT,
-            $payment->getCompletedAmount(),
-            $payment->getCompletedAmount() * -1
+            $payment->is_deleted ? 0 : $payment->getCompletedAmount(),
+            $payment->is_deleted ? 0 : $payment->getCompletedAmount() * -1
         );
     }
 

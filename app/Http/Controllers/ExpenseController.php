@@ -13,6 +13,7 @@ use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Client;
 use App\Models\TaxRate;
+use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\ExpenseService;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Http\Requests\ExpenseRequest;
@@ -26,12 +27,18 @@ class ExpenseController extends BaseController
     protected $expenseService;
     protected $entityType = ENTITY_EXPENSE;
 
-    public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
+    /**
+     * @var InvoiceRepository
+     */
+    protected $invoiceRepo;
+
+    public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService, InvoiceRepository $invoiceRepo)
     {
         // parent::__construct();
 
         $this->expenseRepo = $expenseRepo;
         $this->expenseService = $expenseService;
+        $this->invoiceRepo = $invoiceRepo;
     }
 
     /**
@@ -106,6 +113,14 @@ class ExpenseController extends BaseController
             $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
         } else {
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_expense')];
+
+            // check for any open invoices
+            $invoices = $expense->client_id ? $this->invoiceRepo->findOpenInvoices($expense->client_id, ENTITY_EXPENSE) : [];
+
+            foreach ($invoices as $invoice) {
+                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
+            }
+
         }
 
         $actions[] = \DropdownButton::DIVIDER;
@@ -151,7 +166,7 @@ class ExpenseController extends BaseController
         Session::flash('message', trans('texts.updated_expense'));
 
         $action = Input::get('action');
-        if (in_array($action, ['archive', 'delete', 'restore', 'invoice'])) {
+        if (in_array($action, ['archive', 'delete', 'restore', 'invoice', 'add_to_invoice'])) {
             return self::bulk();
         }
 
@@ -178,6 +193,7 @@ class ExpenseController extends BaseController
         switch($action)
         {
             case 'invoice':
+            case 'add_to_invoice':
                 $expenses = Expense::scope($ids)->with('client')->get();
                 $clientPublicId = null;
                 $currencyId = null;
@@ -207,9 +223,17 @@ class ExpenseController extends BaseController
                     }
                 }
 
-                return Redirect::to("invoices/create/{$clientPublicId}")
-                        ->with('expenseCurrencyId', $currencyId)
-                        ->with('expenses', $ids);
+                if ($action == 'invoice') {
+                    return Redirect::to("invoices/create/{$clientPublicId}")
+                            ->with('expenseCurrencyId', $currencyId)
+                            ->with('expenses', $ids);
+                } else {
+                    $invoiceId = Input::get('invoice_id');
+                    return Redirect::to("invoices/{$invoiceId}/edit")
+                            ->with('expenseCurrencyId', $currencyId)
+                            ->with('expenses', $ids);
+
+                }
                 break;
 
             default:

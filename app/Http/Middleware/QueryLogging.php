@@ -33,6 +33,7 @@ class QueryLogging
                 $queries = DB::getQueryLog();
                 $count = count($queries);
                 Log::info($request->method() . ' - ' . $request->url() . ": $count queries");
+                //Log::info($queries);
             }
         }
 

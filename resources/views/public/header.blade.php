@@ -2,9 +2,7 @@
 
 @section('head')
     @if (!empty($clientFontUrl))
-    <link href="{!! $clientFontUrl !!}" rel="stylesheet" type="text/css">
-    @else
-    <link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,100" rel="stylesheet" type="text/css">
+        <link href="{!! $clientFontUrl !!}" rel="stylesheet" type="text/css">
     @endif
     <link href="{{ asset('css/built.public.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
     <style type="text/css">{!! isset($account)?$account->clientViewCSS():'' !!}</style>
@@ -85,27 +83,27 @@
                 @if (!isset($account) || $account->enable_client_portal)
                 <ul class="nav navbar-nav navbar-right">
                     @if (isset($account) && $account->enable_client_portal_dashboard)
-                        <li {{ Request::is('*client/dashboard') ? 'class="active"' : '' }}>
+                        <li {!! Request::is('*client/dashboard') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
                         </li>
                     @endif
-                    <li {{ Request::is('*client/quotes') ? 'class="active"' : '' }}>
+                    <li {!! Request::is('*client/quotes') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
                     </li>
-                    <li {{ Request::is('*client/invoices') ? 'class="active"' : '' }}>
+                    <li {!! Request::is('*client/invoices') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                     </li>
                     @if (isset($account) && $account->hasFeature(FEATURE_DOCUMENTS))
-                        <li {{ Request::is('*client/documents') ? 'class="active"' : '' }}>
+                        <li {!! Request::is('*client/documents') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/documents', trans('texts.documents') ) !!}
                         </li>
                     @endif
                     @if (isset($account) && $account->getTokenGatewayId() && !$account->enable_client_portal_dashboard)
-                        <li {{ Request::is('*client/payment_methods') ? 'class="active"' : '' }}>
+                        <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
                         </li>
                     @endif
-                    <li {{ Request::is('*client/payments') ? 'class="active"' : '' }}>
+                    <li {!! Request::is('*client/payments') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/payments', trans('texts.payments') ) !!}
                     </li>
                 </ul>

@@ -857,29 +857,29 @@
                 model.invoice().has_tasks(true);
             @endif
 
-            if(model.invoice().expenses().length && !model.invoice().public_id()){
+            @if (isset($expenses) && $expenses)
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var expenses = model.invoice().expenses();
+                var expenses = {!! $expenses !!}
 
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];
                     var item = model.invoice().addItem();
-                    item.product_key(expense.expense_category ? expense.expense_category.name() : '');
-                    item.notes(expense.public_notes());
+                    item.product_key(expense.expense_category ? expense.expense_category.name : '');
+                    item.notes(expense.public_notes);
                     item.qty(1);
-                    item.expense_public_id(expense.public_id());
-					item.cost(expense.converted_amount());
-                    item.tax_rate1(expense.tax_rate1());
-                    item.tax_name1(expense.tax_name1());
-                    item.tax_rate2(expense.tax_rate2());
-                    item.tax_name2(expense.tax_name2());
+                    item.expense_public_id(expense.public_id);
+					item.cost(expense.converted_amount);
+                    item.tax_rate1(expense.tax_rate1);
+                    item.tax_name1(expense.tax_name1);
+                    item.tax_rate2(expense.tax_rate2);
+                    item.tax_name2(expense.tax_name2);
                 }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_expenses(true);
-            }
+            @endif
 
         @endif
 
@@ -1229,8 +1229,7 @@
         if (!isEmailValid()) {
             swal("{!! trans('texts.provide_email') !!}");
             return;
-8       }
-
+        }
 
 		sweetConfirm(function() {
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
@@ -1469,6 +1468,8 @@
 		if (!hasEmpty) {
 			model.invoice().addItem();
 		}
+
+        NINJA.formIsChanged = true;
 	}
 
     function onPartialChange(silent)
