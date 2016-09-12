@@ -46,7 +46,7 @@ class DashboardApiController extends BaseAPIController
             'paidToDateCurrency' => $paidToDate[0]->currency_id ? $paidToDate[0]->currency_id : 0,
             'balances' => $balances[0]->value ? $balances[0]->value : 0,
             'balancesCurrency' => $balances[0]->currency_id ? $balances[0]->currency_id : 0,
-            'averageInvoice' => $averageInvoice[0]->invoice_avg ? $averageInvoice[0]->invoice_avg : 0,
+            'averageInvoice' => (count($averageInvoice) && $averageInvoice[0]->invoice_avg) ? $averageInvoice[0]->invoice_avg : 0,
             'averageInvoiceCurrency' => $averageInvoice[0]->currency_id ? $averageInvoice[0]->currency_id : 0,
             'invoicesSent' => $metrics ? $metrics->invoices_sent : 0,
             'activeClients' => $metrics ? $metrics->active_clients : 0,

@@ -353,9 +353,9 @@
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         var target = $(e.target).attr("href") // activated tab
-        var scrollmem = $('html,body').scrollTop();
-        window.location.hash = target;
-        $('html,body').scrollTop(scrollmem);
+        if (history.pushState) {
+            history.pushState(null, null, target);
+        }
     });
 
   });
