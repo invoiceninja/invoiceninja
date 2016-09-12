@@ -12,9 +12,9 @@
 
 All Pro and Enterprise features from our hosted app are included in both the [self-host zip](https://www.invoiceninja.com/self-host/) and the GitHub repository.
 
-[![Invoice Ninja - Overview](https://app.invoiceninja.com/youtube.png)](https://www.youtube.com/watch?v=xHGKvadapbA)
-
 Our [iPhone app](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8) is now available, our Android app is up next...
+
+[![Invoice Ninja - Overview](https://app.invoiceninja.com/youtube.png)](https://www.youtube.com/watch?v=xHGKvadapbA)
 
 ## Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
