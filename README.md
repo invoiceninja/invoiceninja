@@ -10,11 +10,11 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org)
 
-All Pro and Enterprise features from our hosted app are included in both the [self-host zip](https://www.invoiceninja.com/self-host/) and the GitHub repository. 
+All Pro and Enterprise features from our hosted app are included in both the [self-host zip](https://www.invoiceninja.com/self-host/) and the GitHub repository.
 
 [![Invoice Ninja - Overview](https://app.invoiceninja.com/youtube.png)](https://www.youtube.com/watch?v=xHGKvadapbA)
 
-We're often asked to recommend Laravel/PHP developers to help setup our app and make small adjustments, email us at contact@invoiceninja.com if you're interested in taking on the work.
+Our [iPhone app](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8) is now available, the Anrdoid app is up next...
 
 ## Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
