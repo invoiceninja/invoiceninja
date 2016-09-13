@@ -57,8 +57,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::post('client/invoices/auto_bill', 'ClientPortalController@setAutoBill');
     Route::get('client/documents', 'ClientPortalController@documentIndex');
     Route::get('client/payments', 'ClientPortalController@paymentIndex');
-    Route::get('client/dashboard', 'ClientPortalController@dashboard');
-    Route::get('client/dashboard/{contact_key}', 'ClientPortalController@contactIndex');
+    Route::get('client/dashboard/{contact_key?}', 'ClientPortalController@dashboard');
     Route::get('client/documents/js/{documents}/{filename}', 'ClientPortalController@getDocumentVFSJS');
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'ClientPortalController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'ClientPortalController@getInvoiceDocumentsZip');
