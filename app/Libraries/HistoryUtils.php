@@ -62,7 +62,8 @@ class HistoryUtils
     {
         if ($entity->isEntityType(ENTITY_CREDIT)
                 || $entity->isEntityType(ENTITY_PAYMENT)
-                || $entity->isEntityType(ENTITY_VENDOR)) {
+                || $entity->isEntityType(ENTITY_VENDOR)
+                || $entity->isEntityType(ENTITY_EXPENSE_CATEGORY)) {
             return;
         }
 
