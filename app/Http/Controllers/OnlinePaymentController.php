@@ -267,6 +267,8 @@ class OnlinePaymentController extends BaseController
 
         $data = [
             'client_id' => $client->id,
+            'tax_rate1' => $account->default_tax_rate ? $account->default_tax_rate->rate : 0,
+            'tax_name1' => $account->default_tax_rate ? $account->default_tax_rate->name : '',
             'invoice_items' => [[
                 'product_key' => $product->product_key,
                 'notes' => $product->notes,
