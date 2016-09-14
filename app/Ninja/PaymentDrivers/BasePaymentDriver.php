@@ -826,9 +826,7 @@ class BasePaymentDriver
                 return false;
             }
 
-            if ($accountGatewaySettings->max_limit !== null &&  $invoice->balance >= $accountGatewaySettings->max_limit + 1) {
-                // The max is limit_max + 0.99, so we add 1 to max_limit
-                // Then, if the balance is greater than or equal to that value, it's over the max.
+            if ($accountGatewaySettings->max_limit !== null &&  $invoice->balance > $accountGatewaySettings->max_limit) {
                 return false;
             }
         }

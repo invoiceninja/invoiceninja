@@ -85,9 +85,6 @@
                                     <span class="input-group-addon">{{ $currency->symbol }}</span>
                                     <input type="number" class="form-control" min="0" id="payment-limit-min"
                                            name="limit_min">
-                                    @if ($currency->precision)
-                                        <span class="input-group-addon">{{ $currency->decimal_separator }}{{ str_repeat( '0', $currency->precision) }}</span>
-                                    @endif
                                 </div>
                                 <label><input type="checkbox" id="payment-limit-min-enable"
                                               name="limit_min_enable"> {{ trans('texts.enable_min') }}</label>
@@ -101,9 +98,6 @@
                                     <span class="input-group-addon">{{ $currency->symbol }}</span>
                                     <input type="number" class="form-control" min="0" id="payment-limit-max"
                                            name="limit_max">
-                                    @if ($currency->precision)
-                                        <span class="input-group-addon">{{ $currency->decimal_separator }}{{ str_repeat( '9', $currency->precision) }}</span>
-                                    @endif
                                 </div>
                                 <label><input type="checkbox" id="payment-limit-max-enable"
                                               name="limit_max_enable"> {{ trans('texts.enable_max') }}</label>
