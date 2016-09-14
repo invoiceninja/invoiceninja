@@ -109,7 +109,6 @@
   function handleSignedUp() {
       localStorage.setItem('guest_key', '');
       fbq('track', 'CompleteRegistration');
-      window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_SIGN_UP') }}', {'value':'0.00','currency':'USD'}]);
       trackEvent('/account', '/signed_up');
   }
 
