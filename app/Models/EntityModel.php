@@ -15,6 +15,12 @@ class EntityModel extends Eloquent
      * @var bool
      */
     public $timestamps = true;
+
+    /**
+     * @var bool
+     */
+    protected static $hasPublicId = true;
+
     /**
      * @var array
      */
@@ -58,7 +64,7 @@ class EntityModel extends Eloquent
         }
 
 
-        try {
+        if (static::$hasPublicId) {
             $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
                                      ->first();
 
@@ -66,13 +72,6 @@ class EntityModel extends Eloquent
                 $entity->public_id = $lastEntity->public_id + 1;
             } else {
                 $entity->public_id = 1;
-            }
-        } catch
-        (QueryException $ex) {
-            // Code 42S22 is for an unknown column.
-            // If we get that code, we'll just swallow the error, since apparently this entity doesn't support public_ids.
-            if ($ex->getCode() !== '42S22') {
-                throw $ex;
             }
         }
 

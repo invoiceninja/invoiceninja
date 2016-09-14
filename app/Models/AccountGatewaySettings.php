@@ -13,6 +13,11 @@ class AccountGatewaySettings extends EntityModel
     protected $dates = ['updated_at'];
 
     /**
+     * @var bool
+     */
+    protected static $hasPublicId = false;
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function gatewayType()
