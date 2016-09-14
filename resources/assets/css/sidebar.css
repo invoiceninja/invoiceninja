@@ -110,6 +110,10 @@
         text-indent:0px
     }
 
+    #left-sidebar-wrapper ul {
+        min-height: 660px;
+    }
+
     .sidebar-nav li > a {
         display: block;
         text-decoration: none;
