@@ -822,11 +822,11 @@ class BasePaymentDriver
         if ($accountGatewaySettings) {
             $invoice = $this->invoice();
 
-            if ($accountGatewaySettings->min_limit && $invoice->balance < $accountGatewaySettings->min_limit) {
+            if ($accountGatewaySettings->min_limit !== null && $invoice->balance < $accountGatewaySettings->min_limit) {
                 return false;
             }
 
-            if ($accountGatewaySettings->max_limit &&  $invoice->balance >= $accountGatewaySettings->max_limit + 1) {
+            if ($accountGatewaySettings->max_limit !== null &&  $invoice->balance >= $accountGatewaySettings->max_limit + 1) {
                 // The max is limit_max + 0.99, so we add 1 to max_limit
                 // Then, if the balance is greater than or equal to that value, it's over the max.
                 return false;

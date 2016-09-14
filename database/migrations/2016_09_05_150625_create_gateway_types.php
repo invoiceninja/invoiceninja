@@ -32,8 +32,8 @@ class CreateGatewayTypes extends Migration
             $t->timestamp('updated_at')->nullable();
 
 
-            $t->unsignedInteger('min_limit');
-            $t->unsignedInteger('max_limit');
+            $t->unsignedInteger('min_limit')->nullable();
+            $t->unsignedInteger('max_limit')->nullable();
 
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

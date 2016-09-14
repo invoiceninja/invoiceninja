@@ -138,9 +138,9 @@
         var modalLabel = {!! json_encode(trans('texts.set_limits')) !!};
         $('#paymentLimitsModalLabel').text(modalLabel.replace(':gateway_type', gateway_type));
 
-        limitsSlider.noUiSlider.set([min_limit, max_limit ? max_limit : 100000]);
+        limitsSlider.noUiSlider.set([min_limit !== null ? min_limit : 0, max_limit !== null ? max_limit : 100000]);
 
-        if (min_limit) {
+        if (min_limit !== null) {
             $('#payment-limit-min').removeAttr('disabled');
             $('#payment-limit-min-enable').prop('checked', true);
         } else {
@@ -148,7 +148,7 @@
             $('#payment-limit-min-enable').prop('checked', false);
         }
 
-        if (max_limit) {
+        if (max_limit !== null) {
             $('#payment-limit-max').removeAttr('disabled');
             $('#payment-limit-max-enable').prop('checked', true);
         } else {

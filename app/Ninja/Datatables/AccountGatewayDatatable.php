@@ -77,14 +77,16 @@ class AccountGatewayDatatable extends EntityDatatable
                         $limit_max_adjustment = $currency->precision ? floatval('.' . str_repeat('9',
                                 $currency->precision)) : 0;
 
-                        if ($accountGatewaySettings && $accountGatewaySettings->min_limit && $accountGatewaySettings->max_limit) {
+                        if ($accountGatewaySettings && $accountGatewaySettings->min_limit !== null && $accountGatewaySettings->max_limit !== null) {
                             $html .= Utils::formatMoney($accountGatewaySettings->min_limit) . ' - ' . Utils::formatMoney($accountGatewaySettings->max_limit + $limit_max_adjustment);
-                        } elseif ($accountGatewaySettings && $accountGatewaySettings->min_limit) {
+                        } elseif ($accountGatewaySettings && $accountGatewaySettings->min_limit !== null) {
                             $html .= trans('texts.min_limit',
-                                array('min' => Utils::formatMoney($accountGatewaySettings->min_limit)));
-                        } elseif ($accountGatewaySettings && $accountGatewaySettings->max_limit) {
+                                array('min' => Utils::formatMoney($accountGatewaySettings->min_limit))
+                            );
+                        } elseif ($accountGatewaySettings && $accountGatewaySettings->max_limit !== null) {
                             $html .= trans('texts.max_limit',
-                                array('max' => Utils::formatMoney($accountGatewaySettings->max_limit + $limit_max_adjustment)));
+                                array('max' => Utils::formatMoney($accountGatewaySettings->max_limit + $limit_max_adjustment))
+                            );
                         } else {
                             $html .= trans('texts.no_limit');
                         }
@@ -153,8 +155,8 @@ class AccountGatewayDatatable extends EntityDatatable
                 function () use ($gatewayType) {
                     $accountGatewaySettings = AccountGatewaySettings::scope()->where('account_gateway_settings.gateway_type_id',
                         '=', $gatewayType->id)->first();
-                    $min = $accountGatewaySettings ? $accountGatewaySettings->min_limit : 0;
-                    $max = $accountGatewaySettings ? $accountGatewaySettings->max_limit : 0;
+                    $min = $accountGatewaySettings && $accountGatewaySettings->min_limit != null ? $accountGatewaySettings->min_limit : 'null';
+                    $max = $accountGatewaySettings && $accountGatewaySettings->max_limit != null ? $accountGatewaySettings->max_limit : 'null';
 
                     return "javascript:showLimitsModal('{$gatewayType->name}',{$gatewayType->id},$min,$max)";
                 },

@@ -1243,10 +1243,10 @@ class AccountController extends BaseController
             $gateway_settings->gateway_type_id = $gateway_type_id;
         }
 
-        $gateway_settings->min_limit = Input::get('limit_min_enable') ? intval(Input::get('limit_min')) : 0;
-        $gateway_settings->max_limit = Input::get('limit_max_enable') ? intval(Input::get('limit_max')) : 0;
+        $gateway_settings->min_limit = Input::get('limit_min_enable') ? intval(Input::get('limit_min')) : null;
+        $gateway_settings->max_limit = Input::get('limit_max_enable') ? intval(Input::get('limit_max')) : null;
 
-        if ($gateway_settings->max_limit && $gateway_settings->min_limit > $gateway_settings->max_limit) {
+        if ($gateway_settings->max_limit !== null && $gateway_settings->min_limit > $gateway_settings->max_limit) {
             $gateway_settings->max_limit = $gateway_settings->min_limit;
         }
 
