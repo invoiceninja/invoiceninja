@@ -11979,7 +11979,6 @@ html {
   /* overflow-y: scroll; */
 }
 .bold { font-weight: 700; }
-a {color:#34495E;}
 /*a:hover { text-decoration: none; color: #0a3857;}*/
 .breadcrumb {
 padding: 8px 0!important;
@@ -12177,6 +12176,7 @@ padding: 5px 10px;
 -webkit-box-shadow: none;
 box-shadow: none;
 }
+/*
 .xbtn-primary {
 background-color: #34495E;
 border-color: #34495E;
@@ -12185,6 +12185,7 @@ border-color: #34495E;
 background-color: #0a456c;
 border-color: #0a456c;
 }
+*/
 .btn-default {background-color: #808080;
 border-color: #808080;
     color: #fff;
@@ -12301,10 +12302,6 @@ table.table thead > tr > th {
 table td {
     max-width: 250px;
 }
-.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
-background-color: #34495E;
-border-color: #34495E;
-}
 .pagination>li:first-child>a, .pagination>li:first-child>span {
 border-bottom-left-radius: 3px;
 border-top-left-radius: 3px;
@@ -12361,8 +12358,7 @@ background-color: #9b9b9b;
 }
 .nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:hover, .nav-tabs.nav-justified>.active>a:focus {
     border: none;
-background-color: #34495E;
-font-weight: bold;
+    font-weight: bold;
     color: #fff;
 }
 .navbar {
@@ -12419,9 +12415,6 @@ canvas {
     top: 11px;
     left: -6px;
 }
-.navbar .dropdown-menu {
-    border-top: 1px solid #34495E;
-}
 .navbar-brand {
 padding-top:20px;
 }
@@ -12470,7 +12463,6 @@ background-clip: padding-box;
 
 
 .active-clients {
-    background-color: #34495E;
     background-image:url('../images/activeclients.png');
     background-position:center;
     background-repeat: no-repeat;
@@ -12878,11 +12870,6 @@ div.checkbox > label {
 .panel-title {
     font-size: 18px;
     color: white;
-}
-
-.panel-heading {
-    /*background-color: #e37329 !important;*/
-    background-color: #286090 !important;
 }
 
 div.alert {
@@ -13306,8 +13293,8 @@ div.panel-body div.panel-body {
 
     #right-sidebar-wrapper .sidebar-nav li {
         text-indent: 8px;
-        font-size: 16px;
-        line-height: 44px;
+        font-size: 15px;
+        line-height: 42px;
     }
 
     #right-sidebar-wrapper .sidebar-nav li a.btn {
@@ -13432,6 +13419,86 @@ div.panel-body div.panel-body {
         text-align: center;
     }
 
+}
+
+body {
+  background-color: #fcfcfc;
+}
+
+.nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:hover, .nav-tabs.nav-justified>.active>a:focus {
+    background-color: #337ab7;
+}
+
+.navbar .dropdown-menu {
+    border-top: 1px solid #337ab7;
+}
+
+.active-clients {
+    background-color: #337ab7;
+}
+
+.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
+    background-color: #337ab7;
+    border-color: #337ab7;
+}
+
+.navbar {
+    background-color: #337ab7 !important;
+}
+
+.navbar-collapse {
+    background-color: #337ab7 !important;
+}
+
+.panel-heading {
+    background-color: #286090 !important;
+}
+
+
+table.dataTable thead > tr > th,
+table.invoice-table thead > tr > th {
+    background-color: #777 !important;
+    color:#fff;
+}
+
+thead th {
+    border-left: 1px solid #999;
+}
+
+.sidebar-nav {
+    background-color: #313131;
+}
+
+.sidebar-nav li {
+    border-bottom:solid 1px #4c4c4c;
+}
+
+.sidebar-nav i.fa {
+    color: white;
+}
+
+.menu-toggle i,
+.sidebar-nav li > a {
+    color: #999999;
+}
+
+.menu-toggle:hover i,
+.sidebar-nav li:hover > a,
+.sidebar-nav li > a.active {
+    color: #fff;
+}
+
+.sidebar-nav li:hover,
+.sidebar-nav li.active {
+    background: rgba(255,255,255,0.2);
+}
+
+.menu-toggle {
+    color: #999 !important;
+}
+
+.menu-toggle:hover {
+    color: #fff !important;
 }
 
 @font-face {
