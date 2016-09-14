@@ -132,6 +132,7 @@ Route::group(['middleware' => 'auth:user'], function() {
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
+    Route::post('settings/payment_gateway_limits', 'AccountController@savePaymentGatewayLimits');
     Route::post('users/change_password', 'UserController@changePassword');
 
     Route::resource('clients', 'ClientController');
@@ -703,11 +704,11 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
     define('PAYMENT_METHOD_STATUS_VERIFIED', 'verified');
 
-    define('GATEWAY_TYPE_CREDIT_CARD', 'credit_card');
-    define('GATEWAY_TYPE_BANK_TRANSFER', 'bank_transfer');
-    define('GATEWAY_TYPE_PAYPAL', 'paypal');
-    define('GATEWAY_TYPE_BITCOIN', 'bitcoin');
-    define('GATEWAY_TYPE_DWOLLA', 'dwolla');
+    define('GATEWAY_TYPE_CREDIT_CARD', 1);
+    define('GATEWAY_TYPE_BANK_TRANSFER', 2);
+    define('GATEWAY_TYPE_PAYPAL', 3);
+    define('GATEWAY_TYPE_BITCOIN', 4);
+    define('GATEWAY_TYPE_DWOLLA', 5);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('REMINDER1', 'reminder1');
@@ -851,6 +852,7 @@ if (!defined('CONTACT_EMAIL')) {
         'invoiceStatus' => 'App\Models\InvoiceStatus',
         'frequencies' => 'App\Models\Frequency',
         'gateways' => 'App\Models\Gateway',
+        'gatewayTypes' => 'App\Models\GatewayType',
         'fonts' => 'App\Models\Font',
         'banks' => 'App\Models\Bank',
     ];
