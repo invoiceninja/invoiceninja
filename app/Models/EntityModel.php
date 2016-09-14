@@ -2,6 +2,7 @@
 
 use Auth;
 use Eloquent;
+use Illuminate\Database\QueryException;
 use Utils;
 use Validator;
 
@@ -56,13 +57,23 @@ class EntityModel extends Eloquent
             $lastEntity = $className::whereAccountId($entity->account_id);
         }
 
-        $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
-                        ->first();
 
-        if ($lastEntity) {
-            $entity->public_id = $lastEntity->public_id + 1;
-        } else {
-            $entity->public_id = 1;
+        try {
+            $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
+                                     ->first();
+
+            if ($lastEntity) {
+                $entity->public_id = $lastEntity->public_id + 1;
+            } else {
+                $entity->public_id = 1;
+            }
+        } catch
+        (QueryException $ex) {
+            // Code 42S22 is for an unknown column.
+            // If we get that code, we'll just swallow the error, since apparently this entity doesn't support public_ids.
+            if ($ex->getCode() !== '42S22') {
+                throw $ex;
+            }
         }
 
         return $entity;
