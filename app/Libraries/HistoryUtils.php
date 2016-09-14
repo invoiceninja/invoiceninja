@@ -60,10 +60,16 @@ class HistoryUtils
 
     public static function trackViewed(EntityModel $entity)
     {
-        if ($entity->isEntityType(ENTITY_CREDIT)
-                || $entity->isEntityType(ENTITY_PAYMENT)
-                || $entity->isEntityType(ENTITY_VENDOR)
-                || $entity->isEntityType(ENTITY_EXPENSE_CATEGORY)) {
+        $entityType = $entity->getEntityType();
+        $trackedTypes = [
+            ENTITY_CLIENT,
+            ENTITY_INVOICE,
+            ENTITY_QUOTE,
+            ENTITY_TASK,
+            ENTITY_EXPENSE
+        ];
+
+        if ( ! in_array($entityType, $trackedTypes)) {
             return;
         }
 
