@@ -5,6 +5,7 @@
     for (var i=0; i<currencies.length; i++) {
         var currency = currencies[i];
         currencyMap[currency.id] = currency;
+        currencyMap[currency.code] = currency;
     }
 
     var countries = {!! \Cache::get('countries') !!};
@@ -28,7 +29,7 @@
     NINJA.parseFloat = function(str) {
         if (!str) return '';
         str = (str+'').replace(/[^0-9\.\-]/g, '');
-        
+
         return window.parseFloat(str);
     }
 

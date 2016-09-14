@@ -1,14 +1,8 @@
 @extends('header')
 
-@section('head')
-	@parent
-
-	<script src="{!! asset('js/Chart.min.js') !!}" type="text/javascript"></script>
-@stop
-
 @section('content')
 	@parent
-	@include('accounts.nav', ['selected' => ACCOUNT_CHARTS_AND_REPORTS, 'advanced' => true])
+	@include('accounts.nav', ['selected' => ACCOUNT_REPORTS, 'advanced' => true])
 
 
     {!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required'])->addClass('warn-on-exit') !!}
@@ -54,18 +48,12 @@
 
                     </div>
                     <div class="col-md-6">
-                        {!! Former::checkbox('enable_report')->text(trans('texts.enable'))->check($enableReport)->forceValue(1) !!}
                         {!! Former::select('report_type')->options($reportTypes, $reportType)->label(trans('texts.type')) !!}
                         <div id="dateField" style="display:{{ $reportType == ENTITY_TAX_RATE ? 'block' : 'none' }}">
                             {!! Former::select('date_field')->label(trans('texts.filter'))
                                     ->addOption(trans('texts.invoice_date'), FILTER_INVOICE_DATE)
                                     ->addOption(trans('texts.payment_date'), FILTER_PAYMENT_DATE) !!}
                         </div>
-                        <p>&nbsp;</p>
-                        {!! Former::checkbox('enable_chart')->text(trans('texts.enable'))->check($enableChart)->forceValue(1) !!}
-                        {!! Former::select('group_by')->options($dateTypes, $groupBy) !!}
-                        {!! Former::select('chart_type')->options($chartTypes, $chartType) !!}
-
 
 			 {!! Former::close() !!}
         </div>
@@ -73,7 +61,6 @@
 
 	</div>
     </div>
-        @if ($enableReport)
         <div class="panel panel-default">
         <div class="panel-body">
         <table class="table table-striped invoice-table">
@@ -128,29 +115,6 @@
 
         </div>
         </div>
-        @endif
-
-        @if ($enableChart)
-        <div class="panel panel-default">
-        <div class="panel-body">
-			<canvas id="monthly-reports" width="700" height="400"></canvas>
-            <p>&nbsp;</p>
-            <div style="padding-bottom:8px">
-                <div style="float:left; height:22px; width:60px; background-color:rgba(78,205,196,.5); border: 1px solid rgba(78,205,196,1)"></div>
-                <div style="vertical-align: middle">&nbsp;Invoices</div>
-            </div>
-            <div style="padding-bottom:8px; clear:both">
-                <div style="float:left; height:22px; width:60px; background-color:rgba(255,107,107,.5); border: 1px solid rgba(255,107,107,1)"></div>
-                <div style="vertical-align: middle">&nbsp;Payments</div>
-            </div>
-            <div style="clear:both">
-                <div style="float:left; height:22px; width:60px; background-color:rgba(199,244,100,.5); border: 1px solid rgba(199,244,100,1)"></div>
-                <div style="vertical-align: middle">&nbsp;Credits</div>
-            </div>
-
-        </div>
-        </div>
-        @endif
 
 	</div>
 
@@ -161,32 +125,6 @@
         $('#submitButton').click();
         $('#action').val('');
     }
-
-    @if ($enableChart)
-    	var ctx = document.getElementById('monthly-reports').getContext('2d');
-    	var chart = {
-    		labels: {!! json_encode($labels) !!},
-    		datasets: [
-    		@foreach ($datasets as $dataset)
-    			{
-    				data: {!! json_encode($dataset['totals']) !!},
-    				fillColor : "rgba({!! $dataset['colors'] !!},0.5)",
-    				strokeColor : "rgba({!! $dataset['colors'] !!},1)",
-    			},
-    		@endforeach
-    		]
-    	}
-
-    	var options = {
-    		scaleOverride: true,
-    		scaleSteps: 10,
-    		scaleStepWidth: {!! $scaleStepWidth !!},
-    		scaleStartValue: 0,
-    		scaleLabel : "<%=value%>",
-    	};
-
-        new Chart(ctx).{!! $chartType !!}(chart, options);
-    @endif
 
     $(function() {
         $('.start_date .input-group-addon').click(function() {

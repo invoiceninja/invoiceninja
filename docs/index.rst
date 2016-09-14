@@ -6,7 +6,7 @@ Want to find out everything there is to know about how to use your Invoice Ninja
 .. _basic-features:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Basic Features
 
    introduction
@@ -17,12 +17,14 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    credits
    quotes
    tasks
+   expenses
+   vendors
    settings
 
 .. _advanced-settings:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Advanced Settings
 
    invoice_settings
@@ -30,7 +32,7 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    email_settings
    templates_and_reminders
    client_portal
-   charts_and_reports
+   reports
    data_visualizations
    api_tokens
    user_management

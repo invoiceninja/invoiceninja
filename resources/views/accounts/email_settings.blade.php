@@ -10,7 +10,7 @@
     </style>
 @stop
 
-@section('content') 
+@section('content')
     @parent
     @include('accounts.nav', ['selected' => ACCOUNT_EMAIL_SETTINGS, 'advanced' => true])
 
@@ -29,35 +29,34 @@
         <div class="panel-body form-padding-right">
             {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
             {!! Former::checkbox('document_email_attachment')->text(trans('texts.enable')) !!}
-            
+
             &nbsp;
-            
+
             {{-- Former::select('recurring_hour')->options($recurringHours) --}}
 
-            @if (Utils::isNinja())
-                {!! Former::inline_radios('custom_invoice_link')
-                        ->onchange('onCustomLinkChange()')
-                        ->label(trans('texts.invoice_link'))
-                        ->radios([
-                            trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
-                            trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
-                        ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
-                {{ Former::setOption('capitalize_translations', false) }}
-                
-                {!! Former::text('subdomain')
-                            ->placeholder(trans('texts.www'))
-                            ->onchange('onSubdomainChange()')
-                            ->addGroupClass('subdomain')
-                            ->label(' ')
-                            ->help(trans('texts.subdomain_help')) !!}
+            {!! Former::inline_radios('custom_invoice_link')
+                    ->onchange('onCustomLinkChange()')
+                    ->label(trans('texts.invoice_link'))
+                    ->radios([
+                        trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
+                        trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
+                    ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
+            {{ Former::setOption('capitalize_translations', false) }}
 
-                {!! Former::text('iframe_url')
-                            ->placeholder('https://www.example.com/invoice')
-                            ->appendIcon('question-sign')
-                            ->addGroupClass('iframe_url')
-                            ->label(' ')
-                            ->help(trans('texts.subdomain_help')) !!}
-            @endif
+            {!! Former::text('subdomain')
+                        ->placeholder(trans('texts.www'))
+                        ->onchange('onSubdomainChange()')
+                        ->addGroupClass('subdomain')
+                        ->label(' ')
+                        ->help(trans('texts.subdomain_help')) !!}
+
+            {!! Former::text('iframe_url')
+                        ->placeholder('https://www.example.com/invoice')
+                        ->appendIcon('question-sign')
+                        ->addGroupClass('iframe_url')
+                        ->label(' ')
+                        ->help(trans('texts.subdomain_help')) !!}
+
         </div>
     </div>
 
@@ -66,7 +65,7 @@
             <h3 class="panel-title">{!! trans('texts.email_design') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
-            
+
             {!! Former::select('email_design_id')
                         ->appendIcon('question-sign')
                         ->addGroupClass('email_design_id')
@@ -79,7 +78,7 @@
 
             @if (Utils::isNinja())
                 {!! Former::checkbox('enable_email_markup')
-                        ->text(trans('texts.enable') . 
+                        ->text(trans('texts.enable') .
                             '<a href="'.EMAIL_MARKUP_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a> ')
                         ->help(trans('texts.enable_email_markup_help')) !!}
             @endif
@@ -107,7 +106,7 @@
 &lt;center&gt;
 &lt;script language="javascript"&gt;
     var iframe = document.getElementById('invoiceIFrame');
-    iframe.src = '{{ SITE_URL }}/view/' 
+    iframe.src = '{{ SITE_URL }}/view/'
                  + window.location.search.substring(1);
 &lt;/script&gt;</pre>
                     <p>{{ trans('texts.iframe_url_help2') }}</p>
@@ -186,7 +185,7 @@
         $('#designHelpModal').modal('show');
     });
 
-    $(function() {          
+    $(function() {
         onCustomLinkChange();
 
         $('#subdomain').change(function() {

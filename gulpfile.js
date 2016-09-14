@@ -58,6 +58,11 @@ elixir(function(mix) {
         'fonts.css'
     ], 'public/css/built.css');
 
+    mix.styles([
+        bowerDir + '/bootstrap-daterangepicker/daterangepicker.css'
+    ], 'public/css/daterangepicker.css');
+
+
     /**
      * JS configuration
      */
@@ -70,6 +75,10 @@ elixir(function(mix) {
         'pdfmake.js',
         'vfs.js'
     ], 'public/pdf.built.js');
+
+    mix.scripts([
+        bowerDir + '/bootstrap-daterangepicker/daterangepicker.js'
+    ], 'public/js/daterangepicker.min.js');
 
     mix.scripts([
         bowerDir + '/jquery/dist/jquery.js',

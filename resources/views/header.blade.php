@@ -6,7 +6,6 @@
   <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
   <style type="text/css">
-
     @if (Auth::check() && Auth::user()->dark_mode)
         body {
             background: #000 !important;
@@ -354,9 +353,9 @@
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         var target = $(e.target).attr("href") // activated tab
-        var scrollmem = $('html,body').scrollTop();
-        window.location.hash = target;
-        $('html,body').scrollTop(scrollmem);
+        if (history.pushState) {
+            history.pushState(null, null, target);
+        }
     });
 
   });
@@ -619,7 +618,8 @@
                                   <h4>{{ trans('texts.after') }}</h4>
                                   <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_after.png') }}" width="100%" alt="after">
                               </div>
-                          </div>
+                          </div><br/>
+                          <p>{!! trans('texts.reseller_text', ['email' => HTML::mailto('contact@invoiceninja.com')]) !!}</p>
                         </div>
 
                         <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
@@ -719,7 +719,9 @@
             </div>
 
             <div class="col-md-11 col-md-offset-1">
-                <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
+                @if (Utils::isNinja())
+                    <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
+                @endif
             </div>
         </div>
 

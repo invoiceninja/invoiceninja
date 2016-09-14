@@ -4,6 +4,8 @@ use stdClass;
 use Auth;
 use DB;
 use View;
+use Utils;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Repositories\DashboardRepository;
@@ -26,7 +28,8 @@ class DashboardController extends BaseController
         $user = Auth::user();
         $viewAll = $user->hasPermission('view_all');
         $userId = $user->id;
-        $accountId = $user->account->id;
+        $account = $user->account;
+        $accountId = $account->id;
 
         $dashboardRepo = $this->dashboardRepo;
         $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
@@ -37,7 +40,10 @@ class DashboardController extends BaseController
         $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
         $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
+        $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
+        $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
 
+        // check if the account has quotes
         $hasQuotes = false;
         foreach ([$upcoming, $pastDue] as $data) {
             foreach ($data as $invoice) {
@@ -45,6 +51,26 @@ class DashboardController extends BaseController
                     $hasQuotes = true;
                 }
             }
+        }
+
+        // check if the account has multiple curencies
+        $currencyIds = $account->currency_id ? [$account->currency_id] : [DEFAULT_CURRENCY];
+        $data = Client::scope()
+            ->withArchived()
+            ->distinct()
+            ->get(['currency_id'])
+            ->toArray();
+
+        array_map(function ($item) use (&$currencyIds) {
+            $currencyId = intval($item['currency_id']);
+            if ($currencyId && ! in_array($currencyId, $currencyIds)) {
+                $currencyIds[] = $currencyId;
+            }
+        }, $data);
+
+        $currencies = [];
+        foreach ($currencyIds as $currencyId) {
+            $currencies[$currencyId] = Utils::getFromCache($currencyId, 'currencies')->code;
         }
 
         $data = [
@@ -60,8 +86,20 @@ class DashboardController extends BaseController
             'payments' => $payments,
             'title' => trans('texts.dashboard'),
             'hasQuotes' => $hasQuotes,
+            'showBreadcrumbs' => false,
+            'currencies' => $currencies,
+            'expenses' => $expenses,
+            'tasks' => $tasks,
         ];
 
         return View::make('dashboard', $data);
+    }
+
+    public function chartData($groupBy, $startDate, $endDate, $currencyCode, $includeExpenses)
+    {
+        $includeExpenses = filter_var($includeExpenses, FILTER_VALIDATE_BOOLEAN);
+        $data = $this->dashboardRepo->chartData(Auth::user()->account, $groupBy, $startDate, $endDate, $currencyCode, $includeExpenses);
+
+        return json_encode($data);
     }
 }

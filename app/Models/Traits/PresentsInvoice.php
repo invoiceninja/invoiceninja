@@ -181,6 +181,7 @@ trait PresentsInvoice
             'from',
             'to',
             'invoice_to',
+            'quote_to',
             'details',
             'invoice_no',
             'valid_until',

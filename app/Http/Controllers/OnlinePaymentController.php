@@ -6,6 +6,7 @@ use Utils;
 use View;
 use Auth;
 use URL;
+use Crawler;
 use Exception;
 use Validator;
 use App\Models\Invitation;
@@ -241,6 +242,10 @@ class OnlinePaymentController extends BaseController
 
     public function handleBuyNow(ClientRepository $clientRepo, InvoiceService $invoiceService, $gatewayTypeAlias = false)
     {
+        if (Crawler::isCrawler()) {
+            return redirect()->to(NINJA_WEB_URL, 301);
+        }
+
         $account = Account::whereAccountKey(Input::get('account_key'))->first();
         $redirectUrl = Input::get('redirect_url', URL::previous());
 
@@ -274,6 +279,8 @@ class OnlinePaymentController extends BaseController
 
         $data = [
             'client_id' => $client->id,
+            'tax_rate1' => $account->default_tax_rate ? $account->default_tax_rate->rate : 0,
+            'tax_name1' => $account->default_tax_rate ? $account->default_tax_rate->name : '',
             'invoice_items' => [[
                 'product_key' => $product->product_key,
                 'notes' => $product->notes,

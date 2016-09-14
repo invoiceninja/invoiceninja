@@ -97,7 +97,8 @@
                 cancelButtonText: "{!! trans("texts.no") !!}",
                 confirmButtonText: "{!! trans("texts.yes") !!}",
                 showCancelButton: true,
-                closeOnConfirm: false
+                closeOnConfirm: false,
+                allowOutsideClick: true,
             }, function() {
                 success();
                 swal.close();
