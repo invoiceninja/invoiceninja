@@ -1383,6 +1383,13 @@ Quando tiver os valores dos depósitos, volte a esta pagina e complete a verific
     'payment_type_PayPal' => 'PayPal',
     'payment_type_Google Wallet' => 'Google Wallet',
     'payment_type_Check' => 'Check',
+    'payment_type_Carte Blanche' => 'Carte Blanche',
+    'payment_type_UnionPay' => 'UnionPay',
+    'payment_type_JCB' => 'JCB',
+    'payment_type_Laser' => 'Laser',
+    'payment_type_Maestro' => 'Maestro',
+    'payment_type_Solo' => 'Solo',
+    'payment_type_Switch' => 'Switch',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
