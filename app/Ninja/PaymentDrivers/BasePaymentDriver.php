@@ -253,8 +253,22 @@ class BasePaymentDriver
                     ->wherePublicId($this->sourceId)
                     ->firstOrFail();
             }
-        } elseif ($this->shouldCreateToken()) {
-            $paymentMethod = $this->createToken();
+
+            if ( ! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
+                // The customer must have hacked the URL
+                Session::flash('error', trans('texts.limits_not_met'));
+                return redirect()->to('view/' . $this->invitation->invitation_key);
+            }
+        } else {
+            if ($this->shouldCreateToken()) {
+                $paymentMethod = $this->createToken();
+            }
+
+            if ( ! $this->meetsGatewayTypeLimits($this->gatewayType)) {
+                // The customer must have hacked the URL
+                Session::flash('error', trans('texts.limits_not_met'));
+                return redirect()->to('view/' . $this->invitation->invitation_key);
+            }
         }
 
         if ($this->isTwoStep()) {
@@ -334,7 +348,7 @@ class BasePaymentDriver
     protected function paymentDetails($paymentMethod = false)
     {
         $invoice = $this->invoice();
-        $gatewayTypeAlias = GatewayType::getAliasFromId($this->gatewayType);
+        $gatewayTypeAlias = $this->gatewayType == GATEWAY_TYPE_TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
         $completeUrl = url('complete/' . $this->invitation->invitation_key . '/' . $gatewayTypeAlias);
 
         $data = [
