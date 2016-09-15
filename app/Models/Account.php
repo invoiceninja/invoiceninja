@@ -610,14 +610,14 @@ class Account extends Eloquent
 
     /**
      * @param bool $invitation
-     * @param bool $gatewayType
+     * @param mixed $gatewayTypeId
      * @return bool
      */
-    public function paymentDriver($invitation = false, $gatewayType = false)
+    public function paymentDriver($invitation = false, $gatewayTypeId = false)
     {
         /** @var AccountGateway $accountGateway */
-        if ($accountGateway = $this->getGatewayByType($gatewayType)) {
-            return $accountGateway->paymentDriver($invitation, $gatewayType);
+        if ($accountGateway = $this->getGatewayByType($gatewayTypeId)) {
+            return $accountGateway->paymentDriver($invitation, $gatewayTypeId);
         }
 
         return false;

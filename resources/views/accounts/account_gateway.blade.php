@@ -166,6 +166,10 @@
                     ->help(trans('texts.plaid_environment_help')) !!}
             </div>
         </div>
+    @elseif ($accountGateway && $accountGateway->gateway_id == GATEWAY_WEPAY)
+            {!! Former::checkbox('enable_ach')
+                        ->label(trans('texts.ach'))
+                        ->text(trans('texts.enable_ach')) !!}
     @endif
 
     </div>

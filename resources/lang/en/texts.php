@@ -2117,6 +2117,18 @@ $LANG = array(
     'total_expenses' => 'Total Expenses',
     'quote_to' => 'Quote to',
 
+    // Limits
+    'limit' => 'Limit',
+    'min_limit' => 'Min: :min',
+    'max_limit' => 'Max: :max',
+    'no_limit' => 'No Limits',
+    'set_limits' => 'Set :gateway_type Limits',
+    'enable_min' => 'Enable min',
+    'enable_max' => 'Enable max',
+    'min' => 'Min',
+    'max' => 'Max',
+    'limits_not_met' => 'This invoice does not meet the limits for that payment type.',
+
 );
 
 return $LANG;

@@ -1,6 +1,11 @@
 <?php namespace App\Ninja\Datatables;
 
+use App\Models\AccountGatewaySettings;
+use App\Models\GatewayType;
 use URL;
+use Cache;
+use Utils;
+use Session;
 use App\Models\AccountGateway;
 
 class AccountGatewayDatatable extends EntityDatatable
@@ -45,12 +50,52 @@ class AccountGatewayDatatable extends EntityDatatable
                     }
                 }
             ],
+            [
+                'limit',
+                function ($model) {
+                    $accountGateway = AccountGateway::find($model->id);
+                    $paymentDriver = $accountGateway->paymentDriver();
+                    $gatewayTypes = $paymentDriver->gatewayTypes();
+                    $gatewayTypes = array_diff($gatewayTypes, array(GATEWAY_TYPE_TOKEN));
+
+                    $html = '';
+                    foreach ($gatewayTypes as $gatewayTypeId) {
+                        $accountGatewaySettings = AccountGatewaySettings::scope()->where('account_gateway_settings.gateway_type_id',
+                            '=', $gatewayTypeId)->first();
+                        $gatewayType = GatewayType::find($gatewayTypeId);
+
+                        if (count($gatewayTypes) > 1) {
+                            if ($html) {
+                                $html .= '<br>';
+                            }
+
+                            $html .= $gatewayType->name . ' &mdash; ';
+                        }
+
+                        if ($accountGatewaySettings && $accountGatewaySettings->min_limit !== null && $accountGatewaySettings->max_limit !== null) {
+                            $html .= Utils::formatMoney($accountGatewaySettings->min_limit) . ' - ' . Utils::formatMoney($accountGatewaySettings->max_limit);
+                        } elseif ($accountGatewaySettings && $accountGatewaySettings->min_limit !== null) {
+                            $html .= trans('texts.min_limit',
+                                array('min' => Utils::formatMoney($accountGatewaySettings->min_limit))
+                            );
+                        } elseif ($accountGatewaySettings && $accountGatewaySettings->max_limit !== null) {
+                            $html .= trans('texts.max_limit',
+                                array('max' => Utils::formatMoney($accountGatewaySettings->max_limit))
+                            );
+                        } else {
+                            $html .= trans('texts.no_limit');
+                        }
+                    }
+
+                    return $html;
+                }
+            ],
         ];
     }
 
     public function actions()
     {
-        return [
+        $actions = [
             [
                 uctrans('texts.resend_confirmation_email'),
                 function ($model) {
@@ -98,6 +143,30 @@ class AccountGatewayDatatable extends EntityDatatable
                 }
             ]
         ];
+
+        foreach (Cache::get('gatewayTypes') as $gatewayType) {
+            $actions[] = [
+                trans('texts.set_limits', ['gateway_type' => $gatewayType->name]),
+                function () use ($gatewayType) {
+                    $accountGatewaySettings = AccountGatewaySettings::scope()->where('account_gateway_settings.gateway_type_id',
+                        '=', $gatewayType->id)->first();
+                    $min = $accountGatewaySettings && $accountGatewaySettings->min_limit !== null ? $accountGatewaySettings->min_limit : 'null';
+                    $max = $accountGatewaySettings && $accountGatewaySettings->max_limit !== null ? $accountGatewaySettings->max_limit : 'null';
+
+                    return "javascript:showLimitsModal('{$gatewayType->name}',{$gatewayType->id},$min,$max)";
+                },
+                function ($model) use ($gatewayType) {
+                    // Only show this action if the given gateway supports this gateway type
+                    $accountGateway = AccountGateway::find($model->id);
+                    $paymentDriver = $accountGateway->paymentDriver();
+                    $gatewayTypes = $paymentDriver->gatewayTypes();
+
+                    return in_array($gatewayType->id, $gatewayTypes);
+                }
+            ];
+        }
+
+        return $actions;
     }
 
 }
