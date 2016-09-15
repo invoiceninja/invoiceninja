@@ -13,38 +13,42 @@ class CreateGatewayTypes extends Migration
     public function up()
     {
         Schema::dropIfExists('gateway_types');
-        Schema::create('gateway_types', function($t)
+        Schema::create('gateway_types', function($table)
         {
-            $t->increments('id');
-            $t->string('alias');
-            $t->string('name');
+            $table->increments('id');
+            $table->string('alias');
+            $table->string('name');
         });
 
         Schema::dropIfExists('account_gateway_settings');
-        Schema::create('account_gateway_settings', function($t)
+        Schema::create('account_gateway_settings', function($table)
         {
-            $t->increments('id');
+            $table->increments('id');
 
-            $t->unsignedInteger('account_id');
-            $t->unsignedInteger('user_id');
-            $t->unsignedInteger('gateway_type_id')->nullable();
+            $table->unsignedInteger('account_id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('gateway_type_id')->nullable();
 
-            $t->timestamp('updated_at')->nullable();
+            $table->timestamp('updated_at')->nullable();
 
 
-            $t->unsignedInteger('min_limit')->nullable();
-            $t->unsignedInteger('max_limit')->nullable();
+            $table->unsignedInteger('min_limit')->nullable();
+            $table->unsignedInteger('max_limit')->nullable();
 
-            $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $t->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
 
         });
 
-        Schema::table('payment_types', function($t)
+        Schema::table('payment_types', function($table)
         {
-            $t->unsignedInteger('gateway_type_id')->nullable();
-            $t->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
+            $table->unsignedInteger('gateway_type_id')->nullable();
+        });
+
+        Schema::table('payment_types', function($table)
+        {
+            $table->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
         });
     }
     /**
@@ -54,10 +58,10 @@ class CreateGatewayTypes extends Migration
      */
     public function down()
     {
-        Schema::table('payment_types', function($t)
+        Schema::table('payment_types', function($table)
         {
-            $t->dropForeign('payment_types_gateway_type_id_foreign');
-            $t->dropColumn('gateway_type_id');
+            $table->dropForeign('payment_types_gateway_type_id_foreign');
+            $table->dropColumn('gateway_type_id');
         });
 
         Schema::dropIfExists('account_gateway_settings');

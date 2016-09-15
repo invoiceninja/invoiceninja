@@ -233,6 +233,9 @@ function InvoiceModel(data) {
     }
 
     self.addItem = function() {
+        if (self.invoice_items().length >= {{ MAX_INVOICE_ITEMS }}) {
+            return false;
+        }
         var itemModel = new ItemModel();
         @if ($account->hide_quantity)
             itemModel.qty(1);
