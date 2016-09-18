@@ -9,7 +9,7 @@
             Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
             $(function() {
                 var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
-                $('.payment-form').submit(function(event) {
+                $('.payment-form').unbind('submit').submit(function(event) {
                     if($('[name=plaidAccountId]').length)return;
 
                     var $form = $(this);
