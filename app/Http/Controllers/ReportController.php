@@ -130,7 +130,7 @@ class ReportController extends BaseController
 
     private function generateTaskReport($startDate, $endDate, $isExport)
     {
-        $columns = ['client', 'date', 'duration'];
+        $columns = ['client', 'date', 'description', 'duration'];
         $displayData = [];
 
         $tasks = Task::scope()
@@ -141,7 +141,8 @@ class ReportController extends BaseController
         foreach ($tasks->get() as $task) {
             $displayData[] = [
                 $task->client ? ($isExport ? $task->client->getDisplayName() : $task->client->present()->link) : trans('texts.unassigned'),
-                $task->getStartTime(),
+                link_to($task->present()->url, $task->getStartTime()),
+                $task->present()->description,
                 Utils::formatTime($task->getDuration()),
             ];
         }
