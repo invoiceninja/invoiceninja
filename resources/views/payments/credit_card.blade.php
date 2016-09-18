@@ -1,5 +1,23 @@
 @extends('payments.payment_method')
 
+@section('head')
+    @parent
+
+    <script type="text/javascript">
+        $(function() {
+            $('.payment-form').submit(function(event) {
+                var $form = $(this);
+
+                // Disable the submit button to prevent repeated clicks
+                $form.find('button').prop('disabled', true);
+
+                return true;
+            });
+        });
+    </script>
+
+@stop
+
 @section('payment_details')
 
     {!! Former::vertical_open($url)
@@ -255,18 +273,5 @@
     <p>&nbsp;</p>
 
     {!! Former::close() !!}
-
-    <script type="text/javascript">
-        $(function() {
-            $('.payment-form').submit(function(event) {
-                var $form = $(this);
-
-                // Disable the submit button to prevent repeated clicks
-                $form.find('button').prop('disabled', true);
-
-                return true;
-            });
-        });
-    </script>
 
 @stop
