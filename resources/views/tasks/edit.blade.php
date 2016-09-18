@@ -12,7 +12,7 @@
     <style type="text/css">
 
     input.time-input {
-        width: 110px;
+        width: 200px;
         font-size: 14px !important;
     }
 

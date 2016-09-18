@@ -11,6 +11,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Expense;
+use App\Models\Task;
 
 /**
  * Class ReportController
@@ -71,6 +72,7 @@ class ReportController extends BaseController
             ENTITY_PRODUCT => trans('texts.product'),
             ENTITY_PAYMENT => trans('texts.payment'),
             ENTITY_EXPENSE => trans('texts.expense'),
+            ENTITY_TASK => trans('texts.task'),
             ENTITY_TAX_RATE => trans('texts.tax'),
         ];
 
@@ -121,7 +123,34 @@ class ReportController extends BaseController
             return $this->generateTaxRateReport($startDate, $endDate, $dateField, $isExport);
         } elseif ($reportType == ENTITY_EXPENSE) {
             return $this->generateExpenseReport($startDate, $endDate, $isExport);
+        } elseif ($reportType == ENTITY_TASK) {
+            return $this->generateTaskReport($startDate, $endDate, $isExport);
         }
+    }
+
+    private function generateTaskReport($startDate, $endDate, $isExport)
+    {
+        $columns = ['client', 'date', 'duration'];
+        $displayData = [];
+
+        $tasks = Task::scope()
+                    ->with('client.contacts')
+                    ->withArchived()
+                    ->dateRange($startDate, $endDate);
+
+        foreach ($tasks->get() as $task) {
+            $displayData[] = [
+                $task->client ? ($isExport ? $task->client->getDisplayName() : $task->client->present()->link) : trans('texts.unassigned'),
+                $task->getStartTime(),
+                Utils::formatTime($task->getDuration()),
+            ];
+        }
+
+        return [
+            'columns' => $columns,
+            'displayData' => $displayData,
+            'reportTotals' => [],
+        ];
     }
 
     /**
