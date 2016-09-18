@@ -750,9 +750,9 @@ function ItemModel(data) {
             return this.notes();
         },
         write: function(value) {
-            value = wordWrapText(value, 235);
+            //value = wordWrapText(value, 235);
             self.notes(value);
-            onItemChange();
+            //onItemChange();
         },
         owner: this
     });
