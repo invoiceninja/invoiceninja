@@ -330,7 +330,7 @@ class InvoiceController extends BaseController
                 }
             }
         }
-        
+
         // Tax rate $options
         $account = Auth::user()->account;
         $rates = TaxRate::scope()->orderBy('name')->get();
@@ -612,8 +612,10 @@ class InvoiceController extends BaseController
         return View::make('invoices.history', $data);
     }
 
-    public function checkInvoiceNumber($invoiceNumber)
+    public function checkInvoiceNumber()
     {
+        $invoiceNumber = request()->invoice_number;
+        
         $count = Invoice::scope()
                     ->whereInvoiceNumber($invoiceNumber)
                     ->withTrashed()
