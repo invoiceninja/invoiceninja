@@ -56,8 +56,8 @@ class ReportController extends BaseController
         if (Input::all()) {
             $reportType = Input::get('report_type');
             $dateField = Input::get('date_field');
-            $startDate = Utils::toSqlDate(Input::get('start_date'), false);
-            $endDate = Utils::toSqlDate(Input::get('end_date'), false);
+            $startDate = date_create(Input::get('start_date'));
+            $endDate = date_create(Input::get('end_date'));
         } else {
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;
@@ -75,11 +75,12 @@ class ReportController extends BaseController
         ];
 
         $params = [
-            'startDate' => $startDate->format(Session::get(SESSION_DATE_FORMAT)),
-            'endDate' => $endDate->format(Session::get(SESSION_DATE_FORMAT)),
+            'startDate' => $startDate->format('Y-m-d'),
+            'endDate' => $endDate->format('Y-m-d'),
             'reportTypes' => $reportTypes,
             'reportType' => $reportType,
             'title' => trans('texts.charts_and_reports'),
+            'account' => Auth::user()->account,
         ];
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
