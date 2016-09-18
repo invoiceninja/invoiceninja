@@ -13,7 +13,7 @@ class VerifyCsrfToken extends BaseVerifier
      * @var array
      */
     private $openRoutes = [
-        'complete',
+        'complete/*',
         'signup/register',
         'api/v1/*',
         'api/v1/login',
