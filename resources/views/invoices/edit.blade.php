@@ -262,8 +262,8 @@
                     </div>
 				</td>
 				<td>
-					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
-                        rows="1" cols="60" style="resize: vertical" class="form-control word-wrap"></textarea>
+					<textarea data-bind="value: notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
+                        rows="1" cols="60" style="resize: vertical;height:42px" class="form-control word-wrap"></textarea>
                         <input type="text" data-bind="value: task_public_id, attr: {name: 'invoice_items[' + $index() + '][task_public_id]'}" style="display: none"/>
 						<input type="text" data-bind="value: expense_public_id, attr: {name: 'invoice_items[' + $index() + '][expense_public_id]'}" style="display: none"/>
 				</td>
@@ -340,11 +340,11 @@
 
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
-                            {!! Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('public_notes')->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
                             ->label(null)->style('resize: none; width: 500px;')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
-                            {!! Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('terms')->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
                             ->label(false)->style('resize: none; width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
@@ -356,7 +356,7 @@
                                     </div>') !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
-                            {!! Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('invoice_footer')->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
                             ->label(false)->style('resize: none; width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
@@ -1108,10 +1108,9 @@
         });
 
         $('textarea').on('keyup focus', function(e) {
-            while($(this).outerHeight() < this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))) {
-                $(this).height($(this).height()+1);
-            };
+            $(this).height(0).height(this.scrollHeight-18);
         });
+
 	}
 
 	function createInvoiceModel() {
