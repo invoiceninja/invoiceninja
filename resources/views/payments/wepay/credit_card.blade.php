@@ -6,6 +6,7 @@
     <script type="text/javascript" src="https://static.wepay.com/min/js/tokenization.v2.js"></script>
     <script type="text/javascript">
         $(function() {
+            $("#state").attr('maxlength', '2');
             var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
             WePay.set_endpoint('{{ WEPAY_ENVIRONMENT }}');
             var $form = $('.payment-form');
