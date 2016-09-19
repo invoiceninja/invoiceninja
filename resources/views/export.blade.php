@@ -45,4 +45,14 @@
         @include('export.payments')
     @endif
 
+    @if (isset($vendors) && $vendors && count($vendors))
+        <tr><td>{{ strtoupper(trans('texts.vendors')) }}</td></tr>
+        @include('export.vendors')
+    @endif
+
+    @if (isset($vendors_contacts) && $vendors_contacts && count($vendors_contacts))
+        <tr><td>{{ strtoupper(trans('texts.vendors_contacts')) }}</td></tr>
+        @include('export.vendors_contacts')
+    @endif
+
 </html>
