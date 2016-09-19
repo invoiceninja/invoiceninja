@@ -154,11 +154,7 @@ class QuoteController extends BaseController
             Session::flash('message', $message);
         }
 
-        if ($action == 'restore' && $count == 1) {
-            return Redirect::to('quotes/'.Utils::getFirst($ids));
-        } else {
-            return Redirect::to('quotes');
-        }
+        return $this->returnBulk(ENTITY_QUOTE, $action, $ids);
     }
 
     public function approve($invitationKey)

@@ -7,6 +7,7 @@
 	<div style="display:none">
 		{!! Former::text('action') !!}
         {!! Former::text('public_id') !!}
+        {!! Former::text('datatable')->value('true') !!}
 	</div>
 
 	@can('create', 'invoice')
@@ -88,7 +89,7 @@
 	@endif
 
     {!! Former::close() !!}
-    
+
     <script type="text/javascript">
 
 	function submitForm(action) {

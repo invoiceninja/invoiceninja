@@ -81,7 +81,7 @@ class VendorController extends BaseController
     public function show(VendorRequest $request)
     {
         $vendor = $request->entity();
-                
+
         $actionLinks = [
             ['label' => trans('texts.new_vendor'), 'url' => URL::to('/vendors/create/' . $vendor->public_id)]
         ];
@@ -185,10 +185,6 @@ class VendorController extends BaseController
         $message = Utils::pluralize($action.'d_vendor', $count);
         Session::flash('message', $message);
 
-        if ($action == 'restore' && $count == 1) {
-            return Redirect::to('vendors/' . Utils::getFirst($ids));
-        } else {
-            return Redirect::to('vendors');
-        }
+        return $this->returnBulk($this->entityType, $action, $ids);
     }
 }

@@ -531,11 +531,7 @@ class InvoiceController extends BaseController
             Session::flash('message', $message);
         }
 
-        if ($action == 'restore' && $count == 1) {
-            return Redirect::to("{$entityType}s/".Utils::getFirst($ids));
-        } else {
-            return Redirect::to("{$entityType}s");
-        }
+        return $this->returnBulk($entityType, $action, $ids);
     }
 
     public function convertQuote(InvoiceRequest $request)
@@ -615,7 +611,7 @@ class InvoiceController extends BaseController
     public function checkInvoiceNumber()
     {
         $invoiceNumber = request()->invoice_number;
-        
+
         $count = Invoice::scope()
                     ->whereInvoiceNumber($invoiceNumber)
                     ->withTrashed()
