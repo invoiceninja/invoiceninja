@@ -2130,6 +2130,9 @@ $LANG = array(
     'limits_not_met' => 'This invoice does not meet the limits for that payment type.',
 
     'date_range' => 'Date Range',
+    'raw' => 'Raw',
+    'raw_html' => 'Raw HTML',
+    'update' => 'Update',
 
 );
 
