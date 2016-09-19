@@ -50,9 +50,9 @@
         @include('export.vendors')
     @endif
 
-    @if (isset($vendors_contacts) && $vendors_contacts && count($vendors_contacts))
-        <tr><td>{{ strtoupper(trans('texts.vendors_contacts')) }}</td></tr>
-        @include('export.vendors_contacts')
+    @if (isset($vendor_contacts) && $vendor_contacts && count($vendor_contacts))
+        <tr><td>{{ strtoupper(trans('texts.vendor_contacts')) }}</td></tr>
+        @include('export.vendor_contacts')
     @endif
 
 </html>

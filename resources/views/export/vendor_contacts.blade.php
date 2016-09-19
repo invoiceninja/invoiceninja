@@ -10,16 +10,16 @@
 </tr>
 
 @foreach ($vendor_contacts as $contact)
-    @if (!$vendor_contact->vendor->is_deleted)
+    @if (!$contact->vendor->is_deleted)
         <tr>
-            <td>{{ $vendor_contact->vendor->getDisplayName() }}</td>
+            <td>{{ $contact->vendor->getDisplayName() }}</td>
             @if ($multiUser)
-                <td>{{ $vendor_contact->user->getDisplayName() }}</td>
+                <td>{{ $contact->user->getDisplayName() }}</td>
             @endif
-            <td>{{ $vendor_contact->first_name }}</td>
-            <td>{{ $vendor_contact->last_name }}</td>
-            <td>{{ $vendor_contact->email }}</td>
-            <td>{{ $vendor_contact->phone }}</td>
+            <td>{{ $contact->first_name }}</td>
+            <td>{{ $contact->last_name }}</td>
+            <td>{{ $contact->email }}</td>
+            <td>{{ $contact->phone }}</td>
         </tr>
     @endif
 @endforeach
