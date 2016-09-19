@@ -643,6 +643,7 @@ $LANG = array(
     'custom' => 'Custom',
     'invoice_to' => 'Invoice to',
     'invoice_no' => 'Invoice No.',
+    'quote_no' => 'Quote No.',
     'recent_payments' => 'Recent Payments',
     'outstanding' => 'Outstanding',
     'manage_companies' => 'Manage Companies',

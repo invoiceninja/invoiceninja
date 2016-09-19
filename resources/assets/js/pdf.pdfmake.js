@@ -210,7 +210,11 @@ NINJA.decodeJavascript = function(invoice, javascript)
                 if (invoice.partial > 0 && field == 'balance_due') {
                     field = 'partial_due';
                 } else if (invoice.is_quote) {
-                    field = field.replace('invoice', 'quote');
+                    if (field == 'due_date') {
+                        field = 'valid_until';
+                    } else {
+                        field = field.replace('invoice', 'quote');
+                    }
                 }
                 var label = invoiceLabels[field];
                 if (match.indexOf('UC') >= 0) {

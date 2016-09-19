@@ -184,6 +184,7 @@ trait PresentsInvoice
             'quote_to',
             'details',
             'invoice_no',
+            'quote_no',
             'valid_until',
             'client_name',
             'address1',
