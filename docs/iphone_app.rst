@@ -12,6 +12,7 @@ Firstly you'll need to add an additional field to your .env file which is locate
 
 The additional field to add is API_SECRET, set this to your own defined alphanumeric string.
 
+.. image:: images/env_file_api_secret.png
 
 Save your .env file and now open Invoice Ninja on your iPhone.
 
@@ -24,6 +25,8 @@ Once you have completed the in-app purchase to unlock the iPhone to connect to y
 The first is the Base URL of your self-hosted installation, ie http://ninja.yourapp.com
 
 The second field is the API_SECRET, enter in the API_SECRET you used in your .env file.
+
+.. image:: images/iphone_self_hosted.png
 
 Click SAVE.
 
