@@ -10,7 +10,8 @@ use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Validation\ValidationException;
+
 
 /**
  * Class Handler
@@ -84,7 +85,8 @@ class Handler extends ExceptionHandler
         // In production, except for maintenance mode, we'll show a custom error screen
         if (Utils::isNinjaProd()
             && !Utils::isDownForMaintenance()
-            && !($e instanceof HttpResponseException)) {
+            && !($e instanceof HttpResponseException)
+            && !($e instanceof ValidationException)) {
             $data = [
                 'error' => get_class($e),
                 'hideHeader' => true,
