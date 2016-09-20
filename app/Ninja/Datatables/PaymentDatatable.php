@@ -21,7 +21,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'invoice_number',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id])){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->invoice_user_id])){
                         return $model->invoice_number;
                     }
 

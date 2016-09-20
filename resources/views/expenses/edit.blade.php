@@ -171,26 +171,28 @@
         </div>
     </div>
 
-	<center class="buttons">
-        {!! Button::normal(trans('texts.cancel'))
-                ->asLinkTo(URL::to('/expenses'))
-                ->appendIcon(Icon::create('remove-circle'))
-                ->large() !!}
+    @if (Auth::user()->canCreateOrEdit(ENTITY_EXPENSE, $expense))
+    	<center class="buttons">
+            {!! Button::normal(trans('texts.cancel'))
+                    ->asLinkTo(URL::to('/expenses'))
+                    ->appendIcon(Icon::create('remove-circle'))
+                    ->large() !!}
 
-        @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
-            {!! Button::success(trans('texts.save'))
-                    ->appendIcon(Icon::create('floppy-disk'))
-                    ->large()
-                    ->submit() !!}
+            @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
+                {!! Button::success(trans('texts.save'))
+                        ->appendIcon(Icon::create('floppy-disk'))
+                        ->large()
+                        ->submit() !!}
 
-            @if ($expense)
-                {!! DropdownButton::normal(trans('texts.more_actions'))
-                      ->withContents($actions)
-                      ->large()
-                      ->dropup() !!}
+                @if ($expense)
+                    {!! DropdownButton::normal(trans('texts.more_actions'))
+                          ->withContents($actions)
+                          ->large()
+                          ->dropup() !!}
+                @endif
             @endif
-        @endif
-	</center>
+    	</center>
+    @endif
 
 	{!! Former::close() !!}
 
@@ -214,7 +216,11 @@
                 return false;
             }
 
-            return true;
+            @if (Auth::user()->canCreateOrEdit(ENTITY_EXPENSE, $expense))
+                return true;
+            @else
+                return false
+            @endif
         }
 
         function onClientChange() {

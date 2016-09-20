@@ -26,6 +26,9 @@ class TaskDatatable extends EntityDatatable
             [
                 'created_at',
                 function ($model) {
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])){
+                        return Task::calcStartTime($model);
+                    }
                     return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model))->toHtml();
                 }
             ],

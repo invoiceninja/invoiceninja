@@ -537,19 +537,21 @@
                     ->appendIcon(Icon::create('download-alt')) !!}
         @endif
 
-        @if ($invoice->isClientTrashed())
-            <!-- do nothing -->
-        @elseif ($invoice->trashed())
-            {!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
-		@elseif (!$invoice->trashed())
-			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
-            @if ($invoice->id)
-                {!! DropdownButton::normal(trans('texts.more_actions'))
-                      ->withContents($actions)
-                      ->dropup() !!}
-            @endif
-		@endif
+        @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
+            @if ($invoice->isClientTrashed())
+                <!-- do nothing -->
+            @elseif ($invoice->trashed())
+                {!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+    		@elseif (!$invoice->trashed())
+    			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+    		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+                @if ($invoice->id)
+                    {!! DropdownButton::normal(trans('texts.more_actions'))
+                          ->withContents($actions)
+                          ->dropup() !!}
+                @endif
+    	    @endif
+        @endif
 
 	</div>
 	<p>&nbsp;</p>
@@ -1337,7 +1339,11 @@
 
         onPartialChange(true);
 
-        return true;
+        @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
+            return true;
+        @else
+            return false;
+        @endif
     }
 
     function submitBulkAction(value) {

@@ -18,13 +18,15 @@
 
     </style>
 
-
     @if ($errors->first('time_log'))
         <div class="alert alert-danger"><li>{{ trans('texts.task_errors') }}  </li></div>
     @endif
 
+    {!! Former::open($url)
+            ->addClass('col-md-10 col-md-offset-1 warn-on-exit task-form')
+            ->onsubmit('return onFormSubmit(event)')
+            ->method($method) !!}
 
-    {!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit task-form')->method($method)->rules(array()) !!}
     @if ($task)
         {!! Former::populate($task) !!}
         {!! Former::populateField('id', $task->public_id) !!}
@@ -126,32 +128,34 @@
     </div>
 
 
-    <center class="buttons">
-        @if (Auth::user()->hasFeature(FEATURE_TASKS))
-            @if ($task && $task->is_running)
-                {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
-                {!! Button::primary(trans('texts.stop'))->large()->appendIcon(Icon::create('stop'))->withAttributes(['id' => 'stop-button']) !!}
-            @elseif ($task && $task->trashed())
-                {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
-                {!! Button::success(trans('texts.restore'))->large()->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+    @if (Auth::user()->canCreateOrEdit(ENTITY_TASK, $task))
+        <center class="buttons">
+            @if (Auth::user()->hasFeature(FEATURE_TASKS))
+                @if ($task && $task->is_running)
+                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
+                    {!! Button::primary(trans('texts.stop'))->large()->appendIcon(Icon::create('stop'))->withAttributes(['id' => 'stop-button']) !!}
+                @elseif ($task && $task->trashed())
+                    {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+                    {!! Button::success(trans('texts.restore'))->large()->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+                @else
+                    {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+                    @if ($task)
+                        {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
+                        {!! Button::primary(trans('texts.resume'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'resume-button']) !!}
+                        {!! DropdownButton::normal(trans('texts.more_actions'))
+                              ->withContents($actions)
+                              ->large()
+                              ->dropup() !!}
+                    @else
+                        {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
+                        {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
+                    @endif
+                @endif
             @else
                 {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
-                @if ($task)
-                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
-                    {!! Button::primary(trans('texts.resume'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'resume-button']) !!}
-                    {!! DropdownButton::normal(trans('texts.more_actions'))
-                          ->withContents($actions)
-                          ->large()
-                          ->dropup() !!}
-                @else
-                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
-                    {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
-                @endif
             @endif
-        @else
-            {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
-        @endif
-    </center>
+        </center>
+    @endif
 
     {!! Former::close() !!}
 
@@ -203,6 +207,14 @@
         timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
         timeLabels['{{ $period }}s'] = '{{ trans("texts.{$period}s") }}';
     @endforeach
+
+    function onFormSubmit(event) {
+        @if (Auth::user()->canCreateOrEdit(ENTITY_TASK, $task))
+            return true;
+        @else
+            return false
+        @endif
+    }
 
     function tock(duration) {
         var str = convertDurationToString(duration);
