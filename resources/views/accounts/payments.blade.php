@@ -37,7 +37,7 @@
       {{ Session::get("show_trash:gateway") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText('gateways') }}
   </label>
   -->
-  
+
   @if ($showAdd)
       {!! Button::primary(trans('texts.add_gateway'))
             ->asLinkTo(URL::to('/gateways/create'))
@@ -72,39 +72,41 @@
                 </div>
 
                 <div class="modal-body">
-                    <div class="row" style="text-align:center">
-                        <div class="col-xs-12">
-                            <div id="payment-limits-slider"></div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div id="payment-limit-min-container">
-                                <label for="payment-limit-min">{{ trans('texts.min') }}</label><br>
-                                <div class="input-group">
-                                    <span class="input-group-addon">{{ $currency->symbol }}</span>
-                                    <input type="number" class="form-control" min="0" id="payment-limit-min"
-                                           name="limit_min">
-                                </div>
-                                <label><input type="checkbox" id="payment-limit-min-enable"
-                                              name="limit_min_enable"> {{ trans('texts.enable_min') }}</label>
+                    <div class="panel-body">
+                        <div class="row" style="text-align:center">
+                            <div class="col-xs-12">
+                                <div id="payment-limits-slider"></div>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div id="payment-limit-max-container">
-                                <label for="payment-limit-max">{{ trans('texts.max') }}</label><br>
+                        </div><br/>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div id="payment-limit-min-container">
+                                    <label for="payment-limit-min">{{ trans('texts.min') }}</label><br>
+                                    <div class="input-group" style="padding-bottom:8px">
+                                        <span class="input-group-addon">{{ $currency->symbol }}</span>
+                                        <input type="number" class="form-control" min="0" id="payment-limit-min"
+                                               name="limit_min">
+                                    </div>
+                                    <label><input type="checkbox" id="payment-limit-min-enable"
+                                                  name="limit_min_enable"> {{ trans('texts.enable_min') }}</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div id="payment-limit-max-container">
+                                    <label for="payment-limit-max">{{ trans('texts.max') }}</label><br>
 
-                                <div class="input-group">
-                                    <span class="input-group-addon">{{ $currency->symbol }}</span>
-                                    <input type="number" class="form-control" min="0" id="payment-limit-max"
-                                           name="limit_max">
+                                    <div class="input-group" style="padding-bottom:8px">
+                                        <span class="input-group-addon">{{ $currency->symbol }}</span>
+                                        <input type="number" class="form-control" min="0" id="payment-limit-max"
+                                               name="limit_max">
+                                    </div>
+                                    <label><input type="checkbox" id="payment-limit-max-enable"
+                                                  name="limit_max_enable"> {{ trans('texts.enable_max') }}</label>
                                 </div>
-                                <label><input type="checkbox" id="payment-limit-max-enable"
-                                              name="limit_max_enable"> {{ trans('texts.enable_max') }}</label>
                             </div>
                         </div>
+                        <input type="hidden" name="gateway_type_id" id="payment-limit-gateway-type">
                     </div>
-                    <input type="hidden" name="gateway_type_id" id="payment-limit-gateway-type">
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px">
@@ -168,24 +170,24 @@
     });
 
     limitsSlider.noUiSlider.on('update', function (values, handle) {
-        var value = values[handle];
+        var value = Math.round(values[handle]);
         if (handle == 1) {
-            $('#payment-limit-max').val(Math.round(value)).removeAttr('disabled');
+            $('#payment-limit-max').val(value).removeAttr('disabled');
             $('#payment-limit-max-enable').prop('checked', true);
         } else {
-            $('#payment-limit-min').val(Math.round(value)).removeAttr('disabled');
+            $('#payment-limit-min').val(value).removeAttr('disabled');
             $('#payment-limit-min-enable').prop('checked', true);
         }
     });
 
-    $('#payment-limit-min').on('change keyup', function () {
+    $('#payment-limit-min').on('change input', function () {
         setTimeout(function () {
             limitsSlider.noUiSlider.set([$('#payment-limit-min').val(), null]);
         }, 100);
         $('#payment-limit-min-enable').attr('checked', 'checked');
     });
 
-    $('#payment-limit-max').on('change keyup', function () {
+    $('#payment-limit-max').on('change input', function () {
         setTimeout(function () {
             limitsSlider.noUiSlider.set([null, $('#payment-limit-max').val()]);
         }, 100);

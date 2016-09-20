@@ -557,16 +557,16 @@ class BasePaymentDriver
         $paymentMethod->setRelation('account_gateway_token', $customer);
         $paymentMethod = $this->creatingPaymentMethod($paymentMethod);
 
-        // archive the old payment method
-        $oldPaymentMethod = PaymentMethod::clientId($this->client()->id)
-            ->wherePaymentTypeId($paymentMethod->payment_type_id)
-            ->first();
-
-        if ($oldPaymentMethod) {
-            $oldPaymentMethod->delete();
-        }
-
         if ($paymentMethod) {
+            // archive the old payment method
+            $oldPaymentMethod = PaymentMethod::clientId($this->client()->id)
+                ->wherePaymentTypeId($paymentMethod->payment_type_id)
+                ->first();
+
+            if ($oldPaymentMethod) {
+                $oldPaymentMethod->delete();
+            }
+
             $paymentMethod->save();
         }
 
@@ -833,8 +833,8 @@ class BasePaymentDriver
             return true;
         }
 
-        $accountGatewaySettings = AccountGatewaySettings::scope()->where('account_gateway_settings.gateway_type_id',
-            '=', $gatewayTypeId)->first();
+        $accountGatewaySettings = AccountGatewaySettings::scope(false, $this->invitation->account_id)
+            ->where('account_gateway_settings.gateway_type_id', '=', $gatewayTypeId)->first();
 
         if ($accountGatewaySettings) {
             $invoice = $this->invoice();

@@ -199,8 +199,11 @@
   }
 
   window.loadedSearchData = false;
+  function onSearchBlur() {
+      $('#search').typeahead('val', '');
+  }
+
   function onSearchFocus() {
-    $('#search').typeahead('val', '');
     $('#search-form').show();
 
     if (!window.loadedSearchData) {
@@ -319,6 +322,7 @@
 
     // Focus the search input if the user clicks forward slash
     $('#search').focusin(onSearchFocus);
+    $('#search').blur(onSearchBlur);
 
     $('body').keypress(function(event) {
         if (event.which == 47 && !$('*:focus').length) {

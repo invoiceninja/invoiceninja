@@ -330,7 +330,7 @@ class InvoiceController extends BaseController
                 }
             }
         }
-        
+
         // Tax rate $options
         $account = Auth::user()->account;
         $rates = TaxRate::scope()->orderBy('name')->get();
@@ -531,11 +531,7 @@ class InvoiceController extends BaseController
             Session::flash('message', $message);
         }
 
-        if ($action == 'restore' && $count == 1) {
-            return Redirect::to("{$entityType}s/".Utils::getFirst($ids));
-        } else {
-            return Redirect::to("{$entityType}s");
-        }
+        return $this->returnBulk($entityType, $action, $ids);
     }
 
     public function convertQuote(InvoiceRequest $request)
@@ -612,8 +608,10 @@ class InvoiceController extends BaseController
         return View::make('invoices.history', $data);
     }
 
-    public function checkInvoiceNumber($invoiceNumber)
+    public function checkInvoiceNumber()
     {
+        $invoiceNumber = request()->invoice_number;
+
         $count = Invoice::scope()
                     ->whereInvoiceNumber($invoiceNumber)
                     ->withTrashed()

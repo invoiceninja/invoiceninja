@@ -104,6 +104,25 @@
         </div>
     </div>
 
+    <div class="modal fade" id="rawModal" tabindex="-1" role="dialog" aria-labelledby="rawModalLabel" aria-hidden="true">
+        <div class="modal-dialog" style="width:800px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title" id="rawModalLabel">{{ trans('texts.raw_html') }}</h4>
+                </div>
+
+                <div class="modal-body">
+                    <textarea id="raw-textarea" rows="20" style="width:100%"></textarea>
+                </div>
+
+                <div class="modal-footer" style="margin-top: 0px">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
+                    <button type="button" onclick="updateRaw()" class="btn btn-success" data-dismiss="modal">{{ trans('texts.update') }}</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="templateHelpModal" tabindex="-1" role="dialog" aria-labelledby="templateHelpModalLabel" aria-hidden="true">
         <div class="modal-dialog" style="min-width:150px">
@@ -184,7 +203,6 @@
         }
 
         function serverPreview(field) {
-            console.log(field);
             $('#templatePreviewModal').modal('show');
             var template = $('#email_template_' + field).val();
             var url = '{{ URL::to('settings/email_preview') }}?template=' + template;
@@ -312,6 +330,55 @@
                 }
                 refreshPreview();
             });
+        }
+
+        function showRaw(field) {
+            window.rawHtmlField = field;
+            var template = $('#email_template_' + field).val();
+            $('#raw-textarea').val(formatXml(template));
+            $('#rawModal').modal('show');
+        }
+
+        function updateRaw() {
+            var value = $('#raw-textarea').val();
+            var field = window.rawHtmlField;
+            editors[field].setHTML(value);
+            value = editors[field].getHTML();
+            var fieldName = 'email_template_' + field;
+            $('#' + fieldName).val(value);
+            refreshPreview();
+        }
+
+        // https://gist.github.com/sente/1083506
+        function formatXml(xml) {
+            var formatted = '';
+            var reg = /(>)(<)(\/*)/g;
+            xml = xml.replace(reg, '$1\r\n$2$3');
+            var pad = 0;
+            jQuery.each(xml.split('\r\n'), function(index, node) {
+                var indent = 0;
+                if (node.match( /.+<\/\w[^>]*>$/ )) {
+                    indent = 0;
+                } else if (node.match( /^<\/\w/ )) {
+                    if (pad != 0) {
+                        pad -= 1;
+                    }
+                } else if (node.match( /^<\w[^>]*[^\/]>.*$/ )) {
+                    indent = 1;
+                } else {
+                    indent = 0;
+                }
+
+                var padding = '';
+                for (var i = 0; i < pad; i++) {
+                    padding += '  ';
+                }
+
+                formatted += padding + node + '\r\n';
+                pad += indent;
+            });
+
+            return formatted;
         }
 
     </script>

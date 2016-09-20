@@ -221,10 +221,6 @@ class ClientController extends BaseController
         $message = Utils::pluralize($action.'d_client', $count);
         Session::flash('message', $message);
 
-        if ($action == 'restore' && $count == 1) {
-            return Redirect::to('clients/'.Utils::getFirst($ids));
-        } else {
-            return Redirect::to('clients');
-        }
+        return $this->returnBulk(ENTITY_CLIENT, $action, $ids);
     }
 }

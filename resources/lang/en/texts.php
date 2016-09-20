@@ -643,6 +643,7 @@ $LANG = array(
     'custom' => 'Custom',
     'invoice_to' => 'Invoice to',
     'invoice_no' => 'Invoice No.',
+    'quote_no' => 'Quote No.',
     'recent_payments' => 'Recent Payments',
     'outstanding' => 'Outstanding',
     'manage_companies' => 'Manage Companies',
@@ -2068,7 +2069,7 @@ $LANG = array(
     'bot_emailed_notify_viewed' => 'I\'ll email you when it\'s viewed.',
     'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
     'add_product_to_invoice' => 'Add 1 :product',
-    'not_authorized' => 'Your are not authorized',
+    'not_authorized' => 'You are not authorized',
     'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>Send me your account email to get started.',
     'bot_get_code' => 'Thanks! I\'ve sent a you an email with your security code.',
     'bot_welcome' => 'That\'s it, your account is verified.<br/>',
@@ -2128,6 +2129,11 @@ $LANG = array(
     'min' => 'Min',
     'max' => 'Max',
     'limits_not_met' => 'This invoice does not meet the limits for that payment type.',
+
+    'date_range' => 'Date Range',
+    'raw' => 'Raw',
+    'raw_html' => 'Raw HTML',
+    'update' => 'Update',
 
 );
 

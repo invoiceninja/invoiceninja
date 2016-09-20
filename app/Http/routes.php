@@ -127,7 +127,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
     Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
-    Route::get('check_invoice_number/{invoice_number}', 'InvoiceController@checkInvoiceNumber');
+    Route::get('check_invoice_number', 'InvoiceController@checkInvoiceNumber');
     Route::get('save_sidebar_state', 'UserController@saveSidebarState');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
@@ -623,7 +623,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.7.0' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.7.1' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));

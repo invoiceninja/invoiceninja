@@ -296,40 +296,6 @@ function InvoiceModel(data) {
         }
     })
 
-    self.wrapped_terms = ko.computed({
-        read: function() {
-            return this.terms();
-        },
-        write: function(value) {
-            value = wordWrapText(value, 300);
-            self.terms(value);
-        },
-        owner: this
-    });
-
-
-    self.wrapped_notes = ko.computed({
-        read: function() {
-            return this.public_notes();
-        },
-        write: function(value) {
-            value = wordWrapText(value, 300);
-            self.public_notes(value);
-        },
-        owner: this
-    });
-
-    self.wrapped_footer = ko.computed({
-        read: function() {
-            return this.invoice_footer();
-        },
-        write: function(value) {
-            value = wordWrapText(value, 600);
-            self.invoice_footer(value);
-        },
-        owner: this
-    });
-
     self.removeItem = function(item) {
         self.invoice_items.remove(item);
         refreshPDF(true);
@@ -745,18 +711,6 @@ function ItemModel(data) {
         ko.mapping.fromJS(data, {}, this);
     }
 
-    self.wrapped_notes = ko.computed({
-        read: function() {
-            return this.notes();
-        },
-        write: function(value) {
-            value = wordWrapText(value, 235);
-            self.notes(value);
-            onItemChange();
-        },
-        owner: this
-    });
-
     this.totals = ko.observable();
 
     this.totals.rawTotal = ko.computed(function() {
@@ -899,7 +853,7 @@ ko.bindingHandlers.productTypeahead = {
 };
 
 function checkInvoiceNumber() {
-    var url = '{{ url('check_invoice_number') }}/' + $('#invoice_number').val();
+    var url = '{{ url('check_invoice_number') }}?invoice_number=' + encodeURIComponent($('#invoice_number').val());
     $.get(url, function(data) {
         var isValid = data == '{{ RESULT_SUCCESS }}' ? true : false;
         if (isValid) {

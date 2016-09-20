@@ -24,7 +24,7 @@ class ActivityTransformer extends EntityTransformer
         return [
             'id' => $activity->key(),
             'activity_type_id' => $activity->activity_type_id,
-            'client_id' => $activity->client->public_id,
+            'client_id' => $activity->client ? $activity->client->public_id : null,
             'user_id' => $activity->user->public_id + 1,
             'invoice_id' => $activity->invoice ? $activity->invoice->public_id : null,
             'payment_id' => $activity->payment ? $activity->payment->public_id : null,
