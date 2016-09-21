@@ -13,11 +13,6 @@
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
     <style type="text/css">
-        /* the value is auto set so we're removing the bold formatting */
-        label.control-label[for=invoice_number] {
-            font-weight: normal !important;
-        }
-
         select.tax-select {
             width: 50%;
             float: left;
@@ -55,6 +50,7 @@
             ->rules(array(
         		'client' => 'required',
                 'invoice_number' => 'required',
+                'invoice_date' => 'required',
         		'product_key' => 'max:255'
         	)) !!}
 
@@ -71,7 +67,7 @@
 
     		@if ($invoice->id || $data)
 				<div class="form-group">
-					<label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.client') }}</label>
+					<label for="client" class="control-label col-lg-4 col-sm-4"><b>{{ trans('texts.client') }}</b></label>
 					<div class="col-lg-8 col-sm-8">
                         <h4>
                             <span data-bind="text: getClientDisplayName(ko.toJS(client()))"></span>
@@ -138,8 +134,8 @@
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_due_date"))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
 
-                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()')
-                            ->rel('tooltip')->data_toggle('tooltip')->data_placement('bottom')->title(trans('texts.partial_value')) !!}
+                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onkeyup('onPartialChange()')
+                            ->addGroupClass('partial')!!}
 			</div>
             @if ($entityType == ENTITY_INVOICE)
 			<div data-bind="visible: is_recurring" style="display: none">
@@ -1322,6 +1318,8 @@
         // check invoice number is unique
         if ($('.invoice-number').hasClass('has-error')) {
             return false;
+        } else if ($('.partial').hasClass('has-error')) {
+            return false;
         }
 
         if (!isSaveValid()) {
@@ -1336,8 +1334,6 @@
             swal("{!! trans('texts.expense_error_mismatch_currencies') !!}");
             return false;
         }
-
-        onPartialChange(true);
 
         @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
             return true;
@@ -1477,19 +1473,30 @@
         //NINJA.formIsChanged = true;
 	}
 
-    function onPartialChange(silent)
+    function onPartialChange()
     {
         var val = NINJA.parseFloat($('#partial').val());
         var oldVal = val;
         val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
-        model.invoice().partial(val || '');
 
-        if (!silent && val != oldVal) {
-            $('#partial').tooltip('show');
-            setTimeout(function() {
-                $('#partial').tooltip('hide');
-            }, 5000);
+        if (val != oldVal) {
+            console.log('1');
+            if ($('.partial').hasClass('has-error')) {
+                return;
+            }
+            console.log('2');
+            $('.partial')
+                .addClass('has-error')
+                .find('div')
+                .append('<span class="help-block">{{ trans('texts.partial_value') }}</span>');
+        } else {
+            console.log('3');
+            $('.partial')
+                .removeClass('has-error')
+                .find('span')
+                .hide();
         }
+
     }
 
     function onRecurringEnabled()
