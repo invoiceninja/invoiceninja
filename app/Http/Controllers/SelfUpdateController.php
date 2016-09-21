@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Codedge\Updater\UpdaterManager;
+use Utils;
 use Redirect;
+use Codedge\Updater\UpdaterManager;
 
 class SelfUpdateController extends BaseController
 {
@@ -19,6 +20,10 @@ class SelfUpdateController extends BaseController
      */
     public function __construct(UpdaterManager $updater)
     {
+        if (Utils::isNinjaProd()) {
+            exit;
+        }
+
         $this->updater = $updater;
     }
 
