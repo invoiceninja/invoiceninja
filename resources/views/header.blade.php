@@ -517,7 +517,8 @@
                 'tasks',
                 'expenses',
                 'vendors',
-                'settings'
+                'settings',
+                'self-update'
             ] as $option)
             <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                 @if ($option == 'settings')
@@ -538,6 +539,9 @@
                     class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                     <i class="fa fa-{{ \App\Models\EntityModel::getIcon($option) }}" style="width:46px; padding-right:10px"></i>
                     {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
+                    @if ($option == 'self-update' && Updater::source()->isNewVersionAvailable('v'.NINJA_VERSION))
+                        <span class="badge alert-danger">1</span>
+                    @endif
                 </a>
             </li>
             @endforeach

@@ -98,6 +98,10 @@
         line-height: 40px;
     }
 
+    #left-sidebar-wrapper .sidebar-nav li span.badge {
+        text-indent: 0px;
+    }
+
     #right-sidebar-wrapper .sidebar-nav li {
         text-indent: 8px;
         font-size: 15px;
