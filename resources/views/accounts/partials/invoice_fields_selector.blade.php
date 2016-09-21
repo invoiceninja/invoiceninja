@@ -6,17 +6,18 @@
             ->onchange("addField('{$section}')")
             ->raw() !!}
 
-    <table class="field-list">
-    <tbody data-bind="sortable: { data: {{ $section }}, as: 'field', afterMove: onDragged }">
-        <tr style="cursor:move;background-color:#fff;margin:1px">
-            <td>
-                <i class="fa fa-close" style="cursor:pointer" title="{{ trans('texts.remove') }}"
-                    data-bind="click: $root.{{ Utils::toCamelCase('remove' . ucwords($section)) }}"></i>
-                <span data-bind="text: window.field_map[field]"></span>
-            </td>
-        </tr>
-    </tbody>
-    </table>
-
+    <div class="table-responsive">
+        <table class="field-list">
+        <tbody data-bind="sortable: { data: {{ $section }}, as: 'field', afterMove: onDragged }">
+            <tr style="cursor:move;background-color:#fff;margin:1px">
+                <td>
+                    <i class="fa fa-close" style="cursor:pointer" title="{{ trans('texts.remove') }}"
+                        data-bind="click: $root.{{ Utils::toCamelCase('remove' . ucwords($section)) }}"></i>
+                    <span data-bind="text: window.field_map[field]"></span>
+                </td>
+            </tr>
+        </tbody>
+        </table>
+    </div>
 
 </div>
