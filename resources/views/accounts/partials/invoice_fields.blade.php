@@ -161,10 +161,4 @@ function loadFields(selectedFields)
     color: red;
 }
 
-.field-list .fa-bars {
-    position: absolute;
-    right: 20px;
-    color: #AAA;
-}
-
 </style>

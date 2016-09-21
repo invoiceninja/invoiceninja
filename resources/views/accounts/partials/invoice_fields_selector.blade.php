@@ -8,11 +8,11 @@
 
     <table class="field-list">
     <tbody data-bind="sortable: { data: {{ $section }}, as: 'field', afterMove: onDragged }">
-        <tr>
+        <tr style="cursor:move;background-color:#fff;margin:1px">
             <td>
-                <i class="fa fa-close" data-bind="click: $root.{{ Utils::toCamelCase('remove' . ucwords($section)) }}"></i>
+                <i class="fa fa-close" style="cursor:pointer" title="{{ trans('texts.remove') }}"
+                    data-bind="click: $root.{{ Utils::toCamelCase('remove' . ucwords($section)) }}"></i>
                 <span data-bind="text: window.field_map[field]"></span>
-                <i class="fa fa-bars"></i>
             </td>
         </tr>
     </tbody>
