@@ -180,7 +180,7 @@ To create a tax rate, complete the two fields:
 Click the green Save button to create the tax rate. It will now appear on the tax rates list.
 
 Product Library
-""""""""""""""""
+"""""""""""""""
 
 Add products to your product library to make your invoice creation process faster.
 

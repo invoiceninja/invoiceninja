@@ -2135,6 +2135,8 @@ $LANG = array(
     'raw_html' => 'Raw HTML',
     'update' => 'Update',
     'invoice_fields_help' => 'Drag and drop fields to change their order and location',
+    'new_category' => 'New Category',
+    
 
 );
 

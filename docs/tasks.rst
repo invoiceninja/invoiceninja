@@ -42,9 +42,6 @@ To view the actions, hover your mouse over the Action area of the relevant task 
 
 .. TIP:: To sort the tasks list according to any of the columns, click on the orange column tab of your choice. A small arrow will appear. If the arrow is pointing up, data is sorted from lowest to highest value. If the arrow is pointing down, data is sorted from highest to lowest value. Click to change the arrow direction.
 
-Create Task
-^^^^^^^^^^^
-
 You can create a new task directly from the Tasks list page by clicking on the blue New Task + button located at the top right side of the page. The Tasks / Create page will open.
 
 Filter

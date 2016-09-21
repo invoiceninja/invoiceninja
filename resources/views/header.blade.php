@@ -522,7 +522,7 @@
             <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                 @if ($option == 'settings')
                     <a type="button" class="btn btn-default btn-sm pull-right"
-                        href="{{ url(NINJA_DOCS_URL) }}" target="_blank">
+                        href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">
                         <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
                     </a>
                 @elseif ($option != 'dashboard')

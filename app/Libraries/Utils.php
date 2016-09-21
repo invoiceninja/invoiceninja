@@ -15,6 +15,7 @@ use DateTime;
 use stdClass;
 use Carbon;
 use WePay;
+use App\Models\Account;
 
 class Utils
 {
@@ -1028,5 +1029,59 @@ class Utils
         return collect(static::$weekdayNames)->transform(function ($day) {
              return trans('texts.'.strtolower($day));
         });
+    }
+
+    public static function getDocsUrl($path)
+    {
+        $page = '';
+        $parts = explode('/', $path);
+        $first = count($parts) ? $parts[0] : false;
+        $second = count($parts) > 1 ? $parts[1] : false;
+
+        $entityTypes = [
+            'clients',
+            'invoices',
+            'payments',
+            'recurring_invoices',
+            'credits',
+            'quotes',
+            'tasks',
+            'expenses',
+            'vendors',
+        ];
+
+        if ($path == 'dashboard') {
+            $page = '/introduction.html#dashboard';
+        } elseif (in_array($path, $entityTypes)) {
+            $page = "/{$path}.html#list-" . str_replace('_', '-', $path);
+        } elseif (in_array($first, $entityTypes)) {
+            $action = ($first == 'payments' || $first == 'credits') ? 'enter' : 'create';
+            $page = "/{$first}.html#{$action}-" . substr(str_replace('_', '-', $first), 0, -1);
+        } elseif ($first == 'expense_categories') {
+            $page = '/expenses.html#expense-categories';
+        } elseif ($first == 'settings') {
+            if ($second == 'bank_accounts') {
+                $page = ''; // TODO write docs
+            } elseif (in_array($second, Account::$basicSettings)) {
+                if ($second == 'products') {
+                    $second = 'product_library';
+                } elseif ($second == 'notifications') {
+                    $second = 'email_notifications';
+                }
+                $page = '/settings.html#' . str_replace('_', '-', $second);
+            } elseif (in_array($second, Account::$advancedSettings)) {
+                $page = "/{$second}.html";
+            } elseif ($second == 'customize_design') {
+                $page = '/invoice_design.html#customize';
+            }
+        } elseif ($first == 'tax_rates') {
+            $page = '/settings.html#tax-rates';
+        } elseif ($first == 'products') {
+            $page = '/settings.html#product-library';
+        } elseif ($first == 'users') {
+            $page = '/user_management.html#create-user';
+        }
+
+        return url(NINJA_DOCS_URL . $page);
     }
 }
