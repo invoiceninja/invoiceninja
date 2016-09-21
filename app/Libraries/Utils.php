@@ -15,7 +15,6 @@ use DateTime;
 use stdClass;
 use Carbon;
 use WePay;
-use App\Models\Account;
 
 class Utils
 {
@@ -1062,14 +1061,14 @@ class Utils
         } elseif ($first == 'settings') {
             if ($second == 'bank_accounts') {
                 $page = ''; // TODO write docs
-            } elseif (in_array($second, Account::$basicSettings)) {
+            } elseif (in_array($second, \App\Models\Account::$basicSettings)) {
                 if ($second == 'products') {
                     $second = 'product_library';
                 } elseif ($second == 'notifications') {
                     $second = 'email_notifications';
                 }
                 $page = '/settings.html#' . str_replace('_', '-', $second);
-            } elseif (in_array($second, Account::$advancedSettings)) {
+            } elseif (in_array($second, \App\Models\Account::$advancedSettings)) {
                 $page = "/{$second}.html";
             } elseif ($second == 'customize_design') {
                 $page = '/invoice_design.html#customize';
