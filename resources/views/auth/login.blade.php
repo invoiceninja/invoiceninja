@@ -108,7 +108,8 @@
                 {!! link_to('/recover_password', trans('texts.recover_password'), ['class' => 'pull-left']) !!}
                 {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank', 'class' => 'pull-right']) !!}
             </p>
-            
+            <br/>
+
             @if (count($errors->all()))
                 <div class="alert alert-danger">
                     @foreach ($errors->all() as $error)
