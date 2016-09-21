@@ -22,7 +22,7 @@
                             {{ trans('texts.update_invoiceninja_available') }}
                         </strong>
                         <br/>
-                        {{ trans('texts.update_invoiceninja_decide_update_download', ['version' => $versionAvailable]) }}
+                        {!! trans('texts.update_invoiceninja_instructions', ['version' => $versionAvailable]) !!}
                     @endif
                 </div>
             </div>
@@ -36,9 +36,6 @@
                         <div class="form-group">
                             <button type="submit" class="btn btn-primary" id="do-updade">
                                 {{ trans('texts.update_invoiceninja_update_start') }}
-                            </button>
-                            <button type="submit" class="btn btn-default" id="download-update">
-                                {{ trans('texts.update_invoiceninja_download_start', ['version' => $versionAvailable]) }}
                             </button>
                         </div>
                     </form>

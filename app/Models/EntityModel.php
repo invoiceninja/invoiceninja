@@ -263,6 +263,7 @@ class EntityModel extends Eloquent
             'expenses' => 'file-image-o',
             'vendors' => 'building',
             'settings' => 'cog',
+            'self-update' => 'download',
         ];
 
         return array_get($icons, $entityType);

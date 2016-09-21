@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Codedge\Updater\UpdaterManager;
-
-use App\Http\Requests;
 use Redirect;
 
 class SelfUpdateController extends BaseController
