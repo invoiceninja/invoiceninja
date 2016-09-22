@@ -65,6 +65,7 @@ before_script:
   - sleep 5
   # Make sure the app is up-to-date
   - curl -L http://ninja.dev:8000/update
+  - php artisan ninja:create-test-data 25
 
 script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
