@@ -33,7 +33,7 @@
         z-index: 1000;
         position: fixed;
         left: 250px;
-        width: 0;
+        width: 250px;
         height: 100%;
         margin-left: -250px;
         overflow-y: auto;
@@ -91,6 +91,9 @@
         margin: 0;
         list-style: none;
         height: 100%;
+        box-shadow: inset 0 0 6px #000000;
+        -moz-box-shadow: inset 0 0 6px #000000;
+        -webkit-box-shadow: inset 0 0 5px #000000;
     }
 
     #left-sidebar-wrapper .sidebar-nav li {
@@ -178,10 +181,6 @@
 
     #wrapper.toggled-right {
         padding-right: 0;
-    }
-
-    #left-sidebar-wrapper {
-        width: 250px;
     }
 
     #left-sidebar-wrapper a.btn {
