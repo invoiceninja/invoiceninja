@@ -744,6 +744,8 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
     } else if (field == 'client.email') {
         var clientEmail = contact.email == clientName ? '' : contact.email;
         return {text:clientEmail};
+    } else if (field == 'client.phone') {
+        return {text:contact.phone};
     } else if (field == 'client.custom_value1') {
         return {text: account.custom_client_label1 && client.custom_value1 ? account.custom_client_label1 + ' ' + client.custom_value1 : false};
     } else if (field == 'client.custom_value2') {
