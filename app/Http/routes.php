@@ -188,6 +188,11 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('api/credits/{client_id?}', ['as'=>'api.credits', 'uses'=>'CreditController@getDatatable']);
     Route::post('credits/bulk', 'CreditController@bulk');
 
+    Route::get('api/products', ['as'=>'api.products', 'uses'=>'ProductController@getDatatable']);
+    Route::resource('products', 'ProductController');
+    Route::post('products/bulk', 'ProductController@bulk');
+
+
     Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
     Route::post('/update_setup', 'AppController@updateSetup');
 
@@ -229,10 +234,6 @@ Route::group([
     Route::get('api/tokens', ['as'=>'api.tokens', 'uses'=>'TokenController@getDatatable']);
     Route::resource('tokens', 'TokenController');
     Route::post('tokens/bulk', 'TokenController@bulk');
-
-    Route::get('api/products', ['as'=>'api.products', 'uses'=>'ProductController@getDatatable']);
-    Route::resource('products', 'ProductController');
-    Route::post('products/bulk', 'ProductController@bulk');
 
     Route::get('api/tax_rates', ['as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable']);
     Route::resource('tax_rates', 'TaxRateController');

@@ -484,14 +484,15 @@
         @foreach ([
             'dashboard' => false,
             'clients' => false,
+            'products' => false,
+            'invoices' => false,
+            'payments' => false,
+            'recurring_invoices' => 'recurring',
             'credits' => false,
+            'quotes' => false,
             'tasks' => false,
             'expenses' => false,
             'vendors' => false,
-            'quotes' => false,
-            'invoices' => false,
-            'recurring_invoices' => 'recurring',
-            'payments' => false,
             'settings' => false,
         ] as $key => $value)
             {!! Form::nav_link($key, $value ?: $key) !!}
@@ -509,6 +510,7 @@
             @foreach([
                 'dashboard',
                 'clients',
+                'products',
                 'invoices',
                 'payments',
                 'recurring_invoices',

@@ -287,7 +287,7 @@ $LANG = array(
     'view_as_recipient' => 'View as recipient',
     'product_library' => 'Product Library',
     'product' => 'Product',
-    'products' => 'Product Library',
+    'products' => 'Products',
     'fill_products' => 'Auto-fill products',
     'fill_products_help' => 'Selecting a product will automatically <b>fill in the description and cost</b>',
     'update_products' => 'Auto-update products',
@@ -2136,7 +2136,7 @@ $LANG = array(
     'update' => 'Update',
     'invoice_fields_help' => 'Drag and drop fields to change their order and location',
     'new_category' => 'New Category',
-
+    'restore_product' => 'Restore Product',
 
 );
 
