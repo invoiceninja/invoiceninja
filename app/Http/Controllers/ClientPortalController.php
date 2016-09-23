@@ -22,6 +22,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
 use App\Ninja\Repositories\DocumentRepository;
+use App\Ninja\Repositories\CreditRepository;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
 use App\Services\PaymentService;
@@ -33,13 +34,14 @@ class ClientPortalController extends BaseController
     private $paymentRepo;
     private $documentRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, DocumentRepository $documentRepo, PaymentService $paymentService)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, DocumentRepository $documentRepo, PaymentService $paymentService, CreditRepository $creditRepo)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
         $this->activityRepo = $activityRepo;
         $this->documentRepo = $documentRepo;
         $this->paymentService = $paymentService;
+        $this->creditRepo = $creditRepo;
     }
 
     public function view($invitationKey)
@@ -437,6 +439,40 @@ class ClientPortalController extends BaseController
         }
 
         return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_QUOTE, Input::get('sSearch'));
+    }
+
+    public function creditIndex()
+    {
+        if (!$contact = $this->getContact()) {
+            return $this->returnError();
+        }
+
+        $account = $contact->account;
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $data = [
+          'color' => $color,
+          'account' => $account,
+          'clientFontUrl' => $account->getFontsUrl(),
+          'title' => trans('texts.credits'),
+          'entityType' => ENTITY_CREDIT,
+          'columns' => Utils::trans(['credit_date', 'credit_amount', 'credit_balance']),
+        ];
+
+        return response()->view('public_list', $data);
+    }
+
+    public function creditDatatable()
+    {
+        if (!$contact = $this->getContact()) {
+            return false;
+        }
+
+        return $this->creditRepo->getClientDatatable($contact->client_id);
     }
 
     public function documentIndex()

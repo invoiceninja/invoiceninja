@@ -162,6 +162,14 @@ class Client extends EntityModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function quotes()
+    {
+        return $this->hasMany('App\Models\Invoice')->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function payments()
     {
         return $this->hasMany('App\Models\Payment');
@@ -221,6 +229,14 @@ class Client extends EntityModel
     public function credits()
     {
         return $this->hasMany('App\Models\Credit');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function creditsWithBalance()
+    {
+        return $this->hasMany('App\Models\Credit')->where('balance', '>', 0);
     }
 
     /**

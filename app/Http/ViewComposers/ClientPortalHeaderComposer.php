@@ -2,8 +2,10 @@
 
 namespace App\Http\ViewComposers;
 
+use DB;
 use Cache;
 use Illuminate\View\View;
+use App\Models\Contact;
 
 /**
  * ClientPortalHeaderComposer.php.
@@ -21,6 +23,30 @@ class ClientPortalHeaderComposer
      */
     public function compose(View $view)
     {
-        $view->with('testing', 'value');
+        $contactKey = session('contact_key');
+
+        if ( ! $contactKey) {
+            return false;
+        }
+
+        $contact = Contact::where('contact_key', '=', $contactKey)
+                        ->with('client')
+                        ->first();
+
+        if ( ! $contact || $contact->is_deleted) {
+            return false;
+        }
+
+        $client = $contact->client;
+
+        $hasDocuments = DB::table('invoices')
+                            ->where('invoices.client_id', '=', $client->id)
+                            ->whereNull('invoices.deleted_at')
+                            ->join('documents', 'documents.invoice_id', '=', 'invoices.id')
+                            ->count();
+
+        $view->with('hasQuotes', $client->quotes->count());
+        $view->with('hasCredits', $client->creditsWithBalance->count());
+        $view->with('hasDocuments', $hasDocuments);
     }
 }

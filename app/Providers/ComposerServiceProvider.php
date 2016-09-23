@@ -34,7 +34,7 @@ class ComposerServiceProvider extends ServiceProvider
 
         view()->composer(
              [
-                 'invited.dashboard',
+                 'public.header'
              ],
              'App\Http\ViewComposers\ClientPortalHeaderComposer'
         );
