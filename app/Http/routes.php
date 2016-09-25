@@ -129,7 +129,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
     Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
-    Route::get('check_invoice_number', 'InvoiceController@checkInvoiceNumber');
+    Route::get('check_invoice_number/{invoice_id?}', 'InvoiceController@checkInvoiceNumber');
     Route::get('save_sidebar_state', 'UserController@saveSidebarState');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');

@@ -429,7 +429,7 @@ class InvoiceController extends BaseController
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
-        
+
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
@@ -606,14 +606,19 @@ class InvoiceController extends BaseController
         return View::make('invoices.history', $data);
     }
 
-    public function checkInvoiceNumber()
+    public function checkInvoiceNumber($invoicePublicId = false)
     {
         $invoiceNumber = request()->invoice_number;
 
-        $count = Invoice::scope()
+        $query = Invoice::scope()
                     ->whereInvoiceNumber($invoiceNumber)
-                    ->withTrashed()
-                    ->count();
+                    ->withTrashed();
+
+        if ($invoicePublicId) {
+            $query->where('public_id', '!=', $invoicePublicId);
+        }
+
+        $count = $query->count();
 
         return $count ? RESULT_FAILURE : RESULT_SUCCESS;
     }
