@@ -677,6 +677,8 @@ NINJA.renderInvoiceField = function(invoice, field) {
         } else {
             return false;
         }
+    } else if (field == '.blank') {
+        return [{text: ' '}, {text: ' '}];
     }
 }
 
@@ -785,6 +787,8 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
         if (invoice.features.invoice_settings) {
             return invoice.account.custom_label2 && invoice.account.custom_value2 ? {text: invoice.account.custom_label2 + ' ' + invoice.account.custom_value2} : false;
         }
+    } else if (field == '.blank') {
+        return {text: ' '};
     }
 
     return false;

@@ -2137,7 +2137,8 @@ $LANG = array(
     'invoice_fields_help' => 'Drag and drop fields to change their order and location',
     'new_category' => 'New Category',
     'restore_product' => 'Restore Product',
-
+    'blank' => 'Blank',
+    
 );
 
 return $LANG;
