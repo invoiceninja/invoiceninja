@@ -18,6 +18,11 @@
             float: left;
         }
 
+        .btn-info:disabled {
+            background-color: #e89259;
+            border-color: #e89259;
+        }
+
         #scrollable-dropdown-menu .tt-menu {
             max-height: 150px;
             overflow-y: auto;
@@ -757,7 +762,8 @@
 	  </div>
 	</div>
 
-	{!! Former::close() !!}
+    {!! Former::close() !!}
+    </form>
 
     {!! Former::open("{$entityType}s/bulk")->addClass('bulkForm') !!}
     {!! Former::populateField('bulk_public_id', $invoice->public_id) !!}
@@ -1336,7 +1342,20 @@
         }
 
         @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
-            return true;
+            if ($('#saveButton').is(':disabled')) {
+                return false;
+            }
+            $('#saveButton, #emailButton').attr('disabled', true);
+            // if save fails ensure user can try again
+            $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
+                NINJA.formIsChanged = false;
+                location.href = data;
+            }).fail(function(data) {
+                $('#saveButton, #emailButton').attr('disabled', false);
+                var error = firstJSONError(data.responseJSON) || data.statusText;
+                swal("{!! trans('texts.invoice_error') !!}", error);
+            });
+            return false;
         @else
             return false;
         @endif
@@ -1344,7 +1363,7 @@
 
     function submitBulkAction(value) {
         $('#bulk_action').val(value);
-        $('.bulkForm').submit();
+        $('.bulkForm')[0].submit();
     }
 
 	function isSaveValid() {

@@ -2138,7 +2138,8 @@ $LANG = array(
     'new_category' => 'New Category',
     'restore_product' => 'Restore Product',
     'blank' => 'Blank',
-    
+    'invoice_error' => 'There was an error saving your invoice.',
+
 );
 
 return $LANG;

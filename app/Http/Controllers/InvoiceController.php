@@ -413,10 +413,10 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'email') {
-            return $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
 
-        return redirect()->to($invoice->getRoute());
+        return url($invoice->getRoute());
     }
 
     /**
@@ -429,7 +429,7 @@ class InvoiceController extends BaseController
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
-
+        testindfasdfa();
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
@@ -439,14 +439,14 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'clone') {
-            return $this->cloneInvoice($request, $invoice->public_id);
+            return url(sprintf('%ss/%s/clone', $entityType, $invoice->public_id));
         } elseif ($action == 'convert') {
             return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
-            return $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
 
-        return redirect()->to($invoice->getRoute());
+        return url($invoice->getRoute());
     }
 
 
@@ -473,8 +473,6 @@ class InvoiceController extends BaseController
         } else {
             Session::flash('error', $response);
         }
-
-        return Redirect::to("{$entityType}s/{$invoice->public_id}/edit");
     }
 
     private function emailRecurringInvoice(&$invoice)
@@ -540,7 +538,7 @@ class InvoiceController extends BaseController
 
         Session::flash('message', trans('texts.converted_to_invoice'));
 
-        return Redirect::to('invoices/' . $clone->public_id);
+        return url('invoices/' . $clone->public_id);
     }
 
     public function cloneInvoice(InvoiceRequest $request, $publicId)
