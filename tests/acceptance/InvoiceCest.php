@@ -32,7 +32,7 @@ class InvoiceCest
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
-        $I->selectDataPicker($I, '#invoice_date');
+        //$I->selectDataPicker($I, '#invoice_date');
         $I->selectDataPicker($I, '#due_date', '+ 15 day');
         $I->fillField('#po_number', rand(100, 200));
         $I->fillField('#discount', rand(0, 20));
