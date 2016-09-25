@@ -429,7 +429,7 @@ class InvoiceController extends BaseController
     {
         $data = $request->input();
         $data['documents'] = $request->file('documents');
-        testindfasdfa();
+        
         $action = Input::get('action');
         $entityType = Input::get('entityType');
 
