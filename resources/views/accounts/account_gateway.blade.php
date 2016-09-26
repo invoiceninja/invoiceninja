@@ -80,6 +80,8 @@
                     {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('Enable')->value('true') !!}
                 @elseif ($field == 'username' || $field == 'password')
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
+                @elseif ($gateway->isCustom() && $field == 'text')
+                    {!! Former::textarea($gateway->id.'_'.$field)->label(trans('texts.text'))->rows(6) !!}
                 @else
                     {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : ucwords(Utils::toSpaceCase($field))) !!}
                 @endif

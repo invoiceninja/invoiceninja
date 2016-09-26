@@ -605,6 +605,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_CYBERSOURCE', 49);
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
+    define('GATEWAY_CUSTOM', 62);
 
     // The customer exists, but only as a local concept
     // The remote gateway doesn't understand the concept of customers
@@ -713,6 +714,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_TYPE_PAYPAL', 3);
     define('GATEWAY_TYPE_BITCOIN', 4);
     define('GATEWAY_TYPE_DWOLLA', 5);
+    define('GATEWAY_TYPE_CUSTOM', 6);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('REMINDER1', 'reminder1');

@@ -818,9 +818,18 @@ class BasePaymentDriver
 
             $gatewayTypeAlias = GatewayType::getAliasFromId($gatewayTypeId);
 
+            if ($gatewayTypeId == GATEWAY_TYPE_CUSTOM) {
+                $url = "javascript:showCustomModal();";
+                $label = $this->accountGateway->getConfigField('name');
+            } else {
+                $url = $this->paymentUrl($gatewayTypeAlias);
+                $label = trans("texts.{$gatewayTypeAlias}");
+            }
+
             $links[] = [
-                'url'   => $this->paymentUrl($gatewayTypeAlias),
-                'label' => trans("texts.{$gatewayTypeAlias}")
+                'gatewayTypeId' => $gatewayTypeId,
+                'url' => $url,
+                'label' => $label,
             ];
         }
 

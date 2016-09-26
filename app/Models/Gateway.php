@@ -14,6 +14,12 @@ class Gateway extends Eloquent
      */
     public $timestamps = true;
 
+    protected $fillable = [
+        'provider',
+        'is_offsite',
+        'sort_order',
+    ];
+
     /**
      * @var array
      */
@@ -39,6 +45,7 @@ class Gateway extends Eloquent
         GATEWAY_BRAINTREE,
         GATEWAY_AUTHORIZE_NET,
         GATEWAY_MOLLIE,
+        GATEWAY_CUSTOM,
     ];
 
     // allow adding these gateway if another gateway
@@ -174,6 +181,18 @@ class Gateway extends Eloquent
      */
     public function getFields()
     {
-        return Omnipay::create($this->provider)->getDefaultParameters();
+        if ($this->isCustom()) {
+            return [
+                'name' => '',
+                'text' => '',
+            ];
+        } else {
+            return Omnipay::create($this->provider)->getDefaultParameters();
+        }
+    }
+
+    public function isCustom()
+    {
+        return $this->id === GATEWAY_CUSTOM;
     }
 }

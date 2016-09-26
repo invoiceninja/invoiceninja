@@ -109,7 +109,7 @@
                 {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if (count($paymentTypes) > 1)
                     {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
-                @else
+                @elseif (count($paymentTypes) == 1)
                     <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
                 @endif
     		@else
@@ -199,6 +199,10 @@
 				doc.save(fileName + '-' + invoice.invoice_number + '.pdf');
 			}
 
+            function showCustomModal() {
+                $('#customGatewayModal').modal('show');
+            }
+
 		</script>
 
 		@include('invoices.pdf', ['account' => $invoice->client->account, 'viewPDF' => true])
@@ -206,4 +210,26 @@
 		<p>&nbsp;</p>
 
 	</div>
+
+
+    @if (isset($customGatewayName))
+        <div class="modal fade" id="customGatewayModal" tabindex="-1" role="dialog" aria-labelledby="customGatewayModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">{{ $customGatewayName }}</h4>
+              </div>
+
+             <div class="panel-body">
+                  {!! nl2br(e($customGatewayText)) !!}
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
+              </div>
+            </div>
+          </div>
+        </div>
+    @endif
 @stop
