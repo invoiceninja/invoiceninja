@@ -2139,6 +2139,8 @@ $LANG = array(
     'restore_product' => 'Restore Product',
     'blank' => 'Blank',
     'invoice_error' => 'There was an error saving your invoice.',
+    'enable_recurring' => 'Enable Recurring',
+    'disable_recurring' => 'Disable Recurring',
 
 );
 

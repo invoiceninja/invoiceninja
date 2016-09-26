@@ -550,6 +550,8 @@
                     {!! DropdownButton::normal(trans('texts.more_actions'))
                           ->withContents($actions)
                           ->dropup() !!}
+                @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
+                    {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
                 @endif
     	    @endif
         @endif
@@ -1211,6 +1213,19 @@
         var type = invoice.is_quote ? '{{ trans('texts.'.ENTITY_QUOTE) }}' : '{{ trans('texts.'.ENTITY_INVOICE) }}';
 		doc.save(type +'-' + $('#invoice_number').val() + '.pdf');
 	}
+
+    function onRecurrClick() {
+        var invoice = model.invoice();
+        if (invoice.is_recurring()) {
+            var recurring = false;
+            var label = "{{ trans('texts.enable_recurring')}}";
+        } else {
+            var recurring = true;
+            var label = "{{ trans('texts.disable_recurring')}}";
+        }
+        invoice.is_recurring(recurring);
+        $('#recurrButton').html(label + "<span class='glyphicon glyphicon-repeat'></span>");
+    }
 
 	function onEmailClick() {
         if (!NINJA.isRegistered) {

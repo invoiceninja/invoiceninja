@@ -272,62 +272,60 @@ class InvoiceController extends BaseController
         $recurringDueDateHelp = '';
         $recurringDueDates = [];
 
-        if ($invoice->is_recurring) {
-            foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_help')) as $line) {
-                $parts = explode('=>', $line);
-                if (count($parts) > 1) {
-                    $line = $parts[0].' => '.Utils::processVariables($parts[0]);
-                    $recurringHelp .= '<li>'.strip_tags($line).'</li>';
-                } else {
-                    $recurringHelp .= $line;
-                }
+        foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_help')) as $line) {
+            $parts = explode('=>', $line);
+            if (count($parts) > 1) {
+                $line = $parts[0].' => '.Utils::processVariables($parts[0]);
+                $recurringHelp .= '<li>'.strip_tags($line).'</li>';
+            } else {
+                $recurringHelp .= $line;
             }
+        }
 
-            foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_due_date_help')) as $line) {
-                $parts = explode('=>', $line);
-                if (count($parts) > 1) {
-                    $line = $parts[0].' => '.Utils::processVariables($parts[0]);
-                    $recurringDueDateHelp .= '<li>'.strip_tags($line).'</li>';
-                } else {
-                    $recurringDueDateHelp .= $line;
-                }
+        foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_due_date_help')) as $line) {
+            $parts = explode('=>', $line);
+            if (count($parts) > 1) {
+                $line = $parts[0].' => '.Utils::processVariables($parts[0]);
+                $recurringDueDateHelp .= '<li>'.strip_tags($line).'</li>';
+            } else {
+                $recurringDueDateHelp .= $line;
             }
+        }
 
-            // Create due date options
-            $recurringDueDates = [
-                trans('texts.use_client_terms') => ['value' => '', 'class' => 'monthly weekly'],
-            ];
+        // Create due date options
+        $recurringDueDates = [
+            trans('texts.use_client_terms') => ['value' => '', 'class' => 'monthly weekly'],
+        ];
 
-            $ends = ['th','st','nd','rd','th','th','th','th','th','th'];
-            for($i = 1; $i < 31; $i++){
-                if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
-                else $ordinal = $i . $ends[$i % 10];
+        $ends = ['th','st','nd','rd','th','th','th','th','th','th'];
+        for($i = 1; $i < 31; $i++){
+            if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
+            else $ordinal = $i . $ends[$i % 10];
 
-                $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
-                $str = trans('texts.day_of_month', ['ordinal'=>$ordinal]);
+            $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
+            $str = trans('texts.day_of_month', ['ordinal'=>$ordinal]);
 
-                $recurringDueDates[$str] = ['value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly'];
-            }
-            $recurringDueDates[trans('texts.last_day_of_month')] = ['value' => '1998-01-31', 'data-num' => 31, 'class' => 'monthly'];
+            $recurringDueDates[$str] = ['value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly'];
+        }
+        $recurringDueDates[trans('texts.last_day_of_month')] = ['value' => '1998-01-31', 'data-num' => 31, 'class' => 'monthly'];
 
 
-            $daysOfWeek = [
-                trans('texts.sunday'),
-                trans('texts.monday'),
-                trans('texts.tuesday'),
-                trans('texts.wednesday'),
-                trans('texts.thursday'),
-                trans('texts.friday'),
-                trans('texts.saturday'),
-            ];
-            foreach(['1st','2nd','3rd','4th'] as $i=>$ordinal){
-                foreach($daysOfWeek as $j=>$dayOfWeek){
-                    $str = trans('texts.day_of_week_after', ['ordinal' => $ordinal, 'day' => $dayOfWeek]);
+        $daysOfWeek = [
+            trans('texts.sunday'),
+            trans('texts.monday'),
+            trans('texts.tuesday'),
+            trans('texts.wednesday'),
+            trans('texts.thursday'),
+            trans('texts.friday'),
+            trans('texts.saturday'),
+        ];
+        foreach(['1st','2nd','3rd','4th'] as $i=>$ordinal){
+            foreach($daysOfWeek as $j=>$dayOfWeek){
+                $str = trans('texts.day_of_week_after', ['ordinal' => $ordinal, 'day' => $dayOfWeek]);
 
-                    $day = $i * 7 + $j  + 1;
-                    $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
-                    $recurringDueDates[$str] = ['value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly'];
-                }
+                $day = $i * 7 + $j  + 1;
+                $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
+                $recurringDueDates[$str] = ['value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly'];
             }
         }
 
