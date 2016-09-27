@@ -23,6 +23,7 @@ class QueryLogging
         // Enable query logging for development
         if (Utils::isNinjaDev()) {
             DB::enableQueryLog();
+            $timeStart = microtime(true);
         }
 
         $response = $next($request);
@@ -32,7 +33,9 @@ class QueryLogging
             if (strstr($request->url(), '_debugbar') === false) {
                 $queries = DB::getQueryLog();
                 $count = count($queries);
-                Log::info($request->method() . ' - ' . $request->url() . ": $count queries");
+                $timeEnd = microtime(true);
+                $time = $timeEnd - $timeStart;
+                Log::info($request->method() . ' - ' . $request->url() . ": $count queries - " . $time);
                 //Log::info($queries);
             }
         }

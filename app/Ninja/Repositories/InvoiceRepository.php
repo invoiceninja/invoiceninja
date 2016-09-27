@@ -306,9 +306,6 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['is_amount_discount'])) {
             $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
         }
-        if (isset($data['partial'])) {
-            $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
-        }
         if (isset($data['invoice_date_sql'])) {
             $invoice->invoice_date = $data['invoice_date_sql'];
         } elseif (isset($data['invoice_date'])) {
@@ -475,6 +472,10 @@ class InvoiceRepository extends BaseRepository
             $invoice->balance = $total - ($invoice->amount - $invoice->balance);
         } else {
             $invoice->balance = $total;
+        }
+
+        if (isset($data['partial'])) {
+            $invoice->partial = min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance);
         }
 
         $invoice->amount = $total;

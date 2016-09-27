@@ -26,9 +26,6 @@ Here is a description of the columns in the recurring invoices list, as displaye
  - **Archive Recurring**: Invoice Click here to archive the recurring invoice. It will be archived and removed from the Recurring Invoices list page.
  - **Delete Recurring**: Invoice Click here to delete the recurring invoice. It will be deleted and removed from the Recurring Invoices list page.
 
-New Recurring Invoice
-^^^^^^^^^^^^^^^^^^^^^
-
 You can create a new recurring invoice directly from the Recurring Invoices list page by clicking on the blue New Recurring Invoice + button located at the top right side of the page. The Recurring Invoices / Create page will open.
 
 Filter

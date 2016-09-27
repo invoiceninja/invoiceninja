@@ -3,6 +3,7 @@
 use Auth;
 use URL;
 use View;
+use Utils;
 use Input;
 use Session;
 use Redirect;
@@ -22,7 +23,7 @@ class ProductController extends BaseController
 
     /**
      * ProductController constructor.
-     * 
+     *
      * @param ProductService $productService
      */
     public function __construct(ProductService $productService)
@@ -37,8 +38,33 @@ class ProductController extends BaseController
      */
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        $columns = [
+            'checkbox',
+            'product',
+            'description',
+            'unit_cost'
+        ];
+
+        if (Auth::user()->account->invoice_item_taxes) {
+            $columns[] = 'tax_rate';
+        }
+        $columns[] = 'action';
+
+        return View::make('list', [
+            'entityType' => ENTITY_PRODUCT,
+            'title' => trans('texts.products'),
+            'sortCol' => '4',
+            'columns' => Utils::trans($columns),
+        ]);
     }
+
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return Redirect::to("products/$publicId/edit");
+    }
+
 
     /**
      * @return \Illuminate\Http\JsonResponse
@@ -126,7 +152,7 @@ class ProductController extends BaseController
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
 
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return Redirect::to(ACCOUNT_PRODUCTS);
     }
 
     /**
@@ -134,12 +160,12 @@ class ProductController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = Input::get('action');
+        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->productService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_product'));
 
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return $this->returnBulk(ENTITY_PRODUCT, $action, $ids);
     }
 }

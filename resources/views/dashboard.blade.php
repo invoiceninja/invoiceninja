@@ -126,7 +126,7 @@
 
             $("#group-btn-group > .btn").click(function(){
                 $(this).addClass("active").siblings().removeClass("active");
-                chartGropuBy = $(this).text();
+                chartGropuBy = $(this).attr('data-button');
                 loadData();
             });
 
@@ -182,9 +182,9 @@
             </div>
             @endif
             <div id="group-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc; margin-left:18px">
-              <button type="button" class="btn btn-normal active" style="font-weight:normal !important;background-color:white">{{ trans('texts.day') }}</button>
-              <button type="button" class="btn btn-normal" style="font-weight:normal !important;background-color:white">{{ trans('texts.week') }}</button>
-              <button type="button" class="btn btn-normal" style="font-weight:normal !important;background-color:white">{{ trans('texts.month') }}</button>
+              <button type="button" class="btn btn-normal active" data-button="day" style="font-weight:normal !important;background-color:white">{{ trans('texts.day') }}</button>
+              <button type="button" class="btn btn-normal" data-button="week" style="font-weight:normal !important;background-color:white">{{ trans('texts.week') }}</button>
+              <button type="button" class="btn btn-normal" data-button="month" style="font-weight:normal !important;background-color:white">{{ trans('texts.month') }}</button>
             </div>
             <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 9px 14px; border: 1px solid #ccc; margin-top: 0px; margin-left:18px">
                 <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;

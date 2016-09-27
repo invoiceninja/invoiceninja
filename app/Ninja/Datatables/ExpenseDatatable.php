@@ -46,7 +46,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'expense_date',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id])){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])){
                         return Utils::fromSqlDate($model->expense_date);
                     }
 

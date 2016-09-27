@@ -52,6 +52,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::post('client/payment_methods/default', 'ClientPortalController@setDefaultPaymentMethod');
     Route::post('client/payment_methods/{source_id}/remove', 'ClientPortalController@removePaymentMethod');
     Route::get('client/quotes', 'ClientPortalController@quoteIndex');
+    Route::get('client/credits', 'ClientPortalController@creditIndex');
     Route::get('client/invoices', 'ClientPortalController@invoiceIndex');
     Route::get('client/invoices/recurring', 'ClientPortalController@recurringInvoiceIndex');
     Route::post('client/invoices/auto_bill', 'ClientPortalController@setAutoBill');
@@ -63,6 +64,7 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/documents/{invitation_key}/{filename?}', 'ClientPortalController@getInvoiceDocumentsZip');
 
     Route::get('api/client.quotes', ['as'=>'api.client.quotes', 'uses'=>'ClientPortalController@quoteDatatable']);
+    Route::get('api/client.credits', ['as'=>'api.client.credits', 'uses'=>'ClientPortalController@creditDatatable']);
     Route::get('api/client.invoices', ['as'=>'api.client.invoices', 'uses'=>'ClientPortalController@invoiceDatatable']);
     Route::get('api/client.recurring_invoices', ['as'=>'api.client.recurring_invoices', 'uses'=>'ClientPortalController@recurringInvoiceDatatable']);
     Route::get('api/client.documents', ['as'=>'api.client.documents', 'uses'=>'ClientPortalController@documentDatatable']);
@@ -127,7 +129,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
     Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
-    Route::get('check_invoice_number', 'InvoiceController@checkInvoiceNumber');
+    Route::get('check_invoice_number/{invoice_id?}', 'InvoiceController@checkInvoiceNumber');
     Route::get('save_sidebar_state', 'UserController@saveSidebarState');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
@@ -186,6 +188,11 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('api/credits/{client_id?}', ['as'=>'api.credits', 'uses'=>'CreditController@getDatatable']);
     Route::post('credits/bulk', 'CreditController@bulk');
 
+    Route::get('api/products', ['as'=>'api.products', 'uses'=>'ProductController@getDatatable']);
+    Route::resource('products', 'ProductController');
+    Route::post('products/bulk', 'ProductController@bulk');
+
+
     Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
     Route::post('/update_setup', 'AppController@updateSetup');
 
@@ -227,10 +234,6 @@ Route::group([
     Route::get('api/tokens', ['as'=>'api.tokens', 'uses'=>'TokenController@getDatatable']);
     Route::resource('tokens', 'TokenController');
     Route::post('tokens/bulk', 'TokenController@bulk');
-
-    Route::get('api/products', ['as'=>'api.products', 'uses'=>'ProductController@getDatatable']);
-    Route::resource('products', 'ProductController');
-    Route::post('products/bulk', 'ProductController@bulk');
 
     Route::get('api/tax_rates', ['as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable']);
     Route::resource('tax_rates', 'TaxRateController');
@@ -602,6 +605,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_CYBERSOURCE', 49);
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
+    define('GATEWAY_CUSTOM', 62);
 
     // The customer exists, but only as a local concept
     // The remote gateway doesn't understand the concept of customers
@@ -623,7 +627,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.7.1' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.7.2' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -710,6 +714,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('GATEWAY_TYPE_PAYPAL', 3);
     define('GATEWAY_TYPE_BITCOIN', 4);
     define('GATEWAY_TYPE_DWOLLA', 5);
+    define('GATEWAY_TYPE_CUSTOM', 6);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('REMINDER1', 'reminder1');

@@ -76,13 +76,17 @@
                             {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
                         </li>
                     @endif
-                    <li {!! Request::is('*client/quotes') ? 'class="active"' : '' !!}>
-                        {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
-                    </li>
+                    @if (isset($hasQuotes) && $hasQuotes)
+                        <li {!! Request::is('*client/quotes') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
+                        </li>
+                    @endif
                     <li {!! Request::is('*client/invoices') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                     </li>
-                    @if (isset($account) && $account->hasFeature(FEATURE_DOCUMENTS))
+                    @if (isset($account)
+                        && $account->hasFeature(FEATURE_DOCUMENTS)
+                        && (isset($hasDocuments) && $hasDocuments))
                         <li {!! Request::is('*client/documents') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/documents', trans('texts.documents') ) !!}
                         </li>
@@ -95,6 +99,11 @@
                     <li {!! Request::is('*client/payments') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/payments', trans('texts.payments') ) !!}
                     </li>
+                    @if (isset($hasCredits) && $hasCredits)
+                        <li {!! Request::is('*client/credits') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/credits', trans('texts.credits') ) !!}
+                        </li>
+                    @endif
                 </ul>
                 @endif
             </div><!--/.nav-collapse -->

@@ -24,6 +24,10 @@ class BaseController extends Controller
 
     protected function returnBulk($entityType, $action, $ids)
     {
+        if ( ! is_array($ids)) {
+            $ids = [$ids];
+        }
+        
         $isDatatable = filter_var(request()->datatable, FILTER_VALIDATE_BOOLEAN);
         $entityTypes = Utils::pluralizeEntityType($entityType);
 

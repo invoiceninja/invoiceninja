@@ -58,7 +58,17 @@ class RecurringInvoiceDatatable extends EntityDatatable
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
-            ]
+            ],
+            [
+                trans("texts.clone_invoice"),
+                function ($model) {
+                    return URL::to("invoices/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_INVOICE);
+                }
+            ],
+
         ];
     }
 

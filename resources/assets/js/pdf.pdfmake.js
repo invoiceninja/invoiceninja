@@ -677,6 +677,8 @@ NINJA.renderInvoiceField = function(invoice, field) {
         } else {
             return false;
         }
+    } else if (field == '.blank') {
+        return [{text: ' '}, {text: ' '}];
     }
 }
 
@@ -744,6 +746,8 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
     } else if (field == 'client.email') {
         var clientEmail = contact.email == clientName ? '' : contact.email;
         return {text:clientEmail};
+    } else if (field == 'client.phone') {
+        return {text:contact.phone};
     } else if (field == 'client.custom_value1') {
         return {text: account.custom_client_label1 && client.custom_value1 ? account.custom_client_label1 + ' ' + client.custom_value1 : false};
     } else if (field == 'client.custom_value2') {
@@ -783,6 +787,8 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
         if (invoice.features.invoice_settings) {
             return invoice.account.custom_label2 && invoice.account.custom_value2 ? {text: invoice.account.custom_label2 + ' ' + invoice.account.custom_value2} : false;
         }
+    } else if (field == '.blank') {
+        return {text: ' '};
     }
 
     return false;

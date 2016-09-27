@@ -484,14 +484,15 @@
         @foreach ([
             'dashboard' => false,
             'clients' => false,
+            'products' => false,
+            'invoices' => false,
+            'payments' => false,
+            'recurring_invoices' => 'recurring',
             'credits' => false,
+            'quotes' => false,
             'tasks' => false,
             'expenses' => false,
             'vendors' => false,
-            'quotes' => false,
-            'invoices' => false,
-            'recurring_invoices' => 'recurring',
-            'payments' => false,
             'settings' => false,
         ] as $key => $value)
             {!! Form::nav_link($key, $value ?: $key) !!}
@@ -509,6 +510,7 @@
             @foreach([
                 'dashboard',
                 'clients',
+                'products',
                 'invoices',
                 'payments',
                 'recurring_invoices',
@@ -517,12 +519,13 @@
                 'tasks',
                 'expenses',
                 'vendors',
-                'settings'
+                'settings',
+                'self-update'
             ] as $option)
             <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                 @if ($option == 'settings')
                     <a type="button" class="btn btn-default btn-sm pull-right"
-                        href="{{ url(NINJA_DOCS_URL) }}" target="_blank">
+                        href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">
                         <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
                     </a>
                 @elseif ($option != 'dashboard')
@@ -538,6 +541,9 @@
                     class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                     <i class="fa fa-{{ \App\Models\EntityModel::getIcon($option) }}" style="width:46px; padding-right:10px"></i>
                     {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
+                    @if (false && $option == 'self-update' && Updater::source()->isNewVersionAvailable('v'.NINJA_VERSION))
+                        <span class="badge alert-danger">1</span>
+                    @endif
                 </a>
             </li>
             @endforeach

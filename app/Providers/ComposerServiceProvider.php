@@ -14,13 +14,29 @@ class ComposerServiceProvider extends ServiceProvider
     public function boot()
     {
         view()->composer(
-            ['accounts.details', 'clients.edit', 'payments.edit', 'invoices.edit', 'accounts.localization'],
+            [
+                'accounts.details',
+                'clients.edit',
+                'payments.edit',
+                'invoices.edit',
+                'accounts.localization'
+            ],
             'App\Http\ViewComposers\TranslationComposer'
         );
 
         view()->composer(
-             ['header', 'tasks.edit'],
+             [
+                 'header',
+                 'tasks.edit'
+             ],
              'App\Http\ViewComposers\AppLanguageComposer'
+        );
+
+        view()->composer(
+             [
+                 'public.header'
+             ],
+             'App\Http\ViewComposers\ClientPortalHeaderComposer'
         );
     }
 

@@ -906,7 +906,7 @@ div.alert {
 
 .alert-hide {
   position: absolute;
-  margin-left: 25%;
+  margin-left: 40%;
   z-index: 9999;
 }
 

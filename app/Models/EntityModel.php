@@ -254,6 +254,7 @@ class EntityModel extends Eloquent
         $icons = [
             'dashboard' => 'tachometer',
             'clients' => 'users',
+            'products' => 'cube',
             'invoices' => 'file-pdf-o',
             'payments' => 'credit-card',
             'recurring_invoices' => 'files-o',
@@ -263,6 +264,7 @@ class EntityModel extends Eloquent
             'expenses' => 'file-image-o',
             'vendors' => 'building',
             'settings' => 'cog',
+            'self-update' => 'download',
         ];
 
         return array_get($icons, $entityType);

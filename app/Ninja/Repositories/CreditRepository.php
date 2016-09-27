@@ -58,10 +58,36 @@ class CreditRepository extends BaseRepository
         return $query;
     }
 
+    public function getClientDatatable($clientId)
+    {
+        $query = DB::table('credits')
+                    ->join('accounts', 'accounts.id', '=', 'credits.account_id')
+                    ->join('clients', 'clients.id', '=', 'credits.client_id')
+                    ->where('credits.client_id', '=', $clientId)
+                    ->where('clients.deleted_at', '=', null)
+                    ->where('credits.deleted_at', '=', null)
+                    ->where('credits.balance', '>', 0)
+                    ->select(
+                        DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
+                        DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                        'credits.amount',
+                        'credits.balance',
+                        'credits.credit_date'
+                    );
+
+        $table = \Datatable::query($query)
+            ->addColumn('credit_date', function ($model) { return Utils::fromSqlDate($model->credit_date); })
+            ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
+            ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id); })
+            ->make();
+
+        return $table;
+    }
+
     public function save($input, $credit = null)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
-        
+
         if ($credit) {
             // do nothing
         } elseif ($publicId) {

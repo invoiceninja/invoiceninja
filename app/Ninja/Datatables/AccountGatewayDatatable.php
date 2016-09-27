@@ -10,6 +10,8 @@ use App\Models\AccountGateway;
 
 class AccountGatewayDatatable extends EntityDatatable
 {
+    private static $accountGateways;
+
     public $entityType = ENTITY_ACCOUNT_GATEWAY;
 
     public function columns()
@@ -20,10 +22,14 @@ class AccountGatewayDatatable extends EntityDatatable
                 function ($model) {
                     if ($model->deleted_at) {
                         return $model->name;
+                    } elseif ($model->gateway_id == GATEWAY_CUSTOM) {
+                        $accountGateway = $this->getAccountGateway($model->id);
+                        $name = $accountGateway->getConfigField('name') . ' [' . trans('texts.custom') . ']';
+                        return link_to("gateways/{$model->public_id}/edit", $name)->toHtml();
                     } elseif ($model->gateway_id != GATEWAY_WEPAY) {
                         return link_to("gateways/{$model->public_id}/edit", $model->name)->toHtml();
                     } else {
-                        $accountGateway = AccountGateway::find($model->id);
+                        $accountGateway = $this->getAccountGateway($model->id);
                         $config = $accountGateway->getConfig();
                         $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
                         $wepayAccountId = $config->accountId;
@@ -53,10 +59,14 @@ class AccountGatewayDatatable extends EntityDatatable
             [
                 'limit',
                 function ($model) {
-                    $accountGateway = AccountGateway::find($model->id);
-                    $paymentDriver = $accountGateway->paymentDriver();
-                    $gatewayTypes = $paymentDriver->gatewayTypes();
-                    $gatewayTypes = array_diff($gatewayTypes, array(GATEWAY_TYPE_TOKEN));
+                    if ($model->gateway_id == GATEWAY_CUSTOM) {
+                        $gatewayTypes = [GATEWAY_TYPE_CUSTOM];
+                    } else {
+                        $accountGateway = $this->getAccountGateway($model->id);
+                        $paymentDriver = $accountGateway->paymentDriver();
+                        $gatewayTypes = $paymentDriver->gatewayTypes();
+                        $gatewayTypes = array_diff($gatewayTypes, array(GATEWAY_TYPE_TOKEN));
+                    }
 
                     $html = '';
                     foreach ($gatewayTypes as $gatewayTypeId) {
@@ -123,7 +133,7 @@ class AccountGatewayDatatable extends EntityDatatable
             ], [
                 uctrans('texts.manage_account'),
                 function ($model) {
-                    $accountGateway = AccountGateway::find($model->id);
+                    $accountGateway = $this->getAccountGateway($model->id);
                     $endpoint = WEPAY_ENVIRONMENT == WEPAY_STAGE ? 'https://stage.wepay.com/' : 'https://www.wepay.com/';
                     return [
                         'url' => $endpoint.'account/'.$accountGateway->getConfig()->accountId,
@@ -148,25 +158,41 @@ class AccountGatewayDatatable extends EntityDatatable
             $actions[] = [
                 trans('texts.set_limits', ['gateway_type' => $gatewayType->name]),
                 function () use ($gatewayType) {
-                    $accountGatewaySettings = AccountGatewaySettings::scope()->where('account_gateway_settings.gateway_type_id',
-                        '=', $gatewayType->id)->first();
+                    $accountGatewaySettings = AccountGatewaySettings::scope()
+                        ->where('account_gateway_settings.gateway_type_id', '=', $gatewayType->id)
+                        ->first();
                     $min = $accountGatewaySettings && $accountGatewaySettings->min_limit !== null ? $accountGatewaySettings->min_limit : 'null';
                     $max = $accountGatewaySettings && $accountGatewaySettings->max_limit !== null ? $accountGatewaySettings->max_limit : 'null';
 
-                    return "javascript:showLimitsModal('{$gatewayType->name}',{$gatewayType->id},$min,$max)";
+                    return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id}, $min, $max)";
                 },
                 function ($model) use ($gatewayType) {
                     // Only show this action if the given gateway supports this gateway type
-                    $accountGateway = AccountGateway::find($model->id);
-                    $paymentDriver = $accountGateway->paymentDriver();
-                    $gatewayTypes = $paymentDriver->gatewayTypes();
+                    if ($model->gateway_id == GATEWAY_CUSTOM) {
+                        return $gatewayType->id == GATEWAY_TYPE_CUSTOM;
+                    } else {
+                        $accountGateway = $this->getAccountGateway($model->id);
+                        $paymentDriver = $accountGateway->paymentDriver();
+                        $gatewayTypes = $paymentDriver->gatewayTypes();
 
-                    return in_array($gatewayType->id, $gatewayTypes);
+                        return in_array($gatewayType->id, $gatewayTypes);
+                    }
                 }
             ];
         }
 
         return $actions;
+    }
+
+    private function getAccountGateway($id)
+    {
+        if (isset(static::$accountGateways[$id])) {
+            return static::$accountGateways[$id];
+        }
+
+        static::$accountGateways[$id] = AccountGateway::find($id);
+
+        return static::$accountGateways[$id];
     }
 
 }

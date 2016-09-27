@@ -19,13 +19,12 @@ class ProductRepository extends BaseRepository
 
     public function find($accountId)
     {
-        return DB::table('products')
+        $query = DB::table('products')
                 ->leftJoin('tax_rates', function($join) {
                     $join->on('tax_rates.id', '=', 'products.default_tax_rate_id')
                          ->whereNull('tax_rates.deleted_at');
                 })
                 ->where('products.account_id', '=', $accountId)
-                ->where('products.deleted_at', '=', null)
                 ->select(
                     'products.public_id',
                     'products.product_key',
@@ -35,6 +34,12 @@ class ProductRepository extends BaseRepository
                     'tax_rates.rate as tax_rate',
                     'products.deleted_at'
                 );
+
+        if (!\Session::get('show_trash:product')) {
+            $query->where('products.deleted_at', '=', null);
+        }
+
+        return $query;
     }
 
     public function save($data, $product = null)

@@ -87,6 +87,7 @@ trait PresentsInvoice
                 'invoice.partial_due',
                 'invoice.custom_text_value1',
                 'invoice.custom_text_value2',
+                '.blank',
             ],
             INVOICE_FIELDS_CLIENT => [
                 'client.client_name',
@@ -97,9 +98,11 @@ trait PresentsInvoice
                 'client.city_state_postal',
                 'client.country',
                 'client.email',
+                'client.phone',
                 'client.contact_name',
                 'client.custom_value1',
                 'client.custom_value2',
+                '.blank',
             ],
             INVOICE_FIELDS_ACCOUNT => [
                 'account.company_name',
@@ -114,6 +117,7 @@ trait PresentsInvoice
                 'account.country',
                 'account.custom_value1',
                 'account.custom_value2',
+                '.blank',
             ]
         ];
 
@@ -198,6 +202,7 @@ trait PresentsInvoice
             'company_name',
             'website',
             'phone',
+            'blank',
         ];
 
         foreach ($fields as $field) {

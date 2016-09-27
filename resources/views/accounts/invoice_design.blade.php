@@ -201,7 +201,7 @@
                         </div>
                       </div>
 
-                      <div class="help-block">
+                      <div class="help-block" style="padding-top:16px">
                         {{ trans('texts.color_font_help') }}
                       </div>
 
@@ -239,8 +239,11 @@
                           @include('accounts.partials.invoice_fields_selector', ['section' => 'account_fields1', 'fields' => INVOICE_FIELDS_ACCOUNT])
                           @include('accounts.partials.invoice_fields_selector', ['section' => 'account_fields2', 'fields' => INVOICE_FIELDS_ACCOUNT])
                       </div>
-                      <div class="row">
-                          <div class="pull-right" style="padding-top:18px;padding-right:14px">
+                      <div class="row" style="padding-top:30px">
+                          <div class="pull-left help-block">
+                              {{ trans('texts.invoice_fields_help') }}
+                          </div>
+                          <div class="pull-right" style="padding-right:14px">
                               {!! Button::normal(trans('texts.reset'))
                                     ->withAttributes(['onclick' => 'sweetConfirm(function() {
                                         resetFields();

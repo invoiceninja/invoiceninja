@@ -15,7 +15,7 @@ class PaymentLibrariesSeeder extends Seeder
         Eloquent::unguard();
 
         $gateways = [
-            ['name' => 'Authorize.Net AIM', 'provider' => 'AuthorizeNet_AIM'],
+            ['name' => 'Authorize.Net AIM', 'provider' => 'AuthorizeNet_AIM', 'sort_order' => 3],
 			['name' => 'Authorize.Net SIM', 'provider' => 'AuthorizeNet_SIM', 'payment_library_id' => 2],
 			['name' => 'CardSave', 'provider' => 'CardSave'],
 			['name' => 'Eway Rapid', 'provider' => 'Eway_RapidShared', 'is_offsite' => true],
@@ -23,7 +23,7 @@ class PaymentLibrariesSeeder extends Seeder
 			['name' => 'GoCardless', 'provider' => 'GoCardless', 'is_offsite' => true],
 			['name' => 'Migs ThreeParty', 'provider' => 'Migs_ThreeParty'],
 			['name' => 'Migs TwoParty', 'provider' => 'Migs_TwoParty'],
-			['name' => 'Mollie', 'provider' => 'Mollie', 'is_offsite' => true],
+			['name' => 'Mollie', 'provider' => 'Mollie', 'is_offsite' => true, 'sort_order' => 6],
 			['name' => 'MultiSafepay', 'provider' => 'MultiSafepay'],
 			['name' => 'Netaxept', 'provider' => 'Netaxept'],
 			['name' => 'NetBanx', 'provider' => 'NetBanx'],
@@ -37,7 +37,7 @@ class PaymentLibrariesSeeder extends Seeder
 			['name' => 'SagePay Direct', 'provider' => 'SagePay_Direct'],
 			['name' => 'SagePay Server', 'provider' => 'SagePay_Server'],
 			['name' => 'SecurePay DirectPost', 'provider' => 'SecurePay_DirectPost'],
-			['name' => 'Stripe', 'provider' => 'Stripe'],
+			['name' => 'Stripe', 'provider' => 'Stripe', 'sort_order' => 1],
 			['name' => 'TargetPay Direct eBanking', 'provider' => 'TargetPay_Directebanking'],
 			['name' => 'TargetPay Ideal', 'provider' => 'TargetPay_Ideal'],
 			['name' => 'TargetPay Mr Cash', 'provider' => 'TargetPay_Mrcash'],
@@ -56,8 +56,8 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Realex', 'provider' => 'Realex_Remote'],
             ['name' => 'Sisow', 'provider' => 'Sisow'],
             ['name' => 'Skrill', 'provider' => 'Skrill'],
-            ['name' => 'BitPay', 'provider' => 'BitPay', 'is_offsite' => true],
-            ['name' => 'Dwolla', 'provider' => 'Dwolla', 'is_offsite' => true],
+            ['name' => 'BitPay', 'provider' => 'BitPay', 'is_offsite' => true, 'sort_order' => 5],
+            ['name' => 'Dwolla', 'provider' => 'Dwolla', 'is_offsite' => true, 'sort_order' => 4],
             ['name' => 'AGMS', 'provider' => 'Agms'],
             ['name' => 'Barclays', 'provider' => 'BarclaysEpdq\Essential'],
             ['name' => 'Cardgate', 'provider' => 'Cardgate'],
@@ -75,14 +75,14 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'SecPay', 'provider' => 'SecPay'],
             ['name' => 'WeChat Express', 'provider' => 'WeChat_Express'],
             ['name' => 'WePay', 'provider' => 'WePay', 'is_offsite' => false],
-            ['name' => 'Braintree', 'provider' => 'Braintree'],
+            ['name' => 'Braintree', 'provider' => 'Braintree', 'sort_order' => 2],
+            ['name' => 'Custom', 'provider' => 'Custom', 'is_offsite' => true, 'sort_order' => 7],
         ];
 
         foreach ($gateways as $gateway) {
             $record = Gateway::where('name', '=', $gateway['name'])->first();
             if ($record) {
-                $record->provider = $gateway['provider'];
-                $record->is_offsite = isset($gateway['is_offsite']) ? boolval($gateway['is_offsite']) : false;
+                $record->fill($gateway);
                 $record->save();
             } else {
                 Gateway::create($gateway);

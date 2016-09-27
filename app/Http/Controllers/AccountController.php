@@ -475,16 +475,9 @@ class AccountController extends BaseController
      */
     private function showProducts()
     {
-        $columns = ['product', 'description', 'unit_cost'];
-        if (Auth::user()->account->invoice_item_taxes) {
-            $columns[] = 'tax_rate';
-        }
-        $columns[] = 'action';
-
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.product_library'),
-            'columns' => Utils::trans($columns),
         ];
 
         return View::make('accounts.products', $data);

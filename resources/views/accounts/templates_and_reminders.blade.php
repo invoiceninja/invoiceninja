@@ -153,8 +153,8 @@
                         @if (count($account->account_gateways) > 1)
                             @foreach (\App\Models\Gateway::$gatewayTypes as $type)
                                 @if ($account->getGatewayByType($type))
-                                    <li>${{ Utils::toCamelCase($type) }}Link</li>
-                                    <li>${{ Utils::toCamelCase($type) }}Button</li>
+                                    <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Link</li>
+                                    <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Button</li>
                                 @endif
                             @endforeach
                         @endif

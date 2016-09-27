@@ -47,9 +47,6 @@ Want to view archived or deleted payments? Check the box marked Show archived/de
 - **Deleted payments** are displayed with a red Deleted button. To restore deleted payments, hover on the red Deleted button. A gray Select button will appear. Click on the Select arrow, and select Restore payment in the drop-down list.
 - **Archived payments** are displayed with an orange Archived button. To restore the archived payment, hover on the orange Archived button. A gray Select button will appear. Click on the Select arrow, and choose Restore payment from the drop-down list. To delete an archived payment, select Delete payment from the drop-down list of the Select button.
 
-Enter Payment
-^^^^^^^^^^^^^
-
 You can enter a new payment directly from the Payments list page by clicking on the blue Enter Payment + button located at the top right side of the page. The Payments / Create page will open.
 
 Filter

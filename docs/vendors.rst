@@ -37,9 +37,6 @@ Here are the available actions in the drop-down list of the Action button, and t
 
 .. TIP:: Each vendor you create has its own summary page, where you can view and manage the vendor details. To view a vendor's summary page, click on the vendor name in the Vendors list. You'll be automatically redirected to the vendor's summary page.
 
-New Vendor
-^^^^^^^^^^
-
 You can add a new vendor directly from the Vendors list page by clicking on the blue New Vendor + button located at the top right side of the page. The Vendors / Create page will open.
 
 Sorting & Filtering Vendors
