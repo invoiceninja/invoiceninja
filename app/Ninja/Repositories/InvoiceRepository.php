@@ -475,7 +475,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         if (isset($data['partial'])) {
-            $invoice->partial = min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance);
+            $invoice->partial = max(0,min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance));
         }
 
         $invoice->amount = $total;
