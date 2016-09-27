@@ -300,11 +300,7 @@ class TaskController extends BaseController
             $message = Utils::pluralize($action.'d_task', $count);
             Session::flash('message', $message);
 
-            if ($action == 'restore' && $count == 1) {
-                return Redirect::to('tasks/'.$ids[0].'/edit');
-            } else {
-                return Redirect::to('tasks');
-            }
+            return $this->returnBulk($this->entityType, $action, $ids);
         }
     }
 

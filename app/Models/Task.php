@@ -151,7 +151,30 @@ class Task extends EntityModel
     {
         return "/tasks/{$this->public_id}/edit";
     }
+
+    public function getName()
+    {
+        return '#' . $this->public_id;
+    }
+
+    public function getDisplayName()
+    {
+        if ($this->description) {
+            return mb_strimwidth($this->description, 0, 16, "...");
+        }
+
+        return '#' . $this->public_id;
+    }
+
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) >= ' . $startDate->format('U'));
+        $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) <= ' . $endDate->format('U'));
+
+        return $query;
+    }
 }
+
 
 
 Task::created(function ($task) {

@@ -7,6 +7,7 @@
 	<div style="display:none">
 		{!! Former::text('action') !!}
         {!! Former::text('public_id') !!}
+        {!! Former::text('datatable')->value('true') !!}
 	</div>
 
 	@can('create', 'invoice')

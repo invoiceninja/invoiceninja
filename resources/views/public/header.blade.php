@@ -10,17 +10,6 @@
 
 @section('body')
 
-<!--
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=635126583203143";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
--->
-
 {!! Form::open(array('url' => 'get_started', 'id' => 'startForm')) !!}
 {!! Form::hidden('guest_key') !!}
 {!! Form::hidden('sign_up', Input::get('sign_up')) !!}

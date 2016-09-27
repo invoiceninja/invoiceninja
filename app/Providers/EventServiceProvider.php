@@ -11,6 +11,7 @@ class EventServiceProvider extends ServiceProvider {
 	 * @var array
 	 */
 	protected $listen = [
+
         // Clients
         'App\Events\ClientWasCreated' => [
             'App\Listeners\ActivityListener@createdClient',

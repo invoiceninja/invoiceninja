@@ -22,10 +22,6 @@ class DuplicateSubmissionCheck
 
         $path = $request->path();
 
-        if (strpos($path, 'charts_and_reports') !== false) {
-            return $next($request);
-        }
-
         if (in_array($request->method(), ['POST', 'PUT', 'DELETE'])) {
             $lastPage = session(SESSION_LAST_REQUEST_PAGE);
             $lastTime = session(SESSION_LAST_REQUEST_TIME);

@@ -328,7 +328,8 @@ class Client extends EntityModel
         }
 
         $contact = $this->contacts[0];
-        return $contact->getDisplayName();
+
+        return $contact->getDisplayName() ?: trans('texts.unnamed_client');
     }
 
     /**

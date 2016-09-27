@@ -27,4 +27,12 @@ class EntityPresenter extends Presenter
 
         return link_to($link, $name)->toHtml();
     }
+
+    public function titledName()
+    {
+        $entity = $this->entity;
+        $entityType = $entity->getEntityType();
+
+        return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
+    }
 }

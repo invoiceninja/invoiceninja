@@ -36,7 +36,7 @@ class SettingsCest
         $I->seeRecord('accounts', array('name' => $name));
     }
     */
-    
+
     public function userDetails(FunctionalTester $I)
     {
         $I->wantTo('update the user details');
@@ -96,7 +96,7 @@ class SettingsCest
         $I->seeRecord('products', array('product_key' => $productKey));
     }
 
-    public function updateProduct(FunctionalTester $I) 
+    public function updateProduct(FunctionalTester $I)
     {
         return;
 
@@ -128,7 +128,7 @@ class SettingsCest
         $I->seeRecord('accounts', array('invoice_terms' => $terms));
     }
     */
-    
+
     public function updateInvoiceSettings(FunctionalTester $I)
     {
         $I->wantTo('update invoice settings');
@@ -163,12 +163,12 @@ class SettingsCest
     public function runReport(FunctionalTester $I)
     {
         $I->wantTo('run the report');
-        $I->amOnPage('/settings/charts_and_reports');
+        $I->amOnPage('/settings/reports');
 
         $I->click('Run');
         $I->seeResponseCodeIs(200);
     }
-    
+
     public function createUser(FunctionalTester $I)
     {
         $I->wantTo('create a user');
@@ -213,7 +213,7 @@ class SettingsCest
 
             $I->fillField(['name' => '23_apiKey'], $apiKey);
             $I->click('Save');
-            
+
             $I->seeResponseCodeIs(200);
             $I->see('Successfully created gateway');
             $I->seeRecord('account_gateways', array('gateway_id' => 23));
@@ -224,12 +224,12 @@ class SettingsCest
 
         // $I->amOnPage('/gateways/1/edit');
         // $I->click('Save');
-            
+
         // $I->seeResponseCodeIs(200);
         // $I->see('Successfully updated gateway');
         // $I->seeRecord('account_gateways', array('config' => '{"apiKey":"ASHHOWAH"}'));
     }
     */
-    
+
 
 }

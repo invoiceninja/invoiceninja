@@ -507,7 +507,7 @@ $LANG = array(
     'payment_type_paypal' => 'PayPal',
     'payment_type_bitcoin' => 'Bitcoin',
     'knowledge_base' => 'Knowledge Base',
-    'partial' => 'Partial',
+    'partial' => 'Partial/Deposit',
     'partial_remaining' => ':partial of :balance',
     'more_fields' => 'More Fields',
     'less_fields' => 'Less Fields',
@@ -643,6 +643,7 @@ $LANG = array(
     'custom' => 'Custom',
     'invoice_to' => 'Invoice to',
     'invoice_no' => 'Invoice No.',
+    'quote_no' => 'Quote No.',
     'recent_payments' => 'Recent Payments',
     'outstanding' => 'Outstanding',
     'manage_companies' => 'Manage Companies',
@@ -995,7 +996,7 @@ $LANG = array(
     'overdue' => 'Overdue',
 
 
-    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding and help support our project.',
+    'white_label_text' => 'Purchase a ONE YEAR white label license for $:price to remove the Invoice Ninja branding from the invoice and client portal.',
     'user_email_footer' => 'To adjust your email notification settings please visit :link',
     'reset_password_footer' => 'If you did not request this password reset please email our support: :email',
     'limit_users' => 'Sorry, this will exceed the limit of :limit users',
@@ -1392,6 +1393,13 @@ $LANG = array(
     'payment_type_PayPal' => 'PayPal',
     'payment_type_Google Wallet' => 'Google Wallet',
     'payment_type_Check' => 'Check',
+    'payment_type_Carte Blanche' => 'Carte Blanche',
+    'payment_type_UnionPay' => 'UnionPay',
+    'payment_type_JCB' => 'JCB',
+    'payment_type_Laser' => 'Laser',
+    'payment_type_Maestro' => 'Maestro',
+    'payment_type_Solo' => 'Solo',
+    'payment_type_Switch' => 'Switch',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -1695,6 +1703,7 @@ $LANG = array(
     'lang_Spanish' => 'Spanish',
     'lang_Spanish - Spain' => 'Spanish - Spain',
     'lang_Swedish' => 'Swedish',
+    'lang_Albanian' => 'Albanian',
 
     // Frequencies
     'freq_weekly' => 'Weekly',
@@ -2060,7 +2069,7 @@ $LANG = array(
     'bot_emailed_notify_viewed' => 'I\'ll email you when it\'s viewed.',
     'bot_emailed_notify_paid' => 'I\'ll email you when it\'s paid.',
     'add_product_to_invoice' => 'Add 1 :product',
-    'not_authorized' => 'Your are not authorized',
+    'not_authorized' => 'You are not authorized',
     'bot_get_email' => 'Hi! (wave)<br/>Thanks for trying the Invoice Ninja Bot.<br/>Send me your account email to get started.',
     'bot_get_code' => 'Thanks! I\'ve sent a you an email with your security code.',
     'bot_welcome' => 'That\'s it, your account is verified.<br/>',
@@ -2086,6 +2095,45 @@ $LANG = array(
     'update_invoiceninja_update_start' => 'Update now',
     'update_invoiceninja_download_start' => 'Download :version',
     'create_new' => 'Create New',
+
+    'toggle_navigation' => 'Toggle Navigation',
+    'toggle_history' => 'Toggle History',
+    'unassigned' => 'Unassigned',
+    'task' => 'Task',
+    'contact_name' => 'Contact Name',
+    'city_state_postal' => 'City/State/Postal',
+    'custom_field' => 'Custom Field',
+    'account_fields' => 'Company Fields',
+    'facebook_and_twitter' => 'Facebook and Twitter',
+    'facebook_and_twitter_help' => 'Follow our feeds to help support our project',
+    'reseller_text' => 'Note: the white-label license is intended for personal use, please email us at :email if you\'d like to resell our app.',
+    'unnamed_client' => 'Unnamed Client',
+
+    'day' => 'Day',
+    'week' => 'Week',
+    'month' => 'Month',
+    'inactive_logout' => 'You have been logged out due to inactivity',
+    'reports' => 'Reports',
+    'total_profit' => 'Total Profit',
+    'total_expenses' => 'Total Expenses',
+    'quote_to' => 'Quote to',
+
+    // Limits
+    'limit' => 'Limit',
+    'min_limit' => 'Min: :min',
+    'max_limit' => 'Max: :max',
+    'no_limit' => 'No Limits',
+    'set_limits' => 'Set :gateway_type Limits',
+    'enable_min' => 'Enable min',
+    'enable_max' => 'Enable max',
+    'min' => 'Min',
+    'max' => 'Max',
+    'limits_not_met' => 'This invoice does not meet the limits for that payment type.',
+
+    'date_range' => 'Date Range',
+    'raw' => 'Raw',
+    'raw_html' => 'Raw HTML',
+    'update' => 'Update',
 
 );
 

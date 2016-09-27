@@ -79,17 +79,21 @@ class PaymentsChanges extends Migration
         {
             $table->decimal('refunded', 13, 2);
             $table->unsignedInteger('payment_status_id')->default(PAYMENT_STATUS_COMPLETED);
-            $table->foreign('payment_status_id')->references('id')->on('payment_statuses');
 
             $table->unsignedInteger('routing_number')->nullable();
             $table->smallInteger('last4')->unsigned()->nullable();
             $table->date('expiration')->nullable();
             $table->text('gateway_error')->nullable();
             $table->string('email')->nullable();
-
             $table->unsignedInteger('payment_method_id')->nullable();
-            //$table->foreign('payment_method_id')->references('id')->on('payment_methods');
         });
+
+        Schema::table('payments', function($table)
+        {
+            $table->foreign('payment_status_id')->references('id')->on('payment_statuses');
+            $table->foreign('payment_method_id')->references('id')->on('payment_methods');
+        });
+
 
         Schema::table('invoices', function($table)
         {
@@ -109,7 +113,11 @@ class PaymentsChanges extends Migration
         Schema::table('account_gateway_tokens', function($table)
         {
             $table->unsignedInteger('default_payment_method_id')->nullable();
-            //$table->foreign('default_payment_method_id')->references('id')->on('payment_methods');
+        });
+
+        Schema::table('account_gateway_tokens', function($table)
+        {
+            $table->foreign('default_payment_method_id')->references('id')->on('payment_methods');
         });
 
     }
@@ -133,7 +141,7 @@ class PaymentsChanges extends Migration
             $table->dropColumn('gateway_error');
             $table->dropColumn('email');
 
-            //$table->dropForeign('payments_payment_method_id_foreign');
+            $table->dropForeign('payments_payment_method_id_foreign');
             $table->dropColumn('payment_method_id');
         });
 
@@ -163,7 +171,7 @@ class PaymentsChanges extends Migration
 
         Schema::table('account_gateway_tokens', function($table)
         {
-            //$table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
+            $table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
             $table->dropColumn('default_payment_method_id');
         });
 

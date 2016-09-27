@@ -78,7 +78,6 @@ class ClientRepository extends BaseRepository
             $client = Client::createNew();
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
-            \Log::warning('Entity not set in client repo save');
         }
 
         // convert currency code to id

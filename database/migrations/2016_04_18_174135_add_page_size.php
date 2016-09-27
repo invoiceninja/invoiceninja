@@ -41,7 +41,10 @@ class AddPageSize extends Migration
 
         Schema::table('expenses', function ($table) {
             $table->unsignedInteger('expense_category_id')->nullable()->index();
-            //$table->foreign('expense_category_id')->references('id')->on('expense_categories')->onDelete('cascade');
+        });
+
+        Schema::table('expenses', function ($table) {
+            $table->foreign('expense_category_id')->references('id')->on('expense_categories')->onDelete('cascade');
         });
     }
 
@@ -63,7 +66,7 @@ class AddPageSize extends Migration
         });
 
         Schema::table('expenses', function ($table) {
-            //$table->dropForeign('expenses_expense_category_id_foreign');
+            $table->dropForeign('expenses_expense_category_id_foreign');
             $table->dropColumn('expense_category_id');
         });
 

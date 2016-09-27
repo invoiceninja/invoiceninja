@@ -402,7 +402,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
 
             if (!$paymentMethod) {
-                throw new Exception('Unknown payment method');
+                return false;
             }
 
             if ($eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {

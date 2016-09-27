@@ -245,7 +245,7 @@ class ExpenseController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('expenses');
+        return $this->returnBulk($this->entityType, $action, $ids);
     }
 
     private static function getViewModel()

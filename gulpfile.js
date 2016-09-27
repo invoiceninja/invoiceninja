@@ -53,8 +53,15 @@ elixir(function(mix) {
         'bootstrap-combobox.css',
         'typeahead.js-bootstrap.css',
         'style.css',
+        'sidebar.css',
+        'colors.css',
         'fonts.css'
     ], 'public/css/built.css');
+
+    mix.styles([
+        bowerDir + '/bootstrap-daterangepicker/daterangepicker.css'
+    ], 'public/css/daterangepicker.css');
+
 
     /**
      * JS configuration
@@ -68,6 +75,10 @@ elixir(function(mix) {
         'pdfmake.js',
         'vfs.js'
     ], 'public/pdf.built.js');
+
+    mix.scripts([
+        bowerDir + '/bootstrap-daterangepicker/daterangepicker.js'
+    ], 'public/js/daterangepicker.min.js');
 
     mix.scripts([
         bowerDir + '/jquery/dist/jquery.js',
@@ -100,6 +111,7 @@ elixir(function(mix) {
         //bowerDir + '/stacktrace-js/dist/stacktrace-with-polyfills.min.js',
         bowerDir + '/fuse.js/src/fuse.js',
         bowerDir + '/sweetalert/dist/sweetalert-dev.js',
+        bowerDir + '/nouislider/distribute/nouislider.js',
         'bootstrap-combobox.js',
         'script.js',
         'pdf.pdfmake.js',

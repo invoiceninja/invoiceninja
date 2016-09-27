@@ -6,165 +6,6 @@
   <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
   <style type="text/css">
-
-  .menu-toggle {
-      color: #999 !important;
-      text-decoration: none;
-  }
-
-  .menu-toggle:hover {
-      color: #fff !important;
-      text-decoration: none;
-  }
-
-  /*!
-   * Start Bootstrap - Simple Sidebar (http://startbootstrap.com/)
-   * Copyright 2013-2016 Start Bootstrap
-   * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
-   */
-
-   body {
-       overflow-x: hidden;
-   }
-
-  /* Toggle Styles */
-
-  #wrapper {
-      padding-left: 0;
-      -webkit-transition: all 0.5s ease;
-      -moz-transition: all 0.5s ease;
-      -o-transition: all 0.5s ease;
-      transition: all 0.5s ease;
-  }
-
-  #wrapper.toggled {
-      padding-left: 250px;
-  }
-
-  #sidebar-wrapper {
-      z-index: 1000;
-      position: fixed;
-      left: 250px;
-      width: 0;
-      height: 100%;
-      margin-left: -250px;
-      overflow-y: auto;
-      background: #000;
-      xbackground: #09334f;
-      xbackground: #09334f;
-      -webkit-transition: all 0.5s ease;
-      -moz-transition: all 0.5s ease;
-      -o-transition: all 0.5s ease;
-      transition: all 0.5s ease;
-  }
-
-  #wrapper.toggled #sidebar-wrapper {
-      width: 250px;
-  }
-
-  #page-content-wrapper {
-      width: 100%;
-      position: absolute;
-      padding: 15px;
-  }
-
-  #wrapper.toggled #page-content-wrapper {
-      position: absolute;
-      margin-right: -250px;
-  }
-
-  /* Sidebar Styles */
-
-  .sidebar-nav {
-      position: absolute;
-      top: 0;
-      width: 250px;
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      height: 100%;
-  }
-
-  .sidebar-nav li {
-      text-indent: 20px;
-      line-height: 40px;
-  }
-
-  .sidebar-nav li > div {
-      display: block;
-      text-decoration: none;
-      color: #999999;
-      cursor: pointer;
-  }
-
-  .sidebar-nav li > div:hover,
-  .sidebar-nav li > div.active {
-      text-decoration: none;
-      color: #fff;
-      background: rgba(255,255,255,0.2);
-  }
-
-  .sidebar-nav li > div:hover {
-      text-decoration: none;
-  }
-
-  .sidebar-nav li > div > div.btn {
-      display: none;
-  }
-
-  .sidebar-nav li > div.hover > div.btn,
-  .sidebar-nav li > div:hover > div.btn {
-      display: block;
-  }
-
-  .sidebar-nav > .sidebar-brand {
-      height: 65px;
-      font-size: 18px;
-      line-height: 60px;
-  }
-
-  .sidebar-nav > .sidebar-brand a {
-      color: #999999;
-  }
-
-  .sidebar-nav > .sidebar-brand a:hover {
-      color: #fff;
-      background: none;
-  }
-
-    @media(min-width:768px) {
-      #wrapper {
-          padding-left: 250px;
-      }
-
-      #wrapper.toggled {
-          padding-left: 0;
-      }
-
-      #sidebar-wrapper {
-          width: 250px;
-      }
-
-      #wrapper.toggled #sidebar-wrapper {
-          width: 0;
-      }
-
-      #page-content-wrapper {
-          padding: 20px;
-          position: relative;
-      }
-
-      #wrapper.toggled #page-content-wrapper {
-          position: relative;
-          margin-right: 0;
-      }
-    }
-
-    body {
-      background-color: #EEEEEE;
-      padding-top: 56px;
-    }
-
     @if (Auth::check() && Auth::user()->dark_mode)
         body {
             background: #000 !important;
@@ -268,7 +109,6 @@
   function handleSignedUp() {
       localStorage.setItem('guest_key', '');
       fbq('track', 'CompleteRegistration');
-      window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_SIGN_UP') }}', {'value':'0.00','currency':'USD'}]);
       trackEvent('/account', '/signed_up');
   }
 
@@ -359,8 +199,11 @@
   }
 
   window.loadedSearchData = false;
+  function onSearchBlur() {
+      $('#search').typeahead('val', '');
+  }
+
   function onSearchFocus() {
-    $('#search').typeahead('val', '');
     $('#search-form').show();
 
     if (!window.loadedSearchData) {
@@ -479,6 +322,7 @@
 
     // Focus the search input if the user clicks forward slash
     $('#search').focusin(onSearchFocus);
+    $('#search').blur(onSearchBlur);
 
     $('body').keypress(function(event) {
         if (event.which == 47 && !$('*:focus').length) {
@@ -490,9 +334,31 @@
     // manage sidebar state
     $("#left-menu-toggle").click(function(e) {
         e.preventDefault();
-        $("#wrapper").toggleClass("toggled");
-        var toggled = $("#wrapper").hasClass("toggled") ? '1' : '0';
+        $("#wrapper").toggleClass("toggled-left");
+
+        var toggled = $("#wrapper").hasClass("toggled-left") ? '1' : '0';
         $.get('{{ url('save_sidebar_state') }}?show_left=' + toggled);
+    });
+
+    $("#right-menu-toggle").click(function(e) {
+        e.preventDefault();
+        $("#wrapper").toggleClass("toggled-right");
+
+        var toggled = $("#wrapper").hasClass("toggled-right") ? '1' : '0';
+        $.get('{{ url('save_sidebar_state') }}?show_right=' + toggled);
+    });
+
+    if (window.location.hash) {
+        setTimeout(function() {
+            $('.nav-tabs a[href="' + window.location.hash + '"]').tab('show');
+        }, 1);
+    }
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var target = $(e.target).attr("href") // activated tab
+        if (history.pushState) {
+            history.pushState(null, null, target);
+        }
     });
 
   });
@@ -512,19 +378,21 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <div class="navbar-brand">
-          <a href="#" id="left-menu-toggle" class="menu-toggle hide-phone">
-            <i class="fa fa-bars" style="width:30px;padding-right:10px"></i>
-          </a>
-          <a href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank">
-            {{-- Per our license, please do not remove or modify this link. --}}
-            <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25"/>
-          </a>
-      </div>
+      <a href="#" id="left-menu-toggle" class="menu-toggle" title="{{ trans('texts.toggle_navigation') }}">
+          <div class="navbar-brand">
+                <i class="fa fa-bars hide-phone" style="width:32px;padding-top:2px;float:left"></i>
+                {{-- Per our license, please do not remove or modify this link. --}}
+                <img src="{{ asset('images/invoiceninja-logo.png') }}" width="193" height="25" style="float:left"/>
+          </div>
+      </a>
     </div>
 
+    <a id="right-menu-toggle" class="menu-toggle hide-phone pull-right" title="{{ trans('texts.toggle_history') }}" style="cursor:pointer">
+      <div class="fa fa-bars"></div>
+    </a>
+
     <div class="collapse navbar-collapse" id="navbar-collapse-1">
-      <div class="navbar-form navbar-right" style="padding-right:30px">
+      <div class="navbar-form navbar-right">
 
         @if (Auth::check())
           @if (!Auth::user()->registered)
@@ -591,10 +459,6 @@
           </ul>
         </div>
 
-        <a href="#" id="left-menu-toggle" class="menu-toggle hide-phone">
-          <i class="fa fa-bars" style="width:30px;padding-left:14px"></i>
-        </a>
-
       </div>
 
       <form id="search-form" class="navbar-form navbar-right" role="search">
@@ -633,48 +497,59 @@
             {!! Form::nav_link($key, $value ?: $key) !!}
         @endforeach
       </ul>
-
     </div><!-- /.navbar-collapse -->
 
 </nav>
-<div id="wrapper" {!! session(SESSION_LEFT_SIDEBAR) ? 'class="toggled"' : '' !!}>
+
+<div id="wrapper" class='{!! session(SESSION_LEFT_SIDEBAR) ? 'toggled-left' : '' !!} {!! session(SESSION_RIGHT_SIDEBAR, true) ? 'toggled-right' : '' !!}'>
 
     <!-- Sidebar -->
-    <div id="sidebar-wrapper">
-        <ul class="sidebar-nav" style="padding-top:20px">
+    <div id="left-sidebar-wrapper" class="hide-phone">
+        <ul class="sidebar-nav">
             @foreach([
-                'dashboard' => 'tachometer',
-                'clients' => 'users',
-                'invoices' => 'file-pdf-o',
-                'payments' => 'credit-card',
-                'recurring_invoices' => 'files-o',
-                'credits' => 'credit-card',
-                'quotes' => 'file-text-o',
-                'tasks' => 'clock-o',
-                'expenses' => 'file-image-o',
-                'vendors' => 'building',
-                'settings' => 'cog',
-            ] as $option => $icon)
-            <li style="border-bottom:solid 1px">
-                <div onclick="location.href='{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}'"
+                'dashboard',
+                'clients',
+                'invoices',
+                'payments',
+                'recurring_invoices',
+                'credits',
+                'quotes',
+                'tasks',
+                'expenses',
+                'vendors',
+                'settings'
+            ] as $option)
+            <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
+                @if ($option == 'settings')
+                    <a type="button" class="btn btn-default btn-sm pull-right"
+                        href="{{ url(NINJA_DOCS_URL) }}" target="_blank">
+                        <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
+                    </a>
+                @elseif ($option != 'dashboard')
+                    @if (Auth::user()->can('create', substr($option, 0, -1)))
+                        <a type="button" class="btn btn-primary btn-sm pull-right"
+                            href="{{ url("/{$option}/create") }}">
+                            <i class="fa fa-plus-circle" style="width:20px" title="{{ trans('texts.create_new') }}"></i>
+                        </a>
+                    @endif
+                @endif
+                <a href="{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}"
                     style="font-size:16px; padding-top:6px; padding-bottom:6px"
                     class="{{ Request::is("{$option}*") ? 'active' : '' }}">
-                    <i class="fa fa-{{ $icon }}" style="width:46px; color:white; padding-right:10px"></i>
+                    <i class="fa fa-{{ \App\Models\EntityModel::getIcon($option) }}" style="width:46px; padding-right:10px"></i>
                     {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
-                    @if ($option != 'dashboard' && $option != 'settings')
-                        @if (Auth::user()->can('create', substr($option, 0, -1)))
-                            <div type="button" class="btn btn-primary btn-sm pull-right" style="margin-top:5px;margin-right:10px;text-indent:0px"
-                                onclick="event.cancelBubble = true;if(event.stopPropagation) event.stopPropagation();location.href='{{ url("/{$option}/create") }}'">
-                                <i class="fa fa-plus-circle" style="color:white;width:20px" title="{{ trans('texts.create_new') }}"></i>
-                            </div>
-                        @endif
-                    @endif
-                </div>
+                </a>
             </li>
             @endforeach
         </ul>
     </div>
-    <!-- /#sidebar-wrapper -->
+    <!-- /#left-sidebar-wrapper -->
+
+    <div id="right-sidebar-wrapper" class="hide-phone" style="overflow-y:hidden">
+        <ul class="sidebar-nav">
+            {!! \App\Libraries\HistoryUtils::renderHtml(Auth::user()->account_id) !!}
+        </ul>
+    </div>
 
     <!-- Page Content -->
     <div id="page-content-wrapper">
@@ -706,7 +581,7 @@
           @endif
 
           @yield('content')
-
+          <br/>
           <div class="row">
             <div class="col-md-12">
 
@@ -746,7 +621,8 @@
                                   <h4>{{ trans('texts.after') }}</h4>
                                   <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_after.png') }}" width="100%" alt="after">
                               </div>
-                          </div>
+                          </div><br/>
+                          <p>{!! trans('texts.reseller_text', ['email' => HTML::mailto('contact@invoiceninja.com')]) !!}</p>
                         </div>
 
                         <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
@@ -846,7 +722,9 @@
             </div>
 
             <div class="col-md-11 col-md-offset-1">
-                <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
+                @if (Utils::isNinja())
+                    <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
+                @endif
             </div>
         </div>
 

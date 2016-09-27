@@ -135,7 +135,8 @@ class CreateTestData extends Command
         $data = [
             'invoice_id' => $invoice->id,
             'client_id' => $client->id,
-            'amount' => $this->faker->randomFloat(2, 0, $invoice->amount)
+            'amount' => $this->faker->randomFloat(2, 0, $invoice->amount),
+            'payment_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
         ];
 
         $payment = $this->paymentRepo->save($data);

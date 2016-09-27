@@ -128,6 +128,7 @@ class ExportController extends BaseController
                     if ($key === 'quotes') {
                         $key = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;
+                        $data['invoices'] = $data['quotes'];
                     }
                     $sheet->loadView("export.{$key}", $data);
                 });

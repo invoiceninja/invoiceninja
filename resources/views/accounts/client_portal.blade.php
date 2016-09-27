@@ -79,7 +79,7 @@
             </div>
         </div>
 
-        <div class="panel panel-default" id="buyNow">
+        <div class="panel panel-default" id="buy_now">
             <div class="panel-heading">
                 <h3 class="panel-title">{!! trans('texts.buy_now_buttons') !!}</h3>
             </div>

@@ -155,18 +155,6 @@ class ClientPortalController extends BaseController
         return View::make('invoices.view', $data);
     }
 
-    public function contactIndex($contactKey) {
-        if (!$contact = Contact::where('contact_key', '=', $contactKey)->first()) {
-            return $this->returnError();
-        }
-
-        $client = $contact->client;
-
-        Session::put('contact_key', $contactKey);// track current contact
-
-        return redirect()->to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/invoices/');
-    }
-
     private function getPaymentTypes($account, $client, $invitation)
     {
         $links = [];
@@ -201,9 +189,14 @@ class ClientPortalController extends BaseController
         return $pdfString;
     }
 
-    public function dashboard()
+    public function dashboard($contactKey = false)
     {
-        if (!$contact = $this->getContact()) {
+        if ($contactKey) {
+            if (!$contact = Contact::where('contact_key', '=', $contactKey)->first()) {
+                return $this->returnError();
+            }
+            Session::put('contact_key', $contactKey);// track current contact
+        } else if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
@@ -212,8 +205,10 @@ class ClientPortalController extends BaseController
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $customer = false;
 
-        if (!$account->enable_client_portal || !$account->enable_client_portal_dashboard) {
+        if (!$account->enable_client_portal) {
             return $this->returnError();
+        } elseif (!$account->enable_client_portal_dashboard) {
+            return redirect()->to('/client/invoices/');
         }
 
         if ($paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN)) {

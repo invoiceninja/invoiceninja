@@ -2,6 +2,7 @@
 
 use Auth;
 use Eloquent;
+use Illuminate\Database\QueryException;
 use Utils;
 use Validator;
 
@@ -14,6 +15,12 @@ class EntityModel extends Eloquent
      * @var bool
      */
     public $timestamps = true;
+
+    /**
+     * @var bool
+     */
+    protected static $hasPublicId = true;
+
     /**
      * @var array
      */
@@ -56,13 +63,16 @@ class EntityModel extends Eloquent
             $lastEntity = $className::whereAccountId($entity->account_id);
         }
 
-        $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
-                        ->first();
 
-        if ($lastEntity) {
-            $entity->public_id = $lastEntity->public_id + 1;
-        } else {
-            $entity->public_id = 1;
+        if (static::$hasPublicId) {
+            $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
+                                     ->first();
+
+            if ($lastEntity) {
+                $entity->public_id = $lastEntity->public_id + 1;
+            } else {
+                $entity->public_id = 1;
+            }
         }
 
         return $entity;
@@ -90,6 +100,16 @@ class EntityModel extends Eloquent
     public function entityKey()
     {
         return $this->public_id . ':' . $this->getEntityType();
+    }
+
+    public function subEntityType()
+    {
+        return $this->getEntityType();
+    }
+
+    public function isEntityType($type)
+    {
+        return $this->getEntityType() === $type;
     }
 
     /*
@@ -227,6 +247,25 @@ class EntityModel extends Eloquent
         } else {
             return true;
         }
+    }
+
+    public static function getIcon($entityType)
+    {
+        $icons = [
+            'dashboard' => 'tachometer',
+            'clients' => 'users',
+            'invoices' => 'file-pdf-o',
+            'payments' => 'credit-card',
+            'recurring_invoices' => 'files-o',
+            'credits' => 'credit-card',
+            'quotes' => 'file-text-o',
+            'tasks' => 'clock-o',
+            'expenses' => 'file-image-o',
+            'vendors' => 'building',
+            'settings' => 'cog',
+        ];
+
+        return array_get($icons, $entityType);
     }
 
 }
