@@ -735,6 +735,22 @@ class Account extends Eloquent
         return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
     }
 
+    public function getLogoPath()
+    {
+        if ( ! $this->hasLogo()){
+            return null;
+        }
+
+        $disk = $this->getLogoDisk();
+        $adapter = $disk->getAdapter();
+
+        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
+            return $adapter->applyPathPrefix($this->logo);
+        } else {
+            return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
+        }
+    }
+
     /**
      * @return mixed
      */
