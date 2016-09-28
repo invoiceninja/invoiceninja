@@ -683,7 +683,7 @@ class InvoiceRepository extends BaseRepository
 
         foreach ($invoice->documents as $document) {
             $cloneDocument = $document->cloneDocument();
-            $invoice->documents()->save($cloneDocument);
+            $clone->documents()->save($cloneDocument);
         }
 
         foreach ($invoice->invitations as $invitation) {
