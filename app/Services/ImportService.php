@@ -15,9 +15,12 @@ use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ProductRepository;
+use App\Ninja\Repositories\ExpenseRepository;
+use App\Ninja\Repositories\VendorRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Expense;
 use App\Models\EntityModel;
 
 /**
@@ -110,7 +113,9 @@ class ImportService
         InvoiceRepository $invoiceRepo,
         PaymentRepository $paymentRepo,
         ContactRepository $contactRepo,
-        ProductRepository $productRepo
+        ProductRepository $productRepo,
+        ExpenseRepository $expenseRepo,
+        VendorRepository $vendorRepo
     )
     {
         $this->fractal = $manager;
@@ -121,6 +126,8 @@ class ImportService
         $this->paymentRepo = $paymentRepo;
         $this->contactRepo = $contactRepo;
         $this->productRepo = $productRepo;
+        $this->expenseRepo = $expenseRepo;
+        $this->vendorRepo = $vendorRepo;
     }
 
     /**
@@ -462,12 +469,11 @@ class ImportService
                 $title = strtolower($headers[$i]);
                 $mapped[$i] = '';
 
-                if ($hasHeaders) {
-                    foreach ($map as $search => $column) {
-                        if ($this->checkForMatch($title, $search)) {
-                            $mapped[$i] = $column;
-                            break;
-                        }
+                foreach ($map as $search => $column) {
+                    if ($this->checkForMatch($title, $search)) {
+                        $hasHeaders = true;
+                        $mapped[$i] = $column;
+                        break;
                     }
                 }
             }
@@ -668,6 +674,8 @@ class ImportService
             'currencies' => [],
             'client_ids' => [],
             'invoice_ids' => [],
+            'vendors' => [],
+            'expense_categories' => [],
         ];
 
         $clients = $this->clientRepo->all();
@@ -694,6 +702,11 @@ class ImportService
         $currencies = Cache::get('currencies');
         foreach ($currencies as $currency) {
             $this->maps['currencies'][strtolower($currency->code)] = $currency->id;
+        }
+
+        $vendors = $this->vendorRepo->all();
+        foreach ($vendors as $vendor) {
+            $this->maps['vendor'][strtolower($vendor->name)] = $vendor->id;
         }
     }
 
@@ -728,5 +741,10 @@ class ImportService
         if ($key = strtolower(trim($product->product_key))) {
             $this->maps['product'][$key] = $product->id;
         }
+    }
+
+    private function addExpenseToMaps(Expense $expense)
+    {
+        // do nothing
     }
 }

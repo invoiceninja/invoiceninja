@@ -2142,7 +2142,10 @@ $LANG = array(
     'enable_recurring' => 'Enable Recurring',
     'disable_recurring' => 'Disable Recurring',
     'text' => 'Text',
-
+    'expense_will_create' => 'expense will be created',
+    'expenses_will_create' => 'expenses will be created',
+    'created_expenses' => 'Successfully created :count expense(s)',
+    
 );
 
 return $LANG;

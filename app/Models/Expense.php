@@ -31,6 +31,7 @@ class Expense extends EntityModel
         'client_id',
         'vendor_id',
         'expense_currency_id',
+        'expense_date',
         'invoice_currency_id',
         'amount',
         'foreign_amount',
@@ -46,6 +47,29 @@ class Expense extends EntityModel
         'tax_name2',
     ];
 
+    public static function getImportColumns()
+    {
+        return [
+            'client',
+            'vendor',
+            'amount',
+            'public_notes',
+            'category',
+            'expense_date',
+        ];
+    }
+
+    public static function getImportMap()
+    {
+        return [
+            'amount|total' => 'amount',
+            'category' => 'category',
+            'client' => 'client',
+            'vendor' => 'vendor',
+            'notes|details' => 'public_notes',
+            'date' => 'expense_date',
+        ];
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
