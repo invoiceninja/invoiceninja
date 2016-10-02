@@ -32,7 +32,7 @@ class InvoiceCest
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
-        //$I->selectDataPicker($I, '#invoice_date');
+        $I->selectDataPicker($I, '#invoice_date');
         $I->selectDataPicker($I, '#due_date', '+ 15 day');
         $I->fillField('#po_number', rand(100, 200));
         $I->fillField('#discount', rand(0, 20));
@@ -62,7 +62,8 @@ class InvoiceCest
 
             //change po_number with random number
             $I->amOnPage('/invoices/1/edit');
-            $po_number = rand(100, 300);
+            $I->selectDataPicker($I, '#invoice_date');
+            $po_number = rand(1, 10000);
             $I->fillField('#po_number', $po_number);
 
             //save
