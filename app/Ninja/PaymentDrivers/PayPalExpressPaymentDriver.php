@@ -15,6 +15,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
         $data = parent::paymentDetails();
 
         $data['ButtonSource'] = 'InvoiceNinja_SP';
+        $data['solutionType'] = 'Sole'; // show 'Pay with credit card' option
 
         return $data;
     }

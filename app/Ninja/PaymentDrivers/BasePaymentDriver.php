@@ -606,8 +606,9 @@ class BasePaymentDriver
                     $term = strtolower($matches[2]);
                     $price = $invoice_item->cost;
                     if ($plan == PLAN_ENTERPRISE) {
-                        if (count($matches)) {
-                            $numUsers = $matches[1];
+                        preg_match('/###[\d] [\w]* (\d*)/', $invoice_item->notes, $numUserMatches);
+                        if (count($numUserMatches)) {
+                            $numUsers = $numUserMatches[1];
                         } else {
                             $numUsers = 5;
                         }
