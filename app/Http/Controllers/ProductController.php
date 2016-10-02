@@ -22,7 +22,7 @@ class ProductController extends BaseController
 
     /**
      * ProductController constructor.
-     * 
+     *
      * @param ProductService $productService
      */
     public function __construct(ProductService $productService)
@@ -126,7 +126,7 @@ class ProductController extends BaseController
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
 
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return Redirect::to("products/{$product->public_id}/edit");
     }
 
     /**
