@@ -46,7 +46,7 @@ class OnlinePaymentCest
         $I->fillField(['name' => 'cost'], $this->faker->numberBetween(1, 20));
         $I->click('Save');
         $I->wait(1);
-        $I->see($productKey);
+        //$I->see($productKey);
 
         // create invoice
         $I->amOnPage('/invoices/create');
