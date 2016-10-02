@@ -152,7 +152,7 @@ class ProductController extends BaseController
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
 
-        return Redirect::to(ACCOUNT_PRODUCTS);
+        return Redirect::to("products/{$product->public_id}/edit");
     }
 
     /**
