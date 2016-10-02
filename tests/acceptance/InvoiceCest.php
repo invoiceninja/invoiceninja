@@ -62,7 +62,8 @@ class InvoiceCest
 
             //change po_number with random number
             $I->amOnPage('/invoices/1/edit');
-            $po_number = rand(100, 300);
+            $I->selectDataPicker($I, '#invoice_date');
+            $po_number = rand(1, 10000);
             $I->fillField('#po_number', $po_number);
 
             //save
