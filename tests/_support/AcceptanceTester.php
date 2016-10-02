@@ -39,8 +39,8 @@ class AcceptanceTester extends \Codeception\Actor
 
     function selectDataPicker(\AcceptanceTester $I, $element, $date = 'now')
     {
-        $_date = date('Y, m, d', strtotime($date));
-        $I->executeJS(sprintf('$(\'%s\').datepicker(\'update\', new Date(%s))', $element, $_date));
+        $date = strtotime($date) * 1000;
+        $I->executeJS(sprintf('$(\'%s\').datepicker(\'update\', new Date(%s))', $element, $date));
     }
 
     function selectDropdown(\AcceptanceTester $I, $option, $dropdownSelector)
