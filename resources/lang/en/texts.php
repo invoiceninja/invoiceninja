@@ -2138,14 +2138,14 @@ $LANG = array(
     'new_category' => 'New Category',
     'restore_product' => 'Restore Product',
     'blank' => 'Blank',
-    'invoice_error' => 'Please make sure to select a client and correct any errors',
+    'invoice_save_error' => 'There was an error saving your invoice',
     'enable_recurring' => 'Enable Recurring',
     'disable_recurring' => 'Disable Recurring',
     'text' => 'Text',
     'expense_will_create' => 'expense will be created',
     'expenses_will_create' => 'expenses will be created',
     'created_expenses' => 'Successfully created :count expense(s)',
-    
+
 );
 
 return $LANG;

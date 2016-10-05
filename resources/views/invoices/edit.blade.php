@@ -1368,7 +1368,7 @@
             }).fail(function(data) {
                 $('#saveButton, #emailButton').attr('disabled', false);
                 var error = firstJSONError(data.responseJSON) || data.statusText;
-                swal("{!! trans('texts.invoice_error') !!}", error);
+                swal("{!! trans('texts.invoice_save_error') !!}", error);
             });
             return false;
         @else
