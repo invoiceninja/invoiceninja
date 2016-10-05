@@ -12,6 +12,11 @@ class ExpenseCategoryRepository extends BaseRepository
         return 'App\Models\ExpenseCategory';
     }
 
+    public function all()
+    {
+        return ExpenseCategory::scope()->get();
+    }
+
     public function find($filter = null)
     {
         $query = DB::table('expense_categories')

@@ -54,7 +54,7 @@ class Expense extends EntityModel
             'vendor',
             'amount',
             'public_notes',
-            'category',
+            'expense_category',
             'expense_date',
         ];
     }
@@ -63,7 +63,7 @@ class Expense extends EntityModel
     {
         return [
             'amount|total' => 'amount',
-            'category' => 'category',
+            'category' => 'expense_category',
             'client' => 'client',
             'vendor' => 'vendor',
             'notes|details' => 'public_notes',

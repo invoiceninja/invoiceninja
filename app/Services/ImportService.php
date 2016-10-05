@@ -17,10 +17,12 @@ use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ProductRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
+use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\Expense;
+use App\Models\ExpenseCategory;
 use App\Models\EntityModel;
 
 /**
@@ -115,7 +117,8 @@ class ImportService
         ContactRepository $contactRepo,
         ProductRepository $productRepo,
         ExpenseRepository $expenseRepo,
-        VendorRepository $vendorRepo
+        VendorRepository $vendorRepo,
+        ExpenseCategoryRepository $expenseCategoryRepo
     )
     {
         $this->fractal = $manager;
@@ -128,6 +131,7 @@ class ImportService
         $this->productRepo = $productRepo;
         $this->expenseRepo = $expenseRepo;
         $this->vendorRepo = $vendorRepo;
+        $this->expenseCategoryRepo = $expenseCategoryRepo;
     }
 
     /**
@@ -271,6 +275,18 @@ class ImportService
     private function transformRow($source, $entityType, $row)
     {
         $transformer = $this->getTransformer($source, $entityType, $this->maps);
+
+        // Create expesnse category
+        if ($entityType == ENTITY_EXPENSE) {
+            if ( ! empty($row->expense_category)) {
+                $categoryId = $transformer->getExpenseCategoryId($row->expense_category);
+                if ( ! $categoryId) {
+                    $category = $this->expenseCategoryRepo->save(['name' => $row->expense_category]);
+                    $this->addExpenseCategoryToMaps($category);
+                }
+            }
+        }
+
         $resource = $transformer->transform($row);
 
         if (!$resource) {
@@ -708,6 +724,11 @@ class ImportService
         foreach ($vendors as $vendor) {
             $this->maps['vendor'][strtolower($vendor->name)] = $vendor->id;
         }
+
+        $expenseCaegories = $this->expenseCategoryRepo->all();
+        foreach ($expenseCaegories as $category) {
+            $this->addExpenseCategoryToMaps($category);
+        }
     }
 
     /**
@@ -746,5 +767,12 @@ class ImportService
     private function addExpenseToMaps(Expense $expense)
     {
         // do nothing
+    }
+
+    private function addExpenseCategoryToMaps(ExpenseCategory $category)
+    {
+        if ($name = strtolower($category->name)) {
+            $this->maps['expense_category'][$name] = $category->id;
+        }
     }
 }

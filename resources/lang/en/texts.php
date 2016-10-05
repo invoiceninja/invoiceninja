@@ -2147,6 +2147,7 @@ $LANG = array(
     'created_expenses' => 'Successfully created :count expense(s)',
 
     'translate_app' => 'Help improve our translations with :link',
+    'expense_category' => 'Expense Category',
 
 );
 
