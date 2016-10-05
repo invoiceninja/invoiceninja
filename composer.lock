@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "17cb78668cb504134b1dbd2816fb791f",
-    "content-hash": "693e6b62fc426abd68893eca1b923ace",
+    "hash": "a58d2f8f037dc8b2df762d3e56c474ea",
+    "content-hash": "7dc018b1e36177b0e5a3fa7b765e0198",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -1084,12 +1084,12 @@
             "version": "dev-additional-calls",
             "source": {
                 "type": "git",
-                "url": "https://github.com/sometechie/omnipay-wepay.git",
+                "url": "https://github.com/hillelcoren/omnipay-wepay.git",
                 "reference": "a341b9997d71803d0f774d86908cb49a8bc4c405"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sometechie/omnipay-wepay/zipball/a341b9997d71803d0f774d86908cb49a8bc4c405",
+                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/a341b9997d71803d0f774d86908cb49a8bc4c405",
                 "reference": "a341b9997d71803d0f774d86908cb49a8bc4c405",
                 "shasum": ""
             },
@@ -6838,12 +6838,12 @@
             "version": "1.0.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Superbalist/flysystem-google-storage.git",
+                "url": "https://github.com/Superbalist/flysystem-google-cloud-storage.git",
                 "reference": "8ae35803a102ed6ce58aa87bf7534d4396513765"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Superbalist/flysystem-google-storage/zipball/8ae35803a102ed6ce58aa87bf7534d4396513765",
+                "url": "https://api.github.com/repos/Superbalist/flysystem-google-cloud-storage/zipball/8ae35803a102ed6ce58aa87bf7534d4396513765",
                 "reference": "8ae35803a102ed6ce58aa87bf7534d4396513765",
                 "shasum": ""
             },
@@ -10606,6 +10606,11 @@
     },
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
+    "platform": {
+        "php": ">=5.5.9",
+        "ext-mcrypt": "*",
+        "ext-gmp": "*",
+        "ext-gd": "*"
+    },
     "platform-dev": []
 }

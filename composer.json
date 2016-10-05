@@ -150,7 +150,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/sometechie/omnipay-wepay"
+            "url": "https://github.com/hillelcoren/omnipay-wepay"
         }
     ]
 }
