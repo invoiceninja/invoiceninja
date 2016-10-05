@@ -2146,6 +2146,8 @@ $LANG = array(
     'expenses_will_create' => 'expenses will be created',
     'created_expenses' => 'Successfully created :count expense(s)',
 
+    'translate_app' => 'Help improve our translations with :link',
+
 );
 
 return $LANG;
