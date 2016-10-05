@@ -652,6 +652,9 @@ class InvoiceRepository extends BaseRepository
         if ($quotePublicId) {
             $clone->invoice_type_id = INVOICE_TYPE_STANDARD;
             $clone->quote_id = $quotePublicId;
+            if ($account->invoice_terms) {
+                $clone->terms = $account->invoice_terms;
+            }
         }
 
         $clone->save();
