@@ -21,6 +21,7 @@ use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use App\Models\Client;
 use App\Models\Invoice;
+use App\Models\Vendor;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\EntityModel;
@@ -283,6 +284,13 @@ class ImportService
                 if ( ! $categoryId) {
                     $category = $this->expenseCategoryRepo->save(['name' => $row->expense_category]);
                     $this->addExpenseCategoryToMaps($category);
+                }
+            }
+            if ( ! empty($row->vendor)) {
+                $vendorId = $transformer->getVendorId($row->vendor);
+                if ( ! $vendorId) {
+                    $vendor = $this->vendorRepo->save(['name' => $row->vendor, 'vendor_contact' => []]);
+                    $this->addVendorToMaps($vendor);
                 }
             }
         }
@@ -722,7 +730,7 @@ class ImportService
 
         $vendors = $this->vendorRepo->all();
         foreach ($vendors as $vendor) {
-            $this->maps['vendor'][strtolower($vendor->name)] = $vendor->id;
+            $this->addVendorToMaps($vendor);
         }
 
         $expenseCaegories = $this->expenseCategoryRepo->all();
@@ -767,6 +775,11 @@ class ImportService
     private function addExpenseToMaps(Expense $expense)
     {
         // do nothing
+    }
+
+    private function addVendorToMaps(Vendor $vendor)
+    {
+        $this->maps['vendor'][strtolower($vendor->name)] = $vendor->id;
     }
 
     private function addExpenseCategoryToMaps(ExpenseCategory $category)

@@ -182,7 +182,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $name
      * @return null
      */
-    protected function getVendorId($name)
+    public function getVendorId($name)
     {
         $name = strtolower($name);
         return isset($this->maps[ENTITY_VENDOR][$name]) ? $this->maps[ENTITY_VENDOR][$name] : null;
