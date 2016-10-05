@@ -4,6 +4,8 @@ use Auth;
 use Utils;
 use Response;
 use Cache;
+use Socialite;
+use Exception;
 use App\Models\Account;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Http\Request;
@@ -180,5 +182,19 @@ class AccountApiController extends BaseAPIController
             }
         }
 
+    }
+
+    public function validateOauthToken(Request $request)
+    {
+        $token = $request->input('token');
+        $provider = $request->input('provider');
+
+        try {
+            $user = Socialite::driver($provider)->userFromToken($token);
+        } catch (Exception $exception) {
+            return $this->response($exception->getMessage());
+        }
+
+        return $user ? RESULT_SUCCESS : RESULT_FAILURE;
     }
 }

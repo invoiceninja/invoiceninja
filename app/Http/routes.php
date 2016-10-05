@@ -308,6 +308,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
     Route::get('dashboard', 'DashboardApiController@index');
     Route::resource('documents', 'DocumentAPIController');
+    Route::post('validate_outh_token', 'AccountApiController@validateOauthToken');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
