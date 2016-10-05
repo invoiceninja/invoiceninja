@@ -102,7 +102,7 @@ class InvoiceCest
         $I->see($clientEmail);
 
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
-        $I->click('Recurring Invoice');
+        $I->click('#recurringInvoiceLink');
         $I->see($clientEmail);
 
         $I->click('#lastSent');

@@ -209,7 +209,7 @@
             <div class="form-group" style="margin-bottom: 8px">
                 <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">
                 	@if ($invoice->recurring_invoice)
-                        {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
+                        {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'), ['id' => 'recurringInvoiceLink'])]) !!}
     				@elseif ($invoice->id)
                         <span class="smaller">
                         @if (isset($lastSent) && $lastSent)
