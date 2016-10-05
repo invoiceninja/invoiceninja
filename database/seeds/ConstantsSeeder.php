@@ -20,44 +20,44 @@ class ConstantsSeeder extends Seeder
 
 	public function run()
 	{
-		Theme::create(array('name' => 'amelia'));
-		Theme::create(array('name' => 'cerulean'));
-		Theme::create(array('name' => 'cosmo'));
-		Theme::create(array('name' => 'cyborg'));
-		Theme::create(array('name' => 'flatly'));
-		Theme::create(array('name' => 'journal'));
-		Theme::create(array('name' => 'readable'));
-		Theme::create(array('name' => 'simplex'));
-		Theme::create(array('name' => 'slate'));
-		Theme::create(array('name' => 'spacelab'));
-		Theme::create(array('name' => 'united'));
-		Theme::create(array('name' => 'yeti'));
+		Theme::firstOrCreate(array('name' => 'amelia'));
+		Theme::firstOrCreate(array('name' => 'cerulean'));
+		Theme::firstOrCreate(array('name' => 'cosmo'));
+		Theme::firstOrCreate(array('name' => 'cyborg'));
+		Theme::firstOrCreate(array('name' => 'flatly'));
+		Theme::firstOrCreate(array('name' => 'journal'));
+		Theme::firstOrCreate(array('name' => 'readable'));
+		Theme::firstOrCreate(array('name' => 'simplex'));
+		Theme::firstOrCreate(array('name' => 'slate'));
+		Theme::firstOrCreate(array('name' => 'spacelab'));
+		Theme::firstOrCreate(array('name' => 'united'));
+		Theme::firstOrCreate(array('name' => 'yeti'));
 
-		Frequency::create(array('name' => 'Weekly'));
-		Frequency::create(array('name' => 'Two weeks'));
-		Frequency::create(array('name' => 'Four weeks'));
-		Frequency::create(array('name' => 'Monthly'));
-		Frequency::create(array('name' => 'Three months'));
-		Frequency::create(array('name' => 'Six months'));
-		Frequency::create(array('name' => 'Annually'));
+		Frequency::firstOrCreate(array('name' => 'Weekly'));
+		Frequency::firstOrCreate(array('name' => 'Two weeks'));
+		Frequency::firstOrCreate(array('name' => 'Four weeks'));
+		Frequency::firstOrCreate(array('name' => 'Monthly'));
+		Frequency::firstOrCreate(array('name' => 'Three months'));
+		Frequency::firstOrCreate(array('name' => 'Six months'));
+		Frequency::firstOrCreate(array('name' => 'Annually'));
 
-		Size::create(array('name' => '1 - 3'));
-		Size::create(array('name' => '4 - 10'));
-		Size::create(array('name' => '11 - 50'));
-		Size::create(array('name' => '51 - 100'));
-		Size::create(array('name' => '101 - 500'));
-		Size::create(array('name' => '500+'));
+		Size::firstOrCreate(array('name' => '1 - 3'));
+		Size::firstOrCreate(array('name' => '4 - 10'));
+		Size::firstOrCreate(array('name' => '11 - 50'));
+		Size::firstOrCreate(array('name' => '51 - 100'));
+		Size::firstOrCreate(array('name' => '101 - 500'));
+		Size::firstOrCreate(array('name' => '500+'));
 
-    	PaymentTerm::create(array('num_days' => 7, 'name' => 'Net 7', 'public_id' => 1));
-		PaymentTerm::create(array('num_days' => 10, 'name' => 'Net 10', 'public_id' => 2));
-		PaymentTerm::create(array('num_days' => 14, 'name' => 'Net 14', 'public_id' => 3));
-		PaymentTerm::create(array('num_days' => 15, 'name' => 'Net 15', 'public_id' => 4));
-		PaymentTerm::create(array('num_days' => 30, 'name' => 'Net 30', 'public_id' => 5));
-		PaymentTerm::create(array('num_days' => 60, 'name' => 'Net 60', 'public_id' => 6));
-		PaymentTerm::create(array('num_days' => 90, 'name' => 'Net 90', 'public_id' => 7));
+		PaymentTerm::firstOrCreate(array('num_days' => 7, 'name' => 'Net 7', 'public_id' => 1));
+		PaymentTerm::firstOrCreate(array('num_days' => 10, 'name' => 'Net 10', 'public_id' => 2));
+		PaymentTerm::firstOrCreate(array('num_days' => 14, 'name' => 'Net 14', 'public_id' => 3));
+		PaymentTerm::firstOrCreate(array('num_days' => 15, 'name' => 'Net 15', 'public_id' => 4));
+		PaymentTerm::firstOrCreate(array('num_days' => 30, 'name' => 'Net 30', 'public_id' => 5));
+		PaymentTerm::firstOrCreate(array('num_days' => 60, 'name' => 'Net 60', 'public_id' => 6));
+		PaymentTerm::firstOrCreate(array('num_days' => 90, 'name' => 'Net 90', 'public_id' => 7));
 
-		PaymentLibrary::create(['name' => 'Omnipay']);
-        	PaymentLibrary::create(['name' => 'PHP-Payments [Deprecated]']);
+		PaymentLibrary::firstOrCreate(['name' => 'Omnipay']);
+        	PaymentLibrary::firstOrCreate(['name' => 'PHP-Payments [Deprecated]']);
 
 		/*
 		d, dd: Numeric date, no leading zero and leading zero, respectively. Eg, 5, 05.
@@ -184,7 +184,7 @@ class ConstantsSeeder extends Seeder
 		);
 
 		foreach ($timezones as $name => $location) {
-			Timezone::create(array('name'=>$name, 'location'=>$location));
+			Timezone::firstOrCreate(array('name'=>$name, 'location'=>$location));
 		}
 	}
 }
