@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "09fda381adad88df20782277ade92809",
-    "content-hash": "77223af5b09a5e08bf323379fe8e3f24",
+    "hash": "a58d2f8f037dc8b2df762d3e56c474ea",
+    "content-hash": "7dc018b1e36177b0e5a3fa7b765e0198",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -798,7 +798,7 @@
                 "laravel"
             ],
             "abandoned": "OpenSkill/Datatable",
-            "time": "2016-07-21 12:52:32"
+            "time": "2015-04-29 07:00:36"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -1084,12 +1084,12 @@
             "version": "dev-additional-calls",
             "source": {
                 "type": "git",
-                "url": "https://github.com/sometechie/omnipay-wepay.git",
+                "url": "https://github.com/hillelcoren/omnipay-wepay.git",
                 "reference": "a341b9997d71803d0f774d86908cb49a8bc4c405"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sometechie/omnipay-wepay/zipball/a341b9997d71803d0f774d86908cb49a8bc4c405",
+                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/a341b9997d71803d0f774d86908cb49a8bc4c405",
                 "reference": "a341b9997d71803d0f774d86908cb49a8bc4c405",
                 "shasum": ""
             },
@@ -2183,7 +2183,8 @@
                 "reference": "origin/master",
                 "shasum": null
             },
-            "type": "library"
+            "type": "library",
+            "time": "2016-06-03 12:00:26"
         },
         {
             "name": "google/apiclient",
@@ -4486,7 +4487,7 @@
                 "payment",
                 "twocheckout"
             ],
-            "time": "2016-03-25 10:39:58"
+            "time": "2014-09-17 00:35:37"
         },
         {
             "name": "omnipay/authorizenet",
@@ -5356,7 +5357,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-09-14 09:25:40"
+            "time": "2015-03-03 18:55:42"
         },
         {
             "name": "omnipay/multisafepay",
@@ -6837,12 +6838,12 @@
             "version": "1.0.4",
             "source": {
                 "type": "git",
-                "url": "https://github.com/Superbalist/flysystem-google-storage.git",
+                "url": "https://github.com/Superbalist/flysystem-google-cloud-storage.git",
                 "reference": "8ae35803a102ed6ce58aa87bf7534d4396513765"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Superbalist/flysystem-google-storage/zipball/8ae35803a102ed6ce58aa87bf7534d4396513765",
+                "url": "https://api.github.com/repos/Superbalist/flysystem-google-cloud-storage/zipball/8ae35803a102ed6ce58aa87bf7534d4396513765",
                 "reference": "8ae35803a102ed6ce58aa87bf7534d4396513765",
                 "shasum": ""
             },
