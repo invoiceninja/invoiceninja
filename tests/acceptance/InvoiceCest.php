@@ -73,7 +73,7 @@ class InvoiceCest
             //check if po_number was updated
             $I->seeInDatabase('invoices', [
                 'po_number' => $po_number,
-                //'invoice_date' => date('Y-m-d')
+                'invoice_date' => date('Y-m-d')
             ]);
         }
     }
