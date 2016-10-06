@@ -1317,7 +1317,9 @@
         }
 
         @if ($invoice->trashed())
-            return false;
+            if ($('#bulk_action').val() != 'restore') {
+                return false;
+            }
         @endif
 
         // check invoice number is unique
