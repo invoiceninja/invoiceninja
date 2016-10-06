@@ -152,7 +152,7 @@
 								trans('texts.expense_date'),
 								trans('texts.amount'),
 								trans('texts.public_notes'))
-				->setUrl(url('api/expenseVendor/' . $vendor->public_id))
+				->setUrl(url('api/vendor_expense/' . $vendor->public_id))
                 ->setCustomValues('entityType', 'expenses')
 				->setOptions('sPaginationType', 'bootstrap')
 				->setOptions('bFilter', false)

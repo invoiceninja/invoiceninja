@@ -82,9 +82,9 @@ return [
     |
     */
 
-    'key' => env('APP_KEY', ''),
+    'key' => env('APP_KEY', 'SomeRandomStringSomeRandomString'),
 
-    'cipher' => env('APP_CIPHER', MCRYPT_RIJNDAEL_128),
+    'cipher' => env('APP_CIPHER', 'AES-256-CBC'),
 
     /*
     |--------------------------------------------------------------------------
@@ -139,7 +139,7 @@ return [
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Broadcasting\BroadcastServiceProvider',
-        
+
         /*
          * Additional Providers
          */
@@ -153,13 +153,16 @@ return [
         'Laravel\Socialite\SocialiteServiceProvider',
         'Jlapp\Swaggervel\SwaggervelServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
+        Websight\GcsProvider\CloudStorageServiceProvider::class,
+        'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
+        Codedge\Updater\UpdaterServiceProvider::class,
 
         /*
          * Application Service Providers...
          */
         'App\Providers\AuthServiceProvider',
         'App\Providers\AppServiceProvider',
-        //'App\Providers\BusServiceProvider',
+        'App\Providers\ComposerServiceProvider',
         'App\Providers\ConfigServiceProvider',
         'App\Providers\EventServiceProvider',
         'App\Providers\RouteServiceProvider',
@@ -211,6 +214,7 @@ return [
         'Schema'          => 'Illuminate\Support\Facades\Schema',
         'Seeder'          => 'Illuminate\Database\Seeder',
         'Session'         => 'Illuminate\Support\Facades\Session',
+        'Storage'         => 'Illuminate\Support\Facades\Storage',
         'Str'             => 'Illuminate\Support\Str',
         'URL'             => 'Illuminate\Support\Facades\URL',
         'Validator'       => 'Illuminate\Support\Facades\Validator',
@@ -253,7 +257,8 @@ return [
         'Socialite'       => 'Laravel\Socialite\Facades\Socialite',
         'Excel'           => 'Maatwebsite\Excel\Facades\Excel',
         'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
-
+        'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
+        'Updater' => Codedge\Updater\UpdaterFacade::class,
     ],
 
 ];

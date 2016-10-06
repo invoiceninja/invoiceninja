@@ -17,8 +17,11 @@ class Kernel extends HttpKernel {
 		'Illuminate\View\Middleware\ShareErrorsFromSession',
 		'App\Http\Middleware\VerifyCsrfToken',
         'App\Http\Middleware\DuplicateSubmissionCheck',
+		'App\Http\Middleware\QueryLogging',
+        'App\Http\Middleware\SessionDataCheckMiddleware',
         'App\Http\Middleware\StartupCheck',
 	];
+
 
 	/**
 	 * The application's route middleware.

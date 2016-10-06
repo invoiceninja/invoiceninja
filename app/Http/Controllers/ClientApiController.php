@@ -1,15 +1,10 @@
 <?php namespace App\Http\Controllers;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Utils;
 use Response;
 use Input;
-use Auth;
 use App\Models\Client;
 use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\ClientTransformer;
 use App\Http\Requests\UpdateClientRequest;
 
 class ClientApiController extends BaseAPIController
@@ -53,7 +48,7 @@ class ClientApiController extends BaseAPIController
                 $query->where('email', $email);
             });
         }
-        
+
         return $this->listResponse($clients);
     }
 
@@ -112,10 +107,12 @@ class ClientApiController extends BaseAPIController
         if ($request->action) {
             return $this->handleAction($request);
         }
-        
+
         $data = $request->input();
         $data['public_id'] = $publicId;
         $client = $this->clientRepo->save($data, $request->entity());
+
+        $client->load(['contacts']);
 
         return $this->itemResponse($client);
     }
@@ -146,10 +143,10 @@ class ClientApiController extends BaseAPIController
     public function destroy(UpdateClientRequest $request)
     {
         $client = $request->entity();
-        
+
         $this->clientRepo->delete($client);
 
         return $this->itemResponse($client);
     }
-    
+
 }

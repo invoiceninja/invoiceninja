@@ -3,8 +3,15 @@
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
+/**
+ * Class InvoiceTransformer
+ */
 class InvoiceTransformer extends BaseTransformer
 {
+    /**
+     * @param $data
+     * @return bool|Item
+     */
     public function transform($data)
     {
         if ( ! $this->getClientId($data->customer)) {

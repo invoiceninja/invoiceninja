@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('content') 
+@section('content')
     @parent
 
     {!! Former::open_for_files()->addClass('warn-on-exit')->rules(array(
@@ -10,13 +10,13 @@
     {{ Former::populate($account) }}
     {{ Former::populateField('first_name', $user->first_name) }}
     {{ Former::populateField('last_name', $user->last_name) }}
-    {{ Former::populateField('email', $user->email) }}  
+    {{ Former::populateField('email', $user->email) }}
     {{ Former::populateField('phone', $user->phone) }}
 
     @if (Utils::isNinjaDev())
         {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
     @endif
-    
+
     @if (Input::has('affiliate'))
         {{ Former::populateField('referral_code', true) }}
     @endif
@@ -42,8 +42,8 @@
 
                 @if (Utils::isOAuthEnabled())
                     {!! Former::plaintext('oneclick_login')->value(
-                            $user->oauth_provider_id ? 
-                                $oauthProviderName . ' - ' . link_to('#', trans('texts.disable'), ['onclick' => 'disableSocialLogin()']) : 
+                            $user->oauth_provider_id ?
+                                $oauthProviderName . ' - ' . link_to('#', trans('texts.disable'), ['onclick' => 'disableSocialLogin()']) :
                                 DropdownButton::primary(trans('texts.enable'))->withContents($oauthLoginUrls)->small()
                         )->help('oneclick_login_help')
                      !!}
@@ -53,8 +53,8 @@
                     @if ($user->referral_code)
                         {{ Former::setOption('capitalize_translations', false) }}
                         {!! Former::plaintext('referral_code')
-                                ->help($referralCounts['free'] . ' ' . trans('texts.free') . ' | ' . 
-                                    $referralCounts['pro'] . ' ' . trans('texts.pro') . 
+                                ->help($referralCounts['free'] . ' ' . trans('texts.free') . ' | ' .
+                                    $referralCounts['pro'] . ' ' . trans('texts.pro') .
                                     '<a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a> ')
                                 ->value(NINJA_APP_URL . '/invoice_now?rc=' . $user->referral_code) !!}
                     @else
@@ -66,8 +66,8 @@
 
                 @if (false && Utils::isNinjaDev())
                     {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
-                @endif                
-                
+                @endif
+
                 </div>
             </div>
 
@@ -106,8 +106,8 @@
                     &nbsp;
                     <br/>
                     <center>
-                        <div id="changePasswordError"></div>    
-                    </center>                    
+                        <div id="changePasswordError"></div>
+                    </center>
                     <br/>
                 </div>
 
@@ -120,7 +120,7 @@
 
                 <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="successDiv">
                     <br/>
-                    <h3>{{ trans('texts.success') }}</h3>                    
+                    <h3>{{ trans('texts.success') }}</h3>
                     {{ trans('texts.updated_password') }}
                     <br/>
                     &nbsp;
@@ -135,7 +135,7 @@
                     <button type="button" class="btn btn-success" onclick="submitChangePassword()" id="changePasswordButton" disabled>
                         {{ trans('texts.save') }}
                         <i class="glyphicon glyphicon-floppy-disk"></i>
-                    </button>           
+                    </button>
                 </div>
 
             </div>
@@ -148,27 +148,27 @@
     <script type="text/javascript">
 
         $(function() {
-            $('#passwordModal').on('hidden.bs.modal', function () {                
+            $('#passwordModal').on('hidden.bs.modal', function () {
                 $(['current_password', 'newer_password', 'confirm_password']).each(function(i, field) {
                     var $input = $('form #'+field);
                     $input.val('');
-                    $input.closest('div.form-group').removeClass('has-success');                    
+                    $input.closest('div.form-group').removeClass('has-success');
                 });
                 $('#changePasswordButton').prop('disabled', true);
             })
 
-            $('#passwordModal').on('shown.bs.modal', function () {                
+            $('#passwordModal').on('shown.bs.modal', function () {
                 $('#current_password').focus();
            })
 
             localStorage.setItem('auth_provider', '{{ strtolower($oauthProviderName) }}');
         });
-        
+
         function showChangePassword() {
-            $('#passwordModal').modal('show');         
+            $('#passwordModal').modal('show');
         }
 
-        function validateChangePassword(showError) 
+        function validateChangePassword(showError)
         {
             var isFormValid = true;
             $(['current_password', 'newer_password', 'confirm_password']).each(function(i, field) {
@@ -212,10 +212,10 @@
             $.ajax({
               type: 'POST',
               url: '{{ URL::to('/users/change_password') }}',
-              data: 'current_password=' + encodeURIComponent($('form #current_password').val()) + 
-              '&new_password=' + encodeURIComponent($('form #newer_password').val()) + 
+              data: 'current_password=' + encodeURIComponent($('form #current_password').val()) +
+              '&new_password=' + encodeURIComponent($('form #newer_password').val()) +
               '&confirm_password=' + encodeURIComponent($('form #confirm_password').val()),
-              success: function(result) { 
+              success: function(result) {
                 if (result == 'success') {
                   NINJA.formIsChanged = false;
                   $('#changePasswordButton').hide();
@@ -223,20 +223,18 @@
                   $('#cancelChangePasswordButton').html('{{ trans('texts.close') }}');
                 } else {
                   $('#changePasswordError').html(result);
-                  $('#changePasswordDiv').show();                    
+                  $('#changePasswordDiv').show();
                 }
                 $('#changePasswordFooter').show();
                 $('#working').hide();
               }
-            });     
+            });
         }
 
         function disableSocialLogin() {
-            if (!confirm("{!! trans('texts.are_you_sure') !!}")) {
-                return;
-            }
-
-            window.location = '{{ URL::to('/auth_unlink') }}';
+            sweetConfirm(function() {
+                window.location = '{{ URL::to('/auth_unlink') }}';
+            });
         }
     </script>
 

@@ -57,7 +57,7 @@ class CreateVendorsTable extends Migration
             $table->foreign('vendor_id')->references('id')->on('vendors')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            
+
             $table->unsignedInteger('public_id')->nullable();
             $table->unique(array('account_id', 'public_id'));
         });
@@ -79,7 +79,7 @@ class CreateVendorsTable extends Migration
             $table->date('expense_date')->nullable();
             $table->text('private_notes');
             $table->text('public_notes');
-            $table->unsignedInteger('currency_id')->nullable();
+            $table->unsignedInteger('invoice_currency_id')->nullable(false);
             $table->boolean('should_be_invoiced')->default(true);
 
             // Relations

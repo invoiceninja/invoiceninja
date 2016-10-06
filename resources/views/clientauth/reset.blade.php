@@ -45,6 +45,14 @@
     .form-signin .form-control:focus {
         z-index: 2;
     }
+
+    .modal-header a:link,
+    .modal-header a:visited,
+    .modal-header a:hover,
+    .modal-header a:active {
+        text-decoration: none;
+        color: white;
+    }
 </style>
 
 @stop
@@ -58,7 +66,7 @@
   )) !!}
 
     <div class="modal-header">
-        @if (!isset($hideLogo) || !$hideLogo)
+        @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
             <a href="{{ NINJA_WEB_URL }}" target="_blank">
                 <img src="{{ asset('images/icon-login.png') }}" /> 
                 <h4>Invoice Ninja | {{ trans('texts.set_password') }}</h4>
@@ -70,7 +78,7 @@
     <div class="inner">
 
       <input type="hidden" name="token" value="{{{ $token }}}">
-      <input type="hidden" name="invitation_key" value="{{{ $invitation_key }}}">
+      <input type="hidden" name="contact_key" value="{{{ $contact_key }}}">
 
       <p>
         {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}               

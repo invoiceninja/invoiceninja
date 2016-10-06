@@ -12,18 +12,33 @@ body {
 
 .container input[type=text],
 .container input[type=email],
-.container select {
-    font-weight: 300;
-    font-family: 'Roboto', sans-serif;
+.container select,
+.braintree-hosted {
+    @if(!empty($account))
+        {!! $account->getBodyFontCss() !!}
+    @else
+        font-weight: 300;
+        font-family: 'Roboto', sans-serif;
+    @endif
     width: 100%;
     padding: 11px;
-    color: #8c8c8c;
+    color: #444444;
     background: #f9f9f9;
     border: 1px solid #ebe7e7;
     border-radius: 3px;
     font-size: 16px;
     min-height: 42px !important;
     font-weight: 400;
+}
+
+.container select {
+    color: #999999;
+}
+
+.form-control.braintree-hosted-fields-focused{
+    border-color: #66afe9;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, 0.6);
 }
 
 div.col-md-3,
@@ -55,7 +70,7 @@ div.row {
 header {
     margin: 0px !important
 }
-    
+
 @media screen and (min-width: 700px) {
     header {
         margin: 20px 0 75px;
@@ -89,20 +104,18 @@ h3 .help {
 }
 
 header h3 {
-    text-transform: uppercase;    
+    text-transform: uppercase;
 }
-    
+
 header h3 span {
     display: inline-block;
     margin-left: 8px;
 }
-    
+
 header h3 em {
     font-style: normal;
     color: #eb8039;
 }
-
-
 
 .secure {
     text-align: right;
@@ -110,14 +123,14 @@ header h3 em {
     background: url({{ asset('/images/icon-shield.png') }}) right 22px no-repeat;
     padding: 17px 55px 10px 0;
     }
-    
+
 .secure h3 {
     color: #36b855;
     font-size: 30px;
     margin-bottom: 8px;
     margin-top: 0px;
     }
-    
+
 .secure div {
     color: #acacac;
     font-size: 15px;
@@ -125,6 +138,84 @@ header h3 em {
     text-transform: uppercase;
 }
 
+#plaid_link_button img {
+    height:30px;
+    vertical-align:-7px;
+    margin-right:5px;
+}
 
+#plaid_link_button:hover img,
+#plaid_link_button .hoverimg{
+    display:none;
+}
+
+#plaid_link_button:hover .hoverimg{
+    display:inline;
+}
+
+#plaid_link_button {
+    width:425px;
+    border-color:#2A5A74;
+    color:#2A5A74;
+}
+
+#plaid_link_button:hover {
+    width:425px;
+    background-color:#2A5A74;
+    color:#fff;
+}
+
+#plaid_or,
+#plaid_container {
+    text-align:center
+}
+
+#plaid_or span{
+    background:#fff;
+    position:relative;
+    bottom:-11px;
+    font-size:125%;
+    padding:0 10px;
+}
+
+#plaid_or {
+    border-bottom:1px solid #000;
+    margin:10px 0 30px;
+}
+
+#secured_by_plaid{
+    position:fixed;
+    z-index:999999999;
+    bottom:5px;
+    left:5px;
+    color:#fff;
+    border:1px solid #fff;
+    padding:3px 7px 3px 3px;
+    border-radius:3px;
+    vertical-align:-5px;
+    text-decoration: none!important;
+}
+#secured_by_plaid img{
+    height:20px;
+    margin-right:5px;
+}
+
+#secured_by_plaid:hover{
+    background-color:#2A5A74;
+}
+
+#plaid_linked{
+    margin:40px 0;
+    display:none;
+}
+
+#plaid_linked_status {
+    margin-bottom:10px;
+    font-size:150%;
+}
+
+#bank_name {
+    margin:5px 0 -5px;
+}
 
 </style>

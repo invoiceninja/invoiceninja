@@ -1,12 +1,20 @@
-<?php 
+<?php
 
 $I = new AcceptanceTester($scenario);
 $I->checkIfLogin($I);
 
 $I->wantTo('Test all pages load');
 
+// Check all language files
+$count = $I->grabNumRecords('languages');
+for ($i=1; $i<=$count; $i++) {
+    $locale = $I->grabFromDatabase('languages', 'locale', ['id' => $i]);
+    $I->amOnPage("/dashboard?lang={$locale}");
+    $I->seeElement('.navbar-brand');
+}
+
 // Top level navigation
-$I->amOnPage('/dashboard');
+$I->amOnPage('/dashboard?lang=en');
 $I->see('Total Revenue');
 
 $I->amOnPage('/clients');
@@ -55,8 +63,8 @@ $I->see('Create');
 $I->amOnPage('/settings/company_details');
 $I->see('Details');
 
-$I->amOnPage('/gateways/create');
-$I->see('Add Gateway');
+//$I->amOnPage('/gateways/create');
+//$I->see('Add Gateway');
 
 $I->amOnPage('/settings/products');
 $I->see('Product Settings');
@@ -73,11 +81,8 @@ $I->see('Invoice Design');
 $I->amOnPage('/settings/templates_and_reminders');
 $I->see('Invoice Email');
 
-$I->amOnPage('/settings/charts_and_reports');
-$I->see('Data Visualizations');
-
-$I->amOnPage('/settings/user_management');
-$I->see('Add User');
+$I->amOnPage('/settings/reports');
+$I->see('Report Settings');
 
 //try to logout
 //$I->click('#myAccountButton');

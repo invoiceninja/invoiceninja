@@ -8,6 +8,9 @@ class LanguageSeeder extends Seeder
     {
         Eloquent::unguard();
 
+        // https://github.com/caouecs/Laravel-lang
+        // https://www.loc.gov/standards/iso639-2/php/code_list.php
+
         $languages = [
             ['name' => 'English', 'locale' => 'en'],
             ['name' => 'Italian', 'locale' => 'it'],
@@ -22,9 +25,11 @@ class LanguageSeeder extends Seeder
             ['name' => 'Swedish', 'locale' => 'sv'],
             ['name' => 'Spanish - Spain', 'locale' => 'es_ES'],
             ['name' => 'French - Canada', 'locale' => 'fr_CA'],
-            ['name' => 'Lithuanian', 'locale' => 'lt'],  
+            ['name' => 'Lithuanian', 'locale' => 'lt'],
             ['name' => 'Polish', 'locale' => 'pl'],
             ['name' => 'Czech', 'locale' => 'cs'],
+            ['name' => 'Croatian', 'locale' => 'hr'],
+            ['name' => 'Albanian', 'locale' => 'sq'],
         ];
 
         foreach ($languages as $language) {

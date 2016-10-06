@@ -3,29 +3,19 @@
 namespace App\Ninja\Notifications;
 
 use Davibennun\LaravelPushNotification\Facades\PushNotification;
-use Illuminate\Http\Request;
 
 /**
  * Class PushFactory
- * @package App\Ninja\Notifications
  */
 
 class PushFactory
 {
     /**
      * PushFactory constructor.
-     *
-     * @param $this->certificate - Development or production.
-     *
-     * Static variables defined in routes.php
-     *
-     * IOS_PRODUCTION_PUSH
-     * IOS_DEV_PUSH
      */
-
     public function __construct()
     {
-        $this->certificate = IOS_DEV_PUSH;
+        $this->certificate = IOS_PUSH_CERTIFICATE;
     }
 
     /**
@@ -59,7 +49,6 @@ class PushFactory
      * @param $message - user specific message
      *
      * @return void
-     *
      */
 
     public function message($token, $message)
@@ -92,5 +81,4 @@ class PushFactory
 
         return $feedback->getFeedback();
     }
-
 }

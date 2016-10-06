@@ -34,20 +34,28 @@
             <h3 class="panel-title">Email Settings</h3>
           </div>
           <div class="panel-body form-padding-right">
-            {!! Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail'])
-                     ->value(isset($_ENV['MAIL_DRIVER']) ? $_ENV['MAIL_DRIVER'] : 'smtp') !!}
-            {!! Former::text('mail[host]')->label('Host')
-                    ->value(isset($_ENV['MAIL_HOST']) ? $_ENV['MAIL_HOST'] : '') !!}
-            {!! Former::text('mail[port]')->label('Port')
-                    ->value(isset($_ENV['MAIL_PORT']) ? $_ENV['MAIL_PORT'] : '587')  !!}
-            {!! Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL'])
-                    ->value(isset($_ENV['MAIL_ENCRYPTION']) ? $_ENV['MAIL_ENCRYPTION'] : 'tls')  !!}
+            {!! Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail', 'mailgun' => 'Mailgun'])
+                     ->value(isset($_ENV['MAIL_DRIVER']) ? $_ENV['MAIL_DRIVER'] : 'smtp')->setAttributes(['onchange' => 'mailDriverChange()']) !!}
             {!! Former::text('mail[from][name]')->label('From Name')
-                    ->value(isset($_ENV['MAIL_FROM_NAME']) ? $_ENV['MAIL_FROM_NAME'] : '')  !!}
+                  ->value(isset($_ENV['MAIL_FROM_NAME']) ? $_ENV['MAIL_FROM_NAME'] : '')  !!}
             {!! Former::text('mail[username]')->label('Email')
                     ->value(isset($_ENV['MAIL_USERNAME']) ? $_ENV['MAIL_USERNAME'] : '')  !!}
-            {!! Former::password('mail[password]')->label('Password')
-                    ->value(isset($_ENV['MAIL_PASSWORD']) ? $_ENV['MAIL_PASSWORD'] : '')  !!}    
+            <div id="standardMailSetup">
+              {!! Former::text('mail[host]')->label('Host')
+                      ->value(isset($_ENV['MAIL_HOST']) ? $_ENV['MAIL_HOST'] : '') !!}
+              {!! Former::text('mail[port]')->label('Port')
+                      ->value(isset($_ENV['MAIL_PORT']) ? $_ENV['MAIL_PORT'] : '587')  !!}
+              {!! Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL'])
+                      ->value(isset($_ENV['MAIL_ENCRYPTION']) ? $_ENV['MAIL_ENCRYPTION'] : 'tls')  !!}
+              {!! Former::password('mail[password]')->label('Password')
+                      ->value(isset($_ENV['MAIL_PASSWORD']) ? $_ENV['MAIL_PASSWORD'] : '')  !!}
+            </div>
+            <div id="mailgunMailSetup">
+              {!! Former::text('mail[mailgun_domain]')->label('Mailgun Domain')
+                      ->value(isset($_ENV['MAILGUN_DOMAIN']) ? $_ENV['MAILGUN_DOMAIN'] : '') !!}
+              {!! Former::text('mail[mailgun_secret]')->label('Mailgun Private Key')
+                      ->value(isset($_ENV['MAILGUN_SECRET']) ? $_ENV['MAILGUN_SECRET'] : '')  !!}
+            </div>
             {{-- Former::actions( Button::primary('Send test email')->small()->withAttributes(['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) --}}
           </div>
         </div>
@@ -57,7 +65,8 @@
 
     var db_valid = false
     var mail_valid = false
-      
+    mailDriverChange();
+
     function testDatabase()
     {
       var data = $("form").serialize() + "&test=db";
@@ -77,6 +86,23 @@
 
       return db_valid;
     }  
+
+    function mailDriverChange() {
+      if ($("select[name='mail[driver]'").val() == 'mailgun') {
+        $("#standardMailSetup").hide();
+        $("#standardMailSetup").children('select,input').prop('disabled',true);
+        $("#mailgunMailSetup").show();
+        $("#mailgunMailSetup").children('select,input').prop('disabled',false);
+
+      } else {
+        $("#standardMailSetup").show();
+        $("#standardMailSetup").children('select,input').prop('disabled',false);
+
+        $("#mailgunMailSetup").hide();
+        $("#mailgunMailSetup").children('select,input').prop('disabled',true);
+
+      }
+    }
 
     function testMail()
     {      

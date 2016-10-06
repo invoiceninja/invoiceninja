@@ -5,12 +5,26 @@ use App\Ninja\Repositories\ProductRepository;
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 
+/**
+ * Class ProductApiController
+ */
 class ProductApiController extends BaseAPIController
 {
-    protected $productRepo;
-    
+    /**
+     * @var string
+     */
     protected $entityType = ENTITY_PRODUCT;
 
+    /**
+     * @var ProductRepository
+     */
+    protected $productRepo;
+
+    /**
+     * ProductApiController constructor.
+     *
+     * @param ProductRepository $productRepo
+     */
     public function __construct(ProductRepository $productRepo)
     {
         parent::__construct();
@@ -18,6 +32,9 @@ class ProductApiController extends BaseAPIController
         $this->productRepo = $productRepo;
     }
 
+    /**
+     * @return \Illuminate\Http\Response
+     */
     public function index()
     {
         $products = Product::scope()
@@ -27,6 +44,10 @@ class ProductApiController extends BaseAPIController
         return $this->listResponse($products);
     }
 
+    /**
+     * @param CreateProductRequest $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(CreateProductRequest $request)
     {
         $product = $this->productRepo->save($request->input());
@@ -34,6 +55,11 @@ class ProductApiController extends BaseAPIController
         return $this->itemResponse($product);
     }
 
+    /**
+     * @param UpdateProductRequest $request
+     * @param $publicId
+     * @return \Illuminate\Http\Response
+     */
     public function update(UpdateProductRequest $request, $publicId)
     {
         if ($request->action) {
@@ -45,10 +71,5 @@ class ProductApiController extends BaseAPIController
         $product = $this->productRepo->save($data, $request->entity());
 
         return $this->itemResponse($product);
-    }
-
-    public function destroy($publicId)
-    {
-       //stub
     }
 }

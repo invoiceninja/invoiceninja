@@ -1,20 +1,30 @@
 <?php namespace App\Ninja\Presenters;
 
-use Utils;
-use Laracasts\Presenter\Presenter;
-
-class TaskPresenter extends Presenter {
-
+/**
+ * Class TaskPresenter
+ */
+class TaskPresenter extends EntityPresenter
+{
+    /**
+     * @return string
+     */
     public function client()
     {
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';
     }
 
+    /**
+     * @return mixed
+     */
     public function user()
     {
         return $this->entity->user->getDisplayName();
     }
 
+    /**
+     * @param $account
+     * @return mixed
+     */
     public function times($account)
     {
         $parts = json_decode($this->entity->time_log) ?: [];
@@ -37,6 +47,9 @@ class TaskPresenter extends Presenter {
         return implode("\n", $times);
     }
 
+    /**
+     * @return string
+     */
     public function status()
     {
         $class = $text = '';
@@ -54,5 +67,4 @@ class TaskPresenter extends Presenter {
 
         return "<span class=\"label label-{$class}\">{$text}</span>";
     }
-
 }
