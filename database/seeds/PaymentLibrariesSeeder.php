@@ -46,7 +46,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'BeanStream', 'provider' => 'BeanStream', 'payment_library_id' => 2],
             ['name' => 'Psigate', 'provider' => 'Psigate', 'payment_library_id' => 2],
             ['name' => 'moolah', 'provider' => 'AuthorizeNet_AIM'],
-            ['name' => 'Alipay', 'provider' => 'Alipay_LegacyExpress'],
+            ['name' => 'Alipay', 'provider' => 'Alipay_Express'],
             ['name' => 'Buckaroo', 'provider' => 'Buckaroo_CreditCard'],
             ['name' => 'Coinbase', 'provider' => 'Coinbase'],
             ['name' => 'DataCash', 'provider' => 'DataCash'],
