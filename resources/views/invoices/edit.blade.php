@@ -1334,6 +1334,10 @@
             return false;
         }
 
+        @if ($invoice->trashed())
+            return false;
+        @endif
+
         // check invoice number is unique
         if ($('.invoice-number').hasClass('has-error')) {
             return false;
