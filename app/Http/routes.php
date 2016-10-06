@@ -284,6 +284,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 {
     Route::get('ping', 'AccountApiController@ping');
     Route::post('login', 'AccountApiController@login');
+    Route::post('oauth_login', 'AccountApiController@oauthLogin');
     Route::post('register', 'AccountApiController@register');
     Route::get('static', 'AccountApiController@getStaticData');
     Route::get('accounts', 'AccountApiController@show');
@@ -308,7 +309,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
     Route::get('dashboard', 'DashboardApiController@index');
     Route::resource('documents', 'DocumentAPIController');
-    Route::post('validate_outh_token', 'AccountApiController@validateOauthToken');
 
     // Vendor
     Route::resource('vendors', 'VendorApiController');
