@@ -77,6 +77,8 @@ class CheckBalanceCest
 
         // delete the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
+        $I->executeJS('submitBulkAction("restore")');
+        $I->wait(1);
         $I->executeJS('submitBulkAction("delete")');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
