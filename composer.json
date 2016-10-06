@@ -33,7 +33,7 @@
         "omnipay/omnipay": "~2.3",
         "intervention/image": "dev-master",
         "webpatser/laravel-countries": "dev-master",
-        "lokielse/omnipay-alipay": "dev-master",
+        "lokielse/omnipay-alipay": "~1.4",
         "coatesap/omnipay-datacash": "~2.0",
         "mfauveau/omnipay-pacnet": "~2.0",
         "coatesap/omnipay-paymentsense": "2.0.0",
