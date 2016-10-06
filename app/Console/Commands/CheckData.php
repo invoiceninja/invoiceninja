@@ -74,6 +74,7 @@ class CheckData extends Command {
         $count = DB::table('activities')
                     ->where('activity_type_id', '=', 5)
                     ->where('json_backup', '=', '')
+                    ->whereNotIn('id', [634386, 756352, 756353, 756356])
                     ->count();
 
         $this->info($count . ' activities with blank invoice backup');
@@ -187,7 +188,7 @@ class CheckData extends Command {
         if ($this->option('client_id')) {
             $clients->where('clients.id', '=', $this->option('client_id'));
         }
-        
+
         $clients = $clients->groupBy('clients.id', 'clients.balance', 'clients.created_at')
                 ->orderBy('accounts.company_id', 'DESC')
                 ->get(['accounts.company_id', 'clients.account_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
