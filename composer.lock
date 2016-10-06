@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "a58d2f8f037dc8b2df762d3e56c474ea",
-    "content-hash": "7dc018b1e36177b0e5a3fa7b765e0198",
+    "hash": "cef2393922d37e3206e2feb5674b50eb",
+    "content-hash": "6577f7bf72c505d13e807f16762a2e10",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -3786,12 +3786,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/lokielse/omnipay-alipay.git",
-                "reference": "8ac13b8a148a5edef93a93087276ca1c6d592679"
+                "reference": "1769e8747f856cd6f52242dfe22254fc5d7eb68e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lokielse/omnipay-alipay/zipball/8ac13b8a148a5edef93a93087276ca1c6d592679",
-                "reference": "8ac13b8a148a5edef93a93087276ca1c6d592679",
+                "url": "https://api.github.com/repos/lokielse/omnipay-alipay/zipball/1769e8747f856cd6f52242dfe22254fc5d7eb68e",
+                "reference": "1769e8747f856cd6f52242dfe22254fc5d7eb68e",
                 "shasum": ""
             },
             "require": {
@@ -3803,8 +3803,12 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Omnipay\\Alipay\\": "src/"
-                }
+                    "Omnipay\\Alipay\\": "src/",
+                    "Omnipay\\Alipay\\Tests\\": "tests/"
+                },
+                "files": [
+                    "src/Common/helpers.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -3827,7 +3831,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2016-08-09 07:31:26"
+            "time": "2016-09-26 06:23:26"
         },
         {
             "name": "maatwebsite/excel",
@@ -6385,6 +6389,56 @@
                 "xlsx"
             ],
             "time": "2015-05-01 07:00:55"
+        },
+        {
+            "name": "predis/predis",
+            "version": "v1.1.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nrk/predis.git",
+                "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nrk/predis/zipball/f0210e38881631afeafb56ab43405a92cafd9fd1",
+                "reference": "f0210e38881631afeafb56ab43405a92cafd9fd1",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.9"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.8"
+            },
+            "suggest": {
+                "ext-curl": "Allows access to Webdis when paired with phpiredis",
+                "ext-phpiredis": "Allows faster serialization and deserialization of the Redis protocol"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Predis\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daniele Alessandri",
+                    "email": "suppakilla@gmail.com",
+                    "homepage": "http://clorophilla.net"
+                }
+            ],
+            "description": "Flexible and feature-complete Redis client for PHP and HHVM",
+            "homepage": "http://github.com/nrk/predis",
+            "keywords": [
+                "nosql",
+                "predis",
+                "redis"
+            ],
+            "time": "2016-06-16 16:22:20"
         },
         {
             "name": "psr/http-message",
