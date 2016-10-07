@@ -91,8 +91,8 @@ class AccountGatewayToken extends Eloquent
         if ($accountGateway->gateway_id == GATEWAY_STRIPE) {
             return "https://dashboard.stripe.com/customers/{$this->token}";
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
-            $merchantId = $accountGateway->getConfig()->merchantId;
-            $testMode = $accountGateway->getConfig()->testMode;
+            $merchantId = $accountGateway->getConfigField('merchantId');
+            $testMode = $accountGateway->getConfigField('testMode');
             return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
         } else {
             return false;
