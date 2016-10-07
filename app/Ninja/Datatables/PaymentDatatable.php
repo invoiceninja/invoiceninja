@@ -52,7 +52,7 @@ class PaymentDatatable extends EntityDatatable
                 }
             ],
             [
-                'source',
+                'payment_type_id',
                 function ($model) {
                     $code = str_replace(' ', '', strtolower($model->payment_type));
                     $card_type = trans('texts.card_' . $code);
