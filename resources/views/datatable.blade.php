@@ -48,6 +48,8 @@
 
     function load_{{ $class }}() {
         window.dataTable = jQuery('.{{ $class }}').dataTable({
+            "stateSave": true,
+            "stateDuration": 0,
             "fnRowCallback": function(row, data) {
                 if (data[0].indexOf('ENTITY_DELETED') > 0) {
                     $(row).addClass('entityDeleted');
