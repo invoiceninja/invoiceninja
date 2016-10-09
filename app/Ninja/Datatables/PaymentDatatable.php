@@ -123,12 +123,11 @@ class PaymentDatatable extends EntityDatatable
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED &&
-                    $model->refunded < $model->amount &&
-                    (
-                        ($model->transaction_reference && in_array($model->gateway_id , static::$refundableGateways))
-                        || $model->payment_type_id == PAYMENT_TYPE_CREDIT
-                    );
+                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id])
+                        && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
+                        && $model->refunded < $model->amount
+                        && $model->transaction_reference
+                        && in_array($model->gateway_id , static::$refundableGateways);
                 }
             ]
         ];
