@@ -14,7 +14,7 @@ All Pro and Enterprise features from our hosted app are included in both the [se
 
 Our [iPhone app](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8) is now available, our Android app is up next...
 
-Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to see a quick overview of our app.
+Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to get a quick overview of the app.
 
 ## Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
