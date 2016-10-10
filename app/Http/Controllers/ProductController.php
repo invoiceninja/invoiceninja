@@ -85,7 +85,7 @@ class ProductController extends BaseController
         $data = [
           'account' => $account,
           'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
-          'product' => Product::scope($publicId)->firstOrFail(),
+          'product' => Product::scope($publicId)->withTrashed()->firstOrFail(),
           'method' => 'PUT',
           'url' => 'products/'.$publicId,
           'title' => trans('texts.edit_product'),
@@ -137,7 +137,7 @@ class ProductController extends BaseController
     private function save($productPublicId = false)
     {
         if ($productPublicId) {
-            $product = Product::scope($productPublicId)->firstOrFail();
+            $product = Product::scope($productPublicId)->withTrashed()->firstOrFail();
         } else {
             $product = Product::createNew();
         }

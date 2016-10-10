@@ -280,7 +280,13 @@ class InvoiceRepository extends BaseRepository
             }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
-            \Log::warning('Entity not set in invoice repo save');
+            if (Utils::isNinjaDev()) {
+                \Log::warning('Entity not set in invoice repo save');
+            }
+        }
+
+        if ($invoice->is_deleted) {
+            return $invoice;
         }
 
         $invoice->fill($data);

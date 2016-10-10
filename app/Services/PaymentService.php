@@ -131,7 +131,7 @@ class PaymentService extends BaseService
         if(!Utils::hasPermission('view_all')){
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
-
+        
         return $this->datatableService->createDatatable($datatable, $query);
     }
 

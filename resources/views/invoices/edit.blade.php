@@ -539,19 +539,24 @@
         @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
             @if ($invoice->isClientTrashed())
                 <!-- do nothing -->
-            @elseif ($invoice->trashed())
-                {!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
-    		@elseif (!$invoice->trashed())
-    			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-    		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
-                @if ($invoice->id)
-                    {!! DropdownButton::normal(trans('texts.more_actions'))
-                          ->withContents($actions)
-                          ->dropup() !!}
-                @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
-                    {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
+            @else
+                @if (!$invoice->is_deleted)
+        			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+        		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+                    @if (!$invoice->trashed())
+                        @if ($invoice->id)
+                            {!! DropdownButton::normal(trans('texts.more_actions'))
+                                  ->withContents($actions)
+                                  ->dropup() !!}
+                        @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
+                            {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
+                        @endif
+                    @endif
+        	    @endif
+                @if ($invoice->trashed())
+                    {!! Button::primary(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
                 @endif
-    	    @endif
+    		@endif
         @endif
 
 	</div>
@@ -1334,7 +1339,7 @@
             return false;
         }
 
-        @if ($invoice->trashed())
+        @if ($invoice->is_deleted)
             if ($('#bulk_action').val() != 'restore') {
                 return false;
             }
