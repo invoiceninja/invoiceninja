@@ -3,7 +3,7 @@
 @section('head')
 
 <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
-<link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('css/built.public.min.css') }}" rel="stylesheet" type="text/css"/>
 
 <style type="text/css">
     body {
@@ -13,6 +13,7 @@
     .modal-header {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
+        background-color: #337ab7;
     }
     .modal-header h4 {
         margin:0;
@@ -53,6 +54,24 @@
     .modal-header a:active {
         text-decoration: none;
         color: white;
+    }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        height: 40px;
+        padding: 9px 12px;
+        font-size: 16px;
+        line-height: 1.42857143;
+        color: #000 !important;
+        background: #f9f9f9 !important;
+        background-image: none;
+        border: 1px solid #dfe0e1;
+        border-radius: 2px;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
     }
 
 </style>
@@ -146,15 +165,7 @@
             } else {
                 $('#email').focus();
             }
-
-            /*
-            var authProvider = localStorage.getItem('auth_provider');
-            if (authProvider) {
-                $('#' + authProvider + 'LoginButton').removeClass('btn-primary').addClass('btn-success');
-            }
-            */
         })
-
     </script>
 
 @endsection

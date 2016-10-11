@@ -280,7 +280,13 @@ class InvoiceRepository extends BaseRepository
             }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
-            \Log::warning('Entity not set in invoice repo save');
+            if (Utils::isNinjaDev()) {
+                \Log::warning('Entity not set in invoice repo save');
+            }
+        }
+
+        if ($invoice->is_deleted) {
+            return $invoice;
         }
 
         $invoice->fill($data);
@@ -475,7 +481,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         if (isset($data['partial'])) {
-            $invoice->partial = min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance);
+            $invoice->partial = max(0,min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance));
         }
 
         $invoice->amount = $total;
@@ -652,6 +658,9 @@ class InvoiceRepository extends BaseRepository
         if ($quotePublicId) {
             $clone->invoice_type_id = INVOICE_TYPE_STANDARD;
             $clone->quote_id = $quotePublicId;
+            if ($account->invoice_terms) {
+                $clone->terms = $account->invoice_terms;
+            }
         }
 
         $clone->save();
@@ -683,7 +692,7 @@ class InvoiceRepository extends BaseRepository
 
         foreach ($invoice->documents as $document) {
             $cloneDocument = $document->cloneDocument();
-            $invoice->documents()->save($cloneDocument);
+            $clone->documents()->save($cloneDocument);
         }
 
         foreach ($invoice->invitations as $invitation) {

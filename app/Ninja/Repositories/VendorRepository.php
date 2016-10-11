@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
+use Utils;
 use DB;
 use App\Models\Vendor;
 
@@ -70,7 +71,13 @@ class VendorRepository extends BaseRepository
             $vendor = Vendor::createNew();
         } else {
             $vendor = Vendor::scope($publicId)->with('vendor_contacts')->firstOrFail();
-            \Log::warning('Entity not set in vendor repo save');
+            if (Utils::isNinjaDev()) {
+                \Log::warning('Entity not set in vendor repo save');
+            }
+        }
+
+        if ($vendor->is_deleted) {
+            return $vendor;
         }
 
         $vendor->fill($data);

@@ -4,6 +4,8 @@
     @parent
 
     {!! Former::open_for_files()->addClass('warn-on-exit')->rules(array(
+        'first_name' => 'required',
+        'last_name' => 'required',
         'email' => 'email|required'
     )) !!}
 

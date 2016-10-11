@@ -62,8 +62,6 @@ class AccountGatewayController extends BaseController
         $data['hiddenFields'] = Gateway::$hiddenFields;
         $data['selectGateways'] = Gateway::where('id', '=', $accountGateway->gateway_id)->get();
 
-        $this->testGateway($accountGateway);
-
         return View::make('accounts.account_gateway', $data);
     }
 
@@ -318,14 +316,17 @@ class AccountGatewayController extends BaseController
             if (isset($wepayResponse)) {
                 return $wepayResponse;
             } else {
+                $this->testGateway($accountGateway);
+
                 if ($accountGatewayPublicId) {
                     $message = trans('texts.updated_gateway');
+                    Session::flash('message', $message);
+                    return Redirect::to("gateways/{$accountGateway->public_id}/edit");
                 } else {
                     $message = trans('texts.created_gateway');
+                    Session::flash('message', $message);
+                    return Redirect::to("/settings/online_payments");
                 }
-
-                Session::flash('message', $message);
-                return Redirect::to("gateways/{$accountGateway->public_id}/edit");
             }
         }
     }

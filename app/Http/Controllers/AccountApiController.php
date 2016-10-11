@@ -4,6 +4,9 @@ use Auth;
 use Utils;
 use Response;
 use Cache;
+use Socialite;
+use Exception;
+use App\Services\AuthService;
 use App\Models\Account;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Http\Request;
@@ -180,5 +183,31 @@ class AccountApiController extends BaseAPIController
             }
         }
 
+    }
+
+    public function oauthLogin(Request $request)
+    {
+        $user = false;
+        $token = $request->input('token');
+        $provider = $request->input('provider');
+
+        try {
+            $user = Socialite::driver($provider)->userFromToken($token);
+        } catch (Exception $exception) {
+            return $this->errorResponse(['message' => $exception->getMessage()], 401);
+        }
+
+        if ($user) {
+            $providerId = AuthService::getProviderId($provider);
+            $user = $this->accountRepo->findUserByOauth($providerId, $user->id);
+        }
+
+        if ($user) {
+            Auth::login($user);
+            return $this->processLogin($request);
+        } else {
+            sleep(ERROR_DELAY);
+            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+        }
     }
 }

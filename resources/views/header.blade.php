@@ -520,7 +520,7 @@
                 'expenses',
                 'vendors',
                 'settings',
-                'self-update'
+                //'self-update'
             ] as $option)
             <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                 @if ($option == 'settings')

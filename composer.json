@@ -33,7 +33,7 @@
         "omnipay/omnipay": "~2.3",
         "intervention/image": "dev-master",
         "webpatser/laravel-countries": "dev-master",
-        "lokielse/omnipay-alipay": "dev-master",
+        "lokielse/omnipay-alipay": "~1.4",
         "coatesap/omnipay-datacash": "~2.0",
         "mfauveau/omnipay-pacnet": "~2.0",
         "coatesap/omnipay-paymentsense": "2.0.0",
@@ -82,7 +82,8 @@
         "barryvdh/laravel-debugbar": "~2.2",
         "fzaninotto/faker": "^1.5",
         "jaybizzle/laravel-crawler-detect": "1.*",
-        "codedge/laravel-selfupdater": "5.x-dev"
+        "codedge/laravel-selfupdater": "5.x-dev",
+        "predis/predis": "^1.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",
@@ -150,7 +151,7 @@
         },
         {
             "type": "vcs",
-            "url": "https://github.com/sometechie/omnipay-wepay"
+            "url": "https://github.com/hillelcoren/omnipay-wepay"
         }
     ]
 }
