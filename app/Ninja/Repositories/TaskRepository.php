@@ -68,7 +68,6 @@ class TaskRepository
             // do nothing
         } elseif ($publicId) {
             $task = Task::scope($publicId)->firstOrFail();
-            \Log::warning('Entity not set in task repo save');
         } else {
             $task = Task::createNew();
         }

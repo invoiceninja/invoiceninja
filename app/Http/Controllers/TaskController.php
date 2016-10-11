@@ -160,7 +160,7 @@ class TaskController extends BaseController
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_task')];
 
             // check for any open invoices
-            $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id) : [];
+            $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id, ENTITY_TASK) : [];
 
             foreach ($invoices as $invoice) {
                 $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
@@ -300,11 +300,7 @@ class TaskController extends BaseController
             $message = Utils::pluralize($action.'d_task', $count);
             Session::flash('message', $message);
 
-            if ($action == 'restore' && $count == 1) {
-                return Redirect::to('tasks/'.$ids[0].'/edit');
-            } else {
-                return Redirect::to('tasks');
-            }
+            return $this->returnBulk($this->entityType, $action, $ids);
         }
     }
 

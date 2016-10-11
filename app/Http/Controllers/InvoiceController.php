@@ -115,7 +115,6 @@ class InvoiceController extends BaseController
             $method = 'POST';
             $url = "{$entityType}s";
         } else {
-            Utils::trackViewed($invoice->getDisplayName().' - '.$invoice->client->getDisplayName(), $invoice->getEntityType());
             $method = 'PUT';
             $url = "{$entityType}s/{$invoice->public_id}";
             $clients->whereId($invoice->client_id);
@@ -244,11 +243,6 @@ class InvoiceController extends BaseController
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
 
-        if (Session::get('expenses')) {
-            $invoice->expenses = Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get();
-        }
-
-
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
         if (!Auth::user()->hasPermission('view_all')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
@@ -275,6 +269,9 @@ class InvoiceController extends BaseController
     private static function getViewModel($invoice)
     {
         $recurringHelp = '';
+        $recurringDueDateHelp = '';
+        $recurringDueDates = [];
+
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_help')) as $line) {
             $parts = explode('=>', $line);
             if (count($parts) > 1) {
@@ -285,7 +282,6 @@ class InvoiceController extends BaseController
             }
         }
 
-        $recurringDueDateHelp = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_due_date_help')) as $line) {
             $parts = explode('=>', $line);
             if (count($parts) > 1) {
@@ -384,6 +380,7 @@ class InvoiceController extends BaseController
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
             'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
+            'expenses' => Session::get('expenses') ? Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get() : [],
         ];
 
     }
@@ -405,23 +402,19 @@ class InvoiceController extends BaseController
         $entityType = $invoice->getEntityType();
         $message = trans("texts.created_{$entityType}");
 
-        // check if we created a new client with the invoice
-        // TODO: replace with HistoryListener
         $input = $request->input();
         $clientPublicId = isset($input['client']['public_id']) ? $input['client']['public_id'] : false;
         if ($clientPublicId == '-1') {
             $message = $message.' '.trans('texts.and_created_client');
-            $trackUrl = URL::to('clients/' . $invoice->client->public_id);
-            Utils::trackViewed($invoice->client->getDisplayName(), ENTITY_CLIENT, $trackUrl);
         }
 
         Session::flash('message', $message);
 
         if ($action == 'email') {
-            return $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
 
-        return redirect()->to($invoice->getRoute());
+        return url($invoice->getRoute());
     }
 
     /**
@@ -444,14 +437,14 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'clone') {
-            return $this->cloneInvoice($request, $invoice->public_id);
+            return url(sprintf('%ss/%s/clone', $entityType, $invoice->public_id));
         } elseif ($action == 'convert') {
             return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
-            return $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
 
-        return redirect()->to($invoice->getRoute());
+        return url($invoice->getRoute());
     }
 
 
@@ -478,8 +471,6 @@ class InvoiceController extends BaseController
         } else {
             Session::flash('error', $response);
         }
-
-        return Redirect::to("{$entityType}s/{$invoice->public_id}/edit");
     }
 
     private function emailRecurringInvoice(&$invoice)
@@ -536,11 +527,7 @@ class InvoiceController extends BaseController
             Session::flash('message', $message);
         }
 
-        if ($action == 'restore' && $count == 1) {
-            return Redirect::to("{$entityType}s/".Utils::getFirst($ids));
-        } else {
-            return Redirect::to("{$entityType}s");
-        }
+        return $this->returnBulk($entityType, $action, $ids);
     }
 
     public function convertQuote(InvoiceRequest $request)
@@ -549,7 +536,7 @@ class InvoiceController extends BaseController
 
         Session::flash('message', trans('texts.converted_to_invoice'));
 
-        return Redirect::to('invoices/' . $clone->public_id);
+        return url('invoices/' . $clone->public_id);
     }
 
     public function cloneInvoice(InvoiceRequest $request, $publicId)
@@ -582,24 +569,29 @@ class InvoiceController extends BaseController
         $lastId = false;
 
         foreach ($activities as $activity) {
-            $backup = json_decode($activity->json_backup);
-            $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
-            $backup->due_date = Utils::fromSqlDate($backup->due_date);
-            $backup->features = [
-                'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
-                'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
-                'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
-            ];
-            $backup->invoice_type_id = isset($backup->invoice_type_id) && intval($backup->invoice_type_id) == INVOICE_TYPE_QUOTE;
-            $backup->account = $invoice->account->toArray();
+            if ($backup = json_decode($activity->json_backup)) {
+                $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
+                $backup->due_date = Utils::fromSqlDate($backup->due_date);
+                $backup->features = [
+                    'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
+                    'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),
+                    'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
+                ];
+                $backup->invoice_type_id = isset($backup->invoice_type_id) && intval($backup->invoice_type_id) == INVOICE_TYPE_QUOTE;
+                $backup->account = $invoice->account->toArray();
 
-            $versionsJson[$activity->id] = $backup;
-            $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
-            $versionsSelect[$lastId ? $lastId : 0] = $key;
-            $lastId = $activity->id;
+                $versionsJson[$activity->id] = $backup;
+                $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
+                $versionsSelect[$lastId ? $lastId : 0] = $key;
+                $lastId = $activity->id;
+            } else {
+                Utils::logError('Failed to parse invoice backup');
+            }
         }
 
-        $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
+        if ($lastId) {
+            $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
+        }
 
         $data = [
             'invoice' => $invoice,
@@ -612,12 +604,19 @@ class InvoiceController extends BaseController
         return View::make('invoices.history', $data);
     }
 
-    public function checkInvoiceNumber($invoiceNumber)
+    public function checkInvoiceNumber($invoicePublicId = false)
     {
-        $count = Invoice::scope()
+        $invoiceNumber = request()->invoice_number;
+
+        $query = Invoice::scope()
                     ->whereInvoiceNumber($invoiceNumber)
-                    ->withTrashed()
-                    ->count();
+                    ->withTrashed();
+
+        if ($invoicePublicId) {
+            $query->where('public_id', '!=', $invoicePublicId);
+        }
+
+        $count = $query->count();
 
         return $count ? RESULT_FAILURE : RESULT_SUCCESS;
     }

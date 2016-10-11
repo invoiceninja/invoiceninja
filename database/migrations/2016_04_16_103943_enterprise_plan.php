@@ -49,6 +49,9 @@ class EnterprisePlan extends Migration
             Schema::table('accounts', function($table)
             {
                 $table->unsignedInteger('company_id')->nullable();
+            });
+            Schema::table('accounts', function($table)
+            {
                 $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             });
         }

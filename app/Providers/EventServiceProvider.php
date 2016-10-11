@@ -11,6 +11,7 @@ class EventServiceProvider extends ServiceProvider {
 	 * @var array
 	 */
 	protected $listen = [
+
         // Clients
         'App\Events\ClientWasCreated' => [
             'App\Listeners\ActivityListener@createdClient',
@@ -158,6 +159,11 @@ class EventServiceProvider extends ServiceProvider {
         ],
         'App\Events\TaskWasUpdated' => [
             'App\Listeners\ActivityListener@updatedTask',
+        ],
+
+        // Update events
+        \Codedge\Updater\Events\UpdateAvailable::class => [
+            \Codedge\Updater\Listeners\SendUpdateAvailableNotification::class
         ],
 	];
 

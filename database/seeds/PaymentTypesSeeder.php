@@ -10,32 +10,39 @@ class PaymentTypesSeeder extends Seeder
 
         $paymentTypes = [
             array('name' => 'Apply Credit'),
-            array('name' => 'Bank Transfer'),
+            array('name' => 'Bank Transfer', 'gateway_type_id' => GATEWAY_TYPE_BANK_TRANSFER),
             array('name' => 'Cash'),
-            array('name' => 'Debit'),
-            array('name' => 'ACH'),
-            array('name' => 'Visa Card'),
-            array('name' => 'MasterCard'),
-            array('name' => 'American Express'),
-            array('name' => 'Discover Card'),
-            array('name' => 'Diners Card'),
-            array('name' => 'EuroCard'),
-            array('name' => 'Nova'),
-            array('name' => 'Credit Card Other'),
-            array('name' => 'PayPal'),
+            array('name' => 'Debit', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'ACH', 'gateway_type_id' => GATEWAY_TYPE_BANK_TRANSFER),
+            array('name' => 'Visa Card', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'MasterCard', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'American Express', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Discover Card', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Diners Card', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'EuroCard', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Nova', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Credit Card Other', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'PayPal', 'gateway_type_id' => GATEWAY_TYPE_PAYPAL),
             array('name' => 'Google Wallet'),
             array('name' => 'Check'),
-            array('name' => 'Carte Blanche'),
-            array('name' => 'UnionPay'),
-            array('name' => 'JCB'),
-            array('name' => 'Laser'),
-            array('name' => 'Maestro'),
-            array('name' => 'Solo'),
-            array('name' => 'Switch'),
+            array('name' => 'Carte Blanche', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'UnionPay', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'JCB', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Laser', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Maestro', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Solo', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Switch', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
         ];
 
         foreach ($paymentTypes as $paymentType) {
-            if (!DB::table('payment_types')->where('name', '=', $paymentType['name'])->get()) {
+            $record = PaymentType::where('name', '=', $paymentType['name'])->first();
+
+            if ( $record) {
+                $record->name = $paymentType['name'];
+                $record->gateway_type_id = ! empty($paymentType['gateway_type_id']) ? $paymentType['gateway_type_id'] : null;
+
+                $record->save();
+            } else {
                 PaymentType::create($paymentType);
             }
         }

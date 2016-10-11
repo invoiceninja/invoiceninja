@@ -79,7 +79,7 @@ class Payment extends EntityModel
      */
     public function account_gateway()
     {
-        return $this->belongsTo('App\Models\AccountGateway');
+        return $this->belongsTo('App\Models\AccountGateway')->withTrashed();
     }
 
     /**
@@ -120,6 +120,13 @@ class Payment extends EntityModel
         return Utils::formatMoney($this->amount, $this->client->getCurrencyId());
     }
     */
+
+    public function scopeExcludeFailed($query)
+    {
+        $query->whereNotIn('payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
+
+        return $query;
+    }
 
     /**
      * @return mixed
@@ -175,6 +182,11 @@ class Payment extends EntityModel
     public function isVoided()
     {
         return $this->payment_status_id == PAYMENT_STATUS_VOIDED;
+    }
+
+    public function isFailedOrVoided()
+    {
+        return $this->isFailed() || $this->isVoided();
     }
 
     /**

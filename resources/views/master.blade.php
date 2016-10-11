@@ -90,14 +90,15 @@
         function sweetConfirm(success, text, title) {
             title = title || "{!! trans("texts.are_you_sure") !!}";
             swal({
-                type: "warning",
+                //type: "warning",
+                //confirmButtonColor: "#DD6B55",
                 title: title,
                 text: text,
                 cancelButtonText: "{!! trans("texts.no") !!}",
                 confirmButtonText: "{!! trans("texts.yes") !!}",
-                confirmButtonColor: "#DD6B55",
                 showCancelButton: true,
-                closeOnConfirm: false
+                closeOnConfirm: false,
+                allowOutsideClick: true,
             }, function() {
                 success();
                 swal.close();
@@ -181,7 +182,7 @@
 
 <body class="body">
 
-@if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
+@if (Utils::isNinjaProd() && isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
     <!-- Google Tag Manager -->
     <noscript>
         <iframe src="//www.googletagmanager.com/ns.html?id={{ $_ENV['TAG_MANAGER_KEY'] }}"
@@ -205,7 +206,7 @@
         function trackEvent(category, action) {
         }
     </script>
-@elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
+@elseif (Utils::isNinjaProd() && isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
     <script>
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -245,11 +246,8 @@
 
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
             @if (Session::get('trackEventAction') === '/buy_pro_plan')
-                window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {
-            'value': '{{ session('trackEventAmount') }}',
-            'currency': 'USD'
-        }]);
-        @endif
+                fbq('track', 'Purchase', {value: '{{ session('trackEventAmount') }}', currency: 'USD'});
+            @endif
         @endif
 
         @if (Session::has('onReady'))

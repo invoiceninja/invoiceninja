@@ -19,6 +19,14 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     protected $dates = ['deleted_at'];
 
     /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_CONTACT;
+    }
+
+    /**
      * @var array
      */
     protected $fillable = [

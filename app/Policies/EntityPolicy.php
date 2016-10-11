@@ -45,7 +45,7 @@ class EntityPolicy
      * @param $ownerUserId
      * @return bool
      */
-    public static function viewByOwner(User$user, $ownerUserId) {
+    public static function viewByOwner(User $user, $ownerUserId) {
         return $user->hasPermission('view_all') || $user->id == $ownerUserId;
     }
 

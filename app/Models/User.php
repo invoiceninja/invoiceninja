@@ -286,7 +286,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function clearSession()
     {
         $keys = [
-            RECENTLY_VIEWED,
             SESSION_USER_ACCOUNTS,
             SESSION_TIMEZONE,
             SESSION_DATE_FORMAT,
@@ -426,7 +425,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     public function caddAddUsers()
     {
-        if ( ! Utils::isNinja()) {
+        if ( ! Utils::isNinjaProd()) {
             return true;
         } elseif ( ! $this->hasFeature(FEATURE_USERS)) {
             return false;
@@ -441,6 +440,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
 
         return $numUsers < $company->num_users;
+    }
+
+    public function canCreateOrEdit($entityType, $entity = false)
+    {
+        return (($entity && $this->can('edit', $entity))
+            || (!$entity && $this->can('create', $entityType)));
     }
 }
 

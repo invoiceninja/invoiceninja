@@ -23,7 +23,6 @@
             ->autocomplete('on')
             ->rules([
                 'name' => 'required',
-                'website' => 'url',
             ]) !!}
 
 	{{ Former::populate($account) }}

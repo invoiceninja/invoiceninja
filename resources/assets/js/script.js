@@ -1143,3 +1143,19 @@ function searchData(data, key, fuzzy) {
 function escapeRegExp(str) {
   return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 }
+
+function firstJSONError(json) {
+    for (var key in json) {
+        if ( ! json.hasOwnProperty(key)) {
+            continue;
+        }
+        var item = json[key];
+        for (var subKey in item) {
+            if ( ! item.hasOwnProperty(subKey)) {
+                continue;
+            }
+            return item[subKey];
+        }
+    }
+    return false;
+}

@@ -1,13 +1,11 @@
 @extends('header')
 
-@section('content') 
+@section('content')
   @parent
-
-  @include('accounts.nav', ['selected' => ACCOUNT_PRODUCTS])
 
   {!! Former::open($url)->method($method)
       ->rules(['product_key' => 'required|max:255'])
-      ->addClass('warn-on-exit') !!}
+      ->addClass('col-md-10 col-md-offset-1 warn-on-exit') !!}
 
 
   <div class="panel panel-default">
@@ -22,7 +20,7 @@
   @endif
 
   {!! Former::text('product_key')->label('texts.product') !!}
-  {!! Former::textarea('notes') !!}
+  {!! Former::textarea('notes')->rows(6) !!}
   {!! Former::text('cost') !!}
 
   @if ($account->invoice_item_taxes)
@@ -35,8 +33,8 @@
   </div>
   </div>
 
-  {!! Former::actions( 
-      Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/products'))->appendIcon(Icon::create('remove-circle')),
+  {!! Former::actions(
+      Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/products'))->appendIcon(Icon::create('remove-circle')),
       Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
   ) !!}
 

@@ -21,6 +21,11 @@ class TaskPresenter extends EntityPresenter
         return $this->entity->user->getDisplayName();
     }
 
+    public function description()
+    {
+        return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
+    }
+
     /**
      * @param $account
      * @return mixed

@@ -14,13 +14,21 @@ class InvoiceItem extends EntityModel
     protected $dates = ['deleted_at'];
 
     /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_INVOICE_ITEM;
+    }
+
+    /**
      * @var array
      */
     protected $fillable = [
         'tax_name1',
         'tax_rate1',
         'tax_name2',
-        'tax_rate2',    
+        'tax_rate2',
     ];
 
     /**

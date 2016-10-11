@@ -13,14 +13,14 @@
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
     <style type="text/css">
-        /* the value is auto set so we're removing the bold formatting */
-        label.control-label[for=invoice_number] {
-            font-weight: normal !important;
-        }
-
         select.tax-select {
             width: 50%;
             float: left;
+        }
+
+        .btn-info:disabled {
+            background-color: #e89259;
+            border-color: #e89259;
         }
 
         #scrollable-dropdown-menu .tt-menu {
@@ -55,6 +55,7 @@
             ->rules(array(
         		'client' => 'required',
                 'invoice_number' => 'required',
+                'invoice_date' => 'required',
         		'product_key' => 'max:255'
         	)) !!}
 
@@ -71,7 +72,7 @@
 
     		@if ($invoice->id || $data)
 				<div class="form-group">
-					<label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.client') }}</label>
+					<label for="client" class="control-label col-lg-4 col-sm-4"><b>{{ trans('texts.client') }}</b></label>
 					<div class="col-lg-8 col-sm-8">
                         <h4>
                             <span data-bind="text: getClientDisplayName(ko.toJS(client()))"></span>
@@ -138,8 +139,8 @@
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_due_date"))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
 
-                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()')
-                            ->rel('tooltip')->data_toggle('tooltip')->data_placement('bottom')->title(trans('texts.partial_value')) !!}
+                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onkeyup('onPartialChange()')
+                            ->addGroupClass('partial')!!}
 			</div>
             @if ($entityType == ENTITY_INVOICE)
 			<div data-bind="visible: is_recurring" style="display: none">
@@ -262,8 +263,8 @@
                     </div>
 				</td>
 				<td>
-					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
-                        rows="1" cols="60" style="resize: vertical" class="form-control word-wrap"></textarea>
+					<textarea data-bind="value: notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
+                        rows="1" cols="60" style="resize: vertical;height:42px" class="form-control word-wrap"></textarea>
                         <input type="text" data-bind="value: task_public_id, attr: {name: 'invoice_items[' + $index() + '][task_public_id]'}" style="display: none"/>
 						<input type="text" data-bind="value: expense_public_id, attr: {name: 'invoice_items[' + $index() + '][expense_public_id]'}" style="display: none"/>
 				</td>
@@ -340,11 +341,11 @@
 
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
-                            {!! Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('public_notes')->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
                             ->label(null)->style('resize: none; width: 500px;')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
-                            {!! Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('terms')->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
                             ->label(false)->style('resize: none; width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
@@ -356,7 +357,7 @@
                                     </div>') !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
-                            {!! Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
+                            {!! Former::textarea('invoice_footer')->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
                             ->label(false)->style('resize: none; width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
@@ -537,19 +538,23 @@
                     ->appendIcon(Icon::create('download-alt')) !!}
         @endif
 
-        @if ($invoice->isClientTrashed())
-            <!-- do nothing -->
-        @elseif ($invoice->trashed())
-            {!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
-		@elseif (!$invoice->trashed())
-			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
-            @if ($invoice->id)
-                {!! DropdownButton::normal(trans('texts.more_actions'))
-                      ->withContents($actions)
-                      ->dropup() !!}
-            @endif
-		@endif
+        @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
+            @if ($invoice->isClientTrashed())
+                <!-- do nothing -->
+            @elseif ($invoice->trashed())
+                {!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+    		@elseif (!$invoice->trashed())
+    			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+    		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+                @if ($invoice->id)
+                    {!! DropdownButton::normal(trans('texts.more_actions'))
+                          ->withContents($actions)
+                          ->dropup() !!}
+                @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
+                    {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
+                @endif
+    	    @endif
+        @endif
 
 	</div>
 	<p>&nbsp;</p>
@@ -759,7 +764,8 @@
 	  </div>
 	</div>
 
-	{!! Former::close() !!}
+    {!! Former::close() !!}
+    </form>
 
     {!! Former::open("{$entityType}s/bulk")->addClass('bulkForm') !!}
     {!! Former::populateField('bulk_public_id', $invoice->public_id) !!}
@@ -857,29 +863,29 @@
                 model.invoice().has_tasks(true);
             @endif
 
-            if(model.invoice().expenses().length && !model.invoice().public_id()){
+            @if (isset($expenses) && $expenses)
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var expenses = model.invoice().expenses();
+                var expenses = {!! $expenses !!}
 
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];
                     var item = model.invoice().addItem();
-                    item.product_key(expense.expense_category ? expense.expense_category.name() : '');
-                    item.notes(expense.public_notes());
+                    item.product_key(expense.expense_category ? expense.expense_category.name : '');
+                    item.notes(expense.public_notes);
                     item.qty(1);
-                    item.expense_public_id(expense.public_id());
-					item.cost(expense.converted_amount());
-                    item.tax_rate1(expense.tax_rate1());
-                    item.tax_name1(expense.tax_name1());
-                    item.tax_rate2(expense.tax_rate2());
-                    item.tax_name2(expense.tax_name2());
+                    item.expense_public_id(expense.public_id);
+					item.cost(expense.converted_amount);
+                    item.tax_rate1(expense.tax_rate1);
+                    item.tax_name1(expense.tax_name1);
+                    item.tax_rate2(expense.tax_rate2);
+                    item.tax_name2(expense.tax_name2);
                 }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_expenses(true);
-            }
+            @endif
 
         @endif
 
@@ -1108,10 +1114,9 @@
         });
 
         $('textarea').on('keyup focus', function(e) {
-            while($(this).outerHeight() < this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))) {
-                $(this).height($(this).height()+1);
-            };
+            $(this).height(0).height(this.scrollHeight-18);
         });
+
 	}
 
 	function createInvoiceModel() {
@@ -1209,6 +1214,19 @@
 		doc.save(type +'-' + $('#invoice_number').val() + '.pdf');
 	}
 
+    function onRecurrClick() {
+        var invoice = model.invoice();
+        if (invoice.is_recurring()) {
+            var recurring = false;
+            var label = "{{ trans('texts.enable_recurring')}}";
+        } else {
+            var recurring = true;
+            var label = "{{ trans('texts.disable_recurring')}}";
+        }
+        invoice.is_recurring(recurring);
+        $('#recurrButton').html(label + "<span class='glyphicon glyphicon-repeat'></span>");
+    }
+
 	function onEmailClick() {
         if (!NINJA.isRegistered) {
             swal("{!! trans('texts.registration_required') !!}");
@@ -1229,8 +1247,7 @@
         if (!isEmailValid()) {
             swal("{!! trans('texts.provide_email') !!}");
             return;
-8       }
-
+        }
 
 		sweetConfirm(function() {
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
@@ -1322,6 +1339,8 @@
         // check invoice number is unique
         if ($('.invoice-number').hasClass('has-error')) {
             return false;
+        } else if ($('.partial').hasClass('has-error')) {
+            return false;
         }
 
         if (!isSaveValid()) {
@@ -1337,14 +1356,29 @@
             return false;
         }
 
-        onPartialChange(true);
-
-        return true;
+        @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
+            if ($('#saveButton').is(':disabled')) {
+                return false;
+            }
+            $('#saveButton, #emailButton').attr('disabled', true);
+            // if save fails ensure user can try again
+            $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
+                NINJA.formIsChanged = false;
+                location.href = data;
+            }).fail(function(data) {
+                $('#saveButton, #emailButton').attr('disabled', false);
+                var error = firstJSONError(data.responseJSON) || data.statusText;
+                swal("{!! trans('texts.invoice_error') !!}", error);
+            });
+            return false;
+        @else
+            return false;
+        @endif
     }
 
     function submitBulkAction(value) {
         $('#bulk_action').val(value);
-        $('.bulkForm').submit();
+        $('.bulkForm')[0].submit();
     }
 
 	function isSaveValid() {
@@ -1469,21 +1503,34 @@
 		if (!hasEmpty) {
 			model.invoice().addItem();
 		}
+
+        //NINJA.formIsChanged = true;
 	}
 
-    function onPartialChange(silent)
+    function onPartialChange()
     {
         var val = NINJA.parseFloat($('#partial').val());
         var oldVal = val;
         val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
-        model.invoice().partial(val || '');
 
-        if (!silent && val != oldVal) {
-            $('#partial').tooltip('show');
-            setTimeout(function() {
-                $('#partial').tooltip('hide');
-            }, 5000);
+        if (val != oldVal) {
+            console.log('1');
+            if ($('.partial').hasClass('has-error')) {
+                return;
+            }
+            console.log('2');
+            $('.partial')
+                .addClass('has-error')
+                .find('div')
+                .append('<span class="help-block">{{ trans('texts.partial_value') }}</span>');
+        } else {
+            console.log('3');
+            $('.partial')
+                .removeClass('has-error')
+                .find('span')
+                .hide();
         }
+
     }
 
     function onRecurringEnabled()

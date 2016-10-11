@@ -5,7 +5,6 @@ use Laracasts\Presenter\Presenter;
 
 class EntityPresenter extends Presenter
 {
-
     /**
      * @return string
      */
@@ -27,5 +26,13 @@ class EntityPresenter extends Presenter
         $link = $this->url();
 
         return link_to($link, $name)->toHtml();
+    }
+
+    public function titledName()
+    {
+        $entity = $this->entity;
+        $entityType = $entity->getEntityType();
+
+        return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
     }
 }

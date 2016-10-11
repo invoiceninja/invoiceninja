@@ -9,7 +9,7 @@
             Stripe.setPublishableKey('{{ $accountGateway->getPublishableStripeKey() }}');
             $(function() {
                 var countries = {!! Cache::get('countries')->pluck('iso_3166_2','id') !!};
-                $('.payment-form').submit(function(event) {
+                $('.payment-form').unbind('submit').submit(function(event) {
                     if($('[name=plaidAccountId]').length)return;
 
                     var $form = $(this);
@@ -23,7 +23,7 @@
                         address_zip: $('#postal_code').val(),
                         address_country: $("#country_id option:selected").text(),
                         number: $('#card_number').val(),
-                        cvc: $('#cvv').val(),
+                        //cvc: $('#cvv').val(),
                         exp_month: $('#expiration_month').val(),
                         exp_year: $('#expiration_year').val()
                     };
@@ -37,9 +37,13 @@
                         $('#js-error-message').html('{{ trans('texts.invalid_expiry') }}').fadeIn();
                         return false;
                     }
-                    if (!Stripe.card.validateCVC(data.cvc)) {
-                        $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
-                        return false;
+
+                    if ($('#cvv').val() != ' ') {
+                        data.cvc = $('#cvv').val();
+                        if (!Stripe.card.validateCVC(data.cvc)) {
+                            $('#js-error-message').html('{{ trans('texts.invalid_cvv') }}').fadeIn();
+                            return false;
+                        }
                     }
 
                     // Disable the submit button to prevent repeated clicks
@@ -65,25 +69,17 @@
                 } else {
                     // response contains id and card, which contains additional card details
                     var token = response.id;
-                    // Insert the token into the form so it gets submitted to the server
-                    $form.append($('<input type="hidden" name="sourceToken"/>').val(token));
-                    // and submit
-                    $form.get(0).submit();
+                    if (token) {
+                        // Insert the token into the form so it gets submitted to the server
+                        $form.append($('<input type="hidden" name="sourceToken"/>').val(token));
+                        // and submit
+                        $form.get(0).submit();
+                    } else {
+                        $('#js-error-message').html('An error occurred').fadeIn();
+                        logError('STRIPE_ERROR:' + JSON.stringify(response));
+                    }
                 }
             };
-        </script>
-    @else
-        <script type="text/javascript">
-            $(function() {
-                $('.payment-form').submit(function(event) {
-                    var $form = $(this);
-
-                    // Disable the submit button to prevent repeated clicks
-                    $form.find('button').prop('disabled', true);
-
-                    return true;
-                });
-            });
         </script>
     @endif
 @stop

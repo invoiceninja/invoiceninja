@@ -50,7 +50,8 @@
         {!! Former::select('primary_gateway_id')
             ->fromQuery($primaryGateways, 'name', 'id')
             ->label(trans('texts.gateway_id'))
-            ->onchange('setFieldsShown()') !!}
+            ->onchange('setFieldsShown()')
+            ->help(count($secondaryGateways) ? false : 'limited_gateways') !!}
 
         @if (count($secondaryGateways))
             {!! Former::select('secondary_gateway_id')
@@ -79,6 +80,8 @@
                     {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('Enable')->value('true') !!}
                 @elseif ($field == 'username' || $field == 'password')
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
+                @elseif ($gateway->isCustom() && $field == 'text')
+                    {!! Former::textarea($gateway->id.'_'.$field)->label(trans('texts.text'))->rows(6) !!}
                 @else
                     {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : ucwords(Utils::toSpaceCase($field))) !!}
                 @endif
@@ -165,6 +168,10 @@
                     ->help(trans('texts.plaid_environment_help')) !!}
             </div>
         </div>
+    @elseif ($accountGateway && $accountGateway->gateway_id == GATEWAY_WEPAY)
+            {!! Former::checkbox('enable_ach')
+                        ->label(trans('texts.ach'))
+                        ->text(trans('texts.enable_ach')) !!}
     @endif
 
     </div>

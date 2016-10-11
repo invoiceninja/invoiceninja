@@ -1,6 +1,5 @@
 @extends('header')
 
-
 @section('onReady')
 	$('input#name').focus();
 @stop
@@ -19,7 +18,7 @@
                 ['email' => 'email']
             )->addClass('col-md-12 warn-on-exit')
             ->method($method) !!}
-            
+
     @include('partials.autocomplete_fix')
 
 	@if ($client)
@@ -31,18 +30,18 @@
 		<div class="col-md-6">
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.organization') !!}</h3>
           </div>
             <div class="panel-body">
-			
+
 			{!! Former::text('name')->data_bind("attr { placeholder: placeholderName }") !!}
 			{!! Former::text('id_number') !!}
                         {!! Former::text('vat_number') !!}
                         {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}
-			
+
 			@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
 				@if ($customLabel1)
 					{!! Former::text('custom_value1')->label($customLabel1) !!}
@@ -54,12 +53,12 @@
             </div>
             </div>
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 500px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
           </div>
             <div class="panel-body">
-        			
+
 			{!! Former::text('address1') !!}
 			{!! Former::text('address2') !!}
 			{!! Former::text('city') !!}
@@ -74,7 +73,7 @@
 		<div class="col-md-6">
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.contacts') !!}</h3>
           </div>
@@ -85,11 +84,11 @@
 		                            afterAdd: showContact }'>
 				{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][public_id]'}") !!}
-				{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown', 
+				{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][first_name]'}") !!}
 				{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][last_name]'}") !!}
-				{!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown', 
+				{!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][email]', id:'email'+\$index()}") !!}
 				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
@@ -101,7 +100,7 @@
 					<div class="col-lg-8 col-lg-offset-4 bold">
 						<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
 							{!! link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) !!}
-						</span>					
+						</span>
 						<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
 							{!! link_to('#', trans('texts.add_contact').' +', array('onclick'=>'return addContact()')) !!}
 						</span>
@@ -112,12 +111,12 @@
             </div>
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 500px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.additional_info') !!}</h3>
           </div>
             <div class="panel-body">
-			
+
             {!! Former::select('currency_id')->addOption('','')
                 ->placeholder($account->currency ? $account->currency->name : '')
                 ->fromQuery($currencies, 'name', 'id') !!}
@@ -231,7 +230,7 @@
 			} else {
 				return contact.email();
 			}
-		});	
+		});
 	}
 
     @if ($data)

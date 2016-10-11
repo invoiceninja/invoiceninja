@@ -1,0 +1,76 @@
+body {
+  background-color: #fcfcfc;
+}
+
+.nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:hover, .nav-tabs.nav-justified>.active>a:focus {
+    background-color: #337ab7;
+}
+
+.navbar .dropdown-menu {
+    border-top: 1px solid #337ab7;
+}
+
+.active-clients {
+    background-color: #337ab7;
+}
+
+.pagination>.active>a, .pagination>.active>span, .pagination>.active>a:hover, .pagination>.active>span:hover, .pagination>.active>a:focus, .pagination>.active>span:focus {
+    background-color: #337ab7;
+    border-color: #337ab7;
+}
+
+.navbar,
+.navbar-collapse {
+    background-color: #337ab7 !important;
+}
+
+.panel-heading {
+    background-color: #286090 !important;
+}
+
+
+table.dataTable thead > tr > th,
+table.invoice-table thead > tr > th {
+    background-color: #777 !important;
+    color:#fff;
+}
+
+thead th {
+    border-left: 1px solid #999;
+}
+
+.sidebar-nav {
+    background-color: #313131;
+}
+
+.sidebar-nav li {
+    border-bottom:solid 1px #444444;
+}
+
+.sidebar-nav i.fa {
+    color: white;
+}
+
+.menu-toggle i,
+.sidebar-nav li > a {
+    color: #999999;
+}
+
+.menu-toggle:hover i,
+.sidebar-nav li:hover > a,
+.sidebar-nav li > a.active {
+    color: #fff;
+}
+
+.sidebar-nav li:hover,
+.sidebar-nav li.active {
+    background: rgba(255,255,255,0.1);
+}
+
+.menu-toggle {
+    color: #999 !important;
+}
+
+.menu-toggle:hover {
+    color: #fff !important;
+}

@@ -262,6 +262,7 @@ class InvoiceRepository extends BaseRepository
 
         if ($invoice) {
             // do nothing
+            $entityType = $invoice->getEntityType();
         } elseif ($isNew) {
             $entityType = ENTITY_INVOICE;
             if (isset($data['is_recurring']) && filter_var($data['is_recurring'], FILTER_VALIDATE_BOOLEAN)) {
@@ -270,6 +271,7 @@ class InvoiceRepository extends BaseRepository
                 $entityType = ENTITY_QUOTE;
             }
             $invoice = $account->createInvoice($entityType, $data['client_id']);
+            $invoice->invoice_date = date_create()->format('Y-m-d');
             if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_tasks = true;
             }
@@ -303,9 +305,6 @@ class InvoiceRepository extends BaseRepository
         }
         if (isset($data['is_amount_discount'])) {
             $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
-        }
-        if (isset($data['partial'])) {
-            $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         }
         if (isset($data['invoice_date_sql'])) {
             $invoice->invoice_date = $data['invoice_date_sql'];
@@ -475,6 +474,10 @@ class InvoiceRepository extends BaseRepository
             $invoice->balance = $total;
         }
 
+        if (isset($data['partial'])) {
+            $invoice->partial = min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance);
+        }
+
         $invoice->amount = $total;
         $invoice->save();
 
@@ -539,7 +542,7 @@ class InvoiceRepository extends BaseRepository
             }
 
             if ($productKey = trim($item['product_key'])) {
-                if (\Auth::user()->account->update_products && ! strtotime($productKey) && ! $task && ! $expense) {
+                if (\Auth::user()->account->update_products && ! $invoice->has_tasks && ! $invoice->has_expenses) {
                     $product = Product::findProductByKey($productKey);
                     if (!$product) {
                         if (Auth::user()->can('create', ENTITY_PRODUCT)) {
@@ -733,15 +736,21 @@ class InvoiceRepository extends BaseRepository
      * @param $clientId
      * @return mixed
      */
-    public function findOpenInvoices($clientId)
+    public function findOpenInvoices($clientId, $entityType = false)
     {
-        return Invoice::scope()
+        $query = Invoice::scope()
                 ->invoiceType(INVOICE_TYPE_STANDARD)
                 ->whereClientId($clientId)
                 ->whereIsRecurring(false)
-                ->whereDeletedAt(null)
-                ->whereHasTasks(true)
-                ->where('invoice_status_id', '<', 5)
+                ->whereDeletedAt(null);
+
+        if ($entityType == ENTITY_TASK) {
+            $query->whereHasTasks(true);
+        } elseif ($entityType == ENTITY_EXPENSE) {
+            $query->whereHasExpenses(true);
+        }
+
+        return $query->where('invoice_status_id', '<', 5)
                 ->select(['public_id', 'invoice_number'])
                 ->get();
     }

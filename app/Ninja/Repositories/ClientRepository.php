@@ -78,7 +78,6 @@ class ClientRepository extends BaseRepository
             $client = Client::createNew();
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
-            \Log::warning('Entity not set in client repo save');
         }
 
         // convert currency code to id
@@ -132,4 +131,48 @@ class ClientRepository extends BaseRepository
 
         return $client;
     }
+
+    public function findPhonetically($clientName)
+    {
+        $clientNameMeta = metaphone($clientName);
+
+        $map = [];
+        $max = SIMILAR_MIN_THRESHOLD;
+        $clientId = 0;
+
+        $clients = Client::scope()->get(['id', 'name', 'public_id']);
+
+        foreach ($clients as $client) {
+            $map[$client->id] = $client;
+
+            if ( ! $client->name) {
+                continue;
+            }
+
+            $similar = similar_text($clientNameMeta, metaphone($client->name), $percent);
+
+            if ($percent > $max) {
+                $clientId = $client->id;
+                $max = $percent;
+            }
+        }
+
+        $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name', 'public_id']);
+
+        foreach ($contacts as $contact) {
+            if ( ! $contact->getFullName() || ! isset($map[$contact->client_id])) {
+                continue;
+            }
+
+            $similar = similar_text($clientNameMeta, metaphone($contact->getFullName()), $percent);
+
+            if ($percent > $max) {
+                $clientId = $contact->client_id;
+                $max = $percent;
+            }
+        }
+
+        return ($clientId && isset($map[$clientId])) ? $map[$clientId] : null;
+    }
+
 }
