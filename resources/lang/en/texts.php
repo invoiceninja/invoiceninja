@@ -840,7 +840,7 @@ $LANG = array(
     'template_help_title' => 'Templates Help',
     'template_help_1' => 'Available variables:',
     'email_design_id' => 'Email Style',
-    'email_design_help' => 'Make your emails look more professional with HTML layouts',
+    'email_design_help' => 'Make your emails look more professional with HTML layouts.',
     'plain' => 'Plain',
     'light' => 'Light',
     'dark' => 'Dark',
@@ -1040,10 +1040,10 @@ $LANG = array(
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
 
     // Client Passwords
-    'enable_portal_password'=>'Password protect invoices',
-    'enable_portal_password_help'=>'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
-    'send_portal_password'=>'Generate password automatically',
-    'send_portal_password_help'=>'If no password is set, one will be generated and sent with the first invoice.',
+    'enable_portal_password' => 'Password Protect Invoices',
+    'enable_portal_password_help' => 'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
+    'send_portal_password' => 'Generate Password Automatically',
+    'send_portal_password_help' => 'If no password is set, one will be generated and sent with the first invoice.',
 
     'expired' => 'Expired',
     'invalid_card_number' => 'The credit card number is not valid.',
@@ -2138,10 +2138,16 @@ $LANG = array(
     'new_category' => 'New Category',
     'restore_product' => 'Restore Product',
     'blank' => 'Blank',
-    'invoice_error' => 'There was an error saving your invoice.',
+    'invoice_save_error' => 'There was an error saving your invoice',
     'enable_recurring' => 'Enable Recurring',
     'disable_recurring' => 'Disable Recurring',
     'text' => 'Text',
+    'expense_will_create' => 'expense will be created',
+    'expenses_will_create' => 'expenses will be created',
+    'created_expenses' => 'Successfully created :count expense(s)',
+
+    'translate_app' => 'Help improve our translations with :link',
+    'expense_category' => 'Expense Category',
 
 );
 

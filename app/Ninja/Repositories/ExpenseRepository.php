@@ -118,9 +118,15 @@ class ExpenseRepository extends BaseRepository
             // do nothing
         } elseif ($publicId) {
             $expense = Expense::scope($publicId)->firstOrFail();
-            \Log::warning('Entity not set in expense repo save');
+            if (Utils::isNinjaDev()) {
+                \Log::warning('Entity not set in expense repo save');
+            }
         } else {
             $expense = Expense::createNew();
+        }
+
+        if ($expense->is_deleted) {
+            return $expense;
         }
 
         // First auto fill

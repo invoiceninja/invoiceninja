@@ -123,7 +123,9 @@ class ActivityListener
             return;
         }
 
-        $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($event->invoice->id);
+        $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')
+                            ->withArchived()
+                            ->find($event->invoice->id);
 
         $activity = $this->activityRepo->create(
             $event->invoice,

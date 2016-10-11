@@ -28,21 +28,34 @@
 			{!! Former::text('public_id')->value($vendor->public_id) !!}
 		</div>
 
-		@if ($vendor->trashed())
-			{!! Button::primary(trans('texts.restore_vendor'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
-		@else
-		    {!! DropdownButton::normal(trans('texts.edit_vendor'))
-                ->withAttributes(['class'=>'normalDropDown'])
-                ->withContents([
-			      ['label' => trans('texts.archive_vendor'), 'url' => "javascript:onArchiveClick()"],
-			      ['label' => trans('texts.delete_vendor'), 'url' => "javascript:onDeleteClick()"],
-			    ]
-			  )->split() !!}
+        @if ( ! $vendor->is_deleted)
+            @can('edit', $vendor)
+                {!! DropdownButton::normal(trans('texts.edit_vendor'))
+                    ->withAttributes(['class'=>'normalDropDown'])
+                    ->withContents([
+                      ($vendor->trashed() ? false : ['label' => trans('texts.archive_vendor'), 'url' => "javascript:onArchiveClick()"]),
+                      ['label' => trans('texts.delete_vendor'), 'url' => "javascript:onDeleteClick()"],
+                    ]
+                  )->split() !!}
+            @endcan
+            @if ( ! $vendor->trashed())
+                @can('create', ENTITY_EXPENSE)
+                    {!! Button::primary(trans("texts.new_expense"))
+                            ->asLinkTo(URL::to("/expenses/create/{$vendor->public_id}"))
+                            ->appendIcon(Icon::create('plus-sign')) !!}
+                @endcan
+            @endif
+        @endif
 
-            {!! Button::primary(trans("texts.new_expense"))
-                    ->asLinkTo(URL::to("/expenses/create/{$vendor->public_id}"))
-                    ->appendIcon(Icon::create('plus-sign')) !!}
-		@endif
+        @if ($vendor->trashed())
+            @can('edit', $vendor)
+                {!! Button::primary(trans('texts.restore_vendor'))
+                        ->appendIcon(Icon::create('cloud-download'))
+                        ->withAttributes(['onclick' => 'onRestoreClick()']) !!}
+            @endcan
+        @endif
+
+
 	  {!! Former::close() !!}
 
 	</div>

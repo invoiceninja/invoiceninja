@@ -207,11 +207,10 @@
 
             @if ($entityType == ENTITY_INVOICE)
             <div class="form-group" style="margin-bottom: 8px">
-                <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">
+                <div class="col-lg-8 col-sm-8 col-sm-offset-4 smaller" style="padding-top: 10px">
                 	@if ($invoice->recurring_invoice)
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
     				@elseif ($invoice->id)
-                        <span class="smaller">
                         @if (isset($lastSent) && $lastSent)
                             {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <br/>
                         @endif
@@ -223,7 +222,6 @@
                                 {!! trans('texts.next_due_on', ['date' => '<span>'.$account->formatDate($invoice->getDueDate($invoice->getNextSendDate())).'</span>']) !!}
                             @endif
                         @endif
-                        </span>
                     @endif
                 </div>
             </div>
@@ -541,19 +539,24 @@
         @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
             @if ($invoice->isClientTrashed())
                 <!-- do nothing -->
-            @elseif ($invoice->trashed())
-                {!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
-    		@elseif (!$invoice->trashed())
-    			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-    		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
-                @if ($invoice->id)
-                    {!! DropdownButton::normal(trans('texts.more_actions'))
-                          ->withContents($actions)
-                          ->dropup() !!}
-                @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
-                    {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
+            @else
+                @if (!$invoice->is_deleted)
+        			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+        		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+                    @if (!$invoice->trashed())
+                        @if ($invoice->id)
+                            {!! DropdownButton::normal(trans('texts.more_actions'))
+                                  ->withContents($actions)
+                                  ->dropup() !!}
+                        @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
+                            {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
+                        @endif
+                    @endif
+        	    @endif
+                @if ($invoice->trashed())
+                    {!! Button::primary(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
                 @endif
-    	    @endif
+    		@endif
         @endif
 
 	</div>
@@ -1336,6 +1339,12 @@
             return false;
         }
 
+        @if ($invoice->is_deleted)
+            if ($('#bulk_action').val() != 'restore') {
+                return false;
+            }
+        @endif
+
         // check invoice number is unique
         if ($('.invoice-number').hasClass('has-error')) {
             return false;
@@ -1368,7 +1377,7 @@
             }).fail(function(data) {
                 $('#saveButton, #emailButton').attr('disabled', false);
                 var error = firstJSONError(data.responseJSON) || data.statusText;
-                swal("{!! trans('texts.invoice_error') !!}", error);
+                swal("{!! trans('texts.invoice_save_error') !!}", error);
             });
             return false;
         @else

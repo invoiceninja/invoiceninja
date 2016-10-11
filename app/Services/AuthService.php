@@ -85,7 +85,7 @@ class AuthService
                 return redirect()->to('login');
             }
         }
-        
+
         $redirectTo = Input::get('redirect_to') ?: 'dashboard';
         return redirect()->to($redirectTo);
     }

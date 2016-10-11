@@ -67,9 +67,13 @@ class TaskRepository
         if ($task) {
             // do nothing
         } elseif ($publicId) {
-            $task = Task::scope($publicId)->firstOrFail();
+            $task = Task::scope($publicId)->withTrashed()->firstOrFail();
         } else {
             $task = Task::createNew();
+        }
+
+        if ($task->is_deleted) {
+            return $task;
         }
 
         if (isset($data['client']) && $data['client']) {

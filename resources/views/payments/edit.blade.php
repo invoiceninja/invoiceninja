@@ -13,11 +13,11 @@
 @stop
 
 @section('content')
-	
+
 	{!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
 		'client' => 'required',
-		'invoice' => 'required',		
-		'amount' => 'required',		
+		'invoice' => 'required',
+		'amount' => 'required',
 	)) !!}
 
     @if ($payment)
@@ -27,7 +27,7 @@
     <span style="display:none">
         {!! Former::text('public_id') !!}
     </span>
-	
+
 	<div class="row">
 		<div class="col-md-10 col-md-offset-1">
 
@@ -70,7 +70,9 @@
 
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->appendIcon(Icon::create('remove-circle'))->asLinkTo(URL::to('/payments'))->large() !!}
-        {!! Button::success(trans('texts.save'))->appendIcon(Icon::create('floppy-disk'))->submit()->large() !!}
+        @if (!$payment || !$payment->is_deleted)
+            {!! Button::success(trans('texts.save'))->appendIcon(Icon::create('floppy-disk'))->submit()->large() !!}
+        @endif
 	</center>
 
 	{!! Former::close() !!}
@@ -89,7 +91,7 @@
 		  populateInvoiceComboboxes({{ $clientPublicId }}, {{ $invoicePublicId }});
         @endif
 
-		$('#payment_type_id').combobox();		
+		$('#payment_type_id').combobox();
 
         @if (!$payment && !$clientPublicId)
             $('.client-select input.form-control').focus();

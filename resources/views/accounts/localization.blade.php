@@ -23,7 +23,8 @@
                 {!! Former::select('currency_id')->addOption('','')
                     ->fromQuery($currencies, 'name', 'id') !!}
                 {!! Former::select('language_id')->addOption('','')
-                    ->fromQuery($languages, 'name', 'id') !!}
+                    ->fromQuery($languages, 'name', 'id')
+                    ->help(trans('texts.translate_app', ['link' => link_to(TRANSIFEX_URL, 'Transifex.com', ['target' => '_blank'])])) !!}
                 {!! Former::select('timezone_id')->addOption('','')
                     ->fromQuery($timezones, 'location', 'id') !!}
                 {!! Former::select('date_format_id')->addOption('','')

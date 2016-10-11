@@ -80,6 +80,10 @@ class ClientRepository extends BaseRepository
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
         }
 
+        if ($client->is_deleted) {
+            return $client;
+        }
+
         // convert currency code to id
         if (isset($data['currency_code'])) {
             $currencyCode = strtolower($data['currency_code']);

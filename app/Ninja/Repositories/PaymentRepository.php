@@ -150,9 +150,15 @@ class PaymentRepository extends BaseRepository
             // do nothing
         } elseif ($publicId) {
             $payment = Payment::scope($publicId)->firstOrFail();
-            \Log::warning('Entity not set in payment repo save');
+            if (Utils::isNinjaDev()) {
+                \Log::warning('Entity not set in payment repo save');
+            }
         } else {
             $payment = Payment::createNew();
+        }
+
+        if ($payment->is_deleted) {
+            return $payment;
         }
 
         $paymentTypeId = false;

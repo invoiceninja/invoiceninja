@@ -171,28 +171,38 @@
         </div>
     </div>
 
-    @if (Auth::user()->canCreateOrEdit(ENTITY_EXPENSE, $expense))
-    	<center class="buttons">
-            {!! Button::normal(trans('texts.cancel'))
-                    ->asLinkTo(URL::to('/expenses'))
-                    ->appendIcon(Icon::create('remove-circle'))
-                    ->large() !!}
+    <center class="buttons">
+        {!! Button::normal(trans('texts.cancel'))
+                ->asLinkTo(URL::to('/expenses'))
+                ->appendIcon(Icon::create('remove-circle'))
+                ->large() !!}
 
+        @if (Auth::user()->canCreateOrEdit(ENTITY_EXPENSE, $expense))
             @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
-                {!! Button::success(trans('texts.save'))
-                        ->appendIcon(Icon::create('floppy-disk'))
-                        ->large()
-                        ->submit() !!}
+                @if (!$expense || !$expense->is_deleted)
+                    {!! Button::success(trans('texts.save'))
+                            ->appendIcon(Icon::create('floppy-disk'))
+                            ->large()
+                            ->submit() !!}
+                @endif
 
-                @if ($expense)
+                @if ($expense && !$expense->trashed())
                     {!! DropdownButton::normal(trans('texts.more_actions'))
                           ->withContents($actions)
                           ->large()
                           ->dropup() !!}
                 @endif
+
+                @if ($expense && $expense->trashed())
+                    {!! Button::primary(trans('texts.restore'))
+                            ->withAttributes(['onclick' => 'submitAction("restore")'])
+                            ->appendIcon(Icon::create('cloud-download'))
+                            ->large() !!}
+                @endif
+
             @endif
-    	</center>
-    @endif
+        @endif
+    </center>
 
 	{!! Former::close() !!}
 
