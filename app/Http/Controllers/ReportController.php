@@ -53,7 +53,7 @@ class ReportController extends BaseController
     {
         $action = Input::get('action');
 
-        if (Input::all()) {
+        if (Input::get('report_type')) {
             $reportType = Input::get('report_type');
             $dateField = Input::get('date_field');
             $startDate = Utils::toSqlDate(Input::get('start_date'), false);
