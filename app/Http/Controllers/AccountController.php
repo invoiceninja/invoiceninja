@@ -167,6 +167,10 @@ class AccountController extends BaseController
         $term = Input::get('plan_term');
         $numUsers = Input::get('num_users');
 
+        if ($plan != PLAN_ENTERPRISE) {
+          $numUsers = 1;
+        }
+
         $planDetails = $account->getPlanDetails(false, false);
 
         $newPlan = [
@@ -195,7 +199,9 @@ class AccountController extends BaseController
             }
         }
 
+        $hasPaid = false;
         if (!empty($planDetails['paid']) && $plan != PLAN_FREE) {
+            $hasPaid = true;
             $time_used = $planDetails['paid']->diff(date_create());
             $days_used = $time_used->days;
 
@@ -211,7 +217,11 @@ class AccountController extends BaseController
 
         if ($newPlan['price'] > $credit) {
             $invitation = $this->accountRepo->enablePlan($newPlan, $credit);
-            return Redirect::to('view/' . $invitation->invitation_key);
+            if ($hasPaid) {
+              return Redirect::to('view/' . $invitation->invitation_key);
+            } else {
+              return Redirect::to('payment/' . $invitation->invitation_key);
+            }
         } else {
 
             if ($plan != PLAN_FREE) {

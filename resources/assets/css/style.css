@@ -1,5 +1,4 @@
 body {
-    padding-top: 56px;
     font-family: 'Roboto', sans-serif;
     font-size: 15px;
 }
@@ -571,12 +570,14 @@ table.invoice-table th:last-child {
 
 
 /* Animate col width changes */
+/*
 body {
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
     transition: all 0.5s ease;
 }
+*/
 
 div.discount-group span {
     padding: 0px;
