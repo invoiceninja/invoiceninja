@@ -145,7 +145,7 @@ class VendorApiController extends BaseAPIController
          * )
          */
 
-    public function destroy(UpdateVendorRequest $request)
+    public function destroy(VendorRequest $request)
     {
         $vendor = $request->entity();
 
