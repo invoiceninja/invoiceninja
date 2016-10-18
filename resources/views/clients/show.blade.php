@@ -23,12 +23,10 @@
 
     <div class="row">
         <div class="col-md-7">
-            <div>
-                <span style="font-size:28px">{{ $client->getDisplayName() }}</span>
-                @if ($client->trashed())
-                    &nbsp;&nbsp;{!! $client->present()->status !!}
-                @endif
-            </div>
+            <ol class="breadcrumb">
+              <li>{{ link_to('/clients', trans('texts.clients')) }}</li>
+              <li class='active'>{{ $client->getDisplayName() }}</li> {!! $client->present()->statusLabel !!}
+            </ol>
         </div>
         <div class="col-md-5">
             <div class="pull-right">
@@ -83,7 +81,6 @@
 		{{ trans('texts.last_logged_in') }} {{ Utils::timestampToDateTimeString(strtotime($client->last_login)) }}
 	</small></h3>
 	@endif
-    <br/>
 
     <div class="panel panel-default">
     <div class="panel-body">

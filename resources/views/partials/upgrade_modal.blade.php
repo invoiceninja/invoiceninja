@@ -123,7 +123,7 @@
 <div id="upgrade-modal" class="container" style="">
 <div class="row">
 <div class="col-md-10 text-right">
-  <a href="#"><i class="fa fa-close" onclick="hideUpgradeModal()"></i></a>
+  <a href="#"><i class="fa fa-close" onclick="hideUpgradeModal()" title="{{ trans('texts.close') }}"></i></a>
 </div>
 </div>
 <div class="row">

@@ -17,6 +17,24 @@ class EntityPresenter extends Presenter
         return URL::to($link);
     }
 
+    public function statusLabel()
+    {
+        $class = $text = '';
+
+        if ($this->entity->is_deleted) {
+            $class = 'danger';
+            $text = trans('texts.deleted');
+        } elseif ($this->entity->trashed()) {
+            $class = 'warning';
+            $text = trans('texts.archived');
+        } else {
+            //$class = 'success';
+            //$text = trans('texts.active');
+        }
+
+        return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$text}</span>";
+    }
+
     /**
      * @return mixed
      */

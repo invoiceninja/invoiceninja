@@ -585,7 +585,7 @@
           @endif
 
           @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-            {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
+            {!! Form::breadcrumbs((isset($entity) && $entity->exists) ? $entity->present()->statusLabel : false) !!}
           @endif
 
           @yield('content')

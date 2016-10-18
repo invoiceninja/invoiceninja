@@ -134,6 +134,7 @@ class ExpenseController extends BaseController
         $data = [
             'vendor' => null,
             'expense' => $expense,
+            'entity' => $expense,
             'method' => 'PUT',
             'url' => 'expenses/'.$expense->public_id,
             'title' => 'Edit Expense',
