@@ -369,7 +369,9 @@
 
 @section('body')
 
-@include('partials.upgrade_modal')
+@if ( ! Request::is('settings/account_management'))
+  @include('partials.upgrade_modal')
+@endif
 
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="height:60px;">
 

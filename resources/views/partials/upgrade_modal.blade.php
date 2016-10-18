@@ -177,12 +177,8 @@
 <script type="text/javascript">
 
   function showUpgradeModal() {
-    @if (Request::is('settings/account_management'))
-      showChangePlan();
-    @else
-      $(window).scrollTop(0);
-      $('#upgrade-modal').fadeIn();
-    @endif
+    $(window).scrollTop(0);
+    $('#upgrade-modal').fadeIn();
   }
 
   function hideUpgradeModal() {
