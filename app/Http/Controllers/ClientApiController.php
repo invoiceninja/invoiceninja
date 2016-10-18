@@ -140,7 +140,7 @@ class ClientApiController extends BaseAPIController
      * )
      */
 
-    public function destroy(UpdateClientRequest $request)
+    public function destroy(VendorRequest $request)
     {
         $client = $request->entity();
 
