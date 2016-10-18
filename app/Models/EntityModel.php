@@ -136,7 +136,7 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && ! Auth::user()->hasPermission('view_all')) {
+        if (Auth::check() && ! Auth::user()->hasPermission('view_all') && $this->getEntityType() != ENTITY_TAX_RATE) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
