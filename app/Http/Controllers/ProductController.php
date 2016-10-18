@@ -71,7 +71,7 @@ class ProductController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->productService->getDatatable(Auth::user()->account_id);
+        return $this->productService->getDatatable(Auth::user()->account_id, Input::get('sSearch'));
     }
 
     /**

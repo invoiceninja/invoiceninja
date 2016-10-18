@@ -41,10 +41,10 @@ class ProductService extends BaseService
      * @param $accountId
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getDatatable($accountId)
+    public function getDatatable($accountId, $search)
     {
         $datatable = new ProductDatatable(true);
-        $query = $this->productRepo->find($accountId);
+        $query = $this->productRepo->find($accountId, $search);
 
         if(!Utils::hasPermission('view_all')){
             $query->where('products.user_id', '=', Auth::user()->id);
