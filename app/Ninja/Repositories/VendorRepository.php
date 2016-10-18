@@ -85,10 +85,20 @@ class VendorRepository extends BaseRepository
 
         $first              = true;
         $vendorcontacts     = isset($data['vendor_contact']) ? [$data['vendor_contact']] : $data['vendor_contacts'];
+        $vendorcontactIds   = [];
 
         foreach ($vendorcontacts as $vendorcontact) {
             $vendorcontact      = $vendor->addVendorContact($vendorcontact, $first);
+            $vendorcontactIds[] = $vendorcontact->public_id;
             $first              = false;
+        }
+
+        if ( ! $vendor->wasRecentlyCreated) {
+            foreach ($vendor->vendor_contacts as $contact) {
+                if (!in_array($contact->public_id, $vendorcontactIds)) {
+                    $contact->delete();
+                }
+            }
         }
 
         return $vendor;
