@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 // vendor
 use App\Http\Requests\UpdateVendorRequest;
+use App\Http\Requests\VendorRequest;
 use Utils;
 use Response;
 use Input;
@@ -145,7 +146,7 @@ class VendorApiController extends BaseAPIController
          * )
          */
 
-    public function destroy(UpdateVendorRequest $request)
+    public function destroy(VendorRequest $request)
     {
         $vendor = $request->entity();
 
