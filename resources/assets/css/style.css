@@ -1220,3 +1220,8 @@ div.panel-body div.panel-body {
     background-color: #eee!important;
     color: #999!important;
 }
+
+.breadcrumb .label {
+  vertical-align: middle;
+  margin-left: 16px;
+}

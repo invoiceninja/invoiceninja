@@ -71,7 +71,7 @@ class ProductController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->productService->getDatatable(Auth::user()->account_id);
+        return $this->productService->getDatatable(Auth::user()->account_id, Input::get('sSearch'));
     }
 
     /**
@@ -81,11 +81,13 @@ class ProductController extends BaseController
     public function edit($publicId)
     {
         $account = Auth::user()->account;
+        $product = Product::scope($publicId)->withTrashed()->firstOrFail();
 
         $data = [
           'account' => $account,
           'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
-          'product' => Product::scope($publicId)->withTrashed()->firstOrFail(),
+          'product' => $product,
+          'entity' => $product,
           'method' => 'PUT',
           'url' => 'products/'.$publicId,
           'title' => trans('texts.edit_product'),

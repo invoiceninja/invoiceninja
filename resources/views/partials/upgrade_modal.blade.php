@@ -9,6 +9,7 @@
     text-align: center;
     width: 100%;
     height: 100%;
+    min-height: 1500px;
   }
 
   #upgrade-modal h1 {
@@ -17,8 +18,8 @@
     padding: 0 0 25px 0;
     margin: 0!important;
     color: #fff;
-    padding-top: 20px;
-    padding-bottom: 40px;
+    padding-top: 0px;
+    padding-bottom: 20px;
     font-weight: 800;
   }
 
@@ -122,7 +123,7 @@
 <div id="upgrade-modal" class="container" style="">
 <div class="row">
 <div class="col-md-10 text-right">
-  <a href="#"><i class="fa fa-close" onclick="hideUpgradeModal()"></i></a>
+  <a href="#"><i class="fa fa-close" onclick="hideUpgradeModal()" title="{{ trans('texts.close') }}"></i></a>
 </div>
 </div>
 <div class="row">
@@ -176,12 +177,8 @@
 <script type="text/javascript">
 
   function showUpgradeModal() {
-    @if (Request::is('settings/account_management'))
-      showChangePlan();
-    @else
-      $(window).scrollTop(0);
-      $('#upgrade-modal').fadeIn();
-    @endif
+    $(window).scrollTop(0);
+    $('#upgrade-modal').fadeIn();
   }
 
   function hideUpgradeModal() {

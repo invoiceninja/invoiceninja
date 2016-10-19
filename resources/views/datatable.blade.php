@@ -83,6 +83,10 @@
                 if (window.onDatatableReady) {
                     window.onDatatableReady();
                 }
+            },
+            "stateLoadParams": function (settings, data) {
+                // don't save filter to local storage
+                data.search.search = "";
             }
         });
     }

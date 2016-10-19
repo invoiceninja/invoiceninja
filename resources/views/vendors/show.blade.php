@@ -21,47 +21,58 @@
 
 @section('content')
 
-	<div class="pull-right">
-		{!! Former::open('vendors/bulk')->addClass('mainForm') !!}
-		<div style="display:none">
-			{!! Former::text('action') !!}
-			{!! Former::text('public_id')->value($vendor->public_id) !!}
-		</div>
+<div class="row">
+    <div class="col-md-7">
+        <ol class="breadcrumb">
+          <li>{{ link_to('/vendors', trans('texts.vendors')) }}</li>
+          <li class='active'>{{ $vendor->getDisplayName() }}</li> {!! $vendor->present()->statusLabel !!}
+        </ol>
+    </div>
+    <div class="col-md-5">
+        <div class="pull-right">
 
-        @if ( ! $vendor->is_deleted)
-            @can('edit', $vendor)
-                {!! DropdownButton::normal(trans('texts.edit_vendor'))
-                    ->withAttributes(['class'=>'normalDropDown'])
-                    ->withContents([
-                      ($vendor->trashed() ? false : ['label' => trans('texts.archive_vendor'), 'url' => "javascript:onArchiveClick()"]),
-                      ['label' => trans('texts.delete_vendor'), 'url' => "javascript:onDeleteClick()"],
-                    ]
-                  )->split() !!}
-            @endcan
-            @if ( ! $vendor->trashed())
-                @can('create', ENTITY_EXPENSE)
-                    {!! Button::primary(trans("texts.new_expense"))
-                            ->asLinkTo(URL::to("/expenses/create/{$vendor->public_id}"))
-                            ->appendIcon(Icon::create('plus-sign')) !!}
-                @endcan
-            @endif
-        @endif
+          {!! Former::open('vendors/bulk')->addClass('mainForm') !!}
+      		<div style="display:none">
+      			{!! Former::text('action') !!}
+      			{!! Former::text('public_id')->value($vendor->public_id) !!}
+      		</div>
 
-        @if ($vendor->trashed())
-            @can('edit', $vendor)
-                {!! Button::primary(trans('texts.restore_vendor'))
-                        ->appendIcon(Icon::create('cloud-download'))
-                        ->withAttributes(['onclick' => 'onRestoreClick()']) !!}
-            @endcan
-        @endif
+              @if ( ! $vendor->is_deleted)
+                  @can('edit', $vendor)
+                      {!! DropdownButton::normal(trans('texts.edit_vendor'))
+                          ->withAttributes(['class'=>'normalDropDown'])
+                          ->withContents([
+                            ($vendor->trashed() ? false : ['label' => trans('texts.archive_vendor'), 'url' => "javascript:onArchiveClick()"]),
+                            ['label' => trans('texts.delete_vendor'), 'url' => "javascript:onDeleteClick()"],
+                          ]
+                        )->split() !!}
+                  @endcan
+                  @if ( ! $vendor->trashed())
+                      @can('create', ENTITY_EXPENSE)
+                          {!! Button::primary(trans("texts.new_expense"))
+                                  ->asLinkTo(URL::to("/expenses/create/{$vendor->public_id}"))
+                                  ->appendIcon(Icon::create('plus-sign')) !!}
+                      @endcan
+                  @endif
+              @endif
+
+              @if ($vendor->trashed())
+                  @can('edit', $vendor)
+                      {!! Button::primary(trans('texts.restore_vendor'))
+                              ->appendIcon(Icon::create('cloud-download'))
+                              ->withAttributes(['onclick' => 'onRestoreClick()']) !!}
+                  @endcan
+              @endif
 
 
-	  {!! Former::close() !!}
+      	  {!! Former::close() !!}
 
-	</div>
+        </div>
+    </div>
+</div>
 
 
-	<h2>{{ $vendor->getDisplayName() }}</h2>
+
     <div class="panel panel-default">
     <div class="panel-body">
 	<div class="row">

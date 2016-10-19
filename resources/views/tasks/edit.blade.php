@@ -222,12 +222,14 @@
         @endif
     }
 
-    function tock(duration) {
+    function tock(startTime) {
+        var duration = new Date().getTime() - startTime;
+        duration = Math.floor(duration / 100) / 10;
         var str = convertDurationToString(duration);
         $('#duration-text').html(str);
 
         setTimeout(function() {
-            tock(duration+1);
+            tock(startTime);
         }, 1000);
     }
 
@@ -483,7 +485,7 @@
 
         @if ($task)
             @if ($task->is_running)
-                tock({{ $duration }});
+                tock({{ $task->getLastStartTime() * 1000 }});
             @endif
         @endif
 
