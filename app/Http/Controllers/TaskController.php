@@ -182,7 +182,6 @@ class TaskController extends BaseController
             'method' => 'PUT',
             'url' => 'tasks/'.$task->public_id,
             'title' => trans('texts.edit_task'),
-            'duration' => $task->is_running ? $task->getCurrentDuration() : $task->getDuration(),
             'actions' => $actions,
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
