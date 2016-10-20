@@ -33,14 +33,14 @@
         return window.parseFloat(str);
     }
 
-    function formatMoneyInvoice(value, invoice, hideSymbol) {
+    function formatMoneyInvoice(value, invoice, decorator) {
         var account = invoice.account;
         var client = invoice.client;
 
-        return formatMoneyAccount(value, account, client, hideSymbol);
+        return formatMoneyAccount(value, account, client, decorator);
     }
 
-    function formatMoneyAccount(value, account, client, hideSymbol) {
+    function formatMoneyAccount(value, account, client, decorator) {
         var currencyId = false;
         var countryId = false;
 
@@ -56,10 +56,14 @@
             countryId = account.country_id;
         }
 
-        return formatMoney(value, currencyId, countryId, hideSymbol)
+        if ( ! decorator) {
+            decorator = account.show_currency_code ? 'code' : 'symbol';
+        }
+
+        return formatMoney(value, currencyId, countryId, decorator)
     }
 
-    function formatMoney(value, currencyId, countryId, hideSymbol) {
+    function formatMoney(value, currencyId, countryId, decorator) {
         value = NINJA.parseFloat(value);
 
         if (!currencyId) {
@@ -87,9 +91,9 @@
         value = accounting.formatMoney(value, '', precision, thousand, decimal);
         var symbol = currency.symbol;
 
-        if (hideSymbol) {
+        if (decorator == 'none') {
             return value;
-        } else if (!symbol) {
+        } else if (decorator == 'code' || !symbol) {
             return value + ' ' + code;
         } else if (swapSymbol) {
             return value + ' ' + symbol.trim();

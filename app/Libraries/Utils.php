@@ -354,7 +354,7 @@ class Utils
         return $data->first();
     }
 
-    public static function formatMoney($value, $currencyId = false, $countryId = false, $showCode = false)
+    public static function formatMoney($value, $currencyId = false, $countryId = false, $decorator = CURRENCY_DECORATOR_SYMBOL)
     {
         $value = floatval($value);
 
@@ -387,7 +387,9 @@ class Utils
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
-        if ($showCode || !$symbol) {
+        if ($decorator == CURRENCY_DECORATOR_NONE) {
+            return $value;
+        } elseif ($decorator == CURRENCY_DECORATOR_SYMBOL || ! $symbol) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);

@@ -2160,6 +2160,9 @@ $LANG = array(
     'enterprise_upgrade_feature2' => 'Attach 3rd party files to invoices & expenses',
     'much_more' => 'Much More!',
 
+    'currency_symbol' => 'Symbol',
+    'currency_code' => 'Code',
+
 );
 
 return $LANG;

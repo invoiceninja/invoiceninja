@@ -551,6 +551,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('SESSION_TIMEZONE', 'timezone');
     define('SESSION_CURRENCY', 'currency');
+    define('SESSION_CURRENCY_DECORATOR', 'currency_decorator');
     define('SESSION_DATE_FORMAT', 'dateFormat');
     define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
     define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
@@ -750,6 +751,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('EMAIL_DESIGN_DARK', 3);
 
     define('BANK_LIBRARY_OFX', 1);
+
+    define('CURRENCY_DECORATOR_CODE', 'code');
+    define('CURRENCY_DECORATOR_SYMBOL', 'symbol');
+    define('CURRENCY_DECORATOR_NONE', 'none');
 
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');
