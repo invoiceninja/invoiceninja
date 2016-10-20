@@ -389,7 +389,7 @@ class Utils
 
         if ($decorator == CURRENCY_DECORATOR_NONE) {
             return $value;
-        } elseif ($decorator == CURRENCY_DECORATOR_SYMBOL || ! $symbol) {
+        } elseif ($decorator == CURRENCY_DECORATOR_CODE || ! $symbol) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);

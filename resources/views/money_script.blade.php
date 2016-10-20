@@ -93,7 +93,7 @@
 
         if (decorator == 'none') {
             return value;
-        } else if (decorator == 'code' || !symbol) {
+        } else if (decorator == '{{ CURRENCY_DECORATOR_CODE }}' || ! symbol) {
             return value + ' ' + code;
         } else if (swapSymbol) {
             return value + ' ' + symbol.trim();
