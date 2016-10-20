@@ -3,8 +3,15 @@
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
+/**
+ * Class ClientTransformer
+ */
 class ClientTransformer extends BaseTransformer
 {
+    /**
+     * @param $data
+     * @return bool|Item
+     */
     public function transform($data)
     {
         if (isset($data->name) && $this->hasClient($data->name)) {
@@ -20,6 +27,7 @@ class ClientTransformer extends BaseTransformer
                 'state' => $this->getString($data, 'state'),
                 'postal_code' => $this->getString($data, 'postal_code'),
                 'private_notes' => $this->getString($data, 'notes'),
+                'website' => $this->getString($data, 'website'),
                 'contacts' => [
                     [
                         'first_name' => $this->getString($data, 'first_name'),

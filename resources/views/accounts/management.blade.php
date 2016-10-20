@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('content')	
+@section('content')
 @parent
 
 @include('accounts.nav', ['selected' => ACCOUNT_MANAGEMENT])
@@ -24,6 +24,9 @@
 								@elseif ($planDetails['expires'])
 									({{ trans('texts.plan_term_'.$planDetails['term'].'ly') }})
 								@endif
+                                @if ($planDetails['plan'] == PLAN_ENTERPRISE)
+                                    {{ trans('texts.min_to_max_users', ['min' => Utils::getMinNumUsers($planDetails['num_users']), 'max' => $planDetails['num_users']])}}
+                                @endif
 							@elseif(Utils::isNinjaProd())
 								{{ trans('texts.plan_free') }}
 							@else
@@ -35,11 +38,7 @@
 				@if ($planDetails && $planDetails['active'])
 					<div class="form-group">
 						<label class="col-sm-4 control-label">
-							@if((!$account->company->pending_plan || $account->company->pending_plan == $planDetails['plan']) && $planDetails['expires'] && !$planDetails['trial'])
-								{{ trans('texts.renews') }}
-							@else
-								{{ trans('texts.expires') }}
-							@endif
+							{{ trans('texts.renews') }}
 						</label>
 						<div class="col-sm-8">
 							<p class="form-control-static">
@@ -51,28 +50,6 @@
 							</p>
 						</div>
 					</div>
-					@if ($account->company->pending_plan)
-					<div class="form-group">
-						<label class="col-sm-4 control-label">{{ trans('texts.pending_change_to') }}</label>
-						<div class="col-sm-8">
-							<p class="form-control-static">
-								@if ($account->company->pending_plan == PLAN_FREE)
-									{{ trans('texts.plan_changes_to', [
-										'plan'=>trans('texts.plan_free'),
-										'date'=>Utils::dateToString($planDetails['expires'])
-									]) }}
-								@else
-									{{ trans('texts.plan_term_changes_to', [
-										'plan'=>trans('texts.plan_'.$account->company->pending_plan),
-										'term'=>trans('texts.plan_term_'.$account->company->pending_term.'ly'),
-										'date'=>Utils::dateToString($planDetails['expires'])
-									]) }}
-								@endif<br>
-								<a href="#" onclick="cancelPendingChange()">{{ trans('texts.cancel_plan_change') }}</a>
-							</p>
-						</div>
-					</div>
-					@endif
 					@if (Utils::isNinjaProd())
 						{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
 					@endif
@@ -116,28 +93,46 @@
 							</h4>
 						</div>
 						<div class="modal-body">
+
 							@if ($planDetails && $planDetails['active'])
-							{!! Former::select('plan')
-								->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE)
-								->addOption(trans('texts.plan_pro'), PLAN_PRO)
-								->addOption(trans('texts.plan_free'), PLAN_FREE)!!}
+    							{!! Former::select('plan')
+                                    ->onchange('onPlanChange()')
+                                    ->addOption(trans('texts.plan_free'), PLAN_FREE)
+    								->addOption(trans('texts.plan_pro'), PLAN_PRO)
+                                    ->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE) !!}
 							@else
-							{!! Former::select('plan')
-								->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE)
-								->addOption(trans('texts.plan_pro'), PLAN_PRO)!!}
+    							{!! Former::select('plan')
+                                    ->onchange('onPlanChange()')
+                                    ->addOption(trans('texts.plan_pro'), PLAN_PRO)
+    								->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE) !!}
 							@endif
+
+                            <div id="numUsersDiv">
+                                {!! Former::select('num_users')
+                                    ->label(trans('texts.users'))
+                                    ->addOption('1 to 2', 2)
+    								->addOption('3 to 5', 5)
+                                    ->addOption('6 to 10', 10) !!}
+                            </div>
+
 							{!! Former::select('plan_term')
-								->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
 								->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)
-                                ->inlineHelp(trans('texts.enterprise_plan_features')) !!}
+                                ->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
+								->inlineHelp(trans('texts.enterprise_plan_features', ['link' => link_to(NINJA_WEB_URL . '/plans-pricing', trans('texts.click_here'), ['target' => '_blank'])])) !!}
+
 						</div>
 						<div class="modal-footer" style="margin-top: 0px">
+                            @if (Utils::isPro())
+                                <div class="pull-left" style="padding-top: 8px;color:#888888">
+                                    {{ trans('texts.changes_take_effect_immediately') }}
+                                </div>
+                            @endif
 							<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
 							@if ($planDetails && $planDetails['active'])
-								<button type="button" class="btn btn-primary" onclick="confirmChangePlan()">{{ trans('texts.plan_change') }}</button>         
+								<button type="button" class="btn btn-primary" id="changePlanButton" onclick="confirmChangePlan()">{{ trans('texts.plan_change') }}</button>
 							@else
-								<button type="button" class="btn btn-success" onclick="confirmChangePlan()">{{ trans('texts.plan_upgrade') }}</button>         
-							@endif						
+								<button type="button" class="btn btn-success" id="changePlanButton" onclick="confirmChangePlan()">{{ trans('texts.plan_upgrade') }}</button>
+							@endif
 						</div>
 					</div>
 				</div>
@@ -165,12 +160,12 @@
 
 					<div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
 						&nbsp;<p>{{ trans('texts.cancel_account_message') }}</p>&nbsp;
-						&nbsp;<p>{!! Former::textarea('reason')->placeholder(trans('texts.reason_for_canceling'))->raw() !!}</p>&nbsp;        
+						&nbsp;<p>{!! Former::textarea('reason')->placeholder(trans('texts.reason_for_canceling'))->raw() !!}</p>&nbsp;
 					</div>
 
 					<div class="modal-footer" style="margin-top: 0px">
 						<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-						<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>         
+						<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>
 					</div>
 
 				</div>
@@ -182,7 +177,7 @@
 
 <script type="text/javascript">
 	function showChangePlan() {
-		$('#changePlanModel').modal('show'); 
+		$('#changePlanModel').modal('show');
 	}
 
 	function confirmChangePlan() {
@@ -190,42 +185,55 @@
 	}
 
 	function showConfirm() {
-		$('#confirmCancelModal').modal('show'); 
+		$('#confirmCancelModal').modal('show');
 	}
 
 	function confirmCancel() {
 		$('form.cancel-account').submit();
-	} 
-	
-	@if ($account->company->pending_plan)
-	function cancelPendingChange(){
-		$('#plan').val('{{ $planDetails['plan'] }}')
-		$('#plan_term').val('{{ $planDetails['term'] }}')
-		confirmChangePlan();
-		return false;
 	}
-	@endif
-  	
+
+    function onPlanChange() {
+        if ($('#plan').val() == '{{ PLAN_ENTERPRISE }}') {
+            $('#numUsersDiv').show();
+        } else {
+            $('#numUsersDiv').hide();
+        }
+    }
+
   	jQuery(document).ready(function($){
 		function updatePlanModal() {
 			var plan = $('#plan').val();
+            var numUsers = $('#num_users').val();
 	 		$('#plan_term').closest('.form-group').toggle(plan!='free');
-			
+
 			if(plan=='{{PLAN_PRO}}'){
 				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_PRO_MONTHLY])) !!});
-				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_PRO_YEARLY])) !!});
+				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_PRO_MONTHLY * 10])) !!});
 			} else if(plan=='{{PLAN_ENTERPRISE}}') {
-				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY])) !!});
-				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_YEARLY])) !!});
+                if (numUsers == 2) {
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_2])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_2 * 10])) !!});
+                } else if (numUsers == 5) {
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10])) !!});
+                } else {
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10])) !!});
+                }
 			}
   	  	}
-		$('#plan_term, #plan').change(updatePlanModal);
+		$('#plan_term, #plan, #num_users').change(updatePlanModal);
 	  	updatePlanModal();
-		
+        onPlanChange();
+
 		if(window.location.hash) {
 			var hash = window.location.hash;
 			$(hash).modal('toggle');
 	  	}
-  	});
+
+        @if (Request::input('upgrade'))
+          showChangePlan();
+        @endif
+    });
 </script>
 @stop

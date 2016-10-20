@@ -23,21 +23,23 @@ class CreatePaymentAPIRequest extends PaymentRequest
     {
         if ( ! $this->invoice_id || ! $this->amount) {
             return [
-                'invoice_id' => 'required',
-                'amount' => 'required',
+                'invoice_id' => 'required|numeric|min:1',
+                'amount' => 'required|numeric|min:0.01',
             ];
         }
-        
-        $invoice = Invoice::scope($this->invoice_id)->firstOrFail();
+
+        $invoice = Invoice::scope($this->invoice_id)
+            ->invoices()
+            ->firstOrFail();
 
         $this->merge([
-            'invoice_id' => $invoice->id, 
+            'invoice_id' => $invoice->id,
             'client_id' => $invoice->client->id,
         ]);
-            
-        $rules = array(
-            'amount' => "required|less_than:{$invoice->balance}|positive",
-        );
+
+        $rules = [
+            'amount' => "required|numeric|between:0.01,{$invoice->balance}",
+        ];
 
         if ($this->payment_type_id == PAYMENT_TYPE_CREDIT) {
             $rules['payment_type_id'] = 'has_credit:' . $invoice->client->public_id . ',' . $this->amount;

@@ -7,9 +7,11 @@ use Session;
 use Response;
 use Auth;
 use Cache;
-
 use App\Models\AccountToken;
 
+/**
+ * Class ApiCheck
+ */
 class ApiCheck {
 
     /**
@@ -24,9 +26,13 @@ class ApiCheck {
         $loggingIn = $request->is('api/v1/login') || $request->is('api/v1/register');
         $headers = Utils::getApiHeaders();
 
+        if ($secret = env(API_SECRET)) {
+            $hasApiSecret = hash_equals($request->api_secret ?: '', $secret);
+        }
+
         if ($loggingIn) {
             // check API secret
-            if ( ! $request->api_secret || ! env(API_SECRET) || ! hash_equals($request->api_secret, env(API_SECRET))) {
+            if ( ! $hasApiSecret) {
                 sleep(ERROR_DELAY);
                 return Response::json('Invalid secret', 403, $headers);
             }
@@ -36,7 +42,7 @@ class ApiCheck {
 
             // check if user is archived
             if ($token && $token->user) {
-                Auth::loginUsingId($token->user_id);
+                Auth::onceUsingId($token->user_id);
                 Session::set('token_id', $token->id);
             } else {
                 sleep(ERROR_DELAY);
@@ -48,7 +54,7 @@ class ApiCheck {
             return $next($request);
         }
 
-        if (!Utils::hasFeature(FEATURE_API) && !$loggingIn) {
+        if (!Utils::hasFeature(FEATURE_API) && !$hasApiSecret) {
             return Response::json('API requires pro plan', 403, $headers);
         } else {
             $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();
@@ -59,7 +65,7 @@ class ApiCheck {
             $hour_throttle = Cache::get("hour_throttle:{$key}", null);
             $last_api_request = Cache::get("last_api_request:{$key}", 0);
             $last_api_diff = time() - $last_api_request;
-            
+
             if (is_null($hour_throttle)) {
                 $new_hour_throttle = 0;
             } else {

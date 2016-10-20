@@ -1,11 +1,8 @@
 <?php namespace App\Ninja\Repositories;
 
 use Auth;
-use Carbon;
 use Session;
 use App\Models\Client;
-use App\Models\Contact;
-use App\Models\Activity;
 use App\Models\Task;
 
 class TaskRepository
@@ -38,6 +35,7 @@ class TaskRepository
                         'invoices.invoice_number',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
+                        'invoices.balance',
                         'tasks.is_running',
                         'tasks.time_log',
                         'tasks.created_at',
@@ -89,7 +87,7 @@ class TaskRepository
         } else {
             $timeLog = [];
         }
-        
+
         array_multisort($timeLog);
 
         if (isset($data['action'])) {

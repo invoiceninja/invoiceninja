@@ -1,10 +1,8 @@
 <?php namespace App\Ninja\Presenters;
 
-use URL;
 use Utils;
-use Laracasts\Presenter\Presenter;
 
-class PaymentPresenter extends Presenter {
+class PaymentPresenter extends EntityPresenter {
 
     public function client()
     {
@@ -23,16 +21,6 @@ class PaymentPresenter extends Presenter {
         } elseif ($this->entity->payment_type) {
             return $this->entity->payment_type->name;
         }
-    }
-
-    public function url()
-    {
-        return URL::to('/payments/' . $this->entity->public_id . '/edit');
-    }
-
-    public function link()
-    {
-        return link_to('/payments/' . $this->entity->public_id . '/edit', $this->entity->getDisplayName());
     }
 
 }

@@ -1,14 +1,8 @@
 <?php namespace App\Http\Controllers;
 
 use App\Models\Expense;
-use app\Ninja\Repositories\ExpenseRepository;
-use App\Ninja\Transformers\ExpenseTransformer;
+use App\Ninja\Repositories\ExpenseRepository;
 use App\Services\ExpenseService;
-use Utils;
-use Response;
-use Input;
-use Auth;
-
 
 class ExpenseApiController extends BaseAPIController
 {

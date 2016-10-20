@@ -7,7 +7,7 @@
             },
             {
                 "stack": "$accountDetails",
-                "margin": [40, 0, 0, 0]
+                "margin": [7, 0, 0, 0]
             },
             {
                 "stack": "$accountAddress"

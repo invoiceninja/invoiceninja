@@ -2,17 +2,27 @@
 
 use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
-use App\Services\DatatableService;
 
+/**
+ * Class BaseService
+ */
 class BaseService
 {
     use DispatchesJobs;
 
+    /**
+     * @return null
+     */
     protected function getRepo()
     {
         return null;
     }
 
+    /**
+     * @param $ids
+     * @param $action
+     * @return int
+     */
     public function bulk($ids, $action)
     {
         if ( ! $ids ) {
@@ -22,29 +32,11 @@ class BaseService
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            if(Auth::user()->can('edit', $entity)){
+            if (Auth::user()->can('edit', $entity)) {
                 $this->getRepo()->$action($entity);
             }
         }
 
         return count($entities);
-    }
-
-    public function createDatatable($entityType, $query, $showCheckbox = true, $hideClient = false)
-    {
-        $columns = $this->getDatatableColumns($entityType, !$showCheckbox);
-        $actions = $this->getDatatableActions($entityType);
-
-        return $this->datatableService->createDatatable($entityType, $query, $columns, $actions, $showCheckbox);
-    }
-
-    protected function getDatatableColumns($entityType, $hideClient)
-    {
-        return [];
-    }
-
-    protected function getDatatableActions($entityType)
-    {
-        return [];
     }
 }

@@ -17,8 +17,8 @@ return [
     'postmark' => env('POSTMARK_API_TOKEN', ''),
 
 	'mailgun' => [
-		'domain' => '',
-		'secret' => '',
+		'domain' => env('MAILGUN_DOMAIN',''),
+		'secret' => env('MAILGUN_SECRET',''),
 	],
 
 	'mandrill' => [

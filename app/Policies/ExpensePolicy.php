@@ -2,4 +2,20 @@
 
 namespace App\Policies;
 
-class ExpensePolicy extends EntityPolicy {}
+use App\Models\User;
+
+class ExpensePolicy extends EntityPolicy
+{
+    /**
+     * @param User $user
+     * @return bool
+     */
+    public static function create(User $user) {
+        if ( ! parent::create($user)) {
+            return false;
+        }
+
+        return $user->hasFeature(FEATURE_EXPENSES);
+    }
+
+}

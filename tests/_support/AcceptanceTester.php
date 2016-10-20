@@ -28,19 +28,19 @@ class AcceptanceTester extends \Codeception\Actor
     {
         //if ($I->loadSessionSnapshot('login')) return;
 
-        $I->amOnPage('/login');
+        $I->amOnPage('/login?lang=en');
         $I->see('Login');
         $I->fillField(['name' => 'email'], Fixtures::get('username'));
         $I->fillField(['name' => 'password'], Fixtures::get('password'));
         $I->click('Login');
 
         //$I->saveSessionSnapshot('login');
-    }   
+    }
 
     function selectDataPicker(\AcceptanceTester $I, $element, $date = 'now')
     {
-        $_date = date('Y, m, d', strtotime($date));
-        $I->executeJS(sprintf('$(\'%s\').datepicker(\'update\', new Date(%s))', $element, $_date));
+        $date = strtotime($date) * 1000;
+        $I->executeJS(sprintf('$(\'%s\').datepicker(\'update\', new Date(%s))', $element, $date));
     }
 
     function selectDropdown(\AcceptanceTester $I, $option, $dropdownSelector)

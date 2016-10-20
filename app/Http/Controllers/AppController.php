@@ -11,10 +11,8 @@ use Utils;
 use View;
 use Event;
 use Session;
-use Cookie;
 use Response;
 use Redirect;
-use App\Models\User;
 use App\Models\Account;
 use App\Models\Industry;
 use App\Ninja\Mailers\Mailer;
@@ -87,6 +85,7 @@ class AppController extends BaseController
         $_ENV['APP_DEBUG'] = $app['debug'];
         $_ENV['APP_URL'] = $app['url'];
         $_ENV['APP_KEY'] = $app['key'];
+        $_ENV['APP_CIPHER'] = env('APP_CIPHER', 'AES-256-CBC');
         $_ENV['DB_TYPE'] = $dbType;
         $_ENV['DB_HOST'] = $database['type']['host'];
         $_ENV['DB_DATABASE'] = $database['type']['database'];
@@ -100,6 +99,8 @@ class AppController extends BaseController
         $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
         $_ENV['MAIL_PASSWORD'] = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
+        $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
+        $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
 
         $config = '';
         foreach ($_ENV as $key => $val) {
@@ -114,18 +115,18 @@ class AppController extends BaseController
 
 
         // Write Config Settings
-        $fp = fopen(base_path()."/.env", 'w');
+        $fp = fopen(base_path().'/.env', 'w');
         fwrite($fp, $config);
         fclose($fp);
 
         // == DB Migrate & Seed == //
         // Artisan::call('migrate:rollback', array('--force' => true)); // Debug Purposes
-        Artisan::call('migrate', array('--force' => true));
+        Artisan::call('migrate', ['--force' => true]);
         if (Industry::count() == 0) {
-            Artisan::call('db:seed', array('--force' => true));
+            Artisan::call('db:seed', ['--force' => true]);
         }
         Cache::flush();
-        Artisan::call('optimize', array('--force' => true));
+        Artisan::call('optimize', ['--force' => true]);
 
         $firstName = trim(Input::get('first_name'));
         $lastName = trim(Input::get('last_name'));
@@ -147,7 +148,7 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        if ( ! $canUpdateEnv = @fopen(base_path()."/.env", 'w')) {
+        if ( ! $canUpdateEnv = @fopen(base_path().'/.env', 'w')) {
             Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
             return Redirect::to('/settings/system_settings');
         }
@@ -174,6 +175,8 @@ class AppController extends BaseController
             $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
             $_ENV['MAIL_PASSWORD'] = $mail['password'];
             $_ENV['MAIL_FROM_ADDRESS'] = $mail['username'];
+            $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
+            $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
         }
 
         $config = '';
@@ -187,7 +190,7 @@ class AppController extends BaseController
             $config .= "{$key}={$val}\n";
         }
 
-        $fp = fopen(base_path()."/.env", 'w');
+        $fp = fopen(base_path().'/.env', 'w');
         fwrite($fp, $config);
         fclose($fp);
 
@@ -243,11 +246,11 @@ class AppController extends BaseController
         if (!Utils::isNinjaProd() && !Utils::isDatabaseSetup()) {
             try {
                 set_time_limit(60 * 5); // shouldn't take this long but just in case
-                Artisan::call('migrate', array('--force' => true));
+                Artisan::call('migrate', ['--force' => true]);
                 if (Industry::count() == 0) {
-                    Artisan::call('db:seed', array('--force' => true));
+                    Artisan::call('db:seed', ['--force' => true]);
                 }
-                Artisan::call('optimize', array('--force' => true));
+                Artisan::call('optimize', ['--force' => true]);
             } catch (Exception $e) {
                 Utils::logError($e);
                 return Response::make($e->getMessage(), 500);
@@ -262,13 +265,31 @@ class AppController extends BaseController
         if (!Utils::isNinjaProd()) {
             try {
                 set_time_limit(60 * 5);
-                Artisan::call('optimize', array('--force' => true));
+                Artisan::call('clear-compiled');
+                Artisan::call('cache:clear');
+                Artisan::call('debugbar:clear');
+                Artisan::call('route:clear');
+                Artisan::call('view:clear');
+                Artisan::call('config:clear');
+                Artisan::call('optimize', ['--force' => true]);
                 Cache::flush();
                 Session::flush();
-                Artisan::call('migrate', array('--force' => true));
-                Artisan::call('db:seed', array('--force' => true, '--class' => "UpdateSeeder"));
+                Artisan::call('migrate', ['--force' => true]);
+                Artisan::call('db:seed', ['--force' => true, '--class' => 'UpdateSeeder']);
                 Event::fire(new UserSettingsChanged());
-                Session::flash('message', trans('texts.processed_updates'));
+
+                // legacy fix: check cipher is in .env file
+                if ( ! env('APP_CIPHER')) {
+                    $fp = fopen(base_path().'/.env', 'a');
+                    fwrite($fp, "\nAPP_CIPHER=rijndael-128");
+                    fclose($fp);
+                }
+
+                // show message with link to Trello board
+                $message = trans('texts.see_whats_new', ['version' => NINJA_VERSION]);
+                $message = link_to(RELEASES_URL, $message, ['target' => '_blank']);
+                $message = sprintf('%s - %s', trans('texts.processed_updates'), $message);
+                Session::flash('warning', $message);
             } catch (Exception $e) {
                 Utils::logError($e);
                 return Response::make($e->getMessage(), 500);

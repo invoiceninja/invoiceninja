@@ -6,79 +6,84 @@ use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
+use App\Models\Contact;
 use App\Models\Invitation;
 
+class PasswordController extends Controller
+{
 
-class PasswordController extends Controller {
+    /*
+    |--------------------------------------------------------------------------
+    | Password Reset Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller is responsible for handling password reset requests
+    | and uses a simple trait to include this behavior. You're free to
+    | explore this trait and override any methods you wish to tweak.
+    |
+    */
 
-	/*
-	|--------------------------------------------------------------------------
-	| Password Reset Controller
-	|--------------------------------------------------------------------------
-	|
-	| This controller is responsible for handling password reset requests
-	| and uses a simple trait to include this behavior. You're free to
-	| explore this trait and override any methods you wish to tweak.
-	|
-	*/
+    use ResetsPasswords;
 
-	use ResetsPasswords;
-
+    /**
+     * @var string
+     */
     protected $redirectTo = '/client/dashboard';
-    
-	/**
-	 * Create a new password controller instance.
-	 *
-	 * @param  \Illuminate\Contracts\Auth\Guard  $auth
-	 * @param  \Illuminate\Contracts\Auth\PasswordBroker  $passwords
-	 * @return void
-	 */
-	public function __construct()
-	{
-		$this->middleware('guest');
-        Config::set("auth.defaults.passwords","client");
-	}
 
-	public function showLinkRequestForm()
-	{
-        $data = array();
-        $invitation_key = session('invitation_key');
-        if($invitation_key){
-            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
-            if ($invitation && !$invitation->is_deleted) {
-                $invoice = $invitation->invoice;
-                $client = $invoice->client;
-                $account = $client->account;
-                
-                $data['hideLogo'] = $account->hasFeature(FEATURE_WHITE_LABEL);
-                $data['clientViewCSS'] = $account->clientViewCSS();
+    /**
+     * Create a new password controller instance.
+     *
+     * @internal param \Illuminate\Contracts\Auth\Guard $auth
+     * @internal param \Illuminate\Contracts\Auth\PasswordBroker $passwords
+     */
+    public function __construct()
+    {
+        $this->middleware('guest');
+        Config::set('auth.defaults.passwords', 'client');
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function showLinkRequestForm()
+    {
+        $data = [];
+        $contactKey = session('contact_key');
+        if ($contactKey) {
+            $contact = Contact::where('contact_key', '=', $contactKey)->first();
+            if ($contact && !$contact->is_deleted) {
+                $account = $contact->account;
+                $data['account'] = $account;
                 $data['clientFontUrl'] = $account->getFontsUrl();
             }
+        } else {
+            return \Redirect::to('/client/sessionexpired');
         }
-        
-		return view('clientauth.password')->with($data);
-	}
-	
-	/**
+
+        return view('clientauth.password')->with($data);
+    }
+
+    /**
      * Send a reset link to the given user.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
+     * 
      * @return \Illuminate\Http\Response
      */
     public function sendResetLinkEmail(Request $request)
     {
         $broker = $this->getBroker();
 
-        $contact_id = null;
-        $invitation_key = session('invitation_key');
-        if($invitation_key){
-            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
-            if ($invitation && !$invitation->is_deleted) {
-                $contact_id = $invitation->contact_id;
+        $contactId = null;
+        $contactKey = session('contact_key');
+        if ($contactKey) {
+            $contact = Contact::where('contact_key', '=', $contactKey)->first();
+            if ($contact && !$contact->is_deleted) {
+                $contactId = $contact->id;
             }
         }
-        
-        $response = Password::broker($broker)->sendResetLink(array('id'=>$contact_id), function (Message $message) {
+
+        $response = Password::broker($broker)->sendResetLink(['id' => $contactId], function (Message $message) {
             $message->subject($this->getEmailSubject());
         });
 
@@ -91,62 +96,69 @@ class PasswordController extends Controller {
                 return $this->getSendResetLinkEmailFailureResponse($response);
         }
     }
-    
+
     /**
      * Display the password reset view for the given token.
      *
      * If no token is present, display the link request form.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string|null  $invitation_key
-     * @param  string|null  $token
+     * @param  \Illuminate\Http\Request $request
+     * @param  string|null $key
+     * @param  string|null $token
      * @return \Illuminate\Http\Response
      */
-    public function showResetForm(Request $request, $invitation_key = null, $token = null)
+    public function showResetForm(Request $request, $key = null, $token = null)
     {
         if (is_null($token)) {
             return $this->getEmail();
         }
-        
-        $data = compact('token', 'invitation_key');
-        $invitation_key = session('invitation_key');
-        if($invitation_key){
-            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
-            if ($invitation && !$invitation->is_deleted) {
-                $invoice = $invitation->invoice;
-                $client = $invoice->client;
-                $account = $client->account;
-                
-                $data['hideLogo'] = $account->hasFeature(FEATURE_WHITE_LABEL);
-                $data['clientViewCSS'] = $account->clientViewCSS();
+
+        $data = compact('token');
+        if ($key) {
+            $contact = Contact::where('contact_key', '=', $key)->first();
+            if ($contact && !$contact->is_deleted) {
+                $account = $contact->account;
+                $data['contact_key'] = $contact->contact_key;
+            } else {
+                // Maybe it's an invitation key
+                $invitation = Invitation::where('invitation_key', '=', $key)->first();
+                if ($invitation && !$invitation->is_deleted) {
+                    $account = $invitation->account;
+                    $data['contact_key'] = $invitation->contact->contact_key;
+                }
+            }
+
+            if (!empty($account)) {
+                $data['account'] = $account;
                 $data['clientFontUrl'] = $account->getFontsUrl();
+            } else {
+                return \Redirect::to('/client/sessionexpired');
             }
         }
 
         return view('clientauth.reset')->with($data);
     }
-    
-    
+
 
     /**
      * Display the password reset view for the given token.
      *
      * If no token is present, display the link request form.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  string|null  $invitation_key
-     * @param  string|null  $token
+     * @param  \Illuminate\Http\Request $request
+     * @param  string|null $key
+     * @param  string|null $token
      * @return \Illuminate\Http\Response
      */
-    public function getReset(Request $request, $invitation_key = null, $token = null)
+    public function getReset(Request $request, $key = null, $token = null)
     {
-        return $this->showResetForm($request, $invitation_key, $token);
+        return $this->showResetForm($request, $key, $token);
     }
-    
+
     /**
      * Reset the given user's password.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function reset(Request $request)
@@ -156,14 +168,14 @@ class PasswordController extends Controller {
         $credentials = $request->only(
             'password', 'password_confirmation', 'token'
         );
-        
+
         $credentials['id'] = null;
-        
-        $invitation_key = $request->input('invitation_key');
-        if($invitation_key){
-            $invitation = Invitation::where('invitation_key', '=', $invitation_key)->first();
-            if ($invitation && !$invitation->is_deleted) {
-                $credentials['id'] = $invitation->contact_id;
+
+        $contactKey = session('contact_key');
+        if ($contactKey) {
+            $contact = Contact::where('contact_key', '=', $contactKey)->first();
+            if ($contact && !$contact->is_deleted) {
+                $credentials['id'] = $contact->id;
             }
         }
 
@@ -181,7 +193,7 @@ class PasswordController extends Controller {
                 return $this->getResetFailureResponse($request, $response);
         }
     }
-    
+
     /**
      * Get the password reset validation rules.
      *

@@ -22,15 +22,18 @@ class CreatePaymentRequest extends PaymentRequest
     public function rules()
     {
         $input = $this->input();
-        $invoice = Invoice::scope($input['invoice'])->firstOrFail();
-            
-        $rules = array(
-            'client' => 'required',
-            'invoice' => 'required',
-            'amount' => "required|less_than:{$invoice->balance}|positive",
-        );
+        $invoice = Invoice::scope($input['invoice'])
+            ->invoices()
+            ->firstOrFail();
 
-        if ($input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
+        $rules = [
+            'client' => 'required', // TODO: change to client_id once views are updated
+            'invoice' => 'required', // TODO: change to invoice_id once views are updated
+            'amount' => "required|numeric|between:0.01,{$invoice->balance}",
+            'payment_date' => 'required',
+        ];
+
+        if ( ! empty($input['payment_type_id']) && $input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
             $rules['payment_type_id'] = 'has_credit:'.$input['client'].','.$input['amount'];
         }
 

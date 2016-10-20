@@ -1,11 +1,16 @@
 <?php namespace App\Ninja\Transformers;
 
-use App\Models\Account;
 use App\Models\Contact;
-use League\Fractal;
 
+/**
+ * Class ContactTransformer
+ */
 class ContactTransformer extends EntityTransformer
 {
+    /**
+     * @param Contact $contact
+     * @return array
+     */
     public function transform(Contact $contact)
     {
         return array_merge($this->getDefaults($contact), [

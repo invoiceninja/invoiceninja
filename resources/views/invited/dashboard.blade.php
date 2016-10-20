@@ -68,11 +68,11 @@
             background-color: {{ $color }} !important;
         }
 
-        .pagination>.active>a, 
-        .pagination>.active>span, 
-        .pagination>.active>a:hover, 
-        .pagination>.active>span:hover, 
-        .pagination>.active>a:focus, 
+        .pagination>.active>a,
+        .pagination>.active>span,
+        .pagination>.active>a:hover,
+        .pagination>.active>span:hover,
+        .pagination>.active>a:focus,
         .pagination>.active>span:focus {
             background-color: {{ $color }};
             border-color: {{ $color }};
@@ -116,7 +116,7 @@
             </div>
             <div class="col-md-3 address-details">
                 @if ($account->website)
-                    <i class="fa fa-globe" style="width: 20px"></i><a href="{{ $account->website }}" target="_blank">{{ $account->website }}</a><br/>
+                    <i class="fa fa-globe" style="width: 20px"></i><a href="{{ Utils::addHttp($account->website) }}" target="_blank">{{ $account->website }}</a><br/>
                 @endif
                 @if ($account->work_phone)
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $account->work_phone }}<br/>
@@ -126,7 +126,6 @@
                 @endif
             </div>
         </div>
-
         <div class="row">
             <div class="col-md-4 col-md-4-left">
                 <div class="well">
@@ -162,6 +161,14 @@
                 </div>
             </div>
         </div>
+
+        @if (!empty($account->getTokenGatewayId()))
+                <div class="row">
+                    <div class="col-xs-12">
+                    @include('payments.paymentmethods_list')
+                </div>
+        </div>
+        @endif
 
         <div style="min-height: 550px">
             {!! Datatable::table()

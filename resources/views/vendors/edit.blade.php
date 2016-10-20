@@ -32,7 +32,7 @@
 		<div class="col-md-6">
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.organization') !!}</h3>
           </div>
@@ -67,7 +67,7 @@
 		<div class="col-md-6">
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.contacts') !!}</h3>
           </div>
@@ -112,48 +112,6 @@
                 ->placeholder($account->currency ? $account->currency->name : '')
                 ->fromQuery($currencies, 'name', 'id') !!}
 			{!! Former::textarea('private_notes')->rows(6) !!}
-
-
-            @if (Auth::user()->account->isNinjaAccount())
-				@if (isset($planDetails))
-					{!! Former::populateField('plan', $planDetails['plan']) !!}
-					{!! Former::populateField('plan_term', $planDetails['term']) !!}
-					@if (!empty($planDetails['paid']))
-						{!! Former::populateField('plan_paid', $planDetails['paid']->format('Y-m-d')) !!}
-					@endif
-					@if (!empty($planDetails['expires']))
-						{!! Former::populateField('plan_expires', $planDetails['expires']->format('Y-m-d')) !!}
-					@endif
-					@if (!empty($planDetails['started']))
-						{!! Former::populateField('plan_started', $planDetails['started']->format('Y-m-d')) !!}
-					@endif
-				@endif
-				{!! Former::select('plan')
-							->addOption(trans('texts.plan_free'), PLAN_FREE)
-							->addOption(trans('texts.plan_pro'), PLAN_PRO)
-							->addOption(trans('texts.plan_enterprise'), PLAN_ENTERPRISE)!!}
-				{!! Former::select('plan_term')
-							->addOption()
-							->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
-							->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)!!}
-				{!! Former::text('plan_started')
-                            ->data_date_format('yyyy-mm-dd')
-                            ->addGroupClass('plan_start_date')
-                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
-                {!! Former::text('plan_paid')
-                            ->data_date_format('yyyy-mm-dd')
-                            ->addGroupClass('plan_paid_date')
-                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
-				{!! Former::text('plan_expires')
-                            ->data_date_format('yyyy-mm-dd')
-                            ->addGroupClass('plan_expire_date')
-                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
-                <script type="text/javascript">
-                    $(function() {
-                        $('#plan_started, #plan_paid, #plan_expires').datepicker();
-                    });
-                </script>
-            @endif
 
             </div>
             </div>

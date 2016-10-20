@@ -1,8 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Request;
 use Utils;
 use Response;
 use Input;
@@ -11,17 +9,15 @@ use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Contact;
 use App\Models\Product;
-use App\Models\Invitation;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Mailers\ContactMailer as Mailer;
-use App\Http\Controllers\BaseAPIController;
-use App\Ninja\Transformers\InvoiceTransformer;
 use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Services\InvoiceService;
+use App\Services\PaymentService;
 
 class InvoiceApiController extends BaseAPIController
 {
@@ -29,7 +25,7 @@ class InvoiceApiController extends BaseAPIController
 
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer)
+    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer, PaymentService $paymentService)
     {
         parent::__construct();
 
@@ -38,6 +34,7 @@ class InvoiceApiController extends BaseAPIController
         $this->paymentRepo = $paymentRepo;
         $this->invoiceService = $invoiceService;
         $this->mailer = $mailer;
+        $this->paymentService = $paymentService;
     }
 
     /**
@@ -135,6 +132,7 @@ class InvoiceApiController extends BaseAPIController
                     'city',
                     'state',
                     'postal_code',
+                    'country_id',
                     'private_notes',
                     'currency_code',
                 ] as $field) {
@@ -163,13 +161,16 @@ class InvoiceApiController extends BaseAPIController
         $invoice = $this->invoiceService->save($data);
         $payment = false;
 
-        // Optionally create payment with invoice
-        if (isset($data['paid']) && $data['paid']) {
-            $payment = $this->paymentRepo->save([
-                'invoice_id' => $invoice->id,
-                'client_id' => $client->id,
-                'amount' => $data['paid']
-            ]);
+        if ($invoice->isInvoice()) {
+            if (isset($data['auto_bill']) && boolval($data['auto_bill'])) {
+                $payment = $this->paymentService->autoBillInvoice($invoice);
+            } else if (isset($data['paid']) && $data['paid']) {
+                $payment = $this->paymentRepo->save([
+                    'invoice_id' => $invoice->id,
+                    'client_id' => $client->id,
+                    'amount' => $data['paid']
+                ]);
+            }
         }
 
         if (isset($data['email_invoice']) && $data['email_invoice']) {
@@ -183,7 +184,11 @@ class InvoiceApiController extends BaseAPIController
         $invoice = Invoice::scope($invoice->public_id)
                         ->with('client', 'invoice_items', 'invitations')
                         ->first();
-                        
+
+        if (isset($data['download_invoice']) && boolval($data['download_invoice'])) {
+            return $this->fileReponse($invoice->getFileName(), $invoice->getPDFString());
+        }
+
         return $this->itemResponse($invoice);
     }
 
@@ -270,7 +275,7 @@ class InvoiceApiController extends BaseAPIController
                 $item[$key] = $val;
             }
         }
-        
+
         return $item;
     }
 
@@ -309,7 +314,7 @@ class InvoiceApiController extends BaseAPIController
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
         if ($request->action == ACTION_CONVERT) {
-            $quote = $request->entity();            
+            $quote = $request->entity();
             $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
             return $this->itemResponse($invoice);
         } elseif ($request->action) {
@@ -323,7 +328,7 @@ class InvoiceApiController extends BaseAPIController
         $invoice = Invoice::scope($publicId)
                         ->with('client', 'invoice_items', 'invitations')
                         ->firstOrFail();
-                        
+
         return $this->itemResponse($invoice);
     }
 
@@ -352,10 +357,16 @@ class InvoiceApiController extends BaseAPIController
     public function destroy(UpdateInvoiceAPIRequest $request)
     {
         $invoice = $request->entity();
-        
+
         $this->invoiceRepo->delete($invoice);
 
         return $this->itemResponse($invoice);
     }
 
+    public function download(InvoiceRequest $request)
+    {
+        $invoice = $request->entity();
+
+        return $this->fileReponse($invoice->getFileName(), $invoice->getPDFString());
+    }
 }

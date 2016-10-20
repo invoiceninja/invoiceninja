@@ -8,7 +8,7 @@
     @foreach ($account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
     @endforeach
-	<script src="{{ asset('pdf.built.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 
@@ -17,7 +17,7 @@
         label.control-label[for=invoice_number] {
             font-weight: normal !important;
         }
-        
+
         select.tax-select {
             width: 50%;
             float: left;
@@ -79,7 +79,7 @@
                                 &nbsp;&nbsp;<div class="label label-danger">{{ trans('texts.deleted') }}</div>
                             @endif
                         </h4>
-                        
+
                         @can('view', $invoice->client)
                             @can('edit', $invoice->client)
                                 <a id="editClientLink" class="pointer" data-bind="click: $root.showClientForm">{{ trans('texts.edit_client') }}</a> |
@@ -90,7 +90,7 @@
 				</div>
 				<div style="display:none">
     		@endif
-            
+
             {!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addClass('client-input')->addGroupClass('client_select closer-row') !!}
 
 			<div class="form-group" style="margin-bottom: 8px">
@@ -162,14 +162,37 @@
             <span data-bind="visible: !is_recurring()">
             {!! Former::text('invoice_number')
                         ->label(trans("texts.{$entityType}_number_short"))
+                        ->onchange('checkInvoiceNumber()')
+                        ->addGroupClass('invoice-number')
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
+            @if($account->getTokenGatewayId())
             <span data-bind="visible: is_recurring()" style="display: none">
-            {!! Former::checkbox('auto_bill')
-                        ->label(trans('texts.auto_bill'))
-                        ->text(trans('texts.enable_with_stripe'))
-                        ->data_bind("checked: auto_bill, valueUpdate: 'afterkeydown'") !!}
+                <div data-bind="visible: !(auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()) &amp;&amp; !(auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill())" style="display: none">
+                {!! Former::select('auto_bill')
+                        ->data_bind("value: auto_bill, valueUpdate: 'afterkeydown', event:{change:function(){if(auto_bill()==".AUTO_BILL_OPT_IN.")client_enable_auto_bill(0);if(auto_bill()==".AUTO_BILL_OPT_OUT.")client_enable_auto_bill(1)}}")
+                        ->options([
+                            AUTO_BILL_OFF => trans('texts.off'),
+                            AUTO_BILL_OPT_IN => trans('texts.opt_in'),
+                            AUTO_BILL_OPT_OUT => trans('texts.opt_out'),
+                            AUTO_BILL_ALWAYS => trans('texts.always'),
+                        ]) !!}
+                </div>
+                <input type="hidden" name="client_enable_auto_bill" data-bind="attr: { value: client_enable_auto_bill() }" />
+                <div class="form-group" data-bind="visible: auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()">
+                    <div class="col-sm-4 control-label">{{trans('texts.auto_bill')}}</div>
+                    <div class="col-sm-8" style="padding-top:10px;padding-bottom:9px">
+                        {{trans('texts.opted_in')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(false)}">({{trans('texts.disable')}})</a>
+                    </div>
+                </div>
+                <div class="form-group" data-bind="visible: auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill()">
+                    <div class="col-sm-4 control-label">{{trans('texts.auto_bill')}}</div>
+                    <div class="col-sm-8" style="padding-top:10px;padding-bottom:9px">
+                        {{trans('texts.opted_out')}} - <a href="#" data-bind="click:function(){client_enable_auto_bill(true)}">({{trans('texts.enable')}})</a>
+                    </div>
+                </div>
             </span>
+            @endif
 			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
@@ -222,7 +245,7 @@
                 @endif
 				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
 				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
-				<th style="min-width:180px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
+				<th style="min-width:{{ $account->enable_second_tax_rate ? 180 : 120 }}px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
 				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
 				<th style="min-width:32px;" class="hide-border"></th>
 			</tr>
@@ -235,12 +258,12 @@
 				</td>
 				<td>
                     <div id="scrollable-dropdown-menu">
-                        <input id="product_key" type="text" data-bind="typeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
+                        <input id="product_key" type="text" data-bind="productTypeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
                     </div>
 				</td>
 				<td>
 					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
-                        rows="1" cols="60" style="resize: vertical" class="form-control word-wrap"></textarea>
+                        rows="1" cols="60" style="resize: vertical;height:42px" class="form-control word-wrap"></textarea>
                         <input type="text" data-bind="value: task_public_id, attr: {name: 'invoice_items[' + $index() + '][task_public_id]'}" style="display: none"/>
 						<input type="text" data-bind="value: expense_public_id, attr: {name: 'invoice_items[' + $index() + '][expense_public_id]'}" style="display: none"/>
 				</td>
@@ -267,16 +290,18 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->data_bind('value: tax1')
-                            ->addClass('tax-select')
+                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
                             ->raw() !!}
                     <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
-                    {!! Former::select('')
-                            ->addOption('', '')
-                            ->options($taxRateOptions)
-                            ->data_bind('value: tax2')
-                            ->addClass('tax-select')
-                            ->raw() !!}
+                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
+                        {!! Former::select('')
+                                ->addOption('', '')
+                                ->options($taxRateOptions)
+                                ->data_bind('value: tax2')
+                                ->addClass('tax-select')
+                                ->raw() !!}
+                    </div>
                     <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
 				</td>
@@ -304,7 +329,12 @@
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
-                            <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">{{ trans("texts.invoice_documents") }}</a></li>
+                            <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
+                                {{ trans("texts.invoice_documents") }}
+                                @if (count($invoice->documents))
+                                    ({{ count($invoice->documents) }})
+                                @endif
+                            </a></li>
                         @endif
                     </ul>
 
@@ -341,15 +371,8 @@
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
                             <div id="document-upload">
                                 <div class="dropzone">
-                                    <div class="fallback">
-                                        <input name="documents[]" type="file" multiple />
-                                    </div>
                                     <div data-bind="foreach: documents">
-                                        <div class="fallback-doc">
-                                            <a href="#" class="fallback-doc-remove" data-bind="click: $parent.removeDocument"><i class="fa fa-close"></i></a>
-                                            <span data-bind="text:name"></span>
-                                            <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
-                                        </div>
+                                        <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                                     </div>
                                 </div>
                                 @if ($invoice->hasExpenseDocuments())
@@ -417,17 +440,19 @@
                             ->id('taxRateSelect1')
                             ->addOption('', '')
                             ->options($taxRateOptions)
-                            ->addClass('tax-select')
+                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
                             ->data_bind('value: tax1')
-                            ->raw() !!}                    
+                            ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
+                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
                     {!! Former::select('')
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
                             ->data_bind('value: tax2')
-                            ->raw() !!}                    
+                            ->raw() !!}
+                    </div>
                     <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
                     <input type="text" name="tax_rate2" data-bind="value: tax_rate2" style="display:none">
                 </td>
@@ -506,7 +531,11 @@
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-		{!! Button::primary(trans('texts.download_pdf'))->withAttributes(array('onclick' => 'onDownloadClick()'))->appendIcon(Icon::create('download-alt')) !!}
+        @if ( $invoice->exists && $invoice->id && ! $invoice->is_recurring)
+		    {!! Button::primary(trans('texts.download_pdf'))
+                    ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
+                    ->appendIcon(Icon::create('download-alt')) !!}
+        @endif
 
         @if ($invoice->isClientTrashed())
             <!-- do nothing -->
@@ -529,7 +558,7 @@
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
-			{!! trans('texts.pro_plan.remove_logo', ['link'=>'<a href="#" onclick="showProPlan(\'remove_logo\')">'.trans('texts.pro_plan.remove_logo_link').'</a>']) !!}
+			{!! trans('texts.pro_plan_remove_logo', ['link'=>link_to('/settings/account_management?upgrade=true', trans('texts.pro_plan_remove_logo_link'))]) !!}
 		</div>
 	@endif
 
@@ -569,7 +598,7 @@
                     {!! Former::text('client[work_phone]')
                             ->label('work_phone')
                             ->data_bind("value: work_phone, valueUpdate: 'afterkeydown'") !!}
-				
+
                 </span>
 
                 @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
@@ -756,12 +785,15 @@
     var $clientSelect = $('select#client');
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-    
+
 	$(function() {
         // create client dictionary
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
             var clientName = getClientDisplayName(client);
+            if (!clientName) {
+                continue;
+            }
             for (var j=0; j<client.contacts.length; j++) {
                 var contact = client.contacts[j];
                 var contactName = getContactDisplayName(contact);
@@ -786,6 +818,7 @@
             var invoice = {!! $invoice !!};
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
+            model.invoice().start_date_orig(model.invoice().start_date());
 
             @if ($invoice->id)
                 var invitationContactIds = {!! json_encode($invitationContactIds) !!};
@@ -802,7 +835,7 @@
                 model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
                 // set the default account tax rate
                 @if ($account->invoice_taxes && ! empty($defaultTax))
-                    var defaultTax = {!! $defaultTax !!};
+                    var defaultTax = {!! $defaultTax->toJson() !!};
                     model.invoice().tax_rate1(defaultTax.rate);
                     model.invoice().tax_name1(defaultTax.name);
                 @endif
@@ -824,27 +857,32 @@
                 model.invoice().has_tasks(true);
             @endif
 
-            if(model.invoice().expenses() && !model.invoice().public_id()){
+            @if (isset($expenses) && $expenses)
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var expenses = model.invoice().expenses();
+                var expenses = {!! $expenses !!}
 
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];
                     var item = model.invoice().addItem();
-                    item.notes(expense.public_notes());
+                    item.product_key(expense.expense_category ? expense.expense_category.name : '');
+                    item.notes(expense.public_notes);
                     item.qty(1);
-                    item.expense_public_id(expense.public_id());
-					item.cost(expense.converted_amount());
+                    item.expense_public_id(expense.public_id);
+					item.cost(expense.converted_amount);
+                    item.tax_rate1(expense.tax_rate1);
+                    item.tax_name1(expense.tax_name1);
+                    item.tax_rate2(expense.tax_rate2);
+                    item.tax_name2(expense.tax_name2);
                 }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_expenses(true);
-            }
+            @endif
 
         @endif
-        
+
         // display blank instead of '0'
         if (!NINJA.parseFloat(model.invoice().discount())) model.invoice().discount('');
         if (!NINJA.parseFloat(model.invoice().partial())) model.invoice().partial('');
@@ -902,6 +940,7 @@
 		}
 
 		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #start_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2').change(function() {
+            $('#downloadPdfButton').attr('disabled', true);
 			setTimeout(function() {
 				refreshPDF(true);
 			}, 1);
@@ -926,7 +965,7 @@
         }
 
         if (model.invoice().client().public_id() || {{ $invoice->id || count($clients) == 0 ? '1' : '0' }}) {
-            $('#invoice_number').focus();
+            // do nothing
         } else {
             $('.client_select input.form-control').focus();
         }
@@ -966,55 +1005,70 @@
         @endif
 
         applyComboboxListeners();
-        
+
         @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
         $('.main-form').submit(function(){
             if($('#document-upload .dropzone .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
             else $(this).removeAttr('enctype')
         })
-        
-        // Initialize document upload
-        dropzone = new Dropzone('#document-upload .dropzone', {
-            url:{!! json_encode(url('document')) !!},
-            params:{
-                _token:"{{ Session::getToken() }}"
-            },
-            acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
-            addRemoveLinks:true,
-            @foreach(trans('texts.dropzone') as $key=>$text)
-            "dict{{strval($key)}}":"{{strval($text)}}",
-            @endforeach
-            maxFileSize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
-        });
-        if(dropzone instanceof Dropzone){
-            dropzone.on("addedfile",handleDocumentAdded);
-            dropzone.on("removedfile",handleDocumentRemoved);
-            dropzone.on("success",handleDocumentUploaded);
-            for (var i=0; i<model.invoice().documents().length; i++) {
-                var document = model.invoice().documents()[i];
-                var mockFile = {
-                    name:document.name(),
-                    size:document.size(),
-                    type:document.type(),
-                    public_id:document.public_id(),
-                    status:Dropzone.SUCCESS,
-                    accepted:true,
-                    url:document.preview_url()||document.url(),
-                    mock:true,
-                    index:i
-                };
 
-                dropzone.emit('addedfile', mockFile);
-                dropzone.emit('complete', mockFile);
-                if(document.preview_url()){
-                    dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
-                }
-                else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
-                    dropzone.emit('thumbnail', mockFile, document.url());
-                }
-                dropzone.files.push(mockFile);
+        // Initialize document upload
+        window.dropzone = false;
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            if (window.dropzone) {
+                return;
             }
-        }
+
+            var target = $(e.target).attr('href') // activated tab
+            if (target != '#attached-documents') {
+                return;
+            }
+
+            window.dropzone = new Dropzone('#document-upload .dropzone', {
+                url:{!! json_encode(url('documents')) !!},
+                params:{
+                    _token:"{{ Session::getToken() }}"
+                },
+                acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
+                addRemoveLinks:true,
+                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
+                @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
+                    "dict{{Utils::toClassCase($key)}}":"{{trans('texts.dropzone_'.$key)}}",
+                @endforeach
+                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+            });
+            if(dropzone instanceof Dropzone){
+                dropzone.on("addedfile",handleDocumentAdded);
+                dropzone.on("removedfile",handleDocumentRemoved);
+                dropzone.on("success",handleDocumentUploaded);
+                dropzone.on("canceled",handleDocumentCanceled);
+                dropzone.on("error",handleDocumentError);
+                for (var i=0; i<model.invoice().documents().length; i++) {
+                    var document = model.invoice().documents()[i];
+                    var mockFile = {
+                        name:document.name(),
+                        size:document.size(),
+                        type:document.type(),
+                        public_id:document.public_id(),
+                        status:Dropzone.SUCCESS,
+                        accepted:true,
+                        url:document.url(),
+                        mock:true,
+                        index:i
+                    };
+
+                    dropzone.emit('addedfile', mockFile);
+                    dropzone.emit('complete', mockFile);
+                    if(document.preview_url()){
+                        dropzone.emit('thumbnail', mockFile, document.preview_url());
+                    }
+                    else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
+                        dropzone.emit('thumbnail', mockFile, document.url());
+                    }
+                    dropzone.files.push(mockFile);
+                }
+            }
+        });
         @endif
 	});
 
@@ -1042,6 +1096,7 @@
             if ($(event.target).hasClass('handled')) {
                 return;
             }
+            $('#downloadPdfButton').attr('disabled', true);
             onItemChange();
             refreshPDF(true);
 		});
@@ -1053,9 +1108,7 @@
         });
 
         $('textarea').on('keyup focus', function(e) {
-            while($(this).outerHeight() < this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))) {
-                $(this).height($(this).height()+1);
-            };
+            $(this).height(0).height(this.scrollHeight-18);
         });
 	}
 
@@ -1127,18 +1180,20 @@
 	}
 
     function resetTerms() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+        sweetConfirm(function() {
             model.invoice().terms(model.invoice().default_terms());
             refreshPDF();
-        }
+        });
+
         return false;
     }
 
     function resetFooter() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+        sweetConfirm(function() {
             model.invoice().invoice_footer(model.invoice().default_footer());
             refreshPDF();
-        }
+        });
+
         return false;
     }
 
@@ -1154,29 +1209,75 @@
 
 	function onEmailClick() {
         if (!NINJA.isRegistered) {
-            alert("{!! trans('texts.registration_required') !!}");
+            swal("{!! trans('texts.registration_required') !!}");
+            return;
+        }
+
+        var clientId = parseInt($('input[name=client]').val(), 10) || 0;
+        if (clientId == 0 ) {
+            swal("{!! trans('texts.no_client_selected') !!}");
+            return;
+        }
+
+        if (!isContactSelected()) {
+            swal("{!! trans('texts.no_contact_selected') !!}");
             return;
         }
 
         if (!isEmailValid()) {
-            alert("{!! trans('texts.provide_email') !!}");
+            swal("{!! trans('texts.provide_email') !!}");
             return;
         }
 
-		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
-			preparePdfData('email');
-		}
+		sweetConfirm(function() {
+            var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
+            var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
+            var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
+
+            // if they aren't attaching the pdf no need to generate it
+            if ( ! attachPDF) {
+                submitAction('email');
+            // if the client's language is different then we can't use the browser version of the PDF
+            } else if (clientLanguageId && clientLanguageId != accountLanguageId) {
+                submitAction('email');
+            } else {
+                preparePdfData('email');
+            }
+		}, getSendToEmails());
 	}
 
 	function onSaveClick() {
-		if (model.invoice().is_recurring() && {{ $invoice ? 'false' : 'true' }}) {
-			if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
-				submitAction('');
-			}
-		} else {
-            preparePdfData('');
-		}
-	}
+		if (model.invoice().is_recurring()) {
+            // warn invoice will be emailed when saving new recurring invoice
+            if ({{ $invoice->exists ? 'false' : 'true' }}) {
+                var text = getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+                var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
+                sweetConfirm(function() {
+                    submitAction('');
+                }, text, title);
+                return;
+            // warn invoice will be emailed again if start date is changed
+            } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
+                var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
+                            + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
+                var title = "{!! trans("texts.warn_start_date_changed") !!}";
+                sweetConfirm(function() {
+                    submitAction('');
+                }, text, title);
+                return;
+            }
+        }
+
+        @if (!empty($autoBillChangeWarning))
+            var text = "{!! trans('texts.warn_change_auto_bill') !!}";
+            sweetConfirm(function() {
+                submitAction('');
+            }, text);
+            return;
+        @endif
+
+        submitAction('');
+    }
 
     function getSendToEmails() {
         var client = model.invoice().client();
@@ -1210,6 +1311,22 @@
 	}
 
     function onFormSubmit(event) {
+        if (window.countUploadingDocuments > 0) {
+            swal("{!! trans('texts.wait_for_upload') !!}");
+            return false;
+        }
+
+        @if ($invoice->trashed())
+            if ($('#bulk_action').val() != 'restore') {
+                return false;
+            }
+        @endif
+
+        // check invoice number is unique
+        if ($('.invoice-number').hasClass('has-error')) {
+            return false;
+        }
+
         if (!isSaveValid()) {
             model.showClientForm();
             return false;
@@ -1219,12 +1336,12 @@
         var expenseCurrencyId = model.expense_currency_id();
         var clientCurrencyId = model.invoice().client().currency_id() || {{ $account->getCurrencyId() }};
         if (expenseCurrencyId && expenseCurrencyId != clientCurrencyId) {
-            alert("{!! trans('texts.expense_error_mismatch_currencies') !!}");
+            swal("{!! trans('texts.expense_error_mismatch_currencies') !!}");
             return false;
         }
 
         onPartialChange(true);
-        
+
         return true;
     }
 
@@ -1247,8 +1364,7 @@
 		return isValid;
 	}
 
-	function isEmailValid() {
-		var isValid = true;
+    function isContactSelected() {
 		var sendTo = false;
 		var client = model.invoice().client();
 		for (var i=0; i<client.contacts().length; i++) {
@@ -1257,14 +1373,29 @@
                 continue;
             }
 			if (isValidEmailAddress(contact.email())) {
-				isValid = true;
 				sendTo = true;
+			}
+		}
+		return sendTo;
+
+    }
+
+	function isEmailValid() {
+		var isValid = true;
+		var client = model.invoice().client();
+		for (var i=0; i<client.contacts().length; i++) {
+			var contact = client.contacts()[i];
+            if ( ! contact.send_invoice()) {
+                continue;
+            }
+			if (isValidEmailAddress(contact.email())) {
+				isValid = true;
 			} else {
 				isValid = false;
 				break;
 			}
 		}
-		return (isValid && sendTo)
+		return isValid;
 	}
 
 	function onMarkClick() {
@@ -1281,7 +1412,13 @@
 
     @if ($invoice->id)
     	function onPaymentClick() {
-    		window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
+            @if (!empty($autoBillChangeWarning))
+                sweetConfirm(function() {
+                    window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
+                }, "{!! trans('texts.warn_change_auto_bill') !!}");
+            @else
+                window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
+            @endif
     	}
 
     	function onCreditClick() {
@@ -1294,9 +1431,9 @@
 	}
 
 	function onDeleteClick() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
-			submitBulkAction('delete');
-		}
+        sweetConfirm(function() {
+            submitBulkAction('delete');
+        });
 	}
 
 	function formEnterClick(event) {
@@ -1335,6 +1472,8 @@
 		if (!hasEmpty) {
 			model.invoice().addItem();
 		}
+
+        //NINJA.formIsChanged = true;
 	}
 
     function onPartialChange(silent)
@@ -1379,29 +1518,53 @@
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
         model.invoice().invoice_number(number);
     }
-        
-    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+
+    window.countUploadingDocuments = 0;
+
     function handleDocumentAdded(file){
+        // open document when clicked
+        if (file.url) {
+            file.previewElement.addEventListener("click", function() {
+                window.open(file.url, '_blank');
+            });
+        }
         if(file.mock)return;
         file.index = model.invoice().documents().length;
         model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
+        window.countUploadingDocuments++;
     }
-        
+
     function handleDocumentRemoved(file){
         model.invoice().removeDocument(file.public_id);
         refreshPDF(true);
+        $.ajax({
+            url: '{{ '/documents/' }}' + file.public_id,
+            type: 'DELETE',
+            success: function(result) {
+                // Do something with the result
+            }
+        });
     }
-        
+
     function handleDocumentUploaded(file, response){
+        window.countUploadingDocuments--;
         file.public_id = response.document.public_id
         model.invoice().documents()[file.index].update(response.document);
-        refreshPDF(true);
-        
+        @if ($account->invoice_embed_documents)
+            refreshPDF(true);
+        @endif
         if(response.document.preview_url){
             dropzone.emit('thumbnail', file, response.document.preview_url);
         }
     }
-    @endif
+
+    function handleDocumentCanceled() {
+        window.countUploadingDocuments--;
+    }
+
+    function handleDocumentError() {
+        window.countUploadingDocuments--;
+    }
 
 	</script>
     @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)

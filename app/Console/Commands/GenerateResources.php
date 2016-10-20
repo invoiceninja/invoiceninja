@@ -3,15 +3,22 @@
 use File;
 use Illuminate\Console\Command;
 
+/**
+ * Class GenerateResources
+ */
 class GenerateResources extends Command
 {
+    /**
+     * @var string
+     */
     protected $name = 'ninja:generate-resources';
+    /**
+     * @var string
+     */
     protected $description = 'Generate Resouces';
 
     /**
      * Create a new command instance.
-     *
-     * @return void
      */
     public function __construct()
     {
@@ -25,22 +32,6 @@ class GenerateResources extends Command
      */
     public function fire()
     {
-        $langs = [
-            'da',
-            'de',
-            'en',
-            'es',
-            'es_ES',
-            'fr',
-            'fr_CA',
-            'it',
-            'lt',
-            'nb_NO',
-            'nl',
-            'pt_BR',
-            'sv'
-        ];
-
         $texts = File::getRequire(base_path() . '/resources/lang/en/texts.php');
 
         foreach ($texts as $key => $value) {
@@ -52,17 +43,19 @@ class GenerateResources extends Command
         }
     }
 
+    /**
+     * @return array
+     */
     protected function getArguments()
     {
-        return array(
-            //array('example', InputArgument::REQUIRED, 'An example argument.'),
-        );
+        return [];
     }
 
+    /**
+     * @return array
+     */
     protected function getOptions()
     {
-        return array(
-            //array('example', null, InputOption::VALUE_OPTIONAL, 'An example option.', null),
-        );
+        return [];
     }
 }

@@ -1,9 +1,6 @@
 <?php namespace App\Ninja\Transformers;
 
-use App\Models\Account;
 use App\Models\Client;
-use App\Models\Contact;
-use League\Fractal;
 
 /**
  * @SWG\Definition(definition="Client", @SWG\Xml(name="Client"))
@@ -44,30 +41,48 @@ class ClientTransformer extends EntityTransformer
         'contacts',
     ];
 
+    /**
+     * @var array
+     */
     protected $availableIncludes = [
         'invoices',
         'credits',
-        //'expenses',
     ];
-    
+
+    /**
+     * @param Client $client
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeContacts(Client $client)
     {
         $transformer = new ContactTransformer($this->account, $this->serializer);
         return $this->includeCollection($client->contacts, $transformer, ENTITY_CONTACT);
     }
 
+    /**
+     * @param Client $client
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeInvoices(Client $client)
     {
         $transformer = new InvoiceTransformer($this->account, $this->serializer, $client);
         return $this->includeCollection($client->invoices, $transformer, ENTITY_INVOICE);
     }
 
+    /**
+     * @param Client $client
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeCredits(Client $client)
     {
         $transformer = new CreditTransformer($this->account, $this->serializer);
         return $this->includeCollection($client->credits, $transformer, ENTITY_CREDIT);
     }
 
+    /**
+     * @param Client $client
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeExpenses(Client $client)
     {
         $transformer = new ExpenseTransformer($this->account, $this->serializer);
@@ -75,6 +90,10 @@ class ClientTransformer extends EntityTransformer
     }
 
 
+    /**
+     * @param Client $client
+     * @return array
+     */
     public function transform(Client $client)
     {
         return array_merge($this->getDefaults($client), [

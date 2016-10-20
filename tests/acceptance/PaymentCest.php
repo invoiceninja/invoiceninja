@@ -34,7 +34,7 @@ class PaymentCest
         $I->fillField(['name' => 'notes'], $this->faker->text(80));
         $I->fillField(['name' => 'cost'], $this->faker->numberBetween(11, 20));
         $I->click('Save');
-        $I->see($productKey);
+        //$I->see($productKey);
 
         // create invoice
         $I->amOnPage('/invoices/create');
@@ -61,7 +61,7 @@ class PaymentCest
     public function editPayment(AcceptanceTester $I)
     {
         $ref = $this->faker->text(12);
-        
+
         $I->wantTo('edit a payment');
         $I->amOnPage('/payments/1/edit');
 
