@@ -176,6 +176,12 @@
 </div>
 
 <script type="text/javascript">
+
+	// show plan popupl when clicking 'Upgrade' in navbar
+	function showUpgradeModal() {
+		showChangePlan();
+	}
+
 	function showChangePlan() {
 		$('#changePlanModel').modal('show');
 	}

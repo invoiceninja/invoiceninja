@@ -36,14 +36,15 @@
         <div class="alert alert-danger">{{ trans($errors->first('invoice_items')) }}</div>
     @endif
 
-    @if ($invoice->id)
+	@if ($invoice->id)
 		<ol class="breadcrumb">
-            @if ($invoice->is_recurring)
-             <li>{!! link_to('invoices', trans('texts.recurring_invoice')) !!}</li>
-            @else
-			 <li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
-			 <li class="active">{{ $invoice->invoice_number }}</li>
-            @endif
+		@if ($invoice->is_recurring)
+			<li>{!! link_to('invoices', trans('texts.recurring_invoice')) !!}</li>
+		@else
+			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
+			<li class="active">{{ $invoice->invoice_number }}</li>
+		@endif
+		{!! $invoice->present()->statusLabel !!}
 		</ol>
 	@endif
 
@@ -566,7 +567,7 @@
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
-			{!! trans('texts.pro_plan_remove_logo', ['link'=>link_to('/settings/account_management?upgrade=true', trans('texts.pro_plan_remove_logo_link'))]) !!}
+			{!! trans('texts.pro_plan_remove_logo', ['link'=>'<a href="javascript:showUpgradeModal()">' . trans('texts.pro_plan_remove_logo_link') . '</a>']) !!}
 		</div>
 	@endif
 

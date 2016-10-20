@@ -82,6 +82,18 @@ class Task extends EntityModel
         return self::calcStartTime($this);
     }
 
+    public function getLastStartTime()
+    {
+      $parts = json_decode($this->time_log) ?: [];
+
+      if (count($parts)) {
+          $index = count($parts) - 1;
+          return $parts[$index][0];
+      } else {
+          return '';
+      }
+    }
+
     /**
      * @param $task
      * @return int

@@ -2149,6 +2149,17 @@ $LANG = array(
     'translate_app' => 'Help improve our translations with :link',
     'expense_category' => 'Expense Category',
 
+    'go_ninja_pro' => 'Go Ninja Pro!',
+    'go_enterprise' => 'Go Enterprise!',
+    'upgrade_for_features' => 'Upgrade For More Features',
+    'pay_annually_discount' => 'Pay annually for 10 months + 2 free!',
+    'pro_upgrade_title' => 'Ninja Pro',
+    'pro_upgrade_feature1' => 'YourBrand.InvoiceNinja.com',
+    'pro_upgrade_feature2' => 'Customize every aspect of your invoice!',
+    'enterprise_upgrade_feature1' => 'Set permissions for multiple-users',
+    'enterprise_upgrade_feature2' => 'Attach 3rd party files to invoices & expenses',
+    'much_more' => 'Much More!',
+
 );
 
 return $LANG;

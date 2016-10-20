@@ -142,11 +142,13 @@ class PaymentController extends BaseController
             'invoices' => Invoice::scope()->invoiceType(INVOICE_TYPE_STANDARD)->where('is_recurring', '=', false)
                             ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
             'payment' => $payment,
+            'entity' => $payment,
             'method' => 'PUT',
             'url' => 'payments/'.$payment->public_id,
             'title' => trans('texts.edit_payment'),
             'paymentTypes' => Cache::get('paymentTypes'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), ];
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+        ];
 
         return View::make('payments.edit', $data);
     }

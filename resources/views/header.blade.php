@@ -369,6 +369,10 @@
 
 @section('body')
 
+@if ( ! Request::is('settings/account_management'))
+  @include('partials.upgrade_modal')
+@endif
+
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="height:60px;">
 
     <div class="navbar-header">
@@ -398,7 +402,7 @@
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
           @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-            {!! Button::success(trans('texts.plan_upgrade'))->asLinkTo(url('/settings/account_management?upgrade=true'))->withAttributes(array('style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
           @endif
         @endif
 
@@ -583,7 +587,7 @@
           @endif
 
           @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-            {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
+            {!! Form::breadcrumbs((isset($entity) && $entity->exists) ? $entity->present()->statusLabel : false) !!}
           @endif
 
           @yield('content')
@@ -595,7 +599,7 @@
                 @if (Auth::check() && Auth::user()->isTrial())
                   {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
                           'count' => Auth::user()->account->getCountTrialDaysLeft(),
-                          'link' => link_to('/settings/account_management?upgrade=true', trans('texts.click_here'))
+                          'link' => '<a href="javascript:showUpgradeModal()">' . trans('texts.click_here') . '</a>'
                       ]) !!}
                 @endif
               @else

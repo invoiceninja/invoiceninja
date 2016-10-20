@@ -13,6 +13,7 @@
     /* Toggle Styles */
 
     #wrapper {
+        padding-top: 56px;
         padding-left: 0;
         padding-right: 0;
         -webkit-transition: all 0.5s ease;
