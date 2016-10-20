@@ -56,7 +56,7 @@
             countryId = account.country_id;
         }
 
-        if ( ! decorator) {
+        if (account && ! decorator) {
             decorator = account.show_currency_code ? 'code' : 'symbol';
         }
 

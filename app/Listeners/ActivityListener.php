@@ -1,7 +1,5 @@
 <?php namespace App\Listeners;
 
-use App\Events\TaskWasCreated;
-use App\Events\TaskWasUpdated;
 use App\Models\Invoice;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasDeleted;
@@ -33,6 +31,16 @@ use App\Events\CreditWasCreated;
 use App\Events\CreditWasDeleted;
 use App\Events\CreditWasArchived;
 use App\Events\CreditWasRestored;
+use App\Events\TaskWasCreated;
+use App\Events\TaskWasUpdated;
+use App\Events\TaskWasArchived;
+use App\Events\TaskWasRestored;
+use App\Events\TaskWasDeleted;
+use App\Events\ExpenseWasCreated;
+use App\Events\ExpenseWasUpdated;
+use App\Events\ExpenseWasArchived;
+use App\Events\ExpenseWasRestored;
+use App\Events\ExpenseWasDeleted;
 use App\Ninja\Repositories\ActivityRepository;
 
 /**
@@ -496,4 +504,71 @@ class ActivityListener
             ACTIVITY_TYPE_UPDATE_TASK
         );
     }
+
+    public function archivedTask(TaskWasArchived $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_ARCHIVE_TASK
+        );
+    }
+
+    public function deletedTask(TaskWasDeleted $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_DELETE_TASK
+        );
+    }
+
+    public function restoredTask(TaskWasRestored $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_RESTORE_TASK
+        );
+    }
+
+
+    public function createdExpense(ExpenseWasCreated $event)
+    {
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_CREATE_EXPENSE
+        );
+    }
+
+    public function updatedExpense(ExpenseWasUpdated $event)
+    {
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_UPDATE_EXPENSE
+        );
+    }
+
+    public function archivedExpense(ExpenseWasArchived $event)
+    {
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_ARCHIVE_EXPENSE
+        );
+    }
+
+    public function deletedExpense(ExpenseWasDeleted $event)
+    {
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_DELETE_EXPENSE
+        );
+    }
+
+    public function restoredExpense(ExpenseWasRestored $event)
+    {
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_RESTORE_EXPENSE
+        );
+    }
+
+
 }

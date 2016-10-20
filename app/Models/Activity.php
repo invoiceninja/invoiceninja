@@ -83,6 +83,11 @@ class Activity extends Eloquent
         return $this->belongsTo('App\Models\Task')->withTrashed();
     }
 
+    public function expense()
+    {
+        return $this->belongsTo('App\Models\Expense')->withTrashed();
+    }
+
     public function key()
     {
         return sprintf('%s-%s-%s', $this->activity_type_id, $this->client_id, $this->created_at->timestamp);
@@ -101,9 +106,8 @@ class Activity extends Eloquent
         $contactId = $this->contact_id;
         $payment = $this->payment;
         $credit = $this->credit;
+        $expense = $this->expense;
         $isSystem = $this->is_system;
-
-        /** @var Task $task */
         $task = $this->task;
 
         $data = [
@@ -117,6 +121,7 @@ class Activity extends Eloquent
             'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
             'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
             'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30).'...') : null,
+            'expense' => $expense ? link_to($expense->getRoute(), substr($expense->public_notes, 0, 30).'...') : null,
         ];
 
         return trans("texts.activity_{$activityTypeId}", $data);

@@ -294,7 +294,7 @@ class TaskController extends BaseController
                 return Redirect::to("invoices/{$invoiceId}/edit")->with('tasks', $data);
             }
         } else {
-            $count = $this->taskRepo->bulk($ids, $action);
+            $count = $this->taskService->bulk($ids, $action);
 
             $message = Utils::pluralize($action.'d_task', $count);
             Session::flash('message', $message);
