@@ -2163,6 +2163,12 @@ $LANG = array(
     'currency_symbol' => 'Symbol',
     'currency_code' => 'Code',
 
+    'buy_license' => 'Buy License',
+    'apply_license' => 'Apply License',
+    'submit' => 'Submit',
+    'white_label_license_key' => 'License Key',
+    'invalid_white_label_license' => 'The white label license is not valid',
+
 );
 
 return $LANG;

@@ -154,6 +154,8 @@ class StartupCheck
                         $company->save();
 
                         Session::flash('message', trans('texts.bought_white_label'));
+                    } else {
+                        Session::flash('error', trans('texts.invalid_white_label_license'));
                     }
                 }
             }
