@@ -438,7 +438,7 @@ class Account extends Eloquent
      * @param bool $hideSymbol
      * @return string
      */
-    public function formatMoney($amount, $client = null, $decorator = CURRENCY_DECORATOR_SYMBOL)
+    public function formatMoney($amount, $client = null, $decorator = false)
     {
         if ($client && $client->currency_id) {
             $currencyId = $client->currency_id;
@@ -456,6 +456,10 @@ class Account extends Eloquent
             $countryId = false;
         }
 
+        if ( ! $decorator) {
+            $decorator = $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL;
+        }
+        
         return Utils::formatMoney($amount, $currencyId, $countryId, $decorator);
     }
 
