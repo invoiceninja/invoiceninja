@@ -70,6 +70,10 @@
             currencyId = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
         }
 
+        if (!decorator) {
+            decorator = '{{ Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL) }}';
+        }
+
         var currency = currencyMap[currencyId];
         var precision = currency.precision;
         var thousand = currency.thousand_separator;
