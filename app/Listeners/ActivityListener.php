@@ -499,6 +499,10 @@ class ActivityListener
      */
     public function updatedTask(TaskWasUpdated $event)
     {
+        if ( ! $event->task->isChanged()) {
+            return;
+        }
+
         $this->activityRepo->create(
             $event->task,
             ACTIVITY_TYPE_UPDATE_TASK
@@ -507,6 +511,10 @@ class ActivityListener
 
     public function archivedTask(TaskWasArchived $event)
     {
+        if ($event->task->is_deleted) {
+            return;
+        }
+
         $this->activityRepo->create(
             $event->task,
             ACTIVITY_TYPE_ARCHIVE_TASK
@@ -540,6 +548,10 @@ class ActivityListener
 
     public function updatedExpense(ExpenseWasUpdated $event)
     {
+        if ( ! $event->expense->isChanged()) {
+            return;
+        }
+
         $this->activityRepo->create(
             $event->expense,
             ACTIVITY_TYPE_UPDATE_EXPENSE
@@ -548,6 +560,10 @@ class ActivityListener
 
     public function archivedExpense(ExpenseWasArchived $event)
     {
+        if ($event->expense->is_deleted) {
+            return;
+        }
+
         $this->activityRepo->create(
             $event->expense,
             ACTIVITY_TYPE_ARCHIVE_EXPENSE

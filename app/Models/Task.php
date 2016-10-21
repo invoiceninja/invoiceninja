@@ -15,6 +15,16 @@ class Task extends EntityModel
     use PresentableTrait;
 
     /**
+     * @var array
+     */
+    protected $fillable = [
+        'client_id',
+        'description',
+        'time_log',
+        'is_running',
+    ];
+
+    /**
      * @return mixed
      */
     public function getEntityType()

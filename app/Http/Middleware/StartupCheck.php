@@ -122,9 +122,9 @@ class StartupCheck
         }
 
         // Check if the user is claiming a license (ie, additional invoices, white label, etc.)
-        if (isset($_SERVER['REQUEST_URI'])) {
+        if ( ! Utils::isNinjaProd() && isset($_SERVER['REQUEST_URI'])) {
             $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
-            if (!$claimingLicense && Input::has('license_key') && Input::has('product_id')) {
+            if ( ! $claimingLicense && Input::has('license_key') && Input::has('product_id')) {
                 $licenseKey = Input::get('license_key');
                 $productId = Input::get('product_id');
 
