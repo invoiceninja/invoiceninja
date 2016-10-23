@@ -492,31 +492,33 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_items()->forceDelete();
         }
 
-        $document_ids = !empty($data['document_ids'])?array_map('intval', $data['document_ids']):[];;
-        foreach ($document_ids as $document_id){
-            $document = Document::scope($document_id)->first();
-            if($document && Auth::user()->can('edit', $document)){
+        if ( ! empty($data['document_ids'])) {
+            $document_ids = array_map('intval', $data['document_ids']);
+            foreach ($document_ids as $document_id){
+                $document = Document::scope($document_id)->first();
+                if($document && Auth::user()->can('edit', $document)){
 
-                if($document->invoice_id && $document->invoice_id != $invoice->id){
-                    // From a clone
-                    $document = $document->cloneDocument();
-                    $document_ids[] = $document->public_id;// Don't remove this document
+                    if($document->invoice_id && $document->invoice_id != $invoice->id){
+                        // From a clone
+                        $document = $document->cloneDocument();
+                        $document_ids[] = $document->public_id;// Don't remove this document
+                    }
+
+                    $document->invoice_id = $invoice->id;
+                    $document->expense_id = null;
+                    $document->save();
                 }
-
-                $document->invoice_id = $invoice->id;
-                $document->expense_id = null;
-                $document->save();
             }
-        }
 
-        if ( ! $invoice->wasRecentlyCreated) {
-            foreach ($invoice->documents as $document){
-                if(!in_array($document->public_id, $document_ids)){
-                    // Removed
-                    // Not checking permissions; deleting a document is just editing the invoice
-                    if($document->invoice_id == $invoice->id){
-                        // Make sure the document isn't on a clone
-                        $document->delete();
+            if ( ! $invoice->wasRecentlyCreated) {
+                foreach ($invoice->documents as $document){
+                    if(!in_array($document->public_id, $document_ids)){
+                        // Removed
+                        // Not checking permissions; deleting a document is just editing the invoice
+                        if($document->invoice_id == $invoice->id){
+                            // Make sure the document isn't on a clone
+                            $document->delete();
+                        }
                     }
                 }
             }

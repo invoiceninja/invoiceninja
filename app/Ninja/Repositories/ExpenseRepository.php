@@ -132,12 +132,10 @@ class ExpenseRepository extends BaseRepository
         // First auto fill
         $expense->fill($input);
 
-        $expense->expense_date = Utils::toSqlDate($input['expense_date']);
-
-        if (isset($input['private_notes'])) {
-            $expense->private_notes = trim($input['private_notes']);
+        if (isset($input['expense_date'])) {
+            $expense->expense_date = Utils::toSqlDate($input['expense_date']);
         }
-        $expense->public_notes = trim($input['public_notes']);
+
         $expense->should_be_invoiced = isset($input['should_be_invoiced']) && floatval($input['should_be_invoiced']) || $expense->client_id ? true : false;
 
         if ( ! $expense->expense_currency_id) {
@@ -149,7 +147,9 @@ class ExpenseRepository extends BaseRepository
 
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
         $expense->exchange_rate = round($rate, 4);
-        $expense->amount = round(Utils::parseFloat($input['amount']), 2);
+        if (isset($input['amount'])) {
+            $expense->amount = round(Utils::parseFloat($input['amount']), 2);
+        }
 
         $expense->save();
 

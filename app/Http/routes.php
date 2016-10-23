@@ -308,11 +308,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
     Route::get('dashboard', 'DashboardApiController@index');
     Route::resource('documents', 'DocumentAPIController');
-
-    // Vendor
     Route::resource('vendors', 'VendorApiController');
-
-    //Expense
     Route::resource('expenses', 'ExpenseApiController');
 });
 
