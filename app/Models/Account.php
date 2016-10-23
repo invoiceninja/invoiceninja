@@ -102,6 +102,21 @@ class Account extends Eloquent
         ACCOUNT_USER_MANAGEMENT,
     ];
 
+    public static $modules = [
+        1 => ENTITY_RECURRING_INVOICE,
+        2 => ENTITY_CREDIT,
+        4 => ENTITY_QUOTE,
+        8 => ENTITY_TASK,
+        16 => ENTITY_EXPENSE,
+        32 => ENTITY_VENDOR,
+    ];
+
+    public static $dashboardSections = [
+        1 => 'total_revenue',
+        2 => 'average_invoice',
+        4 => 'outstanding',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -459,7 +474,7 @@ class Account extends Eloquent
         if ( ! $decorator) {
             $decorator = $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL;
         }
-        
+
         return Utils::formatMoney($amount, $currencyId, $countryId, $decorator);
     }
 
