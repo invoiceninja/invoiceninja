@@ -5,8 +5,13 @@ use Session;
 use App\Models\Client;
 use App\Models\Task;
 
-class TaskRepository
+class TaskRepository extends BaseRepository
 {
+    public function getClassName()
+    {
+        return 'App\Models\Task';
+    }
+
     public function find($clientPublicId = null, $filter = null)
     {
         $query = \DB::table('tasks')
@@ -112,26 +117,4 @@ class TaskRepository
         return $task;
     }
 
-    public function bulk($ids, $action)
-    {
-        $tasks = Task::withTrashed()->scope($ids)->get();
-
-        foreach ($tasks as $task) {
-            if ($action == 'restore') {
-                $task->restore();
-
-                $task->is_deleted = false;
-                $task->save();
-            } else {
-                if ($action == 'delete') {
-                    $task->is_deleted = true;
-                    $task->save();
-                }
-
-                $task->delete();
-            }
-        }
-
-        return count($tasks);
-    }
 }

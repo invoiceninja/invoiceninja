@@ -102,6 +102,21 @@ class Account extends Eloquent
         ACCOUNT_USER_MANAGEMENT,
     ];
 
+    public static $modules = [
+        1 => ENTITY_RECURRING_INVOICE,
+        2 => ENTITY_CREDIT,
+        4 => ENTITY_QUOTE,
+        8 => ENTITY_TASK,
+        16 => ENTITY_EXPENSE,
+        32 => ENTITY_VENDOR,
+    ];
+
+    public static $dashboardSections = [
+        1 => 'total_revenue',
+        2 => 'average_invoice',
+        4 => 'outstanding',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
@@ -438,7 +453,7 @@ class Account extends Eloquent
      * @param bool $hideSymbol
      * @return string
      */
-    public function formatMoney($amount, $client = null, $hideSymbol = false)
+    public function formatMoney($amount, $client = null, $decorator = false)
     {
         if ($client && $client->currency_id) {
             $currencyId = $client->currency_id;
@@ -456,9 +471,11 @@ class Account extends Eloquent
             $countryId = false;
         }
 
-        $hideSymbol = $this->show_currency_code || $hideSymbol;
+        if ( ! $decorator) {
+            $decorator = $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL;
+        }
 
-        return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
+        return Utils::formatMoney($amount, $currencyId, $countryId, $decorator);
     }
 
     /**
@@ -1040,6 +1057,7 @@ class Account extends Eloquent
         $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE);
 
         Session::put(SESSION_CURRENCY, $currencyId);
+        Session::put(SESSION_CURRENCY_DECORATOR, $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL);
         Session::put(SESSION_LOCALE, $locale);
 
         App::setLocale($locale);

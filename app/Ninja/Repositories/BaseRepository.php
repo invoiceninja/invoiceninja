@@ -8,7 +8,7 @@ class BaseRepository
     /**
      * @return null
      */
-    public function getClassName() 
+    public function getClassName()
     {
         return null;
     }
@@ -40,7 +40,7 @@ class BaseRepository
         if ($entity->trashed()) {
             return;
         }
-        
+
         $entity->delete();
 
         $className = $this->getEventClass($entity, 'Archived');
@@ -83,7 +83,7 @@ class BaseRepository
         if ($entity->is_deleted) {
             return;
         }
-        
+
         $entity->is_deleted = true;
         $entity->save();
 

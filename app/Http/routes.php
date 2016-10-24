@@ -308,11 +308,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
     Route::get('dashboard', 'DashboardApiController@index');
     Route::resource('documents', 'DocumentAPIController');
-
-    // Vendor
     Route::resource('vendors', 'VendorApiController');
-
-    //Expense
     Route::resource('expenses', 'ExpenseApiController');
 });
 
@@ -433,56 +429,50 @@ if (!defined('CONTACT_EMAIL')) {
     define('ACTIVITY_TYPE_CREATE_CLIENT', 1);
     define('ACTIVITY_TYPE_ARCHIVE_CLIENT', 2);
     define('ACTIVITY_TYPE_DELETE_CLIENT', 3);
-
     define('ACTIVITY_TYPE_CREATE_INVOICE', 4);
     define('ACTIVITY_TYPE_UPDATE_INVOICE', 5);
     define('ACTIVITY_TYPE_EMAIL_INVOICE', 6);
     define('ACTIVITY_TYPE_VIEW_INVOICE', 7);
     define('ACTIVITY_TYPE_ARCHIVE_INVOICE', 8);
     define('ACTIVITY_TYPE_DELETE_INVOICE', 9);
-
     define('ACTIVITY_TYPE_CREATE_PAYMENT', 10);
     //define('ACTIVITY_TYPE_UPDATE_PAYMENT', 11);
     define('ACTIVITY_TYPE_ARCHIVE_PAYMENT', 12);
     define('ACTIVITY_TYPE_DELETE_PAYMENT', 13);
-    define('ACTIVITY_TYPE_VOIDED_PAYMENT', 39);
-    define('ACTIVITY_TYPE_REFUNDED_PAYMENT', 40);
-    define('ACTIVITY_TYPE_FAILED_PAYMENT', 41);
-
     define('ACTIVITY_TYPE_CREATE_CREDIT', 14);
     //define('ACTIVITY_TYPE_UPDATE_CREDIT', 15);
     define('ACTIVITY_TYPE_ARCHIVE_CREDIT', 16);
     define('ACTIVITY_TYPE_DELETE_CREDIT', 17);
-
     define('ACTIVITY_TYPE_CREATE_QUOTE', 18);
     define('ACTIVITY_TYPE_UPDATE_QUOTE', 19);
     define('ACTIVITY_TYPE_EMAIL_QUOTE', 20);
     define('ACTIVITY_TYPE_VIEW_QUOTE', 21);
     define('ACTIVITY_TYPE_ARCHIVE_QUOTE', 22);
     define('ACTIVITY_TYPE_DELETE_QUOTE', 23);
-
     define('ACTIVITY_TYPE_RESTORE_QUOTE', 24);
     define('ACTIVITY_TYPE_RESTORE_INVOICE', 25);
     define('ACTIVITY_TYPE_RESTORE_CLIENT', 26);
     define('ACTIVITY_TYPE_RESTORE_PAYMENT', 27);
     define('ACTIVITY_TYPE_RESTORE_CREDIT', 28);
     define('ACTIVITY_TYPE_APPROVE_QUOTE', 29);
-
-    // Vendors
     define('ACTIVITY_TYPE_CREATE_VENDOR', 30);
     define('ACTIVITY_TYPE_ARCHIVE_VENDOR', 31);
     define('ACTIVITY_TYPE_DELETE_VENDOR', 32);
     define('ACTIVITY_TYPE_RESTORE_VENDOR', 33);
-
-    // expenses
     define('ACTIVITY_TYPE_CREATE_EXPENSE', 34);
     define('ACTIVITY_TYPE_ARCHIVE_EXPENSE', 35);
     define('ACTIVITY_TYPE_DELETE_EXPENSE', 36);
     define('ACTIVITY_TYPE_RESTORE_EXPENSE', 37);
-
-    // tasks
+    define('ACTIVITY_TYPE_VOIDED_PAYMENT', 39);
+    define('ACTIVITY_TYPE_REFUNDED_PAYMENT', 40);
+    define('ACTIVITY_TYPE_FAILED_PAYMENT', 41);
     define('ACTIVITY_TYPE_CREATE_TASK', 42);
     define('ACTIVITY_TYPE_UPDATE_TASK', 43);
+    define('ACTIVITY_TYPE_ARCHIVE_TASK', 44);
+    define('ACTIVITY_TYPE_DELETE_TASK', 45);
+    define('ACTIVITY_TYPE_RESTORE_TASK', 46);
+    define('ACTIVITY_TYPE_UPDATE_EXPENSE', 47);
+
 
     define('DEFAULT_INVOICE_NUMBER', '0001');
     define('RECENTLY_VIEWED_LIMIT', 20);
@@ -551,6 +541,7 @@ if (!defined('CONTACT_EMAIL')) {
 
     define('SESSION_TIMEZONE', 'timezone');
     define('SESSION_CURRENCY', 'currency');
+    define('SESSION_CURRENCY_DECORATOR', 'currency_decorator');
     define('SESSION_DATE_FORMAT', 'dateFormat');
     define('SESSION_DATE_PICKER_FORMAT', 'datePickerFormat');
     define('SESSION_DATETIME_FORMAT', 'datetimeFormat');
@@ -750,6 +741,10 @@ if (!defined('CONTACT_EMAIL')) {
     define('EMAIL_DESIGN_DARK', 3);
 
     define('BANK_LIBRARY_OFX', 1);
+
+    define('CURRENCY_DECORATOR_CODE', 'code');
+    define('CURRENCY_DECORATOR_SYMBOL', 'symbol');
+    define('CURRENCY_DECORATOR_NONE', 'none');
 
     define('RESELLER_REVENUE_SHARE', 'A');
     define('RESELLER_LIMITED_USERS', 'B');

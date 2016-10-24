@@ -370,7 +370,7 @@ NINJA.invoiceLines = function(invoice) {
 
         var row = [];
         var item = invoice.invoice_items[i];
-        var cost = formatMoneyInvoice(item.cost, invoice, true);
+        var cost = formatMoneyInvoice(item.cost, invoice, 'none');
         var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;

@@ -74,6 +74,8 @@ class ActivityRepository
                     ->leftJoin('invoices', 'invoices.id', '=', 'activities.invoice_id')
                     ->leftJoin('payments', 'payments.id', '=', 'activities.payment_id')
                     ->leftJoin('credits', 'credits.id', '=', 'activities.credit_id')
+                    ->leftJoin('tasks', 'tasks.id', '=', 'activities.task_id')
+                    ->leftJoin('expenses', 'expenses.id', '=', 'activities.expense_id')
                     ->where('clients.id', '=', $clientId)
                     ->where('contacts.is_primary', '=', 1)
                     ->whereNull('contacts.deleted_at')
@@ -102,7 +104,11 @@ class ActivityRepository
                         'contacts.email as email',
                         'payments.transaction_reference as payment',
                         'payments.amount as payment_amount',
-                        'credits.amount as credit'
+                        'credits.amount as credit',
+                        'tasks.description as task_description',
+                        'tasks.public_id as task_public_id',
+                        'expenses.public_notes as expense_public_notes',
+                        'expenses.public_id as expense_public_id'
                     );
     }
 

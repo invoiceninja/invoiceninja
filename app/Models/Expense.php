@@ -226,7 +226,3 @@ Expense::updated(function ($expense) {
 Expense::deleting(function ($expense) {
     $expense->setNullValues();
 });
-
-Expense::deleted(function ($expense) {
-    event(new ExpenseWasDeleted($expense));
-});
