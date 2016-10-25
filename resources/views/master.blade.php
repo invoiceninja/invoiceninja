@@ -99,7 +99,7 @@
                 showCancelButton: true,
                 closeOnConfirm: false,
                 allowOutsideClick: true,
-            }, function() {
+            }).then(function() {
                 success();
                 swal.close();
             });
