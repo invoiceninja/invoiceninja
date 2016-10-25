@@ -1046,6 +1046,7 @@
                     "dict{{Utils::toClassCase($key)}}":"{{trans('texts.dropzone_'.$key)}}",
                 @endforeach
                 maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+				parallelUploads:1,
             });
             if(dropzone instanceof Dropzone){
                 dropzone.on("addedfile",handleDocumentAdded);
@@ -1514,7 +1515,7 @@
 			model.invoice().addItem();
 		}
 
-        //NINJA.formIsChanged = true;
+        NINJA.formIsChanged = true;
 	}
 
     function onPartialChange()
@@ -1524,17 +1525,14 @@
         val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
 
         if (val != oldVal) {
-            console.log('1');
             if ($('.partial').hasClass('has-error')) {
                 return;
             }
-            console.log('2');
             $('.partial')
                 .addClass('has-error')
                 .find('div')
                 .append('<span class="help-block">{{ trans('texts.partial_value') }}</span>');
         } else {
-            console.log('3');
             $('.partial')
                 .removeClass('has-error')
                 .find('span')
