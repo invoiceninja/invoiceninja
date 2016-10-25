@@ -1,24 +1,31 @@
-Attribution Assurance License
 Copyright (c) 2016 by Hillel Coren
-http://www.hillelcoren.com
+Invoice Ninja * https://www.invoiceninja.com
+"CREATE. SEND. GET PAID"
 
 All Rights Reserved
 ATTRIBUTION ASSURANCE LICENSE (adapted from the original BSD license)
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the conditions below are met.
-These conditions require a modest attribution to InvoiceNinja.com. The hope
-is that its promotional value may help justify the thousands of dollars in 
-otherwise billable time invested in writing this and other freely available, 
-open-source software.
+These conditions require a modest attribution to <AUTHOR> (the
+"Author"), who hopes that its promotional value may help justify the
+thousands of dollars in otherwise billable time invested in writing
+this and other freely available, open-source software.
 
 1. Redistributions of source code, in whole or part and with or without
-modification requires the express permission of the author and must prominently 
-display "Powered by InvoiceNinja" and the Invoice Ninja logo in verifiable form 
-with hyperlink to said site.
-2. Neither the name nor any trademark of the Author may be used to
+modification (the "Code"), must prominently display this GPG-signed
+text in verifiable form.
+2. Redistributions of the Code in binary form must be accompanied by
+this GPG-signed text in any documentation and, each time the resulting
+executable program or a program dependent thereon is launched, a
+prominent display (e.g., splash screen or banner text) of the Author's
+attribution information, which includes:
+(a) Name ("Hillel Coren"),
+(b) Professional identification ("Invoice Ninja"), and
+(c) URL ("https://www.invoiceninja.com").
+3. Neither the name nor any trademark of the Author may be used to
 endorse or promote products derived from this software without specific
 prior written permission.
-3. Users are entirely responsible, to the exclusion of the Author and
+4. Users are entirely responsible, to the exclusion of the Author and
 any other persons, for compliance with (1) regulations set by owners or
 administrators of employed equipment, (2) licensing terms of any other
 software, and (3) local regulations regarding use, including those
