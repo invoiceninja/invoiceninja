@@ -1,6 +1,6 @@
 {{ trans('texts.powered_by') }}
 {{-- Per our license, please do not remove or modify this section. --}}
-{!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
+{!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => trans('texts.created_by', ['name' => 'Hillel Coren'])]) !!} -
 {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} |
 @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
   {{ trans('texts.white_labeled') }}
