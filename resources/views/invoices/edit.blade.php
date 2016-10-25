@@ -900,7 +900,7 @@
         if (!model.invoice().custom_value2()) model.invoice().custom_value2('');
 
         ko.applyBindings(model);
-        onItemChange();
+        onItemChange(true);
 
 
 		$('#country_id').combobox().on('change', function(e) {
@@ -1501,7 +1501,7 @@
         }
 	}
 
-	function onItemChange()
+	function onItemChange(silent)
 	{
 		var hasEmpty = false;
 		for(var i=0; i<model.invoice().invoice_items().length; i++) {
@@ -1515,7 +1515,9 @@
 			model.invoice().addItem();
 		}
 
-        NINJA.formIsChanged = true;
+		if (!silent) {
+        	NINJA.formIsChanged = true;
+		}
 	}
 
     function onPartialChange()
