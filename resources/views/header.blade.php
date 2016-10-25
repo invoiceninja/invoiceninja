@@ -328,22 +328,36 @@
     });
 
     // manage sidebar state
-    $("#left-menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled-left");
+    function setupSidebar(side) {
+        $("#" + side + "-menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled-" + side);
 
-        var toggled = $("#wrapper").hasClass("toggled-left") ? '1' : '0';
-        $.get('{{ url('save_sidebar_state') }}?show_left=' + toggled);
-    });
+            var toggled = $("#wrapper").hasClass("toggled-" + side) ? '1' : '0';
+            $.post('{{ url('save_sidebar_state') }}?show_' + side + '=' + toggled);
 
-    $("#right-menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled-right");
+            if (isStorageSupported()) {
+                localStorage.setItem('show_' + side + '_sidebar', toggled);
+            }
+        });
 
-        var toggled = $("#wrapper").hasClass("toggled-right") ? '1' : '0';
-        $.get('{{ url('save_sidebar_state') }}?show_right=' + toggled);
-    });
+        if (isStorageSupported()) {
+            var storage = localStorage.getItem('show_' + side + '_sidebar');
+            var toggled = $("#wrapper").hasClass("toggled-" + side) ? '1' : '0';
 
+            if (storage != toggled) {
+                setTimeout(function() {
+                    $("#wrapper").toggleClass("toggled-" + side);
+                    $.post('{{ url('save_sidebar_state') }}?show_' + side + '=' + storage);
+                }, 100);
+            }
+        }
+    }
+
+    setupSidebar('left');
+    setupSidebar('right');
+
+    // auto select focused nav-tab
     if (window.location.hash) {
         setTimeout(function() {
             $('.nav-tabs a[href="' + window.location.hash + '"]').tab('show');
