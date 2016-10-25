@@ -338,7 +338,13 @@ class UserController extends BaseController
             }
         }
 
-        return Redirect::to($referer);
+        // If the user is looking at an entity redirect to the dashboard
+        preg_match('/\/[0-9*][\/edit]*$/', $referer, $matches);
+        if (count($matches)) {
+            return Redirect::to('/dashboard');
+        } else {
+            return Redirect::to($referer);
+        }
     }
 
     public function unlinkAccount($userAccountId, $userId)
