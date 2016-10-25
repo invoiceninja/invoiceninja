@@ -16,7 +16,6 @@ class UserAccountTransformer extends EntityTransformer
         parent::__construct($account, $serializer);
 
         $this->tokenName = $tokenName;
-        $this->account = $account;
     }
 
     public function includeUser(User $user)
@@ -29,12 +28,12 @@ class UserAccountTransformer extends EntityTransformer
     {
         return [
             'account_key' => $this->account->account_key,
-            'name' => $this->account->present()->name,
-            'token' => $this->account->getToken($user->id, $this->tokenName),
+            'name' => $user->account->present()->name,
+            'token' => $user->account->getToken($user->id, $this->tokenName),
             'default_url' => SITE_URL,
-            'plan' => $this->account->company->plan,
-            'logo' => $this->account->logo,
-            'logo_url' => $this->account->getLogoURL(),
+            'plan' => $user->account->company->plan,
+            'logo' => $user->account->logo,
+            'logo_url' => $user->account->getLogoURL(),
         ];
     }
 }
