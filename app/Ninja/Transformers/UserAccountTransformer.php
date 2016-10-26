@@ -16,6 +16,7 @@ class UserAccountTransformer extends EntityTransformer
         parent::__construct($account, $serializer);
 
         $this->tokenName = $tokenName;
+        $this->account = $account;
     }
 
     public function includeUser(User $user)
@@ -27,7 +28,7 @@ class UserAccountTransformer extends EntityTransformer
     public function transform(User $user)
     {
         return [
-            'account_key' => $this->account->account_key,
+            'account_key' => $user->account->account_key,
             'name' => $user->account->present()->name,
             'token' => $user->account->getToken($user->id, $this->tokenName),
             'default_url' => SITE_URL,
