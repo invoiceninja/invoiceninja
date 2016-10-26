@@ -466,7 +466,7 @@
 		var watermark = page.watermark;
 
 		pdfKitDoc.fill('black');
-		pdfKitDoc.opacity(0.6);
+		pdfKitDoc.opacity(0.1);
 
 		pdfKitDoc.save();
 		pdfKitDoc.transform(1, 0, 0, -1, 0, pdfKitDoc.page.height);
@@ -477,8 +477,13 @@
 	  var encoded = watermark.font.encode(watermark.text);
 		pdfKitDoc.addContent('BT');
 		pdfKitDoc.addContent('' + (pdfKitDoc.page.width/2 - watermark.size.size.width/2) + ' ' + (pdfKitDoc.page.height/2 - watermark.size.size.height/4) + ' Td');
-		pdfKitDoc.addContent('/' + encoded.fontId + ' ' + watermark.size.fontSize + ' Tf');
-		pdfKitDoc.addContent('<' + encoded.encodedText + '> Tj');
+		// http://stackoverflow.com/a/32658671
+		//pdfKitDoc.addContent('/' + encoded.fontId + ' ' + watermark.size.fontSize + ' Tf');
+		//pdfKitDoc.addContent('<' + encoded.encodedText + '> Tj');
+
+		pdfKitDoc.addContent('/ ' + watermark.size.fontSize + ' Tf');
+		pdfKitDoc.addContent('(' + watermark.text + ') Tj');
+
 		pdfKitDoc.addContent('ET');
 		pdfKitDoc.restore();
 	}
