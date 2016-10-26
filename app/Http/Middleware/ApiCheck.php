@@ -30,7 +30,8 @@ class ApiCheck {
         $hasApiSecret = false;
 
         if ($secret = env(API_SECRET)) {
-            $hasApiSecret = hash_equals($request->api_secret ?: '', $secret);
+            $requestSecret = Request::header('X-Ninja-Secret') ?: ($request->api_secret ?: '');
+            $hasApiSecret = hash_equals($requestSecret, $secret);
         }
 
         if ($loggingIn) {
