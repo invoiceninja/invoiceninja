@@ -5,19 +5,14 @@ use Event;
 use App\Libraries\Utils;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Foundation\Auth\Access\Authorizable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Class User
  */
-class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
+class User extends Authenticatable
+{
     /**
      * @var array
      */
@@ -26,8 +21,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'view_all' => 0b0010,
         'edit_all' => 0b0100,
     ];
-
-    use Authenticatable, Authorizable, CanResetPassword;
 
     /**
      * The database table used by the model.
@@ -100,26 +93,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function getPersonType()
     {
         return PERSON_USER;
-    }
-
-    /**
-     * Get the unique identifier for the user.
-     *
-     * @return mixed
-     */
-    public function getAuthIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    /**
-     * Get the password for the user.
-     *
-     * @return string
-     */
-    public function getAuthPassword()
-    {
-        return $this->password;
     }
 
     /**
@@ -256,31 +229,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
 
         return MAX_NUM_VENDORS;
-    }
-
-
-    /**
-     * @return mixed
-     */
-    public function getRememberToken()
-    {
-        return $this->remember_token;
-    }
-
-    /**
-     * @param string $value
-     */
-    public function setRememberToken($value)
-    {
-        $this->remember_token = $value;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRememberTokenName()
-    {
-        return 'remember_token';
     }
 
     public function clearSession()
