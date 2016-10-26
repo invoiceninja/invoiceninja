@@ -149,38 +149,6 @@
     });
   }
 
-  function wordWrapText(value, width)
-  {
-    @if (Auth::user()->account->auto_wrap)
-    var doc = new jsPDF('p', 'pt');
-    doc.setFont('Helvetica','');
-    doc.setFontSize(10);
-
-    var lines = value.split("\n");
-    for (var i = 0; i < lines.length; i++) {
-      var numLines = doc.splitTextToSize(lines[i], width).length;
-      if (numLines <= 1) continue;
-      var j = 0; space = lines[i].length;
-      while (j++ < lines[i].length) {
-        if (lines[i].charAt(j) === ' ') space = j;
-      }
-      if (space == lines[i].length) space = width/6;
-      lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || '');
-      lines[i] = lines[i].substring(0, space);
-    }
-
-    var newValue = (lines.join("\n")).trim();
-
-    if (value == newValue) {
-      return newValue;
-    } else {
-      return wordWrapText(newValue, width);
-    }
-    @else
-    return value;
-    @endif
-  }
-
   function setSignupEnabled(enabled) {
     $('.signup-form input[type=text]').prop('disabled', !enabled);
     if (enabled) {
