@@ -354,8 +354,10 @@
         }
     }
 
-    setupSidebar('left');
-    setupSidebar('right');
+    @if ( ! Utils::isTravis())
+        setupSidebar('left');
+        setupSidebar('right');
+    @endif
 
     // auto select focused nav-tab
     if (window.location.hash) {
