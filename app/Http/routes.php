@@ -309,7 +309,8 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::get('dashboard', 'DashboardApiController@index');
     Route::resource('documents', 'DocumentAPIController');
     Route::resource('vendors', 'VendorApiController');
-    Route::resource('expenses', 'ExpenseApiController');
+    Route::post('createExpenseCategory', 'ExpenseApiController@addCategory');
+    Route::put('updateExpenseCategory/{expense_category_id}', 'ExpenseApiController@updateCategory');
 });
 
 // Redirects for legacy links
