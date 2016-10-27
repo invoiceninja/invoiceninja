@@ -1,10 +1,7 @@
 <?php namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateExpenseCategoryRequest;
-use App\Http\Requests\Request;
-use App\Http\Requests\UpdateExpenseCategoryRequest;
+
 use App\Models\Expense;
-use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Services\ExpenseService;
 use App\Http\Requests\ExpenseRequest;
@@ -16,17 +13,15 @@ class ExpenseApiController extends BaseAPIController
     // Expenses
     protected $expenseRepo;
     protected $expenseService;
-    protected $categoryRepo;
 
     protected $entityType = ENTITY_EXPENSE;
 
-    public function __construct(ExpenseCategoryRepository $categoryRepo, ExpenseRepository $expenseRepo, ExpenseService $expenseService)
+    public function __construct(ExpenseRepository $expenseRepo, ExpenseService $expenseService)
     {
         parent::__construct();
 
         $this->expenseRepo = $expenseRepo;
         $this->expenseService = $expenseService;
-        $this->categoryRepo = $categoryRepo;
     }
 
     /**
@@ -152,19 +147,6 @@ class ExpenseApiController extends BaseAPIController
     }
 
 
-    public function updateCategory(UpdateExpenseCategoryRequest $request)
-    {
-        $category = $this->categoryRepo->save($request->input(), $request->entity());
 
-        return $this->itemResponse($category);
-    }
-
-    public function addCategory(CreateExpenseCategoryRequest $request)
-    {
-        $category = $this->categoryRepo->save($request->input());
-
-        return $this->itemResponse($category);
-
-    }
 
 }
