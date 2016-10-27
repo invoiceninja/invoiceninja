@@ -464,36 +464,31 @@ class ReportController extends BaseController
      */
     private function generateExpenseReport($startDate, $endDate, $isExport)
     {
-        $columns = ['vendor', 'client', 'date', 'expense_amount', 'invoiced_amount'];
+        $columns = ['vendor', 'client', 'date', 'expense_amount'];
 
         $account = Auth::user()->account;
         $displayData = [];
         $reportTotals = [];
 
         $expenses = Expense::scope()
-                        ->withTrashed()
+                        ->withArchived()
                         ->with('client.contacts', 'vendor')
                         ->where('expense_date', '>=', $startDate)
                         ->where('expense_date', '<=', $endDate);
 
 
         foreach ($expenses->get() as $expense) {
-            $amount = $expense->amount;
-            $invoiced = $expense->present()->invoiced_amount;
+            $amount = $expense->amountWithTax();
 
             $displayData[] = [
                 $expense->vendor ? ($isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
                 $expense->client ? ($isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
                 $expense->present()->expense_date,
                 Utils::formatMoney($amount, $expense->currency_id),
-                Utils::formatMoney($invoiced, $expense->invoice_currency_id),
             ];
 
             $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'amount', $amount);
             $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'amount', 0);
-
-            $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'invoiced', $invoiced);
-            $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'invoiced', 0);
         }
 
         return [

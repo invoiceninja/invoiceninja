@@ -137,7 +137,7 @@ class DashboardRepository
                     ->where('invoices.is_deleted', '=', false)
                     ->whereNotIn('payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
         } elseif ($entityType == ENTITY_EXPENSE) {
-            $records->select(DB::raw('sum(expenses.amount) as total, count(expenses.id) as count, '.$timeframe.' as '.$groupBy));
+            $records->select(DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as total, count(expenses.id) as count, '.$timeframe.' as '.$groupBy));
         }
 
         return $records;
@@ -335,8 +335,12 @@ class DashboardRepository
 
     public function expenses($accountId, $userId, $viewAll)
     {
+        $amountField = DB::getQueryGrammar()->wrap('expenses.amount', true);
+        $taxRate1Field = DB::getQueryGrammar()->wrap('expenses.tax_rate1', true);
+        $taxRate2Field = DB::getQueryGrammar()->wrap('expenses.tax_rate2', true);
+
         $select = DB::raw(
-            'SUM('.DB::getQueryGrammar()->wrap('expenses.amount', true).') as value,'
+            "SUM({$amountField} + ({$amountField} * {$taxRate1Field} / 100) + ({$amountField} * {$taxRate2Field} / 100)) as value,"
                   .DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true).' as currency_id'
         );
         $paidToDate = DB::table('accounts')
