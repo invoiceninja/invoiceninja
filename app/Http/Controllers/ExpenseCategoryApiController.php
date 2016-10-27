@@ -22,14 +22,14 @@ class ExpenseCategoryApiController extends BaseAPIController
         $this->categoryService = $categoryService;
     }
 
-    public function updateCategory(UpdateExpenseCategoryRequest $request)
+    public function update(UpdateExpenseCategoryRequest $request)
     {
         $category = $this->categoryRepo->save($request->input(), $request->entity());
 
         return $this->itemResponse($category);
     }
 
-    public function addCategory(CreateExpenseCategoryRequest $request)
+    public function store(CreateExpenseCategoryRequest $request)
     {
         $category = $this->categoryRepo->save($request->input());
 
