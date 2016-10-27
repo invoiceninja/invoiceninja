@@ -1094,7 +1094,7 @@ class AccountController extends BaseController
             $path = Input::file('logo')->getRealPath();
 
             $disk = $account->getLogoDisk();
-            if ($account->hasLogo()) {
+            if ($account->hasLogo() && ! Utils::isNinjaProd()) {
                 $disk->delete($account->logo);
             }
 
@@ -1287,7 +1287,9 @@ class AccountController extends BaseController
     {
         $account = Auth::user()->account;
         if ($account->hasLogo()) {
-            $account->getLogoDisk()->delete($account->logo);
+            if ( ! Utils::isNinjaProd()) {
+                $account->getLogoDisk()->delete($account->logo);
+            }
 
             $account->logo = null;
             $account->logo_size = null;
