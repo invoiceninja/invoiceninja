@@ -1,6 +1,8 @@
 <?php namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateExpenseCategoryRequest;
 use App\Http\Requests\Request;
+use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Models\Expense;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Ninja\Repositories\ExpenseRepository;
