@@ -5,9 +5,7 @@ use Utils;
 use Input;
 use Session;
 use App\Services\ExpenseCategoryService;
-use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Http\Requests\CreateExpenseCategoryRequest;
-use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 
