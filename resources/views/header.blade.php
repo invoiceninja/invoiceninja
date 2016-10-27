@@ -506,6 +506,7 @@
                 'settings',
                 //'self-update'
             ] as $option)
+            @if (in_array($option, ['dashboard', 'settings']) || Auth::user()->can('view', substr($option, 0, -1)))
             <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                 @if ($option == 'settings')
                     <a type="button" class="btn btn-default btn-sm pull-right"
@@ -530,6 +531,7 @@
                     @endif
                 </a>
             </li>
+            @endif
             @endforeach
         </ul>
     </div>

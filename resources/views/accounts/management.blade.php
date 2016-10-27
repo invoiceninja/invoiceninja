@@ -140,6 +140,35 @@
 		@endif
 		{!! Former::close() !!}
 
+
+		{!! Former::open('settings/account_management') !!}
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">{!! trans('texts.modules') !!}</h3>
+			</div>
+			<div class="panel-body">
+				<div class="form-group">
+					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
+					<div class="col-lg-8 col-sm-8">
+						@foreach (\App\Models\Account::$modules as $entityType => $value)
+						<div class="checkbox">
+							<label for="modules_{{ $value}}">
+								<input name="modules[]" id="modules_{{ $value}}" type="checkbox" {{ Auth::user()->account->isModuleEnabled($entityType) ? 'checked="checked"' : '' }} value="{{ $value }}">{{ trans("texts.{$entityType}s") }}
+							</label>
+						</div>
+						@endforeach
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
+					<div class="col-lg-8 col-sm-8">
+						{!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+					</div>
+				</div>
+			</div>
+		</div>
+		{!! Former::close() !!}
+
 		{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
 		<div class="panel panel-default">
 			<div class="panel-heading">

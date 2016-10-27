@@ -704,7 +704,25 @@ class AccountController extends BaseController
             return AccountController::saveTaxRates();
         } elseif ($section === ACCOUNT_PAYMENT_TERMS) {
             return AccountController::savePaymetTerms();
+        } elseif ($section === ACCOUNT_MANAGEMENT) {
+            return AccountController::saveAccountManagement();
         }
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    private function saveAccountManagement()
+    {
+        $account = Auth::user()->account;
+        $modules = Input::get('modules');
+
+        $account->enabled_modules = $modules ? array_sum($modules) : 0;
+        $account->save();
+
+        Session::flash('message', trans('texts.updated_settings'));
+
+        return Redirect::to('settings/'.ACCOUNT_MANAGEMENT);
     }
 
     /**

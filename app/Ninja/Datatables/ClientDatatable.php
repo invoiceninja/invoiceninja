@@ -93,7 +93,7 @@ class ClientDatatable extends EntityDatatable
                     return URL::to("quotes/create/{$model->public_id}");
                 },
                 function ($model) {
-                    return Auth::user()->hasFeature(FEATURE_QUOTES) && Auth::user()->can('create', ENTITY_INVOICE);
+                    return Auth::user()->hasFeature(FEATURE_QUOTES) && Auth::user()->can('create', ENTITY_QUOTE);
                 }
             ],
             [

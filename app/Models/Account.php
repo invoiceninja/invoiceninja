@@ -103,18 +103,18 @@ class Account extends Eloquent
     ];
 
     public static $modules = [
-        1 => ENTITY_RECURRING_INVOICE,
-        2 => ENTITY_CREDIT,
-        4 => ENTITY_QUOTE,
-        8 => ENTITY_TASK,
-        16 => ENTITY_EXPENSE,
-        32 => ENTITY_VENDOR,
+        ENTITY_RECURRING_INVOICE => 1,
+        ENTITY_CREDIT => 2,
+        ENTITY_QUOTE => 4,
+        ENTITY_TASK => 8,
+        ENTITY_EXPENSE => 16,
+        ENTITY_VENDOR => 32,
     ];
 
     public static $dashboardSections = [
-        1 => 'total_revenue',
-        2 => 'average_invoice',
-        4 => 'outstanding',
+        'total_revenue' => 1,
+        'average_invoice' => 2,
+        'outstanding' => 4,
     ];
 
     /**
@@ -1845,6 +1845,20 @@ class Account extends Eloquent
      */
     public function getFontFolders(){
         return array_map(function($item){return $item['folder'];}, $this->getFontsData());
+    }
+
+    public function isModuleEnabled($entityType)
+    {
+        if (in_array($entityType, [
+            ENTITY_CLIENT,
+            ENTITY_INVOICE,
+            ENTITY_PRODUCT,
+            ENTITY_PAYMENT,
+        ])) {
+            return true;
+        }
+
+        return $this->enabled_modules & static::$modules[$entityType];
     }
 }
 
