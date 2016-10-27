@@ -385,7 +385,7 @@ class ReportController extends BaseController
                         $isExport ? $client->getDisplayName() : $client->present()->link,
                         $isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
-                        $invoiceItem->qty,
+                        round($invoiceItem->qty, 2),
                         $invoiceItem->product_key,
                     ];
                     //$reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment ? $payment->amount : 0);
