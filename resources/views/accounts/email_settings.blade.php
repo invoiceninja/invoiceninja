@@ -106,7 +106,7 @@
 &lt;center&gt;
 &lt;script language="javascript"&gt;
     var iframe = document.getElementById('invoiceIFrame');
-    iframe.src = '{{ SITE_URL }}/view/'
+    iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
                  + window.location.search.substring(1);
 &lt;/script&gt;</pre>
                     <p>{{ trans('texts.iframe_url_help2') }}</p>
