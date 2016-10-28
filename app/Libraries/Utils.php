@@ -1089,4 +1089,12 @@ class Utils
 
         return url(NINJA_DOCS_URL . $page);
     }
+
+    public static function calculateTaxes($amount, $taxRate1, $taxRate2)
+    {
+        $tax1 = round($amount * $taxRate1 / 100, 2);
+        $tax2 = round($amount * $taxRate2 / 100, 2);
+
+        return round($amount + $tax1 + $tax2, 2);
+    }
 }

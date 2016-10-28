@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use Utils;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\ExpenseWasCreated;
@@ -204,6 +205,11 @@ class Expense extends EntityModel
         }
 
         return $query;
+    }
+
+    public function amountWithTax()
+    {
+        return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
     }
 }
 
