@@ -92,7 +92,7 @@ class CheckData extends Command {
         $count = DB::table('activities')
                     ->where('activity_type_id', '=', 5)
                     ->where('json_backup', '=', '')
-                    ->whereNotIn('id', [634386, 756352, 756353, 756356])
+                    ->whereNotIn('id', [634386, 756352, 756353, 756356, 820872])
                     ->count();
 
         if ($count > 0) {
