@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+
 use App\Models\Expense;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Services\ExpenseService;
@@ -75,8 +76,8 @@ class ExpenseApiController extends BaseAPIController
         $expense = $this->expenseRepo->save($request->input());
 
         $expense = Expense::scope($expense->public_id)
-                    ->with('client', 'invoice', 'vendor')
-                    ->first();
+            ->with('client', 'invoice', 'vendor')
+            ->first();
 
         return $this->itemResponse($expense);
     }
@@ -144,6 +145,8 @@ class ExpenseApiController extends BaseAPIController
 
         return $this->itemResponse($expense);
     }
+
+
 
 
 }
