@@ -62,14 +62,7 @@
     <div class="container">
         <div class="form-signin">
             <div class="modal-header">
-                @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
-                    <a href="{{ NINJA_WEB_URL }}" target="_blank">
-                        <img src="{{ asset('images/icon-login.png') }}" />
-                        <h4>Invoice Ninja | {{ trans('texts.client_session_expired') }}</h4>
-                    </a>
-                @else
-                    <h4>{{ trans('texts.session_expired') }}</h4>
-                @endif
+                <h4>{{ trans('texts.session_expired') }}</h4>
             </div>
             <div class="inner">
                 <div class="alert alert-info">{{ trans('texts.client_session_expired_message') }}</div>

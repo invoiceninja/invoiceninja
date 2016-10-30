@@ -92,6 +92,15 @@ class Utils
         return Utils::getResllerType() ? true : false;
     }
 
+    public static function isWhiteLabel()
+    {
+        if (Utils::isNinjaProd()) {
+            return false;
+        }
+        
+        return \App\Models\Account::first()->hasFeature(FEATURE_WHITE_LABEL);
+    }
+
     public static function getResllerType()
     {
         return isset($_ENV['RESELLER_TYPE']) ? $_ENV['RESELLER_TYPE'] : false;
