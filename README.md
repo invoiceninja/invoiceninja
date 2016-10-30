@@ -10,6 +10,8 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org)
 
+**We're starting work on custom modules, join the discussion [here](https://github.com/invoiceninja/invoiceninja/issues/1131)**
+
 All Pro and Enterprise features from our hosted app are included in both the [self-host zip](https://www.invoiceninja.com/self-host/) and the GitHub repository.
 
 Our [iPhone app](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8) is now available, our Android app is up next...
