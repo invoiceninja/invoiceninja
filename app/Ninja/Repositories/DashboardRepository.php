@@ -252,7 +252,7 @@ class DashboardRepository
         }
 
         return $activities->orderBy('activities.created_at', 'desc')
-                ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account', 'task', 'expense')
+                ->with('client.contacts', 'user', 'invoice', 'payment', 'credit', 'account', 'task', 'expense', 'contact')
                 ->take(50)
                 ->get();
     }
