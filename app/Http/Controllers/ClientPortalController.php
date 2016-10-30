@@ -211,6 +211,8 @@ class ClientPortalController extends BaseController
 
         $client = $contact->client;
         $account = $client->account;
+        $account->loadLocalizationSettings($client);
+
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $customer = false;
 
@@ -277,6 +279,7 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -304,6 +307,7 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -350,12 +354,14 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
         $data = [
             'color' => $color,
             'account' => $account,
@@ -420,12 +426,14 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
         $data = [
           'color' => $color,
           'account' => $account,
@@ -455,12 +463,14 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
         $data = [
           'color' => $color,
           'account' => $account,
@@ -489,12 +499,14 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
         $data = [
           'color' => $color,
           'account' => $account,
