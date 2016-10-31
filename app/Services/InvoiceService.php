@@ -86,9 +86,14 @@ class InvoiceService extends BaseService
         $sendInvoiceIds = [];
 
         foreach ($client->contacts as $contact) {
-            if ($contact->send_invoice || count($client->contacts) == 1) {
+            if ($contact->send_invoice) {
                 $sendInvoiceIds[] = $contact->id;
             }
+        }
+
+        // if no contacts are selected auto-select the first to enusre there's an invitation
+        if ( ! count($sendInvoiceIds)) {
+            $sendInvoiceIds[] = $client->contacts[0]->id;
         }
 
         foreach ($client->contacts as $contact) {
