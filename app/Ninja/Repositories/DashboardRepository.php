@@ -175,29 +175,39 @@ class DashboardRepository
         return $metrics->groupBy('accounts.id')->first();
     }
 
-    public function paidToDate($accountId, $userId, $viewAll)
+    public function paidToDate($account, $userId, $viewAll)
     {
+        $accountId = $account->id;
         $select = DB::raw(
-            'SUM('.DB::getQueryGrammar()->wrap('clients.paid_to_date', true).') as value,'
+            'SUM('.DB::getQueryGrammar()->wrap('payments.amount', true).' - '.DB::getQueryGrammar()->wrap('payments.refunded', true).') as value,'
                   .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id'
         );
-        $paidToDate = DB::table('accounts')
+        $paidToDate = DB::table('payments')
             ->select($select)
-            ->leftJoin('clients', 'accounts.id', '=', 'clients.account_id')
-            ->where('accounts.id', '=', $accountId)
-            ->where('clients.is_deleted', '=', false);
+            ->leftJoin('invoices', 'invoices.id', '=', 'payments.invoice_id')
+            ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
+            ->where('payments.account_id', '=', $accountId)
+            ->where('clients.is_deleted', '=', false)
+            ->where('invoices.is_deleted', '=', false)
+            ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
         if (!$viewAll){
-            $paidToDate = $paidToDate->where('clients.user_id', '=', $userId);
+            $paidToDate->where('invoices.user_id', '=', $userId);
         }
 
-        return $paidToDate->groupBy('accounts.id')
-            ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN CASE WHEN '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' IS NULL THEN 1 ELSE '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' END ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'))
+        if ($account->financial_year_start) {
+            $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
+            $paidToDate->where('payments.payment_date', '>=', $yearStart);
+        }
+
+        return $paidToDate->groupBy('payments.account_id')
+            ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN '.($account->currency_id ?: DEFAULT_CURRENCY).' ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'))
             ->get();
     }
 
-    public function averages($accountId, $userId, $viewAll)
+    public function averages($account, $userId, $viewAll)
     {
+        $accountId = $account->id;
         $select = DB::raw(
             'AVG('.DB::getQueryGrammar()->wrap('invoices.amount', true).') as invoice_avg, '
                   .DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id'
@@ -213,7 +223,12 @@ class DashboardRepository
             ->where('invoices.is_recurring', '=', false);
 
         if (!$viewAll){
-            $averageInvoice = $averageInvoice->where('invoices.user_id', '=', $userId);
+            $averageInvoice->where('invoices.user_id', '=', $userId);
+        }
+
+        if ($account->financial_year_start) {
+            $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
+            $averageInvoice->where('invoices.invoice_date', '>=', $yearStart);
         }
 
         return $averageInvoice->groupBy('accounts.id')

@@ -75,6 +75,8 @@ class OnlinePaymentController extends BaseController
         }
 
         $invitation = $invitation->load('invoice.client.account.account_gateways.gateway');
+        $account = $invitation->account;
+        $account->loadLocalizationSettings($invitation->invoice->client);
 
         if ( ! $gatewayTypeAlias) {
             $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
@@ -84,7 +86,7 @@ class OnlinePaymentController extends BaseController
             $gatewayTypeId = $gatewayTypeAlias;
         }
 
-        $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
+        $paymentDriver = $account->paymentDriver($invitation, $gatewayTypeId);
 
         try {
             return $paymentDriver->startPurchase(Input::all(), $sourceId);

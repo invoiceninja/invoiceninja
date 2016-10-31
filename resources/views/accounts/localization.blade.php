@@ -42,7 +42,7 @@
                 {!! Former::select('language_id')->addOption('','')
                     ->fromQuery($languages, 'name', 'id')
                     ->help(trans('texts.translate_app', ['link' => link_to(TRANSIFEX_URL, 'Transifex.com', ['target' => '_blank'])])) !!}
-                <br/>
+                <br/>&nbsp;<br/>
 
                 {!! Former::select('timezone_id')->addOption('','')
                     ->fromQuery($timezones, 'location', 'id') !!}
@@ -50,9 +50,16 @@
                     ->fromQuery($dateFormats) !!}
                 {!! Former::select('datetime_format_id')->addOption('','')
                     ->fromQuery($datetimeFormats) !!}
+                {!! Former::checkbox('military_time')->text(trans('texts.enable')) !!}
+
+                <br/>&nbsp;<br/>
+
                 {!! Former::select('start_of_week')->addOption('','')
                     ->fromQuery($weekdays) !!}
-                {!! Former::checkbox('military_time')->text(trans('texts.enable')) !!}
+                {!! Former::select('financial_year_start')
+                        ->addOption('','')
+                        ->options($months) !!}
+
 
                 </div>
             </div>
