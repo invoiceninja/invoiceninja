@@ -185,7 +185,6 @@
 <script>
 
     var products = {!! $products !!};
-    console.log(products);
 
     $(function() {
         var $productSelect = $('select#product');
