@@ -163,6 +163,11 @@ class Utils
         return Auth::check() && Auth::user()->isTrial();
     }
 
+    public static function isPaidPro()
+    {
+        return static::isPro() && ! static::isTrial();
+    }
+
     public static function isEnglish()
     {
         return App::getLocale() == 'en';
@@ -652,7 +657,7 @@ class Utils
             return Utils::getYear($offset);
         }
     }
-    
+
     public static function getMonthOptions()
     {
         $months = [];
