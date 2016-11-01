@@ -89,6 +89,10 @@ class Client extends EntityModel
      * @var string
      */
     public static $fieldWebsite = 'website';
+    /**
+     * @var string
+     */
+    public static $fieldVatNumber = 'vat_number';
 
     /**
      * @return array
@@ -106,6 +110,7 @@ class Client extends EntityModel
             Client::$fieldCountry,
             Client::$fieldNotes,
             Client::$fieldWebsite,
+            Client::$fieldVatNumber,
             Contact::$fieldFirstName,
             Contact::$fieldLastName,
             Contact::$fieldPhone,
@@ -132,6 +137,7 @@ class Client extends EntityModel
             'country' => 'country',
             'note' => 'notes',
             'site|website' => 'website',
+            'vat' => 'vat_number',
         ];
     }
 

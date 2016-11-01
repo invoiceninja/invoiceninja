@@ -28,6 +28,7 @@ class ClientTransformer extends BaseTransformer
                 'postal_code' => $this->getString($data, 'postal_code'),
                 'private_notes' => $this->getString($data, 'notes'),
                 'website' => $this->getString($data, 'website'),
+                'vat_number' => $this->getString($data, 'vat_number'),
                 'contacts' => [
                     [
                         'first_name' => $this->getString($data, 'first_name'),
