@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "f61ec0361b0757ca0cade78837862d39",
-    "content-hash": "37549f849d74405b68eb7e2df64dfb43",
+    "hash": "cf642e3384eec7504bcdace749d2bb88",
+    "content-hash": "c0a5b571bc2305c4b0d9eae18bf5011b",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -1081,16 +1081,16 @@
         },
         {
             "name": "collizo4sky/omnipay-wepay",
-            "version": "dev-additional-calls",
+            "version": "dev-address-fix",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hillelcoren/omnipay-wepay.git",
-                "reference": "a341b9997d71803d0f774d86908cb49a8bc4c405"
+                "reference": "916785146c5433e9216f295d09d1cbcec2fdf33a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/a341b9997d71803d0f774d86908cb49a8bc4c405",
-                "reference": "a341b9997d71803d0f774d86908cb49a8bc4c405",
+                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/916785146c5433e9216f295d09d1cbcec2fdf33a",
+                "reference": "916785146c5433e9216f295d09d1cbcec2fdf33a",
                 "shasum": ""
             },
             "require": {
@@ -1120,9 +1120,9 @@
                 "wepay"
             ],
             "support": {
-                "source": "https://github.com/sometechie/omnipay-wepay/tree/additional-calls"
+                "source": "https://github.com/hillelcoren/omnipay-wepay/tree/address-fix"
             },
-            "time": "2016-05-25 19:18:42"
+            "time": "2016-11-01 10:54:54"
         },
         {
             "name": "container-interop/container-interop",
@@ -2184,7 +2184,7 @@
                 "shasum": null
             },
             "type": "library",
-            "time": "2016-06-03 12:00:26"
+            "time": "2016-10-12 12:00:38"
         },
         {
             "name": "google/apiclient",
@@ -3091,6 +3091,7 @@
                 "purchase",
                 "wechat"
             ],
+            "abandoned": "lokielse/omnipay-wechatpay",
             "time": "2016-05-10 08:43:41"
         },
         {
@@ -7211,16 +7212,16 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.9",
+            "version": "v2.8.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "889983a79a043dfda68f38c38b6dba092dd49cd8"
+                "reference": "25c576abd4e0f212e678fe8b2bd9a9a98c7ea934"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/889983a79a043dfda68f38c38b6dba092dd49cd8",
-                "reference": "889983a79a043dfda68f38c38b6dba092dd49cd8",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/25c576abd4e0f212e678fe8b2bd9a9a98c7ea934",
+                "reference": "25c576abd4e0f212e678fe8b2bd9a9a98c7ea934",
                 "shasum": ""
             },
             "require": {
@@ -7267,7 +7268,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-28 16:56:28"
+            "time": "2016-10-13 01:43:15"
         },
         {
             "name": "symfony/finder",
@@ -7320,16 +7321,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v2.8.9",
+            "version": "v2.8.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "f20bea598906c990eebe3c70a63ca5ed18cdbc11"
+                "reference": "a6e6c34d337f3c74c39b29c5f54d33023de8897c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/f20bea598906c990eebe3c70a63ca5ed18cdbc11",
-                "reference": "f20bea598906c990eebe3c70a63ca5ed18cdbc11",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/a6e6c34d337f3c74c39b29c5f54d33023de8897c",
+                "reference": "a6e6c34d337f3c74c39b29c5f54d33023de8897c",
                 "shasum": ""
             },
             "require": {
@@ -7371,7 +7372,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-30 07:20:35"
+            "time": "2016-10-24 15:52:36"
         },
         {
             "name": "symfony/http-kernel",

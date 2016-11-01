@@ -77,7 +77,7 @@
         "gatepay/FedACHdir": "dev-master@dev",
         "websight/l5-google-cloud-storage": "^1.0",
         "wepay/php-sdk": "^0.2",
-        "collizo4sky/omnipay-wepay": "dev-additional-calls",
+        "collizo4sky/omnipay-wepay": "dev-address-fix",
         "barryvdh/laravel-ide-helper": "~2.2",
         "barryvdh/laravel-debugbar": "~2.2",
         "fzaninotto/faker": "^1.5",
