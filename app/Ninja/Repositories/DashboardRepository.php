@@ -39,13 +39,15 @@ class DashboardRepository
 
             $data = [];
             $count = 0;
+            $balance = 0;
             $records = $this->rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId);
 
-            array_map(function ($item) use (&$data, &$count, $groupBy) {
+            array_map(function ($item) use (&$data, &$count, &$balance, $groupBy) {
                 $data[$item->$groupBy] = $item->total;
                 $count += $item->count;
-            }, $records->get());
-
+                $balance += isset($item->balance) ? $item->balance : 0;
+            }, $records);
+            
             $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
             $endDate->modify('+1 '.$padding);
             $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
@@ -84,9 +86,9 @@ class DashboardRepository
             if ($entityType == ENTITY_INVOICE) {
                 $totals->invoices = array_sum($data);
                 $totals->average = $count ? round($totals->invoices / $count, 2) : 0;
+                $totals->balance = $balance;
             } elseif ($entityType == ENTITY_PAYMENT) {
                 $totals->revenue = array_sum($data);
-                $totals->balance = $totals->invoices - $totals->revenue;
             } elseif ($entityType == ENTITY_EXPENSE) {
                 //$totals->profit = $totals->revenue - array_sum($data);
                 $totals->expenses = array_sum($data);
@@ -106,6 +108,10 @@ class DashboardRepository
 
     private function rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId)
     {
+        if ( ! in_array($groupBy, ['DAYOFYEAR', 'WEEK', 'MONTH'])) {
+            return [];
+        }
+
         $accountId = $account->id;
         $currencyId = intval($currencyId);
         $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
@@ -128,7 +134,7 @@ class DashboardRepository
         }
 
         if ($entityType == ENTITY_INVOICE) {
-            $records->select(DB::raw('sum(invoices.amount) as total, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
+            $records->select(DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
                     ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                     ->where('is_recurring', '=', false);
         } elseif ($entityType == ENTITY_PAYMENT) {
@@ -140,7 +146,7 @@ class DashboardRepository
             $records->select(DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as total, count(expenses.id) as count, '.$timeframe.' as '.$groupBy));
         }
 
-        return $records;
+        return $records->get();
     }
 
     public function totals($accountId, $userId, $viewAll)
