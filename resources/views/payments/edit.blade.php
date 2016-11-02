@@ -14,11 +14,15 @@
 
 @section('content')
 
-	{!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
-		'client' => 'required',
-		'invoice' => 'required',
-		'amount' => 'required',
-	)) !!}
+	{!! Former::open($url)
+        ->addClass('col-md-10 col-md-offset-1 warn-on-exit')
+        ->onsubmit('onFormSubmit(event)')
+        ->method($method)
+        ->rules(array(
+    		'client' => 'required',
+    		'invoice' => 'required',
+    		'amount' => 'required',
+    	)) !!}
 
     @if ($payment)
         {!! Former::populate($payment) !!}
@@ -71,7 +75,7 @@
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->appendIcon(Icon::create('remove-circle'))->asLinkTo(URL::to('/payments'))->large() !!}
         @if (!$payment || !$payment->is_deleted)
-            {!! Button::success(trans('texts.save'))->appendIcon(Icon::create('floppy-disk'))->submit()->large() !!}
+            {!! Button::success(trans('texts.save'))->withAttributes(['id' => 'saveButton'])->appendIcon(Icon::create('floppy-disk'))->submit()->large() !!}
         @endif
 	</center>
 
@@ -105,6 +109,10 @@
             toggleDatePicker('payment_date');
         });
 	});
+
+    function onFormSubmit(event) {
+        $('#saveButton').attr('disabled', true);
+    }
 
 	</script>
 
