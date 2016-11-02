@@ -177,6 +177,11 @@
 <script type="text/javascript">
 
   function showUpgradeModal() {
+    @if ( ! Auth::check() || ! Auth::user()->confirmed)
+        swal("{{ trans('texts.confirmation_required') }}");
+        return;
+    @endif
+
     $(window).scrollTop(0);
     $('#upgrade-modal').fadeIn();
   }
