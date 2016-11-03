@@ -211,6 +211,33 @@ class DashboardRepository
             ->get();
     }
 
+	public function paidLast12Months($account, $userId, $viewAll)
+	{
+		$accountId = $account->id;
+		$select = DB::raw(
+			'SUM('.DB::getQueryGrammar()->wrap('payments.amount', true).' - '.DB::getQueryGrammar()->wrap('payments.refunded', true).') as value,'
+			.DB::getQueryGrammar()->wrap('clients.currency_id', true).' as currency_id'
+		);
+		$paidLast12Months = DB::table('payments')
+		                ->select($select)
+		                ->leftJoin('invoices', 'invoices.id', '=', 'payments.invoice_id')
+		                ->leftJoin('clients', 'clients.id', '=', 'invoices.client_id')
+		                ->where('payments.account_id', '=', $accountId)
+		                ->where('clients.is_deleted', '=', false)
+		                ->where('invoices.is_deleted', '=', false)
+		                ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
+
+		if (!$viewAll){
+			$paidLast12Months->where('invoices.user_id', '=', $userId);
+		}
+
+		$paidLast12Months->where( 'payments.payment_date', '>=', date( 'Y-m-d', strtotime( '-1 year' ) ) );
+
+		return $paidLast12Months->groupBy('payments.account_id')
+		                  ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN '.($account->currency_id ?: DEFAULT_CURRENCY).' ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'))
+		                  ->get();
+	}
+
     public function averages($account, $userId, $viewAll)
     {
         $accountId = $account->id;

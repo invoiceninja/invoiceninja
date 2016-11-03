@@ -2176,6 +2176,25 @@ $LANG = array(
     'modules' => 'Modules',
     'financial_year_start' => 'First Month of the Year',
 
+	// BlueVine
+	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
+	'bluevine_modal_label' => 'Sign up with BlueVine',
+	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+<ul><li>Flexible business lines of credit and invoice factoring.</li>
+<li>Credit lines from $5,000 to $2M. Cash in as fast as 1 day.</li></ul>',
+	'bluevine_create_account' => 'Create an account',
+	'quote_types' => 'Get a quote for',
+	'invoice_factoring' => 'Invoice factoring',
+	'line_of_credit' => 'Line of credit',
+	'fico_score' => 'Your FICO score',
+	'business_inception' => 'Business Inception Date',
+	'average_bank_balance' => 'Average bank account balance',
+	'annual_revenue' => 'Annual revenue',
+	'desired_credit_limit_factoring' => 'Desired invoice factoring limit',
+    'desired_credit_limit_loc' => 'Desired line of credit limit',
+	'desired_credit_limit' => 'Desired credit limit',
+	'bluevine_credit_line_type_required' => 'You must choose at least one',
+	'bluevine_field_required' => 'This field is required',
 );
 
 return $LANG;

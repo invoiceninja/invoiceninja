@@ -75,6 +75,7 @@ class DashboardController extends BaseController
 
         $data = [
             'account' => $user->account,
+	        'user' => $user,
             'paidToDate' => $paidToDate,
             'balances' => $balances,
             'averageInvoice' => $averageInvoice,
@@ -91,6 +92,26 @@ class DashboardController extends BaseController
             'expenses' => $expenses,
             'tasks' => $tasks,
         ];
+
+	    if(true){
+		    $usdLast12Months = 0;
+
+		    $paidLast12Months = $dashboardRepo->paidLast12Months( $account, $userId, $viewAll );
+
+		    foreach ( $paidLast12Months as $item ) {
+			    if ( $item->currency_id == null ) {
+				    $currency = $user->account->currency_id ?: DEFAULT_CURRENCY;
+			    } else {
+				    $currency = $item->currency_id;
+			    }
+
+			    if ( $currency == CURRENCY_DOLLAR ) {
+				    $usdLast12Months += $item->value;
+			    }
+		    }
+
+		    $data['usdLast12Months'] = $usdLast12Months;
+	    }
 
         return View::make('dashboard', $data);
     }
