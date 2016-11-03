@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Http\Requests\ClientRequest;
 use Response;
 use Input;
 use App\Models\Client;
@@ -51,6 +52,31 @@ class ClientApiController extends BaseAPIController
 
         return $this->listResponse($clients);
     }
+
+    /**
+     * @SWG\Get(
+     *   path="/clients/{client_id}",
+     *   summary="Individual Client",
+     *   tags={"client"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single client",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+
+    public function show(ClientRequest $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+
+
 
     /**
      * @SWG\Post(
