@@ -341,11 +341,11 @@
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
                             {!! Former::textarea('public_notes')->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
-                            ->label(null)->style('resize: none; width: 500px;')->rows(4) !!}
+                            ->label(null)->style('width: 500px;')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
                             {!! Former::textarea('terms')->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; width: 500px')->rows(4)
+                            ->label(false)->style('width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
                                             <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
@@ -357,7 +357,7 @@
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
                             {!! Former::textarea('invoice_footer')->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; width: 500px')->rows(4)
+                            ->label(false)->style('width: 500px')->rows(4)
                             ->help('<div class="checkbox">
                                         <label>
                                             <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
@@ -563,7 +563,14 @@
 	</div>
 	<p>&nbsp;</p>
 
-	@include('invoices.pdf', ['account' => Auth::user()->account])
+	@if (Auth::user()->account->live_preview))
+		@include('invoices.pdf', ['account' => Auth::user()->account])
+	@else
+		<script type="text/javascript">
+			var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
+			function refreshPDF() {}
+		</script>
+	@endif
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
@@ -1118,7 +1125,7 @@
             refreshPDF(true);
         });
 
-        $('textarea').on('keyup focus', function(e) {
+        $('textarea.word-wrap').on('keyup focus', function(e) {
             $(this).height(0).height(this.scrollHeight-18);
         });
 
@@ -1167,11 +1174,6 @@
 
     window.generatedPDF = false;
 	function getPDFString(cb, force) {
-        @if (!$account->live_preview)
-            if (window.generatedPDF) {
-                return;
-            }
-        @endif
         var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;

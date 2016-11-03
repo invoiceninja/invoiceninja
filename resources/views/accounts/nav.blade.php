@@ -16,7 +16,7 @@
             <div class="panel panel-default">
                 <div class="panel-heading" style="color:white">
                     {{ trans("texts.{$type}") }}
-                    @if ($type === ADVANCED_SETTINGS && !Utils::isPro())
+                    @if ($type === ADVANCED_SETTINGS && ! Utils::isPaidPro())
                         <sup>{{ strtoupper(trans('texts.pro')) }}</sup>
                     @endif
                 </div>

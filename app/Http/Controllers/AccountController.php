@@ -429,6 +429,7 @@ class AccountController extends BaseController
             'currencies' => Cache::get('currencies'),
             'title' => trans('texts.localization'),
             'weekdays' => Utils::getTranslatedWeekdayNames(),
+            'months' => Utils::getMonthOptions(),
         ];
 
         return View::make('accounts.localization', $data);
@@ -674,11 +675,9 @@ class AccountController extends BaseController
      * @param $section
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function doSection($section = ACCOUNT_COMPANY_DETAILS)
+    public function doSection($section)
     {
-        if ($section === ACCOUNT_COMPANY_DETAILS) {
-            return AccountController::saveDetails();
-        } elseif ($section === ACCOUNT_LOCALIZATION) {
+        if ($section === ACCOUNT_LOCALIZATION) {
             return AccountController::saveLocalization();
         } elseif ($section == ACCOUNT_PAYMENTS) {
             return self::saveOnlinePayments();
@@ -1225,6 +1224,7 @@ class AccountController extends BaseController
         $account->military_time = Input::get('military_time') ? true : false;
         $account->show_currency_code = Input::get('show_currency_code') ? true : false;
         $account->start_of_week = Input::get('start_of_week') ? Input::get('start_of_week') : 0;
+        $account->financial_year_start = Input::get('financial_year_start') ? Input::get('financial_year_start') : null;
         $account->save();
 
         event(new UserSettingsChanged());

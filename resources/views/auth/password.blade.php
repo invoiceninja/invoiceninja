@@ -76,8 +76,15 @@
 
 {!! Former::open('recover_password')->rules(['email' => 'required|email'])->addClass('form-signin') !!}
   <div class="modal-header">
-    <img src="{{ asset('images/icon-login.png') }}" />
-    <h4>Invoice Ninja | {{ trans('texts.password_recovery') }}</h4></div>
+      @if (Utils::isWhiteLabel())
+          <h4>{{ trans('texts.password_recovery') }}</h4>
+      @else
+          <a href="{{ NINJA_WEB_URL }}" target="_blank">
+              <img src="{{ asset('images/icon-login.png') }}" />
+          </a>
+          <h4>Invoice Ninja | {{ trans('texts.password_recovery') }}</h4>
+      @endif
+  </div>
     <div class="inner">
 
       <p>

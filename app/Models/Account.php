@@ -69,6 +69,7 @@ class Account extends Eloquent
         'enable_second_tax_rate',
         'include_item_taxes_inline',
         'start_of_week',
+        'financial_year_start',
     ];
 
     /**

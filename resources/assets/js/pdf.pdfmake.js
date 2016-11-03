@@ -534,7 +534,7 @@ NINJA.subtotals = function(invoice, hideBalance)
     }
 
     var paid = invoice.amount - invoice.balance;
-    if (invoice.account.hide_paid_to_date != '1' || paid) {
+    if (!invoice.is_quote && (invoice.account.hide_paid_to_date != '1' || paid)) {
         data.push([{text:invoiceLabels.paid_to_date, style: ['subtotalsLabel', 'paidToDateLabel']}, {text:formatMoneyInvoice(paid, invoice), style: ['subtotals', 'paidToDate']}]);
     }
 
@@ -542,7 +542,7 @@ NINJA.subtotals = function(invoice, hideBalance)
 
     if (!hideBalance || isPartial) {
         data.push([
-            { text: invoiceLabels.balance_due, style: ['subtotalsLabel', isPartial ? '' : 'balanceDueLabel'] },
+            { text: invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, style: ['subtotalsLabel', isPartial ? '' : 'balanceDueLabel'] },
             { text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['subtotals', isPartial ? '' : 'balanceDue'] }
         ]);
     }
@@ -562,7 +562,7 @@ NINJA.subtotals = function(invoice, hideBalance)
 NINJA.subtotalsBalance = function(invoice) {
     var isPartial = NINJA.parseFloat(invoice.partial);
     return [[
-        {text: isPartial ? invoiceLabels.partial_due : invoiceLabels.balance_due, style:['subtotalsLabel', 'balanceDueLabel']},
+        {text: isPartial ? invoiceLabels.partial_due : (invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due), style:['subtotalsLabel', 'balanceDueLabel']},
         {text: formatMoneyInvoice(invoice.balance_amount, invoice), style:['subtotals', 'balanceDue']}
     ]];
 }
@@ -667,7 +667,7 @@ NINJA.renderInvoiceField = function(invoice, field) {
         }
     } else if (field == 'invoice.balance_due') {
         return [
-            {text: invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
+            {text: invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
             {text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['invoiceDetailBalanceDue']}
         ];
     } else if (field == invoice.partial_due) {

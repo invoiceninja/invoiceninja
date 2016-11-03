@@ -1369,7 +1369,7 @@ $LANG = array(
     'failed_remove_payment_method' => 'Failed to remove the payment method',
     'gateway_exists' => 'This gateway already exists',
     'manual_entry' => 'Manual entry',
-    'start_of_week' => 'First day of the week',
+    'start_of_week' => 'First Day of the Week',
 
     // Frequencies
     'freq_weekly' => 'Weekly',
@@ -2174,6 +2174,7 @@ $LANG = array(
     'invalid_white_label_license' => 'The white label license is not valid',
     'created_by' => 'Created by :name',
     'modules' => 'Modules',
+    'financial_year_start' => 'First Month of the Year',
 
 );
 

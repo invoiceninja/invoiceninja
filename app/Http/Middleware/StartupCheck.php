@@ -13,7 +13,7 @@ use Event;
 use Schema;
 use App\Models\Language;
 use App\Models\InvoiceDesign;
-use App\Events\UserSettingsChanged;
+use App\Events\UserLoggedIn;
 use App\Libraries\CurlUtils;
 
 /**
@@ -118,7 +118,7 @@ class StartupCheck
 
         // Make sure the account/user localization settings are in the session
         if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
-            Event::fire(new UserSettingsChanged());
+            Event::fire(new UserLoggedIn());
         }
 
         // Check if the user is claiming a license (ie, additional invoices, white label, etc.)

@@ -514,6 +514,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         return storage_path() . '/pdfcache/cache-' . $this->id . '.pdf';
     }
 
+    public function canBePaid()
+    {
+        return floatval($this->balance) > 0 && ! $this->is_deleted;
+    }
+
     /**
      * @param $invoice
      * @return string

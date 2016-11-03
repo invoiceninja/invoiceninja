@@ -17,6 +17,7 @@
     }
     .modal-header h4 {
         margin:0;
+        color:#fff;
     }
     .modal-header img {
         float: left;
@@ -89,10 +90,14 @@
     {{ Former::populateField('remember', 'true') }}
 
     <div class="modal-header">
-        <a href="{{ NINJA_WEB_URL }}" target="_blank">
-            <img src="{{ asset('images/icon-login.png') }}" />
-            <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4>
-        </a>
+        @if (Utils::isWhiteLabel())
+            <h4>{{ trans('texts.account_login') }}</h4>
+        @else
+            <a href="{{ NINJA_WEB_URL }}" target="_blank">
+                <img src="{{ asset('images/icon-login.png') }}" />
+                <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4>
+            </a>
+        @endif
     </div>
         <div class="inner">
             <p>

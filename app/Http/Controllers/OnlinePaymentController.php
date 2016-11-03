@@ -70,11 +70,13 @@ class OnlinePaymentController extends BaseController
             ]);
         }
 
-        if ( ! floatval($invitation->invoice->balance)) {
+        if ( ! $invitation->invoice->canBePaid()) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
         $invitation = $invitation->load('invoice.client.account.account_gateways.gateway');
+        $account = $invitation->account;
+        $account->loadLocalizationSettings($invitation->invoice->client);
 
         if ( ! $gatewayTypeAlias) {
             $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
@@ -84,7 +86,7 @@ class OnlinePaymentController extends BaseController
             $gatewayTypeId = $gatewayTypeAlias;
         }
 
-        $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
+        $paymentDriver = $account->paymentDriver($invitation, $gatewayTypeId);
 
         try {
             return $paymentDriver->startPurchase(Input::all(), $sourceId);
@@ -102,6 +104,10 @@ class OnlinePaymentController extends BaseController
         $invitation = $request->invitation;
         $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
+
+        if ( ! $invitation->invoice->canBePaid()) {
+            return redirect()->to('view/' . $invitation->invitation_key);
+        }
 
         try {
             $paymentDriver->completeOnsitePurchase($request->all());

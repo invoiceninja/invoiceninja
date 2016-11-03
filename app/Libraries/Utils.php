@@ -22,6 +22,9 @@ class Utils
         "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
     ];
 
+    public static $months = [
+        'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december',
+    ];
 
     public static function isRegistered()
     {
@@ -92,6 +95,15 @@ class Utils
         return Utils::getResllerType() ? true : false;
     }
 
+    public static function isWhiteLabel()
+    {
+        if (Utils::isNinjaProd()) {
+            return false;
+        }
+
+        return \App\Models\Account::first()->hasFeature(FEATURE_WHITE_LABEL);
+    }
+
     public static function getResllerType()
     {
         return isset($_ENV['RESELLER_TYPE']) ? $_ENV['RESELLER_TYPE'] : false;
@@ -149,6 +161,11 @@ class Utils
     public static function isTrial()
     {
         return Auth::check() && Auth::user()->isTrial();
+    }
+
+    public static function isPaidPro()
+    {
+        return static::isPro() && ! static::isTrial();
     }
 
     public static function isEnglish()
@@ -641,11 +658,22 @@ class Utils
         }
     }
 
+    public static function getMonthOptions()
+    {
+        $months = [];
+
+        for ($i=1; $i<=count(static::$months); $i++) {
+            $month = static::$months[$i-1];
+            $number = $i < 10 ? '0' . $i : $i;
+            $months["2000-{$number}-01"] = trans("texts.{$month}");
+        }
+
+        return $months;
+    }
+
     private static function getMonth($offset)
     {
-        $months = ['january', 'february', 'march', 'april', 'may', 'june',
-            'july', 'august', 'september', 'october', 'november', 'december', ];
-
+        $months = static::$months;
         $month = intval(date('n')) - 1;
 
         $month += $offset;
