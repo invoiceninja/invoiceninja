@@ -72,7 +72,12 @@ class ClientApiController extends BaseAPIController
 
     public function show(ClientRequest $request)
     {
-        return $this->itemResponse($request->entity());
+        $client = $request->entity();
+
+        if($client)
+            return $this->itemResponse($client);
+        else
+            echo 'client not found';
     }
 
 
