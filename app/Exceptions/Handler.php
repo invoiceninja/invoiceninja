@@ -96,8 +96,8 @@ class Handler extends ExceptionHandler
                         $error = json_encode($error, JSON_PRETTY_PRINT);
                         $headers = Utils::getApiHeaders();
 
-                        //return $response()->make($error, 404, $headers);
-                        return $response()->json(['error']['message'=>'Route does not exist']);
+                        return $response()->make($error, 404, $headers);
+                        //return $response()->json(['error']['message'=>'Route does not exist']);
                     }
                     break;
 
