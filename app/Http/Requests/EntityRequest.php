@@ -48,7 +48,6 @@ class EntityRequest extends Request {
 
         }
         catch(ModelNotFoundException $e) {
-            //$this->entity = null;
 
             if(Request::header('X-Ninja-Token') != '') {
                 //API request which has hit a route which does not exist
@@ -57,7 +56,7 @@ class EntityRequest extends Request {
                 $error = json_encode($error, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();
 
-                return response()->make($error, 404, $headers);
+                return response()->make($error, 400, $headers);
 
             }
         }
