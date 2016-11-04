@@ -103,13 +103,13 @@ class Handler extends ExceptionHandler
                 // internal error
                 case '500':
                     if($request->header('X-Ninja-Token') != '') {
-                        //API request which has hit a route which does not exist
+                        //API request which produces 500 error
 
                         $error['error'] = ['message'=>'Internal Server Error'];
                         $error = json_encode($error, JSON_PRETTY_PRINT);
                         $headers = Utils::getApiHeaders();
 
-                        return response()->make($error, 404, $headers);
+                        return response()->make($error, 500, $headers);
                     }
                     break;
 
