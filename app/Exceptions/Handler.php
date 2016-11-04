@@ -1,5 +1,6 @@
 <?php namespace App\Exceptions;
 
+use Braintree\Util;
 use Redirect;
 use Utils;
 use Exception;
@@ -79,6 +80,39 @@ class Handler extends ExceptionHandler
                         ->with([
                             'warning' => trans('texts.token_expired')
                         ]);
+            }
+        }
+
+        if($this->isHttpException($e))
+        {
+            switch ($e->getStatusCode())
+            {
+                // not found
+                case 404:
+                    if($request->header('X-Ninja-Token') != '') {
+                        //API request which has hit a route which does not exist
+
+                        $error['error'] = ['message'=>'Route does not exist'];
+                        $error = json_encode($error, JSON_PRETTY_PRINT);
+                        $headers = Utils::getApiHeaders();
+
+                        return Response::make($error, 404, $headers);
+                    }
+                    break;
+
+                // internal error
+                case '500':
+                    if($request->header('X-Ninja-Token') != '') {
+                        //API request which has hit a route which does not exist
+
+                        $error['error'] = ['message'=>'Internal Server Error'];
+                        $error = json_encode($error, JSON_PRETTY_PRINT);
+                        $headers = Utils::getApiHeaders();
+
+                        return Response::make($error, 404, $headers);
+                    }
+                    break;
+                
             }
         }
 
