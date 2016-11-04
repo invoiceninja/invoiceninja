@@ -1,5 +1,6 @@
 <?php namespace App\Http\Requests;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Input;
 use Utils;
 use App\Libraries\HistoryUtils;
@@ -36,10 +37,17 @@ class EntityRequest extends Request {
 
         $class = Utils::getEntityClass($this->entityType);
 
-        if (method_exists($class, 'trashed')) {
-            $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
-        } else {
-            $this->entity = $class::scope($publicId)->firstOrFail();
+        try {
+
+            if (method_exists($class, 'trashed')) {
+                $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
+            } else {
+                $this->entity = $class::scope($publicId)->firstOrFail();
+            }
+
+        }
+        catch(ModelNotFoundException $e) {
+            $this->entity() = null;
         }
 
         return $this->entity;
