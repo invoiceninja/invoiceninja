@@ -1,6 +1,7 @@
 <?php namespace App\Http\Requests;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Input;
 use Utils;
 use App\Libraries\HistoryUtils;
@@ -47,7 +48,18 @@ class EntityRequest extends Request {
 
         }
         catch(ModelNotFoundException $e) {
-            $this->entity = null;
+            //$this->entity = null;
+
+            if(Request::header('X-Ninja-Token') != '') {
+                //API request which has hit a route which does not exist
+
+                $error['error'] = ['message'=>trans('texts.client_not_found')];
+                $error = json_encode($error, JSON_PRETTY_PRINT);
+                $headers = Utils::getApiHeaders();
+
+                return response()->make($error, 404, $headers);
+
+            }
         }
 
         return $this->entity;
