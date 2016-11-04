@@ -77,7 +77,7 @@ class ClientApiController extends BaseAPIController
         if($client)
             return $this->itemResponse($client);
         else
-            echo 'client not found';
+            echo $this->errorResponse(['message'=>trans('texts.client_not_found')]);
     }
 
 
