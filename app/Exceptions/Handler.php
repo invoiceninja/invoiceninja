@@ -1,5 +1,7 @@
 <?php namespace App\Exceptions;
 
+use Braintree\Util;
+use Illuminate\Support\Facades\Response;
 use Redirect;
 use Utils;
 use Exception;
@@ -67,9 +69,7 @@ class Handler extends ExceptionHandler
 	 */
 	public function render($request, Exception $e)
 	{
-        if ($e instanceof ModelNotFoundException) {
-            return Redirect::to('/');
-        } elseif ($e instanceof \Illuminate\Session\TokenMismatchException) {
+        if ($e instanceof \Illuminate\Session\TokenMismatchException) {
             // prevent loop since the page auto-submits
             if ($request->path() != 'get_started') {
                 // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
@@ -79,6 +79,40 @@ class Handler extends ExceptionHandler
                         ->with([
                             'warning' => trans('texts.token_expired')
                         ]);
+            }
+        }
+
+        if($this->isHttpException($e))
+        {
+            switch ($e->getStatusCode())
+            {
+                // not found
+                case 404:
+                    if($request->header('X-Ninja-Token') != '') {
+                        //API request which has hit a route which does not exist
+
+                        $error['error'] = ['message'=>'Route does not exist'];
+                        $error = json_encode($error, JSON_PRETTY_PRINT);
+                        $headers = Utils::getApiHeaders();
+
+                        return response()->make($error, 404, $headers);
+
+                    }
+                    break;
+
+                // internal error
+                case '500':
+                    if($request->header('X-Ninja-Token') != '') {
+                        //API request which produces 500 error
+
+                        $error['error'] = ['message'=>'Internal Server Error'];
+                        $error = json_encode($error, JSON_PRETTY_PRINT);
+                        $headers = Utils::getApiHeaders();
+
+                        return response()->make($error, 500, $headers);
+                    }
+                    break;
+
             }
         }
 

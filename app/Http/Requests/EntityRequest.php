@@ -1,5 +1,7 @@
 <?php namespace App\Http\Requests;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 use Input;
 use Utils;
 use App\Libraries\HistoryUtils;
@@ -36,10 +38,26 @@ class EntityRequest extends Request {
 
         $class = Utils::getEntityClass($this->entityType);
 
-        if (method_exists($class, 'trashed')) {
-            $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
-        } else {
-            $this->entity = $class::scope($publicId)->firstOrFail();
+        try {
+
+            if (method_exists($class, 'trashed')) {
+                $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
+            } else {
+                $this->entity = $class::scope($publicId)->firstOrFail();
+            }
+
+        }
+        catch(ModelNotFoundException $e) {
+
+            if(Request::header('X-Ninja-Token') != '') {
+
+                $error['error'] = ['message'=>trans('texts.client_not_found')];
+                $error = json_encode($error, JSON_PRETTY_PRINT);
+                $headers = Utils::getApiHeaders();
+
+                return response()->make($error, 400, $headers);
+
+            }
         }
 
         return $this->entity;
