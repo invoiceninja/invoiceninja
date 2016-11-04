@@ -70,7 +70,7 @@ class Handler extends ExceptionHandler
 	public function render($request, Exception $e)
 	{
         if ($e instanceof ModelNotFoundException) {
-            return Redirect::to('/');
+            //return Redirect::to('/');
         } elseif ($e instanceof \Illuminate\Session\TokenMismatchException) {
             // prevent loop since the page auto-submits
             if ($request->path() != 'get_started') {
