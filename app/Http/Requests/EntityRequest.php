@@ -51,7 +51,7 @@ class EntityRequest extends Request {
 
             if(Request::header('X-Ninja-Token') != '') {
 
-                $error['error'] = ['message'=>trans('texts.client_not_found')];
+                $error['error'] = ['message'=>'Entity not found'];
                 $error = json_encode($error, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();
 
