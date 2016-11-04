@@ -81,6 +81,10 @@ elixir(function(mix) {
     ], 'public/js/daterangepicker.min.js');
 
     mix.scripts([
+        bowerDir + '/jSignature/libs/jSignature.min.js'
+    ], 'public/js/jSignature.min.js');
+
+    mix.scripts([
         bowerDir + '/jquery/dist/jquery.js',
         bowerDir + '/jquery-ui/jquery-ui.js',
         bowerDir + '/bootstrap/dist/js/bootstrap.js',

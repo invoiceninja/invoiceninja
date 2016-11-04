@@ -70,6 +70,15 @@ class Account extends Eloquent
         'include_item_taxes_inline',
         'start_of_week',
         'financial_year_start',
+        'enable_client_portal',
+        'enable_client_portal_dashboard',
+        'enable_portal_password',
+        'send_portal_password',
+        'enable_buy_now_buttons',
+        'show_accept_invoice_terms',
+        'show_accept_quote_terms',
+        'require_invoice_signature',
+        'require_quote_signature',
     ];
 
     /**
@@ -1860,6 +1869,29 @@ class Account extends Eloquent
         }
 
         return $this->enabled_modules & static::$modules[$entityType];
+    }
+
+    public function showAuthenticatePanel($invoice)
+    {
+        return $this->showAcceptTerms($invoice) || $this->showSignature($invoice);
+    }
+
+    public function showAcceptTerms($invoice)
+    {
+        if ( ! $this->isPro() || ! $invoice->terms) {
+            return false;
+        }
+
+        return $invoice->is_quote ? $this->show_accept_quote_terms : $this->show_accept_invoice_terms;
+    }
+
+    public function showSignature($invoice)
+    {
+        if ( ! $this->isPro()) {
+            return false;
+        }
+
+        return $invoice->is_quote ? $this->require_quote_signature : $this->require_invoice_signature;
     }
 }
 

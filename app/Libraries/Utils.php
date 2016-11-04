@@ -101,7 +101,9 @@ class Utils
             return false;
         }
 
-        return \App\Models\Account::first()->hasFeature(FEATURE_WHITE_LABEL);
+        $account = \App\Models\Account::first();
+
+        return $account && $account->hasFeature(FEATURE_WHITE_LABEL);
     }
 
     public static function getResllerType()

@@ -120,11 +120,13 @@
                         <span data-bind="visible: !$root.invoice().is_recurring()">
                             <span data-bind="html: $data.view_as_recipient"></span>&nbsp;&nbsp;
                             @if (Utils::isConfirmed())
-                            <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
-                                    data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
-                            <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign"
-                                    data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
-                                    style: {color: $data.info_color}"></span>
+	                            <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
+	                                    data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
+	                            <span style="vertical-align:text-top" class="fa fa-info-circle"
+	                                    data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
+	                                    style: {color: $data.info_color}"></span>
+								<span style="vertical-align:text-top" class="fa fa-user-circle"
+	                                    data-bind="visible: $data.invitation_signature_svg, tooltip: {title: '', html: true}"></span>
                             @endif
                         </span>
                         @endif
@@ -563,7 +565,7 @@
 	</div>
 	<p>&nbsp;</p>
 
-	@if (Auth::user()->account->live_preview))
+	@if (Auth::user()->account->live_preview)
 		@include('invoices.pdf', ['account' => Auth::user()->account])
 	@else
 		<script type="text/javascript">

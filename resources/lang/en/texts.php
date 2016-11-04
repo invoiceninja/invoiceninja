@@ -2175,6 +2175,19 @@ $LANG = array(
     'created_by' => 'Created by :name',
     'modules' => 'Modules',
     'financial_year_start' => 'First Month of the Year',
+    'authentication' => 'Authentication',
+    'checkbox' => 'Checkbox',
+    'invoice_signature' => 'Signature',
+    'show_accept_invoice_terms' => 'Invoice Terms Checkbox',
+    'show_accept_invoice_terms_help' => 'Require client to confirm that they accept the invoice terms.',
+    'show_accept_quote_terms' => 'Quote Terms Checkbox',
+    'show_accept_quote_terms_help' => 'Require client to confirm that they accept the quote terms.',
+    'require_invoice_signature' => 'Invoice Signature',
+    'require_invoice_signature_help' => 'Require client to provide their signature.',
+    'require_quote_signature' => 'Quote Signature',
+    'require_quote_signature_help' => 'Require client to provide their signature.',
+    'i_agree' => 'I Agree To The Terms & Conditions',
+    'sign_here' => 'Please sign here:',
 
 );
 

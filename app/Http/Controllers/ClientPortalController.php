@@ -198,6 +198,19 @@ class ClientPortalController extends BaseController
         return $pdfString;
     }
 
+    public function sign($invitationKey)
+    {
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return RESULT_FAILURE;
+        }
+        
+        $invitation->signature_base64 = Input::get('signature');
+        $invitation->signature_date = date_create();
+        $invitation->save();
+
+        return RESULT_SUCCESS;
+    }
+
     public function dashboard($contactKey = false)
     {
         if ($contactKey) {

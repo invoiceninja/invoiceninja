@@ -38,6 +38,7 @@ Route::post('/get_started', 'AccountController@getStarted');
 Route::group(['middleware' => 'auth:client'], function() {
     Route::get('view/{invitation_key}', 'ClientPortalController@view');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
+    Route::put('sign/{invitation_key}', 'ClientPortalController@sign');
     Route::get('view', 'HomeController@viewLogo');
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');

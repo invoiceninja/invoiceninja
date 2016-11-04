@@ -31,7 +31,8 @@
     "dropzone": "~4.3.0",
     "nouislider": "~8.5.1",
     "bootstrap-daterangepicker": "~2.1.24",
-    "sweetalert2": "^5.3.8"
+    "sweetalert2": "^5.3.8",
+    "jSignature": "brinley/jSignature#^2.1.0"
   },
   "resolutions": {
     "jquery": "~1.11"
