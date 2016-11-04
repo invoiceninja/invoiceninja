@@ -47,7 +47,7 @@ class EntityRequest extends Request {
 
         }
         catch(ModelNotFoundException $e) {
-            $this->entity() = null;
+            $this->entity = null;
         }
 
         return $this->entity;
