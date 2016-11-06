@@ -39,13 +39,13 @@ class APICest
         $data->contact = new stdClass;
         $data->contact->email = $this->faker->safeEmail;
         $clientId = $this->createEntity('client', $data);
-        $this->listEntities('client');
+        $this->listEntities('clients');
 
         $data = new stdClass;
         $data->client_id = $clientId;
         $data->description = $this->faker->realText(100);
         $this->createEntity('task', $data);
-        $this->listEntities('task');
+        $this->listEntities('tasks');
 
         $lineItem = new stdClass;
         $lineItem->qty = $this->faker->numberBetween(1, 10);
@@ -56,33 +56,35 @@ class APICest
             $lineItem
         ];
         $invoiceId = $this->createEntity('invoice', $data);
-        $this->listEntities('invoice');
+        $this->listEntities('invoices');
 
         $data = new stdClass;
         $data->invoice_id = $invoiceId;
         $data->amount = 1;
         $this->createEntity('payment', $data);
-        $this->listEntities('payment');
+        $this->listEntities('payments');
 
         $data = new stdClass;
         $data->name = $this->faker->word;
         $data->rate = $this->faker->numberBetween(1, 10);
         $this->createEntity('tax_rate', $data);
-        $this->listEntities('tax_rate');
+        $this->listEntities('tax_rates');
 
         $data = new stdClass;
         $data->product_key = $this->faker->word;
         $data->notes = $this->faker->realText(100);
         $this->createEntity('product', $data);
-        $this->listEntities('product');
+        $this->listEntities('products');
 
         $data = new stdClass;
         $data->name = $this->faker->word;
         $data->vendor_contacts = [];
         $this->createEntity('vendor', $data);
-        $this->listEntities('vendor');
+        $this->listEntities('vendors');
 
-        $this->listEntities('account');
+        $this->listEntities('accounts');
+        $this->listEntities('dashboard');
+
     }
 
     private function createEntity($entityType, $data)
@@ -91,7 +93,7 @@ class APICest
 
         $response = $this->sendRequest("{$entityType}s", $data);
         $entityId = $response->data->id;
-        
+
         PHPUnit_Framework_Assert::assertGreaterThan(0, $entityId);
 
         return $entityId;
@@ -99,8 +101,8 @@ class APICest
 
     private function listEntities($entityType)
     {
-        Debug::debug("List {$entityType}s");
-        $response = $this->sendRequest("{$entityType}s", null, 'GET');
+        Debug::debug("List {$entityType}");
+        $response = $this->sendRequest("{$entityType}", null, 'GET');
 
         PHPUnit_Framework_Assert::assertGreaterThan(0, count($response->data));
 
