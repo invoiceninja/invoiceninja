@@ -3804,12 +3804,8 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Omnipay\\Alipay\\": "src/",
-                    "Omnipay\\Alipay\\Tests\\": "tests/"
-                },
-                "files": [
-                    "src/Common/helpers.php"
-                ]
+                    "Omnipay\\Alipay\\": "src/"
+                }
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
