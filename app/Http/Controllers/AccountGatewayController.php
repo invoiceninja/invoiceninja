@@ -249,7 +249,7 @@ class AccountGatewayController extends BaseController
                     }
                     if (!$value && ($field == 'testMode' || $field == 'developerMode')) {
                         // do nothing
-                    } elseif ($gatewayId == GATEWAY_CUSTOM && $field == 'text') {
+                    } elseif ($gatewayId == GATEWAY_CUSTOM) {
                         $config->$field = strip_tags($value);
                     } else {
                         $config->$field = $value;

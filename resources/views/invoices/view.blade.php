@@ -116,7 +116,7 @@
                 @if ($showApprove)
                     {!! Button::success(trans('texts.approve'))->asLinkTo(URL::to('/approve/' . $invitation->invitation_key))->large() !!}
                 @endif
-    		@elseif ($invoice->client->account->isGatewayConfigured() && !$invoice->isPaid() && !$invoice->is_recurring)
+    		@elseif ($invoice->client->account->isGatewayConfigured() && floatval($invoice->balance) && !$invoice->is_recurring)
                 {!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}&nbsp;&nbsp;
                 @if (count($paymentTypes) > 1)
                     {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
@@ -319,11 +319,11 @@
 			<div class="modal-content">
 			  <div class="modal-header">
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				<h4 class="modal-title">&nbsp;</h4>
+				<h4 class="modal-title">{{ trans('texts.authorization') }}</h4>
 			  </div>
 
 			 <div class="panel-body">
-				 <div class="well">
+				 <div class="well" style="max-height:300px;overflow-y:scroll">
 					 {!! nl2br(e($invoice->terms)) !!}
 				 </div>
 				 @if ($account->showSignature($invoice))

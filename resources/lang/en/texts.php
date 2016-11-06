@@ -2186,8 +2186,10 @@ $LANG = array(
     'require_invoice_signature_help' => 'Require client to provide their signature.',
     'require_quote_signature' => 'Quote Signature',
     'require_quote_signature_help' => 'Require client to provide their signature.',
-    'i_agree' => 'I Agree To The Terms & Conditions',
+    'i_agree' => 'I Agree To The Terms',
     'sign_here' => 'Please sign here:',
+    'authorization' => 'Authorization',
+    'signed' => 'Signed',
 
 );
 
