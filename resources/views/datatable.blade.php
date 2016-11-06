@@ -48,6 +48,8 @@
 
     function load_{{ $class }}() {
         window.dataTable = jQuery('.{{ $class }}').dataTable({
+            "stateSave": true,
+            "stateDuration": 0,
             "fnRowCallback": function(row, data) {
                 if (data[0].indexOf('ENTITY_DELETED') > 0) {
                     $(row).addClass('entityDeleted');
@@ -81,6 +83,10 @@
                 if (window.onDatatableReady) {
                     window.onDatatableReady();
                 }
+            },
+            "stateLoadParams": function (settings, data) {
+                // don't save filter to local storage
+                data.search.search = "";
             }
         });
     }

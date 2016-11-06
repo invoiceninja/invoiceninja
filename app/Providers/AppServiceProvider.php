@@ -117,7 +117,7 @@ class AppServiceProvider extends ServiceProvider
             }
 
             if ($status) {
-                $str .= '&nbsp;&nbsp;&nbsp;&nbsp;' . $status;
+                $str .= $status;
             }
 
             return $str . '</ol>';

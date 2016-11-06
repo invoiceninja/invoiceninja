@@ -10,17 +10,6 @@
 
 @section('body')
 
-<!--
-<div id="fb-root"></div>
-<script>(function(d, s, id) {
-  var js, fjs = d.getElementsByTagName(s)[0];
-  if (d.getElementById(id)) return;
-  js = d.createElement(s); js.id = id;
-  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=635126583203143";
-  fjs.parentNode.insertBefore(js, fjs);
-}(document, 'script', 'facebook-jssdk'));</script>
--->
-
 {!! Form::open(array('url' => 'get_started', 'id' => 'startForm')) !!}
 {!! Form::hidden('guest_key') !!}
 {!! Form::hidden('sign_up', Input::get('sign_up')) !!}
@@ -87,13 +76,17 @@
                             {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
                         </li>
                     @endif
-                    <li {!! Request::is('*client/quotes') ? 'class="active"' : '' !!}>
-                        {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
-                    </li>
+                    @if (isset($hasQuotes) && $hasQuotes)
+                        <li {!! Request::is('*client/quotes') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/quotes', trans('texts.quotes') ) !!}
+                        </li>
+                    @endif
                     <li {!! Request::is('*client/invoices') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/invoices', trans('texts.invoices') ) !!}
                     </li>
-                    @if (isset($account) && $account->hasFeature(FEATURE_DOCUMENTS))
+                    @if (isset($account)
+                        && $account->hasFeature(FEATURE_DOCUMENTS)
+                        && (isset($hasDocuments) && $hasDocuments))
                         <li {!! Request::is('*client/documents') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/documents', trans('texts.documents') ) !!}
                         </li>
@@ -106,6 +99,11 @@
                     <li {!! Request::is('*client/payments') ? 'class="active"' : '' !!}>
                         {!! link_to('/client/payments', trans('texts.payments') ) !!}
                     </li>
+                    @if (isset($hasCredits) && $hasCredits)
+                        <li {!! Request::is('*client/credits') ? 'class="active"' : '' !!}>
+                            {!! link_to('/client/credits', trans('texts.credits') ) !!}
+                        </li>
+                    @endif
                 </ul>
                 @endif
             </div><!--/.nav-collapse -->

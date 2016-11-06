@@ -3,7 +3,7 @@
 @section('head')
 
 <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
-<link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css"/>    
+<link href="{{ asset('css/built.public.min.css') }}" rel="stylesheet" type="text/css"/>
 
 <style type="text/css">
     body {
@@ -13,6 +13,8 @@
     .modal-header {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
+        background-color: #337ab7;
+        color: #FFf;
     }
     .modal-header h4 {
         margin:0;
@@ -46,6 +48,25 @@
     .form-signin .form-control:focus {
         z-index: 2;
     }
+
+    .form-control {
+        display: block;
+        width: 100%;
+        height: 40px;
+        padding: 9px 12px;
+        font-size: 16px;
+        line-height: 1.42857143;
+        color: #000 !important;
+        background: #f9f9f9 !important;
+        background-image: none;
+        border: 1px solid #dfe0e1;
+        border-radius: 2px;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    }
+
 </style>
 
 @stop
@@ -55,15 +76,24 @@
 
 {!! Former::open('recover_password')->rules(['email' => 'required|email'])->addClass('form-signin') !!}
   <div class="modal-header">
-    <img src="{{ asset('images/icon-login.png') }}" />
-    <h4>Invoice Ninja | {{ trans('texts.password_recovery') }}</h4></div>
+      @if (Utils::isWhiteLabel())
+          <h4>{{ trans('texts.password_recovery') }}</h4>
+      @else
+          <a href="{{ NINJA_WEB_URL }}" target="_blank">
+              <img src="{{ asset('images/icon-login.png') }}" />
+          </a>
+          <h4>Invoice Ninja | {{ trans('texts.password_recovery') }}</h4>
+      @endif
+  </div>
     <div class="inner">
 
       <p>
         {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
     </p>
 
-    <p>{!! Button::success(trans('texts.send_email'))->large()->submit()->block() !!}</p>
+    <p>
+        {!! Button::success(trans('texts.send_email'))->large()->submit()->block() !!}
+    </p>
 
     @if (count($errors->all()))
         <div class="alert alert-danger">

@@ -3,6 +3,7 @@
 use Auth;
 use URL;
 use View;
+use Utils;
 use Input;
 use Session;
 use Redirect;
@@ -37,15 +38,40 @@ class ProductController extends BaseController
      */
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        $columns = [
+            'checkbox',
+            'product',
+            'description',
+            'unit_cost'
+        ];
+
+        if (Auth::user()->account->invoice_item_taxes) {
+            $columns[] = 'tax_rate';
+        }
+        $columns[] = 'action';
+
+        return View::make('list', [
+            'entityType' => ENTITY_PRODUCT,
+            'title' => trans('texts.products'),
+            'sortCol' => '4',
+            'columns' => Utils::trans($columns),
+        ]);
     }
+
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return Redirect::to("products/$publicId/edit");
+    }
+
 
     /**
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable()
     {
-        return $this->productService->getDatatable(Auth::user()->account_id);
+        return $this->productService->getDatatable(Auth::user()->account_id, Input::get('sSearch'));
     }
 
     /**
@@ -55,11 +81,13 @@ class ProductController extends BaseController
     public function edit($publicId)
     {
         $account = Auth::user()->account;
+        $product = Product::scope($publicId)->withTrashed()->firstOrFail();
 
         $data = [
           'account' => $account,
           'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
-          'product' => Product::scope($publicId)->firstOrFail(),
+          'product' => $product,
+          'entity' => $product,
           'method' => 'PUT',
           'url' => 'products/'.$publicId,
           'title' => trans('texts.edit_product'),
@@ -111,7 +139,7 @@ class ProductController extends BaseController
     private function save($productPublicId = false)
     {
         if ($productPublicId) {
-            $product = Product::scope($productPublicId)->firstOrFail();
+            $product = Product::scope($productPublicId)->withTrashed()->firstOrFail();
         } else {
             $product = Product::createNew();
         }
@@ -134,12 +162,12 @@ class ProductController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = Input::get('action');
+        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->productService->bulk($ids, $action);
 
         Session::flash('message', trans('texts.archived_product'));
 
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return $this->returnBulk(ENTITY_PRODUCT, $action, $ids);
     }
 }

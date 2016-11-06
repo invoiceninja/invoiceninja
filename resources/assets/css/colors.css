@@ -19,10 +19,7 @@ body {
     border-color: #337ab7;
 }
 
-.navbar {
-    background-color: #337ab7 !important;
-}
-
+.navbar,
 .navbar-collapse {
     background-color: #337ab7 !important;
 }

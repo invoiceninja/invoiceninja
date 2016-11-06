@@ -23,12 +23,10 @@
 
     <div class="row">
         <div class="col-md-7">
-            <div>
-                <span style="font-size:28px">{{ $client->getDisplayName() }}</span>
-                @if ($client->trashed())
-                    &nbsp;&nbsp;{!! $client->present()->status !!}
-                @endif
-            </div>
+            <ol class="breadcrumb">
+              <li>{{ link_to('/clients', trans('texts.clients')) }}</li>
+              <li class='active'>{{ $client->getDisplayName() }}</li> {!! $client->present()->statusLabel !!}
+            </ol>
         </div>
         <div class="col-md-5">
             <div class="pull-right">
@@ -44,26 +42,34 @@
                             ->withAttributes(['target' => '_blank']) !!}
                 @endif
 
+                @if ( ! $client->is_deleted)
+                    @can('edit', $client)
+                        {!! DropdownButton::normal(trans('texts.edit_client'))
+                            ->withAttributes(['class'=>'normalDropDown'])
+                            ->withContents([
+                              ($client->trashed() ? false : ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"]),
+                              ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
+                            ]
+                          )->split() !!}
+                    @endcan
+                    @if ( ! $client->trashed())
+                        @can('create', ENTITY_INVOICE)
+                            {!! DropdownButton::primary(trans('texts.new_invoice'))
+                                    ->withAttributes(['class'=>'primaryDropDown'])
+                                    ->withContents($actionLinks)->split() !!}
+                        @endcan
+                    @endif
+                @endif
+
                 @if ($client->trashed())
                     @can('edit', $client)
-                        {!! Button::primary(trans('texts.restore_client'))->withAttributes(['onclick' => 'onRestoreClick()']) !!}
-                    @endcan
-                @else
-                    @can('edit', $client)
-                    {!! DropdownButton::normal(trans('texts.edit_client'))
-                        ->withAttributes(['class'=>'normalDropDown'])
-                        ->withContents([
-                          ['label' => trans('texts.archive_client'), 'url' => "javascript:onArchiveClick()"],
-                          ['label' => trans('texts.delete_client'), 'url' => "javascript:onDeleteClick()"],
-                        ]
-                      )->split() !!}
-                    @endcan
-                    @can('create', ENTITY_INVOICE)
-                        {!! DropdownButton::primary(trans('texts.new_invoice'))
-                                ->withAttributes(['class'=>'primaryDropDown'])
-                                ->withContents($actionLinks)->split() !!}
+                        {!! Button::primary(trans('texts.restore_client'))
+                                ->appendIcon(Icon::create('cloud-download'))
+                                ->withAttributes(['onclick' => 'onRestoreClick()']) !!}
                     @endcan
                 @endif
+
+
               {!! Former::close() !!}
 
             </div>
@@ -75,7 +81,6 @@
 		{{ trans('texts.last_logged_in') }} {{ Utils::timestampToDateTimeString(strtotime($client->last_login)) }}
 	</small></h3>
 	@endif
-    <br/>
 
     <div class="panel panel-default">
     <div class="panel-body">

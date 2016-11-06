@@ -2,6 +2,7 @@
 
 use Auth;
 use Eloquent;
+use Illuminate\Database\QueryException;
 use Utils;
 use Validator;
 
@@ -14,6 +15,12 @@ class EntityModel extends Eloquent
      * @var bool
      */
     public $timestamps = true;
+
+    /**
+     * @var bool
+     */
+    protected static $hasPublicId = true;
+
     /**
      * @var array
      */
@@ -56,13 +63,16 @@ class EntityModel extends Eloquent
             $lastEntity = $className::whereAccountId($entity->account_id);
         }
 
-        $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
-                        ->first();
 
-        if ($lastEntity) {
-            $entity->public_id = $lastEntity->public_id + 1;
-        } else {
-            $entity->public_id = 1;
+        if (static::$hasPublicId) {
+            $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
+                                     ->first();
+
+            if ($lastEntity) {
+                $entity->public_id = $lastEntity->public_id + 1;
+            } else {
+                $entity->public_id = 1;
+            }
         }
 
         return $entity;
@@ -244,6 +254,7 @@ class EntityModel extends Eloquent
         $icons = [
             'dashboard' => 'tachometer',
             'clients' => 'users',
+            'products' => 'cube',
             'invoices' => 'file-pdf-o',
             'payments' => 'credit-card',
             'recurring_invoices' => 'files-o',
@@ -253,9 +264,21 @@ class EntityModel extends Eloquent
             'expenses' => 'file-image-o',
             'vendors' => 'building',
             'settings' => 'cog',
+            'self-update' => 'download',
         ];
 
         return array_get($icons, $entityType);
     }
 
+    // isDirty return true if the field's new value is the same as the old one
+    public function isChanged()
+    {
+        foreach ($this->fillable as $field) {
+            if ($this->$field != $this->getOriginal($field)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

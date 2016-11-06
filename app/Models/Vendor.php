@@ -211,7 +211,8 @@ class Vendor extends EntityModel
      */
     public function addVendorContact($data, $isPrimary = false)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        //$publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
 
         if ($publicId && $publicId != '-1') {
             $contact = VendorContact::scope($publicId)->firstOrFail();

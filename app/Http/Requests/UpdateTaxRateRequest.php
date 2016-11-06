@@ -4,7 +4,6 @@
 
 class UpdateTaxRateRequest extends TaxRateRequest
 {
-    // Expenses 
     /**
      * Determine if the user is authorized to make this request.
      *

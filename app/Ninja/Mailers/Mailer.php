@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Mailers;
 
+use Utils;
 use Exception;
 use Mail;
 use App\Models\Invoice;
@@ -29,7 +30,7 @@ class Mailer
         if (stristr($toEmail, '@example.com')) {
             return true;
         }
-        
+
         if (isset($_ENV['POSTMARK_API_TOKEN'])) {
             $views = 'emails.'.$view.'_html';
         } else {
@@ -55,7 +56,7 @@ class Mailer
                 if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
-                
+
                 // Attach documents to the email
                 if(!empty($data['documents'])){
                     foreach($data['documents'] as $document){
@@ -90,7 +91,7 @@ class Mailer
 
             $invoice->markInvitationSent($invitation, $messageId);
         }
-        
+
         return true;
     }
 
@@ -107,11 +108,13 @@ class Mailer
         } else {
             $emailError = $exception->getMessage();
         }
-        
+
         if (isset($data['invitation'])) {
             $invitation = $data['invitation'];
             $invitation->email_error = $emailError;
             $invitation->save();
+        } elseif ( ! Utils::isNinja()) {
+            Utils::logError(Utils::getErrorString($exception));
         }
 
         return $emailError;

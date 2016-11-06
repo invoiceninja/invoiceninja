@@ -66,7 +66,9 @@ class UserController extends BaseController
     public function edit($publicId)
     {
         $user = User::where('account_id', '=', Auth::user()->account_id)
-                        ->where('public_id', '=', $publicId)->firstOrFail();
+                        ->where('public_id', '=', $publicId)
+                        ->withTrashed()
+                        ->firstOrFail();
 
         $data = [
             'user' => $user,
@@ -157,7 +159,9 @@ class UserController extends BaseController
 
             if ($userPublicId) {
                 $user = User::where('account_id', '=', Auth::user()->account_id)
-                            ->where('public_id', '=', $userPublicId)->firstOrFail();
+                            ->where('public_id', '=', $userPublicId)
+                            ->withTrashed()
+                            ->firstOrFail();
 
                 $rules['email'] = 'required|email|unique:users,email,'.$user->id.',id';
             } else {
@@ -334,7 +338,13 @@ class UserController extends BaseController
             }
         }
 
-        return Redirect::to($referer);
+        // If the user is looking at an entity redirect to the dashboard
+        preg_match('/\/[0-9*][\/edit]*$/', $referer, $matches);
+        if (count($matches)) {
+            return Redirect::to('/dashboard');
+        } else {
+            return Redirect::to($referer);
+        }
     }
 
     public function unlinkAccount($userAccountId, $userId)

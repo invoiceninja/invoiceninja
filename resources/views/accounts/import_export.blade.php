@@ -49,7 +49,7 @@
   </div>
     <div class="panel-body">
         {!! Former::select('format')
-                ->onchange('setEntityTypesVisible()')
+                ->onchange('setCheckboxesEnabled()')
                 ->addOption('CSV', 'CSV')
                 ->addOption('XLS', 'XLS')
                 ->addOption('JSON', 'JSON')
@@ -58,7 +58,7 @@
 
 
         {!! Former::inline_radios('include_radio')
-                ->onchange('onIncludeChange()')
+                ->onchange('setCheckboxesEnabled()')
                 ->label(trans('texts.include'))
                 ->radios([
                     trans('texts.all') . ' &nbsp; ' => ['value' => 'all', 'name' => 'include'],
@@ -93,16 +93,18 @@
 <script type="text/javascript">
   $(function() {
       setFileTypesVisible();
-      onIncludeChange();
+      setCheckboxesEnabled();
   });
 
-  function setEntityTypesVisible() {
-    var selector = '.entity-types input[type=checkbox]';
-    if ($('#format').val() === 'JSON') {
-        $(selector).attr('disabled', true);
-    } else {
-        $(selector).removeAttr('disabled');
-    }
+  function setCheckboxesEnabled() {
+      var $checkboxes = $('input[type=checkbox]');
+      var include = $('input[name=include]:checked').val()
+      var format = $('#format').val();
+      if (include === 'all' || format === 'JSON') {
+          $checkboxes.attr('disabled', true);
+      } else {
+          $checkboxes.removeAttr('disabled');
+      }
   }
 
   function setFileTypesVisible() {
@@ -126,16 +128,6 @@
             }
         @endif
     @endforeach
-  }
-
-  function onIncludeChange() {
-      var $checkboxes = $('input[type=checkbox]');
-      var val = $('input[name=include]:checked').val()
-      if (val == 'all') {
-          $checkboxes.attr('disabled', true);
-      } else {
-          $checkboxes.removeAttr('disabled');
-      }
   }
 
 </script>

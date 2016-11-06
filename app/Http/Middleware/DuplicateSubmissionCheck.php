@@ -15,8 +15,7 @@ class DuplicateSubmissionCheck
      */
     public function handle(Request $request, Closure $next)
     {
-
-        if ($request->is('api/v1/*')) {
+        if ($request->is('api/v1/*') || $request->is('documents')) {
             return $next($request);
         }
 

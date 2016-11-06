@@ -2,16 +2,19 @@
 
 use URL;
 use Session;
+use Utils;
 use Request;
 use Omnipay;
 use Exception;
 use CreditCard;
 use DateTime;
 use App\Models\AccountGatewayToken;
+use App\Models\AccountGatewaySettings;
 use App\Models\Account;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use App\Models\Country;
+use App\Models\GatewayType;
 
 class BasePaymentDriver
 {
@@ -119,6 +122,12 @@ class BasePaymentDriver
 
         $gateway = $this->accountGateway->gateway;
 
+        if ( ! $this->meetsGatewayTypeLimits($this->gatewayType)) {
+            // The customer must have hacked the URL
+            Session::flash('error', trans('texts.limits_not_met'));
+            return redirect()->to('view/' . $this->invitation->invitation_key);
+        }
+
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
             if (Session::has('error')) {
                 Session::reflash();
@@ -158,12 +167,14 @@ class BasePaymentDriver
     // check if a custom view exists for this provider
     protected function paymentView()
     {
-        $file = sprintf('%s/views/payments/%s/%s.blade.php', resource_path(), $this->providerName(), $this->gatewayType);
+        $gatewayTypeAlias = GatewayType::getAliasFromId($this->gatewayType);
+
+        $file = sprintf('%s/views/payments/%s/%s.blade.php', resource_path(), $this->providerName(), $gatewayTypeAlias);
 
         if (file_exists($file)) {
-            return sprintf('payments.%s/%s', $this->providerName(), $this->gatewayType);
+            return sprintf('payments.%s/%s', $this->providerName(), $gatewayTypeAlias);
         } else {
-            return sprintf('payments.%s', $this->gatewayType);
+            return sprintf('payments.%s', $gatewayTypeAlias);
         }
     }
 
@@ -242,8 +253,22 @@ class BasePaymentDriver
                     ->wherePublicId($this->sourceId)
                     ->firstOrFail();
             }
-        } elseif ($this->shouldCreateToken()) {
-            $paymentMethod = $this->createToken();
+
+            if ( ! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
+                // The customer must have hacked the URL
+                Session::flash('error', trans('texts.limits_not_met'));
+                return redirect()->to('view/' . $this->invitation->invitation_key);
+            }
+        } else {
+            if ($this->shouldCreateToken()) {
+                $paymentMethod = $this->createToken();
+            }
+
+            if ( ! $this->meetsGatewayTypeLimits($this->gatewayType)) {
+                // The customer must have hacked the URL
+                Session::flash('error', trans('texts.limits_not_met'));
+                return redirect()->to('view/' . $this->invitation->invitation_key);
+            }
         }
 
         if ($this->isTwoStep()) {
@@ -323,7 +348,8 @@ class BasePaymentDriver
     protected function paymentDetails($paymentMethod = false)
     {
         $invoice = $this->invoice();
-        $completeUrl = url('complete/' . $this->invitation->invitation_key . '/' . $this->gatewayType);
+        $gatewayTypeAlias = $this->gatewayType == GATEWAY_TYPE_TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
+        $completeUrl = url('complete/' . $this->invitation->invitation_key . '/' . $gatewayTypeAlias);
 
         $data = [
             'amount' => $invoice->getRequestedAmount(),
@@ -760,6 +786,10 @@ class BasePaymentDriver
                 continue;
             }
 
+            if ( ! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
+                continue;
+            }
+
             $url = URL::to("/payment/{$this->invitation->invitation_key}/token/".$paymentMethod->public_id);
 
             if ($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
@@ -787,27 +817,68 @@ class BasePaymentDriver
     {
         $links = [];
 
-        foreach ($this->gatewayTypes() as $gatewayType) {
-            if ($gatewayType === GATEWAY_TYPE_TOKEN) {
+        foreach ($this->gatewayTypes() as $gatewayTypeId) {
+            if ($gatewayTypeId === GATEWAY_TYPE_TOKEN) {
                 continue;
             }
 
+            if ( ! $this->meetsGatewayTypeLimits($gatewayTypeId)) {
+                continue;
+            }
+
+            $gatewayTypeAlias = GatewayType::getAliasFromId($gatewayTypeId);
+
+            if ($gatewayTypeId == GATEWAY_TYPE_CUSTOM) {
+                $url = "javascript:showCustomModal();";
+                $label = e($this->accountGateway->getConfigField('name'));
+            } else {
+                $url = $this->paymentUrl($gatewayTypeAlias);
+                $label = trans("texts.{$gatewayTypeAlias}");
+            }
+
             $links[] = [
-                'url' => $this->paymentUrl($gatewayType),
-                'label' => trans("texts.{$gatewayType}")
+                'gatewayTypeId' => $gatewayTypeId,
+                'url' => $url,
+                'label' => $label,
             ];
         }
 
         return $links;
     }
 
-    protected function paymentUrl($gatewayType)
+    protected function meetsGatewayTypeLimits($gatewayTypeId)
+    {
+        if ( !$gatewayTypeId ) {
+            return true;
+        }
+
+        $accountGatewaySettings = AccountGatewaySettings::scope(false, $this->invitation->account_id)
+            ->where('account_gateway_settings.gateway_type_id', '=', $gatewayTypeId)->first();
+
+        if ($accountGatewaySettings) {
+            $invoice = $this->invoice();
+
+            if ($accountGatewaySettings->min_limit !== null && $invoice->balance < $accountGatewaySettings->min_limit) {
+                return false;
+            }
+
+            if ($accountGatewaySettings->max_limit !== null &&  $invoice->balance > $accountGatewaySettings->max_limit) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected function paymentUrl($gatewayTypeAlias)
     {
         $account = $this->account();
-        $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayType}");
+        $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
+
+        $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
 
         // PayPal doesn't allow being run in an iframe so we need to open in new tab
-        if ($gatewayType === GATEWAY_TYPE_PAYPAL) {
+        if ($gatewayTypeId === GATEWAY_TYPE_PAYPAL) {
             $url .= '#braintree_paypal';
 
             if ($account->iframe_url) {

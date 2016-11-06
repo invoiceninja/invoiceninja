@@ -31,6 +31,7 @@ class ClientRepository extends BaseRepository
                     ->where('clients.account_id', '=', \Auth::user()->account_id)
                     ->where('contacts.is_primary', '=', true)
                     ->where('contacts.deleted_at', '=', null)
+                    //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
                     ->select(
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
@@ -78,7 +79,10 @@ class ClientRepository extends BaseRepository
             $client = Client::createNew();
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
-            \Log::warning('Entity not set in client repo save');
+        }
+
+        if ($client->is_deleted) {
+            return $client;
         }
 
         // convert currency code to id
@@ -107,7 +111,11 @@ class ClientRepository extends BaseRepository
 
         // If the primary is set ensure it's listed first
         usort($contacts, function ($left, $right) {
-            return (isset($right['is_primary']) ? $right['is_primary'] : 1) - (isset($left['is_primary']) ? $left['is_primary'] : 0);
+            if (isset($right['is_primary']) && isset($left['is_primary'])) {
+                return $right['is_primary'] - $left['is_primary'];
+            } else {
+                return 0;
+            }
         });
 
         foreach ($contacts as $contact) {

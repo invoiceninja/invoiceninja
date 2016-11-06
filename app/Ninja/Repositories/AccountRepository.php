@@ -2,6 +2,7 @@
 
 use Auth;
 use Request;
+use Input;
 use Session;
 use Utils;
 use URL;
@@ -27,6 +28,11 @@ class AccountRepository
     public function create($firstName = '', $lastName = '', $email = '', $password = '')
     {
         $company = new Company();
+        $company->utm_source = Input::get('utm_source');
+        $company->utm_medium = Input::get('utm_medium');
+        $company->utm_campaign = Input::get('utm_campaign');
+        $company->utm_term = Input::get('utm_term');
+        $company->utm_content = Input::get('utm_content');
         $company->save();
 
         $account = new Account();

@@ -44,6 +44,7 @@
 .twitter-typeahead .tt-suggestion {
   padding: 3px 20px;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 /*Added to menu element when it contains no content*/

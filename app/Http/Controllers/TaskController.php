@@ -177,15 +177,14 @@ class TaskController extends BaseController
 
         $data = [
             'task' => $task,
+            'entity' => $task,
             'clientPublicId' => $task->client ? $task->client->public_id : 0,
             'method' => 'PUT',
             'url' => 'tasks/'.$task->public_id,
             'title' => trans('texts.edit_task'),
-            'duration' => $task->is_running ? $task->getCurrentDuration() : $task->getDuration(),
             'actions' => $actions,
             'timezone' => Auth::user()->account->timezone ? Auth::user()->account->timezone->name : DEFAULT_TIMEZONE,
             'datetimeFormat' => Auth::user()->account->getMomentDateTimeFormat(),
-            //'entityStatus' => $task->present()->status,
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -295,16 +294,12 @@ class TaskController extends BaseController
                 return Redirect::to("invoices/{$invoiceId}/edit")->with('tasks', $data);
             }
         } else {
-            $count = $this->taskRepo->bulk($ids, $action);
+            $count = $this->taskService->bulk($ids, $action);
 
             $message = Utils::pluralize($action.'d_task', $count);
             Session::flash('message', $message);
 
-            if ($action == 'restore' && $count == 1) {
-                return Redirect::to('tasks/'.$ids[0].'/edit');
-            } else {
-                return Redirect::to('tasks');
-            }
+            return $this->returnBulk($this->entityType, $action, $ids);
         }
     }
 

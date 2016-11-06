@@ -9,7 +9,7 @@ class TokenPolicy extends EntityPolicy {
         return $user->hasPermission('admin');
     }
 
-    public static function create(User $user) {
+    public static function create(User $user, $item) {
         return $user->hasPermission('admin');
     }
 }

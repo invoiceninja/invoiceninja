@@ -34,6 +34,7 @@ class PaymentCest
         $I->fillField(['name' => 'notes'], $this->faker->text(80));
         $I->fillField(['name' => 'cost'], $this->faker->numberBetween(11, 20));
         $I->click('Save');
+        $I->wait(1);
         //$I->see($productKey);
 
         // create invoice
@@ -42,6 +43,7 @@ class PaymentCest
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->click('Save');
+        $I->wait(1);
         $I->see($clientEmail);
 
         $I->amOnPage('/payments/create');
@@ -53,6 +55,7 @@ class PaymentCest
         $I->fillField(['name' => 'transaction_reference'], $this->faker->text(12));
 
         $I->click('Save');
+        $I->wait(1);
 
         $I->see('Successfully created payment');
         $I->seeInDatabase('payments', ['amount' => number_format($amount, 2)]);

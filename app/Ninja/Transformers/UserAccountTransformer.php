@@ -10,7 +10,7 @@ class UserAccountTransformer extends EntityTransformer
     ];
 
     protected $tokenName;
-    
+
     public function __construct(Account $account, $serializer, $tokenName)
     {
         parent::__construct($account, $serializer);
@@ -31,6 +31,7 @@ class UserAccountTransformer extends EntityTransformer
             'name' => $user->account->present()->name,
             'token' => $user->account->getToken($user->id, $this->tokenName),
             'default_url' => SITE_URL,
+            'plan' => $user->account->company->plan,
             'logo' => $user->account->logo,
             'logo_url' => $user->account->getLogoURL(),
         ];

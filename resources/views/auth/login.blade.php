@@ -3,7 +3,7 @@
 @section('head')
 
 <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet" type="text/css"/>
-<link href="{{ asset('css/style.min.css') }}" rel="stylesheet" type="text/css"/>
+<link href="{{ asset('css/built.public.min.css') }}" rel="stylesheet" type="text/css"/>
 
 <style type="text/css">
     body {
@@ -13,9 +13,11 @@
     .modal-header {
         border-top-left-radius: 3px;
         border-top-right-radius: 3px;
+        background-color: #337ab7;
     }
     .modal-header h4 {
         margin:0;
+        color:#fff;
     }
     .modal-header img {
         float: left;
@@ -55,6 +57,24 @@
         color: white;
     }
 
+    .form-control {
+        display: block;
+        width: 100%;
+        height: 40px;
+        padding: 9px 12px;
+        font-size: 16px;
+        line-height: 1.42857143;
+        color: #000 !important;
+        background: #f9f9f9 !important;
+        background-image: none;
+        border: 1px solid #dfe0e1;
+        border-radius: 2px;
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        -webkit-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+        transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+    }
+
 </style>
 
 @endsection
@@ -70,10 +90,14 @@
     {{ Former::populateField('remember', 'true') }}
 
     <div class="modal-header">
-        <a href="{{ NINJA_WEB_URL }}" target="_blank">
-            <img src="{{ asset('images/icon-login.png') }}" />
-            <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4>
-        </a>
+        @if (Utils::isWhiteLabel())
+            <h4>{{ trans('texts.account_login') }}</h4>
+        @else
+            <a href="{{ NINJA_WEB_URL }}" target="_blank">
+                <img src="{{ asset('images/icon-login.png') }}" />
+                <h4>Invoice Ninja | {{ trans('texts.account_login') }}</h4>
+            </a>
+        @endif
     </div>
         <div class="inner">
             <p>
@@ -105,9 +129,10 @@
             @endif
 
             <p class="link">
-                {!! link_to('/recover_password', trans('texts.recover_password')) !!}
+                {!! link_to('/recover_password', trans('texts.recover_password'), ['class' => 'pull-left']) !!}
                 {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank', 'class' => 'pull-right']) !!}
             </p>
+            <br/>
 
             @if (count($errors->all()))
                 <div class="alert alert-danger">
@@ -134,33 +159,6 @@
         {!! Former::close() !!}
 
         <p/>
-        <center>
-            <!--
-            <div id="fb-root"></div>
-            <script>(function(d, s, id) {
-                var js, fjs = d.getElementsByTagName(s)[0];
-                if (d.getElementById(id)) return;
-                js = d.createElement(s); js.id = id;
-                js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=635126583203143";
-                fjs.parentNode.insertBefore(js, fjs);
-            }(document, 'script', 'facebook-jssdk'));</script>
-
-            <div class="fb-follow" data-href="https://www.facebook.com/invoiceninja" data-colorscheme="light" data-layout="button" data-show-faces="false"></div>&nbsp;&nbsp;
-
-            <a href="https://twitter.com/invoiceninja" class="twitter-follow-button" data-show-count="false" data-related="hillelcoren" data-size="medium">Follow @invoiceninja</a>
-            <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-
-            <iframe src="https://ghbtns.com/github-btn.html?user=hillelcoren&repo=invoice-ninja&type=star&count=false" frameborder="0" scrolling="0" width="50px" height="20px"></iframe>
-            -->
-
-            <p>&nbsp;</p>
-            <p>&nbsp;</p>
-
-            <!--
-            <iframe allowTransparency="true" frameborder="0" scrolling="no" src="https://bitnami.com/product/invoice-ninja/widget" style="border:none;width:230px; height:100px;"></iframe>
-            -->
-
-        </center>
 
     </div>
 
@@ -172,15 +170,7 @@
             } else {
                 $('#email').focus();
             }
-
-            /*
-            var authProvider = localStorage.getItem('auth_provider');
-            if (authProvider) {
-                $('#' + authProvider + 'LoginButton').removeClass('btn-primary').addClass('btn-success');
-            }
-            */
         })
-
     </script>
 
 @endsection

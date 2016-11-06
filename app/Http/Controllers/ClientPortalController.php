@@ -22,6 +22,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ActivityRepository;
 use App\Ninja\Repositories\DocumentRepository;
+use App\Ninja\Repositories\CreditRepository;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\QuoteInvitationWasViewed;
 use App\Services\PaymentService;
@@ -33,13 +34,14 @@ class ClientPortalController extends BaseController
     private $paymentRepo;
     private $documentRepo;
 
-    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, DocumentRepository $documentRepo, PaymentService $paymentService)
+    public function __construct(InvoiceRepository $invoiceRepo, PaymentRepository $paymentRepo, ActivityRepository $activityRepo, DocumentRepository $documentRepo, PaymentService $paymentService, CreditRepository $creditRepo)
     {
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentRepo = $paymentRepo;
         $this->activityRepo = $activityRepo;
         $this->documentRepo = $documentRepo;
         $this->paymentService = $paymentService;
+        $this->creditRepo = $creditRepo;
     }
 
     public function view($invitationKey)
@@ -102,7 +104,9 @@ class ClientPortalController extends BaseController
         $paymentURL = '';
         if (count($paymentTypes) == 1) {
             $paymentURL = $paymentTypes[0]['url'];
-            if (!$account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
+            if ($paymentTypes[0]['gatewayTypeId'] == GATEWAY_TYPE_CUSTOM) {
+                // do nothing
+            } elseif (!$account->isGatewayConfigured(GATEWAY_PAYPAL_EXPRESS)) {
                 $paymentURL = URL::to($paymentURL);
             }
         }
@@ -141,7 +145,12 @@ class ClientPortalController extends BaseController
             ];
         }
 
-
+        if ($accountGateway = $account->getGatewayByType(GATEWAY_TYPE_CUSTOM)) {
+            $data += [
+                'customGatewayName' => $accountGateway->getConfigField('name'),
+                'customGatewayText' => $accountGateway->getConfigField('text'),
+            ];
+        }
 
         if($account->hasFeature(FEATURE_DOCUMENTS) && $this->canCreateZip()){
             $zipDocs = $this->getInvoiceZipDocuments($invoice, $size);
@@ -153,18 +162,6 @@ class ClientPortalController extends BaseController
         }
 
         return View::make('invoices.view', $data);
-    }
-
-    public function contactIndex($contactKey) {
-        if (!$contact = Contact::where('contact_key', '=', $contactKey)->first()) {
-            return $this->returnError();
-        }
-
-        $client = $contact->client;
-
-        Session::put('contact_key', $contactKey);// track current contact
-
-        return redirect()->to($client->account->enable_client_portal_dashboard?'/client/dashboard':'/client/invoices/');
     }
 
     private function getPaymentTypes($account, $client, $invitation)
@@ -201,19 +198,41 @@ class ClientPortalController extends BaseController
         return $pdfString;
     }
 
-    public function dashboard()
+    public function sign($invitationKey)
     {
-        if (!$contact = $this->getContact()) {
+        if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return RESULT_FAILURE;
+        }
+        
+        $invitation->signature_base64 = Input::get('signature');
+        $invitation->signature_date = date_create();
+        $invitation->save();
+
+        return RESULT_SUCCESS;
+    }
+
+    public function dashboard($contactKey = false)
+    {
+        if ($contactKey) {
+            if (!$contact = Contact::where('contact_key', '=', $contactKey)->first()) {
+                return $this->returnError();
+            }
+            Session::put('contact_key', $contactKey);// track current contact
+        } else if (!$contact = $this->getContact()) {
             return $this->returnError();
         }
 
         $client = $contact->client;
         $account = $client->account;
+        $account->loadLocalizationSettings($client);
+
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $customer = false;
 
-        if (!$account->enable_client_portal || !$account->enable_client_portal_dashboard) {
+        if (!$account->enable_client_portal) {
             return $this->returnError();
+        } elseif (!$account->enable_client_portal_dashboard) {
+            return redirect()->to('/client/invoices/');
         }
 
         if ($paymentDriver = $account->paymentDriver(false, GATEWAY_TYPE_TOKEN)) {
@@ -273,6 +292,7 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -300,6 +320,7 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
@@ -346,12 +367,14 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
         $data = [
             'color' => $color,
             'account' => $account,
@@ -416,12 +439,14 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
         $data = [
           'color' => $color,
           'account' => $account,
@@ -444,6 +469,42 @@ class ClientPortalController extends BaseController
         return $this->invoiceRepo->getClientDatatable($contact->id, ENTITY_QUOTE, Input::get('sSearch'));
     }
 
+    public function creditIndex()
+    {
+        if (!$contact = $this->getContact()) {
+            return $this->returnError();
+        }
+
+        $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
+
+        if (!$account->enable_client_portal) {
+            return $this->returnError();
+        }
+
+        $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
+        $data = [
+          'color' => $color,
+          'account' => $account,
+          'clientFontUrl' => $account->getFontsUrl(),
+          'title' => trans('texts.credits'),
+          'entityType' => ENTITY_CREDIT,
+          'columns' => Utils::trans(['credit_date', 'credit_amount', 'credit_balance']),
+        ];
+
+        return response()->view('public_list', $data);
+    }
+
+    public function creditDatatable()
+    {
+        if (!$contact = $this->getContact()) {
+            return false;
+        }
+
+        return $this->creditRepo->getClientDatatable($contact->client_id);
+    }
+
     public function documentIndex()
     {
         if (!$contact = $this->getContact()) {
@@ -451,12 +512,14 @@ class ClientPortalController extends BaseController
         }
 
         $account = $contact->account;
+        $account->loadLocalizationSettings($contact->client);
 
         if (!$account->enable_client_portal) {
             return $this->returnError();
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+
         $data = [
           'color' => $color,
           'account' => $account,

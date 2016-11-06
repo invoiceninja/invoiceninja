@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use Utils;
 use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\ExpenseWasCreated;
@@ -31,6 +32,7 @@ class Expense extends EntityModel
         'client_id',
         'vendor_id',
         'expense_currency_id',
+        'expense_date',
         'invoice_currency_id',
         'amount',
         'foreign_amount',
@@ -46,6 +48,29 @@ class Expense extends EntityModel
         'tax_name2',
     ];
 
+    public static function getImportColumns()
+    {
+        return [
+            'client',
+            'vendor',
+            'amount',
+            'public_notes',
+            'expense_category',
+            'expense_date',
+        ];
+    }
+
+    public static function getImportMap()
+    {
+        return [
+            'amount|total' => 'amount',
+            'category' => 'expense_category',
+            'client' => 'client',
+            'vendor' => 'vendor',
+            'notes|details' => 'public_notes',
+            'date' => 'expense_date',
+        ];
+    }
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -107,7 +132,13 @@ class Expense extends EntityModel
      */
     public function getName()
     {
-        return $this->transaction_id ?: '#' . $this->public_id;
+        if ($this->transaction_id) {
+            return $this->transaction_id;
+        } elseif ($this->public_notes) {
+            return mb_strimwidth($this->public_notes, 0, 16, "...");
+        } else {
+            return '#' . $this->public_id;
+        }
     }
 
     /**
@@ -175,6 +206,11 @@ class Expense extends EntityModel
 
         return $query;
     }
+
+    public function amountWithTax()
+    {
+        return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
+    }
 }
 
 Expense::creating(function ($expense) {
@@ -195,8 +231,4 @@ Expense::updated(function ($expense) {
 
 Expense::deleting(function ($expense) {
     $expense->setNullValues();
-});
-
-Expense::deleted(function ($expense) {
-    event(new ExpenseWasDeleted($expense));
 });

@@ -50,6 +50,7 @@ class InvoiceRepository extends BaseRepository
             ->where('contacts.deleted_at', '=', null)
             ->where('invoices.is_recurring', '=', false)
             ->where('contacts.is_primary', '=', true)
+            //->whereRaw('(clients.name != "" or contacts.first_name != "" or contacts.last_name != "" or contacts.email != "")') // filter out buy now invoices
             ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
@@ -280,7 +281,13 @@ class InvoiceRepository extends BaseRepository
             }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
-            \Log::warning('Entity not set in invoice repo save');
+            if (Utils::isNinjaDev()) {
+                \Log::warning('Entity not set in invoice repo save');
+            }
+        }
+
+        if ($invoice->is_deleted) {
+            return $invoice;
         }
 
         $invoice->fill($data);
@@ -305,9 +312,6 @@ class InvoiceRepository extends BaseRepository
         }
         if (isset($data['is_amount_discount'])) {
             $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
-        }
-        if (isset($data['partial'])) {
-            $invoice->partial = round(Utils::parseFloat($data['partial']), 2);
         }
         if (isset($data['invoice_date_sql'])) {
             $invoice->invoice_date = $data['invoice_date_sql'];
@@ -475,6 +479,10 @@ class InvoiceRepository extends BaseRepository
             $invoice->balance = $total - ($invoice->amount - $invoice->balance);
         } else {
             $invoice->balance = $total;
+        }
+
+        if (isset($data['partial'])) {
+            $invoice->partial = max(0,min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance));
         }
 
         $invoice->amount = $total;
@@ -653,6 +661,9 @@ class InvoiceRepository extends BaseRepository
         if ($quotePublicId) {
             $clone->invoice_type_id = INVOICE_TYPE_STANDARD;
             $clone->quote_id = $quotePublicId;
+            if ($account->invoice_terms) {
+                $clone->terms = $account->invoice_terms;
+            }
         }
 
         $clone->save();

@@ -171,26 +171,38 @@
         </div>
     </div>
 
-	<center class="buttons">
+    <center class="buttons">
         {!! Button::normal(trans('texts.cancel'))
                 ->asLinkTo(URL::to('/expenses'))
                 ->appendIcon(Icon::create('remove-circle'))
                 ->large() !!}
 
-        @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
-            {!! Button::success(trans('texts.save'))
-                    ->appendIcon(Icon::create('floppy-disk'))
-                    ->large()
-                    ->submit() !!}
+        @if (Auth::user()->canCreateOrEdit(ENTITY_EXPENSE, $expense))
+            @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
+                @if (!$expense || !$expense->is_deleted)
+                    {!! Button::success(trans('texts.save'))
+                            ->appendIcon(Icon::create('floppy-disk'))
+                            ->large()
+                            ->submit() !!}
+                @endif
 
-            @if ($expense)
-                {!! DropdownButton::normal(trans('texts.more_actions'))
-                      ->withContents($actions)
-                      ->large()
-                      ->dropup() !!}
+                @if ($expense && !$expense->trashed())
+                    {!! DropdownButton::normal(trans('texts.more_actions'))
+                          ->withContents($actions)
+                          ->large()
+                          ->dropup() !!}
+                @endif
+
+                @if ($expense && $expense->trashed())
+                    {!! Button::primary(trans('texts.restore'))
+                            ->withAttributes(['onclick' => 'submitAction("restore")'])
+                            ->appendIcon(Icon::create('cloud-download'))
+                            ->large() !!}
+                @endif
+
             @endif
         @endif
-	</center>
+    </center>
 
 	{!! Former::close() !!}
 
@@ -214,7 +226,11 @@
                 return false;
             }
 
-            return true;
+            @if (Auth::user()->canCreateOrEdit(ENTITY_EXPENSE, $expense))
+                return true;
+            @else
+                return false
+            @endif
         }
 
         function onClientChange() {

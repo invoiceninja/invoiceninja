@@ -99,7 +99,7 @@
                 showCancelButton: true,
                 closeOnConfirm: false,
                 allowOutsideClick: true,
-            }, function() {
+            }).then(function() {
                 success();
                 swal.close();
             });
@@ -246,11 +246,8 @@
 
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
             @if (Session::get('trackEventAction') === '/buy_pro_plan')
-                window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {
-            'value': '{{ session('trackEventAmount') }}',
-            'currency': 'USD'
-        }]);
-        @endif
+                fbq('track', 'Purchase', {value: '{{ session('trackEventAmount') }}', currency: 'USD'});
+            @endif
         @endif
 
         @if (Session::has('onReady'))

@@ -77,6 +77,7 @@ class DatatableService
             if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
                 foreach ($datatable->actions() as $action) {
                     if (count($action)) {
+                        // if show function isn't set default to true
                         if (count($action) == 2) {
                             $action[] = function() {
                                 return true;
@@ -84,11 +85,10 @@ class DatatableService
                         }
                         list($value, $url, $visible) = $action;
                         if ($visible($model)) {
-                            if($value == '--divider--'){
+                            if ($value == '--divider--') {
                                 $dropdown_contents .= '<li class="divider"></li>';
                                 $lastIsDivider = true;
-                            }
-                            else {
+                            } else {
                                 $urlVal = $url($model);
                                 $urlStr = is_string($urlVal) ? $urlVal : $urlVal['url'];
                                 $attributes = '';

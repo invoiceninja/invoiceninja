@@ -148,7 +148,7 @@ return array(
         | an array of columns ( array('A', 'B') )
         |
         */
-        'autosize'                    => true,
+        'autosize'                    => false,
 
         /*
         |--------------------------------------------------------------------------

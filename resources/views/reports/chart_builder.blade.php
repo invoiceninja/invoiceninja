@@ -1,8 +1,51 @@
 @extends('header')
 
+@section('head')
+	@parent
+
+    <script src="{{ asset('js/daterangepicker.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/daterangepicker.css') }}" rel="stylesheet" type="text/css"/>
+
+@stop
+
 @section('content')
 	@parent
 	@include('accounts.nav', ['selected' => ACCOUNT_REPORTS, 'advanced' => true])
+
+    <script type="text/javascript">
+
+        $(function() {
+
+            var chartStartDate = moment("{{ $startDate }}");
+            var chartEndDate = moment("{{ $endDate }}");
+
+            // Initialize date range selector
+            function cb(start, end) {
+                $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
+                $('#start_date').val(start.format('YYYY-MM-DD'));
+                $('#end_date').val(end.format('YYYY-MM-DD'));
+            }
+
+            $('#reportrange').daterangepicker({
+                locale: {
+                    "format": "{{ $account->getMomentDateFormat() }}",
+                },
+                startDate: chartStartDate,
+                endDate: chartEndDate,
+                linkedCalendars: false,
+                ranges: {
+                   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                   'This Month': [moment().startOf('month'), moment().endOf('month')],
+                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                }
+            }, cb);
+
+            cb(chartStartDate, chartEndDate);
+
+        });
+
+    </script>
 
 
     {!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required'])->addClass('warn-on-exit') !!}
@@ -24,13 +67,25 @@
                 <div class="row">
                     <div class="col-md-6">
 
-            			{!! Former::text('start_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
-                                ->addGroupClass('start_date')
-            					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'start_date\')"></i>') !!}
-            			{!! Former::text('end_date')->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
-                                ->addGroupClass('end_date')
-            					->append('<i class="glyphicon glyphicon-calendar" onclick="toggleDatePicker(\'end_date\')"></i>') !!}
+                        <div class="form-group">
+                            <label for="reportrange" class="control-label col-lg-4 col-sm-4">
+                                {{ trans('texts.date_range') }}
+                            </label>
+                            <div class="col-lg-8 col-sm-8">
+                                <div id="reportrange" style="background: #f9f9f9; cursor: pointer; padding: 9px 14px; border: 1px solid #dfe0e1; margin-top: 0px; margin-left:18px">
+                                    <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                                    <span></span> <b class="caret"></b>
+                                </div>
 
+                                <div style="display:none">
+                                    {!! Former::text('start_date') !!}
+                                    {!! Former::text('end_date') !!}
+                                </div>
+                            </div>
+                        </div>
+
+
+                        <p>&nbsp;</p>
                         <p>&nbsp;</p>
                         {!! Former::actions(
                                 Button::primary(trans('texts.export'))->withAttributes(array('onclick' => 'onExportClick()'))->appendIcon(Icon::create('export')),

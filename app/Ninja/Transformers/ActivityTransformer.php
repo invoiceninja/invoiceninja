@@ -16,7 +16,7 @@ class ActivityTransformer extends EntityTransformer
     protected $availableIncludes = [ ];
 
     /**
-     * @param Client $client
+     * @param Activity $activity
      * @return array
      */
     public function transform(Activity $activity)
@@ -29,7 +29,10 @@ class ActivityTransformer extends EntityTransformer
             'invoice_id' => $activity->invoice ? $activity->invoice->public_id : null,
             'payment_id' => $activity->payment ? $activity->payment->public_id : null,
             'credit_id' => $activity->credit ? $activity->credit->public_id : null,
-            'updated_at' => $this->getTimestamp($activity->updated_at)
+            'updated_at' => $this->getTimestamp($activity->updated_at),
+            'expense_id' => $activity->expense_id ? $activity->expense->public_id : null,
+            'is_system' => (bool) $activity->is_system ? $activity->is_system : null,
+            'contact_id' => $activity->contact_id ? $activity->contact->public_id : null
         ];
     }
 }

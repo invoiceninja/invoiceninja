@@ -16,7 +16,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 'invoice_number',
                 function ($model) use ($entityType) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id])){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->user_id])){
                         return $model->invoice_number;
                     }
 
@@ -186,7 +186,7 @@ class InvoiceDatatable extends EntityDatatable
                 $class = 'success';
                 break;
         }
-        
+
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 

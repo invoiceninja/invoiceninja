@@ -114,6 +114,8 @@ function GetPdfMake(invoice, javascript, callback) {
     // set page size
     dd.pageSize = invoice.account.page_size;
 
+    // dd.watermark = 'PAID';
+
     pdfMake.fonts = {}
     fonts = window.invoiceFonts || invoice.invoice_fonts;
 
@@ -370,7 +372,7 @@ NINJA.invoiceLines = function(invoice) {
 
         var row = [];
         var item = invoice.invoice_items[i];
-        var cost = formatMoneyInvoice(item.cost, invoice, true);
+        var cost = formatMoneyInvoice(item.cost, invoice, 'none');
         var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;
@@ -532,7 +534,7 @@ NINJA.subtotals = function(invoice, hideBalance)
     }
 
     var paid = invoice.amount - invoice.balance;
-    if (invoice.account.hide_paid_to_date != '1' || paid) {
+    if (!invoice.is_quote && (invoice.account.hide_paid_to_date != '1' || paid)) {
         data.push([{text:invoiceLabels.paid_to_date, style: ['subtotalsLabel', 'paidToDateLabel']}, {text:formatMoneyInvoice(paid, invoice), style: ['subtotals', 'paidToDate']}]);
     }
 
@@ -540,7 +542,7 @@ NINJA.subtotals = function(invoice, hideBalance)
 
     if (!hideBalance || isPartial) {
         data.push([
-            { text: invoiceLabels.balance_due, style: ['subtotalsLabel', isPartial ? '' : 'balanceDueLabel'] },
+            { text: invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, style: ['subtotalsLabel', isPartial ? '' : 'balanceDueLabel'] },
             { text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['subtotals', isPartial ? '' : 'balanceDue'] }
         ]);
     }
@@ -560,7 +562,7 @@ NINJA.subtotals = function(invoice, hideBalance)
 NINJA.subtotalsBalance = function(invoice) {
     var isPartial = NINJA.parseFloat(invoice.partial);
     return [[
-        {text: isPartial ? invoiceLabels.partial_due : invoiceLabels.balance_due, style:['subtotalsLabel', 'balanceDueLabel']},
+        {text: isPartial ? invoiceLabels.partial_due : (invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due), style:['subtotalsLabel', 'balanceDueLabel']},
         {text: formatMoneyInvoice(invoice.balance_amount, invoice), style:['subtotals', 'balanceDue']}
     ]];
 }
@@ -665,7 +667,7 @@ NINJA.renderInvoiceField = function(invoice, field) {
         }
     } else if (field == 'invoice.balance_due') {
         return [
-            {text: invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
+            {text: invoice.is_quote ? invoiceLabels.total : invoiceLabels.balance_due, style: ['invoiceDetailBalanceDueLabel']},
             {text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['invoiceDetailBalanceDue']}
         ];
     } else if (field == invoice.partial_due) {
@@ -677,6 +679,8 @@ NINJA.renderInvoiceField = function(invoice, field) {
         } else {
             return false;
         }
+    } else if (field == '.blank') {
+        return [{text: ' '}, {text: ' '}];
     }
 }
 
@@ -744,6 +748,8 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
     } else if (field == 'client.email') {
         var clientEmail = contact.email == clientName ? '' : contact.email;
         return {text:clientEmail};
+    } else if (field == 'client.phone') {
+        return {text:contact.phone};
     } else if (field == 'client.custom_value1') {
         return {text: account.custom_client_label1 && client.custom_value1 ? account.custom_client_label1 + ' ' + client.custom_value1 : false};
     } else if (field == 'client.custom_value2') {
@@ -783,6 +789,8 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
         if (invoice.features.invoice_settings) {
             return invoice.account.custom_label2 && invoice.account.custom_value2 ? {text: invoice.account.custom_label2 + ' ' + invoice.account.custom_value2} : false;
         }
+    } else if (field == '.blank') {
+        return {text: ' '};
     }
 
     return false;

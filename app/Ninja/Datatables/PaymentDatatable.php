@@ -21,7 +21,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'invoice_number',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id])){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->invoice_user_id])){
                         return $model->invoice_number;
                     }
 
@@ -89,7 +89,11 @@ class PaymentDatatable extends EntityDatatable
             [
                 'payment_date',
                 function ($model) {
-                    return Utils::dateToString($model->payment_date);
+                    if ($model->is_deleted) {
+                        return Utils::dateToString($model->payment_date);
+                    } else {
+                        return link_to("payments/{$model->public_id}/edit", Utils::dateToString($model->payment_date))->toHtml();
+                    }
                 }
             ],
             [
@@ -123,12 +127,11 @@ class PaymentDatatable extends EntityDatatable
                     return "javascript:showRefundModal({$model->public_id}, '{$max_refund}', '{$formatted}', '{$symbol}')";
                 },
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]) && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED &&
-                    $model->refunded < $model->amount &&
-                    (
-                        ($model->transaction_reference && in_array($model->gateway_id , static::$refundableGateways))
-                        || $model->payment_type_id == PAYMENT_TYPE_CREDIT
-                    );
+                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id])
+                        && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
+                        && $model->refunded < $model->amount
+                        && $model->transaction_reference
+                        && in_array($model->gateway_id , static::$refundableGateways);
                 }
             ]
         ];

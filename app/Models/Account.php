@@ -69,6 +69,16 @@ class Account extends Eloquent
         'enable_second_tax_rate',
         'include_item_taxes_inline',
         'start_of_week',
+        'financial_year_start',
+        'enable_client_portal',
+        'enable_client_portal_dashboard',
+        'enable_portal_password',
+        'send_portal_password',
+        'enable_buy_now_buttons',
+        'show_accept_invoice_terms',
+        'show_accept_quote_terms',
+        'require_invoice_signature',
+        'require_quote_signature',
     ];
 
     /**
@@ -100,6 +110,21 @@ class Account extends Eloquent
         ACCOUNT_DATA_VISUALIZATIONS,
         ACCOUNT_API_TOKENS,
         ACCOUNT_USER_MANAGEMENT,
+    ];
+
+    public static $modules = [
+        ENTITY_RECURRING_INVOICE => 1,
+        ENTITY_CREDIT => 2,
+        ENTITY_QUOTE => 4,
+        ENTITY_TASK => 8,
+        ENTITY_EXPENSE => 16,
+        ENTITY_VENDOR => 32,
+    ];
+
+    public static $dashboardSections = [
+        'total_revenue' => 1,
+        'average_invoice' => 2,
+        'outstanding' => 4,
     ];
 
     /**
@@ -438,7 +463,7 @@ class Account extends Eloquent
      * @param bool $hideSymbol
      * @return string
      */
-    public function formatMoney($amount, $client = null, $hideSymbol = false)
+    public function formatMoney($amount, $client = null, $decorator = false)
     {
         if ($client && $client->currency_id) {
             $currencyId = $client->currency_id;
@@ -456,9 +481,11 @@ class Account extends Eloquent
             $countryId = false;
         }
 
-        $hideSymbol = $this->show_currency_code || $hideSymbol;
+        if ( ! $decorator) {
+            $decorator = $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL;
+        }
 
-        return Utils::formatMoney($amount, $currencyId, $countryId, $hideSymbol);
+        return Utils::formatMoney($amount, $currencyId, $countryId, $decorator);
     }
 
     /**
@@ -610,14 +637,14 @@ class Account extends Eloquent
 
     /**
      * @param bool $invitation
-     * @param bool $gatewayType
+     * @param mixed $gatewayTypeId
      * @return bool
      */
-    public function paymentDriver($invitation = false, $gatewayType = false)
+    public function paymentDriver($invitation = false, $gatewayTypeId = false)
     {
         /** @var AccountGateway $accountGateway */
-        if ($accountGateway = $this->getGatewayByType($gatewayType)) {
-            return $accountGateway->paymentDriver($invitation, $gatewayType);
+        if ($accountGateway = $this->getGatewayByType($gatewayTypeId)) {
+            return $accountGateway->paymentDriver($invitation, $gatewayTypeId);
         }
 
         return false;
@@ -733,6 +760,22 @@ class Account extends Eloquent
         }
 
         return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
+    }
+
+    public function getLogoPath()
+    {
+        if ( ! $this->hasLogo()){
+            return null;
+        }
+
+        $disk = $this->getLogoDisk();
+        $adapter = $disk->getAdapter();
+
+        if ($adapter instanceof \League\Flysystem\Adapter\Local) {
+            return $adapter->applyPathPrefix($this->logo);
+        } else {
+            return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
+        }
     }
 
     /**
@@ -1024,6 +1067,7 @@ class Account extends Eloquent
         $locale = ($client && $client->language_id) ? $client->language->locale : ($this->language_id ? $this->Language->locale : DEFAULT_LOCALE);
 
         Session::put(SESSION_CURRENCY, $currencyId);
+        Session::put(SESSION_CURRENCY_DECORATOR, $this->show_currency_code ? CURRENCY_DECORATOR_CODE : CURRENCY_DECORATOR_SYMBOL);
         Session::put(SESSION_LOCALE, $locale);
 
         App::setLocale($locale);
@@ -1811,6 +1855,43 @@ class Account extends Eloquent
      */
     public function getFontFolders(){
         return array_map(function($item){return $item['folder'];}, $this->getFontsData());
+    }
+
+    public function isModuleEnabled($entityType)
+    {
+        if (in_array($entityType, [
+            ENTITY_CLIENT,
+            ENTITY_INVOICE,
+            ENTITY_PRODUCT,
+            ENTITY_PAYMENT,
+        ])) {
+            return true;
+        }
+
+        return $this->enabled_modules & static::$modules[$entityType];
+    }
+
+    public function showAuthenticatePanel($invoice)
+    {
+        return $this->showAcceptTerms($invoice) || $this->showSignature($invoice);
+    }
+
+    public function showAcceptTerms($invoice)
+    {
+        if ( ! $this->isPro() || ! $invoice->terms) {
+            return false;
+        }
+
+        return $invoice->is_quote ? $this->show_accept_quote_terms : $this->show_accept_invoice_terms;
+    }
+
+    public function showSignature($invoice)
+    {
+        if ( ! $this->isPro()) {
+            return false;
+        }
+
+        return $invoice->is_quote ? $this->require_quote_signature : $this->require_invoice_signature;
     }
 }
 

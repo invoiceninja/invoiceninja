@@ -11,6 +11,7 @@ use App\Models\Account;
 use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Expense;
+use App\Models\Task;
 
 /**
  * Class ReportController
@@ -56,8 +57,8 @@ class ReportController extends BaseController
         if (Input::get('report_type')) {
             $reportType = Input::get('report_type');
             $dateField = Input::get('date_field');
-            $startDate = Utils::toSqlDate(Input::get('start_date'), false);
-            $endDate = Utils::toSqlDate(Input::get('end_date'), false);
+            $startDate = date_create(Input::get('start_date'));
+            $endDate = date_create(Input::get('end_date'));
         } else {
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;
@@ -71,15 +72,17 @@ class ReportController extends BaseController
             ENTITY_PRODUCT => trans('texts.product'),
             ENTITY_PAYMENT => trans('texts.payment'),
             ENTITY_EXPENSE => trans('texts.expense'),
+            ENTITY_TASK => trans('texts.task'),
             ENTITY_TAX_RATE => trans('texts.tax'),
         ];
 
         $params = [
-            'startDate' => $startDate->format(Session::get(SESSION_DATE_FORMAT)),
-            'endDate' => $endDate->format(Session::get(SESSION_DATE_FORMAT)),
+            'startDate' => $startDate->format('Y-m-d'),
+            'endDate' => $endDate->format('Y-m-d'),
             'reportTypes' => $reportTypes,
             'reportType' => $reportType,
             'title' => trans('texts.charts_and_reports'),
+            'account' => Auth::user()->account,
         ];
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
@@ -120,7 +123,35 @@ class ReportController extends BaseController
             return $this->generateTaxRateReport($startDate, $endDate, $dateField, $isExport);
         } elseif ($reportType == ENTITY_EXPENSE) {
             return $this->generateExpenseReport($startDate, $endDate, $isExport);
+        } elseif ($reportType == ENTITY_TASK) {
+            return $this->generateTaskReport($startDate, $endDate, $isExport);
         }
+    }
+
+    private function generateTaskReport($startDate, $endDate, $isExport)
+    {
+        $columns = ['client', 'date', 'description', 'duration'];
+        $displayData = [];
+
+        $tasks = Task::scope()
+                    ->with('client.contacts')
+                    ->withArchived()
+                    ->dateRange($startDate, $endDate);
+
+        foreach ($tasks->get() as $task) {
+            $displayData[] = [
+                $task->client ? ($isExport ? $task->client->getDisplayName() : $task->client->present()->link) : trans('texts.unassigned'),
+                link_to($task->present()->url, $task->getStartTime()),
+                $task->present()->description,
+                Utils::formatTime($task->getDuration()),
+            ];
+        }
+
+        return [
+            'columns' => $columns,
+            'displayData' => $displayData,
+            'reportTotals' => [],
+        ];
     }
 
     /**
@@ -354,7 +385,7 @@ class ReportController extends BaseController
                         $isExport ? $client->getDisplayName() : $client->present()->link,
                         $isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
-                        $invoiceItem->qty,
+                        round($invoiceItem->qty, 2),
                         $invoiceItem->product_key,
                     ];
                     //$reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment ? $payment->amount : 0);
@@ -433,36 +464,31 @@ class ReportController extends BaseController
      */
     private function generateExpenseReport($startDate, $endDate, $isExport)
     {
-        $columns = ['vendor', 'client', 'date', 'expense_amount', 'invoiced_amount'];
+        $columns = ['vendor', 'client', 'date', 'expense_amount'];
 
         $account = Auth::user()->account;
         $displayData = [];
         $reportTotals = [];
 
         $expenses = Expense::scope()
-                        ->withTrashed()
+                        ->withArchived()
                         ->with('client.contacts', 'vendor')
                         ->where('expense_date', '>=', $startDate)
                         ->where('expense_date', '<=', $endDate);
 
 
         foreach ($expenses->get() as $expense) {
-            $amount = $expense->amount;
-            $invoiced = $expense->present()->invoiced_amount;
+            $amount = $expense->amountWithTax();
 
             $displayData[] = [
                 $expense->vendor ? ($isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
                 $expense->client ? ($isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
                 $expense->present()->expense_date,
                 Utils::formatMoney($amount, $expense->currency_id),
-                Utils::formatMoney($invoiced, $expense->invoice_currency_id),
             ];
 
             $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'amount', $amount);
             $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'amount', 0);
-
-            $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'invoiced', $invoiced);
-            $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'invoiced', 0);
         }
 
         return [

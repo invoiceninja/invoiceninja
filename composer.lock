@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cef2393922d37e3206e2feb5674b50eb",
-    "content-hash": "6577f7bf72c505d13e807f16762a2e10",
+    "hash": "cf642e3384eec7504bcdace749d2bb88",
+    "content-hash": "c0a5b571bc2305c4b0d9eae18bf5011b",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -1029,12 +1029,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/codedge/laravel-selfupdater.git",
-                "reference": "ef8f30b8084d6b0c2d2587c0b621011a1515d250"
+                "reference": "b24b155fe0fcccf0ecfbc926a6c3043911418906"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/codedge/laravel-selfupdater/zipball/ef8f30b8084d6b0c2d2587c0b621011a1515d250",
-                "reference": "ef8f30b8084d6b0c2d2587c0b621011a1515d250",
+                "url": "https://api.github.com/repos/codedge/laravel-selfupdater/zipball/b24b155fe0fcccf0ecfbc926a6c3043911418906",
+                "reference": "b24b155fe0fcccf0ecfbc926a6c3043911418906",
                 "shasum": ""
             },
             "require": {
@@ -1077,20 +1077,20 @@
                 "self-update",
                 "update"
             ],
-            "time": "2016-08-21 16:46:12"
+            "time": "2016-09-21 12:43:00"
         },
         {
             "name": "collizo4sky/omnipay-wepay",
-            "version": "dev-additional-calls",
+            "version": "dev-address-fix",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hillelcoren/omnipay-wepay.git",
-                "reference": "a341b9997d71803d0f774d86908cb49a8bc4c405"
+                "reference": "916785146c5433e9216f295d09d1cbcec2fdf33a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/a341b9997d71803d0f774d86908cb49a8bc4c405",
-                "reference": "a341b9997d71803d0f774d86908cb49a8bc4c405",
+                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/916785146c5433e9216f295d09d1cbcec2fdf33a",
+                "reference": "916785146c5433e9216f295d09d1cbcec2fdf33a",
                 "shasum": ""
             },
             "require": {
@@ -1120,9 +1120,9 @@
                 "wepay"
             ],
             "support": {
-                "source": "https://github.com/sometechie/omnipay-wepay/tree/additional-calls"
+                "source": "https://github.com/hillelcoren/omnipay-wepay/tree/address-fix"
             },
-            "time": "2016-05-25 19:18:42"
+            "time": "2016-11-01 10:54:54"
         },
         {
             "name": "container-interop/container-interop",
@@ -2184,7 +2184,7 @@
                 "shasum": null
             },
             "type": "library",
-            "time": "2016-06-03 12:00:26"
+            "time": "2016-10-12 12:00:38"
         },
         {
             "name": "google/apiclient",
@@ -3091,6 +3091,7 @@
                 "purchase",
                 "wechat"
             ],
+            "abandoned": "lokielse/omnipay-wechatpay",
             "time": "2016-05-10 08:43:41"
         },
         {
@@ -3782,16 +3783,16 @@
         },
         {
             "name": "lokielse/omnipay-alipay",
-            "version": "dev-master",
+            "version": "v1.4.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/lokielse/omnipay-alipay.git",
-                "reference": "1769e8747f856cd6f52242dfe22254fc5d7eb68e"
+                "reference": "294449c11dcba9f2669666f2a3dc44cd07f7597f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/lokielse/omnipay-alipay/zipball/1769e8747f856cd6f52242dfe22254fc5d7eb68e",
-                "reference": "1769e8747f856cd6f52242dfe22254fc5d7eb68e",
+                "url": "https://api.github.com/repos/lokielse/omnipay-alipay/zipball/294449c11dcba9f2669666f2a3dc44cd07f7597f",
+                "reference": "294449c11dcba9f2669666f2a3dc44cd07f7597f",
                 "shasum": ""
             },
             "require": {
@@ -3831,7 +3832,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2016-09-26 06:23:26"
+            "time": "2016-09-22 10:40:06"
         },
         {
             "name": "maatwebsite/excel",
@@ -7215,16 +7216,16 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.9",
+            "version": "v2.8.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "889983a79a043dfda68f38c38b6dba092dd49cd8"
+                "reference": "25c576abd4e0f212e678fe8b2bd9a9a98c7ea934"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/889983a79a043dfda68f38c38b6dba092dd49cd8",
-                "reference": "889983a79a043dfda68f38c38b6dba092dd49cd8",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/25c576abd4e0f212e678fe8b2bd9a9a98c7ea934",
+                "reference": "25c576abd4e0f212e678fe8b2bd9a9a98c7ea934",
                 "shasum": ""
             },
             "require": {
@@ -7271,7 +7272,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-28 16:56:28"
+            "time": "2016-10-13 01:43:15"
         },
         {
             "name": "symfony/finder",
@@ -7324,16 +7325,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v2.8.9",
+            "version": "v2.8.13",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "f20bea598906c990eebe3c70a63ca5ed18cdbc11"
+                "reference": "a6e6c34d337f3c74c39b29c5f54d33023de8897c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/f20bea598906c990eebe3c70a63ca5ed18cdbc11",
-                "reference": "f20bea598906c990eebe3c70a63ca5ed18cdbc11",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/a6e6c34d337f3c74c39b29c5f54d33023de8897c",
+                "reference": "a6e6c34d337f3c74c39b29c5f54d33023de8897c",
                 "shasum": ""
             },
             "require": {
@@ -7375,7 +7376,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-30 07:20:35"
+            "time": "2016-10-24 15:52:36"
         },
         {
             "name": "symfony/http-kernel",
@@ -10638,7 +10639,6 @@
         "chumper/datatable": 20,
         "intervention/image": 20,
         "webpatser/laravel-countries": 20,
-        "lokielse/omnipay-alipay": 20,
         "alfaproject/omnipay-skrill": 20,
         "omnipay/bitpay": 20,
         "dwolla/omnipay-dwolla": 20,

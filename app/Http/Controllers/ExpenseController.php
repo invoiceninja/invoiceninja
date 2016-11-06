@@ -134,6 +134,7 @@ class ExpenseController extends BaseController
         $data = [
             'vendor' => null,
             'expense' => $expense,
+            'entity' => $expense,
             'method' => 'PUT',
             'url' => 'expenses/'.$expense->public_id,
             'title' => 'Edit Expense',
@@ -245,7 +246,7 @@ class ExpenseController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('expenses');
+        return $this->returnBulk($this->entityType, $action, $ids);
     }
 
     private static function getViewModel()

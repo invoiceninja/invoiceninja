@@ -46,7 +46,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'expense_date',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id])){
+                    if(!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])){
                         return Utils::fromSqlDate($model->expense_date);
                     }
 
@@ -56,14 +56,16 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'amount',
                 function ($model) {
+                    $amount = Utils::calculateTaxes($model->amount, $model->tax_rate1, $model->tax_rate2);
+                    $str = Utils::formatMoney($amount, $model->expense_currency_id);
+
                     // show both the amount and the converted amount
                     if ($model->exchange_rate != 1) {
-                        $converted = round($model->amount * $model->exchange_rate, 2);
-                        return Utils::formatMoney($model->amount, $model->expense_currency_id) . ' | ' .
-                            Utils::formatMoney($converted, $model->invoice_currency_id);
-                    } else {
-                        return Utils::formatMoney($model->amount, $model->expense_currency_id);
+                        $converted = round($amount * $model->exchange_rate, 2);
+                        $str .= ' | ' . Utils::formatMoney($converted, $model->invoice_currency_id);
                     }
+
+                    return $str;
                 }
             ],
             [

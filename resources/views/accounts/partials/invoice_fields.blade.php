@@ -16,7 +16,6 @@ function ViewModel(data) {
     }
 
     self.resetFields = function() {
-        console.log('herey');
         self.invoice_fields.removeAll();
         self.client_fields.removeAll();
         self.account_fields1.removeAll();
@@ -24,8 +23,27 @@ function ViewModel(data) {
     }
 
     self.onChange = function() {
+        self.updateSelects();
         refreshPDF();
         NINJA.formIsChanged = true;
+    }
+
+    self.updateSelects = function() {
+        var usedFields = [].concat(self.invoice_fields(), self.client_fields(), self.account_fields1(), self.account_fields2());
+        var selects = [
+            'invoice_fields',
+            'client_fields',
+            'account_fields1',
+            'account_fields2',
+        ];
+
+        for (var i=0; i<selects.length; i++) {
+            var select = selects[i];
+            $('#' + select + '_select > option').each(function() {
+                var isUsed = usedFields.indexOf(this.value) >= 0;
+                $(this).css('color', isUsed ? '#888' : 'black');
+            });
+        }
     }
 
     self.onDragged = function() {
@@ -55,6 +73,7 @@ function addField(section) {
     var field = $select.val();
     var label = $select.find('option:selected').text();
     window.model.addField(section, field, label);
+    window.model.onChange();
     $select.val(null).blur();
 }
 
@@ -67,6 +86,7 @@ $(function() {
     loadFields(selectedFields);
     loadMap(allFields);
 
+    model.updateSelects();
     ko.applyBindings(model);
 })
 
@@ -113,6 +133,7 @@ function loadFields(selectedFields)
 
 
 <style type="text/css">
+
 .field-list {
     width: 100%;
     margin-top: 12px;
@@ -159,12 +180,6 @@ function loadFields(selectedFields)
 
 .field-list .fa-close {
     color: red;
-}
-
-.field-list .fa-bars {
-    position: absolute;
-    right: 20px;
-    color: #AAA;
 }
 
 </style>

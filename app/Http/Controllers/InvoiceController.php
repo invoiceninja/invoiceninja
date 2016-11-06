@@ -218,6 +218,7 @@ class InvoiceController extends BaseController
                             $contact->invitation_viewed = $invitation->viewed_date && $invitation->viewed_date != '0000-00-00 00:00:00' ? $invitation->viewed_date : false;
                             $contact->invitation_openend = $invitation->opened_date && $invitation->opened_date != '0000-00-00 00:00:00' ? $invitation->opened_date : false;
                             $contact->invitation_status = $contact->email_error ? false : $invitation->getStatus();
+                            $contact->invitation_signature_svg = $invitation->signatureDiv();
                         }
                     }
                 }
@@ -269,6 +270,9 @@ class InvoiceController extends BaseController
     private static function getViewModel($invoice)
     {
         $recurringHelp = '';
+        $recurringDueDateHelp = '';
+        $recurringDueDates = [];
+
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_help')) as $line) {
             $parts = explode('=>', $line);
             if (count($parts) > 1) {
@@ -279,7 +283,6 @@ class InvoiceController extends BaseController
             }
         }
 
-        $recurringDueDateHelp = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", trans('texts.recurring_due_date_help')) as $line) {
             $parts = explode('=>', $line);
             if (count($parts) > 1) {
@@ -409,10 +412,10 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'email') {
-            return $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
 
-        return redirect()->to($invoice->getRoute());
+        return url($invoice->getRoute());
     }
 
     /**
@@ -435,14 +438,14 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'clone') {
-            return $this->cloneInvoice($request, $invoice->public_id);
+            return url(sprintf('%ss/%s/clone', $entityType, $invoice->public_id));
         } elseif ($action == 'convert') {
             return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
-            return $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice, Input::get('pdfupload'));
         }
 
-        return redirect()->to($invoice->getRoute());
+        return url($invoice->getRoute());
     }
 
 
@@ -469,8 +472,6 @@ class InvoiceController extends BaseController
         } else {
             Session::flash('error', $response);
         }
-
-        return Redirect::to("{$entityType}s/{$invoice->public_id}/edit");
     }
 
     private function emailRecurringInvoice(&$invoice)
@@ -527,11 +528,7 @@ class InvoiceController extends BaseController
             Session::flash('message', $message);
         }
 
-        if ($action == 'restore' && $count == 1) {
-            return Redirect::to("{$entityType}s/".Utils::getFirst($ids));
-        } else {
-            return Redirect::to("{$entityType}s");
-        }
+        return $this->returnBulk($entityType, $action, $ids);
     }
 
     public function convertQuote(InvoiceRequest $request)
@@ -540,7 +537,7 @@ class InvoiceController extends BaseController
 
         Session::flash('message', trans('texts.converted_to_invoice'));
 
-        return Redirect::to('invoices/' . $clone->public_id);
+        return url('invoices/' . $clone->public_id);
     }
 
     public function cloneInvoice(InvoiceRequest $request, $publicId)
@@ -608,12 +605,19 @@ class InvoiceController extends BaseController
         return View::make('invoices.history', $data);
     }
 
-    public function checkInvoiceNumber($invoiceNumber)
+    public function checkInvoiceNumber($invoicePublicId = false)
     {
-        $count = Invoice::scope()
+        $invoiceNumber = request()->invoice_number;
+
+        $query = Invoice::scope()
                     ->whereInvoiceNumber($invoiceNumber)
-                    ->withTrashed()
-                    ->count();
+                    ->withTrashed();
+
+        if ($invoicePublicId) {
+            $query->where('public_id', '!=', $invoicePublicId);
+        }
+
+        $count = $query->count();
 
         return $count ? RESULT_FAILURE : RESULT_SUCCESS;
     }

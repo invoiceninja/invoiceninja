@@ -49,7 +49,7 @@ elixir(function(mix) {
         bowerDir + '/font-awesome/css/font-awesome.css',
         bowerDir + '/dropzone/dist/dropzone.css',
         bowerDir + '/spectrum/spectrum.css',
-        bowerDir + '/sweetalert/dist/sweetalert.css',
+        bowerDir + '/sweetalert2/dist/sweetalert2.css',
         'bootstrap-combobox.css',
         'typeahead.js-bootstrap.css',
         'style.css',
@@ -81,6 +81,10 @@ elixir(function(mix) {
     ], 'public/js/daterangepicker.min.js');
 
     mix.scripts([
+        bowerDir + '/jSignature/libs/jSignature.min.js'
+    ], 'public/js/jSignature.min.js');
+
+    mix.scripts([
         bowerDir + '/jquery/dist/jquery.js',
         bowerDir + '/jquery-ui/jquery-ui.js',
         bowerDir + '/bootstrap/dist/js/bootstrap.js',
@@ -109,8 +113,11 @@ elixir(function(mix) {
         bowerDir + '/moment/moment.js',
         bowerDir + '/moment-timezone/builds/moment-timezone-with-data.js',
         //bowerDir + '/stacktrace-js/dist/stacktrace-with-polyfills.min.js',
+        bowerDir + '/es6-promise/es6-promise.auto.js',
+        bowerDir + '/sweetalert2/dist/sweetalert2.js',
+        //bowerDir + '/sweetalert/dist/sweetalert-dev.js',
+        bowerDir + '/nouislider/distribute/nouislider.js',
         bowerDir + '/fuse.js/src/fuse.js',
-        bowerDir + '/sweetalert/dist/sweetalert-dev.js',
         'bootstrap-combobox.js',
         'script.js',
         'pdf.pdfmake.js',

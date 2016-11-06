@@ -19,7 +19,7 @@ class TaxRatePolicy extends EntityPolicy
      * @param User $user
      * @return bool
      */
-    public static function create(User $user) {
+    public static function create(User $user, $item) {
         return $user->hasPermission('admin');
     }
 }

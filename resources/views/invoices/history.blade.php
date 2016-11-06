@@ -49,11 +49,19 @@
 @section('content')
 
     {!! Former::open()->addClass('form-inline')->onchange('refreshPDF()') !!}
-    {!! Former::select('version')->options($versionsSelect)->label(trans('select_version'))->style('background-color: white !important') !!}
+
+    @if (count($versionsSelect))
+        {!! Former::select('version')->options($versionsSelect)->label(trans('select_version'))->style('background-color: white !important') !!}
+    @endif
+
     {!! Button::primary(trans('texts.edit_' . $invoice->getEntityType()))->asLinkTo(URL::to('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit'))->withAttributes(array('class' => 'pull-right')) !!}
     {!! Former::close() !!}
 
     <br/>&nbsp;<br/>
+
+    @if ( ! count($versionsSelect))
+        <br/>&nbsp;<br/>
+    @endif
 
     @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
 

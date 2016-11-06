@@ -36,11 +36,11 @@ class EntityRequest extends Request {
 
         $class = Utils::getEntityClass($this->entityType);
 
-        if (method_exists($class, 'trashed')) {
-            $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
-        } else {
-            $this->entity = $class::scope($publicId)->firstOrFail();
-        }
+            if (method_exists($class, 'trashed')) {
+                $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
+            } else {
+                $this->entity = $class::scope($publicId)->firstOrFail();
+            }
 
         return $this->entity;
     }

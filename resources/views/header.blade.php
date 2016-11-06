@@ -109,7 +109,6 @@
   function handleSignedUp() {
       localStorage.setItem('guest_key', '');
       fbq('track', 'CompleteRegistration');
-      window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_SIGN_UP') }}', {'value':'0.00','currency':'USD'}]);
       trackEvent('/account', '/signed_up');
   }
 
@@ -143,47 +142,11 @@
     $('#signUpModal').modal('hide');
   }
 
-  function buyProduct(affiliateKey, productId) {
-    window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
-  }
-
   function hideMessage() {
     $('.alert-info').fadeOut();
     $.get('/hide_message', function(response) {
       console.log('Reponse: %s', response);
     });
-  }
-
-  function wordWrapText(value, width)
-  {
-    @if (Auth::user()->account->auto_wrap)
-    var doc = new jsPDF('p', 'pt');
-    doc.setFont('Helvetica','');
-    doc.setFontSize(10);
-
-    var lines = value.split("\n");
-    for (var i = 0; i < lines.length; i++) {
-      var numLines = doc.splitTextToSize(lines[i], width).length;
-      if (numLines <= 1) continue;
-      var j = 0; space = lines[i].length;
-      while (j++ < lines[i].length) {
-        if (lines[i].charAt(j) === ' ') space = j;
-      }
-      if (space == lines[i].length) space = width/6;
-      lines[i + 1] = lines[i].substring(space + 1) + ' ' + (lines[i + 1] || '');
-      lines[i] = lines[i].substring(0, space);
-    }
-
-    var newValue = (lines.join("\n")).trim();
-
-    if (value == newValue) {
-      return newValue;
-    } else {
-      return wordWrapText(newValue, width);
-    }
-    @else
-    return value;
-    @endif
   }
 
   function setSignupEnabled(enabled) {
@@ -333,22 +296,38 @@
     });
 
     // manage sidebar state
-    $("#left-menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled-left");
+    function setupSidebar(side) {
+        $("#" + side + "-menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled-" + side);
 
-        var toggled = $("#wrapper").hasClass("toggled-left") ? '1' : '0';
-        $.get('{{ url('save_sidebar_state') }}?show_left=' + toggled);
-    });
+            var toggled = $("#wrapper").hasClass("toggled-" + side) ? '1' : '0';
+            $.post('{{ url('save_sidebar_state') }}?show_' + side + '=' + toggled);
 
-    $("#right-menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#wrapper").toggleClass("toggled-right");
+            if (isStorageSupported()) {
+                localStorage.setItem('show_' + side + '_sidebar', toggled);
+            }
+        });
 
-        var toggled = $("#wrapper").hasClass("toggled-right") ? '1' : '0';
-        $.get('{{ url('save_sidebar_state') }}?show_right=' + toggled);
-    });
+        if (isStorageSupported()) {
+            var storage = localStorage.getItem('show_' + side + '_sidebar');
+            var toggled = $("#wrapper").hasClass("toggled-" + side) ? '1' : '0';
 
+            if (storage != toggled) {
+                setTimeout(function() {
+                    $("#wrapper").toggleClass("toggled-" + side);
+                    $.post('{{ url('save_sidebar_state') }}?show_' + side + '=' + storage);
+                }, 100);
+            }
+        }
+    }
+
+    @if ( ! Utils::isTravis())
+        setupSidebar('left');
+        setupSidebar('right');
+    @endif
+
+    // auto select focused nav-tab
     if (window.location.hash) {
         setTimeout(function() {
             $('.nav-tabs a[href="' + window.location.hash + '"]').tab('show');
@@ -369,6 +348,10 @@
 @stop
 
 @section('body')
+
+@if ( ! Request::is('settings/account_management'))
+  @include('partials.upgrade_modal')
+@endif
 
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="height:60px;">
 
@@ -399,7 +382,7 @@
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
           @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-            {!! Button::success(trans('texts.plan_upgrade'))->asLinkTo(url('/settings/account_management?upgrade=true'))->withAttributes(array('style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
+            {!! Button::success(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
           @endif
         @endif
 
@@ -485,14 +468,15 @@
         @foreach ([
             'dashboard' => false,
             'clients' => false,
+            'products' => false,
+            'invoices' => false,
+            'payments' => false,
+            'recurring_invoices' => 'recurring',
             'credits' => false,
+            'quotes' => false,
             'tasks' => false,
             'expenses' => false,
             'vendors' => false,
-            'quotes' => false,
-            'invoices' => false,
-            'recurring_invoices' => 'recurring',
-            'payments' => false,
             'settings' => false,
         ] as $key => $value)
             {!! Form::nav_link($key, $value ?: $key) !!}
@@ -510,6 +494,7 @@
             @foreach([
                 'dashboard',
                 'clients',
+                'products',
                 'invoices',
                 'payments',
                 'recurring_invoices',
@@ -518,12 +503,14 @@
                 'tasks',
                 'expenses',
                 'vendors',
-                'settings'
+                'settings',
+                //'self-update'
             ] as $option)
+            @if (in_array($option, ['dashboard', 'settings']) || Auth::user()->can('view', substr($option, 0, -1)))
             <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                 @if ($option == 'settings')
                     <a type="button" class="btn btn-default btn-sm pull-right"
-                        href="{{ url(NINJA_DOCS_URL) }}" target="_blank">
+                        href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">
                         <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
                     </a>
                 @elseif ($option != 'dashboard')
@@ -539,8 +526,13 @@
                     class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                     <i class="fa fa-{{ \App\Models\EntityModel::getIcon($option) }}" style="width:46px; padding-right:10px"></i>
                     {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
+                    {!! Utils::isTrial() && in_array($option, ['quotes', 'tasks', 'expenses', 'vendors']) ? '&nbsp;<sup>' . trans('texts.pro') . '</sup>' : '' !!}
+                    @if (false && $option == 'self-update' && Updater::source()->isNewVersionAvailable('v'.NINJA_VERSION))
+                        <span class="badge alert-danger">1</span>
+                    @endif
                 </a>
             </li>
+            @endif
             @endforeach
         </ul>
     </div>
@@ -578,7 +570,7 @@
           @endif
 
           @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
-            {!! Form::breadcrumbs(isset($entityStatus) ? $entityStatus : '') !!}
+            {!! Form::breadcrumbs((isset($entity) && $entity->exists) ? $entity->present()->statusLabel : false) !!}
           @endif
 
           @yield('content')
@@ -590,55 +582,11 @@
                 @if (Auth::check() && Auth::user()->isTrial())
                   {!! trans(Auth::user()->account->getCountTrialDaysLeft() == 0 ? 'texts.trial_footer_last_day' : 'texts.trial_footer', [
                           'count' => Auth::user()->account->getCountTrialDaysLeft(),
-                          'link' => link_to('/settings/account_management?upgrade=true', trans('texts.click_here'))
+                          'link' => '<a href="javascript:showUpgradeModal()">' . trans('texts.click_here') . '</a>'
                       ]) !!}
                 @endif
               @else
-                {{ trans('texts.powered_by') }}
-                {{-- Per our license, please do not remove or modify this section. --}}
-                {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => 'invoiceninja.com']) !!} -
-                {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} |
-                @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
-                  {{ trans('texts.white_labeled') }}
-                @else
-                  <a href="#" onclick="loadImages('#whiteLabelModal');$('#whiteLabelModal').modal('show');">{{ trans('texts.white_label_link') }}</a>
-
-                  <div class="modal fade" id="whiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                          <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
-                        </div>
-
-                        <div class="panel-body">
-                          <p>{{ trans('texts.white_label_text', ['price' => WHITE_LABEL_PRICE])}}</p>
-                          <div class="row">
-                              <div class="col-md-6">
-                                  <h4>{{ trans('texts.before') }}</h4>
-                                  <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_before.png') }}" width="100%" alt="before">
-                              </div>
-                              <div class="col-md-6">
-                                  <h4>{{ trans('texts.after') }}</h4>
-                                  <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_after.png') }}" width="100%" alt="after">
-                              </div>
-                          </div><br/>
-                          <p>{!! trans('texts.reseller_text', ['email' => HTML::mailto('contact@invoiceninja.com')]) !!}</p>
-                        </div>
-
-                        <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
-                          <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
-                          {{-- DropdownButton::success_lg(trans('texts.buy'), [
-                              ['url' => URL::to(""), 'label' => trans('texts.pay_with_paypal')],
-                              ['url' => URL::to(""), 'label' => trans('texts.pay_with_card')]
-                          ])->addClass('btn-lg') --}}
-                          <button type="button" class="btn btn-primary" onclick="buyProduct('{{ WHITE_LABEL_AFFILIATE_KEY }}', '{{ PRODUCT_WHITE_LABEL }}')">{{ trans('texts.buy') }} </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                @endif
-              </div>
+                @include('partials.white_label')
               @endif
             </div>
         </div>
@@ -723,7 +671,9 @@
             </div>
 
             <div class="col-md-11 col-md-offset-1">
-                <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
+                @if (Utils::isNinja())
+                    <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
+                @endif
             </div>
         </div>
 
@@ -776,7 +726,7 @@
 
       <div class="modal-footer" id="signUpFooter">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-        <button type="button" class="btn btn-primary" onclick="logout(true)">{{ trans('texts.logout') }}</button>
+        <button type="button" class="btn btn-danger" onclick="logout(true)">{{ trans('texts.logout') }}</button>
       </div>
     </div>
   </div>

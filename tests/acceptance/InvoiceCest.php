@@ -15,7 +15,7 @@ class InvoiceCest
 
         $this->faker = Factory::create();
     }
-
+    /*
     public function createInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
@@ -77,7 +77,7 @@ class InvoiceCest
             ]);
         }
     }
-
+    */
     public function createRecurringInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
@@ -101,12 +101,11 @@ class InvoiceCest
         $I->wait(2);
         $I->see($clientEmail);
 
-        $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
-        $I->click('Recurring Invoice');
+        $I->click('#lastSent');
         $I->see($clientEmail);
 
-        $I->click('#lastSent');
-        $I->see($invoiceNumber);
+        $I->click('Recurring Invoice');
+        $I->see($clientEmail);
     }
 
 
