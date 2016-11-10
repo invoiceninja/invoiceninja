@@ -526,6 +526,7 @@
                     class="{{ Request::is("{$option}*") ? 'active' : '' }}">
                     <i class="fa fa-{{ \App\Models\EntityModel::getIcon($option) }}" style="width:46px; padding-right:10px"></i>
                     {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
+                    {!! Utils::isTrial() && in_array($option, ['quotes', 'tasks', 'expenses', 'vendors']) ? '&nbsp;<sup>' . trans('texts.pro') . '</sup>' : '' !!}
                     @if (false && $option == 'self-update' && Updater::source()->isNewVersionAvailable('v'.NINJA_VERSION))
                         <span class="badge alert-danger">1</span>
                     @endif

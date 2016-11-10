@@ -27,6 +27,10 @@
 {!! Former::populateField('enable_portal_password', intval($enable_portal_password)) !!}
 {!! Former::populateField('send_portal_password', intval($send_portal_password)) !!}
 {!! Former::populateField('enable_buy_now_buttons', intval($account->enable_buy_now_buttons)) !!}
+{!! Former::populateField('show_accept_invoice_terms', intval($account->show_accept_invoice_terms)) !!}
+{!! Former::populateField('show_accept_quote_terms', intval($account->show_accept_quote_terms)) !!}
+{!! Former::populateField('require_invoice_signature', intval($account->require_invoice_signature)) !!}
+{!! Former::populateField('require_quote_signature', intval($account->require_quote_signature)) !!}
 
 @if (!Utils::isNinja() && !Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
 <div class="alert alert-warning" style="font-size:larger;">
@@ -61,20 +65,71 @@
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.security') !!}</h3>
+                <h3 class="panel-title">{!! trans('texts.authorization') !!}</h3>
             </div>
             <div class="panel-body">
-                <div class="col-md-10 col-md-offset-1">
-                    {!! Former::checkbox('enable_portal_password')
-                        ->text(trans('texts.enable'))
-                        ->help(trans('texts.enable_portal_password_help'))
-                        ->label(trans('texts.enable_portal_password')) !!}
+                <div role="tabpanel">
+                    <ul class="nav nav-tabs" role="tablist" style="border: none">
+                        <li role="presentation" class="active"><a href="#password" aria-controls="password" role="tab" data-toggle="tab">{{ trans('texts.password') }}</a></li>
+                        <li role="presentation"><a href="#checkbox" aria-controls="checkbox" role="tab" data-toggle="tab">{{ trans('texts.checkbox') }}</a></li>
+                        <li role="presentation"><a href="#signature" aria-controls="signature" role="tab" data-toggle="tab">{{ trans('texts.invoice_signature') }}</a></li>
+                    </ul>
                 </div>
-                <div class="col-md-10 col-md-offset-1">
-                    {!! Former::checkbox('send_portal_password')
-                        ->text(trans('texts.enable'))
-                        ->help(trans('texts.send_portal_password_help'))
-                        ->label(trans('texts.send_portal_password')) !!}
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="password">
+                        <div class="panel-body">
+                          <div class="row">
+                            <div class="col-md-10 col-md-offset-1">
+                                {!! Former::checkbox('enable_portal_password')
+                                    ->text(trans('texts.enable'))
+                                    ->help(trans('texts.enable_portal_password_help'))
+                                    ->label(trans('texts.enable_portal_password')) !!}
+                            </div>
+                            <div class="col-md-10 col-md-offset-1">
+                                {!! Former::checkbox('send_portal_password')
+                                    ->text(trans('texts.enable'))
+                                    ->help(trans('texts.send_portal_password_help'))
+                                    ->label(trans('texts.send_portal_password')) !!}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="checkbox">
+                        <div class="panel-body">
+                          <div class="row">
+                            <div class="col-md-10 col-md-offset-1">
+                                {!! Former::checkbox('show_accept_invoice_terms')
+                                    ->text(trans('texts.enable'))
+                                    ->help(trans('texts.show_accept_invoice_terms_help'))
+                                    ->label(trans('texts.show_accept_invoice_terms')) !!}
+                            </div>
+                            <div class="col-md-10 col-md-offset-1">
+                                {!! Former::checkbox('show_accept_quote_terms')
+                                    ->text(trans('texts.enable'))
+                                    ->help(trans('texts.show_accept_quote_terms_help'))
+                                    ->label(trans('texts.show_accept_quote_terms')) !!}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="signature">
+                        <div class="panel-body">
+                          <div class="row">
+                            <div class="col-md-10 col-md-offset-1">
+                                {!! Former::checkbox('require_invoice_signature')
+                                    ->text(trans('texts.enable'))
+                                    ->help(trans('texts.require_invoice_signature_help'))
+                                    ->label(trans('texts.require_invoice_signature')) !!}
+                            </div>
+                            <div class="col-md-10 col-md-offset-1">
+                                {!! Former::checkbox('require_quote_signature')
+                                    ->text(trans('texts.enable'))
+                                    ->help(trans('texts.require_quote_signature_help'))
+                                    ->label(trans('texts.require_quote_signature')) !!}
+                            </div>
+                        </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

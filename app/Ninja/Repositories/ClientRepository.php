@@ -111,7 +111,11 @@ class ClientRepository extends BaseRepository
 
         // If the primary is set ensure it's listed first
         usort($contacts, function ($left, $right) {
-            return (isset($right['is_primary']) ? $right['is_primary'] : 1) - (isset($left['is_primary']) ? $left['is_primary'] : 0);
+            if (isset($right['is_primary']) && isset($left['is_primary'])) {
+                return $right['is_primary'] - $left['is_primary'];
+            } else {
+                return 0;
+            }
         });
 
         foreach ($contacts as $contact) {

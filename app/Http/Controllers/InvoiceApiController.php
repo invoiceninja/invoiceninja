@@ -176,7 +176,7 @@ class InvoiceApiController extends BaseAPIController
         if (isset($data['email_invoice']) && $data['email_invoice']) {
             if ($payment) {
                 $this->mailer->sendPaymentConfirmation($payment);
-            } else {
+            } elseif ( ! $invoice->is_recurring) {
                 $this->mailer->sendInvoice($invoice);
             }
         }

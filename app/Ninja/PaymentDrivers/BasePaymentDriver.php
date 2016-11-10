@@ -821,7 +821,7 @@ class BasePaymentDriver
 
             if ($gatewayTypeId == GATEWAY_TYPE_CUSTOM) {
                 $url = "javascript:showCustomModal();";
-                $label = $this->accountGateway->getConfigField('name');
+                $label = e($this->accountGateway->getConfigField('name'));
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);
                 $label = trans("texts.{$gatewayTypeAlias}");

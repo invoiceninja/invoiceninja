@@ -38,7 +38,7 @@ class HomeController extends BaseController
     public function showIndex()
     {
         Session::reflash();
-        
+
         if (!Utils::isNinja() && (!Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
         } elseif (Auth::check()) {
@@ -76,10 +76,8 @@ class HomeController extends BaseController
         }
 
         // Track the referral/campaign code
-        foreach (['rc', 'utm_campaign'] as $code) {
-            if (Input::has($code)) {
-                Session::set(SESSION_REFERRAL_CODE, Input::get($code));
-            }
+        if (Input::has('rc')) {
+            Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));
         }
 
         if (Auth::check()) {
@@ -115,7 +113,7 @@ class HomeController extends BaseController
                 $user->save();
             }
         }
-        
+
         Session::forget('news_feed_message');
 
         return 'success';
