@@ -214,6 +214,11 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::put('expense_categories/{expense_categories}', 'ExpenseCategoryController@update');
     Route::get('expense_categories/{expense_categories}/edit', 'ExpenseCategoryController@edit');
     Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk');
+
+	// BlueVine
+	Route::post('bluevine/signup', 'BlueVineController@signup');
+	Route::get('bluevine/hide_message', 'BlueVineController@hideMessage');
+	Route::get('bluevine/completed', 'BlueVineController@handleCompleted');
 });
 
 Route::group([

@@ -259,7 +259,10 @@
             </div>
             <script type="text/javascript">
                 function hideBlueVineMessage() {
-                    jQuery('#bluevinePromo').remove();
+                    jQuery('#bluevinePromo').fadeOut();
+                    $.get('/bluevine/hide_message', function(response) {
+                        console.log('Reponse: %s', response);
+                    });
                     return false;
                 }
 
@@ -294,6 +297,7 @@
 
                 function bluevineCreateAccount() {
                     var form = $('#bluevineSignup');
+                    $('#bluevineModal').find('.alert').remove();
 
                     var fields = [
                         'bluevine_name',
@@ -344,7 +348,6 @@
                             hasError = true;
                         } else {
                             formGroup.removeClass('has-error').find('.error-help-block').remove();
-                            ;
                         }
                     });
 
@@ -354,14 +357,128 @@
 
                     $('#bluevineModal .btn-primary').attr('disabled', 'disabled');
                     $.post(form.attr('action'), form.serialize(), function (data) {
-                        if (data.success) {
+                        if (!data.error) {
                             $('#bluevineSignup').hide();
-                        } else {
+                            var factoringOffer, locOffer;
 
+                            if (data.factoring_offer)factoringOffer = data.factoring_offer;
+                            else if (data.invoice_factoring_offer)factoringOffer = data;
+
+                            if (data.loc_offer)locOffer = data.loc_offer;
+                            else if (data.line_of_credit_offer)locOffer = data;
+
+                            var hasOffer, redirectUrl;
+
+                            if (!hasOffer && factoringOffer) {
+                                hasOffer = factoringOffer.is_conditional_offer;
+                                redirectUrl = factoringOffer.external_register_url;
+                            }
+
+                            if (!hasOffer && locOffer) {
+                                hasOffer = locOffer.is_conditional_offer;
+                                redirectUrl = locOffer.external_register_url;
+                            }
+
+                            if (!hasOffer) {
+                                window.location.href = redirectUrl;
+                            } else {
+                                if (factoringOffer) {
+                                    var quoteDetails = jQuery('<div class="bluevine-quote">');
+                                    if (factoringOffer.is_conditional_offer) {
+                                        quoteDetails.append(jQuery('<h4>').text("{{ trans('texts.bluevine_conditional_offer') }}"));
+
+                                        quoteDetails.append(jQuery('<div class="row">').append(
+                                                jQuery('<strong class="col-sm-3">').text("{{ trans('texts.bluevine_credit_line_amount') }}"),
+                                                jQuery('<div class="col-sm-2">').text(('$' + factoringOffer.credit_line_amount).replace(/(\d)(?=(\d{3})+$)/g, '$1,'))// Add commas to number
+                                        ));
+
+                                        // Docs claim that advance_rate is a percent from 0 to 100 without fraction,
+                                        // but in my testing the number was a percent from 0 to 1.
+                                        var advanceRate = factoringOffer.advance_rate > 1 ? factoringOffer.advance_rate : factoringOffer.advance_rate * 100;
+                                        quoteDetails.append(jQuery('<div class="row">').append(
+                                                jQuery('<strong class="col-sm-3">').text("{{ trans('texts.bluevine_advance_rate') }}"),
+                                                jQuery('<div class="col-sm-2">').text(advanceRate + '%')
+                                        ));
+
+                                        quoteDetails.append(jQuery('<div class="row">').append(
+                                                jQuery('<strong class="col-sm-3">').text("{{ trans('texts.bluevine_weekly_discount_rate') }}"),
+                                                jQuery('<div class="col-sm-2">').text(factoringOffer.weekly_discount_rate + '%')
+                                        ));
+
+                                        quoteDetails.append(jQuery('<div class="row">').append(
+                                                jQuery('<strong class="col-sm-3">').text("{{ trans('texts.bluevine_minimum_fee_rate') }}"),
+                                                jQuery('<div class="col-sm-2">').text(factoringOffer.minimum_fee_rate + '%')
+                                        ));
+                                    } else {
+                                        quoteDetails.append(jQuery('<p>').text("{{trans('texts.bluevine_no_conditional_offer')}}"));
+                                    }
+
+                                    $('#bluevineModal .modal-body').append(
+                                            jQuery('<h3>').text("{{ trans('texts.bluevine_invoice_factoring') }}"),
+                                            quoteDetails
+                                    );
+                                }
+
+                                if (locOffer) {
+                                    var quoteDetails = jQuery('<div class="bluevine-quote">');
+                                    if (locOffer.is_conditional_offer) {
+                                        quoteDetails.append(jQuery('<h4>').text("{{ trans('texts.bluevine_conditional_offer') }}"));
+
+                                        quoteDetails.append(jQuery('<div class="row">').append(
+                                                jQuery('<strong class="col-sm-3">').text("{{ trans('texts.bluevine_credit_line_amount') }}"),
+                                                jQuery('<div class="col-sm-2">').text(('$' + locOffer.credit_line_amount).replace(/(\d)(?=(\d{3})+$)/g, '$1,'))// Add commas to number
+                                        ));
+
+                                        quoteDetails.append(jQuery('<div class="row">').append(
+                                                jQuery('<strong class="col-sm-3">').text("{{ trans('texts.bluevine_interest_rate') }}"),
+                                                jQuery('<div class="col-sm-2">').text(locOffer.interest_rate + '%')
+                                        ));
+
+                                        quoteDetails.append(jQuery('<div class="row">').append(
+                                                jQuery('<strong class="col-sm-3">').text("{{ trans('texts.bluevine_weekly_draw_rate') }}"),
+                                                jQuery('<div class="col-sm-2">').text(locOffer.weekly_draw_rate + '%')
+                                        ));
+                                    } else {
+                                        quoteDetails.append(jQuery('<p>').text("{{trans('texts.bluevine_no_conditional_offer')}}"));
+                                    }
+
+                                    $('#bluevineModal .modal-body').append(
+                                            jQuery('<h3>').text("{{ trans('texts.bluevine_line_of_credit') }}"),
+                                            quoteDetails
+                                    );
+                                }
+                                /*<div class="row"><strong class="col-sm-4">Credit Line Amount</strong>  <div class="col-sm-2">$60,000</div>
+                                 </div>
+                                 <div class="row">
+                                 <strong class="col-sm-4">Advance Rate</strong>  <div class="col-sm-4">90%</div>
+                                 </div>
+                                 <div class="row">
+                                 <strong class="col-sm-4">Weekly Discount Rate</strong>  <div class="col-sm-2">0.8%</div>
+                                 </div>
+
+                                 <div class="row">
+                                 <strong class="col-sm-4">Minimum Rate</strong>  <div class="col-sm-2">1.5%</div>
+                                 </div>*/
+                            }
+
+                            $('#bluevineModal .btn-primary').replaceWith(
+                                    jQuery('<a class="btn btn-primary">').attr('href', redirectUrl).text("{{ trans('texts.bluevine_continue') }}")
+                            )
+                        } else {
+                            $('#bluevineModal .modal-body').append(
+                                    jQuery('<div class="alert alert-danger">').text(data.message ? data.message : "{{ trans('texts.bluevine_unexpected_error') }}")
+                            );
                         }
 
                         $('#bluevineModal .btn-primary').removeAttr('disabled');
-                    }, 'json');
+                    }, 'json').error(
+                            function () {
+                                $('#bluevineModal .modal-body').append(
+                                        jQuery('<div class="alert alert-danger">').text("{{ trans('texts.bluevine_unexpected_error') }}")
+                                );
+                                $('#bluevineModal .btn-primary').removeAttr('disabled');
+                            }
+                    );
                 }
             </script>
         @endif
