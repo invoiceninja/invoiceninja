@@ -748,15 +748,13 @@ class Account extends Eloquent
 
         if($adapter instanceof \League\Flysystem\Adapter\Local) {
             // Stored locally
-            $logo_url = str_replace(public_path(), url('/'), $adapter->applyPathPrefix($this->logo), $count);
+            $logoUrl = url('/logo/' . $this->logo);
 
             if ($cachebuster) {
-               $logo_url .= '?no_cache='.time();
+                $logoUrl .= '?no_cache='.time();
             }
 
-            if($count == 1){
-                return str_replace(DIRECTORY_SEPARATOR, '/', $logo_url);
-            }
+            return $logoUrl;
         }
 
         return Document::getDirectFileUrl($this->logo, $this->getLogoDisk());
