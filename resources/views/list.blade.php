@@ -19,7 +19,7 @@
 		@endif
 	@endcan
 
-    @if ($entityType == ENTITY_EXPENSE_CATEGORY)
+    @if (in_array($entityType, [ENTITY_EXPENSE_CATEGORY, ENTITY_PRODUCT]))
         {!! Button::normal(trans('texts.archive'))->asLinkTo('javascript:submitForm("archive")')->appendIcon(Icon::create('trash')) !!}
     @else
     	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
