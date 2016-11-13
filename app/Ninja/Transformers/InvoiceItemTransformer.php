@@ -11,7 +11,6 @@ class InvoiceItemTransformer extends EntityTransformer
             'product_key' => $item->product_key,
             'updated_at' => $this->getTimestamp($item->updated_at),
             'archived_at' => $this->getTimestamp($item->deleted_at),
-            'product_key' => $item->product_key,
             'notes' => $item->notes,
             'cost' => (float) $item->cost,
             'qty' => (float) $item->qty,
