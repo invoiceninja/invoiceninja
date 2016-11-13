@@ -1857,11 +1857,13 @@ class Account extends Eloquent
 
     public function isModuleEnabled($entityType)
     {
-        if (in_array($entityType, [
-            ENTITY_CLIENT,
-            ENTITY_INVOICE,
-            ENTITY_PRODUCT,
-            ENTITY_PAYMENT,
+        if ( ! in_array($entityType, [
+            ENTITY_RECURRING_INVOICE,
+            ENTITY_CREDIT,
+            ENTITY_QUOTE,
+            ENTITY_TASK,
+            ENTITY_EXPENSE,
+            ENTITY_VENDOR,
         ])) {
             return true;
         }
