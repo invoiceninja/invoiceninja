@@ -310,14 +310,14 @@
         });
 
         if (isStorageSupported()) {
-            var storage = localStorage.getItem('show_' + side + '_sidebar');
+            var storage = localStorage.getItem('show_' + side + '_sidebar') || '0';
             var toggled = $("#wrapper").hasClass("toggled-" + side) ? '1' : '0';
 
             if (storage != toggled) {
                 setTimeout(function() {
                     $("#wrapper").toggleClass("toggled-" + side);
                     $.post('{{ url('save_sidebar_state') }}?show_' + side + '=' + storage);
-                }, 100);
+                }, 200);
             }
         }
     }
