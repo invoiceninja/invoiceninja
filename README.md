@@ -57,13 +57,15 @@ Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to get
 * [D3.js](http://d3js.org/) visualizations
 
 ## Documentation
-* [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
-* [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
+* [Self Host Guide](https://www.invoiceninja.com/self-host)
 * [User Guide](http://docs.invoiceninja.com/en/latest/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
-* [API Documentation](https://www.invoiceninja.com/api-documentation/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
+
+## API
+* [API Documentation](https://www.invoiceninja.com/api-documentation/)
+* [PHP SDK](https://github.com/invoiceninja/sdk-php)
 
 ## Contributing
 All contributors are welcome!  

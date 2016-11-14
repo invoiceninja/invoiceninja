@@ -38,10 +38,22 @@ class TaskTransformer extends EntityTransformer
 
     public function transform(Task $task)
     {
+        if($task->invoice)
+            $invoiceId = $task->invoice->public_id;
+        else
+            $invoiceId = null;
+        
         return array_merge($this->getDefaults($task), [
             'id' => (int) $task->public_id,
             'description' => $task->description,
-            'duration' => $task->getDuration()
+            'duration' => $task->getDuration(),
+            'updated_at' => (int) $this->getTimestamp($task->updated_at),
+            'archived_at' => (int) $this->getTimestamp($task->deleted_at),
+            'invoice_id' => $invoiceId,
+            'client_id' => (int) $task->client->public_id,
+            'is_deleted' => (bool) $task->is_deleted,
+            'time_log' => $task->time_log,
+            'is_running' => (bool) $task->is_running,
         ]);
     }
 }
