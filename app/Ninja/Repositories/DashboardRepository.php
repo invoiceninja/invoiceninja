@@ -225,6 +225,7 @@ class DashboardRepository
 		                ->where('payments.account_id', '=', $accountId)
 		                ->where('clients.is_deleted', '=', false)
 		                ->where('invoices.is_deleted', '=', false)
+						->where('payments.is_deleted', '=', false)
 		                ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
 		if (!$viewAll){
