@@ -1,5 +1,6 @@
 <?php namespace App\Http\Controllers;
 
+use App\Http\Requests\UpdateTaskRequest;
 use Auth;
 use Response;
 use Input;
@@ -82,6 +83,40 @@ class TaskApiController extends BaseAPIController
         $data = $this->createItem($task, $transformer, 'task');
 
         return $this->response($data);
+    }
+
+
+
+    /**
+     * @SWG\Put(
+     *   path="/task/{task_id}",
+     *   tags={"task"},
+     *   summary="Update a task",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Task")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Update task",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Task"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+
+    public function update(UpdateTaskRequest $request)
+    {
+        $task = $request->entity();
+
+        $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\Input::all());
+
+        return $this->itemResponse($task);
+
     }
 
 }
