@@ -42,6 +42,7 @@ class DashboardController extends BaseController
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
         $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
+	    $showBlueVinePromo = !$account->bluevine_status && env('BLUEVINE_PARTNER_UNIQUE_ID');
 
         // check if the account has quotes
         $hasQuotes = false;
@@ -91,9 +92,10 @@ class DashboardController extends BaseController
             'currencies' => $currencies,
             'expenses' => $expenses,
             'tasks' => $tasks,
+	        'showBlueVinePromo' => $showBlueVinePromo,
         ];
 
-	    if(true){
+	    if($showBlueVinePromo){
 		    $usdLast12Months = 0;
 
 		    $paidLast12Months = $dashboardRepo->paidLast12Months( $account, $userId, $viewAll );
