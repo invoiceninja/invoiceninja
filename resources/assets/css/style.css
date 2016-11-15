@@ -1225,3 +1225,17 @@ div.panel-body div.panel-body {
   vertical-align: middle;
   margin-left: 16px;
 }
+
+
+/*
+ * BlueVine Promo
+ */
+@media (min-width: 900px) {
+    #bluevineModal .modal-dialog{
+        width:800px;
+    }
+}
+
+.bluevine-quote .row{
+    text-align: right;
+}
