@@ -42,6 +42,7 @@ class DashboardController extends BaseController
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
         $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
+	    $showBlueVinePromo = !$account->bluevine_status && env('BLUEVINE_PARTNER_UNIQUE_ID');
 
         // check if the account has quotes
         $hasQuotes = false;
@@ -75,6 +76,7 @@ class DashboardController extends BaseController
 
         $data = [
             'account' => $user->account,
+	        'user' => $user,
             'paidToDate' => $paidToDate,
             'balances' => $balances,
             'averageInvoice' => $averageInvoice,
@@ -90,7 +92,28 @@ class DashboardController extends BaseController
             'currencies' => $currencies,
             'expenses' => $expenses,
             'tasks' => $tasks,
+	        'showBlueVinePromo' => $showBlueVinePromo,
         ];
+
+	    if($showBlueVinePromo){
+		    $usdLast12Months = 0;
+
+		    $paidLast12Months = $dashboardRepo->paidLast12Months( $account, $userId, $viewAll );
+
+		    foreach ( $paidLast12Months as $item ) {
+			    if ( $item->currency_id == null ) {
+				    $currency = $user->account->currency_id ?: DEFAULT_CURRENCY;
+			    } else {
+				    $currency = $item->currency_id;
+			    }
+
+			    if ( $currency == CURRENCY_DOLLAR ) {
+				    $usdLast12Months += $item->value;
+			    }
+		    }
+
+		    $data['usdLast12Months'] = $usdLast12Months;
+	    }
 
         return View::make('dashboard', $data);
     }

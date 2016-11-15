@@ -194,7 +194,9 @@
         @endif
     </div>
 </div>
-
+@if($showBlueVinePromo)
+    @include('partials/bluevine_promo')
+@endif
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">

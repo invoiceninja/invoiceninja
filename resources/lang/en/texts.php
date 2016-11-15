@@ -2191,6 +2191,38 @@ $LANG = array(
     'authorization' => 'Authorization',
     'signed' => 'Signed',
 
+	// BlueVine
+	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
+	'bluevine_modal_label' => 'Sign up with BlueVine',
+	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
+<ul><li>Flexible business lines of credit and invoice factoring.</li>
+<li>Credit lines from $5,000 to $2M. Cash in as fast as 1 day.</li></ul>',
+	'bluevine_create_account' => 'Create an account',
+	'quote_types' => 'Get a quote for',
+	'invoice_factoring' => 'Invoice factoring',
+	'line_of_credit' => 'Line of credit',
+	'fico_score'                         => 'Your FICO score',
+	'business_inception'                 => 'Business Inception Date',
+	'average_bank_balance'               => 'Average bank account balance',
+	'annual_revenue'                     => 'Annual revenue',
+	'desired_credit_limit_factoring'     => 'Desired invoice factoring limit',
+	'desired_credit_limit_loc'           => 'Desired line of credit limit',
+	'desired_credit_limit'               => 'Desired credit limit',
+	'bluevine_credit_line_type_required' => 'You must choose at least one',
+	'bluevine_field_required'            => 'This field is required',
+	'bluevine_unexpected_error'          => 'An unexpected error occurred.',
+	'bluevine_no_conditional_offer'      => 'More information is required before getting a quote. Click continue below.',
+	'bluevine_invoice_factoring'         => 'Invoice Factoring',
+	'bluevine_conditional_offer'         => 'Conditional Offer',
+	'bluevine_credit_line_amount'        => 'Credit Line',
+	'bluevine_advance_rate'              => 'Advance Rate',
+	'bluevine_weekly_discount_rate'      => 'Weekly Discount Rate',
+	'bluevine_minimum_fee_rate'          => 'Minimum Fee',
+	'bluevine_line_of_credit'            => 'Line of Credit',
+	'bluevine_interest_Rate'             => 'Interest Rate',
+	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
+	'bluevine_continue'                  => 'Continue to BlueVine',
+	'bluevine_completed'                 => 'BlueVine signup completed',
 );
 
 return $LANG;
