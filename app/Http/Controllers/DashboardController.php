@@ -35,14 +35,17 @@ class DashboardController extends BaseController
         $metrics = $dashboardRepo->totals($accountId, $userId, $viewAll);
         $paidToDate = $dashboardRepo->paidToDate($account, $userId, $viewAll);
         $averageInvoice = $dashboardRepo->averages($account, $userId, $viewAll);
-        $balances = $dashboardRepo->balances($accountId, $userId, $viewAll);        
+        $balances = $dashboardRepo->balances($accountId, $userId, $viewAll);
         $activities = $dashboardRepo->activities($accountId, $userId, $viewAll);
         $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
         $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
         $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
-	    $showBlueVinePromo = !$account->bluevine_status && env('BLUEVINE_PARTNER_UNIQUE_ID');
+
+	    $showBlueVinePromo = ! $account->bluevine_status
+            && env('BLUEVINE_PARTNER_UNIQUE_ID')
+            && $account->created_at <= date( 'Y-m-d', strtotime( '-1 month' ));
 
         // check if the account has quotes
         $hasQuotes = false;
@@ -95,10 +98,10 @@ class DashboardController extends BaseController
 	        'showBlueVinePromo' => $showBlueVinePromo,
         ];
 
-	    if($showBlueVinePromo){
+	    if ($showBlueVinePromo) {
 		    $usdLast12Months = 0;
-
-		    $paidLast12Months = $dashboardRepo->paidLast12Months( $account, $userId, $viewAll );
+            $pastYear = date( 'Y-m-d', strtotime( '-1 year' ));
+		    $paidLast12Months = $dashboardRepo->paidToDate( $account, $userId, $viewAll, $pastYear );
 
 		    foreach ( $paidLast12Months as $item ) {
 			    if ( $item->currency_id == null ) {

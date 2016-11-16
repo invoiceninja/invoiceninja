@@ -1,5 +1,5 @@
 <div class="alert alert-info" id="bluevinePromo">
-    {{ trans('texts.bluevine_promo') }}
+    {{ trans('texts.bluevine_promo') }} &nbsp;&nbsp;
     <a href="#" onclick="showBlueVineModal()"
        class="btn btn-primary btn-sm">{{ trans('texts.learn_more') }}</a>
     <a href="#" onclick="hideBlueVineMessage()" class="pull-right">{{ trans('texts.hide') }}</a>
@@ -15,8 +15,9 @@
             </div>
 
             <div class="modal-body">
+            <div class="panel-body">
                 {!! Former::open('/bluevine/signup')->id('bluevineSignup') !!}
-                {!! trans('texts.bluevine_modal_text') !!}
+                {!! trans('texts.bluevine_modal_text') !!}<br/>
                 <h3>{!! trans('texts.bluevine_create_account') !!}</h3>
                 {!! Former::text('name')->id('bluevine_name')->placeholder(trans('texts.name'))->value($user->first_name . ' ' . $user->last_name)->required() !!}
                 {!! Former::text('email')->id('bluevine_email')->placeholder(trans('texts.email'))->value($user->email)->required() !!}
@@ -49,6 +50,7 @@
                     ->placeholder(trans('texts.desired_credit_limit'))
                     ->label(trans('texts.desired_credit_limit_loc'))!!}
                 {!! Former::close() !!}
+            </div>
             </div>
 
             <div class="modal-footer">
@@ -216,7 +218,7 @@
                             quoteDetails.append(jQuery('<p>').text("{{trans('texts.bluevine_no_conditional_offer')}}"));
                         }
 
-                        $('#bluevineModal .modal-body').append(
+                        $('#bluevineModal .panel-body').append(
                                 jQuery('<h3>').text("{{ trans('texts.bluevine_invoice_factoring') }}"),
                                 quoteDetails
                         );
@@ -245,7 +247,7 @@
                             quoteDetails.append(jQuery('<p>').text("{{trans('texts.bluevine_no_conditional_offer')}}"));
                         }
 
-                        $('#bluevineModal .modal-body').append(
+                        $('#bluevineModal .panel-body').append(
                                 jQuery('<h3>').text("{{ trans('texts.bluevine_line_of_credit') }}"),
                                 quoteDetails
                         );
@@ -268,7 +270,7 @@
                         jQuery('<a class="btn btn-primary">').attr('href', redirectUrl).text("{{ trans('texts.bluevine_continue') }}")
                 )
             } else {
-                $('#bluevineModal .modal-body').append(
+                $('#bluevineModal .panel-body').append(
                         jQuery('<div class="alert alert-danger">').text(data.message ? data.message : "{{ trans('texts.bluevine_unexpected_error') }}")
                 );
             }
@@ -276,7 +278,7 @@
             $('#bluevineModal .btn-primary').removeAttr('disabled');
         }, 'json').error(
                 function () {
-                    $('#bluevineModal .modal-body').append(
+                    $('#bluevineModal .panel-body').append(
                             jQuery('<div class="alert alert-danger">').text("{{ trans('texts.bluevine_unexpected_error') }}")
                     );
                     $('#bluevineModal .btn-primary').removeAttr('disabled');

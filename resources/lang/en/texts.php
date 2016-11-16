@@ -2195,8 +2195,7 @@ $LANG = array(
 	'bluevine_promo' => 'Get flexible business lines of credit and invoice factoring using BlueVine.',
 	'bluevine_modal_label' => 'Sign up with BlueVine',
 	'bluevine_modal_text' => '<h3>Fast funding for your business. No paperwork.</h3>
-<ul><li>Flexible business lines of credit and invoice factoring.</li>
-<li>Credit lines from $5,000 to $2M. Cash in as fast as 1 day.</li></ul>',
+<ul><li>Flexible business lines of credit and invoice factoring.</li></ul>',
 	'bluevine_create_account' => 'Create an account',
 	'quote_types' => 'Get a quote for',
 	'invoice_factoring' => 'Invoice factoring',
@@ -2219,7 +2218,7 @@ $LANG = array(
 	'bluevine_weekly_discount_rate'      => 'Weekly Discount Rate',
 	'bluevine_minimum_fee_rate'          => 'Minimum Fee',
 	'bluevine_line_of_credit'            => 'Line of Credit',
-	'bluevine_interest_Rate'             => 'Interest Rate',
+	'bluevine_interest_rate'             => 'Interest Rate',
 	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
 	'bluevine_continue'                  => 'Continue to BlueVine',
 	'bluevine_completed'                 => 'BlueVine signup completed',
