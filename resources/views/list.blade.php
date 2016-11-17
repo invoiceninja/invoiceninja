@@ -1,5 +1,21 @@
 @extends('header')
 
+@section('head')
+	@parent
+
+    <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
+
+	<style type="text/css">
+		.select2-selection {
+			border: 1px solid #dfe0e1 !important;
+			border-radius: 2px;
+			padding: 2px;
+		}
+	</style>
+
+@stop
+
 @section('content')
 
 	{!! Former::open(Utils::pluralizeEntityType($entityType) . '/bulk')->addClass('listForm') !!}
@@ -28,9 +44,17 @@
     		    ])->withAttributes(['class'=>'archive'])->split() !!}
     @endif
 
-	&nbsp;<label for="trashed" style="font-weight:normal; margin-left: 10px;">
+	&nbsp;
+	<label for="trashed" style="font-weight:normal; margin-left: 10px;">
+		<!--
 		<input id="trashed" type="checkbox" onclick="setTrashVisible()"
-			{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}}
+		{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}}
+		-->
+		{!! Former::multiselect('statuses')
+				->select('Active')
+				->style('width: 200px')
+				->options($statuses)
+				->raw() !!}
 	</label>
 
 	<div id="top_right_buttons" class="pull-right">
@@ -154,6 +178,7 @@
 		}
 	@endif
 
+	/*
 	function setTrashVisible() {
 		var checked = $('#trashed').is(':checked');
 		var url = '{{ URL::to('view_archive/' . $entityType) }}' + (checked ? '/true' : '/false');
@@ -162,6 +187,7 @@
             refreshDatatable();
         })
 	}
+	*/
 
     $(function() {
         var tableFilter = '';
@@ -231,6 +257,14 @@
             $('button.archive').not('.dropdown-toggle').text(buttonLabel);
         }
 
+		$('#statuses').select2({
+			placeholder: "{{ trans('texts.status') }}",
+		}).on('change', function() {
+			refreshDatatable();
+		}).val([0]).trigger('change');
+
+
+		//$('#statuses').select2().val([0,1,2]).trigger('change');
     });
 
     </script>

@@ -45,6 +45,7 @@ class ClientController extends BaseController
             'entityType' => ENTITY_CLIENT,
             'title' => trans('texts.clients'),
             'sortCol' => '4',
+            'statuses' => Utils::trans(Client::$statuses),
             'columns' => Utils::trans([
               'checkbox',
               'client',

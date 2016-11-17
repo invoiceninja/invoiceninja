@@ -62,6 +62,10 @@ elixir(function(mix) {
         bowerDir + '/bootstrap-daterangepicker/daterangepicker.css'
     ], 'public/css/daterangepicker.css');
 
+    mix.styles([
+        bowerDir + '/select2/dist/css/select2.css'
+    ], 'public/css/select2.css');
+
 
     /**
      * JS configuration
@@ -79,6 +83,10 @@ elixir(function(mix) {
     mix.scripts([
         bowerDir + '/bootstrap-daterangepicker/daterangepicker.js'
     ], 'public/js/daterangepicker.min.js');
+
+    mix.scripts([
+        bowerDir + '/select2/dist/js/select2.js'
+    ], 'public/js/select2.min.js');
 
     mix.scripts([
         bowerDir + '/jSignature/libs/jSignature.min.js'

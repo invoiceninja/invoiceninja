@@ -32,6 +32,15 @@ class EntityModel extends Eloquent
     public static $notifySubscriptions = true;
 
     /**
+     * @var array
+     */
+    public static $statuses = [
+        STATUS_ACTIVE,
+        STATUS_ARCHIVED,
+        STATUS_DELETED,
+    ];
+
+    /**
      * @param null $context
      * @return mixed
      */
