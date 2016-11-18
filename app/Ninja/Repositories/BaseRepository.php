@@ -1,5 +1,7 @@
 <?php namespace App\Ninja\Repositories;
 
+use Utils;
+
 /**
  * Class BaseRepository
  */
@@ -112,5 +114,31 @@ class BaseRepository
     public function findByPublicIdsWithTrashed($ids)
     {
         return $this->getInstance()->scope($ids)->withTrashed()->get();
+    }
+
+    protected function applyFilters($query, $entityType, $table = false)
+    {
+        $table = Utils::pluralizeEntityType($table ?: $entityType);
+
+        if ($filters = explode(',', session('entity_filter:' . $entityType, STATUS_ACTIVE))) {
+            $query->where(function ($query) use ($filters, $table) {
+                $query->whereNull($table . '.id');
+
+                if (in_array(STATUS_ACTIVE, $filters)) {
+                    $query->orWhereNull($table . '.deleted_at');
+                }
+                if (in_array(STATUS_ARCHIVED, $filters)) {
+                    $query->orWhereNotNull($table . '.deleted_at');
+                    if ( ! in_array(STATUS_DELETED, $filters) && ! in_array($table, ['products', 'expense_categories', 'users'])) {
+                        $query->where($table . '.is_deleted', '=', 0);
+                    }
+                }
+                if (in_array(STATUS_DELETED, $filters)) {
+                    $query->orWhere($table . '.is_deleted', '=', 1);
+                }
+            });
+        }
+
+        return $query;
     }
 }

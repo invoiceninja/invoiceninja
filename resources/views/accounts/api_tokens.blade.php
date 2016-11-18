@@ -14,13 +14,6 @@
   @endif
   </div>
 
-  <!--
-    <label for="trashed" style="font-weight:normal; margin-left: 10px;">
-        <input id="trashed" type="checkbox" onclick="setTrashVisible()"
-            {!! Session::get('show_trash:token') ? 'checked' : ''!!}/> {!! trans('texts.show_deleted_tokens')!!}
-    </label>
-  -->
-
   @include('partials.bulk_form', ['entityType' => ENTITY_TOKEN])
 
   {!! Datatable::table()
@@ -39,15 +32,6 @@
   <script>
 
     window.onDatatableReady = actionListHandler;
-
-    function setTrashVisible() {
-        var checked = $('#trashed').is(':checked');
-        var url = '{{ URL::to('view_archive/token') }}' + (checked ? '/true' : '/false');
-
-        $.get(url, function(data) {
-            refreshDatatable();
-        })
-    }
 
   </script>
 

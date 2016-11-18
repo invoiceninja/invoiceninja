@@ -76,8 +76,23 @@ class InvoiceRepository extends BaseRepository
                 'invoices.user_id'
             );
 
-        if (!\Session::get('show_trash:'.$entityType)) {
-            $query->where('invoices.deleted_at', '=', null);
+        $this->applyFilters($query, $entityType, ENTITY_INVOICE);
+
+        if ($statuses = explode(',', session('entity_filter:' . $entityType))) {
+            $query->where(function ($query) use ($statuses) {
+                foreach ($statuses as $status) {
+                    if (in_array($status, \App\Models\EntityModel::$statuses)) {
+                        continue;
+                    }
+                    $query->orWhere('invoice_status_id', '=', $status);
+                }
+                if (in_array(INVOICE_STATUS_OVERDUE, $statuses)) {
+                    $query->orWhere(function ($query) use ($statuses) {
+                        $query->where('invoices.balance', '>', 0)
+                              ->where('invoices.due_date', '<', date('Y-m-d'));
+                    });
+                }
+            });
         }
 
         if ($clientPublicId) {
@@ -133,9 +148,7 @@ class InvoiceRepository extends BaseRepository
             $query->where('clients.public_id', '=', $clientPublicId);
         }
 
-        if (!\Session::get('show_trash:recurring_invoice')) {
-            $query->where('invoices.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_RECURRING_INVOICE, ENTITY_INVOICE);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {

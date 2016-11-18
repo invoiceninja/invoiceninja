@@ -1249,6 +1249,31 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         return $recurInvoice->auto_bill == AUTO_BILL_ALWAYS || ($recurInvoice->auto_bill != AUTO_BILL_OFF && $recurInvoice->client_enable_auto_bill);
     }
+
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = parent::getStatuses($entityType);
+
+        if ($entityType == ENTITY_RECURRING_INVOICE) {
+            return $statuses;
+        }
+
+        foreach (\Cache::get('invoiceStatus') as $status) {
+            if ($entityType == ENTITY_QUOTE) {
+                if (in_array($status->id, [INVOICE_STATUS_PAID, INVOICE_STATUS_PARTIAL])) {
+                    continue;
+                }
+            }
+
+            $statuses[$status->id] = trans('texts.status_' . strtolower($status->name));
+        }
+
+        if ($entityType == ENTITY_INVOICE) {
+            $statuses[INVOICE_STATUS_OVERDUE] = trans('texts.overdue');
+        }
+
+        return $statuses;
+    }
 }
 
 Invoice::creating(function ($invoice) {

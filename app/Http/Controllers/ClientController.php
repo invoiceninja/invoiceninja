@@ -40,12 +40,12 @@ class ClientController extends BaseController
      * @return Response
      */
     public function index()
-    {
+    {        
         return View::make('list', [
             'entityType' => ENTITY_CLIENT,
             'title' => trans('texts.clients'),
             'sortCol' => '4',
-            'statuses' => Utils::trans(Client::$statuses),
+            'statuses' => Client::getStatuses(),
             'columns' => Utils::trans([
               'checkbox',
               'client',

@@ -125,7 +125,7 @@ if (Utils::isReseller()) {
 Route::group(['middleware' => 'auth:user'], function() {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
-    Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
+    Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
     Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
@@ -531,6 +531,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('INVOICE_STATUS_APPROVED', 4);
     define('INVOICE_STATUS_PARTIAL', 5);
     define('INVOICE_STATUS_PAID', 6);
+    define('INVOICE_STATUS_OVERDUE', 7);
 
     define('PAYMENT_STATUS_PENDING', 1);
     define('PAYMENT_STATUS_VOIDED', 2);
@@ -538,6 +539,15 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_STATUS_COMPLETED', 4);
     define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 5);
     define('PAYMENT_STATUS_REFUNDED', 6);
+
+    define('TASK_STATUS_LOGGED', 1);
+    define('TASK_STATUS_RUNNING', 2);
+    define('TASK_STATUS_INVOICED', 3);
+    define('TASK_STATUS_PAID', 4);
+
+    define('EXPENSE_STATUS_LOGGED', 1);
+    define('EXPENSE_STATUS_INVOICED', 2);
+    define('EXPENSE_STATUS_PAID', 3);
 
     define('CUSTOM_DESIGN', 11);
 

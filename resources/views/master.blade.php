@@ -108,7 +108,7 @@
         /* Set the defaults for DataTables initialisation */
         $.extend(true, $.fn.dataTable.defaults, {
             "bSortClasses": false,
-            "sDom": "t<'row-fluid'<'span6'i><'span6'p>>l",
+            "sDom": "t<'row-fluid'<'span6 dt-left'i><'span6 dt-right'p>>l",
             "sPaginationType": "bootstrap",
             "bInfo": true,
             "oLanguage": {

@@ -193,6 +193,10 @@ class EntityModel extends Eloquent
      */
     public static function getClassName($entityType)
     {
+        if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) {
+            $entityType = ENTITY_INVOICE;
+        }
+
         return 'App\\Models\\' . ucwords(Utils::toCamelCase($entityType));
     }
 
@@ -289,5 +293,16 @@ class EntityModel extends Eloquent
         }
 
         return false;
+    }
+
+    public static function getStatuses($entityType = false)
+    {
+        $data = [];
+
+        foreach (static::$statuses as $status) {
+            $data[$status] = trans("texts.{$status}");
+        }
+
+        return $data;
     }
 }

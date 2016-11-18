@@ -49,9 +49,7 @@ class ClientRepository extends BaseRepository
                         'clients.user_id'
                     );
 
-        if (!\Session::get('show_trash:client')) {
-            $query->where('clients.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_CLIENT);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {

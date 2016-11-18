@@ -85,7 +85,8 @@ elixir(function(mix) {
     ], 'public/js/daterangepicker.min.js');
 
     mix.scripts([
-        bowerDir + '/select2/dist/js/select2.js'
+        bowerDir + '/select2/dist/js/select2.js',
+        'resources/assets/js/maximize-select2-height.js',
     ], 'public/js/select2.min.js');
 
     mix.scripts([

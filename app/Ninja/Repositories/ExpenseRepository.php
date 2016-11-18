@@ -94,10 +94,25 @@ class ExpenseRepository extends BaseRepository
                         'clients.country_id as client_country_id'
                     );
 
-        $showTrashed = \Session::get('show_trash:expense');
+        $this->applyFilters($query, ENTITY_EXPENSE);
 
-        if (!$showTrashed) {
-            $query->where('expenses.deleted_at', '=', null);
+        if ($statuses = explode(',', session('entity_filter:' . ENTITY_EXPENSE))) {
+            $query->where(function ($query) use ($statuses) {
+                if (in_array(EXPENSE_STATUS_LOGGED, $statuses)) {
+                    $query->orWhere('expenses.invoice_id', '=', 0)
+                          ->orWhereNull('expenses.invoice_id');
+                }
+                if (in_array(EXPENSE_STATUS_INVOICED, $statuses)) {
+                    $query->orWhere('expenses.invoice_id', '>', 0);
+                    if ( ! in_array(EXPENSE_STATUS_PAID, $statuses)) {
+                        $query->where('invoices.balance', '>', 0);
+                    }
+                }
+                if (in_array(EXPENSE_STATUS_PAID, $statuses)) {
+                    $query->orWhere('invoices.balance', '=', 0)
+                          ->where('expenses.invoice_id', '>', 0);
+                }
+            });
         }
 
         if ($filter) {

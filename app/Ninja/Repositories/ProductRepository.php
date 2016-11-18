@@ -42,9 +42,7 @@ class ProductRepository extends BaseRepository
             });
         }
 
-        if (!\Session::get('show_trash:product')) {
-            $query->where('products.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_PRODUCT);
 
         return $query;
     }

@@ -53,6 +53,7 @@ class ProductController extends BaseController
         return View::make('list', [
             'entityType' => ENTITY_PRODUCT,
             'title' => trans('texts.products'),
+            'statuses' => Product::getStatuses(),
             'sortCol' => '4',
             'columns' => Utils::trans($columns),
         ]);

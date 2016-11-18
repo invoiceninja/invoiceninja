@@ -28,9 +28,7 @@ class ExpenseCategoryRepository extends BaseRepository
                     'expense_categories.deleted_at'
                 );
 
-        if (!\Session::get('show_trash:expense_category')) {
-            $query->where('expense_categories.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_EXPENSE_CATEGORY);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {

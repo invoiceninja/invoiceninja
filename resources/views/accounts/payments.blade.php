@@ -31,13 +31,6 @@
     </div>
     {!! Former::close() !!}
 
-  <!--
-  <label for="trashed" style="font-weight:normal; margin-left: 10px;">
-    <input id="trashed" type="checkbox" onclick="setTrashVisible()"
-      {{ Session::get("show_trash:gateway") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}} {{ Utils::transFlowText('gateways') }}
-  </label>
-  -->
-
   @if ($showAdd)
       {!! Button::primary(trans('texts.add_gateway'))
             ->asLinkTo(URL::to('/gateways/create'))
@@ -121,14 +114,6 @@
 
   <script>
     window.onDatatableReady = actionListHandler;
-    function setTrashVisible() {
-        var checked = $('#trashed').is(':checked');
-        var url = '{{ URL::to('view_archive/gateway') }}' + (checked ? '/true' : '/false');
-
-        $.get(url, function(data) {
-            refreshDatatable();
-        })
-    }
 
     function showLimitsModal(gateway_type, gateway_type_id, min_limit, max_limit) {
         var modalLabel = {!! json_encode(trans('texts.set_limits')) !!};

@@ -63,9 +63,7 @@ class PaymentRepository extends BaseRepository
                         'payment_statuses.name as payment_status_name'
                     );
 
-        if (!\Session::get('show_trash:payment')) {
-            $query->where('payments.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_PAYMENT);
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);

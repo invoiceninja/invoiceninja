@@ -45,9 +45,7 @@ class CreditRepository extends BaseRepository
             $query->where('clients.public_id', '=', $clientPublicId);
         }
 
-        if (!\Session::get('show_trash:credit')) {
-            $query->where('credits.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_CREDIT);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {

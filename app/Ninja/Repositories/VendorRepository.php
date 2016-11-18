@@ -45,9 +45,7 @@ class VendorRepository extends BaseRepository
                         'vendors.user_id'
                     );
 
-        if (!\Session::get('show_trash:vendor')) {
-            $query->where('vendors.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_VENDOR);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {

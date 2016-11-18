@@ -58,6 +58,7 @@ class InvoiceController extends BaseController
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
             'sortCol' => '3',
+            'statuses' => Invoice::getStatuses(),
             'columns' => Utils::trans([
                 'checkbox',
                 'invoice_number',

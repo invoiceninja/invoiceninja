@@ -244,9 +244,13 @@ class AccountController extends BaseController
      * @param $visible
      * @return mixed
      */
-    public function setTrashVisible($entityType, $visible)
+    public function setEntityFilter($entityType, $filter = '')
     {
-        Session::put("show_trash:{$entityType}", $visible == 'true');
+        if ($filter == 'true') {
+            $filter = '';
+        }
+
+        Session::put("entity_filter:{$entityType}", $filter);
 
         return RESULT_SUCCESS;
     }

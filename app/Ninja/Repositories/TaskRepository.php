@@ -51,8 +51,27 @@ class TaskRepository extends BaseRepository
             $query->where('clients.public_id', '=', $clientPublicId);
         }
 
-        if (!Session::get('show_trash:task')) {
-            $query->where('tasks.deleted_at', '=', null);
+        $this->applyFilters($query, ENTITY_TASK);
+
+        if ($statuses = explode(',', session('entity_filter:' . ENTITY_TASK))) {
+            $query->where(function ($query) use ($statuses) {
+                if (in_array(TASK_STATUS_LOGGED, $statuses)) {
+                    $query->orWhere('tasks.invoice_id', '=', 0)
+                          ->orWhereNull('tasks.invoice_id');
+                }
+                if (in_array(TASK_STATUS_RUNNING, $statuses)) {
+                    $query->orWhere('tasks.is_running', '=', 1);
+                }
+                if (in_array(TASK_STATUS_INVOICED, $statuses)) {
+                    $query->orWhere('tasks.invoice_id', '>', 0);
+                    if ( ! in_array(TASK_STATUS_PAID, $statuses)) {
+                        $query->where('invoices.balance', '>', 0);
+                    }
+                }
+                if (in_array(TASK_STATUS_PAID, $statuses)) {
+                    $query->orWhere('invoices.balance', '=', 0);
+                }
+            });
         }
 
         if ($filter) {

@@ -45,17 +45,12 @@
     @endif
 
 	&nbsp;
-	<label for="trashed" style="font-weight:normal; margin-left: 10px;">
-		<!--
-		<input id="trashed" type="checkbox" onclick="setTrashVisible()"
-		{{ Session::get("show_trash:{$entityType}") ? 'checked' : ''}}/>&nbsp; {{ trans('texts.show_archived_deleted')}}
-		-->
-		{!! Former::multiselect('statuses')
-				->select('Active')
-				->style('width: 200px')
-				->options($statuses)
-				->raw() !!}
-	</label>
+	<span id="statusWrapper" style="display:none">
+	{!! Former::multiselect('statuses')
+			->style('width: 220px')
+			->options(\App\Models\EntityModel::getClassName($entityType)::getStatuses($entityType))
+			->raw() !!}
+	</span>
 
 	<div id="top_right_buttons" class="pull-right">
 		<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important"
@@ -181,7 +176,7 @@
 	/*
 	function setTrashVisible() {
 		var checked = $('#trashed').is(':checked');
-		var url = '{{ URL::to('view_archive/' . $entityType) }}' + (checked ? '/true' : '/false');
+		var url = '{{ URL::to('set_entity_filter/' . $entityType) }}' + (checked ? '/true' : '/false');
 
         $.get(url, function(data) {
             refreshDatatable();
@@ -259,12 +254,23 @@
 
 		$('#statuses').select2({
 			placeholder: "{{ trans('texts.status') }}",
-		}).on('change', function() {
-			refreshDatatable();
-		}).val([0]).trigger('change');
+		}).val('{{ session('entity_filter:' . $entityType, STATUS_ACTIVE) }}'.split(','))
+ 		  .trigger('change')
+		  .on('change', function() {
+			var filter = $('#statuses').val();
+			if (filter) {
+				filter = filter.join(',');
+			} else {
+				filter = '';
+			}
+			var url = '{{ URL::to('set_entity_filter/' . $entityType) }}' + '/' + filter;
+	        $.get(url, function(data) {
+	            refreshDatatable();
+	        })
+		}).maximizeSelect2Height();
 
+		$('#statusWrapper').show();
 
-		//$('#statuses').select2().val([0,1,2]).trigger('change');
     });
 
     </script>
