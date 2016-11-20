@@ -14,7 +14,7 @@
             ]
         },
         {
-            "style": "invoiceLineItemsTable",            
+            "style": "invoiceLineItemsTable",
             "table": {
                 "headerRows": 1,
                 "widths": "$invoiceLineItemColumns",
@@ -25,12 +25,12 @@
                 "vLineWidth": "$notFirstAndLastColumn:.5",
                 "hLineColor": "#888888",
                 "vLineColor": "#FFFFFF",
-                "paddingLeft": "$amount:8", 
-                "paddingRight": "$amount:8", 
-                "paddingTop": "$amount:8", 
-                "paddingBottom": "$amount:8"  
+                "paddingLeft": "$amount:8",
+                "paddingRight": "$amount:8",
+                "paddingTop": "$amount:8",
+                "paddingBottom": "$amount:8"
             }
-        },    
+        },
         {
             "columns": [
             "$notesAndTerms",
@@ -42,10 +42,10 @@
                 "layout": {
                     "hLineWidth": "$none",
                     "vLineWidth": "$none",
-                    "paddingLeft": "$amount:34", 
-                    "paddingRight": "$amount:8", 
-                    "paddingTop": "$amount:4", 
-                    "paddingBottom": "$amount:4"  
+                    "paddingLeft": "$amount:34",
+                    "paddingRight": "$amount:8",
+                    "paddingTop": "$amount:4",
+                    "paddingBottom": "$amount:4"
                 }
             }
             ]
@@ -58,7 +58,7 @@
                     "type": "rect",
                     "x": 0,
                     "y": 0,
-                    "w": 532,
+                    "w": 515,
                     "h": 26,
                     "r": 0,
                     "lineWidth": 1,
@@ -96,7 +96,7 @@
     "footer": [
     {
         "canvas": [
-        { 
+        {
             "type": "line", "x1": 0, "y1": 0, "x2": 600, "y2": 0,"lineWidth": 100,"lineColor":"$primaryColor:#f26621"
             }]
             ,"width":10
@@ -141,9 +141,9 @@
     },
     {
         "width": 300,
-        "table": { 
+        "table": {
             "body": "$invoiceDetails"
-        },  
+        },
         "layout": "noBorders",
         "margin": [400, -40, 0, 0]
     }
@@ -177,7 +177,7 @@
         },
         "invoiceLineItemsTable": {
             "margin": [0, 0, 0, 16]
-        },        
+        },
         "productKey": {
             "bold": true
         },
@@ -201,7 +201,7 @@
         },
         "lineTotalTableHeader": {
             "alignment": "right"
-        },            
+        },
         "balanceDueLabel": {
             "fontSize": "$fontSizeLargest",
             "color":"#FFFFFF",
@@ -228,7 +228,7 @@
         },
         "subtotals": {
             "alignment": "right"
-        },            
+        },
         "termsLabel": {
             "bold": true,
             "margin": [0, 0, 0, 4]
