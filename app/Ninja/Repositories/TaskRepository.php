@@ -53,7 +53,8 @@ class TaskRepository extends BaseRepository
 
         $this->applyFilters($query, ENTITY_TASK);
 
-        if ($statuses = explode(',', session('entity_filter:' . ENTITY_TASK))) {
+        if ($statuses = session('entity_status_filter:' . ENTITY_TASK)) {
+            $statuses = explode(',', $statuses);
             $query->where(function ($query) use ($statuses) {
                 if (in_array(TASK_STATUS_LOGGED, $statuses)) {
                     $query->orWhere('tasks.invoice_id', '=', 0)

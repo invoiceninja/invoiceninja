@@ -48,9 +48,9 @@ class ExpenseCategory extends EntityModel
         return "/expense_categories/{$this->public_id}/edit";
     }
 
-    public static function getStatuses($entityType = false)
+    public static function getStates($entityType = false)
     {
-        $statuses = parent::getStatuses($entityType);
+        $statuses = parent::getStates($entityType);
 
         unset($statuses[STATUS_DELETED]);
 

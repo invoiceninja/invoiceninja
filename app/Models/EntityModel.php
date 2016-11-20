@@ -295,7 +295,7 @@ class EntityModel extends Eloquent
         return false;
     }
 
-    public static function getStatuses($entityType = false)
+    public static function getStates($entityType = false)
     {
         $data = [];
 
@@ -305,4 +305,24 @@ class EntityModel extends Eloquent
 
         return $data;
     }
+
+    public static function getStatuses($entityType = false)
+    {
+        return [];
+    }
+
+    public static function getStatesFor($entityType = false)
+    {
+        $class = static::getClassName($entityType);
+
+        return $class::getStates($entityType);
+    }
+
+    public static function getStatusesFor($entityType = false)
+    {
+        $class = static::getClassName($entityType);
+
+        return $class::getStatuses($entityType);
+    }
+
 }

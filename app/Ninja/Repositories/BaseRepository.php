@@ -119,8 +119,9 @@ class BaseRepository
     protected function applyFilters($query, $entityType, $table = false)
     {
         $table = Utils::pluralizeEntityType($table ?: $entityType);
-
-        if ($filters = explode(',', session('entity_filter:' . $entityType, STATUS_ACTIVE))) {
+        
+        if ($filter = session('entity_state_filter:' . $entityType, STATUS_ACTIVE)) {
+            $filters = explode(',', $filter);
             $query->where(function ($query) use ($filters, $table) {
                 $query->whereNull($table . '.id');
 
@@ -128,13 +129,16 @@ class BaseRepository
                     $query->orWhereNull($table . '.deleted_at');
                 }
                 if (in_array(STATUS_ARCHIVED, $filters)) {
-                    $query->orWhereNotNull($table . '.deleted_at');
-                    if ( ! in_array(STATUS_DELETED, $filters) && ! in_array($table, ['products', 'expense_categories', 'users'])) {
-                        $query->where($table . '.is_deleted', '=', 0);
-                    }
+                    $query->orWhere(function ($query) use ($table) {
+                        $query->whereNotNull($table . '.deleted_at')
+                              ->where($table . '.is_deleted', '=', 0);
+                    });
                 }
                 if (in_array(STATUS_DELETED, $filters)) {
-                    $query->orWhere($table . '.is_deleted', '=', 1);
+                    $query->orWhere(function ($query) use ($table) {
+                        $query->whereNotNull($table . '.deleted_at')
+                              ->where($table . '.is_deleted', '=', 1);
+                    });
                 }
             });
         }

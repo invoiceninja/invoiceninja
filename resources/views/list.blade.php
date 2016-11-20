@@ -46,10 +46,24 @@
 
 	&nbsp;
 	<span id="statusWrapper" style="display:none">
-	{!! Former::multiselect('statuses')
-			->style('width: 220px')
-			->options(\App\Models\EntityModel::getClassName($entityType)::getStatuses($entityType))
-			->raw() !!}
+		<select class="form-control" style="width: 220px" id="statuses" multiple="true">
+			@if (count(\App\Models\EntityModel::getStatusesFor($entityType)))
+				<optgroup label="{{ trans('texts.entity_state') }}">
+					@foreach (\App\Models\EntityModel::getStatesFor($entityType) as $key => $value)
+						<option value="{{ $key }}">{{ $value }}</option>
+					@endforeach
+				</optgroup>
+				<optgroup label="{{ trans('texts.status') }}">
+					@foreach (\App\Models\EntityModel::getStatusesFor($entityType) as $key => $value)
+						<option value="{{ $key }}">{{ $value }}</option>
+					@endforeach
+				</optgroup>
+			@else
+				@foreach (\App\Models\EntityModel::getStatesFor($entityType) as $key => $value)
+					<option value="{{ $key }}">{{ $value }}</option>
+				@endforeach
+			@endif
+		</select>
 	</span>
 
 	<div id="top_right_buttons" class="pull-right">
@@ -254,7 +268,7 @@
 
 		$('#statuses').select2({
 			placeholder: "{{ trans('texts.status') }}",
-		}).val('{{ session('entity_filter:' . $entityType, STATUS_ACTIVE) }}'.split(','))
+		}).val('{{ session('entity_state_filter:' . $entityType, STATUS_ACTIVE) . ',' . session('entity_status_filter:' . $entityType) }}'.split(','))
  		  .trigger('change')
 		  .on('change', function() {
 			var filter = $('#statuses').val();

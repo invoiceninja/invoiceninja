@@ -16,7 +16,7 @@
 
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">
         <input id="trashed" type="checkbox" onclick="setTrashVisible()"
-            {!! Session::get('entity_filter:user') != 'active' ? 'checked' : ''!!}/> {!! trans('texts.show_archived_users')!!}
+            {!! Session::get('entity_state_filter:user') != 'active' ? 'checked' : ''!!}/> {!! trans('texts.show_archived_users')!!}
     </label>
 
   @include('partials.bulk_form', ['entityType' => ENTITY_USER])

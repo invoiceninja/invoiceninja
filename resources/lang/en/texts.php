@@ -2222,6 +2222,9 @@ $LANG = array(
 	'bluevine_weekly_draw_rate'          => 'Weekly Draw Rate',
 	'bluevine_continue'                  => 'Continue to BlueVine',
 	'bluevine_completed'                 => 'BlueVine signup completed',
+
+    'entity_state' => 'State',
+    
 );
 
 return $LANG;

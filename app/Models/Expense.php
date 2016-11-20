@@ -214,8 +214,7 @@ class Expense extends EntityModel
 
     public static function getStatuses($entityType = false)
     {
-        $statuses = parent::getStatuses($entityType);
-
+        $statuses = [];
         $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
         $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
         $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');

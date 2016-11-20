@@ -96,8 +96,11 @@ class ExpenseRepository extends BaseRepository
 
         $this->applyFilters($query, ENTITY_EXPENSE);
 
-        if ($statuses = explode(',', session('entity_filter:' . ENTITY_EXPENSE))) {
+        if ($statuses = session('entity_status_filter:' . ENTITY_EXPENSE)) {
+            $statuses = explode(',', $statuses);
             $query->where(function ($query) use ($statuses) {
+                $query->whereNull('expenses.id');
+
                 if (in_array(EXPENSE_STATUS_LOGGED, $statuses)) {
                     $query->orWhere('expenses.invoice_id', '=', 0)
                           ->orWhereNull('expenses.invoice_id');

@@ -250,7 +250,20 @@ class AccountController extends BaseController
             $filter = '';
         }
 
-        Session::put("entity_filter:{$entityType}", $filter);
+        // separate state and status filters
+        $filters = explode(',', $filter);
+        $stateFilter = [];
+        $statusFilter = [];
+        foreach ($filters as $filter) {
+            if (in_array($filter, \App\Models\EntityModel::$statuses)) {
+                $stateFilter[] = $filter;
+            } else {
+                $statusFilter[] = $filter;
+            }
+        }
+
+        Session::put("entity_state_filter:{$entityType}", join(',', $stateFilter));
+        Session::put("entity_status_filter:{$entityType}", join(',', $statusFilter));
 
         return RESULT_SUCCESS;
     }

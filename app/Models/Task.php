@@ -198,8 +198,7 @@ class Task extends EntityModel
 
     public static function getStatuses($entityType = false)
     {
-        $statuses = parent::getStatuses($entityType);
-
+        $statuses = [];
         $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
         $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
         $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');

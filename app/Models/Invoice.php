@@ -1252,7 +1252,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public static function getStatuses($entityType = false)
     {
-        $statuses = parent::getStatuses($entityType);
+        $statuses = [];
 
         if ($entityType == ENTITY_RECURRING_INVOICE) {
             return $statuses;
@@ -1261,6 +1261,10 @@ class Invoice extends EntityModel implements BalanceAffecting
         foreach (\Cache::get('invoiceStatus') as $status) {
             if ($entityType == ENTITY_QUOTE) {
                 if (in_array($status->id, [INVOICE_STATUS_PAID, INVOICE_STATUS_PARTIAL])) {
+                    continue;
+                }
+            } elseif ($entityType == ENTITY_INVOICE) {
+                if (in_array($status->id, [INVOICE_STATUS_APPROVED])) {
                     continue;
                 }
             }

@@ -78,7 +78,8 @@ class InvoiceRepository extends BaseRepository
 
         $this->applyFilters($query, $entityType, ENTITY_INVOICE);
 
-        if ($statuses = explode(',', session('entity_filter:' . $entityType))) {
+        if ($statuses = session('entity_status_filter:' . $entityType)) {
+            $statuses = explode(',', $statuses);
             $query->where(function ($query) use ($statuses) {
                 foreach ($statuses as $status) {
                     if (in_array($status, \App\Models\EntityModel::$statuses)) {
