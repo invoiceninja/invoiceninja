@@ -65,4 +65,9 @@ $app->configureMonologUsing(function($monolog) {
     $monolog->pushHandler(new Monolog\Handler\StreamHandler(storage_path() . '/logs/laravel-error.log', Monolog\Logger::ERROR, false));
 });
 
+// Capture real IP if using cloudflare
+if (isset($_SERVER["HTTP_CF_CONNECTING_IP"])) {
+	$_SERVER['REMOTE_ADDR'] = $_SERVER["HTTP_CF_CONNECTING_IP"];
+}
+
 return $app;
