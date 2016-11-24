@@ -2,6 +2,7 @@
 
 use Utils;
 use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Datatables\RecurringInvoiceDatatable;
 
 /**
  * Class RecurringInvoiceController
@@ -32,18 +33,10 @@ class RecurringInvoiceController extends BaseController
         $data = [
             'title' => trans('texts.recurring_invoices'),
             'entityType' => ENTITY_RECURRING_INVOICE,
-            'columns' => Utils::trans([
-                'checkbox',
-                'frequency',
-                'client',
-                'start_date',
-                'end_date',
-                'invoice_total',
-                'action'
-            ])
+            'datatable' => new RecurringInvoiceDatatable(),
         ];
 
-        return response()->view('list', $data);
+        return response()->view('list_wrapper', $data);
     }
 
 }

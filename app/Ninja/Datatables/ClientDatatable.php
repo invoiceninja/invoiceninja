@@ -30,7 +30,7 @@ class ClientDatatable extends EntityDatatable
                 }
             ],
             [
-                'clients.created_at',
+                'client_created_at',
                 function ($model) {
                     return Utils::timestampToDateString(strtotime($model->created_at));
                 }

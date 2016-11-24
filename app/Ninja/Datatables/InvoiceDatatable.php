@@ -14,7 +14,7 @@ class InvoiceDatatable extends EntityDatatable
 
         return [
             [
-                'invoice_number',
+                $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
                     if(!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->user_id])){
                         return $model->invoice_number;
@@ -34,9 +34,9 @@ class InvoiceDatatable extends EntityDatatable
                 ! $this->hideClient
             ],
             [
-                'invoice_date',
+                'date',
                 function ($model) {
-                    return Utils::fromSqlDate($model->invoice_date);
+                    return Utils::fromSqlDate($model->date);
                 }
             ],
             [
@@ -58,13 +58,13 @@ class InvoiceDatatable extends EntityDatatable
                 $entityType == ENTITY_INVOICE
             ],
             [
-                'due_date',
+                $entityType == ENTITY_INVOICE ? 'due_date' : 'valid_until',
                 function ($model) {
                     return Utils::fromSqlDate($model->due_date);
                 },
             ],
             [
-                'invoice_status_name',
+                'status',
                 function ($model) use ($entityType) {
                     return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
                 }
@@ -189,5 +189,4 @@ class InvoiceDatatable extends EntityDatatable
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
-
 }

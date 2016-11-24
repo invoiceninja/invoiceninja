@@ -36,7 +36,7 @@ class VendorDatatable extends EntityDatatable
                 }
             ],
             [
-                'vendors.created_at',
+                'date',
                 function ($model) {
                     return Utils::timestampToDateString(strtotime($model->created_at));
                 }

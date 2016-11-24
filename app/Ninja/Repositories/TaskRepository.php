@@ -38,12 +38,15 @@ class TaskRepository extends BaseRepository
                         'tasks.is_deleted',
                         'tasks.deleted_at',
                         'invoices.invoice_number',
+                        'invoices.invoice_number as status',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
                         'invoices.balance',
                         'tasks.is_running',
                         'tasks.time_log',
+                        'tasks.time_log as duration',
                         'tasks.created_at',
+                        'tasks.created_at as date',
                         'tasks.user_id'
                     );
 

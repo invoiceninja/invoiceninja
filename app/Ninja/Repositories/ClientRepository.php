@@ -42,6 +42,7 @@ class ClientRepository extends BaseRepository
                         'clients.balance',
                         'clients.last_login',
                         'clients.created_at',
+                        'clients.created_at as client_created_at',
                         'clients.work_phone',
                         'contacts.email',
                         'clients.deleted_at',

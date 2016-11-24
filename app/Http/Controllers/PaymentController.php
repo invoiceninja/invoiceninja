@@ -13,6 +13,7 @@ use App\Services\PaymentService;
 use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\CreatePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
+use App\Ninja\Datatables\PaymentDatatable;
 
 class PaymentController extends BaseController
 {
@@ -59,22 +60,11 @@ class PaymentController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PAYMENT,
+            'datatable' => new PaymentDatatable(),
             'title' => trans('texts.payments'),
             'sortCol' => '7',
-            'columns' => Utils::trans([
-              'checkbox',
-              'invoice',
-              'client',
-              'transaction_reference',
-              'method',
-              'source',
-              'payment_amount',
-              'payment_date',
-              'status',
-              ''
-            ]),
         ]);
     }
 

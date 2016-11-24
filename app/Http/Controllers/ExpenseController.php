@@ -19,6 +19,7 @@ use App\Ninja\Repositories\ExpenseRepository;
 use App\Http\Requests\ExpenseRequest;
 use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
+use App\Ninja\Datatables\ExpenseDatatable;
 
 class ExpenseController extends BaseController
 {
@@ -48,21 +49,11 @@ class ExpenseController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_EXPENSE,
+            'datatable' => new ExpenseDatatable(),
             'title' => trans('texts.expenses'),
             'sortCol' => '3',
-            'columns' => Utils::trans([
-              'checkbox',
-              'vendor',
-              'client',
-              'expense_date',
-              'amount',
-              'category',
-              'public_notes',
-              'status',
-              ''
-            ]),
         ]);
     }
 

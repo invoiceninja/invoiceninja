@@ -59,7 +59,7 @@ class ExpenseRepository extends BaseRepository
                               ->orWhere('contacts.is_primary', '=', null);
                     })
                     ->select(
-                        DB::raw('COALESCE(expenses.invoice_id, expenses.should_be_invoiced) expense_status_id'),
+                        DB::raw('COALESCE(expenses.invoice_id, expenses.should_be_invoiced) status'),
                         'expenses.account_id',
                         'expenses.amount',
                         'expenses.deleted_at',

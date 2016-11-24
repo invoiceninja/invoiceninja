@@ -3,6 +3,9 @@
 @section('head')
     @parent
 
+    <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
+
     @if ($client->hasAddress())
         <style>
           #map {
@@ -196,15 +199,17 @@
 		@if ($hasQuotes && Utils::isPro())
 			{!! Form::tab_link('#quotes', trans('texts.quotes')) !!}
 		@endif
+        @if ($hasRecurringInvoices)
+            {!! Form::tab_link('#recurring_invoices', trans('texts.recurring')) !!}
+        @endif
 		{!! Form::tab_link('#invoices', trans('texts.invoices')) !!}
 		{!! Form::tab_link('#payments', trans('texts.payments')) !!}
 		{!! Form::tab_link('#credits', trans('texts.credits')) !!}
-	</ul>
+	</ul><br/>
 
 	<div class="tab-content">
 
         <div class="tab-pane active" id="activity">
-
 			{!! Datatable::table()
 		    	->addColumn(
 		    		trans('texts.date'),
@@ -217,117 +222,63 @@
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
 		    	->render('datatable') !!}
-
         </div>
 
     @if ($hasTasks)
         <div class="tab-pane" id="tasks">
-
-            {!! Datatable::table()
-                ->addColumn(
-                    trans('texts.date'),
-                    trans('texts.duration'),
-                    trans('texts.description'),
-                    trans('texts.status'))
-                ->setUrl(url('api/tasks/'. $client->public_id))
-                ->setCustomValues('entityType', 'tasks')
-                ->setOptions('sPaginationType', 'bootstrap')
-                ->setOptions('bFilter', false)
-                ->setOptions('aaSorting', [['0', 'desc']])
-                ->render('datatable') !!}
-
+            @include('list', [
+                'entityType' => ENTITY_TASK,
+                'datatable' => new \App\Ninja\Datatables\TaskDatatable(true, true),
+                'clientId' => $client->public_id,
+            ])
         </div>
     @endif
 
 
     @if (Utils::hasFeature(FEATURE_QUOTES) && $hasQuotes)
         <div class="tab-pane" id="quotes">
+            @include('list', [
+                'entityType' => ENTITY_QUOTE,
+                'datatable' => new \App\Ninja\Datatables\InvoiceDatatable(true, true, ENTITY_QUOTE),
+                'clientId' => $client->public_id,
+            ])
+        </div>
+    @endif
 
-			{!! Datatable::table()
-		    	->addColumn(
-	    			trans('texts.quote_number'),
-	    			trans('texts.quote_date'),
-	    			trans('texts.total'),
-	    			trans('texts.valid_until'),
-	    			trans('texts.status'))
-		    	->setUrl(url('api/quotes/'. $client->public_id))
-                ->setCustomValues('entityType', 'quotes')
-		    	->setOptions('sPaginationType', 'bootstrap')
-		    	->setOptions('bFilter', false)
-		    	->setOptions('aaSorting', [['0', 'desc']])
-		    	->render('datatable') !!}
-
+    @if ($hasRecurringInvoices)
+        <div class="tab-pane" id="recurring_invoices">
+            @include('list', [
+                'entityType' => ENTITY_RECURRING_INVOICE,
+                'datatable' => new \App\Ninja\Datatables\RecurringInvoiceDatatable(true, true),
+                'clientId' => $client->public_id,
+            ])
         </div>
     @endif
 
 		<div class="tab-pane" id="invoices">
-
-			@if ($hasRecurringInvoices)
-				{!! Datatable::table()
-			    	->addColumn(
-			    		trans('texts.frequency_id'),
-			    		trans('texts.start_date'),
-			    		trans('texts.end_date'),
-			    		trans('texts.invoice_total'))
-			    	->setUrl(url('api/recurring_invoices/' . $client->public_id))
-                    ->setCustomValues('entityType', 'recurring_invoices')
-			    	->setOptions('sPaginationType', 'bootstrap')
-			    	->setOptions('bFilter', false)
-			    	->setOptions('aaSorting', [['0', 'asc']])
-			    	->render('datatable') !!}
-			@endif
-
-			{!! Datatable::table()
-		    	->addColumn(
-		    			trans('texts.invoice_number'),
-		    			trans('texts.invoice_date'),
-		    			trans('texts.invoice_total'),
-		    			trans('texts.balance_due'),
-		    			trans('texts.due_date'),
-		    			trans('texts.status'))
-		    	->setUrl(url('api/invoices/' . $client->public_id))
-                ->setCustomValues('entityType', 'invoices')
-		    	->setOptions('sPaginationType', 'bootstrap')
-		    	->setOptions('bFilter', false)
-		    	->setOptions('aaSorting', [['0', 'desc']])
-		    	->render('datatable') !!}
-
+            @include('list', [
+                'entityType' => ENTITY_INVOICE,
+                'datatable' => new \App\Ninja\Datatables\InvoiceDatatable(true, true),
+                'clientId' => $client->public_id,
+            ])
         </div>
+
         <div class="tab-pane" id="payments">
-
-	    	{!! Datatable::table()
-						->addColumn(
-			    			trans('texts.invoice'),
-			    			trans('texts.transaction_reference'),
-			    			trans('texts.method'),
-                            trans('texts.source'),
-			    			trans('texts.payment_amount'),
-			    			trans('texts.payment_date'),
-                            trans('texts.status'))
-				->setUrl(url('api/payments/' . $client->public_id))
-                ->setCustomValues('entityType', 'payments')
-				->setOptions('sPaginationType', 'bootstrap')
-				->setOptions('bFilter', false)
-				->setOptions('aaSorting', [['0', 'desc']])
-				->render('datatable') !!}
-
+            @include('list', [
+                'entityType' => ENTITY_PAYMENT,
+                'datatable' => new \App\Ninja\Datatables\PaymentDatatable(true, true),
+                'clientId' => $client->public_id,
+            ])
         </div>
+
         <div class="tab-pane" id="credits">
-
-	    	{!! Datatable::table()
-						->addColumn(
-								trans('texts.credit_amount'),
-								trans('texts.credit_balance'),
-								trans('texts.credit_date'),
-								trans('texts.private_notes'))
-				->setUrl(url('api/credits/' . $client->public_id))
-                ->setCustomValues('entityType', 'credits')
-				->setOptions('sPaginationType', 'bootstrap')
-				->setOptions('bFilter', false)
-				->setOptions('aaSorting', [['0', 'asc']])
-				->render('datatable') !!}
-
+            @include('list', [
+                'entityType' => ENTITY_CREDIT,
+                'datatable' => new \App\Ninja\Datatables\CreditDatatable(true, true),
+                'clientId' => $client->public_id,
+            ])
         </div>
+
     </div>
 
 	<script type="text/javascript">
@@ -350,9 +301,6 @@
           if (!loadedTabs.hasOwnProperty(target)) {
             loadedTabs[target] = true;
             window['load_' + target]();
-            if (target == 'invoices' && window.hasOwnProperty('load_recurring_invoices')) {
-                window['load_recurring_invoices']();
-            }
           }
         });
         var tab = localStorage.getItem('client_tab') || '';

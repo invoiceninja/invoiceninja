@@ -24,7 +24,7 @@ class TaskDatatable extends EntityDatatable
                 ! $this->hideClient
             ],
             [
-                'created_at',
+                'date',
                 function ($model) {
                     if(!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])){
                         return Task::calcStartTime($model);
@@ -33,7 +33,7 @@ class TaskDatatable extends EntityDatatable
                 }
             ],
             [
-                'time_log',
+                'duration',
                 function($model) {
                     return Utils::formatTime(Task::calcDuration($model));
                 }
@@ -45,7 +45,7 @@ class TaskDatatable extends EntityDatatable
                 }
             ],
             [
-                'invoice_number',
+                'status',
                 function ($model) {
                     return self::getStatusLabel($model);
                 }

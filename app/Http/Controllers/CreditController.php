@@ -11,6 +11,7 @@ use App\Services\CreditService;
 use App\Ninja\Repositories\CreditRepository;
 use App\Http\Requests\CreateCreditRequest;
 use App\Http\Requests\CreditRequest;
+use App\Ninja\Datatables\CreditDatatable;
 
 class CreditController extends BaseController
 {
@@ -33,19 +34,11 @@ class CreditController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_CREDIT,
+            'datatable' => new CreditDatatable(),
             'title' => trans('texts.credits'),
             'sortCol' => '4',
-            'columns' => Utils::trans([
-              'checkbox',
-              'client',
-              'credit_amount',
-              'credit_balance',
-              'credit_date',
-              'private_notes',
-              ''
-            ]),
         ]);
     }
 
@@ -62,7 +55,7 @@ class CreditController extends BaseController
             'method' => 'POST',
             'url' => 'credits',
             'title' => trans('texts.new_credit'),
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), 
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
 
         return View::make('credits.edit', $data);

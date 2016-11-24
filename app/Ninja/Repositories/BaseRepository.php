@@ -119,7 +119,7 @@ class BaseRepository
     protected function applyFilters($query, $entityType, $table = false)
     {
         $table = Utils::pluralizeEntityType($table ?: $entityType);
-        
+
         if ($filter = session('entity_state_filter:' . $entityType, STATUS_ACTIVE)) {
             $filters = explode(',', $filter);
             $query->where(function ($query) use ($filters, $table) {
@@ -130,8 +130,11 @@ class BaseRepository
                 }
                 if (in_array(STATUS_ARCHIVED, $filters)) {
                     $query->orWhere(function ($query) use ($table) {
-                        $query->whereNotNull($table . '.deleted_at')
-                              ->where($table . '.is_deleted', '=', 0);
+                        $query->whereNotNull($table . '.deleted_at');
+
+                        if ( ! in_array($table, ['users'])) {
+                            $query->where($table . '.is_deleted', '=', 0);
+                        }
                     });
                 }
                 if (in_array(STATUS_DELETED, $filters)) {

@@ -511,7 +511,7 @@ $LANG = array(
     'partial_remaining' => ':partial of :balance',
     'more_fields' => 'More Fields',
     'less_fields' => 'Less Fields',
-    'client_name' => 'Client Name',
+    'client_name' => 'Client',
     'pdf_settings' => 'PDF Settings',
     'product_settings' => 'Product Settings',
     'auto_wrap' => 'Auto Line Wrap',
@@ -2223,8 +2223,10 @@ $LANG = array(
 	'bluevine_continue'                  => 'Continue to BlueVine',
 	'bluevine_completed'                 => 'BlueVine signup completed',
 
+    'vendor_name' => 'Vendor',
     'entity_state' => 'State',
-    
+    'payment_status_name' => 'Status',
+    'client_created_at' => 'Created At',
 );
 
 return $LANG;

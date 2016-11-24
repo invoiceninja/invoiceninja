@@ -81,7 +81,7 @@ class ExpenseDatatable extends EntityDatatable
                 }
             ],
             [
-                'expense_status_id',
+                'status',
                 function ($model) {
                     return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance);
                 }

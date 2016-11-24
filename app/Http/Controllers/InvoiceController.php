@@ -22,6 +22,7 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\DocumentRepository;
+use App\Ninja\Datatables\InvoiceDatatable;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use App\Services\RecurringInvoiceService;
@@ -59,20 +60,10 @@ class InvoiceController extends BaseController
             'entityType' => ENTITY_INVOICE,
             'sortCol' => '3',
             'statuses' => Invoice::getStatuses(),
-            'columns' => Utils::trans([
-                'checkbox',
-                'invoice_number',
-                'client',
-                'invoice_date',
-                'invoice_total',
-                'balance_due',
-                'due_date',
-                'status',
-                ''
-            ]),
+            'datatable' => new InvoiceDatatable(),
         ];
 
-        return response()->view('list', $data);
+        return response()->view('list_wrapper', $data);
     }
 
     public function getDatatable($clientPublicId = null)

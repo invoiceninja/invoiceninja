@@ -16,6 +16,7 @@ use App\Services\TaskService;
 use App\Http\Requests\TaskRequest;
 use App\Http\Requests\CreateTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Ninja\Datatables\TaskDatatable;
 
 /**
  * Class TaskController
@@ -66,19 +67,11 @@ class TaskController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_TASK,
+            'datatable' => new TaskDatatable(),
             'title' => trans('texts.tasks'),
             'sortCol' => '2',
-            'columns' => Utils::trans([
-              'checkbox',
-              'client',
-              'date',
-              'duration',
-              'description',
-              'status',
-              ''
-            ]),
         ]);
     }
 

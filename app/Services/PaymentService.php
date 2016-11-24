@@ -125,13 +125,13 @@ class PaymentService extends BaseService
 
     public function getDatatable($clientPublicId, $search)
     {
-        $datatable = new PaymentDatatable( ! $clientPublicId, $clientPublicId);
+        $datatable = new PaymentDatatable(true, $clientPublicId);
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
         if(!Utils::hasPermission('view_all')){
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
-        
+
         return $this->datatableService->createDatatable($datatable, $query);
     }
 

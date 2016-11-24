@@ -37,6 +37,7 @@ class VendorRepository extends BaseRepository
                         'vendor_contacts.first_name',
                         'vendor_contacts.last_name',
                         'vendors.created_at',
+                        'vendors.created_at as date',
                         'vendors.work_phone',
                         'vendors.city',
                         'vendor_contacts.email',

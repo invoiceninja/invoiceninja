@@ -10,6 +10,7 @@ use Redirect;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Services\ProductService;
+use App\Ninja\Datatables\ProductDatatable;
 
 /**
  * Class ProductController
@@ -38,24 +39,12 @@ class ProductController extends BaseController
      */
     public function index()
     {
-        $columns = [
-            'checkbox',
-            'product',
-            'description',
-            'unit_cost'
-        ];
-
-        if (Auth::user()->account->invoice_item_taxes) {
-            $columns[] = 'tax_rate';
-        }
-        $columns[] = 'action';
-
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PRODUCT,
+            'datatable' => new ProductDatatable(),
             'title' => trans('texts.products'),
             'statuses' => Product::getStatuses(),
             'sortCol' => '4',
-            'columns' => Utils::trans($columns),
         ]);
     }
 

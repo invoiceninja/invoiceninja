@@ -1248,3 +1248,9 @@ div.panel-body div.panel-body {
 .bluevine-quote .row{
     text-align: right;
 }
+
+.select2-selection {
+    border: 1px solid #dfe0e1 !important;
+    border-radius: 2px;
+    padding: 2px;
+}

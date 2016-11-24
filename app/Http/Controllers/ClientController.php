@@ -19,6 +19,7 @@ use App\Services\ClientService;
 use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Ninja\Datatables\ClientDatatable;
 
 class ClientController extends BaseController
 {
@@ -40,22 +41,13 @@ class ClientController extends BaseController
      * @return Response
      */
     public function index()
-    {        
-        return View::make('list', [
+    {
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_CLIENT,
+            'datatable' => new ClientDatatable(),
             'title' => trans('texts.clients'),
             'sortCol' => '4',
             'statuses' => Client::getStatuses(),
-            'columns' => Utils::trans([
-              'checkbox',
-              'client',
-              'contact',
-              'email',
-              'date_created',
-              'last_login',
-              'balance',
-              ''
-            ]),
         ]);
     }
 

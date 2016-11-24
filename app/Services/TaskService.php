@@ -40,7 +40,7 @@ class TaskService extends BaseService
      */
     public function getDatatable($clientPublicId, $search)
     {
-        $datatable = new TaskDatatable( ! $clientPublicId, $clientPublicId);
+        $datatable = new TaskDatatable(true, $clientPublicId);
         $query = $this->taskRepo->find($clientPublicId, $search);
 
         if(!Utils::hasPermission('view_all')){

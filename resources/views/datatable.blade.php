@@ -32,7 +32,7 @@
     </tbody>
 </table>
 <script type="text/javascript">
-    @if (isset($values['entityType']))
+    @if (isset($values['clientId']) && $values['clientId'])
             window.load_{{ $values['entityType'] }} = function load_{{ $values['entityType'] }}() {
                 load_{{ $class }}();
             }

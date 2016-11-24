@@ -155,7 +155,7 @@ class InvoiceService extends BaseService
 
     public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
     {
-        $datatable = new InvoiceDatatable( ! $clientPublicId, $clientPublicId);
+        $datatable = new InvoiceDatatable(true, $clientPublicId);
         $datatable->entityType = $entityType;
 
         $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
