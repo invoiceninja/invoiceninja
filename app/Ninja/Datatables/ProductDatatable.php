@@ -8,6 +8,7 @@ use Str;
 class ProductDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PRODUCT;
+    public $sortCol = 4;
 
     public function columns()
     {

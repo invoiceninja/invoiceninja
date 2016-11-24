@@ -71,7 +71,6 @@ class TaskController extends BaseController
             'entityType' => ENTITY_TASK,
             'datatable' => new TaskDatatable(),
             'title' => trans('texts.tasks'),
-            'sortCol' => '2',
         ]);
     }
 

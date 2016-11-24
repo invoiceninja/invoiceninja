@@ -49,7 +49,6 @@ class QuoteController extends BaseController
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
           'datatable' => $datatable,
-          'sortCol' => '3',
         ];
 
         return response()->view('list_wrapper', $data);

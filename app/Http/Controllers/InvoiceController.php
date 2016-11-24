@@ -58,7 +58,6 @@ class InvoiceController extends BaseController
         $data = [
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
-            'sortCol' => '3',
             'statuses' => Invoice::getStatuses(),
             'datatable' => new InvoiceDatatable(),
         ];

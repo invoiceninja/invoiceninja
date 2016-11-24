@@ -42,7 +42,6 @@ class VendorController extends BaseController
             'entityType' => 'vendor',
             'datatable' => new VendorDatatable(),
             'title' => trans('texts.vendors'),
-            'sortCol' => '4',
         ]);
     }
 

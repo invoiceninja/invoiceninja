@@ -8,6 +8,7 @@ use App\Models\PaymentMethod;
 class PaymentDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_PAYMENT;
+    public $sortCol = 7;
 
     protected static $refundableGateways = [
         GATEWAY_STRIPE,

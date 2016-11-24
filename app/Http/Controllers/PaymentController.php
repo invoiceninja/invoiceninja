@@ -64,7 +64,6 @@ class PaymentController extends BaseController
             'entityType' => ENTITY_PAYMENT,
             'datatable' => new PaymentDatatable(),
             'title' => trans('texts.payments'),
-            'sortCol' => '7',
         ]);
     }
 

@@ -8,6 +8,7 @@ use App\Models\Task;
 class TaskDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TASK;
+    public $sortCol = 2;
 
     public function columns()
     {

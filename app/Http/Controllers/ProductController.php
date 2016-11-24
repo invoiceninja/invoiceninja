@@ -44,7 +44,6 @@ class ProductController extends BaseController
             'datatable' => new ProductDatatable(),
             'title' => trans('texts.products'),
             'statuses' => Product::getStatuses(),
-            'sortCol' => '4',
         ]);
     }
 

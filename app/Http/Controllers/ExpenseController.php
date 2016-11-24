@@ -53,7 +53,6 @@ class ExpenseController extends BaseController
             'entityType' => ENTITY_EXPENSE,
             'datatable' => new ExpenseDatatable(),
             'title' => trans('texts.expenses'),
-            'sortCol' => '3',
         ]);
     }
 
