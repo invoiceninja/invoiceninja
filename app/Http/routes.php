@@ -138,22 +138,22 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::post('users/change_password', 'UserController@changePassword');
 
     Route::resource('clients', 'ClientController');
-    Route::get('api/clients', ['as'=>'api.clients', 'uses'=>'ClientController@getDatatable']);
-    Route::get('api/activities/{client_id?}', ['as'=>'api.activities', 'uses'=>'ActivityController@getDatatable']);
+    Route::get('api/clients', 'ClientController@getDatatable');
+    Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');
 
     Route::resource('tasks', 'TaskController');
-    Route::get('api/tasks/{client_id?}', ['as'=>'api.tasks', 'uses'=>'TaskController@getDatatable']);
+    Route::get('api/tasks/{client_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');
 
-    Route::get('api/recurring_invoices/{client_id?}', ['as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable']);
+    Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');
 
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
     Route::get('quotes/quote_history/{invoice_id}', 'InvoiceController@invoiceHistory');
 
     Route::resource('invoices', 'InvoiceController');
-    Route::get('api/invoices/{client_id?}', ['as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable']);
+    Route::get('api/invoices/{client_id?}', 'InvoiceController@getDatatable');
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
     Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
     Route::get('recurring_invoices', 'RecurringInvoiceController@index');
@@ -175,20 +175,20 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('quotes/{invoices}', 'InvoiceController@edit');
     Route::post('quotes', 'InvoiceController@store');
     Route::get('quotes', 'QuoteController@index');
-    Route::get('api/quotes/{client_id?}', ['as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable']);
+    Route::get('api/quotes/{client_id?}', 'QuoteController@getDatatable');
     Route::post('quotes/bulk', 'QuoteController@bulk');
 
     Route::resource('payments', 'PaymentController');
     Route::get('payments/create/{client_id?}/{invoice_id?}', 'PaymentController@create');
-    Route::get('api/payments/{client_id?}', ['as'=>'api.payments', 'uses'=>'PaymentController@getDatatable']);
+    Route::get('api/payments/{client_id?}', 'PaymentController@getDatatable');
     Route::post('payments/bulk', 'PaymentController@bulk');
 
     Route::resource('credits', 'CreditController');
     Route::get('credits/create/{client_id?}/{invoice_id?}', 'CreditController@create');
-    Route::get('api/credits/{client_id?}', ['as'=>'api.credits', 'uses'=>'CreditController@getDatatable']);
+    Route::get('api/credits/{client_id?}', 'CreditController@getDatatable');
     Route::post('credits/bulk', 'CreditController@bulk');
 
-    Route::get('api/products', ['as'=>'api.products', 'uses'=>'ProductController@getDatatable']);
+    Route::get('api/products', 'ProductController@getDatatable');
     Route::resource('products', 'ProductController');
     Route::post('products/bulk', 'ProductController@bulk');
 
@@ -199,17 +199,17 @@ Route::group(['middleware' => 'auth:user'], function() {
 
     // vendor
     Route::resource('vendors', 'VendorController');
-    Route::get('api/vendor', ['as'=>'api.vendors', 'uses'=>'VendorController@getDatatable']);
+    Route::get('api/vendors', 'VendorController@getDatatable');
     Route::post('vendors/bulk', 'VendorController@bulk');
 
     // Expense
     Route::resource('expenses', 'ExpenseController');
     Route::get('expenses/create/{vendor_id?}/{client_id?}', 'ExpenseController@create');
-    Route::get('api/expense', ['as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable']);
-    Route::get('api/vendor_expense/{id}', ['as'=>'api.expense', 'uses'=>'ExpenseController@getDatatableVendor']);
+    Route::get('api/expenses', 'ExpenseController@getDatatable');
+    Route::get('api/vendor_expenses/{id}', 'ExpenseController@getDatatableVendor');
     Route::post('expenses/bulk', 'ExpenseController@bulk');
     Route::get('expense_categories', 'ExpenseCategoryController@index');
-    Route::get('api/expense_categories', ['as'=>'api.expense_categories', 'uses'=>'ExpenseCategoryController@getDatatable']);
+    Route::get('api/expense_categories', 'ExpenseCategoryController@getDatatable');
     Route::get('expense_categories/create', 'ExpenseCategoryController@create');
     Route::post('expense_categories', 'ExpenseCategoryController@store');
     Route::put('expense_categories/{expense_categories}', 'ExpenseCategoryController@update');
@@ -226,7 +226,7 @@ Route::group([
     'middleware' => ['auth:user', 'permissions.required'],
     'permissions' => 'admin',
 ], function() {
-    Route::get('api/users', ['as'=>'api.users', 'uses'=>'UserController@getDatatable']);
+    Route::get('api/users', 'UserController@getDatatable');
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
@@ -236,11 +236,11 @@ Route::group([
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
 
-    Route::get('api/tokens', ['as'=>'api.tokens', 'uses'=>'TokenController@getDatatable']);
+    Route::get('api/tokens', 'TokenController@getDatatable');
     Route::resource('tokens', 'TokenController');
     Route::post('tokens/bulk', 'TokenController@bulk');
 
-    Route::get('api/tax_rates', ['as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable']);
+    Route::get('api/tax_rates', 'TaxRateController@getDatatable');
     Route::resource('tax_rates', 'TaxRateController');
     Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
@@ -265,13 +265,13 @@ Route::group([
     Route::get('gateways/create/{show_wepay?}', 'AccountGatewayController@create');
     Route::resource('gateways', 'AccountGatewayController');
     Route::get('gateways/{public_id}/resend_confirmation', 'AccountGatewayController@resendConfirmation');
-    Route::get('api/gateways', ['as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable']);
+    Route::get('api/gateways', 'AccountGatewayController@getDatatable');
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
     Route::get('bank_accounts/import_ofx', 'BankAccountController@showImportOFX');
     Route::post('bank_accounts/import_ofx', 'BankAccountController@doImportOFX');
     Route::resource('bank_accounts', 'BankAccountController');
-    Route::get('api/bank_accounts', ['as'=>'api.bank_accounts', 'uses'=>'BankAccountController@getDatatable']);
+    Route::get('api/bank_accounts', 'BankAccountController@getDatatable');
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
     Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
     Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');

@@ -7,6 +7,7 @@ use Auth;
 class ExpenseCategoryDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE_CATEGORY;
+    public $sortCol = 1;
 
     public function columns()
     {

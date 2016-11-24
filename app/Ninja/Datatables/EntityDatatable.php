@@ -5,6 +5,7 @@ class EntityDatatable
     public $entityType;
     public $isBulkEdit;
     public $hideClient;
+    public $sortCol = 1;
 
     public function __construct($isBulkEdit = true, $hideClient = false, $entityType = false)
     {

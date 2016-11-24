@@ -46,7 +46,6 @@ class ClientController extends BaseController
             'entityType' => ENTITY_CLIENT,
             'datatable' => new ClientDatatable(),
             'title' => trans('texts.clients'),
-            'sortCol' => '4',
             'statuses' => Client::getStatuses(),
         ]);
     }

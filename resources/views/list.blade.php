@@ -71,7 +71,7 @@
 	->setCustomValues('entityType', Utils::pluralizeEntityType($entityType))
 	->setCustomValues('clientId', isset($clientId) && $clientId)
 	->setOptions('sPaginationType', 'bootstrap')
-    ->setOptions('aaSorting', [[isset($sortCol) ? $sortCol : '1', 'desc']])
+    ->setOptions('aaSorting', [[$datatable->sortCol, 'desc']])
 	->render('datatable') !!}
 
 @if ($entityType == ENTITY_PAYMENT)

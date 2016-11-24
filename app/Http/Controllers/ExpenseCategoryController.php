@@ -32,7 +32,6 @@ class ExpenseCategoryController extends BaseController
         return View::make('list', [
             'entityType' => ENTITY_EXPENSE_CATEGORY,
             'title' => trans('texts.expense_categories'),
-            'sortCol' => '1',
             'columns' => Utils::trans([
               'checkbox',
               'name',

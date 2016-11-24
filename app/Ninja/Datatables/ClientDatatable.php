@@ -7,6 +7,7 @@ use Auth;
 class ClientDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CLIENT;
+    public $sortCol = 4;
 
     public function columns()
     {

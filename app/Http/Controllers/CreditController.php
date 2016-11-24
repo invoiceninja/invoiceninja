@@ -38,7 +38,6 @@ class CreditController extends BaseController
             'entityType' => ENTITY_CREDIT,
             'datatable' => new CreditDatatable(),
             'title' => trans('texts.credits'),
-            'sortCol' => '4',
         ]);
     }
 
