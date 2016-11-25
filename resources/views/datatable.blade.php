@@ -79,7 +79,9 @@
             {!! json_encode($k) !!}: {!! $o !!},
             @endforeach
             "fnDrawCallback": function(oSettings) {
-                if (window.onDatatableReady) {
+                if (window.onDatatableReady_{{ $values['entityType'] }}) {
+                    window.onDatatableReady_{{ $values['entityType'] }}();
+                } else if (window.onDatatableReady) {
                     window.onDatatableReady();
                 }
             },

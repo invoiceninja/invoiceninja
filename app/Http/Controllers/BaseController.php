@@ -1,6 +1,7 @@
 <?php namespace App\Http\Controllers;
 
 use Utils;
+use Request;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
@@ -27,14 +28,20 @@ class BaseController extends Controller
         if ( ! is_array($ids)) {
             $ids = [$ids];
         }
-        
+
         $isDatatable = filter_var(request()->datatable, FILTER_VALIDATE_BOOLEAN);
+        $referer = Request::server('HTTP_REFERER');
         $entityTypes = Utils::pluralizeEntityType($entityType);
 
-        if ($action == 'restore' && count($ids) == 1) {
+        if (strpos($referer, '/clients/')) {
+        // when restoring redirect to entity
+            return redirect($referer);
+        } elseif ($action == 'restore' && count($ids) == 1) {
             return redirect("{$entityTypes}/" . $ids[0]);
+        // when viewing from a datatable list
         } elseif ($isDatatable || ($action == 'archive' || $action == 'delete')) {
             return redirect("{$entityTypes}");
+        // when viewing individual entity
         } elseif (count($ids)) {
             return redirect("{$entityTypes}/" . $ids[0]);
         } else {

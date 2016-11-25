@@ -218,6 +218,7 @@
 		    		trans('texts.adjustment'))
 		    	->setUrl(url('api/activities/'. $client->public_id))
                 ->setCustomValues('entityType', 'activity')
+                ->setCustomValues('clientId', $client->public_id)
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])

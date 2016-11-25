@@ -114,7 +114,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 trans('texts.invoice_expense'),
                 function ($model) {
-                    return "javascript:invoiceEntity({$model->public_id})";
+                    return "javascript:submitForm_expense('invoice', {$model->public_id})";
                 },
                 function ($model) {
                     return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);

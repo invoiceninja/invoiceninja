@@ -110,8 +110,8 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 trans('texts.mark_sent'),
-                function ($model) {
-                    return "javascript:markEntity({$model->public_id})";
+                function ($model) use ($entityType) {
+                    return "javascript:submitForm_{$entityType}('markSent', {$model->public_id})";
                 },
                 function ($model) {
                     return $model->invoice_status_id < INVOICE_STATUS_SENT && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
@@ -147,7 +147,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 trans('texts.convert_to_invoice'),
                 function ($model) {
-                    return "javascript:convertEntity({$model->public_id})";
+                    return "javascript:submitForm_quote('convert', {$model->public_id})";
                 },
                 function ($model) use ($entityType) {
                     return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);

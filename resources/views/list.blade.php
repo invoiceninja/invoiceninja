@@ -1,27 +1,28 @@
-{!! Former::open(Utils::pluralizeEntityType($entityType) . '/bulk')->addClass('listForm') !!}
+{!! Former::open(Utils::pluralizeEntityType($entityType) . '/bulk')
+		->addClass('listForm_' . $entityType) !!}
 
 <div style="display:none">
-	{!! Former::text('action') !!}
-    {!! Former::text('public_id') !!}
+	{!! Former::text('action')->id('action_' . $entityType) !!}
+    {!! Former::text('public_id')->id('public_id_' . $entityType) !!}
     {!! Former::text('datatable')->value('true') !!}
 </div>
 
 <div class="pull-left">
 	@can('create', 'invoice')
 		@if ($entityType == ENTITY_TASK)
-			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
+			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endif
 		@if ($entityType == ENTITY_EXPENSE)
-			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm("invoice")'])->appendIcon(Icon::create('check')) !!}
+			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
 		@endif
 	@endcan
 
 	@if (in_array($entityType, [ENTITY_EXPENSE_CATEGORY, ENTITY_PRODUCT]))
-	    {!! Button::normal(trans('texts.archive'))->asLinkTo('javascript:submitForm("archive")')->appendIcon(Icon::create('trash')) !!}
+	    {!! Button::normal(trans('texts.archive'))->asLinkTo('javascript:submitForm_'.$entityType.'("archive")')->appendIcon(Icon::create('trash')) !!}
 	@else
 		{!! DropdownButton::normal(trans('texts.archive'))->withContents([
-			      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm("archive")'],
-			      ['label' => trans('texts.delete_'.$entityType), 'url' => 'javascript:submitForm("delete")'],
+			      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("archive")'],
+			      ['label' => trans('texts.delete_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("delete")'],
 			    ])->withAttributes(['class'=>'archive'])->split() !!}
 	@endif
 
@@ -49,7 +50,7 @@
 </div>
 
 <div id="top_right_buttons" class="pull-right">
-	<input id="tableFilter" type="text" style="width:140px;margin-right:17px;background-color: white !important"
+	<input id="tableFilter_{{ $entityType }}" type="text" style="width:140px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
 	@if (empty($clientId))
@@ -63,6 +64,7 @@
 	@endif
 
 </div>
+
 
 {!! Datatable::table()
 	->addColumn(Utils::trans($datatable->columnFields()))
@@ -112,166 +114,128 @@
 
 <script type="text/javascript">
 
-function submitForm(action) {
-	if (action == 'delete') {
-        sweetConfirm(function() {
-            $('#action').val(action);
-    		$('form.listForm').submit();
-        });
-	} else {
-		$('#action').val(action);
-		$('form.listForm').submit();
-    }
-}
+	function submitForm_{{ $entityType }}(action, id) {
+		if (id) {
+			$('#public_id_{{ $entityType }}').val(id);
+		}
 
-function deleteEntity(id) {
-	$('#public_id').val(id);
-	submitForm('delete');
-}
-
-function archiveEntity(id) {
-	$('#public_id').val(id);
-	submitForm('archive');
-}
-
-function restoreEntity(id) {
-    $('#public_id').val(id);
-    submitForm('restore');
-}
-function convertEntity(id) {
-    $('#public_id').val(id);
-    submitForm('convert');
-}
-
-function markEntity(id) {
-	$('#public_id').val(id);
-	submitForm('markSent');
-}
-
-function stopTask(id) {
-    $('#public_id').val(id);
-    submitForm('stop');
-}
-
-function invoiceEntity(id) {
-    $('#public_id').val(id);
-    submitForm('invoice');
-}
-
-@if ($entityType == ENTITY_PAYMENT)
-	var paymentId = null;
-	function showRefundModal(id, amount, formatted, symbol){
-		paymentId = id;
-		$('#refundCurrencySymbol').text(symbol);
-		$('#refundMax').text(formatted);
-		$('#refundAmount').val(amount).attr('max', amount);
-		$('#paymentRefundModal').modal('show');
+		if (action == 'delete') {
+	        sweetConfirm(function() {
+	            $('#action_{{ $entityType }}').val(action);
+	    		$('form.listForm_{{ $entityType }}').submit();
+	        });
+		} else {
+			$('#action_{{ $entityType }}').val(action);
+			$('form.listForm_{{ $entityType }}').submit();
+	    }
 	}
-
-	function handleRefundClicked(){
-		$('#public_id').val(paymentId);
-		submitForm('refund');
-	}
-@endif
-
-/*
-function setTrashVisible() {
-	var checked = $('#trashed').is(':checked');
-	var url = '{{ URL::to('set_entity_filter/' . $entityType) }}' + (checked ? '/true' : '/false');
-
-    $.get(url, function(data) {
-        refreshDatatable();
-    })
-}
-*/
-
-$(function() {
-    var tableFilter = '';
-    var searchTimeout = false;
-
-    var oTable0 = $('#DataTables_Table_0').dataTable();
-    var oTable1 = $('#DataTables_Table_1').dataTable();
-    function filterTable(val) {
-        if (val == tableFilter) {
-            return;
-        }
-        tableFilter = val;
-        oTable0.fnFilter(val);
-    }
-
-    $('#tableFilter').on('keyup', function(){
-        if (searchTimeout) {
-            window.clearTimeout(searchTimeout);
-        }
-
-        searchTimeout = setTimeout(function() {
-            filterTable($('#tableFilter').val());
-        }, 500);
-    })
-
-    if ($('#tableFilter').val()) {
-        filterTable($('#tableFilter').val());
-    }
-
-    window.onDatatableReady = function() {
-        $(':checkbox').click(function() {
-            setBulkActionsEnabled();
-        });
-
-        $('tbody tr').unbind('click').click(function(event) {
-            if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
-                $checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');
-                var checked = $checkbox.prop('checked');
-                $checkbox.prop('checked', !checked);
-                setBulkActionsEnabled();
-            }
-        });
-
-        actionListHandler();
-    }
 
 	@if ($entityType == ENTITY_PAYMENT)
-	$('#completeRefundButton').click(handleRefundClicked)
+		var paymentId = null;
+		function showRefundModal(id, amount, formatted, symbol){
+			paymentId = id;
+			$('#refundCurrencySymbol').text(symbol);
+			$('#refundMax').text(formatted);
+			$('#refundAmount').val(amount).attr('max', amount);
+			$('#paymentRefundModal').modal('show');
+		}
+
+		function handleRefundClicked(){
+			$('#public_id').val(paymentId);
+			submitForm_{{ $entityType }}('refund');
+		}
 	@endif
 
-    $('.archive, .invoice').prop('disabled', true);
-    $('.archive:not(.dropdown-toggle)').click(function() {
-        submitForm('archive');
-    });
+	$(function() {
 
-    $('.selectAll').click(function() {
-        $(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
-    });
+		// Handle datatable filtering
+	    var tableFilter = '';
+	    var searchTimeout = false;
 
-    function setBulkActionsEnabled() {
-        var buttonLabel = "{{ trans('texts.archive') }}";
-        var count = $('tbody :checkbox:checked').length;
-        $('button.archive, button.invoice').prop('disabled', !count);
-        if (count) {
-            buttonLabel += ' (' + count + ')';
-        }
-        $('button.archive').not('.dropdown-toggle').text(buttonLabel);
-    }
+	    function filterTable_{{ $entityType }}(val) {
+	        if (val == tableFilter) {
+	            return;
+	        }
+	        tableFilter = val;
+			var oTable0 = $('.listForm_{{ $entityType }} .data-table').dataTable();
+	        oTable0.fnFilter(val);
+	    }
 
-	$('#statuses_{{ $entityType }}').select2({
-		placeholder: "{{ trans('texts.status') }}",
-	}).val('{{ session('entity_state_filter:' . $entityType, STATUS_ACTIVE) . ',' . session('entity_status_filter:' . $entityType) }}'.split(','))
-		  .trigger('change')
-	  .on('change', function() {
-		var filter = $('#statuses_{{ $entityType }}').val();
-		if (filter) {
-			filter = filter.join(',');
-		} else {
-			filter = '';
-		}
-		var url = '{{ URL::to('set_entity_filter/' . $entityType) }}' + '/' + filter;
-        $.get(url, function(data) {
-            refreshDatatable();
-        })
-	}).maximizeSelect2Height();
+	    $('#tableFilter_{{ $entityType }}').on('keyup', function(){
+	        if (searchTimeout) {
+	            window.clearTimeout(searchTimeout);
+	        }
+	        searchTimeout = setTimeout(function() {
+	            filterTable_{{ $entityType }}($('#tableFilter_{{ $entityType }}').val());
+	        }, 500);
+	    })
 
-	$('#statusWrapper_{{ $entityType }}').show();
+	    if ($('#tableFilter_{{ $entityType }}').val()) {
+	        filterTable_{{ $entityType }}($('#tableFilter_{{ $entityType }}').val());
+	    }
 
-});
+		// Enable/disable bulk action buttons
+	    window.onDatatableReady_{{ Utils::pluralizeEntityType($entityType) }} = function() {
+	        $(':checkbox').click(function() {
+	            setBulkActionsEnabled_{{ $entityType }}();
+	        });
+
+	        $('.listForm_{{ $entityType }} tbody tr').unbind('click').click(function(event) {
+	            if (event.target.type !== 'checkbox' && event.target.type !== 'button' && event.target.tagName.toLowerCase() !== 'a') {
+	                $checkbox = $(this).closest('tr').find(':checkbox:not(:disabled)');
+	                var checked = $checkbox.prop('checked');
+	                $checkbox.prop('checked', !checked);
+	                setBulkActionsEnabled_{{ $entityType }}();
+	            }
+	        });
+
+	        actionListHandler();
+	    }
+
+		@if ($entityType == ENTITY_PAYMENT)
+			$('#completeRefundButton').click(handleRefundClicked)
+		@endif
+
+	    $('.listForm_{{ $entityType }} .archive, .invoice').prop('disabled', true);
+	    $('.listForm_{{ $entityType }} .archive:not(.dropdown-toggle)').click(function() {
+	        submitForm_{{ $entityType }}('archive');
+	    });
+
+	    $('.listForm_{{ $entityType }} .selectAll').click(function() {
+	        $(this).closest('table').find(':checkbox:not(:disabled)').prop('checked', this.checked);
+	    });
+
+	    function setBulkActionsEnabled_{{ $entityType }}() {
+	        var buttonLabel = "{{ trans('texts.archive') }}";
+	        var count = $('.listForm_{{ $entityType }} tbody :checkbox:checked').length;
+	        $('.listForm_{{ $entityType }} button.archive, .listForm_{{ $entityType }} button.invoice').prop('disabled', !count);
+	        if (count) {
+	            buttonLabel += ' (' + count + ')';
+	        }
+	        $('.listForm_{{ $entityType }} button.archive').not('.dropdown-toggle').text(buttonLabel);
+	    }
+
+
+		// Setup state/status filter
+		$('#statuses_{{ $entityType }}').select2({
+			placeholder: "{{ trans('texts.status') }}",
+		}).val('{{ session('entity_state_filter:' . $entityType, STATUS_ACTIVE) . ',' . session('entity_status_filter:' . $entityType) }}'.split(','))
+			  .trigger('change')
+		  .on('change', function() {
+			var filter = $('#statuses_{{ $entityType }}').val();
+			if (filter) {
+				filter = filter.join(',');
+			} else {
+				filter = '';
+			}
+			var url = '{{ URL::to('set_entity_filter/' . $entityType) }}' + '/' + filter;
+	        $.get(url, function(data) {
+	            refreshDatatable();
+	        })
+		}).maximizeSelect2Height();
+
+		$('#statusWrapper_{{ $entityType }}').show();
+
+	});
 
 </script>
