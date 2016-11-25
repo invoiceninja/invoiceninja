@@ -79,11 +79,17 @@
             {!! json_encode($k) !!}: {!! $o !!},
             @endforeach
             "fnDrawCallback": function(oSettings) {
-                if (window.onDatatableReady_{{ $values['entityType'] }}) {
-                    window.onDatatableReady_{{ $values['entityType'] }}();
-                } else if (window.onDatatableReady) {
-                    window.onDatatableReady();
-                }
+                @if (isset($values['entityType']))
+                    if (window.onDatatableReady_{{ $values['entityType'] }}) {
+                        window.onDatatableReady_{{ $values['entityType'] }}();
+                    } else {
+                        window.onDatatableReady();
+                    }
+                @else
+                    if (window.onDatatableReady) {
+                        window.onDatatableReady();
+                    }
+                @endif
             },
             "stateLoadParams": function (settings, data) {
                 // don't save filter to local storage
