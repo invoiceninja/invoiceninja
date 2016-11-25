@@ -192,7 +192,7 @@ class AccountApiController extends BaseAPIController
         $provider = $request->input('provider');
 
         try {
-            $user = Socialite::driver($provider)->userFromToken($token);
+            $user = Socialite::driver($provider)->stateless()->userFromToken($token);
         } catch (Exception $exception) {
             return $this->errorResponse(['message' => $exception->getMessage()], 401);
         }
