@@ -58,7 +58,7 @@
 	        {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
 	    @endif
 
-		@if (Auth::user()->can('create', $entityType))
+		@if (empty($vendorId) && Auth::user()->can('create', $entityType))
 	    	{!! Button::primary(trans("texts.new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create'))->appendIcon(Icon::create('plus-sign')) !!}
 		@endif
 	@endif
@@ -68,7 +68,7 @@
 
 {!! Datatable::table()
 	->addColumn(Utils::trans($datatable->columnFields()))
-	->setUrl(url('api/' . Utils::pluralizeEntityType($entityType) . '/' . (isset($clientId) ? $clientId : '')))
+	->setUrl(url('api/' . Utils::pluralizeEntityType($entityType) . '/' . (isset($clientId) ? $clientId : (isset($vendorId) ? $vendorId : ''))))
     ->setCustomValues('rightAlign', isset($rightAlign) ? $rightAlign : [])
 	->setCustomValues('entityType', Utils::pluralizeEntityType($entityType))
 	->setCustomValues('clientId', isset($clientId) && $clientId)

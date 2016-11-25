@@ -82,7 +82,7 @@ class ExpenseService extends BaseService
      */
     public function getDatatableVendor($vendorPublicId)
     {
-        $datatable = new ExpenseDatatable(false, true);
+        $datatable = new ExpenseDatatable(true, true);
 
         $query = $this->expenseRepo->findVendor($vendorPublicId);
 

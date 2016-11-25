@@ -82,7 +82,7 @@
                 @if (isset($values['entityType']))
                     if (window.onDatatableReady_{{ $values['entityType'] }}) {
                         window.onDatatableReady_{{ $values['entityType'] }}();
-                    } else {
+                    } else if (window.onDatatableReady) {
                         window.onDatatableReady();
                     }
                 @else

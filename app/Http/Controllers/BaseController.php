@@ -33,12 +33,12 @@ class BaseController extends Controller
         $referer = Request::server('HTTP_REFERER');
         $entityTypes = Utils::pluralizeEntityType($entityType);
 
-        if (strpos($referer, '/clients/')) {
         // when restoring redirect to entity
-            return redirect($referer);
-        } elseif ($action == 'restore' && count($ids) == 1) {
+        if ($action == 'restore' && count($ids) == 1) {
             return redirect("{$entityTypes}/" . $ids[0]);
         // when viewing from a datatable list
+        } elseif (strpos($referer, '/clients/')) {
+            return redirect($referer);
         } elseif ($isDatatable || ($action == 'archive' || $action == 'delete')) {
             return redirect("{$entityTypes}");
         // when viewing individual entity
