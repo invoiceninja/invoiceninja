@@ -102,7 +102,15 @@ class Mailer
     private function handleFailure($exception)
     {
         if (isset($_ENV['POSTMARK_API_TOKEN']) && method_exists($exception, 'getResponse')) {
-            $response = $exception->getResponse()->getBody()->getContents();
+            $response = $exception->getResponse();
+
+            if (! $response) {
+                $error = trans('texts.postmark_error', ['link' => link_to('https://status.postmarkapp.com/')]);
+                Utils::logError($error);
+                return $error;
+            }
+
+            $response = $response->getBody()->getContents();
             $response = json_decode($response);
             $emailError = nl2br($response->Message);
         } else {
