@@ -150,7 +150,7 @@
                         @if ($account->custom_invoice_text_label2)
                             <li>$customInvoice1</li>
                         @endif
-                        @if (count($account->account_gateways) > 1)
+                        @if (count($account->account_gateways) > 0)
                             @foreach (\App\Models\Gateway::$gatewayTypes as $type)
                                 @if ($account->getGatewayByType($type))
                                     @if ($type != GATEWAY_TYPE_TOKEN)
