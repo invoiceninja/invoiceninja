@@ -47,7 +47,7 @@ class DashboardRepository
                 $count += $item->count;
                 $balance += isset($item->balance) ? $item->balance : 0;
             }, $records);
-            
+
             $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
             $endDate->modify('+1 '.$padding);
             $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
@@ -195,6 +195,7 @@ class DashboardRepository
             ->where('payments.account_id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
+            ->where('payments.is_deleted', '=', false)
             ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
         if (!$viewAll){
