@@ -192,6 +192,6 @@ class PaymentController extends BaseController
             Session::flash('message', $message);
         }
 
-        return redirect()->to('payments');
+        return $this->returnBulk(ENTITY_PAYMENT, $action, $ids);
     }
 }

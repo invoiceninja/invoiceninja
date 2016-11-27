@@ -2226,7 +2226,7 @@ $LANG = array(
     'vendor_name' => 'Vendor',
     'entity_state' => 'State',
     'payment_status_name' => 'Status',
-    'client_created_at' => 'Created At',
+    'client_created_at' => 'Date Created',
 );
 
 return $LANG;

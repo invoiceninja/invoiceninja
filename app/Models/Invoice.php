@@ -357,6 +357,16 @@ class Invoice extends EntityModel implements BalanceAffecting
      * @param $query
      * @return mixed
      */
+    public function scopeRecurring($query)
+    {
+        return $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                     ->where('is_recurring', '=', true);
+    }
+
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeQuotes($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)

@@ -141,8 +141,7 @@
 		}
 
 		function handleRefundClicked(){
-			$('#public_id').val(paymentId);
-			submitForm_{{ $entityType }}('refund');
+			submitForm_{{ $entityType }}('refund', paymentId);
 		}
 	@endif
 
@@ -219,6 +218,20 @@
 		// Setup state/status filter
 		$('#statuses_{{ $entityType }}').select2({
 			placeholder: "{{ trans('texts.status') }}",
+			templateSelection: function(data, container) {
+				console.log(data);
+				console.log(container);
+				if (data.id == 'archived') {
+					$(container).css('color', '#fff');
+					$(container).css('background-color', '#f0ad4e');
+					$(container).css('border-color', '#eea236');
+				} else if (data.id == 'deleted') {
+					$(container).css('color', '#fff');
+					$(container).css('background-color', '#d9534f');
+					$(container).css('border-color', '#d43f3a');
+				}
+				return data.text;
+			}
 		}).val('{{ session('entity_state_filter:' . $entityType, STATUS_ACTIVE) . ',' . session('entity_status_filter:' . $entityType) }}'.split(','))
 			  .trigger('change')
 		  .on('change', function() {

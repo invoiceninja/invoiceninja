@@ -101,6 +101,6 @@ class CreditController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('credits');
+        return $this->returnBulk(ENTITY_CREDIT, $action, $ids);
     }
 }

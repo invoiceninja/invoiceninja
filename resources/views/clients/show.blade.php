@@ -193,7 +193,7 @@
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! Form::tab_link('#activity', trans('texts.activity'), true) !!}
-        @if ($hasTasks)
+        @if ($hasTasks && Utils::isPro())
             {!! Form::tab_link('#tasks', trans('texts.tasks')) !!}
         @endif
 		@if ($hasQuotes && Utils::isPro())
