@@ -32,7 +32,8 @@
 
         @foreach (\App\Services\ImportService::$entityTypes as $entityType)
             {!! Former::file("{$entityType}_file")
-                    ->addGroupClass("import-file {$entityType}-file") !!}
+                    ->addGroupClass("import-file {$entityType}-file")
+                    ->help($entityType == IMPORT_JSON ? '<br/>' . trans('texts.json_import_help') : false) !!}
         @endforeach
 
         {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}
@@ -54,7 +55,7 @@
                 ->addOption('XLS', 'XLS')
                 ->addOption('JSON', 'JSON')
                 ->style('max-width: 200px')
-                ->inlineHelp('export_help') !!}
+                ->help('<br/>' . trans('texts.export_help')) !!}
 
 
         {!! Former::inline_radios('include_radio')
