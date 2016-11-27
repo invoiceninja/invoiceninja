@@ -103,7 +103,7 @@ class PaymentRepository extends BaseRepository
                     ->where('clients.is_deleted', '=', false)
                     ->where('payments.is_deleted', '=', false)
                     ->where('invitations.deleted_at', '=', null)
-                    ->where('invoices.deleted_at', '=', null)
+                    ->where('invoices.is_deleted', '=', false)
                     ->where('invitations.contact_id', '=', $contactId)
                     ->select(
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
