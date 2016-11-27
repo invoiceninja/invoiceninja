@@ -219,8 +219,6 @@
 		$('#statuses_{{ $entityType }}').select2({
 			placeholder: "{{ trans('texts.status') }}",
 			templateSelection: function(data, container) {
-				console.log(data);
-				console.log(container);
 				if (data.id == 'archived') {
 					$(container).css('color', '#fff');
 					$(container).css('background-color', '#f0ad4e');

@@ -24,7 +24,6 @@ class TaskRepository extends BaseRepository
                                 ->orWhere('contacts.is_primary', '=', null);
                     })
                     ->where('contacts.deleted_at', '=', null)
-                    ->where('clients.deleted_at', '=', null)
                     ->select(
                         'tasks.public_id',
                         \DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
@@ -52,6 +51,8 @@ class TaskRepository extends BaseRepository
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
+        } else {
+            $query->whereNull('clients.deleted_at');
         }
 
         $this->applyFilters($query, ENTITY_TASK);

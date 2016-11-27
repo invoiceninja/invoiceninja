@@ -19,7 +19,6 @@ class CreditRepository extends BaseRepository
                     ->join('clients', 'clients.id', '=', 'credits.client_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('clients.account_id', '=', \Auth::user()->account_id)
-                    ->where('clients.deleted_at', '=', null)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
                     ->select(
@@ -43,6 +42,8 @@ class CreditRepository extends BaseRepository
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
+        } else {
+            $query->whereNull('clients.deleted_at');
         }
 
         $this->applyFilters($query, ENTITY_CREDIT);
