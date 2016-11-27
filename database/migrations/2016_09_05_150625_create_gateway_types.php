@@ -46,11 +46,15 @@ class CreateGatewayTypes extends Migration
             $table->unsignedInteger('gateway_type_id')->nullable();
         });
 
+        // http://laravel.io/forum/09-18-2014-foreign-key-not-saving-in-migration
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         Schema::table('payment_types', function($table)
         {
             $table->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
         });
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
+    
     /**
      * Reverse the migrations.
      *
