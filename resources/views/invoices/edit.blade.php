@@ -1424,15 +1424,11 @@
 		var client = model.invoice().client();
 		for (var i=0; i<client.contacts().length; i++) {
 			var contact = client.contacts()[i];
-            if ( ! contact.send_invoice()) {
-                continue;
+            if (contact.send_invoice()) {
+                return true;
             }
-			if (isValidEmailAddress(contact.email())) {
-				sendTo = true;
-			}
 		}
-		return sendTo;
-
+		return false;
     }
 
 	function isEmailValid() {
