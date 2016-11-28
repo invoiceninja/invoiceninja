@@ -32,8 +32,7 @@
 
         @foreach (\App\Services\ImportService::$entityTypes as $entityType)
             {!! Former::file("{$entityType}_file")
-                    ->addGroupClass("import-file {$entityType}-file")
-                    ->help($entityType == IMPORT_JSON ? '<br/>' . trans('texts.json_import_help') : false) !!}
+                    ->addGroupClass("import-file {$entityType}-file") !!}
         @endforeach
 
         {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}

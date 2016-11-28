@@ -218,6 +218,7 @@
 		// Setup state/status filter
 		$('#statuses_{{ $entityType }}').select2({
 			placeholder: "{{ trans('texts.status') }}",
+			//allowClear: true,
 			templateSelection: function(data, container) {
 				if (data.id == 'archived') {
 					$(container).css('color', '#fff');

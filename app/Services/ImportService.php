@@ -171,9 +171,10 @@ class ImportService
                 }
 
                 foreach ($jsonInvoice['payments'] as $jsonPayment) {
-                    $jsonPayment['client_id'] = $jsonPayment['client'] = $client->id; // TODO: change to client_id once views are updated
-                    $jsonPayment['invoice_id'] = $jsonPayment['invoice'] = $invoice->id; // TODO: change to invoice_id once views are updated
+                    $jsonPayment['invoice_id'] = $invoice->public_id;
                     if (EntityModel::validate($jsonPayment, ENTITY_PAYMENT) === true) {
+                        $jsonPayment['client_id'] = $client->id;
+                        $jsonPayment['invoice_id'] = $invoice->id;
                         $payment = $this->paymentRepo->save($jsonPayment);
                         $this->addSuccess($payment);
                     } else {

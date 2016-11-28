@@ -2227,7 +2227,6 @@ $LANG = array(
     'entity_state' => 'State',
     'payment_status_name' => 'Status',
     'client_created_at' => 'Date Created',
-    'json_import_help' => 'We recommend importing into an empty account.',
     'postmark_error' => 'There was a problem sending the email through Postmark: :link',
 
 );
