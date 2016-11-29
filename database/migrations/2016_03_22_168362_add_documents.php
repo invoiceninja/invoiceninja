@@ -38,15 +38,14 @@ class AddDocuments extends Migration {
             $t->unsignedInteger('size');
 			$t->unsignedInteger('width')->nullable();
 			$t->unsignedInteger('height')->nullable();
-
             $t->timestamps();
+		});
 
+		Schema::table('documents', function($t) {
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 			$t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 			$t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
 			$t->foreign('expense_id')->references('id')->on('expenses')->onDelete('cascade');
-
-
             $t->unique( array('account_id','public_id') );
         });
 	}

@@ -22,7 +22,10 @@ class AddSupportForBots extends Migration
             $table->string('code')->nullable();
             $table->string('bot_user_id')->unique();
             $table->timestamp('created_at')->useCurrent();
+        });
 
+        Schema::table('security_codes', function($table)
+        {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');

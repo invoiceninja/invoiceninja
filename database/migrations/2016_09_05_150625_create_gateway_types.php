@@ -34,11 +34,13 @@ class CreateGatewayTypes extends Migration
 
             $table->unsignedInteger('min_limit')->nullable();
             $table->unsignedInteger('max_limit')->nullable();
+        });
 
+        Schema::table('account_gateway_settings', function($table)
+        {
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('gateway_type_id')->references('id')->on('gateway_types')->onDelete('cascade');
-
         });
 
         Schema::table('payment_types', function($table)

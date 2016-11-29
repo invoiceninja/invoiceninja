@@ -29,15 +29,16 @@ class AddPageSize extends Migration
             $table->unsignedInteger('account_id')->index();
             $table->timestamps();
             $table->softDeletes();
-
             $table->string('name')->nullable();
+            $table->unsignedInteger('public_id')->index();
+        });
 
+        Schema::table('expense_categories', function ($table) {
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-
-            $table->unsignedInteger('public_id')->index();
             $table->unique( array('account_id','public_id') );
         });
+
 
         Schema::table('expenses', function ($table) {
             $table->unsignedInteger('expense_category_id')->nullable()->index();
