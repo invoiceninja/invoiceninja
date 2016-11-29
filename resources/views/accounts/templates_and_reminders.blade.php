@@ -299,11 +299,13 @@
 
             // Add any available payment method links
             @foreach (\App\Models\Gateway::$gatewayTypes as $type)
-                {!! "keys.push('" . Utils::toCamelCase($type).'Link' . "');" !!}
-                {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
+                @if ($type != GATEWAY_TYPE_TOKEN)
+                    {!! "keys.push('" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)).'Link' . "');" !!}
+                    {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
 
-                {!! "keys.push('" . Utils::toCamelCase($type).'Button' . "');" !!}
-                {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
+                    {!! "keys.push('" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)).'Button' . "');" !!}
+                    {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
+                @endif
             @endforeach
 
             var includesPasswordPlaceholder = str.indexOf('$password') != -1;
