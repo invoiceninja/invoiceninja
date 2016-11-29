@@ -54,7 +54,7 @@ class CreateGatewayTypes extends Migration
         });
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
-    
+
     /**
      * Reverse the migrations.
      *

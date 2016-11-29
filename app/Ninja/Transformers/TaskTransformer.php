@@ -46,6 +46,7 @@ class TaskTransformer extends EntityTransformer
             'archived_at' => (int) $this->getTimestamp($task->deleted_at),
             'invoice_id' => $task->invoice ? (int) $task->invoice->public_id : false,
             'client_id' => $task->client ? (int) $task->client->public_id : false,
+            'project_id' => $task->project ? (int) $task->project->public_id : false,
             'is_deleted' => (bool) $task->is_deleted,
             'time_log' => $task->time_log,
             'is_running' => (bool) $task->is_running,

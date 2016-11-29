@@ -54,7 +54,7 @@ class ExpenseRepository extends BaseRepository
                     ->where('contacts.deleted_at', '=', null)
                     ->where('vendors.deleted_at', '=', null)
                     ->where('clients.deleted_at', '=', null)
-                    ->where(function ($query) {
+                    ->where(function ($query) { // handle when client isn't set
                         $query->where('contacts.is_primary', '=', true)
                               ->orWhere('contacts.is_primary', '=', null);
                     })

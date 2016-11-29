@@ -6,7 +6,7 @@ use Laracasts\Presenter\PresentableTrait;
 /**
  * Class ExpenseCategory
  */
-class ExpenseCategory extends EntityModel
+class Project extends EntityModel
 {
     // Expense Categories
     use SoftDeletes;
@@ -15,8 +15,14 @@ class ExpenseCategory extends EntityModel
     /**
      * @var array
      */
+    protected $dates = ['deleted_at'];
+
+    /**
+     * @var array
+     */
     protected $fillable = [
         'name',
+        'client_id',
     ];
 
     /**
@@ -29,15 +35,7 @@ class ExpenseCategory extends EntityModel
      */
     public function getEntityType()
     {
-        return ENTITY_EXPENSE_CATEGORY;
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function expense()
-    {
-        return $this->belongsTo('App\Models\Expense');
+        return ENTITY_PROJECT;
     }
 
     /**
@@ -45,6 +43,23 @@ class ExpenseCategory extends EntityModel
      */
     public function getRoute()
     {
-        return "/expense_categories/{$this->public_id}/edit";
+        return "/projects/{$this->public_id}/edit";
     }
+
+    /**
+     * @return mixed
+     */
+    public function client()
+    {
+        return $this->belongsTo('App\Models\Client')->withTrashed();
+    }
+
 }
+
+Project::creating(function ($project) {
+    $project->setNullValues();
+});
+
+Project::updating(function ($project) {
+    $project->setNullValues();
+});

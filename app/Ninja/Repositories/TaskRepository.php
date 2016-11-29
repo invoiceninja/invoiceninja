@@ -3,6 +3,7 @@
 use Auth;
 use Session;
 use App\Models\Client;
+use App\Models\Project;
 use App\Models\Task;
 
 class TaskRepository extends BaseRepository
@@ -18,8 +19,9 @@ class TaskRepository extends BaseRepository
                     ->leftJoin('clients', 'tasks.client_id', '=', 'clients.id')
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftJoin('invoices', 'invoices.id', '=', 'tasks.invoice_id')
+                    ->leftJoin('projects', 'projects.id', '=', 'tasks.project_id')
                     ->where('tasks.account_id', '=', Auth::user()->account_id)
-                    ->where(function ($query) {
+                    ->where(function ($query) { // handle when client isn't set
                         $query->where('contacts.is_primary', '=', true)
                                 ->orWhere('contacts.is_primary', '=', null);
                     })
@@ -46,7 +48,10 @@ class TaskRepository extends BaseRepository
                         'tasks.time_log as duration',
                         'tasks.created_at',
                         'tasks.created_at as date',
-                        'tasks.user_id'
+                        'tasks.user_id',
+                        'projects.name as project',
+                        'projects.public_id as project_public_id',
+                        'projects.user_id as project_user_id'
                     );
 
         if ($clientPublicId) {
@@ -84,7 +89,9 @@ class TaskRepository extends BaseRepository
                 $query->where('clients.name', 'like', '%'.$filter.'%')
                       ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
                       ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
-                      ->orWhere('tasks.description', 'like', '%'.$filter.'%');
+                      ->orWhere('tasks.description', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%')
+                      ->orWhere('projects.name', 'like', '%'.$filter.'%');
             });
         }
 
@@ -105,9 +112,13 @@ class TaskRepository extends BaseRepository
             return $task;
         }
 
-        if (isset($data['client']) && $data['client']) {
-            $task->client_id = Client::getPrivateId($data['client']);
+        if (isset($data['client'])) {
+            $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
         }
+        if (isset($data['project_id'])) {
+            $task->project_id = $data['project_id'] ? Project::getPrivateId($data['project_id']) : null;
+        }
+
         if (isset($data['description'])) {
             $task->description = trim($data['description']);
         }

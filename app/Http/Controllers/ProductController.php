@@ -155,7 +155,8 @@ class ProductController extends BaseController
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->productService->bulk($ids, $action);
 
-        Session::flash('message', trans('texts.archived_product'));
+        $message = Utils::pluralize($action.'d_product', $count);
+        Session::flash('message', $message);
 
         return $this->returnBulk(ENTITY_PRODUCT, $action, $ids);
     }

@@ -17,14 +17,10 @@
 		@endif
 	@endcan
 
-	@if (in_array($entityType, [ENTITY_EXPENSE_CATEGORY, ENTITY_PRODUCT]))
-	    {!! Button::normal(trans('texts.archive'))->asLinkTo('javascript:submitForm_'.$entityType.'("archive")')->appendIcon(Icon::create('trash')) !!}
-	@else
-		{!! DropdownButton::normal(trans('texts.archive'))->withContents([
-			      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("archive")'],
-			      ['label' => trans('texts.delete_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("delete")'],
-			    ])->withAttributes(['class'=>'archive'])->split() !!}
-	@endif
+	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
+		      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("archive")'],
+		      ['label' => trans('texts.delete_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("delete")'],
+		    ])->withAttributes(['class'=>'archive'])->split() !!}
 
 	&nbsp;
 	<span id="statusWrapper_{{ $entityType }}" style="display:none">
@@ -53,14 +49,14 @@
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:140px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
-	@if (empty($clientId))
-	    @if ($entityType == ENTITY_EXPENSE)
-	        {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
-	    @endif
+    @if ($entityType == ENTITY_EXPENSE)
+        {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
+	@elseif ($entityType == ENTITY_TASK)
+		{!! Button::normal(trans('texts.projects'))->asLinkTo(URL::to('/projects'))->appendIcon(Icon::create('list')) !!}
+    @endif
 
-		@if (empty($vendorId) && Auth::user()->can('create', $entityType))
-	    	{!! Button::primary(trans("texts.new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create'))->appendIcon(Icon::create('plus-sign')) !!}
-		@endif
+	@if (empty($clientId) && empty($vendorId) && Auth::user()->can('create', $entityType))
+    	{!! Button::primary(trans("texts.new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create'))->appendIcon(Icon::create('plus-sign')) !!}
 	@endif
 
 </div>
@@ -73,7 +69,7 @@
 	->setCustomValues('entityType', Utils::pluralizeEntityType($entityType))
 	->setCustomValues('clientId', isset($clientId) && $clientId)
 	->setOptions('sPaginationType', 'bootstrap')
-    ->setOptions('aaSorting', [[$datatable->sortCol, 'desc']])
+    ->setOptions('aaSorting', [[isset($clientId) ? ($datatable->sortCol-1) : $datatable->sortCol, 'desc']])
 	->render('datatable') !!}
 
 @if ($entityType == ENTITY_PAYMENT)

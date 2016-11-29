@@ -70,6 +70,14 @@ class Task extends EntityModel
     }
 
     /**
+     * @return mixed
+     */
+    public function project()
+    {
+        return $this->belongsTo('App\Models\Project')->withTrashed();
+    }
+
+    /**
      * @param $task
      * @return string
      */

@@ -14,7 +14,8 @@ class AccountTransformer extends EntityTransformer
         'users',
         'products',
         'tax_rates',
-        'expense_categories'
+        'expense_categories',
+        'projects',
     ];
 
     /**
@@ -34,6 +35,16 @@ class AccountTransformer extends EntityTransformer
     {
         $transformer = new ExpenseCategoryTransformer($account, $this->serializer);
         return $this->includeCollection($account->expense_categories, $transformer, 'expense_categories');
+    }
+
+    /**
+     * @param Account $account
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeProjects(Account $account)
+    {
+        $transformer = new ProjectTransformer($account, $this->serializer);
+        return $this->includeCollection($account->projects, $transformer, 'projects');
     }
 
     /**

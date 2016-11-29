@@ -304,6 +304,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return mixed
+     */
+    public function projects()
+    {
+        return $this->hasMany('App\Models\Project','account_id','id')->withTrashed();
+    }
+
+    /**
      * @param $value
      */
     public function setIndustryIdAttribute($value)

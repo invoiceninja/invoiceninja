@@ -2228,6 +2228,28 @@ $LANG = array(
     'payment_status_name' => 'Status',
     'client_created_at' => 'Date Created',
     'postmark_error' => 'There was a problem sending the email through Postmark: :link',
+    'project' => 'Project',
+    'projects' => 'Projects',
+    'new_project' => 'New Project',
+    'edit_project' => 'Edit Project',
+    'archive_project' => 'Archive Project',
+    'list_projects' => 'List Projects',
+    'updated_project' => 'Successfully updated project',
+    'created_project' => 'Successfully created project',
+    'archived_project' => 'Successfully archived project',
+    'archived_projects' => 'Successfully archived :count projects',
+    'restore_project' => 'Restore project',
+    'restored_project' => 'Successfully restored project',
+    'delete_project' => 'Delete project',
+    'deleted_project' => 'Successfully deleted project',
+    'deleted_projects' => 'Successfully deleted :count projects',
+    'delete_expense_category' => 'Delete category',
+    'deleted_expense_category' => 'Successfully deleted category',
+    'delete_product' => 'Delete product',
+    'deleted_product' => 'Successfully deleted product',
+    'deleted_products' => 'Successfully deleted :count products',
+    'restored_product' => 'Successfully restored product',
+
 
 );
 

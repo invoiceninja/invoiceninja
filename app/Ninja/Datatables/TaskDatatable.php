@@ -8,7 +8,7 @@ use App\Models\Task;
 class TaskDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_TASK;
-    public $sortCol = 2;
+    public $sortCol = 3;
 
     public function columns()
     {
@@ -23,6 +23,16 @@ class TaskDatatable extends EntityDatatable
                     return $model->client_public_id ? link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml() : '';
                 },
                 ! $this->hideClient
+            ],
+            [
+                'project',
+                function ($model) {
+                    if(!Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->project_user_id])){
+                        return $model->project;
+                    }
+
+                    return $model->project_public_id ? link_to("projects/{$model->project_public_id}/edit", $model->project)->toHtml() : '';
+                }
             ],
             [
                 'date',

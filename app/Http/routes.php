@@ -146,6 +146,13 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('api/tasks/{client_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');
+    Route::get('projects', 'ProjectController@index');
+    Route::get('api/projects', 'ProjectController@getDatatable');
+    Route::get('projects/create/{client_id?}', 'ProjectController@create');
+    Route::post('projects', 'ProjectController@store');
+    Route::put('projects/{projects}', 'ProjectController@update');
+    Route::get('projects/{projects}/edit', 'ProjectController@edit');
+    Route::post('projects/bulk', 'ProjectController@bulk');
 
     Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');
 
@@ -388,6 +395,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_BANK_ACCOUNT', 'bank_account');
     define('ENTITY_BANK_SUBACCOUNT', 'bank_subaccount');
     define('ENTITY_EXPENSE_CATEGORY', 'expense_category');
+    define('ENTITY_PROJECT', 'project');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);

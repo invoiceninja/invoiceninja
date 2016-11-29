@@ -87,13 +87,4 @@ class Product extends EntityModel
     {
         return $this->belongsTo('App\Models\TaxRate');
     }
-
-    public static function getStates($entityType = false)
-    {
-        $statuses = parent::getStates($entityType);
-
-        unset($statuses[STATUS_DELETED]);
-
-        return $statuses;
-    }
 }

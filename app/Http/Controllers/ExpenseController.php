@@ -252,7 +252,7 @@ class ExpenseController extends BaseController
             'countries' => Cache::get('countries'),
             'customLabel1' => Auth::user()->account->custom_vendor_label1,
             'customLabel2' => Auth::user()->account->custom_vendor_label2,
-            'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->orderBy('name')->get(),
+            'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
         ];
     }

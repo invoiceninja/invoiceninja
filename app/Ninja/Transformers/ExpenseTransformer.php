@@ -7,7 +7,7 @@ class ExpenseTransformer extends EntityTransformer
     public function __construct($account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);
-        
+
         $this->client = $client;
     }
 
@@ -23,7 +23,7 @@ class ExpenseTransformer extends EntityTransformer
             'transaction_id' => $expense->transaction_id,
             'bank_id' => $expense->bank_id,
             'expense_currency_id' => (int) $expense->expense_currency_id,
-            'expense_category_id' => (int) $expense->expense_category_id,
+            'expense_category_id' => $expense->expense_category ? (int) $expense->expense_category->public_id : null,
             'amount' => (float) $expense->amount,
             'expense_date' => $expense->expense_date,
             'exchange_rate' => (float) $expense->exchange_rate,

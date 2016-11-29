@@ -25,7 +25,8 @@ class ExpenseCategoryRepository extends BaseRepository
                     'expense_categories.name as category',
                     'expense_categories.public_id',
                     'expense_categories.user_id',
-                    'expense_categories.deleted_at'
+                    'expense_categories.deleted_at',
+                    'expense_categories.is_deleted'
                 );
 
         $this->applyFilters($query, ENTITY_EXPENSE_CATEGORY);

@@ -187,7 +187,8 @@ class AccountRepository
             ENTITY_VENDOR,
             ENTITY_RECURRING_INVOICE,
             ENTITY_PAYMENT,
-            ENTITY_CREDIT
+            ENTITY_CREDIT,
+            ENTITY_PROJECT,
         ];
 
         foreach ($entityTypes as $entityType) {

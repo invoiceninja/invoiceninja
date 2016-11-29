@@ -57,7 +57,7 @@
         }
 
         if (account && ! decorator) {
-            decorator = account.show_currency_code ? 'code' : 'symbol';
+            decorator = parseInt(account.show_currency_code) ? 'code' : 'symbol';
         }
 
         return formatMoney(value, currencyId, countryId, decorator)
