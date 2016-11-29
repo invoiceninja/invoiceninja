@@ -4,6 +4,7 @@ use Form;
 use HTML;
 use Utils;
 use App\Models\Gateway;
+use App\Models\GatewayType;
 
 class TemplateService
 {
@@ -69,7 +70,10 @@ class TemplateService
 
         // Add variables for available payment types
         foreach (Gateway::$gatewayTypes as $type) {
-            $camelType = Utils::toCamelCase($type);
+            if ($type == GATEWAY_TYPE_TOKEN) {
+                continue;
+            }
+            $camelType = Utils::toCamelCase(GatewayType::getAliasFromId($type));
             $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
             $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
         }
