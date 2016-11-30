@@ -35,6 +35,7 @@ class AddTaskProjects extends Migration
         Schema::table('tasks', function ($table)
         {
             $table->unsignedInteger('project_id')->nullable()->index();
+            $table->text('description')->change();
         });
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
