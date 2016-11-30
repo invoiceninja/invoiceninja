@@ -169,6 +169,12 @@
 	        filterTable_{{ $entityType }}($('#tableFilter_{{ $entityType }}').val());
 	    }
 
+		$('.listForm_{{ $entityType }} .head0').click(function(event) {
+			if (event.target.type !== 'checkbox') {
+				$('.listForm_{{ $entityType }} .head0 input[type=checkbox]').click();
+			}
+		});
+
 		// Enable/disable bulk action buttons
 	    window.onDatatableReady_{{ Utils::pluralizeEntityType($entityType) }} = function() {
 	        $(':checkbox').click(function() {

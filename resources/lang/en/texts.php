@@ -2249,9 +2249,9 @@ $LANG = array(
     'deleted_product' => 'Successfully deleted product',
     'deleted_products' => 'Successfully deleted :count products',
     'restored_product' => 'Successfully restored product',
-    'update_credit' => 'Update credit',
+    'update_credit' => 'Update Credit',
     'updated_credit' => 'Successfully updated credit',
-    'edit_credit' => 'Edit credit',
+    'edit_credit' => 'Edit Credit',
 
 );
 
