@@ -99,7 +99,7 @@ class CreditController extends BaseController
     {
         $credit = $this->creditService->save(Input::all(), $credit);
 
-        $message = $credit->wasRecentlyCreated ? trans('texts.created_created') : trans('texts.updated_credit');
+        $message = $credit->wasRecentlyCreated ? trans('texts.created_credit') : trans('texts.updated_credit');
         Session::flash('message', $message);
 
         return redirect()->to("credits/{$credit->public_id}/edit");
