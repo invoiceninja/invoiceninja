@@ -7,8 +7,10 @@ use URL;
 use Utils;
 use View;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Services\CreditService;
 use App\Ninja\Repositories\CreditRepository;
+use App\Http\Requests\UpdateCreditRequest;
 use App\Http\Requests\CreateCreditRequest;
 use App\Http\Requests\CreditRequest;
 use App\Ninja\Datatables\CreditDatatable;
@@ -60,10 +62,9 @@ class CreditController extends BaseController
         return View::make('credits.edit', $data);
     }
 
-    /*
     public function edit($publicId)
     {
-        $credit = Credit::scope($publicId)->firstOrFail();
+        $credit = Credit::withTrashed()->scope($publicId)->firstOrFail();
 
         $this->authorize('edit', $credit);
 
@@ -71,23 +72,37 @@ class CreditController extends BaseController
 
         $data = array(
             'client' => null,
+            'clientPublicId' => $credit->client->public_id,
             'credit' => $credit,
             'method' => 'PUT',
             'url' => 'credits/'.$publicId,
             'title' => 'Edit Credit',
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(), );
+            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+        );
 
-        return View::make('credit.edit', $data);
+        return View::make('credits.edit', $data);
     }
-    */
+
+    public function update(UpdateCreditRequest $request)
+    {
+        $credit = $request->entity();
+
+        return $this->save($credit);
+    }
 
     public function store(CreateCreditRequest $request)
     {
-        $credit = $this->creditRepo->save($request->input());
+        return $this->save();
+    }
 
-        Session::flash('message', trans('texts.created_credit'));
+    private function save($credit = null)
+    {
+        $credit = $this->creditService->save(Input::all(), $credit);
 
-        return redirect()->to($credit->client->getRoute());
+        $message = $credit->wasRecentlyCreated ? trans('texts.created_created') : trans('texts.updated_credit');
+        Session::flash('message', $message);
+
+        return redirect()->to("credits/{$credit->public_id}/edit");
     }
 
     public function bulk()

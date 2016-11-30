@@ -8,6 +8,13 @@
   		'amount' => 'required',
 	)) !!}
 
+	@if ($credit)
+      {!! Former::populate($credit) !!}
+      <div style="display:none">
+          {!! Former::text('public_id') !!}
+      </div>
+	@endif
+
 	<div class="row">
         <div class="col-md-10 col-md-offset-1">
 
@@ -60,7 +67,7 @@
 		$clientSelect.combobox();
 
 		$('#currency_id').combobox();
-		$('#credit_date').datepicker('update', new Date());
+		$('#credit_date').datepicker('update', '{{ $credit ? $credit->credit_date : 'new Date()' }}');
 
         @if (!$clientPublicId)
             $('.client-select input.form-control').focus();

@@ -44,9 +44,9 @@ class CreditService extends BaseService
      * @param $data
      * @return mixed|null
      */
-    public function save($data)
+    public function save($data, $credit = null)
     {
-        return $this->creditRepo->save($data);
+        return $this->creditRepo->save($data, $credit);
     }
 
     /**

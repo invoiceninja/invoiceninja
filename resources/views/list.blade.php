@@ -55,7 +55,7 @@
 		{!! Button::normal(trans('texts.projects'))->asLinkTo(URL::to('/projects'))->appendIcon(Icon::create('list')) !!}
     @endif
 
-	@if (empty($clientId) && empty($vendorId) && Auth::user()->can('create', $entityType))
+	@if (Auth::user()->can('create', $entityType))
     	{!! Button::primary(trans("texts.new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create'))->appendIcon(Icon::create('plus-sign')) !!}
 	@endif
 
