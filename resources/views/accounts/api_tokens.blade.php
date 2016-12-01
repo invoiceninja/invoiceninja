@@ -6,8 +6,8 @@
 
   <div class="pull-right">
   {!! Button::normal(trans('texts.documentation'))->asLinkTo(NINJA_WEB_URL.'/api-documentation/')->withAttributes(['target' => '_blank'])->appendIcon(Icon::create('info-sign')) !!}
-  @if (Utils::isNinja() && !Utils::isReseller())
-    {!! Button::normal(trans('texts.zapier'))->asLinkTo(ZAPIER_URL)->withAttributes(['target' => '_blank']) !!}
+  @if (!Utils::isReseller())
+    {!! Button::normal(trans('texts.zapier'))->asLinkTo(ZAPIER_URL)->withAttributes(['target' => '_blank'])->appendIcon(Icon::create('globe')) !!}
   @endif
   @if (Utils::hasFeature(FEATURE_API))
     {!! Button::primary(trans('texts.add_token'))->asLinkTo(URL::to('/tokens/create'))->appendIcon(Icon::create('plus-sign')) !!}
@@ -35,7 +35,7 @@
 
   </script>
 
-  @if (Utils::isNinja() && !Utils::isReseller())
+  @if (!Utils::isReseller())
     <p>&nbsp;</p>
     <script src="https://zapier.com/zapbook/embed/widget.js?guided_zaps=5627,6025,12216,8805,5628,6027&container=false&limit=6"></script>
   @endif
