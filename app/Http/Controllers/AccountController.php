@@ -730,8 +730,26 @@ class AccountController extends BaseController
      */
     private function saveAccountManagement()
     {
-        $account = Auth::user()->account;
+        $user = Auth::user();
+        $account = $user->account;
         $modules = Input::get('modules');
+
+        $user->force_pdfjs = Input::get('force_pdfjs') ? true : false;
+        $user->save();
+
+        $account->live_preview = Input::get('live_preview') ? true : false;
+
+        // Automatically disable live preview when using a large font
+        $fonts = Cache::get('fonts')->filter(function($font) use ($account) {
+            if ($font->google_font) {
+                return false;
+            }
+            return $font->id == $account->header_font_id || $font->id == $account->body_font_id;
+        });
+        if ($account->live_preview && count($fonts)) {
+            $account->live_preview = false;
+            Session::flash('warning', trans('texts.live_preview_disabled'));
+        }
 
         $account->enabled_modules = $modules ? array_sum($modules) : 0;
         $account->save();
@@ -1045,19 +1063,6 @@ class AccountController extends BaseController
             $account->invoice_design_id = Input::get('invoice_design_id');
             $account->font_size = intval(Input::get('font_size'));
             $account->page_size = Input::get('page_size');
-            $account->live_preview = Input::get('live_preview') ? true : false;
-
-            // Automatically disable live preview when using a large font
-            $fonts = Cache::get('fonts')->filter(function($font) use ($account) {
-                if ($font->google_font) {
-                    return false;
-                }
-                return $font->id == $account->header_font_id || $font->id == $account->body_font_id;
-            });
-            if ($account->live_preview && count($fonts)) {
-                $account->live_preview = false;
-                Session::flash('warning', trans('texts.live_preview_disabled'));
-            }
 
             $labels = [];
             foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms', 'balance_due', 'partial_due', 'subtotal', 'paid_to_date', 'discount', 'tax'] as $field) {

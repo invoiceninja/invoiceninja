@@ -120,7 +120,6 @@
       {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
       {!! Former::populateField('body_font_id', $account->getBodyFontId()) !!}
       {!! Former::populateField('header_font_id', $account->getHeaderFontId()) !!}
-      {!! Former::populateField('live_preview', intval($account->live_preview)) !!}
       {!! Former::populateField('font_size', $account->font_size) !!}
       {!! Former::populateField('page_size', $account->page_size) !!}
       {!! Former::populateField('invoice_embed_documents', intval($account->invoice_embed_documents)) !!}
@@ -174,8 +173,6 @@
                                   ->fromQuery($invoiceFonts, 'name', 'id') !!}
                           {!! Former::select('header_font_id')
                                   ->fromQuery($invoiceFonts, 'name', 'id') !!}
-
-                          {!! Former::checkbox('live_preview')->text(trans('texts.enable')) !!}
 
                         </div>
                         <div class="col-md-6">
