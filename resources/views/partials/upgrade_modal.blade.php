@@ -143,7 +143,7 @@
   <h3>$<span id="upgrade_pro_price">8</span> <span class="upgrade_frequency">/ {{ trans('texts.plan_term_month') }}</span></h3>
   <select style="visibility:hidden">
   </select>
-  <p>&bnsp;</p>
+  <p>&nbsp;</p>
   <ul>
     <li>{{ trans('texts.pro_upgrade_feature1') }}</li>
     <li>{{ trans('texts.pro_upgrade_feature2') }}</li>
@@ -161,7 +161,7 @@
       <option value="5">3 to 5 {{ trans('texts.users') }}</option>
       <option value="10">6 to 10 {{ trans('texts.users') }}</option>
   </select>
-  <p>&bnsp;</p>
+  <p>&nbsp;</p>
   <ul>
     <li>{{ trans('texts.enterprise_upgrade_feature1') }}</li>
     <li>{{ trans('texts.enterprise_upgrade_feature2') }}</li>
