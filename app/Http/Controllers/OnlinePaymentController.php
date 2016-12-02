@@ -162,7 +162,8 @@ class OnlinePaymentController extends BaseController
     private function completePurchase($invitation, $isOffsite = false)
     {
         if ($redirectUrl = session('redirect_url:' . $invitation->invitation_key)) {
-            return redirect()->to($redirectUrl . '?invoice_id=' . $invitation->invoice->public_id);
+            $separator = strpos($redirectUrl, '?') === false ? '?' : '&';
+            return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $invitation->invoice->public_id);
         } else {
             // Allow redirecting to iFrame for offsite payments
             return redirect()->to($invitation->getLink('view', ! $isOffsite));
