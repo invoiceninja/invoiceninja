@@ -203,7 +203,7 @@ class ClientPortalController extends BaseController
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return RESULT_FAILURE;
         }
-        
+
         $invitation->signature_base64 = Input::get('signature');
         $invitation->signature_date = date_create();
         $invitation->save();

@@ -2255,6 +2255,8 @@ $LANG = array(
     'live_preview_help' => 'Display a live PDF preview on the invoice page.<br/>Disable this to improve performance when editing invoices.',
     'force_pdfjs_help' => 'Replace the built-in PDF viewer in :chrome_link and :firefox_link.<br/>Enable this if your browser is automatically downloading the PDF.',
     'force_pdfjs' => 'PDF Viewer',
+    'redirect_url' => 'Redirect URL',
+    'redirect_url_help' => 'Optionally specify a URL to redirect to after a payment is made.',
 
 );
 

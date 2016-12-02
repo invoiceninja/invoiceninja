@@ -117,7 +117,8 @@ class OnlinePaymentController extends BaseController
             } else {
                 Session::flash('message', trans('texts.applied_payment'));
             }
-            return redirect()->to('view/' . $invitation->invitation_key);
+
+            return $this->completePurchase($invitation);
         } catch (Exception $exception) {
             return $this->error($paymentDriver, $exception, true);
         }
@@ -152,9 +153,19 @@ class OnlinePaymentController extends BaseController
             if ($paymentDriver->completeOffsitePurchase(Input::all())) {
                 Session::flash('message', trans('texts.applied_payment'));
             }
-            return redirect()->to($invitation->getLink());
+            return $this->completePurchase($invitation, true);
         } catch (Exception $exception) {
             return $this->error($paymentDriver, $exception);
+        }
+    }
+
+    private function completePurchase($invitation, $isOffsite = false)
+    {
+        if ($redirectUrl = session('redirect_url:' . $invitation->invitation_key)) {
+            return redirect()->to($redirectUrl . '?invoice_id=' . $invitation->invoice->public_id);
+        } else {
+            // Allow redirecting to iFrame for offsite payments
+            return redirect()->to($invitation->getLink('view', ! $isOffsite));
         }
     }
 
@@ -253,17 +264,18 @@ class OnlinePaymentController extends BaseController
         }
 
         $account = Account::whereAccountKey(Input::get('account_key'))->first();
-        $redirectUrl = Input::get('redirect_url', URL::previous());
+        $redirectUrl = Input::get('redirect_url');
+        $failureUrl = URL::previous();
 
         if ( ! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
-            return redirect()->to("{$redirectUrl}/?error=invalid account");
+            return redirect()->to("{$failureUrl}/?error=invalid account");
         }
 
         Auth::onceUsingId($account->users[0]->id);
         $product = Product::scope(Input::get('product_id'))->first();
 
         if ( ! $product) {
-            return redirect()->to("{$redirectUrl}/?error=invalid product");
+            return redirect()->to("{$failureUrl}/?error=invalid product");
         }
 
         $rules = [
@@ -274,7 +286,7 @@ class OnlinePaymentController extends BaseController
 
         $validator = Validator::make(Input::all(), $rules);
         if ($validator->fails()) {
-            return redirect()->to("{$redirectUrl}/?error=" . $validator->errors()->first());
+            return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
         }
 
         $data = [
@@ -299,6 +311,10 @@ class OnlinePaymentController extends BaseController
         $invoice = $invoiceService->save($data);
         $invitation = $invoice->invitations[0];
         $link = $invitation->getLink();
+
+        if ($redirectUrl) {
+            session(['redirect_url:' . $invitation->invitation_key => $redirectUrl]);
+        }
 
         if ($gatewayTypeAlias) {
             return redirect()->to($invitation->getLink('payment') . "/{$gatewayTypeAlias}");
