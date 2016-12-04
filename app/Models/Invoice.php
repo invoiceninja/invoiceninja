@@ -415,11 +415,28 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function markInvitationsSent($notify = false)
     {
-        $this->load('invitations');
+        if ( ! $this->relationLoaded('invitations')) {
+            $this->load('invitations');
+        }
 
         foreach ($this->invitations as $invitation) {
             $this->markInvitationSent($invitation, false, $notify);
         }
+    }
+
+    public function areInvitationsSent()
+    {
+        if ( ! $this->relationLoaded('invitations')) {
+            $this->load('invitations');
+        }
+
+        foreach ($this->invitations as $invitation) {
+            if ( ! $invitation->isSent()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

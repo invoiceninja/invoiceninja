@@ -1274,6 +1274,7 @@
         }
 
 		sweetConfirm(function() {
+			model.invoice().is_public(true);
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
             var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
             var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};

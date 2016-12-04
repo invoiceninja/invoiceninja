@@ -79,7 +79,6 @@ class InvoiceService extends BaseService
             }
         }
 
-        $wasPublic = $invoice ? $invoice->is_public : false;
         $invoice = $this->invoiceRepo->save($data, $invoice);
 
         $client = $invoice->client;
@@ -111,7 +110,7 @@ class InvoiceService extends BaseService
             }
         }
 
-        if ($invoice->is_public && ! $wasPublic) {
+        if ($invoice->is_public && ! $invoice->areInvitationsSent()) {
             $invoice->markInvitationsSent();
         }
 
