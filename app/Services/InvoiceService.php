@@ -79,6 +79,7 @@ class InvoiceService extends BaseService
             }
         }
 
+        $wasPublic = $invoice ? $invoice->is_public : false;
         $invoice = $this->invoiceRepo->save($data, $invoice);
 
         $client = $invoice->client;
@@ -108,6 +109,10 @@ class InvoiceService extends BaseService
             } elseif (!in_array($contact->id, $sendInvoiceIds) && $invitation) {
                 $invitation->delete();
             }
+        }
+
+        if ($invoice->is_public && ! $wasPublic) {
+            $invoice->markInvitationsSent();
         }
 
         return $invoice;

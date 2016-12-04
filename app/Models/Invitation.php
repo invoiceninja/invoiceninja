@@ -97,8 +97,8 @@ class Invitation extends EntityModel
             if ($this->$field && $this->field != '0000-00-00 00:00:00') {
                 $date = Utils::dateToString($this->$field);
                 $hasValue = true;
-            }
-            $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
+                $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
+            }            
         }
 
         return $hasValue ? implode($parts, '<br/>') : false;

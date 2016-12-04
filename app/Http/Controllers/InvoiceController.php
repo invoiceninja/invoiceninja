@@ -99,6 +99,7 @@ class InvoiceController extends BaseController
 
         if ($clone) {
             $invoice->id = $invoice->public_id = null;
+            $invoice->is_public = false;
             $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
@@ -128,10 +129,6 @@ class InvoiceController extends BaseController
             ['url' => URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')],
             DropdownButton::DIVIDER
         ];
-
-        if ($invoice->invoice_status_id < INVOICE_STATUS_SENT && !$invoice->is_recurring) {
-            $actions[] = ['url' => 'javascript:onMarkClick()', 'label' => trans('texts.mark_sent')];
-        }
 
         if ($entityType == ENTITY_QUOTE) {
             if ($invoice->quote_invoice_id) {
@@ -194,7 +191,7 @@ class InvoiceController extends BaseController
         }
 
         // Set the invitation data on the client's contacts
-        if (!$clone) {
+        if ($invoice->is_public && ! $clone) {
             $clients = $data['clients'];
             foreach ($clients as $client) {
                 if ($client->id != $invoice->client->id) {

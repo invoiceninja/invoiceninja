@@ -153,7 +153,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function affectsBalance()
     {
-        return $this->isType(INVOICE_TYPE_STANDARD) && !$this->is_recurring;
+        return $this->isType(INVOICE_TYPE_STANDARD) && !$this->is_recurring && $this->is_public;
     }
 
     /**
@@ -161,7 +161,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getAdjustment()
     {
-        if (!$this->affectsBalance()) {
+        if ( ! $this->affectsBalance()) {
             return 0;
         }
 
@@ -173,6 +173,11 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     private function getRawAdjustment()
     {
+        // if we've just made the invoice public then apply the full amount
+        if ($this->is_public && ! $this->getOriginal('is_public')) {
+            return $this->amount;
+        }
+
         return floatval($this->amount) - floatval($this->getOriginal('amount'));
     }
 
@@ -410,6 +415,8 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function markInvitationsSent($notify = false)
     {
+        $this->load('invitations');
+
         foreach ($this->invitations as $invitation) {
             $this->markInvitationSent($invitation, false, $notify);
         }

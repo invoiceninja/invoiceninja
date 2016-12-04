@@ -75,7 +75,8 @@ class InvoiceRepository extends BaseRepository
                 'invoices.deleted_at',
                 'invoices.is_deleted',
                 'invoices.partial',
-                'invoices.user_id'
+                'invoices.user_id',
+                'invoices.is_public'
             );
 
         $this->applyFilters($query, $entityType, ENTITY_INVOICE);
@@ -227,6 +228,7 @@ class InvoiceRepository extends BaseRepository
           ->where('contacts.deleted_at', '=', null)
           ->where('contacts.is_primary', '=', true)
           ->where('invoices.is_recurring', '=', false)
+          ->where('invoices.is_public', '=', true)
           // This needs to be a setting to also hide the activity on the dashboard page
           //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
           ->select(
@@ -306,6 +308,14 @@ class InvoiceRepository extends BaseRepository
 
         if ($invoice->is_deleted) {
             return $invoice;
+        }
+
+        // set default to true for backwards compatability
+        if ( ! isset($data['is_public']) || filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN)) {
+            $invoice->is_public = true;
+            if ( ! $invoice->isSent()) {
+                $invoice->invoice_status_id = INVOICE_STATUS_SENT;
+            }
         }
 
         $invoice->fill($data);
@@ -672,7 +682,8 @@ class InvoiceRepository extends BaseRepository
           'custom_taxes2',
           'partial',
           'custom_text_value1',
-          'custom_text_value2', ] as $field) {
+          'custom_text_value2',
+        ] as $field) {
             $clone->$field = $invoice->$field;
         }
 
@@ -731,7 +742,12 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice)
     {
-        $invoice->markInvitationsSent();
+        if ( ! $invoice->isSent()) {
+            $invoice->invoice_status_id = INVOICE_STATUS_SENT;
+        }
+
+        $invoice->is_public = true;
+        $invoice->save();
     }
 
     /**
@@ -748,7 +764,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         $invoice = $invitation->invoice;
-        if (!$invoice || $invoice->is_deleted) {
+        if (!$invoice || $invoice->is_deleted || ! $invoice->is_public) {
             return false;
         }
 

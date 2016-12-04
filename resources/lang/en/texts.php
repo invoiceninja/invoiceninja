@@ -1011,9 +1011,9 @@ $LANG = array(
 
     'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
     'pro_plan_remove_logo_link' => 'Click here',
-    'invitation_status_sent' => 'Email Sent',
-    'invitation_status_opened' => 'Email Openend',
-    'invitation_status_viewed' => 'Invoice Viewed',
+    'invitation_status_sent' => 'Sent',
+    'invitation_status_opened' => 'Openend',
+    'invitation_status_viewed' => 'Viewed',
     'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
     'email_error_inactive_contact' => 'Emails can not be sent to inactive contacts',
     'email_error_inactive_invoice' => 'Emails can not be sent to inactive invoices',
@@ -2257,6 +2257,7 @@ $LANG = array(
     'force_pdfjs' => 'PDF Viewer',
     'redirect_url' => 'Redirect URL',
     'redirect_url_help' => 'Optionally specify a URL to redirect to after a payment is made entered.',
+    'save_draft' => 'Save Draft',
 
 );
 

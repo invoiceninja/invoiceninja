@@ -160,6 +160,7 @@ function ViewModel(data) {
 function InvoiceModel(data) {
     var self = this;
     this.client = ko.observable(data ? false : new ClientModel());
+    this.is_public = ko.observable(0);
     self.account = {!! $account !!};
     self.id = ko.observable('');
     self.discount = ko.observable('');

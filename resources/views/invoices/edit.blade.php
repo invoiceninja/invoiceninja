@@ -527,7 +527,8 @@
 
 			{!! Former::text('entityType') !!}
 			{!! Former::text('action') !!}
-            {!! Former::text('public_id')->data_bind('value: public_id') !!}
+			{!! Former::text('public_id')->data_bind('value: public_id') !!}
+			{!! Former::text('is_public')->data_bind('value: is_public') !!}
             {!! Former::text('is_recurring')->data_bind('value: is_recurring') !!}
             {!! Former::text('is_quote')->data_bind('value: is_quote') !!}
             {!! Former::text('has_tasks')->data_bind('value: has_tasks') !!}
@@ -553,7 +554,12 @@
                 <!-- do nothing -->
             @else
                 @if (!$invoice->is_deleted)
-        			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+					@if ($invoice->is_public)
+						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+					@else
+						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+						{!! Button::success(trans("texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
+					@endif
         		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
                     @if (!$invoice->trashed())
                         @if ($invoice->id)
@@ -1284,6 +1290,11 @@
 		}, getSendToEmails());
 	}
 
+	function onMarkSentClick() {
+		model.invoice().is_public(true);
+		onSaveClick();
+	}
+
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
             // warn invoice will be emailed when saving new recurring invoice
@@ -1447,10 +1458,6 @@
 			}
 		}
 		return isValid;
-	}
-
-	function onMarkClick() {
-		submitBulkAction('markSent');
 	}
 
 	function onCloneClick() {
