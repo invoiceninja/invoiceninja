@@ -304,7 +304,8 @@
             window['load_' + target]();
           }
         });
-        var tab = localStorage.getItem('client_tab') || '';
+
+        var tab = window.location.hash || (localStorage.getItem('client_tab') || '');
         var selector = '.nav-tabs a[href="#' + tab.replace('#', '') + '"]';
         if (tab && tab != 'activity' && $(selector).length) {
             $(selector).tab('show');

@@ -71,13 +71,13 @@ class CreditController extends BaseController
         $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
 
         $data = array(
-            'client' => null,
+            'client' => $credit->client,
             'clientPublicId' => $credit->client->public_id,
             'credit' => $credit,
             'method' => 'PUT',
             'url' => 'credits/'.$publicId,
             'title' => 'Edit Credit',
-            'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
+            'clients' => null,
         );
 
         return View::make('credits.edit', $data);
@@ -102,7 +102,7 @@ class CreditController extends BaseController
         $message = $credit->wasRecentlyCreated ? trans('texts.created_credit') : trans('texts.updated_credit');
         Session::flash('message', $message);
 
-        return redirect()->to("credits/{$credit->public_id}/edit");
+        return redirect()->to("clients/{$credit->client->public_id}#credits");
     }
 
     public function bulk()

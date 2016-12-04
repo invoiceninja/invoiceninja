@@ -20,7 +20,6 @@ class UpdateCreditRequest extends CreditRequest
     public function rules()
     {
         return [
-            'client' => 'required',
             'amount' => 'required|positive',
         ];
     }
