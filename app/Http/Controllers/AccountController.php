@@ -641,11 +641,18 @@ class AccountController extends BaseController
             );
         }
 
-        $types = [GATEWAY_TYPE_CREDIT_CARD, GATEWAY_TYPE_BANK_TRANSFER, GATEWAY_TYPE_PAYPAL, GATEWAY_TYPE_BITCOIN, GATEWAY_TYPE_DWOLLA];
+        $types = [
+            GATEWAY_TYPE_CREDIT_CARD,
+            GATEWAY_TYPE_BANK_TRANSFER,
+            GATEWAY_TYPE_PAYPAL,
+            GATEWAY_TYPE_BITCOIN,
+            GATEWAY_TYPE_DWOLLA
+        ];
         $options = [];
         foreach ($types as $type) {
             if ($account->getGatewayByType($type)) {
-                $options[$type] = trans("texts.{$type}");
+                $alias = GatewayType::getAliasFromId($type);
+                $options[$alias] = trans("texts.{$alias}");
             }
         }
 
