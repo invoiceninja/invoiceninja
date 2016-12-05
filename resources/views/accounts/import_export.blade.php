@@ -85,7 +85,7 @@
                 @include('partials/checkbox', ['field' => 'vendors'])
                 @include('partials/checkbox', ['field' => 'vendor_contacts'])
             </div>
-        </div>
+        </div><br/>
 
         {!! Former::actions( Button::primary(trans('texts.download'))->submit()->large()->appendIcon(Icon::create('download-alt'))) !!}
     </div>

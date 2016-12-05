@@ -166,7 +166,11 @@ class OnlinePaymentController extends BaseController
             return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $invitation->invoice->public_id);
         } else {
             // Allow redirecting to iFrame for offsite payments
-            return redirect()->to($invitation->getLink('view', ! $isOffsite));
+            if ($isOffsite) {
+                return redirect()->to($invitation->getLink());
+            } else {
+                return redirect()->to('view/' . $invitation->invitation_key);
+            }
         }
     }
 
