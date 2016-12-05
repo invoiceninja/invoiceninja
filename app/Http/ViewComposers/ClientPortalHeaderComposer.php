@@ -45,7 +45,7 @@ class ClientPortalHeaderComposer
                             ->join('documents', 'documents.invoice_id', '=', 'invoices.id')
                             ->count();
 
-        $view->with('hasQuotes', $client->quotes->count());
+        $view->with('hasQuotes', $client->publicQuotes->count());
         $view->with('hasCredits', $client->creditsWithBalance->count());
         $view->with('hasDocuments', $hasDocuments);
     }

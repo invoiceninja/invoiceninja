@@ -141,7 +141,7 @@ class InvoiceController extends BaseController
                 $actions[] = ['url' => URL::to("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (!$invoice->is_recurring && $invoice->balance > 0) {
+            if (!$invoice->is_recurring && $invoice->balance > 0 && $invoice->is_public) {
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }
 

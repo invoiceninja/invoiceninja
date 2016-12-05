@@ -58,7 +58,7 @@ class SendRecurringInvoices extends Command
         $today = new DateTime();
 
         $invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
-            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
             ->orderBy('id', 'asc')
             ->get();
         $this->info(count($invoices).' recurring invoice(s) found');
@@ -81,7 +81,7 @@ class SendRecurringInvoices extends Command
         }
 
         $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
-            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE
+            ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS FALSE AND is_public IS TRUE
             AND balance > 0 AND due_date = ? AND recurring_invoice_id IS NOT NULL',
                 [$today->format('Y-m-d')])
             ->orderBy('invoices.id', 'asc')

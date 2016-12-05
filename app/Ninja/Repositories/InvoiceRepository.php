@@ -179,6 +179,7 @@ class InvoiceRepository extends BaseRepository
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', true)
+          ->where('invoices.is_public', '=', true)
           ->whereIn('invoices.auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])
           //->where('invoices.start_date', '>=', date('Y-m-d H:i:s'))
           ->select(
@@ -693,6 +694,10 @@ class InvoiceRepository extends BaseRepository
             if ($account->invoice_terms) {
                 $clone->terms = $account->invoice_terms;
             }
+            if ($account->auto_convert_quote) {
+                $clone->is_public = true;
+                $clone->invoice_status_id = INVOICE_STATUS_SENT;
+            }
         }
 
         $clone->save();
@@ -822,6 +827,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         $invoice = Invoice::createNew($recurInvoice);
+        $invoice->is_public = true;
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;

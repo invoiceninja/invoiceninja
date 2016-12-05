@@ -557,7 +557,7 @@
 					@if ($invoice->isSent())
 						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 					@else
-						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveDraftClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 						{!! Button::success(trans("texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
 					@endif
         		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
@@ -1291,23 +1291,27 @@
 		}, getSendToEmails());
 	}
 
-	function onMarkSentClick() {
-		model.invoice().is_public(true);
+	function onSaveDraftClick() {
+		model.invoice().is_public(false);
 		onSaveClick();
+	}
+
+	function onMarkSentClick() {
+		if (model.invoice().is_recurring()) {
+            // warn invoice will be emailed when saving new recurring invoice
+            var text = getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+            var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
+            sweetConfirm(function() {
+				model.invoice().is_public(true);
+                submitAction('');
+            }, text, title);
+            return;
+        }
 	}
 
 	function onSaveClick() {
 		if (model.invoice().is_recurring()) {
-            // warn invoice will be emailed when saving new recurring invoice
-            if ({{ $invoice->exists ? 'false' : 'true' }}) {
-                var text = getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
-                var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
-                sweetConfirm(function() {
-                    submitAction('');
-                }, text, title);
-                return;
-            // warn invoice will be emailed again if start date is changed
-            } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
+            if (model.invoice().start_date() != model.invoice().start_date_orig()) {
                 var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
                             + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
                 var title = "{!! trans("texts.warn_start_date_changed") !!}";

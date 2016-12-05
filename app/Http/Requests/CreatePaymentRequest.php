@@ -24,6 +24,7 @@ class CreatePaymentRequest extends PaymentRequest
         $input = $this->input();
         $invoice = Invoice::scope($input['invoice'])
             ->invoices()
+            ->whereIsPublic(true)
             ->firstOrFail();
 
         $rules = [

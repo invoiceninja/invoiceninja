@@ -83,8 +83,8 @@ class PaymentController extends BaseController
     public function create(PaymentRequest $request)
     {
         $invoices = Invoice::scope()
-                    ->invoiceType(INVOICE_TYPE_STANDARD)
-                    ->where('is_recurring', '=', false)
+                    ->invoices()
+                    ->whereIsPublic(true)
                     ->where('invoices.balance', '>', 0)
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
@@ -128,8 +128,11 @@ class PaymentController extends BaseController
         $data = [
             'client' => null,
             'invoice' => null,
-            'invoices' => Invoice::scope()->invoiceType(INVOICE_TYPE_STANDARD)->where('is_recurring', '=', false)
-                            ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
+            'invoices' => Invoice::scope()
+                            ->invoices()
+                            ->whereIsPublic(true)
+                            ->with('client', 'invoice_status')
+                            ->orderBy('invoice_number')->get(),
             'payment' => $payment,
             'entity' => $payment,
             'method' => 'PUT',
@@ -161,7 +164,7 @@ class PaymentController extends BaseController
             Session::flash('message', trans('texts.created_payment'));
         }
 
-        return redirect()->to($payment->client->getRoute());
+        return redirect()->to($payment->client->getRoute() . '#payments');
     }
 
     /**
