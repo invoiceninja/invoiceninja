@@ -141,6 +141,7 @@
             modes: ['form', 'code'],
             change: function() {
               saveEditor();
+			  NINJA.formIsChanged = true;
             }
           };
         window.editor = new JSONEditor(container, options);
