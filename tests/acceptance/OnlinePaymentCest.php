@@ -96,7 +96,8 @@ class OnlinePaymentCest
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->selectOption('#auto_bill', 3);
-        $I->executeJS('preparePdfData(\'email\')');
+        $I->executeJS('model.invoice().is_public(true);');
+        $I->executeJS('preparePdfData(\'email\');');
         $I->wait(3);
         $I->see("$0.00");
 
