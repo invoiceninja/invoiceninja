@@ -557,7 +557,7 @@
 					@if ($invoice->isSent())
 						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 					@else
-						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveDraftClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'draftButton', 'onclick' => 'onSaveDraftClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 						{!! Button::success(trans("texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
 					@endif
         		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
@@ -1306,7 +1306,10 @@
                 submitAction('');
             }, text, title);
             return;
-        }
+        } else {
+			model.invoice().is_public(true);
+			onSaveClick();
+		}
 	}
 
 	function onSaveClick() {
@@ -1400,13 +1403,13 @@
             if ($('#saveButton').is(':disabled')) {
                 return false;
             }
-            $('#saveButton, #emailButton').attr('disabled', true);
+            $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
                 NINJA.formIsChanged = false;
                 location.href = data;
             }).fail(function(data) {
-                $('#saveButton, #emailButton').attr('disabled', false);
+                $('#saveButton, #emailButton, #draftButton').attr('disabled', false);
                 var error = firstJSONError(data.responseJSON) || data.statusText;
                 swal("{!! trans('texts.invoice_save_error') !!}", error);
             });
