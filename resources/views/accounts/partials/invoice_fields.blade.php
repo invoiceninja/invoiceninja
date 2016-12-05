@@ -94,6 +94,7 @@ function resetFields() {
     var defaultFields = {!! json_encode($account->getDefaultInvoiceFields()) !!};
     window.model.resetFields();
     loadFields(defaultFields);
+    window.model.onChange();
 }
 
 function loadMap(allFields) {
