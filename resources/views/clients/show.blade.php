@@ -306,7 +306,8 @@
         });
 
         var tab = window.location.hash || (localStorage.getItem('client_tab') || '');
-        var selector = '.nav-tabs a[href="#' + tab.replace('#', '') + '"]';
+        tab = tab.replace('#', '');
+        var selector = '.nav-tabs a[href="#' + tab + '"]';
         if (tab && tab != 'activity' && $(selector).length) {
             $(selector).tab('show');
         } else {
