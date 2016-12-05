@@ -200,7 +200,7 @@ $LANG = array(
     'limit_clients' => 'Sorry, this will exceed the limit of :count clients',
     'payment_error' => 'There was an error processing your payment. Please try again later.',
     'registration_required' => 'Please sign up to email an invoice',
-    'confirmation_required' => 'Please confirm your email address',
+    'confirmation_required' => 'Please confirm your email address, <a href=\'/resend_confirmation\'>click here</a> to resend the confirmation email.',
     'updated_client' => 'Successfully updated client',
     'created_client' => 'Successfully created client',
     'archived_client' => 'Successfully archived client',

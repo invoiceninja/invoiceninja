@@ -178,7 +178,7 @@
 
   function showUpgradeModal() {
     @if ( ! Auth::check() || ! Auth::user()->confirmed)
-        swal("{{ trans('texts.confirmation_required') }}");
+        swal("{!! trans('texts.confirmation_required') !!}");
         return;
     @endif
 
