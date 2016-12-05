@@ -13,6 +13,7 @@ use App\Models\Credit;
 use App\Models\Task;
 use App\Models\Invoice;
 use App\Models\Payment;
+use App\Models\Expense;
 use App\Models\Vendor;
 use App\Models\VendorContact;
 
@@ -209,6 +210,13 @@ class ExportController extends BaseController
             $data['payments'] = Payment::scope()
                 ->withArchived()
                 ->with('user', 'client.contacts', 'payment_type', 'invoice', 'account_gateway.gateway')
+                ->get();
+        }
+
+        if ($request->input('include') === 'all' || $request->input('expenses')) {
+            $data['expenses'] = Expense::scope()
+                ->with('user', 'vendor.vendor_contacts', 'client.contacts', 'expense_category')
+                ->withArchived()
                 ->get();
         }
 

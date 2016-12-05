@@ -24,4 +24,14 @@ class ExpensePresenter extends EntityPresenter
         return Utils::fromSqlDate($this->entity->expense_date);
     }
 
+    public function amount()
+    {
+        return Utils::formatMoney($this->entity->amount, $this->entity->expense_currency_id);
+    }
+
+    public function category()
+    {
+        return $this->entity->expense_category ? $this->entity->expense_category->name : '';
+    }
+
 }
