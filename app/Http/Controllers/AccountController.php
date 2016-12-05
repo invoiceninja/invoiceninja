@@ -915,27 +915,29 @@ class AccountController extends BaseController
 
             if (Input::get('custom_link') == 'subdomain') {
                 $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-                $exclude = [
-                    'www',
-                    'app',
-                    'mail',
-                    'admin',
-                    'blog',
-                    'user',
-                    'contact',
-                    'payment',
-                    'payments',
-                    'billing',
-                    'invoice',
-                    'business',
-                    'owner',
-                    'info',
-                    'ninja',
-                    'docs',
-                    'doc',
-                    'documents'
-                ];
-                $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
+                if (Utils::isNinja()) {
+                    $exclude = [
+                        'www',
+                        'app',
+                        'mail',
+                        'admin',
+                        'blog',
+                        'user',
+                        'contact',
+                        'payment',
+                        'payments',
+                        'billing',
+                        'invoice',
+                        'business',
+                        'owner',
+                        'info',
+                        'ninja',
+                        'docs',
+                        'doc',
+                        'documents'
+                    ];
+                    $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
+                }
             } else {
                 $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
                 $iframeURL = rtrim($iframeURL, '/');
