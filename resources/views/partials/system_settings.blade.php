@@ -24,7 +24,7 @@
         {!! Former::text('database[type][database]')->label('Database')->value(isset($_ENV['DB_DATABASE']) ? $_ENV['DB_DATABASE'] : 'ninja') !!}
         {!! Former::text('database[type][username]')->label('Username')->value(isset($_ENV['DB_USERNAME']) ? $_ENV['DB_USERNAME'] : 'ninja') !!}
         {!! Former::password('database[type][password]')->label('Password')->value(isset($_ENV['DB_PASSWORD']) ? $_ENV['DB_PASSWORD'] : 'ninja') !!}
-        {!! Former::actions( Button::primary('Test connection')->small()->withAttributes(['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}      
+        {!! Former::actions( Button::primary('Test connection')->small()->withAttributes(['onclick' => 'testDatabase()']), '&nbsp;&nbsp;<span id="dbTestResult"/>' ) !!}
       </div>
     </div>
 
@@ -37,9 +37,11 @@
             {!! Former::select('mail[driver]')->label('Driver')->options(['smtp' => 'SMTP', 'mail' => 'Mail', 'sendmail' => 'Sendmail', 'mailgun' => 'Mailgun'])
                      ->value(isset($_ENV['MAIL_DRIVER']) ? $_ENV['MAIL_DRIVER'] : 'smtp')->setAttributes(['onchange' => 'mailDriverChange()']) !!}
             {!! Former::text('mail[from][name]')->label('From Name')
-                  ->value(isset($_ENV['MAIL_FROM_NAME']) ? $_ENV['MAIL_FROM_NAME'] : '')  !!}
-            {!! Former::text('mail[username]')->label('Email')
-                    ->value(isset($_ENV['MAIL_USERNAME']) ? $_ENV['MAIL_USERNAME'] : '')  !!}
+                     ->value(isset($_ENV['MAIL_FROM_NAME']) ? $_ENV['MAIL_FROM_NAME'] : '')  !!}
+            {!! Former::text('mail[from][address]')->label('From Address')
+                     ->value(isset($_ENV['MAIL_FROM_ADDRESS']) ? $_ENV['MAIL_FROM_ADDRESS'] : '')  !!}
+            {!! Former::text('mail[username]')->label('Username')
+                     ->value(isset($_ENV['MAIL_USERNAME']) ? $_ENV['MAIL_USERNAME'] : '')  !!}
             <div id="standardMailSetup">
               {!! Former::text('mail[host]')->label('Host')
                       ->value(isset($_ENV['MAIL_HOST']) ? $_ENV['MAIL_HOST'] : '') !!}
@@ -56,7 +58,7 @@
               {!! Former::text('mail[mailgun_secret]')->label('Mailgun Private Key')
                       ->value(isset($_ENV['MAILGUN_SECRET']) ? $_ENV['MAILGUN_SECRET'] : '')  !!}
             </div>
-            {{-- Former::actions( Button::primary('Send test email')->small()->withAttributes(['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) --}}
+              {!! Former::actions( Button::primary('Send test email')->small()->withAttributes(['onclick' => 'testMail()']), '&nbsp;&nbsp;<span id="mailTestResult"/>' ) !!}
           </div>
         </div>
     @endif
@@ -70,7 +72,7 @@
     function testDatabase()
     {
       var data = $("form").serialize() + "&test=db";
-      
+
       // Show Progress Text
       $('#dbTestResult').html('Working...').css('color', 'black');
 
@@ -85,7 +87,7 @@
       });
 
       return db_valid;
-    }  
+    }
 
     function mailDriverChange() {
       if ($("select[name='mail[driver]'").val() == 'mailgun') {
@@ -105,9 +107,9 @@
     }
 
     function testMail()
-    {      
+    {
       var data = $("form").serialize() + "&test=mail";
-      
+
       // Show Progress Text
       $('#mailTestResult').html('Working...').css('color', 'black');
 
@@ -120,7 +122,7 @@
         }
         $('#mailTestResult').html(data).css('color', color);
       });
-      
+
       return mail_valid;
     }
 

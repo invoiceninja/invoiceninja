@@ -60,10 +60,7 @@ class AppController extends BaseController
         $database = Input::get('database');
         $dbType = 'mysql'; // $database['default'];
         $database['connections'] = [$dbType => $database['type']];
-
         $mail = Input::get('mail');
-        $email = $mail['username'];
-        $mail['from']['address'] = $email;
 
         if ($test == 'mail') {
             return self::testMail($mail);
@@ -97,6 +94,7 @@ class AppController extends BaseController
         $_ENV['MAIL_HOST'] = $mail['host'];
         $_ENV['MAIL_USERNAME'] = $mail['username'];
         $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
+        $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
         $_ENV['MAIL_PASSWORD'] = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
         $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
@@ -173,8 +171,8 @@ class AppController extends BaseController
             $_ENV['MAIL_HOST'] = $mail['host'];
             $_ENV['MAIL_USERNAME'] = $mail['username'];
             $_ENV['MAIL_FROM_NAME'] = $mail['from']['name'];
+            $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
             $_ENV['MAIL_PASSWORD'] = $mail['password'];
-            $_ENV['MAIL_FROM_ADDRESS'] = $mail['username'];
             $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
             $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
         }
@@ -218,7 +216,7 @@ class AppController extends BaseController
 
     private function testMail($mail)
     {
-        $email = $mail['username'];
+        $email = $mail['from']['address'];
         $fromName = $mail['from']['name'];
 
         foreach ($mail as $key => $val) {
