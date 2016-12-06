@@ -287,16 +287,6 @@
     $('#search').focusin(onSearchFocus);
     $('#search').blur(onSearchBlur);
 
-    /*
-    $(document).keypress(function (event) {
-        console.log(event);
-        if (event.which == 47 && !$('*:focus').length) {
-            event.preventDefault();
-            $('#search').focus();
-        }
-    });
-    */
-
     Mousetrap.bind('?', function(e) {
         console.log('heree');
         $('#helpModal').modal('show');
