@@ -27,7 +27,7 @@
         "laravel/framework": "5.2.*",
         "laravelcollective/html": "5.2.*",
         "symfony/css-selector": "~3.0",
-        "patricktalmadge/bootstrapper": "5.5.x",
+        "patricktalmadge/bootstrapper": "5.9.x",
         "anahkiasen/former": "4.0.*@dev",
         "chumper/datatable": "dev-develop#04ef2bf",
         "omnipay/omnipay": "~2.3",
