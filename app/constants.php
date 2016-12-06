@@ -1,6 +1,6 @@
 <?php
 
-//if (!defined('CONTACT_EMAIL')) {
+if (!defined('ENV_DEVELOPMENT')) {
     define('ENV_DEVELOPMENT', 'local');
     define('ENV_STAGING', 'staging');
 
@@ -544,4 +544,4 @@
             return $string != $english ? $string : '';
         }
     }
-//}
+}
