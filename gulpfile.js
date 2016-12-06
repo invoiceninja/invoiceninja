@@ -126,6 +126,7 @@ elixir(function(mix) {
         bowerDir + '/sweetalert2/dist/sweetalert2.js',
         //bowerDir + '/sweetalert/dist/sweetalert-dev.js',
         bowerDir + '/nouislider/distribute/nouislider.js',
+        bowerDir + '/mousetrap/mousetrap.js',
         bowerDir + '/fuse.js/src/fuse.js',
         'bootstrap-combobox.js',
         'script.js',

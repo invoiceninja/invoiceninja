@@ -2259,6 +2259,10 @@ $LANG = array(
     'redirect_url_help' => 'Optionally specify a URL to redirect to after a payment is made entered.',
     'save_draft' => 'Save Draft',
     'refunded_credit_payment' => 'Refunded credit payment',
+    'keyboard_shortcuts' => 'Keyboard Shortcuts',
+    'toggle_menu' => 'Toggle Menu',
+    'new_...' => 'New ...',
+    'list_...' => 'List ...',
 
 );
 

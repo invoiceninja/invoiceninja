@@ -432,7 +432,7 @@
         @if (!$task && !$clientPublicId)
             $('.client-select input.form-control').focus();
         @else
-            $('#amount').focus();
+            $('#description').focus();
         @endif
 
         $('input[type=radio]').change(function(event) {
@@ -566,7 +566,7 @@
         });
 
         $projectSelect.combobox();
-        
+
         if (projectId) {
            var project = projectMap[projectId];
            setComboboxValue($('.project-select'), project.public_id, project.name);

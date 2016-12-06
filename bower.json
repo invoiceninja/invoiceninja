@@ -33,7 +33,8 @@
     "bootstrap-daterangepicker": "~2.1.24",
     "sweetalert2": "^5.3.8",
     "jSignature": "brinley/jSignature#^2.1.0",
-    "select2": "select2-dist#^4.0.3"
+    "select2": "select2-dist#^4.0.3",
+    "mousetrap": "^1.6.0"
   },
   "resolutions": {
     "jquery": "~1.11"
