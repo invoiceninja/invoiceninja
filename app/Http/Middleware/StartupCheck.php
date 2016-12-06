@@ -30,10 +30,12 @@ class StartupCheck
      */
     public function handle(Request $request, Closure $next)
     {
-        define('CONTACT_EMAIL', config('mail.from.address'));
-        define('CONTACT_NAME', config('mail.from.name'));
-        define('SITE_URL', config('app.url'));
-
+        if (!defined('CONTACT_EMAIL')) {
+            define('CONTACT_EMAIL', config('mail.from.address'));
+            define('CONTACT_NAME', config('mail.from.name'));
+            define('SITE_URL', config('app.url'));
+        }
+        
         // Set up trusted X-Forwarded-Proto proxies
         // TRUSTED_PROXIES accepts a comma delimited list of subnets
         // ie, TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
