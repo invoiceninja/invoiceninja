@@ -23,6 +23,7 @@ Thumbs.db
 /error_log
 /auth.json
 /public/error_log
+/Modules
 
 /ninja.sublime-project
 /ninja.sublime-workspace
