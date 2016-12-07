@@ -423,6 +423,14 @@
                     'selected' => true,
                 ])
             @endif
+            @if ( ! Utils::isNinjaProd())
+                @if ($modules = session('custom_modules') ?: App\Libraries\ModuleUtils::loadModules())
+                    <li class="divider"></li>
+                    @foreach ($modules as $module)
+                        <li>{{ link_to($module->url, $module->name) }}</li>
+                    @endforeach
+                @endif
+            @endif
             <li class="divider"></li>
             @if (Utils::isAdmin())
               @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
