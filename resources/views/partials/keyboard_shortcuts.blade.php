@@ -10,17 +10,17 @@
       color:#fff;
       width:28px;
       text-align:center;
-      padding-top:4px;
-      padding-bottom:4px;
+      padding-top:2px;
+      padding-bottom:2px;
       font-weight:bold;
       font-size: 18px;
       float: left;
-      margin-right: 12px;
+      margin-left: 12px;
       margin-top: 4px;
       margin-bottom: 4px;
   }
   .help-panel .key-label {
-      padding-top: 12px;
+      padding-top: 10px;
   }
 </style>
 
@@ -33,42 +33,42 @@
       </div>
       <div class="panel-body help-panel">
           <div class="row">
-              <div class="col-md-2"><div>?</div></div>
-              <div class="col-md-4 key-label">{{ trans('texts.help') }}</div>
+              <div class="col-md-3"><div>?</div></div>
+              <div class="col-md-3 key-label">{{ trans('texts.help') }}</div>
               <div class="col-md-3"><div>N</div><div>C</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.new_client') }}</div>
           </div>
           <div class="row">
-              <div class="col-md-2"><div>/</div></div>
-              <div class="col-md-4 key-label">{{ trans('texts.search') }}</div>
+              <div class="col-md-3"><div>/</div></div>
+              <div class="col-md-3 key-label">{{ trans('texts.search') }}</div>
               <div class="col-md-3"><div>N</div><div>I</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.new_invoice') }}</div>
           </div>
           <div class="row">
-              <div class="col-md-2"><div>D</div></div>
-              <div class="col-md-4 key-label">{{ trans('texts.dashboard') }}</div>
+              <div class="col-md-3"><div>M</div></div>
+              <div class="col-md-3 key-label">{{ trans('texts.toggle_menu') }}</div>
               <div class="col-md-3"><div>N</div><div>...</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.new_...') }}</div>
           </div>
           <div class="row">
-              <div class="col-md-2"><div>S</div></div>
-              <div class="col-md-4 key-label">{{ trans('texts.settings') }}</div>
+              <div class="col-md-3"><div>H</div></div>
+              <div class="col-md-3 key-label">{{ trans('texts.toggle_history') }}</div>
           </div>
           <div class="row">
-              <div class="col-md-2"></div>
-              <div class="col-md-4"></div>
+              <div class="col-md-3"></div>
+              <div class="col-md-3"></div>
               <div class="col-md-3"><div>L</div><div>C</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.list_clients') }}</div>
           </div>
           <div class="row">
-              <div class="col-md-2"><div>M</div></div>
-              <div class="col-md-4 key-label">{{ trans('texts.toggle_menu') }}</div>
+              <div class="col-md-3"><div>G</div><div>D</div></div>
+              <div class="col-md-3 key-label">{{ trans('texts.dashboard') }}</div>
               <div class="col-md-3"><div>L</div><div>I</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.list_invoices') }}</div>
           </div>
           <div class="row">
-              <div class="col-md-2"><div>H</div></div>
-              <div class="col-md-4 key-label">{{ trans('texts.toggle_history') }}</div>
+              <div class="col-md-3"><div>G</div><div>S</div></div>
+              <div class="col-md-3 key-label">{{ trans('texts.settings') }}</div>
               <div class="col-md-3"><div>L</div><div>...</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.list_...') }}</div>
           </div>
@@ -93,11 +93,11 @@
             $('#search').focus();
         });
 
-        Mousetrap.bind('d', function(e) {
+        Mousetrap.bind('g d', function(e) {
             location.href = "{{ url('/dashboard') }}";
         });
 
-        Mousetrap.bind('s', function(e) {
+        Mousetrap.bind('g s', function(e) {
             location.href = "{{ url('/settings/company_details') }}";
         });
 
