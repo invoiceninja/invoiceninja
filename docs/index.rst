@@ -43,5 +43,5 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    :maxdepth: 1
    :caption: Self Host
 
-   custom_modules
    iphone_app
+   custom_modules
