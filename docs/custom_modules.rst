@@ -8,19 +8,19 @@ Install Module
 
 To install a module run:
 
-.. code-block:: ruby
+.. code-block:: php
 
     php artisan module:install <vendor/module> --type=github
 
 For example:
 
-.. code-block:: ruby
+.. code-block:: php
 
     php artisan module:install invoiceninja/sprockets --type=github
 
 You can check the current module status with:
 
-.. code-block:: ruby
+.. code-block:: php
 
     php artisan module:list
 
@@ -30,7 +30,7 @@ Create Module
 
 Run the following command to create a module:
 
-.. code-block:: ruby
+.. code-block:: php
 
     php artisan module:make <module>
 
@@ -43,7 +43,7 @@ Share Module
 
 To share your module create a new project on GitHub and then commit the code:
 
-.. code-block:: ruby
+.. code-block:: php
 
     cd Modules/<module>
     git init
@@ -54,4 +54,4 @@ To share your module create a new project on GitHub and then commit the code:
 
 .. Tip:: Add ``"type": "invoiceninja-module"`` to the composer.json file to help people find your module.
 
-Finally, submit the project to https://packagist.org. 
+Finally, submit the project to https://packagist.org.
