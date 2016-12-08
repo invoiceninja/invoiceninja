@@ -10,6 +10,9 @@ use App\Http\Controllers\BaseController;
 use App\Services\DatatableService;
 use Modules\$STUDLY_NAME$\Repositories\$STUDLY_NAME$Repository;
 use Modules\$STUDLY_NAME$\Datatables\$STUDLY_NAME$Datatable;
+use Modules\$STUDLY_NAME$\Http\Requests\$STUDLY_NAME$Request;
+use Modules\$STUDLY_NAME$\Http\Requests\Create$STUDLY_NAME$Request;
+use Modules\$STUDLY_NAME$\Http\Requests\Update$STUDLY_NAME$Request;
 
 class $CLASS$ extends BaseController
 {
@@ -51,7 +54,7 @@ class $CLASS$ extends BaseController
      * Show the form for creating a new resource.
      * @return Response
      */
-    public function create()
+    public function create($STUDLY_NAME$Request $request)
     {
         $data = [
             '$LOWER_NAME$' => null,
@@ -68,7 +71,7 @@ class $CLASS$ extends BaseController
      * @param  Request $request
      * @return Response
      */
-    public function store(Request $request)
+    public function store(Create$STUDLY_NAME$Request $request)
     {
         $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input());
 
@@ -98,7 +101,7 @@ class $CLASS$ extends BaseController
      * Show the form for editing a resource.
      * @return Response
      */
-    public function show(Request $request)
+    public function show($STUDLY_NAME$Request $request)
     {
         return redirect()->to("$LOWER_NAME$/{$request->$LOWER_NAME$}/edit");
     }
@@ -108,8 +111,12 @@ class $CLASS$ extends BaseController
      * @param  Request $request
      * @return Response
      */
-    public function update(Request $request)
+    public function update(Update$STUDLY_NAME$Request $request)
     {
+        $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input(), $request->entity());
+
+        return redirect()->to($$LOWER_NAME$->present()->editUrl)
+            ->with('message', trans('texts.updated_$LOWER_NAME$'));
     }
 
     /**

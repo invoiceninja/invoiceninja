@@ -3,6 +3,7 @@
 use Input;
 use Utils;
 use App\Libraries\HistoryUtils;
+use App\Models\EntityModel;
 
 class EntityRequest extends Request {
 
@@ -34,13 +35,13 @@ class EntityRequest extends Request {
             return null;
         }
 
-        $class = Utils::getEntityClass($this->entityType);
+        $class = EntityModel::getClassName($this->entityType);
 
-            if (method_exists($class, 'trashed')) {
-                $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
-            } else {
-                $this->entity = $class::scope($publicId)->firstOrFail();
-            }
+        if (method_exists($class, 'trashed')) {
+            $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
+        } else {
+            $this->entity = $class::scope($publicId)->firstOrFail();
+        }
 
         return $this->entity;
     }
