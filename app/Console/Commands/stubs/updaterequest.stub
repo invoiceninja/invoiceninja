@@ -11,7 +11,7 @@ class Update$CLASS$Request extends $CLASS$Request
      */
     public function authorize()
     {
-        return $this->user()->can('edit', '$LOWER_NAME$');
+        return $this->user()->can('edit', $this->entity());
     }
 
     /**

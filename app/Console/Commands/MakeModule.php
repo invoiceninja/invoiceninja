@@ -56,12 +56,12 @@ class MakeModule extends Command
         Artisan::call('module:migrate', ['module' => $name]);
         Artisan::call('module:make-model', ['model' => $name, 'module' => $name, '--fillable' => $fillable]);
 
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'views', '--fields' => $fields, '--filename' => 'edit.blade']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'datatable', '--fields' => $fields]);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'repository']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'policy']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'auth-provider']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'presenter']);
-
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request', 'prefix' => 'create']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request', 'prefix' => 'update']);

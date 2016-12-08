@@ -57,7 +57,7 @@ class $STUDLY_NAME$Repository extends BaseRepository
         }
         */
 
-        //$entity->fill($data);
+        $entity->fill($data);
         $entity->save();
 
         /*

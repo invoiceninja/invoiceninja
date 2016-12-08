@@ -20,7 +20,7 @@
             <div class="panel panel-default">
             <div class="panel-body">
 
-
+                $FORM_FIELDS$
 
             </div>
             </div>

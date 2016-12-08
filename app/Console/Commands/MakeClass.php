@@ -50,6 +50,7 @@ class MakeClass extends GeneratorCommand
     {
         return array(
             array('fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null),
+            array('filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null),
         );
     }
 
@@ -65,6 +66,7 @@ class MakeClass extends GeneratorCommand
             'CLASS' => $this->getClass(),
             'STUDLY_NAME' => Str::studly($module->getLowerName()),
             'COLUMNS' => $this->getColumns(),
+            'FORM_FIELDS' => $this->getFormFields(),
         ]))->render();
     }
 
@@ -81,6 +83,9 @@ class MakeClass extends GeneratorCommand
      */
     protected function getFileName()
     {
+        if ($this->option('filename')) {
+            return $this->option('filename');
+        }
         return studly_case($this->argument('prefix')) . studly_case($this->argument('name')) . Str::studly($this->argument('class'));
     }
 
@@ -103,4 +108,18 @@ class MakeClass extends GeneratorCommand
         return $str;
     }
 
+    protected function getFormFields()
+    {
+        $fields = $this->option('fields');
+        $fields = explode(',', $fields);
+        $str = '';
+
+        foreach ($fields as $field) {
+            $field = explode(':', $field)[0];
+            $str .= '{!! Former::text(\''. $field . '\') !!}
+            ';
+        }
+
+        return $str;
+    }
 }
