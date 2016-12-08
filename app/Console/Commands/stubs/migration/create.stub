@@ -12,14 +12,15 @@ class $CLASS$ extends Migration
      */
     public function up()
     {
-        Schema::create('$TABLE$', function (Blueprint $table) {
+        Schema::create(strtolower('$TABLE$'), function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('user_id')->index();
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('client_id')->index()->nullable();
-            
+
 $FIELDS$
             $table->timestamps();
+            $table->softDeletes();
             $table->boolean('is_deleted')->default(false);
 
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -38,6 +39,6 @@ $FIELDS$
      */
     public function down()
     {
-        Schema::dropIfExists('$TABLE$');
+        Schema::dropIfExists(strtolower('$TABLE$'));
     }
 }

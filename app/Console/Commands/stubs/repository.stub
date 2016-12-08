@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Ninja\Repositories;
+namespace $NAMESPACE$;
 
 use DB;
 use App\Models\$STUDLY_NAME$;
+use App\Ninja\Repositories\BaseRepository;
 //use App\Events\$STUDLY_NAME$WasCreated;
 //use App\Events\$STUDLY_NAME$WasUpdated;
 
@@ -41,7 +42,7 @@ class $STUDLY_NAME$Repository extends BaseRepository
             $query->where('clients.user_id', '=', $userId);
         }
         */
-        
+
         return $query;
     }
 

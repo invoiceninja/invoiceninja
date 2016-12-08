@@ -113,7 +113,8 @@ return [
             'jobs' => 'Jobs',
             'emails' => 'Emails',
             'notifications' => 'Notifications',
-            'datatables' => 'Datatables',
+            'datatable' => 'Datatables',
+            'policy' => 'Policies',
         ],
     ],
     /*

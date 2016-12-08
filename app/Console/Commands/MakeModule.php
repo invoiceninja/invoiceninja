@@ -40,16 +40,22 @@ class MakeModule extends Command
     {
         $name = $this->argument('name');
         $fields = $this->argument('fields');
+        $lower = strtolower($name);
 
         $this->info("Creating module: {$name}");
-        $this->info("Fields: {$fields}");
+        //$this->info("Fields: {$fields}");
 
         Artisan::call('module:make', ['name' => [$name]]);
-        Artisan::call('module:make-migration', ['name' => "create_{$name}_table", '--fields' => $fields, 'module' => $name]);
+        Artisan::call('module:make-migration', ['name' => "create_{$lower}_table", '--fields' => $fields, 'module' => $name]);
+        Artisan::call('module:migrate', ['module' => $name]);
         Artisan::call('module:make-model', ['model' => $name, 'module' => $name]);
 
-        Artisan::call('ninja:make-datatable', ['name' => $name, 'module' => $name]);
-        Artisan::call('ninja:make-repository', ['name' => $name, 'module' => $name]);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'datatable']);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'repository']);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'policy']);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'auth-provider']);
+
+        Artisan::call('module:dump');
     }
 
     protected function getArguments()

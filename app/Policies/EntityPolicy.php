@@ -73,6 +73,7 @@ class EntityPolicy
     private static function checkModuleEnabled(User $user, $item)
     {
         $entityType = is_string($item) ? $item : $item->getEntityType();
+        
         return $user->account->isModuleEnabled($entityType);
     }
 }
