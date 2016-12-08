@@ -20,6 +20,7 @@ class $STUDLY_NAME$Repository extends BaseRepository
         $query = DB::table('$LOWER_NAME$')
                     ->where('$LOWER_NAME$.account_id', '=', \Auth::user()->account_id)
                     ->select(
+                        $DATABASE_FIELDS$
                         '$LOWER_NAME$.public_id',
                         '$LOWER_NAME$.deleted_at',
                         '$LOWER_NAME$.created_at',

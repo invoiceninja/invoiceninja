@@ -65,8 +65,9 @@ class MakeClass extends GeneratorCommand
             'LOWER_NAME' => $module->getLowerName(),
             'CLASS' => $this->getClass(),
             'STUDLY_NAME' => Str::studly($module->getLowerName()),
-            'COLUMNS' => $this->getColumns(),
+            'DATATABLE_COLUMNS' => $this->getColumns(),
             'FORM_FIELDS' => $this->getFormFields(),
+            'DATABASE_FIELDS' => $this->getDatabaseFields($module),
         ]))->render();
     }
 
@@ -118,6 +119,20 @@ class MakeClass extends GeneratorCommand
             $field = explode(':', $field)[0];
             $str .= '{!! Former::text(\''. $field . '\') !!}
             ';
+        }
+
+        return $str;
+    }
+
+    protected function getDatabaseFields($module)
+    {
+        $fields = $this->option('fields');
+        $fields = explode(',', $fields);
+        $str = '';
+
+        foreach ($fields as $field) {
+            $field = explode(':', $field)[0];
+            $str .= "'" . $module->getLowerName() . ".{$field}', ";
         }
 
         return $str;

@@ -2263,6 +2263,7 @@ $LANG = array(
     'toggle_menu' => 'Toggle Menu',
     'new_...' => 'New ...',
     'list_...' => 'List ...',
+    'created_at' => 'Created',
 
 );
 
