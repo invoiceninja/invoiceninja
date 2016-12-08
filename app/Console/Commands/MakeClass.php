@@ -41,6 +41,19 @@ class MakeClass extends GeneratorCommand
         ];
     }
 
+    /**
+     * Get the console command options.
+     *
+     * @return array
+     */
+    protected function getOptions()
+    {
+        return array(
+            array('fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null),
+        );
+    }
+
+
     public function getTemplateContents()
     {
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
@@ -51,6 +64,7 @@ class MakeClass extends GeneratorCommand
             'LOWER_NAME' => $module->getLowerName(),
             'CLASS' => $this->getClass(),
             'STUDLY_NAME' => Str::studly($module->getLowerName()),
+            'COLUMNS' => $this->getColumns(),
         ]))->render();
     }
 
@@ -68,6 +82,25 @@ class MakeClass extends GeneratorCommand
     protected function getFileName()
     {
         return studly_case($this->argument('prefix')) . studly_case($this->argument('name')) . Str::studly($this->argument('class'));
+    }
+
+    protected function getColumns()
+    {
+        $fields = $this->option('fields');
+        $fields = explode(',', $fields);
+        $str = '';
+
+        foreach ($fields as $field) {
+            $field = explode(':', $field)[0];
+            $str .= '[
+                \''. $field . '\',
+                function ($model) {
+                    return $model->' . $field . ';
+                }
+            ],';
+        }
+
+        return $str;
     }
 
 }

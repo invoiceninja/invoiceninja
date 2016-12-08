@@ -15,6 +15,7 @@ class $CLASS$Datatable extends EntityDatatable
     public function columns()
     {
         return [
+            $COLUMNS$
             [
                 'created_at',
                 function ($model) {

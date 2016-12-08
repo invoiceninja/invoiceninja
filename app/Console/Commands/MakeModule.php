@@ -42,15 +42,21 @@ class MakeModule extends Command
         $fields = $this->argument('fields');
         $lower = strtolower($name);
 
+        // convert 'name:string,description:text' to 'name,description'
+        $fillable = explode(',', $fields);
+        $fillable = array_map(function($item) {
+            return explode(':', $item)[0];
+        }, $fillable);
+        $fillable = join(',', $fillable);
+
         $this->info("Creating module: {$name}");
-        //$this->info("Fields: {$fields}");
 
         Artisan::call('module:make', ['name' => [$name]]);
         Artisan::call('module:make-migration', ['name' => "create_{$lower}_table", '--fields' => $fields, 'module' => $name]);
         Artisan::call('module:migrate', ['module' => $name]);
-        Artisan::call('module:make-model', ['model' => $name, 'module' => $name]);
+        Artisan::call('module:make-model', ['model' => $name, 'module' => $name, '--fillable' => $fillable]);
 
-        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'datatable']);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'datatable', '--fields' => $fields]);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'repository']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'policy']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'auth-provider']);
@@ -70,4 +76,5 @@ class MakeModule extends Command
             ['fields', InputArgument::OPTIONAL, 'The fields of the module.']
         ];
     }
+
 }
