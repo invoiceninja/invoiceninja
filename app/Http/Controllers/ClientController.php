@@ -121,7 +121,7 @@ class ClientController extends BaseController
             'gatewayLink' => $token ? $token->gatewayLink() : false,
             'gatewayName' => $token ? $token->gatewayName() : false,
         ];
-        
+
         return View::make('clients.show', $data);
     }
 

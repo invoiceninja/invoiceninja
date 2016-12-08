@@ -2,14 +2,27 @@
 
 namespace $CLASS_NAMESPACE$;
 
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use App\Http\Controllers\BaseController;
+use App\Services\DatatableService;
+use Modules\$STUDLY_NAME$\Repositories\$STUDLY_NAME$Repository;
 use Modules\$STUDLY_NAME$\Datatables\$STUDLY_NAME$Datatable;
 
 class $CLASS$ extends BaseController
 {
+    protected $$STUDLY_NAME$Repo;
+    //protected $entityType = '$LOWER_NAME$';
+
+    public function __construct($STUDLY_NAME$Repository $$LOWER_NAME$Repo)
+    {
+        //parent::__construct();
+
+        $this->$LOWER_NAME$Repo = $$LOWER_NAME$Repo;
+    }
+
     /**
      * Display a listing of the resource.
      * @return Response
@@ -21,6 +34,17 @@ class $CLASS$ extends BaseController
             'datatable' => new $STUDLY_NAME$Datatable(),
             'title' => trans('texts.$LOWER_NAME$'),
         ]);
+    }
+
+    public function getDatatable(DatatableService $datatableService)
+    {
+        $search = request()->input('test');
+        $userId = Auth::user()->filterId();
+
+        $datatable = new $STUDLY_NAME$Datatable();
+        $query = $this->$LOWER_NAME$Repo->find($search, $userId);
+
+        return $datatableService->createDatatable($datatable, $query);
     }
 
     /**

@@ -12,5 +12,6 @@
     "files": [
         "start.php"
     ],
-    "icon": "th-large"
+    "icon": "th-large",
+    "plural": "$LOWER_NAME$"
 }

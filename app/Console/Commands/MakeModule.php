@@ -49,6 +49,7 @@ class MakeModule extends Command
         Artisan::call('module:make-model', ['model' => $name, 'module' => $name]);
 
         Artisan::call('ninja:make-datatable', ['name' => $name, 'module' => $name]);
+        Artisan::call('ninja:make-repository', ['name' => $name, 'module' => $name]);
     }
 
     protected function getArguments()

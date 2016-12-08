@@ -431,6 +431,12 @@ class Utils
 
     public static function pluralizeEntityType($type)
     {
+        if ( ! Utils::isNinjaProd()) {
+            if ($module = \Module::find($type)) {
+                return $module->get('plural', $type);
+            }
+        }
+
         if ($type === ENTITY_EXPENSE_CATEGORY) {
             return 'expense_categories';
         } else {

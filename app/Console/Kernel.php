@@ -25,6 +25,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\TestOFX',
         'App\Console\Commands\MakeModule',
         'App\Console\Commands\MakeDatatable',
+        'App\Console\Commands\MakeRepository',
     ];
 
     /**

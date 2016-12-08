@@ -1,0 +1,78 @@
+<?php
+
+namespace App\Ninja\Repositories;
+
+use DB;
+use App\Models\$STUDLY_NAME$;
+//use App\Events\$STUDLY_NAME$WasCreated;
+//use App\Events\$STUDLY_NAME$WasUpdated;
+
+class $STUDLY_NAME$Repository extends BaseRepository
+{
+    public function getClassName()
+    {
+        return '$NAMESPACE$\$STUDLY_NAME$';
+    }
+
+    public function find($filter = null, $userId = false)
+    {
+        $query = DB::table('$LOWER_NAME$')
+                    ->where('$LOWER_NAME$.account_id', '=', \Auth::user()->account_id)
+                    ->select(
+                        '$LOWER_NAME$.public_id',
+                        '$LOWER_NAME$.deleted_at',
+                        '$LOWER_NAME$.is_deleted',
+                        '$LOWER_NAME$.user_id'
+                    );
+
+        $this->applyFilters($query, '$LOWER_NAME$');
+
+        /*
+        if ($filter) {
+            $query->where(function ($query) use ($filter) {
+                $query->where('clients.name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%');
+            });
+        }
+
+        if ($userId) {
+            $query->where('clients.user_id', '=', $userId);
+        }
+        */
+        
+        return $query;
+    }
+
+    public function save($data, $client = null)
+    {
+        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+
+        if ($client) {
+           // do nothing
+        } elseif (!$publicId || $publicId == '-1') {
+            $client = Client::createNew();
+        } else {
+            $client = Client::scope($publicId)->with('contacts')->firstOrFail();
+        }
+
+        if ($client->is_deleted) {
+            return $client;
+        }
+
+        $client->fill($data);
+        $client->save();
+
+        /*
+        if (!$publicId || $publicId == '-1') {
+            event(new ClientWasCreated($client));
+        } else {
+            event(new ClientWasUpdated($client));
+        }
+        */
+
+        return $client;
+    }
+
+}
