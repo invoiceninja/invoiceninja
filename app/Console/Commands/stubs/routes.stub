@@ -3,5 +3,6 @@
 Route::group(['middleware' => 'auth', 'namespace' => '$MODULE_NAMESPACE$\$STUDLY_NAME$\Http\Controllers'], function()
 {
     Route::resource('$LOWER_NAME$', '$STUDLY_NAME$Controller');
+    Route::post('$LOWER_NAME$/bulk', '$STUDLY_NAME$Controller@bulk');
     Route::get('api/$LOWER_NAME$', '$STUDLY_NAME$Controller@datatable');
 });

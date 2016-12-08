@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
+use Auth;
 use Utils;
 
 /**
@@ -96,6 +97,28 @@ class BaseRepository
         if (class_exists($className)) {
             event(new $className($entity));
         }
+    }
+
+    /**
+     * @param $ids
+     * @param $action
+     * @return int
+     */
+    public function bulk($ids, $action)
+    {
+        if ( ! $ids ) {
+            return 0;
+        }
+
+        $entities = $this->findByPublicIdsWithTrashed($ids);
+
+        foreach ($entities as $entity) {
+            if (Auth::user()->can('edit', $entity)) {
+                $this->$action($entity);
+            }
+        }
+
+        return count($entities);
     }
 
     /**

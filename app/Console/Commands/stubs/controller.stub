@@ -126,4 +126,17 @@ class $CLASS$ extends BaseController
     public function destroy()
     {
     }
+
+    /**
+     * Update multiple resources
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+        $ids = request()->input('public_id') ?: request()->input('ids');
+        $count = $this->$LOWER_NAME$Repo->bulk($ids, $action);
+
+        return redirect()->to('$LOWER_NAME$')
+            ->with('message', trans('texts.' . $action . '_$LOWER_NAME$_complete'));
+    }
 }

@@ -12,7 +12,7 @@ class $STUDLY_NAME$Repository extends BaseRepository
 {
     public function getClassName()
     {
-        return '$NAMESPACE$\$STUDLY_NAME$';
+        return 'Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$';
     }
 
     public function find($filter = null, $userId = false)
