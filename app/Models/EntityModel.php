@@ -65,13 +65,12 @@ class EntityModel extends Eloquent
         // store references to the original user/account to prevent needing to reload them
         $entity->setRelation('user', $user);
         $entity->setRelation('account', $account);
-
+        
         if (method_exists($className, 'trashed')){
             $lastEntity = $className::whereAccountId($entity->account_id)->withTrashed();
         } else {
             $lastEntity = $className::whereAccountId($entity->account_id);
         }
-
 
         if (static::$hasPublicId) {
             $lastEntity = $lastEntity->orderBy('public_id', 'DESC')

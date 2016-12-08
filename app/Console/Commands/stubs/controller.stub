@@ -53,7 +53,14 @@ class $CLASS$ extends BaseController
      */
     public function create()
     {
-        return view('$LOWER_NAME$::create');
+        $data = [
+            '$LOWER_NAME$' => null,
+            'method' => 'POST',
+            'url' => '$LOWER_NAME$',
+            'title' => trans('texts.new_$LOWER_NAME$'),
+        ];
+
+        return view('$LOWER_NAME$::edit', $data);
     }
 
     /**
@@ -63,6 +70,11 @@ class $CLASS$ extends BaseController
      */
     public function store(Request $request)
     {
+        $client = $this->$LOWER_NAME$Repo->save($request->input());
+
+        Session::flash('message', trans('texts.created_$LOWER_NAME$'));
+
+        return redirect()->to($$LOWER_NAME$->getRoute());
     }
 
     /**

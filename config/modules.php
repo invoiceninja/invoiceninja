@@ -29,7 +29,7 @@ return [
             'start' => 'start.php',
             'routes' => 'Http/routes.php',
             'json' => 'module.json',
-            'views/index' => 'Resources/views/index.blade.php',
+            'views/edit' => 'Resources/views/edit.blade.php',
             'views/master' => 'Resources/views/layouts/master.blade.php',
             'scaffold/config' => 'Config/config.php',
             'composer' => 'composer.json',
@@ -38,7 +38,7 @@ return [
             'start' => ['LOWER_NAME'],
             'routes' => ['LOWER_NAME', 'STUDLY_NAME', 'MODULE_NAMESPACE'],
             'json' => ['LOWER_NAME', 'STUDLY_NAME', 'MODULE_NAMESPACE'],
-            'views/index' => ['LOWER_NAME'],
+            'views/edit' => ['LOWER_NAME'],
             'views/master' => ['STUDLY_NAME'],
             'scaffold/config' => ['STUDLY_NAME'],
             'composer' => [

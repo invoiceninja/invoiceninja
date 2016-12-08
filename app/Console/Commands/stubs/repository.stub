@@ -3,7 +3,7 @@
 namespace $NAMESPACE$;
 
 use DB;
-use App\Models\$STUDLY_NAME$;
+use Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$;
 use App\Ninja\Repositories\BaseRepository;
 //use App\Events\$STUDLY_NAME$WasCreated;
 //use App\Events\$STUDLY_NAME$WasUpdated;
@@ -46,24 +46,18 @@ class $STUDLY_NAME$Repository extends BaseRepository
         return $query;
     }
 
-    public function save($data, $client = null)
+    public function save($data, $$LOWER_NAME$ = null)
     {
-        $publicId = isset($data['public_id']) ? $data['public_id'] : false;
+        $entity = $$LOWER_NAME$ ?: $STUDLY_NAME$::createNew();
 
-        if ($client) {
-           // do nothing
-        } elseif (!$publicId || $publicId == '-1') {
-            $client = Client::createNew();
-        } else {
-            $client = Client::scope($publicId)->with('contacts')->firstOrFail();
+        /*
+        if ($entity->is_deleted) {
+            return $entity;
         }
+        */
 
-        if ($client->is_deleted) {
-            return $client;
-        }
-
-        $client->fill($data);
-        $client->save();
+        $entity->fill($data);
+        $entity->save();
 
         /*
         if (!$publicId || $publicId == '-1') {
@@ -73,7 +67,7 @@ class $STUDLY_NAME$Repository extends BaseRepository
         }
         */
 
-        return $client;
+        return $entity;
     }
 
 }

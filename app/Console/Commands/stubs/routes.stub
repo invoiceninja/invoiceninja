@@ -1,11 +1,7 @@
 <?php
 
-Route::group(['middleware' => 'auth', 'prefix' => '$LOWER_NAME$', 'namespace' => '$MODULE_NAMESPACE$\$STUDLY_NAME$\Http\Controllers'], function()
-{
-    Route::get('/', '$STUDLY_NAME$Controller@index');
-});
-
 Route::group(['middleware' => 'auth', 'namespace' => '$MODULE_NAMESPACE$\$STUDLY_NAME$\Http\Controllers'], function()
 {
+    Route::resource('$LOWER_NAME$', '$STUDLY_NAME$Controller');
     Route::get('api/$LOWER_NAME$', '$STUDLY_NAME$Controller@getDatatable');
 });

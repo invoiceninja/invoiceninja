@@ -17,4 +17,6 @@ class $CLASS$ extends EntityModel
     protected $presenter = 'App\Ninja\Presenters\$CLASS$Presenter';
 
     protected $fillable = $FILLABLE$;
+
+    protected $table = '$LOWER_NAME$';
 }
