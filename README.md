@@ -61,9 +61,10 @@ Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to get
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
-## API
-* [API Documentation](https://www.invoiceninja.com/api-documentation/)
+## Development
+* [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html)
 * [PHP SDK](https://github.com/invoiceninja/sdk-php)
+* [API Documentation](https://www.invoiceninja.com/api-documentation/)
 
 ## Contributing
 All contributors are welcome!  
