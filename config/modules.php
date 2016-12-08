@@ -115,6 +115,7 @@ return [
             'notifications' => 'Notifications',
             'datatable' => 'Datatables',
             'policy' => 'Policies',
+            'auth-provider' => 'AuthProviders',
         ],
     ],
     /*
