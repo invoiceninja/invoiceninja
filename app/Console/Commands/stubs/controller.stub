@@ -36,7 +36,7 @@ class $CLASS$ extends BaseController
         ]);
     }
 
-    public function getDatatable(DatatableService $datatableService)
+    public function datatable(DatatableService $datatableService)
     {
         $search = request()->input('test');
         $userId = Auth::user()->filterId();
@@ -70,20 +70,37 @@ class $CLASS$ extends BaseController
      */
     public function store(Request $request)
     {
-        $client = $this->$LOWER_NAME$Repo->save($request->input());
+        $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input());
 
-        Session::flash('message', trans('texts.created_$LOWER_NAME$'));
-
-        return redirect()->to($$LOWER_NAME$->getRoute());
+        return redirect()->to($$LOWER_NAME$->present()->editUrl)
+            ->with('message', trans('texts.created_$LOWER_NAME$'));
     }
 
     /**
      * Show the form for editing the specified resource.
      * @return Response
      */
-    public function edit()
+    public function edit($STUDLY_NAME$Request $request)
     {
-        return view('$LOWER_NAME$::edit');
+        $$LOWER_NAME$ = $request->entity();
+
+        $data = [
+            '$LOWER_NAME$' => $$LOWER_NAME$,
+            'method' => 'PUT',
+            'url' => '$LOWER_NAME$/' . $$LOWER_NAME$->public_id,
+            'title' => trans('texts.edit_$LOWER_NAME$'),
+        ];
+
+        return view('$LOWER_NAME$::edit', $data);
+    }
+
+    /**
+     * Show the form for editing a resource.
+     * @return Response
+     */
+    public function show(Request $request)
+    {
+        return redirect()->to("$LOWER_NAME$/{$request->$LOWER_NAME$}/edit");
     }
 
     /**

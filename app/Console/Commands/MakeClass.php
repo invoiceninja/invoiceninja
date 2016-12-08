@@ -34,18 +34,20 @@ class MakeClass extends GeneratorCommand
     protected function getArguments()
     {
         return [
-            ['name', InputArgument::REQUIRED, 'The name of the datatable.'],
+            ['name', InputArgument::REQUIRED, 'The name of the module.'],
             ['module', InputArgument::REQUIRED, 'The name of module will be used.'],
             ['class', InputArgument::REQUIRED, 'The name of the class.'],
+            ['prefix', InputArgument::OPTIONAL, 'The prefix of the class.'],
         ];
     }
 
     public function getTemplateContents()
     {
         $module = $this->laravel['modules']->findOrFail($this->getModuleName());
+        $path = str_replace('/', '\\', config('modules.paths.generator.' . $this->argument('class')));
 
-        return (new Stub('/' . $this->argument('class') . '.stub', [
-            'NAMESPACE' => $this->getClassNamespace($module) . "\\" . config('modules.paths.generator.' . $this->argument('class')),
+        return (new Stub('/' . $this->argument('prefix') . $this->argument('class') . '.stub', [
+            'NAMESPACE' => $this->getClassNamespace($module) . "\\" . $path,
             'LOWER_NAME' => $module->getLowerName(),
             'CLASS' => $this->getClass(),
             'STUDLY_NAME' => Str::studly($module->getLowerName()),
@@ -65,7 +67,7 @@ class MakeClass extends GeneratorCommand
      */
     protected function getFileName()
     {
-        return studly_case($this->argument('name')) . Str::studly($this->argument('class'));
+        return studly_case($this->argument('prefix')) . studly_case($this->argument('name')) . Str::studly($this->argument('class'));
     }
 
 }

@@ -116,6 +116,7 @@ return [
             'datatable' => 'Datatables',
             'policy' => 'Policies',
             'auth-provider' => 'AuthProviders',
+            'presenter' => 'Presenters',
         ],
     ],
     /*

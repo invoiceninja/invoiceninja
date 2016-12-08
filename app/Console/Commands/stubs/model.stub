@@ -14,9 +14,21 @@ class $CLASS$ extends EntityModel
     /**
      * @var string
      */
-    protected $presenter = 'App\Ninja\Presenters\$CLASS$Presenter';
+    protected $presenter = 'Modules\$CLASS$\Presenters\$CLASS$Presenter';
 
+    /**
+     * @var string
+     */
     protected $fillable = $FILLABLE$;
 
+    /**
+     * @var string
+     */
     protected $table = '$LOWER_NAME$';
+
+    public function getEntityType()
+    {
+        return '$LOWER_NAME$';
+    }
+
 }
