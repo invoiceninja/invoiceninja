@@ -23,8 +23,8 @@ return [
     */
 
     'stubs' => [
-        'enabled' => false,
-        'path' => base_path() . '/vendor/nwidart/laravel-modules/src/Commands/stubs',
+        'enabled' => true,
+        'path' => base_path() . '/storage/stubs',
         'files' => [
             'start' => 'start.php',
             'routes' => 'Http/routes.php',
@@ -100,7 +100,7 @@ return [
             'event' => 'Events',
             'listener' => 'Events/Handlers',
             'migration' => 'Database/Migrations',
-            'model' => 'Entities',
+            'model' => 'Models',
             'repository' => 'Repositories',
             'seeder' => 'Database/Seeders',
             'controller' => 'Http/Controllers',
@@ -113,6 +113,7 @@ return [
             'jobs' => 'Jobs',
             'emails' => 'Emails',
             'notifications' => 'Notifications',
+            'datatables' => 'Datatables',
         ],
     ],
     /*
@@ -141,10 +142,10 @@ return [
     */
 
     'composer' => [
-        'vendor' => 'nwidart',
+        'vendor' => 'invoiceninja',
         'author' => [
-            'name' => 'Nicolas Widart',
-            'email' => 'n.widart@gmail.com',
+            'name' => 'Hillel Coren',
+            'email' => 'contact@invoiceninja.com',
         ],
     ],
     /*

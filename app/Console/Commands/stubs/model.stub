@@ -1,0 +1,20 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use App\Models\EntityModel;
+use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class $CLASS$ extends EntityModel
+{
+    use PresentableTrait;
+    use SoftDeletes;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\$CLASS$Presenter';
+
+    protected $fillable = $FILLABLE$;
+}

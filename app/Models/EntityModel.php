@@ -193,6 +193,12 @@ class EntityModel extends Eloquent
      */
     public static function getClassName($entityType)
     {
+        if ( ! Utils::isNinjaProd()) {
+            if ($module = \Module::find($entityType)) {
+                return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
+            }
+        }
+
         if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) {
             $entityType = ENTITY_INVOICE;
         }
