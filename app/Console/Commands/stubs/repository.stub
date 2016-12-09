@@ -37,18 +37,13 @@ class $STUDLY_NAME$Repository extends BaseRepository
 
         $this->applyFilters($query, '$LOWER_NAME$');
 
-        /*
-        if ($filter) {
-            $query->where(function ($query) use ($filter) {
-                $query->where('clients.name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
-                      ->orWhere('contacts.email', 'like', '%'.$filter.'%');
-            });
-        }
-
         if ($userId) {
             $query->where('clients.user_id', '=', $userId);
+        }
+
+        /*
+        if ($filter) {
+            $query->where();
         }
         */
 
@@ -58,12 +53,6 @@ class $STUDLY_NAME$Repository extends BaseRepository
     public function save($data, $$LOWER_NAME$ = null)
     {
         $entity = $$LOWER_NAME$ ?: $STUDLY_NAME$::createNew();
-
-        /*
-        if ($entity->is_deleted) {
-            return $entity;
-        }
-        */
 
         $entity->fill($data);
         $entity->save();

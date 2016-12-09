@@ -12,7 +12,7 @@ class MakeModule extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:make-module {name} {fields?}';
+    protected $signature = 'ninja:make-module {name} {fields?} {--migrate=}';
 
     /**
      * The console command description.
@@ -40,6 +40,7 @@ class MakeModule extends Command
     {
         $name = $this->argument('name');
         $fields = $this->argument('fields');
+        $migrate = $this->option('migrate');
         $lower = strtolower($name);
 
         // convert 'name:string,description:text' to 'name,description'
@@ -53,7 +54,6 @@ class MakeModule extends Command
 
         Artisan::call('module:make', ['name' => [$name]]);
         Artisan::call('module:make-migration', ['name' => "create_{$lower}_table", '--fields' => $fields, 'module' => $name]);
-        Artisan::call('module:migrate', ['module' => $name]);
         Artisan::call('module:make-model', ['model' => $name, 'module' => $name, '--fillable' => $fillable]);
 
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'views', '--fields' => $fields, '--filename' => 'edit.blade']);
@@ -68,6 +68,12 @@ class MakeModule extends Command
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'api-controller']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'transformer', '--fields' => $fields]);
 
+        if ($migrate) {
+            Artisan::call('module:migrate', ['module' => $name]);
+        } else {
+            $this->info("Use the following command to run the migrations:\nphp artisan module:migrate $name");
+        }
+
         Artisan::call('module:dump');
     }
 
@@ -77,6 +83,13 @@ class MakeModule extends Command
             ['name', InputArgument::REQUIRED, 'The name of the module.'],
             ['fields', InputArgument::OPTIONAL, 'The fields of the module.']
         ];
+    }
+
+    protected function getOptions()
+    {
+        return array(
+            array('migrate', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null),
+        );
     }
 
 }

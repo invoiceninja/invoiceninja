@@ -7,7 +7,7 @@
             <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
         </a>
 
-    @elseif (Auth::user()->can('create', substr($option, 0, -1)))
+    @elseif (Auth::user()->can('create', $option) || Auth::user()->can('create', substr($option, 0, -1)))
 
         <a type="button" class="btn btn-primary btn-sm pull-right"
             href="{{ url("/{$option}/create") }}">
