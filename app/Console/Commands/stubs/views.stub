@@ -44,4 +44,14 @@
 
     {!! Former::close() !!}
 
+
+    <script type="text/javascript">
+
+        $(function() {
+            $(".warn-on-exit input").first().focus();
+        })
+
+    </script>
+    
+
 @stop
