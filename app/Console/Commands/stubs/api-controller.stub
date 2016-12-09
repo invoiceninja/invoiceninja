@@ -2,9 +2,6 @@
 
 namespace $NAMESPACE$;
 
-//use Response;
-//use Input;
-//use App\Models\$STUDLY_NAME$;
 use App\Http\Controllers\BaseAPIController;
 use Modules\$STUDLY_NAME$\Repositories\$STUDLY_NAME$Repository;
 use Modules\$STUDLY_NAME$\Http\Requests\$STUDLY_NAME$Request;
@@ -127,8 +124,6 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
             return $this->handleAction($request);
         }
 
-        //$data = $request->input();
-        //$data['public_id'] = $publicId;
         $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input(), $request->entity());
 
         return $this->itemResponse($$LOWER_NAME$);

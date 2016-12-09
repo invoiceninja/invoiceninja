@@ -495,50 +495,22 @@
                 'tasks',
                 'expenses',
                 'vendors',
-                'settings',
             ] as $option)
                 @if (in_array($option, ['dashboard', 'settings'])
                     || Auth::user()->can('view', substr($option, 0, -1))
                     || Auth::user()->can('create', substr($option, 0, -1)))
-                <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
-                    @if ($option == 'settings')
-                        <a type="button" class="btn btn-default btn-sm pull-right"
-                            href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">
-                            <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
-                        </a>
-                    @elseif ($option != 'dashboard')
-                        @if (Auth::user()->can('create', substr($option, 0, -1)))
-                            <a type="button" class="btn btn-primary btn-sm pull-right"
-                                href="{{ url("/{$option}/create") }}">
-                                <i class="fa fa-plus-circle" style="width:20px" title="{{ trans('texts.create_new') }}"></i>
-                            </a>
-                        @endif
-                    @endif
-                    <a href="{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}"
-                        style="font-size:16px; padding-top:6px; padding-bottom:6px"
-                        class="{{ Request::is("{$option}*") ? 'active' : '' }}">
-                        <i class="fa fa-{{ \App\Models\EntityModel::getIcon($option) }}" style="width:46px; padding-right:10px"></i>
-                        {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
-                        {!! Utils::isTrial() && in_array($option, ['quotes', 'tasks', 'expenses', 'vendors']) ? '&nbsp;<sup>' . trans('texts.pro') . '</sup>' : '' !!}
-                        @if (false && $option == 'self-update' && Updater::source()->isNewVersionAvailable('v'.NINJA_VERSION))
-                            <span class="badge alert-danger">1</span>
-                        @endif
-                    </a>
-                </li>
+                    @include('partials.navigation_option')
                 @endif
             @endforeach
             @if ( ! Utils::isNinjaProd())
                 @foreach (Module::all() as $module)
-                    <li class="{{ Request::is("{$module->getAlias()}*") ? 'active' : '' }}">
-                        <a href="{{ url($module->getAlias()) }}"
-                            style="font-size:16px; padding-top:6px; padding-bottom:6px"
-                            class="{{ Request::is("{$module->getAlias()}*") ? 'active' : '' }}">
-                            <i class="fa fa-{{ $module->get('icon', 'th-large') }}" style="width:46px; padding-right:10px"></i>
-                            {{ $module->getName() }}
-                        </a>
-                    </li>
+                    @include('partials.navigation_option', [
+                        'option' => $module->getAlias(),
+                        'icon' => $module->get('icon', 'th-large'),
+                    ])
                 @endforeach
             @endif
+            @include('partials.navigation_option', ['option' => 'settings'])
         </ul>
     </div>
     <!-- /#left-sidebar-wrapper -->

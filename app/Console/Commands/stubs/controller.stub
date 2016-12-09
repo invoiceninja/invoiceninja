@@ -3,9 +3,6 @@
 namespace $CLASS_NAMESPACE$;
 
 use Auth;
-//use Illuminate\Http\Request;
-//use Illuminate\Http\Response;
-//use Illuminate\Routing\Controller;
 use App\Http\Controllers\BaseController;
 use App\Services\DatatableService;
 use Modules\$STUDLY_NAME$\Datatables\$STUDLY_NAME$Datatable;
@@ -117,14 +114,6 @@ class $CLASS$ extends BaseController
 
         return redirect()->to($$LOWER_NAME$->present()->editUrl)
             ->with('message', trans('texts.updated_$LOWER_NAME$'));
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     * @return Response
-     */
-    public function destroy()
-    {
     }
 
     /**

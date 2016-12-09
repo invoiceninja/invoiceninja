@@ -26,6 +26,7 @@ class $STUDLY_NAME$Transformer extends EntityTransformer
     public function transform($STUDLY_NAME$ $$LOWER_NAME$)
     {
         return array_merge($this->getDefaults($$LOWER_NAME$), [
+            $TRANSFORMER_FIELDS$
             'id' => (int) $$LOWER_NAME$->public_id,
             'updated_at' => $this->getTimestamp($$LOWER_NAME$->updated_at),
             'archived_at' => $this->getTimestamp($$LOWER_NAME$->deleted_at),

@@ -68,6 +68,7 @@ class MakeClass extends GeneratorCommand
             'DATATABLE_COLUMNS' => $this->getColumns(),
             'FORM_FIELDS' => $this->getFormFields(),
             'DATABASE_FIELDS' => $this->getDatabaseFields($module),
+            'TRANSFORMER_FIELDS' => $this->getTransformerFields($module),
         ]))->render();
     }
 
@@ -136,5 +137,20 @@ class MakeClass extends GeneratorCommand
         }
 
         return $str;
+    }
+
+    protected function getTransformerFields($module)
+    {
+        $fields = $this->option('fields');
+        $fields = explode(',', $fields);
+        $str = '';
+
+        foreach ($fields as $field) {
+            $field = explode(':', $field)[0];
+            $str .= "'{$field}' => $" . $module->getLowerName() . "->$field,\n            ";
+        }
+
+        return rtrim($str);
+
     }
 }
