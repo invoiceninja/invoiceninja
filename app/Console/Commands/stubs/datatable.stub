@@ -29,7 +29,7 @@ class $CLASS$Datatable extends EntityDatatable
     {
         return [
             [
-                trans('texts.edit_$LOWER_NAME$'),
+                mtrans('$LOWER_NAME$', 'edit_$LOWER_NAME$'),
                 function ($model) {
                     return URL::to("$LOWER_NAME$/{$model->public_id}/edit");
                 },

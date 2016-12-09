@@ -32,7 +32,7 @@ class $CLASS$ extends BaseController
         return view('list_wrapper', [
             'entityType' => '$LOWER_NAME$',
             'datatable' => new $STUDLY_NAME$Datatable(),
-            'title' => trans('texts.$LOWER_NAME$'),
+            'title' => mtrans('$LOWER_NAME$', '$LOWER_NAME$_list'),
         ]);
     }
 
@@ -57,7 +57,7 @@ class $CLASS$ extends BaseController
             '$LOWER_NAME$' => null,
             'method' => 'POST',
             'url' => '$LOWER_NAME$',
-            'title' => trans('texts.new_$LOWER_NAME$'),
+            'title' => mtrans('$LOWER_NAME$', 'new_$LOWER_NAME$'),
         ];
 
         return view('$LOWER_NAME$::edit', $data);
@@ -73,7 +73,7 @@ class $CLASS$ extends BaseController
         $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input());
 
         return redirect()->to($$LOWER_NAME$->present()->editUrl)
-            ->with('message', trans('texts.created_$LOWER_NAME$'));
+            ->with('message', mtrans('$LOWER_NAME$', 'created_$LOWER_NAME$'));
     }
 
     /**
@@ -88,7 +88,7 @@ class $CLASS$ extends BaseController
             '$LOWER_NAME$' => $$LOWER_NAME$,
             'method' => 'PUT',
             'url' => '$LOWER_NAME$/' . $$LOWER_NAME$->public_id,
-            'title' => trans('texts.edit_$LOWER_NAME$'),
+            'title' => mtrans('$LOWER_NAME$', 'edit_$LOWER_NAME$'),
         ];
 
         return view('$LOWER_NAME$::edit', $data);
@@ -113,7 +113,7 @@ class $CLASS$ extends BaseController
         $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input(), $request->entity());
 
         return redirect()->to($$LOWER_NAME$->present()->editUrl)
-            ->with('message', trans('texts.updated_$LOWER_NAME$'));
+            ->with('message', mtrans('$LOWER_NAME$', 'updated_$LOWER_NAME$'));
     }
 
     /**
@@ -126,6 +126,6 @@ class $CLASS$ extends BaseController
         $count = $this->$LOWER_NAME$Repo->bulk($ids, $action);
 
         return redirect()->to('$LOWER_NAME$')
-            ->with('message', trans('texts.' . $action . '_$LOWER_NAME$_complete'));
+            ->with('message', mtrans('$LOWER_NAME$', $action . '_$LOWER_NAME$_complete'));
     }
 }

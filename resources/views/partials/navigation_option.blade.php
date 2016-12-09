@@ -20,7 +20,7 @@
         style="font-size:16px; padding-top:6px; padding-bottom:6px"
         class="{{ Request::is("{$option}*") ? 'active' : '' }}">
         <i class="fa fa-{{ empty($icon) ? \App\Models\EntityModel::getIcon($option) : $icon }}" style="width:46px; padding-right:10px"></i>
-        {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : mtrans($option, $option) }}
+        {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : mtrans($option) }}
         {!! Utils::isTrial() && in_array($option, ['quotes', 'tasks', 'expenses', 'vendors']) ? '&nbsp;<sup>' . trans('texts.pro') . '</sup>' : '' !!}
     </a>
 

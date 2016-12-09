@@ -117,16 +117,16 @@ class DatatableService
 
                 if (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit) {
                     $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('archive', {$model->public_id})\">"
-                            . trans("texts.archive_{$datatable->entityType}") . '</a></li>';
+                            . mtrans($datatable->entityType, "archive_{$datatable->entityType}") . '</a></li>';
                 }
             } else if($can_edit) {
                 $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('restore', {$model->public_id})\">"
-                    . trans("texts.restore_{$datatable->entityType}") . '</a></li>';
+                    . mtrans($datatable->entityType, "restore_{$datatable->entityType}") . '</a></li>';
             }
 
             if (property_exists($model, 'is_deleted') && !$model->is_deleted && $can_edit) {
                 $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('delete', {$model->public_id})\">"
-                        . trans("texts.delete_{$datatable->entityType}") . '</a></li>';
+                        . mtrans($datatable->entityType, "delete_{$datatable->entityType}") . '</a></li>';
             }
 
             if (!empty($dropdown_contents)) {

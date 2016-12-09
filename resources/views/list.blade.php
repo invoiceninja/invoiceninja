@@ -18,8 +18,8 @@
 	@endcan
 
 	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
-		      ['label' => trans('texts.archive_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("archive")'],
-		      ['label' => trans('texts.delete_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("delete")'],
+		      ['label' => mtrans($entityType, 'archive_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("archive")'],
+		      ['label' => mtrans($entityType, 'delete_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("delete")'],
 		    ])->withAttributes(['class'=>'archive'])->split() !!}
 
 	&nbsp;
@@ -56,7 +56,7 @@
     @endif
 
 	@if (Auth::user()->can('create', $entityType))
-    	{!! Button::primary(trans("texts.new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create/' . (isset($clientId) ? $clientId : '')))->appendIcon(Icon::create('plus-sign')) !!}
+    	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create/' . (isset($clientId) ? $clientId : '')))->appendIcon(Icon::create('plus-sign')) !!}
 	@endif
 
 </div>

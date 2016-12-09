@@ -909,9 +909,13 @@ if (!defined('CONTACT_EMAIL')) {
         }
     }
 
-    // include modules in translations 
-    function mtrans($entityType, $text)
+    // include modules in translations
+    function mtrans($entityType, $text = false)
     {
+        if ( ! $text) {
+            $text = $entityType;
+        }
+        
         if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
             return trans("{$module->getLowerName()}::texts.{$text}");
         } else {
