@@ -15,6 +15,13 @@ class $STUDLY_NAME$Repository extends BaseRepository
         return 'Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$';
     }
 
+    public function all()
+    {
+        return $STUDLY_NAME$::scope()
+                ->orderBy('created_at', 'desc')
+                ->withTrashed();
+    }
+
     public function find($filter = null, $userId = false)
     {
         $query = DB::table('$LOWER_NAME$')

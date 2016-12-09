@@ -3,13 +3,13 @@
 namespace $CLASS_NAMESPACE$;
 
 use Auth;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Illuminate\Routing\Controller;
+//use Illuminate\Http\Request;
+//use Illuminate\Http\Response;
+//use Illuminate\Routing\Controller;
 use App\Http\Controllers\BaseController;
 use App\Services\DatatableService;
-use Modules\$STUDLY_NAME$\Repositories\$STUDLY_NAME$Repository;
 use Modules\$STUDLY_NAME$\Datatables\$STUDLY_NAME$Datatable;
+use Modules\$STUDLY_NAME$\Repositories\$STUDLY_NAME$Repository;
 use Modules\$STUDLY_NAME$\Http\Requests\$STUDLY_NAME$Request;
 use Modules\$STUDLY_NAME$\Http\Requests\Create$STUDLY_NAME$Request;
 use Modules\$STUDLY_NAME$\Http\Requests\Update$STUDLY_NAME$Request;

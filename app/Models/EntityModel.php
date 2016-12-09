@@ -65,7 +65,7 @@ class EntityModel extends Eloquent
         // store references to the original user/account to prevent needing to reload them
         $entity->setRelation('user', $user);
         $entity->setRelation('account', $account);
-        
+
         if (method_exists($className, 'trashed')){
             $lastEntity = $className::whereAccountId($entity->account_id)->withTrashed();
         } else {
@@ -211,6 +211,12 @@ class EntityModel extends Eloquent
      */
     public static function getTransformerName($entityType)
     {
+        if ( ! Utils::isNinjaProd()) {
+            if ($module = \Module::find($entityType)) {
+                return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
+            }
+        }
+
         return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
     }
 
