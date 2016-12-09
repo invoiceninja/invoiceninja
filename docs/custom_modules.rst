@@ -3,6 +3,8 @@ Custom Modules
 
 Invoice Ninja support customs modules using https://github.com/nWidart/laravel-modules
 
+.. Note:: This currently requires using the develop branch
+
 Install Module
 """"""""""""""
 
