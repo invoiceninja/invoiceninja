@@ -2,9 +2,10 @@
 
 namespace $NAMESPACE$;
 
-use Illuminate\Support\ServiceProvider;
+use App\Providers\AuthServiceProvider;
+use Illuminate\Contracts\Auth\Access\Gate as GateContract;
 
-class $CLASS$ extends ServiceProvider
+class $CLASS$ extends AuthServiceProvider
 {
     /**
      * Indicates if loading of the provider is deferred.
@@ -14,12 +15,23 @@ class $CLASS$ extends ServiceProvider
     protected $defer = false;
 
     /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [
+        \Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$::class => \Modules\$STUDLY_NAME$\Policies\$STUDLY_NAME$Policy::class,
+    ];
+
+    /**
      * Boot the application events.
      *
      * @return void
      */
-    public function boot()
+    public function boot(GateContract $gate)
     {
+        parent::boot($gate);
+        
         $this->registerTranslations();
         $this->registerConfig();
         $this->registerViews();

@@ -113,7 +113,6 @@ return [
             'notifications' => 'Notifications',
             'datatable' => 'Datatables',
             'policy' => 'Policies',
-            'auth-provider' => 'AuthProviders',
             'presenter' => 'Presenters',
             'api-controller' => 'Http/ApiControllers',
             'transformer' => 'Transformers',
