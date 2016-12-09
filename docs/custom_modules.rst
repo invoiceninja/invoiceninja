@@ -28,7 +28,7 @@ You can check the current module status with:
 Create Module
 """""""""""""
 
-Run the following command to create a module:
+Run the following command to create a CRUD module:
 
 .. code-block:: php
 
