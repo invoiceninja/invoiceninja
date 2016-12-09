@@ -67,6 +67,7 @@ class MakeModule extends Command
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'request', 'prefix' => 'update']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'api-controller']);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'transformer', '--fields' => $fields]);
+        Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'lang', '--filename' => 'texts']);
 
         if ($migrate) {
             Artisan::call('module:migrate', ['module' => $name]);

@@ -908,6 +908,16 @@ if (!defined('CONTACT_EMAIL')) {
             return $string != $english ? $string : '';
         }
     }
+
+    // include modules in translations 
+    function mtrans($entityType, $text)
+    {
+        if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
+            return trans("{$module->getLowerName()}::texts.{$text}");
+        } else {
+            return trans("texts.{$text}");
+        }
+    }
 }
 
 

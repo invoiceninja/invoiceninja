@@ -105,7 +105,7 @@ return [
             'filter' => 'Http/Middleware',
             'request' => 'Http/Requests',
             'provider' => 'Providers',
-            'lang' => 'Resources/lang',
+            'lang' => 'Resources/lang/en',
             'views' => 'Resources/views',
             'test' => 'Tests',
             'jobs' => 'Jobs',

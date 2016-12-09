@@ -1,0 +1,10 @@
+<?php
+
+$LANG = array(
+
+    '$LOWER_NAME$' => '$STUDLY_NAME$',
+);
+
+return $LANG;
+
+?>
