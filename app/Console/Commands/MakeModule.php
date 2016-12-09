@@ -50,7 +50,7 @@ class MakeModule extends Command
         }, $fillable);
         $fillable = join(',', $fillable);
 
-        $this->info("Creating module: {$name}");
+        $this->info("Creating module: {$name}...");
 
         Artisan::call('module:make', ['name' => [$name]]);
         Artisan::call('module:make-migration', ['name' => "create_{$lower}_table", '--fields' => $fields, 'module' => $name]);
@@ -76,6 +76,8 @@ class MakeModule extends Command
         }
 
         Artisan::call('module:dump');
+
+        $this->info("Done");
     }
 
     protected function getArguments()

@@ -19,7 +19,7 @@ class $CLASS$Datatable extends EntityDatatable
             [
                 'created_at',
                 function ($model) {
-                    return Utils::timestampToDateString(strtotime($model->created_at));
+                    return Utils::fromSqlDateTime($model->created_at);
                 }
             ],
         ];

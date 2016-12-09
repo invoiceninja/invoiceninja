@@ -117,9 +117,18 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            $field = explode(':', $field)[0];
-            $str .= '{!! Former::text(\''. $field . '\') !!}
-            ';
+            if ( ! $field) {
+                continue;
+            }
+            $parts = explode(':', $field);
+            $field = $parts[0];
+            $type = $parts[1];
+
+            if ($type == 'text') {
+                $str .= "{!! Former::textarea('" . $field . "') !!}\n";
+            } else {
+                $str .= "{!! Former::text('" . $field . "') !!}\n";
+            }
         }
 
         return $str;
