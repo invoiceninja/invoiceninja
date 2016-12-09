@@ -32,9 +32,19 @@ Run the following command to create a module:
 
 .. code-block:: php
 
-    php artisan module:make <module>
+    php artisan ninja:make-module Inventory 'name:string,description:text'
 
-.. Note:: To use the standard app layout change the top of Modules/<module>/Resources/views/index.blade.php to ``@extends('header')``
+You can make adjustments to the migration file and then run:
+
+.. code-block:: php
+
+    php artisan module:migrate Inventory
+
+To create and migrate in one step add ``--migrate=true``
+
+.. code-block:: php
+
+    php artisan ninja:make-module Inventory 'name:string,description:text' --migrate=true
 
 .. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in modules.json.
 
