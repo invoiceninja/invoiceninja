@@ -314,6 +314,7 @@ function InvoiceModel(data) {
         for(var p=0; p < self.invoice_items().length; ++p) {
             var item = self.invoice_items()[p];
             total += item.totals.rawTotal();
+            total = roundToTwo(total);
         }
         return total;
     });
