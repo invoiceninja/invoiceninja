@@ -82,10 +82,15 @@
 </div>
 
 <script type="text/javascript">
+
+    function showKeyboardShortcuts() {
+        $('#helpModal').modal('show');
+    }
+
     $(function() {
 
         Mousetrap.bind('?', function(e) {
-            $('#helpModal').modal('show');
+            showKeyboardShortcuts();
         });
 
         Mousetrap.bind('/', function(e) {

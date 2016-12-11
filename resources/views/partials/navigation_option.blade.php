@@ -4,7 +4,7 @@
 
         <a type="button" class="btn btn-default btn-sm pull-right" title="{{ Utils::getReadableUrl(request()->path()) }}"
             href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">
-            <i class="fa fa-question-circle" style="width:20px"></i>
+            <i class="fa fa-info-circle" style="width:20px"></i>
         </a>
 
     @elseif (Auth::user()->can('create', $option) || Auth::user()->can('create', substr($option, 0, -1)))

@@ -167,6 +167,10 @@
         text-overflow: ellipsis;
     }
 
+    .sidebar-nav li div.nav-footer {
+        text-indent: 16px;
+    }
+
     .sidebar-nav li div.nav-footer i {
         color:#ccc !important;
     }

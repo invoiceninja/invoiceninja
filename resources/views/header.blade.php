@@ -517,15 +517,18 @@
                         <i class="fa fa-envelope"></i>
                     </a>
                     <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
+                        <i class="fa fa-list-ul"></i>
+                    </a>
+                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.keyboard_shortcuts') }}">
                         <i class="fa fa-question-circle"></i>
                     </a>
-                    <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="">
+                    <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="Facebook">
                         <i class="fa fa-facebook-square"></i>
                     </a>
-                    <a href="{{ url(SOCIAL_LINK_TWITTER) }}" target="_blank" title="">
+                    <a href="{{ url(SOCIAL_LINK_TWITTER) }}" target="_blank" title="Twitter">
                         <i class="fa fa-twitter-square"></i>
                     </a>
-                    <a href="{{ url(SOCIAL_LINK_GITHUB) }}" target="_blank" title="">
+                    <a href="{{ url(SOCIAL_LINK_GITHUB) }}" target="_blank" title="GitHub">
                         <i class="fa fa-github-square"></i>
                     </a>
                 </div>
