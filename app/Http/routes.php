@@ -652,6 +652,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
     define('SOCIAL_LINK_GITHUB', env('SOCIAL_LINK_GITHUB', 'https://github.com/invoiceninja/invoiceninja/'));
 
+    define('NINJA_FORUM_URL', env('NINJA_FORUM_URL', 'https://www.invoiceninja.com/forums/forum/support/'));
+    define('NINJA_CONTACT_URL', env('NINJA_CONTACT_URL', 'https://www.invoiceninja.com/contact/'));
     define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
     define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
     define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
@@ -915,7 +917,7 @@ if (!defined('CONTACT_EMAIL')) {
         if ( ! $text) {
             $text = $entityType;
         }
-        
+
         if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
             return trans("{$module->getLowerName()}::texts.{$text}");
         } else {

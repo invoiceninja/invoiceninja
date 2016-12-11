@@ -2264,6 +2264,9 @@ $LANG = array(
     'new_...' => 'New ...',
     'list_...' => 'List ...',
     'created_at' => 'Created',
+    'contact_us' => 'Contact Us',
+    'support_forum' => 'Support Forum',
+    'user_guide' => 'User Guide',
 
 );
 

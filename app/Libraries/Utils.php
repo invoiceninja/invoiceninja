@@ -1067,6 +1067,22 @@ class Utils
         });
     }
 
+    public static function getReadableUrl($path)
+    {
+        $url = static::getDocsUrl($path);
+
+        $parts = explode('/', $url);
+        $part = $parts[count($parts) - 1];
+        $part = str_replace('#', '> ', $part);
+        $part = str_replace(['.html', '-', '_'], ' ', $part);
+
+        if ($part) {
+            return trans('texts.user_guide') . ': ' . ucwords($part);
+        } else {
+            return trans('texts.user_guide');
+        }
+    }
+
     public static function getDocsUrl($path)
     {
         $page = '';

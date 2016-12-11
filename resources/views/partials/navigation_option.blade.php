@@ -2,9 +2,9 @@
 
     @if ($option == 'settings')
 
-        <a type="button" class="btn btn-default btn-sm pull-right"
+        <a type="button" class="btn btn-default btn-sm pull-right" title="{{ Utils::getReadableUrl(request()->path()) }}"
             href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">
-            <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
+            <i class="fa fa-question-circle" style="width:20px"></i>
         </a>
 
     @elseif (Auth::user()->can('create', $option) || Auth::user()->can('create', substr($option, 0, -1)))

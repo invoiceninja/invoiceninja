@@ -167,8 +167,12 @@
         text-overflow: ellipsis;
     }
 
-    .sidebar-nav li:hover div {
-        max-width:186px;
+    .sidebar-nav li div.nav-footer i {
+        color:#ccc !important;
+    }
+
+    .sidebar-nav li div.nav-footer i:hover {
+        color:#fff !important;
     }
 
     #wrapper {

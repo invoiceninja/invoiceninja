@@ -511,6 +511,25 @@
                 @endforeach
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])
+            <li>
+                <div class="nav-footer" style="position: absolute;bottom:60px;left:0;right:0:text-align:center">
+                    <a href="{{ url(NINJA_CONTACT_URL) }}" target="_blank" title="{{ trans('texts.contact_us') }}">
+                        <i class="fa fa-envelope"></i>
+                    </a>
+                    <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
+                        <i class="fa fa-question-circle"></i>
+                    </a>
+                    <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="">
+                        <i class="fa fa-facebook-square"></i>
+                    </a>
+                    <a href="{{ url(SOCIAL_LINK_TWITTER) }}" target="_blank" title="">
+                        <i class="fa fa-twitter-square"></i>
+                    </a>
+                    <a href="{{ url(SOCIAL_LINK_GITHUB) }}" target="_blank" title="">
+                        <i class="fa fa-github-square"></i>
+                    </a>
+                </div>
+            </li>
         </ul>
     </div>
     <!-- /#left-sidebar-wrapper -->
@@ -567,7 +586,6 @@
               @endif
             </div>
         </div>
-
     </div>
     <!-- /#page-content-wrapper -->
 </div>
