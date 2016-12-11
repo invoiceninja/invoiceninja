@@ -306,7 +306,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::get('invoices', 'InvoiceApiController@index');
     Route::get('download/{invoice_id}', 'InvoiceApiController@download');
     Route::resource('invoices', 'InvoiceApiController');
-    Route::get('payments', 'PaymentApiController@index');
     Route::resource('payments', 'PaymentApiController');
     Route::get('tasks', 'TaskApiController@index');
     Route::resource('tasks', 'TaskApiController');
