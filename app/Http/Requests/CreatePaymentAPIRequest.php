@@ -1,5 +1,6 @@
 <?php namespace App\Http\Requests;
 
+use App\Libraries\Utils;
 use App\Models\Invoice;
 use Illuminate\Http\Request as InputRequest;
 
