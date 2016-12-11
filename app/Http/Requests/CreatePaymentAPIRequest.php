@@ -3,6 +3,7 @@
 use App\Libraries\Utils;
 use App\Models\Invoice;
 use Illuminate\Http\Request as InputRequest;
+use Response;
 
 
 class CreatePaymentAPIRequest extends PaymentRequest
