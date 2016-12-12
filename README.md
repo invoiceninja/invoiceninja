@@ -62,7 +62,7 @@ Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to get
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 ## Development
-* [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) [[Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)]
+* [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
 * [PHP SDK](https://github.com/invoiceninja/sdk-php)
 * [API Documentation](https://www.invoiceninja.com/api-documentation/)
 
