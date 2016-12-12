@@ -1,5 +1,6 @@
 <?php namespace App\Models;
 
+use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -7,7 +8,14 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  */
 class InvoiceItem extends EntityModel
 {
+    use PresentableTrait;
     use SoftDeletes;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\InvoiceItemPresenter';
+
     /**
      * @var array
      */

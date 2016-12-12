@@ -61,6 +61,8 @@ class WePayPaymentDriver extends BasePaymentDriver
             $data['paymentMethodType'] = 'payment_bank';
         }
 
+        $data['transaction_rbits'] = $this->invoice()->present()->rBits;
+
         return $data;
     }
 
