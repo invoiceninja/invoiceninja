@@ -98,6 +98,9 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
+            if ( ! $field) {
+                continue;
+            }
             $field = explode(':', $field)[0];
             $str .= '[
                 \''. $field . '\',
@@ -141,6 +144,9 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
+            if ( ! $field) {
+                continue;
+            }
             $field = explode(':', $field)[0];
             $str .= "'" . $module->getLowerName() . ".{$field}', ";
         }
@@ -155,6 +161,9 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
+            if ( ! $field) {
+                continue;
+            }
             $field = explode(':', $field)[0];
             $str .= "'{$field}' => $" . $module->getLowerName() . "->$field,\n            ";
         }
