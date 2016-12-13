@@ -1,6 +1,9 @@
 <?php namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Request as InputRequest;
+use Response;
+use App\Libraries\Utils;
 
 // https://laracasts.com/discuss/channels/general-discussion/laravel-5-modify-input-before-validation/replies/34366
 abstract class Request extends FormRequest {
@@ -8,6 +11,11 @@ abstract class Request extends FormRequest {
     // populate in subclass to auto load record
     protected $autoload = [];
 
+    public function __construct(InputRequest $req)
+    {
+        $this->req = $req;
+    }
+    
     /**
      * Validate the input.
      *
@@ -47,5 +55,24 @@ abstract class Request extends FormRequest {
         $this->replace($input);
 
         return $this->all();
+    }
+
+    public function response(array $errors)
+    {
+        /* If the user is not validating from a mobile app - pass through parent::response */
+        if(!isset($this->req->api_secret))
+            return parent::response($errors);
+
+        /* If the user is validating from a mobile app - pass through first error string and return error */
+        foreach($errors as $error) {
+            foreach ($error as $key => $value) {
+
+                $message['error'] = ['message'=>$value];
+                $message = json_encode($message, JSON_PRETTY_PRINT);
+                $headers = Utils::getApiHeaders();
+
+                return Response::make($message, 400, $headers);
+            }
+        }
     }
 }
