@@ -511,8 +511,8 @@
                 @endforeach
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])
-            <li>
-                <div class="nav-footer" style="position: absolute;bottom:68px;left:0;right:0:text-align:center">
+            <li style="width:100%">
+                <div class="nav-footer">
                     <a href="{{ url(NINJA_CONTACT_URL) }}" target="_blank" title="{{ trans('texts.contact_us') }}">
                         <i class="fa fa-envelope"></i>
                     </a>

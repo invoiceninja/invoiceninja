@@ -169,6 +169,15 @@
 
     .sidebar-nav li div.nav-footer {
         text-indent: 16px;
+        line-height: 36px;
+        position: absolute;
+        bottom:40px;
+        left:0;
+        right:0;
+        text-align:left;
+        background-color:#000;
+        min-width:263px;
+        border-top-style: solid;
     }
 
     .sidebar-nav li div.nav-footer i {
