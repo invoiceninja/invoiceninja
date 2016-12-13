@@ -42,17 +42,18 @@ Run the following command to create a CRUD module:
 
     php artisan ninja:make-module Inventory 'name:string,description:text'
 
-You can make adjustments to the migration file and then run:
+To edit the migration before it's run add ``--migrate=false``
+
+.. code-block:: php
+
+    php artisan ninja:make-module <module> <fields> --migrate=false
+
+After making adjustments to the migration file you can run:
 
 .. code-block:: php
 
     php artisan module:migrate <module>
 
-To create and migrate in one step add ``--migrate=true``
-
-.. code-block:: php
-
-    php artisan ninja:make-module <module> <fields> --migrate=true
 
 .. Tip:: You can specify the module icon by setting a value from http://fontawesome.io/icons/ for "icon" in modules.json.
 

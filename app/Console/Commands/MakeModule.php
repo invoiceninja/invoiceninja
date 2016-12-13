@@ -42,7 +42,7 @@ class MakeModule extends Command
         $fields = $this->argument('fields');
         $migrate = $this->option('migrate');
         $lower = strtolower($name);
-
+        
         // convert 'name:string,description:text' to 'name,description'
         $fillable = explode(',', $fields);
         $fillable = array_map(function($item) {
@@ -69,10 +69,10 @@ class MakeModule extends Command
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'transformer', '--fields' => $fields]);
         Artisan::call('ninja:make-class', ['name' => $name, 'module' => $name, 'class' => 'lang', '--filename' => 'texts']);
 
-        if ($migrate) {
-            Artisan::call('module:migrate', ['module' => $name]);
-        } else {
+        if ($migrate == 'false') {
             $this->info("Use the following command to run the migrations:\nphp artisan module:migrate $name");
+        } else {
+            Artisan::call('module:migrate', ['module' => $name]);
         }
 
         Artisan::call('module:dump');
