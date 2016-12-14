@@ -212,7 +212,7 @@ class AccountController extends BaseController
 
             $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
             $percent_used = $days_used / $days_total;
-            $credit = $planDetails['plan_price'] * (1 - $percent_used);
+            $credit = floatval($company->payment->amount) * (1 - $percent_used);
         }
 
         if ($newPlan['price'] > $credit) {
@@ -224,7 +224,9 @@ class AccountController extends BaseController
             }
         } else {
 
-            if ($plan != PLAN_FREE) {
+            if ($plan == PLAN_FREE) {
+                $company->discount = 0;
+            } else {
                 $company->plan_term = $term;
                 $company->plan_price = $newPlan['price'];
                 $company->num_users = $numUsers;

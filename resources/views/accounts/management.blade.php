@@ -50,6 +50,12 @@
 							</p>
 						</div>
 					</div>
+
+					@if ($account->company->hasActiveDiscount())
+						{!! Former::plaintext('discount')
+								->value($account->company->present()->discountMessage) !!}
+					@endif
+
 					@if (Utils::isNinjaProd())
 						{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
 					@endif
@@ -119,6 +125,9 @@
 								->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)
                                 ->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
 								->inlineHelp(trans('texts.enterprise_plan_features', ['link' => link_to(NINJA_WEB_URL . '/plans-pricing', trans('texts.click_here'), ['target' => '_blank'])])) !!}
+
+							{!! Former::plaintext(' ')
+								->inlineHelp($account->company->present()->promoMessage) !!}
 
 						</div>
 						<div class="modal-footer" style="margin-top: 0px">
@@ -272,18 +281,18 @@
 	 		$('#plan_term').closest('.form-group').toggle(plan!='free');
 
 			if(plan=='{{PLAN_PRO}}'){
-				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_PRO_MONTHLY])) !!});
-				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_PRO_MONTHLY * 10])) !!});
+				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_PRO_MONTHLY)])) !!});
+				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_PRO_MONTHLY) * 10])) !!});
 			} else if(plan=='{{PLAN_ENTERPRISE}}') {
                 if (numUsers == 2) {
-                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_2])) !!});
-                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_2 * 10])) !!});
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_2)])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_2) * 10])) !!});
                 } else if (numUsers == 5) {
-                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5])) !!});
-                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10])) !!});
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_5)])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_5) * 10])) !!});
                 } else {
-                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10])) !!});
-                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10])) !!});
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_10)])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_10) * 10])) !!});
                 }
 			}
   	  	}

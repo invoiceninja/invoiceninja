@@ -2267,6 +2267,8 @@ $LANG = array(
     'contact_us' => 'Contact Us',
     'support_forum' => 'Support Forum',
     'user_guide' => 'User Guide',
+    'promo_message' => 'Upgrade before :expires and get :amount% OFF your first year of our Pro or Enterprise packages.',
+    'discount_message' => ':amount% off expires :expires',
 
 );
 

@@ -49,6 +49,10 @@
   	vertical-align: super;
   }
 
+  #upgrade-modal h4 {
+      color: white;
+  }
+
   #upgrade-modal ul {
   	list-style: none;
   	color: #fff;
@@ -135,12 +139,15 @@
     <label for="plan_term_year" class="radio-inline">
       <input value="year" id="plan_term_year" type="radio" name="plan_term">Annually</label>
   </h4>
+  @if (Auth::user()->account->company->hasActivePromo())
+    <h4>{{ Auth::user()->account->company->present()->promoMessage }}</h4><br/>
+  @endif
 </div>
 <div class="col-md-4 col-md-offset-2 text-center">
   <h2>{{ trans('texts.pro_upgrade_title') }}</h2>
   <p class="subhead">{{ trans('texts.pay_annually_discount') }}</p>
   <img width="65" src="{{ asset('images/pro_plan/border.png') }}"/>
-  <h3>$<span id="upgrade_pro_price">8</span> <span class="upgrade_frequency">/ {{ trans('texts.plan_term_month') }}</span></h3>
+  <h3>$<span id="upgrade_pro_price">{{ PLAN_PRICE_PRO_MONTHLY }}</span> <span class="upgrade_frequency">/ {{ trans('texts.plan_term_month') }}</span></h3>
   <select style="visibility:hidden">
   </select>
   <p>&nbsp;</p>
@@ -155,7 +162,7 @@
   <h2>{{ trans('texts.plan_enterprise') }}</h2>
   <p class="subhead">{{ trans('texts.pay_annually_discount') }}</p>
   <img width="65" src="{{ asset('images/pro_plan/border.png') }}"/>
-  <h3>$<span id="upgrade_enterprise_price">12</span> <span class="upgrade_frequency">/ {{ trans('texts.plan_term_month') }}</span></h3>
+  <h3>$<span id="upgrade_enterprise_price">{{ PLAN_PRICE_ENTERPRISE_MONTHLY_2 }}</span> <span class="upgrade_frequency">/ {{ trans('texts.plan_term_month') }}</span></h3>
   <select name="num_users" id="upgrade_num_users" onchange="updateUpgradePrices()">
       <option value="2">1 to 2 {{ trans('texts.users') }}</option>
       <option value="5">3 to 5 {{ trans('texts.users') }}</option>
@@ -214,6 +221,10 @@
       }
       var label = "{{ trans('texts.freq_annually') }}";
     }
+    @if (Auth::user()->account->company->hasActivePromo())
+        proPrice = proPrice - (proPrice * {{ Auth::user()->account->company->discount }});
+        enterprisePrice = enterprisePrice - (enterprisePrice * {{ Auth::user()->account->company->discount }});
+    @endif
     $('#upgrade_pro_price').text(proPrice);
     $('#upgrade_enterprise_price').text(enterprisePrice);
     $('span.upgrade_frequency').text(label);
@@ -225,6 +236,11 @@
   }
 
   $(function() {
+
+    @if (Auth::user()->account->company->hasActivePromo())
+        updateUpgradePrices();
+    @endif
+
     $(document).keyup(function(e) {
          if (e.keyCode == 27) { // escape key maps to keycode `27`
             hideUpgradeModal();

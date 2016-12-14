@@ -194,9 +194,13 @@
         @endif
     </div>
 </div>
-@if($showBlueVinePromo)
+
+@if ($account->company->hasEarnedPromo())
+	@include('partials/discount_promo')
+@elseif ($showBlueVinePromo)
     @include('partials/bluevine_promo')
 @endif
+
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">

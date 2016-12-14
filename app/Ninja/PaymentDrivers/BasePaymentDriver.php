@@ -667,6 +667,11 @@ class BasePaymentDriver
                 $company->plan_expires = DateTime::createFromFormat('Y-m-d', $account->company->plan_paid)
                     ->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
 
+                if ($company->hasActivePromo()) {
+                    $company->discount_expires = date_create()->modify('1 year')->format('Y-m-d');
+                    $company->promo_expires = null;
+                }
+
                 $company->save();
             }
         }
