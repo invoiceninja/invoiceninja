@@ -17,10 +17,10 @@
 		@endif
 	@endcan
 
-	{!! DropdownButton::normal(trans('texts.archive'))->withContents([
-		      ['label' => mtrans($entityType, 'archive_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("archive")'],
-		      ['label' => mtrans($entityType, 'delete_'.$entityType), 'url' => 'javascript:submitForm_'.$entityType.'("delete")'],
-		    ])->withAttributes(['class'=>'archive'])->split() !!}
+	{!! DropdownButton::normal(trans('texts.archive'))
+			->withContents($datatable->bulkActions())
+			->withAttributes(['class'=>'archive'])
+			->split() !!}
 
 	&nbsp;
 	<span id="statusWrapper_{{ $entityType }}" style="display:none">

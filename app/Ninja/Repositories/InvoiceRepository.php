@@ -22,10 +22,11 @@ class InvoiceRepository extends BaseRepository
         return 'App\Models\Invoice';
     }
 
-    public function __construct(PaymentService $paymentService, DocumentRepository $documentRepo)
+    public function __construct(PaymentService $paymentService, DocumentRepository $documentRepo, PaymentRepository $paymentRepo)
     {
         $this->documentRepo = $documentRepo;
         $this->paymentService = $paymentService;
+        $this->paymentRepo = $paymentRepo;
     }
 
     public function all()
@@ -753,6 +754,26 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->is_public = true;
         $invoice->save();
+        
+        $invoice->markInvitationsSent();
+    }
+
+    /**
+     * @param Invoice $invoice
+     */
+    public function markPaid(Invoice $invoice)
+    {
+        if (floatval($invoice->balance) <= 0) {
+            return;
+        }
+
+        $data = [
+            'client_id' => $invoice->client_id,
+            'invoice_id' => $invoice->id,
+            'amount' => $invoice->balance,
+        ];
+
+        return $this->paymentRepo->save($data);
     }
 
     /**

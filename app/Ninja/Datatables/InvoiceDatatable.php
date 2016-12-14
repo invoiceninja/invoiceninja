@@ -118,6 +118,15 @@ class InvoiceDatatable extends EntityDatatable
                 }
             ],
             [
+                trans('texts.mark_paid'),
+                function ($model) use ($entityType) {
+                    return "javascript:submitForm_{$entityType}('markPaid', {$model->public_id})";
+                },
+                function ($model) {
+                    return $model->balance > 0 && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                }
+            ],
+            [
                 trans('texts.enter_payment'),
                 function ($model) {
                     return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
@@ -189,5 +198,26 @@ class InvoiceDatatable extends EntityDatatable
         }
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+    }
+
+    public function bulkActions()
+    {
+        $actions = parent::bulkActions();
+
+        if ($this->entityType == ENTITY_INVOICE || $this->entityType == ENTITY_QUOTE) {
+            $actions[] = [
+                'label' => mtrans($this->entityType, 'mark_sent'),
+                'url' => 'javascript:submitForm_'.$this->entityType.'("markSent")',
+            ];
+        }
+
+        if ($this->entityType == ENTITY_INVOICE) {
+            $actions[] = [
+                'label' => mtrans($this->entityType, 'mark_paid'),
+                'url' => 'javascript:submitForm_'.$this->entityType.'("markPaid")',
+            ];
+        }
+
+        return $actions;
     }
 }

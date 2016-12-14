@@ -2269,7 +2269,9 @@ $LANG = array(
     'user_guide' => 'User Guide',
     'promo_message' => 'Upgrade before :expires and get :amount% OFF your first year of our Pro or Enterprise packages.',
     'discount_message' => ':amount% off expires :expires',
-
+    'mark_paid' => 'Mark Paid',
+    'marked_sent_invoice' => 'Successfully marked invoice sent',
+    'marked_sent_invoices' => 'Successfully marked invoices sent',
 );
 
 return $LANG;

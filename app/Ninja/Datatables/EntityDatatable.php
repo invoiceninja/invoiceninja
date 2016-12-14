@@ -27,6 +27,20 @@ class EntityDatatable
         return [];
     }
 
+    public function bulkActions()
+    {
+        return [
+            [
+                'label' => mtrans($this->entityType, 'archive_'.$this->entityType),
+                'url' => 'javascript:submitForm_'.$this->entityType.'("archive")',
+            ],
+            [
+                'label' => mtrans($this->entityType, 'delete_'.$this->entityType),
+                'url' => 'javascript:submitForm_'.$this->entityType.'("delete")',
+    	    ]
+        ];
+    }
+
     public function columnFields()
     {
         $data = [];

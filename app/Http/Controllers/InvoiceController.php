@@ -142,6 +142,7 @@ class InvoiceController extends BaseController
             }
 
             if (!$invoice->is_recurring && $invoice->balance > 0 && $invoice->is_public) {
+                $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }
 
@@ -511,7 +512,13 @@ class InvoiceController extends BaseController
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {
-            $key = $action == 'markSent' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
+            if ($action == 'markSent') {
+                $key = 'marked_sent_invoice';
+            } elseif ($action == 'markPaid') {
+                $key = 'created_payment';
+            } else {
+                $key = "{$action}d_{$entityType}";
+            }
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }
