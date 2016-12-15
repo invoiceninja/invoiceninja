@@ -45,7 +45,7 @@ class ProjectService extends BaseService
      * @param $data
      * @return mixed|null
      */
-    public function save($data, $project)
+    public function save($data, $project = false)
     {
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client_id'] = Client::getPrivateId($data['client_id']);
