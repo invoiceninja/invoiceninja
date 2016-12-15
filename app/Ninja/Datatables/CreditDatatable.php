@@ -7,6 +7,7 @@ use Auth;
 class CreditDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CREDIT;
+    public $sortCol = 4;
 
     public function columns()
     {
@@ -37,7 +38,11 @@ class CreditDatatable extends EntityDatatable
             [
                 'credit_date',
                 function ($model) {
-                    return Utils::fromSqlDate($model->credit_date);
+                    if ( ! Auth::user()->can('viewByOwner', [ENTITY_CREDIT, $model->user_id])){
+                        return Utils::fromSqlDate($model->credit_date);
+                    }
+
+                    return link_to("credits/{$model->public_id}/edit", Utils::fromSqlDate($model->credit_date))->toHtml();
                 }
             ],
             [
@@ -52,6 +57,15 @@ class CreditDatatable extends EntityDatatable
     public function actions()
     {
         return [
+            [
+                trans('texts.edit_credit'),
+                function ($model) {
+                    return URL::to("credits/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Auth::user()->can('editByOwner', [ENTITY_CREDIT, $model->user_id]);
+                }
+            ],
             [
                 trans('texts.apply_credit'),
                 function ($model) {

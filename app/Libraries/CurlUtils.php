@@ -29,6 +29,11 @@ class CurlUtils
 
         curl_setopt_array($curl, $opts);
         $response = curl_exec($curl);
+
+        if ($error = curl_error($curl)) {
+            Utils::logError('CURL Error #' . curl_errno($curl) . ': ' . $error);
+        }
+
         curl_close($curl);
 
         return $response;

@@ -125,7 +125,7 @@ if (Utils::isReseller()) {
 Route::group(['middleware' => 'auth:user'], function() {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
-    Route::get('view_archive/{entity_type}/{visible}', 'AccountController@setTrashVisible');
+    Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');
     Route::get('hide_message', 'HomeController@hideMessage');
     Route::get('force_inline_pdf', 'UserController@forcePDFJS');
     Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
@@ -138,22 +138,29 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::post('users/change_password', 'UserController@changePassword');
 
     Route::resource('clients', 'ClientController');
-    Route::get('api/clients', ['as'=>'api.clients', 'uses'=>'ClientController@getDatatable']);
-    Route::get('api/activities/{client_id?}', ['as'=>'api.activities', 'uses'=>'ActivityController@getDatatable']);
+    Route::get('api/clients', 'ClientController@getDatatable');
+    Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');
 
     Route::resource('tasks', 'TaskController');
-    Route::get('api/tasks/{client_id?}', ['as'=>'api.tasks', 'uses'=>'TaskController@getDatatable']);
+    Route::get('api/tasks/{client_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');
+    Route::get('projects', 'ProjectController@index');
+    Route::get('api/projects', 'ProjectController@getDatatable');
+    Route::get('projects/create/{client_id?}', 'ProjectController@create');
+    Route::post('projects', 'ProjectController@store');
+    Route::put('projects/{projects}', 'ProjectController@update');
+    Route::get('projects/{projects}/edit', 'ProjectController@edit');
+    Route::post('projects/bulk', 'ProjectController@bulk');
 
-    Route::get('api/recurring_invoices/{client_id?}', ['as'=>'api.recurring_invoices', 'uses'=>'InvoiceController@getRecurringDatatable']);
+    Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');
 
     Route::get('invoices/invoice_history/{invoice_id}', 'InvoiceController@invoiceHistory');
     Route::get('quotes/quote_history/{invoice_id}', 'InvoiceController@invoiceHistory');
 
     Route::resource('invoices', 'InvoiceController');
-    Route::get('api/invoices/{client_id?}', ['as'=>'api.invoices', 'uses'=>'InvoiceController@getDatatable']);
+    Route::get('api/invoices/{client_id?}', 'InvoiceController@getDatatable');
     Route::get('invoices/create/{client_id?}', 'InvoiceController@create');
     Route::get('recurring_invoices/create/{client_id?}', 'InvoiceController@createRecurring');
     Route::get('recurring_invoices', 'RecurringInvoiceController@index');
@@ -175,20 +182,20 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('quotes/{invoices}', 'InvoiceController@edit');
     Route::post('quotes', 'InvoiceController@store');
     Route::get('quotes', 'QuoteController@index');
-    Route::get('api/quotes/{client_id?}', ['as'=>'api.quotes', 'uses'=>'QuoteController@getDatatable']);
+    Route::get('api/quotes/{client_id?}', 'QuoteController@getDatatable');
     Route::post('quotes/bulk', 'QuoteController@bulk');
 
     Route::resource('payments', 'PaymentController');
     Route::get('payments/create/{client_id?}/{invoice_id?}', 'PaymentController@create');
-    Route::get('api/payments/{client_id?}', ['as'=>'api.payments', 'uses'=>'PaymentController@getDatatable']);
+    Route::get('api/payments/{client_id?}', 'PaymentController@getDatatable');
     Route::post('payments/bulk', 'PaymentController@bulk');
 
     Route::resource('credits', 'CreditController');
     Route::get('credits/create/{client_id?}/{invoice_id?}', 'CreditController@create');
-    Route::get('api/credits/{client_id?}', ['as'=>'api.credits', 'uses'=>'CreditController@getDatatable']);
+    Route::get('api/credits/{client_id?}', 'CreditController@getDatatable');
     Route::post('credits/bulk', 'CreditController@bulk');
 
-    Route::get('api/products', ['as'=>'api.products', 'uses'=>'ProductController@getDatatable']);
+    Route::get('api/products', 'ProductController@getDatatable');
     Route::resource('products', 'ProductController');
     Route::post('products/bulk', 'ProductController@bulk');
 
@@ -199,29 +206,34 @@ Route::group(['middleware' => 'auth:user'], function() {
 
     // vendor
     Route::resource('vendors', 'VendorController');
-    Route::get('api/vendor', ['as'=>'api.vendors', 'uses'=>'VendorController@getDatatable']);
+    Route::get('api/vendors', 'VendorController@getDatatable');
     Route::post('vendors/bulk', 'VendorController@bulk');
 
     // Expense
     Route::resource('expenses', 'ExpenseController');
     Route::get('expenses/create/{vendor_id?}/{client_id?}', 'ExpenseController@create');
-    Route::get('api/expense', ['as'=>'api.expenses', 'uses'=>'ExpenseController@getDatatable']);
-    Route::get('api/vendor_expense/{id}', ['as'=>'api.expense', 'uses'=>'ExpenseController@getDatatableVendor']);
+    Route::get('api/expenses', 'ExpenseController@getDatatable');
+    Route::get('api/expenses/{id}', 'ExpenseController@getDatatableVendor');
     Route::post('expenses/bulk', 'ExpenseController@bulk');
     Route::get('expense_categories', 'ExpenseCategoryController@index');
-    Route::get('api/expense_categories', ['as'=>'api.expense_categories', 'uses'=>'ExpenseCategoryController@getDatatable']);
+    Route::get('api/expense_categories', 'ExpenseCategoryController@getDatatable');
     Route::get('expense_categories/create', 'ExpenseCategoryController@create');
     Route::post('expense_categories', 'ExpenseCategoryController@store');
     Route::put('expense_categories/{expense_categories}', 'ExpenseCategoryController@update');
     Route::get('expense_categories/{expense_categories}/edit', 'ExpenseCategoryController@edit');
     Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk');
+
+	// BlueVine
+	Route::post('bluevine/signup', 'BlueVineController@signup');
+	Route::get('bluevine/hide_message', 'BlueVineController@hideMessage');
+	Route::get('bluevine/completed', 'BlueVineController@handleCompleted');
 });
 
 Route::group([
     'middleware' => ['auth:user', 'permissions.required'],
     'permissions' => 'admin',
 ], function() {
-    Route::get('api/users', ['as'=>'api.users', 'uses'=>'UserController@getDatatable']);
+    Route::get('api/users', 'UserController@getDatatable');
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
@@ -231,11 +243,11 @@ Route::group([
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
 
-    Route::get('api/tokens', ['as'=>'api.tokens', 'uses'=>'TokenController@getDatatable']);
+    Route::get('api/tokens', 'TokenController@getDatatable');
     Route::resource('tokens', 'TokenController');
     Route::post('tokens/bulk', 'TokenController@bulk');
 
-    Route::get('api/tax_rates', ['as'=>'api.tax_rates', 'uses'=>'TaxRateController@getDatatable']);
+    Route::get('api/tax_rates', 'TaxRateController@getDatatable');
     Route::resource('tax_rates', 'TaxRateController');
     Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
@@ -260,13 +272,13 @@ Route::group([
     Route::get('gateways/create/{show_wepay?}', 'AccountGatewayController@create');
     Route::resource('gateways', 'AccountGatewayController');
     Route::get('gateways/{public_id}/resend_confirmation', 'AccountGatewayController@resendConfirmation');
-    Route::get('api/gateways', ['as'=>'api.gateways', 'uses'=>'AccountGatewayController@getDatatable']);
+    Route::get('api/gateways', 'AccountGatewayController@getDatatable');
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
     Route::get('bank_accounts/import_ofx', 'BankAccountController@showImportOFX');
     Route::post('bank_accounts/import_ofx', 'BankAccountController@doImportOFX');
     Route::resource('bank_accounts', 'BankAccountController');
-    Route::get('api/bank_accounts', ['as'=>'api.bank_accounts', 'uses'=>'BankAccountController@getDatatable']);
+    Route::get('api/bank_accounts', 'BankAccountController@getDatatable');
     Route::post('bank_accounts/bulk', 'BankAccountController@bulk');
     Route::post('bank_accounts/validate', 'BankAccountController@validateAccount');
     Route::post('bank_accounts/import_expenses/{bank_id}', 'BankAccountController@importExpenses');
@@ -294,7 +306,6 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::get('invoices', 'InvoiceApiController@index');
     Route::get('download/{invoice_id}', 'InvoiceApiController@download');
     Route::resource('invoices', 'InvoiceApiController');
-    Route::get('payments', 'PaymentApiController@index');
     Route::resource('payments', 'PaymentApiController');
     Route::get('tasks', 'TaskApiController@index');
     Route::resource('tasks', 'TaskApiController');
@@ -349,9 +360,9 @@ Route::get('/comments/feed', function() {
 });
 
 if (!defined('CONTACT_EMAIL')) {
-    define('CONTACT_EMAIL', Config::get('mail.from.address'));
-    define('CONTACT_NAME', Config::get('mail.from.name'));
-    define('SITE_URL', Config::get('app.url'));
+    define('CONTACT_EMAIL', config('mail.from.address'));
+    define('CONTACT_NAME', config('mail.from.name'));
+    define('SITE_URL', config('app.url'));
 
     define('ENV_DEVELOPMENT', 'local');
     define('ENV_STAGING', 'staging');
@@ -383,6 +394,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('ENTITY_BANK_ACCOUNT', 'bank_account');
     define('ENTITY_BANK_SUBACCOUNT', 'bank_subaccount');
     define('ENTITY_EXPENSE_CATEGORY', 'expense_category');
+    define('ENTITY_PROJECT', 'project');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
@@ -516,12 +528,17 @@ if (!defined('CONTACT_EMAIL')) {
     define('MAX_NUM_VENDORS', 100);
     define('MAX_NUM_VENDORS_PRO', 20000);
 
+    define('STATUS_ACTIVE', 'active');
+    define('STATUS_ARCHIVED', 'archived');
+    define('STATUS_DELETED', 'deleted');
+
     define('INVOICE_STATUS_DRAFT', 1);
     define('INVOICE_STATUS_SENT', 2);
     define('INVOICE_STATUS_VIEWED', 3);
     define('INVOICE_STATUS_APPROVED', 4);
     define('INVOICE_STATUS_PARTIAL', 5);
     define('INVOICE_STATUS_PAID', 6);
+    define('INVOICE_STATUS_OVERDUE', 7);
 
     define('PAYMENT_STATUS_PENDING', 1);
     define('PAYMENT_STATUS_VOIDED', 2);
@@ -529,6 +546,15 @@ if (!defined('CONTACT_EMAIL')) {
     define('PAYMENT_STATUS_COMPLETED', 4);
     define('PAYMENT_STATUS_PARTIALLY_REFUNDED', 5);
     define('PAYMENT_STATUS_REFUNDED', 6);
+
+    define('TASK_STATUS_LOGGED', 1);
+    define('TASK_STATUS_RUNNING', 2);
+    define('TASK_STATUS_INVOICED', 3);
+    define('TASK_STATUS_PAID', 4);
+
+    define('EXPENSE_STATUS_LOGGED', 1);
+    define('EXPENSE_STATUS_INVOICED', 2);
+    define('EXPENSE_STATUS_PAID', 3);
 
     define('CUSTOM_DESIGN', 11);
 
@@ -619,12 +645,14 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.8.2' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.9.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
     define('SOCIAL_LINK_GITHUB', env('SOCIAL_LINK_GITHUB', 'https://github.com/invoiceninja/invoiceninja/'));
 
+    define('NINJA_FORUM_URL', env('NINJA_FORUM_URL', 'https://www.invoiceninja.com/forums/forum/support/'));
+    define('NINJA_CONTACT_URL', env('NINJA_CONTACT_URL', 'https://www.invoiceninja.com/contact/'));
     define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
     define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
     define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
@@ -637,6 +665,8 @@ if (!defined('CONTACT_EMAIL')) {
     define('OFX_HOME_URL', env('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all'));
     define('GOOGLE_ANALYITCS_URL', env('GOOGLE_ANALYITCS_URL', 'https://www.google-analytics.com/collect'));
     define('TRANSIFEX_URL', env('TRANSIFEX_URL', 'https://www.transifex.com/invoice-ninja/invoice-ninja'));
+    define('CHROME_PDF_HELP_URL', 'https://support.google.com/chrome/answer/6213030?hl=en');
+    define('FIREFOX_PDF_HELP_URL', 'https://support.mozilla.org/en-US/kb/view-pdf-files-firefox');
 
     define('MSBOT_LOGIN_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/token');
     define('MSBOT_LUIS_URL', 'https://api.projectoxford.ai/luis/v1/application');
@@ -879,7 +909,22 @@ if (!defined('CONTACT_EMAIL')) {
             return $string != $english ? $string : '';
         }
     }
+
+    // include modules in translations
+    function mtrans($entityType, $text = false)
+    {
+        if ( ! $text) {
+            $text = $entityType;
+        }
+
+        if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
+            return trans("{$module->getLowerName()}::texts.{$text}");
+        } else {
+            return trans("texts.{$text}");
+        }
+    }
 }
+
 
 /*
 if (Utils::isNinjaDev())

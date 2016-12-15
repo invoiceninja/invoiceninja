@@ -1,0 +1,131 @@
+<?php
+
+namespace $CLASS_NAMESPACE$;
+
+use Auth;
+use App\Http\Controllers\BaseController;
+use App\Services\DatatableService;
+use Modules\$STUDLY_NAME$\Datatables\$STUDLY_NAME$Datatable;
+use Modules\$STUDLY_NAME$\Repositories\$STUDLY_NAME$Repository;
+use Modules\$STUDLY_NAME$\Http\Requests\$STUDLY_NAME$Request;
+use Modules\$STUDLY_NAME$\Http\Requests\Create$STUDLY_NAME$Request;
+use Modules\$STUDLY_NAME$\Http\Requests\Update$STUDLY_NAME$Request;
+
+class $CLASS$ extends BaseController
+{
+    protected $$STUDLY_NAME$Repo;
+    //protected $entityType = '$LOWER_NAME$';
+
+    public function __construct($STUDLY_NAME$Repository $$LOWER_NAME$Repo)
+    {
+        //parent::__construct();
+
+        $this->$LOWER_NAME$Repo = $$LOWER_NAME$Repo;
+    }
+
+    /**
+     * Display a listing of the resource.
+     * @return Response
+     */
+    public function index()
+    {
+        return view('list_wrapper', [
+            'entityType' => '$LOWER_NAME$',
+            'datatable' => new $STUDLY_NAME$Datatable(),
+            'title' => mtrans('$LOWER_NAME$', '$LOWER_NAME$_list'),
+        ]);
+    }
+
+    public function datatable(DatatableService $datatableService)
+    {
+        $search = request()->input('test');
+        $userId = Auth::user()->filterId();
+
+        $datatable = new $STUDLY_NAME$Datatable();
+        $query = $this->$LOWER_NAME$Repo->find($search, $userId);
+
+        return $datatableService->createDatatable($datatable, $query);
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     * @return Response
+     */
+    public function create($STUDLY_NAME$Request $request)
+    {
+        $data = [
+            '$LOWER_NAME$' => null,
+            'method' => 'POST',
+            'url' => '$LOWER_NAME$',
+            'title' => mtrans('$LOWER_NAME$', 'new_$LOWER_NAME$'),
+        ];
+
+        return view('$LOWER_NAME$::edit', $data);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     * @param  Request $request
+     * @return Response
+     */
+    public function store(Create$STUDLY_NAME$Request $request)
+    {
+        $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input());
+
+        return redirect()->to($$LOWER_NAME$->present()->editUrl)
+            ->with('message', mtrans('$LOWER_NAME$', 'created_$LOWER_NAME$'));
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     * @return Response
+     */
+    public function edit($STUDLY_NAME$Request $request)
+    {
+        $$LOWER_NAME$ = $request->entity();
+
+        $data = [
+            '$LOWER_NAME$' => $$LOWER_NAME$,
+            'method' => 'PUT',
+            'url' => '$LOWER_NAME$/' . $$LOWER_NAME$->public_id,
+            'title' => mtrans('$LOWER_NAME$', 'edit_$LOWER_NAME$'),
+        ];
+
+        return view('$LOWER_NAME$::edit', $data);
+    }
+
+    /**
+     * Show the form for editing a resource.
+     * @return Response
+     */
+    public function show($STUDLY_NAME$Request $request)
+    {
+        return redirect()->to("$LOWER_NAME$/{$request->$LOWER_NAME$}/edit");
+    }
+
+    /**
+     * Update the specified resource in storage.
+     * @param  Request $request
+     * @return Response
+     */
+    public function update(Update$STUDLY_NAME$Request $request)
+    {
+        $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input(), $request->entity());
+
+        return redirect()->to($$LOWER_NAME$->present()->editUrl)
+            ->with('message', mtrans('$LOWER_NAME$', 'updated_$LOWER_NAME$'));
+    }
+
+    /**
+     * Update multiple resources
+     */
+    public function bulk()
+    {
+        $action = request()->input('action');
+        $ids = request()->input('public_id') ?: request()->input('ids');
+        $count = $this->$LOWER_NAME$Repo->bulk($ids, $action);
+
+        return redirect()->to('$LOWER_NAME$')
+            ->with('message', mtrans('$LOWER_NAME$', $action . '_$LOWER_NAME$_complete'));
+    }
+}

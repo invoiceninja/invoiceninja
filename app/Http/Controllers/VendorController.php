@@ -15,6 +15,7 @@ use App\Services\VendorService;
 use App\Http\Requests\VendorRequest;
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
+use App\Ninja\Datatables\VendorDatatable;
 
 class VendorController extends BaseController
 {
@@ -37,19 +38,10 @@ class VendorController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => 'vendor',
+            'datatable' => new VendorDatatable(),
             'title' => trans('texts.vendors'),
-            'sortCol' => '4',
-            'columns' => Utils::trans([
-              'checkbox',
-              'vendor',
-              'city',
-              'phone',
-              'email',
-              'date_created',
-              ''
-            ]),
         ]);
     }
 

@@ -334,6 +334,15 @@ border-bottom-left-radius: 3px;
 border-top-left-radius: 3px;
 }
 
+
+.dt-right,
+.dt-left {
+    margin-top: 16px;
+}
+.pagination>ul {
+    margin: 0px;
+}
+
 /* hide table sorting indicators */
 table.table thead .sorting { background: url('') no-repeat center right; }
 
@@ -1224,4 +1233,24 @@ div.panel-body div.panel-body {
 .breadcrumb .label {
   vertical-align: middle;
   margin-left: 16px;
+}
+
+
+/*
+ * BlueVine Promo
+ */
+@media (min-width: 900px) {
+    #bluevineModal .modal-dialog{
+        width:800px;
+    }
+}
+
+.bluevine-quote .row{
+    text-align: right;
+}
+
+.select2-selection {
+    border: 1px solid #dfe0e1 !important;
+    border-radius: 2px;
+    padding: 2px;
 }

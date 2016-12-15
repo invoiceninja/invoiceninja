@@ -25,7 +25,6 @@ class PaymentRepository extends BaseRepository
                     ->leftJoin('account_gateways', 'account_gateways.id', '=', 'payments.account_gateway_id')
                     ->leftJoin('gateways', 'gateways.id', '=', 'account_gateways.gateway_id')
                     ->where('payments.account_id', '=', \Auth::user()->account_id)
-                    ->where('clients.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('invoices.is_deleted', '=', false)
@@ -40,12 +39,15 @@ class PaymentRepository extends BaseRepository
                         'payments.payment_date',
                         'payments.payment_status_id',
                         'payments.payment_type_id',
+                        'payments.payment_type_id as source',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
                         'invoices.invoice_number',
+                        'invoices.invoice_number as invoice_name',
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',
+                        'payment_types.name as method',
                         'payment_types.name as payment_type',
                         'payments.account_gateway_id',
                         'payments.deleted_at',
@@ -63,12 +65,12 @@ class PaymentRepository extends BaseRepository
                         'payment_statuses.name as payment_status_name'
                     );
 
-        if (!\Session::get('show_trash:payment')) {
-            $query->where('payments.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_PAYMENT);
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
+        } else {
+            $query->whereNull('clients.deleted_at');
         }
 
         if ($filter) {
@@ -104,6 +106,7 @@ class PaymentRepository extends BaseRepository
                     ->where('payments.is_deleted', '=', false)
                     ->where('invitations.deleted_at', '=', null)
                     ->where('invoices.is_deleted', '=', false)
+                    ->where('invoices.is_public', '=', true)
                     ->where('invitations.contact_id', '=', $contactId)
                     ->select(
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),

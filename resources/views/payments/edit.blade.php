@@ -90,6 +90,9 @@
 
         @if ($payment)
           $('#payment_date').datepicker('update', '{{ $payment->payment_date }}')
+          @if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT)
+            $("#payment_type_id option[value='{{ PAYMENT_TYPE_CREDIT }}']").remove();
+          @endif
         @else
           $('#payment_date').datepicker('update', new Date());
 		  populateInvoiceComboboxes({{ $clientPublicId }}, {{ $invoicePublicId }});

@@ -32,6 +32,15 @@ class EntityModel extends Eloquent
     public static $notifySubscriptions = true;
 
     /**
+     * @var array
+     */
+    public static $statuses = [
+        STATUS_ACTIVE,
+        STATUS_ARCHIVED,
+        STATUS_DELETED,
+    ];
+
+    /**
      * @param null $context
      * @return mixed
      */
@@ -62,7 +71,6 @@ class EntityModel extends Eloquent
         } else {
             $lastEntity = $className::whereAccountId($entity->account_id);
         }
-
 
         if (static::$hasPublicId) {
             $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
@@ -184,6 +192,16 @@ class EntityModel extends Eloquent
      */
     public static function getClassName($entityType)
     {
+        if ( ! Utils::isNinjaProd()) {
+            if ($module = \Module::find($entityType)) {
+                return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
+            }
+        }
+
+        if ($entityType == ENTITY_QUOTE || $entityType == ENTITY_RECURRING_INVOICE) {
+            $entityType = ENTITY_INVOICE;
+        }
+
         return 'App\\Models\\' . ucwords(Utils::toCamelCase($entityType));
     }
 
@@ -193,6 +211,12 @@ class EntityModel extends Eloquent
      */
     public static function getTransformerName($entityType)
     {
+        if ( ! Utils::isNinjaProd()) {
+            if ($module = \Module::find($entityType)) {
+                return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
+            }
+        }
+
         return 'App\\Ninja\\Transformers\\' . ucwords(Utils::toCamelCase($entityType)) . 'Transformer';
     }
 
@@ -280,5 +304,35 @@ class EntityModel extends Eloquent
         }
 
         return false;
+    }
+
+    public static function getStates($entityType = false)
+    {
+        $data = [];
+
+        foreach (static::$statuses as $status) {
+            $data[$status] = trans("texts.{$status}");
+        }
+
+        return $data;
+    }
+
+    public static function getStatuses($entityType = false)
+    {
+        return [];
+    }
+
+    public static function getStatesFor($entityType = false)
+    {
+        $class = static::getClassName($entityType);
+
+        return $class::getStates($entityType);
+    }
+
+    public static function getStatusesFor($entityType = false)
+    {
+        $class = static::getClassName($entityType);
+
+        return $class::getStatuses($entityType);
     }
 }

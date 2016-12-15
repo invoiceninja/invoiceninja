@@ -211,6 +211,16 @@ class Expense extends EntityModel
     {
         return Utils::calculateTaxes($this->amount, $this->tax_rate1, $this->tax_rate2);
     }
+
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+        $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
+        $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
+        $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
+
+        return $statuses;
+    }
 }
 
 Expense::creating(function ($expense) {

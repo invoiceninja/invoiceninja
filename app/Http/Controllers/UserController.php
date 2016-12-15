@@ -215,7 +215,7 @@ class UserController extends BaseController
             Session::flash('message', $message);
         }
 
-        return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
+        return Redirect::to('users/' . $user->public_id . '/edit');
     }
 
     public function sendConfirmation($userPublicId)

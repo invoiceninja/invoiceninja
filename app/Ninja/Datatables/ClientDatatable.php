@@ -7,6 +7,7 @@ use Auth;
 class ClientDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_CLIENT;
+    public $sortCol = 4;
 
     public function columns()
     {
@@ -18,9 +19,9 @@ class ClientDatatable extends EntityDatatable
                 }
             ],
             [
-                'first_name',
+                'contact',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->first_name.' '.$model->last_name)->toHtml();
+                    return link_to("clients/{$model->public_id}", $model->contact ?: '')->toHtml();
                 }
             ],
             [
@@ -30,7 +31,7 @@ class ClientDatatable extends EntityDatatable
                 }
             ],
             [
-                'clients.created_at',
+                'client_created_at',
                 function ($model) {
                     return Utils::timestampToDateString(strtotime($model->created_at));
                 }

@@ -48,6 +48,8 @@
             <div class="panel-body">
 
             {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+            {!! Former::select('project_id')->addOption('', '')->addGroupClass('project-select')
+                    ->label(trans('texts.project')) !!}
             {!! Former::textarea('description')->rows(3) !!}
 
             @if ($task)
@@ -208,6 +210,8 @@
     }
 
     var clients = {!! $clients !!};
+    var projects = {!! $projects !!};
+
     var timeLabels = {};
     @foreach (['hour', 'minute', 'second'] as $period)
         timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
@@ -425,26 +429,10 @@
     ko.applyBindings(model);
 
     $(function() {
-        var $clientSelect = $('select#client');
-        for (var i=0; i<clients.length; i++) {
-            var client = clients[i];
-            var clientName = getClientDisplayName(client);
-            if (!clientName) {
-                continue;
-            }
-            $clientSelect.append(new Option(clientName, client.public_id));
-        }
-
-        if ({{ $clientPublicId ? 'true' : 'false' }}) {
-            $clientSelect.val({{ $clientPublicId }});
-        }
-
-        $clientSelect.combobox();
-
         @if (!$task && !$clientPublicId)
             $('.client-select input.form-control').focus();
         @else
-            $('#amount').focus();
+            $('#description').focus();
         @endif
 
         $('input[type=radio]').change(function(event) {
@@ -494,6 +482,98 @@
             model.showTimeOverlaps();
             showTimeDetails();
         @endif
+
+        // setup clients and project comboboxes
+        var clientId = {{ $clientPublicId }};
+        var projectId = {{ $projectPublicId }};
+
+        var clientMap = {};
+        var projectMap = {};
+        var projectsForClientMap = {};
+        var projectsForAllClients = [];
+        var $clientSelect = $('select#client');
+
+        for (var i=0; i<projects.length; i++) {
+          var project = projects[i];
+          projectMap[project.public_id] = project;
+
+          var client = project.client;
+          if (!client) {
+              projectsForAllClients.push(project);
+          } else {
+              if (!projectsForClientMap.hasOwnProperty(client.public_id)) {
+                projectsForClientMap[client.public_id] = [];
+              }
+              projectsForClientMap[client.public_id].push(project);
+          }
+        }
+
+        for (var i=0; i<clients.length; i++) {
+          var client = clients[i];
+          clientMap[client.public_id] = client;
+        }
+
+        $clientSelect.append(new Option('', ''));
+        for (var i=0; i<clients.length; i++) {
+          var client = clients[i];
+          var clientName = getClientDisplayName(client);
+          if (!clientName) {
+              continue;
+          }
+          $clientSelect.append(new Option(clientName, client.public_id));
+        }
+
+        if (clientId) {
+          $clientSelect.val(clientId);
+        }
+
+        $clientSelect.combobox();
+        $clientSelect.on('change', function(e) {
+          var clientId = $('input[name=client]').val();
+          var projectId = $('input[name=project_id]').val();
+          var project = projectMap[projectId];
+          if (project && ((project.client && project.client.public_id == clientId) || !project.client)) {
+            e.preventDefault();
+            return;
+          }
+          setComboboxValue($('.project-select'), '', '');
+          $projectCombobox = $('select#project_id');
+          $projectCombobox.find('option').remove().end().combobox('refresh');
+          $projectCombobox.append(new Option('', ''));
+          var list = clientId ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []).concat(projectsForAllClients) : projects;
+          for (var i=0; i<list.length; i++) {
+            var project = list[i];
+            $projectCombobox.append(new Option(project.name,  project.public_id));
+          }
+          $('select#project_id').combobox('refresh');
+        });
+
+        var $projectSelect = $('select#project_id').on('change', function(e) {
+          $clientCombobox = $('select#client');
+          var projectId = $('input[name=project_id]').val();
+          if (projectId) {
+            var project = projectMap[projectId];
+            if (project.client) {
+                var client = clientMap[project.client.public_id];
+                if (client) {
+                    project.client = client;
+                    setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+                }
+            }
+          } else {
+            $clientSelect.trigger('change');
+          }
+        });
+
+        $projectSelect.combobox();
+
+        if (projectId) {
+           var project = projectMap[projectId];
+           setComboboxValue($('.project-select'), project.public_id, project.name);
+           $projectSelect.trigger('change');
+        } else {
+           $clientSelect.trigger('change');
+        }
     });
 
     </script>

@@ -19,6 +19,7 @@ use App\Ninja\Repositories\ExpenseRepository;
 use App\Http\Requests\ExpenseRequest;
 use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
+use App\Ninja\Datatables\ExpenseDatatable;
 
 class ExpenseController extends BaseController
 {
@@ -48,21 +49,10 @@ class ExpenseController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_EXPENSE,
+            'datatable' => new ExpenseDatatable(),
             'title' => trans('texts.expenses'),
-            'sortCol' => '3',
-            'columns' => Utils::trans([
-              'checkbox',
-              'vendor',
-              'client',
-              'expense_date',
-              'amount',
-              'category',
-              'public_notes',
-              'status',
-              ''
-            ]),
         ]);
     }
 
@@ -262,7 +252,7 @@ class ExpenseController extends BaseController
             'countries' => Cache::get('countries'),
             'customLabel1' => Auth::user()->account->custom_vendor_label1,
             'customLabel2' => Auth::user()->account->custom_vendor_label2,
-            'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->orderBy('name')->get(),
+            'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->orderBy('name')->get(),
         ];
     }

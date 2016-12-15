@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Presenters;
 
+use Utils;
 use URL;
 use Laracasts\Presenter\Presenter;
 
@@ -10,11 +11,16 @@ class EntityPresenter extends Presenter
      */
     public function url()
     {
-        $type = $this->entity->getEntityType();
+        $type = Utils::pluralizeEntityType($this->entity->getEntityType());
         $id = $this->entity->public_id;
-        $link = sprintf('/%ss/%s', $type, $id);
+        $link = sprintf('/%s/%s', $type, $id);
 
         return URL::to($link);
+    }
+
+    public function editUrl()
+    {
+        return $this->url() . '/edit';
     }
 
     public function statusLabel()

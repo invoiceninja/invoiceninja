@@ -32,7 +32,8 @@ class ProductRepository extends BaseRepository
                     'products.cost',
                     'tax_rates.name as tax_name',
                     'tax_rates.rate as tax_rate',
-                    'products.deleted_at'
+                    'products.deleted_at',
+                    'products.is_deleted'
                 );
 
         if ($filter) {
@@ -42,9 +43,7 @@ class ProductRepository extends BaseRepository
             });
         }
 
-        if (!\Session::get('show_trash:product')) {
-            $query->where('products.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_PRODUCT);
 
         return $query;
     }

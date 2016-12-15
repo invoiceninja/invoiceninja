@@ -181,7 +181,7 @@ class DashboardRepository
         return $metrics->groupBy('accounts.id')->first();
     }
 
-    public function paidToDate($account, $userId, $viewAll)
+    public function paidToDate($account, $userId, $viewAll, $startDate = false)
     {
         $accountId = $account->id;
         $select = DB::raw(
@@ -202,7 +202,9 @@ class DashboardRepository
             $paidToDate->where('invoices.user_id', '=', $userId);
         }
 
-        if ($account->financial_year_start) {
+        if ($startDate) {
+            $paidToDate->where('payments.payment_date', '>=', $startDate);
+        } elseif ($account->financial_year_start) {
             $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
             $paidToDate->where('payments.payment_date', '>=', $yearStart);
         }

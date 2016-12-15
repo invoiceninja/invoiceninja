@@ -28,6 +28,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\AccountToken::class => \App\Policies\TokenPolicy::class,
         \App\Models\BankAccount::class => \App\Policies\BankAccountPolicy::class,
         \App\Models\PaymentTerm::class => \App\Policies\PaymentTermPolicy::class,
+        \App\Models\Project::class => \App\Policies\ProjectPolicy::class,
     ];
 
     /**

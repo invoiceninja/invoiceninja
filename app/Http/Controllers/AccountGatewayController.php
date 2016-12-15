@@ -411,6 +411,7 @@ class AccountGatewayController extends BaseController
                 'description'  => trans('texts.wepay_account_description'),
                 'theme_object' => json_decode(WEPAY_THEME),
                 'callback_uri' => $accountGateway->getWebhookUrl(),
+                'rbits'        => $account->present()->rBits,
             ];
 
             if (WEPAY_ENABLE_CANADA) {

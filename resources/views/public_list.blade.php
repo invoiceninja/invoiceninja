@@ -1,17 +1,17 @@
 @extends('public.header')
 
 @section('content')
-	
+
 	<style type="text/css">
         table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
             background-color: {{ $color }} !important;
         }
 
-        .pagination>.active>a, 
-        .pagination>.active>span, 
-        .pagination>.active>a:hover, 
-        .pagination>.active>span:hover, 
-        .pagination>.active>a:focus, 
+        .pagination>.active>a,
+        .pagination>.active>span,
+        .pagination>.active>a:hover,
+        .pagination>.active>span:hover,
+        .pagination>.active>a:focus,
         .pagination>.active>span:focus {
             background-color: {{ $color }};
             border-color: {{ $color }};
@@ -44,10 +44,9 @@
 
 		{!! Datatable::table()
 	    	->addColumn($columns)
-	    	->setUrl(route('api.client.' . $entityType . 's'))    	
+	    	->setUrl(route('api.client.' . $entityType . 's'))
 	    	->setOptions('sPaginationType', 'bootstrap')
 	    	->render('datatable') !!}
-
 	</div>
 
     @if($entityType == ENTITY_RECURRING_INVOICE)
@@ -66,6 +65,6 @@
     @endif
 
 
-    <p>&nbsp;</p>
+	<p>&nbsp;</p>
 
 @stop

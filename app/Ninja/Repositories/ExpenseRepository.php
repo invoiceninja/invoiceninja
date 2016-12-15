@@ -54,12 +54,12 @@ class ExpenseRepository extends BaseRepository
                     ->where('contacts.deleted_at', '=', null)
                     ->where('vendors.deleted_at', '=', null)
                     ->where('clients.deleted_at', '=', null)
-                    ->where(function ($query) {
+                    ->where(function ($query) { // handle when client isn't set
                         $query->where('contacts.is_primary', '=', true)
                               ->orWhere('contacts.is_primary', '=', null);
                     })
                     ->select(
-                        DB::raw('COALESCE(expenses.invoice_id, expenses.should_be_invoiced) expense_status_id'),
+                        DB::raw('COALESCE(expenses.invoice_id, expenses.should_be_invoiced) status'),
                         'expenses.account_id',
                         'expenses.amount',
                         'expenses.deleted_at',
@@ -94,10 +94,28 @@ class ExpenseRepository extends BaseRepository
                         'clients.country_id as client_country_id'
                     );
 
-        $showTrashed = \Session::get('show_trash:expense');
+        $this->applyFilters($query, ENTITY_EXPENSE);
 
-        if (!$showTrashed) {
-            $query->where('expenses.deleted_at', '=', null);
+        if ($statuses = session('entity_status_filter:' . ENTITY_EXPENSE)) {
+            $statuses = explode(',', $statuses);
+            $query->where(function ($query) use ($statuses) {
+                $query->whereNull('expenses.id');
+
+                if (in_array(EXPENSE_STATUS_LOGGED, $statuses)) {
+                    $query->orWhere('expenses.invoice_id', '=', 0)
+                          ->orWhereNull('expenses.invoice_id');
+                }
+                if (in_array(EXPENSE_STATUS_INVOICED, $statuses)) {
+                    $query->orWhere('expenses.invoice_id', '>', 0);
+                    if ( ! in_array(EXPENSE_STATUS_PAID, $statuses)) {
+                        $query->where('invoices.balance', '>', 0);
+                    }
+                }
+                if (in_array(EXPENSE_STATUS_PAID, $statuses)) {
+                    $query->orWhere('invoices.balance', '=', 0)
+                          ->where('expenses.invoice_id', '>', 0);
+                }
+            });
         }
 
         if ($filter) {

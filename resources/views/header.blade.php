@@ -4,7 +4,6 @@
 @section('head')
 
   <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-
   <style type="text/css">
     @if (Auth::check() && Auth::user()->dark_mode)
         body {
@@ -288,13 +287,6 @@
     $('#search').focusin(onSearchFocus);
     $('#search').blur(onSearchBlur);
 
-    $('body').keypress(function(event) {
-        if (event.which == 47 && !$('*:focus').length) {
-            event.preventDefault();
-            $('#search').focus();
-        }
-    });
-
     // manage sidebar state
     function setupSidebar(side) {
         $("#" + side + "-menu-toggle").click(function(e) {
@@ -382,7 +374,11 @@
           @if (!Auth::user()->registered)
             {!! Button::success(trans('texts.sign_up'))->withAttributes(array('id' => 'signUpButton', 'data-toggle'=>'modal', 'data-target'=>'#signUpModal', 'style' => 'max-width:100px;;overflow:hidden'))->small() !!} &nbsp;
           @elseif (Utils::isNinjaProd() && (!Auth::user()->isPro() || Auth::user()->isTrial()))
-            {!! Button::success(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
+            @if (Auth::user()->account->company->hasActivePromo())
+                {!! Button::warning(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
+            @else
+                {!! Button::success(trans('texts.plan_upgrade'))->withAttributes(array('onclick' => 'showUpgradeModal()', 'style' => 'max-width:100px;overflow:hidden'))->small() !!} &nbsp;
+            @endif
           @endif
         @endif
 
@@ -503,39 +499,44 @@
                 'tasks',
                 'expenses',
                 'vendors',
-                'settings',
-                //'self-update'
             ] as $option)
             @if (in_array($option, ['dashboard', 'settings'])
                 || Auth::user()->can('view', substr($option, 0, -1))
                 || Auth::user()->can('create', substr($option, 0, -1)))
-            <li class="{{ Request::is("{$option}*") ? 'active' : '' }}">
-                @if ($option == 'settings')
-                    <a type="button" class="btn btn-default btn-sm pull-right"
-                        href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">
-                        <i class="fa fa-question-circle" style="width:20px" title="{{ trans('texts.help') }}"></i>
-                    </a>
-                @elseif ($option != 'dashboard')
-                    @if (Auth::user()->can('create', substr($option, 0, -1)))
-                        <a type="button" class="btn btn-primary btn-sm pull-right"
-                            href="{{ url("/{$option}/create") }}">
-                            <i class="fa fa-plus-circle" style="width:20px" title="{{ trans('texts.create_new') }}"></i>
-                        </a>
-                    @endif
-                @endif
-                <a href="{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}"
-                    style="font-size:16px; padding-top:6px; padding-bottom:6px"
-                    class="{{ Request::is("{$option}*") ? 'active' : '' }}">
-                    <i class="fa fa-{{ \App\Models\EntityModel::getIcon($option) }}" style="width:46px; padding-right:10px"></i>
-                    {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : trans("texts.{$option}") }}
-                    {!! Utils::isTrial() && in_array($option, ['quotes', 'tasks', 'expenses', 'vendors']) ? '&nbsp;<sup>' . trans('texts.pro') . '</sup>' : '' !!}
-                    @if (false && $option == 'self-update' && Updater::source()->isNewVersionAvailable('v'.NINJA_VERSION))
-                        <span class="badge alert-danger">1</span>
-                    @endif
-                </a>
-            </li>
+                @include('partials.navigation_option')
             @endif
+        @endforeach
+        @if ( ! Utils::isNinjaProd())
+            @foreach (Module::all() as $module)
+                @include('partials.navigation_option', [
+                    'option' => $module->getAlias(),
+                    'icon' => $module->get('icon', 'th-large'),
+                ])
             @endforeach
+        @endif
+        @include('partials.navigation_option', ['option' => 'settings'])
+            <li style="width:100%">
+                <div class="nav-footer">
+                    <a href="{{ url(NINJA_CONTACT_URL) }}" target="_blank" title="{{ trans('texts.contact_us') }}">
+                        <i class="fa fa-envelope"></i>
+                    </a>
+                    <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
+                        <i class="fa fa-list-ul"></i>
+                    </a>
+                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.keyboard_shortcuts') }}">
+                        <i class="fa fa-question-circle"></i>
+                    </a>
+                    <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="Facebook">
+                        <i class="fa fa-facebook-square"></i>
+                    </a>
+                    <a href="{{ url(SOCIAL_LINK_TWITTER) }}" target="_blank" title="Twitter">
+                        <i class="fa fa-twitter-square"></i>
+                    </a>
+                    <a href="{{ url(SOCIAL_LINK_GITHUB) }}" target="_blank" title="GitHub">
+                        <i class="fa fa-github-square"></i>
+                    </a>
+                </div>
+            </li>
         </ul>
     </div>
     <!-- /#left-sidebar-wrapper -->
@@ -592,7 +593,6 @@
               @endif
             </div>
         </div>
-
     </div>
     <!-- /#page-content-wrapper -->
 </div>
@@ -734,6 +734,8 @@
   </div>
 </div>
 @endif
+
+@include('partials.keyboard_shortcuts')
 
 </div>
 

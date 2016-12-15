@@ -35,6 +35,7 @@ class ClientRepository extends BaseRepository
                     ->select(
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
+                        DB::raw("CONCAT(contacts.first_name, ' ', contacts.last_name) contact"),
                         'clients.public_id',
                         'clients.name',
                         'contacts.first_name',
@@ -42,6 +43,7 @@ class ClientRepository extends BaseRepository
                         'clients.balance',
                         'clients.last_login',
                         'clients.created_at',
+                        'clients.created_at as client_created_at',
                         'clients.work_phone',
                         'contacts.email',
                         'clients.deleted_at',
@@ -49,9 +51,7 @@ class ClientRepository extends BaseRepository
                         'clients.user_id'
                     );
 
-        if (!\Session::get('show_trash:client')) {
-            $query->where('clients.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_CLIENT);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {

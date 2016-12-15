@@ -108,7 +108,13 @@ class AppServiceProvider extends ServiceProvider
                 if ($crumb == 'company') {
                     return '';
                 }
-                $name = trans("texts.$crumb");
+
+				if ( ! Utils::isNinjaProd() && $module = \Module::find($crumb)) {
+					$name = mtrans($crumb);
+				} else {
+					$name = trans("texts.$crumb");
+				}
+
                 if ($i==count($crumbs)-1) {
                     $str .= "<li class='active'>$name</li>";
                 } else {

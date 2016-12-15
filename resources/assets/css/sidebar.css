@@ -167,8 +167,26 @@
         text-overflow: ellipsis;
     }
 
-    .sidebar-nav li:hover div {
-        max-width:186px;
+    .sidebar-nav li div.nav-footer {
+        text-indent: 16px;
+        line-height: 36px;
+        position: fixed;
+        bottom:0;
+        left:0;
+        right:0;
+        text-align:left;
+        background-color:#000;
+        width:100%;
+        min-width:250px;
+        border-top-style: solid;
+    }
+
+    .sidebar-nav li div.nav-footer i {
+        color:#ccc !important;
+    }
+
+    .sidebar-nav li div.nav-footer i:hover {
+        color:#fff !important;
     }
 
     #wrapper {

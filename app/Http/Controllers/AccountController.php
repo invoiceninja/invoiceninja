@@ -212,7 +212,7 @@ class AccountController extends BaseController
 
             $days_total = $planDetails['paid']->diff($planDetails['expires'])->days;
             $percent_used = $days_used / $days_total;
-            $credit = $planDetails['plan_price'] * (1 - $percent_used);
+            $credit = floatval($company->payment->amount) * (1 - $percent_used);
         }
 
         if ($newPlan['price'] > $credit) {
@@ -224,7 +224,9 @@ class AccountController extends BaseController
             }
         } else {
 
-            if ($plan != PLAN_FREE) {
+            if ($plan == PLAN_FREE) {
+                $company->discount = 0;
+            } else {
                 $company->plan_term = $term;
                 $company->plan_price = $newPlan['price'];
                 $company->num_users = $numUsers;
@@ -244,9 +246,26 @@ class AccountController extends BaseController
      * @param $visible
      * @return mixed
      */
-    public function setTrashVisible($entityType, $visible)
+    public function setEntityFilter($entityType, $filter = '')
     {
-        Session::put("show_trash:{$entityType}", $visible == 'true');
+        if ($filter == 'true') {
+            $filter = '';
+        }
+
+        // separate state and status filters
+        $filters = explode(',', $filter);
+        $stateFilter = [];
+        $statusFilter = [];
+        foreach ($filters as $filter) {
+            if (in_array($filter, \App\Models\EntityModel::$statuses)) {
+                $stateFilter[] = $filter;
+            } else {
+                $statusFilter[] = $filter;
+            }
+        }
+
+        Session::put("entity_state_filter:{$entityType}", join(',', $stateFilter));
+        Session::put("entity_status_filter:{$entityType}", join(',', $statusFilter));
 
         return RESULT_SUCCESS;
     }
@@ -720,8 +739,26 @@ class AccountController extends BaseController
      */
     private function saveAccountManagement()
     {
-        $account = Auth::user()->account;
+        $user = Auth::user();
+        $account = $user->account;
         $modules = Input::get('modules');
+
+        $user->force_pdfjs = Input::get('force_pdfjs') ? true : false;
+        $user->save();
+
+        $account->live_preview = Input::get('live_preview') ? true : false;
+
+        // Automatically disable live preview when using a large font
+        $fonts = Cache::get('fonts')->filter(function($font) use ($account) {
+            if ($font->google_font) {
+                return false;
+            }
+            return $font->id == $account->header_font_id || $font->id == $account->body_font_id;
+        });
+        if ($account->live_preview && count($fonts)) {
+            $account->live_preview = false;
+            Session::flash('warning', trans('texts.live_preview_disabled'));
+        }
 
         $account->enabled_modules = $modules ? array_sum($modules) : 0;
         $account->save();
@@ -880,27 +917,29 @@ class AccountController extends BaseController
 
             if (Input::get('custom_link') == 'subdomain') {
                 $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-                $exclude = [
-                    'www',
-                    'app',
-                    'mail',
-                    'admin',
-                    'blog',
-                    'user',
-                    'contact',
-                    'payment',
-                    'payments',
-                    'billing',
-                    'invoice',
-                    'business',
-                    'owner',
-                    'info',
-                    'ninja',
-                    'docs',
-                    'doc',
-                    'documents'
-                ];
-                $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
+                if (Utils::isNinja()) {
+                    $exclude = [
+                        'www',
+                        'app',
+                        'mail',
+                        'admin',
+                        'blog',
+                        'user',
+                        'contact',
+                        'payment',
+                        'payments',
+                        'billing',
+                        'invoice',
+                        'business',
+                        'owner',
+                        'info',
+                        'ninja',
+                        'docs',
+                        'doc',
+                        'documents'
+                    ];
+                    $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
+                }
             } else {
                 $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
                 $iframeURL = rtrim($iframeURL, '/');
@@ -1035,19 +1074,6 @@ class AccountController extends BaseController
             $account->invoice_design_id = Input::get('invoice_design_id');
             $account->font_size = intval(Input::get('font_size'));
             $account->page_size = Input::get('page_size');
-            $account->live_preview = Input::get('live_preview') ? true : false;
-
-            // Automatically disable live preview when using a large font
-            $fonts = Cache::get('fonts')->filter(function($font) use ($account) {
-                if ($font->google_font) {
-                    return false;
-                }
-                return $font->id == $account->header_font_id || $font->id == $account->body_font_id;
-            });
-            if ($account->live_preview && count($fonts)) {
-                $account->live_preview = false;
-                Session::flash('warning', trans('texts.live_preview_disabled'));
-            }
 
             $labels = [];
             foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms', 'balance_due', 'partial_due', 'subtotal', 'paid_to_date', 'discount', 'tax'] as $field) {

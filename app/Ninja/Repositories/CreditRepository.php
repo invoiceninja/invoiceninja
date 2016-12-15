@@ -19,7 +19,6 @@ class CreditRepository extends BaseRepository
                     ->join('clients', 'clients.id', '=', 'credits.client_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('clients.account_id', '=', \Auth::user()->account_id)
-                    ->where('clients.deleted_at', '=', null)
                     ->where('contacts.deleted_at', '=', null)
                     ->where('contacts.is_primary', '=', true)
                     ->select(
@@ -43,11 +42,11 @@ class CreditRepository extends BaseRepository
 
         if ($clientPublicId) {
             $query->where('clients.public_id', '=', $clientPublicId);
+        } else {
+            $query->whereNull('clients.deleted_at');
         }
 
-        if (!\Session::get('show_trash:credit')) {
-            $query->where('credits.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_CREDIT);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
@@ -95,9 +94,9 @@ class CreditRepository extends BaseRepository
             \Log::warning('Entity not set in credit repo save');
         } else {
             $credit = Credit::createNew();
+            $credit->client_id = Client::getPrivateId($input['client']);
         }
 
-        $credit->client_id = Client::getPrivateId($input['client']);
         $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         $credit->amount = Utils::parseFloat($input['amount']);
         $credit->balance = Utils::parseFloat($input['amount']);

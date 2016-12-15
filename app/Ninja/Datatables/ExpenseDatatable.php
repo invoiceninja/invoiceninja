@@ -7,6 +7,7 @@ use Auth;
 class ExpenseDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE;
+    public $sortCol = 3;
 
     public function columns()
     {
@@ -81,7 +82,7 @@ class ExpenseDatatable extends EntityDatatable
                 }
             ],
             [
-                'expense_status_id',
+                'status',
                 function ($model) {
                     return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance);
                 }
@@ -113,7 +114,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 trans('texts.invoice_expense'),
                 function ($model) {
-                    return "javascript:invoiceEntity({$model->public_id})";
+                    return "javascript:submitForm_expense('invoice', {$model->public_id})";
                 },
                 function ($model) {
                     return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);

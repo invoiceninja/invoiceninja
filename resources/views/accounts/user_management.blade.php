@@ -16,7 +16,7 @@
 
     <label for="trashed" style="font-weight:normal; margin-left: 10px;">
         <input id="trashed" type="checkbox" onclick="setTrashVisible()"
-            {!! Session::get('show_trash:user') ? 'checked' : ''!!}/> {!! trans('texts.show_archived_users')!!}
+            {!! Session::get('entity_state_filter:user') != 'active' ? 'checked' : ''!!}/> {!! trans('texts.show_archived_users')!!}
     </label>
 
   @include('partials.bulk_form', ['entityType' => ENTITY_USER])
@@ -41,7 +41,7 @@
 
     function setTrashVisible() {
         var checked = $('#trashed').is(':checked');
-        var url = '{{ URL::to('view_archive/user') }}' + (checked ? '/true' : '/false');
+        var url = '{{ URL::to('set_entity_filter/user') }}' + (checked ? '/active,archived' : '/active');
 
         $.get(url, function(data) {
             refreshDatatable();

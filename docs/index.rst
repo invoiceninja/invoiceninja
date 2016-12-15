@@ -36,11 +36,12 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    data_visualizations
    api_tokens
    user_management
-   
+
 .. _self_host:
 
 .. toctree::
    :maxdepth: 1
    :caption: Self Host
-   
+
    iphone_app
+   custom_modules
