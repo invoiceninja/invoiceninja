@@ -161,6 +161,7 @@
                                         trans('texts.first_name') => ['value' => 'first_name', 'name' => 'first_name'],
                                         trans('texts.last_name') => ['value' => 'last_name', 'name' => 'last_name'],
                                         trans('texts.email') => ['value' => 'email', 'name' => 'email'],
+                                        trans('texts.vat_number') => ['value' => 'vat_number', 'name' => 'vat_number'],
                                     ]) !!}
 
                             {!! Former::inline_radios('landing_page')
@@ -287,7 +288,7 @@
                         '<input type="hidden" name="account_key" value="{{ $account->account_key }}"/>' + "\n" +
                         '<input type="hidden" name="product_id" value="' + productId + '"/>' + "\n";
 
-            @foreach (['first_name', 'last_name', 'email'] as $field)
+            @foreach (['first_name', 'last_name', 'email', 'vat_number'] as $field)
                 if ($('input#{{ $field }}').is(':checked')) {
                     form += '<input type="{{ $field == 'email' ? 'email' : 'text' }}" name="{{ $field }}" placeholder="{{ trans("texts.{$field}") }}" required/>' + "\n";
                     link += '&{{ $field }}=';
