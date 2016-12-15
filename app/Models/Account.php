@@ -7,6 +7,7 @@ use DateTime;
 use Event;
 use Cache;
 use App;
+use Carbon;
 use App\Events\UserSettingsChanged;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -1395,7 +1396,7 @@ class Account extends Eloquent
             $date = date_create();
         }
 
-        return $date->format('Y-m-d');
+        return Carbon::instance($date);
     }
 
     /**

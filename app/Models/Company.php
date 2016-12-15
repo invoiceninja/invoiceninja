@@ -54,13 +54,15 @@ class Company extends Eloquent
     }
 
     // handle promos and discounts
-    public function hasActiveDiscount()
+    public function hasActiveDiscount(Carbon $date = null)
     {
         if ( ! $this->discount) {
             return false;
         }
 
-        return $this->discount_expires && $this->discount_expires->gt(Carbon::today());
+        $date = $date ?: Carbon::today();
+
+        return $this->discount_expires && $this->discount_expires->gt($date);
     }
 
     public function discountedPrice($price)
