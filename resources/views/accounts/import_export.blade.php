@@ -81,6 +81,7 @@
                 @include('partials/checkbox', ['field' => 'payments'])
             </div>
             <div class="col-lg-3 col-sm-3">
+                @include('partials/checkbox', ['field' => 'products'])
                 @include('partials/checkbox', ['field' => 'expenses'])
                 @include('partials/checkbox', ['field' => 'vendors'])
                 @include('partials/checkbox', ['field' => 'vendor_contacts'])
