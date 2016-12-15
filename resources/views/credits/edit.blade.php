@@ -22,7 +22,7 @@
             <div class="panel-body">
 
 			@if ($credit)
-				{!! Former::plaintext()->label('client')->value($client->present()->link) !!}
+				{!! Former::plaintext()->label('client')->value($client->getDisplayName()) !!}
 			@else
 				{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 			@endif
