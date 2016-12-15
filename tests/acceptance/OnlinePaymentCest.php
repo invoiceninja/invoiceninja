@@ -79,7 +79,7 @@ class OnlinePaymentCest
             */
 
             $I->fillField('#card_number', '4242424242424242');
-            $I->fillField('#cvv', '1234');
+            $I->fillField('#cvv', '100');
             $I->selectOption('#expiration_month', 12);
             $I->selectOption('#expiration_year', date('Y'));
             $I->click('.btn-success');
