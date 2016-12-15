@@ -209,7 +209,7 @@ class TaskController extends BaseController
         return [
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'account' => Auth::user()->account,
-            'projects' => Project::scope()->with('client.contacts')->withArchived()->orderBy('name')->get(),
+            'projects' => Project::scope()->with('client.contacts')->orderBy('name')->get(),
         ];
     }
 
