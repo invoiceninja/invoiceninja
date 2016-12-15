@@ -2272,6 +2272,8 @@ $LANG = array(
     'mark_paid' => 'Mark Paid',
     'marked_sent_invoice' => 'Successfully marked invoice sent',
     'marked_sent_invoices' => 'Successfully marked invoices sent',
+    'invoice_name' => 'Invoice',
+
 );
 
 return $LANG;

@@ -20,7 +20,7 @@ class PaymentDatatable extends EntityDatatable
     {
         return [
             [
-                'invoice_number',
+                'invoice_name',
                 function ($model) {
                     if(!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->invoice_user_id])){
                         return $model->invoice_number;
@@ -47,13 +47,13 @@ class PaymentDatatable extends EntityDatatable
                 }
             ],
             [
-                'payment_type',
+                'method',
                 function ($model) {
                     return ($model->payment_type && !$model->last4) ? $model->payment_type : ($model->account_gateway_id ? $model->gateway_name : '');
                 }
             ],
             [
-                'payment_type_id',
+                'source',
                 function ($model) {
                     $code = str_replace(' ', '', strtolower($model->payment_type));
                     $card_type = trans('texts.card_' . $code);
