@@ -281,18 +281,18 @@
 	 		$('#plan_term').closest('.form-group').toggle(plan!='free');
 
 			if(plan=='{{PLAN_PRO}}'){
-				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_PRO_MONTHLY)])) !!});
-				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_PRO_MONTHLY) * 10])) !!});
+				$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_PRO_MONTHLY])) !!});
+				$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_PRO_MONTHLY * 10])) !!});
 			} else if(plan=='{{PLAN_ENTERPRISE}}') {
                 if (numUsers == 2) {
-                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_2)])) !!});
-                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_2) * 10])) !!});
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_2])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_2 * 10])) !!});
                 } else if (numUsers == 5) {
-                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_5)])) !!});
-                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_5) * 10])) !!});
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10])) !!});
                 } else {
-                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_10)])) !!});
-                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>$account->company->discountedPrice(PLAN_PRICE_ENTERPRISE_MONTHLY_10) * 10])) !!});
+                    $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10])) !!});
+                    $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10])) !!});
                 }
 			}
   	  	}

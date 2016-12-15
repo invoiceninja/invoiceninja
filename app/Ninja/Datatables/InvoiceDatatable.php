@@ -205,6 +205,7 @@ class InvoiceDatatable extends EntityDatatable
         $actions = parent::bulkActions();
 
         if ($this->entityType == ENTITY_INVOICE || $this->entityType == ENTITY_QUOTE) {
+            $actions[] = \DropdownButton::DIVIDER;
             $actions[] = [
                 'label' => mtrans($this->entityType, 'mark_sent'),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("markSent")',
