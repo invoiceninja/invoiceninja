@@ -21,6 +21,7 @@ class CreateProjectRequest extends ProjectRequest
     {
         return [
             'name' => sprintf('required|unique:projects,name,,id,account_id,%s', $this->user()->account_id),
+            'client_id' => 'required',
         ];
     }
 }

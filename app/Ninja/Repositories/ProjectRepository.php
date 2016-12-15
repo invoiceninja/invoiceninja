@@ -65,6 +65,7 @@ class ProjectRepository extends BaseRepository
 
         if ( ! $project) {
             $project = Project::createNew();
+            $project['client_id'] = $input['client_id'];
         }
 
         $project->fill($input);

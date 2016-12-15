@@ -79,7 +79,7 @@ class ProjectController extends BaseController
 
     public function store(CreateProjectRequest $request)
     {
-        $project = $this->projectRepo->save($request->input());
+        $project = $this->projectService->save($request->input());
 
         Session::flash('message', trans('texts.created_project'));
 
@@ -88,7 +88,7 @@ class ProjectController extends BaseController
 
     public function update(UpdateProjectRequest $request)
     {
-        $project = $this->projectRepo->save($request->input(), $request->entity());
+        $project = $this->projectService->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_project'));
 

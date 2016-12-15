@@ -45,13 +45,13 @@ class ProjectService extends BaseService
      * @param $data
      * @return mixed|null
      */
-    public function save($data)
+    public function save($data, $project)
     {
         if (isset($data['client_id']) && $data['client_id']) {
             $data['client_id'] = Client::getPrivateId($data['client_id']);
         }
 
-        return $this->projectRepo->save($data);
+        return $this->projectRepo->save($data, $project);
     }
 
     /**

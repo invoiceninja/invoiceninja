@@ -7,6 +7,7 @@
             ->method($method)
             ->rules([
                 'name' => 'required',
+				'client_id' => 'required',
             ]) !!}
 
     @if ($project)
@@ -26,11 +27,18 @@
             </div>
             <div class="panel-body">
 
+				@if ($project)
+					{!! Former::plaintext('client_name')
+							->value($project->client->getDisplayName()) !!}
+				@else
+					{!! Former::select('client_id')
+							->addOption('', '')
+							->label(trans('texts.client'))
+							->addGroupClass('client-select') !!}
+				@endif
+
                 {!! Former::text('name') !!}
 
-				{!! Former::select('client_id')
-						->addOption('', '')
-						->label(trans('texts.client')) !!}
 
             </div>
             </div>
@@ -51,8 +59,6 @@
 		var clients = {!! $clients !!};
 
         $(function() {
-            $('#name').focus();
-
 			var $clientSelect = $('select#client_id');
             for (var i=0; i<clients.length; i++) {
                 var client = clients[i];
@@ -65,7 +71,9 @@
 			@if ($clientPublicId)
 				$clientSelect.val({{ $clientPublicId }});
 			@endif
-			$clientSelect.combobox();
+			$clientSelect.combobox().focus();
+
+			$('.client-select input.form-control').focus();
         });
 
     </script>

@@ -22,7 +22,6 @@ class Project extends EntityModel
      */
     protected $fillable = [
         'name',
-        'client_id',
     ];
 
     /**
