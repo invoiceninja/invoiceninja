@@ -634,8 +634,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('EVENT_CREATE_QUOTE', 3);
     define('EVENT_CREATE_PAYMENT', 4);
     define('EVENT_CREATE_VENDOR', 5);
-
-	// Added new events
     define('EVENT_UPDATE_QUOTE', 6);
     define('EVENT_DELETE_QUOTE', 7);
     define('EVENT_UPDATE_INVOICE', 8);
