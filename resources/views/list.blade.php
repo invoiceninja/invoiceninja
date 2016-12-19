@@ -63,7 +63,7 @@
 
 
 {!! Datatable::table()
-	->addColumn(Utils::trans($datatable->columnFields()))
+	->addColumn(Utils::trans($datatable->columnFields(), $datatable->entityType))
 	->setUrl(url('api/' . Utils::pluralizeEntityType($entityType) . '/' . (isset($clientId) ? $clientId : (isset($vendorId) ? $vendorId : ''))))
     ->setCustomValues('rightAlign', isset($rightAlign) ? $rightAlign : [])
 	->setCustomValues('entityType', Utils::pluralizeEntityType($entityType))

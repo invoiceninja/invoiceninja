@@ -266,7 +266,7 @@ class Utils
         return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
     }
 
-    public static function trans($input)
+    public static function trans($input, $module = false)
     {
         $data = [];
 
@@ -274,7 +274,11 @@ class Utils
             if ($field == 'checkbox') {
                 $data[] = $field;
             } elseif ($field) {
-                $data[] = trans("texts.$field");
+                if ($module) {
+                    $data[] = mtrans($module, $field);
+                } else {
+                    $data[] = trans("texts.$field");
+                }
             } else {
                 $data[] = '';
             }

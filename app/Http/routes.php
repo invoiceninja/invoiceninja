@@ -923,11 +923,16 @@ if (!defined('CONTACT_EMAIL')) {
             $text = $entityType;
         }
 
+        // check if this has been translated in a module language file
         if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
-            return trans("{$module->getLowerName()}::texts.{$text}");
-        } else {
-            return trans("texts.{$text}");
+            $key = "{$module->getLowerName()}::texts.{$text}";
+            $value = trans($key);
+            if ($key != $value) {
+                return $value;
+            }
         }
+
+        return trans("texts.{$text}");
     }
 }
 
