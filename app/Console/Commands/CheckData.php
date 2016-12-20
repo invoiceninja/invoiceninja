@@ -73,12 +73,16 @@ class CheckData extends Command {
         $this->logMessage('Done');
         $errorEmail = env('ERROR_EMAIL');
 
-        if ( ! $this->isValid && $errorEmail) {
-            Mail::raw($this->log, function ($message) use ($errorEmail) {
-                $message->to($errorEmail)
-                        ->from(CONTACT_EMAIL)
-                        ->subject('Check-Data');
-            });
+        if ( ! $this->isValid) {
+            if ($errorEmail) {
+                Mail::raw($this->log, function ($message) use ($errorEmail) {
+                    $message->to($errorEmail)
+                            ->from(CONTACT_EMAIL)
+                            ->subject('Check-Data');
+                });
+            } else {
+                $this->info($this->log);
+            }
         }
     }
 
@@ -92,7 +96,7 @@ class CheckData extends Command {
         $count = DB::table('activities')
                     ->where('activity_type_id', '=', 5)
                     ->where('json_backup', '=', '')
-                    ->whereNotIn('id', [634386, 756352, 756353, 756356, 820872])
+                    ->where('id', '>', 858720)
                     ->count();
 
         if ($count > 0) {
@@ -209,6 +213,7 @@ class CheckData extends Command {
                     ->where('accounts.id', '!=', 20432)
                     ->where('clients.is_deleted', '=', 0)
                     ->where('invoices.is_deleted', '=', 0)
+                    ->where('invoices.is_public', '=', 1)
                     ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
                     ->where('invoices.is_recurring', '=', 0)
                     ->havingRaw('abs(clients.balance - sum(invoices.balance)) > .01 and clients.balance != 999999999.9999');

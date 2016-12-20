@@ -22,6 +22,7 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\DocumentRepository;
+use App\Ninja\Datatables\InvoiceDatatable;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use App\Services\RecurringInvoiceService;
@@ -57,21 +58,11 @@ class InvoiceController extends BaseController
         $data = [
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
-            'sortCol' => '3',
-            'columns' => Utils::trans([
-                'checkbox',
-                'invoice_number',
-                'client',
-                'invoice_date',
-                'invoice_total',
-                'balance_due',
-                'due_date',
-                'status',
-                ''
-            ]),
+            'statuses' => Invoice::getStatuses(),
+            'datatable' => new InvoiceDatatable(),
         ];
 
-        return response()->view('list', $data);
+        return response()->view('list_wrapper', $data);
     }
 
     public function getDatatable($clientPublicId = null)
@@ -108,6 +99,7 @@ class InvoiceController extends BaseController
 
         if ($clone) {
             $invoice->id = $invoice->public_id = null;
+            $invoice->is_public = false;
             $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
@@ -138,10 +130,6 @@ class InvoiceController extends BaseController
             DropdownButton::DIVIDER
         ];
 
-        if ($invoice->invoice_status_id < INVOICE_STATUS_SENT && !$invoice->is_recurring) {
-            $actions[] = ['url' => 'javascript:onMarkClick()', 'label' => trans('texts.mark_sent')];
-        }
-
         if ($entityType == ENTITY_QUOTE) {
             if ($invoice->quote_invoice_id) {
                 $actions[] = ['url' => URL::to("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans('texts.view_invoice')];
@@ -153,7 +141,8 @@ class InvoiceController extends BaseController
                 $actions[] = ['url' => URL::to("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (!$invoice->is_recurring && $invoice->balance > 0) {
+            if (!$invoice->is_recurring && $invoice->balance > 0 && $invoice->is_public) {
+                $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }
 
@@ -203,7 +192,7 @@ class InvoiceController extends BaseController
         }
 
         // Set the invitation data on the client's contacts
-        if (!$clone) {
+        if ($invoice->is_public && ! $clone) {
             $clients = $data['clients'];
             foreach ($clients as $client) {
                 if ($client->id != $invoice->client->id) {
@@ -523,7 +512,13 @@ class InvoiceController extends BaseController
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {
-            $key = $action == 'markSent' ? "updated_{$entityType}" : "{$action}d_{$entityType}";
+            if ($action == 'markSent') {
+                $key = 'marked_sent_invoice';
+            } elseif ($action == 'markPaid') {
+                $key = 'created_payment';
+            } else {
+                $key = "{$action}d_{$entityType}";
+            }
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }

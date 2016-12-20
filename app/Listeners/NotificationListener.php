@@ -80,6 +80,10 @@ class NotificationListener
      */
     public function viewedInvoice(InvoiceInvitationWasViewed $event)
     {
+        if ( ! floatval($event->invoice->balance)) {
+            return;
+        }
+
         $this->sendEmails($event->invoice, 'viewed');
         $this->pushService->sendNotification($event->invoice, 'viewed');
     }
@@ -89,6 +93,10 @@ class NotificationListener
      */
     public function viewedQuote(QuoteInvitationWasViewed $event)
     {
+        if ($event->quote->quote_invoice_id) {
+            return;
+        }
+
         $this->sendEmails($event->quote, 'viewed');
         $this->pushService->sendNotification($event->quote, 'viewed');
     }

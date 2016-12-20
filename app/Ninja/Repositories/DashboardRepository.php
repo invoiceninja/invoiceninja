@@ -47,7 +47,7 @@ class DashboardRepository
                 $count += $item->count;
                 $balance += isset($item->balance) ? $item->balance : 0;
             }, $records);
-            
+
             $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
             $endDate->modify('+1 '.$padding);
             $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
@@ -181,7 +181,7 @@ class DashboardRepository
         return $metrics->groupBy('accounts.id')->first();
     }
 
-    public function paidToDate($account, $userId, $viewAll)
+    public function paidToDate($account, $userId, $viewAll, $startDate = false)
     {
         $accountId = $account->id;
         $select = DB::raw(
@@ -195,13 +195,16 @@ class DashboardRepository
             ->where('payments.account_id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
+            ->where('payments.is_deleted', '=', false)
             ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
         if (!$viewAll){
             $paidToDate->where('invoices.user_id', '=', $userId);
         }
 
-        if ($account->financial_year_start) {
+        if ($startDate) {
+            $paidToDate->where('payments.payment_date', '>=', $startDate);
+        } elseif ($account->financial_year_start) {
             $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
             $paidToDate->where('payments.payment_date', '>=', $yearStart);
         }

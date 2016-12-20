@@ -155,6 +155,11 @@
                                 ->inlineHelp('buy_now_buttons_warning')
                                 ->addGroupClass('product-select') !!}
 
+                            {!! Former::text('redirect_url')
+                                    ->onchange('updateBuyNowButtons()')
+                                    ->placeholder('https://www.example.com')
+                                    ->help('redirect_url_help') !!}
+
                             {!! Former::checkboxes('client_fields')
                                     ->onchange('updateBuyNowButtons()')
                                     ->checkboxes([
@@ -274,6 +279,7 @@
         var productId = $('#product').val();
         var landingPage = $('input[name=landing_page_type]:checked').val()
         var paymentType = landingPage == 'payment' ? '/' + $('#payment_type').val() : '';
+        var redirectUrl = $('#redirect_url').val();
 
         var form = '';
         var link = '';
@@ -293,6 +299,11 @@
                     link += '&{{ $field }}=';
                 }
             @endforeach
+
+            if (redirectUrl) {
+                link += '&redirect_url=' + encodeURIComponent(redirectUrl);
+                form += '<input type="hidden" name="redirect_url" value="' + redirectUrl + '"/>' + "\n";
+            }
 
             form += '<input type="submit" value="Buy Now" name="submit"/>' + "\n" + '</form>';
         }

@@ -185,5 +185,13 @@ table td {
     border-top-left-radius: 3px;
 }
 
+.dt-right,
+.dt-left {
+    margin-top: 16px;
+}
+.pagination>ul {
+    margin: 0px;
+}
+
 /* hide table sorting indicators */
 table.data-table thead .sorting { background: url('') no-repeat center right; }

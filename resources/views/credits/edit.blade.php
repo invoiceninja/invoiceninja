@@ -8,13 +8,25 @@
   		'amount' => 'required',
 	)) !!}
 
+	@if ($credit)
+      {!! Former::populate($credit) !!}
+      <div style="display:none">
+          {!! Former::text('public_id') !!}
+      </div>
+	@endif
+
 	<div class="row">
         <div class="col-md-10 col-md-offset-1">
 
             <div class="panel panel-default">
             <div class="panel-body">
 
-			{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+			@if ($credit)
+				{!! Former::plaintext()->label('client')->value($client->getDisplayName()) !!}
+			@else
+				{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+			@endif
+
 			{!! Former::text('amount') !!}
 			{!! Former::text('credit_date')
                         ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
@@ -39,28 +51,30 @@
 	<script type="text/javascript">
 
 
-	var clients = {!! $clients !!};
+	var clients = {!! $clients ?: 'false' !!};
 
 	$(function() {
 
-		var $clientSelect = $('select#client');
-		for (var i=0; i<clients.length; i++) {
-			var client = clients[i];
-            var clientName = getClientDisplayName(client);
-            if (!clientName) {
-                continue;
-            }
-			$clientSelect.append(new Option(clientName, client.public_id));
-		}
+		@if ( ! $credit)
+			var $clientSelect = $('select#client');
+			for (var i=0; i<clients.length; i++) {
+				var client = clients[i];
+	            var clientName = getClientDisplayName(client);
+	            if (!clientName) {
+	                continue;
+	            }
+				$clientSelect.append(new Option(clientName, client.public_id));
+			}
 
-		if ({{ $clientPublicId ? 'true' : 'false' }}) {
-			$clientSelect.val({{ $clientPublicId }});
-		}
+			if ({{ $clientPublicId ? 'true' : 'false' }}) {
+				$clientSelect.val({{ $clientPublicId }});
+			}
 
-		$clientSelect.combobox();
+			$clientSelect.combobox();
+		@endif
 
 		$('#currency_id').combobox();
-		$('#credit_date').datepicker('update', new Date());
+		$('#credit_date').datepicker('update', '{{ $credit ? $credit->credit_date : 'new Date()' }}');
 
         @if (!$clientPublicId)
             $('.client-select input.form-control').focus();

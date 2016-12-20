@@ -190,6 +190,7 @@ class DocumentRepository extends BaseRepository
           ->where('invoices.is_deleted', '=', false)
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', false)
+          ->where('invoices.is_public', '=', true)
           // TODO: This needs to be a setting to also hide the activity on the dashboard page
           //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
           ->select(

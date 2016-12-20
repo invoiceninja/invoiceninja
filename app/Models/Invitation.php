@@ -97,8 +97,8 @@ class Invitation extends EntityModel
             if ($this->$field && $this->field != '0000-00-00 00:00:00') {
                 $date = Utils::dateToString($this->$field);
                 $hasValue = true;
+                $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
             }
-            $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
         }
 
         return $hasValue ? implode($parts, '<br/>') : false;
@@ -121,6 +121,11 @@ class Invitation extends EntityModel
         $this->email_error = null;
         $this->sent_date = Carbon::now()->toDateTimeString();
         $this->save();
+    }
+
+    public function isSent()
+    {
+        return $this->sent_date && $this->sent_date != '0000-00-00 00:00:00';
     }
 
     public function markViewed()

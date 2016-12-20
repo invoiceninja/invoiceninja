@@ -2,6 +2,8 @@
 
 use App\Models\Invoice;
 
+
+
 class CreatePaymentAPIRequest extends PaymentRequest
 {
     /**
@@ -9,6 +11,9 @@ class CreatePaymentAPIRequest extends PaymentRequest
      *
      * @return bool
      */
+
+
+
     public function authorize()
     {
         return $this->user()->can('create', ENTITY_PAYMENT);
@@ -30,6 +35,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
 
         $invoice = Invoice::scope($this->invoice_id)
             ->invoices()
+            ->whereIsPublic(true)
             ->firstOrFail();
 
         $this->merge([
@@ -47,4 +53,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
 
         return $rules;
     }
+
+
+
 }

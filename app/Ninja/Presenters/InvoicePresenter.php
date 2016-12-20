@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Presenters;
 
+use stdClass;
 use Utils;
 use App\Libraries\Skype\InvoiceCard;
 
@@ -140,5 +141,25 @@ class InvoicePresenter extends EntityPresenter {
     public function skypeBot()
     {
         return new InvoiceCard($this->entity);
+    }
+
+    public function rBits()
+    {
+        $properties = new stdClass();
+        $properties->terms_text = $this->entity->terms;
+        $properties->note = $this->entity->public_notes;
+        $properties->itemized_receipt = [];
+
+        foreach ($this->entity->invoice_items as $item) {
+            $properties->itemized_receipt[] = $item->present()->rBits;
+        }
+
+        $data = new stdClass();
+        $data->receive_time = time();
+        $data->type = 'transaction_details';
+        $data->source = 'user';
+        $data->properties = $properties;
+
+        return [$data];
     }
 }

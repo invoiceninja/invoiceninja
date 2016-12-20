@@ -1,0 +1,10 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use App\Http\Requests\EntityRequest;
+
+class $CLASS$Request extends EntityRequest
+{
+    protected $entityType = '$LOWER_NAME$';
+}

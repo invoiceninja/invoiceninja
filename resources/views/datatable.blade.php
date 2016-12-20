@@ -32,7 +32,7 @@
     </tbody>
 </table>
 <script type="text/javascript">
-    @if (isset($values['entityType']))
+    @if (isset($values['clientId']) && $values['clientId'])
             window.load_{{ $values['entityType'] }} = function load_{{ $values['entityType'] }}() {
                 load_{{ $class }}();
             }
@@ -60,7 +60,6 @@
             },
             "bAutoWidth": false,
             @if (isset($hasCheckboxes) && $hasCheckboxes)
-            'aaSorting': [['1', 'asc']],
             // Disable sorting on the first column
             "aoColumnDefs": [
                 {
@@ -80,9 +79,17 @@
             {!! json_encode($k) !!}: {!! $o !!},
             @endforeach
             "fnDrawCallback": function(oSettings) {
-                if (window.onDatatableReady) {
-                    window.onDatatableReady();
-                }
+                @if (isset($values['entityType']))
+                    if (window.onDatatableReady_{{ $values['entityType'] }}) {
+                        window.onDatatableReady_{{ $values['entityType'] }}();
+                    } else if (window.onDatatableReady) {
+                        window.onDatatableReady();
+                    }
+                @else
+                    if (window.onDatatableReady) {
+                        window.onDatatableReady();
+                    }
+                @endif
             },
             "stateLoadParams": function (settings, data) {
                 // don't save filter to local storage

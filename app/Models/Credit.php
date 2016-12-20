@@ -62,6 +62,14 @@ class Credit extends EntityModel
     }
 
     /**
+     * @return string
+     */
+    public function getRoute()
+    {
+        return "/credits/{$this->public_id}";
+    }
+
+    /**
      * @return mixed
      */
     public function getEntityType()

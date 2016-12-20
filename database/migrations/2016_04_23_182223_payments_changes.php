@@ -64,6 +64,11 @@ class PaymentsChanges extends Migration
             $table->timestamps();
             $table->softDeletes();
 
+            $table->unsignedInteger('public_id')->index();
+        });
+
+        Schema::table('payment_methods', function($table)
+        {
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
@@ -71,7 +76,6 @@ class PaymentsChanges extends Migration
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
             $table->foreign('currency_id')->references('id')->on('currencies');
 
-            $table->unsignedInteger('public_id')->index();
             $table->unique( array('account_id','public_id') );
         });
 

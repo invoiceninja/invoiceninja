@@ -3,6 +3,9 @@
 @section('head')
     @parent
 
+    <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
+
     @if ($vendor->hasAddress())
         <style>
           #map {
@@ -167,22 +170,15 @@
 
 	<ul class="nav nav-tabs nav-justified">
 		{!! Form::tab_link('#expenses', trans('texts.expenses')) !!}
-	</ul>
+	</ul><br/>
 
 	<div class="tab-content">
         <div class="tab-pane" id="expenses">
-	    	{!! Datatable::table()
-						->addColumn(
-								trans('texts.expense_date'),
-								trans('texts.amount'),
-								trans('texts.public_notes'))
-				->setUrl(url('api/vendor_expense/' . $vendor->public_id))
-                ->setCustomValues('entityType', 'expenses')
-				->setOptions('sPaginationType', 'bootstrap')
-				->setOptions('bFilter', false)
-				->setOptions('aaSorting', [['0', 'asc']])
-				->render('datatable')
-				!!}
+            @include('list', [
+                'entityType' => ENTITY_EXPENSE,
+                'datatable' => new \App\Ninja\Datatables\ExpenseDatatable(true, true),
+                'vendorId' => $vendor->public_id,
+            ])
         </div>
     </div>
 
@@ -199,7 +195,7 @@
 		});
 
         $('.nav-tabs a[href="#expenses"]').tab('show');
-        load_expenses();
+        //load_expenses();
 	});
 
 	function onArchiveClick() {

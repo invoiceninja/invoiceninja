@@ -1,0 +1,34 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use App\Models\EntityModel;
+use Laracasts\Presenter\PresentableTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class $CLASS$ extends EntityModel
+{
+    use PresentableTrait;
+    use SoftDeletes;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'Modules\$CLASS$\Presenters\$CLASS$Presenter';
+
+    /**
+     * @var string
+     */
+    protected $fillable = $FILLABLE$;
+
+    /**
+     * @var string
+     */
+    protected $table = '$LOWER_NAME$';
+
+    public function getEntityType()
+    {
+        return '$LOWER_NAME$';
+    }
+
+}

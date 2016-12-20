@@ -160,6 +160,7 @@ function ViewModel(data) {
 function InvoiceModel(data) {
     var self = this;
     this.client = ko.observable(data ? false : new ClientModel());
+    this.is_public = ko.observable(0);
     self.account = {!! $account !!};
     self.id = ko.observable('');
     self.discount = ko.observable('');
@@ -313,6 +314,7 @@ function InvoiceModel(data) {
         for(var p=0; p < self.invoice_items().length; ++p) {
             var item = self.invoice_items()[p];
             total += item.totals.rawTotal();
+            total = roundToTwo(total);
         }
         return total;
     });

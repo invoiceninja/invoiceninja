@@ -184,6 +184,8 @@
                 ->render('datatable') !!}
         </div>
 
+        <p>&nbsp;</p>
+
     </div>
 
 @stop

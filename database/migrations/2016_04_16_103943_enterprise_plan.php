@@ -32,7 +32,7 @@ class EnterprisePlan extends Migration
                 $table->date('plan_expires')->nullable();
 
                 $table->unsignedInteger('payment_id')->nullable();
-                $table->foreign('payment_id')->references('id')->on('payments');
+
 
                 $table->date('trial_started')->nullable();
                 $table->enum('trial_plan', array('pro', 'enterprise'))->nullable();
@@ -42,6 +42,11 @@ class EnterprisePlan extends Migration
 
                 $table->timestamps();
                 $table->softDeletes();
+            });
+
+            Schema::table('companies', function($table)
+            {
+                $table->foreign('payment_id')->references('id')->on('payments');
             });
         }
 

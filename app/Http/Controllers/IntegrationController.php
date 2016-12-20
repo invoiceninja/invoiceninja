@@ -38,6 +38,6 @@ class IntegrationController extends Controller
             return Response::json('Failed to create subscription', 500);
         }
 
-        return Response::json('{"id":'.$subscription->id.'}', 201);
+        return Response::json(['id' => $subscription->id], 201);
     }
 }

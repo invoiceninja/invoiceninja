@@ -6,6 +6,7 @@ use Input;
 use Session;
 use App\Services\ExpenseCategoryService;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
+use App\Ninja\Datatables\ExpenseCategoryDatatable;
 use App\Http\Requests\ExpenseCategoryRequest;
 use App\Http\Requests\CreateExpenseCategoryRequest;
 use App\Http\Requests\UpdateExpenseCategoryRequest;
@@ -29,15 +30,10 @@ class ExpenseCategoryController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_EXPENSE_CATEGORY,
+            'datatable' => new ExpenseCategoryDatatable(),
             'title' => trans('texts.expense_categories'),
-            'sortCol' => '1',
-            'columns' => Utils::trans([
-              'checkbox',
-              'name',
-              ''
-            ]),
         ]);
     }
 
@@ -78,7 +74,7 @@ class ExpenseCategoryController extends BaseController
 
         Session::flash('message', trans('texts.created_expense_category'));
 
-        return redirect()->to($category->getRoute());
+        return redirect()->to('/expense_categories');
     }
 
     public function update(UpdateExpenseCategoryRequest $request)

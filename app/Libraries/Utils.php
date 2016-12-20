@@ -431,6 +431,12 @@ class Utils
 
     public static function pluralizeEntityType($type)
     {
+        if ( ! Utils::isNinjaProd()) {
+            if ($module = \Module::find($type)) {
+                return $module->get('plural', $type);
+            }
+        }
+
         if ($type === ENTITY_EXPENSE_CATEGORY) {
             return 'expense_categories';
         } else {
@@ -708,11 +714,6 @@ class Utils
         return $year + $offset;
     }
 
-    public static function getEntityClass($entityType)
-    {
-        return 'App\\Models\\' . static::getEntityName($entityType);
-    }
-
     public static function getEntityName($entityType)
     {
         return ucwords(Utils::toCamelCase($entityType));
@@ -725,7 +726,7 @@ class Utils
         } elseif ($model->first_name || $model->last_name) {
             return $model->first_name.' '.$model->last_name;
         } else {
-            return $model->email;
+            return $model->email ?: '';
         }
     }
 
@@ -1064,6 +1065,22 @@ class Utils
         return collect(static::$weekdayNames)->transform(function ($day) {
              return trans('texts.'.strtolower($day));
         });
+    }
+
+    public static function getReadableUrl($path)
+    {
+        $url = static::getDocsUrl($path);
+
+        $parts = explode('/', $url);
+        $part = $parts[count($parts) - 1];
+        $part = str_replace('#', '> ', $part);
+        $part = str_replace(['.html', '-', '_'], ' ', $part);
+
+        if ($part) {
+            return trans('texts.user_guide') . ': ' . ucwords($part);
+        } else {
+            return trans('texts.user_guide');
+        }
     }
 
     public static function getDocsUrl($path)

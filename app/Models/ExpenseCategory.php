@@ -47,5 +47,4 @@ class ExpenseCategory extends EntityModel
     {
         return "/expense_categories/{$this->public_id}/edit";
     }
-
 }

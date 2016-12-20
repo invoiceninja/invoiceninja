@@ -21,7 +21,7 @@ class AddSourceCurrencyToExpenses extends Migration
                 $table->renameColumn('currency_id', 'invoice_currency_id');
             }
 
-            $table->unsignedInteger('expense_currency_id');
+            $table->unsignedInteger('expense_currency_id')->nullable()->index();
         });
 
         Schema::table('expenses', function (Blueprint $table) {

@@ -1,0 +1,43 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Utils;
+use URL;
+use Auth;
+use App\Ninja\Datatables\EntityDatatable;
+
+class $CLASS$Datatable extends EntityDatatable
+{
+    public $entityType = '$LOWER_NAME$';
+    public $sortCol = 1;
+
+    public function columns()
+    {
+        return [
+            $DATATABLE_COLUMNS$
+            [
+                'created_at',
+                function ($model) {
+                    return Utils::fromSqlDateTime($model->created_at);
+                }
+            ],
+        ];
+    }
+
+    public function actions()
+    {
+        return [
+            [
+                mtrans('$LOWER_NAME$', 'edit_$LOWER_NAME$'),
+                function ($model) {
+                    return URL::to("$LOWER_NAME$/{$model->public_id}/edit");
+                },
+                function ($model) {
+                    return Auth::user()->can('editByOwner', ['$LOWER_NAME$', $model->user_id]);
+                }
+            ],
+        ];
+    }
+
+}

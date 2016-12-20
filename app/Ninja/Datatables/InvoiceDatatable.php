@@ -7,6 +7,7 @@ use Auth;
 class InvoiceDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_INVOICE;
+    public $sortCol = 3;
 
     public function columns()
     {
@@ -14,7 +15,7 @@ class InvoiceDatatable extends EntityDatatable
 
         return [
             [
-                'invoice_number',
+                $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
                     if(!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->user_id])){
                         return $model->invoice_number;
@@ -34,9 +35,9 @@ class InvoiceDatatable extends EntityDatatable
                 ! $this->hideClient
             ],
             [
-                'invoice_date',
+                'date',
                 function ($model) {
-                    return Utils::fromSqlDate($model->invoice_date);
+                    return Utils::fromSqlDate($model->date);
                 }
             ],
             [
@@ -58,13 +59,13 @@ class InvoiceDatatable extends EntityDatatable
                 $entityType == ENTITY_INVOICE
             ],
             [
-                'due_date',
+                $entityType == ENTITY_INVOICE ? 'due_date' : 'valid_until',
                 function ($model) {
                     return Utils::fromSqlDate($model->due_date);
                 },
             ],
             [
-                'invoice_status_name',
+                'status',
                 function ($model) use ($entityType) {
                     return $model->quote_invoice_id ? link_to("invoices/{$model->quote_invoice_id}/edit", trans('texts.converted'))->toHtml() : self::getStatusLabel($model);
                 }
@@ -109,11 +110,20 @@ class InvoiceDatatable extends EntityDatatable
             ],
             [
                 trans('texts.mark_sent'),
-                function ($model) {
-                    return "javascript:markEntity({$model->public_id})";
+                function ($model) use ($entityType) {
+                    return "javascript:submitForm_{$entityType}('markSent', {$model->public_id})";
                 },
                 function ($model) {
                     return $model->invoice_status_id < INVOICE_STATUS_SENT && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                }
+            ],
+            [
+                trans('texts.mark_paid'),
+                function ($model) use ($entityType) {
+                    return "javascript:submitForm_{$entityType}('markPaid', {$model->public_id})";
+                },
+                function ($model) {
+                    return $model->balance > 0 && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
@@ -146,7 +156,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 trans('texts.convert_to_invoice'),
                 function ($model) {
-                    return "javascript:convertEntity({$model->public_id})";
+                    return "javascript:submitForm_quote('convert', {$model->public_id})";
                 },
                 function ($model) use ($entityType) {
                     return $entityType == ENTITY_QUOTE && ! $model->quote_invoice_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
@@ -190,4 +200,25 @@ class InvoiceDatatable extends EntityDatatable
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 
+    public function bulkActions()
+    {
+        $actions = parent::bulkActions();
+
+        if ($this->entityType == ENTITY_INVOICE || $this->entityType == ENTITY_QUOTE) {
+            $actions[] = \DropdownButton::DIVIDER;
+            $actions[] = [
+                'label' => mtrans($this->entityType, 'mark_sent'),
+                'url' => 'javascript:submitForm_'.$this->entityType.'("markSent")',
+            ];
+        }
+
+        if ($this->entityType == ENTITY_INVOICE) {
+            $actions[] = [
+                'label' => mtrans($this->entityType, 'mark_paid'),
+                'url' => 'javascript:submitForm_'.$this->entityType.'("markPaid")',
+            ];
+        }
+
+        return $actions;
+    }
 }

@@ -36,6 +36,7 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\InvoiceWasUpdated' => [
             'App\Listeners\ActivityListener@updatedInvoice',
             'App\Listeners\InvoiceListener@updatedInvoice',
+            'App\Listeners\SubscriptionListener@updatedInvoice',
         ],
         'App\Events\InvoiceWasArchived' => [
             'App\Listeners\ActivityListener@archivedInvoice',
@@ -67,6 +68,7 @@ class EventServiceProvider extends ServiceProvider {
         ],
         'App\Events\QuoteWasUpdated' => [
             'App\Listeners\ActivityListener@updatedQuote',
+            'App\Listeners\SubscriptionListener@updatedQuote',
         ],
         'App\Events\QuoteWasArchived' => [
             'App\Listeners\ActivityListener@archivedQuote',
@@ -112,7 +114,6 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\PaymentWasRefunded' => [
             'App\Listeners\ActivityListener@refundedPayment',
             'App\Listeners\InvoiceListener@refundedPayment',
-            'App\Listeners\CreditListener@refundedPayment',
         ],
         'App\Events\PaymentWasVoided' => [
             'App\Listeners\ActivityListener@voidedPayment',

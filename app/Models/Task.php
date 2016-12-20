@@ -70,6 +70,14 @@ class Task extends EntityModel
     }
 
     /**
+     * @return mixed
+     */
+    public function project()
+    {
+        return $this->belongsTo('App\Models\Project')->withTrashed();
+    }
+
+    /**
      * @param $task
      * @return string
      */
@@ -195,6 +203,18 @@ class Task extends EntityModel
 
         return $query;
     }
+
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+        $statuses[TASK_STATUS_LOGGED] = trans('texts.logged');
+        $statuses[TASK_STATUS_RUNNING] = trans('texts.running');
+        $statuses[TASK_STATUS_INVOICED] = trans('texts.invoiced');
+        $statuses[TASK_STATUS_PAID] = trans('texts.paid');
+
+        return $statuses;
+    }
+
 }
 
 

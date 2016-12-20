@@ -24,5 +24,7 @@ class UpdateSeeder extends Seeder
         $this->call('PaymentTypesSeeder');
         $this->call('LanguageSeeder');
         $this->call('IndustrySeeder');
+
+        Cache::flush();
     }
 }

@@ -10,8 +10,6 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org)
 
-**We're starting work on custom modules, join the discussion [here](https://github.com/invoiceninja/invoiceninja/issues/1131).**
-
 All Pro and Enterprise features from our hosted app are included in both the [self-host zip](https://www.invoiceninja.com/self-host/) and the GitHub repository.
 
 Our [iPhone app](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8) is now available, our Android app is up next...
@@ -57,13 +55,16 @@ Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to get
 * [D3.js](http://d3js.org/) visualizations
 
 ## Documentation
-* [Ubuntu and Apache](http://blog.technerdservices.com/index.php/2015/04/techpop-how-to-install-invoice-ninja-on-ubuntu-14-04/)
-* [Debian and Nginx](https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/)
+* [Self Host Guide](https://www.invoiceninja.com/self-host)
 * [User Guide](http://docs.invoiceninja.com/en/latest/)
 * [Developer Guide](https://www.invoiceninja.com/knowledgebase/developer-guide/)
-* [API Documentation](https://www.invoiceninja.com/api-documentation/)
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
+
+## Development
+* [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
+* [PHP SDK](https://github.com/invoiceninja/sdk-php)
+* [API Documentation](https://www.invoiceninja.com/api-documentation/)
 
 ## Contributing
 All contributors are welcome!  

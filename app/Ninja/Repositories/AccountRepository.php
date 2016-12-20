@@ -187,7 +187,8 @@ class AccountRepository
             ENTITY_VENDOR,
             ENTITY_RECURRING_INVOICE,
             ENTITY_PAYMENT,
-            ENTITY_CREDIT
+            ENTITY_CREDIT,
+            ENTITY_PROJECT,
         ];
 
         foreach ($entityTypes as $entityType) {
@@ -277,16 +278,29 @@ class AccountRepository
 
         $account = $this->getNinjaAccount();
         $lastInvoice = Invoice::withTrashed()->whereAccountId($account->id)->orderBy('public_id', 'DESC')->first();
+        $renewalDate = $clientAccount->getRenewalDate();
         $publicId = $lastInvoice ? ($lastInvoice->public_id + 1) : 1;
+
         $invoice = new Invoice();
+        $invoice->is_public = true;
         $invoice->account_id = $account->id;
         $invoice->user_id = $account->users()->first()->id;
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
         $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
-        $invoice->invoice_date = $clientAccount->getRenewalDate();
+        $invoice->invoice_date = $renewalDate->format('Y-m-d');
         $invoice->amount = $invoice->balance = $plan_cost - $credit;
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
+
+        // check for promo/discount
+        $clientCompany = $clientAccount->company;
+        if ($clientCompany->hasActivePromo() || $clientCompany->hasActiveDiscount($renewalDate)) {
+            $discount = $invoice->amount * $clientCompany->discount;
+            $invoice->discount = $clientCompany->discount * 100;
+            $invoice->amount -= $discount;
+            $invoice->balance -= $discount;
+        }
+
         $invoice->save();
 
         if ($credit) {

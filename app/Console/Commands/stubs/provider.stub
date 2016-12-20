@@ -1,0 +1,44 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use App\Providers\AuthServiceProvider;
+
+class $CLASS$ extends AuthServiceProvider
+{
+    /**
+     * Indicates if loading of the provider is deferred.
+     *
+     * @var bool
+     */
+    protected $defer = false;
+
+    /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [
+        \Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$::class => \Modules\$STUDLY_NAME$\Policies\$STUDLY_NAME$Policy::class,
+    ];
+
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @return array
+     */
+    public function provides()
+    {
+        return [];
+    }
+}

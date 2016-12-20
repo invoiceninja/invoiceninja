@@ -54,7 +54,7 @@
                 ->addOption('XLS', 'XLS')
                 ->addOption('JSON', 'JSON')
                 ->style('max-width: 200px')
-                ->inlineHelp('export_help') !!}
+                ->help('<br/>' . trans('texts.export_help')) !!}
 
 
         {!! Former::inline_radios('include_radio')
@@ -68,21 +68,25 @@
 
         <div class="form-group entity-types">
             <label class="control-label col-lg-4 col-sm-4"></label>
-            <div class="col-lg-3 col-sm-2">
+            <div class="col-lg-2 col-sm-2">
                 @include('partials/checkbox', ['field' => 'clients'])
                 @include('partials/checkbox', ['field' => 'contacts'])
                 @include('partials/checkbox', ['field' => 'credits'])
                 @include('partials/checkbox', ['field' => 'tasks'])
-                @include('partials/checkbox', ['field' => 'invoices'])
             </div>
-            <div class="col-lg-3 col-sm-3">
+            <div class="col-lg-2 col-sm-2">
+                @include('partials/checkbox', ['field' => 'invoices'])
                 @include('partials/checkbox', ['field' => 'quotes'])
                 @include('partials/checkbox', ['field' => 'recurring'])
                 @include('partials/checkbox', ['field' => 'payments'])
+            </div>
+            <div class="col-lg-3 col-sm-3">
+                @include('partials/checkbox', ['field' => 'products'])
+                @include('partials/checkbox', ['field' => 'expenses'])
                 @include('partials/checkbox', ['field' => 'vendors'])
                 @include('partials/checkbox', ['field' => 'vendor_contacts'])
             </div>
-        </div>
+        </div><br/>
 
         {!! Former::actions( Button::primary(trans('texts.download'))->submit()->large()->appendIcon(Icon::create('download-alt'))) !!}
     </div>

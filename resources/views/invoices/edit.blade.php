@@ -527,7 +527,8 @@
 
 			{!! Former::text('entityType') !!}
 			{!! Former::text('action') !!}
-            {!! Former::text('public_id')->data_bind('value: public_id') !!}
+			{!! Former::text('public_id')->data_bind('value: public_id') !!}
+			{!! Former::text('is_public')->data_bind('value: is_public') !!}
             {!! Former::text('is_recurring')->data_bind('value: is_recurring') !!}
             {!! Former::text('is_quote')->data_bind('value: is_quote') !!}
             {!! Former::text('has_tasks')->data_bind('value: has_tasks') !!}
@@ -553,7 +554,12 @@
                 <!-- do nothing -->
             @else
                 @if (!$invoice->is_deleted)
-        			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+					@if ($invoice->isSent())
+						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+					@else
+						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'draftButton', 'onclick' => 'onSaveDraftClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+						{!! Button::success(trans("texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
+					@endif
         		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
                     @if (!$invoice->trashed())
                         @if ($invoice->id)
@@ -1268,6 +1274,7 @@
         }
 
 		sweetConfirm(function() {
+			model.invoice().is_public(true);
             var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
             var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
             var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
@@ -1284,18 +1291,30 @@
 		}, getSendToEmails());
 	}
 
-	function onSaveClick() {
+	function onSaveDraftClick() {
+		model.invoice().is_public(false);
+		onSaveClick();
+	}
+
+	function onMarkSentClick() {
 		if (model.invoice().is_recurring()) {
             // warn invoice will be emailed when saving new recurring invoice
-            if ({{ $invoice->exists ? 'false' : 'true' }}) {
-                var text = getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
-                var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
-                sweetConfirm(function() {
-                    submitAction('');
-                }, text, title);
-                return;
-            // warn invoice will be emailed again if start date is changed
-            } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
+            var text = getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+            var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
+            sweetConfirm(function() {
+				model.invoice().is_public(true);
+                submitAction('');
+            }, text, title);
+            return;
+        } else {
+			model.invoice().is_public(true);
+			onSaveClick();
+		}
+	}
+
+	function onSaveClick() {
+		if (model.invoice().is_recurring()) {
+            if (model.invoice().start_date() != model.invoice().start_date_orig()) {
                 var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
                             + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
                 var title = "{!! trans("texts.warn_start_date_changed") !!}";
@@ -1384,13 +1403,13 @@
             if ($('#saveButton').is(':disabled')) {
                 return false;
             }
-            $('#saveButton, #emailButton').attr('disabled', true);
+            $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
                 NINJA.formIsChanged = false;
                 location.href = data;
             }).fail(function(data) {
-                $('#saveButton, #emailButton').attr('disabled', false);
+                $('#saveButton, #emailButton, #draftButton').attr('disabled', false);
                 var error = firstJSONError(data.responseJSON) || data.statusText;
                 swal("{!! trans('texts.invoice_save_error') !!}", error);
             });
@@ -1424,15 +1443,11 @@
 		var client = model.invoice().client();
 		for (var i=0; i<client.contacts().length; i++) {
 			var contact = client.contacts()[i];
-            if ( ! contact.send_invoice()) {
-                continue;
+            if (contact.send_invoice()) {
+                return true;
             }
-			if (isValidEmailAddress(contact.email())) {
-				sendTo = true;
-			}
 		}
-		return sendTo;
-
+		return false;
     }
 
 	function isEmailValid() {
@@ -1451,10 +1466,6 @@
 			}
 		}
 		return isValid;
-	}
-
-	function onMarkClick() {
-		submitBulkAction('markSent');
 	}
 
 	function onCloneClick() {

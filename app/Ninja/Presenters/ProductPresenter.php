@@ -4,6 +4,10 @@ use App\Libraries\Skype\HeroCard;
 
 class ProductPresenter extends EntityPresenter
 {
+    public function user()
+    {
+        return $this->entity->user->getDisplayName();
+    }
 
     public function skypeBot($account)
     {

@@ -50,6 +50,12 @@
 							</p>
 						</div>
 					</div>
+
+					@if ($account->company->hasActiveDiscount())
+						{!! Former::plaintext('discount')
+								->value($account->company->present()->discountMessage) !!}
+					@endif
+
 					@if (Utils::isNinjaProd())
 						{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
 					@endif
@@ -120,6 +126,9 @@
                                 ->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
 								->inlineHelp(trans('texts.enterprise_plan_features', ['link' => link_to(NINJA_WEB_URL . '/plans-pricing', trans('texts.click_here'), ['target' => '_blank'])])) !!}
 
+							{!! Former::plaintext(' ')
+								->inlineHelp($account->company->present()->promoMessage) !!}
+
 						</div>
 						<div class="modal-footer" style="margin-top: 0px">
                             @if (Utils::isPro())
@@ -142,6 +151,9 @@
 
 
 		{!! Former::open('settings/account_management') !!}
+		{!! Former::populateField('live_preview', intval($account->live_preview)) !!}
+		{!! Former::populateField('force_pdfjs', intval(Auth::user()->force_pdfjs)) !!}
+
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h3 class="panel-title">{!! trans('texts.modules') !!}</h3>
@@ -167,6 +179,33 @@
 				</div>
 			</div>
 		</div>
+
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h3 class="panel-title">{!! trans('texts.pdf_settings') !!}</h3>
+			</div>
+			<div class="panel-body">
+
+				{!! Former::checkbox('live_preview')
+						->text(trans('texts.enable'))
+						->help('live_preview_help') !!}
+
+				{!! Former::checkbox('force_pdfjs')
+						->text(trans('texts.enable'))
+						->help(trans('texts.force_pdfjs_help', [
+							'chrome_link' => link_to(CHROME_PDF_HELP_URL, 'Chrome', ['target' => '_blank']),
+							'firefox_link' => link_to(FIREFOX_PDF_HELP_URL, 'Firefox', ['target' => '_blank']),
+						])) !!}
+
+				<div class="form-group">
+					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>
+					<div class="col-lg-8 col-sm-8">
+						{!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+					</div>
+				</div>
+			</div>
+		</div>
+
 		{!! Former::close() !!}
 
 		{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}

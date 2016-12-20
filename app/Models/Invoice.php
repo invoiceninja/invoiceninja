@@ -153,7 +153,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function affectsBalance()
     {
-        return $this->isType(INVOICE_TYPE_STANDARD) && !$this->is_recurring;
+        return $this->isType(INVOICE_TYPE_STANDARD) && !$this->is_recurring && $this->is_public;
     }
 
     /**
@@ -161,7 +161,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getAdjustment()
     {
-        if (!$this->affectsBalance()) {
+        if ( ! $this->affectsBalance()) {
             return 0;
         }
 
@@ -173,6 +173,11 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     private function getRawAdjustment()
     {
+        // if we've just made the invoice public then apply the full amount
+        if ($this->is_public && ! $this->getOriginal('is_public')) {
+            return $this->amount;
+        }
+
         return floatval($this->amount) - floatval($this->getOriginal('amount'));
     }
 
@@ -357,6 +362,16 @@ class Invoice extends EntityModel implements BalanceAffecting
      * @param $query
      * @return mixed
      */
+    public function scopeRecurring($query)
+    {
+        return $query->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                     ->where('is_recurring', '=', true);
+    }
+
+    /**
+     * @param $query
+     * @return mixed
+     */
     public function scopeQuotes($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)
@@ -400,9 +415,28 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function markInvitationsSent($notify = false)
     {
+        if ( ! $this->relationLoaded('invitations')) {
+            $this->load('invitations');
+        }
+
         foreach ($this->invitations as $invitation) {
             $this->markInvitationSent($invitation, false, $notify);
         }
+    }
+
+    public function areInvitationsSent()
+    {
+        if ( ! $this->relationLoaded('invitations')) {
+            $this->load('invitations');
+        }
+
+        foreach ($this->invitations as $invitation) {
+            if ( ! $invitation->isSent()) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -1248,6 +1282,35 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         return $recurInvoice->auto_bill == AUTO_BILL_ALWAYS || ($recurInvoice->auto_bill != AUTO_BILL_OFF && $recurInvoice->client_enable_auto_bill);
+    }
+
+    public static function getStatuses($entityType = false)
+    {
+        $statuses = [];
+
+        if ($entityType == ENTITY_RECURRING_INVOICE) {
+            return $statuses;
+        }
+
+        foreach (\Cache::get('invoiceStatus') as $status) {
+            if ($entityType == ENTITY_QUOTE) {
+                if (in_array($status->id, [INVOICE_STATUS_PAID, INVOICE_STATUS_PARTIAL])) {
+                    continue;
+                }
+            } elseif ($entityType == ENTITY_INVOICE) {
+                if (in_array($status->id, [INVOICE_STATUS_APPROVED])) {
+                    continue;
+                }
+            }
+
+            $statuses[$status->id] = trans('texts.status_' . strtolower($status->name));
+        }
+
+        if ($entityType == ENTITY_INVOICE) {
+            $statuses[INVOICE_STATUS_OVERDUE] = trans('texts.overdue');
+        }
+
+        return $statuses;
     }
 }
 

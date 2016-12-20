@@ -150,11 +150,13 @@
                         @if ($account->custom_invoice_text_label2)
                             <li>$customInvoice1</li>
                         @endif
-                        @if (count($account->account_gateways) > 1)
+                        @if (count($account->account_gateways) > 0)
                             @foreach (\App\Models\Gateway::$gatewayTypes as $type)
                                 @if ($account->getGatewayByType($type))
-                                    <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Link</li>
-                                    <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Button</li>
+                                    @if ($type != GATEWAY_TYPE_TOKEN)
+                                        <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Link</li>
+                                        <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Button</li>
+                                    @endif
                                 @endif
                             @endforeach
                         @endif
@@ -297,11 +299,13 @@
 
             // Add any available payment method links
             @foreach (\App\Models\Gateway::$gatewayTypes as $type)
-                {!! "keys.push('" . Utils::toCamelCase($type).'Link' . "');" !!}
-                {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
+                @if ($type != GATEWAY_TYPE_TOKEN)
+                    {!! "keys.push('" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)).'Link' . "');" !!}
+                    {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
 
-                {!! "keys.push('" . Utils::toCamelCase($type).'Button' . "');" !!}
-                {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
+                    {!! "keys.push('" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)).'Button' . "');" !!}
+                    {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
+                @endif
             @endforeach
 
             var includesPasswordPlaceholder = str.indexOf('$password') != -1;

@@ -176,6 +176,14 @@ class Client extends EntityModel
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function publicQuotes()
+    {
+        return $this->hasMany('App\Models\Invoice')->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)->whereIsPublic(true);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function payments()
     {
         return $this->hasMany('App\Models\Payment');

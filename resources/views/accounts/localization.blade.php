@@ -83,8 +83,8 @@
             if ( ! currency || ! currency.symbol) {
                 $('.currrency_radio').hide();
             } else {
-                symbolExample = formatMoney(100, currencyId, {{ Auth::user()->account->country_id }}, '{{ CURRENCY_DECORATOR_SYMBOL }}');
-                codeExample = formatMoney(100, currencyId, {{ Auth::user()->account->country_id }}, '{{ CURRENCY_DECORATOR_CODE }}');
+                symbolExample = formatMoney(1000, currencyId, {{ Auth::user()->account->country_id }}, '{{ CURRENCY_DECORATOR_SYMBOL }}');
+                codeExample = formatMoney(1000, currencyId, {{ Auth::user()->account->country_id }}, '{{ CURRENCY_DECORATOR_CODE }}');
                 $('.currrency_radio').show();
             }
 

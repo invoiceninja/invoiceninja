@@ -7,6 +7,7 @@ use Auth;
 class VendorDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_VENDOR;
+    public $sortCol = 4;
 
     public function columns()
     {
@@ -36,7 +37,7 @@ class VendorDatatable extends EntityDatatable
                 }
             ],
             [
-                'vendors.created_at',
+                'date',
                 function ($model) {
                     return Utils::timestampToDateString(strtotime($model->created_at));
                 }

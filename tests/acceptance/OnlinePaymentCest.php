@@ -53,7 +53,7 @@ class OnlinePaymentCest
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
-        $I->click('Save');
+        $I->click('Mark Sent');
         $I->see($clientEmail);
 
         // enter payment
@@ -79,7 +79,7 @@ class OnlinePaymentCest
             */
 
             $I->fillField('#card_number', '4242424242424242');
-            $I->fillField('#cvv', '1234');
+            $I->fillField('#cvv', '100');
             $I->selectOption('#expiration_month', 12);
             $I->selectOption('#expiration_year', date('Y'));
             $I->click('.btn-success');
@@ -96,7 +96,8 @@ class OnlinePaymentCest
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->selectOption('#auto_bill', 3);
-        $I->executeJS('preparePdfData(\'email\')');
+        $I->executeJS('model.invoice().is_public(true);');
+        $I->executeJS('preparePdfData(\'email\');');
         $I->wait(3);
         $I->see("$0.00");
 

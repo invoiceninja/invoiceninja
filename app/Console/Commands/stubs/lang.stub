@@ -1,0 +1,19 @@
+<?php
+
+$LANG = array(
+
+    '$LOWER_NAME$' => '$STUDLY_NAME$',
+    '$LOWER_NAME$_list' => '$STUDLY_NAME$ List',
+    'archive_$LOWER_NAME$' => 'Archive $STUDLY_NAME$',
+    'delete_$LOWER_NAME$' => 'Delete $STUDLY_NAME$',
+    'edit_$LOWER_NAME$' => 'Edit $STUDLY_NAME$',
+    'restore_$LOWER_NAME$' => 'Restore $STUDLY_NAME$',
+    'new_$LOWER_NAME$' => 'New $STUDLY_NAME$',
+    'created_$LOWER_NAME$' => 'Successfully created $LOWER_NAME$',
+    'updated_$LOWER_NAME$' => 'Successfully updated $LOWER_NAME$',
+
+);
+
+return $LANG;
+
+?>

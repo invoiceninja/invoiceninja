@@ -13,6 +13,7 @@ use App\Services\PaymentService;
 use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\CreatePaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
+use App\Ninja\Datatables\PaymentDatatable;
 
 class PaymentController extends BaseController
 {
@@ -59,22 +60,10 @@ class PaymentController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => ENTITY_PAYMENT,
+            'datatable' => new PaymentDatatable(),
             'title' => trans('texts.payments'),
-            'sortCol' => '7',
-            'columns' => Utils::trans([
-              'checkbox',
-              'invoice',
-              'client',
-              'transaction_reference',
-              'method',
-              'source',
-              'payment_amount',
-              'payment_date',
-              'status',
-              ''
-            ]),
         ]);
     }
 
@@ -94,8 +83,8 @@ class PaymentController extends BaseController
     public function create(PaymentRequest $request)
     {
         $invoices = Invoice::scope()
-                    ->invoiceType(INVOICE_TYPE_STANDARD)
-                    ->where('is_recurring', '=', false)
+                    ->invoices()
+                    ->whereIsPublic(true)
                     ->where('invoices.balance', '>', 0)
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
@@ -139,8 +128,11 @@ class PaymentController extends BaseController
         $data = [
             'client' => null,
             'invoice' => null,
-            'invoices' => Invoice::scope()->invoiceType(INVOICE_TYPE_STANDARD)->where('is_recurring', '=', false)
-                            ->with('client', 'invoice_status')->orderBy('invoice_number')->get(),
+            'invoices' => Invoice::scope()
+                            ->invoices()
+                            ->whereIsPublic(true)
+                            ->with('client', 'invoice_status')
+                            ->orderBy('invoice_number')->get(),
             'payment' => $payment,
             'entity' => $payment,
             'method' => 'PUT',
@@ -172,7 +164,7 @@ class PaymentController extends BaseController
             Session::flash('message', trans('texts.created_payment'));
         }
 
-        return redirect()->to($payment->client->getRoute());
+        return redirect()->to($payment->client->getRoute() . '#payments');
     }
 
     /**
@@ -203,6 +195,6 @@ class PaymentController extends BaseController
             Session::flash('message', $message);
         }
 
-        return redirect()->to('payments');
+        return $this->returnBulk(ENTITY_PAYMENT, $action, $ids);
     }
 }
