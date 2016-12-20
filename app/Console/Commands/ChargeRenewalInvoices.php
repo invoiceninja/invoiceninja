@@ -90,6 +90,14 @@ class ChargeRenewalInvoices extends Command
         }
 
         $this->info('Done');
+
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw('EOM', function ($message) use ($errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('ChargeRenewalInvoices: Finished successfully');
+            });
+        }
     }
 
     /**

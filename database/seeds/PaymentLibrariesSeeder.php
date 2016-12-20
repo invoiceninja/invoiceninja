@@ -68,7 +68,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Fasapay', 'provider' => 'Fasapay'],
             ['name' => 'Komoju', 'provider' => 'Komoju'],
             ['name' => 'Multicards', 'provider' => 'Multicards'],
-            ['name' => 'Pagar.Me', 'provider' => 'Pagarme'],
+            ['name' => 'Pagar.Me', 'provider' => 'Pagarme', 'payment_library_id' => 2],
             ['name' => 'Paysafecard', 'provider' => 'Paysafecard'],
             ['name' => 'Paytrace', 'provider' => 'Paytrace_CreditCard'],
             ['name' => 'Secure Trading', 'provider' => 'SecureTrading'],
