@@ -99,6 +99,11 @@ class ClientPortalController extends BaseController
             'phone',
         ]);
 
+        // translate the client country name
+        if ($invoice->client->country) {
+            $invoice->client->country->name = trans('texts.country_' . $invoice->client->country->name);
+        }
+
         $data = [];
         $paymentTypes = $this->getPaymentTypes($account, $client, $invitation);
         $paymentURL = '';
