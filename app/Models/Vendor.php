@@ -321,12 +321,14 @@ class Vendor extends EntityModel
     /**
      * @return float|int
      */
-    public function getTotalExpense()
+    public function getTotalExpenses()
     {
         return DB::table('expenses')
-                ->where('vendor_id', '=', $this->id)
-                ->whereNull('deleted_at')
-                ->sum('amount');
+                ->select('expense_currency_id', DB::raw('SUM(amount) as amount'))
+                ->whereVendorId($this->id)
+                ->whereIsDeleted(false)
+                ->groupBy('expense_currency_id')
+                ->get();
     }
 }
 
