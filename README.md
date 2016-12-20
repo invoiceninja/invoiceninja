@@ -28,7 +28,6 @@ Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to get
 ## Requirements
 
 * PHP >= 5.5.9
-* MCrypt PHP Extension
 * MySQL
 
 ## Recommended Providers
