@@ -10,7 +10,7 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8)
 
-All Pro and Enterprise features from our hosted app are included in our open-source code.
+All Pro and Enterprise features from the hosted app are included in the open-source code.
 
 The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 
