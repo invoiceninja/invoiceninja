@@ -10,9 +10,11 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8)
 
-All Pro and Enterprise features from the hosted app are included in the open-source code. Watch this [YouTube Video](https://www.youtube.com/watch?v=xHGKvadapbA) for an overview of the app's features.
+All Pro and Enterprise features from the hosted app are included in the open-source code.
 
 The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
+
+Watch this [YouTube Video](https://www.youtube.com/watch?v=xHGKvadapbA) for an overview of the app's features.
 
 ## Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
