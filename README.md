@@ -8,7 +8,7 @@
 [![Docs](https://readthedocs.org/projects/pip/badge/?version=latest)](http://docs.invoiceninja.com/en/latest/)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8) | [Watch Video](https://www.youtube.com/watch?v=xHGKvadapbA)
+## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8)
 
 All Pro and Enterprise features from the hosted app are included in the open-source code.
 
@@ -33,7 +33,7 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
-## Features
+## Features | [Watch Video](https://www.youtube.com/watch?v=xHGKvadapbA)
 * Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Supports 50+ payment gateways with [Omnipay](https://github.com/thephpleague/omnipay)
