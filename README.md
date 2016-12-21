@@ -8,13 +8,11 @@
 [![Docs](https://readthedocs.org/projects/pip/badge/?version=latest)](http://docs.invoiceninja.com/en/latest/)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org)
+## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8)
 
-All Pro and Enterprise features from our hosted app are included in both the [self-host zip](https://www.invoiceninja.com/self-host/) and the GitHub repository.
+All Pro and Enterprise features from our hosted app are included in our open-source code.
 
-Our [iPhone app](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8) is now available, our Android app is up next...
-
-Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to get a quick overview of the app.
+The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 
 ## Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
@@ -35,7 +33,7 @@ Watch our [video on YouTube](https://www.youtube.com/watch?v=xHGKvadapbA) to get
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
-## Features
+## Features | [Watch Video](https://www.youtube.com/watch?v=xHGKvadapbA)
 * Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Supports 50+ payment gateways with [Omnipay](https://github.com/thephpleague/omnipay)
