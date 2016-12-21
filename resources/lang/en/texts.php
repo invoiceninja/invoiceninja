@@ -1326,7 +1326,7 @@ $LANG = array(
     'expense_file' => 'Expense File',
     'product_file' => 'Product File',
     'import_products' => 'Import Products',
-    'products_will_create' => 'products will be created.',
+    'products_will_create' => 'products will be created',
     'product_key' => 'Product',
     'created_products' => 'Successfully created :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.',
@@ -2273,6 +2273,7 @@ $LANG = array(
     'marked_sent_invoice' => 'Successfully marked invoice sent',
     'marked_sent_invoices' => 'Successfully marked invoices sent',
     'invoice_name' => 'Invoice',
+    'product_will_create' => 'product will be created',
 
 );
 
