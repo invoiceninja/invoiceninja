@@ -10,7 +10,7 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8)
 
-All Pro and Enterprise features from the hosted app are included in the open-source code.
+All Pro and Enterprise features from the hosted app are included in the open-source code. You can watch this [YouTube Video](https://www.youtube.com/watch?v=xHGKvadapbA) for an overview of the app's features.
 
 The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 
@@ -33,7 +33,7 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
-## Features | [Watch Video](https://www.youtube.com/watch?v=xHGKvadapbA)
+## Features
 * Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Supports 50+ payment gateways with [Omnipay](https://github.com/thephpleague/omnipay)
