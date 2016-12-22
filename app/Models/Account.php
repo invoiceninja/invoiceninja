@@ -1707,8 +1707,8 @@ class Account extends Eloquent
      */
     public function showCustomField($field, $entity = false)
     {
-        if ($this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
-            return $this->$field ? true : false;
+        if ($this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->$field) {
+            return true;
         }
 
         if (!$entity) {

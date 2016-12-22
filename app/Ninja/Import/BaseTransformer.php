@@ -143,7 +143,6 @@ class BaseTransformer extends TransformerAbstract
      */
     protected function getInvoiceNumber($number)
     {
-        $number = strtolower($number);
         return str_pad($number, 4, '0', STR_PAD_LEFT);
     }
 

@@ -203,6 +203,7 @@ trait PresentsInvoice
             'website',
             'phone',
             'blank',
+            'adjustment',
         ];
 
         foreach ($fields as $field) {
