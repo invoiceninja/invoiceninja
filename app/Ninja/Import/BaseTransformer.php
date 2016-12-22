@@ -143,8 +143,7 @@ class BaseTransformer extends TransformerAbstract
      */
     protected function getInvoiceNumber($number)
     {
-        $number = strtolower($number);
-        return str_pad($number, 4, '0', STR_PAD_LEFT);
+        return str_pad(trim($number), 4, '0', STR_PAD_LEFT);
     }
 
     /**
@@ -154,6 +153,7 @@ class BaseTransformer extends TransformerAbstract
     protected function getInvoiceId($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
+        $invoiceNumber = strtolower($invoiceNumber);
         return isset($this->maps[ENTITY_INVOICE][$invoiceNumber]) ? $this->maps[ENTITY_INVOICE][$invoiceNumber] : null;
     }
 
@@ -164,6 +164,7 @@ class BaseTransformer extends TransformerAbstract
     protected function hasInvoice($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
+        $invoiceNumber = strtolower($invoiceNumber);
         return isset($this->maps[ENTITY_INVOICE][$invoiceNumber]);
     }
 
@@ -174,6 +175,7 @@ class BaseTransformer extends TransformerAbstract
     protected function getInvoiceClientId($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
+        $invoiceNumber = strtolower($invoiceNumber);
         return isset($this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber])? $this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber] : null;
     }
 
