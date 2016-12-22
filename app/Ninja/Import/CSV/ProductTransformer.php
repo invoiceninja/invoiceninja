@@ -14,7 +14,7 @@ class ProductTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (empty($data->product_key) || $this->hasProduct($data->product_key)) {
+        if (empty($data->product_key)) {
             return false;
         }
 
