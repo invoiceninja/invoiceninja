@@ -26,7 +26,7 @@ class InvoiceTransformer extends BaseTransformer
             return [
                 'client_id' => $this->getClientId($data->name),
                 'invoice_number' => isset($data->invoice_number) ? $this->getInvoiceNumber($data->invoice_number) : null,
-                'paid' => isset($data->paid) ? (float) $data->paid : null,
+                'paid' => $this->getFloat($data, 'paid'),
                 'po_number' => $this->getString($data, 'po_number'),
                 'terms' => $this->getString($data, 'terms'),
                 'public_notes' => $this->getString($data, 'public_notes'),
@@ -35,7 +35,7 @@ class InvoiceTransformer extends BaseTransformer
                     [
                         'product_key' => '',
                         'notes' => $this->getString($data, 'notes'),
-                        'cost' => isset($data->amount) ? (float) $data->amount : null,
+                        'cost' => $this->getFloat($data, 'amount'),
                         'qty' => 1,
                     ]
                 ],

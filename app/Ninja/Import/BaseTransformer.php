@@ -64,6 +64,16 @@ class BaseTransformer extends TransformerAbstract
     }
 
     /**
+     * @param $data
+     * @param $field
+     * @return float
+     */
+    protected function getFloat($data, $field)
+    {
+        return (isset($data->$field) && $data->$field) ? Utils::parseFloat($data->$field) : 0;
+    }
+
+    /**
      * @param $name
      * @return null
      */
