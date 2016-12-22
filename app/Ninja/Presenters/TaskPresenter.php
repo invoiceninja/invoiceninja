@@ -26,6 +26,11 @@ class TaskPresenter extends EntityPresenter
         return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
     }
 
+    public function project()
+    {
+        return $this->entity->project ? $this->entity->project->name : '';
+    }
+
     /**
      * @param $account
      * @return mixed

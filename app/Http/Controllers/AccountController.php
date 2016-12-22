@@ -555,12 +555,12 @@ class AccountController extends BaseController
         $document = new stdClass();
 
         $client->name = 'Sample Client';
-        $client->address1 = trans('texts.address1');
-        $client->city = trans('texts.city');
-        $client->state = trans('texts.state');
-        $client->postal_code = trans('texts.postal_code');
-        $client->work_phone = trans('texts.work_phone');
-        $client->work_email = trans('texts.work_id');
+        $client->address1 = '10 Main St.';
+        $client->city = 'New York';
+        $client->state = 'NY';
+        $client->postal_code = '10000';
+        $client->work_phone = '(212) 555-0000';
+        $client->work_email = 'sample@example.com';
 
         $invoice->invoice_number = '0000';
         $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));

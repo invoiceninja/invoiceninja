@@ -66,11 +66,17 @@
                             ->addGroupClass('amount')
                             ->append('<span data-bind="html: expenseCurrencyCode"></span>') !!}
 
-                    {!! Former::select('client_id')
-                            ->addOption('', '')
-                            ->label(trans('texts.client'))
-                            ->data_bind('combobox: client_id')
-                            ->addGroupClass('client-select') !!}
+                    @if ($expense && $expense->invoice_id)
+                        {!! Former::plaintext()
+                                ->label('client')
+                                ->value($expense->client->getDisplayName()) !!}
+                    @else
+                        {!! Former::select('client_id')
+                                ->addOption('', '')
+                                ->label(trans('texts.client'))
+                                ->data_bind('combobox: client_id')
+                                ->addGroupClass('client-select') !!}
+                    @endif
 
                     @if (!$expense || ($expense && !$expense->invoice_id && !$expense->client_id))
                         {!! Former::checkbox('should_be_invoiced')

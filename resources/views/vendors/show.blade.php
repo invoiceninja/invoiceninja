@@ -153,8 +153,12 @@
 			<h3>{{ trans('texts.standing') }}
 			<table class="table" style="width:100%">
 				<tr>
-					<td><small>{{ trans('texts.balance') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($totalexpense, $vendor->getCurrencyId()) }}</td>
+					<td style="vertical-align: top"><small>{{ trans('texts.balance') }}</small></td>
+                    <td style="text-align: right">
+                        @foreach ($vendor->getTotalExpenses() as $currency)
+                            <p>{{ Utils::formatMoney($currency->amount, $currency->expense_currency_id) }}</p>
+                        @endforeach
+                    </td>
 				</tr>
 			</table>
 			</h3>

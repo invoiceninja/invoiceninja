@@ -279,7 +279,7 @@ class AppController extends BaseController
                 // legacy fix: check cipher is in .env file
                 if ( ! env('APP_CIPHER')) {
                     $fp = fopen(base_path().'/.env', 'a');
-                    fwrite($fp, "\nAPP_CIPHER=rijndael-128");
+                    fwrite($fp, "\nAPP_CIPHER=AES-256-CBC");
                     fclose($fp);
                 }
 

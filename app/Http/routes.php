@@ -634,8 +634,6 @@ if (!defined('CONTACT_EMAIL')) {
     define('EVENT_CREATE_QUOTE', 3);
     define('EVENT_CREATE_PAYMENT', 4);
     define('EVENT_CREATE_VENDOR', 5);
-
-	// Added new events
     define('EVENT_UPDATE_QUOTE', 6);
     define('EVENT_DELETE_QUOTE', 7);
     define('EVENT_UPDATE_INVOICE', 8);
@@ -651,7 +649,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.9.0' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.9.1' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));

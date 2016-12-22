@@ -117,10 +117,11 @@
   function refreshPDFCB(string) {
     if (!string) return;
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
-    var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }};
-    // Temporarily workaround for: https://code.google.com/p/chromium/issues/detail?id=574648
-    if (forceJS && (isFirefox || (isChrome && (!isChrome48 || {{ isset($viewPDF) && $viewPDF ? 'true' : 'false' }})))) {
+    var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'true' : 'false' }};
+    // Use the browser's built in PDF viewer
+    if ((isChrome || isFirefox) && ! forceJS) {
       $('#theFrame').attr('src', string).show();
+    // Use PDFJS to view the PDF
     } else {
       if (isRefreshing) {
         needsRefresh = true;

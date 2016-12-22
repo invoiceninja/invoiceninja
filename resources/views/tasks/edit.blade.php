@@ -47,9 +47,21 @@
             <div class="panel panel-default">
             <div class="panel-body">
 
-            {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
-            {!! Former::select('project_id')->addOption('', '')->addGroupClass('project-select')
-                    ->label(trans('texts.project')) !!}
+            @if ($task && $task->invoice_id)
+                {!! Former::plaintext()
+                        ->label('client')
+                        ->value($task->client->getDisplayName()) !!}
+                @if ($task->project)
+                    {!! Former::plaintext()
+                            ->label('project')
+                            ->value($task->present()->project) !!}
+                @endif
+            @else
+                {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+                {!! Former::select('project_id')->addOption('', '')->addGroupClass('project-select')
+                        ->label(trans('texts.project')) !!}
+            @endif
+
             {!! Former::textarea('description')->rows(3) !!}
 
             @if ($task)

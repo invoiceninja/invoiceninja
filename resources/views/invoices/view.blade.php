@@ -285,7 +285,7 @@
 
 		</script>
 
-		@include('invoices.pdf', ['account' => $invoice->client->account, 'viewPDF' => true])
+		@include('invoices.pdf', ['account' => $invoice->client->account])
 
 		<p>&nbsp;</p>
 
