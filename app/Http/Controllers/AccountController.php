@@ -192,7 +192,7 @@ class AccountController extends BaseController
                     $paymentDriver = $ninjaAccount->paymentDriver();
                     $paymentDriver->refundPayment($payment);
                     Session::flash('message', trans('texts.plan_refunded'));
-                    \Log::info("Refunded Plan Payment: {$account->name} - {$user->email}");
+                    \Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$refund_deadline->format('Y-m-d')}");
                 } else {
                     Session::flash('message', trans('texts.updated_plan'));
                 }
