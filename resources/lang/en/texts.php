@@ -2278,6 +2278,7 @@ $LANG = array(
     'last_30_days' => 'Last 30 Days',
     'this_month' => 'This Month',
     'last_month' => 'Last Month',
+    'last_year' => 'Last Year',
     'custom_range' => 'Custom Range',
     'url' => 'URL',
     'debug' => 'Debug',

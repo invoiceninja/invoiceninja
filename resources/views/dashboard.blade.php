@@ -114,7 +114,8 @@
                    "{{ trans('texts.last_7_days') }}": [moment().subtract(6, 'days'), moment()],
                    "{{ trans('texts.last_30_days') }}": [moment().subtract(29, 'days'), moment()],
                    "{{ trans('texts.this_month') }}": [moment().startOf('month'), moment().endOf('month')],
-                   "{{ trans('texts.last_month') }}": [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                   "{{ trans('texts.last_month') }}": [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+				   "{{ trans('texts.last_year') }}": [moment().subtract(1, 'year'), moment()],
                 }
             }, cb);
 

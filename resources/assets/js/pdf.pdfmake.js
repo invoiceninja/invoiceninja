@@ -114,7 +114,7 @@ function GetPdfMake(invoice, javascript, callback) {
     // set page size
     dd.pageSize = invoice.account.page_size;
 
-    // dd.watermark = 'PAID';
+    //dd.watermark = {text: 'PAID', color: 'blue', opacity: 0.3};
 
     pdfMake.fonts = {}
     fonts = window.invoiceFonts || invoice.invoice_fonts;
