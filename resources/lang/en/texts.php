@@ -2274,6 +2274,7 @@ $LANG = array(
     'marked_sent_invoices' => 'Successfully marked invoices sent',
     'invoice_name' => 'Invoice',
     'product_will_create' => 'product will be created',
+    'contact_us_response' => 'Your message has been sent',
 
 );
 

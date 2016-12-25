@@ -517,7 +517,7 @@
             @include('partials.navigation_option', ['option' => 'settings'])
             <li style="width:100%">
                 <div class="nav-footer">
-                    <a href="{{ url(NINJA_CONTACT_URL) }}" target="_blank" title="{{ trans('texts.contact_us') }}">
+                    <a href="javascript:showContactUs()" target="_blank" title="{{ trans('texts.contact_us') }}">
                         <i class="fa fa-envelope"></i>
                     </a>
                     <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
@@ -597,6 +597,7 @@
     <!-- /#page-content-wrapper -->
 </div>
 
+@include('partials.contact_us')
 
 @if (!Auth::check() || !Auth::user()->registered)
 <div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
