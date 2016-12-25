@@ -76,7 +76,7 @@ elixir(function(mix) {
     mix.scripts([
         'pdf_viewer.js',
         'compatibility.js',
-        'pdfmake.js',
+        bowerDir + '/pdfmake/build/pdfmake.js',
         'vfs.js'
     ], 'public/pdf.built.js');
 
