@@ -208,9 +208,6 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <div style="overflow:hidden">
-					<div class="range-label-div in-thin pull-right" style="color:#337ab7">
-						{{ trans('texts.last_30_days') }}
-					</div>
                     <div class="in-thin">
                         {{ trans('texts.total_revenue') }}
                     </div>
@@ -229,6 +226,9 @@
                             </div>
                         @endif
                     </div>
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+						{{ trans('texts.last_30_days') }}
+					</div>
                 </div>
             </div>
         </div>
@@ -238,9 +238,6 @@
             <div class="panel-body">
                 <div style="overflow:hidden">
                     @if (count($expenses))
-						<div class="range-label-div in-thin pull-right" style="color:#337ab7">
-							{{ trans('texts.last_30_days') }}
-						</div>
                         <div class="in-thin">
                             {{ trans('texts.total_expenses') }}
                         </div>
@@ -254,9 +251,6 @@
                             @endforeach
                         </div>
                     @else
-						<div class="range-label-div in-thin pull-right" style="color:#337ab7">
-							{{ trans('texts.last_30_days') }}
-						</div>
                         <div class="in-thin">
                             {{ trans('texts.average_invoice') }}
                         </div>
@@ -276,6 +270,9 @@
                             @endif
                         </div>
                     @endif
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+						{{ trans('texts.last_30_days') }}
+					</div>
                 </div>
             </div>
         </div>
@@ -284,9 +281,6 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <div style="overflow:hidden">
-					<div class="range-label-div in-thin pull-right" style="color:#337ab7">
-						{{ trans('texts.last_30_days') }}
-					</div>
                     <div class="in-thin">
                         {{ trans('texts.outstanding') }}
                     </div>
@@ -305,6 +299,9 @@
                             </div>
                         @endif
                     </div>
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+						{{ trans('texts.last_30_days') }}
+					</div>
                 </div>
             </div>
         </div>
