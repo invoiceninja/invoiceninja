@@ -150,6 +150,16 @@ class ImportService
 
         $this->checkClientCount(count($json['clients']));
 
+        foreach ($json['products'] as $jsonProduct) {
+            if (EntityModel::validate($jsonProduct, ENTITY_PRODUCT) === true) {
+                $product = $this->productRepo->save($jsonProduct);
+                $this->addSuccess($product);
+            } else {
+                $this->addFailure(ENTITY_PRODUCT, $jsonProduct);
+                continue;
+            }
+        }
+
         foreach ($json['clients'] as $jsonClient) {
 
             if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
@@ -677,7 +687,7 @@ class ImportService
     {
         EntityModel::$notifySubscriptions = false;
 
-        foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_QUOTE] as $entityType) {
+        foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_QUOTE, ENTITY_PRODUCT] as $entityType) {
             $this->results[$entityType] = [
                 RESULT_SUCCESS => [],
                 RESULT_FAILURE => [],
