@@ -2280,6 +2280,10 @@ $LANG = array(
     'this_month' => 'This Month',
     'last_month' => 'Last Month',
     'custom_range' => 'Custom Range',
+    'url' => 'URL',
+    'debug' => 'Debug',
+    'https' => 'HTTPS',
+    'require' => 'Require',
 
 );
 

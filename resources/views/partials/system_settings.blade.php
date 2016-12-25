@@ -3,11 +3,9 @@
         <h3 class="panel-title">Application Settings</h3>
       </div>
       <div class="panel-body form-padding-right">
-        {!! Former::text('app[url]')->label('URL')->value(isset($_ENV['APP_URL']) ? $_ENV['APP_URL'] : Request::root()) !!}
-        {!! Former::checkbox('debug')
-                ->label('Debug')
-                ->text(trans('texts.enable'))
-                ->check(config('app.debug')) !!}
+        {!! Former::text('app[url]')->label(trans('texts.url'))->value(isset($_ENV['APP_URL']) ? $_ENV['APP_URL'] : Request::root()) !!}
+        {!! Former::checkbox('debug')->text(trans('texts.enable'))->check(config('app.debug')) !!}
+        {!! Former::checkbox('https')->text(trans('texts.require'))->check(env('REQUIRE_HTTPS')) !!}
 
       </div>
     </div>
