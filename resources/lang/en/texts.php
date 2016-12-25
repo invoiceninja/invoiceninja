@@ -2275,6 +2275,11 @@ $LANG = array(
     'invoice_name' => 'Invoice',
     'product_will_create' => 'product will be created',
     'contact_us_response' => 'Your message has been sent',
+    'last_7_days' => 'Last 7 Days',
+    'last_30_days' => 'Last 30 Days',
+    'this_month' => 'This Month',
+    'last_month' => 'Last Month',
+    'custom_range' => 'Custom Range',
 
 );
 

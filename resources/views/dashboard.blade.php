@@ -94,25 +94,27 @@
 
             // Initialize date range selector
 
-            function cb(start, end) {
+            function cb(start, end, label) {
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
                 chartStartDate = start;
                 chartEndDate = end;
+				$('.range-label-div').text(label);
                 loadData();
             }
 
             $('#reportrange').daterangepicker({
                 locale: {
-                    "format": "{{ $account->getMomentDateFormat() }}",
+                    format: "{{ $account->getMomentDateFormat() }}",
+					customRangeLabel: "{{ trans('texts.custom_range') }}",
                 },
-                startDate: chartStartDate,
+				startDate: chartStartDate,
                 endDate: chartEndDate,
                 linkedCalendars: false,
                 ranges: {
-                   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                   'This Month': [moment().startOf('month'), moment().endOf('month')],
-                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                   "{{ trans('texts.last_7_days') }}": [moment().subtract(6, 'days'), moment()],
+                   "{{ trans('texts.last_30_days') }}": [moment().subtract(29, 'days'), moment()],
+                   "{{ trans('texts.this_month') }}": [moment().startOf('month'), moment().endOf('month')],
+                   "{{ trans('texts.last_month') }}": [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                 }
             }, cb);
 
@@ -206,6 +208,9 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <div style="overflow:hidden">
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7">
+						{{ trans('texts.last_30_days') }}
+					</div>
                     <div class="in-thin">
                         {{ trans('texts.total_revenue') }}
                     </div>
@@ -233,6 +238,9 @@
             <div class="panel-body">
                 <div style="overflow:hidden">
                     @if (count($expenses))
+						<div class="range-label-div in-thin pull-right" style="color:#337ab7">
+							{{ trans('texts.last_30_days') }}
+						</div>
                         <div class="in-thin">
                             {{ trans('texts.total_expenses') }}
                         </div>
@@ -246,6 +254,9 @@
                             @endforeach
                         </div>
                     @else
+						<div class="range-label-div in-thin pull-right" style="color:#337ab7">
+							{{ trans('texts.last_30_days') }}
+						</div>
                         <div class="in-thin">
                             {{ trans('texts.average_invoice') }}
                         </div>
@@ -273,6 +284,9 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <div style="overflow:hidden">
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7">
+						{{ trans('texts.last_30_days') }}
+					</div>
                     <div class="in-thin">
                         {{ trans('texts.outstanding') }}
                     </div>
