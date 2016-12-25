@@ -6,7 +6,7 @@
     <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
 
-    @if ($vendor->hasAddress())
+    @if ($vendor->showMap())
         <style>
           #map {
             width: 100%;
@@ -167,7 +167,7 @@
     </div>
     </div>
 
-    @if ($vendor->hasAddress())
+    @if ($vendor->showMap())
         <div id="map"></div>
         <br/>
     @endif
@@ -219,7 +219,7 @@
 		}
 	}
 
-    @if ($vendor->hasAddress())
+    @if ($vendor->showMap())
         function initialize() {
             var mapCanvas = document.getElementById('map');
             var mapOptions = {

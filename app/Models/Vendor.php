@@ -270,6 +270,14 @@ class Vendor extends EntityModel
     /**
      * @return bool
      */
+    public function showMap()
+    {
+        return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
+    }
+
+    /**
+     * @return bool
+     */
     public function hasAddress()
     {
         $fields = [
