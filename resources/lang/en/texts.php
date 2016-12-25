@@ -2225,7 +2225,6 @@ $LANG = array(
 
     'vendor_name' => 'Vendor',
     'entity_state' => 'State',
-    'payment_status_name' => 'Status',
     'client_created_at' => 'Date Created',
     'postmark_error' => 'There was a problem sending the email through Postmark: :link',
     'project' => 'Project',

@@ -64,4 +64,30 @@ class EntityDatatable
 
         return $data;
     }
+
+    public function rightAlignIndices()
+    {
+        return $this->alignIndices(['amount', 'balance', 'cost']);
+    }
+
+    public function centerAlignIndices()
+    {
+        return $this->alignIndices(['status']);
+    }
+
+    public function alignIndices($fields)
+    {
+        $columns = $this->columnFields();
+        $indices = [];
+
+        foreach ($columns as $index => $column) {
+            if (in_array($column, $fields)) {
+                $indices[] = $index + 1;
+            }
+        }
+
+        return $indices;
+    }
+
+
 }

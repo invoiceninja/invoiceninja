@@ -65,7 +65,6 @@
 {!! Datatable::table()
 	->addColumn(Utils::trans($datatable->columnFields(), $datatable->entityType))
 	->setUrl(url('api/' . Utils::pluralizeEntityType($entityType) . '/' . (isset($clientId) ? $clientId : (isset($vendorId) ? $vendorId : ''))))
-    ->setCustomValues('rightAlign', isset($rightAlign) ? $rightAlign : [])
 	->setCustomValues('entityType', Utils::pluralizeEntityType($entityType))
 	->setCustomValues('clientId', isset($clientId) && $clientId)
 	->setOptions('sPaginationType', 'bootstrap')
@@ -107,6 +106,23 @@
 @endif
 
 {!! Former::close() !!}
+
+<style type="text/css">
+
+	@foreach ($datatable->rightAlignIndices() as $index)
+		.listForm_{{ $entityType }} table.dataTable td:nth-child({{ $index }}) {
+			text-align: right;
+		}
+	@endforeach
+
+	@foreach ($datatable->centerAlignIndices() as $index)
+		.listForm_{{ $entityType }} table.dataTable td:nth-child({{ $index }}) {
+			text-align: center;
+		}
+	@endforeach
+
+
+</style>
 
 <script type="text/javascript">
 

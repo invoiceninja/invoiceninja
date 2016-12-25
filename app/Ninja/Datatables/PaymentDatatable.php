@@ -98,7 +98,7 @@ class PaymentDatatable extends EntityDatatable
                 }
             ],
             [
-                'payment_status_name',
+                'status',
                 function ($model) {
                     return self::getStatusLabel($model);
                 }
@@ -140,7 +140,7 @@ class PaymentDatatable extends EntityDatatable
 
     private function getStatusLabel($model)
     {
-        $label = trans('texts.status_' . strtolower($model->payment_status_name));
+        $label = trans('texts.status_' . strtolower($model->status));
         $class = 'default';
         switch ($model->payment_status_id) {
             case PAYMENT_STATUS_PENDING:
