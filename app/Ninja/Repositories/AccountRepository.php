@@ -125,7 +125,7 @@ class AccountRepository
             if ($client->name) {
                 $data['clients'][] = [
                     'value' => $client->name,
-                    'tokens' => $client->name,
+                    'tokens' => implode(',', [$client->name, $client->id_number, $client->vat_number, $client->work_phone]),
                     'url' => $client->present()->url,
                 ];
             }
@@ -146,27 +146,18 @@ class AccountRepository
             }
 
             foreach ($client->contacts as $contact) {
-                if ($contact->getFullName()) {
-                    $data['contacts'][] = [
-                        'value' => $contact->getDisplayName(),
-                        'tokens' => $contact->getDisplayName(),
-                        'url' => $client->present()->url,
-                    ];
-                }
-                if ($contact->email) {
-                    $data['contacts'][] = [
-                        'value' => $contact->email,
-                        'tokens' => $contact->email,
-                        'url' => $client->present()->url,
-                    ];
-                }
+                $data['contacts'][] = [
+                    'value' => $contact->getDisplayName(),
+                    'tokens' => implode(',', [$contact->first_name, $contact->last_name, $contact->email, $contact->phone]),
+                    'url' => $client->present()->url,
+                ];
             }
 
             foreach ($client->invoices as $invoice) {
                 $entityType = $invoice->getEntityType();
                 $data["{$entityType}s"][] = [
                     'value' => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
-                    'tokens' => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
+                    'tokens' => implode(',', [$invoice->invoice_number, $invoice->po_number]),
                     'url' => $invoice->present()->url,
                 ];
             }
