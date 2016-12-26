@@ -34,19 +34,4 @@ class ExpensePresenter extends EntityPresenter
         return $this->entity->expense_category ? $this->entity->expense_category->name : '';
     }
 
-    /**
-     * @return string
-     */
-    public function statusLabel()
-    {
-        if ($label = parent::statusLabel()) {
-            return $label;
-        }
-
-        $class = $this->entity->statusClass();
-        $label = $this->entity->statusLabel();
-        
-        return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
-    }
-
 }

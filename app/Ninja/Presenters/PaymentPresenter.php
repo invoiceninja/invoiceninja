@@ -27,16 +27,4 @@ class PaymentPresenter extends EntityPresenter {
             return $this->entity->payment_type->name;
         }
     }
-
-    public function statusLabel()
-    {
-        if ($label = parent::statusLabel()) {
-            return $label;
-        }
-
-        $class = $this->entity->statusClass();
-        $label = $this->entity->statusLabel();
-
-        return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
-    }
 }

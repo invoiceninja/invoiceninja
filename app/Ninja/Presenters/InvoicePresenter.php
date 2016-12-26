@@ -90,18 +90,6 @@ class InvoicePresenter extends EntityPresenter {
         }
     }
 
-    public function statusLabel()
-    {
-        if ($label = parent::statusLabel()) {
-            return $label;
-        }
-
-        $class = $this->entity->statusClass();
-        $label = $this->entity->statusLabel();
-
-        return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
-    }
-
     public function invoice_date()
     {
         return Utils::fromSqlDate($this->entity->invoice_date);

@@ -335,4 +335,15 @@ class EntityModel extends Eloquent
 
         return $class::getStatuses($entityType);
     }
+
+    public function statusClass()
+    {
+        return '';
+    }
+
+    public function statusLabel()
+    {
+        return '';
+    }
+
 }
