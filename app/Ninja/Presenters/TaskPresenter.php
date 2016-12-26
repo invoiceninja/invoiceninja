@@ -57,24 +57,20 @@ class TaskPresenter extends EntityPresenter
         return implode("\n", $times);
     }
 
+
     /**
      * @return string
-     */
-    public function status()
+     */    
+    public function statusLabel()
     {
-        $class = $text = '';
-
-        if ($this->entity->is_deleted) {
-            $class = 'danger';
-            $text = trans('texts.deleted');
-        } elseif ($this->entity->trashed()) {
-            $class = 'warning';
-            $text = trans('texts.archived');
-        } else {
-            $class = 'success';
-            $text = trans('texts.active');
+        if ($label = parent::statusLabel()) {
+            return $label;
         }
 
-        return "<span class=\"label label-{$class}\">{$text}</span>";
+        $class = $this->entity->statusClass();
+        $label = $this->entity->statusLabel();
+
+        return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
     }
+
 }

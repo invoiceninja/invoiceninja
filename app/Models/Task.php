@@ -215,8 +215,64 @@ class Task extends EntityModel
         return $statuses;
     }
 
-}
+    public static function calcStatusLabel($isRunning, $balance, $invoiceNumber)
+    {
+        if ($invoiceNumber) {
+            if (floatval($balance) > 0) {
+                $label = 'invoiced';
+            } else {
+                $label = 'paid';
+            }
+        } elseif ($isRunning) {
+            $label = 'running';
+        } else {
+            $label = 'logged';
+        }
 
+        return trans("texts.{$label}");
+    }
+
+    public static function calcStatusClass($isRunning, $balance, $invoiceNumber)
+    {
+        if ($invoiceNumber) {
+            if (floatval($balance)) {
+                return 'default';
+            } else {
+                return 'success';
+            }
+        } elseif ($isRunning) {
+            return 'primary';
+        } else {
+            return 'warning';
+        }
+    }
+
+    public function statusClass()
+    {
+        if ($this->invoice) {
+            $balance = $this->invoice->balance;
+            $invoiceNumber = $this->invoice->invoice_number;
+        } else {
+            $balance = 0;
+            $invoiceNumber = false;
+        }
+
+        return static::calcStatusClass($this->is_running, $balance, $invoiceNumber);
+    }
+
+    public function statusLabel()
+    {
+        if ($this->invoice) {
+            $balance = $this->invoice->balance;
+            $invoiceNumber = $this->invoice->invoice_number;
+        } else {
+            $balance = 0;
+            $invoiceNumber = false;
+        }
+
+        return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber);
+    }
+}
 
 
 Task::created(function ($task) {

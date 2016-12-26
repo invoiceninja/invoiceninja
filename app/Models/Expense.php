@@ -221,6 +221,53 @@ class Expense extends EntityModel
 
         return $statuses;
     }
+
+    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance)
+    {
+        if ($invoiceId) {
+            if (floatval($balance) > 0) {
+                $label = 'invoiced';
+            } else {
+                $label = 'paid';
+            }
+        } elseif ($shouldBeInvoiced) {
+            $label = 'pending';
+        } else {
+            $label = 'logged';
+        }
+
+        return trans("texts.{$label}");
+    }
+
+    public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
+    {
+        if ($invoiceId) {
+            if (floatval($balance) > 0) {
+                return 'default';
+            } else {
+                return 'success';
+            }
+        } elseif ($shouldBeInvoiced) {
+            return 'warning';
+        } else {
+            return 'primary';
+        }
+    }
+
+    public function statusClass()
+    {
+        $balance = $this->invoice ? $this->invoice->balance : 0;
+
+        return static::calcStatusClass($this->should_be_invoiced, $this->invoice_id, $balance);
+    }
+
+    public function statusLabel()
+    {
+        $balance = $this->invoice ? $this->invoice->balance : 0;
+
+        return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance);
+    }
+
 }
 
 Expense::creating(function ($expense) {
