@@ -278,7 +278,7 @@
     function updateBuyNowButtons() {
         var productId = $('#product').val();
         var landingPage = $('input[name=landing_page_type]:checked').val()
-        var paymentType = landingPage == 'payment' ? '/' + $('#payment_type').val() : '';
+        var paymentType = (landingPage == 'payment') ? '/' + $('#payment_type').val() : '/';
         var redirectUrl = $('#redirect_url').val();
 
         var form = '';
@@ -289,9 +289,7 @@
                 '?account_key={{ $account->account_key }}' +
                 '&product_id=' + productId;
 
-            var form = '<form action="{{ url('/buy_now') }}' + paymentType + '" method="post" target="_top">' + "\n" +
-                        '<input type="hidden" name="account_key" value="{{ $account->account_key }}"/>' + "\n" +
-                        '<input type="hidden" name="product_id" value="' + productId + '"/>' + "\n";
+            var form = '<form action="' + link + '" method="post" target="_top">' + "\n";
 
             @foreach (['first_name', 'last_name', 'email'] as $field)
                 if ($('input#{{ $field }}').is(':checked')) {
