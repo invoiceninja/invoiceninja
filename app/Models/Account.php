@@ -103,10 +103,10 @@ class Account extends Eloquent
     public static $advancedSettings = [
         ACCOUNT_INVOICE_SETTINGS,
         ACCOUNT_INVOICE_DESIGN,
+        ACCOUNT_CLIENT_PORTAL,
         ACCOUNT_EMAIL_SETTINGS,
         ACCOUNT_TEMPLATES_AND_REMINDERS,
         ACCOUNT_BANKS,
-        ACCOUNT_CLIENT_PORTAL,
         ACCOUNT_REPORTS,
         ACCOUNT_DATA_VISUALIZATIONS,
         ACCOUNT_API_TOKENS,
@@ -939,7 +939,8 @@ class Account extends Eloquent
         if (count($matches) > 1) {
             $format = $matches[1];
             $search[] = $matches[0];
-            $replace[] = str_replace($format, date($format), $matches[1]);
+            $date = Carbon::now(session(SESSION_TIMEZONE, DEFAULT_TIMEZONE))->format($format);
+            $replace[] = str_replace($format, $date, $matches[1]);
         }
 
         $pattern = str_replace($search, $replace, $pattern);
