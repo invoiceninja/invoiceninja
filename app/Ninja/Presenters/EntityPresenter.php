@@ -34,8 +34,7 @@ class EntityPresenter extends Presenter
             $class = 'warning';
             $text = trans('texts.archived');
         } else {
-            //$class = 'success';
-            //$text = trans('texts.active');
+            return '';
         }
 
         return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$text}</span>";

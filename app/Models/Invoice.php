@@ -64,6 +64,14 @@ class Invoice extends EntityModel implements BalanceAffecting
         'date:',
     ];
 
+    public static $statusClasses = [
+        INVOICE_STATUS_SENT => 'info',
+        INVOICE_STATUS_VIEWED => 'warning',
+        INVOICE_STATUS_APPROVED => 'success',
+        INVOICE_STATUS_PARTIAL => 'primary',
+        INVOICE_STATUS_PAID => 'success',
+    ];
+
     /**
      * @var string
      */
@@ -553,6 +561,56 @@ class Invoice extends EntityModel implements BalanceAffecting
         return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice();
     }
 
+    public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)
+    {
+        if ($quoteInvoiceId) {
+            $label = 'converted';
+        } else if ($class == 'danger') {
+            $label = $entityType == ENTITY_INVOICE ? 'overdue' : 'expired';
+        } else {
+            $label = 'status_' . strtolower($status);
+        }
+
+        return trans("texts.{$label}");
+    }
+
+    public static function calcStatusClass($statusId, $balance, $dueDate)
+    {
+        if (static::calcIsOverdue($balance, $dueDate)) {
+            return 'danger';
+        }
+
+        if (isset(static::$statusClasses[$statusId])) {
+            return static::$statusClasses[$statusId];
+        }
+
+        return 'default';
+    }
+
+    public static function calcIsOverdue($balance, $dueDate)
+    {
+        if ( ! Utils::parseFloat($balance) > 0) {
+            return false;
+        }
+
+        if ( ! $dueDate || $dueDate == '0000-00-00') {
+            return false;
+        }
+
+        // it isn't considered overdue until the end of the day 
+        return time() > (strtotime($dueDate) + (60*60*24));
+    }
+
+    public function statusClass()
+    {
+        return static::calcStatusClass($this->invoice_status_id, $this->balance, $this->due_date);
+    }
+
+    public function statusLabel()
+    {
+        return static::calcStatusLabel($this->invoice_status->name, $this->statusClass(), $this->getEntityType(), $this->quote_invoice_id);
+    }
+
     /**
      * @param $invoice
      * @return string
@@ -633,11 +691,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function isOverdue()
     {
-        if ( ! $this->due_date) {
-            return false;
-        }
-
-        return time() > strtotime($this->due_date);
+        return static::calcIsOverdue($this->balance, $this->due_date);
     }
 
     /**
