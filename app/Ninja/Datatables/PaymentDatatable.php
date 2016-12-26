@@ -3,6 +3,7 @@
 use Utils;
 use URL;
 use Auth;
+use App\Models\Payment;
 use App\Models\PaymentMethod;
 
 class PaymentDatatable extends EntityDatatable
@@ -140,29 +141,10 @@ class PaymentDatatable extends EntityDatatable
 
     private function getStatusLabel($model)
     {
-        $label = trans('texts.status_' . strtolower($model->status));
-        $class = 'default';
-        switch ($model->payment_status_id) {
-            case PAYMENT_STATUS_PENDING:
-                $class = 'info';
-                break;
-            case PAYMENT_STATUS_COMPLETED:
-                $class = 'success';
-                break;
-            case PAYMENT_STATUS_FAILED:
-                $class = 'danger';
-                break;
-            case PAYMENT_STATUS_PARTIALLY_REFUNDED:
-                $label = trans('texts.status_partially_refunded_amount', [
-                    'amount' => Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id),
-                ]);
-                $class = 'primary';
-                break;
-            case PAYMENT_STATUS_VOIDED:
-            case PAYMENT_STATUS_REFUNDED:
-                $class = 'default';
-                break;
-        }
+        $amount = Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id);
+        $label = Payment::calcStatusLabel($model->payment_status_id, $model->status, $amount);
+        $class = Payment::calcStatusClass($model->payment_status_id);
+
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 }
