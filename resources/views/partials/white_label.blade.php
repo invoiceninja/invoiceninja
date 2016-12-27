@@ -6,8 +6,11 @@
 
 @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
   {{ trans('texts.white_labeled') }}
-  @if ($company->hasActivePlan() && $company->daysUntilPlanExpires() <= 10)
-    - <b>{{ trans('texts.license_expiring', ['count' => $company->daysUntilPlanExpires(), 'link' => 'link']) }}</b>
+  @if (false && $company->hasActivePlan() && $company->daysUntilPlanExpires() <= 10)
+    - <b>{!! trans('texts.license_expiring', [
+        'count' => $company->daysUntilPlanExpires(),
+        'link' => '<a href="#" onclick="buyWhiteLabel()">' . trans('texts.click_here') . '</a>',
+    ]) !!}</b>
   @endif
 @else
   <a href="#" onclick="showWhiteLabelModal()">{{ trans('texts.white_label_link') }}</a>
@@ -37,7 +40,7 @@
 
         <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
           <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
-          <button type="button" class="btn btn-primary" onclick="buyProduct('{{ WHITE_LABEL_AFFILIATE_KEY }}', '{{ PRODUCT_WHITE_LABEL }}')">{{ trans('texts.buy_license') }} </button>
+          <button type="button" class="btn btn-primary" onclick="buyWhiteLabel()">{{ trans('texts.buy_license') }} </button>
           <button type="button" class="btn btn-primary" onclick="showApplyLicense()">{{ trans('texts.apply_license') }} </button>
         </div>
       </div>
@@ -76,8 +79,13 @@
         $('#whiteLabelModal').modal('show');
     }
 
+    function buyWhiteLabel() {
+        buyProduct('{{ WHITE_LABEL_AFFILIATE_KEY }}', '{{ PRODUCT_WHITE_LABEL }}');
+    }
+
     function buyProduct(affiliateKey, productId) {
         window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/license?affiliate_key=' + affiliateKey + '&product_id=' + productId + '&return_url=' + window.location);
+        //window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/buy_now/?account_key={{ env('NINJA_LICENSE_ACCOUNT_KEY') }}&product_id=' + productId + '&contact_key={{ Auth::user()->primaryAccount()->account_key }}' + '&return_url=' + window.location);
     }
 
     function showApplyLicense() {

@@ -2284,7 +2284,8 @@ $LANG = array(
     'debug' => 'Debug',
     'https' => 'HTTPS',
     'require' => 'Require',
-    'license_expiring' => 'Note: Your license will expire in :count days, :link to renew it.'
+    'license_expiring' => 'Note: Your license will expire in :count days, :link to renew it.',
+    'security_confirmation' => 'Your email address has been confirmed.',
 
 );
 

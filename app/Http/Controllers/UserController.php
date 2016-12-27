@@ -240,7 +240,7 @@ class UserController extends BaseController
         $user = User::where('confirmation_code', '=', $code)->get()->first();
 
         if ($user) {
-            $notice_msg = trans('texts.security.confirmation');
+            $notice_msg = trans('texts.security_confirmation');
 
             $user->confirmed = true;
             $user->confirmation_code = '';

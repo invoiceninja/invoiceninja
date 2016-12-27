@@ -275,6 +275,7 @@ class Client extends EntityModel
         } else {
             $contact = Contact::createNew();
             $contact->send_invoice = true;
+            $contact->contact_key = isset($data['contact_key']) ? $data['contact_key'] : str_random(RANDOM_KEY_LENGTH);
         }
 
         if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password){

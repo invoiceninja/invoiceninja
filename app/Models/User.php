@@ -403,6 +403,11 @@ class User extends Authenticatable
         return (($entity && $this->can('edit', $entity))
             || (!$entity && $this->can('create', $entityType)));
     }
+
+    public function primaryAccount()
+    {
+        return $this->account->company->accounts->sortBy('id')->first();
+    }
 }
 
 User::updating(function ($user) {
