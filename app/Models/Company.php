@@ -74,6 +74,20 @@ class Company extends Eloquent
         return $price - ($price * $this->discount);
     }
 
+    public function daysUntilPlanExpires()
+    {
+        if ( ! $this->hasActivePlan()) {
+            return 0;
+        }
+
+        return Carbon::parse($this->plan_expires)->diffInDays(Carbon::today());
+    }
+
+    public function hasActivePlan()
+    {
+        return Carbon::parse($this->plan_expires) >= Carbon::today();
+    }
+
     public function hasEarnedPromo()
     {
         if ( ! Utils::isNinjaProd() || Utils::isPro()) {

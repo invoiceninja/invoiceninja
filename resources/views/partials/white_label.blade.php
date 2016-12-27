@@ -1,9 +1,14 @@
 {{ trans('texts.powered_by') }}
+
 {{-- Per our license, please do not remove or modify this section. --}}
 {!! link_to('https://www.invoiceninja.com/?utm_source=powered_by', 'InvoiceNinja.com', ['target' => '_blank', 'title' => trans('texts.created_by', ['name' => 'Hillel Coren'])]) !!} -
 {!! link_to(RELEASES_URL, 'v' . NINJA_VERSION, ['target' => '_blank', 'title' => trans('texts.trello_roadmap')]) !!} |
+
 @if (Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
   {{ trans('texts.white_labeled') }}
+  @if ($company->hasActivePlan() && $company->daysUntilPlanExpires() <= 10)
+    - <b>{{ trans('texts.license_expiring', ['count' => $company->daysUntilPlanExpires(), 'link' => 'link']) }}</b>
+  @endif
 @else
   <a href="#" onclick="showWhiteLabelModal()">{{ trans('texts.white_label_link') }}</a>
 
