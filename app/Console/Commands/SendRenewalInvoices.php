@@ -50,7 +50,7 @@ class SendRenewalInvoices extends Command
         $this->info(date('Y-m-d').' Running SendRenewalInvoices...');
 
         // get all accounts with plans expiring in 10 days
-        $companies = Company::whereRaw('datediff(plan_expires, curdate()) = 10')
+        $companies = Company::whereRaw("datediff(plan_expires, curdate()) = 10 and (plan = 'pro' or plan = 'enterprise')")
                         ->orderBy('id')
                         ->get();
         $this->info(count($companies).' companies found renewing in 10 days');
