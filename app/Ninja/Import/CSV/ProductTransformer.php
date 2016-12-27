@@ -14,7 +14,7 @@ class ProductTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if (empty($data->product_key) || $this->hasProduct($data->product_key)) {
+        if (empty($data->product_key)) {
             return false;
         }
 
@@ -22,7 +22,7 @@ class ProductTransformer extends BaseTransformer
             return [
                 'product_key' => $this->getString($data, 'product_key'),
                 'notes' => $this->getString($data, 'notes'),
-                'cost' => $this->getNumber($data, 'cost'),
+                'cost' => $this->getFloat($data, 'cost'),
             ];
         });
     }

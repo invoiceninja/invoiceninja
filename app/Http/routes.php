@@ -131,6 +131,7 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('account/get_search_data', ['as' => 'get_search_data', 'uses' => 'AccountController@getSearchData']);
     Route::get('check_invoice_number/{invoice_id?}', 'InvoiceController@checkInvoiceNumber');
     Route::post('save_sidebar_state', 'UserController@saveSidebarState');
+    Route::post('contact_us', 'HomeController@contactUs');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');

@@ -3,6 +3,7 @@
 use Utils;
 use URL;
 use Auth;
+use App\Models\Expense;
 
 class ExpenseDatatable extends EntityDatatable
 {
@@ -123,24 +124,10 @@ class ExpenseDatatable extends EntityDatatable
         ];
     }
 
-
     private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance)
     {
-        if ($invoiceId) {
-            if (floatval($balance)) {
-                $label = trans('texts.invoiced');
-                $class = 'default';
-            } else {
-                $label = trans('texts.paid');
-                $class = 'success';
-            }
-        } elseif ($shouldBeInvoiced) {
-            $label = trans('texts.pending');
-            $class = 'warning';
-        } else {
-            $label = trans('texts.logged');
-            $class = 'primary';
-        }
+        $label = Expense::calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance);
+        $class = Expense::calcStatusClass($shouldBeInvoiced, $invoiceId, $balance);
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }

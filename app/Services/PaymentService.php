@@ -3,6 +3,7 @@
 use App\Models\Invoice;
 use Utils;
 use Auth;
+use Exception;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Activity;
@@ -120,7 +121,11 @@ class PaymentService extends BaseService
             }
         }
 
-        return $paymentDriver->completeOnsitePurchase(false, $paymentMethod);
+        try {
+            return $paymentDriver->completeOnsitePurchase(false, $paymentMethod);
+        } catch (Exception $exception) {
+            return false;
+        }
     }
 
     public function getDatatable($clientPublicId, $search)

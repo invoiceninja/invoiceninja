@@ -97,19 +97,12 @@ function ViewModel(data) {
         }
 
         var isValid = true;
-        $('input.client-email').each(function(item, value) {
-            var $email = $(value);
-            var email = $(value).val();
-
-            // Trim whitespace
-            email = (email || '').trim();
-            $email.val(email);
-
-            if (!firstName && (!email || !isValidEmailAddress(email))) {
+        var contacts = self.invoice().client().contacts();
+        $(contacts).each(function(item, value) {
+            if (!value.isValid()) {
                 isValid = false;
             }
         });
-
         if (!isValid) {
             $('#emailError').css( "display", "inline" );
             return;
@@ -649,6 +642,18 @@ function ContactModel(data) {
             return '#B1B5BA';
         }
     });
+
+    self.isValid = function() {
+        var email = (self.email() || '').trim();
+        var emailValid = isValidEmailAddress(email);
+
+        // if the email is set it must be valid
+        if (email && ! emailValid) {
+            return false;
+        } else {
+            return self.first_name() || email;
+        }
+    }
 }
 
 function ItemModel(data) {

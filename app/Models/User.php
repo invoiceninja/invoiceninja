@@ -7,12 +7,20 @@ use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class User
  */
 class User extends Authenticatable
 {
+    use PresentableTrait;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\UserPresenter';
+
     /**
      * @var array
      */

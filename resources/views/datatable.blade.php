@@ -59,19 +59,19 @@
                 }
             },
             "bAutoWidth": false,
-            @if (isset($hasCheckboxes) && $hasCheckboxes)
-            // Disable sorting on the first column
             "aoColumnDefs": [
+                @if (isset($hasCheckboxes) && $hasCheckboxes)
+                // Disable sorting on the first column
                 {
                     'bSortable': false,
                     'aTargets': [ 0, {{ count($columns) - 1 }} ]
                 },
+                @endif
                 {
                     'sClass': 'right',
                     'aTargets': {{ isset($values['rightAlign']) ? json_encode($values['rightAlign']) : '[]' }}
                 }
             ],
-            @endif
             @foreach ($options as $k => $o)
             {!! json_encode($k) !!}: {!! json_encode($o) !!},
             @endforeach

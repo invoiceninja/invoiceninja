@@ -1,7 +1,6 @@
 <?php namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Request as InputRequest;
 use Response;
 use App\Libraries\Utils;
 
@@ -11,11 +10,6 @@ abstract class Request extends FormRequest {
     // populate in subclass to auto load record
     protected $autoload = [];
 
-    public function __construct(InputRequest $req)
-    {
-        $this->req = $req;
-    }
-    
     /**
      * Validate the input.
      *
@@ -60,8 +54,9 @@ abstract class Request extends FormRequest {
     public function response(array $errors)
     {
         /* If the user is not validating from a mobile app - pass through parent::response */
-        if(!isset($this->req->api_secret))
+        if ( ! request()->api_secret) {
             return parent::response($errors);
+        }
 
         /* If the user is validating from a mobile app - pass through first error string and return error */
         foreach($errors as $error) {

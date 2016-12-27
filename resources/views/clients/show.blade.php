@@ -6,7 +6,7 @@
     <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
 
-    @if ($client->hasAddress())
+    @if ($client->showMap())
         <style>
           #map {
             width: 100%;
@@ -186,7 +186,7 @@
     </div>
     </div>
 
-    @if ($client->hasAddress())
+    @if ($client->showMap())
         <div id="map"></div>
         <br/>
     @endif
@@ -219,6 +219,7 @@
 		    	->setUrl(url('api/activities/'. $client->public_id))
                 ->setCustomValues('entityType', 'activity')
                 ->setCustomValues('clientId', $client->public_id)
+                ->setCustomValues('rightAlign', [2, 3])
 		    	->setOptions('sPaginationType', 'bootstrap')
 		    	->setOptions('bFilter', false)
 		    	->setOptions('aaSorting', [['0', 'desc']])
@@ -332,7 +333,7 @@
 		});
 	}
 
-    @if ($client->hasAddress())
+    @if ($client->showMap())
         function initialize() {
             var mapCanvas = document.getElementById('map');
             var mapOptions = {
