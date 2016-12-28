@@ -88,6 +88,15 @@ class Company extends Eloquent
         return Carbon::parse($this->plan_expires) >= Carbon::today();
     }
 
+    public function hasExpiredPlan($plan)
+    {
+        if ($this->plan != $plan) {
+            return false;
+        }
+
+        return Carbon::parse($this->plan_expires) < Carbon::today();
+    }
+
     public function hasEarnedPromo()
     {
         if ( ! Utils::isNinjaProd() || Utils::isPro()) {

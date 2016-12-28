@@ -67,6 +67,11 @@ class Utils
         return self::isNinjaProd() || self::isNinjaDev();
     }
 
+    public static function isSelfHost()
+    {
+        return ! static::isNinjaProd();
+    }
+
     public static function isNinjaProd()
     {
         if (Utils::isReseller()) {

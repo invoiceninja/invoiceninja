@@ -2286,6 +2286,8 @@ $LANG = array(
     'require' => 'Require',
     'license_expiring' => 'Note: Your license will expire in :count days, :link to renew it.',
     'security_confirmation' => 'Your email address has been confirmed.',
+    'white_label_expired' => 'Your white label license has expired, please consider renewing it to help support our project.',
+    'renew_license' => 'Renew License',
 
 );
 
