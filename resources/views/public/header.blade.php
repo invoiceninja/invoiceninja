@@ -69,7 +69,7 @@
                 @endif
             </div>
             <div id="navbar" class="collapse navbar-collapse">
-                @if (!isset($account) || $account->enable_client_portal)
+                @if (isset($account) && $account->enable_client_portal)
                 <ul class="nav navbar-nav navbar-right">
                     @if (isset($account) && $account->enable_client_portal_dashboard)
                         <li {!! Request::is('*client/dashboard') ? 'class="active"' : '' !!}>
