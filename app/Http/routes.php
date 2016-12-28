@@ -494,7 +494,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('LOGGED_ERROR_LIMIT', 100);
     define('RANDOM_KEY_LENGTH', 32);
     define('MAX_NUM_USERS', 20);
-    define('MAX_IMPORT_ROWS', 500);
+    define('MAX_IMPORT_ROWS', 1000);
     define('MAX_SUBDOMAIN_LENGTH', 30);
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('MAX_LOGO_FILE_SIZE', 200); // KB
