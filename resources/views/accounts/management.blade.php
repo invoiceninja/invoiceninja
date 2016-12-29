@@ -13,73 +13,79 @@
 				<h3 class="panel-title">{!! trans('texts.plan_status') !!}</h3>
 			</div>
 			<div class="panel-body">
-				<div class="form-group">
-					<label class="col-sm-4 control-label">{{ trans('texts.plan') }}</label>
-					<div class="col-sm-8">
-						<p class="form-control-static">
-							@if ($planDetails && $planDetails['active'])
-								{{ trans('texts.plan_'.$planDetails['plan']) }}
-								@if ($planDetails['trial'])
-									({{ trans('texts.plan_trial') }})
-								@elseif ($planDetails['expires'])
-									({{ trans('texts.plan_term_'.$planDetails['term'].'ly') }})
-								@endif
-                                @if ($planDetails['plan'] == PLAN_ENTERPRISE)
-                                    {{ trans('texts.min_to_max_users', ['min' => Utils::getMinNumUsers($planDetails['num_users']), 'max' => $planDetails['num_users']])}}
-                                @endif
-							@elseif(Utils::isNinjaProd())
-								{{ trans('texts.plan_free') }}
-							@else
-								{{ trans('texts.plan_free_self_hosted') }}
-							@endif
-						</p>
-					</div>
-				</div>
-				@if ($planDetails && $planDetails['active'])
+				@if (Auth::user()->primaryAccount()->id != Auth::user()->account->id)
+					<center style="font-size:16px;color:#888888;">
+						{{ trans('texts.switch_to_primary', ['name' => Auth::user()->primaryAccount()->getDisplayName()]) }}
+					</center>
+				@else
 					<div class="form-group">
-						<label class="col-sm-4 control-label">
-							{{ trans('texts.renews') }}
-						</label>
+						<label class="col-sm-4 control-label">{{ trans('texts.plan') }}</label>
 						<div class="col-sm-8">
 							<p class="form-control-static">
-								@if ($planDetails['expires'] === false)
-									{{ trans('texts.never') }}
+								@if ($planDetails && $planDetails['active'])
+									{{ trans('texts.plan_'.$planDetails['plan']) }}
+									@if ($planDetails['trial'])
+										({{ trans('texts.plan_trial') }})
+									@elseif ($planDetails['expires'])
+										({{ trans('texts.plan_term_'.$planDetails['term'].'ly') }})
+									@endif
+	                                @if ($planDetails['plan'] == PLAN_ENTERPRISE)
+	                                    {{ trans('texts.min_to_max_users', ['min' => Utils::getMinNumUsers($planDetails['num_users']), 'max' => $planDetails['num_users']])}}
+	                                @endif
+								@elseif(Utils::isNinjaProd())
+									{{ trans('texts.plan_free') }}
 								@else
-									{{ Utils::dateToString($planDetails['expires']) }}
+									{{ trans('texts.plan_free_self_hosted') }}
 								@endif
 							</p>
 						</div>
 					</div>
-
-					@if ($account->company->hasActiveDiscount())
-						{!! Former::plaintext('discount')
-								->value($account->company->present()->discountMessage) !!}
-					@endif
-
-					@if (Utils::isNinjaProd())
-						{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
-					@endif
-				@else
-					@if ($planDetails)
+					@if ($planDetails && $planDetails['active'])
 						<div class="form-group">
 							<label class="col-sm-4 control-label">
-								@if ($planDetails['trial'])
-									{{ trans('texts.trial_expired', ['plan'=>trans('texts.plan_'.$planDetails['plan'])]) }}
-								@else
-									{{ trans('texts.plan_expired', ['plan'=>trans('texts.plan_'.$planDetails['plan'])]) }}
-								@endif
+								{{ trans('texts.renews') }}
 							</label>
 							<div class="col-sm-8">
 								<p class="form-control-static">
-									{{ Utils::dateToString($planDetails['expires']) }}
+									@if ($planDetails['expires'] === false)
+										{{ trans('texts.never') }}
+									@else
+										{{ Utils::dateToString($planDetails['expires']) }}
+									@endif
 								</p>
 							</div>
 						</div>
-					@endif
-					@if (Utils::isNinjaProd())
-					   {!! Former::actions( Button::success(trans('texts.plan_upgrade'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('plus-sign'))) !!}
-					@elseif (!$account->hasFeature(FEATURE_WHITE_LABEL))
-					   {!! Former::actions( Button::success(trans('texts.white_label_button'))->large()->withAttributes(['onclick' => 'loadImages("#whiteLabelModal");$("#whiteLabelModal").modal("show");'])->appendIcon(Icon::create('plus-sign'))) !!}
+
+						@if ($account->company->hasActiveDiscount())
+							{!! Former::plaintext('discount')
+									->value($account->company->present()->discountMessage) !!}
+						@endif
+
+						@if (Utils::isNinjaProd())
+							{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
+						@endif
+					@else
+						@if ($planDetails)
+							<div class="form-group">
+								<label class="col-sm-4 control-label">
+									@if ($planDetails['trial'])
+										{{ trans('texts.trial_expired', ['plan'=>trans('texts.plan_'.$planDetails['plan'])]) }}
+									@else
+										{{ trans('texts.plan_expired', ['plan'=>trans('texts.plan_'.$planDetails['plan'])]) }}
+									@endif
+								</label>
+								<div class="col-sm-8">
+									<p class="form-control-static">
+										{{ Utils::dateToString($planDetails['expires']) }}
+									</p>
+								</div>
+							</div>
+						@endif
+						@if (Utils::isNinjaProd())
+						   {!! Former::actions( Button::success(trans('texts.plan_upgrade'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('plus-sign'))) !!}
+						@elseif (!$account->hasFeature(FEATURE_WHITE_LABEL))
+						   {!! Former::actions( Button::success(trans('texts.white_label_button'))->large()->withAttributes(['onclick' => 'loadImages("#whiteLabelModal");$("#whiteLabelModal").modal("show");'])->appendIcon(Icon::create('plus-sign'))) !!}
+						@endif
 					@endif
 				@endif
 			</div>

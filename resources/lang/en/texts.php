@@ -2291,6 +2291,7 @@ $LANG = array(
     'iphone_app_message' => 'Consider downloading our :link',
     'iphone_app' => 'iPhone app',
     'logged_in' => 'Logged In',
+    'switch_to_primary' => 'Switch to your primary company (:name) to manage your plan.'
 
 );
 
