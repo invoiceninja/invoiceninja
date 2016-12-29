@@ -390,7 +390,7 @@ class InvoiceRepository extends BaseRepository
 
         if (isset($data['terms']) && trim($data['terms'])) {
             $invoice->terms = trim($data['terms']);
-        } elseif ($isNew && $account->{"{$entityType}_terms"}) {
+        } elseif ($isNew && ! $invoice->is_recurring && $$account->{"{$entityType}_terms"}) {
             $invoice->terms = $account->{"{$entityType}_terms"};
         } else {
             $invoice->terms = '';
@@ -866,8 +866,8 @@ class InvoiceRepository extends BaseRepository
         $invoice->discount = $recurInvoice->discount;
         $invoice->po_number = $recurInvoice->po_number;
         $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes);
-        $invoice->terms = Utils::processVariables($recurInvoice->terms);
-        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer);
+        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $recurInvoice->account->invoice_terms);
+        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer ?: $recurInvoice->account->invoice_footer);
         $invoice->tax_name1 = $recurInvoice->tax_name1;
         $invoice->tax_rate1 = $recurInvoice->tax_rate1;
         $invoice->tax_name2 = $recurInvoice->tax_name2;

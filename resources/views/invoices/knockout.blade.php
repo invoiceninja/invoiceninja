@@ -161,11 +161,11 @@ function InvoiceModel(data) {
     self.frequency_id = ko.observable(4); // default to monthly
     self.terms = ko.observable('');
     self.default_terms = ko.observable(account.{{ $entityType }}_terms);
-    self.terms_placeholder = ko.observable({{ !$invoice->id && $account->{"{$entityType}_terms"} ? "account.{$entityType}_terms" : false}});
+    self.terms_placeholder = ko.observable({{ (!$invoice->id || $invoice->is_recurring) && $account->{"{$entityType}_terms"} ? "account.{$entityType}_terms" : false}});
     self.set_default_terms = ko.observable(false);
     self.invoice_footer = ko.observable('');
     self.default_footer = ko.observable(account.invoice_footer);
-    self.footer_placeholder = ko.observable({{ !$invoice->id && $account->invoice_footer ? 'account.invoice_footer' : false}});
+    self.footer_placeholder = ko.observable({{ (!$invoice->id || $invoice->is_recurring) && $account->invoice_footer ? 'account.invoice_footer' : false}});
     self.set_default_footer = ko.observable(false);
     self.public_notes = ko.observable('');
     self.po_number = ko.observable('');
@@ -492,11 +492,11 @@ function InvoiceModel(data) {
     }
 
     self.showResetTerms = function() {
-        return self.default_terms() && self.terms() && self.terms() != self.default_terms();
+        return self.default_terms() && self.terms() != self.default_terms();
     }
 
     self.showResetFooter = function() {
-        return self.default_footer() && self.invoice_footer() && self.invoice_footer() != self.default_footer();
+        return self.default_footer() && self.invoice_footer() != self.default_footer();
     }
 }
 
