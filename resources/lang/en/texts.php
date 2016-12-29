@@ -2288,6 +2288,8 @@ $LANG = array(
     'security_confirmation' => 'Your email address has been confirmed.',
     'white_label_expired' => 'Your white label license has expired, please consider renewing it to help support our project.',
     'renew_license' => 'Renew License',
+    'iphone_app_message' => 'Consider downloading our :link',
+    'iphone_app' => 'iPhone app',
 
 );
 

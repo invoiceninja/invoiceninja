@@ -660,6 +660,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_FORUM_URL', env('NINJA_FORUM_URL', 'https://www.invoiceninja.com/forums/forum/support/'));
     define('NINJA_CONTACT_URL', env('NINJA_CONTACT_URL', 'https://www.invoiceninja.com/contact/'));
     define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
+    define('NINJA_IOS_APP_URL', 'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815');
     define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
     define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
     define('OUTDATE_BROWSER_URL', env('OUTDATE_BROWSER_URL', 'http://browsehappy.com/'));
