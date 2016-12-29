@@ -390,7 +390,7 @@ class InvoiceRepository extends BaseRepository
 
         if (isset($data['terms']) && trim($data['terms'])) {
             $invoice->terms = trim($data['terms']);
-        } elseif ($isNew && ! $invoice->is_recurring && $$account->{"{$entityType}_terms"}) {
+        } elseif ($isNew && ! $invoice->is_recurring && $account->{"{$entityType}_terms"}) {
             $invoice->terms = $account->{"{$entityType}_terms"};
         } else {
             $invoice->terms = '';
