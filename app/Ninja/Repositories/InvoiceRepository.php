@@ -236,8 +236,6 @@ class InvoiceRepository extends BaseRepository
           ->where('invoices.is_public', '=', true)
           // Only show paid invoices for ninja accounts
           ->whereRaw(sprintf("((accounts.account_key != '%s' and accounts.account_key != '%s') or invoices.invoice_status_id = %d)", env('NINJA_LICENSE_ACCOUNT_KEY'), NINJA_ACCOUNT_KEY, INVOICE_STATUS_PAID))
-          // This needs to be a setting to also hide the activity on the dashboard page
-          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
