@@ -33,7 +33,20 @@ class DocumentAPIController extends BaseAPIController
     }
 
     /**
-     * @return \Illuminate\Http\Response
+     * @SWG\Get(
+     *   path="/documents",
+     *   summary="List of document",
+     *   tags={"document"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list with documents",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Document"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
      */
     public function index()
     {
@@ -59,13 +72,29 @@ class DocumentAPIController extends BaseAPIController
     }
 
     /**
-     * @param CreateDocumentRequest $request
-     *
-     * @return \Illuminate\Http\Response
+     * @SWG\Post(
+     *   path="/documents",
+     *   tags={"document"},
+     *   summary="Create a document",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Document")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="New document",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Document"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
      */
     public function store(CreateDocumentRequest $request)
     {
-        
+
         $document = $this->documentRepo->upload($request->all());
 
         return $this->itemResponse($document);
