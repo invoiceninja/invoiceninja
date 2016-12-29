@@ -770,6 +770,10 @@ class InvoiceRepository extends BaseRepository
             return;
         }
 
+        if ( ! $invoice->isSent()) {
+            $this->markSent($invoice);
+        }
+
         $data = [
             'client_id' => $invoice->client_id,
             'invoice_id' => $invoice->id,
