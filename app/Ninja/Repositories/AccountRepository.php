@@ -594,6 +594,9 @@ class AccountRepository
 
         $record->save();
 
+        return $this->getUserAccounts($record);
+
+        /*
         $users = $this->getUserAccounts($record);
 
         // Pick the primary user
@@ -649,6 +652,7 @@ class AccountRepository
         }
 
         return $users;
+        */
     }
 
     public function unlinkAccount($account) {

@@ -2290,6 +2290,7 @@ $LANG = array(
     'renew_license' => 'Renew License',
     'iphone_app_message' => 'Consider downloading our :link',
     'iphone_app' => 'iPhone app',
+    'logged_in' => 'Logged In',
 
 );
 
