@@ -61,8 +61,9 @@ class BlueVineController extends BaseController {
 			}
 		}
 
-		$user->account->bluevine_status = 'signed_up';
-		$user->account->save();
+		$account = $user->primaryAccount();
+		$account->bluevine_status = 'signed_up';
+		$account->save();
 
 		$quote_data = json_decode( $response->getBody() );
 
@@ -73,8 +74,9 @@ class BlueVineController extends BaseController {
 		$user = Auth::user();
 
 		if ( $user ) {
-			$user->account->bluevine_status = 'ignored';
-			$user->account->save();
+			$account = $user->primaryAccount();
+			$account->bluevine_status = 'ignored';
+			$account->save();
 		}
 
 		return 'success';
