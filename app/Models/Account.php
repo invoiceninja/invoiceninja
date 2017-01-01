@@ -1892,7 +1892,7 @@ class Account extends Eloquent
             return false;
         }
 
-        return $invoice->is_quote ? $this->show_accept_quote_terms : $this->show_accept_invoice_terms;
+        return $invoice->isQuote() ? $this->show_accept_quote_terms : $this->show_accept_invoice_terms;
     }
 
     public function showSignature($invoice)
@@ -1901,7 +1901,7 @@ class Account extends Eloquent
             return false;
         }
 
-        return $invoice->is_quote ? $this->require_quote_signature : $this->require_invoice_signature;
+        return $invoice->isQuote() ? $this->require_quote_signature : $this->require_invoice_signature;
     }
 }
 
