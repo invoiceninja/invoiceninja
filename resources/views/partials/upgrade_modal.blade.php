@@ -167,6 +167,7 @@
       <option value="2">1 to 2 {{ trans('texts.users') }}</option>
       <option value="5">3 to 5 {{ trans('texts.users') }}</option>
       <option value="10">6 to 10 {{ trans('texts.users') }}</option>
+      <option value="20">11 to 20 {{ trans('texts.users') }}</option>
   </select>
   <p>&nbsp;</p>
   <ul>
@@ -208,6 +209,8 @@
           var enterprisePrice = {{ PLAN_PRICE_ENTERPRISE_MONTHLY_5 }};
       } else if (numUsers == 10) {
           var enterprisePrice = {{ PLAN_PRICE_ENTERPRISE_MONTHLY_10 }};
+      } else if (numUsers == 20) {
+          var enterprisePrice = {{ PLAN_PRICE_ENTERPRISE_MONTHLY_20 }};
       }
       var label = "{{ trans('texts.freq_monthly') }}";
     } else {
@@ -218,6 +221,8 @@
           var enterprisePrice = {{ PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10 }};
       } else if (numUsers == 10) {
           var enterprisePrice = {{ PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10 }};
+      } else if (numUsers == 20) {
+          var enterprisePrice = {{ PLAN_PRICE_ENTERPRISE_MONTHLY_20 * 10 }};
       }
       var label = "{{ trans('texts.freq_annually') }}";
     }

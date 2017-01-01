@@ -124,7 +124,8 @@
                                     ->label(trans('texts.users'))
                                     ->addOption('1 to 2', 2)
     								->addOption('3 to 5', 5)
-                                    ->addOption('6 to 10', 10) !!}
+                                    ->addOption('6 to 10', 10)
+									->addOption('11 to 20', 20) !!}
                             </div>
 
 							{!! Former::select('plan_term')
@@ -296,10 +297,13 @@
                 } else if (numUsers == 5) {
                     $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5])) !!});
                     $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_5 * 10])) !!});
-                } else {
+				} else if (numUsers == 10) {
                     $('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10])) !!});
                     $('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_10 * 10])) !!});
-                }
+				} else {
+					$('#plan_term option[value=month]').text({!! json_encode(trans('texts.plan_price_monthly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_20])) !!});
+					$('#plan_term option[value=year]').text({!! json_encode(trans('texts.plan_price_yearly', ['price'=>PLAN_PRICE_ENTERPRISE_MONTHLY_20 * 10])) !!});
+				}
 			}
   	  	}
 		$('#plan_term, #plan, #num_users').change(updatePlanModal);

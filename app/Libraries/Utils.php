@@ -243,6 +243,8 @@ class Utils
                 $price = PLAN_PRICE_ENTERPRISE_MONTHLY_5;
             } elseif ($numUsers <= 10) {
                 $price = PLAN_PRICE_ENTERPRISE_MONTHLY_10;
+            } elseif ($numUsers <= 20) {
+                $price = PLAN_PRICE_ENTERPRISE_MONTHLY_20;
             } else {
                 static::fatalError('Invalid number of users: ' . $numUsers);
             }
@@ -261,8 +263,10 @@ class Utils
             return 1;
         } elseif ($max <= 5) {
             return 3;
-        } else {
+        } elseif ($max <= 10) {
             return 6;
+        } else {
+            return 11;
         }
     }
 
