@@ -323,9 +323,11 @@
 			  </div>
 
 			 <div class="panel-body">
-				 <div class="well" style="max-height:300px;overflow-y:scroll">
-					 {!! nl2br(e($invoice->terms)) !!}
-				 </div>
+				 @if ($invoice->terms)
+					 <div class="well" style="max-height:300px;overflow-y:scroll">
+						 {!! nl2br(e($invoice->terms)) !!}
+					 </div>
+				 @endif
 				 @if ($account->showSignature($invoice))
 				 	<div>
 						{{ trans('texts.sign_here') }}
@@ -343,7 +345,9 @@
  						</label>
  					</div>
  				 @endif
-				<button id="modalPayNowButton" type="button" class="btn btn-success" onclick="onModalPayNowClick()" disabled="">{{ trans('texts.pay_now') }}</button>
+				<button id="modalPayNowButton" type="button" class="btn btn-success" onclick="onModalPayNowClick()" disabled="">
+					{{ $invoice->isQuote() ? trans('texts.approve') : trans('texts.pay_now') }}
+				</button>
 			  </div>
 			</div>
 		  </div>
