@@ -722,9 +722,9 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
     }
     var account = invoice.account;
     var contact = client.contacts[0];
+    var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
 
     if (field == 'client.client_name') {
-        var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
         return {text:clientName || ' ', style: ['clientName']};
     } else if (field == 'client.contact_name') {
         return (contact.first_name || contact.last_name) ? {text:contact.first_name + ' ' + contact.last_name} : false;
