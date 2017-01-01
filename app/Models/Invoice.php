@@ -190,33 +190,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @return bool
-     */
-    public function isChanged()
-    {
-        if ($this->getRawAdjustment() != 0) {
-            return true;
-        }
-
-        foreach ([
-            'invoice_number',
-            'po_number',
-            'invoice_date',
-            'due_date',
-            'terms',
-            'public_notes',
-            'invoice_footer',
-            'partial',
-        ] as $field) {
-            if ($this->$field != $this->getOriginal($field)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @param bool $calculate
      * @return int|mixed
      */
@@ -597,7 +570,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
-        // it isn't considered overdue until the end of the day 
+        // it isn't considered overdue until the end of the day
         return time() > (strtotime($dueDate) + (60*60*24));
     }
 
