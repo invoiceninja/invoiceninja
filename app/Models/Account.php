@@ -1881,7 +1881,7 @@ class Account extends Eloquent
         return $this->enabled_modules & static::$modules[$entityType];
     }
 
-    public function showAuthenticatePanel($invoice)
+    public function requiresAuthorization($invoice)
     {
         return $this->showAcceptTerms($invoice) || $this->showSignature($invoice);
     }

@@ -209,9 +209,13 @@ class ClientPortalController extends BaseController
             return RESULT_FAILURE;
         }
 
-        $invitation->signature_base64 = Input::get('signature');
-        $invitation->signature_date = date_create();
-        $invitation->save();
+        if ($signature = Input::get('signature')) {
+            $invitation->signature_base64 = $signature;
+            $invitation->signature_date = date_create();
+            $invitation->save();
+        }
+
+        session(['authorized:' . $invitation->invitation_key => true]);
 
         return RESULT_SUCCESS;
     }
