@@ -83,7 +83,8 @@
         "jaybizzle/laravel-crawler-detect": "1.*",
         "codedge/laravel-selfupdater": "5.x-dev",
         "predis/predis": "^1.1",
-        "nwidart/laravel-modules": "^1.14"
+        "nwidart/laravel-modules": "^1.14",
+        "jonnyw/php-phantomjs": "4.*"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",

@@ -27,8 +27,16 @@
             <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
-            {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
-            {!! Former::checkbox('document_email_attachment')->text(trans('texts.enable')) !!}
+
+            {!! Former::checkbox('pdf_email_attachment')
+                    ->text(trans('texts.enable'))
+                    ->help( Utils::isNinja() ? trans('texts.phantomjs_help', [
+                        'link_phantom' => link_to('https://phantomjscloud.com/', 'phantomjscloud.com', ['target' => '_blank']),
+                        'link_docs' => link_to('https://www.invoiceninja.com/self-host/#phantomjs', 'PhantomJS', ['target' => '_blank'])
+                    ]) : false) !!}
+
+            {!! Former::checkbox('document_email_attachment')
+                    ->text(trans('texts.enable')) !!}
 
             &nbsp;
 

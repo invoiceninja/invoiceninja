@@ -10,6 +10,7 @@ use App\Events\InvoiceWasCreated;
 use App\Events\InvoiceWasUpdated;
 use App\Events\InvoiceInvitationWasEmailed;
 use App\Events\QuoteInvitationWasEmailed;
+use App\Libraries\CurlUtils;
 
 /**
  * Class Invoice
@@ -1126,21 +1127,23 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getPDFString()
     {
-        if (!env('PHANTOMJS_CLOUD_KEY')) {
+        if ( ! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
-        $key = env('PHANTOMJS_CLOUD_KEY');
 
-        if (Utils::isNinjaDev()) {
-            $link = env('TEST_LINK');
+        if (env('PHANTOMJS_BIN_PATH')) {
+            $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true');
+        } elseif ($key = env('PHANTOMJS_CLOUD_KEY')) {
+            if (Utils::isNinjaDev()) {
+                $link = env('TEST_LINK');
+            }
+            $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+            $pdfString = CurlUtils::get($url);
         }
 
-        $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
-
-        $pdfString = file_get_contents($url);
         $pdfString = strip_tags($pdfString);
 
         if ( ! $pdfString || strlen($pdfString) < 200) {
