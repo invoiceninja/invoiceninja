@@ -103,7 +103,7 @@ class InvoiceController extends BaseController
             $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
-            $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->invoice_date = Utils::today();
             $method = 'POST';
             $url = "{$entityType}s";
         } else {

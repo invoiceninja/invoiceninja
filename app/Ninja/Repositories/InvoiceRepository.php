@@ -297,7 +297,7 @@ class InvoiceRepository extends BaseRepository
                 $entityType = ENTITY_QUOTE;
             }
             $invoice = $account->createInvoice($entityType, $data['client_id']);
-            $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->invoice_date = Utils::today();
             if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_tasks = true;
             }
@@ -660,7 +660,7 @@ class InvoiceRepository extends BaseRepository
             }
         }
         $clone->invoice_number = $invoiceNumber ?: $account->getNextInvoiceNumber($clone);
-        $clone->invoice_date = date_create()->format('Y-m-d');
+        $clone->invoice_date = Utils::today();
 
         foreach ([
           'client_id',
@@ -862,7 +862,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber($invoice);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
-        $invoice->invoice_date = date_create()->format('Y-m-d');
+        $invoice->invoice_date = Utils::today();
         $invoice->discount = $recurInvoice->discount;
         $invoice->po_number = $recurInvoice->po_number;
         $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes);
