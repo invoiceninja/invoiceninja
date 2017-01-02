@@ -521,7 +521,7 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.tax_rates'),
-            'taxRates' => TaxRate::scope()->get(['id', 'name', 'rate']),
+            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']),
         ];
 
         return View::make('accounts.tax_rates', $data);
