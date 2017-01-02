@@ -2294,7 +2294,7 @@ $LANG = array(
     'switch_to_primary' => 'Switch to your primary company (:name) to manage your plan.',
     'inclusive' => 'Inclusive',
     'exclusive' => 'Exclusive',
-
+    'postal_city_state' => 'Postal/City/State',
 );
 
 return $LANG;
