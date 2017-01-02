@@ -2296,6 +2296,7 @@ $LANG = array(
     'exclusive' => 'Exclusive',
     'postal_city_state' => 'Postal/City/State',
     'phantomjs_help' => 'In certain cases the app uses :link_phantom to generate the PDF, install :link_docs to generate it locally.',
+    'phantomjs_local' => 'Using local PhantomJS',
 
 );
 
