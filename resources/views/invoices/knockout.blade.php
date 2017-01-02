@@ -179,8 +179,10 @@ function InvoiceModel(data) {
     self.last_sent_date = ko.observable('');
     self.tax_name1 = ko.observable();
     self.tax_rate1 = ko.observable();
+    self.tax_rate1IsInclusive = ko.observable(0);
     self.tax_name2 = ko.observable();
     self.tax_rate2 = ko.observable();
+    self.tax_rate2IsInclusive = ko.observable(0);
     self.is_recurring = ko.observable(0);
     self.is_quote = ko.observable({{ $entityType == ENTITY_QUOTE ? '1' : '0' }});
     self.auto_bill = ko.observable(0);
@@ -268,25 +270,25 @@ function InvoiceModel(data) {
 
     this.tax1 = ko.computed({
         read: function () {
-            return self.tax_rate1() + ' ' + self.tax_name1();
+            return self.tax_rate1IsInclusive() + ' ' + self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
-            var rate = value.substr(0, value.indexOf(' '));
-            var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name1(name);
-            self.tax_rate1(rate);
+            var parts = value.split(' ');
+            self.tax_rate1IsInclusive(parts.shift());
+            self.tax_rate1(parts.shift());
+            self.tax_name1(parts.join(' '));
         }
     })
 
     this.tax2 = ko.computed({
         read: function () {
-            return self.tax_rate2() + ' ' + self.tax_name2();
+            return self.tax_rate2IsInclusive() + ' ' + self.tax_rate2() + ' ' + self.tax_name2();
         },
         write: function(value) {
-            var rate = value.substr(0, value.indexOf(' '));
-            var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name2(name);
-            self.tax_rate2(rate);
+            var parts = value.split(' ');
+            self.tax_rate2IsInclusive(parts.shift());
+            self.tax_rate2(parts.shift());
+            self.tax_name2(parts.join(' '));
         }
     })
 
@@ -498,6 +500,37 @@ function InvoiceModel(data) {
     self.showResetFooter = function() {
         return self.default_footer() && self.invoice_footer() != self.default_footer();
     }
+
+    self.applyInclusivTax = function(taxRate) {
+        for (var i=0; i<self.invoice_items().length; i++) {
+            var item = self.invoice_items()[i];
+            item.applyInclusivTax(taxRate);
+        }
+    }
+
+    self.onTax1Change = function(obj, event) {
+        if ( ! event.originalEvent) {
+            return;
+        }
+        var taxKey = $(event.currentTarget).val();
+        var taxRate = parseFloat(self.tax_rate1());
+        if (taxKey.substr(0, 1) != 1) {
+            return;
+        }
+        self.applyInclusivTax(taxRate);
+    }
+
+    self.onTax2Change = function(obj, event) {
+        if ( ! event.originalEvent) {
+            return;
+        }
+        var taxKey = $(event.currentTarget).val();
+        var taxRate = parseFloat(self.tax_rate2());
+        if (taxKey.substr(0, 1) != 1) {
+            return;
+        }
+        self.applyInclusivTax(taxRate);
+    }
 }
 
 function ClientModel(data) {
@@ -666,33 +699,35 @@ function ItemModel(data) {
     self.custom_value2 = ko.observable('');
     self.tax_name1 = ko.observable('');
     self.tax_rate1 = ko.observable(0);
+    self.tax_rate1IsInclusive = ko.observable(0);
     self.tax_name2 = ko.observable('');
     self.tax_rate2 = ko.observable(0);
+    self.tax_rate2IsInclusive = ko.observable(0);
     self.task_public_id = ko.observable('');
     self.expense_public_id = ko.observable('');
     self.actionsVisible = ko.observable(false);
 
     this.tax1 = ko.computed({
         read: function () {
-            return self.tax_rate1() + ' ' + self.tax_name1();
+            return self.tax_rate1IsInclusive() + ' ' + self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
-            var rate = value.substr(0, value.indexOf(' '));
-            var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name1(name);
-            self.tax_rate1(rate);
+            var parts = value.split(' ');
+            self.tax_rate1IsInclusive(parts.shift());
+            self.tax_rate1(parts.shift());
+            self.tax_name1(parts.join(' '));
         }
     })
 
     this.tax2 = ko.computed({
         read: function () {
-            return self.tax_rate2() + ' ' + self.tax_name2();
+            return self.tax_rate2IsInclusive() + ' ' + self.tax_rate2() + ' ' + self.tax_name2();
         },
         write: function(value) {
-            var rate = value.substr(0, value.indexOf(' '));
-            var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name2(name);
-            self.tax_rate2(rate);
+            var parts = value.split(' ');
+            self.tax_rate2IsInclusive(parts.shift());
+            self.tax_rate2(parts.shift());
+            self.tax_name2(parts.join(' '));
         }
     })
 
@@ -747,6 +782,34 @@ function ItemModel(data) {
     }
 
     this.onSelect = function() {}
+
+    self.applyInclusivTax = function(taxRate) {
+        if ( ! taxRate) {
+            return;
+        }
+        var cost = self.cost() / (100 + taxRate) * 100;
+        self.cost(roundToTwo(cost));
+    }
+
+    self.onTax1Change = function (obj, event) {
+        if (event.originalEvent) {
+            var taxKey = $(event.currentTarget).val();
+            var taxRate = parseFloat(self.tax_rate1());
+            if (taxKey.substr(0, 1) == 1) {
+                self.applyInclusivTax(taxRate);
+            }
+        }
+    }
+
+    self.onTax2Change = function (obj, event) {
+        if (event.originalEvent) {
+            var taxKey = $(event.currentTarget).val();
+            var taxRate = parseFloat(self.tax_rate2());
+            if (taxKey.substr(0, 1) == 1) {
+                self.applyInclusivTax(taxRate);
+            }
+        }
+    }
 }
 
 function DocumentModel(data) {
@@ -838,9 +901,8 @@ ko.bindingHandlers.productTypeahead = {
                 }
                 @if ($account->invoice_item_taxes)
                     if (datum.default_tax_rate) {
-                        model.tax_rate1(datum.default_tax_rate.rate);
-                        model.tax_name1(datum.default_tax_rate.name);
-                        model.tax1(datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name);
+                        var $select = $(this).parentsUntil('tbody').find('select').first();
+                        $select.val('0 ' + datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name).trigger('change');
                     }
                 @endif
             @endif

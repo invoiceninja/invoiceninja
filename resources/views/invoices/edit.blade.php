@@ -297,19 +297,19 @@
                         style="text-align: right" class="form-control invoice-item" name="quantity"/>
 				</td>
 				<td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
-                    {!! Former::select('')
-                            ->addOption('', '')
-                            ->options($taxRateOptions)
-                            ->data_bind('value: tax1')
-                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
-                            ->raw() !!}
+	                    {!! Former::select('')
+	                            ->addOption('', '')
+	                            ->options($taxRateOptions)
+	                            ->data_bind('value: tax1, event:{change:onTax1Change}')
+	                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
+	                            ->raw() !!}
                     <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
                     <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
                         {!! Former::select('')
                                 ->addOption('', '')
                                 ->options($taxRateOptions)
-                                ->data_bind('value: tax2')
+                                ->data_bind('value: tax2, event:{change:onTax2Change}')
                                 ->addClass('tax-select')
                                 ->raw() !!}
                     </div>
@@ -452,7 +452,7 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
-                            ->data_bind('value: tax1')
+                            ->data_bind('value: tax1, event:{change:onTax1Change}')
                             ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
@@ -461,7 +461,7 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
-                            ->data_bind('value: tax2')
+                            ->data_bind('value: tax2, event:{change:onTax2Change}')
                             ->raw() !!}
                     </div>
                     <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">

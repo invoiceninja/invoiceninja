@@ -34,7 +34,6 @@
                         trans('texts.currency_symbol') . ': <span id="currency_symbol_example"/>' => array('name' => 'show_currency_code', 'value' => 0),
                         trans('texts.currency_code') . ': <span id="currency_code_example"/>' => array('name' => 'show_currency_code', 'value' => 1),
                     ])->inline()
-                        ->check('timer')
                         ->label('&nbsp;')
                         ->addGroupClass('currrency_radio') !!}
                 <br/>

@@ -18,7 +18,8 @@ class TaxRate extends EntityModel
      */
     protected $fillable = [
         'name',
-        'rate'
+        'rate',
+        'is_inclusive',
     ];
 
     /**
