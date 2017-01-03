@@ -42,6 +42,9 @@
                         <a href="#quote_number" aria-controls="quote_number" role="tab" data-toggle="tab">{{ trans('texts.quote_number') }}</a>
                     </li>
                     <li role="presentation">
+                        <a href="#client_number" aria-controls="client_number" role="tab" data-toggle="tab">{{ trans('texts.client_number') }}</a>
+                    </li>
+                    <li role="presentation">
                         <a href="#recurring_invoice_number" aria-controls="recurring_invoice_number" role="tab" data-toggle="tab">{{ trans('texts.recurring_invoice_number') }}</a>
                     </li>
                 </ul>
@@ -100,6 +103,41 @@
                                     trans('texts.next_quote_number', ['number' => $account->previewNextInvoiceNumber(ENTITY_QUOTE)])) !!}
 
 
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="client_number">
+                    <div class="panel-body">
+                        @if ( ! $account->client_number_counter)
+                            {!! Former::checkbox('client_number_enabled')
+                                    ->label('client_number')
+                                    ->onchange('onClientNumberChange()')
+                                    ->text('enable')!!}
+                            <div id="clientNumberDiv" style="display:none">
+                        @endif
+
+                        {!! Former::inline_radios('client_number_type')
+                                ->onchange('onClientNumberTypeChange()')
+                                ->label(trans('texts.type'))
+                                ->radios([
+                                    trans('texts.prefix') => ['value' => 'prefix', 'name' => 'client_number_type'],
+                                    trans('texts.pattern') => ['value' => 'pattern', 'name' => 'client_number_type'],
+                                ])->check($account->client_number_pattern ? 'pattern' : 'prefix') !!}
+
+                        {!! Former::text('client_number_prefix')
+                                ->addGroupClass('client-prefix')
+                                ->label(trans('texts.prefix')) !!}
+                        {!! Former::text('client_number_pattern')
+                                ->appendIcon('question-sign')
+                                ->addGroupClass('client-pattern')
+                                ->addGroupClass('number-pattern')
+                                ->label(trans('texts.pattern')) !!}
+                        {!! Former::text('client_number_counter')
+                                ->label(trans('texts.counter'))
+                                ->addGroupClass('pad-checkbox') !!}
+
+                        @if ( ! $account->client_number_counter)
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="recurring_invoice_number">
@@ -339,6 +377,28 @@
         }
     }
 
+    function onClientNumberTypeChange() {
+        var val = $('input[name=client_number_type]:checked').val()
+        if (val == 'prefix') {
+            $('.client-prefix').show();
+            $('.client-pattern').hide();
+        } else {
+            $('.client-prefix').hide();
+            $('.client-pattern').show();
+        }
+    }
+
+    function onClientNumberChange() {
+        var enabled = $('#client_number_enabled').is(':checked');
+        if (enabled) {
+            $('#clientNumberDiv').show();
+            $('#client_number_counter').val(1);
+        } else {
+            $('#clientNumberDiv').hide();
+            $('#client_number_counter').val(0);
+        }
+    }
+
     $('.number-pattern .input-group-addon').click(function() {
         $('#patternHelpModal').modal('show');
     });
@@ -347,6 +407,7 @@
     	setQuoteNumberEnabled();
         onInvoiceNumberTypeChange();
         onQuoteNumberTypeChange();
+        onClientNumberTypeChange();
     });
 
 	</script>
