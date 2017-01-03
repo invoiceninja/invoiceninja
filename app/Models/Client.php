@@ -535,6 +535,7 @@ class Client extends EntityModel
 
 Client::creating(function ($client) {
     $client->setNullValues();
+    $client->account->incrementClientCounter();
 });
 
 Client::updating(function ($client) {

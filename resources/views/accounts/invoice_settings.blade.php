@@ -29,7 +29,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{!! trans('texts.invoice_quote_number') !!}</h3>
+            <h3 class="panel-title">{!! trans('texts.generated_numbers') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
 
@@ -133,7 +133,9 @@
                                 ->label(trans('texts.pattern')) !!}
                         {!! Former::text('client_number_counter')
                                 ->label(trans('texts.counter'))
-                                ->addGroupClass('pad-checkbox') !!}
+                                ->addGroupClass('pad-checkbox')
+                                ->help(trans('texts.client_number_help') . ' ' .
+                                    trans('texts.next_client_number', ['number' => $account->getNextClientNumber()])) !!}
 
                         @if ( ! $account->client_number_counter)
                             </div>

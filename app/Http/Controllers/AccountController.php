@@ -977,10 +977,12 @@ class AccountController extends BaseController
     private function saveInvoiceSettings()
     {
         if (Auth::user()->account->hasFeature(FEATURE_INVOICE_SETTINGS)) {
-            $rules = [
-                'invoice_number_pattern' => 'has_counter',
-                'quote_number_pattern' => 'has_counter',
-            ];
+            $rules = [];
+            foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
+                if (Input::get("{$entityType}_number_type") == 'pattern') {
+                    $rules["{$entityType}_number_pattern"] = 'has_counter';
+                }
+            }
 
             $validator = Validator::make(Input::all(), $rules);
 
@@ -1015,6 +1017,10 @@ class AccountController extends BaseController
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
                 $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
+                $account->client_number_prefix = trim(Input::get('client_number_prefix'));
+                $account->client_number_pattern = trim(Input::get('client_number_pattern'));
+                $account->client_number_counter = Input::get('client_number_counter');
+
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
                 }
@@ -1023,20 +1029,14 @@ class AccountController extends BaseController
                     $account->quote_number_counter = Input::get('quote_number_counter');
                 }
 
-                if (Input::get('invoice_number_type') == 'prefix') {
-                    $account->invoice_number_prefix = trim(Input::get('invoice_number_prefix'));
-                    $account->invoice_number_pattern = null;
-                } else {
-                    $account->invoice_number_pattern = trim(Input::get('invoice_number_pattern'));
-                    $account->invoice_number_prefix = null;
-                }
-
-                if (Input::get('quote_number_type') == 'prefix') {
-                    $account->quote_number_prefix = trim(Input::get('quote_number_prefix'));
-                    $account->quote_number_pattern = null;
-                } else {
-                    $account->quote_number_pattern = trim(Input::get('quote_number_pattern'));
-                    $account->quote_number_prefix = null;
+                foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
+                    if (Input::get("{$entityType}_number_type") == 'prefix') {
+                        $account->{"{$entityType}_number_prefix"} = trim(Input::get("{$entityType}_number_prefix"));
+                        $account->{"{$entityType}_number_pattern"} = null;
+                    } else {
+                        $account->{"{$entityType}_number_pattern"} = trim(Input::get("{$entityType}_number_pattern"));
+                        $account->{"{$entityType}_number_prefix"} = null;
+                    }
                 }
 
                 if (!$account->share_counter

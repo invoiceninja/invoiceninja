@@ -616,11 +616,20 @@
                     ->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }")
                     ->label('client_name') !!}
 
+				@if ( ! $account->client_number_counter)
                 <span data-bind="visible: $root.showMore">
+				@endif
 
-                    {!! Former::text('client[id_number]')
+            	{!! Former::text('client[id_number]')
                             ->label('id_number')
+							->placeholder($account->useClientNumbers() ? $account->getNextClientNumber() : ' ')
                             ->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
+
+				@if ( ! $account->client_number_counter)
+				</span>
+				@endif
+
+				<span data-bind="visible: $root.showMore">
                     {!! Former::text('client[vat_number]')
                             ->label('vat_number')
                             ->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") !!}

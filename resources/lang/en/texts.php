@@ -2298,7 +2298,10 @@ $LANG = array(
     'phantomjs_help' => 'In certain cases the app uses :link_phantom to generate the PDF, install :link_docs to generate it locally.',
     'phantomjs_local' => 'Using local PhantomJS',
     'client_number' => 'Client Number',
-    
+    'client_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the client number.',
+    'next_client_number' => 'The next client number is :number.',
+    'generated_numbers' => 'Generated Numbers',
+
 );
 
 return $LANG;

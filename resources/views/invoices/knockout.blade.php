@@ -151,8 +151,15 @@ function ViewModel(data) {
 }
 
 function InvoiceModel(data) {
+    if (data) {
+        var clientModel = false;
+    } else {
+        var clientModel = new ClientModel();
+        clientModel.id_number("{{ $account->getNextClientNumber() }}");
+    }
+
     var self = this;
-    this.client = ko.observable(data ? false : new ClientModel());
+    this.client = ko.observable(clientModel);
     this.is_public = ko.observable(0);
     self.account = {!! $account !!};
     self.id = ko.observable('');
