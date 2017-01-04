@@ -233,6 +233,7 @@ class AccountController extends BaseController
                 $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
             }
 
+            $company->trial_plan = null;
             $company->plan = $plan;
             $company->save();
 
@@ -1459,22 +1460,6 @@ class AccountController extends BaseController
         $this->userMailer->sendConfirmation($user);
 
         return Redirect::to('/settings/'.ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
-    }
-
-    /**
-     * @param $plan
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function startTrial($plan)
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        if ($user->isEligibleForTrial($plan)) {
-            $user->account->startTrial($plan);
-        }
-
-        return Redirect::back()->with('message', trans('texts.trial_success'));
     }
 
     /**

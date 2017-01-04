@@ -924,6 +924,10 @@ class Account extends Eloquent
             return;
         }
 
+        if ($this->company->trial_started && $this->company->trial_started != '0000-00-00') {
+            return;
+        }
+
         $this->company->trial_plan = $plan;
         $this->company->trial_started = date_create()->format('Y-m-d');
         $this->company->save();
@@ -1157,31 +1161,6 @@ class Account extends Eloquent
         $plan_details = $this->getPlanDetails();
 
         return $plan_details && $plan_details['trial'];
-    }
-
-    /**
-     * @param null $plan
-     * @return array|bool
-     */
-    public function isEligibleForTrial($plan = null)
-    {
-        if (!$this->company->trial_plan) {
-            if ($plan) {
-                return $plan == PLAN_PRO || $plan == PLAN_ENTERPRISE;
-            } else {
-                return [PLAN_PRO, PLAN_ENTERPRISE];
-            }
-        }
-
-        if ($this->company->trial_plan == PLAN_PRO) {
-            if ($plan) {
-                return $plan != PLAN_PRO;
-            } else {
-                return [PLAN_ENTERPRISE];
-            }
-        }
-
-        return false;
     }
 
     /**
