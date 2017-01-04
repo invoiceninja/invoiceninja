@@ -155,7 +155,7 @@ function InvoiceModel(data) {
         var clientModel = false;
     } else {
         var clientModel = new ClientModel();
-        clientModel.id_number("{{ $account->getNextClientNumber() }}");
+        clientModel.id_number("{{ $account->getNextNumber() }}");
     }
 
     var self = this;

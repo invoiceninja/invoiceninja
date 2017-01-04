@@ -100,7 +100,7 @@ class InvoiceController extends BaseController
         if ($clone) {
             $invoice->id = $invoice->public_id = null;
             $invoice->is_public = false;
-            $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
+            $invoice->invoice_number = $account->getNextNumber($invoice);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
             $invoice->invoice_date = Utils::today();

@@ -622,7 +622,7 @@
 
             	{!! Former::text('client[id_number]')
                             ->label('id_number')
-							->placeholder($account->useClientNumbers() ? $account->getNextClientNumber() : ' ')
+							->placeholder($account->clientNumbersEnabled() ? $account->getNextNumber() : ' ')
                             ->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
 
 				@if ( ! $account->client_number_counter)
@@ -1598,7 +1598,7 @@
         @if ($invoice->id || !$account->hasClientNumberPattern($invoice))
             return;
         @endif
-        var number = '{{ $account->getNumberPattern($invoice) }}';
+        var number = '{{ $account->applyNumberPattern($invoice) }}';
         number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
         model.invoice().invoice_number(number);

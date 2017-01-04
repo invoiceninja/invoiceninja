@@ -135,7 +135,7 @@
                                 ->label(trans('texts.counter'))
                                 ->addGroupClass('pad-checkbox')
                                 ->help(trans('texts.client_number_help') . ' ' .
-                                    trans('texts.next_client_number', ['number' => $account->getNextClientNumber()])) !!}
+                                    trans('texts.next_client_number', ['number' => $account->getNextNumber()])) !!}
 
                         @if ( ! $account->client_number_counter)
                             </div>

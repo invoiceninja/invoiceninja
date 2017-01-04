@@ -659,7 +659,7 @@ class InvoiceRepository extends BaseRepository
                 $invoiceNumber = false;
             }
         }
-        $clone->invoice_number = $invoiceNumber ?: $account->getNextInvoiceNumber($clone);
+        $clone->invoice_number = $invoiceNumber ?: $account->getNextNumber($clone);
         $clone->invoice_date = Utils::today();
 
         foreach ([
@@ -859,7 +859,7 @@ class InvoiceRepository extends BaseRepository
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber($invoice);
+        $invoice->invoice_number = $recurInvoice->account->getNextNumber($invoice);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
         $invoice->invoice_date = Utils::today();

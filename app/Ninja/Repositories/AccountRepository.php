@@ -278,7 +278,7 @@ class AccountRepository
         $invoice->user_id = $account->users()->first()->id;
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
-        $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
+        $invoice->invoice_number = $account->getNextNumber($invoice);
         $invoice->invoice_date = $renewalDate->format('Y-m-d');
         $invoice->amount = $invoice->balance = $plan_cost - $credit;
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;

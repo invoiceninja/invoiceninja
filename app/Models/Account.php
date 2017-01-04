@@ -864,7 +864,7 @@ class Account extends Eloquent
             if ($this->hasClientNumberPattern($invoice) && !$clientId) {
                 // do nothing, we don't yet know the value
             } elseif ( ! $invoice->invoice_number) {
-                $invoice->invoice_number = $this->getNextInvoiceNumber($invoice);
+                $invoice->invoice_number = $this->getNextNumber($invoice);
             }
         }
 

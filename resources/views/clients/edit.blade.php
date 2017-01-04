@@ -25,7 +25,7 @@
 		{!! Former::populate($client) !!}
         {!! Former::hidden('public_id') !!}
 	@elseif ($account->client_number_counter)
-		{!! Former::populateField('id_number', $account->getNextClientNumber()) !!}
+		{!! Former::populateField('id_number', $account->getNextNumber()) !!}
 	@endif
 
 	<div class="row">
@@ -39,7 +39,7 @@
             <div class="panel-body">
 
 			{!! Former::text('name')->data_bind("attr { placeholder: placeholderName }") !!}
-			{!! Former::text('id_number')->placeholder($account->useClientNumbers() ? $account->getNextClientNumber() : ' ') !!}
+			{!! Former::text('id_number')->placeholder($account->clientNumbersEnabled() ? $account->getNextNumber() : ' ') !!}
             {!! Former::text('vat_number') !!}
             {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}

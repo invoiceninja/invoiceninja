@@ -79,7 +79,7 @@ class ClientRepository extends BaseRepository
         } elseif (!$publicId || $publicId == '-1') {
             $client = Client::createNew();
             if (Auth::check() && Auth::user()->account->client_number_counter && empty($data['id_number'])) {
-                $data['id_number'] = Auth::user()->account->getNextClientNumber();
+                $data['id_number'] = Auth::user()->account->getNextNumber();
             }
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
