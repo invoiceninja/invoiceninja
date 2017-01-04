@@ -107,39 +107,37 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="client_number">
                     <div class="panel-body">
-                        @if ( ! $account->client_number_counter)
-                            {!! Former::checkbox('client_number_enabled')
-                                    ->label('client_number')
-                                    ->onchange('onClientNumberChange()')
-                                    ->text('enable')!!}
-                            <div id="clientNumberDiv" style="display:none">
-                        @endif
+                        {!! Former::checkbox('client_number_enabled')
+                                ->label('client_number')
+                                ->onchange('onClientNumberEnabled()')
+                                ->text('enable')
+                                ->check($account->client_number_counter > 0) !!}
 
-                        {!! Former::inline_radios('client_number_type')
-                                ->onchange('onClientNumberTypeChange()')
-                                ->label(trans('texts.type'))
-                                ->radios([
-                                    trans('texts.prefix') => ['value' => 'prefix', 'name' => 'client_number_type'],
-                                    trans('texts.pattern') => ['value' => 'pattern', 'name' => 'client_number_type'],
-                                ])->check($account->client_number_pattern ? 'pattern' : 'prefix') !!}
+                        <div id="clientNumberDiv" style="display:none">
 
-                        {!! Former::text('client_number_prefix')
-                                ->addGroupClass('client-prefix')
-                                ->label(trans('texts.prefix')) !!}
-                        {!! Former::text('client_number_pattern')
-                                ->appendIcon('question-sign')
-                                ->addGroupClass('client-pattern')
-                                ->addGroupClass('number-pattern')
-                                ->label(trans('texts.pattern')) !!}
-                        {!! Former::text('client_number_counter')
-                                ->label(trans('texts.counter'))
-                                ->addGroupClass('pad-checkbox')
-                                ->help(trans('texts.client_number_help') . ' ' .
-                                    trans('texts.next_client_number', ['number' => $account->getNextNumber()])) !!}
+                            {!! Former::inline_radios('client_number_type')
+                                    ->onchange('onClientNumberTypeChange()')
+                                    ->label(trans('texts.type'))
+                                    ->radios([
+                                        trans('texts.prefix') => ['value' => 'prefix', 'name' => 'client_number_type'],
+                                        trans('texts.pattern') => ['value' => 'pattern', 'name' => 'client_number_type'],
+                                    ])->check($account->client_number_pattern ? 'pattern' : 'prefix') !!}
 
-                        @if ( ! $account->client_number_counter)
-                            </div>
-                        @endif
+                            {!! Former::text('client_number_prefix')
+                                    ->addGroupClass('client-prefix')
+                                    ->label(trans('texts.prefix')) !!}
+                            {!! Former::text('client_number_pattern')
+                                    ->appendIcon('question-sign')
+                                    ->addGroupClass('client-pattern')
+                                    ->addGroupClass('number-pattern')
+                                    ->label(trans('texts.pattern')) !!}
+                            {!! Former::text('client_number_counter')
+                                    ->label(trans('texts.counter'))
+                                    ->addGroupClass('pad-checkbox')
+                                    ->help(trans('texts.client_number_help') . ' ' .
+                                        trans('texts.next_client_number', ['number' => $account->getNextNumber()])) !!}
+
+                        </div>
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="recurring_invoice_number">
@@ -390,11 +388,11 @@
         }
     }
 
-    function onClientNumberChange() {
+    function onClientNumberEnabled() {
         var enabled = $('#client_number_enabled').is(':checked');
         if (enabled) {
             $('#clientNumberDiv').show();
-            $('#client_number_counter').val(1);
+            $('#client_number_counter').val({{ $account->client_number_counter ?: 1 }});
         } else {
             $('#clientNumberDiv').hide();
             $('#client_number_counter').val(0);
@@ -410,6 +408,7 @@
         onInvoiceNumberTypeChange();
         onQuoteNumberTypeChange();
         onClientNumberTypeChange();
+        onClientNumberEnabled();
     });
 
 	</script>
