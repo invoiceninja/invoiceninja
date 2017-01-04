@@ -32,7 +32,7 @@
 
     @if (isset($quotes) && $quotes && count($quotes))
         <tr><td>{{ strtoupper(trans('texts.quotes')) }}</td></tr>
-        @include('export.invoices', ['entityType' => ENTITY_QUOTE])
+        @include('export.invoices', ['invoices' => $quotes, 'entityType' => ENTITY_QUOTE])
     @endif
 
     @if (isset($recurringInvoices) && $recurringInvoices && count($recurringInvoices))
