@@ -204,6 +204,10 @@
     @include('partials/bluevine_promo')
 @endif
 
+@if ($showWhiteLabelExpired)
+	@include('partials/white_label_expired')
+@endif
+
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">

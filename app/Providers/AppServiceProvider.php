@@ -191,8 +191,8 @@ class AppServiceProvider extends ServiceProvider
         Validator::extend('valid_invoice_items', function($attribute, $value, $parameters) {
             $total = 0;
             foreach ($value as $item) {
-                $qty = isset($item['qty']) ? $item['qty'] : 1;
-                $cost = isset($item['cost']) ? $item['cost'] : 1;
+                $qty = !empty($item['qty']) ? $item['qty'] : 1;
+                $cost = !empty($item['cost']) ? $item['cost'] : 1;
                 $total += $qty * $cost;
             }
             return $total <= MAX_INVOICE_AMOUNT;

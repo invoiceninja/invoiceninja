@@ -100,10 +100,10 @@ class InvoiceController extends BaseController
         if ($clone) {
             $invoice->id = $invoice->public_id = null;
             $invoice->is_public = false;
-            $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
+            $invoice->invoice_number = $account->getNextNumber($invoice);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
-            $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->invoice_date = Utils::today();
             $method = 'POST';
             $url = "{$entityType}s";
         } else {
@@ -141,9 +141,11 @@ class InvoiceController extends BaseController
                 $actions[] = ['url' => URL::to("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (!$invoice->is_recurring && $invoice->balance > 0 && $invoice->is_public) {
+            if (!$invoice->is_recurring && $invoice->balance > 0) {
                 $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
-                $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
+                if ($invoice->is_public) {
+                    $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
+                }
             }
 
             foreach ($invoice->payments as $payment) {
@@ -326,7 +328,11 @@ class InvoiceController extends BaseController
         $defaultTax = false;
 
         foreach ($rates as $rate) {
-            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';
+            $name = $rate->name . ' ' . ($rate->rate+0) . '%';
+            if ($rate->is_inclusive) {
+                $name .= ' - ' . trans('texts.inclusive');
+            }
+            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
 
             // load default invoice tax
             if ($rate->id == $account->default_tax_rate_id) {
@@ -340,7 +346,7 @@ class InvoiceController extends BaseController
                 if (isset($options[$key])) {
                     continue;
                 }
-                $options[$key] = $rate['name'] . ' ' . $rate['rate'] . '%';
+                $options['0 ' . $key] = $rate['name'] . ' ' . $rate['rate'] . '%';
             }
         }
 

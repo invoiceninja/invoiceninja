@@ -234,8 +234,8 @@ class InvoiceRepository extends BaseRepository
           ->where('contacts.is_primary', '=', true)
           ->where('invoices.is_recurring', '=', false)
           ->where('invoices.is_public', '=', true)
-          // This needs to be a setting to also hide the activity on the dashboard page
-          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
+          // Only show paid invoices for ninja accounts
+          ->whereRaw(sprintf("((accounts.account_key != '%s' and accounts.account_key != '%s') or invoices.invoice_status_id = %d)", env('NINJA_LICENSE_ACCOUNT_KEY'), NINJA_ACCOUNT_KEY, INVOICE_STATUS_PAID))
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
@@ -297,7 +297,7 @@ class InvoiceRepository extends BaseRepository
                 $entityType = ENTITY_QUOTE;
             }
             $invoice = $account->createInvoice($entityType, $data['client_id']);
-            $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->invoice_date = Utils::today();
             if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_tasks = true;
             }
@@ -390,7 +390,7 @@ class InvoiceRepository extends BaseRepository
 
         if (isset($data['terms']) && trim($data['terms'])) {
             $invoice->terms = trim($data['terms']);
-        } elseif ($isNew && $account->{"{$entityType}_terms"}) {
+        } elseif ($isNew && ! $invoice->is_recurring && $account->{"{$entityType}_terms"}) {
             $invoice->terms = $account->{"{$entityType}_terms"};
         } else {
             $invoice->terms = '';
@@ -659,8 +659,8 @@ class InvoiceRepository extends BaseRepository
                 $invoiceNumber = false;
             }
         }
-        $clone->invoice_number = $invoiceNumber ?: $account->getNextInvoiceNumber($clone);
-        $clone->invoice_date = date_create()->format('Y-m-d');
+        $clone->invoice_number = $invoiceNumber ?: $account->getNextNumber($clone);
+        $clone->invoice_date = Utils::today();
 
         foreach ([
           'client_id',
@@ -770,6 +770,10 @@ class InvoiceRepository extends BaseRepository
             return;
         }
 
+        if ( ! $invoice->isSent()) {
+            $this->markSent($invoice);
+        }
+
         $data = [
             'client_id' => $invoice->client_id,
             'invoice_id' => $invoice->id,
@@ -855,15 +859,15 @@ class InvoiceRepository extends BaseRepository
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber($invoice);
+        $invoice->invoice_number = $recurInvoice->account->getNextNumber($invoice);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
-        $invoice->invoice_date = date_create()->format('Y-m-d');
+        $invoice->invoice_date = Utils::today();
         $invoice->discount = $recurInvoice->discount;
         $invoice->po_number = $recurInvoice->po_number;
         $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes);
-        $invoice->terms = Utils::processVariables($recurInvoice->terms);
-        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer);
+        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $recurInvoice->account->invoice_terms);
+        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer ?: $recurInvoice->account->invoice_footer);
         $invoice->tax_name1 = $recurInvoice->tax_name1;
         $invoice->tax_rate1 = $recurInvoice->tax_rate1;
         $invoice->tax_name2 = $recurInvoice->tax_name2;

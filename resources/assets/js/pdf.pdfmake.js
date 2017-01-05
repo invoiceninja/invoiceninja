@@ -722,9 +722,9 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
     }
     var account = invoice.account;
     var contact = client.contacts[0];
+    var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
 
     if (field == 'client.client_name') {
-        var clientName = client.name || (contact.first_name || contact.last_name ? (contact.first_name + ' ' + contact.last_name) : contact.email);
         return {text:clientName || ' ', style: ['clientName']};
     } else if (field == 'client.contact_name') {
         return (contact.first_name || contact.last_name) ? {text:contact.first_name + ' ' + contact.last_name} : false;
@@ -743,6 +743,12 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
             cityStatePostal = formatAddress(client.city, client.state, client.postal_code, swap);
         }
         return {text:cityStatePostal};
+    } else if (field == 'client.postal_city_state') {
+        var postalCityState = '';
+        if (client.city || client.state || client.postal_code) {
+            postalCityState = formatAddress(client.city, client.state, client.postal_code, true);
+        }
+        return {text:postalCityState};
     } else if (field == 'client.country') {
         return {text:client.country ? client.country.name : ''};
     } else if (field == 'client.email') {
@@ -779,6 +785,12 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
             cityStatePostal = formatAddress(account.city, account.state, account.postal_code, swap);
         }
         return {text: cityStatePostal};
+    } else if (field == 'account.postal_city_state') {
+        var postalCityState = '';
+        if (account.city || account.state || account.postal_code) {
+            postalCityState = formatAddress(account.city, account.state, account.postal_code, true);
+        }
+        return {text: postalCityState};
     } else if (field == 'account.country') {
         return account.country ? {text: account.country.name} : false;
     } else if (field == 'account.custom_value1') {

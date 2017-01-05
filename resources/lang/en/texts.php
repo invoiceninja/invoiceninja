@@ -2284,6 +2284,23 @@ $LANG = array(
     'debug' => 'Debug',
     'https' => 'HTTPS',
     'require' => 'Require',
+    'license_expiring' => 'Note: Your license will expire in :count days, :link to renew it.',
+    'security_confirmation' => 'Your email address has been confirmed.',
+    'white_label_expired' => 'Your white label license has expired, please consider renewing it to help support our project.',
+    'renew_license' => 'Renew License',
+    'iphone_app_message' => 'Consider downloading our :link',
+    'iphone_app' => 'iPhone app',
+    'logged_in' => 'Logged In',
+    'switch_to_primary' => 'Switch to your primary company (:name) to manage your plan.',
+    'inclusive' => 'Inclusive',
+    'exclusive' => 'Exclusive',
+    'postal_city_state' => 'Postal/City/State',
+    'phantomjs_help' => 'In certain cases the app uses :link_phantom to generate the PDF, install :link_docs to generate it locally.',
+    'phantomjs_local' => 'Using local PhantomJS',
+    'client_number' => 'Client Number',
+    'client_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the client number.',
+    'next_client_number' => 'The next client number is :number.',
+    'generated_numbers' => 'Generated Numbers',
 
 );
 

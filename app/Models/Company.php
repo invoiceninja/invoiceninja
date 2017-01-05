@@ -56,13 +56,17 @@ class Company extends Eloquent
     // handle promos and discounts
     public function hasActiveDiscount(Carbon $date = null)
     {
-        if ( ! $this->discount) {
+        if ( ! $this->discount || ! $this->discount_expires) {
             return false;
         }
 
         $date = $date ?: Carbon::today();
 
-        return $this->discount_expires && $this->discount_expires->gt($date);
+        if ($this->plan_term == PLAN_TERM_MONTHLY) {
+            return $this->discount_expires->gt($date);
+        } else {
+            return $this->discount_expires->subMonths(11)->gt($date);
+        }
     }
 
     public function discountedPrice($price)
@@ -72,6 +76,29 @@ class Company extends Eloquent
         }
 
         return $price - ($price * $this->discount);
+    }
+
+    public function daysUntilPlanExpires()
+    {
+        if ( ! $this->hasActivePlan()) {
+            return 0;
+        }
+
+        return Carbon::parse($this->plan_expires)->diffInDays(Carbon::today());
+    }
+
+    public function hasActivePlan()
+    {
+        return Carbon::parse($this->plan_expires) >= Carbon::today();
+    }
+
+    public function hasExpiredPlan($plan)
+    {
+        if ($this->plan != $plan) {
+            return false;
+        }
+
+        return Carbon::parse($this->plan_expires) < Carbon::today();
     }
 
     public function hasEarnedPromo()

@@ -228,6 +228,7 @@ Route::group(['middleware' => 'auth:user'], function() {
 	Route::post('bluevine/signup', 'BlueVineController@signup');
 	Route::get('bluevine/hide_message', 'BlueVineController@hideMessage');
 	Route::get('bluevine/completed', 'BlueVineController@handleCompleted');
+    Route::get('white_label/hide_message', 'NinjaController@hideWhiteLabelMessage');
 });
 
 Route::group([
@@ -493,7 +494,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('LOGGED_ERROR_LIMIT', 100);
     define('RANDOM_KEY_LENGTH', 32);
     define('MAX_NUM_USERS', 20);
-    define('MAX_IMPORT_ROWS', 500);
+    define('MAX_IMPORT_ROWS', 1000);
     define('MAX_SUBDOMAIN_LENGTH', 30);
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('MAX_LOGO_FILE_SIZE', 200); // KB
@@ -650,7 +651,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '2.9.1' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '2.9.3' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -659,6 +660,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('NINJA_FORUM_URL', env('NINJA_FORUM_URL', 'https://www.invoiceninja.com/forums/forum/support/'));
     define('NINJA_CONTACT_URL', env('NINJA_CONTACT_URL', 'https://www.invoiceninja.com/contact/'));
     define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
+    define('NINJA_IOS_APP_URL', 'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815');
     define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
     define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
     define('OUTDATE_BROWSER_URL', env('OUTDATE_BROWSER_URL', 'http://browsehappy.com/'));
@@ -694,6 +696,7 @@ if (!defined('CONTACT_EMAIL')) {
     define('PLAN_PRICE_ENTERPRISE_MONTHLY_2', env('PLAN_PRICE_ENTERPRISE_MONTHLY_2', 12));
     define('PLAN_PRICE_ENTERPRISE_MONTHLY_5', env('PLAN_PRICE_ENTERPRISE_MONTHLY_5', 18));
     define('PLAN_PRICE_ENTERPRISE_MONTHLY_10', env('PLAN_PRICE_ENTERPRISE_MONTHLY_10', 24));
+    define('PLAN_PRICE_ENTERPRISE_MONTHLY_20', env('PLAN_PRICE_ENTERPRISE_MONTHLY_20', 36));
     define('WHITE_LABEL_PRICE', env('WHITE_LABEL_PRICE', 20));
     define('INVOICE_DESIGNS_PRICE', env('INVOICE_DESIGNS_PRICE', 10));
 

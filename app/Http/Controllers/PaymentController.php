@@ -122,8 +122,15 @@ class PaymentController extends BaseController
     public function edit(PaymentRequest $request)
     {
         $payment = $request->entity();
-
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
+
+        $actions = [];
+        if ( ! $payment->trashed()) {
+            $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_payment')];
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_payment')];
+        } else {
+            $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_expense')];
+        }
 
         $data = [
             'client' => null,
@@ -138,6 +145,7 @@ class PaymentController extends BaseController
             'method' => 'PUT',
             'url' => 'payments/'.$payment->public_id,
             'title' => trans('texts.edit_payment'),
+            'actions' => $actions,
             'paymentTypes' => Cache::get('paymentTypes'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
@@ -173,6 +181,10 @@ class PaymentController extends BaseController
      */
     public function update(UpdatePaymentRequest $request)
     {
+        if (in_array($request->action, ['archive', 'delete', 'restore'])) {
+            return self::bulk();
+        }
+
         $payment = $this->paymentRepo->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_payment'));
@@ -191,7 +203,7 @@ class PaymentController extends BaseController
         $count = $this->paymentService->bulk($ids, $action, ['amount'=>$amount]);
 
         if ($count > 0) {
-            $message = Utils::pluralize($action=='refund'?'refunded_payment':$action.'d_payment', $count);
+            $message = Utils::pluralize($action=='refund' ? 'refunded_payment':$action.'d_payment', $count);
             Session::flash('message', $message);
         }
 

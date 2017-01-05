@@ -141,6 +141,7 @@ class AuthController extends Controller
         if (Auth::check()) {
             Event::fire(new UserLoggedIn());
 
+            /*
             $users = false;
             // we're linking a new account
             if ($request->link_accounts && $userId && Auth::user()->id != $userId) {
@@ -150,6 +151,9 @@ class AuthController extends Controller
             } else {
                 $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             }
+            */
+
+            $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             Session::put(SESSION_USER_ACCOUNTS, $users);
 
         } elseif ($user) {

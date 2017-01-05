@@ -10,6 +10,7 @@ use App\Events\InvoiceWasCreated;
 use App\Events\InvoiceWasUpdated;
 use App\Events\InvoiceInvitationWasEmailed;
 use App\Events\QuoteInvitationWasEmailed;
+use App\Libraries\CurlUtils;
 
 /**
  * Class Invoice
@@ -187,33 +188,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         return floatval($this->amount) - floatval($this->getOriginal('amount'));
-    }
-
-    /**
-     * @return bool
-     */
-    public function isChanged()
-    {
-        if ($this->getRawAdjustment() != 0) {
-            return true;
-        }
-
-        foreach ([
-            'invoice_number',
-            'po_number',
-            'invoice_date',
-            'due_date',
-            'terms',
-            'public_notes',
-            'invoice_footer',
-            'partial',
-        ] as $field) {
-            if ($this->$field != $this->getOriginal($field)) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**
@@ -597,7 +571,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
-        // it isn't considered overdue until the end of the day 
+        // it isn't considered overdue until the end of the day
         return time() > (strtotime($dueDate) + (60*60*24));
     }
 
@@ -1153,21 +1127,23 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getPDFString()
     {
-        if (!env('PHANTOMJS_CLOUD_KEY')) {
+        if ( ! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
-        $key = env('PHANTOMJS_CLOUD_KEY');
 
-        if (Utils::isNinjaDev()) {
-            $link = env('TEST_LINK');
+        if (env('PHANTOMJS_BIN_PATH')) {
+            $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true');
+        } elseif ($key = env('PHANTOMJS_CLOUD_KEY')) {
+            if (Utils::isNinjaDev()) {
+                $link = env('TEST_LINK');
+            }
+            $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+            $pdfString = CurlUtils::get($url);
         }
 
-        $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
-
-        $pdfString = file_get_contents($url);
         $pdfString = strip_tags($pdfString);
 
         if ( ! $pdfString || strlen($pdfString) < 200) {

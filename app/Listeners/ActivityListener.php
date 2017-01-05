@@ -127,12 +127,8 @@ class ActivityListener
      */
     public function updatedInvoice(InvoiceWasUpdated $event)
     {
-        if (! $event->invoice->isChanged()) {
-            return;
-        }
-
         $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')
-                            ->withArchived()
+                            ->withTrashed()
                             ->find($event->invoice->id);
 
         $activity = $this->activityRepo->create(
@@ -238,7 +234,9 @@ class ActivityListener
             return;
         }
 
-        $backupQuote = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($event->quote->id);
+        $backupQuote = Invoice::with('invoice_items', 'client.account', 'client.contacts')
+                            ->withTrashed()
+                            ->find($event->quote->id);
 
         $activity = $this->activityRepo->create(
             $event->quote,
