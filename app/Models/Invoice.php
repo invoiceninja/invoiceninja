@@ -395,14 +395,14 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @param bool $notify
      */
-    public function markInvitationsSent($notify = false)
+    public function markInvitationsSent($notify = false, $reminder = false)
     {
         if ( ! $this->relationLoaded('invitations')) {
             $this->load('invitations');
         }
 
         foreach ($this->invitations as $invitation) {
-            $this->markInvitationSent($invitation, false, $notify);
+            $this->markInvitationSent($invitation, false, $notify, $reminder);
         }
     }
 
@@ -426,7 +426,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      * @param bool $messageId
      * @param bool $notify
      */
-    public function markInvitationSent($invitation, $messageId = false, $notify = true)
+    public function markInvitationSent($invitation, $messageId = false, $notify = true, $notes = false)
     {
         if (!$this->isSent()) {
             $this->invoice_status_id = INVOICE_STATUS_SENT;
@@ -442,9 +442,9 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         if ($this->isType(INVOICE_TYPE_QUOTE)) {
-            event(new QuoteInvitationWasEmailed($invitation));
+            event(new QuoteInvitationWasEmailed($invitation, $notes));
         } else {
-            event(new InvoiceInvitationWasEmailed($invitation));
+            event(new InvoiceInvitationWasEmailed($invitation, $notes));
         }
     }
 

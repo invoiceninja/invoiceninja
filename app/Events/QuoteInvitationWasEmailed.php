@@ -16,13 +16,19 @@ class QuoteInvitationWasEmailed extends Event
     public $invitation;
 
     /**
+     * @var String
+     */
+    public $notes;
+
+    /**
      * Create a new event instance.
      *
      * @param Invitation $invitation
      */
-    public function __construct(Invitation $invitation)
+    public function __construct(Invitation $invitation, $notes)
     {
         $this->invitation = $invitation;
+        $this->notes = $notes;
     }
 
 }

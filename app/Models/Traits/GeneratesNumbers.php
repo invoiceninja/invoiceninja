@@ -206,7 +206,9 @@ trait GeneratesNumbers
     public function incrementCounter($entity)
     {
         if ($entity->isEntityType(ENTITY_CLIENT)) {
-            $this->client_number_counter += 1;
+            if ($this->client_number_counter) {
+                $this->client_number_counter += 1;
+            }
         } elseif ($entity->isType(INVOICE_TYPE_QUOTE) && ! $this->share_counter) {
             $this->quote_number_counter += 1;
         } else {
