@@ -959,6 +959,7 @@ class AccountController extends BaseController
                 $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
                 $account->document_email_attachment = Input::get('document_email_attachment') ? true : false;
                 $account->email_design_id = Input::get('email_design_id');
+                $account->bcc_email = Input::get('bcc_email');
 
                 if (Utils::isNinja()) {
                     $account->enable_email_markup = Input::get('enable_email_markup') ? true : false;

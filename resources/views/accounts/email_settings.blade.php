@@ -15,7 +15,8 @@
     @include('accounts.nav', ['selected' => ACCOUNT_EMAIL_SETTINGS, 'advanced' => true])
 
     {!! Former::open()->rules([
-            'iframe_url' => 'url'
+            'iframe_url' => 'url',
+            'bcc_email' => 'email',
         ])->addClass('warn-on-exit') !!}
     {{ Former::populate($account) }}
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
@@ -37,6 +38,10 @@
 
             {!! Former::checkbox('document_email_attachment')
                     ->text(trans('texts.enable')) !!}
+
+            &nbsp;
+
+            {!! Former::text('bcc_email')->help('bcc_email_help') !!}
 
             &nbsp;
 

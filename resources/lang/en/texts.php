@@ -2304,6 +2304,8 @@ $LANG = array(
     'notes_reminder1' => 'First Reminder',
     'notes_reminder2' => 'Second Reminder',
     'notes_reminder3' => 'Third Reminder',
+    'bcc_email' => 'BCC Email',
+    'bcc_email_help' => 'All emails sent to your clients will also be sent to this address.',
 
 );
 
