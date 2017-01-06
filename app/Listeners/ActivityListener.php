@@ -196,7 +196,8 @@ class ActivityListener
             ACTIVITY_TYPE_EMAIL_INVOICE,
             false,
             false,
-            $event->invitation
+            $event->invitation,
+            $event->notes
         );
     }
 
@@ -294,7 +295,8 @@ class ActivityListener
             ACTIVITY_TYPE_EMAIL_QUOTE,
             false,
             false,
-            $event->invitation
+            $event->invitation,
+            $event->notes
         );
     }
 

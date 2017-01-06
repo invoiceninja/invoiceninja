@@ -139,15 +139,6 @@ class User extends Authenticatable
     }
 
     /**
-     * @param null $plan
-     * @return mixed
-     */
-    public function isEligibleForTrial($plan = null)
-    {
-        return $this->account->isEligibleForTrial($plan);
-    }
-
-    /**
      * @return int
      */
     public function maxInvoiceDesignId()

@@ -21,11 +21,6 @@ class Mailer
      */
     public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
     {
-        // check the username is set
-        if ( ! env('POSTMARK_API_TOKEN') && ! env('MAIL_USERNAME')) {
-            return trans('texts.invalid_mail_config');
-        }
-
         // don't send emails to dummy addresses
         if (stristr($toEmail, '@example.com')) {
             return true;
@@ -89,7 +84,8 @@ class Mailer
                 $messageId = $json->MessageID;
             }
 
-            $invoice->markInvitationSent($invitation, $messageId);
+            $notes = isset($data['notes']) ? $data['notes']: false;
+            $invoice->markInvitationSent($invitation, $messageId, true, $notes);
         }
 
         return true;

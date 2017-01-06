@@ -128,8 +128,9 @@ trait GeneratesNumbers
         $replace[] = str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
 
         if (strstr($pattern, '{$userId}')) {
+            $userId = $entity->user ? $entity->user->public_id : (Auth::check() ? Auth::user()->public_id : 0);
             $search[] = '{$userId}';
-            $replace[] = str_pad(($entity->user->public_id + 1), 2, '0', STR_PAD_LEFT);
+            $replace[] = str_pad(($userId + 1), 2, '0', STR_PAD_LEFT);
         }
 
         $matches = false;
@@ -205,7 +206,9 @@ trait GeneratesNumbers
     public function incrementCounter($entity)
     {
         if ($entity->isEntityType(ENTITY_CLIENT)) {
-            $this->client_number_counter += 1;
+            if ($this->client_number_counter) {
+                $this->client_number_counter += 1;
+            }
         } elseif ($entity->isType(INVOICE_TYPE_QUOTE) && ! $this->share_counter) {
             $this->quote_number_counter += 1;
         } else {

@@ -2301,6 +2301,9 @@ $LANG = array(
     'client_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the client number.',
     'next_client_number' => 'The next client number is :number.',
     'generated_numbers' => 'Generated Numbers',
+    'notes_reminder1' => 'First Reminder',
+    'notes_reminder2' => 'Second Reminder',
+    'notes_reminder3' => 'Third Reminder',
 
 );
 

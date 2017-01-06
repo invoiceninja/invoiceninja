@@ -32,7 +32,13 @@ class ActivityDatatable extends EntityDatatable
                         'expense' => $model->expense_public_id ? link_to('/expenses/' . $model->expense_public_id, substr($model->expense_public_notes, 0, 30).'...') : null,
                     ];
 
-                    return trans("texts.activity_{$model->activity_type_id}", $data);
+                    $str = trans("texts.activity_{$model->activity_type_id}", $data);
+
+                    if ($model->notes) {
+                        $str .= ' - ' . trans("texts.notes_{$model->notes}");
+                    }
+
+                    return $str;
                 }
             ],
             [
