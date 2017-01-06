@@ -107,7 +107,7 @@ class ContactMailer extends Mailer
         }
 
         foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings);
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings, $reminder);
             if ($response === true) {
                 $sent = true;
             }
@@ -142,7 +142,8 @@ class ContactMailer extends Mailer
         $body,
         $subject,
         $pdfString,
-        $documentStrings
+        $documentStrings,
+        $reminder
     )
     {
 
@@ -197,6 +198,7 @@ class ContactMailer extends Mailer
             'client' => $client,
             'invoice' => $invoice,
             'documents' => $documentStrings,
+            'notes' => $reminder,
         ];
 
         if ($account->attachPDF()) {

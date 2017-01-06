@@ -35,6 +35,10 @@ class AddInclusiveTaxes extends Migration
             $table->text('client_number_pattern')->nullable();
         });
 
+        Schema::table('activities', function ($table)
+        {
+			$table->text('notes')->nullable();
+		});
     }
 
     /**
@@ -61,6 +65,11 @@ class AddInclusiveTaxes extends Migration
             $table->dropColumn('client_number_prefix');
             $table->dropColumn('client_number_counter');
             $table->dropColumn('client_number_pattern');
+		});
+
+        Schema::table('activities', function ($table)
+        {
+			$table->dropColumn('notes');
 		});
     }
 }
