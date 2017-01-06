@@ -190,6 +190,15 @@ class Invoice extends EntityModel implements BalanceAffecting
         return floatval($this->amount) - floatval($this->getOriginal('amount'));
     }
 
+    public function isChanged()
+    {
+        $dirty = $this->getDirty();
+
+        unset($dirty['invoice_status_id']);
+
+        return count($dirty) > 0;
+    }
+
     /**
      * @param bool $calculate
      * @return int|mixed

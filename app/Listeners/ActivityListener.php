@@ -127,6 +127,10 @@ class ActivityListener
      */
     public function updatedInvoice(InvoiceWasUpdated $event)
     {
+        if (! $event->invoice->isChanged()) {
+            return;
+        }
+
         $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')
                             ->withTrashed()
                             ->find($event->invoice->id);
