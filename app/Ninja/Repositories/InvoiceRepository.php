@@ -412,7 +412,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->invoice_design_id = isset($data['invoice_design_id']) ? $data['invoice_design_id'] : $account->invoice_design_id;
 
-        // provide backwards compatability
+        // provide backwards compatibility
         if (isset($data['tax_name']) && isset($data['tax_rate'])) {
             $data['tax_name1'] = $data['tax_name'];
             $data['tax_rate1'] = $data['tax_rate'];
@@ -495,8 +495,8 @@ class InvoiceRepository extends BaseRepository
             $total += $invoice->custom_value2;
         }
 
-        $taxAmount1 = round($total * $invoice->tax_rate1 / 100, 2);
-        $taxAmount2 = round($total * $invoice->tax_rate2 / 100, 2);
+        $taxAmount1 = round($total * ($invoice->tax_rate1 ? $invoice->tax_rate1 : 0) / 100, 2);
+        $taxAmount2 = round($total * ($invoice->tax_rate2 ? $invoice->tax_rate2 : 0) / 100, 2);
         $total = round($total + $taxAmount1 + $taxAmount2, 2);
         $total += $itemTax;
 
