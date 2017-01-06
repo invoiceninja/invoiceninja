@@ -43,13 +43,18 @@ trait GeneratesNumbers
 
         // update the counter to be caught up
         if ($counterOffset > 1) {
-            if ($entity->isType(INVOICE_TYPE_QUOTE) && !$this->share_counter) {
+            if ($entity->isEntityType(ENTITY_CLIENT)) {
+                if ($this->clientNumbersEnabled()) {
+                    $this->client_number_counter += $counterOffset - 1;
+                    $this->save();
+                }
+            } elseif ($entity->isType(INVOICE_TYPE_QUOTE) && !$this->share_counter) {
                 $this->quote_number_counter += $counterOffset - 1;
+                $this->save();
             } else {
-                $this->{$entityType.'_number_counter'} += $counterOffset - 1;
+                $this->invoice_number_counter += $counterOffset - 1;
+                $this->save();
             }
-
-            $this->save();
         }
 
         if ($entity->recurring_invoice_id) {
