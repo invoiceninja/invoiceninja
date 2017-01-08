@@ -24,6 +24,10 @@ trait GeneratesNumbers
         $counterOffset = 0;
         $check = false;
 
+        if ($entityType == ENTITY_CLIENT && ! $this->clientNumbersEnabled()) {
+            return '';
+        }
+
         // confirm the invoice number isn't already taken
         do {
             if ($this->hasNumberPattern($entityType)) {
