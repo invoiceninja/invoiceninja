@@ -252,6 +252,10 @@ class ImportService
             $this->checkData($entityType, count($reader->all()));
 
             $reader->each(function ($row) use ($source, $entityType, &$row_list, &$results) {
+                if ($this->isRowEmpty($row)) {
+                    return;
+                }
+
                 $data_index = $this->transformRow($source, $entityType, $row);
 
                 if ($data_index !== false) {
@@ -286,8 +290,6 @@ class ImportService
      */
     private function transformRow($source, $entityType, $row)
     {
-        // TODO skip import if row is blank
-
         $transformer = $this->getTransformer($source, $entityType, $this->maps);
 
         // Create expesnse category
@@ -620,6 +622,9 @@ class ImportService
             }
 
             $row = $this->convertToObject($entityType, $row, $map);
+            if ($this->isRowEmpty($row)) {
+                continue;
+            }
             $data_index = $this->transformRow($source, $entityType, $row);
 
             if ($data_index !== false) {
@@ -811,5 +816,18 @@ class ImportService
         if ($name = strtolower($category->name)) {
             $this->maps['expense_category'][$name] = $category->id;
         }
+    }
+
+    private function isRowEmpty($row)
+    {
+        $isEmpty = true;
+
+        foreach ($row as $key => $val) {
+            if (trim($val)) {
+                $isEmpty = false;
+            }
+        }
+
+        return $isEmpty;
     }
 }
