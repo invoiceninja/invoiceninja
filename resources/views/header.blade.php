@@ -515,7 +515,7 @@
                 @endforeach
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])
-            <li style="width:100%">
+            <li style="width:100%;">
                 <div class="nav-footer">
                     <a href="javascript:showContactUs()" target="_blank" title="{{ trans('texts.contact_us') }}">
                         <i class="fa fa-envelope"></i>
