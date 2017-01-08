@@ -315,8 +315,7 @@ class InvoiceRepository extends BaseRepository
             return $invoice;
         }
 
-        // set default to true for backwards compatability
-        if ( ! isset($data['is_public']) || filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN)) {
+        if (isset($data['is_public']) && filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN)) {
             $invoice->is_public = true;
             if ( ! $invoice->isSent()) {
                 $invoice->invoice_status_id = INVOICE_STATUS_SENT;
