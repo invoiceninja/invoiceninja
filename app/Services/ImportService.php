@@ -485,14 +485,24 @@ class ImportService
         $csv->heading = false;
         $csv->auto($filename);
 
-        Session::put("{$entityType}-data", $csv->data);
-
         $headers = false;
         $hasHeaders = false;
         $mapped = [];
 
         if (count($csv->data) > 0) {
             $headers = $csv->data[0];
+
+            // Remove Invoice Ninja headers
+            if (count($headers) && count($csv->data) > 4) {
+                $firstCell = $headers[0];
+                if (strstr($firstCell, APP_NAME)) {
+                    array_shift($csv->data); // Invoice Ninja...
+                    array_shift($csv->data); // <blank line>
+                    array_shift($csv->data); // Enitty Type Header
+                }
+                $headers = $csv->data[0];
+            }
+
             foreach ($headers as $title) {
                 if (strpos(strtolower($title), 'name') > 0) {
                     $hasHeaders = true;
@@ -513,6 +523,8 @@ class ImportService
                 }
             }
         }
+
+        Session::put("{$entityType}-data", $csv->data);
 
         $data = [
             'entityType' => $entityType,
