@@ -8,7 +8,7 @@
 [![Docs](https://readthedocs.org/projects/invoice-ninja/badge/?version=latest)](http://docs.invoiceninja.com/en/latest/?badge=latest)
 [![Join the chat at https://gitter.im/hillelcoren/invoice-ninja](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/hillelcoren/invoice-ninja?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8)
+## [Hosted](https://www.invoiceninja.com) | [Self-hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815&mt=8) | [Android (Beta)](https://play.google.com/apps/testing/com.echoman.invoiceninja)
 
 Watch this [YouTube Video](https://www.youtube.com/watch?v=xHGKvadapbA) for an overview of the app's features.
 
