@@ -2308,6 +2308,8 @@ $LANG = array(
     'notes_reminder3' => 'Third Reminder',
     'bcc_email' => 'BCC Email',
     'bcc_email_help' => 'All emails sent to your clients will also be sent to this address.',
+    'tax_quote' => 'Tax Quote',
+    'tax_invoice' => 'Tax Invoice',
 
 );
 
