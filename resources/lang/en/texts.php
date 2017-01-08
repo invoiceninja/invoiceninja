@@ -1404,6 +1404,8 @@ $LANG = array(
     'payment_type_Maestro' => 'Maestro',
     'payment_type_Solo' => 'Solo',
     'payment_type_Switch' => 'Switch',
+    'payment_type_iZettle' => 'iZettle',
+    'payment_type_Swish' => 'Swish',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
