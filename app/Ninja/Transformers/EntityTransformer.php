@@ -35,7 +35,7 @@ class EntityTransformer extends TransformerAbstract
 
     protected function getTimestamp($date)
     {
-        return $date ? $date->getTimestamp() : null;
+        return method_exists($date, 'getTimestamp') ? $date->getTimestamp() : null;
     }
 
     public function getDefaultIncludes()
