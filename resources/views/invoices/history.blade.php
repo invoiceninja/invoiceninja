@@ -49,9 +49,13 @@
 @section('content')
 
     {!! Former::open()->addClass('form-inline')->onchange('refreshPDF()') !!}
+    {!! Former::populateField('version', $selectedId) !!}
 
     @if (count($versionsSelect))
-        {!! Former::select('version')->options($versionsSelect)->label(trans('select_version'))->style('background-color: white !important') !!}
+        {!! Former::select('version')
+                ->options($versionsSelect)
+                ->label(trans('select_version'))
+                ->style('background-color: white !important') !!}
     @endif
 
     {!! Button::primary(trans('texts.edit_' . $invoice->getEntityType()))->asLinkTo(URL::to('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit'))->withAttributes(array('class' => 'pull-right')) !!}

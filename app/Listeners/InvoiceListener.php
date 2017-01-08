@@ -2,6 +2,7 @@
 
 use Utils;
 use Auth;
+use App\Models\Activity;
 use App\Events\InvoiceWasUpdated;
 use App\Events\InvoiceWasCreated;
 use App\Events\PaymentWasCreated;
@@ -69,6 +70,13 @@ class InvoiceListener
 
         $invoice->updateBalances($adjustment, $partial);
         $invoice->updatePaidStatus();
+
+        // store a backup of the invoice
+        $activity = Activity::wherePaymentId($payment->id)
+                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+                        ->first();
+        $activity->json_backup = $invoice->hidePrivateFields()->toJSON();
+        $activity->save();
     }
 
     /**

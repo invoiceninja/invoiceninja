@@ -15,6 +15,7 @@ use App\Models\Client;
 use App\Models\Account;
 use App\Models\Product;
 use App\Models\Expense;
+use App\Models\Payment;
 use App\Models\TaxRate;
 use App\Models\InvoiceDesign;
 use App\Models\Activity;
@@ -549,6 +550,8 @@ class InvoiceController extends BaseController
     public function invoiceHistory(InvoiceRequest $request)
     {
         $invoice = $request->entity();
+        $paymentId = $request->payment_id ? Payment::getPrivateId($request->payment_id) : false;
+
         $invoice->load('user', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'account.country', 'client.contacts', 'client.country');
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
@@ -559,16 +562,16 @@ class InvoiceController extends BaseController
         ];
         $invoice->invoice_type_id = intval($invoice->invoice_type_id);
 
-        $activityTypeId = $invoice->isType(INVOICE_TYPE_QUOTE) ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
         $activities = Activity::scope(false, $invoice->account_id)
-                        ->where('activity_type_id', '=', $activityTypeId)
+                        ->whereIn('activity_type_id', [ACTIVITY_TYPE_UPDATE_INVOICE, ACTIVITY_TYPE_UPDATE_QUOTE, ACTIVITY_TYPE_CREATE_PAYMENT])
                         ->where('invoice_id', '=', $invoice->id)
                         ->orderBy('id', 'desc')
-                        ->get(['id', 'created_at', 'user_id', 'json_backup']);
+                        ->get(['id', 'created_at', 'user_id', 'json_backup', 'activity_type_id', 'payment_id']);
 
         $versionsJson = [];
         $versionsSelect = [];
         $lastId = false;
+        $selectedId = false;
 
         foreach ($activities as $activity) {
             if ($backup = json_decode($activity->json_backup)) {
@@ -584,8 +587,11 @@ class InvoiceController extends BaseController
 
                 $versionsJson[$activity->id] = $backup;
                 $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
-                $versionsSelect[$lastId ? $lastId : 0] = $key;
+                $versionsSelect[$lastId ?: 0] = $key;
                 $lastId = $activity->id;
+                if ($activity->payment_id == $paymentId && $activity->activity_type_id == ACTIVITY_TYPE_CREATE_PAYMENT) {
+                    $selectedId = $lastId;
+                }
             } else {
                 Utils::logError('Failed to parse invoice backup');
             }
@@ -601,6 +607,7 @@ class InvoiceController extends BaseController
             'versionsSelect' => $versionsSelect,
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
             'invoiceFonts' => Cache::get('fonts'),
+            'selectedId' => $selectedId,
         ];
 
         return View::make('invoices.history', $data);
