@@ -196,7 +196,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             if ($this->getRawAdjustment() != 0) {
                 return true;
             }
-            
+
             foreach ([
                 'invoice_number',
                 'po_number',
@@ -566,7 +566,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function canBePaid()
     {
-        return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice();
+        return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice() && $this->is_public;
     }
 
     public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)
