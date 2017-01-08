@@ -79,7 +79,7 @@ class BaseTransformer extends TransformerAbstract
      */
     protected function getClientId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps[ENTITY_CLIENT][$name]) ? $this->maps[ENTITY_CLIENT][$name] : null;
     }
 
@@ -89,7 +89,7 @@ class BaseTransformer extends TransformerAbstract
      */
     protected function getProductId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps[ENTITY_PRODUCT][$name]) ? $this->maps[ENTITY_PRODUCT][$name] : null;
     }
 
@@ -99,7 +99,7 @@ class BaseTransformer extends TransformerAbstract
      */
     protected function getCountryId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps['countries'][$name]) ? $this->maps['countries'][$name] : null;
     }
 
@@ -109,7 +109,7 @@ class BaseTransformer extends TransformerAbstract
      */
     protected function getCountryIdBy2($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps['countries2'][$name]) ? $this->maps['countries2'][$name] : null;
     }
 
@@ -196,7 +196,7 @@ class BaseTransformer extends TransformerAbstract
      */
     public function getVendorId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps[ENTITY_VENDOR][$name]) ? $this->maps[ENTITY_VENDOR][$name] : null;
     }
 
@@ -207,7 +207,7 @@ class BaseTransformer extends TransformerAbstract
      */
     public function getExpenseCategoryId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps[ENTITY_EXPENSE_CATEGORY][$name]) ? $this->maps[ENTITY_EXPENSE_CATEGORY][$name] : null;
     }
 

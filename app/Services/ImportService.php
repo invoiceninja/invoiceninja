@@ -286,6 +286,8 @@ class ImportService
      */
     private function transformRow($source, $entityType, $row)
     {
+        // TODO skip import if row is blank
+
         $transformer = $this->getTransformer($source, $entityType, $this->maps);
 
         // Create expesnse category
@@ -297,10 +299,9 @@ class ImportService
                     $this->addExpenseCategoryToMaps($category);
                 }
             }
-            if ( ! empty($row->vendor)) {
-                $vendorId = $transformer->getVendorId($row->vendor);
-                if ( ! $vendorId) {
-                    $vendor = $this->vendorRepo->save(['name' => $row->vendor, 'vendor_contact' => []]);
+            if ( ! empty($row->vendor) && ($vendorName = trim($row->vendor))) {
+                if ( ! $transformer->getVendorId($vendorName)) {
+                    $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
                     $this->addVendorToMaps($vendor);
                 }
             }
