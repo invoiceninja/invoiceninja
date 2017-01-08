@@ -192,11 +192,36 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function isChanged()
     {
-        $dirty = $this->getDirty();
+        if (Utils::isNinja()) {
+            if ($this->getRawAdjustment() != 0) {
+                return true;
+            }
+            
+            foreach ([
+                'invoice_number',
+                'po_number',
+                'invoice_date',
+                'due_date',
+                'terms',
+                'public_notes',
+                'invoice_footer',
+                'partial',
+            ] as $field) {
+                if ($this->$field != $this->getOriginal($field)) {
+                    return true;
+                }
+            }
 
-        unset($dirty['invoice_status_id']);
+            return false;
+        } else {
+            $dirty = $this->getDirty();
 
-        return count($dirty) > 0;
+            unset($dirty['invoice_status_id']);
+            unset($dirty['client_enable_auto_bill']);
+            unset($dirty['quote_invoice_id']);
+
+            return count($dirty) > 0;
+        }
     }
 
     /**
