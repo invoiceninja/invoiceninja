@@ -192,7 +192,7 @@ class InvoiceController extends BaseController
         }
 
         // Set the invitation data on the client's contacts
-        if ($invoice->is_public && ! $clone) {
+        if ( ! $clone) {
             $clients = $data['clients'];
             foreach ($clients as $client) {
                 if ($client->id != $invoice->client->id) {

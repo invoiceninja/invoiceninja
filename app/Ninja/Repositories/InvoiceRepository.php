@@ -797,7 +797,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         $invoice = $invitation->invoice;
-        if (!$invoice || $invoice->is_deleted || ! $invoice->is_public) {
+        if (!$invoice || $invoice->is_deleted) {
             return false;
         }
 
