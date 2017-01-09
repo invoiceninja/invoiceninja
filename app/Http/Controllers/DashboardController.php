@@ -43,8 +43,9 @@ class DashboardController extends BaseController
         $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
 
-        $showBlueVinePromo = ! $user->primaryAccount()->bluevine_status
+        $showBlueVinePromo = $user->is_admin
             && env('BLUEVINE_PARTNER_UNIQUE_ID')
+            && ! $account->company->bluevine_status
             && $account->created_at <= date( 'Y-m-d', strtotime( '-1 month' ));
 
         // check if the account has quotes
