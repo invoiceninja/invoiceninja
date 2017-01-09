@@ -128,8 +128,9 @@ class PaymentController extends BaseController
         $actions = [];
         if ($payment->invoiceJsonBackup()) {
             $actions[] = ['url' => url("/invoices/invoice_history/{$payment->invoice->public_id}?payment_id={$payment->public_id}"), 'label' => trans('texts.view_invoice')];
-            $actions[] = DropdownButton::DIVIDER;
         }
+        $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
+        $actions[] = DropdownButton::DIVIDER;
         if ( ! $payment->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_payment')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_payment')];

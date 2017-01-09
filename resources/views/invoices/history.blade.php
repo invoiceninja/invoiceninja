@@ -21,11 +21,15 @@
         var version = $('#version').val();
         var invoice;
 
-        if (parseInt(version)) {
-            invoice = versionsJson[version];
-        } else {
-            invoice = currentInvoice;
-        }
+        @if ($paymentId)
+            invoice = versionsJson[0];
+        @else
+            if (parseInt(version)) {
+                invoice = versionsJson[version];
+            } else {
+                invoice = currentInvoice;
+            }
+        @endif
 
         invoice.image = window.accountLogo;
 
@@ -49,9 +53,8 @@
 @section('content')
 
     {!! Former::open()->addClass('form-inline')->onchange('refreshPDF()') !!}
-    {!! Former::populateField('version', $selectedId) !!}
 
-    @if (count($versionsSelect))
+    @if (count($versionsSelect) > 1)
         {!! Former::select('version')
                 ->options($versionsSelect)
                 ->label(trans('select_version'))
@@ -63,7 +66,7 @@
 
     <br/>&nbsp;<br/>
 
-    @if ( ! count($versionsSelect))
+    @if (count($versionsSelect) <= 1)
         <br/>&nbsp;<br/>
     @endif
 
