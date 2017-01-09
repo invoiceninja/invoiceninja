@@ -580,14 +580,7 @@
 	</div>
 	<p>&nbsp;</p>
 
-	@if (Auth::user()->account->live_preview)
-		@include('invoices.pdf', ['account' => Auth::user()->account])
-	@else
-		<script type="text/javascript">
-			var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
-			function refreshPDF() {}
-		</script>
-	@endif
+	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview])
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">

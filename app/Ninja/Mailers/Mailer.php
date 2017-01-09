@@ -47,6 +47,11 @@ class Mailer
                         ->replyTo($replyEmail, $fromName)
                         ->subject($subject);
 
+                // Optionally BCC the email
+                if (!empty($data['bcc_email'])) {
+                    $message->bcc($data['bcc_email']);
+                }
+
                 // Attach the PDF to the email
                 if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
