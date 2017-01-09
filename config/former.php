@@ -30,7 +30,7 @@
     'push_checkboxes'         => true,
 
     // The value a checkbox will have in the POST array if unchecked
-    'unchecked_value'         => 0,
+    'unchecked_value'         => "0",
 
     // Required fields
     ////////////////////////////////////////////////////////////////////

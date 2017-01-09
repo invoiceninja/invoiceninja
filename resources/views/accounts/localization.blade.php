@@ -49,7 +49,7 @@
                     ->fromQuery($dateFormats) !!}
                 {!! Former::select('datetime_format_id')->addOption('','')
                     ->fromQuery($datetimeFormats) !!}
-                {!! Former::checkbox('military_time')->text(trans('texts.enable')) !!}
+                {!! Former::checkbox('military_time')->text(trans('texts.enable'))->value(1) !!}
 
                 <br/>&nbsp;<br/>
 

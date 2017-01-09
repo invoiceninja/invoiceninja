@@ -8,9 +8,9 @@
     <h3 class="panel-title">{!! trans('texts.email_notifications') !!}</h3>
   </div>
     <div class="panel-body">
-    {!! Former::checkbox('notify_sent')->label('&nbsp;')->text(trans('texts.email_sent')) !!}
-    {!! Former::checkbox('notify_viewed')->label('&nbsp;')->text(trans('texts.email_viewed')) !!}
-    {!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid')) !!}
-    {!! Former::checkbox('notify_approved')->label('&nbsp;')->text(trans('texts.email_approved')) !!}
+    {!! Former::checkbox('notify_sent')->label('&nbsp;')->text(trans('texts.email_sent'))->value(1) !!}
+    {!! Former::checkbox('notify_viewed')->label('&nbsp;')->text(trans('texts.email_viewed'))->value(1) !!}
+    {!! Former::checkbox('notify_paid')->label('&nbsp;')->text(trans('texts.email_paid'))->value(1) !!}
+    {!! Former::checkbox('notify_approved')->label('&nbsp;')->text(trans('texts.email_approved'))->value(1) !!}
     </div>
 </div>

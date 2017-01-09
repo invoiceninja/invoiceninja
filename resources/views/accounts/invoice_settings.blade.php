@@ -97,7 +97,7 @@
                         {!! Former::text('quote_number_counter')
                                 ->label(trans('texts.counter'))
                                 ->addGroupClass('pad-checkbox')
-                                ->append(Former::checkbox('share_counter')->raw()
+                                ->append(Former::checkbox('share_counter')->raw()->value(1)
                                 ->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter'))
                                 ->help(trans('texts.quote_number_help') . ' ' .
                                     trans('texts.next_quote_number', ['number' => $account->previewNextInvoiceNumber(ENTITY_QUOTE)])) !!}
@@ -111,6 +111,7 @@
                                 ->label('client_number')
                                 ->onchange('onClientNumberEnabled()')
                                 ->text('enable')
+                                ->value(1)
                                 ->check($account->client_number_counter > 0) !!}
 
                         <div id="clientNumberDiv" style="display:none">
@@ -237,11 +238,13 @@
                                 ->label(trans('texts.field_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes1')
+                                ->value(1)
                                 ->raw() . trans('texts.charge_taxes')) !!}
                         {!! Former::text('custom_invoice_label2')
                                 ->label(trans('texts.field_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')
+                                ->value(1)
                                 ->raw() . trans('texts.charge_taxes'))
                                 ->help(trans('texts.custom_invoice_charges_helps')) !!}
 
@@ -258,7 +261,8 @@
         <div class="panel-body form-padding-right">
             {!! Former::checkbox('auto_convert_quote')
                     ->text(trans('texts.enable'))
-                    ->blockHelp(trans('texts.auto_convert_quote_help')) !!}
+                    ->blockHelp(trans('texts.auto_convert_quote_help'))
+                    ->value(1) !!}
         </div>
     </div>
 

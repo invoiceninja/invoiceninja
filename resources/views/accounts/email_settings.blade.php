@@ -31,13 +31,15 @@
 
             {!! Former::checkbox('pdf_email_attachment')
                     ->text(trans('texts.enable'))
+                    ->value(1)
                     ->help( ! Utils::isNinja() ? (env('PHANTOMJS_BIN_PATH') ? 'phantomjs_local' : trans('texts.phantomjs_help', [
                         'link_phantom' => link_to('https://phantomjscloud.com/', 'phantomjscloud.com', ['target' => '_blank']),
                         'link_docs' => link_to('https://www.invoiceninja.com/self-host/#phantomjs', 'PhantomJS', ['target' => '_blank'])
                     ])) : false) !!}
 
             {!! Former::checkbox('document_email_attachment')
-                    ->text(trans('texts.enable')) !!}
+                    ->text(trans('texts.enable'))
+                    ->value(1) !!}
 
             &nbsp;
 
@@ -93,7 +95,8 @@
                 {!! Former::checkbox('enable_email_markup')
                         ->text(trans('texts.enable') .
                             '<a href="'.EMAIL_MARKUP_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a> ')
-                        ->help(trans('texts.enable_email_markup_help')) !!}
+                        ->help(trans('texts.enable_email_markup_help'))
+                        ->value(1) !!}
             @endif
         </div>
     </div>

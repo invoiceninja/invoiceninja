@@ -62,12 +62,13 @@
                     @else
                         {!! Former::checkbox('referral_code')
                                 ->help(trans('texts.referral_code_help'))
-                                ->text(trans('texts.enable') . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>')  !!}
+                                ->text(trans('texts.enable') . ' <a href="'.REFERRAL_PROGRAM_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a>')
+                                ->value(1)  !!}
                     @endif
                 @endif
 
                 @if (false && Utils::isNinjaDev())
-                    {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help')) !!}
+                    {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help'))->value(1) !!}
                 @endif
 
                 </div>

@@ -53,12 +53,14 @@
                 <div class="col-md-10 col-md-offset-1">
                     {!! Former::checkbox('enable_client_portal')
                         ->text(trans('texts.enable'))
-                        ->help(trans('texts.enable_client_portal_help')) !!}
+                        ->help(trans('texts.enable_client_portal_help'))
+                        ->value(1) !!}
                 </div>
                 <div class="col-md-10 col-md-offset-1">
                     {!! Former::checkbox('enable_client_portal_dashboard')
                         ->text(trans('texts.enable'))
-                        ->help(trans('texts.enable_client_portal_dashboard_help')) !!}
+                        ->help(trans('texts.enable_client_portal_dashboard_help'))
+                        ->value(1) !!}
                 </div>
             </div>
         </div>
@@ -83,13 +85,15 @@
                                 {!! Former::checkbox('enable_portal_password')
                                     ->text(trans('texts.enable'))
                                     ->help(trans('texts.enable_portal_password_help'))
-                                    ->label(trans('texts.enable_portal_password')) !!}
+                                    ->label(trans('texts.enable_portal_password'))
+                                    ->value(1) !!}
                             </div>
                             <div class="col-md-10 col-md-offset-1">
                                 {!! Former::checkbox('send_portal_password')
                                     ->text(trans('texts.enable'))
                                     ->help(trans('texts.send_portal_password_help'))
-                                    ->label(trans('texts.send_portal_password')) !!}
+                                    ->label(trans('texts.send_portal_password'))
+                                    ->value(1) !!}
                             </div>
                         </div>
                         </div>
@@ -101,13 +105,15 @@
                                 {!! Former::checkbox('show_accept_invoice_terms')
                                     ->text(trans('texts.enable'))
                                     ->help(trans('texts.show_accept_invoice_terms_help'))
-                                    ->label(trans('texts.show_accept_invoice_terms')) !!}
+                                    ->label(trans('texts.show_accept_invoice_terms'))
+                                    ->value(1) !!}
                             </div>
                             <div class="col-md-10 col-md-offset-1">
                                 {!! Former::checkbox('show_accept_quote_terms')
                                     ->text(trans('texts.enable'))
                                     ->help(trans('texts.show_accept_quote_terms_help'))
-                                    ->label(trans('texts.show_accept_quote_terms')) !!}
+                                    ->label(trans('texts.show_accept_quote_terms'))
+                                    ->value(1) !!}
                             </div>
                         </div>
                         </div>
@@ -119,13 +125,15 @@
                                 {!! Former::checkbox('require_invoice_signature')
                                     ->text(trans('texts.enable'))
                                     ->help(trans('texts.require_invoice_signature_help'))
-                                    ->label(trans('texts.require_invoice_signature')) !!}
+                                    ->label(trans('texts.require_invoice_signature'))
+                                    ->value(1) !!}
                             </div>
                             <div class="col-md-10 col-md-offset-1">
                                 {!! Former::checkbox('require_quote_signature')
                                     ->text(trans('texts.enable'))
                                     ->help(trans('texts.require_quote_signature_help'))
-                                    ->label(trans('texts.require_quote_signature')) !!}
+                                    ->label(trans('texts.require_quote_signature'))
+                                    ->value(1) !!}
                             </div>
                         </div>
                         </div>
@@ -146,7 +154,8 @@
                         {!! Former::checkbox('enable_buy_now_buttons')
                             ->text(trans('texts.enable'))
                             ->label(' ')
-                            ->help(trans('texts.enable_buy_now_buttons_help')) !!}
+                            ->help(trans('texts.enable_buy_now_buttons_help'))
+                            ->value(1) !!}
 
                         @if ($account->enable_buy_now_buttons)
                             {!! Former::select('product')
