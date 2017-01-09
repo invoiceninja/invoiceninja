@@ -195,10 +195,12 @@
 
 				{!! Former::checkbox('live_preview')
 						->text(trans('texts.enable'))
-						->help('live_preview_help') !!}
+						->help('live_preview_help')
+						->value(1) !!}
 
 				{!! Former::checkbox('force_pdfjs')
 						->text(trans('texts.enable'))
+						->value(1)
 						->help(trans('texts.force_pdfjs_help', [
 							'chrome_link' => link_to(CHROME_PDF_HELP_URL, 'Chrome', ['target' => '_blank']),
 							'firefox_link' => link_to(FIREFOX_PDF_HELP_URL, 'Firefox', ['target' => '_blank']),

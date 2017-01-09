@@ -360,6 +360,7 @@ Route::get('/comments/feed', function() {
 });
 
 if (!defined('CONTACT_EMAIL')) {
+    define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
     define('CONTACT_EMAIL', config('mail.from.address'));
     define('CONTACT_NAME', config('mail.from.name'));
     define('SITE_URL', config('app.url'));

@@ -1329,7 +1329,7 @@ $LANG = array(
     'products_will_create' => 'products will be created',
     'product_key' => 'Product',
     'created_products' => 'Successfully created :count product(s)',
-    'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.',
+    'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
     'JSON_file' => 'JSON File',
 
     'view_dashboard' => 'View Dashboard',
@@ -1404,6 +1404,8 @@ $LANG = array(
     'payment_type_Maestro' => 'Maestro',
     'payment_type_Solo' => 'Solo',
     'payment_type_Switch' => 'Switch',
+    'payment_type_iZettle' => 'iZettle',
+    'payment_type_Swish' => 'Swish',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -2306,6 +2308,8 @@ $LANG = array(
     'notes_reminder3' => 'Third Reminder',
     'bcc_email' => 'BCC Email',
     'bcc_email_help' => 'All emails sent to your clients will also be sent to this address.',
+    'tax_quote' => 'Tax Quote',
+    'tax_invoice' => 'Tax Invoice',
 
 );
 

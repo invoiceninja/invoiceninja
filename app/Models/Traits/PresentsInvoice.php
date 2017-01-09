@@ -207,6 +207,8 @@ trait PresentsInvoice
             'phone',
             'blank',
             'adjustment',
+            'tax_invoice',
+            'tax_quote',
         ];
 
         foreach ($fields as $field) {

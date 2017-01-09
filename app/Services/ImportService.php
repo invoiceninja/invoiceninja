@@ -252,6 +252,10 @@ class ImportService
             $this->checkData($entityType, count($reader->all()));
 
             $reader->each(function ($row) use ($source, $entityType, &$row_list, &$results) {
+                if ($this->isRowEmpty($row)) {
+                    return;
+                }
+
                 $data_index = $this->transformRow($source, $entityType, $row);
 
                 if ($data_index !== false) {
@@ -297,10 +301,9 @@ class ImportService
                     $this->addExpenseCategoryToMaps($category);
                 }
             }
-            if ( ! empty($row->vendor)) {
-                $vendorId = $transformer->getVendorId($row->vendor);
-                if ( ! $vendorId) {
-                    $vendor = $this->vendorRepo->save(['name' => $row->vendor, 'vendor_contact' => []]);
+            if ( ! empty($row->vendor) && ($vendorName = trim($row->vendor))) {
+                if ( ! $transformer->getVendorId($vendorName)) {
+                    $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
                     $this->addVendorToMaps($vendor);
                 }
             }
@@ -485,14 +488,24 @@ class ImportService
         $csv->heading = false;
         $csv->auto($filename);
 
-        Session::put("{$entityType}-data", $csv->data);
-
         $headers = false;
         $hasHeaders = false;
         $mapped = [];
 
         if (count($csv->data) > 0) {
             $headers = $csv->data[0];
+
+            // Remove Invoice Ninja headers
+            if (count($headers) && count($csv->data) > 4) {
+                $firstCell = $headers[0];
+                if (strstr($firstCell, APP_NAME)) {
+                    array_shift($csv->data); // Invoice Ninja...
+                    array_shift($csv->data); // <blank line>
+                    array_shift($csv->data); // Enitty Type Header
+                }
+                $headers = $csv->data[0];
+            }
+
             foreach ($headers as $title) {
                 if (strpos(strtolower($title), 'name') > 0) {
                     $hasHeaders = true;
@@ -513,6 +526,8 @@ class ImportService
                 }
             }
         }
+
+        Session::put("{$entityType}-data", $csv->data);
 
         $data = [
             'entityType' => $entityType,
@@ -607,6 +622,9 @@ class ImportService
             }
 
             $row = $this->convertToObject($entityType, $row, $map);
+            if ($this->isRowEmpty($row)) {
+                continue;
+            }
             $data_index = $this->transformRow($source, $entityType, $row);
 
             if ($data_index !== false) {
@@ -798,5 +816,18 @@ class ImportService
         if ($name = strtolower($category->name)) {
             $this->maps['expense_category'][$name] = $category->id;
         }
+    }
+
+    private function isRowEmpty($row)
+    {
+        $isEmpty = true;
+
+        foreach ($row as $key => $val) {
+            if (trim($val)) {
+                $isEmpty = false;
+            }
+        }
+
+        return $isEmpty;
     }
 }

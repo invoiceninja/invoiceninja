@@ -515,7 +515,7 @@
                 @endforeach
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])
-            <li style="width:100%">
+            <li style="width:100%;">
                 <div class="nav-footer">
                     <a href="javascript:showContactUs()" target="_blank" title="{{ trans('texts.contact_us') }}">
                         <i class="fa fa-envelope"></i>
@@ -627,7 +627,11 @@
 
         <div class="row signup-form">
             <div class="col-md-11 col-md-offset-1">
-                {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>']))->raw() !!}
+                {!! Former::checkbox('terms_checkbox')
+                    ->label(' ')
+                    ->value(1)
+                    ->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>']))
+                    ->raw() !!}
                 <br/>
             </div>
             @if (Utils::isOAuthEnabled())

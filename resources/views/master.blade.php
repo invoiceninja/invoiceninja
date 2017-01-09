@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="{{App::getLocale()}}">
 <head>
-    @if (!Utils::isNinja() && !Auth::check())
+    @if (Utils::isWhiteLabel())
         <title>{{ trans('texts.client_portal') }}</title>
     @else
         <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title>

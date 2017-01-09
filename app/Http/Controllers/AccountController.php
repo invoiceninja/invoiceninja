@@ -1220,6 +1220,13 @@ class AccountController extends BaseController
             $user->email = trim(strtolower(Input::get('email')));
             $user->phone = trim(Input::get('phone'));
 
+            if ( ! Auth::user()->is_admin) {
+                $user->notify_sent = Input::get('notify_sent');
+                $user->notify_viewed = Input::get('notify_viewed');
+                $user->notify_paid = Input::get('notify_paid');
+                $user->notify_approved = Input::get('notify_approved');
+            }
+
             if (Utils::isNinja()) {
                 if (Input::get('referral_code') && !$user->referral_code) {
                     $user->referral_code = $this->accountRepo->getReferralCode();

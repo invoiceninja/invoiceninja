@@ -67,7 +67,7 @@
 			{!! Former::text('transaction_reference') !!}
 
             @if (!$payment)
-                {!! Former::checkbox('email_receipt')->label('&nbsp;')->text(trans('texts.email_receipt')) !!}
+                {!! Former::checkbox('email_receipt')->label('&nbsp;')->text(trans('texts.email_receipt'))->value(1) !!}
             @endif
 
             </div>

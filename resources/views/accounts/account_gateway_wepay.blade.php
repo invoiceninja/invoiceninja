@@ -50,23 +50,28 @@
                 </div>
                 <div id="wepay-accept-debit">
                 {!! Former::checkbox('debit_cards')
-                        ->text(trans('texts.accept_debit_cards')) !!}
+                        ->text(trans('texts.accept_debit_cards'))
+                        ->value(1) !!}
                 </div>
             @endif
 
             {!! Former::checkbox('show_address')
                 ->label(trans('texts.billing_address'))
-                ->text(trans('texts.show_address_help')) !!}
+                ->text(trans('texts.show_address_help'))
+                ->value(1) !!}
             {!! Former::checkbox('update_address')
                     ->label(' ')
-                    ->text(trans('texts.update_address_help')) !!}
+                    ->text(trans('texts.update_address_help'))
+                    ->value(1) !!}
             {!! Former::checkboxes('creditCardTypes[]')
                     ->label('Accepted Credit Cards')
                     ->checkboxes($creditCardTypes)
-                    ->class('creditcard-types') !!}
+                    ->class('creditcard-types')
+                    ->value(1) !!}
             {!! Former::checkbox('enable_ach')
                     ->label(trans('texts.ach'))
-                    ->text(trans('texts.enable_ach')) !!}
+                    ->text(trans('texts.enable_ach'))
+                    ->value(1) !!}
 
             {!! Former::checkbox('tos_agree')->label(' ')->text(trans('texts.wepay_tos_agree',
                     ['link'=>'<a id="wepay-tos-link" href="https://go.wepay.com/terms-of-service-us" target="_blank">'.trans('texts.wepay_tos_link_text').'</a>']

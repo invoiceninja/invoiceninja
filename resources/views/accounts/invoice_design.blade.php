@@ -253,9 +253,9 @@
                 <div role="tabpanel" class="tab-pane" id="invoice_options">
                     <div class="panel-body">
 
-                      {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
-                      {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) !!}
-                      {!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help')) !!}
+                      {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help'))->value(1) !!}
+                      {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help'))->value(1) !!}
+                      {!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help'))->value(1) !!}
 
                     </div>
                 </div>

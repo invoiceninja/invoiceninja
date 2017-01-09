@@ -22,23 +22,28 @@
 
     {!! Former::checkbox('invoice_taxes')
         ->text(trans('texts.enable_invoice_tax'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
     {!! Former::checkbox('invoice_item_taxes')
         ->text(trans('texts.enable_line_item_tax'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
     {!! Former::checkbox('show_item_taxes')
         ->text(trans('texts.show_line_item_tax'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
     {!! Former::checkbox('include_item_taxes_inline')
         ->text(trans('texts.include_item_taxes_inline'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
     {!! Former::checkbox('enable_second_tax_rate')
         ->text(trans('texts.enable_second_tax_rate'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
       &nbsp;
 

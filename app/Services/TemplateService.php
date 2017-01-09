@@ -74,8 +74,9 @@ class TemplateService
                 continue;
             }
             $camelType = Utils::toCamelCase(GatewayType::getAliasFromId($type));
-            $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
-            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
+            $snakeCase = Utils::toSnakeCase(GatewayType::getAliasFromId($type));
+            $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$snakeCase}";
+            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$snakeCase}");
         }
 
         $includesPasswordPlaceholder = strpos($template, '$password') !== false;
