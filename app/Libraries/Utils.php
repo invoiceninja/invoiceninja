@@ -102,13 +102,21 @@ class Utils
 
     public static function isWhiteLabel()
     {
-        if (Utils::isNinjaProd()) {
-            return false;
+        $account = false;
+
+        if (Utils::isNinja()) {
+            if (Auth::check()) {
+                $account = Auth::user()->account;
+            } elseif ($contactKey = session('contact_key')) {
+                if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+                    $account = $contact->account;
+                }
+            }
+        } else {
+            $account = \App\Models\Account::first();
         }
 
-        $account = \App\Models\Account::first();
-
-        return $account && $account->hasFeature(FEATURE_WHITE_LABEL);
+        return $account ? $account->hasFeature(FEATURE_WHITE_LABEL) : false;
     }
 
     public static function getResllerType()
