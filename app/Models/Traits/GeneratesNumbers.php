@@ -52,9 +52,11 @@ trait GeneratesNumbers
                     $this->client_number_counter += $counterOffset - 1;
                     $this->save();
                 }
-            } elseif ($entity->isType(INVOICE_TYPE_QUOTE) && !$this->share_counter) {
-                $this->quote_number_counter += $counterOffset - 1;
-                $this->save();
+            } elseif ($entity->isType(INVOICE_TYPE_QUOTE)) {
+                if ( ! $this->share_counter) {
+                    $this->quote_number_counter += $counterOffset - 1;
+                    $this->save();
+                }
             } else {
                 $this->invoice_number_counter += $counterOffset - 1;
                 $this->save();
