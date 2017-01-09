@@ -43,7 +43,8 @@ class DashboardController extends BaseController
         $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
 
-	    $showBlueVinePromo = env('BLUEVINE_PARTNER_UNIQUE_ID')
+	    $showBlueVinePromo = $user->is_admin
+            && env('BLUEVINE_PARTNER_UNIQUE_ID')
             && ! $account->company->bluevine_status
             && $account->created_at <= date( 'Y-m-d', strtotime( '-1 month' ));
 
