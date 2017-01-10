@@ -11,14 +11,6 @@
 |
 */
 
-//Crypt::decrypt();
-//apc_clear_cache();
-//dd(DB::getQueryLog());
-//dd(Client::getPrivateId(1));
-//dd(new DateTime());
-//dd(App::environment());
-//dd(gethostname());
-//Log::error('test');
 
 // Application setup
 Route::get('/setup', 'AppController@showSetup');
