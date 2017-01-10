@@ -540,6 +540,8 @@ if (!defined('APP_NAME'))
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
+
+    // TODO remove these translation functions
     function uctrans($text)
     {
         return ucwords(trans($text));
