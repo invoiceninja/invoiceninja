@@ -158,13 +158,23 @@ class InvoiceApiController extends BaseAPIController
 
         $data = self::prepareData($data, $client);
         $data['client_id'] = $client->id;
+
+        // in these cases the invoice needs to be set as public
+        $isAutoBill = isset($data['auto_bill']) && filter_var($data['auto_bill'], FILTER_VALIDATE_BOOLEAN);
+        $isEmailInvoice = isset($data['email_invoice']) && filter_var($data['email_invoice'], FILTER_VALIDATE_BOOLEAN);
+        $isPaid = isset($data['paid']) && floatval($data['paid']);
+
+        if ($isAutoBill || $isPaid || $isEmailInvoice) {
+            $data['is_public'] = true;
+        }
+
         $invoice = $this->invoiceService->save($data);
         $payment = false;
 
         if ($invoice->isInvoice()) {
-            if (isset($data['auto_bill']) && boolval($data['auto_bill'])) {
+            if ($isAutoBill) {
                 $payment = $this->paymentService->autoBillInvoice($invoice);
-            } else if (isset($data['paid']) && $data['paid']) {
+            } else if ($isPaid) {
                 $payment = $this->paymentRepo->save([
                     'invoice_id' => $invoice->id,
                     'client_id' => $client->id,
@@ -173,7 +183,7 @@ class InvoiceApiController extends BaseAPIController
             }
         }
 
-        if (isset($data['email_invoice']) && $data['email_invoice']) {
+        if ($isEmailInvoice) {
             if ($payment) {
                 $this->mailer->sendPaymentConfirmation($payment);
             } elseif ( ! $invoice->is_recurring) {
