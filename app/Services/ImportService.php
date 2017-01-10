@@ -25,6 +25,7 @@ use App\Models\Vendor;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\EntityModel;
+use App\Ninja\Import\BaseTransformer;
 
 /**
  * Class ImportService
@@ -142,17 +143,22 @@ class ImportService
      */
     public function importJSON($file)
     {
-        $this->init();
+        $this->initMaps();
 
         $file = file_get_contents($file);
         $json = json_decode($file, true);
         $json = $this->removeIdFields($json);
+        $transformer = new BaseTransformer($this->maps);
 
         $this->checkClientCount(count($json['clients']));
 
         foreach ($json['products'] as $jsonProduct) {
+            if ($transformer->hasProduct($jsonProduct['product_key'])) {
+                continue;
+            }
             if (EntityModel::validate($jsonProduct, ENTITY_PRODUCT) === true) {
                 $product = $this->productRepo->save($jsonProduct);
+                $this->addProductToMaps($product);
                 $this->addSuccess($product);
             } else {
                 $this->addFailure(ENTITY_PRODUCT, $jsonProduct);
@@ -164,6 +170,7 @@ class ImportService
 
             if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
                 $client = $this->clientRepo->save($jsonClient);
+                $this->addClientToMaps($client);
                 $this->addSuccess($client);
             } else {
                 $this->addFailure(ENTITY_CLIENT, $jsonClient);
@@ -174,6 +181,7 @@ class ImportService
                 $jsonInvoice['client_id'] = $client->id;
                 if (EntityModel::validate($jsonInvoice, ENTITY_INVOICE) === true) {
                     $invoice = $this->invoiceRepo->save($jsonInvoice);
+                    $this->addInvoiceToMaps($invoice);
                     $this->addSuccess($invoice);
                 } else {
                     $this->addFailure(ENTITY_INVOICE, $jsonInvoice);
