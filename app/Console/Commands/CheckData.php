@@ -72,6 +72,7 @@ class CheckData extends Command {
 
         $this->logMessage('Done');
         $errorEmail = env('ERROR_EMAIL');
+        $this->info($this->log);
 
         if ($errorEmail) {
             Mail::raw($this->log, function ($message) use ($errorEmail) {
@@ -79,8 +80,6 @@ class CheckData extends Command {
                         ->from(CONTACT_EMAIL)
                         ->subject('Check-Data');
             });
-        } else {
-            $this->info($this->log);
         }
     }
 
