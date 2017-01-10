@@ -73,16 +73,14 @@ class CheckData extends Command {
         $this->logMessage('Done');
         $errorEmail = env('ERROR_EMAIL');
 
-        if ( ! $this->isValid) {
-            if ($errorEmail) {
-                Mail::raw($this->log, function ($message) use ($errorEmail) {
-                    $message->to($errorEmail)
-                            ->from(CONTACT_EMAIL)
-                            ->subject('Check-Data');
-                });
-            } else {
-                $this->info($this->log);
-            }
+        if ($errorEmail) {
+            Mail::raw($this->log, function ($message) use ($errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('Check-Data');
+            });
+        } else {
+            $this->info($this->log);
         }
     }
 
