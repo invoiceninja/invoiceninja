@@ -109,7 +109,8 @@
         },
         "files": [
             "app/Libraries/lib_autolink.php",
-            "app/Libraries/OFX.php"
+            "app/Libraries/OFX.php",
+            "app/Libraries/Constants.php"
         ]
     },
     "autoload-dev": {
