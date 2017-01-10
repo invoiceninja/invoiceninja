@@ -2123,10 +2123,10 @@ $LANG = array(
     'quote_to' => 'Quote to',
 
     // Limits
-    'limit' => 'Limite',
+    'limit' => 'Limits',
     'min_limit' => 'Min: :min',
     'max_limit' => 'Max: :max',
-    'no_limit' => 'Keine Limiten',
+    'no_limit' => 'Keine Limits',
     'set_limits' => 'Set :gateway_type Limits',
     'enable_min' => 'Min aktivieren',
     'enable_max' => 'Max aktivieren',
@@ -2156,7 +2156,7 @@ $LANG = array(
     'go_ninja_pro' => 'Go Ninja Pro!',
     'go_enterprise' => 'Go Enterprise!',
     'upgrade_for_features' => 'Upgrade For More Features',
-    'pay_annually_discount' => 'Bezahle jährlich für 10 Monate und 2 gratis!',
+    'pay_annually_discount' => 'Bezahle jährlich für 10 Monate und erhalte 2 gratis!',
     'pro_upgrade_title' => 'Ninja Pro',
     'pro_upgrade_feature1' => 'YourBrand.InvoiceNinja.com',
     'pro_upgrade_feature2' => 'Customize every aspect of your invoice!',
