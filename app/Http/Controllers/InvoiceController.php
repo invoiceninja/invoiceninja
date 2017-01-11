@@ -19,7 +19,7 @@ use App\Models\Payment;
 use App\Models\TaxRate;
 use App\Models\InvoiceDesign;
 use App\Models\Activity;
-use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Jobs\SendInvoiceEmail;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\DocumentRepository;
@@ -33,7 +33,6 @@ use App\Http\Requests\UpdateInvoiceRequest;
 
 class InvoiceController extends BaseController
 {
-    protected $mailer;
     protected $invoiceRepo;
     protected $clientRepo;
     protected $documentRepo;
@@ -42,11 +41,10 @@ class InvoiceController extends BaseController
     protected $recurringInvoiceService;
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService, PaymentService $paymentService)
+    public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService, PaymentService $paymentService)
     {
         // parent::__construct();
 
-        $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
         $this->invoiceService = $invoiceService;
@@ -459,7 +457,8 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $response = $this->mailer->sendInvoice($invoice, false, $pdfUpload);
+            $this->dispatch(new SendInvoiceEmail($invoice, false, $pdfUpload));
+            return true;
         }
 
         if ($response === true) {
@@ -489,7 +488,8 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            return $this->mailer->sendInvoice($invoice);
+            $this->dispatch(new SendInvoiceEmail($invoice));
+            return true;
         }
     }
 

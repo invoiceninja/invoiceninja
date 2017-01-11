@@ -119,7 +119,7 @@ return [
          */
         'Illuminate\Auth\AuthServiceProvider',
         'Collective\Html\HtmlServiceProvider',
-        'Collective\Bus\BusServiceProvider',
+        'Illuminate\Bus\BusServiceProvider',
         'Illuminate\Cache\CacheServiceProvider',
         'Illuminate\Foundation\Providers\ConsoleSupportServiceProvider',
         'Illuminate\Cookie\CookieServiceProvider',
