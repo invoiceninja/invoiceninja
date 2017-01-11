@@ -40,7 +40,7 @@ class ApiCheck {
             // check API secret
             if ( ! $hasApiSecret) {
                 sleep(ERROR_DELAY);
-                return Response::json(['error']['message'=>'Invalid value for API_SECRET'], 403, $headers);
+                return Response::json(['error'=>['message'=>'Invalid value for API_SECRET']], 403, $headers);
             }
         } else {
             // check for a valid token
@@ -52,7 +52,7 @@ class ApiCheck {
                 Session::set('token_id', $token->id);
             } else {
                 sleep(ERROR_DELAY);
-                return Response::json(['error']['message'=>'Invalid token'], 403, $headers);
+                return Response::json(['error'=>['message'=>'Invalid token']], 403, $headers);
             }
         }
 
@@ -61,7 +61,7 @@ class ApiCheck {
         }
 
         if (!Utils::hasFeature(FEATURE_API) && !$hasApiSecret) {
-            return Response::json(['error']['message'=>'API requires pro plan'], 403, $headers);
+            return Response::json(['error'=>['message'=>'API requires pro plan']], 403, $headers);
         } else {
             $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();
 
