@@ -25,7 +25,9 @@ class ApiCheck {
     {
         $loggingIn = $request->is('api/v1/login')
             || $request->is('api/v1/register')
-            || $request->is('api/v1/oauth_login');
+            || $request->is('api/v1/oauth_login')
+            || $request->is('api/v1/ping');
+
         $headers = Utils::getApiHeaders();
         $hasApiSecret = false;
 
@@ -38,7 +40,8 @@ class ApiCheck {
             // check API secret
             if ( ! $hasApiSecret) {
                 sleep(ERROR_DELAY);
-                return Response::json(['message'=>'Invalid value for API_SECRET'], 403, $headers);
+                $error['error'] = ['message'=>'Invalid value for API_SECRET'];
+                return Response::json($error, 403, $headers);
             }
         } else {
             // check for a valid token
@@ -50,7 +53,8 @@ class ApiCheck {
                 Session::set('token_id', $token->id);
             } else {
                 sleep(ERROR_DELAY);
-                return Response::json(['message'=>'Invalid token'], 403, $headers);
+                $error['error'] = ['message'=>'Invalid token'];
+                return Response::json($error, 403, $headers);
             }
         }
 
@@ -59,7 +63,8 @@ class ApiCheck {
         }
 
         if (!Utils::hasFeature(FEATURE_API) && !$hasApiSecret) {
-            return Response::json(['message'=>'API requires pro plan'], 403, $headers);
+            $error['error'] = ['message'=>'API requires pro plan'];
+            return Response::json($error, 403, $headers);
         } else {
             $key = Auth::check() ? Auth::user()->account->id : $request->getClientIp();
 
