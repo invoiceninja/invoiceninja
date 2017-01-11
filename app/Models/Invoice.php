@@ -667,7 +667,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function isSent()
     {
-        return $this->invoice_status_id >= INVOICE_STATUS_SENT;
+        return $this->invoice_status_id >= INVOICE_STATUS_SENT && $this->is_public;
     }
 
     /**
