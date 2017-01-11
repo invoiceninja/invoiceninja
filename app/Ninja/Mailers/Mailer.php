@@ -108,7 +108,7 @@ class Mailer
             if (! $response) {
                 $error = trans('texts.postmark_error', ['link' => link_to('https://status.postmarkapp.com/')]);
                 Utils::logError($error);
-                return $error;
+                throw $exception;
             }
 
             $response = $response->getBody()->getContents();
