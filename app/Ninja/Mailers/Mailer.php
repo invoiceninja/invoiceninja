@@ -108,6 +108,8 @@ class Mailer
             if (! $response) {
                 $error = trans('texts.postmark_error', ['link' => link_to('https://status.postmarkapp.com/')]);
                 Utils::logError($error);
+                
+                // TODO throw the exception once all emails are sent using the queue
                 return $error;
             }
 
