@@ -12,6 +12,7 @@ use App\Models\Task;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Services\PaymentService;
+use App\Jobs\SendInvoiceEmail;
 
 class InvoiceRepository extends BaseRepository
 {
@@ -745,6 +746,15 @@ class InvoiceRepository extends BaseRepository
 
         return $clone;
     }
+
+    /**
+     * @param Invoice $invoice
+     */
+    public function emailInvoice(Invoice $invoice)
+    {
+        dispatch(new SendInvoiceEmail($invoice));
+    }
+
 
     /**
      * @param Invoice $invoice

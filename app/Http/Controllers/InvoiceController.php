@@ -521,6 +521,8 @@ class InvoiceController extends BaseController
         if ($count > 0) {
             if ($action == 'markSent') {
                 $key = 'marked_sent_invoice';
+            } elseif ($action == 'emailInvoice') {
+                $key = 'emailed_' . $entityType;
             } elseif ($action == 'markPaid') {
                 $key = 'created_payment';
             } else {

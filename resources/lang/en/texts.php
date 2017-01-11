@@ -2310,7 +2310,8 @@ $LANG = array(
     'bcc_email_help' => 'All emails sent to your clients will also be sent to this address.',
     'tax_quote' => 'Tax Quote',
     'tax_invoice' => 'Tax Invoice',
-
+    'emailed_invoices' => 'Successfully emailed invoices',
+    'emailed_quotes' => 'Successfully emailed quotes',
 );
 
 return $LANG;
