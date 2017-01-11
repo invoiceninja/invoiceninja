@@ -12,12 +12,13 @@ use App\Models\Product;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
+use App\Jobs\SendInvoiceEmail;
+use App\Jobs\SendPaymentEmail;
 
 class InvoiceApiController extends BaseAPIController
 {
@@ -25,7 +26,7 @@ class InvoiceApiController extends BaseAPIController
 
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer, PaymentService $paymentService)
+    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, PaymentService $paymentService)
     {
         parent::__construct();
 
@@ -33,7 +34,6 @@ class InvoiceApiController extends BaseAPIController
         $this->clientRepo = $clientRepo;
         $this->paymentRepo = $paymentRepo;
         $this->invoiceService = $invoiceService;
-        $this->mailer = $mailer;
         $this->paymentService = $paymentService;
     }
 
@@ -185,9 +185,9 @@ class InvoiceApiController extends BaseAPIController
 
         if ($isEmailInvoice) {
             if ($payment) {
-                $this->mailer->sendPaymentConfirmation($payment);
+                $this->dispatch(new SendPaymentEmail($payment));
             } elseif ( ! $invoice->is_recurring) {
-                $this->mailer->sendInvoice($invoice);
+                $this->dispatch(new SendInvoiceEmail($invoice));
             }
         }
 
@@ -293,7 +293,7 @@ class InvoiceApiController extends BaseAPIController
     {
         $invoice = $request->entity();
 
-        $this->mailer->sendInvoice($invoice);
+        $this->dispatch(new SendInvoiceEmail($invoice));
 
         $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
