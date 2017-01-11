@@ -259,7 +259,7 @@ class AccountGatewayController extends BaseController
                 $config = clone $oldConfig;
             }
 
-            $publishableKey = Input::get('publishable_key');
+            $publishableKey = trim(Input::get('publishable_key'));
             if ($publishableKey = str_replace('*', '', $publishableKey)) {
                 $config->publishableKey = $publishableKey;
             } elseif ($oldConfig && property_exists($oldConfig, 'publishableKey')) {
