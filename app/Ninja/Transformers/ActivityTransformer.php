@@ -31,7 +31,7 @@ class ActivityTransformer extends EntityTransformer
             'credit_id' => $activity->credit ? $activity->credit->public_id : null,
             'updated_at' => $this->getTimestamp($activity->updated_at),
             'expense_id' => $activity->expense_id ? $activity->expense->public_id : null,
-            'is_system' => (bool) $activity->is_system ? $activity->is_system : null,
+            'is_system' => $activity->is_system ? (bool) $activity->is_system : null,
             'contact_id' => $activity->contact_id ? $activity->contact->public_id : null
         ];
     }
