@@ -137,7 +137,7 @@ class ContactMailer extends Mailer
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     private function sendInvitation(
-        Invitation$invitation,
+        Invitation $invitation,
         Invoice $invoice,
         $body,
         $subject,

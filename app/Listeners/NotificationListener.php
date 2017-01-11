@@ -9,6 +9,7 @@ use App\Events\QuoteInvitationWasViewed;
 use App\Events\QuoteInvitationWasApproved;
 use App\Events\PaymentWasCreated;
 use App\Services\PushService;
+use App\Jobs\SendPaymentEmail;
 
 /**
  * Class NotificationListener
@@ -120,10 +121,7 @@ class NotificationListener
             return;
         }
 
-        $this->contactMailer->sendPaymentConfirmation($event->payment);
-        $this->sendEmails($event->payment->invoice, 'paid', $event->payment);
-
-        $this->pushService->sendNotification($event->payment->invoice, 'paid');
+        dispatch(new SendPaymentEmail($event->payment));
     }
 
 }
