@@ -351,7 +351,8 @@ if (!defined('APP_NAME'))
     define('DEFAULT_API_PAGE_SIZE', 15);
     define('MAX_API_PAGE_SIZE', 500);
 
-    define('IOS_PUSH_CERTIFICATE', env('IOS_PUSH_CERTIFICATE', ''));
+    define('IOS_DEVICE', env('IOS_DEVICE', ''));
+    define('ANDROID_DEVICE', env('ANDROID_DEVICE', ''));
 
     define('TOKEN_BILLING_DISABLED', 1);
     define('TOKEN_BILLING_OPT_IN', 2);
