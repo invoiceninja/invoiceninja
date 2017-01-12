@@ -2312,6 +2312,8 @@ $LANG = array(
     'tax_invoice' => 'Tax Invoice',
     'emailed_invoices' => 'Successfully emailed invoices',
     'emailed_quotes' => 'Successfully emailed quotes',
+    'website_url' => 'Website URL',
+    
 );
 
 return $LANG;

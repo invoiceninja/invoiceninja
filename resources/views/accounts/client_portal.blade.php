@@ -19,11 +19,14 @@
 @parent
 
 {!! Former::open_for_files()
-->addClass('warn-on-exit') !!}
+        ->rules([
+            'iframe_url' => 'url',
+        ])
+        ->addClass('warn-on-exit') !!}
 
+{!! Former::populate($account) !!}
 {!! Former::populateField('enable_client_portal', intval($account->enable_client_portal)) !!}
 {!! Former::populateField('enable_client_portal_dashboard', intval($account->enable_client_portal_dashboard)) !!}
-{!! Former::populateField('client_view_css', $client_view_css) !!}
 {!! Former::populateField('enable_portal_password', intval($enable_portal_password)) !!}
 {!! Former::populateField('send_portal_password', intval($send_portal_password)) !!}
 {!! Former::populateField('enable_buy_now_buttons', intval($account->enable_buy_now_buttons)) !!}
@@ -47,16 +50,41 @@
 
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.navigation') !!}</h3>
+                <h3 class="panel-title">{!! trans('texts.settings') !!}</h3>
             </div>
             <div class="panel-body">
                 <div class="col-md-10 col-md-offset-1">
+
+                    {!! Former::inline_radios('custom_invoice_link')
+                            ->onchange('onCustomLinkChange()')
+                            ->label(trans('texts.website_url'))
+                            ->radios([
+                                trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
+                                trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
+                            ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
+                    {{ Former::setOption('capitalize_translations', false) }}
+
+                    {!! Former::text('subdomain')
+                                ->placeholder(trans('texts.www'))
+                                ->onchange('onSubdomainChange()')
+                                ->addGroupClass('subdomain')
+                                ->label(' ')
+                                ->help(trans('texts.subdomain_help')) !!}
+
+                    {!! Former::text('iframe_url')
+                                ->placeholder('https://www.example.com/invoice')
+                                ->appendIcon('question-sign')
+                                ->addGroupClass('iframe_url')
+                                ->label(' ')
+                                ->help(trans('texts.subdomain_help')) !!}
+
+
                     {!! Former::checkbox('enable_client_portal')
                         ->text(trans('texts.enable'))
                         ->help(trans('texts.enable_client_portal_help'))
                         ->value(1) !!}
-                </div>
-                <div class="col-md-10 col-md-offset-1">
+
+
                     {!! Former::checkbox('enable_client_portal_dashboard')
                         ->text(trans('texts.enable'))
                         ->help(trans('texts.enable_client_portal_dashboard_help'))
@@ -251,6 +279,38 @@
 
 {!! Former::close() !!}
 
+
+<div class="modal fade" id="iframeHelpModal" tabindex="-1" role="dialog" aria-labelledby="iframeHelpModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="min-width:150px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="iframeHelpModalLabel">{{ trans('texts.iframe_url') }}</h4>
+            </div>
+
+            <div class="modal-body">
+                <p>{{ trans('texts.iframe_url_help1') }}</p>
+                <pre>&lt;center&gt;
+&lt;iframe id="invoiceIFrame" width="100%" height="1200" style="max-width:1000px"&gt;&lt;/iframe&gt;
+&lt;center&gt;
+&lt;script language="javascript"&gt;
+var iframe = document.getElementById('invoiceIFrame');
+iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
+             + window.location.search.substring(1);
+&lt;/script&gt;</pre>
+                <p>{{ trans('texts.iframe_url_help2') }}</p>
+                <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
+                </div>
+
+            <div class="modal-footer" style="margin-top: 0px">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
 <script>
 
     var products = {!! $products !!};
@@ -319,6 +379,44 @@
         $('#linkTextarea').text(link);
     }
 
+
+    function onSubdomainChange() {
+        var input = $('#subdomain');
+        var val = input.val();
+        if (!val) return;
+        val = val.replace(/[^a-zA-Z0-9_\-]/g, '').toLowerCase().substring(0, {{ MAX_SUBDOMAIN_LENGTH }});
+        input.val(val);
+    }
+
+    function onCustomLinkChange() {
+        var val = $('input[name=custom_link]:checked').val()
+        if (val == 'subdomain') {
+            $('.subdomain').show();
+            $('.iframe_url').hide();
+        } else {
+            $('.subdomain').hide();
+            $('.iframe_url').show();
+        }
+    }
+
+    $('.iframe_url .input-group-addon').click(function() {
+        $('#iframeHelpModal').modal('show');
+    });
+
+    $('.email_design_id .input-group-addon').click(function() {
+        $('#designHelpModal').modal('show');
+    });
+
+    $(function() {
+        onCustomLinkChange();
+
+        $('#subdomain').change(function() {
+            $('#iframe_url').val('');
+        });
+        $('#iframe_url').change(function() {
+            $('#subdomain').val('');
+        });
+    });
 
 
 </script>

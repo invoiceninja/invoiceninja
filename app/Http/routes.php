@@ -244,6 +244,8 @@ Route::group([
     Route::post('tax_rates/bulk', 'TaxRateController@bulk');
 
     Route::get('settings/email_preview', 'AccountController@previewEmail');
+    Route::post('settings/client_portal', 'AccountController@saveClientPortalSettings');
+    Route::post('settings/email_settings', 'AccountController@saveEmailSettings');
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
     Route::get('settings/reports', 'ReportController@showReports');

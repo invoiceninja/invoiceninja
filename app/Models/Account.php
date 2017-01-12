@@ -82,6 +82,13 @@ class Account extends Eloquent
         'show_accept_quote_terms',
         'require_invoice_signature',
         'require_quote_signature',
+        'pdf_email_attachment',
+        'document_email_attachment',
+        'email_design_id',
+        'bcc_email',
+        'enable_email_markup',
+        'subdomain',
+        'iframe_url',
     ];
 
     /**

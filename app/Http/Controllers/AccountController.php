@@ -39,6 +39,9 @@ use App\Services\AuthService;
 use App\Services\PaymentService;
 use App\Http\Requests\UpdateAccountRequest;
 
+use App\Http\Requests\SaveClientPortalSettings;
+use App\Http\Requests\SaveEmailSettings;
+
 /**
  * Class AccountController
  */
@@ -714,14 +717,10 @@ class AccountController extends BaseController
             return AccountController::export();
         } elseif ($section === ACCOUNT_INVOICE_SETTINGS) {
             return AccountController::saveInvoiceSettings();
-        } elseif ($section === ACCOUNT_EMAIL_SETTINGS) {
-            return AccountController::saveEmailSettings();
         } elseif ($section === ACCOUNT_INVOICE_DESIGN) {
             return AccountController::saveInvoiceDesign();
         } elseif ($section === ACCOUNT_CUSTOMIZE_DESIGN) {
             return AccountController::saveCustomizeDesign();
-        } elseif ($section === ACCOUNT_CLIENT_PORTAL) {
-            return AccountController::saveClientPortal();
         } elseif ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
             return AccountController::saveEmailTemplates();
         } elseif ($section === ACCOUNT_PRODUCTS) {
@@ -789,53 +788,27 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
-    private function saveClientPortal()
+    public function saveClientPortalSettings(SaveClientPortalSettings $request)
     {
-        $account = Auth::user()->account;
-        $account->fill(Input::all());
-
-        // Only allowed for pro Invoice Ninja users or white labeled self-hosted users
-        if (Auth::user()->account->hasFeature(FEATURE_CLIENT_PORTAL_CSS)) {
-            $input_css = Input::get('client_view_css');
-            if (Utils::isNinja()) {
-                // Allow referencing the body element
-                $input_css = preg_replace('/(?<![a-z0-9\-\_\#\.])body(?![a-z0-9\-\_])/i', '.body', $input_css);
-
-                //
-                // Inspired by http://stackoverflow.com/a/5209050/1721527, dleavitt <https://stackoverflow.com/users/362110/dleavitt>
-                //
-
-                // Create a new configuration object
-                $config = \HTMLPurifier_Config::createDefault();
-                $config->set('Filter.ExtractStyleBlocks', true);
-                $config->set('CSS.AllowImportant', true);
-                $config->set('CSS.AllowTricky', true);
-                $config->set('CSS.Trusted', true);
-
-                // Create a new purifier instance
-                $purifier = new \HTMLPurifier($config);
-
-                // Wrap our CSS in style tags and pass to purifier.
-                // we're not actually interested in the html response though
-                $html = $purifier->purify('<style>'.$input_css.'</style>');
-
-                // The "style" blocks are stored seperately
-                $output_css = $purifier->context->get('StyleBlocks');
-
-                // Get the first style block
-                $sanitized_css = count($output_css) ? $output_css[0] : '';
-            } else {
-                $sanitized_css = $input_css;
-            }
-
-            $account->client_view_css = $sanitized_css;
-        }
-
+        $account = $request->user()->account;
+        $account->fill($request->all());
         $account->save();
 
-        Session::flash('message', trans('texts.updated_settings'));
+        return redirect('settings/' . ACCOUNT_CLIENT_PORTAL)
+                ->with('message', trans('texts.updated_settings'));
+    }
 
-        return Redirect::to('settings/'.ACCOUNT_CLIENT_PORTAL);
+    /**
+     * @return $this|\Illuminate\Http\RedirectResponse
+     */
+    public function saveEmailSettings(SaveEmailSettings $request)
+    {
+        $account = $request->user()->account;
+        $account->fill($request->all());
+        $account->save();
+
+        return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)
+                ->with('message', trans('texts.updated_settings'));
     }
 
     /**
@@ -903,74 +876,6 @@ class AccountController extends BaseController
         Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('settings/'.ACCOUNT_PRODUCTS);
-    }
-
-    /**
-     * @return $this|\Illuminate\Http\RedirectResponse
-     */
-    private function saveEmailSettings()
-    {
-        if (Auth::user()->account->hasFeature(FEATURE_CUSTOM_EMAILS)) {
-            $user = Auth::user();
-            $subdomain = null;
-            $iframeURL = null;
-            $rules = [];
-
-            if (Input::get('custom_link') == 'subdomain') {
-                $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-                if (Utils::isNinja()) {
-                    $exclude = [
-                        'www',
-                        'app',
-                        'mail',
-                        'admin',
-                        'blog',
-                        'user',
-                        'contact',
-                        'payment',
-                        'payments',
-                        'billing',
-                        'invoice',
-                        'business',
-                        'owner',
-                        'info',
-                        'ninja',
-                        'docs',
-                        'doc',
-                        'documents'
-                    ];
-                    $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
-                }
-            } else {
-                $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
-                $iframeURL = rtrim($iframeURL, '/');
-            }
-
-            $validator = Validator::make(Input::all(), $rules);
-
-            if ($validator->fails()) {
-                return Redirect::to('settings/'.ACCOUNT_EMAIL_SETTINGS)
-                    ->withErrors($validator)
-                    ->withInput();
-            } else {
-                $account = Auth::user()->account;
-                $account->subdomain = $subdomain;
-                $account->iframe_url = $iframeURL;
-                $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
-                $account->document_email_attachment = Input::get('document_email_attachment') ? true : false;
-                $account->email_design_id = Input::get('email_design_id');
-                $account->bcc_email = Input::get('bcc_email');
-
-                if (Utils::isNinja()) {
-                    $account->enable_email_markup = Input::get('enable_email_markup') ? true : false;
-                }
-
-                $account->save();
-                Session::flash('message', trans('texts.updated_settings'));
-            }
-        }
-
-        return Redirect::to('settings/'.ACCOUNT_EMAIL_SETTINGS);
     }
 
     /**

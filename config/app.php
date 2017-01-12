@@ -222,7 +222,6 @@ return [
         'View'            => 'Illuminate\Support\Facades\View',
 
         // Added Class Aliases
-        'Utils'              => 'App\Libraries\Utils',
         'Form'              => 'Collective\Html\FormFacade',
         'HTML'              => 'Collective\Html\HtmlFacade',
         'SSH'              => 'Illuminate\Support\Facades\SSH',
@@ -261,6 +260,9 @@ return [
         'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
         'Updater' => Codedge\Updater\UpdaterFacade::class,
         'Module' => Nwidart\Modules\Facades\Module::class,
+
+        'Utils' => App\Libraries\Utils::class,
+        'HTMLUtils' => App\Libraries\HTMLUtils::class,
     ],
 
 ];

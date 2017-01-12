@@ -198,6 +198,9 @@ class AppServiceProvider extends ServiceProvider
             return $total <= MAX_INVOICE_AMOUNT;
         });
 
+		Validator::extend('valid_subdomain', function($attribute, $value, $parameters) {
+			return ! in_array($value, ['www', 'app','mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja', 'docs', 'doc', 'documents']);
+		});
 	}
 
 	/**
