@@ -464,7 +464,6 @@ if (!defined('APP_NAME'))
     define('FEATURE_MORE_CLIENTS', 'more_clients'); // No trial allowed
 
     // Whitelabel
-    define('FEATURE_CLIENT_PORTAL_CSS', 'client_portal_css');
     define('FEATURE_WHITE_LABEL', 'feature_white_label');
 
     // Enterprise

@@ -11,6 +11,9 @@
     .checkbox-inline input[type="checkbox"] {
         margin-left:-20px !important;
     }
+    .iframe_url {
+        display: none;
+    }
     </style>
 
 @stop
@@ -35,14 +38,6 @@
 {!! Former::populateField('require_invoice_signature', intval($account->require_invoice_signature)) !!}
 {!! Former::populateField('require_quote_signature', intval($account->require_quote_signature)) !!}
 
-@if (!Utils::isNinja() && !Auth::user()->account->hasFeature(FEATURE_WHITE_LABEL))
-<div class="alert alert-warning" style="font-size:larger;">
-	<center>
-		{!! trans('texts.white_label_custom_css', ['price' => WHITE_LABEL_PRICE, 'link'=>'<a href="#" onclick="$(\'#whiteLabelModal\').modal(\'show\');">'.trans('texts.white_label_purchase_link').'</a>']) !!}
-	</center>
-</div>
-@endif
-
 @include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL])
 
 <div class="row">
@@ -53,42 +48,91 @@
                 <h3 class="panel-title">{!! trans('texts.settings') !!}</h3>
             </div>
             <div class="panel-body">
-                <div class="col-md-10 col-md-offset-1">
 
-                    {!! Former::inline_radios('custom_invoice_link')
-                            ->onchange('onCustomLinkChange()')
-                            ->label(trans('texts.website_url'))
-                            ->radios([
-                                trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
-                                trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
-                            ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
-                    {{ Former::setOption('capitalize_translations', false) }}
+                <div role="tabpanel">
+                    <ul class="nav nav-tabs" role="tablist" style="border: none">
+                        <li role="presentation" class="active">
+                            <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#navigation" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.navigation') }}</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#custom_css" aria-controls="custom_css" role="tab" data-toggle="tab">{{ trans('texts.custom_css') }}</a>
+                        </li>
+                    </ul>
+                </div>
 
-                    {!! Former::text('subdomain')
-                                ->placeholder(trans('texts.www'))
-                                ->onchange('onSubdomainChange()')
-                                ->addGroupClass('subdomain')
-                                ->label(' ')
-                                ->help(trans('texts.subdomain_help')) !!}
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="link">
+                        <div class="panel-body">
 
-                    {!! Former::text('iframe_url')
-                                ->placeholder('https://www.example.com/invoice')
-                                ->appendIcon('question-sign')
-                                ->addGroupClass('iframe_url')
-                                ->label(' ')
-                                ->help(trans('texts.subdomain_help')) !!}
+                            @if (Utils::isNinja() && ! Utils::isReseller())
+                                {!! Former::inline_radios('domain_id')
+                                        ->label(trans('texts.domain'))
+                                        ->radios([
+                                            'invoiceninja.com' => ['value' => \Domain::INVOICENINJA_COM, 'name' => 'domain_id'],
+                                            'invoice.services' => ['value' => \Domain::INVOICE_SERVICES, 'name' => 'domain_id'],
+                                        ])->check($account->domain_id)
+                                        ->help($account->iframe_url ? 'domain_help_website' : 'domain_help') !!}
+                            @endif
+
+                            {!! Former::inline_radios('custom_invoice_link')
+                                    ->onchange('onCustomLinkChange()')
+                                    ->label(trans('texts.customize'))
+                                    ->radios([
+                                        trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
+                                        trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
+                                    ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
+                            {{ Former::setOption('capitalize_translations', false) }}
+
+                            {!! Former::text('subdomain')
+                                        ->placeholder(Utils::isNinja() ? 'app' : trans('texts.www'))
+                                        ->onchange('onSubdomainChange()')
+                                        ->addGroupClass('subdomain')
+                                        ->label(' ')
+                                        ->help(trans('texts.subdomain_help')) !!}
+
+                            {!! Former::text('iframe_url')
+                                        ->placeholder('https://www.example.com/invoice')
+                                        ->appendIcon('question-sign')
+                                        ->addGroupClass('iframe_url')
+                                        ->label(' ')
+                                        ->help(trans('texts.subdomain_help')) !!}
+
+                            {!! Former::plaintext('preview')
+                                        ->value($account->getSampleLink()) !!}
+
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="navigation">
+                        <div class="panel-body">
+
+                            {!! Former::checkbox('enable_client_portal')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.enable_client_portal_help'))
+                                ->value(1) !!}
 
 
-                    {!! Former::checkbox('enable_client_portal')
-                        ->text(trans('texts.enable'))
-                        ->help(trans('texts.enable_client_portal_help'))
-                        ->value(1) !!}
+                            {!! Former::checkbox('enable_client_portal_dashboard')
+                                ->text(trans('texts.enable'))
+                                ->help(trans('texts.enable_client_portal_dashboard_help'))
+                                ->value(1) !!}
 
+                        </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="custom_css">
+                        <div class="panel-body">
 
-                    {!! Former::checkbox('enable_client_portal_dashboard')
-                        ->text(trans('texts.enable'))
-                        ->help(trans('texts.enable_client_portal_dashboard_help'))
-                        ->value(1) !!}
+                            {!! Former::textarea('client_view_css')
+                                ->label(trans('texts.custom_css'))
+                                ->rows(10)
+                                ->raw()
+                                ->maxlength(60000)
+                                ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
+
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -252,23 +296,6 @@
                 </div>
             </div>
         </div>
-
-        @if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_CSS))
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">{!! trans('texts.custom_css') !!}</h3>
-            </div>
-            <div class="panel-body">
-                <div class="col-md-10 col-md-offset-1">
-                    {!! Former::textarea('client_view_css')
-                    ->label(trans('texts.custom_css'))
-                    ->rows(10)
-                    ->raw()
-                    ->maxlength(60000)
-                    ->style("min-width:100%;max-width:100%;font-family:'Roboto Mono', 'Lucida Console', Monaco, monospace;font-size:14px;'") !!}
-            </div>
-        </div>
-        @endif
     </div>
 </div>
 </div>

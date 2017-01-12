@@ -68,14 +68,19 @@ class Invitation extends EntityModel
             $this->load('account');
         }
 
+        $account = $this->account;
+        $iframe_url = $account->iframe_url;
         $url = trim(SITE_URL, '/');
-        $iframe_url = $this->account->iframe_url;
 
-        if ($this->account->hasFeature(FEATURE_CUSTOM_URL)) {
+        if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
+            if (Utils::isNinja()) {
+                $url = $account->present()->clientPortalLink();
+            }
+
             if ($iframe_url && !$forceOnsite) {
                 return "{$iframe_url}?{$this->invitation_key}";
             } elseif ($this->account->subdomain) {
-                $url = Utils::replaceSubdomain($url, $this->account->subdomain);
+                $url = Utils::replaceSubdomain($url, $account->subdomain);
             }
         }
 

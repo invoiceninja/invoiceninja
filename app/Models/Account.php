@@ -85,10 +85,8 @@ class Account extends Eloquent
         'pdf_email_attachment',
         'document_email_attachment',
         'email_design_id',
-        'bcc_email',
         'enable_email_markup',
-        'subdomain',
-        'iframe_url',
+        'domain_id',
     ];
 
     /**
@@ -474,6 +472,17 @@ class Account extends Eloquent
     {
         return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
     }
+
+
+    public function getSampleLink()
+    {
+        $invitation = new Invitation();
+        $invitation->account = $this;
+        $invitation->invitation_key = '...';
+
+        return $invitation->getLink();
+    }
+
 
     /**
      * @param $amount
@@ -994,7 +1003,6 @@ class Account extends Eloquent
                     return false;
                 }
                 // Fallthrough
-            case FEATURE_CLIENT_PORTAL_CSS:
             case FEATURE_REMOVE_CREATED_BY:
                 return !empty($planDetails);// A plan is required even for self-hosted users
 
@@ -1556,9 +1564,7 @@ class Account extends Eloquent
             if ($headerFont != $bodyFont) {
                 $css .= 'h1,h2,h3,h4,h5,h6,.h1,.h2,.h3,.h4,.h5,.h6{'.$headerFont.'}';
             }
-        }
-        if ($this->hasFeature(FEATURE_CLIENT_PORTAL_CSS)) {
-            // For self-hosted users, a white-label license is required for custom CSS
+
             $css .= $this->client_view_css;
         }
 
@@ -1706,6 +1712,15 @@ class Account extends Eloquent
         }
 
         return $invoice->isQuote() ? $this->require_quote_signature : $this->require_invoice_signature;
+    }
+
+    public function emailMarkupEnabled()
+    {
+        if ( ! Utils::isNinja()) {
+            return false;
+        }
+
+        return $this->enable_email_markup;
     }
 }
 

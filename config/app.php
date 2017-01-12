@@ -263,6 +263,7 @@ return [
 
         'Utils' => App\Libraries\Utils::class,
         'HTMLUtils' => App\Libraries\HTMLUtils::class,
+        'Domain' => App\Constants\Domain::class,
     ],
 
 ];

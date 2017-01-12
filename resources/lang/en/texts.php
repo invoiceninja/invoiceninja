@@ -849,7 +849,7 @@ $LANG = array(
     'light' => 'Light',
     'dark' => 'Dark',
     'industry_help' => 'Used to provide comparisons against the averages of companies of similar size and industry.',
-    'subdomain_help' => 'Customize the invoice link subdomain or display the invoice on your own website.',
+    'subdomain_help' => 'Set the subdomain or display the invoice on your own website.',
     'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
     'quote_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the quote number.',
     'custom_client_fields_helps' => 'Add a field when creating a client and display the label and value on the PDF.',
@@ -2313,7 +2313,11 @@ $LANG = array(
     'emailed_invoices' => 'Successfully emailed invoices',
     'emailed_quotes' => 'Successfully emailed quotes',
     'website_url' => 'Website URL',
-    
+    'domain' => 'Domain',
+    'domain_help' => 'Used in the client portal and when sending emails.',
+    'domain_help_website' => 'Used when sending emails.',
+    'preview' => 'Preview',
+
 );
 
 return $LANG;

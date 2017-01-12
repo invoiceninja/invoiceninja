@@ -792,6 +792,8 @@ class AccountController extends BaseController
     {
         $account = $request->user()->account;
         $account->fill($request->all());
+        $account->subdomain = $request->subdomain;
+        $account->iframe_url = $request->iframe_url;
         $account->save();
 
         return redirect('settings/' . ACCOUNT_CLIENT_PORTAL)
@@ -805,6 +807,7 @@ class AccountController extends BaseController
     {
         $account = $request->user()->account;
         $account->fill($request->all());
+        $account->bcc_email = $request->bcc_email;
         $account->save();
 
         return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)

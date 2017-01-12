@@ -2,6 +2,7 @@
 
 use stdClass;
 use Utils;
+use Domain;
 use Laracasts\Presenter\Presenter;
 
 /**
@@ -34,6 +35,11 @@ class AccountPresenter extends Presenter
         $currencyId = $this->entity->getCurrencyId();
         $currency = Utils::getFromCache($currencyId, 'currencies');
         return $currency->code;
+    }
+
+    public function clientPortalLink()
+    {
+        return Domain::getLinkFromId($this->entity->domain_id);
     }
 
     public function industry()
