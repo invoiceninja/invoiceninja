@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\GeneratesNumbers;
+use App\Models\Traits\SendsEmails;
 
 /**
  * Class Account
@@ -24,6 +25,7 @@ class Account extends Eloquent
     use SoftDeletes;
     use PresentsInvoice;
     use GeneratesNumbers;
+    use SendsEmails;
 
     /**
      * @var string

@@ -21,4 +21,9 @@ class Domain
     {
         return 'https://app.' . static::getDomainFromId($id);
     }
+
+    public static function getEmailFromId($id)
+    {
+        return 'maildelivery@' . static::getDomainFromId($id);
+    }
 }

@@ -42,14 +42,19 @@ class Mailer
                 $replyEmail = $fromEmail;
                 $fromEmail = CONTACT_EMAIL;
 
+                // Optionally send for alternate domain
+                if (!empty($data['fromEmail'])) {
+                    $fromEmail = $data['fromEmail'];
+                }
+
                 $message->to($toEmail)
                         ->from($fromEmail, $fromName)
                         ->replyTo($replyEmail, $fromName)
                         ->subject($subject);
 
                 // Optionally BCC the email
-                if (!empty($data['bcc_email'])) {
-                    $message->bcc($data['bcc_email']);
+                if (!empty($data['bccEmail'])) {
+                    $message->bcc($data['bccEmail']);
                 }
 
                 // Attach the PDF to the email
@@ -58,7 +63,7 @@ class Mailer
                 }
 
                 // Attach documents to the email
-                if(!empty($data['documents'])){
+                if (!empty($data['documents'])){
                     foreach($data['documents'] as $document){
                         $message->attachData($document['data'], $document['name']);
                     }
