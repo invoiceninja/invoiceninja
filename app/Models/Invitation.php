@@ -73,7 +73,7 @@ class Invitation extends EntityModel
         $url = trim(SITE_URL, '/');
 
         if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
-            if (Utils::isNinja()) {
+            if (Utils::isNinjaProd()) {
                 $url = $account->present()->clientPortalLink();
             }
 

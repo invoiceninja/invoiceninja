@@ -15,7 +15,7 @@ trait SendsEmails
 
     public function getFromEmail()
     {
-        if ( ! $this->isPro() || ! Utils::isNinja()) {
+        if ( ! $this->isPro() || ! Utils::isNinjaProd() || Utils::isReseller()) {
             return false;
         }
 
