@@ -761,14 +761,7 @@ class InvoiceRepository extends BaseRepository
      */
     public function markSent(Invoice $invoice)
     {
-        if ( ! $invoice->isSent()) {
-            $invoice->invoice_status_id = INVOICE_STATUS_SENT;
-        }
-
-        $invoice->is_public = true;
-        $invoice->save();
-
-        $invoice->markInvitationsSent();
+        $invoice->markSent();
     }
 
     /**

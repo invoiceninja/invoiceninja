@@ -199,7 +199,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
 		Validator::extend('valid_subdomain', function($attribute, $value, $parameters) {
-			return ! in_array($value, ['www', 'app','mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja', 'docs', 'doc', 'documents']);
+			return ! in_array($value, ['www', 'app', 'mail', 'admin', 'blog', 'user', 'contact', 'payment', 'payments', 'billing', 'invoice', 'business', 'owner', 'info', 'ninja', 'docs', 'doc', 'documents', 'download']);
 		});
 	}
 

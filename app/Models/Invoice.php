@@ -426,6 +426,25 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring;
     }
 
+    public function markSentIfUnsent()
+    {
+        if ( ! $this->isSent()) {
+            $this->markSent();
+        }
+    }
+
+    public function markSent()
+    {
+        if ( ! $this->isSent()) {
+            $this->invoice_status_id = INVOICE_STATUS_SENT;
+        }
+
+        $this->is_public = true;
+        $this->save();
+
+        $this->markInvitationsSent();
+    }
+
     /**
      * @param bool $notify
      */
@@ -462,7 +481,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function markInvitationSent($invitation, $messageId = false, $notify = true, $notes = false)
     {
-        if (!$this->isSent()) {
+        if ( ! $this->isSent()) {
             $this->invoice_status_id = INVOICE_STATUS_SENT;
             $this->save();
         }
@@ -667,7 +686,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function isSent()
     {
-        return $this->invoice_status_id >= INVOICE_STATUS_SENT && $this->is_public;
+        return $this->invoice_status_id >= INVOICE_STATUS_SENT && $this->getOriginal('is_public');
     }
 
     /**

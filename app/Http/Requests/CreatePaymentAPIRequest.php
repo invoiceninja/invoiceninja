@@ -33,9 +33,8 @@ class CreatePaymentAPIRequest extends PaymentRequest
             ];
         }
 
-        $invoice = Invoice::scope($this->invoice_id)
+        $this->invoice = $invoice = Invoice::scope($this->invoice_id)
             ->invoices()
-            ->whereIsPublic(true)
             ->firstOrFail();
 
         $this->merge([

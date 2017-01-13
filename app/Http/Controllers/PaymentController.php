@@ -85,7 +85,6 @@ class PaymentController extends BaseController
     {
         $invoices = Invoice::scope()
                     ->invoices()
-                    ->whereIsPublic(true)
                     ->where('invoices.balance', '>', 0)
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
