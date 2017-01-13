@@ -364,6 +364,11 @@ class ImportService
     private function saveData($source, $entityType, $row, $data_index)
     {
         $data = $this->processedRows[$data_index];
+
+        if ($entityType == ENTITY_INVOICE) {
+            $data['is_public'] = true;
+        }
+        
         $entity = $this->{"{$entityType}Repo"}->save($data);
 
         // update the entity maps

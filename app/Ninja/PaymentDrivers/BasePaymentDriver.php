@@ -593,6 +593,7 @@ class BasePaymentDriver
     {
         $invitation = $this->invitation;
         $invoice = $this->invoice();
+        $invoice->markSentIfUnsent();
 
         $payment = Payment::createNew($invitation);
         $payment->invitation_id = $invitation->id;

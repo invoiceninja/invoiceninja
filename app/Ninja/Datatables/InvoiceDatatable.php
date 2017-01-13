@@ -133,7 +133,7 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
                 },
                 function ($model) use ($entityType) {
-                    return $model->is_public && $entityType == ENTITY_INVOICE && $model->balance > 0 && Auth::user()->can('create', ENTITY_PAYMENT);
+                    return $entityType == ENTITY_INVOICE && $model->balance > 0 && Auth::user()->can('create', ENTITY_PAYMENT);
                 }
             ],
             [

@@ -30,7 +30,9 @@ class SupportNewPricing extends Migration
         // https://github.com/invoiceninja/invoiceninja/pull/955
         Schema::table('activities', function (Blueprint $table) {
             $table->integer('task_id')->after('invitation_id')->nullable();
-            $table->unsignedInteger('client_id')->nullable()->change();
+            if (Schema::hasColumn('activities', 'client_id')) {
+                $table->unsignedInteger('client_id')->nullable()->change();
+            }
         });
 
         // This may fail if the table was created as MyISAM

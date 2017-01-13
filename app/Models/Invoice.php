@@ -585,7 +585,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function canBePaid()
     {
-        return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice() && $this->is_public;
+        return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice();
     }
 
     public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)

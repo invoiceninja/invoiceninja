@@ -58,6 +58,8 @@ class PaymentService extends BaseService
             return false;
         }
 
+        $invoice->markSentIfUnsent();
+
         if ($credits = $client->credits->sum('balance')) {
             $balance = $invoice->balance;
             $amount = min($credits, $balance);
