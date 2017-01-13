@@ -88,7 +88,3 @@ $I->see('Report Settings');
 //$I->click('#myAccountButton');
 //$I->see('Log Out');
 //$I->click('Log Out');
-
-// Miscellaneous pages
-$I->amOnPage('/terms');
-$I->see('Terms');

@@ -630,7 +630,7 @@
                 {!! Former::checkbox('terms_checkbox')
                     ->label(' ')
                     ->value(1)
-                    ->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>']))
+                    ->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.NINJA_WEB_URL.'/terms" target="_blank">'.trans('texts.terms_of_service').'</a>']))
                     ->raw() !!}
                 <br/>
             </div>

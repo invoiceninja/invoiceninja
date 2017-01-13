@@ -53,14 +53,6 @@ class HomeController extends BaseController
     /**
      * @return \Illuminate\Contracts\View\View
      */
-    public function showTerms()
-    {
-        return View::make('public.terms', ['hideHeader' => true]);
-    }
-
-    /**
-     * @return \Illuminate\Contracts\View\View
-     */
     public function viewLogo()
     {
         return View::make('public.logo');
