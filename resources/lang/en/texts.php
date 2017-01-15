@@ -2317,6 +2317,7 @@ $LANG = array(
     'domain_help' => 'Used in the client portal and when sending emails.',
     'domain_help_website' => 'Used when sending emails.',
     'preview' => 'Preview',
+    'import_invoices' => 'Import Invoices',
 
 );
 

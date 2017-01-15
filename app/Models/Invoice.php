@@ -80,6 +80,10 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @var string
      */
+    public static $fieldPONumber = 'po_number';
+    /**
+     * @var string
+     */
     public static $fieldInvoiceDate = 'invoice_date';
     /**
      * @var string
@@ -110,6 +114,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         return [
             Client::$fieldName,
             Invoice::$fieldInvoiceNumber,
+            Invoice::$fieldPONumber,
             Invoice::$fieldInvoiceDate,
             Invoice::$fieldDueDate,
             Invoice::$fieldAmount,
@@ -127,9 +132,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         return [
             'number^po' => 'invoice_number',
             'amount' => 'amount',
-            'organization' => 'name',
+            'client|organization' => 'name',
             'paid^date' => 'paid',
-            'invoice_date|create_date' => 'invoice_date',
+            'invoice date|create date' => 'invoice_date',
+            'po number' => 'po_number',
+            'due date' => 'due_date',
             'terms' => 'terms',
             'notes' => 'notes',
         ];
