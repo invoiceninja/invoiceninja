@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Import;
 
+use Carbon;
 use Utils;
 use DateTime;
 use League\Fractal\TransformerAbstract;
@@ -128,10 +129,14 @@ class BaseTransformer extends TransformerAbstract
      * @param string $format
      * @return null
      */
-    public function getDate($date, $format = 'Y-m-d')
+    public function getDate($data, $field)
     {
-        if ( ! $date instanceof DateTime) {
-            $date = DateTime::createFromFormat($format, $date);
+        if ($date = data_get($data, $field)) {
+            try {
+                $date = new Carbon($date);
+            } catch (Exception $e) {
+                // if we fail to parse return blank
+            }
         }
 
         return $date ? $date->format('Y-m-d') : null;

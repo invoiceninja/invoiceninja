@@ -27,8 +27,8 @@ class InvoiceTransformer extends BaseTransformer
                 'client_id' => $this->getClientId($data->client),
                 'invoice_number' => $this->getInvoiceNumber($data->statement_no),
                 'paid' => (float) $data->paid_total,
-                'invoice_date_sql' => $this->getDate($data->date),
-                'due_date_sql' => $this->getDate($data->due_date),
+                'invoice_date_sql' => $this->getDate($data, 'date'),
+                'due_date_sql' => $this->getDate($data, 'due_date'),
                 'invoice_items' => [
                     [
                         'product_key' => '',
