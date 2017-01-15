@@ -136,7 +136,7 @@ Route::group(['middleware' => 'auth:user'], function() {
 
     Route::resource('tasks', 'TaskController');
     Route::get('api/tasks/{client_id?}', 'TaskController@getDatatable');
-    Route::get('tasks/create/{client_id?}', 'TaskController@create');
+    Route::get('tasks/create/{client_id?}/{project_id?}', 'TaskController@create');
     Route::post('tasks/bulk', 'TaskController@bulk');
     Route::get('projects', 'ProjectController@index');
     Route::get('api/projects', 'ProjectController@getDatatable');
@@ -203,7 +203,7 @@ Route::group(['middleware' => 'auth:user'], function() {
 
     // Expense
     Route::resource('expenses', 'ExpenseController');
-    Route::get('expenses/create/{vendor_id?}/{client_id?}', 'ExpenseController@create');
+    Route::get('expenses/create/{vendor_id?}/{client_id?}/{category_id?}', 'ExpenseController@create');
     Route::get('api/expenses', 'ExpenseController@getDatatable');
     Route::get('api/expenses/{id}', 'ExpenseController@getDatatableVendor');
     Route::post('expenses/bulk', 'ExpenseController@bulk');
