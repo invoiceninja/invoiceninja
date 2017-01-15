@@ -98,7 +98,7 @@ class OnlinePaymentCest
         $I->selectOption('#auto_bill', 3);
         $I->executeJS('model.invoice().is_public(true);');
         $I->executeJS('preparePdfData(\'email\');');
-        $I->wait(3);
+        $I->wait(4);
         $I->see("$0.00");
 
    }
