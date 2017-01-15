@@ -35,8 +35,18 @@ class TaskPresenter extends EntityPresenter
      * @param $account
      * @return mixed
      */
-    public function times($account)
+    public function invoiceDescription($account, $showProject)
     {
+        $str = '';
+
+        if ($showProject && $project = $this->project()) {
+            $str .= "##{$project}\n\n";
+        }
+
+        if ($description = trim($this->entity->description)) {
+            $str .= $description . "\n\n";
+        }
+
         $parts = json_decode($this->entity->time_log) ?: [];
         $times = [];
 
@@ -54,7 +64,6 @@ class TaskPresenter extends EntityPresenter
             $times[] = "### {$start} - {$end}";
         }
 
-        return implode("\n", $times);
+        return $str . implode("\n", $times);
     }
-
 }
