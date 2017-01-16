@@ -117,6 +117,7 @@ class AccountTransformer extends EntityTransformer
         return [
             'account_key' => $account->account_key,
             'name' => $account->present()->name,
+            'id_number' => $account->id_number,
             'currency_id' => (int) $account->currency_id,
             'timezone_id' => (int) $account->timezone_id,
             'date_format_id' => (int) $account->date_format_id,
