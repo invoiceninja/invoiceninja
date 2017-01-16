@@ -119,7 +119,13 @@
     }
 
     #left-sidebar-wrapper ul {
-        min-height: 720px;
+        min-height: 730px;
+    }
+
+    @media (max-height: 744px) {
+        div.nav-footer {
+            min-width: 234px !important;
+        }
     }
 
     .sidebar-nav li > a {
