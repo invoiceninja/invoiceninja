@@ -161,6 +161,9 @@ class PaymentService extends BaseService
                         if ($paymentDriver->refundPayment($payment, $amount)) {
                             $successful++;
                         }
+                    } else {
+                        $payment->recordRefund($amount);
+                        $successful++;
                     }
                 }
             }

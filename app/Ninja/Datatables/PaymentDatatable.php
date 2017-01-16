@@ -131,9 +131,7 @@ class PaymentDatatable extends EntityDatatable
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id])
                         && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
-                        && $model->refunded < $model->amount
-                        && $model->transaction_reference
-                        && in_array($model->gateway_id , static::$refundableGateways);
+                        && $model->refunded < $model->amount;
                 }
             ]
         ];
