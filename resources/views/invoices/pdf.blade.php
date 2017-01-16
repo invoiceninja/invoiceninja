@@ -125,7 +125,7 @@
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
     var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'true' : 'false' }};
     // Use the browser's built in PDF viewer
-    if ((isChrome || isFirefox) && ! forceJS && ! isMobile()) {
+    if ((isChrome || isFirefox) && ! forceJS && ! isMobile) {
       $('#theFrame').attr('src', string).show();
     // Use PDFJS to view the PDF
     } else {
