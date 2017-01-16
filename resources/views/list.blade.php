@@ -53,6 +53,7 @@
         {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
 	@elseif ($entityType == ENTITY_TASK)
 		{!! Button::normal(trans('texts.projects'))->asLinkTo(URL::to('/projects'))->appendIcon(Icon::create('list')) !!}
+		{!! Button::primary(trans('texts.new_project'))->asLinkTo(URL::to('/projects/create/' . (isset($clientId) ? $clientId : '')))->appendIcon(Icon::create('plus-sign')) !!}
     @endif
 
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))

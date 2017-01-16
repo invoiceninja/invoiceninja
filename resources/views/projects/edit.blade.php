@@ -76,9 +76,14 @@
 			@if ($clientPublicId)
 				$clientSelect.val({{ $clientPublicId }});
 			@endif
-			$clientSelect.combobox().focus();
 
-			$('.client-select input.form-control').focus();
+			$clientSelect.combobox();
+
+			@if ($clientPublicId)
+				$('#name').focus();
+			@else
+				$('.client-select input.form-control').focus();
+			@endif
         });
 
     </script>

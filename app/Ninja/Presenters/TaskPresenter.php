@@ -40,7 +40,7 @@ class TaskPresenter extends EntityPresenter
         $str = '';
 
         if ($showProject && $project = $this->project()) {
-            $str .= "##{$project}\n\n";
+            $str .= "## {$project}\n\n";
         }
 
         if ($description = trim($this->entity->description)) {
