@@ -89,6 +89,7 @@ class Account extends Eloquent
         'email_design_id',
         'enable_email_markup',
         'domain_id',
+        'payment_terms',
     ];
 
     /**
@@ -1723,6 +1724,13 @@ class Account extends Eloquent
         }
 
         return $this->enable_email_markup;
+    }
+
+    public function defaultDueDate()
+    {
+        $numDays = $this->payment_terms == -1 ? 0 : $this->payment_terms;
+
+        return Carbon::now($this->getTimezone())->addDays($numDays)->format('Y-m-d');
     }
 }
 

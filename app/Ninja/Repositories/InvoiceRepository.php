@@ -4,6 +4,7 @@ use App\Models\Account;
 use DB;
 use Utils;
 use Auth;
+use Carbon;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
@@ -305,6 +306,9 @@ class InvoiceRepository extends BaseRepository
             if (isset($data['has_expenses']) && filter_var($data['has_expenses'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_expenses = true;
             }
+            if ($account->payment_terms != 0) {
+               $invoice->due_date = $account->defaultDueDate();
+            }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
             if (Utils::isNinjaDev()) {
@@ -380,7 +384,7 @@ class InvoiceRepository extends BaseRepository
                 $invoice->due_date = $data['due_date'];
             }
         } else {
-            if (isset($data['due_date']) || isset($data['due_date_sql'])) {
+            if (!empty($data['due_date']) || !empty($data['due_date_sql'])) {
                 $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
             }
             $invoice->frequency_id = 0;

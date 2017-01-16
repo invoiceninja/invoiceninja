@@ -59,6 +59,11 @@
                 </div>
                 @endif
 
+                {!! Former::select('payment_terms')
+                        ->addOption('','')
+    				    ->fromQuery(Cache::get('paymentTerms'), 'name', 'num_days')
+                        ->help(trans('texts.payment_terms_help')) !!}
+
                 {!! Former::select('size_id')
                         ->addOption('','')
                         ->fromQuery($sizes, 'name', 'id') !!}

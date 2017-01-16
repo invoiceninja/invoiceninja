@@ -34,7 +34,7 @@ class AddInclusiveTaxes extends Migration
             $table->integer('client_number_counter')->default(0)->nullable();
             $table->text('client_number_pattern')->nullable();
             $table->tinyInteger('domain_id')->default(1)->nullable()->unsigned();
-            $table->tinyInteger('payment_terms')->nullable()->unsigned();
+            $table->tinyInteger('payment_terms')->nullable();
         });
 
         Schema::table('activities', function ($table)

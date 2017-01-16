@@ -52,6 +52,17 @@ class AccountPresenter extends Presenter
         return $this->entity->size ? $this->entity->size->name : '';
     }
 
+    public function dueDatePlaceholder()
+    {
+        if ($this->entity->payment_terms == 0) {
+            return ' ';
+        }
+
+        $date = $this->entity->defaultDueDate();
+
+        return $date ? Utils::fromSqlDate($date) : ' ';
+    }
+
     private function createRBit($type, $source, $properties)
     {
         $data = new stdClass();
