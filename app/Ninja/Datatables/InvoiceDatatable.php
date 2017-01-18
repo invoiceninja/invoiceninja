@@ -123,8 +123,8 @@ class InvoiceDatatable extends EntityDatatable
                 function ($model) use ($entityType) {
                     return "javascript:submitForm_{$entityType}('markPaid', {$model->public_id})";
                 },
-                function ($model) {
-                    return $model->balance > 0 && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                function ($model) use ($entityType) {
+                    return $entityType == ENTITY_INVOICE && $model->balance > 0 && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 }
             ],
             [
