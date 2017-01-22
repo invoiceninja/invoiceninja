@@ -143,6 +143,7 @@ class InvoiceRepository extends BaseRepository
                         'frequencies.name as frequency',
                         'invoices.start_date',
                         'invoices.end_date',
+                        'invoices.last_sent_date',
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',
