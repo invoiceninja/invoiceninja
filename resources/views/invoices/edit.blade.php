@@ -247,7 +247,7 @@
 		<thead>
 			<tr>
 				<th style="min-width:32px;" class="hide-border"></th>
-				<th style="min-width:160px">{{ $invoiceLabels['item'] }}</th>
+				<th style="width:25%">{{ $invoiceLabels['item'] }}</th>
 				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
                 @if ($account->showCustomField('custom_invoice_item_label1'))
                     <th style="min-width:120px">{{ $account->custom_invoice_item_label1 }}</th>
