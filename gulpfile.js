@@ -131,7 +131,6 @@ elixir(function(mix) {
         bowerDir + '/typeahead.js/dist/typeahead.jquery.js',
         bowerDir + '/accounting/accounting.js',
         bowerDir + '/spectrum/spectrum.js',
-        bowerDir + '/jspdf/dist/jspdf.min.js',
         bowerDir + '/moment/moment.js',
         bowerDir + '/moment-timezone/builds/moment-timezone-with-data.js',
         //bowerDir + '/stacktrace-js/dist/stacktrace-with-polyfills.min.js',
