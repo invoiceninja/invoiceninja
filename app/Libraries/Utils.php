@@ -124,6 +124,11 @@ class Utils
         return isset($_ENV['RESELLER_TYPE']) ? $_ENV['RESELLER_TYPE'] : false;
     }
 
+    public static function getTermsLink()
+    {
+        return static::isNinja() ? NINJA_WEB_URL.'/terms' : NINJA_WEB_URL.'/self-hosting-the-invoice-ninja-platform';
+    }
+
     public static function isOAuthEnabled()
     {
         $providers = [
