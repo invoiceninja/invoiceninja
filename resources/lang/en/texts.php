@@ -2318,7 +2318,30 @@ $LANG = array(
     'domain_help_website' => 'Used when sending emails.',
     'preview' => 'Preview',
     'import_invoices' => 'Import Invoices',
-
+    'new_report' => 'New Report',
+    'edit_report' => 'Edit Report',
+    'columns' => 'Columns',
+    'filters' => 'Filters',
+    'sort_by' => 'Sort By',
+    'draft' => 'Draft',
+    'unpaid' => 'Unpaid',
+    'aging' => 'Aging',
+    'age' => 'Age',
+    'days' => 'Days',
+    'age_group_0' => '0 - 30 Days',
+    'age_group_30' => '30 - 60 Days',
+    'age_group_60' => '60 - 90 Days',
+    'age_group_90' => '90 - 120 Days',
+    'age_group_120' => '120+ Days',
+    'invoice_details' => 'Invoice Details',
+    'qty' => 'Quantity',
+    'profit_and_loss' => 'Profit and Loss',
+    'revenue' => 'Revenue',
+    'profit' => 'Profit',
+    'group_when_sorted' => 'Group When Sorted',
+    'group_dates_by' => 'Group Dates By',
+    'year' => 'Year',
+    
 );
 
 return $LANG;

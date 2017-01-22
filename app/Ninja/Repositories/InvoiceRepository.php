@@ -772,7 +772,7 @@ class InvoiceRepository extends BaseRepository
      */
     public function markPaid(Invoice $invoice)
     {
-        if (floatval($invoice->balance) <= 0) {
+        if ( ! $invoice->canBePaid()) {
             return;
         }
 
@@ -822,15 +822,16 @@ class InvoiceRepository extends BaseRepository
     public function findOpenInvoices($clientId, $entityType = false)
     {
         $query = Invoice::scope()
-                ->invoiceType(INVOICE_TYPE_STANDARD)
-                ->whereClientId($clientId)
-                ->whereIsRecurring(false)
-                ->whereDeletedAt(null);
+                    ->invoiceType(INVOICE_TYPE_STANDARD)
+                    ->whereClientId($clientId)
+                    ->whereIsRecurring(false)
+                    ->whereDeletedAt(null)
+                    ->where('balance', '>', 0);
 
         if ($entityType == ENTITY_TASK) {
             $query->whereHasTasks(true);
         } elseif ($entityType == ENTITY_EXPENSE) {
-            $query->whereHasExpenses(true);
+            $query->whereHasTasks(false);
         }
 
         return $query->where('invoice_status_id', '<', 5)

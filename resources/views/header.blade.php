@@ -473,6 +473,7 @@
             'tasks' => false,
             'expenses' => false,
             'vendors' => false,
+            'reports' => false,
             'settings' => false,
         ] as $key => $value)
             {!! Form::nav_link($key, $value ?: $key) !!}
@@ -514,6 +515,7 @@
                     ])
                 @endforeach
             @endif
+            @include('partials.navigation_option', ['option' => 'reports'])
             @include('partials.navigation_option', ['option' => 'settings'])
             <li style="width:100%;">
                 <div class="nav-footer">

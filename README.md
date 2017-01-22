@@ -12,7 +12,7 @@
 
 Watch this [YouTube Video](https://www.youtube.com/watch?v=xHGKvadapbA) for an overview of the app's features.
 
-All Pro and Enterprise features from the hosted app are included in the open-source code.
+All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $20 per year white-label license to remove our branding.
 
 The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 

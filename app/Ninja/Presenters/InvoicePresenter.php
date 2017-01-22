@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Presenters;
 
+use Carbon;
 use stdClass;
 use Utils;
 use DropdownButton;
@@ -41,6 +42,38 @@ class InvoicePresenter extends EntityPresenter {
             return 'total';
         } else {
             return 'balance_due';
+        }
+    }
+
+    public function age()
+    {
+        if ( ! $this->entity->due_date || $this->entity->date_date == '0000-00-00') {
+            return 0;
+        }
+
+        $date = Carbon::parse($this->entity->due_date);
+
+        if ($date->isFuture()) {
+            return 0;
+        }
+
+        return $date->diffInDays();
+    }
+
+    public function ageGroup()
+    {
+        $age = $this->age();
+
+        if ($age > 120) {
+            return 'age_group_120';
+        } elseif ($age > 90) {
+            return 'age_group_90';
+        } elseif ($age > 60) {
+            return 'age_group_60';
+        } elseif ($age > 30) {
+            return 'age_group_30';
+        } else {
+            return 'age_group_0';
         }
     }
 

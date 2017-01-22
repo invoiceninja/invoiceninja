@@ -66,6 +66,12 @@ elixir(function(mix) {
         bowerDir + '/select2/dist/css/select2.css'
     ], 'public/css/select2.css');
 
+    mix.styles([
+        bowerDir + '/tablesorter/dist/css/theme.bootstrap_3.min.css',
+        bowerDir + '/tablesorter/dist/css/theme.bootstrap.min.css',
+        bowerDir + '/tablesorter/dist/css/widget.grouping.min.css'
+    ], 'public/css/tablesorter.css');
+
 
     /**
      * JS configuration
@@ -83,6 +89,13 @@ elixir(function(mix) {
     mix.scripts([
         bowerDir + '/bootstrap-daterangepicker/daterangepicker.js'
     ], 'public/js/daterangepicker.min.js');
+
+    mix.scripts([
+        bowerDir + '/tablesorter/dist/js/jquery.tablesorter.combined.js',
+        bowerDir + '/tablesorter/dist/js/widgets/widget-grouping.min.js',
+        bowerDir + '/tablesorter/dist/js/widgets/widget-uitheme.min.js',
+        bowerDir + '/tablesorter/dist/js/widgets/widget-filter.min.js',
+    ], 'public/js/tablesorter.min.js');
 
     mix.scripts([
         bowerDir + '/select2/dist/js/select2.js',

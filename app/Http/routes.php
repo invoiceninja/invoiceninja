@@ -247,8 +247,8 @@ Route::group([
     Route::post('settings/email_settings', 'AccountController@saveEmailSettings');
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
-    Route::get('settings/reports', 'ReportController@showReports');
-    Route::post('settings/reports', 'ReportController@showReports');
+    Route::get('reports', 'ReportController@showReports');
+    Route::post('reports', 'ReportController@showReports');
 
     Route::post('settings/change_plan', 'AccountController@changePlan');
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
