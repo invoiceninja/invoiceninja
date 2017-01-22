@@ -17,7 +17,7 @@
     @endif
 
     <a href="{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}"
-        style="font-size:16px; padding-top:6px; padding-bottom:6px"
+        style="font-size:15px; padding-top:6px; padding-bottom:6px"
         class="{{ Request::is("{$option}*") ? 'active' : '' }}">
         <i class="fa fa-{{ empty($icon) ? \App\Models\EntityModel::getIcon($option) : $icon }}" style="width:46px; padding-right:10px"></i>
         {{ ($option == 'recurring_invoices') ? trans('texts.recurring') : mtrans($option) }}
