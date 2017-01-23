@@ -515,7 +515,9 @@
                     ])
                 @endforeach
             @endif
-            @include('partials.navigation_option', ['option' => 'reports'])
+            @if (Auth::user()->is_admin)
+                @include('partials.navigation_option', ['option' => 'reports'])
+            @endif
             @include('partials.navigation_option', ['option' => 'settings'])
             <li style="width:100%;">
                 <div class="nav-footer">

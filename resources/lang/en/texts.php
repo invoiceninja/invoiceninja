@@ -2341,7 +2341,9 @@ $LANG = array(
     'group_when_sorted' => 'Group When Sorted',
     'group_dates_by' => 'Group Dates By',
     'year' => 'Year',
-    
+    'view_statement' => 'View Statement',
+    'statement' => 'Statement',
+    'statement_date' => 'Statement Date',
 );
 
 return $LANG;

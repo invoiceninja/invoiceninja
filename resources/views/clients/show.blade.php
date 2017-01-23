@@ -57,7 +57,7 @@
                     @endcan
                     @if ( ! $client->trashed())
                         @can('create', ENTITY_INVOICE)
-                            {!! DropdownButton::primary(trans('texts.new_invoice'))
+                            {!! DropdownButton::primary(trans('texts.view_statement'))
                                     ->withAttributes(['class'=>'primaryDropDown'])
                                     ->withContents($actionLinks)->split() !!}
                         @endcan
@@ -292,7 +292,7 @@
 			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
 		});
 		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
-			window.location = '{{ URL::to('invoices/create/' . $client->public_id ) }}';
+			window.location = '{{ URL::to('clients/statement/' . $client->public_id ) }}';
 		});
 
         // load datatable data when tab is shown and remember last tab selected

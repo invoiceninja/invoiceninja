@@ -209,6 +209,8 @@ trait PresentsInvoice
             'adjustment',
             'tax_invoice',
             'tax_quote',
+            'statement',
+            'statement_date',
         ];
 
         foreach ($fields as $field) {

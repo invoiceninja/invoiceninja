@@ -161,23 +161,23 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'accountAddress': NINJA.accountAddress(invoice),
         'invoiceDetails': NINJA.invoiceDetails(invoice),
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
-        'invoiceLineItems': NINJA.invoiceLines(invoice),
-        'invoiceLineItemColumns': NINJA.invoiceColumns(invoice),
+        'invoiceLineItems': invoice.is_statement ? NINJA.statementLines(invoice) : NINJA.invoiceLines(invoice),
+        'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice),
         'invoiceDocuments' : isEdge ? [] : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
         'notesAndTerms': NINJA.notesAndTerms(invoice),
-        'subtotals': NINJA.subtotals(invoice),
+        'subtotals': invoice.is_statement ? NINJA.statementSubtotals(invoice) : NINJA.subtotals(invoice),
         'subtotalsHeight': (NINJA.subtotals(invoice).length * 16) + 16,
         'subtotalsWithoutBalance': NINJA.subtotals(invoice, true),
         'subtotalsBalance': NINJA.subtotalsBalance(invoice),
         'balanceDue': formatMoneyInvoice(invoice.balance_amount, invoice),
         'invoiceFooter': NINJA.invoiceFooter(invoice),
         'invoiceNumber': invoice.invoice_number || ' ',
-        'entityType': invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice,
-        'entityTypeUC': (invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
-        'entityTaxType': invoice.is_quote ? invoiceLabels.tax_quote : invoiceLabels.tax_invoice,
+        'entityType': invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice,
+        'entityTypeUC': (invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice).toUpperCase(),
+        'entityTaxType': invoice.is_statement ? invoiceLabels.statement : invoice.is_quote ? invoiceLabels.tax_quote : invoiceLabels.tax_invoice,
         'fontSize': NINJA.fontSize,
         'fontSizeLarger': NINJA.fontSize + 1,
         'fontSizeLargest': NINJA.fontSize + 2,
@@ -279,6 +279,35 @@ NINJA.notesAndTerms = function(invoice)
     }
 
     return NINJA.prepareDataList(data, 'notesAndTerms');
+}
+
+NINJA.statementColumns = function(invoice)
+{
+    return ["22%", "22%", "22%", "17%", "17%"];
+}
+
+NINJA.statementLines = function(invoice)
+{
+    var grid = [[]];
+    grid[0].push({text: invoiceLabels.invoice_number, style: ['tableHeader', 'invoiceNumberTableHeader']});
+    grid[0].push({text: invoiceLabels.invoice_date, style: ['tableHeader', 'invoiceDateTableHeader']});
+    grid[0].push({text: invoiceLabels.due_date, style: ['tableHeader', 'dueDateTableHeader']});
+    grid[0].push({text: invoiceLabels.total, style: ['tableHeader', 'totalTableHeader']});
+    grid[0].push({text: invoiceLabels.balance, style: ['tableHeader', 'balanceTableHeader']});
+
+    for (var i = 0; i < invoice.invoice_items.length; i++) {
+        var item = invoice.invoice_items[i];
+        var row = [];
+        grid.push([
+            {text: item.invoice_number, style:['invoiceNumber']},
+            {text: item.invoice_date && item.invoice_date != '0000-00-00' ? moment(item.invoice_date).format(invoice.date_format) : ' ', style:['invoiceDate']},
+            {text: item.due_date && item.due_date != '0000-00-00' ? moment(item.due_date).format(invoice.date_format) : ' ', style:['dueDate']},
+            {text: formatMoneyInvoice(item.amount, invoice), style:['subtotals']},
+            {text: formatMoneyInvoice(item.balance, invoice), style:['lineTotal']},
+        ]);
+    }
+
+    return NINJA.prepareDataTable(grid, 'invoiceItems');
 }
 
 NINJA.invoiceColumns = function(invoice)
@@ -489,6 +518,16 @@ NINJA.invoiceDocuments = function(invoice) {
     return stack.length?{stack:stack}:[];
 }
 
+NINJA.statementSubtotals = function(invoice)
+{
+    var data = [[
+        { text: invoiceLabels.balance_due, style: ['subtotalsLabel', 'balanceDueLabel'] },
+        { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'balanceDue'] }
+    ]];
+
+    return NINJA.prepareDataPairs(data, 'subtotals');
+}
+
 NINJA.subtotals = function(invoice, hideBalance)
 {
     if (!invoice) {
@@ -629,10 +668,14 @@ NINJA.renderInvoiceField = function(invoice, field) {
     var account = invoice.account;
 
     if (field == 'invoice.invoice_number') {
-        return [
-            {text: (invoice.is_quote ? invoiceLabels.quote_number : invoiceLabels.invoice_number), style: ['invoiceNumberLabel']},
-            {text: invoice.invoice_number, style: ['invoiceNumber']}
-        ];
+        if (invoice.is_statement) {
+            return false;
+        } else {
+            return [
+                {text: (invoice.is_quote ? invoiceLabels.quote_number : invoiceLabels.invoice_number), style: ['invoiceNumberLabel']},
+                {text: invoice.invoice_number, style: ['invoiceNumber']}
+            ];
+        }
     } else if (field == 'invoice.po_number') {
         return [
             {text: invoiceLabels.po_number},
@@ -640,7 +683,7 @@ NINJA.renderInvoiceField = function(invoice, field) {
         ];
     } else if (field == 'invoice.invoice_date') {
         return [
-            {text: (invoice.is_quote ? invoiceLabels.quote_date : invoiceLabels.invoice_date)},
+            {text: (invoice.is_statement ? invoiceLabels.statement_date : invoice.is_quote ? invoiceLabels.quote_date : invoiceLabels.invoice_date)},
             {text: invoice.invoice_date}
         ];
     } else if (field == 'invoice.due_date') {

@@ -11,19 +11,19 @@ class DateFormatsSeeder extends Seeder
 
         // Date formats
         $formats = [
-            ['format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy'],
-            ['format' => 'd-M-Y', 'picker_format' => 'dd-M-yyyy'],
-            ['format' => 'd/F/Y', 'picker_format' => 'dd/MM/yyyy'],
-            ['format' => 'd-F-Y', 'picker_format' => 'dd-MM-yyyy'],
-            ['format' => 'M j, Y', 'picker_format' => 'M d, yyyy'],
-            ['format' => 'F j, Y', 'picker_format' => 'MM d, yyyy'],
-            ['format' => 'D M j, Y', 'picker_format' => 'D MM d, yyyy'],
-            ['format' => 'Y-m-d', 'picker_format' => 'yyyy-mm-dd'],
-            ['format' => 'd-m-Y', 'picker_format' => 'dd-mm-yyyy'],
-            ['format' => 'm/d/Y', 'picker_format' => 'mm/dd/yyyy'],
-            ['format' => 'd.m.Y', 'picker_format' => 'dd.mm.yyyy'],
-            ['format' => 'j. M. Y', 'picker_format' => 'd. M. yyyy'],
-            ['format' => 'j. F Y', 'picker_format' => 'd. MM yyyy']
+            ['format' => 'd/M/Y', 'picker_format' => 'dd/M/yyyy', 'format_moment' => 'DD/MMM/YYYY'],
+            ['format' => 'd-M-Y', 'picker_format' => 'dd-M-yyyy', 'format_moment' => 'DD-MMM-YYYY'],
+            ['format' => 'd/F/Y', 'picker_format' => 'dd/MM/yyyy', 'format_moment' => 'DD/MMMM/YYYY'],
+            ['format' => 'd-F-Y', 'picker_format' => 'dd-MM-yyyy', 'format_moment' => 'DD-MMMM-YYYY'],
+            ['format' => 'M j, Y', 'picker_format' => 'M d, yyyy', 'format_moment' => 'MMM D, YYYY'],
+            ['format' => 'F j, Y', 'picker_format' => 'MM d, yyyy', 'format_moment' => 'MMMM D, YYYY'],
+            ['format' => 'D M j, Y', 'picker_format' => 'D MM d, yyyy', 'format_moment' => 'ddd MMM Do, YYYY'],
+            ['format' => 'Y-m-d', 'picker_format' => 'yyyy-mm-dd', 'format_moment' => 'YYYY-MM-DD'],
+            ['format' => 'd-m-Y', 'picker_format' => 'dd-mm-yyyy', 'format_moment' => 'DD-MM-YYYY'],
+            ['format' => 'm/d/Y', 'picker_format' => 'mm/dd/yyyy', 'format_moment' => 'MM/DD/YYYY'],
+            ['format' => 'd.m.Y', 'picker_format' => 'dd.mm.yyyy', 'format_moment' => 'D.MM.YYYY'],
+            ['format' => 'j. M. Y', 'picker_format' => 'd. M. yyyy', 'format_moment' => 'DD. MMM. YYYY'],
+            ['format' => 'j. F Y', 'picker_format' => 'd. MM yyyy', 'format_moment' => 'DD. MMMM YYYY']
         ];
 
         foreach ($formats as $format) {
@@ -31,6 +31,7 @@ class DateFormatsSeeder extends Seeder
             $record = DateFormat::whereRaw("BINARY `format`= ?", array($format['format']))->first();
             if ($record) {
                 $record->picker_format = $format['picker_format'];
+                $record->format_moment = $format['format_moment'];
                 $record->save();
             } else {
                 DateFormat::create($format);

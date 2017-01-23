@@ -41,6 +41,11 @@ class AddInclusiveTaxes extends Migration
         {
 			$table->text('notes')->nullable();
 		});
+
+        Schema::table('date_formats', function ($table)
+        {
+			$table->string('format_moment')->nullable();
+		});
     }
 
     /**
@@ -74,6 +79,11 @@ class AddInclusiveTaxes extends Migration
         Schema::table('activities', function ($table)
         {
 			$table->dropColumn('notes');
+		});
+
+        Schema::table('date_formats', function ($table)
+        {
+			$table->dropColumn('format_moment');
 		});
     }
 }
