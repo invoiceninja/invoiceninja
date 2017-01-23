@@ -2167,7 +2167,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'apply_license' => 'Activer la licence',
     'submit' => 'Envoyer',
     'white_label_license_key' => 'Clé de la licence',
-    'invalid_white_label_license' => 'La licence sans pub n\\'est pas valide',
+    'invalid_white_label_license' => 'La licence sans pub n\'est pas valide',
     'created_by' => 'Créé par :name',
     'modules' => 'Modules',
     'financial_year_start' => 'Premier mois de l\'année',
@@ -2188,7 +2188,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'signed' => 'Signé',
 
 	// BlueVine
-	'bluevine_promo' => 'Obtenez des marges de crédit et d\\'affacturages d\\'affaires flexible en utilisant BlueVine.',
+	'bluevine_promo' => 'Obtenez des marges de crédit et d\'affacturages d\'affaires flexible en utilisant BlueVine.',
 	'bluevine_modal_label' => 'Inscrivez-vous avec BlueVineInscrivez-vous avec BlueVine',
 	'bluevine_modal_text' => '<h3>Finacement rapide pour votre entreprise. Pas de paperasse.</h3>
 <ul><li>Marges de crédit et affacturage d\'affaires flexibles.</li></ul>',
