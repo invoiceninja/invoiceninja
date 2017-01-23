@@ -643,7 +643,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function statusLabel()
     {
         return static::calcStatusLabel($this->invoice_status->name, $this->statusClass(), $this->getEntityType(), $this->quote_invoice_id);
->>>>>>> release-3.0.0
     }
 
     /**
