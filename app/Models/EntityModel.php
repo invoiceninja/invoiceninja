@@ -289,6 +289,7 @@ class EntityModel extends Eloquent
             'vendors' => 'building',
             'settings' => 'cog',
             'self-update' => 'download',
+            'reports' => 'th-list',
         ];
 
         return array_get($icons, $entityType);
@@ -335,4 +336,15 @@ class EntityModel extends Eloquent
 
         return $class::getStatuses($entityType);
     }
+
+    public function statusClass()
+    {
+        return '';
+    }
+
+    public function statusLabel()
+    {
+        return '';
+    }
+
 }

@@ -82,7 +82,6 @@ class VendorController extends BaseController
             'actionLinks'           => $actionLinks,
             'showBreadcrumbs'       => false,
             'vendor'                => $vendor,
-            'totalexpense'          => $vendor->getTotalExpense(),
             'title'                 => trans('texts.view_vendor'),
             'hasRecurringInvoices'  => false,
             'hasQuotes'             => false,

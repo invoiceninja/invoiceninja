@@ -253,10 +253,11 @@ class TaskController extends BaseController
             Session::flash('message', trans('texts.stopped_task'));
             return Redirect::to('tasks');
         } else if ($action == 'invoice' || $action == 'add_to_invoice') {
-            $tasks = Task::scope($ids)->with('client')->get();
+            $tasks = Task::scope($ids)->with('client')->orderBy('project_id', 'id')->get();
             $clientPublicId = false;
             $data = [];
 
+            $lastProjectId = false;
             foreach ($tasks as $task) {
                 if ($task->client) {
                     if (!$clientPublicId) {
@@ -276,11 +277,13 @@ class TaskController extends BaseController
                 }
 
                 $account = Auth::user()->account;
+                $showProject = $lastProjectId != $task->project_id;
                 $data[] = [
                     'publicId' => $task->public_id,
-                    'description' => $task->description . "\n\n" . $task->present()->times($account),
+                    'description' => $task->present()->invoiceDescription($account, $showProject),
                     'duration' => $task->getHours(),
                 ];
+                $lastProjectId = $task->project_id;
             }
 
             if ($action == 'invoice') {

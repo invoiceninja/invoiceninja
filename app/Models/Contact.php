@@ -128,7 +128,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function getFullName()
     {
         if ($this->first_name || $this->last_name) {
-            return $this->first_name.' '.$this->last_name;
+            return trim($this->first_name.' '.$this->last_name);
         } else {
             return '';
         }

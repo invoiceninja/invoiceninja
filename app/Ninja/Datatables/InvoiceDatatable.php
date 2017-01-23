@@ -3,6 +3,7 @@
 use Utils;
 use URL;
 use Auth;
+use App\Models\Invoice;
 
 class InvoiceDatatable extends EntityDatatable
 {
@@ -167,35 +168,8 @@ class InvoiceDatatable extends EntityDatatable
 
     private function getStatusLabel($model)
     {
-        $entityType = $this->entityType;
-
-        // check if invoice is overdue
-        if (Utils::parseFloat($model->balance) && $model->due_date && $model->due_date != '0000-00-00') {
-            if (\DateTime::createFromFormat('Y-m-d', $model->due_date) < new \DateTime('now')) {
-                $label = $entityType == ENTITY_INVOICE ? trans('texts.overdue') : trans('texts.expired');
-                return '<h4><div class="label label-danger">' . $label . '</div></h4>';
-            }
-        }
-
-        $label = trans('texts.status_' . strtolower($model->invoice_status_name));
-        $class = 'default';
-        switch ($model->invoice_status_id) {
-            case INVOICE_STATUS_SENT:
-                $class = 'info';
-                break;
-            case INVOICE_STATUS_VIEWED:
-                $class = 'warning';
-                break;
-            case INVOICE_STATUS_APPROVED:
-                $class = 'success';
-                break;
-            case INVOICE_STATUS_PARTIAL:
-                $class = 'primary';
-                break;
-            case INVOICE_STATUS_PAID:
-                $class = 'success';
-                break;
-        }
+        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date);
+        $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
@@ -206,6 +180,10 @@ class InvoiceDatatable extends EntityDatatable
 
         if ($this->entityType == ENTITY_INVOICE || $this->entityType == ENTITY_QUOTE) {
             $actions[] = \DropdownButton::DIVIDER;
+            $actions[] = [
+                'label' => mtrans($this->entityType, 'email_' . $this->entityType),
+                'url' => 'javascript:submitForm_'.$this->entityType.'("emailInvoice")',
+            ];
             $actions[] = [
                 'label' => mtrans($this->entityType, 'mark_sent'),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("markSent")',

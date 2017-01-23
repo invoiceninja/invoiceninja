@@ -52,6 +52,10 @@ class HandleUserLoggedIn {
 
         $account->loadLocalizationSettings();
 
+        if (strpos($_SERVER['HTTP_USER_AGENT'], 'iPhone') || strpos($_SERVER['HTTP_USER_AGENT'], 'iPad')) {
+            Session::flash('warning', trans('texts.iphone_app_message', ['link' => link_to(NINJA_IOS_APP_URL, trans('texts.iphone_app'))]));
+        }
+
         // if they're using Stripe make sure they're using Stripe.js
         $accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE);
         if ($accountGateway && ! $accountGateway->getPublishableStripeKey()) {

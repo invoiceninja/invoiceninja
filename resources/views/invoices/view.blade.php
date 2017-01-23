@@ -205,7 +205,7 @@
                     refreshPDF();
                 @endif
 
-				@if ($account->showAuthenticatePanel($invoice))
+				@if ($account->requiresAuthorization($invoice))
 					$('#paymentButtons a').on('click', function(e) {
 						e.preventDefault();
 						window.pendingPaymentHref = $(this).attr('href');
@@ -248,17 +248,17 @@
 					var data = {
 						signature: $('#signature').jSignature('getData', 'svgbase64')[1]
 					};
-					$.ajax({
-					    url: "{{ URL::to('sign/' . $invitation->invitation_key) }}",
-					    type: 'PUT',
-						data: data,
-					    success: function(response) {
-					 		redirectToPayment();
-					    }
-					});
 				@else
-					redirectToPayment();
+					var data = false;
 				@endif
+				$.ajax({
+				    url: "{{ URL::to('sign/' . $invitation->invitation_key) }}",
+				    type: 'PUT',
+					data: data,
+				    success: function(response) {
+				 		redirectToPayment();
+				    }
+				});
 			}
 
 			function redirectToPayment() {
@@ -287,7 +287,7 @@
 
 		</script>
 
-		@include('invoices.pdf', ['account' => $invoice->client->account, 'viewPDF' => true])
+		@include('invoices.pdf', ['account' => $invoice->client->account])
 
 		<p>&nbsp;</p>
 
@@ -315,7 +315,7 @@
         </div>
     @endif
 
-	@if ($account->showAuthenticatePanel($invoice))
+	@if ($account->requiresAuthorization($invoice))
 		<div class="modal fade" id="authenticationModal" tabindex="-1" role="dialog" aria-labelledby="authenticationModalLabel" aria-hidden="true">
 		  <div class="modal-dialog">
 			<div class="modal-content">

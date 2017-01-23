@@ -107,7 +107,7 @@ class ContactMailer extends Mailer
         }
 
         foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings);
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings, $reminder);
             if ($response === true) {
                 $sent = true;
             }
@@ -137,12 +137,13 @@ class ContactMailer extends Mailer
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      */
     private function sendInvitation(
-        Invitation$invitation,
+        Invitation $invitation,
         Invoice $invoice,
         $body,
         $subject,
         $pdfString,
-        $documentStrings
+        $documentStrings,
+        $reminder
     )
     {
 
@@ -197,6 +198,9 @@ class ContactMailer extends Mailer
             'client' => $client,
             'invoice' => $invoice,
             'documents' => $documentStrings,
+            'notes' => $reminder,
+            'bccEmail' => $account->getBccEmail(),
+            'fromEmail' => $account->getFromEmail(),
         ];
 
         if ($account->attachPDF()) {
@@ -283,6 +287,8 @@ class ContactMailer extends Mailer
             'account' => $account,
             'payment' => $payment,
             'entityType' => ENTITY_INVOICE,
+            'bccEmail' => $account->getBccEmail(),
+            'fromEmail' => $account->getFromEmail(),
         ];
 
         if ($account->attachPDF()) {

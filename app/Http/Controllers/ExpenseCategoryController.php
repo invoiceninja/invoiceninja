@@ -74,7 +74,7 @@ class ExpenseCategoryController extends BaseController
 
         Session::flash('message', trans('texts.created_expense_category'));
 
-        return redirect()->to('/expense_categories');
+        return redirect()->to($category->getRoute());
     }
 
     public function update(UpdateExpenseCategoryRequest $request)

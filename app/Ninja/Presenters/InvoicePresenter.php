@@ -1,7 +1,9 @@
 <?php namespace App\Ninja\Presenters;
 
+use Carbon;
 use stdClass;
 use Utils;
+use DropdownButton;
 use App\Libraries\Skype\InvoiceCard;
 
 class InvoicePresenter extends EntityPresenter {
@@ -40,6 +42,38 @@ class InvoicePresenter extends EntityPresenter {
             return 'total';
         } else {
             return 'balance_due';
+        }
+    }
+
+    public function age()
+    {
+        if ( ! $this->entity->due_date || $this->entity->date_date == '0000-00-00') {
+            return 0;
+        }
+
+        $date = Carbon::parse($this->entity->due_date);
+
+        if ($date->isFuture()) {
+            return 0;
+        }
+
+        return $date->diffInDays();
+    }
+
+    public function ageGroup()
+    {
+        $age = $this->age();
+
+        if ($age > 120) {
+            return 'age_group_120';
+        } elseif ($age > 90) {
+            return 'age_group_90';
+        } elseif ($age > 60) {
+            return 'age_group_60';
+        } elseif ($age > 30) {
+            return 'age_group_30';
+        } else {
+            return 'age_group_0';
         }
     }
 
@@ -161,5 +195,51 @@ class InvoicePresenter extends EntityPresenter {
         $data->properties = $properties;
 
         return [$data];
+    }
+
+    public function moreActions()
+    {
+        $invoice = $this->entity;
+        $entityType = $invoice->getEntityType();
+
+        $actions = [
+            ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
+            ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')],
+            DropdownButton::DIVIDER
+        ];
+
+        if ($entityType == ENTITY_QUOTE) {
+            if ($invoice->quote_invoice_id) {
+                $actions[] = ['url' => url("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans('texts.view_invoice')];
+            } else {
+                $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans('texts.convert_to_invoice')];
+            }
+        } elseif ($entityType == ENTITY_INVOICE) {
+            if ($invoice->quote_id) {
+                $actions[] = ['url' => url("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
+            }
+
+            if (!$invoice->is_recurring && $invoice->balance > 0) {
+                $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
+                $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
+            }
+
+            foreach ($invoice->payments as $payment) {
+                $label = trans('texts.view_payment');
+                if (count($invoice->payments) > 1) {
+                    $label .= ' - ' . $invoice->account->formatMoney($payment->amount, $invoice->client);
+                }
+                $actions[] = ['url' => $payment->present()->url, 'label' => $label];
+            }
+        }
+
+        if (count($actions) > 3) {
+            $actions[] = DropdownButton::DIVIDER;
+        }
+
+        $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
+        $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
+
+        return $actions;
     }
 }

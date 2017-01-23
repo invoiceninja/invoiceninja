@@ -1,10 +1,12 @@
 <?php namespace App\Http\Controllers;
 
 use Response;
+use Request;
 use Redirect;
 use Auth;
 use View;
 use Input;
+use Mail;
 use Session;
 use App\Models\Account;
 use App\Libraries\Utils;
@@ -46,14 +48,6 @@ class HomeController extends BaseController
         } else {
             return Redirect::to('/login');
         }
-    }
-
-    /**
-     * @return \Illuminate\Contracts\View\View
-     */
-    public function showTerms()
-    {
-        return View::make('public.terms', ['hideHeader' => true]);
     }
 
     /**
@@ -133,5 +127,25 @@ class HomeController extends BaseController
     public function keepAlive()
     {
         return RESULT_SUCCESS;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function contactUs()
+    {
+        Mail::raw(request()->message, function ($message) {
+            $subject = 'Customer Message';
+            if ( ! Utils::isNinja()) {
+                $subject .= ': v' . NINJA_VERSION;
+            }
+            $message->to(CONTACT_EMAIL)
+                    ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
+                    ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
+                    ->subject($subject);
+        });
+
+        return redirect(Request::server('HTTP_REFERER'))
+                    ->with('message', trans('texts.contact_us_response'));
     }
 }

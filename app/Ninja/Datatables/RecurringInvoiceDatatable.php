@@ -33,6 +33,12 @@ class RecurringInvoiceDatatable extends EntityDatatable
                 }
             ],
             [
+                'last_sent',
+                function ($model) {
+                    return Utils::fromSqlDate($model->last_sent_date);
+                }
+            ],
+            [
                 'end_date',
                 function ($model) {
                     return Utils::fromSqlDate($model->end_date);

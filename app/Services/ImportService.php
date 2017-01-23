@@ -25,6 +25,7 @@ use App\Models\Vendor;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\EntityModel;
+use App\Ninja\Import\BaseTransformer;
 
 /**
  * Class ImportService
@@ -142,18 +143,34 @@ class ImportService
      */
     public function importJSON($file)
     {
-        $this->init();
+        $this->initMaps();
 
         $file = file_get_contents($file);
         $json = json_decode($file, true);
         $json = $this->removeIdFields($json);
+        $transformer = new BaseTransformer($this->maps);
 
         $this->checkClientCount(count($json['clients']));
+
+        foreach ($json['products'] as $jsonProduct) {
+            if ($transformer->hasProduct($jsonProduct['product_key'])) {
+                continue;
+            }
+            if (EntityModel::validate($jsonProduct, ENTITY_PRODUCT) === true) {
+                $product = $this->productRepo->save($jsonProduct);
+                $this->addProductToMaps($product);
+                $this->addSuccess($product);
+            } else {
+                $this->addFailure(ENTITY_PRODUCT, $jsonProduct);
+                continue;
+            }
+        }
 
         foreach ($json['clients'] as $jsonClient) {
 
             if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
                 $client = $this->clientRepo->save($jsonClient);
+                $this->addClientToMaps($client);
                 $this->addSuccess($client);
             } else {
                 $this->addFailure(ENTITY_CLIENT, $jsonClient);
@@ -164,6 +181,7 @@ class ImportService
                 $jsonInvoice['client_id'] = $client->id;
                 if (EntityModel::validate($jsonInvoice, ENTITY_INVOICE) === true) {
                     $invoice = $this->invoiceRepo->save($jsonInvoice);
+                    $this->addInvoiceToMaps($invoice);
                     $this->addSuccess($invoice);
                 } else {
                     $this->addFailure(ENTITY_INVOICE, $jsonInvoice);
@@ -242,6 +260,10 @@ class ImportService
             $this->checkData($entityType, count($reader->all()));
 
             $reader->each(function ($row) use ($source, $entityType, &$row_list, &$results) {
+                if ($this->isRowEmpty($row)) {
+                    return;
+                }
+
                 $data_index = $this->transformRow($source, $entityType, $row);
 
                 if ($data_index !== false) {
@@ -307,7 +329,7 @@ class ImportService
         if ($entityType == ENTITY_INVOICE && !$data['invoice_number']) {
             $account = Auth::user()->account;
             $invoice = Invoice::createNew();
-            $data['invoice_number'] = $account->getNextInvoiceNumber($invoice);
+            $data['invoice_number'] = $account->getNextNumber($invoice);
         }
 
         if (EntityModel::validate($data, $entityType) !== true) {
@@ -342,6 +364,11 @@ class ImportService
     private function saveData($source, $entityType, $row, $data_index)
     {
         $data = $this->processedRows[$data_index];
+
+        if ($entityType == ENTITY_INVOICE) {
+            $data['is_public'] = true;
+        }
+        
         $entity = $this->{"{$entityType}Repo"}->save($data);
 
         // update the entity maps
@@ -474,14 +501,24 @@ class ImportService
         $csv->heading = false;
         $csv->auto($filename);
 
-        Session::put("{$entityType}-data", $csv->data);
-
         $headers = false;
         $hasHeaders = false;
         $mapped = [];
 
         if (count($csv->data) > 0) {
             $headers = $csv->data[0];
+
+            // Remove Invoice Ninja headers
+            if (count($headers) && count($csv->data) > 4) {
+                $firstCell = $headers[0];
+                if (strstr($firstCell, APP_NAME)) {
+                    array_shift($csv->data); // Invoice Ninja...
+                    array_shift($csv->data); // <blank line>
+                    array_shift($csv->data); // Enitty Type Header
+                }
+                $headers = $csv->data[0];
+            }
+
             foreach ($headers as $title) {
                 if (strpos(strtolower($title), 'name') > 0) {
                     $hasHeaders = true;
@@ -502,6 +539,8 @@ class ImportService
                 }
             }
         }
+
+        Session::put("{$entityType}-data", $csv->data);
 
         $data = [
             'entityType' => $entityType,
@@ -596,6 +635,9 @@ class ImportService
             }
 
             $row = $this->convertToObject($entityType, $row, $map);
+            if ($this->isRowEmpty($row)) {
+                continue;
+            }
             $data_index = $this->transformRow($source, $entityType, $row);
 
             if ($data_index !== false) {
@@ -676,7 +718,7 @@ class ImportService
     {
         EntityModel::$notifySubscriptions = false;
 
-        foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_QUOTE] as $entityType) {
+        foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_QUOTE, ENTITY_PRODUCT] as $entityType) {
             $this->results[$entityType] = [
                 RESULT_SUCCESS => [],
                 RESULT_FAILURE => [],
@@ -787,5 +829,18 @@ class ImportService
         if ($name = strtolower($category->name)) {
             $this->maps['expense_category'][$name] = $category->id;
         }
+    }
+
+    private function isRowEmpty($row)
+    {
+        $isEmpty = true;
+
+        foreach ($row as $key => $val) {
+            if (trim($val)) {
+                $isEmpty = false;
+            }
+        }
+
+        return $isEmpty;
     }
 }

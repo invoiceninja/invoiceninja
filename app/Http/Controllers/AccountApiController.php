@@ -27,11 +27,14 @@ class AccountApiController extends BaseAPIController
         $this->accountRepo = $accountRepo;
     }
 
-    public function ping()
+    public function ping(Request $request)
     {
         $headers = Utils::getApiHeaders();
 
-        return Response::make(RESULT_SUCCESS, 200, $headers);
+        if(hash_equals(env(API_SECRET),$request->api_secret))
+            return Response::make(RESULT_SUCCESS, 200, $headers);
+        else
+            return $this->errorResponse(['message'=>'API Secret does not match .env variable'], 400);
     }
 
     public function register(RegisterRequest $request)

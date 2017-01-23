@@ -17,6 +17,15 @@ class Payment extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
+    public static $statusClasses = [
+        PAYMENT_STATUS_PENDING => 'info',
+        PAYMENT_STATUS_COMPLETED => 'success',
+        PAYMENT_STATUS_FAILED => 'danger',
+        PAYMENT_STATUS_PARTIALLY_REFUNDED => 'primary',
+        PAYMENT_STATUS_VOIDED => 'default',
+        PAYMENT_STATUS_REFUNDED => 'default',
+    ];
+
     /**
      * @var array
      */
@@ -301,6 +310,44 @@ class Payment extends EntityModel
     public function getLast4Attribute($value)
     {
         return $value ? str_pad($value, 4, '0', STR_PAD_LEFT) : null;
+    }
+
+    public static function calcStatusLabel($statusId, $statusName, $amount)
+    {
+        if ($statusId == PAYMENT_STATUS_PARTIALLY_REFUNDED) {
+            return trans('texts.status_partially_refunded_amount', [
+                'amount' => $amount,
+            ]);
+        } else {
+            return trans('texts.status_' . strtolower($statusName));
+        }
+    }
+
+    public static function calcStatusClass($statusId)
+    {
+        return static::$statusClasses[$statusId];
+    }
+
+
+    public function statusClass()
+    {
+        return static::calcStatusClass($this->payment_status_id);
+    }
+
+    public function statusLabel()
+    {
+        $amount = $this->account->formatMoney($this->refunded, $this->client);
+        return static::calcStatusLabel($this->payment_status_id, $this->payment_status->name, $amount);
+    }
+
+    public function invoiceJsonBackup()
+    {
+        $activity = Activity::wherePaymentId($this->id)
+                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+                        ->get(['json_backup'])
+                        ->first();
+
+        return $activity->json_backup;
     }
 }
 

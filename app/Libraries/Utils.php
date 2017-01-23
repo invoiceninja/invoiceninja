@@ -67,6 +67,11 @@ class Utils
         return self::isNinjaProd() || self::isNinjaDev();
     }
 
+    public static function isSelfHost()
+    {
+        return ! static::isNinjaProd();
+    }
+
     public static function isNinjaProd()
     {
         if (Utils::isReseller()) {
@@ -97,18 +102,31 @@ class Utils
 
     public static function isWhiteLabel()
     {
-        if (Utils::isNinjaProd()) {
-            return false;
+        $account = false;
+
+        if (Utils::isNinja()) {
+            if (Auth::check()) {
+                $account = Auth::user()->account;
+            } elseif ($contactKey = session('contact_key')) {
+                if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+                    $account = $contact->account;
+                }
+            }
+        } else {
+            $account = \App\Models\Account::first();
         }
 
-        $account = \App\Models\Account::first();
-
-        return $account && $account->hasFeature(FEATURE_WHITE_LABEL);
+        return $account ? $account->hasFeature(FEATURE_WHITE_LABEL) : false;
     }
 
     public static function getResllerType()
     {
         return isset($_ENV['RESELLER_TYPE']) ? $_ENV['RESELLER_TYPE'] : false;
+    }
+
+    public static function getTermsLink()
+    {
+        return static::isNinja() ? NINJA_WEB_URL.'/terms' : NINJA_WEB_URL.'/self-hosting-the-invoice-ninja-platform';
     }
 
     public static function isOAuthEnabled()
@@ -238,6 +256,8 @@ class Utils
                 $price = PLAN_PRICE_ENTERPRISE_MONTHLY_5;
             } elseif ($numUsers <= 10) {
                 $price = PLAN_PRICE_ENTERPRISE_MONTHLY_10;
+            } elseif ($numUsers <= 20) {
+                $price = PLAN_PRICE_ENTERPRISE_MONTHLY_20;
             } else {
                 static::fatalError('Invalid number of users: ' . $numUsers);
             }
@@ -256,8 +276,10 @@ class Utils
             return 1;
         } elseif ($max <= 5) {
             return 3;
-        } else {
+        } elseif ($max <= 10) {
             return 6;
+        } else {
+            return 11;
         }
     }
 
@@ -266,7 +288,7 @@ class Utils
         return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
     }
 
-    public static function trans($input)
+    public static function trans($input, $module = false)
     {
         $data = [];
 
@@ -274,7 +296,11 @@ class Utils
             if ($field == 'checkbox') {
                 $data[] = $field;
             } elseif ($field) {
-                $data[] = trans("texts.$field");
+                if ($module) {
+                    $data[] = mtrans($module, $field);
+                } else {
+                    $data[] = trans("texts.$field");
+                }
             } else {
                 $data[] = '';
             }

@@ -275,6 +275,12 @@ class Client extends EntityModel
         } else {
             $contact = Contact::createNew();
             $contact->send_invoice = true;
+
+            if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
+                $contact->contact_key = $data['contact_key'];
+            } else {
+                $contact->contact_key = str_random(RANDOM_KEY_LENGTH);
+            }
         }
 
         if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password){
@@ -377,6 +383,14 @@ class Client extends EntityModel
     public function getEntityType()
     {
         return ENTITY_CLIENT;
+    }
+
+    /**
+     * @return bool
+     */
+    public function showMap()
+    {
+        return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
     }
 
     /**
@@ -521,6 +535,7 @@ class Client extends EntityModel
 
 Client::creating(function ($client) {
     $client->setNullValues();
+    $client->account->incrementCounter($client);
 });
 
 Client::updating(function ($client) {

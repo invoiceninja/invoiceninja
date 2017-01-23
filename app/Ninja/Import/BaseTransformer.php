@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Import;
 
+use Carbon;
 use Utils;
 use DateTime;
 use League\Fractal\TransformerAbstract;
@@ -27,7 +28,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $name
      * @return bool
      */
-    protected function hasClient($name)
+    public function hasClient($name)
     {
         $name = trim(strtolower($name));
         return isset($this->maps[ENTITY_CLIENT][$name]);
@@ -37,7 +38,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $key
      * @return bool
      */
-    protected function hasProduct($key)
+    public function hasProduct($key)
     {
         $key = trim(strtolower($key));
         return isset($this->maps[ENTITY_PRODUCT][$key]);
@@ -48,7 +49,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $field
      * @return string
      */
-    protected function getString($data, $field)
+    public function getString($data, $field)
     {
         return (isset($data->$field) && $data->$field) ? $data->$field : '';
     }
@@ -58,18 +59,28 @@ class BaseTransformer extends TransformerAbstract
      * @param $field
      * @return int
      */
-    protected function getNumber($data, $field)
+    public function getNumber($data, $field)
     {
         return (isset($data->$field) && $data->$field) ? $data->$field : 0;
+    }
+
+    /**
+     * @param $data
+     * @param $field
+     * @return float
+     */
+    public function getFloat($data, $field)
+    {
+        return (isset($data->$field) && $data->$field) ? Utils::parseFloat($data->$field) : 0;
     }
 
     /**
      * @param $name
      * @return null
      */
-    protected function getClientId($name)
+    public function getClientId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps[ENTITY_CLIENT][$name]) ? $this->maps[ENTITY_CLIENT][$name] : null;
     }
 
@@ -77,9 +88,9 @@ class BaseTransformer extends TransformerAbstract
      * @param $name
      * @return null
      */
-    protected function getProductId($name)
+    public function getProductId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps[ENTITY_PRODUCT][$name]) ? $this->maps[ENTITY_PRODUCT][$name] : null;
     }
 
@@ -87,9 +98,9 @@ class BaseTransformer extends TransformerAbstract
      * @param $name
      * @return null
      */
-    protected function getCountryId($name)
+    public function getCountryId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps['countries'][$name]) ? $this->maps['countries'][$name] : null;
     }
 
@@ -97,9 +108,9 @@ class BaseTransformer extends TransformerAbstract
      * @param $name
      * @return null
      */
-    protected function getCountryIdBy2($name)
+    public function getCountryIdBy2($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps['countries2'][$name]) ? $this->maps['countries2'][$name] : null;
     }
 
@@ -107,7 +118,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $name
      * @return mixed
      */
-    protected function getFirstName($name)
+    public function getFirstName($name)
     {
         $name = Utils::splitName($name);
         return $name[0];
@@ -118,10 +129,14 @@ class BaseTransformer extends TransformerAbstract
      * @param string $format
      * @return null
      */
-    protected function getDate($date, $format = 'Y-m-d')
+    public function getDate($data, $field)
     {
-        if ( ! $date instanceof DateTime) {
-            $date = DateTime::createFromFormat($format, $date);
+        if ($date = data_get($data, $field)) {
+            try {
+                $date = new Carbon($date);
+            } catch (Exception $e) {
+                // if we fail to parse return blank
+            }
         }
 
         return $date ? $date->format('Y-m-d') : null;
@@ -131,7 +146,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $name
      * @return mixed
      */
-    protected function getLastName($name)
+    public function getLastName($name)
     {
         $name = Utils::splitName($name);
         return $name[1];
@@ -141,7 +156,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $number
      * @return string
      */
-    protected function getInvoiceNumber($number)
+    public function getInvoiceNumber($number)
     {
         return str_pad(trim($number), 4, '0', STR_PAD_LEFT);
     }
@@ -150,7 +165,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $invoiceNumber
      * @return null
      */
-    protected function getInvoiceId($invoiceNumber)
+    public function getInvoiceId($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
         $invoiceNumber = strtolower($invoiceNumber);
@@ -161,7 +176,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $invoiceNumber
      * @return bool
      */
-    protected function hasInvoice($invoiceNumber)
+    public function hasInvoice($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
         $invoiceNumber = strtolower($invoiceNumber);
@@ -172,7 +187,7 @@ class BaseTransformer extends TransformerAbstract
      * @param $invoiceNumber
      * @return null
      */
-    protected function getInvoiceClientId($invoiceNumber)
+    public function getInvoiceClientId($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
         $invoiceNumber = strtolower($invoiceNumber);
@@ -186,7 +201,7 @@ class BaseTransformer extends TransformerAbstract
      */
     public function getVendorId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps[ENTITY_VENDOR][$name]) ? $this->maps[ENTITY_VENDOR][$name] : null;
     }
 
@@ -197,7 +212,7 @@ class BaseTransformer extends TransformerAbstract
      */
     public function getExpenseCategoryId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
         return isset($this->maps[ENTITY_EXPENSE_CATEGORY][$name]) ? $this->maps[ENTITY_EXPENSE_CATEGORY][$name] : null;
     }
 

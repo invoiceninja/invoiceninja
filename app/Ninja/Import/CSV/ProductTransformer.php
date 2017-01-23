@@ -22,7 +22,7 @@ class ProductTransformer extends BaseTransformer
             return [
                 'product_key' => $this->getString($data, 'product_key'),
                 'notes' => $this->getString($data, 'notes'),
-                'cost' => $this->getNumber($data, 'cost'),
+                'cost' => $this->getFloat($data, 'cost'),
             ];
         });
     }

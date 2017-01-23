@@ -35,7 +35,6 @@ class AddTaskProjects extends Migration
         Schema::table('tasks', function ($table)
         {
             $table->unsignedInteger('project_id')->nullable()->index();
-
             if (Schema::hasColumn('tasks', 'description')) {
                 $table->text('description')->change();
             }

@@ -10,6 +10,7 @@ use App\Events\InvoiceWasCreated;
 use App\Events\InvoiceWasUpdated;
 use App\Events\InvoiceInvitationWasEmailed;
 use App\Events\QuoteInvitationWasEmailed;
+use App\Libraries\CurlUtils;
 
 /**
  * Class Invoice
@@ -64,10 +65,22 @@ class Invoice extends EntityModel implements BalanceAffecting
         'date:',
     ];
 
+    public static $statusClasses = [
+        INVOICE_STATUS_SENT => 'info',
+        INVOICE_STATUS_VIEWED => 'warning',
+        INVOICE_STATUS_APPROVED => 'success',
+        INVOICE_STATUS_PARTIAL => 'primary',
+        INVOICE_STATUS_PAID => 'success',
+    ];
+
     /**
      * @var string
      */
     public static $fieldInvoiceNumber = 'invoice_number';
+    /**
+     * @var string
+     */
+    public static $fieldPONumber = 'po_number';
     /**
      * @var string
      */
@@ -101,6 +114,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         return [
             Client::$fieldName,
             Invoice::$fieldInvoiceNumber,
+            Invoice::$fieldPONumber,
             Invoice::$fieldInvoiceDate,
             Invoice::$fieldDueDate,
             Invoice::$fieldAmount,
@@ -118,9 +132,11 @@ class Invoice extends EntityModel implements BalanceAffecting
         return [
             'number^po' => 'invoice_number',
             'amount' => 'amount',
-            'organization' => 'name',
+            'client|organization' => 'name',
             'paid^date' => 'paid',
-            'invoice_date|create_date' => 'invoice_date',
+            'invoice date|create date' => 'invoice_date',
+            'po number' => 'po_number',
+            'due date' => 'due_date',
             'terms' => 'terms',
             'notes' => 'notes',
         ];
@@ -181,31 +197,38 @@ class Invoice extends EntityModel implements BalanceAffecting
         return floatval($this->amount) - floatval($this->getOriginal('amount'));
     }
 
-    /**
-     * @return bool
-     */
     public function isChanged()
     {
-        if ($this->getRawAdjustment() != 0) {
-            return true;
-        }
-
-        foreach ([
-            'invoice_number',
-            'po_number',
-            'invoice_date',
-            'due_date',
-            'terms',
-            'public_notes',
-            'invoice_footer',
-            'partial',
-        ] as $field) {
-            if ($this->$field != $this->getOriginal($field)) {
+        if (Utils::isNinja()) {
+            if ($this->getRawAdjustment() != 0) {
                 return true;
             }
-        }
 
-        return false;
+            foreach ([
+                'invoice_number',
+                'po_number',
+                'invoice_date',
+                'due_date',
+                'terms',
+                'public_notes',
+                'invoice_footer',
+                'partial',
+            ] as $field) {
+                if ($this->$field != $this->getOriginal($field)) {
+                    return true;
+                }
+            }
+
+            return false;
+        } else {
+            $dirty = $this->getDirty();
+
+            unset($dirty['invoice_status_id']);
+            unset($dirty['client_enable_auto_bill']);
+            unset($dirty['quote_invoice_id']);
+
+            return count($dirty) > 0;
+        }
     }
 
     /**
@@ -410,17 +433,36 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring;
     }
 
+    public function markSentIfUnsent()
+    {
+        if ( ! $this->isSent()) {
+            $this->markSent();
+        }
+    }
+
+    public function markSent()
+    {
+        if ( ! $this->isSent()) {
+            $this->invoice_status_id = INVOICE_STATUS_SENT;
+        }
+
+        $this->is_public = true;
+        $this->save();
+
+        $this->markInvitationsSent();
+    }
+
     /**
      * @param bool $notify
      */
-    public function markInvitationsSent($notify = false)
+    public function markInvitationsSent($notify = false, $reminder = false)
     {
         if ( ! $this->relationLoaded('invitations')) {
             $this->load('invitations');
         }
 
         foreach ($this->invitations as $invitation) {
-            $this->markInvitationSent($invitation, false, $notify);
+            $this->markInvitationSent($invitation, false, $notify, $reminder);
         }
     }
 
@@ -444,9 +486,9 @@ class Invoice extends EntityModel implements BalanceAffecting
      * @param bool $messageId
      * @param bool $notify
      */
-    public function markInvitationSent($invitation, $messageId = false, $notify = true)
+    public function markInvitationSent($invitation, $messageId = false, $notify = true, $notes = false)
     {
-        if (!$this->isSent()) {
+        if ( ! $this->isSent()) {
             $this->invoice_status_id = INVOICE_STATUS_SENT;
             $this->save();
         }
@@ -460,9 +502,9 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         if ($this->isType(INVOICE_TYPE_QUOTE)) {
-            event(new QuoteInvitationWasEmailed($invitation));
+            event(new QuoteInvitationWasEmailed($invitation, $notes));
         } else {
-            event(new InvoiceInvitationWasEmailed($invitation));
+            event(new InvoiceInvitationWasEmailed($invitation, $notes));
         }
     }
 
@@ -550,7 +592,58 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function canBePaid()
     {
-        return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice() && $this->is_public;
+        return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice();
+    }
+
+    public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)
+    {
+        if ($quoteInvoiceId) {
+            $label = 'converted';
+        } else if ($class == 'danger') {
+            $label = $entityType == ENTITY_INVOICE ? 'overdue' : 'expired';
+        } else {
+            $label = 'status_' . strtolower($status);
+        }
+
+        return trans("texts.{$label}");
+    }
+
+    public static function calcStatusClass($statusId, $balance, $dueDate)
+    {
+        if (static::calcIsOverdue($balance, $dueDate)) {
+            return 'danger';
+        }
+
+        if (isset(static::$statusClasses[$statusId])) {
+            return static::$statusClasses[$statusId];
+        }
+
+        return 'default';
+    }
+
+    public static function calcIsOverdue($balance, $dueDate)
+    {
+        if ( ! Utils::parseFloat($balance) > 0) {
+            return false;
+        }
+
+        if ( ! $dueDate || $dueDate == '0000-00-00') {
+            return false;
+        }
+
+        // it isn't considered overdue until the end of the day
+        return time() > (strtotime($dueDate) + (60*60*24));
+    }
+
+    public function statusClass()
+    {
+        return static::calcStatusClass($this->invoice_status_id, $this->balance, $this->due_date);
+    }
+
+    public function statusLabel()
+    {
+        return static::calcStatusLabel($this->invoice_status->name, $this->statusClass(), $this->getEntityType(), $this->quote_invoice_id);
+>>>>>>> release-3.0.0
     }
 
     /**
@@ -601,7 +694,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function isSent()
     {
-        return $this->invoice_status_id >= INVOICE_STATUS_SENT && $this->is_public;
+        return $this->invoice_status_id >= INVOICE_STATUS_SENT && $this->getOriginal('is_public');
     }
 
     /**
@@ -633,11 +726,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function isOverdue()
     {
-        if ( ! $this->due_date) {
-            return false;
-        }
-
-        return time() > strtotime($this->due_date);
+        return static::calcIsOverdue($this->balance, $this->due_date);
     }
 
     /**
@@ -1099,21 +1188,23 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getPDFString()
     {
-        if (!env('PHANTOMJS_CLOUD_KEY')) {
+        if ( ! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
-        $key = env('PHANTOMJS_CLOUD_KEY');
 
-        if (Utils::isNinjaDev()) {
-            $link = env('TEST_LINK');
+        if (env('PHANTOMJS_BIN_PATH')) {
+            $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true');
+        } elseif ($key = env('PHANTOMJS_CLOUD_KEY')) {
+            if (Utils::isNinjaDev()) {
+                $link = env('TEST_LINK');
+            }
+            $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+            $pdfString = CurlUtils::get($url);
         }
 
-        $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
-
-        $pdfString = file_get_contents($url);
         $pdfString = strip_tags($pdfString);
 
         if ( ! $pdfString || strlen($pdfString) < 200) {

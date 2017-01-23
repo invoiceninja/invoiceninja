@@ -34,7 +34,6 @@
                         trans('texts.currency_symbol') . ': <span id="currency_symbol_example"/>' => array('name' => 'show_currency_code', 'value' => 0),
                         trans('texts.currency_code') . ': <span id="currency_code_example"/>' => array('name' => 'show_currency_code', 'value' => 1),
                     ])->inline()
-                        ->check('timer')
                         ->label('&nbsp;')
                         ->addGroupClass('currrency_radio') !!}
                 <br/>
@@ -50,7 +49,7 @@
                     ->fromQuery($dateFormats) !!}
                 {!! Former::select('datetime_format_id')->addOption('','')
                     ->fromQuery($datetimeFormats) !!}
-                {!! Former::checkbox('military_time')->text(trans('texts.enable')) !!}
+                {!! Former::checkbox('military_time')->text(trans('texts.enable'))->value(1) !!}
 
                 <br/>&nbsp;<br/>
 

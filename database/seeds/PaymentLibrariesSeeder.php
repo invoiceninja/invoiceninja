@@ -55,7 +55,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'PaymentSense', 'provider' => 'PaymentSense'],
             ['name' => 'Realex', 'provider' => 'Realex_Remote'],
             ['name' => 'Sisow', 'provider' => 'Sisow'],
-            ['name' => 'Skrill', 'provider' => 'Skrill'],
+            ['name' => 'Skrill', 'provider' => 'Skrill', 'is_offsite' => true],
             ['name' => 'BitPay', 'provider' => 'BitPay', 'is_offsite' => true, 'sort_order' => 6],
             ['name' => 'Dwolla', 'provider' => 'Dwolla', 'is_offsite' => true, 'sort_order' => 5],
             ['name' => 'AGMS', 'provider' => 'Agms'],

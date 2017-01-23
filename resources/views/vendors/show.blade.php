@@ -6,7 +6,7 @@
     <script src="{{ asset('js/select2.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/select2.css') }}" rel="stylesheet" type="text/css"/>
 
-    @if ($vendor->hasAddress())
+    @if ($vendor->showMap())
         <style>
           #map {
             width: 100%;
@@ -153,8 +153,12 @@
 			<h3>{{ trans('texts.standing') }}
 			<table class="table" style="width:100%">
 				<tr>
-					<td><small>{{ trans('texts.balance') }}</small></td>
-					<td style="text-align: right">{{ Utils::formatMoney($totalexpense, $vendor->getCurrencyId()) }}</td>
+					<td style="vertical-align: top"><small>{{ trans('texts.balance') }}</small></td>
+                    <td style="text-align: right">
+                        @foreach ($vendor->getTotalExpenses() as $currency)
+                            <p>{{ Utils::formatMoney($currency->amount, $currency->expense_currency_id) }}</p>
+                        @endforeach
+                    </td>
 				</tr>
 			</table>
 			</h3>
@@ -163,7 +167,7 @@
     </div>
     </div>
 
-    @if ($vendor->hasAddress())
+    @if ($vendor->showMap())
         <div id="map"></div>
         <br/>
     @endif
@@ -215,7 +219,7 @@
 		}
 	}
 
-    @if ($vendor->hasAddress())
+    @if ($vendor->showMap())
         function initialize() {
             var mapCanvas = document.getElementById('map');
             var mapOptions = {

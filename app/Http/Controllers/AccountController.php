@@ -39,6 +39,9 @@ use App\Services\AuthService;
 use App\Services\PaymentService;
 use App\Http\Requests\UpdateAccountRequest;
 
+use App\Http\Requests\SaveClientPortalSettings;
+use App\Http\Requests\SaveEmailSettings;
+
 /**
  * Class AccountController
  */
@@ -233,6 +236,7 @@ class AccountController extends BaseController
                 $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
             }
 
+            $company->trial_plan = null;
             $company->plan = $plan;
             $company->save();
 
@@ -521,7 +525,7 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.tax_rates'),
-            'taxRates' => TaxRate::scope()->get(['id', 'name', 'rate']),
+            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']),
         ];
 
         return View::make('accounts.tax_rates', $data);
@@ -555,12 +559,12 @@ class AccountController extends BaseController
         $document = new stdClass();
 
         $client->name = 'Sample Client';
-        $client->address1 = trans('texts.address1');
-        $client->city = trans('texts.city');
-        $client->state = trans('texts.state');
-        $client->postal_code = trans('texts.postal_code');
-        $client->work_phone = trans('texts.work_phone');
-        $client->work_email = trans('texts.work_id');
+        $client->address1 = '10 Main St.';
+        $client->city = 'New York';
+        $client->state = 'NY';
+        $client->postal_code = '10000';
+        $client->work_phone = '(212) 555-0000';
+        $client->work_email = 'sample@example.com';
 
         $invoice->invoice_number = '0000';
         $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
@@ -713,14 +717,10 @@ class AccountController extends BaseController
             return AccountController::export();
         } elseif ($section === ACCOUNT_INVOICE_SETTINGS) {
             return AccountController::saveInvoiceSettings();
-        } elseif ($section === ACCOUNT_EMAIL_SETTINGS) {
-            return AccountController::saveEmailSettings();
         } elseif ($section === ACCOUNT_INVOICE_DESIGN) {
             return AccountController::saveInvoiceDesign();
         } elseif ($section === ACCOUNT_CUSTOMIZE_DESIGN) {
             return AccountController::saveCustomizeDesign();
-        } elseif ($section === ACCOUNT_CLIENT_PORTAL) {
-            return AccountController::saveClientPortal();
         } elseif ($section === ACCOUNT_TEMPLATES_AND_REMINDERS) {
             return AccountController::saveEmailTemplates();
         } elseif ($section === ACCOUNT_PRODUCTS) {
@@ -788,53 +788,30 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
-    private function saveClientPortal()
+    public function saveClientPortalSettings(SaveClientPortalSettings $request)
     {
-        $account = Auth::user()->account;
-        $account->fill(Input::all());
-
-        // Only allowed for pro Invoice Ninja users or white labeled self-hosted users
-        if (Auth::user()->account->hasFeature(FEATURE_CLIENT_PORTAL_CSS)) {
-            $input_css = Input::get('client_view_css');
-            if (Utils::isNinja()) {
-                // Allow referencing the body element
-                $input_css = preg_replace('/(?<![a-z0-9\-\_\#\.])body(?![a-z0-9\-\_])/i', '.body', $input_css);
-
-                //
-                // Inspired by http://stackoverflow.com/a/5209050/1721527, dleavitt <https://stackoverflow.com/users/362110/dleavitt>
-                //
-
-                // Create a new configuration object
-                $config = \HTMLPurifier_Config::createDefault();
-                $config->set('Filter.ExtractStyleBlocks', true);
-                $config->set('CSS.AllowImportant', true);
-                $config->set('CSS.AllowTricky', true);
-                $config->set('CSS.Trusted', true);
-
-                // Create a new purifier instance
-                $purifier = new \HTMLPurifier($config);
-
-                // Wrap our CSS in style tags and pass to purifier.
-                // we're not actually interested in the html response though
-                $html = $purifier->purify('<style>'.$input_css.'</style>');
-
-                // The "style" blocks are stored seperately
-                $output_css = $purifier->context->get('StyleBlocks');
-
-                // Get the first style block
-                $sanitized_css = count($output_css) ? $output_css[0] : '';
-            } else {
-                $sanitized_css = $input_css;
-            }
-
-            $account->client_view_css = $sanitized_css;
-        }
-
+        $account = $request->user()->account;
+        $account->fill($request->all());
+        $account->subdomain = $request->subdomain;
+        $account->iframe_url = $request->iframe_url;
         $account->save();
 
-        Session::flash('message', trans('texts.updated_settings'));
+        return redirect('settings/' . ACCOUNT_CLIENT_PORTAL)
+                ->with('message', trans('texts.updated_settings'));
+    }
 
-        return Redirect::to('settings/'.ACCOUNT_CLIENT_PORTAL);
+    /**
+     * @return $this|\Illuminate\Http\RedirectResponse
+     */
+    public function saveEmailSettings(SaveEmailSettings $request)
+    {
+        $account = $request->user()->account;
+        $account->fill($request->all());
+        $account->bcc_email = $request->bcc_email;
+        $account->save();
+
+        return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)
+                ->with('message', trans('texts.updated_settings'));
     }
 
     /**
@@ -907,80 +884,15 @@ class AccountController extends BaseController
     /**
      * @return $this|\Illuminate\Http\RedirectResponse
      */
-    private function saveEmailSettings()
-    {
-        if (Auth::user()->account->hasFeature(FEATURE_CUSTOM_EMAILS)) {
-            $user = Auth::user();
-            $subdomain = null;
-            $iframeURL = null;
-            $rules = [];
-
-            if (Input::get('custom_link') == 'subdomain') {
-                $subdomain = preg_replace('/[^a-zA-Z0-9_\-\.]/', '', substr(strtolower(Input::get('subdomain')), 0, MAX_SUBDOMAIN_LENGTH));
-                if (Utils::isNinja()) {
-                    $exclude = [
-                        'www',
-                        'app',
-                        'mail',
-                        'admin',
-                        'blog',
-                        'user',
-                        'contact',
-                        'payment',
-                        'payments',
-                        'billing',
-                        'invoice',
-                        'business',
-                        'owner',
-                        'info',
-                        'ninja',
-                        'docs',
-                        'doc',
-                        'documents'
-                    ];
-                    $rules['subdomain'] = "unique:accounts,subdomain,{$user->account_id},id|not_in:" . implode(',', $exclude);
-                }
-            } else {
-                $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', substr(strtolower(Input::get('iframe_url')), 0, MAX_IFRAME_URL_LENGTH));
-                $iframeURL = rtrim($iframeURL, '/');
-            }
-
-            $validator = Validator::make(Input::all(), $rules);
-
-            if ($validator->fails()) {
-                return Redirect::to('settings/'.ACCOUNT_EMAIL_SETTINGS)
-                    ->withErrors($validator)
-                    ->withInput();
-            } else {
-                $account = Auth::user()->account;
-                $account->subdomain = $subdomain;
-                $account->iframe_url = $iframeURL;
-                $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
-                $account->document_email_attachment = Input::get('document_email_attachment') ? true : false;
-                $account->email_design_id = Input::get('email_design_id');
-
-                if (Utils::isNinja()) {
-                    $account->enable_email_markup = Input::get('enable_email_markup') ? true : false;
-                }
-
-                $account->save();
-                Session::flash('message', trans('texts.updated_settings'));
-            }
-        }
-
-        return Redirect::to('settings/'.ACCOUNT_EMAIL_SETTINGS);
-    }
-
-    /**
-     * @return $this|\Illuminate\Http\RedirectResponse
-     */
     private function saveInvoiceSettings()
     {
         if (Auth::user()->account->hasFeature(FEATURE_INVOICE_SETTINGS)) {
-            $rules = [
-                'invoice_number_pattern' => 'has_counter',
-                'quote_number_pattern' => 'has_counter',
-            ];
+            $rules = [];
+            foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
+                if (Input::get("{$entityType}_number_type") == 'pattern') {
+                    $rules["{$entityType}_number_pattern"] = 'has_counter';
+                }
+            }
 
             $validator = Validator::make(Input::all(), $rules);
 
@@ -1015,6 +927,10 @@ class AccountController extends BaseController
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
                 $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
+                $account->client_number_prefix = trim(Input::get('client_number_prefix'));
+                $account->client_number_pattern = trim(Input::get('client_number_pattern'));
+                $account->client_number_counter = Input::get('client_number_counter');
+
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
                 }
@@ -1023,20 +939,14 @@ class AccountController extends BaseController
                     $account->quote_number_counter = Input::get('quote_number_counter');
                 }
 
-                if (Input::get('invoice_number_type') == 'prefix') {
-                    $account->invoice_number_prefix = trim(Input::get('invoice_number_prefix'));
-                    $account->invoice_number_pattern = null;
-                } else {
-                    $account->invoice_number_pattern = trim(Input::get('invoice_number_pattern'));
-                    $account->invoice_number_prefix = null;
-                }
-
-                if (Input::get('quote_number_type') == 'prefix') {
-                    $account->quote_number_prefix = trim(Input::get('quote_number_prefix'));
-                    $account->quote_number_pattern = null;
-                } else {
-                    $account->quote_number_pattern = trim(Input::get('quote_number_pattern'));
-                    $account->quote_number_prefix = null;
+                foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
+                    if (Input::get("{$entityType}_number_type") == 'prefix') {
+                        $account->{"{$entityType}_number_prefix"} = trim(Input::get("{$entityType}_number_prefix"));
+                        $account->{"{$entityType}_number_pattern"} = null;
+                    } else {
+                        $account->{"{$entityType}_number_pattern"} = trim(Input::get("{$entityType}_number_pattern"));
+                        $account->{"{$entityType}_number_prefix"} = null;
+                    }
                 }
 
                 if (!$account->share_counter
@@ -1217,6 +1127,13 @@ class AccountController extends BaseController
             $user->username = trim(Input::get('email'));
             $user->email = trim(strtolower(Input::get('email')));
             $user->phone = trim(Input::get('phone'));
+
+            if ( ! Auth::user()->is_admin) {
+                $user->notify_sent = Input::get('notify_sent');
+                $user->notify_viewed = Input::get('notify_viewed');
+                $user->notify_paid = Input::get('notify_paid');
+                $user->notify_approved = Input::get('notify_approved');
+            }
 
             if (Utils::isNinja()) {
                 if (Input::get('referral_code') && !$user->referral_code) {
@@ -1459,22 +1376,6 @@ class AccountController extends BaseController
         $this->userMailer->sendConfirmation($user);
 
         return Redirect::to('/settings/'.ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
-    }
-
-    /**
-     * @param $plan
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function startTrial($plan)
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        if ($user->isEligibleForTrial($plan)) {
-            $user->account->startTrial($plan);
-        }
-
-        return Redirect::back()->with('message', trans('texts.trial_success'));
     }
 
     /**

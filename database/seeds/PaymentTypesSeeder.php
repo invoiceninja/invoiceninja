@@ -32,6 +32,8 @@ class PaymentTypesSeeder extends Seeder
             array('name' => 'Maestro', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
             array('name' => 'Solo', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
             array('name' => 'Switch', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'iZettle', 'gateway_type_id' => GATEWAY_TYPE_CREDIT_CARD),
+            array('name' => 'Swish', 'gateway_type_id' => GATEWAY_TYPE_BANK_TRANSFER),
         ];
 
         foreach ($paymentTypes as $paymentType) {

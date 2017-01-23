@@ -9,16 +9,16 @@ use Cache;
 use Redirect;
 use DB;
 use URL;
-use DropdownButton;
 use App\Models\Invoice;
 use App\Models\Client;
 use App\Models\Account;
 use App\Models\Product;
 use App\Models\Expense;
+use App\Models\Payment;
 use App\Models\TaxRate;
 use App\Models\InvoiceDesign;
 use App\Models\Activity;
-use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Jobs\SendInvoiceEmail;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\DocumentRepository;
@@ -32,7 +32,6 @@ use App\Http\Requests\UpdateInvoiceRequest;
 
 class InvoiceController extends BaseController
 {
-    protected $mailer;
     protected $invoiceRepo;
     protected $clientRepo;
     protected $documentRepo;
@@ -41,11 +40,10 @@ class InvoiceController extends BaseController
     protected $recurringInvoiceService;
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService, PaymentService $paymentService)
+    public function __construct(InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, InvoiceService $invoiceService, DocumentRepository $documentRepo, RecurringInvoiceService $recurringInvoiceService, PaymentService $paymentService)
     {
         // parent::__construct();
 
-        $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->clientRepo = $clientRepo;
         $this->invoiceService = $invoiceService;
@@ -100,10 +98,10 @@ class InvoiceController extends BaseController
         if ($clone) {
             $invoice->id = $invoice->public_id = null;
             $invoice->is_public = false;
-            $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
+            $invoice->invoice_number = $account->getNextNumber($invoice);
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
-            $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->invoice_date = Utils::today();
             $method = 'POST';
             $url = "{$entityType}s";
         } else {
@@ -124,44 +122,6 @@ class InvoiceController extends BaseController
             'invoice_settings' => Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS),
         ];
 
-        $actions = [
-            ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
-            ['url' => URL::to("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')],
-            DropdownButton::DIVIDER
-        ];
-
-        if ($entityType == ENTITY_QUOTE) {
-            if ($invoice->quote_invoice_id) {
-                $actions[] = ['url' => URL::to("invoices/{$invoice->quote_invoice_id}/edit"), 'label' => trans('texts.view_invoice')];
-            } else {
-                $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans('texts.convert_to_invoice')];
-            }
-        } elseif ($entityType == ENTITY_INVOICE) {
-            if ($invoice->quote_id) {
-                $actions[] = ['url' => URL::to("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
-            }
-
-            if (!$invoice->is_recurring && $invoice->balance > 0 && $invoice->is_public) {
-                $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
-                $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
-            }
-
-            foreach ($invoice->payments as $payment) {
-                $label = trans('texts.view_payment');
-                if (count($invoice->payments) > 1) {
-                    $label .= ' - ' . $account->formatMoney($payment->amount, $invoice->client);
-                }
-                $actions[] = ['url' => $payment->present()->url, 'label' => $label];
-            }
-        }
-
-        if (count($actions) > 3) {
-            $actions[] = DropdownButton::DIVIDER;
-        }
-
-        $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
-        $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
-
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
         if(!Auth::user()->hasPermission('view_all')){
@@ -179,7 +139,6 @@ class InvoiceController extends BaseController
                 'title' => trans("texts.edit_{$entityType}"),
                 'client' => $invoice->client,
                 'isRecurring' => $invoice->is_recurring,
-                'actions' => $actions,
                 'lastSent' => $lastSent];
         $data = array_merge($data, self::getViewModel($invoice));
 
@@ -326,7 +285,11 @@ class InvoiceController extends BaseController
         $defaultTax = false;
 
         foreach ($rates as $rate) {
-            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';
+            $name = $rate->name . ' ' . ($rate->rate+0) . '%';
+            if ($rate->is_inclusive) {
+                $name .= ' - ' . trans('texts.inclusive');
+            }
+            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
 
             // load default invoice tax
             if ($rate->id == $account->default_tax_rate_id) {
@@ -340,7 +303,7 @@ class InvoiceController extends BaseController
                 if (isset($options[$key])) {
                     continue;
                 }
-                $options[$key] = $rate['name'] . ' ' . $rate['rate'] . '%';
+                $options['0 ' . $key] = $rate['name'] . ' ' . $rate['rate'] . '%';
             }
         }
 
@@ -452,7 +415,8 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $response = $this->mailer->sendInvoice($invoice, false, $pdfUpload);
+            $this->dispatch(new SendInvoiceEmail($invoice, false, $pdfUpload));
+            return true;
         }
 
         if ($response === true) {
@@ -482,7 +446,8 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            return $this->mailer->sendInvoice($invoice);
+            $this->dispatch(new SendInvoiceEmail($invoice));
+            return true;
         }
     }
 
@@ -514,6 +479,8 @@ class InvoiceController extends BaseController
         if ($count > 0) {
             if ($action == 'markSent') {
                 $key = 'marked_sent_invoice';
+            } elseif ($action == 'emailInvoice') {
+                $key = 'emailed_' . $entityType;
             } elseif ($action == 'markPaid') {
                 $key = 'created_payment';
             } else {
@@ -543,6 +510,8 @@ class InvoiceController extends BaseController
     public function invoiceHistory(InvoiceRequest $request)
     {
         $invoice = $request->entity();
+        $paymentId = $request->payment_id ? Payment::getPrivateId($request->payment_id) : false;
+
         $invoice->load('user', 'invoice_items', 'documents', 'expenses', 'expenses.documents', 'account.country', 'client.contacts', 'client.country');
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
@@ -553,17 +522,21 @@ class InvoiceController extends BaseController
         ];
         $invoice->invoice_type_id = intval($invoice->invoice_type_id);
 
-        $activityTypeId = $invoice->isType(INVOICE_TYPE_QUOTE) ? ACTIVITY_TYPE_UPDATE_QUOTE : ACTIVITY_TYPE_UPDATE_INVOICE;
-        $activities = Activity::scope(false, $invoice->account_id)
-                        ->where('activity_type_id', '=', $activityTypeId)
-                        ->where('invoice_id', '=', $invoice->id)
-                        ->orderBy('id', 'desc')
-                        ->get(['id', 'created_at', 'user_id', 'json_backup']);
+        $activities = Activity::scope(false, $invoice->account_id);
+        if ($paymentId) {
+            $activities->whereIn('activity_type_id', [ACTIVITY_TYPE_CREATE_PAYMENT])
+                       ->where('payment_id', '=', $paymentId);
+        } else {
+            $activities->whereIn('activity_type_id', [ACTIVITY_TYPE_UPDATE_INVOICE, ACTIVITY_TYPE_UPDATE_QUOTE])
+                       ->where('invoice_id', '=', $invoice->id);
+        }
+        $activities = $activities->orderBy('id', 'desc')
+                                 ->get(['id', 'created_at', 'user_id', 'json_backup', 'activity_type_id', 'payment_id']);
 
         $versionsJson = [];
         $versionsSelect = [];
         $lastId = false;
-
+        //dd($activities->toArray());
         foreach ($activities as $activity) {
             if ($backup = json_decode($activity->json_backup)) {
                 $backup->invoice_date = Utils::fromSqlDate($backup->invoice_date);
@@ -576,16 +549,17 @@ class InvoiceController extends BaseController
                 $backup->invoice_type_id = isset($backup->invoice_type_id) && intval($backup->invoice_type_id) == INVOICE_TYPE_QUOTE;
                 $backup->account = $invoice->account->toArray();
 
-                $versionsJson[$activity->id] = $backup;
+                $versionsJson[$paymentId ? 0 : $activity->id] = $backup;
                 $key = Utils::timestampToDateTimeString(strtotime($activity->created_at)) . ' - ' . $activity->user->getDisplayName();
-                $versionsSelect[$lastId ? $lastId : 0] = $key;
+                $versionsSelect[$lastId ?: 0] = $key;
                 $lastId = $activity->id;
             } else {
                 Utils::logError('Failed to parse invoice backup');
             }
         }
 
-        if ($lastId) {
+        // Show the current version as the last in the history
+        if ( ! $paymentId) {
             $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
         }
 
@@ -595,6 +569,7 @@ class InvoiceController extends BaseController
             'versionsSelect' => $versionsSelect,
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
             'invoiceFonts' => Cache::get('fonts'),
+            'paymentId' => $paymentId,
         ];
 
         return View::make('invoices.history', $data);

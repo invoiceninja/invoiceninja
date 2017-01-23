@@ -50,6 +50,11 @@
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(url('/expense_categories'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+		@if ($project && Auth::user()->can('create', ENTITY_TASK))
+	    	{!! Button::primary(trans('texts.new_task'))->large()
+					->asLinkTo(url("/tasks/create/{$project->client->public_id}/{$project->public_id}"))
+					->appendIcon(Icon::create('plus-sign')) !!}
+		@endif
 	</center>
 
 	{!! Former::close() !!}
@@ -71,9 +76,14 @@
 			@if ($clientPublicId)
 				$clientSelect.val({{ $clientPublicId }});
 			@endif
-			$clientSelect.combobox().focus();
 
-			$('.client-select input.form-control').focus();
+			$clientSelect.combobox();
+
+			@if ($clientPublicId)
+				$('#name').focus();
+			@else
+				$('.client-select input.form-control').focus();
+			@endif
         });
 
     </script>

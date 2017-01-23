@@ -16,8 +16,8 @@ return [
     ],
     'ninjaAndroid' => [
         'environment' =>'production',
-        'apiKey'      =>'yourAPIKey',
-        'service'     =>'gcm'
+        'apiKey'      =>env('FCM_API_TOKEN'),
+        'service'     =>'fcm'
     ]
 
 ];

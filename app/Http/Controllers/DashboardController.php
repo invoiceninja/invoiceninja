@@ -43,10 +43,12 @@ class DashboardController extends BaseController
         $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
 
-        $showBlueVinePromo = $user->is_admin
+	    $showBlueVinePromo = $user->is_admin
             && env('BLUEVINE_PARTNER_UNIQUE_ID')
             && ! $account->company->bluevine_status
             && $account->created_at <= date( 'Y-m-d', strtotime( '-1 month' ));
+
+        $showWhiteLabelExpired = Utils::isSelfHost() && $account->company->hasExpiredPlan(PLAN_WHITE_LABEL);
 
         // check if the account has quotes
         $hasQuotes = false;
@@ -97,6 +99,7 @@ class DashboardController extends BaseController
             'expenses' => $expenses,
             'tasks' => $tasks,
 	        'showBlueVinePromo' => $showBlueVinePromo,
+            'showWhiteLabelExpired' => $showWhiteLabelExpired,
         ];
 
 	    if ($showBlueVinePromo) {

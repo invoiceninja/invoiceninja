@@ -1,5 +1,9 @@
+@if (empty($hide_pdf))
 <iframe id="theFrame" style="display:block" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></iframe>
-<center><canvas id="theCanvas" style="display:none;max-width:100%;border:solid 1px #CCCCCC;"></canvas></center>
+<div id="theCanvasDiv" style="display:none;width:100%;background-color:#525659;border:solid 2px #9a9a9a;padding-top:40px;text-align:center">
+    <canvas id="theCanvas" style="max-width:100%;border:solid 1px #CCCCCC;"></canvas>
+</div>
+@endif
 
 @if (!Utils::isNinja() || !Utils::isPro())
 <div class="modal fade" id="moreDesignsModal" tabindex="-1" role="dialog" aria-labelledby="moreDesignsModalLabel" aria-hidden="true">
@@ -110,17 +114,20 @@
   var needsRefresh = false;
 
   function refreshPDF(force) {
-    //console.log('refresh PDF - force: ' + force + ' ' + (new Date()).getTime())
     return getPDFString(refreshPDFCB, force);
   }
 
   function refreshPDFCB(string) {
     if (!string) return;
+    @if ( !empty($hide_pdf))
+        return;
+    @endif
     PDFJS.workerSrc = '{{ asset('js/pdf_viewer.worker.js') }}';
-    var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'false' : 'true' }};
-    // Temporarily workaround for: https://code.google.com/p/chromium/issues/detail?id=574648
-    if (forceJS && (isFirefox || (isChrome && (!isChrome48 || {{ isset($viewPDF) && $viewPDF ? 'true' : 'false' }})))) {
+    var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'true' : 'false' }};
+    // Use the browser's built in PDF viewer
+    if ((isChrome || isFirefox) && ! forceJS && ! isMobile) {
       $('#theFrame').attr('src', string).show();
+    // Use PDFJS to view the PDF
     } else {
       if (isRefreshing) {
         needsRefresh = true;
@@ -141,7 +148,7 @@
 
           page.render({canvasContext: context, viewport: viewport});
           $('#theFrame').hide();
-          $('#theCanvas').show();
+          $('#theCanvasDiv').show();
           isRefreshing = false;
           if (needsRefresh) {
             needsRefresh = false;

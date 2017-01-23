@@ -5,6 +5,7 @@ use Session;
 use Utils;
 use View;
 use Cache;
+use DropdownButton;
 use App\Models\Invoice;
 use App\Models\Client;
 use App\Ninja\Repositories\PaymentRepository;
@@ -84,7 +85,6 @@ class PaymentController extends BaseController
     {
         $invoices = Invoice::scope()
                     ->invoices()
-                    ->whereIsPublic(true)
                     ->where('invoices.balance', '>', 0)
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
@@ -122,8 +122,20 @@ class PaymentController extends BaseController
     public function edit(PaymentRequest $request)
     {
         $payment = $request->entity();
-
         $payment->payment_date = Utils::fromSqlDate($payment->payment_date);
+
+        $actions = [];
+        if ($payment->invoiceJsonBackup()) {
+            $actions[] = ['url' => url("/invoices/invoice_history/{$payment->invoice->public_id}?payment_id={$payment->public_id}"), 'label' => trans('texts.view_invoice')];
+        }
+        $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
+        $actions[] = DropdownButton::DIVIDER;
+        if ( ! $payment->trashed()) {
+            $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_payment')];
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_payment')];
+        } else {
+            $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_expense')];
+        }
 
         $data = [
             'client' => null,
@@ -138,6 +150,7 @@ class PaymentController extends BaseController
             'method' => 'PUT',
             'url' => 'payments/'.$payment->public_id,
             'title' => trans('texts.edit_payment'),
+            'actions' => $actions,
             'paymentTypes' => Cache::get('paymentTypes'),
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
         ];
@@ -151,8 +164,10 @@ class PaymentController extends BaseController
      */
     public function store(CreatePaymentRequest $request)
     {
-        $input = $request->input();
+        // check payment has been marked sent
+        $request->invoice->markSentIfUnsent();
 
+        $input = $request->input();
         $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
         $input['client_id'] = Client::getPrivateId($input['client']);
         $payment = $this->paymentRepo->save($input);
@@ -173,6 +188,10 @@ class PaymentController extends BaseController
      */
     public function update(UpdatePaymentRequest $request)
     {
+        if (in_array($request->action, ['archive', 'delete', 'restore'])) {
+            return self::bulk();
+        }
+
         $payment = $this->paymentRepo->save($request->input(), $request->entity());
 
         Session::flash('message', trans('texts.updated_payment'));
@@ -191,7 +210,7 @@ class PaymentController extends BaseController
         $count = $this->paymentService->bulk($ids, $action, ['amount'=>$amount]);
 
         if ($count > 0) {
-            $message = Utils::pluralize($action=='refund'?'refunded_payment':$action.'d_payment', $count);
+            $message = Utils::pluralize($action=='refund' ? 'refunded_payment':$action.'d_payment', $count);
             Session::flash('message', $message);
         }
 

@@ -8,6 +8,7 @@ use Omnipay;
 use Exception;
 use CreditCard;
 use DateTime;
+use App\Models\License;
 use App\Models\AccountGatewayToken;
 use App\Models\AccountGatewaySettings;
 use App\Models\Account;
@@ -133,7 +134,12 @@ class BasePaymentDriver
                 Session::reflash();
             } else {
                 $this->completeOnsitePurchase();
-                Session::flash('message', trans('texts.applied_payment'));
+                if ($redirectUrl = session('redirect_url:' . $this->invitation->invitation_key)) {
+                    $separator = strpos($redirectUrl, '?') === false ? '?' : '&';
+                    return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $this->invoice()->public_id);
+                } else {
+                    Session::flash('message', trans('texts.applied_payment'));
+                }
             }
 
             return redirect()->to('view/' . $this->invitation->invitation_key);
@@ -596,6 +602,7 @@ class BasePaymentDriver
     {
         $invitation = $this->invitation;
         $invoice = $this->invoice();
+        $invoice->markSentIfUnsent();
 
         $payment = Payment::createNew($invitation);
         $payment->invitation_id = $invitation->id;
@@ -605,7 +612,7 @@ class BasePaymentDriver
         $payment->client_id = $invoice->client_id;
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
-        $payment->payment_date = date_create()->format('Y-m-d');
+        $payment->payment_date = Utils::today();
         $payment->ip = Request::ip();
 
         $payment = $this->creatingPayment($payment, $paymentMethod);
@@ -622,9 +629,13 @@ class BasePaymentDriver
 
         $payment->save();
 
+        $accountKey = $invoice->account->account_key;
+
+        if ($accountKey == env('NINJA_LICENSE_ACCOUNT_KEY')) {
+            $this->createLicense($payment);
         // TODO move this code
         // enable pro plan for hosted users
-        if ($invoice->account->account_key == NINJA_ACCOUNT_KEY) {
+        } elseif ($accountKey == NINJA_ACCOUNT_KEY) {
             foreach ($invoice->invoice_items as $invoice_item) {
                 // Hacky, but invoices don't have meta fields to allow us to store this easily
                 if (1 == preg_match('/^Plan - (.+) \((.+)\)$/', $invoice_item->product_key, $matches)) {
@@ -686,6 +697,38 @@ class BasePaymentDriver
         }
 
         return $payment;
+    }
+
+    protected function createLicense($payment)
+    {
+        // TODO parse invoice to determine license
+        if ($payment->amount == 20) {
+            $affiliateId = 4;
+            $productId = PRODUCT_WHITE_LABEL;
+        } else {
+            $affiliateId = 1;
+            $productId = PRODUCT_ONE_CLICK_INSTALL;
+        }
+
+        $license = new License();
+        $license->first_name = $this->contact()->first_name;
+        $license->last_name = $this->contact()->last_name;
+        $license->email = $this->contact()->email;
+        $license->transaction_reference = $payment->transaction_reference;
+        $license->license_key = Utils::generateLicense();
+        $license->affiliate_id = $affiliateId;
+        $license->product_id = $productId;
+        $license->save();
+
+        // Add the license key to the invoice content
+        $invoiceItem = $payment->invoice->invoice_items->first();
+        $invoiceItem->notes .= "\n\n##{$license->license_key}";
+        $invoiceItem->save();
+
+        // Add the license key to the redirect URL
+        $key = 'redirect_url:' . $payment->invitation->invitation_key;
+        $redirectUrl = session($key);
+        session([$key => "{$redirectUrl}?license_key={$license->license_key}&product_id={$productId}"]);
     }
 
     protected function creatingPayment($payment, $paymentMethod)

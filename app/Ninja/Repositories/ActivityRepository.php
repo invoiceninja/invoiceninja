@@ -10,7 +10,7 @@ use App\Models\Invitation;
 
 class ActivityRepository
 {
-    public function create($entity, $activityTypeId, $balanceChange = 0, $paidToDateChange = 0, $altEntity = null)
+    public function create($entity, $activityTypeId, $balanceChange = 0, $paidToDateChange = 0, $altEntity = null, $notes = false)
     {
         if ($entity instanceof Client) {
             $client = $entity;
@@ -29,6 +29,7 @@ class ActivityRepository
         $activity->adjustment = $balanceChange;
         $activity->client_id = $client ? $client->id : 0;
         $activity->balance = $client ? ($client->balance + $balanceChange) : 0;
+        $activity->notes = $notes ?: '';
 
         $keyField = $entity->getKeyField();
         $activity->$keyField = $entity->id;
@@ -53,10 +54,7 @@ class ActivityRepository
         } else {
             $activity->user_id = $entity->user_id;
             $activity->account_id = $entity->account_id;
-
-            if ( ! $entity instanceof Invitation) {
-                $activity->is_system = true;
-            }
+            $activity->is_system = true;
         }
 
         $activity->token_id = session('token_id');
@@ -89,6 +87,7 @@ class ActivityRepository
                         'activities.is_system',
                         'activities.balance',
                         'activities.adjustment',
+                        'activities.notes',
                         'users.first_name as user_first_name',
                         'users.last_name as user_last_name',
                         'users.email as user_email',

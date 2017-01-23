@@ -209,20 +209,20 @@
 
                       <div class="row">
                         <div class="col-md-6">
-                              {!! Former::text('labels_item')->label(trans('texts.item')) !!}
-                              {!! Former::text('labels_description')->label(trans('texts.description')) !!}
-                              {!! Former::text('labels_unit_cost')->label(trans('texts.unit_cost')) !!}
-                              {!! Former::text('labels_quantity')->label(trans('texts.quantity')) !!}
-							  {!! Former::text('labels_line_total')->label(trans('texts.line_total')) !!}
-							  {!! Former::text('labels_terms')->label(trans('texts.terms')) !!}
-                        </div>
-                        <div class="col-md-6">
-                              {!! Former::text('labels_subtotal')->label(trans('texts.subtotal')) !!}
-							  {!! Former::text('labels_discount')->label(trans('texts.discount')) !!}
-							  {!! Former::text('labels_paid_to_date')->label(trans('texts.paid_to_date')) !!}
-							  {!! Former::text('labels_balance_due')->label(trans('texts.balance_due')) !!}
-							  {!! Former::text('labels_partial_due')->label(trans('texts.partial_due')) !!}
-                              {!! Former::text('labels_tax')->label(trans('texts.tax')) !!}
+							{!! Former::text('labels_item')->label('item') !!}
+							{!! Former::text('labels_description')->label('description') !!}
+							{!! Former::text('labels_unit_cost')->label('unit_cost') !!}
+							{!! Former::text('labels_quantity')->label('quantity') !!}
+							{!! Former::text('labels_line_total')->label('line_total') !!}
+							{!! Former::text('labels_terms')->label('terms') !!}
+						</div>
+						<div class="col-md-6">
+							{!! Former::text('labels_subtotal')->label('subtotal') !!}
+							{!! Former::text('labels_discount')->label('discount') !!}
+							{!! Former::text('labels_paid_to_date')->label('paid_to_date') !!}
+							{!! Former::text('labels_balance_due')->label('balance_due') !!}
+							{!! Former::text('labels_partial_due')->label('partial_due') !!}
+							{!! Former::text('labels_tax')->label('tax') !!}
                         </div>
                       </div>
 
@@ -253,9 +253,9 @@
                 <div role="tabpanel" class="tab-pane" id="invoice_options">
                     <div class="panel-body">
 
-                      {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help')) !!}
-                      {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help')) !!}
-                      {!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help')) !!}
+                      {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help'))->value(1) !!}
+                      {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help'))->value(1) !!}
+                      {!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help'))->value(1) !!}
 
                     </div>
                 </div>

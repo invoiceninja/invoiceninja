@@ -94,25 +94,28 @@
 
             // Initialize date range selector
 
-            function cb(start, end) {
+            function cb(start, end, label) {
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
                 chartStartDate = start;
                 chartEndDate = end;
+				$('.range-label-div').text(label);
                 loadData();
             }
 
             $('#reportrange').daterangepicker({
                 locale: {
-                    "format": "{{ $account->getMomentDateFormat() }}",
+                    format: "{{ $account->getMomentDateFormat() }}",
+					customRangeLabel: "{{ trans('texts.custom_range') }}",
                 },
-                startDate: chartStartDate,
+				startDate: chartStartDate,
                 endDate: chartEndDate,
                 linkedCalendars: false,
                 ranges: {
-                   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                   'This Month': [moment().startOf('month'), moment().endOf('month')],
-                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                   "{{ trans('texts.last_7_days') }}": [moment().subtract(6, 'days'), moment()],
+                   "{{ trans('texts.last_30_days') }}": [moment().subtract(29, 'days'), moment()],
+                   "{{ trans('texts.this_month') }}": [moment().startOf('month'), moment().endOf('month')],
+                   "{{ trans('texts.last_month') }}": [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+				   "{{ trans('texts.last_year') }}": [moment().subtract(1, 'year'), moment()],
                 }
             }, cb);
 
@@ -201,6 +204,10 @@
     @include('partials/bluevine_promo')
 @endif
 
+@if ($showWhiteLabelExpired)
+	@include('partials/white_label_expired')
+@endif
+
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">
@@ -224,6 +231,9 @@
                             </div>
                         @endif
                     </div>
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+						{{ trans('texts.last_30_days') }}
+					</div>
                 </div>
             </div>
         </div>
@@ -265,6 +275,9 @@
                             @endif
                         </div>
                     @endif
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+						{{ trans('texts.last_30_days') }}
+					</div>
                 </div>
             </div>
         </div>
@@ -291,6 +304,9 @@
                             </div>
                         @endif
                     </div>
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+						{{ trans('texts.last_30_days') }}
+					</div>
                 </div>
             </div>
         </div>

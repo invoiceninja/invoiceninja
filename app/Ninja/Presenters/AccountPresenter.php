@@ -2,6 +2,7 @@
 
 use stdClass;
 use Utils;
+use Domain;
 use Laracasts\Presenter\Presenter;
 
 /**
@@ -36,6 +37,11 @@ class AccountPresenter extends Presenter
         return $currency->code;
     }
 
+    public function clientPortalLink()
+    {
+        return Domain::getLinkFromId($this->entity->domain_id);
+    }
+
     public function industry()
     {
         return $this->entity->industry ? $this->entity->industry->name : '';
@@ -44,6 +50,30 @@ class AccountPresenter extends Presenter
     public function size()
     {
         return $this->entity->size ? $this->entity->size->name : '';
+    }
+
+    public function paymentTerms()
+    {
+        $terms = $this->entity->payment_terms;
+
+        if ($terms == 0) {
+            return '';
+        } elseif ($terms == -1) {
+            $terms = 0;
+        }
+
+        return trans('texts.payment_terms_net') . ' ' . $terms;
+    }
+
+    public function dueDatePlaceholder()
+    {
+        if ($this->entity->payment_terms == 0) {
+            return ' ';
+        }
+
+        $date = $this->entity->defaultDueDate();
+
+        return $date ? Utils::fromSqlDate($date) : ' ';
     }
 
     private function createRBit($type, $source, $properties)

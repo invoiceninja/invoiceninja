@@ -125,7 +125,7 @@ class AccountRepository
             if ($client->name) {
                 $data['clients'][] = [
                     'value' => $client->name,
-                    'tokens' => $client->name,
+                    'tokens' => implode(',', [$client->name, $client->id_number, $client->vat_number, $client->work_phone]),
                     'url' => $client->present()->url,
                 ];
             }
@@ -146,27 +146,18 @@ class AccountRepository
             }
 
             foreach ($client->contacts as $contact) {
-                if ($contact->getFullName()) {
-                    $data['contacts'][] = [
-                        'value' => $contact->getDisplayName(),
-                        'tokens' => $contact->getDisplayName(),
-                        'url' => $client->present()->url,
-                    ];
-                }
-                if ($contact->email) {
-                    $data['contacts'][] = [
-                        'value' => $contact->email,
-                        'tokens' => $contact->email,
-                        'url' => $client->present()->url,
-                    ];
-                }
+                $data['contacts'][] = [
+                    'value' => $contact->getDisplayName(),
+                    'tokens' => implode(',', [$contact->first_name, $contact->last_name, $contact->email, $contact->phone]),
+                    'url' => $client->present()->url,
+                ];
             }
 
             foreach ($client->invoices as $invoice) {
                 $entityType = $invoice->getEntityType();
                 $data["{$entityType}s"][] = [
                     'value' => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
-                    'tokens' => $invoice->getDisplayName() . ': ' . $client->getDisplayName(),
+                    'tokens' => implode(',', [$invoice->invoice_number, $invoice->po_number]),
                     'url' => $invoice->present()->url,
                 ];
             }
@@ -204,6 +195,7 @@ class AccountRepository
 
         $features = array_merge($features, [
             ['dashboard', '/dashboard'],
+            ['reports', '/reports'],
             ['customize_design', '/settings/customize_design'],
             ['new_tax_rate', '/tax_rates/create'],
             ['new_product', '/products/create'],
@@ -287,7 +279,7 @@ class AccountRepository
         $invoice->user_id = $account->users()->first()->id;
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
-        $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
+        $invoice->invoice_number = $account->getNextNumber($invoice);
         $invoice->invoice_date = $renewalDate->format('Y-m-d');
         $invoice->amount = $invoice->balance = $plan_cost - $credit;
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
@@ -345,11 +337,15 @@ class AccountRepository
         if ($account) {
             return $account;
         } else {
+            $company = new Company();
+            $company->save();
+
             $account = new Account();
             $account->name = 'Invoice Ninja';
             $account->work_email = 'contact@invoiceninja.com';
             $account->work_phone = '(800) 763-1948';
             $account->account_key = NINJA_ACCOUNT_KEY;
+            $account->company_id = $company->id;
             $account->save();
 
             $random = str_random(RANDOM_KEY_LENGTH);

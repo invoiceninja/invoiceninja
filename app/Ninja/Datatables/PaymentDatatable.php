@@ -3,6 +3,7 @@
 use Utils;
 use URL;
 use Auth;
+use App\Models\Payment;
 use App\Models\PaymentMethod;
 
 class PaymentDatatable extends EntityDatatable
@@ -98,7 +99,7 @@ class PaymentDatatable extends EntityDatatable
                 }
             ],
             [
-                'payment_status_name',
+                'status',
                 function ($model) {
                     return self::getStatusLabel($model);
                 }
@@ -130,9 +131,7 @@ class PaymentDatatable extends EntityDatatable
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id])
                         && $model->payment_status_id >= PAYMENT_STATUS_COMPLETED
-                        && $model->refunded < $model->amount
-                        && $model->transaction_reference
-                        && in_array($model->gateway_id , static::$refundableGateways);
+                        && $model->refunded < $model->amount;
                 }
             ]
         ];
@@ -140,29 +139,10 @@ class PaymentDatatable extends EntityDatatable
 
     private function getStatusLabel($model)
     {
-        $label = trans('texts.status_' . strtolower($model->payment_status_name));
-        $class = 'default';
-        switch ($model->payment_status_id) {
-            case PAYMENT_STATUS_PENDING:
-                $class = 'info';
-                break;
-            case PAYMENT_STATUS_COMPLETED:
-                $class = 'success';
-                break;
-            case PAYMENT_STATUS_FAILED:
-                $class = 'danger';
-                break;
-            case PAYMENT_STATUS_PARTIALLY_REFUNDED:
-                $label = trans('texts.status_partially_refunded_amount', [
-                    'amount' => Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id),
-                ]);
-                $class = 'primary';
-                break;
-            case PAYMENT_STATUS_VOIDED:
-            case PAYMENT_STATUS_REFUNDED:
-                $class = 'default';
-                break;
-        }
+        $amount = Utils::formatMoney($model->refunded, $model->currency_id, $model->country_id);
+        $label = Payment::calcStatusLabel($model->payment_status_id, $model->status, $amount);
+        $class = Payment::calcStatusClass($model->payment_status_id);
+
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 }

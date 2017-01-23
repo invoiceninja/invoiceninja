@@ -432,7 +432,7 @@
               @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
                   <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
               @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-                  <li>{!! link_to('/login?new_company=true', trans('texts.add_company')) !!}</li>
+                  <li>{!! link_to('/invoice_now?new_company=true&sign_up=true', trans('texts.add_company')) !!}</li>
               @endif
             @endif
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
@@ -473,6 +473,7 @@
             'tasks' => false,
             'expenses' => false,
             'vendors' => false,
+            'reports' => false,
             'settings' => false,
         ] as $key => $value)
             {!! Form::nav_link($key, $value ?: $key) !!}
@@ -514,10 +515,13 @@
                 ])
             @endforeach
         @endif
+        @if (Auth::user()->is_admin)
+            @include('partials.navigation_option', ['option' => 'reports'])
+        @endif
         @include('partials.navigation_option', ['option' => 'settings'])
-            <li style="width:100%">
+        <li style="width:100%;">
                 <div class="nav-footer">
-                    <a href="{{ url(NINJA_CONTACT_URL) }}" target="_blank" title="{{ trans('texts.contact_us') }}">
+                    <a href="javascript:showContactUs()" target="_blank" title="{{ trans('texts.contact_us') }}">
                         <i class="fa fa-envelope"></i>
                     </a>
                     <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
@@ -589,7 +593,7 @@
                       ]) !!}
                 @endif
               @else
-                @include('partials.white_label')
+                @include('partials.white_label', ['company' => Auth::user()->account->company])
               @endif
             </div>
         </div>
@@ -597,6 +601,7 @@
     <!-- /#page-content-wrapper -->
 </div>
 
+@include('partials.contact_us')
 
 @if (!Auth::check() || !Auth::user()->registered)
 <div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
@@ -626,7 +631,11 @@
 
         <div class="row signup-form">
             <div class="col-md-11 col-md-offset-1">
-                {!! Former::checkbox('terms_checkbox')->label(' ')->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.URL::to('terms').'" target="_blank">'.trans('texts.terms_of_service').'</a>']))->raw() !!}
+                {!! Former::checkbox('terms_checkbox')
+                    ->label(' ')
+                    ->value(1)
+                    ->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.Utils::getTermsLink().'" target="_blank">'.trans('texts.terms_of_service').'</a>']))
+                    ->raw() !!}
                 <br/>
             </div>
             @if (Utils::isOAuthEnabled())

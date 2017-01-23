@@ -11,6 +11,7 @@ use Exception;
 use Validator;
 use App\Models\Invitation;
 use App\Models\Account;
+use App\Models\Client;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\PaymentMethod;
@@ -76,6 +77,11 @@ class OnlinePaymentController extends BaseController
 
         $invitation = $invitation->load('invoice.client.account.account_gateways.gateway');
         $account = $invitation->account;
+
+        if ($account->requiresAuthorization($invitation->invoice) && ! session('authorized:' . $invitation->invitation_key)) {
+            return redirect()->to('view/' . $invitation->invitation_key);
+        }
+
         $account->loadLocalizationSettings($invitation->invoice->client);
 
         if ( ! $gatewayTypeAlias) {
@@ -283,22 +289,31 @@ class OnlinePaymentController extends BaseController
             return redirect()->to("{$failureUrl}/?error=invalid product");
         }
 
-        $rules = [
-            'first_name' => 'string|max:100',
-            'last_name' => 'string|max:100',
-            'email' => 'email|string|max:100',
-        ];
-
-        $validator = Validator::make(Input::all(), $rules);
-        if ($validator->fails()) {
-            return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
+        // check for existing client using contact_key
+        $client = false;
+        if ($contactKey = Input::get('contact_key')) {
+            $client = Client::scope()->whereHas('contacts', function ($query) use ($contactKey) {
+                $query->where('contact_key', $contactKey);
+            })->first();
         }
+        if ( ! $client) {
+            $rules = [
+                'first_name' => 'string|max:100',
+                'last_name' => 'string|max:100',
+                'email' => 'email|string|max:100',
+            ];
 
-        $data = [
-            'currency_id' => $account->currency_id,
-            'contact' => Input::all()
-        ];
-        $client = $clientRepo->save($data);
+            $validator = Validator::make(Input::all(), $rules);
+            if ($validator->fails()) {
+                return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
+            }
+
+            $data = [
+                'currency_id' => $account->currency_id,
+                'contact' => Input::all()
+            ];
+            $client = $clientRepo->save($data);
+        }
 
         $data = [
             'client_id' => $client->id,

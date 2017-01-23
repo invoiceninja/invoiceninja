@@ -53,9 +53,10 @@
         {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
 	@elseif ($entityType == ENTITY_TASK)
 		{!! Button::normal(trans('texts.projects'))->asLinkTo(URL::to('/projects'))->appendIcon(Icon::create('list')) !!}
+		{!! Button::primary(trans('texts.new_project'))->asLinkTo(URL::to('/projects/create/' . (isset($clientId) ? $clientId : '')))->appendIcon(Icon::create('plus-sign')) !!}
     @endif
 
-	@if (Auth::user()->can('create', $entityType))
+	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
     	{!! Button::primary(mtrans($entityType, "new_{$entityType}"))->asLinkTo(url(Utils::pluralizeEntityType($entityType) . '/create/' . (isset($clientId) ? $clientId : '')))->appendIcon(Icon::create('plus-sign')) !!}
 	@endif
 
@@ -63,9 +64,8 @@
 
 
 {!! Datatable::table()
-	->addColumn(Utils::trans($datatable->columnFields()))
+	->addColumn(Utils::trans($datatable->columnFields(), $datatable->entityType))
 	->setUrl(url('api/' . Utils::pluralizeEntityType($entityType) . '/' . (isset($clientId) ? $clientId : (isset($vendorId) ? $vendorId : ''))))
-    ->setCustomValues('rightAlign', isset($rightAlign) ? $rightAlign : [])
 	->setCustomValues('entityType', Utils::pluralizeEntityType($entityType))
 	->setCustomValues('clientId', isset($clientId) && $clientId)
 	->setOptions('sPaginationType', 'bootstrap')
@@ -107,6 +107,23 @@
 @endif
 
 {!! Former::close() !!}
+
+<style type="text/css">
+
+	@foreach ($datatable->rightAlignIndices() as $index)
+		.listForm_{{ $entityType }} table.dataTable td:nth-child({{ $index }}) {
+			text-align: right;
+		}
+	@endforeach
+
+	@foreach ($datatable->centerAlignIndices() as $index)
+		.listForm_{{ $entityType }} table.dataTable td:nth-child({{ $index }}) {
+			text-align: center;
+		}
+	@endforeach
+
+
+</style>
 
 <script type="text/javascript">
 

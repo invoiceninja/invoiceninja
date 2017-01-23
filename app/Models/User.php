@@ -7,12 +7,20 @@ use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class User
  */
 class User extends Authenticatable
 {
+    use PresentableTrait;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\UserPresenter';
+
     /**
      * @var array
      */
@@ -128,15 +136,6 @@ class User extends Authenticatable
     public function isTrial()
     {
         return $this->account->isTrial();
-    }
-
-    /**
-     * @param null $plan
-     * @return mixed
-     */
-    public function isEligibleForTrial($plan = null)
-    {
-        return $this->account->isEligibleForTrial($plan);
     }
 
     /**
