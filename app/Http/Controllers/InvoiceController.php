@@ -415,8 +415,9 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $this->dispatch(new SendInvoiceEmail($invoice, false, $pdfUpload));
-            return true;
+            return app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, false, $pdfUpload);
+            //$this->dispatch(new SendInvoiceEmail($invoice, false, $pdfUpload));
+            //return true;
         }
 
         if ($response === true) {
@@ -446,8 +447,9 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            $this->dispatch(new SendInvoiceEmail($invoice));
-            return true;
+            return app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+            //$this->dispatch(new SendInvoiceEmail($invoice));
+            //return true;
         }
     }
 

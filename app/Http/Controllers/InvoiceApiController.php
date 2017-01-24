@@ -185,9 +185,11 @@ class InvoiceApiController extends BaseAPIController
 
         if ($isEmailInvoice) {
             if ($payment) {
-                $this->dispatch(new SendPaymentEmail($payment));
+                app('App\Ninja\Mailers\ContactMailer')->sendPaymentConfirmation($payment);
+                //$this->dispatch(new SendPaymentEmail($payment));
             } elseif ( ! $invoice->is_recurring) {
-                $this->dispatch(new SendInvoiceEmail($invoice));
+                app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+                //$this->dispatch(new SendInvoiceEmail($invoice));
             }
         }
 

@@ -756,7 +756,8 @@ class InvoiceRepository extends BaseRepository
      */
     public function emailInvoice(Invoice $invoice)
     {
-        dispatch(new SendInvoiceEmail($invoice));
+        app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+        //dispatch(new SendInvoiceEmail($invoice));
     }
 
     /**
