@@ -19,7 +19,7 @@
     "spectrum": "1.3.4",
     "d3": "3.4.11",
     "handsontable": "*",
-    "pdfmake": "^0.1.24",
+    "pdfmake": "0.1.24",
     "moment": "*",
     "jsoneditor": "*",
     "moment-timezone": "~0.4.0",
