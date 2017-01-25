@@ -1193,21 +1193,27 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
+        $pdfString = false;
 
-        if (env('PHANTOMJS_BIN_PATH')) {
-            $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true');
-        } elseif ($key = env('PHANTOMJS_CLOUD_KEY')) {
-            if (Utils::isNinjaDev()) {
-                $link = env('TEST_LINK');
+        try {
+            if (env('PHANTOMJS_BIN_PATH')) {
+                $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true');
+            } elseif ($key = env('PHANTOMJS_CLOUD_KEY')) {
+                if (Utils::isNinjaDev()) {
+                    $link = env('TEST_LINK');
+                }
+                $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+                $pdfString = CurlUtils::get($url);
             }
-            $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
-            $pdfString = CurlUtils::get($url);
+
+            $pdfString = strip_tags($pdfString);
+        } catch (Exception $exception) {
+            Utils::logError("PhantomJS - Failed to create pdf: {$exception->getMessage()}");
+            return false;
         }
 
-        $pdfString = strip_tags($pdfString);
-
         if ( ! $pdfString || strlen($pdfString) < 200) {
-            Utils::logError("PhantomJSCloud - failed to create pdf: {$pdfString}");
+            Utils::logError("PhantomJS - Failed to create pdf: {$pdfString}");
             return false;
         }
 
