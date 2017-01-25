@@ -1192,7 +1192,6 @@
         return invoice;
 	}
 
-    window.generatedPDF = false;
 	function getPDFString(cb, force) {
 		@if ( ! $account->live_preview)
 			return;
@@ -1201,7 +1200,6 @@
 		var design  = getDesignJavascript();
 		if (!design) return;
         generatePDF(invoice, design, force, cb);
-        window.generatedPDF = true;
 	}
 
 	function getDesignJavascript() {
