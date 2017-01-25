@@ -120,11 +120,8 @@ class AppController extends BaseController
         fclose($fp);
 
         // == DB Migrate & Seed == //
-        // Artisan::call('migrate:rollback', array('--force' => true)); // Debug Purposes
-        Artisan::call('migrate', ['--force' => true]);
-        if (Industry::count() == 0) {
-            Artisan::call('db:seed', ['--force' => true]);
-        }
+        $sqlFile = base_path() . '/database/setup.sql';
+        DB::unprepared(file_get_contents($sqlFile));
         Cache::flush();
         Artisan::call('optimize', ['--force' => true]);
 
