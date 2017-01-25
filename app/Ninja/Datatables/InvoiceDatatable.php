@@ -180,10 +180,12 @@ class InvoiceDatatable extends EntityDatatable
 
         if ($this->entityType == ENTITY_INVOICE || $this->entityType == ENTITY_QUOTE) {
             $actions[] = \DropdownButton::DIVIDER;
+            /*
             $actions[] = [
                 'label' => mtrans($this->entityType, 'email_' . $this->entityType),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("emailInvoice")',
             ];
+            */
             $actions[] = [
                 'label' => mtrans($this->entityType, 'mark_sent'),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("markSent")',
