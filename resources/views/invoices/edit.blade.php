@@ -1194,6 +1194,9 @@
 
     window.generatedPDF = false;
 	function getPDFString(cb, force) {
+		@if ( ! $account->live_preview)
+			return;
+		@endif
         var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
