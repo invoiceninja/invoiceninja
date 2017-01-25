@@ -467,8 +467,8 @@ class InvoiceRepository extends BaseRepository
             if ($invoice->is_amount_discount) {
                 $total -= $invoice->discount;
             } else {
-                $total *= (100 - $invoice->discount) / 100;
-                $total = round($total, 2);
+                $discount = round($total * ($invoice->discount/100), 2);
+                $total -= $discount;
             }
         }
 
