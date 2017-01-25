@@ -62,7 +62,7 @@
                         ->label(trans('texts.project')) !!}
             @endif
 
-            {!! Former::textarea('description')->rows(3) !!}
+            {!! Former::textarea('description')->rows(4) !!}
 
             @if ($task)
 
