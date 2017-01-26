@@ -144,6 +144,7 @@ class InvoiceRepository extends BaseRepository
                         'invoices.start_date',
                         'invoices.end_date',
                         'invoices.last_sent_date',
+                        'invoices.last_sent_date as last_sent',
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',
