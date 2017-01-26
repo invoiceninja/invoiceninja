@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "312df7e739006b94ffe7480e06284bdc",
-    "content-hash": "cba8dbe698812a5b877b7f6858e729e2",
+    "hash": "cf4b52ab3fc89f560311d3a41aaa374b",
+    "content-hash": "0be4eac5208d829cc3b8d13935320846",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -327,16 +327,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.20.13",
+            "version": "3.21.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "343c6c96468de5087ae5e7df4ccee2668857a5aa"
+                "reference": "adaabe1e1b2c29a8748e52146194ab42222df8b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/343c6c96468de5087ae5e7df4ccee2668857a5aa",
-                "reference": "343c6c96468de5087ae5e7df4ccee2668857a5aa",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/adaabe1e1b2c29a8748e52146194ab42222df8b5",
+                "reference": "adaabe1e1b2c29a8748e52146194ab42222df8b5",
                 "shasum": ""
             },
             "require": {
@@ -403,7 +403,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2017-01-04 18:20:17"
+            "time": "2017-01-25 22:06:08"
         },
         {
             "name": "barracudanetworks/archivestream-php",
@@ -447,16 +447,16 @@
         },
         {
             "name": "barryvdh/laravel-debugbar",
-            "version": "v2.3.1",
+            "version": "v2.3.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-debugbar.git",
-                "reference": "65b0465e38a9524c9d5eb2dfc0389aba23090625"
+                "reference": "24e4f0261e352d3fd86d0447791b56ae49398674"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/65b0465e38a9524c9d5eb2dfc0389aba23090625",
-                "reference": "65b0465e38a9524c9d5eb2dfc0389aba23090625",
+                "url": "https://api.github.com/repos/barryvdh/laravel-debugbar/zipball/24e4f0261e352d3fd86d0447791b56ae49398674",
+                "reference": "24e4f0261e352d3fd86d0447791b56ae49398674",
                 "shasum": ""
             },
             "require": {
@@ -497,27 +497,27 @@
                 "profiler",
                 "webprofiler"
             ],
-            "time": "2017-01-05 08:53:44"
+            "time": "2017-01-19 08:19:49"
         },
         {
             "name": "barryvdh/laravel-ide-helper",
-            "version": "v2.2.2",
+            "version": "v2.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/barryvdh/laravel-ide-helper.git",
-                "reference": "105f14a50d0959a0e80004a15b3350fdf78f9623"
+                "reference": "a7fc2ec489aada6062d3a63ddc915004a21e38af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/105f14a50d0959a0e80004a15b3350fdf78f9623",
-                "reference": "105f14a50d0959a0e80004a15b3350fdf78f9623",
+                "url": "https://api.github.com/repos/barryvdh/laravel-ide-helper/zipball/a7fc2ec489aada6062d3a63ddc915004a21e38af",
+                "reference": "a7fc2ec489aada6062d3a63ddc915004a21e38af",
                 "shasum": ""
             },
             "require": {
                 "barryvdh/reflection-docblock": "^2.0.4",
-                "illuminate/console": "^5.0,<5.4",
-                "illuminate/filesystem": "^5.0,<5.4",
-                "illuminate/support": "^5.0,<5.4",
+                "illuminate/console": "^5.0,<5.5",
+                "illuminate/filesystem": "^5.0,<5.5",
+                "illuminate/support": "^5.0,<5.5",
                 "php": ">=5.4.0",
                 "symfony/class-loader": "^2.3|^3.0"
             },
@@ -563,7 +563,7 @@
                 "phpstorm",
                 "sublime"
             ],
-            "time": "2016-11-15 08:21:23"
+            "time": "2017-01-05 21:20:42"
         },
         {
             "name": "barryvdh/reflection-docblock",
@@ -616,16 +616,16 @@
         },
         {
             "name": "braintree/braintree_php",
-            "version": "3.21.0",
+            "version": "3.21.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/braintree/braintree_php.git",
-                "reference": "30165da99f35f0cb2fa13ef0a4bfc8340f23cdeb"
+                "reference": "fcfabf9170925cdac0ff97b72dc9e7ab44c88263"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/30165da99f35f0cb2fa13ef0a4bfc8340f23cdeb",
-                "reference": "30165da99f35f0cb2fa13ef0a4bfc8340f23cdeb",
+                "url": "https://api.github.com/repos/braintree/braintree_php/zipball/fcfabf9170925cdac0ff97b72dc9e7ab44c88263",
+                "reference": "fcfabf9170925cdac0ff97b72dc9e7ab44c88263",
                 "shasum": ""
             },
             "require": {
@@ -659,7 +659,7 @@
                 }
             ],
             "description": "Braintree PHP Client Library",
-            "time": "2017-01-13 22:56:28"
+            "time": "2017-01-17 19:40:39"
         },
         {
             "name": "cardgate/omnipay-cardgate",
@@ -857,178 +857,6 @@
                 "preload"
             ],
             "time": "2016-09-16 12:50:15"
-        },
-        {
-            "name": "coatesap/omnipay-datacash",
-            "version": "v2.0.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/digitickets/omnipay-datacash.git",
-                "reference": "77915db87635c514576550dd15355987cadefc78"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/digitickets/omnipay-datacash/zipball/77915db87635c514576550dd15355987cadefc78",
-                "reference": "77915db87635c514576550dd15355987cadefc78",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "2.*"
-            },
-            "require-dev": {
-                "guzzle/plugin-mock": "~3.1",
-                "mockery/mockery": "~0.8",
-                "omnipay/tests": "2.*",
-                "phpunit/phpunit": "~3.7.16",
-                "squizlabs/php_codesniffer": "~1.4.4"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Omnipay\\DataCash\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Andrew Coates",
-                    "email": "andycoatz@gmail.com"
-                }
-            ],
-            "description": "DataCash driver for the Omnipay payment processing library",
-            "homepage": "https://github.com/coatesap/omnipay-datacash",
-            "keywords": [
-                "datacash",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "abandoned": "digitickets/omnipay-datacash",
-            "time": "2015-01-08 11:19:06"
-        },
-        {
-            "name": "coatesap/omnipay-paymentsense",
-            "version": "v2.0.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/digitickets/omnipay-paymentsense.git",
-                "reference": "4a5a87ef140abf8e09ff27cd0e6502ac1e79e434"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/digitickets/omnipay-paymentsense/zipball/4a5a87ef140abf8e09ff27cd0e6502ac1e79e434",
-                "reference": "4a5a87ef140abf8e09ff27cd0e6502ac1e79e434",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "2.*"
-            },
-            "require-dev": {
-                "guzzle/plugin-mock": "~3.1",
-                "mockery/mockery": "~0.8",
-                "omnipay/tests": "2.*",
-                "phpunit/phpunit": "~3.7.16",
-                "squizlabs/php_codesniffer": "~1.4.4"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Omnipay\\PaymentSense\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Andrew Coates",
-                    "email": "andycoatz@gmail.com"
-                }
-            ],
-            "description": "PaymentSense driver for the Omnipay payment processing library",
-            "homepage": "https://github.com/coatesap/paymentsense",
-            "keywords": [
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment",
-                "payment sense",
-                "paymentsense"
-            ],
-            "abandoned": "digitickets/omnipay-paymentsense",
-            "time": "2014-03-18 17:17:57"
-        },
-        {
-            "name": "coatesap/omnipay-realex",
-            "version": "v2.1.3",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/digitickets/omnipay-realex.git",
-                "reference": "9a751a66c7fdd610a7c41493a57587d59944bbfa"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/digitickets/omnipay-realex/zipball/9a751a66c7fdd610a7c41493a57587d59944bbfa",
-                "reference": "9a751a66c7fdd610a7c41493a57587d59944bbfa",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0"
-            },
-            "require-dev": {
-                "squizlabs/php_codesniffer": "~1.4.4"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Omnipay\\Realex\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Andrew Coates",
-                    "email": "andycoatz@gmail.com"
-                }
-            ],
-            "description": "Realex driver with 3D Secure support for Omnipay payment processing library",
-            "homepage": "https://github.com/coatesap/omnipay-realex",
-            "keywords": [
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment",
-                "purchase",
-                "realex"
-            ],
-            "abandoned": "digitickets/omnipay-realex",
-            "time": "2015-01-08 10:05:58"
         },
         {
             "name": "codedge/laravel-selfupdater",
@@ -1369,6 +1197,169 @@
             "time": "2016-03-18 19:37:37"
         },
         {
+            "name": "digitickets/omnipay-barclays-epdq",
+            "version": "3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/digitickets/omnipay-barclays-epdq.git",
+                "reference": "34d1dcac8325d206b7da8878aea1993083781a6c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/digitickets/omnipay-barclays-epdq/zipball/34d1dcac8325d206b7da8878aea1993083781a6c",
+                "reference": "34d1dcac8325d206b7da8878aea1993083781a6c",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "omnipay/tests": "~2.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Omnipay\\BarclaysEpdq\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian Macneil",
+                    "email": "adrian@adrianmacneil.com"
+                },
+                {
+                    "name": "Sam Vaughton",
+                    "email": "samvaughton@gmail.com"
+                },
+                {
+                    "name": "Omnipay Contributors",
+                    "homepage": "https://github.com/samvaughton/omnipay-barclays-epdq/graphs/contributors"
+                }
+            ],
+            "description": "Barclays ePDQ driver for the Omnipay payment processing library.",
+            "homepage": "https://github.com/digitickets/omnipay-barclays-epdq",
+            "keywords": [
+                "barclays",
+                "epdq",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2016-11-17 14:04:17"
+        },
+        {
+            "name": "digitickets/omnipay-datacash",
+            "version": "v3.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/digitickets/omnipay-datacash.git",
+                "reference": "5707ebfc0bfd95658347a93969f567e33ac6e0a6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/digitickets/omnipay-datacash/zipball/5707ebfc0bfd95658347a93969f567e33ac6e0a6",
+                "reference": "5707ebfc0bfd95658347a93969f567e33ac6e0a6",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "2.*"
+            },
+            "require-dev": {
+                "guzzle/plugin-mock": "~3.1",
+                "mockery/mockery": "~0.8",
+                "omnipay/tests": "2.*",
+                "phpunit/phpunit": "~3.7.16",
+                "squizlabs/php_codesniffer": "~1.4.4"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "2.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Omnipay\\DataCash\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andrew Coates",
+                    "email": "andycoatz@gmail.com"
+                }
+            ],
+            "description": "DataCash driver for the Omnipay payment processing library",
+            "homepage": "https://github.com/digitickets/omnipay-datacash",
+            "keywords": [
+                "datacash",
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment"
+            ],
+            "time": "2016-11-17 13:32:25"
+        },
+        {
+            "name": "digitickets/omnipay-realex",
+            "version": "5.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/digitickets/omnipay-realex.git",
+                "reference": "4d1c5bf3a027f3862e2533414a00c14e06f02b74"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/digitickets/omnipay-realex/zipball/4d1c5bf3a027f3862e2533414a00c14e06f02b74",
+                "reference": "4d1c5bf3a027f3862e2533414a00c14e06f02b74",
+                "shasum": ""
+            },
+            "require": {
+                "omnipay/common": "~2.0"
+            },
+            "require-dev": {
+                "squizlabs/php_codesniffer": "~1.4.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "Omnipay\\Realex\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Andrew Coates",
+                    "email": "andycoatz@gmail.com"
+                }
+            ],
+            "description": "Realex driver with 3D Secure & refund support for Omnipay payment processing library",
+            "homepage": "https://github.com/digitickets/omnipay-realex",
+            "keywords": [
+                "gateway",
+                "merchant",
+                "omnipay",
+                "pay",
+                "payment",
+                "purchase",
+                "realex"
+            ],
+            "time": "2016-11-17 13:44:19"
+        },
+        {
             "name": "dioscouri/omnipay-cybersource",
             "version": "dev-master",
             "source": {
@@ -1590,28 +1581,29 @@
         },
         {
             "name": "doctrine/collections",
-            "version": "v1.3.0",
+            "version": "v1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/collections.git",
-                "reference": "6c1e4eef75f310ea1b3e30945e9f06e652128b8a"
+                "reference": "1a4fb7e902202c33cce8c55989b945612943c2ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/collections/zipball/6c1e4eef75f310ea1b3e30945e9f06e652128b8a",
-                "reference": "6c1e4eef75f310ea1b3e30945e9f06e652128b8a",
+                "url": "https://api.github.com/repos/doctrine/collections/zipball/1a4fb7e902202c33cce8c55989b945612943c2ba",
+                "reference": "1a4fb7e902202c33cce8c55989b945612943c2ba",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3.2"
+                "php": "^5.6 || ^7.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0"
+                "doctrine/coding-standard": "~0.1@dev",
+                "phpunit/phpunit": "^5.7"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.2.x-dev"
+                    "dev-master": "1.3.x-dev"
                 }
             },
             "autoload": {
@@ -1652,7 +1644,7 @@
                 "collections",
                 "iterator"
             ],
-            "time": "2015-04-14 22:21:58"
+            "time": "2017-01-03 10:49:41"
         },
         {
             "name": "doctrine/common",
@@ -1729,16 +1721,16 @@
         },
         {
             "name": "doctrine/dbal",
-            "version": "v2.5.7",
+            "version": "v2.5.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/dbal.git",
-                "reference": "3a351369582dade60c750e2cef540eb7b568e6b3"
+                "reference": "fc376f7a61498e18520cd6fa083752a4ca08072b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/dbal/zipball/3a351369582dade60c750e2cef540eb7b568e6b3",
-                "reference": "3a351369582dade60c750e2cef540eb7b568e6b3",
+                "url": "https://api.github.com/repos/doctrine/dbal/zipball/fc376f7a61498e18520cd6fa083752a4ca08072b",
+                "reference": "fc376f7a61498e18520cd6fa083752a4ca08072b",
                 "shasum": ""
             },
             "require": {
@@ -1796,7 +1788,7 @@
                 "persistence",
                 "queryobject"
             ],
-            "time": "2017-01-14 21:05:28"
+            "time": "2017-01-23 23:17:10"
         },
         {
             "name": "doctrine/inflector",
@@ -1978,20 +1970,23 @@
         },
         {
             "name": "ezyang/htmlpurifier",
-            "version": "v4.8.0",
+            "version": "v4.9.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ezyang/htmlpurifier.git",
-                "reference": "d0c392f77d2f2a3dcf7fcb79e2a1e2b8804e75b2"
+                "reference": "a1c09b09e398687deeb8e309a6305def4b43439b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/d0c392f77d2f2a3dcf7fcb79e2a1e2b8804e75b2",
-                "reference": "d0c392f77d2f2a3dcf7fcb79e2a1e2b8804e75b2",
+                "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/a1c09b09e398687deeb8e309a6305def4b43439b",
+                "reference": "a1c09b09e398687deeb8e309a6305def4b43439b",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.2"
+            },
+            "require-dev": {
+                "simpletest/simpletest": "^1.1"
             },
             "type": "library",
             "autoload": {
@@ -2018,7 +2013,7 @@
             "keywords": [
                 "html"
             ],
-            "time": "2016-07-16 12:58:58"
+            "time": "2017-01-13 12:31:37"
         },
         {
             "name": "fotografde/omnipay-checkoutcom",
@@ -2612,12 +2607,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Intervention/image.git",
-                "reference": "2bce9a59c43b868300b02a7d31a1e4aa67a200ae"
+                "reference": "88911910dcbb7bf617f1370602ba1706489c8505"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Intervention/image/zipball/2bce9a59c43b868300b02a7d31a1e4aa67a200ae",
-                "reference": "2bce9a59c43b868300b02a7d31a1e4aa67a200ae",
+                "url": "https://api.github.com/repos/Intervention/image/zipball/88911910dcbb7bf617f1370602ba1706489c8505",
+                "reference": "88911910dcbb7bf617f1370602ba1706489c8505",
                 "shasum": ""
             },
             "require": {
@@ -2666,7 +2661,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2017-01-10 14:15:56"
+            "time": "2017-01-25 18:52:04"
         },
         {
             "name": "ircmaxell/password-compat",
@@ -2840,16 +2835,16 @@
         },
         {
             "name": "jaybizzle/crawler-detect",
-            "version": "v1.2.29",
+            "version": "v1.2.32",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JayBizzle/Crawler-Detect.git",
-                "reference": "fec4b008d2c5d98d12c6a4c2227281c590d91433"
+                "reference": "be0d602fdf9a1a6b3c9a1eea6fdb04b1654ae71a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JayBizzle/Crawler-Detect/zipball/fec4b008d2c5d98d12c6a4c2227281c590d91433",
-                "reference": "fec4b008d2c5d98d12c6a4c2227281c590d91433",
+                "url": "https://api.github.com/repos/JayBizzle/Crawler-Detect/zipball/be0d602fdf9a1a6b3c9a1eea6fdb04b1654ae71a",
+                "reference": "be0d602fdf9a1a6b3c9a1eea6fdb04b1654ae71a",
                 "shasum": ""
             },
             "require": {
@@ -2884,20 +2879,20 @@
                 "crawlerdetect",
                 "php crawler detect"
             ],
-            "time": "2017-01-11 21:06:28"
+            "time": "2017-01-26 10:29:48"
         },
         {
             "name": "jaybizzle/laravel-crawler-detect",
-            "version": "v1.0.2",
+            "version": "v1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JayBizzle/Laravel-Crawler-Detect.git",
-                "reference": "58d1f788b68e622b860112584430dd549ad2d3d3"
+                "reference": "4d77b0b3c747aaa2825acccee045b8e18a60caf1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JayBizzle/Laravel-Crawler-Detect/zipball/58d1f788b68e622b860112584430dd549ad2d3d3",
-                "reference": "58d1f788b68e622b860112584430dd549ad2d3d3",
+                "url": "https://api.github.com/repos/JayBizzle/Laravel-Crawler-Detect/zipball/4d77b0b3c747aaa2825acccee045b8e18a60caf1",
+                "reference": "4d77b0b3c747aaa2825acccee045b8e18a60caf1",
                 "shasum": ""
             },
             "require": {
@@ -2905,7 +2900,7 @@
                 "php": ">=5.4.0"
             },
             "require-dev": {
-                "orchestra/testbench": "3.0.*"
+                "orchestra/testbench": "3.1.*"
             },
             "type": "library",
             "autoload": {
@@ -2923,17 +2918,21 @@
                     "email": "mbeech@mark-beech.co.uk"
                 }
             ],
-            "description": "A Laravel package to detect web crawlers via user agents",
+            "description": "A Laravel package to detect web crawlers via the user agent",
             "homepage": "http://github.com/JayBizzle/Laravel-Crawler-Detect",
             "keywords": [
                 "bot",
                 "crawler",
+                "crawler detect",
+                "crawler detector",
+                "crawlerdetect",
                 "detect",
                 "laravel",
+                "php crawler detect",
                 "spider",
                 "user-agent"
             ],
-            "time": "2015-08-12 20:38:34"
+            "time": "2017-01-25 21:36:22"
         },
         {
             "name": "jeremeamia/SuperClosure",
@@ -3148,56 +3147,6 @@
                 "secpay"
             ],
             "time": "2015-06-05 12:03:08"
-        },
-        {
-            "name": "labs7in0/omnipay-wechat",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/labs7in0/omnipay-wechat.git",
-                "reference": "c8d80c3b48bae2bab071f283f75b1cd8624ed3c7"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/labs7in0/omnipay-wechat/zipball/c8d80c3b48bae2bab071f283f75b1cd8624ed3c7",
-                "reference": "c8d80c3b48bae2bab071f283f75b1cd8624ed3c7",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0"
-            },
-            "require-dev": {
-                "omnipay/tests": "~2.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Omnipay\\WeChat\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "7IN0SAN9",
-                    "email": "me@7in0.me"
-                }
-            ],
-            "description": "WeChat driver for the Omnipay PHP payment processing library",
-            "homepage": "https://github.com/labs7in0/omnipay-wechat",
-            "keywords": [
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment",
-                "purchase",
-                "wechat"
-            ],
-            "abandoned": "lokielse/omnipay-wechatpay",
-            "time": "2016-05-10 08:43:41"
         },
         {
             "name": "laracasts/presenter",
@@ -3476,16 +3425,16 @@
         },
         {
             "name": "laravelcollective/html",
-            "version": "v5.2.4",
+            "version": "v5.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/LaravelCollective/html.git",
-                "reference": "3a312d39ffe37da0f57b602618b61fd07c1fcec5"
+                "reference": "8956f004753d7b1bc793076f6adfb678e31d1250"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/LaravelCollective/html/zipball/3a312d39ffe37da0f57b602618b61fd07c1fcec5",
-                "reference": "3a312d39ffe37da0f57b602618b61fd07c1fcec5",
+                "url": "https://api.github.com/repos/LaravelCollective/html/zipball/8956f004753d7b1bc793076f6adfb678e31d1250",
+                "reference": "8956f004753d7b1bc793076f6adfb678e31d1250",
                 "shasum": ""
             },
             "require": {
@@ -3526,20 +3475,20 @@
             ],
             "description": "HTML and Form Builders for the Laravel Framework",
             "homepage": "http://laravelcollective.com",
-            "time": "2016-01-27 22:29:54"
+            "time": "2016-12-13 14:28:46"
         },
         {
             "name": "league/flysystem",
-            "version": "1.0.32",
+            "version": "1.0.33",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/flysystem.git",
-                "reference": "1b5c4a0031697f46e779a9d1b309c2e1b24daeab"
+                "reference": "5c7f98498b12d47f9de90ec9186a90000125777c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/1b5c4a0031697f46e779a9d1b309c2e1b24daeab",
-                "reference": "1b5c4a0031697f46e779a9d1b309c2e1b24daeab",
+                "url": "https://api.github.com/repos/thephpleague/flysystem/zipball/5c7f98498b12d47f9de90ec9186a90000125777c",
+                "reference": "5c7f98498b12d47f9de90ec9186a90000125777c",
                 "shasum": ""
             },
             "require": {
@@ -3609,7 +3558,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2016-10-19 20:38:46"
+            "time": "2017-01-23 10:32:09"
         },
         {
             "name": "league/flysystem-aws-s3-v3",
@@ -3937,23 +3886,23 @@
         },
         {
             "name": "maatwebsite/excel",
-            "version": "2.1.8",
+            "version": "2.1.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Maatwebsite/Laravel-Excel.git",
-                "reference": "d9c398f7eba0ac9caf9c104dd0d55bd6a5ff231e"
+                "reference": "a544a9b45b971499fb3b0fb7499ba0ac3b430233"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Maatwebsite/Laravel-Excel/zipball/d9c398f7eba0ac9caf9c104dd0d55bd6a5ff231e",
-                "reference": "d9c398f7eba0ac9caf9c104dd0d55bd6a5ff231e",
+                "url": "https://api.github.com/repos/Maatwebsite/Laravel-Excel/zipball/a544a9b45b971499fb3b0fb7499ba0ac3b430233",
+                "reference": "a544a9b45b971499fb3b0fb7499ba0ac3b430233",
                 "shasum": ""
             },
             "require": {
-                "illuminate/cache": "5.0.*|5.1.*|5.2.*|5.3.*",
-                "illuminate/config": "5.0.*|5.1.*|5.2.*|5.3.*",
-                "illuminate/filesystem": "5.0.*|5.1.*|5.2.*|5.3.*",
-                "illuminate/support": "5.0.*|5.1.*|5.2.*|5.3.*",
+                "illuminate/cache": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*",
+                "illuminate/config": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*",
+                "illuminate/filesystem": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*",
+                "illuminate/support": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*",
                 "nesbot/carbon": "~1.0",
                 "php": ">=5.5",
                 "phpoffice/phpexcel": "1.8.*",
@@ -3966,10 +3915,10 @@
                 "phpunit/phpunit": "~4.0"
             },
             "suggest": {
-                "illuminate/http": "5.0.*|5.1.*|5.2.*|5.3.*",
-                "illuminate/queue": "5.0.*|5.1.*|5.2.*|5.3.*",
-                "illuminate/routing": "5.0.*|5.1.*|5.2.*|5.3.*",
-                "illuminate/view": "5.0.*|5.1.*|5.2.*|5.3.*"
+                "illuminate/http": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*",
+                "illuminate/queue": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*",
+                "illuminate/routing": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*",
+                "illuminate/view": "5.0.*|5.1.*|5.2.*|5.3.*|5.4.*"
             },
             "type": "library",
             "autoload": {
@@ -4000,7 +3949,7 @@
                 "import",
                 "laravel"
             ],
-            "time": "2016-12-09 19:11:09"
+            "time": "2017-01-20 16:16:51"
         },
         {
             "name": "maximebf/debugbar",
@@ -4341,16 +4290,16 @@
         },
         {
             "name": "mtdowling/cron-expression",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/mtdowling/cron-expression.git",
-                "reference": "c9ee7886f5a12902b225a1a12f36bb45f9ab89e5"
+                "reference": "9504fa9ea681b586028adaaa0877db4aecf32bad"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mtdowling/cron-expression/zipball/c9ee7886f5a12902b225a1a12f36bb45f9ab89e5",
-                "reference": "c9ee7886f5a12902b225a1a12f36bb45f9ab89e5",
+                "url": "https://api.github.com/repos/mtdowling/cron-expression/zipball/9504fa9ea681b586028adaaa0877db4aecf32bad",
+                "reference": "9504fa9ea681b586028adaaa0877db4aecf32bad",
                 "shasum": ""
             },
             "require": {
@@ -4361,8 +4310,8 @@
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Cron": "src/"
+                "psr-4": {
+                    "Cron\\": "src/Cron/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -4381,7 +4330,7 @@
                 "cron",
                 "schedule"
             ],
-            "time": "2016-01-26 21:23:30"
+            "time": "2017-01-23 04:29:33"
         },
         {
             "name": "mtdowling/jmespath.php",
@@ -4440,26 +4389,32 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "1.21.0",
+            "version": "1.22.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/briannesbitt/Carbon.git",
-                "reference": "7b08ec6f75791e130012f206e3f7b0e76e18e3d7"
+                "reference": "7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/7b08ec6f75791e130012f206e3f7b0e76e18e3d7",
-                "reference": "7b08ec6f75791e130012f206e3f7b0e76e18e3d7",
+                "url": "https://api.github.com/repos/briannesbitt/Carbon/zipball/7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc",
+                "reference": "7cdf42c0b1cc763ab7e4c33c47a24e27c66bfccc",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0",
-                "symfony/translation": "~2.6|~3.0"
+                "symfony/translation": "~2.6 || ~3.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.0|~5.0"
+                "friendsofphp/php-cs-fixer": "~2",
+                "phpunit/phpunit": "~4.0 || ~5.0"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.23-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Carbon\\": "src/Carbon/"
@@ -4483,7 +4438,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2015-11-04 20:07:17"
+            "time": "2017-01-16 07:55:07"
         },
         {
             "name": "nikic/php-parser",
@@ -4538,27 +4493,26 @@
         },
         {
             "name": "nwidart/laravel-modules",
-            "version": "1.15.0",
+            "version": "1.16.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/nWidart/laravel-modules.git",
-                "reference": "c6c06f654dc1f946a858ff9360daaf6194219a80"
+                "reference": "2c46885be186fb51189dc8ee8a856d35835f6237"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/nWidart/laravel-modules/zipball/c6c06f654dc1f946a858ff9360daaf6194219a80",
-                "reference": "c6c06f654dc1f946a858ff9360daaf6194219a80",
+                "url": "https://api.github.com/repos/nWidart/laravel-modules/zipball/2c46885be186fb51189dc8ee8a856d35835f6237",
+                "reference": "2c46885be186fb51189dc8ee8a856d35835f6237",
                 "shasum": ""
             },
             "require": {
-                "laravel/framework": "5.1.*|5.2.*|5.3.*",
-                "laravelcollective/html": "5.1.*|5.2.*|5.3.*",
+                "laravel/framework": "5.1.*|5.2.*|5.3.*|5.4.*",
                 "php": ">=5.5"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^1.11",
                 "mockery/mockery": "~0.9",
-                "orchestra/testbench": "^3.1|^3.2|^3.3",
+                "orchestra/testbench": "^3.1|^3.2|^3.3|^3.4",
                 "phpro/grumphp": "^0.9.1",
                 "phpunit/phpunit": "~4"
             },
@@ -4588,7 +4542,7 @@
                 "nwidart",
                 "rad"
             ],
-            "time": "2017-01-12 16:33:16"
+            "time": "2017-01-24 18:35:40"
         },
         {
             "name": "omnipay/2checkout",
@@ -6823,69 +6777,6 @@
             "time": "2016-01-29 10:34:57"
         },
         {
-            "name": "samvaughton/omnipay-barclays-epdq",
-            "version": "2.2.4",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/samvaughton/omnipay-barclays-epdq.git",
-                "reference": "736b0ad83e905c59500d40dc41d3ea2e49c8dee0"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/samvaughton/omnipay-barclays-epdq/zipball/736b0ad83e905c59500d40dc41d3ea2e49c8dee0",
-                "reference": "736b0ad83e905c59500d40dc41d3ea2e49c8dee0",
-                "shasum": ""
-            },
-            "require": {
-                "omnipay/common": "~2.0"
-            },
-            "require-dev": {
-                "omnipay/tests": "~2.0"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-master": "2.0.x-dev"
-                }
-            },
-            "autoload": {
-                "psr-0": {
-                    "Omnipay\\BarclaysEpdq\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Adrian Macneil",
-                    "email": "adrian@adrianmacneil.com"
-                },
-                {
-                    "name": "Sam Vaughton",
-                    "email": "samvaughton@gmail.com"
-                },
-                {
-                    "name": "Omnipay Contributors",
-                    "homepage": "https://github.com/samvaughton/omnipay-barclays-epdq/graphs/contributors"
-                }
-            ],
-            "description": "Barclays ePDQ driver for the Omnipay payment processing library.",
-            "homepage": "https://github.com/samvaughton/omnipay-barclays-epdq",
-            "keywords": [
-                "barclays",
-                "epdq",
-                "gateway",
-                "merchant",
-                "omnipay",
-                "pay",
-                "payment"
-            ],
-            "abandoned": "digitickets/omnipay-barclays-epdq",
-            "time": "2016-10-12 15:09:24"
-        },
-        {
             "name": "simshaun/recurr",
             "version": "dev-master",
             "source": {
@@ -8788,18 +8679,18 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/webpatser/laravel-countries.git",
-                "reference": "0a7512a3b00eb1c9a3eabe563b4ae73693fe2f8a"
+                "reference": "bb5d5116d796a038bfb45f083998b25506d9a595"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webpatser/laravel-countries/zipball/0a7512a3b00eb1c9a3eabe563b4ae73693fe2f8a",
-                "reference": "0a7512a3b00eb1c9a3eabe563b4ae73693fe2f8a",
+                "url": "https://api.github.com/repos/webpatser/laravel-countries/zipball/bb5d5116d796a038bfb45f083998b25506d9a595",
+                "reference": "bb5d5116d796a038bfb45f083998b25506d9a595",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.0"
             },
-            "type": "laravel-library",
+            "type": "library",
             "autoload": {
                 "psr-0": {
                     "Webpatser\\Countries": "src/"
@@ -8832,7 +8723,7 @@
                 "iso_3166_3",
                 "laravel"
             ],
-            "time": "2016-11-24 10:51:16"
+            "time": "2017-01-25 20:26:35"
         },
         {
             "name": "websight/l5-google-cloud-storage",
@@ -9566,16 +9457,16 @@
         },
         {
             "name": "codeception/c3",
-            "version": "2.0.8",
+            "version": "2.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/c3.git",
-                "reference": "d71e5d2b015169fce61c923bfbf41c3d83087604"
+                "reference": "85c8e405a03c1d5055f1977673b20377aaa0bd22"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/c3/zipball/d71e5d2b015169fce61c923bfbf41c3d83087604",
-                "reference": "d71e5d2b015169fce61c923bfbf41c3d83087604",
+                "url": "https://api.github.com/repos/Codeception/c3/zipball/85c8e405a03c1d5055f1977673b20377aaa0bd22",
+                "reference": "85c8e405a03c1d5055f1977673b20377aaa0bd22",
                 "shasum": ""
             },
             "require": {
@@ -9612,20 +9503,20 @@
                 "code coverage",
                 "codecoverage"
             ],
-            "time": "2016-09-16 22:57:33"
+            "time": "2017-01-21 00:34:49"
         },
         {
             "name": "codeception/codeception",
-            "version": "2.2.7",
+            "version": "2.2.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Codeception/Codeception.git",
-                "reference": "86770e89d266557c20dd0b1de5390e706f4770c1"
+                "reference": "0a87d4b19070a24636125993450a9d3f698a6663"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/86770e89d266557c20dd0b1de5390e706f4770c1",
-                "reference": "86770e89d266557c20dd0b1de5390e706f4770c1",
+                "url": "https://api.github.com/repos/Codeception/Codeception/zipball/0a87d4b19070a24636125993450a9d3f698a6663",
+                "reference": "0a87d4b19070a24636125993450a9d3f698a6663",
                 "shasum": ""
             },
             "require": {
@@ -9704,7 +9595,7 @@
                 "functional testing",
                 "unit testing"
             ],
-            "time": "2016-12-05 04:12:24"
+            "time": "2017-01-20 00:54:15"
         },
         {
             "name": "doctrine/instantiator",
@@ -10373,16 +10264,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "4.8.31",
+            "version": "4.8.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "98b2b39a520766bec663ff5b7ff1b729db9dbfe3"
+                "reference": "7eb45205d27edd94bd2b3614085ea158bd1e2bca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/98b2b39a520766bec663ff5b7ff1b729db9dbfe3",
-                "reference": "98b2b39a520766bec663ff5b7ff1b729db9dbfe3",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/7eb45205d27edd94bd2b3614085ea158bd1e2bca",
+                "reference": "7eb45205d27edd94bd2b3614085ea158bd1e2bca",
                 "shasum": ""
             },
             "require": {
@@ -10441,7 +10332,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-12-09 02:45:31"
+            "time": "2017-01-26 16:15:36"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -11057,7 +10948,6 @@
         "descubraomundo/omnipay-pagarme": 20,
         "dercoder/omnipay-paysafecard": 20,
         "meebio/omnipay-secure-trading": 20,
-        "labs7in0/omnipay-wechat": 20,
         "laracasts/presenter": 20,
         "jlapp/swaggervel": 20,
         "omnipay/braintree": 20,
