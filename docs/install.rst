@@ -26,7 +26,7 @@ You can either download the zip file below or checkout the code from our GitHub 
 
 https://download.invoiceninja.com/ninja-v3.0.2.zip
 
-.. Tip:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository.
+.. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository.
 
 - Release Notes: `github.com/invoiceninja/invoiceninja/releases <https://github.com/invoiceninja/invoiceninja/releases>`_
 
@@ -71,6 +71,6 @@ Troubleshooting
 - To resolve ``file_put_contents(...): failed to open stream: Permission denied`` run ``chmod -R 777 storage`` then ``chmod -R 755 storage``
 - If index.php is in the URL it likely means that mod_rewrite needs to be enabled.
 - Running ``composer install`` and ``composer dump-autoload`` can sometimes help with composer problems.
-- If you’re using a subdomain. ie, invoice.mycompany.com You will need to add ``RewriteBase /`` to ``public/.htaccess`` otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
+- If you’re using a subdomain. ie, invoice.mycompany.com You will need to add ``RewriteBase /`` to public/.htaccess otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
 - Composer install error: ``Fatal error: Allowed memory size of...`` Try the following: ``php -d memory_limit=-1 /usr/local/bin/composer install``
 - PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php

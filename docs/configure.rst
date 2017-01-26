@@ -1,7 +1,7 @@
 Configure
 =========
 
-Review the .env.example file to see additional settings.
+Review the `.env.example <https://github.com/invoiceninja/invoiceninja/blob/master/.env.example>`_ file to see additional settings.
 
 Recurring invoices and reminder emails
 """"""""""""""""""""""""""""""""""""""
