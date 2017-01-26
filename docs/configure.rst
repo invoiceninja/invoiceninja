@@ -8,18 +8,20 @@ Recurring invoices and reminder emails
 
 Create a cron to call the ninja:send-invoices and ninja:send-reminders Artisan commands once daily.
 
-``0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-invoices``
+.. code-block:: shell
 
-``0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-reminders``
+   0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-invoices
+   0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-reminders
 
 Postmark bounce and open notifications
 """"""""""""""""""""""""""""""""""""""
 
 Include the following two setting in the .env file, the rest of the email settings can be commented out.
 
-``POSTMARK_API_TOKEN=``
+.. code-block:: shell
 
-``MAIL_FROM_ADDRESS=``
+   POSTMARK_API_TOKEN=
+   MAIL_FROM_ADDRESS=
 
 In your Postmark account settings make sure ‘Open tracking’ is enabled and enter the following values under Settings > Outbound.
 
@@ -31,18 +33,20 @@ Social/One-Click Login
 
 Create an application in either Google, Facebook, GitHub or LinkedIn and then set the client id, secret and redirect URL in the .env file. For example:
 
-``GOOGLE_CLIENT_ID=``
+.. code-block:: shell
 
-``GOOGLE_CLIENT_SECRET=``
-
-``GOOGLE_OAUTH_REDIRECT=http://ninja.dev/auth/google``
+   GOOGLE_CLIENT_ID=
+   GOOGLE_CLIENT_SECRET=
+   GOOGLE_OAUTH_REDIRECT=http://ninja.dev/auth/google
 
 PhantomJS
 """""""""
 
 We use phantomjscloud.com to attach PDFs to emails sent by background processes. Check for the following line in the .env file to enable this feature or sign up to increase your daily limit.
 
-``PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'``
+.. code-block:: shell
+
+   PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'
 
 You can install PhantomJS to generate the file locally, to enable it add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs``. To determine the path you can run ``which phantomjs`` from the command line.
 
@@ -67,7 +71,9 @@ Using a Proxy
 
 If you need to set a list of trusted proxies you can add a TRUSTED_PROXIES value in the .env file. ie,
 
-``TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'``
+.. code-block:: shell
+
+   TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
 
 Customizations
 """"""""""""""

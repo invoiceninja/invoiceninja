@@ -3,8 +3,6 @@ Install
 
 Thanks for taking the time to setup Invoice Ninja.
 
-All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository.
-
 .. Note:: The applications requires PHP >= 5.5.9 and MySQL.
 
 Detailed Guides
@@ -28,6 +26,8 @@ You can either download the zip file below or checkout the code from our GitHub 
 
 https://download.invoiceninja.com/ninja-v3.0.2.zip
 
+.. Tip:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository.
+
 - Release Notes: `github.com/invoiceninja/invoiceninja/releases <https://github.com/invoiceninja/invoiceninja/releases>`_
 
 - Roadmap: `trello.com/b/63BbiVVe/invoice-ninja <https://trello.com/b/63BbiVVe/invoice-ninja>`_
@@ -37,22 +37,22 @@ Step 2: Upload the code to your server
 
 Copy the ZIP file to your server and then check that the storage folder has 755 permissions and is owned by the webserver user.
 
-``cd /path/to/ninja/code``
+.. code-block:: shell
 
-``chmod -R 755 storage``
-
-``sudo chown -R www-data:www-data storage bootstrap public/logo``
+   cd /path/to/ninja/code
+   chmod -R 755 storage
+   sudo chown -R www-data:www-data storage bootstrap public/logo
 
 Step 3: Setup the database
 """"""""""""""""""""""""""
 
 You’ll need to create a new database along with a user to access it. Most hosting companies provide an interface to handle this or you can run the SQL statements below.
 
-``CREATE DATABASE ninja;``
+.. code-block:: shell
 
-``CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';``
-
-``GRANT ALL PRIVILEGES ON * . * TO 'ninja'@'localhost';``
+   CREATE DATABASE ninja;
+   CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
+   GRANT ALL PRIVILEGES ON * . * TO 'ninja'@'localhost';
 
 Step 4: Configure the web server
 """"""""""""""""""""""""""""""""
@@ -66,11 +66,11 @@ Once you can access the site the initial setup screen will enable you to configu
 Troubleshooting
 ^^^^^^^^^^^^^^^
 
-- Check your webserver log (ie, ``/var/log/apache2/error.log``) and the application logs (``storage/logs/laravel-error.log``) for more details or set ``APP_DEBUG=true`` in .env
+- Check your webserver log (ie, /var/log/apache2/error.log) and the application logs (storage/logs/laravel-error.log) for more details or set ``APP_DEBUG=true`` in .env
 - To resolve ``[Symfony\Component\Debug\Exception\FatalErrorException] Class 'SomeClass' not found`` try running php artisan optimize
 - To resolve ``file_put_contents(...): failed to open stream: Permission denied`` run ``chmod -R 777 storage`` then ``chmod -R 755 storage``
-- If ``index.php`` is in the URL it likely means that mod_rewrite needs to be enabled.
+- If index.php is in the URL it likely means that mod_rewrite needs to be enabled.
 - Running ``composer install`` and ``composer dump-autoload`` can sometimes help with composer problems.
-- If you’re using a subdomain. ie, ``invoice.mycompany.com`` You will need to add ``RewriteBase /`` to ``public/.htaccess`` otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
+- If you’re using a subdomain. ie, invoice.mycompany.com You will need to add ``RewriteBase /`` to ``public/.htaccess`` otherwise it may fail with ``Request exceeded the limit of 10 internal redirects due to probable configuration error.`` messages in the logs.
 - Composer install error: ``Fatal error: Allowed memory size of...`` Try the following: ``php -d memory_limit=-1 /usr/local/bin/composer install``
-- PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting ``bootstrap/cache/services.php``
+- PHP Fatal error: ``Call to undefined method Illuminate\Support\Facades\Session::get()`` try deleting bootstrap/cache/services.php
