@@ -115,7 +115,7 @@ trait GeneratesNumbers
     {
         $pattern = $invoice->invoice_type_id == INVOICE_TYPE_QUOTE ? $this->quote_number_pattern : $this->invoice_number_pattern;
 
-        return strstr($pattern, '$custom');
+        return strstr($pattern, '$custom') || strstr($pattern, '$idNumber');
     }
 
     /**
@@ -176,11 +176,13 @@ trait GeneratesNumbers
         $search = [
             '{$custom1}',
             '{$custom2}',
+            '{$idNumber}',
         ];
 
         $replace = [
             $invoice->client->custom_value1,
             $invoice->client->custom_value2,
+            $invoice->client->id_number,
         ];
 
         return str_replace($search, $replace, $pattern);

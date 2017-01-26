@@ -1596,6 +1596,7 @@
         var number = '{{ $account->applyNumberPattern($invoice) }}';
         number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
+        number = number.replace('{$idNumber}', client.id_number ? client.id_number : '');
         model.invoice().invoice_number(number);
     }
 
