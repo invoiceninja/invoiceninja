@@ -638,7 +638,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function statusClass()
     {
-        return static::calcStatusClass($this->invoice_status_id, $this->balance, $this->due_date);
+        return static::calcStatusClass($this->invoice_status_id, $this->balance, $this->getOriginal('due_date'));
     }
 
     public function statusLabel()
