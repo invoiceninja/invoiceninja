@@ -59,6 +59,10 @@ class ContactMailer extends Mailer
      */
     public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
     {
+        if ($invoice->is_recurring) {
+            return false;
+        }
+
         $invoice->load('invitations', 'client.language', 'account');
         $entityType = $invoice->getEntityType();
 
