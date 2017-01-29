@@ -1208,7 +1208,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             }
 
             $pdfString = strip_tags($pdfString);
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             Utils::logError("PhantomJS - Failed to create pdf: {$exception->getMessage()}");
             return false;
         }

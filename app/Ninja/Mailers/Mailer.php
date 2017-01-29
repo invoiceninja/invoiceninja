@@ -41,6 +41,7 @@ class Mailer
                 $toEmail = strtolower($toEmail);
                 $replyEmail = $fromEmail;
                 $fromEmail = CONTACT_EMAIL;
+                //\Log::info("{$toEmail} | {$replyEmail} | $fromEmail");
 
                 // Optionally send for alternate domain
                 if (!empty($data['fromEmail'])) {
