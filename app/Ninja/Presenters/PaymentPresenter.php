@@ -30,7 +30,7 @@ class PaymentPresenter extends EntityPresenter {
         if ($this->entity->account_gateway) {
             return $this->entity->account_gateway->gateway->name;
         } elseif ($this->entity->payment_type) {
-            return $this->entity->payment_type->name;
+            return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
     }
 }
