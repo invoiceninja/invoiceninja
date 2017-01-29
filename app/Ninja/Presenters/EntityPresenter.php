@@ -11,11 +11,15 @@ class EntityPresenter extends Presenter
      */
     public function url()
     {
+        return url($this->path());
+    }
+
+    public function path()
+    {
         $type = Utils::pluralizeEntityType($this->entity->getEntityType());
         $id = $this->entity->public_id;
-        $link = sprintf('/%s/%s', $type, $id);
 
-        return URL::to($link);
+        return sprintf('/%s/%s', $type, $id);
     }
 
     public function editUrl()

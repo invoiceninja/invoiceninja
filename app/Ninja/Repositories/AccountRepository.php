@@ -505,6 +505,19 @@ class AccountRepository
         }
     }
 
+    public function findUser($user, $accountKey)
+    {
+        $users = $this->findUsers($user, 'account');
+
+        foreach ($users as $user) {
+            if ($accountKey && hash_equals($user->account->account_key, $accountKey)) {
+                return $user;
+            }
+        }
+
+        return false;
+    }
+
     public function findUserAccounts($userId1, $userId2 = false)
     {
         if (!Schema::hasTable('user_accounts')) {
@@ -674,7 +687,7 @@ class AccountRepository
 
         $user = User::whereId($userId)->first();
 
-        if (!$user->public_id && $user->account->company->accounts->count() > 1) {
+        if (!$user->public_id && $user->account->hasMultipleAccounts()) {
             $company = Company::create();
             $company->save();
             $user->account->company_id = $company->id;

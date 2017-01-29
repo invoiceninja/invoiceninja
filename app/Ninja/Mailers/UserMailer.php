@@ -59,6 +59,12 @@ class UserMailer extends Mailer
         $account = $user->account;
         $client = $invoice->client;
 
+        if ($account->hasMultipleAccounts()) {
+            $link = url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
+        } else {
+            $link = $invoice->present()->url;
+        }
+
         $data = [
             'entityType' => $entityType,
             'clientName' => $client->getDisplayName(),
@@ -66,7 +72,7 @@ class UserMailer extends Mailer
             'userName' => $user->getDisplayName(),
             'invoiceAmount' => $account->formatMoney($invoice->getRequestedAmount(), $client),
             'invoiceNumber' => $invoice->invoice_number,
-            'invoiceLink' => SITE_URL."/{$entityType}s/{$invoice->public_id}",
+            'invoiceLink' => $link,
             'account' => $account,
         ];
 

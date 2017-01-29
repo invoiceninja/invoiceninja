@@ -1732,6 +1732,11 @@ class Account extends Eloquent
 
         return Carbon::now($this->getTimezone())->addDays($numDays)->format('Y-m-d');
     }
+
+    public function hasMultipleAccounts()
+    {
+        return $this->company->accounts->count() > 1;
+    }
 }
 
 Account::updated(function ($account)

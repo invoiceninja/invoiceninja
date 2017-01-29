@@ -270,31 +270,6 @@ class UserController extends BaseController
         }
     }
 
-    /**
-     * Log the user out of the application.
-     *
-     */
-    /*
-    public function logout()
-    {
-        if (Auth::check()) {
-            if (!Auth::user()->registered) {
-                $account = Auth::user()->account;
-                $this->accountRepo->unlinkAccount($account);
-                if ($account->company->accounts->count() == 1) {
-                    $account->company->forceDelete();
-                }
-                $account->forceDelete();
-            }
-        }
-
-        Auth::logout();
-        Session::flush();
-
-        return Redirect::to('/')->with('clearGuestKey', true);
-    }
-    */
-
     public function changePassword()
     {
         // check the current password is correct
@@ -345,6 +320,22 @@ class UserController extends BaseController
         } else {
             return Redirect::to($referer);
         }
+    }
+
+    public function viewAccountByKey($accountKey)
+    {
+        $user = $this->accountRepo->findUser(Auth::user(), $accountKey);
+
+        if ( ! $user) {
+            return redirect()->to('/');
+        }
+
+        Auth::loginUsingId($user->id);
+        Auth::user()->account->loadLocalizationSettings();
+
+        $redirectTo = request()->redirect_to ?: '/';
+
+        return redirect()->to($redirectTo);
     }
 
     public function unlinkAccount($userAccountId, $userId)

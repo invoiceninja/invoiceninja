@@ -172,7 +172,8 @@ class AuthController extends Controller
         if (Auth::check() && !Auth::user()->registered) {
             $account = Auth::user()->account;
             $this->accountRepo->unlinkAccount($account);
-            if ($account->company->accounts->count() == 1) {
+
+            if ( ! $account->hasMultipleAccounts()) {
                 $account->company->forceDelete();
             }
             $account->forceDelete();

@@ -232,6 +232,7 @@ Route::group([
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
+    Route::get('/account/{account_key}', 'UserController@viewAccountByKey');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
 
