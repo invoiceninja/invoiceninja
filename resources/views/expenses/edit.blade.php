@@ -21,6 +21,7 @@
             ->method($method) !!}
     <div style="display:none">
         {!! Former::text('action') !!}
+        {!! Former::text('data')->data_bind('value: ko.mapping.toJSON(model)') !!}
     </div>
 
 	@if ($expense)
@@ -306,9 +307,8 @@
             @else
                 // otherwise create blank model
                 window.model = new ViewModel({!! $expense !!});
-
-                ko.applyBindings(model);
             @endif
+            ko.applyBindings(model);
 
             @if (!$expense && $clientPublicId)
                 onClientChange();
@@ -386,6 +386,11 @@
             self.convert_currency = ko.observable({{ ($expense && $expense->isExchanged()) ? 'true' : 'false' }});
             self.apply_taxes = ko.observable({{ ($expense && ($expense->tax_name1 || $expense->tax_name2)) ? 'true' : 'false' }});
 
+            self.account_currency_id = ko.observable({{ $account->getCurrencyId() }});
+            self.client_id = ko.observable({{ $clientPublicId }});
+            self.vendor_id = ko.observable({{ $vendorPublicId }});
+            self.expense_category_id = ko.observable({{ $categoryPublicId }});
+
             self.mapping = {
                 'documents': {
                     create: function(options) {
@@ -397,11 +402,6 @@
             if (data) {
                 ko.mapping.fromJS(data, self.mapping, this);
             }
-
-            self.account_currency_id = ko.observable({{ $account->getCurrencyId() }});
-            self.client_id = ko.observable({{ $clientPublicId }});
-            self.vendor_id = ko.observable({{ $vendorPublicId }});
-            self.expense_category_id = ko.observable({{ $categoryPublicId }});
 
             self.convertedAmount = ko.computed({
                 read: function () {
