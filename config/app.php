@@ -262,6 +262,7 @@ return [
         'Module' => Nwidart\Modules\Facades\Module::class,
 
         'Utils' => App\Libraries\Utils::class,
+        'DateUtils' => App\Libraries\DateUtils::class,
         'HTMLUtils' => App\Libraries\HTMLUtils::class,
         'Domain' => App\Constants\Domain::class,
     ],
