@@ -45,6 +45,10 @@ class PaymentService extends BaseService
      */
     public function autoBillInvoice(Invoice $invoice)
     {
+        if ( ! $invoice->canBePaid()) {
+            return false;
+        }
+
         /** @var \App\Models\Client $client */
         $client = $invoice->client;
 
