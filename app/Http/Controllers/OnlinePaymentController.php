@@ -317,6 +317,11 @@ class OnlinePaymentController extends BaseController
 
         $data = [
             'client_id' => $client->id,
+            'is_public' => true,
+            'is_recurring' => filter_var(Input::get('is_recurring'), FILTER_VALIDATE_BOOLEAN),
+            'frequency_id' => Input::get('frequency_id'),
+            'auto_bill_id' => Input::get('auto_bill_id'),
+            'start_date' => Input::get('start_date', date('Y-m-d')),
             'tax_rate1' => $account->default_tax_rate ? $account->default_tax_rate->rate : 0,
             'tax_name1' => $account->default_tax_rate ? $account->default_tax_rate->name : '',
             'invoice_items' => [[
@@ -329,6 +334,9 @@ class OnlinePaymentController extends BaseController
             ]]
         ];
         $invoice = $invoiceService->save($data);
+        if ($invoice->is_recurring) {
+            $invoice = $this->invoiceRepo->createRecurringInvoice($invoice->fresh());
+        }
         $invitation = $invoice->invitations[0];
         $link = $invitation->getLink();
 

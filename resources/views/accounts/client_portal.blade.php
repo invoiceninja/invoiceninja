@@ -236,11 +236,6 @@
                                 ->inlineHelp('buy_now_buttons_warning')
                                 ->addGroupClass('product-select') !!}
 
-                            {!! Former::text('redirect_url')
-                                    ->onchange('updateBuyNowButtons()')
-                                    ->placeholder('https://www.example.com')
-                                    ->help('redirect_url_help') !!}
-
                             {!! Former::checkboxes('client_fields')
                                     ->onchange('updateBuyNowButtons()')
                                     ->checkboxes([
@@ -260,6 +255,33 @@
                                 {!! Former::select('payment_type')
                                     ->onchange('updateBuyNowButtons()')
                                     ->options($gateway_types) !!}
+                            </div>
+
+                            {!! Former::text('redirect_url')
+                                    ->onchange('updateBuyNowButtons()')
+                                    ->placeholder('https://www.example.com')
+                                    ->help('redirect_url_help') !!}
+
+
+                            {!! Former::checkbox('is_recurring')
+                                ->text('enable')
+                                ->label('recurring')
+                                ->onchange('showRecurring();updateBuyNowButtons();')
+                                ->value(1) !!}
+
+                            <div id="recurringDiv" style="display:none">
+
+                                {!! Former::select('frequency_id')
+                                        ->options(\App\Models\Frequency::selectOptions())
+                                        ->value(FREQUENCY_MONTHLY) !!}
+
+                                {!! Former::select('auto_bill')
+                                        ->options([
+                                            AUTO_BILL_OFF => trans('texts.off'),
+                                            AUTO_BILL_OPT_IN => trans('texts.opt_in'),
+                                            AUTO_BILL_OPT_OUT => trans('texts.opt_out'),
+                                            AUTO_BILL_ALWAYS => trans('texts.always'),
+                                        ]) !!}
                             </div>
 
                             <p>&nbsp;</p>
@@ -367,7 +389,16 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
         if (val == '{{ ENTITY_PAYMENT }}') {
             $('#paymentTypesDiv').fadeIn();
         } else {
-            $('#paymentTypesDiv').hide();
+            $('#paymentTypesDiv').fadeOut();
+        }
+    }
+
+    function showRecurring() {
+        var val = $('input[name=is_recurring]:checked').val()
+        if (val) {
+            $('#recurringDiv').fadeIn();
+        } else {
+            $('#recurringDiv').fadeOut();
         }
     }
 
@@ -376,6 +407,9 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
         var landingPage = $('input[name=landing_page_type]:checked').val()
         var paymentType = (landingPage == 'payment') ? '/' + $('#payment_type').val() : '/';
         var redirectUrl = $('#redirect_url').val();
+        var isRecurring = $('#is_recurring').val();
+        var frequencyId = $('#frequency_id').val();
+        var autoBillId = $('#auto_bill').val();
 
         var form = '';
         var link = '';
@@ -397,6 +431,13 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
             if (redirectUrl) {
                 link += '&redirect_url=' + encodeURIComponent(redirectUrl);
                 form += '<input type="hidden" name="redirect_url" value="' + redirectUrl + '"/>' + "\n";
+            }
+
+            if (isRecurring) {
+                link += "&is_recurring=true&frequency_id=" + frequencyId + "&auto_bill_id=" + autoBillId;
+                form += '<input type="hidden" name="is_recurring" value="true"/>' + "\n"
+                        + '<input type="hidden" name="frequency_id" value="' + frequencyId + '"/>' + "\n"
+                        + '<input type="hidden" name="auto_bill_id" value="' + autoBillId + '"/>' + "\n";
             }
 
             form += '<input type="submit" value="Buy Now" name="submit"/>' + "\n" + '</form>';
