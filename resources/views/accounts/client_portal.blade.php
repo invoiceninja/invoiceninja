@@ -270,7 +270,7 @@
                                         <a href="#form" aria-controls="form" role="tab" data-toggle="tab">{{ trans('texts.form') }}</a>
                                     </li>
                                     <li role="presentation">
-                                        <a href="#buynow_link" aria-controls="buynow_link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                                        <a href="#buy_now_link" aria-controls="buy_now_link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
                                     </li>
                                 </ul>
                             </div>
@@ -278,7 +278,7 @@
                                 <div role="tabpanel" class="tab-pane active" id="form">
                                     <textarea id="formTextarea" class="form-control" rows="4" readonly></textarea>
                                 </div>
-                                <div role="tabpanel" class="tab-pane" id="buynow_link">
+                                <div role="tabpanel" class="tab-pane" id="buy_now_link">
                                     <textarea id="linkTextarea" class="form-control" rows="4" readonly></textarea>
                                 </div>
                             </div>
