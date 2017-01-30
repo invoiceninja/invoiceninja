@@ -231,7 +231,7 @@ class InvoiceApiController extends BaseAPIController
         }
 
         if (!isset($data['invoice_date'])) {
-            $fields['invoice_date_sql'] = Utils::today();
+            $fields['invoice_date_sql'] = Utils::today(false)->format('Y-m-d');
         }
         if (!isset($data['due_date'])) {
             $fields['due_date_sql'] = false;
