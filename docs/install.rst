@@ -24,7 +24,7 @@ Step 1: Download the code
 
 You can either download the zip file below or checkout the code from our GitHub repository. The zip includes all third party libraries whereas using GitHub requires you to use Composer to install the dependencies.
 
-https://download.invoiceninja.com/ninja-v3.0.2.zip
+https://download.invoiceninja.com/ninja-v3.0.3.zip
 
 .. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository.
 
