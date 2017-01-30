@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Intents;
 
 use Auth;
-use Exception;
 use App\Models\Product;
 
 class ListProductsIntent extends ProductIntent

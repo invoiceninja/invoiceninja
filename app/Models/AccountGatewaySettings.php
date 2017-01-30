@@ -1,7 +1,5 @@
 <?php namespace App\Models;
 
-use Auth;
-
 /**
  * Class AccountGatewaySettings
  */

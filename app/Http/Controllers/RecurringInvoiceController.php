@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-use Utils;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Datatables\RecurringInvoiceDatatable;
 

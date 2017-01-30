@@ -2,7 +2,6 @@
 
 use Carbon;
 use Utils;
-use DateTime;
 use League\Fractal\TransformerAbstract;
 
 /**

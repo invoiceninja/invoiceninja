@@ -1,13 +1,9 @@
 <?php namespace App\Http\Controllers;
 
-use stdClass;
 use Auth;
-use DB;
 use View;
 use Utils;
 use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Payment;
 use App\Ninja\Repositories\DashboardRepository;
 
 /**

@@ -1,7 +1,5 @@
 <?php namespace App\Services;
 
-use Utils;
-use Auth;
 use App\Models\Client;
 use App\Ninja\Repositories\ProjectRepository;
 use App\Ninja\Datatables\ProjectDatatable;

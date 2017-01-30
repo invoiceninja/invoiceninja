@@ -5,7 +5,6 @@ use App\Models\GatewayType;
 use URL;
 use Cache;
 use Utils;
-use Session;
 use App\Models\AccountGateway;
 
 class AccountGatewayDatatable extends EntityDatatable

@@ -1,7 +1,6 @@
 <?php namespace App\Ninja\Repositories;
 
 use DB;
-use Utils;
 use Auth;
 use App\Models\Project;
 

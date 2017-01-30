@@ -7,8 +7,6 @@ use App\Ninja\Mailers\ContactMailer;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Monolog\Logger;
-use Carbon;
 
 /**
  * Class SendInvoiceEmail

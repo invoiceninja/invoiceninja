@@ -1,6 +1,5 @@
 <?php namespace App\Providers;
 
-use Auth;
 use Utils;
 use Form;
 use URL;

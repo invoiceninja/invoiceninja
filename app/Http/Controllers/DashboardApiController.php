@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use DB;
 use App\Ninja\Repositories\DashboardRepository;
 use App\Ninja\Transformers\ActivityTransformer;
 

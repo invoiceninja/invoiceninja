@@ -2,8 +2,6 @@
 
 use Auth;
 use Exception;
-use App\Models\EntityModel;
-use App\Models\Invoice;
 use App\Libraries\Skype\SkypeResponse;
 
 class EmailInvoiceIntent extends InvoiceIntent

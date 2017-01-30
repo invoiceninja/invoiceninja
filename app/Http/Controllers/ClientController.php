@@ -10,7 +10,6 @@ use Redirect;
 use Cache;
 use App\Models\Client;
 use App\Models\Account;
-use App\Models\Contact;
 use App\Models\Invoice;
 use App\Models\Credit;
 use App\Models\Task;

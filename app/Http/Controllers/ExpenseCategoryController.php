@@ -1,7 +1,6 @@
 <?php namespace App\Http\Controllers;
 
 use View;
-use Utils;
 use Input;
 use Session;
 use App\Services\ExpenseCategoryService;

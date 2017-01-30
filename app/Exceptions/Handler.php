@@ -1,6 +1,5 @@
 <?php namespace App\Exceptions;
 
-use Braintree\Util;
 use Illuminate\Support\Facades\Response;
 use Redirect;
 use Utils;

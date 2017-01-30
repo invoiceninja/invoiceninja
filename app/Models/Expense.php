@@ -5,7 +5,6 @@ use Laracasts\Presenter\PresentableTrait;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
-use App\Events\ExpenseWasDeleted;
 
 /**
  * Class Expense

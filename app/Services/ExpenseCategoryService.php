@@ -1,7 +1,5 @@
 <?php namespace App\Services;
 
-use Utils;
-use Auth;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Ninja\Datatables\ExpenseCategoryDatatable;
 

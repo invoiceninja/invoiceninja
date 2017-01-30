@@ -2,7 +2,6 @@
 
 namespace App\Ninja\Reports;
 
-use Auth;
 use Utils;
 use App\Models\Task;
 

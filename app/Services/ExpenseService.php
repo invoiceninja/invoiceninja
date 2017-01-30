@@ -5,7 +5,6 @@ use Utils;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Models\Client;
 use App\Models\Vendor;
-use App\Models\ExpenseCategory;
 use App\Ninja\Datatables\ExpenseDatatable;
 
 /**

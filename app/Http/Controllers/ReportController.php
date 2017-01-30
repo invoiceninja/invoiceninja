@@ -1,11 +1,8 @@
 <?php namespace App\Http\Controllers;
 
 use Auth;
-use Config;
 use Input;
 use Utils;
-use DB;
-use Session;
 use Str;
 use View;
 use App\Models\Account;

@@ -3,7 +3,6 @@
 use Carbon;
 use App\Models\Credit;
 use App\Events\PaymentWasDeleted;
-use App\Events\PaymentWasRefunded;
 use App\Ninja\Repositories\CreditRepository;
 
 /**

@@ -2,7 +2,6 @@
 
 use Auth;
 use View;
-use Utils;
 use Input;
 use Session;
 use App\Models\Client;

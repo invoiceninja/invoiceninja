@@ -2,7 +2,6 @@
 
 use Auth;
 use Eloquent;
-use Illuminate\Database\QueryException;
 use Utils;
 use Validator;
 

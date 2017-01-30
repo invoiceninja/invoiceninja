@@ -1,6 +1,5 @@
 <?php namespace App\Libraries;
 
-use Request;
 use stdClass;
 use Session;
 use App\Models\EntityModel;

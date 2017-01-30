@@ -1,7 +1,5 @@
 <?php namespace App\Ninja\Intents;
 
-use Auth;
-use App\Models\EntityModel;
 use App\Models\Invoice;
 use App\Libraries\Skype\SkypeResponse;
 

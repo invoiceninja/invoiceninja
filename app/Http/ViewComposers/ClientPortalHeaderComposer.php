@@ -3,7 +3,6 @@
 namespace App\Http\ViewComposers;
 
 use DB;
-use Cache;
 use Illuminate\View\View;
 use App\Models\Contact;
 

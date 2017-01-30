@@ -1,9 +1,6 @@
 <?php namespace App\Http\Controllers;
 
-use View;
-use Utils;
 use Input;
-use Session;
 use App\Services\ExpenseCategoryService;
 use App\Http\Requests\CreateExpenseCategoryRequest;
 use App\Http\Requests\UpdateExpenseCategoryRequest;

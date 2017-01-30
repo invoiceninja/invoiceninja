@@ -7,8 +7,6 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\PushService;
-use Monolog\Logger;
-use Carbon;
 
 /**
  * Class SendInvoiceEmail

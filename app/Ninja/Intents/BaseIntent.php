@@ -2,7 +2,6 @@
 
 use stdClass;
 use Exception;
-use App\Libraries\CurlUtils;
 use App\Libraries\Skype\SkypeResponse;
 
 class BaseIntent
