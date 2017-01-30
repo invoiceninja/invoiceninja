@@ -1,17 +1,18 @@
-<?php namespace App\Http\Controllers\ClientAuth;
+<?php
 
-use Config;
+namespace App\Http\Controllers\ClientAuth;
+
 use App\Http\Controllers\Controller;
+use App\Models\Contact;
+use App\Models\Invitation;
+use Config;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Mail\Message;
 use Illuminate\Support\Facades\Password;
-use App\Models\Contact;
-use App\Models\Invitation;
 
 class PasswordController extends Controller
 {
-
     /*
     |--------------------------------------------------------------------------
     | Password Reset Controller
@@ -51,7 +52,7 @@ class PasswordController extends Controller
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && !$contact->is_deleted) {
+            if ($contact && ! $contact->is_deleted) {
                 $account = $contact->account;
                 $data['account'] = $account;
                 $data['clientFontUrl'] = $account->getFontsUrl();
@@ -66,7 +67,7 @@ class PasswordController extends Controller
     /**
      * Send a reset link to the given user.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      *
      * @return \Illuminate\Http\Response
      */
@@ -78,7 +79,7 @@ class PasswordController extends Controller
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && !$contact->is_deleted) {
+            if ($contact && ! $contact->is_deleted) {
                 $contactId = $contact->id;
             }
         }
@@ -102,9 +103,10 @@ class PasswordController extends Controller
      *
      * If no token is present, display the link request form.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  string|null $key
-     * @param  string|null $token
+     * @param \Illuminate\Http\Request $request
+     * @param string|null              $key
+     * @param string|null              $token
+     *
      * @return \Illuminate\Http\Response
      */
     public function showResetForm(Request $request, $key = null, $token = null)
@@ -116,19 +118,19 @@ class PasswordController extends Controller
         $data = compact('token');
         if ($key) {
             $contact = Contact::where('contact_key', '=', $key)->first();
-            if ($contact && !$contact->is_deleted) {
+            if ($contact && ! $contact->is_deleted) {
                 $account = $contact->account;
                 $data['contact_key'] = $contact->contact_key;
             } else {
                 // Maybe it's an invitation key
                 $invitation = Invitation::where('invitation_key', '=', $key)->first();
-                if ($invitation && !$invitation->is_deleted) {
+                if ($invitation && ! $invitation->is_deleted) {
                     $account = $invitation->account;
                     $data['contact_key'] = $invitation->contact->contact_key;
                 }
             }
 
-            if (!empty($account)) {
+            if (! empty($account)) {
                 $data['account'] = $account;
                 $data['clientFontUrl'] = $account->getFontsUrl();
             } else {
@@ -139,15 +141,15 @@ class PasswordController extends Controller
         return view('clientauth.reset')->with($data);
     }
 
-
     /**
      * Display the password reset view for the given token.
      *
      * If no token is present, display the link request form.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  string|null $key
-     * @param  string|null $token
+     * @param \Illuminate\Http\Request $request
+     * @param string|null              $key
+     * @param string|null              $token
+     *
      * @return \Illuminate\Http\Response
      */
     public function getReset(Request $request, $key = null, $token = null)
@@ -158,7 +160,8 @@ class PasswordController extends Controller
     /**
      * Reset the given user's password.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function reset(Request $request)
@@ -174,7 +177,7 @@ class PasswordController extends Controller
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && !$contact->is_deleted) {
+            if ($contact && ! $contact->is_deleted) {
                 $credentials['id'] = $contact->id;
             }
         }

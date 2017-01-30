@@ -1,16 +1,18 @@
-<?php namespace App\Models;
+<?php
 
-use Session;
-use Event;
-use App\Libraries\Utils;
+namespace App\Models;
+
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
-use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Libraries\Utils;
+use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laracasts\Presenter\PresentableTrait;
+use Session;
 
 /**
- * Class User
+ * Class User.
  */
 class User extends Authenticatable
 {
@@ -123,6 +125,7 @@ class User extends Authenticatable
 
     /**
      * @param $feature
+     *
      * @return mixed
      */
     public function hasFeature($feature)
@@ -177,7 +180,7 @@ class User extends Authenticatable
      */
     public function showGreyBackground()
     {
-        return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
+        return ! $this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
     }
 
     /**
@@ -191,6 +194,7 @@ class User extends Authenticatable
     /**
      * @param bool $success
      * @param bool $forced
+     *
      * @return bool
      */
     public function afterSave($success = true, $forced = false)
@@ -268,7 +272,7 @@ class User extends Authenticatable
      */
     public static function onUpdatedUser($user)
     {
-        if (!$user->getOriginal('email')
+        if (! $user->getOriginal('email')
             || $user->getOriginal('email') == TEST_USERNAME
             || $user->getOriginal('username') == TEST_USERNAME
             || $user->getOriginal('email') == 'tests@bitrock.com') {
@@ -288,14 +292,13 @@ class User extends Authenticatable
                 && $this->getOriginal('confirmed');
     }
 
-
-
-    /**
-     * Set the permissions attribute on the model.
-     *
-     * @param  mixed  $value
-     * @return $this
-     */
+     /**
+      * Set the permissions attribute on the model.
+      *
+      * @param  mixed  $value
+      *
+      * @return $this
+      */
      protected function setPermissionsAttribute($value)
      {
          if (empty($value)) {
@@ -316,9 +319,10 @@ class User extends Authenticatable
      }
 
     /**
-     * Expands the value of the permissions attribute
+     * Expands the value of the permissions attribute.
      *
-     * @param  mixed  $value
+     * @param mixed $value
+     *
      * @return mixed
      */
     protected function getPermissionsAttribute($value)
@@ -334,18 +338,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Checks to see if the user has the required permission
+     * Checks to see if the user has the required permission.
      *
-     * @param  mixed  $permission Either a single permission or an array of possible permissions
-     * @param boolean True to require all permissions, false to require only one
-     * @return boolean
+     * @param mixed $permission Either a single permission or an array of possible permissions
+     * @param bool True to require all permissions, false to require only one
+     *
+     * @return bool
      */
     public function hasPermission($permission, $requireAll = false)
     {
         if ($this->is_admin) {
             return true;
         } elseif (is_string($permission)) {
-            return !empty($this->permissions[$permission]);
+            return ! empty($this->permissions[$permission]);
         } elseif (is_array($permission)) {
             if ($requireAll) {
                 return count(array_diff($permission, $this->permissions)) == 0;
@@ -359,11 +364,12 @@ class User extends Authenticatable
 
     /**
      * @param $entity
+     *
      * @return bool
      */
     public function owns($entity)
     {
-        return !empty($entity->user_id) && $entity->user_id == $this->id;
+        return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
     /**
@@ -373,7 +379,6 @@ class User extends Authenticatable
     {
         return $this->hasPermission('view_all') ? false : $this->id;
     }
-
 
     public function caddAddUsers()
     {
@@ -396,8 +401,8 @@ class User extends Authenticatable
 
     public function canCreateOrEdit($entityType, $entity = false)
     {
-        return (($entity && $this->can('edit', $entity))
-            || (!$entity && $this->can('create', $entityType)));
+        return ($entity && $this->can('edit', $entity))
+            || (! $entity && $this->can('create', $entityType));
     }
 
     public function primaryAccount()

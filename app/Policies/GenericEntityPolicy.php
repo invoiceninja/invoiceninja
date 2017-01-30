@@ -2,13 +2,13 @@
 
 namespace App\Policies;
 
-use Utils;
 use App\Models\User;
-use Illuminate\Support\Str;
 use Illuminate\Auth\Access\HandlesAuthorization;
+use Illuminate\Support\Str;
+use Utils;
 
 /**
- * Class GenericEntityPolicy
+ * Class GenericEntityPolicy.
  */
 class GenericEntityPolicy
 {
@@ -18,6 +18,7 @@ class GenericEntityPolicy
      * @param User $user
      * @param $entityType
      * @param $ownerUserId
+     *
      * @return bool|mixed
      */
     public static function editByOwner(User $user, $entityType, $ownerUserId)
@@ -34,6 +35,7 @@ class GenericEntityPolicy
      * @param User $user
      * @param $entityTypee
      * @param $ownerUserId
+     *
      * @return bool|mixed
      */
     public static function viewByOwner(User $user, $entityType, $ownerUserId)
@@ -49,6 +51,7 @@ class GenericEntityPolicy
     /**
      * @param User $user
      * @param $entityType
+     *
      * @return bool|mixed
      */
     public static function create(User $user, $entityType)
@@ -64,6 +67,7 @@ class GenericEntityPolicy
     /**
      * @param User $user
      * @param $entityType
+     *
      * @return bool|mixed
      */
     public static function view(User $user, $entityType)
@@ -85,6 +89,7 @@ class GenericEntityPolicy
         }
 
         $studly = Str::studly($entityType);
+
         return "App\\Policies\\{$studly}Policy";
     }
 }

@@ -2,9 +2,9 @@
 
 namespace App\Http\ViewComposers;
 
+use App\Models\Contact;
 use DB;
 use Illuminate\View\View;
-use App\Models\Contact;
 
 /**
  * ClientPortalHeaderComposer.php.
@@ -16,7 +16,7 @@ class ClientPortalHeaderComposer
     /**
      * Bind data to the view.
      *
-     * @param  View  $view
+     * @param View $view
      *
      * @return void
      */

@@ -1,14 +1,16 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use DateTime;
-use Illuminate\Console\Command;
+namespace App\Console\Commands;
+
+use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\PaymentService;
-use App\Models\Invoice;
+use DateTime;
+use Illuminate\Console\Command;
 
 /**
- * Class SendRecurringInvoices
+ * Class SendRecurringInvoices.
  */
 class SendRecurringInvoices extends Command
 {
@@ -39,9 +41,10 @@ class SendRecurringInvoices extends Command
 
     /**
      * SendRecurringInvoices constructor.
-     * @param Mailer $mailer
+     *
+     * @param Mailer            $mailer
      * @param InvoiceRepository $invoiceRepo
-     * @param PaymentService $paymentService
+     * @param PaymentService    $paymentService
      */
     public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, PaymentService $paymentService)
     {
@@ -74,7 +77,7 @@ class SendRecurringInvoices extends Command
             $recurInvoice->account->loadLocalizationSettings($recurInvoice->client);
             $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 
-            if ($invoice && !$invoice->isPaid()) {
+            if ($invoice && ! $invoice->isPaid()) {
                 $this->info('Sending Invoice');
                 $this->mailer->sendInvoice($invoice);
             }

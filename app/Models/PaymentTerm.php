@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class PaymentTerm
+ * Class PaymentTerm.
  */
 class PaymentTerm extends EntityModel
 {

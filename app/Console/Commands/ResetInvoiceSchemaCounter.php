@@ -64,7 +64,7 @@ class ResetInvoiceSchemaCounter extends Command
 
         if (Carbon::now()->year > $invoiceYear || $force) {
             $accounts->transform(function ($a) {
-                /** @var Account $a */
+                /* @var Account $a */
                 $a->invoice_number_counter = 1;
                 $a->update();
             });

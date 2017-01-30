@@ -1,10 +1,12 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use Auth;
-use Session;
+namespace App\Ninja\Repositories;
+
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
+use Auth;
+use Session;
 
 class TaskRepository extends BaseRepository
 {
@@ -141,7 +143,7 @@ class TaskRepository extends BaseRepository
                 $task->is_running = true;
                 $timeLog[] = [strtotime('now'), false];
             } elseif ($data['action'] == 'stop' && $task->is_running) {
-                $timeLog[count($timeLog)-1][1] = time();
+                $timeLog[count($timeLog) - 1][1] = time();
                 $task->is_running = false;
             }
         }

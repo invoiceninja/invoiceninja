@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
 
+namespace App\Ninja\PaymentDrivers;
+
+use Braintree\Customer;
 use Exception;
 use Session;
-use Braintree\Customer;
 
 class BraintreePaymentDriver extends BasePaymentDriver
 {
@@ -57,7 +59,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             ->send()
             ->getData();
 
-        return ($customer instanceof Customer);
+        return $customer instanceof Customer;
     }
 
     protected function paymentDetails($paymentMethod = false)
@@ -121,7 +123,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             'company' => $this->client()->name,
             'email' => $this->contact()->email,
             'phone' => $this->contact()->phone,
-            'website' => $this->client()->website
+            'website' => $this->client()->website,
         ];
     }
 
@@ -157,7 +159,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         parent::removePaymentMethod($paymentMethod);
 
         $response = $this->gateway()->deletePaymentMethod([
-            'token' => $paymentMethod->source_reference
+            'token' => $paymentMethod->source_reference,
         ])->send();
 
         if ($response->isSuccessful()) {

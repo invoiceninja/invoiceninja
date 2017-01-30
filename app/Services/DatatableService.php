@@ -1,21 +1,25 @@
-<?php namespace App\Services;
+<?php
 
-use Utils;
-use Datatable;
-use Auth;
+namespace App\Services;
+
 use App\Ninja\Datatables\EntityDatatable;
+use Auth;
 use Chumper\Datatable\Table;
+use Datatable;
+use Utils;
 
 /**
- * Class DatatableService
+ * Class DatatableService.
  */
 class DatatableService
 {
     /**
      * @param EntityDatatable $datatable
      * @param $query
-     * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Exception
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function createDatatable(EntityDatatable $datatable, $query)
     {
@@ -25,7 +29,7 @@ class DatatableService
             $table->addColumn('checkbox', function ($model) {
                 $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
 
-                return !$can_edit?'':'<input type="checkbox" name="ids[]" value="' . $model->public_id
+                return ! $can_edit ? '' : '<input type="checkbox" name="ids[]" value="' . $model->public_id
                         . '" ' . Utils::getEntityRowClass($model) . '>';
             });
         }
@@ -53,7 +57,7 @@ class DatatableService
 
     /**
      * @param EntityDatatable $datatable
-     * @param Table $table
+     * @param Table           $table
      */
     private function createDropdown(EntityDatatable $datatable, $table)
     {
@@ -74,7 +78,7 @@ class DatatableService
             $dropdown_contents = '';
 
             $lastIsDivider = false;
-            if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
+            if (! $model->deleted_at || $model->deleted_at == '0000-00-00') {
                 foreach ($datatable->actions() as $action) {
                     if (count($action)) {
                         // if show function isn't set default to true
@@ -92,7 +96,7 @@ class DatatableService
                                 $urlVal = $url($model);
                                 $urlStr = is_string($urlVal) ? $urlVal : $urlVal['url'];
                                 $attributes = '';
-                                if (!empty($urlVal['attributes'])) {
+                                if (! empty($urlVal['attributes'])) {
                                     $attributes = ' '.$urlVal['attributes'];
                                 }
 
@@ -124,12 +128,12 @@ class DatatableService
                     . mtrans($datatable->entityType, "restore_{$datatable->entityType}") . '</a></li>';
             }
 
-            if (property_exists($model, 'is_deleted') && !$model->is_deleted && $can_edit) {
+            if (property_exists($model, 'is_deleted') && ! $model->is_deleted && $can_edit) {
                 $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('delete', {$model->public_id})\">"
                         . mtrans($datatable->entityType, "delete_{$datatable->entityType}") . '</a></li>';
             }
 
-            if (!empty($dropdown_contents)) {
+            if (! empty($dropdown_contents)) {
                 $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
                     <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
                         '.trans('texts.select').' <span class="caret"></span>

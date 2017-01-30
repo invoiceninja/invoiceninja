@@ -1,24 +1,25 @@
-<?php namespace App\Exceptions;
+<?php
 
-use Illuminate\Support\Facades\Response;
-use Redirect;
-use Utils;
-use Exception;
+namespace App\Exceptions;
+
 use Crawler;
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Illuminate\Http\Exception\HttpResponseException;
+use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Foundation\Validation\ValidationException;
+use Illuminate\Http\Exception\HttpResponseException;
+use Illuminate\Support\Facades\Response;
+use Redirect;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Illuminate\Foundation\Validation\ValidationException;
+use Utils;
 
 /**
- * Class Handler
+ * Class Handler.
  */
 class Handler extends ExceptionHandler
 {
-
     /**
      * A list of the exception types that should not be reported.
      *
@@ -36,7 +37,8 @@ class Handler extends ExceptionHandler
      *
      * This is a great spot to send exceptions to Sentry, Bugsnag, etc.
      *
-     * @param  \Exception $e
+     * @param \Exception $e
+     *
      * @return bool|void
      */
     public function report(Exception $e)
@@ -52,6 +54,7 @@ class Handler extends ExceptionHandler
 
         if (Utils::isNinja() && ! Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
+
             return false;
         } else {
             return parent::report($e);
@@ -61,8 +64,9 @@ class Handler extends ExceptionHandler
     /**
      * Render an exception into an HTTP response.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $e
+     * @param \Illuminate\Http\Request $request
+     * @param \Exception               $e
+     *
      * @return \Illuminate\Http\Response
      */
     public function render($request, Exception $e)
@@ -78,7 +82,7 @@ class Handler extends ExceptionHandler
                         ->back()
                         ->withInput($request->except('password', '_token'))
                         ->with([
-                            'warning' => trans('texts.token_expired')
+                            'warning' => trans('texts.token_expired'),
                         ]);
             }
         }
@@ -90,7 +94,7 @@ class Handler extends ExceptionHandler
                     if ($request->header('X-Ninja-Token') != '') {
                         //API request which has hit a route which does not exist
 
-                        $error['error'] = ['message'=>'Route does not exist'];
+                        $error['error'] = ['message' => 'Route does not exist'];
                         $error = json_encode($error, JSON_PRETTY_PRINT);
                         $headers = Utils::getApiHeaders();
 
@@ -103,7 +107,7 @@ class Handler extends ExceptionHandler
                     if ($request->header('X-Ninja-Token') != '') {
                         //API request which produces 500 error
 
-                        $error['error'] = ['message'=>'Internal Server Error'];
+                        $error['error'] = ['message' => 'Internal Server Error'];
                         $error = json_encode($error, JSON_PRETTY_PRINT);
                         $headers = Utils::getApiHeaders();
 
@@ -116,9 +120,9 @@ class Handler extends ExceptionHandler
 
         // In production, except for maintenance mode, we'll show a custom error screen
         if (Utils::isNinjaProd()
-            && !Utils::isDownForMaintenance()
-            && !($e instanceof HttpResponseException)
-            && !($e instanceof ValidationException)) {
+            && ! Utils::isDownForMaintenance()
+            && ! ($e instanceof HttpResponseException)
+            && ! ($e instanceof ValidationException)) {
             $data = [
                 'error' => get_class($e),
                 'hideHeader' => true,

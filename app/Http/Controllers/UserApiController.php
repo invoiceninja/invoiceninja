@@ -1,12 +1,14 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use App\Services\UserService;
-use App\Ninja\Repositories\UserRepository;
-use App\Ninja\Transformers\UserTransformer;
-use Auth;
-use App\Models\User;
+namespace App\Http\Controllers;
+
 use App\Http\Requests\CreateUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\User;
+use App\Ninja\Repositories\UserRepository;
+use App\Ninja\Transformers\UserTransformer;
+use App\Services\UserService;
+use Auth;
 
 class UserApiController extends BaseAPIController
 {

@@ -1,7 +1,9 @@
-<?php namespace App\Http\Requests;
+<?php
 
-use App\Models\Invoice;
+namespace App\Http\Requests;
+
 use App\Models\Expense;
+use App\Models\Invoice;
 
 class CreateDocumentRequest extends DocumentRequest
 {

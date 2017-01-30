@@ -1,31 +1,34 @@
-<?php namespace App\Http\Middleware;
+<?php
 
-use Closure;
-use Illuminate\Http\Request;
-use Utils;
+namespace App\Http\Middleware;
+
 use App;
-use Auth;
-use Input;
-use Redirect;
-use Cache;
-use Session;
-use Event;
-use Schema;
-use App\Models\Language;
-use App\Models\InvoiceDesign;
 use App\Events\UserLoggedIn;
 use App\Libraries\CurlUtils;
+use App\Models\InvoiceDesign;
+use App\Models\Language;
+use Auth;
+use Cache;
+use Closure;
+use Event;
+use Illuminate\Http\Request;
+use Input;
+use Redirect;
+use Schema;
+use Session;
+use Utils;
 
 /**
- * Class StartupCheck
+ * Class StartupCheck.
  */
 class StartupCheck
 {
     /**
      * Handle an incoming request.
      *
-     * @param  Request $request
-     * @param  Closure $next
+     * @param Request $request
+     * @param Closure $next
+     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -38,17 +41,17 @@ class StartupCheck
         }
 
         // Ensure all request are over HTTPS in production
-        if (Utils::requireHTTPS() && !$request->secure()) {
+        if (Utils::requireHTTPS() && ! $request->secure()) {
             return Redirect::secure($request->path());
         }
 
         // If the database doens't yet exist we'll skip the rest
-        if (!Utils::isNinja() && !Utils::isDatabaseSetup()) {
+        if (! Utils::isNinja() && ! Utils::isDatabaseSetup()) {
             return $next($request);
         }
 
         // Check if a new version was installed
-        if (!Utils::isNinja()) {
+        if (! Utils::isNinja()) {
             $file = storage_path() . '/version.txt';
             $version = @file_get_contents($file);
             if ($version != NINJA_VERSION) {
@@ -58,6 +61,7 @@ class StartupCheck
                 $handle = fopen($file, 'w');
                 fwrite($handle, NINJA_VERSION);
                 fclose($handle);
+
                 return Redirect::to('/update');
             }
         }
@@ -67,7 +71,7 @@ class StartupCheck
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
-            if (isset($_SERVER['REQUEST_URI']) && !Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
+            if (isset($_SERVER['REQUEST_URI']) && ! Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && ! Session::has('news_feed_id')) {
                 $data = false;
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
@@ -117,7 +121,7 @@ class StartupCheck
         }
 
         // Make sure the account/user localization settings are in the session
-        if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
+        if (Auth::check() && ! Session::has(SESSION_TIMEZONE)) {
             Event::fire(new UserLoggedIn());
         }
 
@@ -168,9 +172,9 @@ class StartupCheck
             Session::flash('message', 'Cache cleared');
         }
         foreach ($cachedTables as $name => $class) {
-            if (Input::has('clear_cache') || !Cache::has($name)) {
+            if (Input::has('clear_cache') || ! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
-                if (! Schema::hasTable((new $class)->getTable())) {
+                if (! Schema::hasTable((new $class())->getTable())) {
                     continue;
                 }
                 if ($name == 'paymentTerms') {

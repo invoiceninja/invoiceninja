@@ -1,16 +1,19 @@
-<?php namespace App\Services;
+<?php
 
+namespace App\Services;
+
+use App\Models\Gateway;
+use App\Models\GatewayType;
 use Form;
 use HTML;
 use Utils;
-use App\Models\Gateway;
-use App\Models\GatewayType;
 
 class TemplateService
 {
     /**
      * @param $template
      * @param array $data
+     *
      * @return mixed|string
      */
     public function processVariables($template, array $data)
@@ -25,7 +28,7 @@ class TemplateService
         $invitation = $data['invitation'];
 
         $invoice = $invitation->invoice;
-        $passwordHTML = isset($data['password'])?'<p>'.trans('texts.password').': '.$data['password'].'<p>':false;
+        $passwordHTML = isset($data['password']) ? '<p>'.trans('texts.password').': '.$data['password'].'<p>' : false;
         $documentsHTML = '';
 
         if ($account->hasFeature(FEATURE_DOCUMENTS) && $invoice->hasDocuments()) {
@@ -63,7 +66,7 @@ class TemplateService
             '$customInvoice1' => $account->custom_invoice_text_label1,
             '$customInvoice2' => $account->custom_invoice_text_label2,
             '$documents' => $documentsHTML,
-            '$autoBill' => empty($data['autobill'])?'':$data['autobill'],
+            '$autoBill' => empty($data['autobill']) ? '' : $data['autobill'],
             '$portalLink' => $invitation->contact->link,
             '$portalButton' => Form::emailViewButton($invitation->contact->link, 'portal'),
         ];
@@ -83,7 +86,7 @@ class TemplateService
 
         $str = str_replace(array_keys($variables), array_values($variables), $template);
 
-        if (!$includesPasswordPlaceholder && $passwordHTML) {
+        if (! $includesPasswordPlaceholder && $passwordHTML) {
             $pos = strrpos($str, '$password');
             if ($pos !== false) {
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);

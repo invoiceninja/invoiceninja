@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class InvoiceWasRestored
+ * Class InvoiceWasRestored.
  */
 class InvoiceWasRestored extends Event
 {

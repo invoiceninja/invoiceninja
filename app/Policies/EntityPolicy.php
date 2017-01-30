@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
- * Class EntityPolicy
+ * Class EntityPolicy.
  */
 class EntityPolicy
 {
@@ -14,6 +14,7 @@ class EntityPolicy
 
     /**
      * @param User $user
+     *
      * @return bool
      */
     public static function create(User $user, $item)
@@ -58,6 +59,7 @@ class EntityPolicy
     /**
      * @param User $user
      * @param $ownerUserId
+     *
      * @return bool
      */
     public static function viewByOwner(User $user, $ownerUserId)
@@ -68,6 +70,7 @@ class EntityPolicy
     /**
      * @param User $user
      * @param $ownerUserId
+     *
      * @return bool
      */
     public static function editByOwner(User $user, $ownerUserId)

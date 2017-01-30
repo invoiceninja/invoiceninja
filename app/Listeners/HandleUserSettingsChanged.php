@@ -1,22 +1,23 @@
-<?php namespace App\Listeners;
+<?php
 
+namespace App\Listeners;
+
+use App\Events\UserSettingsChanged;
+use App\Ninja\Mailers\UserMailer;
+use App\Ninja\Repositories\AccountRepository;
 use Auth;
 use Session;
-use App\Events\UserSettingsChanged;
-use App\Ninja\Repositories\AccountRepository;
-use App\Ninja\Mailers\UserMailer;
 
 /**
- * Class HandleUserSettingsChanged
+ * Class HandleUserSettingsChanged.
  */
 class HandleUserSettingsChanged
 {
-
     /**
      * Create the event handler.
      *
      * @param AccountRepository $accountRepo
-     * @param UserMailer $userMailer
+     * @param UserMailer        $userMailer
      */
     public function __construct(AccountRepository $accountRepo, UserMailer $userMailer)
     {
@@ -27,13 +28,13 @@ class HandleUserSettingsChanged
     /**
      * Handle the event.
      *
-     * @param  UserSettingsChanged  $event
+     * @param UserSettingsChanged $event
      *
      * @return void
      */
     public function handle(UserSettingsChanged $event)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return;
         }
 

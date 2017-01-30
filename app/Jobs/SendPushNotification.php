@@ -3,13 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\Invoice;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\PushService;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class SendInvoiceEmail
+ * Class SendInvoiceEmail.
  */
 class SendPushNotification extends Job implements ShouldQueue
 {
@@ -24,7 +24,6 @@ class SendPushNotification extends Job implements ShouldQueue
      * @var string
      */
     protected $type;
-
 
     /**
      * Create a new job instance.

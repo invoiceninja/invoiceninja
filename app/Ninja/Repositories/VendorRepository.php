@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use Utils;
-use DB;
+namespace App\Ninja\Repositories;
+
 use App\Models\Vendor;
+use DB;
+use Utils;
 
 // vendor
 class VendorRepository extends BaseRepository
@@ -66,7 +68,7 @@ class VendorRepository extends BaseRepository
 
         if ($vendor) {
             // do nothing
-        } elseif (!$publicId || $publicId == '-1') {
+        } elseif (! $publicId || $publicId == '-1') {
             $vendor = Vendor::createNew();
         } else {
             $vendor = Vendor::scope($publicId)->with('vendor_contacts')->firstOrFail();
@@ -82,19 +84,19 @@ class VendorRepository extends BaseRepository
         $vendor->fill($data);
         $vendor->save();
 
-        $first              = true;
-        $vendorcontacts     = isset($data['vendor_contact']) ? [$data['vendor_contact']] : $data['vendor_contacts'];
-        $vendorcontactIds   = [];
+        $first = true;
+        $vendorcontacts = isset($data['vendor_contact']) ? [$data['vendor_contact']] : $data['vendor_contacts'];
+        $vendorcontactIds = [];
 
         foreach ($vendorcontacts as $vendorcontact) {
-            $vendorcontact      = $vendor->addVendorContact($vendorcontact, $first);
+            $vendorcontact = $vendor->addVendorContact($vendorcontact, $first);
             $vendorcontactIds[] = $vendorcontact->public_id;
-            $first              = false;
+            $first = false;
         }
 
         if (! $vendor->wasRecentlyCreated) {
             foreach ($vendor->vendor_contacts as $contact) {
-                if (!in_array($contact->public_id, $vendorcontactIds)) {
+                if (! in_array($contact->public_id, $vendorcontactIds)) {
                     $contact->delete();
                 }
             }

@@ -1,12 +1,14 @@
-<?php namespace App\Listeners;
+<?php
 
-use Carbon;
-use App\Models\Credit;
+namespace App\Listeners;
+
 use App\Events\PaymentWasDeleted;
+use App\Models\Credit;
 use App\Ninja\Repositories\CreditRepository;
+use Carbon;
 
 /**
- * Class CreditListener
+ * Class CreditListener.
  */
 class CreditListener
 {
@@ -17,6 +19,7 @@ class CreditListener
 
     /**
      * CreditListener constructor.
+     *
      * @param CreditRepository $creditRepo
      */
     public function __construct(CreditRepository $creditRepo)

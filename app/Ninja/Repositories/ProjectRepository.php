@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Auth;
+namespace App\Ninja\Repositories;
+
 use App\Models\Project;
+use Auth;
+use DB;
 
 class ProjectRepository extends BaseRepository
 {

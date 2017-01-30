@@ -1,5 +1,5 @@
 <?php
-use Illuminate\Database\Schema\Blueprint;
+
 use Illuminate\Database\Migrations\Migration;
 
 class AddSupportThreeDecimalTaxes extends Migration
@@ -17,6 +17,7 @@ class AddSupportThreeDecimalTaxes extends Migration
             }
         });
     }
+
     /**
      * Reverse the migrations.
      *

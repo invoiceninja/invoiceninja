@@ -1,26 +1,28 @@
-<?php namespace App\Http\Controllers;
+<?php
 
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateTaskRequest;
+use App\Http\Requests\TaskRequest;
+use App\Http\Requests\UpdateTaskRequest;
+use App\Models\Client;
+use App\Models\Project;
+use App\Models\Task;
+use App\Ninja\Datatables\TaskDatatable;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\TaskRepository;
+use App\Services\TaskService;
 use Auth;
-use View;
-use URL;
-use Utils;
+use DropdownButton;
 use Input;
 use Redirect;
 use Session;
-use DropdownButton;
-use App\Models\Client;
-use App\Models\Task;
-use App\Models\Project;
-use App\Ninja\Repositories\TaskRepository;
-use App\Ninja\Repositories\InvoiceRepository;
-use App\Services\TaskService;
-use App\Http\Requests\TaskRequest;
-use App\Http\Requests\CreateTaskRequest;
-use App\Http\Requests\UpdateTaskRequest;
-use App\Ninja\Datatables\TaskDatatable;
+use URL;
+use Utils;
+use View;
 
 /**
- * Class TaskController
+ * Class TaskController.
  */
 class TaskController extends BaseController
 {
@@ -46,9 +48,10 @@ class TaskController extends BaseController
 
     /**
      * TaskController constructor.
-     * @param TaskRepository $taskRepo
+     *
+     * @param TaskRepository    $taskRepo
      * @param InvoiceRepository $invoiceRepo
-     * @param TaskService $taskService
+     * @param TaskService       $taskService
      */
     public function __construct(
         TaskRepository $taskRepo,
@@ -76,6 +79,7 @@ class TaskController extends BaseController
 
     /**
      * @param null $clientPublicId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($clientPublicId = null)
@@ -97,6 +101,7 @@ class TaskController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function show($publicId)
@@ -161,7 +166,7 @@ class TaskController extends BaseController
         }
 
         $actions[] = DropdownButton::DIVIDER;
-        if (!$task->trashed()) {
+        if (! $task->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_task')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_task')];
         } else {
@@ -214,6 +219,7 @@ class TaskController extends BaseController
 
     /**
      * @param null $publicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     private function save($publicId = null)
@@ -250,6 +256,7 @@ class TaskController extends BaseController
         if ($action == 'stop') {
             $this->taskRepo->save($ids, ['action' => $action]);
             Session::flash('message', trans('texts.stopped_task'));
+
             return Redirect::to('tasks');
         } elseif ($action == 'invoice' || $action == 'add_to_invoice') {
             $tasks = Task::scope($ids)->with('client')->orderBy('project_id', 'id')->get();
@@ -259,19 +266,22 @@ class TaskController extends BaseController
             $lastProjectId = false;
             foreach ($tasks as $task) {
                 if ($task->client) {
-                    if (!$clientPublicId) {
+                    if (! $clientPublicId) {
                         $clientPublicId = $task->client->public_id;
                     } elseif ($clientPublicId != $task->client->public_id) {
                         Session::flash('error', trans('texts.task_error_multiple_clients'));
+
                         return Redirect::to('tasks');
                     }
                 }
 
                 if ($task->is_running) {
                     Session::flash('error', trans('texts.task_error_running'));
+
                     return Redirect::to('tasks');
                 } elseif ($task->invoice_id) {
                     Session::flash('error', trans('texts.task_error_invoiced'));
+
                     return Redirect::to('tasks');
                 }
 
@@ -289,6 +299,7 @@ class TaskController extends BaseController
                 return Redirect::to("invoices/create/{$clientPublicId}")->with('tasks', $data);
             } else {
                 $invoiceId = Input::get('invoice_id');
+
                 return Redirect::to("invoices/{$invoiceId}/edit")->with('tasks', $data);
             }
         } else {
@@ -303,7 +314,7 @@ class TaskController extends BaseController
 
     private function checkTimezone()
     {
-        if (!Auth::user()->account->timezone) {
+        if (! Auth::user()->account->timezone) {
             $link = link_to('/settings/localization?focus=timezone_id', trans('texts.click_here'), ['target' => '_blank']);
             Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
         }

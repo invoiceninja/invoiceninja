@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddTasks extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -33,7 +31,7 @@ class AddTasks extends Migration
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             
             $table->unsignedInteger('public_id')->index();
-            $table->unique(array('account_id','public_id'));
+            $table->unique(['account_id', 'public_id']);
         });
 
         Schema::dropIfExists('timesheets');

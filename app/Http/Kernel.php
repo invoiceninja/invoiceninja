@@ -1,10 +1,11 @@
-<?php namespace App\Http;
+<?php
+
+namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
 {
-
     /**
      * The application's global HTTP middleware stack.
      *
@@ -21,7 +22,6 @@ class Kernel extends HttpKernel
         'App\Http\Middleware\QueryLogging',
         'App\Http\Middleware\StartupCheck',
     ];
-
 
     /**
      * The application's route middleware.

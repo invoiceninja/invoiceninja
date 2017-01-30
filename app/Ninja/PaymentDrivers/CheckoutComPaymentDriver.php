@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
+
+namespace App\Ninja\PaymentDrivers;
 
 class CheckoutComPaymentDriver extends BasePaymentDriver
 {
@@ -6,7 +8,7 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
     {
         $response = $this->gateway()->purchase([
             'amount' => $this->invoice()->getRequestedAmount(),
-            'currency' => $this->client()->getCurrencyCode()
+            'currency' => $this->client()->getCurrencyCode(),
         ])->send();
 
         if ($response->isRedirect()) {

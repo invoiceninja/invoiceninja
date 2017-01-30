@@ -1,18 +1,19 @@
-<?php namespace App\Providers;
+<?php
 
-use Utils;
+namespace App\Providers;
+
 use Form;
-use URL;
-use Request;
-use Validator;
 use Illuminate\Support\ServiceProvider;
+use Request;
+use URL;
+use Utils;
+use Validator;
 
 /**
- * Class AppServiceProvider
+ * Class AppServiceProvider.
  */
 class AppServiceProvider extends ServiceProvider
 {
-
     /**
      * Bootstrap any application services.
      *
@@ -21,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Form::macro('image_data', function ($image, $contents = false) {
-            if (!$contents) {
+            if (! $contents) {
                 $contents = file_get_contents($image);
             } else {
                 $contents = $image;
@@ -40,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
 
         Form::macro('tab_link', function ($url, $text, $active = false) {
             $class = $active ? ' class="active"' : '';
+
             return '<li'.$class.'><a href="'.URL::to($url).'" data-toggle="tab">'.$text.'</a></li>';
         });
 
@@ -47,7 +49,7 @@ class AppServiceProvider extends ServiceProvider
             $types = $type.'s';
             $Type = ucfirst($type);
             $Types = ucfirst($types);
-            $class = (Request::is($types) || Request::is('*'.$type.'*')) && !Request::is('*settings*') ? ' active' : '';
+            $class = (Request::is($types) || Request::is('*'.$type.'*')) && ! Request::is('*settings*') ? ' active' : '';
 
             return '<li class="dropdown '.$class.'">
                     <a href="'.URL::to($types).'" class="dropdown-toggle">'.trans("texts.$types").'</a>
@@ -98,9 +100,9 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $crumbs = array_values($crumbs);
-            for ($i=0; $i<count($crumbs); $i++) {
+            for ($i = 0; $i < count($crumbs); $i++) {
                 $crumb = trim($crumbs[$i]);
-                if (!$crumb) {
+                if (! $crumb) {
                     continue;
                 }
                 if ($crumb == 'company') {
@@ -113,7 +115,7 @@ class AppServiceProvider extends ServiceProvider
                     $name = trans("texts.$crumb");
                 }
 
-                if ($i==count($crumbs)-1) {
+                if ($i == count($crumbs) - 1) {
                     $str .= "<li class='active'>$name</li>";
                 } else {
                     $str .= '<li>'.link_to($crumb, $name).'</li>';
@@ -128,10 +130,10 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Form::macro('human_filesize', function ($bytes, $decimals = 1) {
-            $size = ['B','kB','MB','GB','TB','PB','EB','ZB','YB'];
+            $size = ['B', 'kB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
             $factor = floor((strlen($bytes) - 1) / 3);
             if ($factor == 0) {
-                $decimals=0;
+                $decimals = 0;
             }// There aren't fractional bytes
             return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . ' ' . @$size[$factor];
         });
@@ -157,7 +159,7 @@ class AppServiceProvider extends ServiceProvider
             array_multisort($value);
             foreach ($value as $timeLog) {
                 list($startTime, $endTime) = $timeLog;
-                if (!$endTime) {
+                if (! $endTime) {
                     continue;
                 }
                 if ($startTime < $lastTime || $startTime > $endTime) {
@@ -168,11 +170,12 @@ class AppServiceProvider extends ServiceProvider
                 }
                 $lastTime = max($lastTime, $endTime);
             }
+
             return true;
         });
 
         Validator::extend('has_counter', function ($attribute, $value, $parameters) {
-            return !$value || strstr($value, '{$counter}');
+            return ! $value || strstr($value, '{$counter}');
         });
 
         Validator::extend('valid_contacts', function ($attribute, $value, $parameters) {
@@ -185,16 +188,18 @@ class AppServiceProvider extends ServiceProvider
                     return false;
                 }
             }
+
             return true;
         });
 
         Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters) {
             $total = 0;
             foreach ($value as $item) {
-                $qty = !empty($item['qty']) ? $item['qty'] : 1;
-                $cost = !empty($item['cost']) ? $item['cost'] : 1;
+                $qty = ! empty($item['qty']) ? $item['qty'] : 1;
+                $cost = ! empty($item['cost']) ? $item['cost'] : 1;
                 $total += $qty * $cost;
             }
+
             return $total <= MAX_INVOICE_AMOUNT;
         });
 

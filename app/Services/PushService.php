@@ -7,7 +7,7 @@ use App\Models\Invoice;
 use App\Ninja\Notifications\PushFactory;
 
 /**
- * Class PushService
+ * Class PushService.
  */
 class PushService
 {
@@ -31,7 +31,7 @@ class PushService
     public function sendNotification(Invoice $invoice, $type)
     {
         //check user has registered for push notifications
-        if (!$this->checkDeviceExists($invoice->account)) {
+        if (! $this->checkDeviceExists($invoice->account)) {
             return;
         }
 
@@ -48,7 +48,7 @@ class PushService
     }
 
     /**
-     * pushMessage function
+     * pushMessage function.
      *
      * method to dispatch iOS notifications
      *
@@ -62,7 +62,7 @@ class PushService
     }
 
     /**
-     * checkDeviceExists function
+     * checkDeviceExists function.
      *
      * Returns a boolean if this account has devices registered for PUSH notifications
      *
@@ -82,7 +82,7 @@ class PushService
     }
 
     /**
-     * messageType function
+     * messageType function.
      *
      * method which formats an appropriate message depending on message type
      *
@@ -114,6 +114,7 @@ class PushService
 
     /**
      * @param Invoice $invoice
+     *
      * @return string
      */
     private function entitySentMessage(Invoice $invoice)
@@ -127,6 +128,7 @@ class PushService
 
     /**
      * @param Invoice $invoice
+     *
      * @return string
      */
     private function invoicePaidMessage(Invoice $invoice)
@@ -136,6 +138,7 @@ class PushService
 
     /**
      * @param Invoice $invoice
+     *
      * @return string
      */
     private function quoteApprovedMessage(Invoice $invoice)
@@ -145,6 +148,7 @@ class PushService
 
     /**
      * @param Invoice $invoice
+     *
      * @return string
      */
     private function entityViewedMessage(Invoice $invoice)

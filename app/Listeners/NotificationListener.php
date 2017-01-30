@@ -1,17 +1,19 @@
-<?php namespace App\Listeners;
+<?php
 
-use App\Ninja\Mailers\UserMailer;
-use App\Ninja\Mailers\ContactMailer;
-use App\Events\InvoiceWasEmailed;
-use App\Events\QuoteWasEmailed;
+namespace App\Listeners;
+
 use App\Events\InvoiceInvitationWasViewed;
-use App\Events\QuoteInvitationWasViewed;
-use App\Events\QuoteInvitationWasApproved;
+use App\Events\InvoiceWasEmailed;
 use App\Events\PaymentWasCreated;
+use App\Events\QuoteInvitationWasApproved;
+use App\Events\QuoteInvitationWasViewed;
+use App\Events\QuoteWasEmailed;
+use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Mailers\UserMailer;
 use App\Services\PushService;
 
 /**
- * Class NotificationListener
+ * Class NotificationListener.
  */
 class NotificationListener
 {
@@ -30,9 +32,10 @@ class NotificationListener
 
     /**
      * NotificationListener constructor.
-     * @param UserMailer $userMailer
+     *
+     * @param UserMailer    $userMailer
      * @param ContactMailer $contactMailer
-     * @param PushService $pushService
+     * @param PushService   $pushService
      */
     public function __construct(UserMailer $userMailer, ContactMailer $contactMailer, PushService $pushService)
     {

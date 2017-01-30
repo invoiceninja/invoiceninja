@@ -1,12 +1,14 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Utils;
-use View;
+namespace App\Http\Controllers;
+
+use App\Services\ImportService;
 use Exception;
 use Input;
-use Session;
 use Redirect;
-use App\Services\ImportService;
+use Session;
+use Utils;
+use View;
 
 class ImportController extends BaseController
 {
@@ -33,23 +35,28 @@ class ImportController extends BaseController
 
         if (! count($files)) {
             Session::flash('error', trans('texts.select_file'));
+
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
 
         try {
             if ($source === IMPORT_CSV) {
                 $data = $this->importService->mapCSV($files);
+
                 return View::make('accounts.import_map', ['data' => $data]);
             } elseif ($source === IMPORT_JSON) {
                 $results = $this->importService->importJSON($files[IMPORT_JSON]);
+
                 return $this->showResult($results);
             } else {
                 $results = $this->importService->importFiles($source, $files);
+
                 return $this->showResult($results);
             }
         } catch (Exception $exception) {
             Utils::logError($exception);
             Session::flash('error', $exception->getMessage());
+
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
     }
@@ -61,10 +68,12 @@ class ImportController extends BaseController
 
         try {
             $results = $this->importService->importCSV($map, $headers);
+
             return $this->showResult($results);
         } catch (Exception $exception) {
             Utils::logError($exception);
             Session::flash('error', $exception->getMessage());
+
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
     }

@@ -1,10 +1,12 @@
-<?php namespace App\Models\Traits;
+<?php
 
-use Utils;
+namespace App\Models\Traits;
+
 use App\Constants\Domain;
+use Utils;
 
 /**
- * Class SendsEmails
+ * Class SendsEmails.
  */
 trait SendsEmails
 {

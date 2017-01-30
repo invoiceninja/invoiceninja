@@ -1,34 +1,36 @@
-<?php namespace App\Services;
+<?php
 
+namespace App\Services;
+
+use App\Models\Client;
+use App\Models\EntityModel;
+use App\Models\Expense;
+use App\Models\ExpenseCategory;
+use App\Models\Invoice;
 use App\Models\Product;
-use stdClass;
-use Excel;
-use Cache;
-use Exception;
-use Auth;
-use Utils;
-use parsecsv;
-use Session;
-use League\Fractal\Manager;
-use App\Ninja\Repositories\ContactRepository;
+use App\Models\Vendor;
+use App\Ninja\Import\BaseTransformer;
 use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\ContactRepository;
+use App\Ninja\Repositories\ExpenseCategoryRepository;
+use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ProductRepository;
-use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
-use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Ninja\Serializers\ArraySerializer;
-use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\Vendor;
-use App\Models\Expense;
-use App\Models\ExpenseCategory;
-use App\Models\EntityModel;
-use App\Ninja\Import\BaseTransformer;
+use Auth;
+use Cache;
+use Excel;
+use Exception;
+use League\Fractal\Manager;
+use parsecsv;
+use Session;
+use stdClass;
+use Utils;
 
 /**
- * Class ImportService
+ * Class ImportService.
  */
 class ImportService
 {
@@ -104,8 +106,8 @@ class ImportService
     /**
      * ImportService constructor.
      *
-     * @param Manager $manager
-     * @param ClientRepository $clientRepo
+     * @param Manager           $manager
+     * @param ClientRepository  $clientRepo
      * @param InvoiceRepository $invoiceRepo
      * @param PaymentRepository $paymentRepo
      * @param ContactRepository $contactRepo
@@ -137,8 +139,10 @@ class ImportService
 
     /**
      * @param $file
-     * @return array
+     *
      * @throws Exception
+     *
+     * @return array
      */
     public function importJSON($file)
     {
@@ -206,6 +210,7 @@ class ImportService
 
     /**
      * @param $array
+     *
      * @return mixed
      */
     public function removeIdFields($array)
@@ -217,12 +222,14 @@ class ImportService
                 unset($array[$key]);
             }
         }
+
         return $array;
     }
 
     /**
      * @param $source
      * @param $files
+     *
      * @return array
      */
     public function importFiles($source, $files)
@@ -242,6 +249,7 @@ class ImportService
      * @param $source
      * @param $entityType
      * @param $file
+     *
      * @return array
      */
     private function execute($source, $entityType, $file)
@@ -292,6 +300,7 @@ class ImportService
      * @param $source
      * @param $entityType
      * @param $row
+     *
      * @return bool|mixed
      */
     private function transformRow($source, $entityType, $row)
@@ -317,14 +326,14 @@ class ImportService
 
         $resource = $transformer->transform($row);
 
-        if (!$resource) {
+        if (! $resource) {
             return false;
         }
 
         $data = $this->fractal->createData($resource)->toArray();
 
         // if the invoice number is blank we'll assign it
-        if ($entityType == ENTITY_INVOICE && !$data['invoice_number']) {
+        if ($entityType == ENTITY_INVOICE && ! $data['invoice_number']) {
             $account = Auth::user()->account;
             $invoice = Invoice::createNew();
             $data['invoice_number'] = $account->getNextNumber($invoice);
@@ -357,6 +366,7 @@ class ImportService
      * @param $entityType
      * @param $row
      * @param $data_index
+     *
      * @return mixed
      */
     private function saveData($source, $entityType, $row, $data_index)
@@ -384,6 +394,7 @@ class ImportService
     /**
      * @param $entityType
      * @param $count
+     *
      * @throws Exception
      */
     private function checkData($entityType, $count)
@@ -399,6 +410,7 @@ class ImportService
 
     /**
      * @param $count
+     *
      * @throws Exception
      */
     private function checkClientCount($count)
@@ -412,6 +424,7 @@ class ImportService
     /**
      * @param $source
      * @param $entityType
+     *
      * @return string
      */
     public static function getTransformerClassName($source, $entityType)
@@ -423,6 +436,7 @@ class ImportService
      * @param $source
      * @param $entityType
      * @param $maps
+     *
      * @return mixed
      */
     public static function getTransformer($source, $entityType, $maps)
@@ -451,11 +465,12 @@ class ImportService
         }
     }
 
-
     /**
      * @param array $files
-     * @return array
+     *
      * @throws Exception
+     *
+     * @return array
      */
     public function mapCSV(array $files)
     {
@@ -490,6 +505,7 @@ class ImportService
      * @param $filename
      * @param $columns
      * @param $map
+     *
      * @return array
      */
     public function mapFile($entityType, $filename, $columns, $map)
@@ -524,7 +540,7 @@ class ImportService
                 }
             }
 
-            for ($i = 0; $i<count($headers); $i++) {
+            for ($i = 0; $i < count($headers); $i++) {
                 $title = strtolower($headers[$i]);
                 $mapped[$i] = '';
 
@@ -555,6 +571,7 @@ class ImportService
     /**
      * @param $column
      * @param $pattern
+     *
      * @return bool
      */
     private function checkForMatch($column, $pattern)
@@ -581,7 +598,7 @@ class ImportService
                         break;
                     }
                 }
-                if (!$excluded) {
+                if (! $excluded) {
                     return true;
                 }
             }
@@ -593,6 +610,7 @@ class ImportService
     /**
      * @param array $maps
      * @param $headers
+     *
      * @return array
      */
     public function importCSV(array $maps, $headers)
@@ -610,6 +628,7 @@ class ImportService
      * @param $entityType
      * @param $map
      * @param $hasHeaders
+     *
      * @return array
      */
     private function executeCSV($entityType, $map, $hasHeaders)
@@ -668,6 +687,7 @@ class ImportService
      * @param $entityType
      * @param $data
      * @param $map
+     *
      * @return stdClass
      */
     private function convertToObject($entityType, $data, $map)

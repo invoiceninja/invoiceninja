@@ -1,12 +1,14 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Auth;
-use Utils;
-use Request;
+namespace App\Ninja\Repositories;
+
 use App\Models\Activity;
 use App\Models\Client;
 use App\Models\Invitation;
+use Auth;
+use DB;
+use Request;
+use Utils;
 
 class ActivityRepository
 {

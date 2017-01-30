@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Auth;
-use DB;
-use Utils;
-use Cache;
-use Input;
-use Exception;
-use App\Libraries\Skype\SkypeResponse;
 use App\Libraries\CurlUtils;
-use App\Models\User;
+use App\Libraries\Skype\SkypeResponse;
 use App\Models\SecurityCode;
+use App\Models\User;
 use App\Ninja\Intents\BaseIntent;
 use App\Ninja\Mailers\UserMailer;
+use Auth;
+use Cache;
+use DB;
+use Exception;
+use Input;
+use Utils;
 
 class BotController extends Controller
 {
@@ -42,6 +42,7 @@ class BotController extends Controller
                 } elseif ($input['action'] === 'remove') {
                     $this->removeBot($botUserId);
                     $this->saveState($token, false);
+
                     return RESULT_SUCCESS;
                 }
             } else {
@@ -130,7 +131,7 @@ class BotController extends Controller
         $url = sprintf('%s/botstate/skype/conversations/%s', MSBOT_STATE_URL, '29:1C-OsU7OWBEDOYJhQUsDkYHmycOwOq9QOg5FVTwRX9ts');
 
         $headers = [
-            'Authorization: Bearer ' . $token
+            'Authorization: Bearer ' . $token,
         ];
 
         $response = CurlUtils::get($url, $headers);
@@ -164,7 +165,6 @@ class BotController extends Controller
         //echo "STATE<pre>" . htmlentities(json_encode($data), JSON_PRETTY_PRINT) . "</pre>";
 
         $data = '{ eTag: "*", data: "' . addslashes(json_encode($data)) . '" }';
-
 
         CurlUtils::post($url, $data, $headers);
     }
@@ -237,6 +237,7 @@ class BotController extends Controller
         if (! hash_equals($code->code, $input)) {
             $code->attempts += 1;
             $code->save();
+
             return false;
         }
 
@@ -298,7 +299,7 @@ class BotController extends Controller
         }
 
         // 7 show result
-        return ($token_valid == 1);
+        return $token_valid == 1;
     }
 
     private function base64_url_decode($arg)
@@ -310,15 +311,16 @@ class BotController extends Controller
             case 0:
                 break;
             case 2:
-                $res .= "==";
+                $res .= '==';
                 break;
             case 3:
-                $res .= "=";
+                $res .= '=';
                 break;
             default:
                 break;
         }
         $res = base64_decode($res);
+
         return $res;
     }
 }

@@ -1,4 +1,6 @@
-<?php namespace App\Constants;
+<?php
+
+namespace App\Constants;
 
 class Domain
 {

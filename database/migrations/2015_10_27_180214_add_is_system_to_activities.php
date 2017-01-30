@@ -1,12 +1,10 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
 use App\Models\Activity;
+use Illuminate\Database\Migrations\Migration;
 
 class AddIsSystemToActivities extends Migration
 {
-
     /**
      * Run the migrations.
      *

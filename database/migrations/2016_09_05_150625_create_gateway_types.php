@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreateGatewayTypes extends Migration
@@ -28,7 +27,6 @@ class CreateGatewayTypes extends Migration
             $table->unsignedInteger('gateway_type_id')->nullable();
 
             $table->timestamp('updated_at')->nullable();
-
 
             $table->unsignedInteger('min_limit')->nullable();
             $table->unsignedInteger('max_limit')->nullable();

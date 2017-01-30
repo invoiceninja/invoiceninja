@@ -1,7 +1,9 @@
-<?php namespace App\Http\Requests;
+<?php
 
-use Utils;
+namespace App\Http\Requests;
+
 use HTMLUtils;
+use Utils;
 
 class SaveClientPortalSettings extends Request
 {

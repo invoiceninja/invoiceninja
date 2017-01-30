@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Intents;
+<?php
 
+namespace App\Ninja\Intents;
+
+use App\Libraries\Skype\SkypeResponse;
 use Auth;
 use Exception;
-use App\Libraries\Skype\SkypeResponse;
 
 class EmailInvoiceIntent extends InvoiceIntent
 {

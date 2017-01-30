@@ -1,8 +1,10 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Response;
+namespace App\Http\Controllers;
+
 use App\Models\Invoice;
 use App\Ninja\Repositories\InvoiceRepository;
+use Response;
 
 class QuoteApiController extends BaseAPIController
 {
@@ -17,22 +19,22 @@ class QuoteApiController extends BaseAPIController
         $this->invoiceRepo = $invoiceRepo;
     }
 
-    /**
-     * @SWG\Get(
-     *   path="/quotes",
-     *   tags={"quote"},
-     *   summary="List of quotes",
-     *   @SWG\Response(
-     *     response=200,
-     *     description="A list with quotes",
-     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Invoice"))
-     *   ),
-     *   @SWG\Response(
-     *     response="default",
-     *     description="an ""unexpected"" error"
-     *   )
-     * )
-     */
+     /**
+      * @SWG\Get(
+      *   path="/quotes",
+      *   tags={"quote"},
+      *   summary="List of quotes",
+      *   @SWG\Response(
+      *     response=200,
+      *     description="A list with quotes",
+      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Invoice"))
+      *   ),
+      *   @SWG\Response(
+      *     response="default",
+      *     description="an ""unexpected"" error"
+      *   )
+      * )
+      */
      public function index()
      {
          $invoices = Invoice::scope()

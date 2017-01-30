@@ -1,10 +1,12 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Cache;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class PaymentMethod
+ * Class PaymentMethod.
  */
 class PaymentMethod extends EntityModel
 {
@@ -77,14 +79,16 @@ class PaymentMethod extends EntityModel
      */
     public function getBankDataAttribute()
     {
-        if (!$this->routing_number) {
+        if (! $this->routing_number) {
             return null;
         }
+
         return static::lookupBankData($this->routing_number);
     }
 
     /**
      * @param $bank_name
+     *
      * @return null
      */
     public function getBankNameAttribute($bank_name)
@@ -94,11 +98,12 @@ class PaymentMethod extends EntityModel
         }
         $bankData = $this->bank_data;
 
-        return $bankData?$bankData->name:null;
+        return $bankData ? $bankData->name : null;
     }
 
     /**
      * @param $value
+     *
      * @return null|string
      */
     public function getLast4Attribute($value)
@@ -109,6 +114,7 @@ class PaymentMethod extends EntityModel
     /**
      * @param $query
      * @param $clientId
+     *
      * @return mixed
      */
     public function scopeClientId($query, $clientId)
@@ -141,6 +147,7 @@ class PaymentMethod extends EntityModel
 
     /**
      * @param $routingNumber
+     *
      * @return mixed|null|\stdClass|string
      */
     public static function lookupBankData($routingNumber)
@@ -153,12 +160,12 @@ class PaymentMethod extends EntityModel
 
         $dataPath = base_path('vendor/gatepay/FedACHdir/FedACHdir.txt');
 
-        if (!file_exists($dataPath) || !$size = filesize($dataPath)) {
+        if (! file_exists($dataPath) || ! $size = filesize($dataPath)) {
             return 'Invalid data file';
         }
 
         $lineSize = 157;
-        $numLines = $size/$lineSize;
+        $numLines = $size / $lineSize;
 
         if ($numLines % 1 != 0) {
             // The number of lines should be an integer
@@ -197,11 +204,13 @@ class PaymentMethod extends EntityModel
             }
         }
 
-        if (!empty($data)) {
+        if (! empty($data)) {
             Cache::put('bankData:'.$routingNumber, $data, 5);
+
             return $data;
         } else {
             Cache::put('bankData:'.$routingNumber, false, 5);
+
             return null;
         }
     }

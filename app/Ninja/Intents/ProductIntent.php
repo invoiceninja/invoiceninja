@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Intents;
+<?php
+
+namespace App\Ninja\Intents;
 
 class ProductIntent extends BaseIntent
 {

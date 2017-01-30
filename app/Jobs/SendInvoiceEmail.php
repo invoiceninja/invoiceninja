@@ -4,13 +4,13 @@ namespace App\Jobs;
 
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Monolog\Logger;
 
 /**
- * Class SendInvoiceEmail
+ * Class SendInvoiceEmail.
  */
 class SendInvoiceEmail extends Job implements ShouldQueue
 {
@@ -35,8 +35,8 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * Create a new job instance.
      *
      * @param Invoice $invoice
-     * @param string $pdf
-     * @param bool $reminder
+     * @param string  $pdf
+     * @param bool    $reminder
      */
     public function __construct(Invoice $invoice, $reminder = false, $pdfString = false)
     {
@@ -55,7 +55,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
         $mailer->sendInvoice($this->invoice, $this->reminder, $this->pdfString);
     }
 
-    /**
+    /*
      * Handle a job failure.
      *
      * @param ContactMailer $mailer

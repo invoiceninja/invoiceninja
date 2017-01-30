@@ -1,20 +1,22 @@
-<?php namespace App\Services;
+<?php
 
-use stdClass;
-use Utils;
-use Hash;
+namespace App\Services;
+
+use App\Libraries\Finance;
+use App\Libraries\Login;
 use App\Models\BankSubaccount;
-use App\Models\Vendor;
 use App\Models\Expense;
+use App\Models\Vendor;
+use App\Ninja\Datatables\BankAccountDatatable;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
-use App\Ninja\Datatables\BankAccountDatatable;
-use App\Libraries\Finance;
-use App\Libraries\Login;
+use Hash;
+use stdClass;
+use Utils;
 
 /**
- * Class BankAccountService
+ * Class BankAccountService.
  */
 class BankAccountService extends BaseService
 {
@@ -42,9 +44,9 @@ class BankAccountService extends BaseService
      * BankAccountService constructor.
      *
      * @param BankAccountRepository $bankAccountRepo
-     * @param ExpenseRepository $expenseRepo
-     * @param VendorRepository $vendorRepo
-     * @param DatatableService $datatableService
+     * @param ExpenseRepository     $expenseRepo
+     * @param VendorRepository      $vendorRepo
+     * @param DatatableService      $datatableService
      */
     public function __construct(BankAccountRepository $bankAccountRepo, ExpenseRepository $expenseRepo, VendorRepository $vendorRepo, DatatableService $datatableService)
     {
@@ -64,6 +66,7 @@ class BankAccountService extends BaseService
 
     /**
      * @param null $bankId
+     *
      * @return array
      */
     private function getExpenses($bankId = null)
@@ -86,6 +89,7 @@ class BankAccountService extends BaseService
      * @param $username
      * @param $password
      * @param bool $includeTransactions
+     *
      * @return array|bool
      */
     public function loadBankAccounts($bankId, $username, $password, $includeTransactions = true)
@@ -134,6 +138,7 @@ class BankAccountService extends BaseService
      * @param $expenses
      * @param $includeTransactions
      * @param $vendorMap
+     *
      * @return bool|stdClass
      */
     private function parseBankAccount($account, $bankAccounts, $expenses, $includeTransactions, $vendorMap)
@@ -170,6 +175,7 @@ class BankAccountService extends BaseService
      * @param $data
      * @param $expenses
      * @param $vendorMap
+     *
      * @return mixed
      */
     private function parseTransactions($account, $data, $expenses, $vendorMap)
@@ -208,6 +214,7 @@ class BankAccountService extends BaseService
 
     /**
      * @param $value
+     *
      * @return string
      */
     private function prepareValue($value)
@@ -217,11 +224,12 @@ class BankAccountService extends BaseService
 
     /**
      * @param $data
+     *
      * @return mixed
      */
     public function parseOFX($data)
     {
-        $account = new stdClass;
+        $account = new stdClass();
         $expenses = $this->getExpenses();
         $vendorMap = $this->createVendorMap();
 
@@ -245,7 +253,7 @@ class BankAccountService extends BaseService
         return $vendorMap;
     }
 
-    public function importExpenses($bankId = 0, $input)
+    public function importExpenses($bankId, $input)
     {
         $vendorMap = $this->createVendorMap();
         $countVendors = 0;
@@ -287,7 +295,7 @@ class BankAccountService extends BaseService
 
         return trans('texts.imported_expenses', [
             'count_vendors' => $countVendors,
-            'count_expenses' => $countExpenses
+            'count_expenses' => $countExpenses,
         ]);
     }
 

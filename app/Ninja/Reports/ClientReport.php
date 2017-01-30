@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Reports;
 
-use Auth;
 use App\Models\Client;
+use Auth;
 
 class ClientReport extends AbstractReport
 {
@@ -42,7 +42,7 @@ class ClientReport extends AbstractReport
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $account->formatMoney($amount, $client),
                 $account->formatMoney($paid, $client),
-                $account->formatMoney($amount - $paid, $client)
+                $account->formatMoney($amount - $paid, $client),
             ];
 
             $this->addToTotals($client->currency_id, 'amount', $amount);

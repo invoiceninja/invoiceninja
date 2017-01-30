@@ -1,9 +1,11 @@
-<?php namespace App\Ninja\Presenters;
+<?php
+
+namespace App\Ninja\Presenters;
 
 use Utils;
 
 /**
- * Class CreditPresenter
+ * Class CreditPresenter.
  */
 class CreditPresenter extends EntityPresenter
 {

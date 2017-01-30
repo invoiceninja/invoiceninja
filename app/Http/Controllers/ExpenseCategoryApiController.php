@@ -1,10 +1,12 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Input;
-use App\Services\ExpenseCategoryService;
+namespace App\Http\Controllers;
+
 use App\Http\Requests\CreateExpenseCategoryRequest;
 use App\Http\Requests\UpdateExpenseCategoryRequest;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
+use App\Services\ExpenseCategoryService;
+use Input;
 
 class ExpenseCategoryApiController extends BaseAPIController
 {
@@ -47,7 +49,6 @@ class ExpenseCategoryApiController extends BaseAPIController
 
         return $this->itemResponse($category);
     }
-
 
     /**
      * @SWG\Put(

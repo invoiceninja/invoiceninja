@@ -2,14 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Support\Str;
 use Illuminate\Console\Command;
-use Symfony\Component\Console\Input\InputArgument;
-use Symfony\Component\Console\Input\InputOption;
-
+use Illuminate\Support\Str;
 use Nwidart\Modules\Commands\GeneratorCommand;
 use Nwidart\Modules\Support\Stub;
+
 use Nwidart\Modules\Traits\ModuleCommandTrait;
+use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 class MakeClass extends GeneratorCommand
 {
@@ -48,12 +48,11 @@ class MakeClass extends GeneratorCommand
      */
     protected function getOptions()
     {
-        return array(
-            array('fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null),
-            array('filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null),
-        );
+        return [
+            ['fields', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
+            ['filename', null, InputOption::VALUE_OPTIONAL, 'The class filename.', null],
+        ];
     }
-
 
     public function getTemplateContents()
     {
@@ -61,7 +60,7 @@ class MakeClass extends GeneratorCommand
         $path = str_replace('/', '\\', config('modules.paths.generator.' . $this->argument('class')));
 
         return (new Stub('/' . $this->argument('prefix') . $this->argument('class') . '.stub', [
-            'NAMESPACE' => $this->getClassNamespace($module) . "\\" . $path,
+            'NAMESPACE' => $this->getClassNamespace($module) . '\\' . $path,
             'LOWER_NAME' => $module->getLowerName(),
             'CLASS' => $this->getClass(),
             'STUDLY_NAME' => Str::studly($module->getLowerName()),
@@ -88,6 +87,7 @@ class MakeClass extends GeneratorCommand
         if ($this->option('filename')) {
             return $this->option('filename');
         }
+
         return studly_case($this->argument('prefix')) . studly_case($this->argument('name')) . Str::studly($this->argument('class'));
     }
 

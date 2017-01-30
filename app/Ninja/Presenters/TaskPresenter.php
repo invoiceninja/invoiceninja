@@ -1,7 +1,9 @@
-<?php namespace App\Ninja\Presenters;
+<?php
+
+namespace App\Ninja\Presenters;
 
 /**
- * Class TaskPresenter
+ * Class TaskPresenter.
  */
 class TaskPresenter extends EntityPresenter
 {
@@ -33,6 +35,7 @@ class TaskPresenter extends EntityPresenter
 
     /**
      * @param $account
+     *
      * @return mixed
      */
     public function invoiceDescription($account, $showProject)
@@ -52,7 +55,7 @@ class TaskPresenter extends EntityPresenter
 
         foreach ($parts as $part) {
             $start = $part[0];
-            if (count($part) == 1 || !$part[1]) {
+            if (count($part) == 1 || ! $part[1]) {
                 $end = time();
             } else {
                 $end = $part[1];

@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddBluevineFields extends Migration
@@ -13,7 +12,7 @@ class AddBluevineFields extends Migration
     public function up()
     {
         Schema::table('accounts', function ($table) {
-            $table->enum('bluevine_status', array( 'ignored', 'signed_up' ))->nullable();
+            $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
         });
     }
 

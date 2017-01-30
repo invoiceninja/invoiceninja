@@ -1,5 +1,5 @@
 <?php
-use Illuminate\Database\Schema\Blueprint;
+
 use Illuminate\Database\Migrations\Migration;
 
 class AddDocuments extends Migration
@@ -20,7 +20,7 @@ class AddDocuments extends Migration
             $table->boolean('document_email_attachment')->default(0);
         });
 
-        \DB::table('accounts')->update(array('logo' => ''));
+        \DB::table('accounts')->update(['logo' => '']);
         Schema::dropIfExists('documents');
         Schema::create('documents', function ($t) {
             $t->increments('id');
@@ -46,9 +46,10 @@ class AddDocuments extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
             $t->foreign('expense_id')->references('id')->on('expenses')->onDelete('cascade');
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
     }
+
     /**
      * Reverse the migrations.
      *

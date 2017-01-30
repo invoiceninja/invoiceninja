@@ -1,13 +1,15 @@
-<?php namespace App\Http\Controllers;
+<?php
 
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreatePaymentAPIRequest;
+use App\Http\Requests\UpdatePaymentRequest;
+use App\Models\Invoice;
+use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Repositories\PaymentRepository;
 use Input;
 use Response;
-use App\Models\Payment;
-use App\Models\Invoice;
-use App\Ninja\Repositories\PaymentRepository;
-use App\Http\Requests\UpdatePaymentRequest;
-use App\Http\Requests\CreatePaymentAPIRequest;
 
 class PaymentApiController extends BaseAPIController
 {
@@ -50,27 +52,26 @@ class PaymentApiController extends BaseAPIController
     }
 
     /**
-    * @SWG\Put(
-    *   path="/payments/{payment_id",
-    *   summary="Update a payment",
-    *   tags={"payment"},
-    *   @SWG\Parameter(
-    *     in="body",
-    *     name="body",
-    *     @SWG\Schema(ref="#/definitions/Payment")
-    *   ),
-    *   @SWG\Response(
-    *     response=200,
-    *     description="Update payment",
-    *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
-    *   ),
-    *   @SWG\Response(
-    *     response="default",
-    *     description="an ""unexpected"" error"
-    *   )
-    * )
-    */
-
+     * @SWG\Put(
+     *   path="/payments/{payment_id",
+     *   summary="Update a payment",
+     *   tags={"payment"},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Payment")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Update payment",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function update(UpdatePaymentRequest $request, $publicId)
     {
         if ($request->action) {
@@ -83,7 +84,6 @@ class PaymentApiController extends BaseAPIController
 
         return $this->itemResponse($payment);
     }
-
 
     /**
      * @SWG\Post(
@@ -121,27 +121,26 @@ class PaymentApiController extends BaseAPIController
     }
 
     /**
-    * @SWG\Delete(
-    *   path="/payments/{payment_id}",
-    *   summary="Delete a payment",
-    *   tags={"payment"},
-    *   @SWG\Parameter(
-    *     in="body",
-    *     name="body",
-    *     @SWG\Schema(ref="#/definitions/Payment")
-    *   ),
-    *   @SWG\Response(
-    *     response=200,
-    *     description="Delete payment",
-    *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
-    *   ),
-    *   @SWG\Response(
-    *     response="default",
-    *     description="an ""unexpected"" error"
-    *   )
-    * )
-    */
-
+     * @SWG\Delete(
+     *   path="/payments/{payment_id}",
+     *   summary="Delete a payment",
+     *   tags={"payment"},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Payment")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Delete payment",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Payment"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function destroy(UpdatePaymentRequest $request)
     {
         $payment = $request->entity();

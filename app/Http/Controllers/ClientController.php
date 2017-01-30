@@ -1,24 +1,26 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Utils;
-use View;
-use URL;
-use Input;
-use Session;
-use Redirect;
-use Cache;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Invoice;
-use App\Models\Credit;
-use App\Models\Task;
-use App\Ninja\Repositories\ClientRepository;
-use App\Services\ClientService;
+namespace App\Http\Controllers;
+
 use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Models\Account;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Models\Invoice;
+use App\Models\Task;
 use App\Ninja\Datatables\ClientDatatable;
+use App\Ninja\Repositories\ClientRepository;
+use App\Services\ClientService;
+use Auth;
+use Cache;
+use Input;
+use Redirect;
+use Session;
+use URL;
+use Utils;
+use View;
 
 class ClientController extends BaseController
 {
@@ -74,7 +76,8 @@ class ClientController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int      $id
+     * @param int $id
+     *
      * @return Response
      */
     public function show(ClientRequest $request)
@@ -93,7 +96,7 @@ class ClientController extends BaseController
             $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
         }
 
-        if (!empty($actionLinks)) {
+        if (! empty($actionLinks)) {
             $actionLinks[] = \DropdownButton::DIVIDER;
         }
 
@@ -153,7 +156,8 @@ class ClientController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
+     * @param int $id
+     *
      * @return Response
      */
     public function edit(ClientRequest $request)
@@ -194,7 +198,8 @@ class ClientController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param int $id
+     *
      * @return Response
      */
     public function update(UpdateClientRequest $request)

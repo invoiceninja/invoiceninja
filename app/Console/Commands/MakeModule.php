@@ -48,7 +48,7 @@ class MakeModule extends Command
         $fillable = array_map(function ($item) {
             return explode(':', $item)[0];
         }, $fillable);
-        $fillable = join(',', $fillable);
+        $fillable = implode(',', $fillable);
 
         $this->info("Creating module: {$name}...");
 
@@ -77,21 +77,21 @@ class MakeModule extends Command
 
         Artisan::call('module:dump');
 
-        $this->info("Done");
+        $this->info('Done');
     }
 
     protected function getArguments()
     {
         return [
             ['name', InputArgument::REQUIRED, 'The name of the module.'],
-            ['fields', InputArgument::OPTIONAL, 'The fields of the module.']
+            ['fields', InputArgument::OPTIONAL, 'The fields of the module.'],
         ];
     }
 
     protected function getOptions()
     {
-        return array(
-            array('migrate', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null),
-        );
+        return [
+            ['migrate', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null],
+        ];
     }
 }

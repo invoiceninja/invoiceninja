@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Datatables;
+<?php
+
+namespace App\Ninja\Datatables;
 
 class EntityDatatable
 {
@@ -37,7 +39,7 @@ class EntityDatatable
             [
                 'label' => mtrans($this->entityType, 'delete_'.$this->entityType),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("delete")',
-            ]
+            ],
         ];
     }
 
@@ -53,7 +55,7 @@ class EntityDatatable
         foreach ($columns as $column) {
             if (count($column) == 3) {
                 // third column is optionally used to determine visibility
-                if (!$column[2]) {
+                if (! $column[2]) {
                     continue;
                 }
             }

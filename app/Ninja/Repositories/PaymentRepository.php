@@ -1,10 +1,12 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Utils;
-use App\Models\Payment;
+namespace App\Ninja\Repositories;
+
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Payment;
+use DB;
+use Utils;
 
 class PaymentRepository extends BaseRepository
 {
@@ -182,7 +184,7 @@ class PaymentRepository extends BaseRepository
             $payment->transaction_reference = trim($input['transaction_reference']);
         }
 
-        if (!$publicId) {
+        if (! $publicId) {
             $clientId = $input['client_id'];
             $amount = Utils::parseFloat($input['amount']);
 

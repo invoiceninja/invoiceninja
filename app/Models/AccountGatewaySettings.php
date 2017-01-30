@@ -1,7 +1,9 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 /**
- * Class AccountGatewaySettings
+ * Class AccountGatewaySettings.
  */
 class AccountGatewaySettings extends EntityModel
 {

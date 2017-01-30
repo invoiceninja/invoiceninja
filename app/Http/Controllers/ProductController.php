@@ -1,19 +1,21 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use URL;
-use View;
-use Utils;
-use Input;
-use Session;
-use Redirect;
+namespace App\Http\Controllers;
+
 use App\Models\Product;
 use App\Models\TaxRate;
-use App\Services\ProductService;
 use App\Ninja\Datatables\ProductDatatable;
+use App\Services\ProductService;
+use Auth;
+use Input;
+use Redirect;
+use Session;
+use URL;
+use Utils;
+use View;
 
 /**
- * Class ProductController
+ * Class ProductController.
  */
 class ProductController extends BaseController
 {
@@ -54,7 +56,6 @@ class ProductController extends BaseController
         return Redirect::to("products/$publicId/edit");
     }
 
-
     /**
      * @return \Illuminate\Http\JsonResponse
      */
@@ -65,6 +66,7 @@ class ProductController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit($publicId)
@@ -114,6 +116,7 @@ class ProductController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update($publicId)
@@ -123,6 +126,7 @@ class ProductController extends BaseController
 
     /**
      * @param bool $productPublicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     private function save($productPublicId = false)

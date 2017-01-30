@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class Country
+ * Class Country.
  */
 class Country extends Eloquent
 {
@@ -21,7 +23,7 @@ class Country extends Eloquent
         'swap_postal_code',
         'swap_currency_symbol',
         'thousand_separator',
-        'decimal_separator'
+        'decimal_separator',
     ];
 
     /**

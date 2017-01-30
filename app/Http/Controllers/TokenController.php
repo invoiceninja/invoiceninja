@@ -1,17 +1,19 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Session;
-use Validator;
-use Input;
-use View;
-use Redirect;
-use URL;
+namespace App\Http\Controllers;
+
 use App\Models\AccountToken;
 use App\Services\TokenService;
+use Auth;
+use Input;
+use Redirect;
+use Session;
+use URL;
+use Validator;
+use View;
 
 /**
- * Class TokenController
+ * Class TokenController.
  */
 class TokenController extends BaseController
 {
@@ -22,6 +24,7 @@ class TokenController extends BaseController
 
     /**
      * TokenController constructor.
+     *
      * @param TokenService $tokenService
      */
     public function __construct(TokenService $tokenService)
@@ -49,6 +52,7 @@ class TokenController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit($publicId)
@@ -68,6 +72,7 @@ class TokenController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update($publicId)
@@ -82,7 +87,6 @@ class TokenController extends BaseController
     {
         return $this->save();
     }
-
 
     /**
      * @return \Illuminate\Contracts\View\View
@@ -113,9 +117,9 @@ class TokenController extends BaseController
         return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
 
-
     /**
      * @param bool $tokenPublicId
+     *
      * @return $this|\Illuminate\Http\RedirectResponse
      */
     public function save($tokenPublicId = false)

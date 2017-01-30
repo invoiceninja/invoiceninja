@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Intents;
+<?php
 
-use Exception;
+namespace App\Ninja\Intents;
+
 use App\Models\EntityModel;
 use App\Models\Invoice;
+use Exception;
 
 class UpdateInvoiceIntent extends InvoiceIntent
 {

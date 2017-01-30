@@ -1,10 +1,12 @@
-<?php namespace App\Listeners;
+<?php
 
-use Utils;
+namespace App\Listeners;
+
 use App\Events\PaymentWasCreated;
+use Utils;
 
 /**
- * Class AnalyticsListener
+ * Class AnalyticsListener.
  */
 class AnalyticsListener
 {

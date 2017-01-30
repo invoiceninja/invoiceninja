@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Intents;
+<?php
 
+namespace App\Ninja\Intents;
+
+use App\Models\Invoice;
 use Auth;
 use Exception;
-use App\Models\Invoice;
 
 class InvoiceIntent extends BaseIntent
 {

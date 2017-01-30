@@ -1,9 +1,11 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Crypt;
+namespace App\Ninja\Repositories;
+
 use App\Models\BankAccount;
 use App\Models\BankSubaccount;
+use Crypt;
+use DB;
 
 class BankAccountRepository extends BaseRepository
 {

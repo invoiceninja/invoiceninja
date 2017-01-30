@@ -1,10 +1,9 @@
 <?php
-use Illuminate\Database\Eloquent\Model as Eloquent;
+
 use App\Models\Country;
 
 class CountriesSeeder extends Seeder
 {
-
     /**
      * Run the database seeds.
      *
@@ -19,7 +18,7 @@ class CountriesSeeder extends Seeder
             //Get all of the countries
             $countries = Countries::getList();
             foreach ($countries as $countryId => $country) {
-                DB::table('countries')->insert(array(
+                DB::table('countries')->insert([
                     'id' => $countryId,
                     'capital' => ((isset($country['capital'])) ? $country['capital'] : null),
                     'citizenship' => ((isset($country['citizenship'])) ? $country['citizenship'] : null),
@@ -33,8 +32,8 @@ class CountriesSeeder extends Seeder
                     'name' => $country['name'],
                     'region_code' => $country['region-code'],
                     'sub_region_code' => $country['sub-region-code'],
-                    'eea' => (bool)$country['eea']
-                ));
+                    'eea' => (bool) $country['eea'],
+                ]);
             }
         }
         

@@ -1,16 +1,17 @@
-<?php namespace App\Ninja\Presenters;
+<?php
 
-use stdClass;
-use Utils;
+namespace App\Ninja\Presenters;
+
 use Domain;
 use Laracasts\Presenter\Presenter;
+use stdClass;
+use Utils;
 
 /**
- * Class AccountPresenter
+ * Class AccountPresenter.
  */
 class AccountPresenter extends Presenter
 {
-
     /**
      * @return mixed
      */
@@ -34,6 +35,7 @@ class AccountPresenter extends Presenter
     {
         $currencyId = $this->entity->getCurrencyId();
         $currency = Utils::getFromCache($currencyId, 'currencies');
+
         return $currency->code;
     }
 

@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\PaymentStatus;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class PaymentsChanges extends Migration
@@ -73,7 +72,7 @@ class PaymentsChanges extends Migration
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
             $table->foreign('currency_id')->references('id')->on('currencies');
 
-            $table->unique(array('account_id','public_id'));
+            $table->unique(['account_id', 'public_id']);
         });
 
         Schema::table('payments', function ($table) {
@@ -93,20 +92,18 @@ class PaymentsChanges extends Migration
             $table->foreign('payment_method_id')->references('id')->on('payment_methods');
         });
 
-
         Schema::table('invoices', function ($table) {
             $table->boolean('client_enable_auto_bill')->default(false);
         });
 
         \DB::table('invoices')
             ->where('auto_bill', '=', 1)
-            ->update(array('client_enable_auto_bill' => 1, 'auto_bill' => AUTO_BILL_OPT_OUT));
+            ->update(['client_enable_auto_bill' => 1, 'auto_bill' => AUTO_BILL_OPT_OUT]);
 
         \DB::table('invoices')
             ->where('auto_bill', '=', 0)
             ->where('is_recurring', '=', 1)
-            ->update(array('auto_bill' => AUTO_BILL_OFF));
-
+            ->update(['auto_bill' => AUTO_BILL_OFF]);
 
         Schema::table('account_gateway_tokens', function ($table) {
             $table->unsignedInteger('default_payment_method_id')->nullable();
@@ -141,7 +138,7 @@ class PaymentsChanges extends Migration
 
         \DB::table('invoices')
             ->where('auto_bill', '=', AUTO_BILL_OFF)
-            ->update(array('auto_bill' => 0));
+            ->update(['auto_bill' => 0]);
 
         \DB::table('invoices')
             ->where(function ($query) {
@@ -151,11 +148,11 @@ class PaymentsChanges extends Migration
                     $query->where('client_enable_auto_bill', '=', 1);
                 });
             })
-            ->update(array('auto_bill' => 1));
+            ->update(['auto_bill' => 1]);
 
         \DB::table('invoices')
             ->where('auto_bill', '!=', 1)
-            ->update(array('auto_bill' => 0));
+            ->update(['auto_bill' => 0]);
 
         Schema::table('invoices', function ($table) {
             $table->dropColumn('client_enable_auto_bill');

@@ -1,19 +1,21 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Response;
-use Request;
-use Redirect;
+namespace App\Http\Controllers;
+
+use App\Libraries\Utils;
+use App\Models\Account;
+use App\Ninja\Mailers\Mailer;
 use Auth;
-use View;
 use Input;
 use Mail;
+use Redirect;
+use Request;
+use Response;
 use Session;
-use App\Models\Account;
-use App\Libraries\Utils;
-use App\Ninja\Mailers\Mailer;
+use View;
 
 /**
- * Class HomeController
+ * Class HomeController.
  */
 class HomeController extends BaseController
 {
@@ -41,7 +43,7 @@ class HomeController extends BaseController
     {
         Session::reflash();
 
-        if (!Utils::isNinja() && (!Utils::isDatabaseSetup() || Account::count() == 0)) {
+        if (! Utils::isNinja() && (! Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
         } elseif (Auth::check()) {
             return Redirect::to('/dashboard');
@@ -76,6 +78,7 @@ class HomeController extends BaseController
 
         if (Auth::check()) {
             $redirectTo = Input::get('redirect_to', 'invoices/create');
+
             return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
         } else {
             return View::make('public.invoice_now');
@@ -85,6 +88,7 @@ class HomeController extends BaseController
     /**
      * @param $userType
      * @param $version
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function newsFeed($userType, $version)

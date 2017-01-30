@@ -1,12 +1,6 @@
 <?php
 
 use App\Models\Gateway;
-use App\Models\PaymentTerm;
-use App\Models\Currency;
-use App\Models\DateFormat;
-use App\Models\DatetimeFormat;
-use App\Models\InvoiceDesign;
-use App\Models\Country;
 
 class PaymentLibrariesSeeder extends Seeder
 {

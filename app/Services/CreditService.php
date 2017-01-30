@@ -1,12 +1,14 @@
-<?php namespace App\Services;
+<?php
 
-use Utils;
-use Auth;
-use App\Ninja\Repositories\CreditRepository;
+namespace App\Services;
+
 use App\Ninja\Datatables\CreditDatatable;
+use App\Ninja\Repositories\CreditRepository;
+use Auth;
+use Utils;
 
 /**
- * Class CreditService
+ * Class CreditService.
  */
 class CreditService extends BaseService
 {
@@ -42,6 +44,7 @@ class CreditService extends BaseService
 
     /**
      * @param $data
+     *
      * @return mixed|null
      */
     public function save($data, $credit = null)
@@ -52,6 +55,7 @@ class CreditService extends BaseService
     /**
      * @param $clientPublicId
      * @param $search
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($clientPublicId, $search)
@@ -60,7 +64,7 @@ class CreditService extends BaseService
         $datatable = new CreditDatatable(true, $clientPublicId);
         $query = $this->creditRepo->find($clientPublicId, $search);
 
-        if (!Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_all')) {
             $query->where('credits.user_id', '=', Auth::user()->id);
         }
 

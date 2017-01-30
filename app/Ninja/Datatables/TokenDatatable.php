@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Datatables;
+<?php
+
+namespace App\Ninja\Datatables;
 
 use URL;
 
@@ -13,14 +15,14 @@ class TokenDatatable extends EntityDatatable
                 'name',
                 function ($model) {
                     return link_to("tokens/{$model->public_id}/edit", $model->name)->toHtml();
-                }
+                },
             ],
             [
                 'token',
                 function ($model) {
                     return $model->token;
-                }
-            ]
+                },
+            ],
         ];
     }
 
@@ -31,8 +33,8 @@ class TokenDatatable extends EntityDatatable
                 uctrans('texts.edit_token'),
                 function ($model) {
                     return URL::to("tokens/{$model->public_id}/edit");
-                }
-            ]
+                },
+            ],
         ];
     }
 }

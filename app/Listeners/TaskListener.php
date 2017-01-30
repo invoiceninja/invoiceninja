@@ -1,10 +1,12 @@
-<?php namespace App\Listeners;
+<?php
 
-use App\Models\Task;
+namespace App\Listeners;
+
 use App\Events\InvoiceWasDeleted;
+use App\Models\Task;
 
 /**
- * Class TaskListener
+ * Class TaskListener.
  */
 class TaskListener
 {

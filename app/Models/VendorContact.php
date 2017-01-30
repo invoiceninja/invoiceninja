@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 // vendor
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class VendorContact
+ * Class VendorContact.
  */
 class VendorContact extends EntityModel
 {

@@ -1,9 +1,11 @@
-<?php namespace App\Ninja\Datatables;
+<?php
 
-use Utils;
-use URL;
-use Auth;
+namespace App\Ninja\Datatables;
+
 use App\Models\Expense;
+use Auth;
+use URL;
+use Utils;
 
 class ExpenseDatatable extends EntityDatatable
 {
@@ -17,7 +19,7 @@ class ExpenseDatatable extends EntityDatatable
                 'vendor_name',
                 function ($model) {
                     if ($model->vendor_public_id) {
-                        if (!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])) {
+                        if (! Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])) {
                             return $model->vendor_name;
                         }
 
@@ -26,13 +28,13 @@ class ExpenseDatatable extends EntityDatatable
                         return '';
                     }
                 },
-                ! $this->hideClient
+                ! $this->hideClient,
             ],
             [
                 'client_name',
                 function ($model) {
                     if ($model->client_public_id) {
-                        if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
+                        if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                             return Utils::getClientDisplayName($model);
                         }
 
@@ -41,17 +43,17 @@ class ExpenseDatatable extends EntityDatatable
                         return '';
                     }
                 },
-                ! $this->hideClient
+                ! $this->hideClient,
             ],
             [
                 'expense_date',
                 function ($model) {
-                    if (!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
                         return Utils::fromSqlDate($model->expense_date);
                     }
 
                     return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date))->toHtml();
-                }
+                },
             ],
             [
                 'amount',
@@ -66,25 +68,25 @@ class ExpenseDatatable extends EntityDatatable
                     }
 
                     return $str;
-                }
+                },
             ],
             [
                 'category',
                 function ($model) {
                     return $model->category != null ? substr($model->category, 0, 100) : '';
-                }
+                },
             ],
             [
                 'public_notes',
                 function ($model) {
                     return $model->public_notes != null ? substr($model->public_notes, 0, 100) : '';
-                }
+                },
             ],
             [
                 'status',
                 function ($model) {
                     return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance);
-                }
+                },
             ],
         ];
     }
@@ -95,11 +97,11 @@ class ExpenseDatatable extends EntityDatatable
             [
                 trans('texts.edit_expense'),
                 function ($model) {
-                    return URL::to("expenses/{$model->public_id}/edit") ;
+                    return URL::to("expenses/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id]);
-                }
+                },
             ],
             [
                 trans('texts.view_invoice'),
@@ -108,7 +110,7 @@ class ExpenseDatatable extends EntityDatatable
                 },
                 function ($model) {
                     return $model->invoice_public_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id]);
-                }
+                },
             ],
             [
                 trans('texts.invoice_expense'),
@@ -116,8 +118,8 @@ class ExpenseDatatable extends EntityDatatable
                     return "javascript:submitForm_expense('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
-                }
+                    return ! $model->invoice_id && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                },
             ],
         ];
     }

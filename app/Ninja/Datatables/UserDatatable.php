@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Datatables;
+<?php
+
+namespace App\Ninja\Datatables;
 
 use URL;
 
@@ -13,18 +15,18 @@ class UserDatatable extends EntityDatatable
                 'first_name',
                 function ($model) {
                     return $model->public_id ? link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name)->toHtml() : ($model->first_name.' '.$model->last_name);
-                }
+                },
             ],
             [
                 'email',
                 function ($model) {
                     return $model->email;
-                }
+                },
             ],
             [
                 'confirmed',
                 function ($model) {
-                    if (!$model->public_id) {
+                    if (! $model->public_id) {
                         return self::getStatusLabel(USER_STATE_OWNER);
                     } elseif ($model->deleted_at) {
                         return self::getStatusLabel(USER_STATE_DISABLED);
@@ -37,7 +39,7 @@ class UserDatatable extends EntityDatatable
                     } else {
                         return self::getStatusLabel(USER_STATE_PENDING);
                     }
-                }
+                },
             ],
         ];
     }
@@ -52,7 +54,7 @@ class UserDatatable extends EntityDatatable
                 },
                 function ($model) {
                     return $model->public_id;
-                }
+                },
             ],
             [
                 uctrans('texts.send_invite'),
@@ -61,8 +63,8 @@ class UserDatatable extends EntityDatatable
                 },
                 function ($model) {
                     return $model->public_id && ! $model->confirmed;
-                }
-            ]
+                },
+            ],
         ];
     }
 
@@ -87,6 +89,7 @@ class UserDatatable extends EntityDatatable
                 $class = 'primary';
                 break;
         }
+
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 }

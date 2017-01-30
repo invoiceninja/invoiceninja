@@ -1,9 +1,8 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Database\Migrations\Migration;
-use App\Models\Company;
 use App\Models\Account;
+use App\Models\Company;
+use Illuminate\Database\Migrations\Migration;
 
 class EnterprisePlan extends Migration
 {
@@ -21,24 +20,23 @@ class EnterprisePlan extends Migration
         $timeout = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
-        if (!Schema::hasTable('companies')) {
+        if (! Schema::hasTable('companies')) {
             Schema::create('companies', function ($table) {
                 $table->increments('id');
 
-                $table->enum('plan', array('pro', 'enterprise', 'white_label'))->nullable();
-                $table->enum('plan_term', array('month', 'year'))->nullable();
+                $table->enum('plan', ['pro', 'enterprise', 'white_label'])->nullable();
+                $table->enum('plan_term', ['month', 'year'])->nullable();
                 $table->date('plan_started')->nullable();
                 $table->date('plan_paid')->nullable();
                 $table->date('plan_expires')->nullable();
 
                 $table->unsignedInteger('payment_id')->nullable();
 
-
                 $table->date('trial_started')->nullable();
-                $table->enum('trial_plan', array('pro', 'enterprise'))->nullable();
+                $table->enum('trial_plan', ['pro', 'enterprise'])->nullable();
 
-                $table->enum('pending_plan', array('pro', 'enterprise', 'free'))->nullable();
-                $table->enum('pending_term', array('month', 'year'))->nullable();
+                $table->enum('pending_plan', ['pro', 'enterprise', 'free'])->nullable();
+                $table->enum('pending_term', ['month', 'year'])->nullable();
 
                 $table->timestamps();
                 $table->softDeletes();
@@ -49,7 +47,7 @@ class EnterprisePlan extends Migration
             });
         }
 
-        if (!Schema::hasColumn('accounts', 'company_id')) {
+        if (! Schema::hasColumn('accounts', 'company_id')) {
             Schema::table('accounts', function ($table) {
                 $table->unsignedInteger('company_id')->nullable();
             });
@@ -115,9 +113,9 @@ class EnterprisePlan extends Migration
         }
     }
 
-    private function upAccounts($primaryAccount, $otherAccounts = array())
+    private function upAccounts($primaryAccount, $otherAccounts = [])
     {
-        if (!$primaryAccount) {
+        if (! $primaryAccount) {
             $primaryAccount = $otherAccounts->first();
         }
 
@@ -137,7 +135,7 @@ class EnterprisePlan extends Migration
             $expires = $expires->format('Y-m-d');
 
             // check for self host white label licenses
-            if (!Utils::isNinjaProd()) {
+            if (! Utils::isNinjaProd()) {
                 if ($company->plan_paid) {
                     $company->plan = 'white_label';
                     // old ones were unlimited, new ones are yearly
@@ -163,7 +161,7 @@ class EnterprisePlan extends Migration
         $primaryAccount->company_id = $company->id;
         $primaryAccount->save();
 
-        if (!empty($otherAccounts)) {
+        if (! empty($otherAccounts)) {
             foreach ($otherAccounts as $account) {
                 if ($account && $account->id != $primaryAccount->id) {
                     $account->company_id = $company->id;
@@ -194,7 +192,7 @@ class EnterprisePlan extends Migration
         $timeout = max($timeout - 10, $timeout * .9);
         $startTime = time();
 
-        if (!Schema::hasColumn('accounts', 'pro_plan_paid')) {
+        if (! Schema::hasColumn('accounts', 'pro_plan_paid')) {
             Schema::table('accounts', function ($table) {
                 $table->date('pro_plan_paid')->nullable();
                 $table->date('pro_plan_trial')->nullable();

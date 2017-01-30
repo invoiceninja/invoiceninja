@@ -1,10 +1,12 @@
-<?php namespace App\Services;
+<?php
 
-use App\Ninja\Repositories\TaxRateRepository;
+namespace App\Services;
+
 use App\Ninja\Datatables\TaxRateDatatable;
+use App\Ninja\Repositories\TaxRateRepository;
 
 /**
- * Class TaxRateService
+ * Class TaxRateService.
  */
 class TaxRateService extends BaseService
 {
@@ -22,7 +24,7 @@ class TaxRateService extends BaseService
      * TaxRateService constructor.
      *
      * @param TaxRateRepository $taxRateRepo
-     * @param DatatableService $datatableService
+     * @param DatatableService  $datatableService
      */
     public function __construct(TaxRateRepository $taxRateRepo, DatatableService $datatableService)
     {
@@ -40,6 +42,7 @@ class TaxRateService extends BaseService
 
     /**
      * @param $accountId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($accountId)

@@ -1,19 +1,20 @@
-<?php namespace App\Listeners;
+<?php
 
+namespace App\Listeners;
+
+use App\Events\UserLoggedIn;
+use App\Events\UserSignedUp;
+use App\Libraries\HistoryUtils;
+use App\Ninja\Repositories\AccountRepository;
 use Auth;
 use Carbon;
 use Session;
-use App\Events\UserLoggedIn;
-use App\Events\UserSignedUp;
-use App\Ninja\Repositories\AccountRepository;
-use App\Libraries\HistoryUtils;
 
 /**
- * Class HandleUserLoggedIn
+ * Class HandleUserLoggedIn.
  */
 class HandleUserLoggedIn
 {
-
     /**
      * @var AccountRepository
      */
@@ -32,7 +33,7 @@ class HandleUserLoggedIn
     /**
      * Handle the event.
      *
-     * @param  UserLoggedIn  $event
+     * @param UserLoggedIn $event
      *
      * @return void
      */

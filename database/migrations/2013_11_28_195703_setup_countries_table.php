@@ -1,9 +1,9 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 
 class SetupCountriesTable extends Migration
 {
-
     /**
      * Run the migrations.
      *

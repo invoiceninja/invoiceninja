@@ -1,7 +1,9 @@
-<?php namespace App\Handlers;
+<?php
 
-use App\Ninja\Mailers\UserMailer;
+namespace App\Handlers;
+
 use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Mailers\UserMailer;
 
 class InvoiceEventHandler
 {

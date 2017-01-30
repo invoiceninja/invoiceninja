@@ -1,27 +1,29 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use Auth;
-use Request;
-use Input;
-use Session;
-use Utils;
-use URL;
-use stdClass;
-use Validator;
-use Schema;
+namespace App\Ninja\Repositories;
+
+use App\Models\Account;
 use App\Models\AccountGateway;
+use App\Models\AccountToken;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\Contact;
+use App\Models\Credit;
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use App\Models\Client;
-use App\Models\Credit;
 use App\Models\Language;
-use App\Models\Contact;
-use App\Models\Account;
-use App\Models\Company;
 use App\Models\User;
 use App\Models\UserAccount;
-use App\Models\AccountToken;
+use Auth;
+use Input;
+use Request;
+use Schema;
+use Session;
+use stdClass;
+use URL;
+use Utils;
+use Validator;
 
 class AccountRepository
 {
@@ -56,23 +58,23 @@ class AccountRepository
         $account->save();
 
         $user = new User();
-        if (!$firstName && !$lastName && !$email && !$password) {
+        if (! $firstName && ! $lastName && ! $email && ! $password) {
             $user->password = str_random(RANDOM_KEY_LENGTH);
             $user->username = str_random(RANDOM_KEY_LENGTH);
         } else {
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->email = $user->username = $email;
-            if (!$password) {
+            if (! $password) {
                 $password = str_random(RANDOM_KEY_LENGTH);
             }
             $user->password = bcrypt($password);
         }
 
-        $user->confirmed = !Utils::isNinja();
-        $user->registered = !Utils::isNinja() || $email;
+        $user->confirmed = ! Utils::isNinja();
+        $user->registered = ! Utils::isNinja() || $email;
 
-        if (!$user->confirmed) {
+        if (! $user->confirmed) {
             $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
         }
 
@@ -185,11 +187,11 @@ class AccountRepository
         foreach ($entityTypes as $entityType) {
             $features[] = [
                 "new_{$entityType}",
-                Utils::pluralizeEntityType($entityType) . '/create'
+                Utils::pluralizeEntityType($entityType) . '/create',
             ];
             $features[] = [
                 'list_' . Utils::pluralizeEntityType($entityType),
-                Utils::pluralizeEntityType($entityType)
+                Utils::pluralizeEntityType($entityType),
             ];
         }
 
@@ -223,7 +225,7 @@ class AccountRepository
             $data[] = [
                 'value' => trans('texts.' . $feature[0]),
                 'tokens' => trans('texts.' . $feature[0]),
-                'url' => URL::to($feature[1])
+                'url' => URL::to($feature[1]),
             ];
         }
 
@@ -384,7 +386,7 @@ class AccountRepository
                     ->first();
         $clientExists = $client ? true : false;
 
-        if (!$client) {
+        if (! $client) {
             $client = new Client();
             $client->public_id = $account->id;
             $client->account_id = $ninjaAccount->id;
@@ -436,11 +438,12 @@ class AccountRepository
 
     public function updateUserFromOauth($user, $firstName, $lastName, $email, $providerId, $oauthUserId)
     {
-        if (!$user->registered) {
+        if (! $user->registered) {
             $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
             $validator = Validator::make(['email' => $email], $rules);
             if ($validator->fails()) {
                 $messages = $validator->messages();
+
                 return $messages->first('email');
             }
 
@@ -520,7 +523,7 @@ class AccountRepository
 
     public function findUserAccounts($userId1, $userId2 = false)
     {
-        if (!Schema::hasTable('user_accounts')) {
+        if (! Schema::hasTable('user_accounts')) {
             return false;
         }
 
@@ -543,12 +546,12 @@ class AccountRepository
 
     public function getUserAccounts($record, $with = null)
     {
-        if (!$record) {
+        if (! $record) {
             return false;
         }
 
         $userIds = [];
-        for ($i=1; $i<=5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $field = "user_id$i";
             if ($record->$field) {
                 $userIds[] = $record->$field;
@@ -567,7 +570,7 @@ class AccountRepository
 
     public function prepareUsersData($record)
     {
-        if (!$record) {
+        if (! $record) {
             return false;
         }
 
@@ -592,6 +595,7 @@ class AccountRepository
     public function loadAccounts($userId)
     {
         $record = self::findUserAccounts($userId);
+
         return self::prepareUsersData($record);
     }
 
@@ -601,7 +605,7 @@ class AccountRepository
 
         if ($record) {
             foreach ([$userId1, $userId2] as $userId) {
-                if (!$record->hasUserId($userId)) {
+                if (! $record->hasUserId($userId)) {
                     $record->setUserId($userId);
                 }
             }
@@ -617,7 +621,7 @@ class AccountRepository
 
         // Pick the primary user
         foreach ($users as $user) {
-            if (!$user->public_id) {
+            if (! $user->public_id) {
                 $useAsPrimary = false;
                 if (empty($primaryUser)) {
                     $useAsPrimary = true;
@@ -632,7 +636,7 @@ class AccountRepository
                         $planLevel = 2;
                     }
 
-                    if (!$useAsPrimary && (
+                    if (! $useAsPrimary && (
                         $planLevel > $primaryUserPlanLevel
                         || ($planLevel == $primaryUserPlanLevel && $planDetails['expires'] > $primaryUserPlanExpires)
                     )) {
@@ -651,7 +655,7 @@ class AccountRepository
         }
 
         // Merge other companies into the primary user's company
-        if (!empty($primaryUser)) {
+        if (! empty($primaryUser)) {
             foreach ($users as $user) {
                 if ($user == $primaryUser || $user->public_id) {
                     continue;
@@ -690,7 +694,7 @@ class AccountRepository
 
         $user = User::whereId($userId)->first();
 
-        if (!$user->public_id && $user->account->hasMultipleAccounts()) {
+        if (! $user->public_id && $user->account->hasMultipleAccounts()) {
             $company = Company::create();
             $company->save();
             $user->account->company_id = $company->id;

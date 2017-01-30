@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
 
-use Eloquent;
+namespace App\Models;
+
 use Auth;
 use Cache;
+use Eloquent;
 
 /**
- * Class InvoiceDesign
+ * Class InvoiceDesign.
  */
 class InvoiceDesign extends Eloquent
 {
@@ -64,7 +66,6 @@ class InvoiceDesign extends Eloquent
                 'Letter',
                 'Tabloid',
             ];
-
 
     /**
      * @return mixed

@@ -1,9 +1,9 @@
 <?php
+
 use Illuminate\Database\Migrations\Migration;
 
 class ConfideSetupUsersTable extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -183,7 +183,7 @@ class ConfideSetupUsersTable extends Migration
             $t->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
             $t->unsignedInteger('public_id')->nullable();
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
 
         Schema::create('account_gateways', function ($t) {
@@ -201,9 +201,8 @@ class ConfideSetupUsersTable extends Migration
             $t->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
 
             $t->unsignedInteger('public_id')->index();
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
-
 
         Schema::create('password_reminders', function ($t) {
             $t->string('email');
@@ -246,7 +245,7 @@ class ConfideSetupUsersTable extends Migration
             $t->foreign('currency_id')->references('id')->on('currencies');
 
             $t->unsignedInteger('public_id')->index();
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
 
         Schema::create('contacts', function ($t) {
@@ -270,7 +269,7 @@ class ConfideSetupUsersTable extends Migration
             ;
 
             $t->unsignedInteger('public_id')->nullable();
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
 
         Schema::create('invoice_statuses', function ($t) {
@@ -320,10 +319,9 @@ class ConfideSetupUsersTable extends Migration
             $t->foreign('recurring_invoice_id')->references('id')->on('invoices')->onDelete('cascade');
 
             $t->unsignedInteger('public_id')->index();
-            $t->unique(array('account_id','public_id'));
-            $t->unique(array('account_id','invoice_number'));
+            $t->unique(['account_id', 'public_id']);
+            $t->unique(['account_id', 'invoice_number']);
         });
-
 
         Schema::create('invitations', function ($t) {
             $t->increments('id');
@@ -345,7 +343,7 @@ class ConfideSetupUsersTable extends Migration
             $t->foreign('invoice_id')->references('id')->on('invoices')->onDelete('cascade');
 
             $t->unsignedInteger('public_id')->index();
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
 
         Schema::create('tax_rates', function ($t) {
@@ -363,7 +361,7 @@ class ConfideSetupUsersTable extends Migration
             ;
 
             $t->unsignedInteger('public_id');
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
 
         Schema::create('products', function ($t) {
@@ -383,9 +381,8 @@ class ConfideSetupUsersTable extends Migration
             ;
 
             $t->unsignedInteger('public_id');
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
-
 
         Schema::create('invoice_items', function ($t) {
             $t->increments('id');
@@ -410,7 +407,7 @@ class ConfideSetupUsersTable extends Migration
             ;
 
             $t->unsignedInteger('public_id');
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
 
         Schema::create('payments', function ($t) {
@@ -442,7 +439,7 @@ class ConfideSetupUsersTable extends Migration
             $t->foreign('payment_type_id')->references('id')->on('payment_types');
 
             $t->unsignedInteger('public_id')->index();
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
 
         Schema::create('credits', function ($t) {
@@ -466,7 +463,7 @@ class ConfideSetupUsersTable extends Migration
             ;
 
             $t->unsignedInteger('public_id')->index();
-            $t->unique(array('account_id','public_id'));
+            $t->unique(['account_id', 'public_id']);
         });
 
         Schema::create('activities', function ($t) {

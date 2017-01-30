@@ -1,24 +1,24 @@
-<?php namespace App\Ninja\Transformers;
+<?php
+
+namespace App\Ninja\Transformers;
 
 use App\Models\Account;
-use App\Models\Task;
 use App\Models\Client;
+use App\Models\Task;
 
 /**
  * @SWG\Definition(definition="Task", @SWG\Xml(name="Task"))
  */
-
 class TaskTransformer extends EntityTransformer
 {
     /**
-    * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-    * @SWG\Property(property="amount", type="float", example=10, readOnly=true)
-    * @SWG\Property(property="invoice_id", type="integer", example=1)
-    */
+     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+     * @SWG\Property(property="amount", type="float", example=10, readOnly=true)
+     * @SWG\Property(property="invoice_id", type="integer", example=1)
+     */
     protected $availableIncludes = [
         'client',
     ];
-
 
     public function __construct(Account $account)
     {
@@ -29,6 +29,7 @@ class TaskTransformer extends EntityTransformer
     {
         if ($task->client) {
             $transformer = new ClientTransformer($this->account, $this->serializer);
+
             return $this->includeItem($task->client, $transformer, 'client');
         } else {
             return null;

@@ -1,16 +1,18 @@
-<?php namespace App\Models;
+<?php
 
-use Event;
-use Illuminate\Database\Eloquent\SoftDeletes;
+namespace App\Models;
+
+use App\Events\PaymentCompleted;
+use App\Events\PaymentFailed;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasVoided;
-use App\Events\PaymentCompleted;
-use App\Events\PaymentFailed;
+use Event;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class Payment
+ * Class Payment.
  */
 class Payment extends EntityModel
 {
@@ -200,6 +202,7 @@ class Payment extends EntityModel
 
     /**
      * @param null $amount
+     *
      * @return bool
      */
     public function recordRefund($amount = null)
@@ -208,7 +211,7 @@ class Payment extends EntityModel
             return false;
         }
 
-        if (!$amount) {
+        if (! $amount) {
             $amount = $this->amount;
         }
 
@@ -283,14 +286,16 @@ class Payment extends EntityModel
      */
     public function getBankDataAttribute()
     {
-        if (!$this->routing_number) {
+        if (! $this->routing_number) {
             return null;
         }
+
         return PaymentMethod::lookupBankData($this->routing_number);
     }
 
     /**
      * @param $bank_name
+     *
      * @return null
      */
     public function getBankNameAttribute($bank_name)
@@ -300,11 +305,12 @@ class Payment extends EntityModel
         }
         $bankData = $this->bank_data;
 
-        return $bankData?$bankData->name:null;
+        return $bankData ? $bankData->name : null;
     }
 
     /**
      * @param $value
+     *
      * @return null|string
      */
     public function getLast4Attribute($value)
@@ -328,7 +334,6 @@ class Payment extends EntityModel
         return static::$statusClasses[$statusId];
     }
 
-
     public function statusClass()
     {
         return static::calcStatusClass($this->payment_status_id);
@@ -337,6 +342,7 @@ class Payment extends EntityModel
     public function statusLabel()
     {
         $amount = $this->account->formatMoney($this->refunded, $this->client);
+
         return static::calcStatusLabel($this->payment_status_id, $this->payment_status->name, $amount);
     }
 

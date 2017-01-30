@@ -1,7 +1,9 @@
-<?php namespace App\Ninja\Intents;
+<?php
 
-use Exception;
+namespace App\Ninja\Intents;
+
 use App\Models\EntityModel;
+use Exception;
 
 class CreateInvoiceIntent extends InvoiceIntent
 {

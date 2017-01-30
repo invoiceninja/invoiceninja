@@ -1,10 +1,12 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Auth;
 use Eloquent;
 
 /**
- * Class Activity
+ * Class Activity.
  */
 class Activity extends Eloquent
 {
@@ -15,6 +17,7 @@ class Activity extends Eloquent
 
     /**
      * @param $query
+     *
      * @return mixed
      */
     public function scopeScope($query)

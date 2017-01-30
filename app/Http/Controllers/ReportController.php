@@ -1,14 +1,16 @@
-<?php namespace App\Http\Controllers;
+<?php
 
+namespace App\Http\Controllers;
+
+use App\Models\Account;
 use Auth;
 use Input;
-use Utils;
 use Str;
+use Utils;
 use View;
-use App\Models\Account;
 
 /**
- * Class ReportController
+ * Class ReportController.
  */
 class ReportController extends BaseController
 {

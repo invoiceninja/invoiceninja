@@ -1,11 +1,13 @@
-<?php namespace App\Services;
+<?php
+
+namespace App\Services;
 
 use App\Models\Client;
-use App\Ninja\Repositories\ProjectRepository;
 use App\Ninja\Datatables\ProjectDatatable;
+use App\Ninja\Repositories\ProjectRepository;
 
 /**
- * Class ProjectService
+ * Class ProjectService.
  */
 class ProjectService extends BaseService
 {
@@ -23,7 +25,7 @@ class ProjectService extends BaseService
      * CreditService constructor.
      *
      * @param ProjectRepository $creditRepo
-     * @param DatatableService $datatableService
+     * @param DatatableService  $datatableService
      */
     public function __construct(ProjectRepository $projectRepo, DatatableService $datatableService)
     {
@@ -41,6 +43,7 @@ class ProjectService extends BaseService
 
     /**
      * @param $data
+     *
      * @return mixed|null
      */
     public function save($data, $project = false)
@@ -55,6 +58,7 @@ class ProjectService extends BaseService
     /**
      * @param $clientPublicId
      * @param $search
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search, $userId)

@@ -1,7 +1,9 @@
-<?php namespace App\Ninja\Datatables;
+<?php
 
-use URL;
+namespace App\Ninja\Datatables;
+
 use Auth;
+use URL;
 
 class ExpenseCategoryDatatable extends EntityDatatable
 {
@@ -19,7 +21,7 @@ class ExpenseCategoryDatatable extends EntityDatatable
                     }
 
                     return link_to("expense_categories/{$model->public_id}/edit", $model->category)->toHtml();
-                }
+                },
             ],
         ];
     }
@@ -30,11 +32,11 @@ class ExpenseCategoryDatatable extends EntityDatatable
             [
                 trans('texts.edit_category'),
                 function ($model) {
-                    return URL::to("expense_categories/{$model->public_id}/edit") ;
+                    return URL::to("expense_categories/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_EXPENSE_CATEGORY, $model->user_id]);
-                }
+                },
             ],
         ];
     }

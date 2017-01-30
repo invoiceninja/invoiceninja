@@ -3,7 +3,7 @@
 namespace App\Policies;
 
 /**
- * Class ProductPolicy
+ * Class ProductPolicy.
  */
 class ProductPolicy extends EntityPolicy
 {

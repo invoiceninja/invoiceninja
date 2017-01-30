@@ -1,20 +1,22 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Utils;
-use Response;
-use Cache;
-use Socialite;
-use Exception;
-use App\Services\AuthService;
-use App\Models\Account;
-use App\Ninja\Repositories\AccountRepository;
-use Illuminate\Http\Request;
-use App\Ninja\Transformers\AccountTransformer;
-use App\Ninja\Transformers\UserAccountTransformer;
+namespace App\Http\Controllers;
+
 use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
+use App\Models\Account;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Transformers\AccountTransformer;
+use App\Ninja\Transformers\UserAccountTransformer;
+use App\Services\AuthService;
+use Auth;
+use Cache;
+use Exception;
+use Illuminate\Http\Request;
+use Response;
+use Socialite;
+use Utils;
 
 class AccountApiController extends BaseAPIController
 {
@@ -34,7 +36,7 @@ class AccountApiController extends BaseAPIController
         if (hash_equals(env(API_SECRET), $request->api_secret)) {
             return Response::make(RESULT_SUCCESS, 200, $headers);
         } else {
-            return $this->errorResponse(['message'=>'API Secret does not match .env variable'], 400);
+            return $this->errorResponse(['message' => 'API Secret does not match .env variable'], 400);
         }
     }
 
@@ -55,7 +57,8 @@ class AccountApiController extends BaseAPIController
             return $this->processLogin($request);
         } else {
             sleep(ERROR_DELAY);
-            return $this->errorResponse(['message'=>'Invalid credentials'], 401);
+
+            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
     }
 
@@ -119,8 +122,7 @@ class AccountApiController extends BaseAPIController
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
         $devices = json_decode($account->devices, true);
 
-
-        for ($x=0; $x<count($devices); $x++) {
+        for ($x = 0; $x < count($devices); $x++) {
             if ($devices[$x]['email'] == Auth::user()->username) {
                 $devices[$x]['token'] = $request->token; //update
                     $account->devices = json_encode($devices);
@@ -158,10 +160,10 @@ class AccountApiController extends BaseAPIController
         $devices = json_decode($account->devices, true);
 
         if (count($devices) < 1) {
-            return $this->errorResponse(['message'=>'No registered devices.'], 400);
+            return $this->errorResponse(['message' => 'No registered devices.'], 400);
         }
 
-        for ($x=0; $x<count($devices); $x++) {
+        for ($x = 0; $x < count($devices); $x++) {
             if ($devices[$x]['email'] == Auth::user()->username) {
                 $newDevice = [
                     'token' => $devices[$x]['token'],
@@ -202,9 +204,11 @@ class AccountApiController extends BaseAPIController
 
         if ($user) {
             Auth::login($user);
+
             return $this->processLogin($request);
         } else {
             sleep(ERROR_DELAY);
+
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
     }

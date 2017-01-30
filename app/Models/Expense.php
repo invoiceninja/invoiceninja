@@ -1,13 +1,15 @@
-<?php namespace App\Models;
+<?php
 
-use Utils;
-use Laracasts\Presenter\PresentableTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
+namespace App\Models;
+
 use App\Events\ExpenseWasCreated;
 use App\Events\ExpenseWasUpdated;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
+use Utils;
 
 /**
- * Class Expense
+ * Class Expense.
  */
 class Expense extends EntityModel
 {
@@ -70,6 +72,7 @@ class Expense extends EntityModel
             'date' => 'expense_date',
         ];
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
@@ -134,7 +137,7 @@ class Expense extends EntityModel
         if ($this->transaction_id) {
             return $this->transaction_id;
         } elseif ($this->public_notes) {
-            return mb_strimwidth($this->public_notes, 0, 16, "...");
+            return mb_strimwidth($this->public_notes, 0, 16, '...');
         } else {
             return '#' . $this->public_id;
         }
@@ -197,6 +200,7 @@ class Expense extends EntityModel
     /**
      * @param $query
      * @param null $bankdId
+     *
      * @return mixed
      */
     public function scopeBankId($query, $bankdId = null)

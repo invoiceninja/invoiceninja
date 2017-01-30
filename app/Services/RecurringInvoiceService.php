@@ -1,9 +1,11 @@
-<?php namespace App\Services;
+<?php
 
+namespace App\Services;
+
+use App\Ninja\Datatables\RecurringInvoiceDatatable;
+use App\Ninja\Repositories\InvoiceRepository;
 use Auth;
 use Utils;
-use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Datatables\RecurringInvoiceDatatable;
 
 class RecurringInvoiceService extends BaseService
 {
@@ -16,12 +18,12 @@ class RecurringInvoiceService extends BaseService
         $this->datatableService = $datatableService;
     }
 
-    public function getDatatable($accountId, $clientPublicId = null, $entityType, $search)
+    public function getDatatable($accountId, $clientPublicId, $entityType, $search)
     {
         $datatable = new RecurringInvoiceDatatable(true, $clientPublicId);
         $query = $this->invoiceRepo->getRecurringInvoices($accountId, $clientPublicId, $search);
 
-        if (!Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_all')) {
             $query->where('invoices.user_id', '=', Auth::user()->id);
         }
 

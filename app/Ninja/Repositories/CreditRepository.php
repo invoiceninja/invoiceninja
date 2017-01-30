@@ -1,9 +1,11 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
+namespace App\Ninja\Repositories;
+
+use App\Models\Client;
+use App\Models\Credit;
 use DB;
 use Utils;
-use App\Models\Credit;
-use App\Models\Client;
 
 class CreditRepository extends BaseRepository
 {

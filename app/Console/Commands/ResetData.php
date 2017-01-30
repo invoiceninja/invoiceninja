@@ -1,14 +1,15 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use Utils;
+namespace App\Console\Commands;
+
 use Illuminate\Console\Command;
+use Utils;
 
 /**
- * Class ResetData
+ * Class ResetData.
  */
 class ResetData extends Command
 {
-
     /**
      * @var string
      */
@@ -23,7 +24,7 @@ class ResetData extends Command
     {
         $this->info(date('Y-m-d') . ' Running ResetData...');
 
-        if (!Utils::isNinjaDev()) {
+        if (! Utils::isNinjaDev()) {
             return;
         }
 

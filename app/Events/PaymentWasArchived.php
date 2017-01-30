@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Payment;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class PaymentWasArchived
+ * Class PaymentWasArchived.
  */
 class PaymentWasArchived extends Event
 {

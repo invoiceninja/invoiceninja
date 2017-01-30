@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Presenters;
+<?php
 
-use Utils;
-use URL;
+namespace App\Ninja\Presenters;
+
 use Laracasts\Presenter\Presenter;
+use URL;
+use Utils;
 
 class EntityPresenter extends Presenter
 {

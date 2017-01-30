@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Intents;
+<?php
 
-use stdClass;
-use Exception;
+namespace App\Ninja\Intents;
+
 use App\Libraries\Skype\SkypeResponse;
+use Exception;
+use stdClass;
 
 class BaseIntent
 {
@@ -14,9 +16,9 @@ class BaseIntent
     {
         //if (true) {
         if (! $state || is_string($state)) {
-            $state = new stdClass;
+            $state = new stdClass();
             foreach (['current', 'previous'] as $reference) {
-                $state->$reference = new stdClass;
+                $state->$reference = new stdClass();
                 $state->$reference->entityType = false;
                 foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
                     $state->$reference->$entityType = [];
@@ -60,9 +62,8 @@ class BaseIntent
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
-        return (new $className($state, $data));
+        return new $className($state, $data);
     }
-
 
     public function process()
     {
@@ -114,7 +115,6 @@ class BaseIntent
     {
         return $this->state->current->entityType;
     }
-
 
     public function getState()
     {

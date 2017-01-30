@@ -21,7 +21,7 @@ class BanksSeeder extends Seeder
         $banks = json_decode($banks);
 
         foreach ($banks as $bank) {
-            if (!DB::table('banks')->where('remote_id', '=', $bank->id)->get()) {
+            if (! DB::table('banks')->where('remote_id', '=', $bank->id)->get()) {
                 if (! isset($bank->fid) || ! isset($bank->org)) {
                     continue;
                 }
@@ -32,7 +32,7 @@ class BanksSeeder extends Seeder
                     'config' => json_encode([
                         'fid' => $bank->fid,
                         'org' => $bank->org,
-                        'url' => $bank->url
+                        'url' => $bank->url,
                     ]),
                 ]);
             }

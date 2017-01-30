@@ -1,7 +1,9 @@
-<?php namespace App\Models\Traits;
+<?php
+
+namespace App\Models\Traits;
 
 /**
- * Class PresentsInvoice
+ * Class PresentsInvoice.
  */
 trait PresentsInvoice
 {
@@ -9,6 +11,7 @@ trait PresentsInvoice
     {
         if ($this->invoice_fields) {
             $fields = json_decode($this->invoice_fields, true);
+
             return $this->applyLabels($fields);
         } else {
             return $this->getDefaultInvoiceFields();
@@ -120,7 +123,7 @@ trait PresentsInvoice
                 'account.custom_value1',
                 'account.custom_value2',
                 '.blank',
-            ]
+            ],
         ];
 
         return $this->applyLabels($fields);
@@ -230,7 +233,7 @@ trait PresentsInvoice
             'client.custom_value1' => 'custom_client_label1',
             'client.custom_value2' => 'custom_client_label2',
             'account.custom_value1' => 'custom_label1',
-            'account.custom_value2' => 'custom_label2'
+            'account.custom_value2' => 'custom_label2',
         ] as $field => $property) {
             $data[$field] = $this->$property ?: trans('texts.custom_field');
         }

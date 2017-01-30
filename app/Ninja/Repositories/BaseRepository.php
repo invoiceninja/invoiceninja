@@ -1,10 +1,12 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use Auth;
 use Utils;
 
 /**
- * Class BaseRepository
+ * Class BaseRepository.
  */
 class BaseRepository
 {
@@ -22,12 +24,14 @@ class BaseRepository
     private function getInstance()
     {
         $className = $this->getClassName();
+
         return new $className();
     }
 
     /**
      * @param $entity
      * @param $type
+     *
      * @return string
      */
     private function getEventClass($entity, $type)
@@ -102,6 +106,7 @@ class BaseRepository
     /**
      * @param $ids
      * @param $action
+     *
      * @return int
      */
     public function bulk($ids, $action)
@@ -123,6 +128,7 @@ class BaseRepository
 
     /**
      * @param $ids
+     *
      * @return mixed
      */
     public function findByPublicIds($ids)
@@ -132,6 +138,7 @@ class BaseRepository
 
     /**
      * @param $ids
+     *
      * @return mixed
      */
     public function findByPublicIdsWithTrashed($ids)

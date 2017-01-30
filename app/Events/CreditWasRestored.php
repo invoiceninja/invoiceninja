@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Credit;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class CreditWasRestored
+ * Class CreditWasRestored.
  */
 class CreditWasRestored extends Event
 {

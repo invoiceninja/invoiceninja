@@ -1,12 +1,14 @@
-<?php namespace App\Ninja\Mailers;
+<?php
 
-use Utils;
+namespace App\Ninja\Mailers;
+
+use App\Models\Invoice;
 use Exception;
 use Mail;
-use App\Models\Invoice;
+use Utils;
 
 /**
- * Class Mailer
+ * Class Mailer.
  */
 class Mailer
 {
@@ -17,6 +19,7 @@ class Mailer
      * @param $subject
      * @param $view
      * @param array $data
+     *
      * @return bool|string
      */
     public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
@@ -43,7 +46,7 @@ class Mailer
                 //\Log::info("{$toEmail} | {$replyEmail} | $fromEmail");
 
                 // Optionally send for alternate domain
-                if (!empty($data['fromEmail'])) {
+                if (! empty($data['fromEmail'])) {
                     $fromEmail = $data['fromEmail'];
                 }
 
@@ -53,17 +56,17 @@ class Mailer
                         ->subject($subject);
 
                 // Optionally BCC the email
-                if (!empty($data['bccEmail'])) {
+                if (! empty($data['bccEmail'])) {
                     $message->bcc($data['bccEmail']);
                 }
 
                 // Attach the PDF to the email
-                if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {
+                if (! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
 
                 // Attach documents to the email
-                if (!empty($data['documents'])) {
+                if (! empty($data['documents'])) {
                     foreach ($data['documents'] as $document) {
                         $message->attachData($document['data'], $document['name']);
                     }
@@ -79,6 +82,7 @@ class Mailer
     /**
      * @param $response
      * @param $data
+     *
      * @return bool
      */
     private function handleSuccess($response, $data)
@@ -94,7 +98,7 @@ class Mailer
                 $messageId = $json->MessageID;
             }
 
-            $notes = isset($data['notes']) ? $data['notes']: false;
+            $notes = isset($data['notes']) ? $data['notes'] : false;
             $invoice->markInvitationSent($invitation, $messageId, true, $notes);
         }
 
@@ -103,6 +107,7 @@ class Mailer
 
     /**
      * @param $exception
+     *
      * @return string
      */
     private function handleFailure($exception)

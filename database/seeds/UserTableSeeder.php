@@ -1,17 +1,16 @@
 <?php
 
-use App\Models\User;
-use App\Models\Font;
 use App\Models\Account;
-use App\Models\Company;
 use App\Models\Affiliate;
-use App\Models\Country;
-use App\Models\InvoiceDesign;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Contact;
-use App\Models\Product;
+use App\Models\Country;
 use App\Models\DateFormat;
-use Faker\Factory;
+use App\Models\Font;
+use App\Models\InvoiceDesign;
+use App\Models\Product;
+use App\Models\User;
 
 class UserTableSeeder extends Seeder
 {
@@ -93,7 +92,7 @@ class UserTableSeeder extends Seeder
         ]);
 
         Affiliate::create([
-            'affiliate_key' => SELF_HOST_AFFILIATE_KEY
+            'affiliate_key' => SELF_HOST_AFFILIATE_KEY,
         ]);
     }
 }

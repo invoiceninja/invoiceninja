@@ -1,11 +1,13 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use DB;
-use Mail;
-use Utils;
+namespace App\Console\Commands;
+
 use Carbon;
+use DB;
 use Illuminate\Console\Command;
+use Mail;
 use Symfony\Component\Console\Input\InputOption;
+use Utils;
 
 /*
 
@@ -37,13 +39,11 @@ Options:
 
 */
 
-
 /**
- * Class CheckData
+ * Class CheckData.
  */
 class CheckData extends Command
 {
-
     /**
      * @var string
      */
@@ -61,14 +61,14 @@ class CheckData extends Command
     {
         $this->logMessage(date('Y-m-d') . ' Running CheckData...');
 
-        if (!$this->option('client_id')) {
+        if (! $this->option('client_id')) {
             $this->checkPaidToDate();
             $this->checkBlankInvoiceHistory();
         }
 
         $this->checkBalances();
 
-        if (!$this->option('client_id')) {
+        if (! $this->option('client_id')) {
             $this->checkAccountData();
         }
 
@@ -115,33 +115,33 @@ class CheckData extends Command
                 ENTITY_CONTACT,
                 ENTITY_PAYMENT,
                 ENTITY_INVITATION,
-                ENTITY_USER
+                ENTITY_USER,
             ],
             'invoices' => [
                 ENTITY_CLIENT,
-                ENTITY_USER
+                ENTITY_USER,
             ],
             'payments' => [
                 ENTITY_INVOICE,
                 ENTITY_CLIENT,
                 ENTITY_USER,
                 ENTITY_INVITATION,
-                ENTITY_CONTACT
+                ENTITY_CONTACT,
             ],
             'tasks' => [
                 ENTITY_INVOICE,
                 ENTITY_CLIENT,
-                ENTITY_USER
+                ENTITY_USER,
             ],
             'credits' => [
                 ENTITY_CLIENT,
-                ENTITY_USER
+                ENTITY_USER,
             ],
             'expenses' => [
                 ENTITY_CLIENT,
                 ENTITY_VENDOR,
                 ENTITY_INVOICE,
-                ENTITY_USER
+                ENTITY_USER,
             ],
             'products' => [
                 ENTITY_USER,
@@ -152,7 +152,7 @@ class CheckData extends Command
             'projects' => [
                 ENTITY_USER,
                 ENTITY_CLIENT,
-            ]
+            ],
         ];
 
         foreach ($tables as $table => $entityTypes) {
@@ -259,7 +259,7 @@ class CheckData extends Command
                                 ->first(['invoices.amount', 'invoices.is_recurring', 'invoices.invoice_type_id', 'invoices.deleted_at', 'invoices.id', 'invoices.is_deleted']);
 
                     // Check if this invoice was once set as recurring invoice
-                    if ($invoice && !$invoice->is_recurring && DB::table('invoices')
+                    if ($invoice && ! $invoice->is_recurring && DB::table('invoices')
                             ->where('recurring_invoice_id', '=', $activity->invoice_id)
                             ->first(['invoices.id'])) {
                         $invoice->is_recurring = 1;
@@ -272,7 +272,6 @@ class CheckData extends Command
                         }
                     }
                 }
-
 
                 if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_INVOICE
                     || $activity->activity_type_id == ACTIVITY_TYPE_CREATE_QUOTE) {
@@ -294,12 +293,12 @@ class CheckData extends Command
 
                     // **Fix for ninja invoices which didn't have the invoice_type_id value set
                     if ($noAdjustment && $client->account_id == 20432) {
-                        $this->logMessage("No adjustment for ninja invoice");
+                        $this->logMessage('No adjustment for ninja invoice');
                         $foundProblem = true;
                         $clientFix += $invoice->amount;
                         $activityFix = $invoice->amount;
                     // **Fix for allowing converting a recurring invoice to a normal one without updating the balance**
-                    } elseif ($noAdjustment && $invoice->invoice_type_id == INVOICE_TYPE_STANDARD && !$invoice->is_recurring) {
+                    } elseif ($noAdjustment && $invoice->invoice_type_id == INVOICE_TYPE_STANDARD && ! $invoice->is_recurring) {
                         $this->logMessage("No adjustment for new invoice:{$activity->invoice_id} amount:{$invoice->amount} invoiceTypeId:{$invoice->invoice_type_id} isRecurring:{$invoice->is_recurring}");
                         $foundProblem = true;
                         $clientFix += $invoice->amount;
@@ -323,7 +322,7 @@ class CheckData extends Command
                     }
                 } elseif ($activity->activity_type_id == ACTIVITY_TYPE_ARCHIVE_INVOICE) {
                     // **Fix for updating balance when archiving an invoice**
-                    if ($activity->adjustment != 0 && !$invoice->is_recurring) {
+                    if ($activity->adjustment != 0 && ! $invoice->is_recurring) {
                         $this->logMessage("Incorrect adjustment for archiving invoice adjustment:{$activity->adjustment}");
                         $foundProblem = true;
                         $activityFix = 0;
@@ -362,7 +361,7 @@ class CheckData extends Command
 
                 if ($activityFix !== false || $clientFix !== false) {
                     $data = [
-                        'balance' => $activity->balance + $clientFix
+                        'balance' => $activity->balance + $clientFix,
                     ];
 
                     if ($activityFix !== false) {
@@ -385,8 +384,8 @@ class CheckData extends Command
                 $this->logMessage("** Creating 'recovered update' activity **");
                 if ($this->option('fix') == 'true') {
                     DB::table('activities')->insert([
-                            'created_at' => new Carbon,
-                            'updated_at' => new Carbon,
+                            'created_at' => new Carbon(),
+                            'updated_at' => new Carbon(),
                             'account_id' => $client->account_id,
                             'client_id' => $client->id,
                             'adjustment' => $client->actual_balance - $activity->balance,

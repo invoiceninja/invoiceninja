@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
 
-use Illuminate\Database\Eloquent\SoftDeletes;
+namespace App\Models;
+
 use App\Events\CreditWasCreated;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class Credit
+ * Class Credit.
  */
 class Credit extends EntityModel
 {
@@ -79,6 +81,7 @@ class Credit extends EntityModel
 
     /**
      * @param $amount
+     *
      * @return mixed
      */
     public function apply($amount)

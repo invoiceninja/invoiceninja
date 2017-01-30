@@ -1,9 +1,11 @@
-<?php namespace App\Services;
+<?php
 
+namespace App\Services;
+
+use App\Ninja\Datatables\ProductDatatable;
+use App\Ninja\Repositories\ProductRepository;
 use Auth;
 use Utils;
-use App\Ninja\Repositories\ProductRepository;
-use App\Ninja\Datatables\ProductDatatable;
 
 class ProductService extends BaseService
 {
@@ -20,7 +22,7 @@ class ProductService extends BaseService
     /**
      * ProductService constructor.
      *
-     * @param DatatableService $datatableService
+     * @param DatatableService  $datatableService
      * @param ProductRepository $productRepo
      */
     public function __construct(DatatableService $datatableService, ProductRepository $productRepo)
@@ -39,6 +41,7 @@ class ProductService extends BaseService
 
     /**
      * @param $accountId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($accountId, $search)
@@ -46,7 +49,7 @@ class ProductService extends BaseService
         $datatable = new ProductDatatable(true);
         $query = $this->productRepo->find($accountId, $search);
 
-        if (!Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_all')) {
             $query->where('products.user_id', '=', Auth::user()->id);
         }
 

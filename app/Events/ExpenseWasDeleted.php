@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Expense;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class ExpenseWasDeleted
+ * Class ExpenseWasDeleted.
  */
 class ExpenseWasDeleted extends Event
 {

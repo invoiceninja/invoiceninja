@@ -1,27 +1,29 @@
-<?php namespace App\Listeners;
+<?php
 
+namespace App\Listeners;
+
+use App\Events\ClientWasCreated;
+use App\Events\CreditWasCreated;
+use App\Events\ExpenseWasCreated;
+use App\Events\InvoiceWasCreated;
 use App\Events\InvoiceWasDeleted;
 use App\Events\InvoiceWasUpdated;
-use App\Events\QuoteWasUpdated;
-use App\Events\QuoteWasDeleted;
-use Utils;
-use App\Models\EntityModel;
-use App\Events\ClientWasCreated;
-use App\Events\QuoteWasCreated;
-use App\Events\InvoiceWasCreated;
-use App\Events\CreditWasCreated;
 use App\Events\PaymentWasCreated;
+use App\Events\QuoteWasCreated;
+use App\Events\QuoteWasDeleted;
+use App\Events\QuoteWasUpdated;
 use App\Events\VendorWasCreated;
-use App\Events\ExpenseWasCreated;
-use App\Ninja\Transformers\InvoiceTransformer;
+use App\Models\EntityModel;
+use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\ClientTransformer;
+use App\Ninja\Transformers\InvoiceTransformer;
 use App\Ninja\Transformers\PaymentTransformer;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use App\Ninja\Serializers\ArraySerializer;
+use Utils;
 
 /**
- * Class SubscriptionListener
+ * Class SubscriptionListener.
  */
 class SubscriptionListener
 {

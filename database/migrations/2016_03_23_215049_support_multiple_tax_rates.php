@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class SupportMultipleTaxRates extends Migration
@@ -46,6 +45,7 @@ class SupportMultipleTaxRates extends Migration
             $table->boolean('enable_client_portal_dashboard')->default(true);
         });
     }
+
     /**
      * Reverse the migrations.
      *

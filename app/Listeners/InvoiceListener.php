@@ -1,20 +1,22 @@
-<?php namespace App\Listeners;
+<?php
 
-use Utils;
-use Auth;
-use App\Models\Activity;
-use App\Events\InvoiceWasUpdated;
+namespace App\Listeners;
+
+use App\Events\InvoiceInvitationWasViewed;
 use App\Events\InvoiceWasCreated;
+use App\Events\InvoiceWasUpdated;
+use App\Events\PaymentFailed;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
-use App\Events\PaymentFailed;
-use App\Events\InvoiceInvitationWasViewed;
+use App\Models\Activity;
+use Auth;
+use Utils;
 
 /**
- * Class InvoiceListener
+ * Class InvoiceListener.
  */
 class InvoiceListener
 {

@@ -1,23 +1,25 @@
-<?php namespace App\Models;
+<?php
 
-use Eloquent;
-use Utils;
-use Session;
-use DateTime;
-use Event;
-use Cache;
+namespace App\Models;
+
 use App;
-use Carbon;
 use App\Events\UserSettingsChanged;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
-use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\GeneratesNumbers;
+use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
+use Cache;
+use Carbon;
+use DateTime;
+use Eloquent;
+use Event;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
+use Laracasts\Presenter\PresentableTrait;
+use Session;
+use Utils;
 
 /**
- * Class Account
+ * Class Account.
  */
 class Account extends Eloquent
 {
@@ -348,6 +350,7 @@ class Account extends Eloquent
 
     /**
      * @param int $gatewayId
+     *
      * @return bool
      */
     public function isGatewayConfigured($gatewayId = 0)
@@ -368,7 +371,7 @@ class Account extends Eloquent
      */
     public function isEnglish()
     {
-        return !$this->language_id || $this->language_id == DEFAULT_LANGUAGE;
+        return ! $this->language_id || $this->language_id == DEFAULT_LANGUAGE;
     }
 
     /**
@@ -404,6 +407,7 @@ class Account extends Eloquent
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
+
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
@@ -458,6 +462,7 @@ class Account extends Eloquent
 
     /**
      * @param string $date
+     *
      * @return DateTime|null|string
      */
     public function getDateTime($date = 'now')
@@ -476,7 +481,6 @@ class Account extends Eloquent
         return $this->date_format ? $this->date_format->format : DEFAULT_DATE_FORMAT;
     }
 
-
     public function getSampleLink()
     {
         $invitation = new Invitation();
@@ -486,11 +490,11 @@ class Account extends Eloquent
         return $invitation->getLink();
     }
 
-
     /**
      * @param $amount
      * @param null $client
      * @param bool $hideSymbol
+     *
      * @return string
      */
     public function formatMoney($amount, $client = null, $decorator = false)
@@ -528,6 +532,7 @@ class Account extends Eloquent
 
     /**
      * @param $date
+     *
      * @return null|string
      */
     public function formatDate($date)
@@ -543,6 +548,7 @@ class Account extends Eloquent
 
     /**
      * @param $date
+     *
      * @return null|string
      */
     public function formatDateTime($date)
@@ -558,6 +564,7 @@ class Account extends Eloquent
 
     /**
      * @param $date
+     *
      * @return null|string
      */
     public function formatTime($date)
@@ -605,6 +612,7 @@ class Account extends Eloquent
 
     /**
      * @param bool $type
+     *
      * @return AccountGateway|bool
      */
     public function getGatewayByType($type = false)
@@ -666,8 +674,9 @@ class Account extends Eloquent
     }
 
     /**
-     * @param bool $invitation
+     * @param bool  $invitation
      * @param mixed $gatewayTypeId
+     *
      * @return bool
      */
     public function paymentDriver($invitation = false, $gatewayTypeId = false)
@@ -690,6 +699,7 @@ class Account extends Eloquent
 
     /**
      * @param $gatewayId
+     *
      * @return bool
      */
     public function hasGatewayId($gatewayId)
@@ -699,6 +709,7 @@ class Account extends Eloquent
 
     /**
      * @param $gatewayId
+     *
      * @return bool
      */
     public function getGatewayConfig($gatewayId)
@@ -721,7 +732,7 @@ class Account extends Eloquent
             $this->calculateLogoDetails();
         }
 
-        return !empty($this->logo);
+        return ! empty($this->logo);
     }
 
     /**
@@ -742,7 +753,7 @@ class Account extends Eloquent
             $this->logo = $this->account_key.'.jpg';
         }
 
-        if (!empty($this->logo)) {
+        if (! empty($this->logo)) {
             $image = imagecreatefromstring($disk->get($this->logo));
             $this->logo_width = imagesx($image);
             $this->logo_height = imagesy($image);
@@ -758,21 +769,23 @@ class Account extends Eloquent
      */
     public function getLogoRaw()
     {
-        if (!$this->hasLogo()) {
+        if (! $this->hasLogo()) {
             return null;
         }
 
         $disk = $this->getLogoDisk();
+
         return $disk->get($this->logo);
     }
 
     /**
      * @param bool $cachebuster
+     *
      * @return null|string
      */
     public function getLogoURL($cachebuster = false)
     {
-        if (!$this->hasLogo()) {
+        if (! $this->hasLogo()) {
             return null;
         }
 
@@ -822,6 +835,7 @@ class Account extends Eloquent
     /**
      * @param $userId
      * @param $name
+     *
      * @return null
      */
     public function getToken($userId, $name)
@@ -840,7 +854,7 @@ class Account extends Eloquent
      */
     public function getLogoWidth()
     {
-        if (!$this->hasLogo()) {
+        if (! $this->hasLogo()) {
             return null;
         }
 
@@ -852,7 +866,7 @@ class Account extends Eloquent
      */
     public function getLogoHeight()
     {
-        if (!$this->hasLogo()) {
+        if (! $this->hasLogo()) {
             return null;
         }
 
@@ -862,6 +876,7 @@ class Account extends Eloquent
     /**
      * @param $entityType
      * @param null $clientId
+     *
      * @return mixed
      */
     public function createInvoice($entityType = ENTITY_INVOICE, $clientId = null)
@@ -883,14 +898,14 @@ class Account extends Eloquent
                 $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
             }
 
-            if ($this->hasClientNumberPattern($invoice) && !$clientId) {
+            if ($this->hasClientNumberPattern($invoice) && ! $clientId) {
                 // do nothing, we don't yet know the value
             } elseif (! $invoice->invoice_number) {
                 $invoice->invoice_number = $this->getNextNumber($invoice);
             }
         }
 
-        if (!$clientId) {
+        if (! $clientId) {
             $invoice->client = Client::createNew();
             $invoice->client->public_id = 0;
         }
@@ -957,6 +972,7 @@ class Account extends Eloquent
 
     /**
      * @param $feature
+     *
      * @return bool
      */
     public function hasFeature($feature)
@@ -966,9 +982,9 @@ class Account extends Eloquent
         }
 
         $planDetails = $this->getPlanDetails();
-        $selfHost = !Utils::isNinjaProd();
+        $selfHost = ! Utils::isNinjaProd();
 
-        if (!$selfHost && function_exists('ninja_account_features')) {
+        if (! $selfHost && function_exists('ninja_account_features')) {
             $result = ninja_account_features($this, $feature);
 
             if ($result != null) {
@@ -997,20 +1013,20 @@ class Account extends Eloquent
             case FEATURE_API:
             case FEATURE_CLIENT_PORTAL_PASSWORD:
             case FEATURE_CUSTOM_URL:
-                return $selfHost || !empty($planDetails);
+                return $selfHost || ! empty($planDetails);
 
             // Pro; No trial allowed, unless they're trialing enterprise with an active pro plan
             case FEATURE_MORE_CLIENTS:
-                return $selfHost || !empty($planDetails) && (!$planDetails['trial'] || !empty($this->getPlanDetails(false, false)));
+                return $selfHost || ! empty($planDetails) && (! $planDetails['trial'] || ! empty($this->getPlanDetails(false, false)));
 
             // White Label
             case FEATURE_WHITE_LABEL:
-                if ($this->isNinjaAccount() || (!$selfHost && $planDetails && !$planDetails['expires'])) {
+                if ($this->isNinjaAccount() || (! $selfHost && $planDetails && ! $planDetails['expires'])) {
                     return false;
                 }
                 // Fallthrough
             case FEATURE_REMOVE_CREATED_BY:
-                return !empty($planDetails);// A plan is required even for self-hosted users
+                return ! empty($planDetails); // A plan is required even for self-hosted users
 
             // Enterprise; No Trial allowed; grandfathered for old pro users
             case FEATURE_USERS:// Grandfathered for old Pro users
@@ -1019,12 +1035,12 @@ class Account extends Eloquent
                     $planDetails = $this->getPlanDetails(false, false);
                 }
 
-                return $selfHost || !empty($planDetails) && ($planDetails['plan'] == PLAN_ENTERPRISE || $planDetails['started'] <= date_create(PRO_USERS_GRANDFATHER_DEADLINE));
+                return $selfHost || ! empty($planDetails) && ($planDetails['plan'] == PLAN_ENTERPRISE || $planDetails['started'] <= date_create(PRO_USERS_GRANDFATHER_DEADLINE));
 
             // Enterprise; No Trial allowed
             case FEATURE_DOCUMENTS:
             case FEATURE_USER_PERMISSIONS:
-                return $selfHost || !empty($planDetails) && $planDetails['plan'] == PLAN_ENTERPRISE && !$planDetails['trial'];
+                return $selfHost || ! empty($planDetails) && $planDetails['plan'] == PLAN_ENTERPRISE && ! $planDetails['trial'];
 
             default:
                 return false;
@@ -1033,11 +1049,12 @@ class Account extends Eloquent
 
     /**
      * @param null $plan_details
+     *
      * @return bool
      */
     public function isPro(&$plan_details = null)
     {
-        if (!Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             return true;
         }
 
@@ -1047,16 +1064,17 @@ class Account extends Eloquent
 
         $plan_details = $this->getPlanDetails();
 
-        return !empty($plan_details);
+        return ! empty($plan_details);
     }
 
     /**
      * @param null $plan_details
+     *
      * @return bool
      */
     public function isEnterprise(&$plan_details = null)
     {
-        if (!Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             return true;
         }
 
@@ -1072,11 +1090,12 @@ class Account extends Eloquent
     /**
      * @param bool $include_inactive
      * @param bool $include_trial
+     *
      * @return array|null
      */
     public function getPlanDetails($include_inactive = false, $include_trial = true)
     {
-        if (!$this->company) {
+        if (! $this->company) {
             return null;
         }
 
@@ -1084,7 +1103,7 @@ class Account extends Eloquent
         $price = $this->company->plan_price;
         $trial_plan = $this->company->trial_plan;
 
-        if ((!$plan || $plan == PLAN_FREE) && (!$trial_plan || !$include_trial)) {
+        if ((! $plan || $plan == PLAN_FREE) && (! $trial_plan || ! $include_trial)) {
             return null;
         }
 
@@ -1112,22 +1131,22 @@ class Account extends Eloquent
             }
         }
 
-        if (!$include_inactive && !$plan_active && !$trial_active) {
+        if (! $include_inactive && ! $plan_active && ! $trial_active) {
             return null;
         }
 
         // Should we show plan details or trial details?
-        if (($plan && !$trial_plan) || !$include_trial) {
+        if (($plan && ! $trial_plan) || ! $include_trial) {
             $use_plan = true;
-        } elseif (!$plan && $trial_plan) {
+        } elseif (! $plan && $trial_plan) {
             $use_plan = false;
         } else {
             // There is both a plan and a trial
-            if (!empty($plan_active) && empty($trial_active)) {
+            if (! empty($plan_active) && empty($trial_active)) {
                 $use_plan = true;
-            } elseif (empty($plan_active) && !empty($trial_active)) {
+            } elseif (empty($plan_active) && ! empty($trial_active)) {
                 $use_plan = false;
-            } elseif (!empty($plan_active) && !empty($trial_active)) {
+            } elseif (! empty($plan_active) && ! empty($trial_active)) {
                 // Both are active; use whichever is a better plan
                 if ($plan == PLAN_ENTERPRISE) {
                     $use_plan = true;
@@ -1175,7 +1194,7 @@ class Account extends Eloquent
      */
     public function isTrial()
     {
-        if (!Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             return false;
         }
 
@@ -1191,7 +1210,7 @@ class Account extends Eloquent
     {
         $planDetails = $this->getPlanDetails(true);
 
-        if (!$planDetails || !$planDetails['trial']) {
+        if (! $planDetails || ! $planDetails['trial']) {
             return 0;
         }
 
@@ -1223,7 +1242,7 @@ class Account extends Eloquent
      */
     public function getLogoSize()
     {
-        if (!$this->hasLogo()) {
+        if (! $this->hasLogo()) {
             return null;
         }
 
@@ -1240,6 +1259,7 @@ class Account extends Eloquent
 
     /**
      * @param $eventId
+     *
      * @return \Illuminate\Database\Eloquent\Model|null|static
      */
     public function getSubscription($eventId)
@@ -1298,6 +1318,7 @@ class Account extends Eloquent
 
     /**
      * @param $entityType
+     *
      * @return mixed
      */
     public function getDefaultEmailSubject($entityType)
@@ -1311,6 +1332,7 @@ class Account extends Eloquent
 
     /**
      * @param $entityType
+     *
      * @return mixed
      */
     public function getEmailSubject($entityType)
@@ -1330,6 +1352,7 @@ class Account extends Eloquent
     /**
      * @param $entityType
      * @param bool $message
+     *
      * @return string
      */
     public function getDefaultEmailTemplate($entityType, $message = false)
@@ -1358,6 +1381,7 @@ class Account extends Eloquent
     /**
      * @param $entityType
      * @param bool $message
+     *
      * @return mixed
      */
     public function getEmailTemplate($entityType, $message = false)
@@ -1369,7 +1393,7 @@ class Account extends Eloquent
             $template = $this->$field;
         }
 
-        if (!$template) {
+        if (! $template) {
             $template = $this->getDefaultEmailTemplate($entityType, $message);
         }
 
@@ -1379,6 +1403,7 @@ class Account extends Eloquent
 
     /**
      * @param string $view
+     *
      * @return string
      */
     public function getTemplateView($view = '')
@@ -1401,6 +1426,7 @@ class Account extends Eloquent
 
     /**
      * @param $reminder
+     *
      * @return bool
      */
     public function getReminderDate($reminder)
@@ -1417,11 +1443,12 @@ class Account extends Eloquent
 
     /**
      * @param Invoice $invoice
+     *
      * @return bool|string
      */
     public function getInvoiceReminder(Invoice $invoice)
     {
-        for ($i=1; $i<=3; $i++) {
+        for ($i = 1; $i <= 3; $i++) {
             if ($date = $this->getReminderDate($i)) {
                 $field = $this->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
                 if ($invoice->$field == $date) {
@@ -1435,11 +1462,12 @@ class Account extends Eloquent
 
     /**
      * @param null $storage_gateway
+     *
      * @return bool
      */
     public function showTokenCheckbox(&$storage_gateway = null)
     {
-        if (!($storage_gateway = $this->getTokenGatewayId())) {
+        if (! ($storage_gateway = $this->getTokenGatewayId())) {
             return false;
         }
 
@@ -1469,7 +1497,7 @@ class Account extends Eloquent
     public function getTokenGateway()
     {
         $gatewayId = $this->getTokenGatewayId();
-        if (!$gatewayId) {
+        if (! $gatewayId) {
             return;
         }
 
@@ -1503,18 +1531,19 @@ class Account extends Eloquent
 
     /**
      * @param $host
+     *
      * @return bool
      */
     public function checkSubdomain($host)
     {
-        if (!$this->subdomain) {
+        if (! $this->subdomain) {
             return true;
         }
 
         $server = explode('.', $host);
         $subdomain = $server[0];
 
-        if (!in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain) {
+        if (! in_array($subdomain, ['app', 'www']) && $subdomain != $this->subdomain) {
             return false;
         }
 
@@ -1524,6 +1553,7 @@ class Account extends Eloquent
     /**
      * @param $field
      * @param bool $entity
+     *
      * @return bool
      */
     public function showCustomField($field, $entity = false)
@@ -1532,7 +1562,7 @@ class Account extends Eloquent
             return true;
         }
 
-        if (!$entity) {
+        if (! $entity) {
             return false;
         }
 
@@ -1582,6 +1612,7 @@ class Account extends Eloquent
 
     /**
      * @param string $protocol
+     *
      * @return string
      */
     public function getFontsUrl($protocol = '')
@@ -1597,7 +1628,7 @@ class Account extends Eloquent
             $google_fonts[] = $headerFontSettings['google_font'];
         }
 
-        return ($protocol?$protocol.':':'').'//fonts.googleapis.com/css?family='.implode('|', $google_fonts);
+        return ($protocol ? $protocol.':' : '').'//fonts.googleapis.com/css?family='.implode('|', $google_fonts);
     }
 
     /**
@@ -1634,6 +1665,7 @@ class Account extends Eloquent
 
     /**
      * @param bool $include_weight
+     *
      * @return string
      */
     public function getHeaderFontCss($include_weight = true)
@@ -1650,6 +1682,7 @@ class Account extends Eloquent
 
     /**
      * @param bool $include_weight
+     *
      * @return string
      */
     public function getBodyFontCss($include_weight = true)

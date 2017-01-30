@@ -1,11 +1,13 @@
-<?php namespace App\Http\Controllers\ClientAuth;
+<?php
 
-use Session;
-use Illuminate\Http\Request;
-use App\Models\User;
+namespace App\Http\Controllers\ClientAuth;
+
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\User;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Session;
 
 class AuthController extends Controller
 {
@@ -31,7 +33,7 @@ class AuthController extends Controller
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && !$contact->is_deleted) {
+            if ($contact && ! $contact->is_deleted) {
                 $account = $contact->account;
 
                 $data['account'] = $account;
@@ -45,7 +47,7 @@ class AuthController extends Controller
     /**
      * Get the needed authorization credentials from the request.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      *
      * @return array
      */
@@ -57,7 +59,7 @@ class AuthController extends Controller
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && !$contact->is_deleted) {
+            if ($contact && ! $contact->is_deleted) {
                 $credentials['id'] = $contact->id;
             }
         }
@@ -68,7 +70,7 @@ class AuthController extends Controller
     /**
      * Validate the user login request.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param \Illuminate\Http\Request $request
      *
      * @return void
      */

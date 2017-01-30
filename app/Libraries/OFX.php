@@ -1,10 +1,12 @@
-<?php namespace App\Libraries;
+<?php
+
+namespace App\Libraries;
 
 // https://github.com/denvertimothy/OFX
 
-use Utils;
 use Log;
 use SimpleXMLElement;
+use Utils;
 
 class OFX
 {
@@ -13,11 +15,13 @@ class OFX
     public $response;
     public $responseHeader;
     public $responseBody;
+
     public function __construct($bank, $request)
     {
         $this->bank = $bank;
         $this->request = $request;
     }
+
     public function go()
     {
         $c = curl_init();
@@ -40,6 +44,7 @@ class OFX
         $this->responseHeader = $tmp[0];
         $this->responseBody = '<OFX>'.$tmp[1];
     }
+
     public function xml()
     {
         $xml = $this->responseBody;
@@ -52,6 +57,7 @@ class OFX
     public static function closeTags($x)
     {
         $x = preg_replace('/\s+/', '', $x);
+
         return preg_replace('/(<([^<\/]+)>)(?!.*?<\/\2>)([^<]+)/', '\1\3</\2>', $x);
     }
 }
@@ -68,6 +74,7 @@ class Bank
     public $fid;
     public $org;
     public $url;
+
     public function __construct($finance, $fid, $url, $org)
     {
         $this->finance = $finance;
@@ -83,12 +90,14 @@ class Login
     public $bank;
     public $id;
     public $pass;
+
     public function __construct($bank, $id, $pass)
     {
         $this->bank = $bank;
         $this->id = $id;
         $this->pass = $pass;
     }
+
     public function setup()
     {
         $ofxRequest =
@@ -149,6 +158,7 @@ class Account
     public $ledgerBalance;
     public $availableBalance;
     public $response;
+
     public function __construct($login, $id, $type, $subType = null, $bankId = null)
     {
         $this->login = $login;
@@ -157,6 +167,7 @@ class Account
         $this->subType = $subType;
         $this->bankId = $bankId;
     }
+
     public function setup($includeTransactions = true)
     {
         $ofxRequest =
@@ -227,10 +238,10 @@ class Account
         $this->response = $o->response;
         $x = $o->xml();
         $a = $x->xpath('/OFX/*/*/*/LEDGERBAL/BALAMT');
-        $this->ledgerBalance = (double) $a[0];
+        $this->ledgerBalance = (float) $a[0];
         $a = $x->xpath('/OFX/*/*/*/AVAILBAL/BALAMT');
         if (isset($a[0])) {
-            $this->availableBalance = (double) $a[0];
+            $this->availableBalance = (float) $a[0];
         }
     }
 }

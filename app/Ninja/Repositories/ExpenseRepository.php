@@ -1,11 +1,13 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Utils;
-use Auth;
+namespace App\Ninja\Repositories;
+
+use App\Models\Document;
 use App\Models\Expense;
 use App\Models\Vendor;
-use App\Models\Document;
+use Auth;
+use DB;
+use Utils;
 
 class ExpenseRepository extends BaseRepository
 {
@@ -175,7 +177,7 @@ class ExpenseRepository extends BaseRepository
         $expense->save();
 
         // Documents
-        $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):[];
+        $document_ids = ! empty($input['document_ids']) ? array_map('intval', $input['document_ids']) : [];
         ;
         foreach ($document_ids as $document_id) {
             // check document completed upload before user submitted form

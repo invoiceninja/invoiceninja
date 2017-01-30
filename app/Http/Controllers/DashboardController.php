@@ -1,13 +1,15 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use View;
-use Utils;
+namespace App\Http\Controllers;
+
 use App\Models\Client;
 use App\Ninja\Repositories\DashboardRepository;
+use Auth;
+use Utils;
+use View;
 
 /**
- * Class DashboardController
+ * Class DashboardController.
  */
 class DashboardController extends BaseController
 {

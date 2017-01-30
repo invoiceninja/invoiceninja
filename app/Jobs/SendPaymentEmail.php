@@ -4,12 +4,12 @@ namespace App\Jobs;
 
 use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class SendInvoiceEmail
+ * Class SendInvoiceEmail.
  */
 class SendPaymentEmail extends Job implements ShouldQueue
 {
@@ -19,7 +19,6 @@ class SendPaymentEmail extends Job implements ShouldQueue
      * @var Payment
      */
     protected $payment;
-
 
     /**
      * Create a new job instance.

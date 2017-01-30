@@ -1,19 +1,21 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
+namespace App\Ninja\Repositories;
+
+use App\Jobs\SendInvoiceEmail;
 use App\Models\Account;
-use DB;
-use Utils;
-use Auth;
 use App\Models\Client;
-use App\Models\Invoice;
-use App\Models\InvoiceItem;
-use App\Models\Invitation;
-use App\Models\Product;
-use App\Models\Task;
 use App\Models\Document;
 use App\Models\Expense;
+use App\Models\Invitation;
+use App\Models\Invoice;
+use App\Models\InvoiceItem;
+use App\Models\Product;
+use App\Models\Task;
 use App\Services\PaymentService;
-use App\Jobs\SendInvoiceEmail;
+use Auth;
+use DB;
+use Utils;
 
 class InvoiceRepository extends BaseRepository
 {
@@ -281,7 +283,7 @@ class InvoiceRepository extends BaseRepository
                 return $model->partial > 0 ?
                     trans('texts.partial_remaining', [
                         'partial' => Utils::formatMoney($model->partial, $model->currency_id, $model->country_id),
-                        'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id)
+                        'balance' => Utils::formatMoney($model->balance, $model->currency_id, $model->country_id),
                     ]) :
                     Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
             });
@@ -294,8 +296,9 @@ class InvoiceRepository extends BaseRepository
     }
 
     /**
-     * @param array $data
+     * @param array        $data
      * @param Invoice|null $invoice
+     *
      * @return Invoice|mixed
      */
     public function save(array $data, Invoice $invoice = null)
@@ -304,7 +307,7 @@ class InvoiceRepository extends BaseRepository
         $account = \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        $isNew = !$publicId || $publicId == '-1';
+        $isNew = ! $publicId || $publicId == '-1';
 
         if ($invoice) {
             // do nothing
@@ -361,7 +364,7 @@ class InvoiceRepository extends BaseRepository
             $account->save();
         }
 
-        if (!empty($data['invoice_number']) && !$invoice->is_recurring) {
+        if (! empty($data['invoice_number']) && ! $invoice->is_recurring) {
             $invoice->invoice_number = trim($data['invoice_number']);
         }
 
@@ -405,7 +408,7 @@ class InvoiceRepository extends BaseRepository
                 $invoice->due_date = $data['due_date'];
             }
         } else {
-            if (!empty($data['due_date']) || !empty($data['due_date_sql'])) {
+            if (! empty($data['due_date']) || ! empty($data['due_date_sql'])) {
                 $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
             }
             $invoice->frequency_id = 0;
@@ -421,11 +424,11 @@ class InvoiceRepository extends BaseRepository
             $invoice->terms = '';
         }
 
-        $invoice->invoice_footer = (isset($data['invoice_footer']) && trim($data['invoice_footer'])) ? trim($data['invoice_footer']) : (!$publicId && $account->invoice_footer ? $account->invoice_footer : '');
+        $invoice->invoice_footer = (isset($data['invoice_footer']) && trim($data['invoice_footer'])) ? trim($data['invoice_footer']) : (! $publicId && $account->invoice_footer ? $account->invoice_footer : '');
         $invoice->public_notes = isset($data['public_notes']) ? trim($data['public_notes']) : '';
 
         // process date variables if not recurring
-        if (!$invoice->is_recurring) {
+        if (! $invoice->is_recurring) {
             $invoice->terms = Utils::processVariables($invoice->terms);
             $invoice->invoice_footer = Utils::processVariables($invoice->invoice_footer);
             $invoice->public_notes = Utils::processVariables($invoice->public_notes);
@@ -448,7 +451,7 @@ class InvoiceRepository extends BaseRepository
 
         foreach ($data['invoice_items'] as $item) {
             $item = (array) $item;
-            if (!$item['cost'] && !$item['product_key'] && !$item['notes']) {
+            if (! $item['cost'] && ! $item['product_key'] && ! $item['notes']) {
                 continue;
             }
 
@@ -467,9 +470,9 @@ class InvoiceRepository extends BaseRepository
 
             if ($invoice->discount > 0) {
                 if ($invoice->is_amount_discount) {
-                    $lineTotal -= round(($lineTotal/$total) * $invoice->discount, 2);
+                    $lineTotal -= round(($lineTotal / $total) * $invoice->discount, 2);
                 } else {
-                    $lineTotal -= round($lineTotal * ($invoice->discount/100), 2);
+                    $lineTotal -= round($lineTotal * ($invoice->discount / 100), 2);
                 }
             }
 
@@ -487,7 +490,7 @@ class InvoiceRepository extends BaseRepository
             if ($invoice->is_amount_discount) {
                 $total -= $invoice->discount;
             } else {
-                $discount = round($total * ($invoice->discount/100), 2);
+                $discount = round($total * ($invoice->discount / 100), 2);
                 $total -= $discount;
             }
         }
@@ -526,10 +529,10 @@ class InvoiceRepository extends BaseRepository
         $total += $itemTax;
 
         // custom fields not charged taxes
-        if ($invoice->custom_value1 && !$invoice->custom_taxes1) {
+        if ($invoice->custom_value1 && ! $invoice->custom_taxes1) {
             $total += $invoice->custom_value1;
         }
-        if ($invoice->custom_value2 && !$invoice->custom_taxes2) {
+        if ($invoice->custom_value2 && ! $invoice->custom_taxes2) {
             $total += $invoice->custom_value2;
         }
 
@@ -558,7 +561,7 @@ class InvoiceRepository extends BaseRepository
                     if ($document->invoice_id && $document->invoice_id != $invoice->id) {
                         // From a clone
                         $document = $document->cloneDocument();
-                        $document_ids[] = $document->public_id;// Don't remove this document
+                        $document_ids[] = $document->public_id; // Don't remove this document
                     }
 
                     $document->invoice_id = $invoice->id;
@@ -569,7 +572,7 @@ class InvoiceRepository extends BaseRepository
 
             if (! $invoice->wasRecentlyCreated) {
                 foreach ($invoice->documents as $document) {
-                    if (!in_array($document->public_id, $document_ids)) {
+                    if (! in_array($document->public_id, $document_ids)) {
                         // Removed
                         // Not checking permissions; deleting a document is just editing the invoice
                         if ($document->invoice_id == $invoice->id) {
@@ -610,7 +613,7 @@ class InvoiceRepository extends BaseRepository
             if ($productKey = trim($item['product_key'])) {
                 if (\Auth::user()->account->update_products && ! $invoice->has_tasks && ! $invoice->has_expenses) {
                     $product = Product::findProductByKey($productKey);
-                    if (!$product) {
+                    if (! $product) {
                         if (Auth::user()->can('create', ENTITY_PRODUCT)) {
                             $product = Product::createNew();
                             $product->product_key = trim($item['product_key']);
@@ -656,7 +659,8 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param Invoice $invoice
-     * @param null $quotePublicId
+     * @param null    $quotePublicId
+     *
      * @return mixed
      */
     public function cloneInvoice(Invoice $invoice, $quotePublicId = null)
@@ -779,7 +783,6 @@ class InvoiceRepository extends BaseRepository
         //dispatch(new SendInvoiceEmail($invoice));
     }
 
-
     /**
      * @param Invoice $invoice
      */
@@ -810,6 +813,7 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param $invitationKey
+     *
      * @return Invitation|bool
      */
     public function findInvoiceByInvitation($invitationKey)
@@ -817,19 +821,19 @@ class InvoiceRepository extends BaseRepository
         /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
-        if (!$invitation) {
+        if (! $invitation) {
             return false;
         }
 
         $invoice = $invitation->invoice;
-        if (!$invoice || $invoice->is_deleted) {
+        if (! $invoice || $invoice->is_deleted) {
             return false;
         }
 
         $invoice->load('user', 'invoice_items', 'documents', 'invoice_design', 'account.country', 'client.contacts', 'client.country');
         $client = $invoice->client;
 
-        if (!$client || $client->is_deleted) {
+        if (! $client || $client->is_deleted) {
             return false;
         }
 
@@ -838,6 +842,7 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param $clientId
+     *
      * @return mixed
      */
     public function findOpenInvoices($clientId, $entityType = false)
@@ -862,6 +867,7 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param Invoice $recurInvoice
+     *
      * @return mixed
      */
     public function createRecurringInvoice(Invoice $recurInvoice)
@@ -872,11 +878,11 @@ class InvoiceRepository extends BaseRepository
             return false;
         }
 
-        if (!$recurInvoice->user->confirmed) {
+        if (! $recurInvoice->user->confirmed) {
             return false;
         }
 
-        if (!$recurInvoice->shouldSendToday()) {
+        if (! $recurInvoice->shouldSendToday()) {
             return false;
         }
 
@@ -940,7 +946,7 @@ class InvoiceRepository extends BaseRepository
         $recurInvoice->last_sent_date = date('Y-m-d');
         $recurInvoice->save();
 
-        if ($recurInvoice->getAutoBillEnabled() && !$recurInvoice->account->auto_bill_on_due_date) {
+        if ($recurInvoice->getAutoBillEnabled() && ! $recurInvoice->account->auto_bill_on_due_date) {
             // autoBillInvoice will check for ACH, so we're not checking here
             if ($this->paymentService->autoBillInvoice($invoice)) {
                 // update the invoice reference to match its actual state
@@ -954,13 +960,14 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param Account $account
+     *
      * @return mixed
      */
     public function findNeedingReminding(Account $account)
     {
         $dates = [];
 
-        for ($i=1; $i<=3; $i++) {
+        for ($i = 1; $i <= 3; $i++) {
             if ($date = $account->getReminderDate($i)) {
                 $field = $account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
                 $dates[] = "$field = '$date'";

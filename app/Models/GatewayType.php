@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
 
-use Eloquent;
+namespace App\Models;
+
 use Cache;
+use Eloquent;
 use Utils;
 
 /**
- * Class GatewayType
+ * Class GatewayType.
  */
 class GatewayType extends Eloquent
 {

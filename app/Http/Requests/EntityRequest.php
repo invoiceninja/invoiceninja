@@ -1,9 +1,11 @@
-<?php namespace App\Http\Requests;
+<?php
 
-use Input;
-use Utils;
+namespace App\Http\Requests;
+
 use App\Libraries\HistoryUtils;
 use App\Models\EntityModel;
+use Input;
+use Utils;
 
 class EntityRequest extends Request
 {
@@ -56,6 +58,7 @@ class EntityRequest extends Request
         if ($this->entity()) {
             if ($this->user()->can('view', $this->entity())) {
                 HistoryUtils::trackViewed($this->entity());
+
                 return true;
             }
         } else {

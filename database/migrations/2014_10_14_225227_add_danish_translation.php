@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddDanishTranslation extends Migration
 {
-
     /**
      * Run the migrations.
      *

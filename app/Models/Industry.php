@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class Industry
+ * Class Industry.
  */
 class Industry extends Eloquent
 {

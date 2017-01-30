@@ -1,12 +1,14 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Cache;
-use Auth;
-use App\Models\Client;
-use App\Models\Contact;
+namespace App\Ninja\Repositories;
+
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasUpdated;
+use App\Models\Client;
+use App\Models\Contact;
+use Auth;
+use Cache;
+use DB;
 
 class ClientRepository extends BaseRepository
 {
@@ -76,7 +78,7 @@ class ClientRepository extends BaseRepository
 
         if ($client) {
             // do nothing
-        } elseif (!$publicId || $publicId == '-1') {
+        } elseif (! $publicId || $publicId == '-1') {
             $client = Client::createNew();
             if (Auth::check() && Auth::user()->account->client_number_counter && empty($data['id_number'])) {
                 $data['id_number'] = Auth::user()->account->getNextNumber();
@@ -130,13 +132,13 @@ class ClientRepository extends BaseRepository
 
         if (! $client->wasRecentlyCreated) {
             foreach ($client->contacts as $contact) {
-                if (!in_array($contact->public_id, $contactIds)) {
+                if (! in_array($contact->public_id, $contactIds)) {
                     $contact->delete();
                 }
             }
         }
 
-        if (!$publicId || $publicId == '-1') {
+        if (! $publicId || $publicId == '-1') {
             event(new ClientWasCreated($client));
         } else {
             event(new ClientWasUpdated($client));

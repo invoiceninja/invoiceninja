@@ -1,13 +1,15 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use Utils;
-use Illuminate\Console\Command;
+namespace App\Console\Commands;
+
 use App\Models\Company;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
+use Illuminate\Console\Command;
+use Utils;
 
 /**
- * Class SendRenewalInvoices
+ * Class SendRenewalInvoices.
  */
 class SendRenewalInvoices extends Command
 {
@@ -34,7 +36,7 @@ class SendRenewalInvoices extends Command
     /**
      * SendRenewalInvoices constructor.
      *
-     * @param Mailer $mailer
+     * @param Mailer            $mailer
      * @param AccountRepository $repo
      */
     public function __construct(Mailer $mailer, AccountRepository $repo)
@@ -56,7 +58,7 @@ class SendRenewalInvoices extends Command
         $this->info(count($companies).' companies found renewing in 10 days');
 
         foreach ($companies as $company) {
-            if (!count($company->accounts)) {
+            if (! count($company->accounts)) {
                 continue;
             }
 
@@ -74,7 +76,7 @@ class SendRenewalInvoices extends Command
                 $plan['price'] = min($company->pending_plan_price, Utils::getPlanPrice($plan));
             }
 
-            if ($plan['plan'] == PLAN_FREE || !$plan['plan'] || !$plan['term'] || !$plan['price']) {
+            if ($plan['plan'] == PLAN_FREE || ! $plan['plan'] || ! $plan['term'] || ! $plan['price']) {
                 continue;
             }
 

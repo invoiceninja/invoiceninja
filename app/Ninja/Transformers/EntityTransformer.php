@@ -1,7 +1,9 @@
-<?php namespace App\Ninja\Transformers;
+<?php
 
-use Auth;
+namespace App\Ninja\Transformers;
+
 use App\Models\Account;
+use Auth;
 use League\Fractal\TransformerAbstract;
 
 class EntityTransformer extends TransformerAbstract

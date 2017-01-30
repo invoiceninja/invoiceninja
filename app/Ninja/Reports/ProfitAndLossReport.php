@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Reports;
 
-use Auth;
-use App\Models\Payment;
 use App\Models\Expense;
+use App\Models\Payment;
+use Auth;
 
 class ProfitAndLossReport extends AbstractReport
 {
@@ -40,7 +40,6 @@ class ProfitAndLossReport extends AbstractReport
             $this->addToTotals($client->currency_id, 'profit', $payment->getCompletedAmount(), $payment->present()->month);
         }
 
-
         $expenses = Expense::scope()
                         ->with('client.contacts')
                         ->withArchived();
@@ -59,7 +58,6 @@ class ProfitAndLossReport extends AbstractReport
             $this->addToTotals($client->currency_id, 'expenses', $expense->amount, $expense->present()->month);
             $this->addToTotals($client->currency_id, 'profit', $expense->amount * -1, $expense->present()->month);
         }
-
 
         //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
         //$this->addToTotals($client->currency_id, 'amount', $invoice->amount);

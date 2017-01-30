@@ -1,15 +1,17 @@
-<?php namespace App\Models;
+<?php
 
-use Utils;
-use DB;
+namespace App\Models;
+
 use App\Events\VendorWasCreated;
-use App\Events\VendorWasUpdated;
 use App\Events\VendorWasDeleted;
-use Laracasts\Presenter\PresentableTrait;
+use App\Events\VendorWasUpdated;
+use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
+use Utils;
 
 /**
- * Class Vendor
+ * Class Vendor.
  */
 class Vendor extends EntityModel
 {
@@ -19,15 +21,15 @@ class Vendor extends EntityModel
     /**
      * @var string
      */
-    protected $presenter    = 'App\Ninja\Presenters\VendorPresenter';
+    protected $presenter = 'App\Ninja\Presenters\VendorPresenter';
     /**
      * @var array
      */
-    protected $dates        = ['deleted_at'];
+    protected $dates = ['deleted_at'];
     /**
      * @var array
      */
-    protected $fillable     = [
+    protected $fillable = [
         'name',
         'id_number',
         'vat_number',
@@ -47,39 +49,39 @@ class Vendor extends EntityModel
     /**
      * @var string
      */
-    public static $fieldName        = 'name';
+    public static $fieldName = 'name';
     /**
      * @var string
      */
-    public static $fieldPhone       = 'work_phone';
+    public static $fieldPhone = 'work_phone';
     /**
      * @var string
      */
-    public static $fieldAddress1    = 'address1';
+    public static $fieldAddress1 = 'address1';
     /**
      * @var string
      */
-    public static $fieldAddress2    = 'address2';
+    public static $fieldAddress2 = 'address2';
     /**
      * @var string
      */
-    public static $fieldCity        = 'city';
+    public static $fieldCity = 'city';
     /**
      * @var string
      */
-    public static $fieldState       = 'state';
+    public static $fieldState = 'state';
     /**
      * @var string
      */
-    public static $fieldPostalCode  = 'postal_code';
+    public static $fieldPostalCode = 'postal_code';
     /**
      * @var string
      */
-    public static $fieldNotes       = 'notes';
+    public static $fieldNotes = 'notes';
     /**
      * @var string
      */
-    public static $fieldCountry     = 'country';
+    public static $fieldCountry = 'country';
 
     /**
      * @return array
@@ -87,15 +89,15 @@ class Vendor extends EntityModel
     public static function getImportColumns()
     {
         return [
-            Vendor::$fieldName,
-            Vendor::$fieldPhone,
-            Vendor::$fieldAddress1,
-            Vendor::$fieldAddress2,
-            Vendor::$fieldCity,
-            Vendor::$fieldState,
-            Vendor::$fieldPostalCode,
-            Vendor::$fieldCountry,
-            Vendor::$fieldNotes,
+            self::$fieldName,
+            self::$fieldPhone,
+            self::$fieldAddress1,
+            self::$fieldAddress2,
+            self::$fieldCity,
+            self::$fieldState,
+            self::$fieldPostalCode,
+            self::$fieldCountry,
+            self::$fieldNotes,
             VendorContact::$fieldFirstName,
             VendorContact::$fieldLastName,
             VendorContact::$fieldPhone,
@@ -207,6 +209,7 @@ class Vendor extends EntityModel
     /**
      * @param $data
      * @param bool $isPrimary
+     *
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function addVendorContact($data, $isPrimary = false)
@@ -256,6 +259,7 @@ class Vendor extends EntityModel
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
+
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
@@ -319,7 +323,7 @@ class Vendor extends EntityModel
             return $this->currency_id;
         }
 
-        if (!$this->account) {
+        if (! $this->account) {
             $this->load('account');
         }
 
@@ -355,7 +359,6 @@ Vendor::updating(function ($vendor) {
 Vendor::updated(function ($vendor) {
     event(new VendorWasUpdated($vendor));
 });
-
 
 Vendor::deleting(function ($vendor) {
     $vendor->setNullValues();

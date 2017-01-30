@@ -1,6 +1,6 @@
 <?php
 
-if (!defined('APP_NAME')) {
+if (! defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
     define('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME')));
     define('CONTACT_NAME', env('MAIL_FROM_NAME'));
@@ -128,7 +128,6 @@ if (!defined('APP_NAME')) {
     define('ACTIVITY_TYPE_RESTORE_TASK', 46);
     define('ACTIVITY_TYPE_UPDATE_EXPENSE', 47);
 
-
     define('DEFAULT_INVOICE_NUMBER', '0001');
     define('RECENTLY_VIEWED_LIMIT', 20);
     define('LOGGED_ERROR_LIMIT', 100);
@@ -140,13 +139,13 @@ if (!defined('APP_NAME')) {
     define('MAX_LOGO_FILE_SIZE', 200); // KB
     define('MAX_FAILED_LOGINS', 10);
     define('MAX_INVOICE_ITEMS', env('MAX_INVOICE_ITEMS', 100));
-    define('MAX_DOCUMENT_SIZE', env('MAX_DOCUMENT_SIZE', 10000));// KB
-    define('MAX_EMAIL_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 10000));// Total KB
-    define('MAX_ZIP_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 30000));// Total KB (uncompressed)
-    define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 300));// pixels
+    define('MAX_DOCUMENT_SIZE', env('MAX_DOCUMENT_SIZE', 10000)); // KB
+    define('MAX_EMAIL_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 10000)); // Total KB
+    define('MAX_ZIP_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 30000)); // Total KB (uncompressed)
+    define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 300)); // pixels
     define('DEFAULT_FONT_SIZE', 9);
-    define('DEFAULT_HEADER_FONT', 1);// Roboto
-    define('DEFAULT_BODY_FONT', 1);// Roboto
+    define('DEFAULT_HEADER_FONT', 1); // Roboto
+    define('DEFAULT_BODY_FONT', 1); // Roboto
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
     define('IMPORT_CSV', 'CSV');
@@ -240,7 +239,6 @@ if (!defined('APP_NAME')) {
 
     define('RESULT_SUCCESS', 'success');
     define('RESULT_FAILURE', 'failure');
-
 
     define('PAYMENT_LIBRARY_OMNIPAY', 1);
     define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
@@ -469,7 +467,7 @@ if (!defined('APP_NAME')) {
     define('FEATURE_DOCUMENTS', 'documents');
 
     // No Trial allowed
-    define('FEATURE_USERS', 'users');// Grandfathered for old Pro users
+    define('FEATURE_USERS', 'users'); // Grandfathered for old Pro users
     define('FEATURE_USER_PERMISSIONS', 'user_permissions');
 
     // Pro users who started paying on or before this date will be able to manage users
@@ -514,7 +512,7 @@ if (!defined('APP_NAME')) {
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
                 4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
                 8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
-                16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover']
+                16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
             ];
     define('CREDIT_CARDS', serialize($creditCards));
 
@@ -539,7 +537,6 @@ if (!defined('APP_NAME')) {
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
-
     // TODO remove these translation functions
     function uctrans($text)
     {
@@ -556,6 +553,7 @@ if (!defined('APP_NAME')) {
         } else {
             $string = trans($text);
             $english = trans($text, [], 'en');
+
             return $string != $english ? $string : '';
         }
     }

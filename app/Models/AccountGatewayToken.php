@@ -1,10 +1,12 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class AccountGatewayToken
+ * Class AccountGatewayToken.
  */
 class AccountGatewayToken extends Eloquent
 {
@@ -63,6 +65,7 @@ class AccountGatewayToken extends Eloquent
      * @param $query
      * @param $clientId
      * @param $accountGatewayId
+     *
      * @return mixed
      */
     public function scopeClientAndGateway($query, $clientId, $accountGatewayId)
@@ -93,6 +96,7 @@ class AccountGatewayToken extends Eloquent
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $merchantId = $accountGateway->getConfigField('merchantId');
             $testMode = $accountGateway->getConfigField('testMode');
+
             return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
         } else {
             return false;

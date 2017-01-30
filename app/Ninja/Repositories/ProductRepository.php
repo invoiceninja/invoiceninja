@@ -1,7 +1,9 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
+namespace App\Ninja\Repositories;
+
 use App\Models\Product;
+use DB;
 
 class ProductRepository extends BaseRepository
 {

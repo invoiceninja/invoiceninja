@@ -6,9 +6,9 @@ use App\Models\User;
 
 class ExpenseCategoryPolicy extends EntityPolicy
 {
-
     /**
      * @param User $user
+     *
      * @return bool
      */
     public static function create(User $user, $item)
@@ -41,9 +41,10 @@ class ExpenseCategoryPolicy extends EntityPolicy
     /**
      * @param User $user
      * @param $ownerUserId
+     *
      * @return bool
      */
-    public static function viewByOwner(User$user, $ownerUserId)
+    public static function viewByOwner(User $user, $ownerUserId)
     {
         return true;
     }
@@ -51,6 +52,7 @@ class ExpenseCategoryPolicy extends EntityPolicy
     /**
      * @param User $user
      * @param $ownerUserId
+     *
      * @return bool
      */
     public static function editByOwner(User $user, $ownerUserId)

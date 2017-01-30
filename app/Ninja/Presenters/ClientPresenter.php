@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Presenters;
+<?php
+
+namespace App\Ninja\Presenters;
 
 class ClientPresenter extends EntityPresenter
 {

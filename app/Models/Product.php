@@ -1,10 +1,12 @@
-<?php namespace App\Models;
+<?php
 
-use Laracasts\Presenter\PresentableTrait;
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class Product
+ * Class Product.
  */
 class Product extends EntityModel
 {
@@ -65,11 +67,12 @@ class Product extends EntityModel
 
     /**
      * @param $key
+     *
      * @return mixed
      */
     public static function findProductByKey($key)
     {
-        return Product::scope()->where('product_key', '=', $key)->first();
+        return self::scope()->where('product_key', '=', $key)->first();
     }
 
     /**

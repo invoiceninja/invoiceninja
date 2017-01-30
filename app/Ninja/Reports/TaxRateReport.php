@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Reports;
 
-use Auth;
 use App\Models\Client;
+use Auth;
 
 class TaxRateReport extends AbstractReport
 {
@@ -70,7 +70,7 @@ class TaxRateReport extends AbstractReport
                         $tax['name'],
                         $tax['rate'] . '%',
                         $account->formatMoney($tax['amount'], $client),
-                        $account->formatMoney($tax['paid'], $client)
+                        $account->formatMoney($tax['paid'], $client),
                     ];
                 }
 

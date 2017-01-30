@@ -1,10 +1,12 @@
-<?php namespace App\Ninja\Presenters;
+<?php
 
+namespace App\Ninja\Presenters;
+
+use App\Libraries\Skype\InvoiceCard;
 use Carbon;
+use DropdownButton;
 use stdClass;
 use Utils;
-use DropdownButton;
-use App\Libraries\Skype\InvoiceCard;
 
 class InvoicePresenter extends EntityPresenter
 {
@@ -120,6 +122,7 @@ class InvoicePresenter extends EntityPresenter
         } else {
             $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
             $status = strtolower($status);
+
             return trans("texts.status_{$status}");
         }
     }
@@ -138,12 +141,14 @@ class InvoicePresenter extends EntityPresenter
     {
         $frequency = $this->entity->frequency ? $this->entity->frequency->name : '';
         $frequency = strtolower($frequency);
+
         return trans('texts.freq_'.$frequency);
     }
 
     public function email()
     {
         $client = $this->entity->client;
+
         return count($client->contacts) ? $client->contacts[0]->email : '';
     }
 
@@ -205,7 +210,7 @@ class InvoicePresenter extends EntityPresenter
         $actions = [
             ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
             ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')],
-            DropdownButton::DIVIDER
+            DropdownButton::DIVIDER,
         ];
 
         if ($entityType == ENTITY_QUOTE) {
@@ -219,7 +224,7 @@ class InvoicePresenter extends EntityPresenter
                 $actions[] = ['url' => url("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (!$invoice->is_recurring && $invoice->balance > 0) {
+            if (! $invoice->is_recurring && $invoice->balance > 0) {
                 $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }

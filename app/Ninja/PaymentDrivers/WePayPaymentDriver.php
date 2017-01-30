@@ -1,18 +1,20 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
 
-use Session;
-use Utils;
+namespace App\Ninja\PaymentDrivers;
+
 use App\Models\Payment;
 use App\Models\PaymentMethod;
 use Exception;
+use Session;
+use Utils;
 
 class WePayPaymentDriver extends BasePaymentDriver
 {
     public function gatewayTypes()
     {
-        $types =  [
+        $types = [
             GATEWAY_TYPE_CREDIT_CARD,
-            GATEWAY_TYPE_TOKEN
+            GATEWAY_TYPE_TOKEN,
         ];
 
         if ($this->accountGateway && $this->accountGateway->getAchEnabled()) {
@@ -207,14 +209,14 @@ class WePayPaymentDriver extends BasePaymentDriver
             }
         }
 
-        if (!isset($objectType)) {
+        if (! isset($objectType)) {
             throw new Exception('Could not find object id parameter');
         }
 
         if ($objectType == 'credit_card') {
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $objectId)->first();
 
-            if (!$paymentMethod) {
+            if (! $paymentMethod) {
                 throw new Exception('Unknown payment method');
             }
 
@@ -255,7 +257,7 @@ class WePayPaymentDriver extends BasePaymentDriver
         } elseif ($objectType == 'checkout') {
             $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $objectId)->first();
 
-            if (!$payment) {
+            if (! $payment) {
                 throw new Exception('Unknown payment');
             }
 
@@ -266,7 +268,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
             if ($checkout->state == 'refunded') {
                 $payment->recordRefund();
-            } elseif (!empty($checkout->refund) && !empty($checkout->refund->amount_refunded) && ($checkout->refund->amount_refunded - $payment->refunded) > 0) {
+            } elseif (! empty($checkout->refund) && ! empty($checkout->refund->amount_refunded) && ($checkout->refund->amount_refunded - $payment->refunded) > 0) {
                 $payment->recordRefund($checkout->refund->amount_refunded - $payment->refunded);
             }
 

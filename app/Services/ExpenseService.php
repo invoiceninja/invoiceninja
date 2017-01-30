@@ -1,14 +1,16 @@
-<?php namespace App\Services;
+<?php
 
-use Auth;
-use Utils;
-use App\Ninja\Repositories\ExpenseRepository;
+namespace App\Services;
+
 use App\Models\Client;
 use App\Models\Vendor;
 use App\Ninja\Datatables\ExpenseDatatable;
+use App\Ninja\Repositories\ExpenseRepository;
+use Auth;
+use Utils;
 
 /**
- * Class ExpenseService
+ * Class ExpenseService.
  */
 class ExpenseService extends BaseService
 {
@@ -26,7 +28,7 @@ class ExpenseService extends BaseService
      * ExpenseService constructor.
      *
      * @param ExpenseRepository $expenseRepo
-     * @param DatatableService $datatableService
+     * @param DatatableService  $datatableService
      */
     public function __construct(ExpenseRepository $expenseRepo, DatatableService $datatableService)
     {
@@ -45,6 +47,7 @@ class ExpenseService extends BaseService
     /**
      * @param $data
      * @param null $expense
+     *
      * @return mixed|null
      */
     public function save($data, $expense = null)
@@ -62,13 +65,14 @@ class ExpenseService extends BaseService
 
     /**
      * @param $search
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search)
     {
         $query = $this->expenseRepo->find($search);
 
-        if (!Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_all')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 
@@ -77,6 +81,7 @@ class ExpenseService extends BaseService
 
     /**
      * @param $vendorPublicId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatableVendor($vendorPublicId)
@@ -85,7 +90,7 @@ class ExpenseService extends BaseService
 
         $query = $this->expenseRepo->findVendor($vendorPublicId);
 
-        if (!Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_all')) {
             $query->where('expenses.user_id', '=', Auth::user()->id);
         }
 

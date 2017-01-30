@@ -1,10 +1,12 @@
-<?php namespace App\Services;
+<?php
+
+namespace App\Services;
 
 use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 /**
- * Class BaseService
+ * Class BaseService.
  */
 class BaseService
 {
@@ -21,6 +23,7 @@ class BaseService
     /**
      * @param $ids
      * @param $action
+     *
      * @return int
      */
     public function bulk($ids, $action)

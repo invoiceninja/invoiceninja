@@ -1,21 +1,23 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
 
-use URL;
-use Session;
-use Utils;
-use Request;
-use Omnipay;
-use Exception;
-use CreditCard;
-use DateTime;
-use App\Models\License;
-use App\Models\AccountGatewayToken;
-use App\Models\AccountGatewaySettings;
+namespace App\Ninja\PaymentDrivers;
+
 use App\Models\Account;
-use App\Models\Payment;
-use App\Models\PaymentMethod;
+use App\Models\AccountGatewaySettings;
+use App\Models\AccountGatewayToken;
 use App\Models\Country;
 use App\Models\GatewayType;
+use App\Models\License;
+use App\Models\Payment;
+use App\Models\PaymentMethod;
+use CreditCard;
+use DateTime;
+use Exception;
+use Omnipay;
+use Request;
+use Session;
+use URL;
+use Utils;
 
 class BasePaymentDriver
 {
@@ -66,7 +68,7 @@ class BasePaymentDriver
     public function gatewayTypes()
     {
         return [
-            GATEWAY_TYPE_CREDIT_CARD
+            GATEWAY_TYPE_CREDIT_CARD,
         ];
     }
 
@@ -126,6 +128,7 @@ class BasePaymentDriver
         if (! $this->meetsGatewayTypeLimits($this->gatewayType)) {
             // The customer must have hacked the URL
             Session::flash('error', trans('texts.limits_not_met'));
+
             return redirect()->to('view/' . $this->invitation->invitation_key);
         }
 
@@ -136,6 +139,7 @@ class BasePaymentDriver
                 $this->completeOnsitePurchase();
                 if ($redirectUrl = session('redirect_url:' . $this->invitation->invitation_key)) {
                     $separator = strpos($redirectUrl, '?') === false ? '?' : '&';
+
                     return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $this->invoice()->public_id);
                 } else {
                     Session::flash('message', trans('texts.applied_payment'));
@@ -262,6 +266,7 @@ class BasePaymentDriver
             if (! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
+
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
         } else {
@@ -272,6 +277,7 @@ class BasePaymentDriver
             if (! $this->meetsGatewayTypeLimits($this->gatewayType)) {
                 // The customer must have hacked the URL
                 Session::flash('error', trans('texts.limits_not_met'));
+
                 return redirect()->to('view/' . $this->invitation->invitation_key);
             }
         }
@@ -364,7 +370,7 @@ class BasePaymentDriver
             'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
             'transactionId' => $invoice->invoice_number,
             'transactionType' => 'Purchase',
-            'ip' => Request::ip()
+            'ip' => Request::ip(),
         ];
 
         if ($paymentMethod) {
@@ -417,7 +423,7 @@ class BasePaymentDriver
                 'shippingCity' => $input['city'],
                 'shippingState' => $input['state'],
                 'shippingPostcode' => $input['postal_code'],
-                'shippingCountry' => $country->iso_3166_2
+                'shippingCountry' => $country->iso_3166_2,
             ]);
         }
 
@@ -644,7 +650,7 @@ class BasePaymentDriver
                 }
             }
 
-            if (!empty($plan)) {
+            if (! empty($plan)) {
                 $account = Account::with('users')->find($invoice->client->public_id);
                 $company = $account->company;
 
@@ -865,7 +871,7 @@ class BasePaymentDriver
             $gatewayTypeAlias = GatewayType::getAliasFromId($gatewayTypeId);
 
             if ($gatewayTypeId == GATEWAY_TYPE_CUSTOM) {
-                $url = "javascript:showCustomModal();";
+                $url = 'javascript:showCustomModal();';
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);
@@ -884,7 +890,7 @@ class BasePaymentDriver
 
     protected function meetsGatewayTypeLimits($gatewayTypeId)
     {
-        if (!$gatewayTypeId) {
+        if (! $gatewayTypeId) {
             return true;
         }
 
@@ -898,7 +904,7 @@ class BasePaymentDriver
                 return false;
             }
 
-            if ($accountGatewaySettings->max_limit !== null &&  $invoice->balance > $accountGatewaySettings->max_limit) {
+            if ($accountGatewaySettings->max_limit !== null && $invoice->balance > $accountGatewaySettings->max_limit) {
                 return false;
             }
         }
@@ -941,7 +947,7 @@ class BasePaymentDriver
             'laser' => PAYMENT_TYPE_LASER,
             'maestro' => PAYMENT_TYPE_MAESTRO,
             'solo' => PAYMENT_TYPE_SOLO,
-            'switch' => PAYMENT_TYPE_SWITCH
+            'switch' => PAYMENT_TYPE_SWITCH,
         ];
 
         $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
@@ -951,7 +957,7 @@ class BasePaymentDriver
             $cardName = $matches[1];
         }
 
-        if (!empty($cardTypes[$cardName])) {
+        if (! empty($cardTypes[$cardName])) {
             return $cardTypes[$cardName];
         } else {
             return PAYMENT_TYPE_CREDIT_CARD_OTHER;

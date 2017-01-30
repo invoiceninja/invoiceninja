@@ -1,20 +1,22 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Input;
-use View;
-use Request;
-use Redirect;
-use Session;
-use URL;
-use Password;
-use Utils;
-use Validator;
+namespace App\Http\Controllers;
+
 use App\Models\User;
-use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
+use App\Ninja\Repositories\AccountRepository;
 use App\Services\UserService;
+use Auth;
+use Input;
+use Password;
+use Redirect;
+use Request;
+use Session;
+use URL;
+use Utils;
+use Validator;
+use View;
 
 class UserController extends BaseController
 {
@@ -90,23 +92,25 @@ class UserController extends BaseController
     }
 
     /**
-     * Displays the form for account creation
-     *
+     * Displays the form for account creation.
      */
     public function create()
     {
         if (! Auth::user()->registered) {
             Session::flash('error', trans('texts.register_to_add_user'));
+
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
         if (! Auth::user()->confirmed) {
             Session::flash('error', trans('texts.confirmation_required'));
+
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
         if (Utils::isNinja() && ! Auth::user()->caddAddUsers()) {
             Session::flash('error', trans('texts.max_users_reached'));
+
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
@@ -146,8 +150,7 @@ class UserController extends BaseController
     }
 
     /**
-     * Stores new account
-     *
+     * Stores new account.
      */
     public function save($userPublicId = false)
     {
@@ -205,7 +208,7 @@ class UserController extends BaseController
 
             $user->save();
 
-            if (!$user->confirmed) {
+            if (! $user->confirmed) {
                 $this->userMailer->sendConfirmation($user, Auth::user());
                 $message = trans('texts.sent_invite');
             } else {
@@ -229,9 +232,8 @@ class UserController extends BaseController
         return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
     }
 
-
     /**
-     * Attempt to confirm account with code
+     * Attempt to confirm account with code.
      *
      * @param string $code
      */
@@ -249,6 +251,7 @@ class UserController extends BaseController
             if ($user->public_id) {
                 Auth::logout();
                 $token = Password::getRepository()->create($user);
+
                 return Redirect::to("/password/reset/{$token}");
             } else {
                 if (Auth::check()) {
@@ -261,6 +264,7 @@ class UserController extends BaseController
                 } else {
                     $url = '/login';
                 }
+
                 return Redirect::to($url)->with('message', $notice_msg);
             }
         } else {
@@ -273,9 +277,9 @@ class UserController extends BaseController
     public function changePassword()
     {
         // check the current password is correct
-        if (!Auth::validate([
+        if (! Auth::validate([
             'email' => Auth::user()->email,
-            'password' => Input::get('current_password')
+            'password' => Input::get('current_password'),
         ])) {
             return trans('texts.password_error_incorrect');
         }
@@ -347,6 +351,7 @@ class UserController extends BaseController
         Session::put(SESSION_USER_ACCOUNTS, $users);
 
         Session::flash('message', trans('texts.unlinked_account'));
+
         return Redirect::to('/manage_companies');
     }
 

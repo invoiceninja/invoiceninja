@@ -1,14 +1,16 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use Illuminate\Console\Command;
+namespace App\Console\Commands;
+
+use App\Models\Account;
+use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
-use App\Models\Invoice;
-use App\Models\Account;
+use Illuminate\Console\Command;
 
 /**
- * Class ChargeRenewalInvoices
+ * Class ChargeRenewalInvoices.
  */
 class ChargeRenewalInvoices extends Command
 {
@@ -39,9 +41,10 @@ class ChargeRenewalInvoices extends Command
 
     /**
      * ChargeRenewalInvoices constructor.
-     * @param Mailer $mailer
+     *
+     * @param Mailer            $mailer
      * @param AccountRepository $repo
-     * @param PaymentService $paymentService
+     * @param PaymentService    $paymentService
      */
     public function __construct(Mailer $mailer, AccountRepository $repo, PaymentService $paymentService)
     {

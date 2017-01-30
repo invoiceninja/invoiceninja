@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Mailers;
+<?php
+
+namespace App\Ninja\Mailers;
 
 use App\Models\Invitation;
 use App\Models\Invoice;
@@ -8,12 +10,12 @@ use App\Models\User;
 class UserMailer extends Mailer
 {
     /**
-     * @param User $user
+     * @param User      $user
      * @param User|null $invitor
      */
     public function sendConfirmation(User $user, User $invitor = null)
     {
-        if (!$user->email) {
+        if (! $user->email) {
             return;
         }
 
@@ -37,7 +39,7 @@ class UserMailer extends Mailer
     }
 
     /**
-     * @param User $user
+     * @param User    $user
      * @param Invoice $invoice
      * @param $notificationType
      * @param Payment|null $payment
@@ -81,7 +83,7 @@ class UserMailer extends Mailer
 
         $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", [
             'invoice' => $invoice->invoice_number,
-            'client' => $client->getDisplayName()
+            'client' => $client->getDisplayName(),
         ]);
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
@@ -97,7 +99,7 @@ class UserMailer extends Mailer
         $invoice = $invitation->invoice;
         $entityType = $invoice->getEntityType();
 
-        if (!$user->email) {
+        if (! $user->email) {
             return;
         }
 
@@ -116,7 +118,7 @@ class UserMailer extends Mailer
 
     public function sendSecurityCode($user, $code)
     {
-        if (!$user->email) {
+        if (! $user->email) {
             return;
         }
 

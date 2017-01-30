@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use App\Models\Account;
 
@@ -11,7 +13,7 @@ class ReferralRepository
         $counts = [
             'free' => 0,
             'pro' => 0,
-            'enterprise' => 0
+            'enterprise' => 0,
         ];
 
         foreach ($accounts as $account) {

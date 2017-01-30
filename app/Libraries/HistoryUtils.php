@@ -1,9 +1,11 @@
-<?php namespace App\Libraries;
+<?php
 
-use stdClass;
-use Session;
-use App\Models\EntityModel;
+namespace App\Libraries;
+
 use App\Models\Activity;
+use App\Models\EntityModel;
+use Session;
+use stdClass;
 
 class HistoryUtils
 {
@@ -77,20 +79,20 @@ class HistoryUtils
             ENTITY_INVOICE,
             ENTITY_QUOTE,
             ENTITY_TASK,
-            ENTITY_EXPENSE
+            ENTITY_EXPENSE,
         ];
 
         if (! in_array($entityType, $trackedTypes)) {
             return;
         }
 
-        $object =  static::convertToObject($entity);
+        $object = static::convertToObject($entity);
         $history = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = isset($history[$entity->account_id]) ? $history[$entity->account_id] : [];
         $data = [];
 
         // Add to the list and make sure to only show each item once
-        for ($i = 0; $i<count($accountHistory); $i++) {
+        for ($i = 0; $i < count($accountHistory); $i++) {
             $item = $accountHistory[$i];
 
             if ($object->url == $item->url) {
@@ -160,7 +162,7 @@ class HistoryUtils
                 $icon = '<i class="fa fa-users" style="width:32px"></i>';
                 if ($item->client_id) {
                     $link = url('/clients/' . $item->client_id);
-                    $name = $item->client_name ;
+                    $name = $item->client_name;
 
                     $buttonLink = url('/invoices/create/' . $item->client_id);
                     $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">

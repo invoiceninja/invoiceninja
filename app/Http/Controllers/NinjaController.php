@@ -1,20 +1,22 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use CreditCard;
-use Session;
-use Input;
-use Utils;
-use View;
-use Validator;
-use Auth;
-use URL;
-use Cache;
-use Omnipay;
+namespace App\Http\Controllers;
+
+use App\Models\Affiliate;
 use App\Models\Country;
 use App\Models\License;
-use App\Models\Affiliate;
-use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Repositories\AccountRepository;
+use Auth;
+use Cache;
+use CreditCard;
+use Input;
+use Omnipay;
+use Session;
+use URL;
+use Utils;
+use Validator;
+use View;
 
 class NinjaController extends BaseController
 {
@@ -32,7 +34,7 @@ class NinjaController extends BaseController
      * NinjaController constructor.
      *
      * @param AccountRepository $accountRepo
-     * @param ContactMailer $contactMailer
+     * @param ContactMailer     $contactMailer
      */
     public function __construct(AccountRepository $accountRepo, ContactMailer $contactMailer)
     {
@@ -41,7 +43,7 @@ class NinjaController extends BaseController
     }
 
     /**
-     * @param array $input
+     * @param array     $input
      * @param Affiliate $affiliate
      *
      * @return array
@@ -69,7 +71,7 @@ class NinjaController extends BaseController
             'shippingCity' => $input['city'],
             'shippingState' => $input['state'],
             'shippingPostcode' => $input['postal_code'],
-            'shippingCountry' => $country->iso_3166_2
+            'shippingCountry' => $country->iso_3166_2,
         ];
 
         $card = new CreditCard($data);
@@ -79,7 +81,7 @@ class NinjaController extends BaseController
             'card' => $card,
             'currency' => 'USD',
             'returnUrl' => URL::to('license_complete'),
-            'cancelUrl' => URL::to('/')
+            'cancelUrl' => URL::to('/'),
         ];
     }
 
@@ -100,11 +102,11 @@ class NinjaController extends BaseController
 
         if (Input::has('product_id')) {
             Session::set('product_id', Input::get('product_id'));
-        } elseif (!Session::has('product_id')) {
+        } elseif (! Session::has('product_id')) {
             Session::set('product_id', PRODUCT_ONE_CLICK_INSTALL);
         }
 
-        if (!Session::get('affiliate_id')) {
+        if (! Session::get('affiliate_id')) {
             return Utils::fatalError();
         }
 
@@ -190,8 +192,9 @@ class NinjaController extends BaseController
 
                 $ref = $response->getTransactionReference();
 
-                if (!$response->isSuccessful() || !$ref) {
+                if (! $response->isSuccessful() || ! $ref) {
                     $this->error('License', $response->getMessage(), $accountGateway);
+
                     return redirect()->to('license')->withInput();
                 }
             }
@@ -227,6 +230,7 @@ class NinjaController extends BaseController
             return View::make('public.license', $data);
         } catch (\Exception $e) {
             $this->error('License-Uncaught', false, $accountGateway, $e);
+
             return redirect()->to('license')->withInput();
         }
     }

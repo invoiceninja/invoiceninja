@@ -1,16 +1,19 @@
-<?php namespace App\Ninja\Import\Harvest;
+<?php
+
+namespace App\Ninja\Import\Harvest;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 // vendor
 /**
- * Class VendorContactTransformer
+ * Class VendorContactTransformer.
  */
 class VendorContactTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)

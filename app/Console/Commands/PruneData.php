@@ -1,10 +1,12 @@
-<?php namespace App\Console\Commands;
+<?php
+
+namespace App\Console\Commands;
 
 use DB;
 use Illuminate\Console\Command;
 
 /**
- * Class PruneData
+ * Class PruneData.
  */
 class PruneData extends Command
 {

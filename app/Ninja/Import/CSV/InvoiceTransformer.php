@@ -1,15 +1,18 @@
-<?php namespace App\Ninja\Import\CSV;
+<?php
+
+namespace App\Ninja\Import\CSV;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 /**
- * Class InvoiceTransformer
+ * Class InvoiceTransformer.
  */
 class InvoiceTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
@@ -38,7 +41,7 @@ class InvoiceTransformer extends BaseTransformer
                         'notes' => $this->getString($data, 'notes'),
                         'cost' => $this->getFloat($data, 'amount'),
                         'qty' => 1,
-                    ]
+                    ],
                 ],
             ];
         });

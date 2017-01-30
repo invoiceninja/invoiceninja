@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Crypt;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class AccountGateway
+ * Class AccountGateway.
  */
 class AccountGateway extends EntityModel
 {
@@ -56,6 +58,7 @@ class AccountGateway extends EntityModel
 
     /**
      * @param $provider
+     *
      * @return string
      */
     public static function paymentDriverClass($provider)
@@ -72,8 +75,9 @@ class AccountGateway extends EntityModel
     }
 
     /**
-     * @param bool $invitation
+     * @param bool  $invitation
      * @param mixed $gatewayTypeId
+     *
      * @return mixed
      */
     public function paymentDriver($invitation = false, $gatewayTypeId = false)
@@ -85,6 +89,7 @@ class AccountGateway extends EntityModel
 
     /**
      * @param $gatewayId
+     *
      * @return bool
      */
     public function isGateway($gatewayId)
@@ -110,6 +115,7 @@ class AccountGateway extends EntityModel
 
     /**
      * @param $field
+     *
      * @return mixed
      */
     public function getConfigField($field)
@@ -134,7 +140,7 @@ class AccountGateway extends EntityModel
      */
     public function getAchEnabled()
     {
-        return !empty($this->getConfigField('enableAch'));
+        return ! empty($this->getConfigField('enableAch'));
     }
 
     /**
@@ -142,7 +148,7 @@ class AccountGateway extends EntityModel
      */
     public function getPayPalEnabled()
     {
-        return !empty($this->getConfigField('enablePayPal'));
+        return ! empty($this->getConfigField('enablePayPal'));
     }
 
     /**
@@ -186,7 +192,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidEnabled()
     {
-        return !empty($this->getPlaidClientId()) && $this->getAchEnabled();
+        return ! empty($this->getPlaidClientId()) && $this->getAchEnabled();
     }
 
     /**
@@ -194,7 +200,7 @@ class AccountGateway extends EntityModel
      */
     public function getPlaidEnvironment()
     {
-        if (!$this->getPlaidClientId()) {
+        if (! $this->getPlaidClientId()) {
             return null;
         }
 

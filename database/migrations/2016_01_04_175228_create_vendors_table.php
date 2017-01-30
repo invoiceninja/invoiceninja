@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class CreateVendorsTable extends Migration
 {
@@ -59,7 +59,7 @@ class CreateVendorsTable extends Migration
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
 
             $table->unsignedInteger('public_id')->nullable();
-            $table->unique(array('account_id', 'public_id'));
+            $table->unique(['account_id', 'public_id']);
         });
 
         Schema::create('expenses', function (Blueprint $table) {
@@ -88,7 +88,7 @@ class CreateVendorsTable extends Migration
 
             // Indexes
             $table->unsignedInteger('public_id')->index();
-            $table->unique(array('account_id', 'public_id'));
+            $table->unique(['account_id', 'public_id']);
         });
 
         Schema::table('payment_terms', function (Blueprint $table) {
@@ -119,7 +119,7 @@ class CreateVendorsTable extends Migration
         });
 
         Schema::table('payment_terms', function (Blueprint $table) {
-            $table->unique(array('account_id', 'public_id'));
+            $table->unique(['account_id', 'public_id']);
         });
     }
 

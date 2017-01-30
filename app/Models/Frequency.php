@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
 
-use Eloquent;
+namespace App\Models;
+
 use Cache;
+use Eloquent;
 use Str;
 
 /**
- * Class Frequency
+ * Class Frequency.
  */
 class Frequency extends Eloquent
 {

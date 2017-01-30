@@ -6,9 +6,8 @@ use Davibennun\LaravelPushNotification\Facades\PushNotification;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Class PushFactory
+ * Class PushFactory.
  */
-
 class PushFactory
 {
     /**
@@ -19,11 +18,10 @@ class PushFactory
     }
 
     /**
-     * customMessage function
+     * customMessage function.
      *
      * Send a message with a nested custom payload to perform additional trickery within application
      *
-     * @access public
      *
      * @param $token
      * @param $message
@@ -40,18 +38,16 @@ class PushFactory
     }
 
     /**
-     * message function
+     * message function.
      *
      * Send a plain text only message to a single device.
      *
-     * @access public
      *
      * @param $token - device token
      * @param $message - user specific message
      *
      * @return void
      */
-
     public function message($token, $message, $device)
     {
         try {
@@ -64,20 +60,20 @@ class PushFactory
     }
 
     /**
-     * getFeedback function
+     * getFeedback function.
      *
      * Returns an array of expired/invalid tokens to be removed from iOS PUSH notifications.
      *
      * We need to run this once ~ 24hrs
      *
-     * @access public
      *
-     * @param string $token - A valid token (can be any valid token)
+     * @param string $token   - A valid token (can be any valid token)
      * @param string $message - Nil value for message
-     * @param string $device - Type of device the message is being pushed to.
+     * @param string $device  - Type of device the message is being pushed to.
+     *
      * @return array
      */
-    public function getFeedback($token, $message = '', $device)
+    public function getFeedback($token, $message, $device)
     {
         $feedback = PushNotification::app($device)
             ->to($token)

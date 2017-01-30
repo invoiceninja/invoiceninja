@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Invitation;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class QuoteInvitationWasViewed
+ * Class QuoteInvitationWasViewed.
  */
 class QuoteInvitationWasViewed extends Event
 {

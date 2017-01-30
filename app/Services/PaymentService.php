@@ -1,15 +1,17 @@
-<?php namespace App\Services;
+<?php
 
+namespace App\Services;
+
+use App\Models\Account;
+use App\Models\Activity;
+use App\Models\Client;
 use App\Models\Invoice;
-use Utils;
+use App\Ninja\Datatables\PaymentDatatable;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\PaymentRepository;
 use Auth;
 use Exception;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Activity;
-use App\Ninja\Repositories\PaymentRepository;
-use App\Ninja\Repositories\AccountRepository;
-use App\Ninja\Datatables\PaymentDatatable;
+use Utils;
 
 class PaymentService extends BaseService
 {
@@ -18,7 +20,7 @@ class PaymentService extends BaseService
      *
      * @param PaymentRepository $paymentRepo
      * @param AccountRepository $accountRepo
-     * @param DatatableService $datatableService
+     * @param DatatableService  $datatableService
      */
     public function __construct(
         PaymentRepository $paymentRepo,
@@ -40,6 +42,7 @@ class PaymentService extends BaseService
 
     /**
      * @param Invoice $invoice
+     *
      * @return bool
      */
     public function autoBillInvoice(Invoice $invoice)
@@ -138,13 +141,12 @@ class PaymentService extends BaseService
         $datatable = new PaymentDatatable(true, $clientPublicId);
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
-        if (!Utils::hasPermission('view_all')) {
+        if (! Utils::hasPermission('view_all')) {
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
-
 
     public function bulk($ids, $action, $params = [])
     {
@@ -158,7 +160,7 @@ class PaymentService extends BaseService
 
             foreach ($payments as $payment) {
                 if (Auth::user()->can('edit', $payment)) {
-                    $amount = !empty($params['amount']) ? floatval($params['amount']) : null;
+                    $amount = ! empty($params['amount']) ? floatval($params['amount']) : null;
                     if ($accountGateway = $payment->account_gateway) {
                         $paymentDriver = $accountGateway->paymentDriver();
                         if ($paymentDriver->refundPayment($payment, $amount)) {

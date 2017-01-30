@@ -1,13 +1,15 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Carbon;
-use Utils;
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Utils;
 
 /**
- * Class Company
+ * Class Company.
  */
 class Company extends Eloquent
 {
@@ -131,6 +133,7 @@ class Company extends Eloquent
                 $this->discount = $discount;
                 $this->promo_expires = date_create()->modify($validFor . ' days')->format('Y-m-d');
                 $this->save();
+
                 return true;
             }
         }

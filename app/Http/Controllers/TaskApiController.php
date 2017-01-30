@@ -1,12 +1,14 @@
-<?php namespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateTaskRequest;
-use Auth;
-use Response;
-use Input;
 use App\Models\Task;
 use App\Ninja\Repositories\TaskRepository;
 use App\Ninja\Transformers\TaskTransformer;
+use Auth;
+use Input;
+use Response;
 
 class TaskApiController extends BaseAPIController
 {
@@ -86,8 +88,6 @@ class TaskApiController extends BaseAPIController
         return $this->response($data);
     }
 
-
-
     /**
      * @SWG\Put(
      *   path="/task/{task_id}",
@@ -109,7 +109,6 @@ class TaskApiController extends BaseAPIController
      *   )
      * )
      */
-
     public function update(UpdateTaskRequest $request)
     {
         $task = $request->entity();

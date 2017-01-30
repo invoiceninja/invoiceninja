@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Transformers;
+<?php
+
+namespace App\Ninja\Transformers;
 
 use App\Models\Account;
 use App\Models\User;

@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Datatables;
+<?php
+
+namespace App\Ninja\Datatables;
 
 use URL;
 
@@ -19,7 +21,7 @@ class BankAccountDatatable extends EntityDatatable
                 'bank_library_id',
                 function ($model) {
                     return 'OFX';
-                }
+                },
             ],
         ];
     }
@@ -32,7 +34,7 @@ class BankAccountDatatable extends EntityDatatable
                 function ($model) {
                     return URL::to("bank_accounts/{$model->public_id}/edit");
                 },
-            ]
+            ],
         ];
     }
 }

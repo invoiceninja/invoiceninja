@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Presenters;
+<?php
+
+namespace App\Ninja\Presenters;
 
 class CompanyPresenter extends EntityPresenter
 {
@@ -10,7 +12,7 @@ class CompanyPresenter extends EntityPresenter
 
         return trans('texts.promo_message', [
             'expires' => $this->entity->promo_expires->format('M dS, Y'),
-            'amount' => (int)($this->discount * 100) . '%'
+            'amount' => (int) ($this->discount * 100) . '%',
         ]);
     }
 
@@ -22,7 +24,7 @@ class CompanyPresenter extends EntityPresenter
 
         return trans('texts.discount_message', [
             'expires' => $this->entity->discount_expires->format('M dS, Y'),
-            'amount' => (int)($this->discount * 100) . '%'
+            'amount' => (int) ($this->discount * 100) . '%',
         ]);
     }
 }

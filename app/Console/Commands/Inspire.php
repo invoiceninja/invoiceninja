@@ -1,14 +1,15 @@
-<?php namespace InvoiceNinja\Console\Commands;
+<?php
+
+namespace InvoiceNinja\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Inspiring;
 
 /**
- * Class Inspire
+ * Class Inspire.
  */
 class Inspire extends Command
 {
-
     /**
      * The console command name.
      *

@@ -1,14 +1,16 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use View;
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateExpenseCategoryRequest;
+use App\Http\Requests\ExpenseCategoryRequest;
+use App\Http\Requests\UpdateExpenseCategoryRequest;
+use App\Ninja\Datatables\ExpenseCategoryDatatable;
+use App\Ninja\Repositories\ExpenseCategoryRepository;
+use App\Services\ExpenseCategoryService;
 use Input;
 use Session;
-use App\Services\ExpenseCategoryService;
-use App\Ninja\Repositories\ExpenseCategoryRepository;
-use App\Ninja\Datatables\ExpenseCategoryDatatable;
-use App\Http\Requests\ExpenseCategoryRequest;
-use App\Http\Requests\CreateExpenseCategoryRequest;
-use App\Http\Requests\UpdateExpenseCategoryRequest;
+use View;
 
 class ExpenseCategoryController extends BaseController
 {

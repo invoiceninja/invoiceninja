@@ -1,13 +1,15 @@
-<?php namespace App\Models;
+<?php
 
-use Utils;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Laracasts\Presenter\PresentableTrait;
+namespace App\Models;
+
 use App\Events\TaskWasCreated;
 use App\Events\TaskWasUpdated;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
+use Utils;
 
 /**
- * Class Task
+ * Class Task.
  */
 class Task extends EntityModel
 {
@@ -79,6 +81,7 @@ class Task extends EntityModel
 
     /**
      * @param $task
+     *
      * @return string
      */
     public static function calcStartTime($task)
@@ -106,6 +109,7 @@ class Task extends EntityModel
 
         if (count($parts)) {
             $index = count($parts) - 1;
+
             return $parts[$index][0];
         } else {
             return '';
@@ -114,6 +118,7 @@ class Task extends EntityModel
 
     /**
      * @param $task
+     *
      * @return int
      */
     public static function calcDuration($task)
@@ -122,7 +127,7 @@ class Task extends EntityModel
         $parts = json_decode($task->time_log) ?: [];
 
         foreach ($parts as $part) {
-            if (count($part) == 1 || !$part[1]) {
+            if (count($part) == 1 || ! $part[1]) {
                 $duration += time() - $part[0];
             } else {
                 $duration += $part[1] - $part[0];
@@ -146,9 +151,9 @@ class Task extends EntityModel
     public function getCurrentDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
-        $part = $parts[count($parts)-1];
+        $part = $parts[count($parts) - 1];
 
-        if (count($part) == 1 || !$part[1]) {
+        if (count($part) == 1 || ! $part[1]) {
             return time() - $part[0];
         } else {
             return 0;
@@ -161,6 +166,7 @@ class Task extends EntityModel
     public function hasPreviousDuration()
     {
         $parts = json_decode($this->time_log) ?: [];
+
         return count($parts) && (count($parts[0]) && $parts[0][1]);
     }
 
@@ -173,7 +179,7 @@ class Task extends EntityModel
     }
 
     /**
-     * Gets the route to the tasks edit action
+     * Gets the route to the tasks edit action.
      *
      * @return string
      */
@@ -190,7 +196,7 @@ class Task extends EntityModel
     public function getDisplayName()
     {
         if ($this->description) {
-            return mb_strimwidth($this->description, 0, 16, "...");
+            return mb_strimwidth($this->description, 0, 16, '...');
         }
 
         return '#' . $this->public_id;
@@ -273,7 +279,6 @@ class Task extends EntityModel
         return static::calcStatusLabel($this->is_running, $balance, $invoiceNumber);
     }
 }
-
 
 Task::created(function ($task) {
     event(new TaskWasCreated($task));

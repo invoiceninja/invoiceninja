@@ -1,11 +1,13 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
+
+namespace App\Ninja\PaymentDrivers;
 
 class PayPalProPaymentDriver extends BasePaymentDriver
 {
     public function gatewayTypes()
     {
         return [
-            GATEWAY_TYPE_CREDIT_CARD
+            GATEWAY_TYPE_CREDIT_CARD,
         ];
     }
 

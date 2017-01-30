@@ -1,50 +1,52 @@
-<?php namespace App\Listeners;
+<?php
 
-use App\Models\Invoice;
+namespace App\Listeners;
+
+use App\Events\ClientWasArchived;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasDeleted;
-use App\Events\ClientWasArchived;
 use App\Events\ClientWasRestored;
-use App\Events\InvoiceWasCreated;
-use App\Events\InvoiceWasUpdated;
-use App\Events\InvoiceWasDeleted;
-use App\Events\InvoiceWasArchived;
-use App\Events\InvoiceWasRestored;
+use App\Events\CreditWasArchived;
+use App\Events\CreditWasCreated;
+use App\Events\CreditWasDeleted;
+use App\Events\CreditWasRestored;
+use App\Events\ExpenseWasArchived;
+use App\Events\ExpenseWasCreated;
+use App\Events\ExpenseWasDeleted;
+use App\Events\ExpenseWasRestored;
+use App\Events\ExpenseWasUpdated;
 use App\Events\InvoiceInvitationWasEmailed;
 use App\Events\InvoiceInvitationWasViewed;
-use App\Events\QuoteWasCreated;
-use App\Events\QuoteWasUpdated;
-use App\Events\QuoteWasDeleted;
-use App\Events\QuoteWasArchived;
-use App\Events\QuoteWasRestored;
-use App\Events\QuoteInvitationWasEmailed;
-use App\Events\QuoteInvitationWasViewed;
-use App\Events\QuoteInvitationWasApproved;
+use App\Events\InvoiceWasArchived;
+use App\Events\InvoiceWasCreated;
+use App\Events\InvoiceWasDeleted;
+use App\Events\InvoiceWasRestored;
+use App\Events\InvoiceWasUpdated;
+use App\Events\PaymentFailed;
+use App\Events\PaymentWasArchived;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
-use App\Events\PaymentWasVoided;
-use App\Events\PaymentWasArchived;
 use App\Events\PaymentWasRestored;
-use App\Events\PaymentFailed;
-use App\Events\CreditWasCreated;
-use App\Events\CreditWasDeleted;
-use App\Events\CreditWasArchived;
-use App\Events\CreditWasRestored;
-use App\Events\TaskWasCreated;
-use App\Events\TaskWasUpdated;
+use App\Events\PaymentWasVoided;
+use App\Events\QuoteInvitationWasApproved;
+use App\Events\QuoteInvitationWasEmailed;
+use App\Events\QuoteInvitationWasViewed;
+use App\Events\QuoteWasArchived;
+use App\Events\QuoteWasCreated;
+use App\Events\QuoteWasDeleted;
+use App\Events\QuoteWasRestored;
+use App\Events\QuoteWasUpdated;
 use App\Events\TaskWasArchived;
-use App\Events\TaskWasRestored;
+use App\Events\TaskWasCreated;
 use App\Events\TaskWasDeleted;
-use App\Events\ExpenseWasCreated;
-use App\Events\ExpenseWasUpdated;
-use App\Events\ExpenseWasArchived;
-use App\Events\ExpenseWasRestored;
-use App\Events\ExpenseWasDeleted;
+use App\Events\TaskWasRestored;
+use App\Events\TaskWasUpdated;
+use App\Models\Invoice;
 use App\Ninja\Repositories\ActivityRepository;
 
 /**
- * Class ActivityListener
+ * Class ActivityListener.
  */
 class ActivityListener
 {
@@ -55,6 +57,7 @@ class ActivityListener
 
     /**
      * ActivityListener constructor.
+     *
      * @param ActivityRepository $activityRepo
      */
     public function __construct(ActivityRepository $activityRepo)
@@ -484,7 +487,7 @@ class ActivityListener
     }
 
     /**
-     * Creates an activity when a task was created
+     * Creates an activity when a task was created.
      *
      * @param TaskWasCreated $event
      */
@@ -497,7 +500,7 @@ class ActivityListener
     }
 
     /**
-     * Creates an activity when a task was updated
+     * Creates an activity when a task was updated.
      *
      * @param TaskWasUpdated $event
      */
@@ -540,7 +543,6 @@ class ActivityListener
             ACTIVITY_TYPE_RESTORE_TASK
         );
     }
-
 
     public function createdExpense(ExpenseWasCreated $event)
     {

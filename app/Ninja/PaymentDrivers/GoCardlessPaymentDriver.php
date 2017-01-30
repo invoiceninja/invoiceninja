@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
+
+namespace App\Ninja\PaymentDrivers;
 
 class GoCardlessPaymentDriver extends BasePaymentDriver
 {

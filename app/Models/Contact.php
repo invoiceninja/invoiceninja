@@ -1,13 +1,15 @@
-<?php namespace App\Models;
+<?php
 
-use Illuminate\Database\Eloquent\SoftDeletes;
+namespace App\Models;
+
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class Contact
+ * Class Contact.
  */
 class Contact extends EntityModel implements AuthenticatableContract, CanResetPasswordContract
 {
@@ -110,6 +112,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
 
     /**
      * @param $contact_key
+     *
      * @return mixed
      */
     public function getContactKeyAttribute($contact_key)
@@ -118,6 +121,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
             $this->contact_key = $contact_key = str_random(RANDOM_KEY_LENGTH);
             static::where('id', $this->id)->update(['contact_key' => $contact_key]);
         }
+
         return $contact_key;
     }
 

@@ -1,11 +1,9 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class TrackLastSeenMessage extends Migration
 {
-
     /**
      * Run the migrations.
      *
@@ -25,7 +23,7 @@ class TrackLastSeenMessage extends Migration
                 'sort_order' => 1,
                 'recommended' => 1,
                 'site_url' => 'https://invoiceninja.mymoolah.com/',
-                'payment_library_id' => 1
+                'payment_library_id' => 1,
             ]);
         }
     }

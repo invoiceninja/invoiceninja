@@ -5,22 +5,24 @@ namespace App\Policies;
 use App\Models\User;
 
 /**
- * Class DocumentPolicy
+ * Class DocumentPolicy.
  */
 class DocumentPolicy extends EntityPolicy
 {
     /**
      * @param User $user
+     *
      * @return bool
      */
     public static function create(User $user, $item)
     {
-        return !empty($user);
+        return ! empty($user);
     }
 
     /**
-     * @param User $user
+     * @param User     $user
      * @param Document $document
+     *
      * @return bool
      */
     public static function view(User $user, $document)
@@ -32,6 +34,7 @@ class DocumentPolicy extends EntityPolicy
             if ($document->expense->invoice) {
                 return $user->can('view', $document->expense->invoice);
             }
+
             return $user->can('view', $document->expense);
         }
         if ($document->invoice) {

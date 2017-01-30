@@ -1,10 +1,12 @@
-<?php namespace App\Models;
+<?php
 
-use Laracasts\Presenter\PresentableTrait;
+namespace App\Models;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class InvoiceItem
+ * Class InvoiceItem.
  */
 class InvoiceItem extends EntityModel
 {

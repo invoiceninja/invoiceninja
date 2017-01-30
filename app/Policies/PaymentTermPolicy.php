@@ -5,14 +5,14 @@ namespace App\Policies;
 use App\Models\User;
 
 /**
- * Class PaymentTermPolicy
+ * Class PaymentTermPolicy.
  */
 class PaymentTermPolicy extends EntityPolicy
 {
-
     /**
      * @param User $user
      * @param $item
+     *
      * @return mixed
      */
     public static function edit(User $user, $item)
@@ -22,6 +22,7 @@ class PaymentTermPolicy extends EntityPolicy
 
     /**
      * @param User $user
+     *
      * @return bool
      */
     public static function create(User $user, $item)

@@ -1,7 +1,9 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 /**
- * Interface BalanceAffecting
+ * Interface BalanceAffecting.
  */
 interface BalanceAffecting
 {

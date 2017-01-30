@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class AddPageSize extends Migration
@@ -35,9 +34,8 @@ class AddPageSize extends Migration
         Schema::table('expense_categories', function ($table) {
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unique(array('account_id','public_id'));
+            $table->unique(['account_id', 'public_id']);
         });
-
 
         Schema::table('expenses', function ($table) {
             $table->unsignedInteger('expense_category_id')->nullable()->index();

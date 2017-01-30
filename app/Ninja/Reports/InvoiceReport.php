@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Reports;
 
-use Auth;
 use App\Models\Client;
+use Auth;
 
 class InvoiceReport extends AbstractReport
 {
@@ -14,7 +14,7 @@ class InvoiceReport extends AbstractReport
         'amount',
         'payment_date',
         'paid',
-        'method'
+        'method',
     ];
 
     public function run()

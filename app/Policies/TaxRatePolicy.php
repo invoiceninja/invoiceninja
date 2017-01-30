@@ -9,6 +9,7 @@ class TaxRatePolicy extends EntityPolicy
     /**
      * @param User $user
      * @param $item
+     *
      * @return bool
      */
     public static function edit(User $user, $item)
@@ -18,6 +19,7 @@ class TaxRatePolicy extends EntityPolicy
 
     /**
      * @param User $user
+     *
      * @return bool
      */
     public static function create(User $user, $item)

@@ -1,10 +1,12 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use App\Ninja\Repositories\InvoiceRepository;
+namespace App\Http\Controllers;
+
 use App\Ninja\Datatables\RecurringInvoiceDatatable;
+use App\Ninja\Repositories\InvoiceRepository;
 
 /**
- * Class RecurringInvoiceController
+ * Class RecurringInvoiceController.
  */
 class RecurringInvoiceController extends BaseController
 {
@@ -15,6 +17,7 @@ class RecurringInvoiceController extends BaseController
 
     /**
      * RecurringInvoiceController constructor.
+     *
      * @param InvoiceRepository $invoiceRepo
      */
     public function __construct(InvoiceRepository $invoiceRepo)
