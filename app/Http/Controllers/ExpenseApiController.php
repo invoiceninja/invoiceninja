@@ -1,6 +1,5 @@
 <?php namespace App\Http\Controllers;
 
-
 use App\Models\Expense;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Services\ExpenseService;
@@ -45,7 +44,7 @@ class ExpenseApiController extends BaseAPIController
         $expenses = Expense::scope()
             ->withTrashed()
             ->with('client', 'invoice', 'vendor', 'expense_category')
-            ->orderBy('created_at','desc');
+            ->orderBy('created_at', 'desc');
 
         return $this->listResponse($expenses);
     }
@@ -145,8 +144,4 @@ class ExpenseApiController extends BaseAPIController
 
         return $this->itemResponse($expense);
     }
-
-
-
-
 }

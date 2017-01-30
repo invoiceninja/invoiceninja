@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class QuoteInvitationWasViewed extends Event
 {
-	use SerializesModels;
+    use SerializesModels;
 
     public $quote;
 

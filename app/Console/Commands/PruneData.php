@@ -42,7 +42,7 @@ class PruneData extends Command
         $results = DB::select($sql);
         
         foreach ($results as $result) {
-            $this->info("Deleting {$result->id}");        
+            $this->info("Deleting {$result->id}");
             DB::table('accounts')
                 ->where('id', '=', $result->id)
                 ->delete();

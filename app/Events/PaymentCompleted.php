@@ -24,5 +24,4 @@ class PaymentCompleted extends Event
     {
         $this->payment = $payment;
     }
-
 }

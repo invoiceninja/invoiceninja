@@ -22,7 +22,7 @@ class BanksSeeder extends Seeder
 
         foreach ($banks as $bank) {
             if (!DB::table('banks')->where('remote_id', '=', $bank->id)->get()) {
-                if ( ! isset($bank->fid) || ! isset($bank->org)) {
+                if (! isset($bank->fid) || ! isset($bank->org)) {
                     continue;
                 }
 

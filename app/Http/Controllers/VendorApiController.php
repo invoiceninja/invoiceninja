@@ -1,4 +1,5 @@
 <?php namespace App\Http\Controllers;
+
 // vendor
 use App\Http\Requests\UpdateVendorRequest;
 use App\Http\Requests\VendorRequest;

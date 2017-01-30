@@ -121,8 +121,7 @@ class ImportService
         ExpenseRepository $expenseRepo,
         VendorRepository $vendorRepo,
         ExpenseCategoryRepository $expenseCategoryRepo
-    )
-    {
+    ) {
         $this->fractal = $manager;
         $this->fractal->setSerializer(new ArraySerializer());
 
@@ -167,7 +166,6 @@ class ImportService
         }
 
         foreach ($json['clients'] as $jsonClient) {
-
             if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
                 $client = $this->clientRepo->save($jsonClient);
                 $this->addClientToMaps($client);
@@ -302,15 +300,15 @@ class ImportService
 
         // Create expesnse category
         if ($entityType == ENTITY_EXPENSE) {
-            if ( ! empty($row->expense_category)) {
+            if (! empty($row->expense_category)) {
                 $categoryId = $transformer->getExpenseCategoryId($row->expense_category);
-                if ( ! $categoryId) {
+                if (! $categoryId) {
                     $category = $this->expenseCategoryRepo->save(['name' => $row->expense_category]);
                     $this->addExpenseCategoryToMaps($category);
                 }
             }
-            if ( ! empty($row->vendor) && ($vendorName = trim($row->vendor))) {
-                if ( ! $transformer->getVendorId($vendorName)) {
+            if (! empty($row->vendor) && ($vendorName = trim($row->vendor))) {
+                if (! $transformer->getVendorId($vendorName)) {
                     $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
                     $this->addVendorToMaps($vendor);
                 }

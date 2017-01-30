@@ -113,7 +113,7 @@ class PaymentMethod extends EntityModel
      */
     public function scopeClientId($query, $clientId)
     {
-        $query->whereHas('contact', function($query) use ($clientId) {
+        $query->whereHas('contact', function ($query) use ($clientId) {
             $query->whereClientId($clientId);
         });
     }
@@ -143,7 +143,8 @@ class PaymentMethod extends EntityModel
      * @param $routingNumber
      * @return mixed|null|\stdClass|string
      */
-    public static function lookupBankData($routingNumber) {
+    public static function lookupBankData($routingNumber)
+    {
         $cached = Cache::get('bankData:'.$routingNumber);
 
         if ($cached != null) {
@@ -178,7 +179,7 @@ class PaymentMethod extends EntityModel
 
             if ($thisNumber > $routingNumber) {
                 $high = $mid - 1;
-            } else if ($thisNumber < $routingNumber) {
+            } elseif ($thisNumber < $routingNumber) {
                 $low = $mid + 1;
             } else {
                 $data = new \stdClass();
@@ -228,10 +229,10 @@ class PaymentMethod extends EntityModel
     }
 }
 
-PaymentMethod::deleting(function($paymentMethod) {
+PaymentMethod::deleting(function ($paymentMethod) {
     $accountGatewayToken = $paymentMethod->account_gateway_token;
     if ($accountGatewayToken->default_payment_method_id == $paymentMethod->id) {
-        $newDefault = $accountGatewayToken->payment_methods->first(function($i, $paymentMethdod) use ($accountGatewayToken){
+        $newDefault = $accountGatewayToken->payment_methods->first(function ($i, $paymentMethdod) use ($accountGatewayToken) {
             return $paymentMethdod->id != $accountGatewayToken->default_payment_method_id;
         });
         $accountGatewayToken->default_payment_method_id = $newDefault ? $newDefault->id : null;

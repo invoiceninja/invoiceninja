@@ -1,6 +1,5 @@
 <?php namespace App\Console\Commands;
 
-
 use Utils;
 use Illuminate\Console\Command;
 

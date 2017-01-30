@@ -23,5 +23,4 @@ class SaveEmailSettings extends Request
             'bcc_email' => 'email',
         ];
     }
-
 }

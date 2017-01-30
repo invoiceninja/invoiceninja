@@ -10,7 +10,7 @@ class CreateInvoiceIntent extends InvoiceIntent
         $client = $this->requestClient();
         $invoiceItems = $this->requestInvoiceItems();
 
-        if ( ! $client) {
+        if (! $client) {
             throw new Exception(trans('texts.client_not_found'));
         }
 
@@ -30,7 +30,7 @@ class CreateInvoiceIntent extends InvoiceIntent
         $invoiceService = app('App\Services\InvoiceService');
         $invoice = $invoiceService->save($data);
 
-        $invoiceItemIds = array_map(function($item) {
+        $invoiceItemIds = array_map(function ($item) {
             return $item['public_id'];
         }, $invoice->invoice_items->toArray());
 

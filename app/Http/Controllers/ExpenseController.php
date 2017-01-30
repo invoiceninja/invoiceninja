@@ -110,7 +110,6 @@ class ExpenseController extends BaseController
             foreach ($invoices as $invoice) {
                 $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
             }
-
         }
 
         $actions[] = \DropdownButton::DIVIDER;
@@ -181,8 +180,7 @@ class ExpenseController extends BaseController
         $action = Input::get('action');
         $ids    = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
 
-        switch($action)
-        {
+        switch ($action) {
             case 'invoice':
             case 'add_to_invoice':
                 $expenses = Expense::scope($ids)->with('client')->get();
@@ -190,8 +188,7 @@ class ExpenseController extends BaseController
                 $currencyId = null;
 
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
-                foreach ($expenses as $expense)
-                {
+                foreach ($expenses as $expense) {
                     if ($expense->client) {
                         if (!$clientPublicId) {
                             $clientPublicId = $expense->client->public_id;
@@ -223,7 +220,6 @@ class ExpenseController extends BaseController
                     return Redirect::to("invoices/{$invoiceId}/edit")
                             ->with('expenseCurrencyId', $currencyId)
                             ->with('expenses', $ids);
-
                 }
                 break;
 

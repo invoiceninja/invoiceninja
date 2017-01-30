@@ -188,7 +188,9 @@ class Expense extends EntityModel
     {
         $array = parent::toArray();
 
-        if(empty($this->visible) || in_array('converted_amount', $this->visible))$array['converted_amount'] = $this->convertedAmount();
+        if (empty($this->visible) || in_array('converted_amount', $this->visible)) {
+            $array['converted_amount'] = $this->convertedAmount();
+        }
 
         return $array;
     }
@@ -267,7 +269,6 @@ class Expense extends EntityModel
 
         return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance);
     }
-
 }
 
 Expense::creating(function ($expense) {

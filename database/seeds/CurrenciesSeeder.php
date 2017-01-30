@@ -72,7 +72,7 @@ class CurrenciesSeeder extends Seeder
                 $record->symbol = $currency['symbol'];
                 $record->thousand_separator = $currency['thousand_separator'];
                 $record->decimal_separator = $currency['decimal_separator'];
-                if(isset($currency['swap_currency_symbol'])){
+                if (isset($currency['swap_currency_symbol'])) {
                     $record->swap_currency_symbol = $currency['swap_currency_symbol'];
                 }
                 $record->save();

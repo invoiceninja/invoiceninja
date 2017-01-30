@@ -45,7 +45,7 @@ class MakeModule extends Command
         
         // convert 'name:string,description:text' to 'name,description'
         $fillable = explode(',', $fields);
-        $fillable = array_map(function($item) {
+        $fillable = array_map(function ($item) {
             return explode(':', $item)[0];
         }, $fillable);
         $fillable = join(',', $fillable);
@@ -94,5 +94,4 @@ class MakeModule extends Command
             array('migrate', null, InputOption::VALUE_OPTIONAL, 'The model attributes.', null),
         );
     }
-
 }

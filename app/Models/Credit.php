@@ -98,7 +98,6 @@ class Credit extends EntityModel
 }
 
 Credit::creating(function ($credit) {
-
 });
 
 Credit::created(function ($credit) {

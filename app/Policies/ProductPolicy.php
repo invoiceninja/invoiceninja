@@ -9,5 +9,4 @@ use App\Models\User;
  */
 class ProductPolicy extends EntityPolicy
 {
-
 }

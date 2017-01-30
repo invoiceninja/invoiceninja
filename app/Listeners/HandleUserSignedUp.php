@@ -23,7 +23,7 @@ class HandleUserSignedUp
 
     /**
      * Create the event handler.
-     * 
+     *
      * @param AccountRepository $accountRepo
      * @param UserMailer $userMailer
      */

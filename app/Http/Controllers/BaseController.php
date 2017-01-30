@@ -25,7 +25,7 @@ class BaseController extends Controller
 
     protected function returnBulk($entityType, $action, $ids)
     {
-        if ( ! is_array($ids)) {
+        if (! is_array($ids)) {
             $ids = [$ids];
         }
 

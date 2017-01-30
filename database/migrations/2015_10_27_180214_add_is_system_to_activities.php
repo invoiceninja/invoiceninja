@@ -4,17 +4,17 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use App\Models\Activity;
 
-class AddIsSystemToActivities extends Migration {
+class AddIsSystemToActivities extends Migration
+{
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-        Schema::table('activities', function($table)
-        {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('activities', function ($table) {
             $table->boolean('is_system')->default(0);
         });
 
@@ -24,28 +24,24 @@ class AddIsSystemToActivities extends Migration {
             $activity->save();
         }
 
-        Schema::table('activities', function($table)
-        {
+        Schema::table('activities', function ($table) {
             $table->dropColumn('message');
         });
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
-        Schema::table('activities', function($table)
-        {
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('activities', function ($table) {
             $table->dropColumn('is_system');
         });
 
-        Schema::table('activities', function($table)
-        {
+        Schema::table('activities', function ($table) {
             $table->text('message')->nullable();
         });
-	}
-
+    }
 }

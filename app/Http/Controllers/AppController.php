@@ -145,7 +145,7 @@ class AppController extends BaseController
             return Redirect::to('/');
         }
 
-        if ( ! $canUpdateEnv = @fopen(base_path().'/.env', 'w')) {
+        if (! $canUpdateEnv = @fopen(base_path().'/.env', 'w')) {
             Session::flash('error', 'Warning: Permission denied to write to .env config file, try running <code>sudo chown www-data:www-data /path/to/ninja/.env</code>');
             return Redirect::to('/settings/system_settings');
         }
@@ -183,7 +183,7 @@ class AppController extends BaseController
                 continue;
             }
             if (preg_match('/\s/', $val)) {
-                    $val = "'{$val}'";
+                $val = "'{$val}'";
             }
             $config .= "{$key}={$val}\n";
         }
@@ -277,7 +277,7 @@ class AppController extends BaseController
                 Event::fire(new UserSettingsChanged());
 
                 // legacy fix: check cipher is in .env file
-                if ( ! env('APP_CIPHER')) {
+                if (! env('APP_CIPHER')) {
                     $fp = fopen(base_path().'/.env', 'a');
                     fwrite($fp, "\nAPP_CIPHER=AES-256-CBC");
                     fclose($fp);
@@ -314,7 +314,7 @@ class AppController extends BaseController
 
     public function stats()
     {
-        if ( ! hash_equals(Input::get('password'), env('RESELLER_PASSWORD'))) {
+        if (! hash_equals(Input::get('password'), env('RESELLER_PASSWORD'))) {
             sleep(3);
             return '';
         }

@@ -15,7 +15,8 @@ class PaymentTermPolicy extends EntityPolicy
      * @param $item
      * @return mixed
      */
-    public static function edit(User $user, $item) {
+    public static function edit(User $user, $item)
+    {
         return $user->hasPermission('admin');
     }
 
@@ -23,7 +24,8 @@ class PaymentTermPolicy extends EntityPolicy
      * @param User $user
      * @return bool
      */
-    public static function create(User $user, $item) {
+    public static function create(User $user, $item)
+    {
         return $user->hasPermission('admin');
     }
 }

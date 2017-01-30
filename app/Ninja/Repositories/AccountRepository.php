@@ -116,7 +116,7 @@ class AccountRepository
         } else {
             $clients = Client::scope()
                         ->where('user_id', '=', $user->id)
-                        ->with(['contacts', 'invoices' => function($query) use ($user) {
+                        ->with(['contacts', 'invoices' => function ($query) use ($user) {
                             $query->where('user_id', '=', $user->id);
                         }])->get();
         }
@@ -208,7 +208,7 @@ class AccountRepository
 
         $settings = array_merge(Account::$basicSettings, Account::$advancedSettings);
 
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             $settings[] = ACCOUNT_SYSTEM_SETTINGS;
         }
 
@@ -589,13 +589,14 @@ class AccountRepository
         return $data;
     }
 
-    public function loadAccounts($userId) {
+    public function loadAccounts($userId)
+    {
         $record = self::findUserAccounts($userId);
         return self::prepareUsersData($record);
     }
 
-    public function associateAccounts($userId1, $userId2) {
-
+    public function associateAccounts($userId1, $userId2)
+    {
         $record = self::findUserAccounts($userId1, $userId2);
 
         if ($record) {
@@ -618,7 +619,7 @@ class AccountRepository
         foreach ($users as $user) {
             if (!$user->public_id) {
                 $useAsPrimary = false;
-                if(empty($primaryUser)) {
+                if (empty($primaryUser)) {
                     $useAsPrimary = true;
                 }
 
@@ -639,7 +640,7 @@ class AccountRepository
                     }
                 }
 
-                if  ($useAsPrimary) {
+                if ($useAsPrimary) {
                     $primaryUser = $user;
                     $primaryUserPlanLevel = $planLevel;
                     if ($planDetails) {
@@ -669,7 +670,8 @@ class AccountRepository
         return $users;
     }
 
-    public function unlinkAccount($account) {
+    public function unlinkAccount($account)
+    {
         foreach ($account->users as $user) {
             if ($userAccount = self::findUserAccounts($user->id)) {
                 $userAccount->removeUserId($user->id);
@@ -678,7 +680,8 @@ class AccountRepository
         }
     }
 
-    public function unlinkUser($userAccountId, $userId) {
+    public function unlinkUser($userAccountId, $userId)
+    {
         $userAccount = UserAccount::whereId($userAccountId)->first();
         if ($userAccount->hasUserId($userId)) {
             $userAccount->removeUserId($userId);

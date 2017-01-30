@@ -39,5 +39,4 @@ class ExpensePresenter extends EntityPresenter
     {
         return $this->entity->expense_category ? $this->entity->expense_category->name : '';
     }
-
 }

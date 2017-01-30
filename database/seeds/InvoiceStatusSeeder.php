@@ -33,6 +33,5 @@ class InvoiceStatusSeeder extends Seeder
                 InvoiceStatus::create($status);
             }
         }
-    }   
+    }
 }
-

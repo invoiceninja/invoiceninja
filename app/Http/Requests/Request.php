@@ -5,7 +5,8 @@ use Response;
 use App\Libraries\Utils;
 
 // https://laracasts.com/discuss/channels/general-discussion/laravel-5-modify-input-before-validation/replies/34366
-abstract class Request extends FormRequest {
+abstract class Request extends FormRequest
+{
 
     // populate in subclass to auto load record
     protected $autoload = [];
@@ -54,14 +55,13 @@ abstract class Request extends FormRequest {
     public function response(array $errors)
     {
         /* If the user is not validating from a mobile app - pass through parent::response */
-        if ( ! request()->api_secret) {
+        if (! request()->api_secret) {
             return parent::response($errors);
         }
 
         /* If the user is validating from a mobile app - pass through first error string and return error */
-        foreach($errors as $error) {
+        foreach ($errors as $error) {
             foreach ($error as $key => $value) {
-
                 $message['error'] = ['message'=>$value];
                 $message = json_encode($message, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();

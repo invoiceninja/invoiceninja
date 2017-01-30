@@ -15,7 +15,8 @@ class AccountGatewayPolicy extends EntityPolicy
      * @param $item
      * @return bool
      */
-    public static function edit(User $user, $item) {
+    public static function edit(User $user, $item)
+    {
         return $user->hasPermission('admin');
     }
 
@@ -23,7 +24,8 @@ class AccountGatewayPolicy extends EntityPolicy
      * @param User $user
      * @return bool
      */
-    public static function create(User $user, $item) {
+    public static function create(User $user, $item)
+    {
         return $user->hasPermission('admin');
     }
 }

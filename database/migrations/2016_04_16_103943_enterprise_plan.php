@@ -12,7 +12,8 @@ class EnterprisePlan extends Migration
      *
      * @return void
      */
-	public function up() {
+    public function up()
+    {
         $timeout = ini_get('max_execution_time');
         if ($timeout == 0) {
             $timeout = 600;
@@ -21,8 +22,7 @@ class EnterprisePlan extends Migration
         $startTime = time();
 
         if (!Schema::hasTable('companies')) {
-            Schema::create('companies', function($table)
-            {
+            Schema::create('companies', function ($table) {
                 $table->increments('id');
 
                 $table->enum('plan', array('pro', 'enterprise', 'white_label'))->nullable();
@@ -44,19 +44,16 @@ class EnterprisePlan extends Migration
                 $table->softDeletes();
             });
 
-            Schema::table('companies', function($table)
-            {
+            Schema::table('companies', function ($table) {
                 $table->foreign('payment_id')->references('id')->on('payments');
             });
         }
 
         if (!Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function($table)
-            {
+            Schema::table('accounts', function ($table) {
                 $table->unsignedInteger('company_id')->nullable();
             });
-            Schema::table('accounts', function($table)
-            {
+            Schema::table('accounts', function ($table) {
                 $table->foreign('company_id')->references('id')->on('companies')->onDelete('cascade');
             });
         }
@@ -111,16 +108,16 @@ class EnterprisePlan extends Migration
         }
 
         if (Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function($table)
-            {
+            Schema::table('accounts', function ($table) {
                 $table->dropColumn('pro_plan_paid');
                 $table->dropColumn('pro_plan_trial');
             });
         }
-	}
+    }
 
-    private function upAccounts($primaryAccount, $otherAccounts = array()) {
-        if(!$primaryAccount) {
+    private function upAccounts($primaryAccount, $otherAccounts = array())
+    {
+        if (!$primaryAccount) {
             $primaryAccount = $otherAccounts->first();
         }
 
@@ -167,28 +164,29 @@ class EnterprisePlan extends Migration
         $primaryAccount->save();
 
         if (!empty($otherAccounts)) {
-           foreach ($otherAccounts as $account) {
-               if ($account && $account->id != $primaryAccount->id) {
+            foreach ($otherAccounts as $account) {
+                if ($account && $account->id != $primaryAccount->id) {
                     $account->company_id = $company->id;
                     $account->save();
-               }
-           }
+                }
+            }
         }
     }
 
-    protected function checkTimeout($timeout, $startTime) {
+    protected function checkTimeout($timeout, $startTime)
+    {
         if (time() - $startTime >= $timeout) {
             exit('Migration reached time limit; please run again to continue');
         }
     }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
         $timeout = ini_get('max_execution_time');
         if ($timeout == 0) {
             $timeout = 600;
@@ -197,8 +195,7 @@ class EnterprisePlan extends Migration
         $startTime = time();
 
         if (!Schema::hasColumn('accounts', 'pro_plan_paid')) {
-            Schema::table('accounts', function($table)
-            {
+            Schema::table('accounts', function ($table) {
                 $table->date('pro_plan_paid')->nullable();
                 $table->date('pro_plan_trial')->nullable();
             });
@@ -228,13 +225,12 @@ class EnterprisePlan extends Migration
         }
 
         if (Schema::hasColumn('accounts', 'company_id')) {
-            Schema::table('accounts', function($table)
-            {
+            Schema::table('accounts', function ($table) {
                 $table->dropForeign('accounts_company_id_foreign');
                 $table->dropColumn('company_id');
             });
         }
 
         Schema::dropIfExists('companies');
-	}
+    }
 }

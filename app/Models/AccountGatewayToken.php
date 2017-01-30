@@ -98,5 +98,4 @@ class AccountGatewayToken extends Eloquent
             return false;
         }
     }
-
 }

@@ -193,7 +193,7 @@ class PaymentRepository extends BaseRepository
                 $remaining = $amount;
                 foreach ($credits as $credit) {
                     $remaining -= $credit->apply($remaining);
-                    if ( ! $remaining) {
+                    if (! $remaining) {
                         break;
                     }
                 }

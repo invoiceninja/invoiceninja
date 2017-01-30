@@ -67,7 +67,7 @@ class SendRecurringInvoices extends Command
             $shouldSendToday = $recurInvoice->shouldSendToday();
             $this->info('Processing Invoice '.$recurInvoice->id.' - Should send '.($shouldSendToday ? 'YES' : 'NO'));
 
-            if ( ! $shouldSendToday) {
+            if (! $shouldSendToday) {
                 continue;
             }
 

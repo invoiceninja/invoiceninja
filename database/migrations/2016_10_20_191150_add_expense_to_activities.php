@@ -12,13 +12,11 @@ class AddExpenseToActivities extends Migration
      */
     public function up()
     {
-        Schema::table('activities', function($table)
-        {
+        Schema::table('activities', function ($table) {
             $table->unsignedInteger('expense_id')->nullable();
         });
 
-        Schema::table('accounts', function($table)
-        {
+        Schema::table('accounts', function ($table) {
             $table->date('financial_year_start')->nullable();
             $table->smallInteger('enabled_modules')->default(63);
             $table->smallInteger('enabled_dashboard_sections')->default(7);
@@ -28,8 +26,7 @@ class AddExpenseToActivities extends Migration
             $table->boolean('require_quote_signature')->default(false);
         });
 
-        Schema::table('payments', function($table)
-        {
+        Schema::table('payments', function ($table) {
             $table->text('credit_ids')->nullable();
         });
     }
@@ -41,13 +38,11 @@ class AddExpenseToActivities extends Migration
      */
     public function down()
     {
-        Schema::table('activities', function($table)
-        {
+        Schema::table('activities', function ($table) {
             $table->dropColumn('expense_id');
         });
 
-        Schema::table('accounts', function($table)
-        {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('financial_year_start');
             $table->dropColumn('enabled_modules');
             $table->dropColumn('enabled_dashboard_sections');
@@ -57,8 +52,7 @@ class AddExpenseToActivities extends Migration
             $table->dropColumn('require_quote_signature');
         });
 
-        Schema::table('payments', function($table)
-        {
+        Schema::table('payments', function ($table) {
             $table->dropColumn('credit_ids');
         });
     }

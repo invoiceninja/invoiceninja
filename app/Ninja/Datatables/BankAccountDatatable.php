@@ -35,6 +35,4 @@ class BankAccountDatatable extends EntityDatatable
             ]
         ];
     }
-
-
 }

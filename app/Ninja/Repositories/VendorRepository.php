@@ -92,7 +92,7 @@ class VendorRepository extends BaseRepository
             $first              = false;
         }
 
-        if ( ! $vendor->wasRecentlyCreated) {
+        if (! $vendor->wasRecentlyCreated) {
             foreach ($vendor->vendor_contacts as $contact) {
                 if (!in_array($contact->public_id, $vendorcontactIds)) {
                     $contact->delete();

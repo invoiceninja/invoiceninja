@@ -62,5 +62,4 @@ class SendNotificationEmail extends Job implements ShouldQueue
     {
         $userMailer->sendNotification($this->user, $this->invoice, $this->type, $this->payment);
     }
-
 }

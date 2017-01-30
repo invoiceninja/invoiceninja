@@ -100,5 +100,4 @@ class ExpenseCategoryController extends BaseController
 
         return redirect()->to('/expense_categories');
     }
-
 }

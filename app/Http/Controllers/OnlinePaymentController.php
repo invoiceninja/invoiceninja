@@ -64,14 +64,14 @@ class OnlinePaymentController extends BaseController
      */
     public function showPayment($invitationKey, $gatewayTypeAlias = false, $sourceId = false)
     {
-        if ( ! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+        if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return response()->view('error', [
                 'error' => trans('texts.invoice_not_found'),
                 'hideHeader' => true,
             ]);
         }
 
-        if ( ! $invitation->invoice->canBePaid()) {
+        if (! $invitation->invoice->canBePaid()) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
@@ -84,7 +84,7 @@ class OnlinePaymentController extends BaseController
 
         $account->loadLocalizationSettings($invitation->invoice->client);
 
-        if ( ! $gatewayTypeAlias) {
+        if (! $gatewayTypeAlias) {
             $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
         } elseif ($gatewayTypeAlias != GATEWAY_TYPE_TOKEN) {
             $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
@@ -111,7 +111,7 @@ class OnlinePaymentController extends BaseController
         $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
 
-        if ( ! $invitation->invoice->canBePaid()) {
+        if (! $invitation->invoice->canBePaid()) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
@@ -141,7 +141,7 @@ class OnlinePaymentController extends BaseController
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
                         ->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
-        if ( ! $gatewayTypeAlias) {
+        if (! $gatewayTypeAlias) {
             $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
         } elseif ($gatewayTypeAlias != GATEWAY_TYPE_TOKEN) {
             $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
@@ -210,7 +210,8 @@ class OnlinePaymentController extends BaseController
      * @param $routingNumber
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getBankInfo($routingNumber) {
+    public function getBankInfo($routingNumber)
+    {
         if (strlen($routingNumber) != 9 || !preg_match('/\d{9}/', $routingNumber)) {
             return response()->json([
                 'message' => 'Invalid routing number',
@@ -278,14 +279,14 @@ class OnlinePaymentController extends BaseController
         $redirectUrl = Input::get('redirect_url');
         $failureUrl = URL::previous();
 
-        if ( ! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
+        if (! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
             return redirect()->to("{$failureUrl}/?error=invalid account");
         }
 
         Auth::onceUsingId($account->users[0]->id);
         $product = Product::scope(Input::get('product_id'))->first();
 
-        if ( ! $product) {
+        if (! $product) {
             return redirect()->to("{$failureUrl}/?error=invalid product");
         }
 
@@ -296,7 +297,7 @@ class OnlinePaymentController extends BaseController
                 $query->where('contact_key', $contactKey);
             })->first();
         }
-        if ( ! $client) {
+        if (! $client) {
             $rules = [
                 'first_name' => 'string|max:100',
                 'last_name' => 'string|max:100',

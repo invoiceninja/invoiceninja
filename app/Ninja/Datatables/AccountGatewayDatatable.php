@@ -50,7 +50,8 @@ class AccountGatewayDatatable extends EntityDatatable
                                 $model->resendConfirmationUrl = $url = URL::to("gateways/{$accountGateway->public_id}/resend_confirmation");
                                 $html = link_to($url, $linkText)->toHtml();
                             }
-                        } catch(\WePayException $ex){}
+                        } catch (\WePayException $ex) {
+                        }
 
                         return $html;
                     }
@@ -111,7 +112,7 @@ class AccountGatewayDatatable extends EntityDatatable
                 function ($model) {
                     return $model->resendConfirmationUrl;
                 },
-                function($model) {
+                function ($model) {
                     return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && !empty($model->resendConfirmationUrl);
                 }
             ] , [
@@ -119,7 +120,7 @@ class AccountGatewayDatatable extends EntityDatatable
                 function ($model) {
                     return URL::to("gateways/{$model->public_id}/edit");
                 },
-                function($model) {
+                function ($model) {
                     return !$model->deleted_at;
                 }
             ], [
@@ -127,7 +128,7 @@ class AccountGatewayDatatable extends EntityDatatable
                 function ($model) {
                     return $model->setupUrl;
                 },
-                function($model) {
+                function ($model) {
                     return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY && !empty($model->setupUrl);
                 }
             ], [
@@ -140,7 +141,7 @@ class AccountGatewayDatatable extends EntityDatatable
                         'attributes' => 'target="_blank"'
                     ];
                 },
-                function($model) {
+                function ($model) {
                     return !$model->deleted_at && $model->gateway_id == GATEWAY_WEPAY;
                 }
             ], [
@@ -148,7 +149,7 @@ class AccountGatewayDatatable extends EntityDatatable
                 function ($model) {
                     return 'https://go.wepay.com/terms-of-service-us';
                 },
-                function($model) {
+                function ($model) {
                     return $model->gateway_id == GATEWAY_WEPAY;
                 }
             ]
@@ -194,5 +195,4 @@ class AccountGatewayDatatable extends EntityDatatable
 
         return static::$accountGateways[$id];
     }
-
 }

@@ -19,5 +19,4 @@ class QuoteWasUpdated extends Event
     {
         $this->quote = $quote;
     }
-
 }

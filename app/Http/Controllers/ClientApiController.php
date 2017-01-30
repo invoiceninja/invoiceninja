@@ -174,5 +174,4 @@ class ClientApiController extends BaseAPIController
 
         return $this->itemResponse($client);
     }
-
 }

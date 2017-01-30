@@ -3,16 +3,17 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddTasks extends Migration {
+class AddTasks extends Migration
+{
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-        Schema::create('tasks', function($table) {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('tasks', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->unsignedInteger('account_id')->index();
@@ -32,7 +33,7 @@ class AddTasks extends Migration {
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             
             $table->unsignedInteger('public_id')->index();
-            $table->unique( array('account_id','public_id') );
+            $table->unique(array('account_id','public_id'));
         });
 
         Schema::dropIfExists('timesheets');
@@ -40,16 +41,15 @@ class AddTasks extends Migration {
         Schema::dropIfExists('timesheet_event_sources');
         Schema::dropIfExists('project_codes');
         Schema::dropIfExists('projects');
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
         Schema::drop('tasks');
-	}
-
+    }
 }

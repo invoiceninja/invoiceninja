@@ -74,7 +74,7 @@ class SendRenewalInvoices extends Command
                 $plan['price'] = min($company->pending_plan_price, Utils::getPlanPrice($plan));
             }
 
-            if ($plan['plan'] == PLAN_FREE || !$plan['plan'] || !$plan['term'] || !$plan['price']){
+            if ($plan['plan'] == PLAN_FREE || !$plan['plan'] || !$plan['term'] || !$plan['price']) {
                 continue;
             }
 

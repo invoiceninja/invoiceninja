@@ -107,7 +107,7 @@ class ExpenseRepository extends BaseRepository
                 }
                 if (in_array(EXPENSE_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('expenses.invoice_id', '>', 0);
-                    if ( ! in_array(EXPENSE_STATUS_PAID, $statuses)) {
+                    if (! in_array(EXPENSE_STATUS_PAID, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
@@ -123,7 +123,8 @@ class ExpenseRepository extends BaseRepository
                 $query->where('expenses.public_notes', 'like', '%'.$filter.'%')
                       ->orWhere('clients.name', 'like', '%'.$filter.'%')
                       ->orWhere('vendors.name', 'like', '%'.$filter.'%')
-                      ->orWhere('expense_categories.name', 'like', '%'.$filter.'%');;
+                      ->orWhere('expense_categories.name', 'like', '%'.$filter.'%');
+                ;
             });
         }
 
@@ -158,10 +159,10 @@ class ExpenseRepository extends BaseRepository
 
         $expense->should_be_invoiced = isset($input['should_be_invoiced']) && floatval($input['should_be_invoiced']) || $expense->client_id ? true : false;
 
-        if ( ! $expense->expense_currency_id) {
+        if (! $expense->expense_currency_id) {
             $expense->expense_currency_id = \Auth::user()->account->getCurrencyId();
         }
-        if ( ! $expense->invoice_currency_id) {
+        if (! $expense->invoice_currency_id) {
             $expense->invoice_currency_id = \Auth::user()->account->getCurrencyId();
         }
 
@@ -174,12 +175,13 @@ class ExpenseRepository extends BaseRepository
         $expense->save();
 
         // Documents
-        $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):[];;
-        foreach ($document_ids as $document_id){
+        $document_ids = !empty($input['document_ids'])?array_map('intval', $input['document_ids']):[];
+        ;
+        foreach ($document_ids as $document_id) {
             // check document completed upload before user submitted form
             if ($document_id) {
                 $document = Document::scope($document_id)->first();
-                if($document && Auth::user()->can('edit', $document)){
+                if ($document && Auth::user()->can('edit', $document)) {
                     $document->invoice_id = null;
                     $document->expense_id = $expense->id;
                     $document->save();
@@ -188,9 +190,9 @@ class ExpenseRepository extends BaseRepository
         }
 
         // prevent loading all of the documents if we don't have to
-        if ( ! $expense->wasRecentlyCreated) {
-            foreach ($expense->documents as $document){
-                if ( ! in_array($document->public_id, $document_ids)){
+        if (! $expense->wasRecentlyCreated) {
+            foreach ($expense->documents as $document) {
+                if (! in_array($document->public_id, $document_ids)) {
                     // Not checking permissions; deleting a document is just editing the invoice
                     $document->delete();
                 }

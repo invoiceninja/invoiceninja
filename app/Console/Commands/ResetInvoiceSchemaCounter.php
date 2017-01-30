@@ -62,7 +62,7 @@ class ResetInvoiceSchemaCounter extends Command
         $latestInvoice = $this->invoice->latest()->first();
         $invoiceYear = Carbon::parse($latestInvoice->created_at)->year;
 
-        if(Carbon::now()->year > $invoiceYear || $force) {
+        if (Carbon::now()->year > $invoiceYear || $force) {
             $accounts->transform(function ($a) {
                 /** @var Account $a */
                 $a->invoice_number_counter = 1;

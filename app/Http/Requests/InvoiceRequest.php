@@ -2,8 +2,8 @@
 
 use App\Models\Invoice;
 
-class InvoiceRequest extends EntityRequest {
-
+class InvoiceRequest extends EntityRequest
+{
     protected $entityType = ENTITY_INVOICE;
 
     public function entity()
@@ -25,5 +25,4 @@ class InvoiceRequest extends EntityRequest {
 
         return $invoice;
     }
-
 }

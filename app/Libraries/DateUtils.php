@@ -4,5 +4,4 @@ use DateTime;
 
 class DateUtils
 {
-
 }

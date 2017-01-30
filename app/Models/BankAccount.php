@@ -37,4 +37,3 @@ class BankAccount extends EntityModel
         return $this->hasMany('App\Models\BankSubaccount');
     }
 }
-

@@ -2,9 +2,8 @@
 
 use App\Models\ExpenseCategory;
 
-
-class ExpenseRequest extends EntityRequest {
-
+class ExpenseRequest extends EntityRequest
+{
     protected $entityType = ENTITY_EXPENSE;
 
     public function entity()

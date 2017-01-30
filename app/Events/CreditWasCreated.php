@@ -5,7 +5,6 @@ use Illuminate\Queue\SerializesModels;
 
 class CreditWasCreated extends Event
 {
-
     use SerializesModels;
 
     /**
@@ -22,5 +21,4 @@ class CreditWasCreated extends Event
     {
         $this->credit = $credit;
     }
-
 }

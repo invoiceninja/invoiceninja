@@ -91,7 +91,7 @@ class ContactMailer extends Mailer
         if ($account->document_email_attachment && $invoice->hasDocuments()) {
             $documents = $invoice->documents;
 
-            foreach($invoice->expenses as $expense){
+            foreach ($invoice->expenses as $expense) {
                 $documents = $documents->merge($expense->documents);
             }
 
@@ -99,9 +99,11 @@ class ContactMailer extends Mailer
 
             $size = 0;
             $maxSize = MAX_EMAIL_DOCUMENTS_SIZE * 1000;
-            foreach($documents as $document){
+            foreach ($documents as $document) {
                 $size += $document->size;
-                if($size > $maxSize)break;
+                if ($size > $maxSize) {
+                    break;
+                }
 
                 $documentStrings[] = [
                     'name' => $document->name,
@@ -148,9 +150,7 @@ class ContactMailer extends Mailer
         $pdfString,
         $documentStrings,
         $reminder
-    )
-    {
-
+    ) {
         $client = $invoice->client;
         $account = $invoice->account;
 
@@ -238,14 +238,14 @@ class ContactMailer extends Mailer
         ];
         $all = '';
         $password = '';
-        foreach($sets as $set)
-        {
+        foreach ($sets as $set) {
             $password .= $set[array_rand(str_split($set))];
             $all .= $set;
         }
         $all = str_split($all);
-        for($i = 0; $i < $length - count($sets); $i++)
+        for ($i = 0; $i < $length - count($sets); $i++) {
             $password .= $all[array_rand($all)];
+        }
         $password = str_shuffle($password);
 
         return $password;
@@ -340,5 +340,4 @@ class ContactMailer extends Mailer
 
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
-
 }

@@ -24,6 +24,5 @@ class GatewayTypesSeeder extends Seeder
                 GatewayType::create($gateway_type);
             }
         }
-
     }
 }

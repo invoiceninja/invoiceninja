@@ -1,6 +1,5 @@
 <?php namespace App\Events;
 
-
 use App\Models\Invitation;
 use Illuminate\Queue\SerializesModels;
 
@@ -9,7 +8,6 @@ use Illuminate\Queue\SerializesModels;
  */
 class InvoiceInvitationWasEmailed extends Event
 {
-
     use SerializesModels;
 
     /**
@@ -32,5 +30,4 @@ class InvoiceInvitationWasEmailed extends Event
         $this->invitation = $invitation;
         $this->notes = $notes;
     }
-
 }

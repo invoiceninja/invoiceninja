@@ -503,7 +503,7 @@ class ActivityListener
      */
     public function updatedTask(TaskWasUpdated $event)
     {
-        if ( ! $event->task->isChanged()) {
+        if (! $event->task->isChanged()) {
             return;
         }
 
@@ -552,7 +552,7 @@ class ActivityListener
 
     public function updatedExpense(ExpenseWasUpdated $event)
     {
-        if ( ! $event->expense->isChanged()) {
+        if (! $event->expense->isChanged()) {
             return;
         }
 
@@ -589,6 +589,4 @@ class ActivityListener
             ACTIVITY_TYPE_RESTORE_EXPENSE
         );
     }
-
-
 }

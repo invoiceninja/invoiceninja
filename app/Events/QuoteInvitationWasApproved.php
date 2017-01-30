@@ -1,6 +1,5 @@
 <?php namespace App\Events;
 
-
 use App\Models\Invitation;
 use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;

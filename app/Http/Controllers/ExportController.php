@@ -39,7 +39,7 @@ class ExportController extends BaseController
         } else {
             $fields = $request->all();
             $fields = array_filter(array_map(function ($key) {
-                if ( ! in_array($key, ['format', 'include', '_token'])) {
+                if (! in_array($key, ['format', 'include', '_token'])) {
                     return $key;
                 } else {
                     return null;
@@ -74,11 +74,11 @@ class ExportController extends BaseController
 
         // eager load data, include archived but exclude deleted
         $account = Auth::user()->account;
-        $account->load(['clients' => function($query) {
+        $account->load(['clients' => function ($query) {
             $query->withArchived()
-                  ->with(['contacts', 'invoices' => function($query) {
+                  ->with(['contacts', 'invoices' => function ($query) {
                       $query->withArchived()
-                            ->with(['invoice_items', 'payments' => function($query) {
+                            ->with(['invoice_items', 'payments' => function ($query) {
                                 $query->withArchived();
                             }]);
                   }]);
@@ -102,8 +102,8 @@ class ExportController extends BaseController
     {
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function($excel) use ($data) {
-            $excel->sheet('', function($sheet) use ($data) {
+        return Excel::create($fileName, function ($excel) use ($data) {
+            $excel->sheet('', function ($sheet) use ($data) {
                 $sheet->loadView('export', $data);
             });
         })->download('csv');
@@ -120,8 +120,7 @@ class ExportController extends BaseController
         $user = Auth::user();
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function($excel) use ($user, $data) {
-
+        return Excel::create($fileName, function ($excel) use ($user, $data) {
             $excel->setTitle($data['title'])
                   ->setCreator($user->getDisplayName())
                   ->setLastModifiedBy($user->getDisplayName())
@@ -140,7 +139,7 @@ class ExportController extends BaseController
                     $key = 'recurring_invoices';
                 }
                 $label = trans("texts.{$key}");
-                $excel->sheet($label, function($sheet) use ($key, $data) {
+                $excel->sheet($label, function ($sheet) use ($key, $data) {
                     if ($key === 'quotes') {
                         $key = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;

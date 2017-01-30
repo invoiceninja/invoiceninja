@@ -92,13 +92,13 @@ class BaseAPIController extends Controller
         }
 
         if ($clientPublicId = Input::get('client_id')) {
-            $filter = function($query) use ($clientPublicId) {
+            $filter = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
             };
             $query->whereHas('client', $filter);
         }
 
-        if ( ! Utils::hasPermission('view_all')){
+        if (! Utils::hasPermission('view_all')) {
             if ($this->entityType == ENTITY_USER) {
                 $query->where('id', '=', Auth::user()->id);
             } else {
@@ -174,14 +174,13 @@ class BaseAPIController extends Controller
         return Response::make($response, 200, $headers);
     }
 
-    protected  function errorResponse($response, $httpErrorCode = 400)
+    protected function errorResponse($response, $httpErrorCode = 400)
     {
         $error['error'] = $response;
         $error = json_encode($error, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
 
         return Response::make($error, $httpErrorCode, $headers);
-
     }
 
     protected function getRequestIncludes($data)

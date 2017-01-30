@@ -31,7 +31,7 @@ class ImportController extends BaseController
             }
         }
 
-        if ( ! count($files)) {
+        if (! count($files)) {
             Session::flash('error', trans('texts.select_file'));
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }

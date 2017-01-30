@@ -58,11 +58,9 @@ class PushFactory
             PushNotification::app($device)
                 ->to($token)
                 ->send($message);
-        }
-        catch(\Exception $e) {
+        } catch (\Exception $e) {
             Log::error($e->getMessage());
         }
-
     }
 
     /**
@@ -81,7 +79,6 @@ class PushFactory
      */
     public function getFeedback($token, $message = '', $device)
     {
-
         $feedback = PushNotification::app($device)
             ->to($token)
             ->send($message);

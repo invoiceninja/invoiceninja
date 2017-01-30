@@ -45,5 +45,4 @@ class TaxRate extends EntityModel
     {
         return sprintf('%s: %s%%', $this->name, $this->rate);
     }
-
 }

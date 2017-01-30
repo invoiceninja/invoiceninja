@@ -12,7 +12,8 @@ use App\Models\AccountToken;
 /**
  * Class ApiCheck
  */
-class ApiCheck {
+class ApiCheck
+{
 
     /**
     * Handle an incoming request.
@@ -38,7 +39,7 @@ class ApiCheck {
 
         if ($loggingIn) {
             // check API secret
-            if ( ! $hasApiSecret) {
+            if (! $hasApiSecret) {
                 sleep(ERROR_DELAY);
                 $error['error'] = ['message'=>'Invalid value for API_SECRET'];
                 return Response::json($error, 403, $headers);
@@ -81,7 +82,7 @@ class ApiCheck {
                 $new_hour_throttle = $hour_throttle - $last_api_diff;
                 $new_hour_throttle = $new_hour_throttle < 0 ? 0 : $new_hour_throttle;
                 $new_hour_throttle += $hour / $hour_limit;
-                $hour_hits_remaining = floor(( $hour - $new_hour_throttle ) * $hour_limit / $hour);
+                $hour_hits_remaining = floor(($hour - $new_hour_throttle) * $hour_limit / $hour);
                 $hour_hits_remaining = $hour_hits_remaining >= 0 ? $hour_hits_remaining : 0;
             }
 
@@ -97,5 +98,4 @@ class ApiCheck {
 
         return $next($request);
     }
-
 }

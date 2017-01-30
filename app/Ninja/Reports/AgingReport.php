@@ -24,7 +24,7 @@ class AgingReport extends AbstractReport
         $clients = Client::scope()
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function($query) {
+                        ->with(['invoices' => function ($query) {
                             $query->invoices()
                                   ->whereIsPublic(true)
                                   ->withArchived()
@@ -36,7 +36,6 @@ class AgingReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-
                 $this->data[] = [
                     $this->isExport ? $client->getDisplayName() : $client->present()->link,
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,

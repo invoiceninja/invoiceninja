@@ -24,5 +24,4 @@ class TaskWasDeleted extends Event
     {
         $this->task = $task;
     }
-
 }

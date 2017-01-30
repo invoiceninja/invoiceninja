@@ -84,29 +84,29 @@ class ClientController extends BaseController
         $user = Auth::user();
 
         $actionLinks = [];
-        if ($user->can('create', ENTITY_INVOICE)){
+        if ($user->can('create', ENTITY_INVOICE)) {
             $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => URL::to('/invoices/create/'.$client->public_id)];
         }
-        if ($user->can('create', ENTITY_TASK)){
+        if ($user->can('create', ENTITY_TASK)) {
             $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/'.$client->public_id)];
         }
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {
             $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
         }
 
-        if(!empty($actionLinks)){
+        if (!empty($actionLinks)) {
             $actionLinks[] = \DropdownButton::DIVIDER;
         }
 
-        if($user->can('create', ENTITY_PAYMENT)){
+        if ($user->can('create', ENTITY_PAYMENT)) {
             $actionLinks[] = ['label' => trans('texts.enter_payment'), 'url' => URL::to('/payments/create/'.$client->public_id)];
         }
 
-        if($user->can('create', ENTITY_CREDIT)){
+        if ($user->can('create', ENTITY_CREDIT)) {
             $actionLinks[] = ['label' => trans('texts.enter_credit'), 'url' => URL::to('/credits/create/'.$client->public_id)];
         }
 
-        if($user->can('create', ENTITY_EXPENSE)){
+        if ($user->can('create', ENTITY_EXPENSE)) {
             $actionLinks[] = ['label' => trans('texts.enter_expense'), 'url' => URL::to('/expenses/create/0/'.$client->public_id)];
         }
 

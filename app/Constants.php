@@ -1,7 +1,6 @@
 <?php
 
-if (!defined('APP_NAME'))
-{
+if (!defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
     define('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME')));
     define('CONTACT_NAME', env('MAIL_FROM_NAME'));
@@ -44,7 +43,7 @@ if (!defined('APP_NAME'))
 
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
-    define('PERSON_VENDOR_CONTACT','vendorcontact');
+    define('PERSON_VENDOR_CONTACT', 'vendorcontact');
 
     define('BASIC_SETTINGS', 'basic_settings');
     define('ADVANCED_SETTINGS', 'advanced_settings');
@@ -74,7 +73,7 @@ if (!defined('APP_NAME'))
     define('ACCOUNT_API_TOKENS', 'api_tokens');
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
     define('ACCOUNT_SYSTEM_SETTINGS', 'system_settings');
-    define('ACCOUNT_PAYMENT_TERMS','payment_terms');
+    define('ACCOUNT_PAYMENT_TERMS', 'payment_terms');
 
     define('ACTION_RESTORE', 'restore');
     define('ACTION_ARCHIVE', 'archive');
@@ -485,7 +484,7 @@ if (!defined('APP_NAME'))
     define('WEPAY_AUTO_UPDATE', env('WEPAY_AUTO_UPDATE', false));
     define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
     define('WEPAY_ENABLE_CANADA', env('WEPAY_ENABLE_CANADA', false));
-    define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
+    define('WEPAY_THEME', env('WEPAY_THEME', '{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
 
     define('SKYPE_CARD_RECEIPT', 'message/card.receipt');
     define('SKYPE_CARD_CAROUSEL', 'message/card.carousel');
@@ -564,12 +563,12 @@ if (!defined('APP_NAME'))
     // include modules in translations
     function mtrans($entityType, $text = false)
     {
-        if ( ! $text) {
+        if (! $text) {
             $text = $entityType;
         }
 
         // check if this has been translated in a module language file
-        if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
+        if (! Utils::isNinjaProd() && $module = Module::find($entityType)) {
             $key = "{$module->getLowerName()}::texts.{$text}";
             $value = trans($key);
             if ($key != $value) {

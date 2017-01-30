@@ -24,5 +24,4 @@ class InvoiceWasArchived extends Event
     {
         $this->invoice = $invoice;
     }
-
 }

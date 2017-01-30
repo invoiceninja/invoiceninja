@@ -17,7 +17,7 @@ class CreateDocumentRequest extends DocumentRequest
      */
     public function authorize()
     {
-        if ( ! $this->user()->hasFeature(FEATURE_DOCUMENTS)) {
+        if (! $this->user()->hasFeature(FEATURE_DOCUMENTS)) {
             return false;
         }
         
@@ -43,5 +43,4 @@ class CreateDocumentRequest extends DocumentRequest
             //'file' => 'mimes:jpg'
         ];
     }
-
 }

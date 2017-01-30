@@ -24,5 +24,4 @@ class ExpenseWasDeleted extends Event
     {
         $this->expense = $expense;
     }
-
 }

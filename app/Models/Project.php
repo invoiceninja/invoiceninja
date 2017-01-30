@@ -52,7 +52,6 @@ class Project extends EntityModel
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
     }
-
 }
 
 Project::creating(function ($project) {

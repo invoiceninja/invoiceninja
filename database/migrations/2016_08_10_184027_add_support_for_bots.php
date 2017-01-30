@@ -12,8 +12,7 @@ class AddSupportForBots extends Migration
      */
     public function up()
     {
-        Schema::create('security_codes', function($table)
-        {
+        Schema::create('security_codes', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('user_id')->nullable();
@@ -24,28 +23,23 @@ class AddSupportForBots extends Migration
             $table->timestamp('created_at')->useCurrent();
         });
 
-        Schema::table('security_codes', function($table)
-        {
+        Schema::table('security_codes', function ($table) {
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('contact_id')->references('id')->on('contacts')->onDelete('cascade');
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
         });
 
-        Schema::table('users', function($table)
-        {
+        Schema::table('users', function ($table) {
             $table->string('bot_user_id')->nullable();
         });
 
-        Schema::table('contacts', function($table)
-        {
+        Schema::table('contacts', function ($table) {
             $table->string('bot_user_id')->nullable();
         });
 
-        Schema::table('accounts', function($table)
-        {
+        Schema::table('accounts', function ($table) {
             $table->boolean('include_item_taxes_inline')->default(false);
         });
-
     }
 
     /**
@@ -57,18 +51,15 @@ class AddSupportForBots extends Migration
     {
         Schema::dropIfExists('security_codes');
 
-        Schema::table('users', function($table)
-        {
+        Schema::table('users', function ($table) {
             $table->dropColumn('bot_user_id');
         });
 
-        Schema::table('contacts', function($table)
-        {
+        Schema::table('contacts', function ($table) {
             $table->dropColumn('bot_user_id');
         });
 
-        Schema::table('accounts', function($table)
-        {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('include_item_taxes_inline');
         });
     }

@@ -14,7 +14,7 @@ class PermissionsRequired
     /**
      * @var array
      */
-    static protected $actions = [];
+    protected static $actions = [];
 
     /**
      * Handle an incoming request.

@@ -53,7 +53,7 @@ trait GeneratesNumbers
                     $this->save();
                 }
             } elseif ($entity->isType(INVOICE_TYPE_QUOTE)) {
-                if ( ! $this->share_counter) {
+                if (! $this->share_counter) {
                     $this->quote_number_counter += $counterOffset - 1;
                     $this->save();
                 }
@@ -76,7 +76,7 @@ trait GeneratesNumbers
      */
     public function getNumberPrefix($entityType)
     {
-        if ( ! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
+        if (! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             return '';
         }
 
@@ -90,7 +90,7 @@ trait GeneratesNumbers
      */
     public function getNumberPattern($entityType)
     {
-        if ( ! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
+        if (! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             return false;
         }
 

@@ -37,7 +37,7 @@ class EntityDatatable
             [
                 'label' => mtrans($this->entityType, 'delete_'.$this->entityType),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("delete")',
-    	    ]
+            ]
         ];
     }
 
@@ -88,6 +88,4 @@ class EntityDatatable
 
         return $indices;
     }
-
-
 }

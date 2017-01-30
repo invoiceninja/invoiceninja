@@ -18,7 +18,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 $entityType == ENTITY_INVOICE ? 'invoice_number' : 'quote_number',
                 function ($model) use ($entityType) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_INVOICE, $model->user_id])) {
                         return $model->invoice_number;
                     }
 
@@ -28,7 +28,7 @@ class InvoiceDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
                     return link_to("clients/{$model->client_public_id}", Utils::getClientDisplayName($model))->toHtml();
@@ -104,7 +104,9 @@ class InvoiceDatatable extends EntityDatatable
                 }
             ],
             [
-                '--divider--', function(){return false;},
+                '--divider--', function () {
+                    return false;
+                },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]) || Auth::user()->can('create', ENTITY_PAYMENT);
                 }

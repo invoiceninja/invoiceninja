@@ -1,7 +1,5 @@
 <?php namespace App\Http\Requests;
 
-
-
 class UpdateAccountRequest extends Request
 {
     /**
@@ -27,4 +25,4 @@ class UpdateAccountRequest extends Request
         ];
     }
 }
-// 
+//

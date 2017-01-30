@@ -1,6 +1,5 @@
 <?php namespace App\Ninja\PaymentDrivers;
 
-
 class PayPalExpressPaymentDriver extends BasePaymentDriver
 {
     public function gatewayTypes()

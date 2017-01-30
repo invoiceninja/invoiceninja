@@ -31,5 +31,4 @@ class CheckoutComPaymentDriver extends BasePaymentDriver
 
         return $data;
     }
-
 }

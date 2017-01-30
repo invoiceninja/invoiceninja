@@ -46,7 +46,7 @@ class ProductService extends BaseService
         $datatable = new ProductDatatable(true);
         $query = $this->productRepo->find($accountId, $search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('products.user_id', '=', Auth::user()->id);
         }
 

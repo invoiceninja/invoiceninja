@@ -384,15 +384,16 @@ class Utils
         return intval($value);
     }
 
-    public static function getFromCache($id, $type) {
+    public static function getFromCache($id, $type)
+    {
         $cache = Cache::get($type);
 
-        if ( ! $cache) {
+        if (! $cache) {
             static::logError("Cache for {$type} is not set");
             return null;
         }
 
-        $data = $cache->filter(function($item) use ($id) {
+        $data = $cache->filter(function ($item) use ($id) {
             return $item->id == $id;
         });
 
@@ -457,7 +458,7 @@ class Utils
 
     public static function pluralizeEntityType($type)
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             if ($module = \Module::find($type)) {
                 return $module->get('plural', $type);
             }
@@ -587,10 +588,11 @@ class Utils
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat($format, $date);
 
-        if(!$dateTime)
+        if (!$dateTime) {
             return $date;
-        else
+        } else {
             return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
+        }
     }
 
     public static function fromSqlDate($date, $formatResult = true)
@@ -602,10 +604,11 @@ class Utils
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
 
-        if(!$dateTime)
+        if (!$dateTime) {
             return $date;
-        else
+        } else {
             return $formatResult ? $dateTime->format($format) : $dateTime;
+        }
     }
 
     public static function fromSqlDateTime($date, $formatResult = true)
@@ -659,7 +662,7 @@ class Utils
             if (count($matches) == 0) {
                 continue;
             }
-            usort($matches, function($a, $b) {
+            usort($matches, function ($a, $b) {
                 return strlen($b) - strlen($a);
             });
             foreach ($matches as $match) {
@@ -758,11 +761,13 @@ class Utils
 
     public static function getVendorDisplayName($model)
     {
-        if(is_null($model))
+        if (is_null($model)) {
             return '';
+        }
 
-        if($model->vendor_name)
+        if ($model->vendor_name) {
             return $model->vendor_name;
+        }
 
         return 'No vendor name';
     }
@@ -1089,7 +1094,7 @@ class Utils
     public static function getTranslatedWeekdayNames()
     {
         return collect(static::$weekdayNames)->transform(function ($day) {
-             return trans('texts.'.strtolower($day));
+            return trans('texts.'.strtolower($day));
         });
     }
 

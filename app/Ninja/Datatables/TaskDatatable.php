@@ -16,7 +16,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
 
@@ -27,7 +27,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'project',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->project_user_id])){
+                    if (!Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->project_user_id])) {
                         return $model->project;
                     }
 
@@ -37,7 +37,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'date',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
                         return Task::calcStartTime($model);
                     }
                     return link_to("tasks/{$model->public_id}/edit", Task::calcStartTime($model))->toHtml();
@@ -45,7 +45,7 @@ class TaskDatatable extends EntityDatatable
             ],
             [
                 'duration',
-                function($model) {
+                function ($model) {
                     return Utils::formatTime(Task::calcDuration($model));
                 }
             ],
@@ -113,6 +113,4 @@ class TaskDatatable extends EntityDatatable
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
-
-
 }

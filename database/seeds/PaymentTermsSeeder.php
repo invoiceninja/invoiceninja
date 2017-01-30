@@ -18,5 +18,4 @@ class PaymentTermsSeeder extends Seeder
             }
         }
     }
-
 }

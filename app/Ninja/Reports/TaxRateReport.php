@@ -21,19 +21,19 @@ class TaxRateReport extends AbstractReport
         $clients = Client::scope()
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function($query) {
+                        ->with(['invoices' => function ($query) {
                             $query->with('invoice_items')->withArchived();
                             if ($this->options['date_field'] == FILTER_INVOICE_DATE) {
                                 $query->where('invoice_date', '>=', $this->startDate)
                                       ->where('invoice_date', '<=', $this->endDate)
                                       ->with('payments');
                             } else {
-                                $query->whereHas('payments', function($query) {
-                                            $query->where('payment_date', '>=', $this->startDate)
+                                $query->whereHas('payments', function ($query) {
+                                    $query->where('payment_date', '>=', $this->startDate)
                                                   ->where('payment_date', '<=', $this->endDate)
                                                   ->withArchived();
-                                        })
-                                        ->with(['payments' => function($query) {
+                                })
+                                        ->with(['payments' => function ($query) {
                                             $query->where('payment_date', '>=', $this->startDate)
                                                   ->where('payment_date', '<=', $this->endDate)
                                                   ->withArchived();
@@ -49,7 +49,7 @@ class TaxRateReport extends AbstractReport
 
             foreach ($client->invoices as $invoice) {
                 foreach ($invoice->getTaxes(true) as $key => $tax) {
-                    if ( ! isset($taxTotals[$currencyId])) {
+                    if (! isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
                     }
                     if (isset($taxTotals[$currencyId][$key])) {

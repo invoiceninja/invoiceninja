@@ -13,7 +13,6 @@ class AddSourceCurrencyToExpenses extends Migration
     public function up()
     {
         Schema::table('expenses', function (Blueprint $table) {
-
             $table->dropColumn('foreign_amount');
 
             if (Schema::hasColumn('expenses', 'currency_id')) {
@@ -43,8 +42,7 @@ class AddSourceCurrencyToExpenses extends Migration
      */
     public function down()
     {
-        Schema::table('expenses', function($table) {
-
+        Schema::table('expenses', function ($table) {
         });
     }
 }

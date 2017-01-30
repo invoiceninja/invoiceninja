@@ -52,5 +52,4 @@ class ProductDatatable extends EntityDatatable
             ]
         ];
     }
-
 }

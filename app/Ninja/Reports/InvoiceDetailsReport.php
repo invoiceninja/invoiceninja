@@ -26,7 +26,7 @@ class InvoiceDetailsReport extends AbstractReport
         $clients = Client::scope()
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function($query) use ($status) {
+                        ->with(['invoices' => function ($query) use ($status) {
                             if ($status == 'draft') {
                                 $query->whereIsPublic(false);
                             } elseif ($status == 'unpaid' || $status == 'paid') {

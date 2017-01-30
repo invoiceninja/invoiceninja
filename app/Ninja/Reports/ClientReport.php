@@ -21,7 +21,7 @@ class ClientReport extends AbstractReport
         $clients = Client::scope()
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function($query) {
+                        ->with(['invoices' => function ($query) {
                             $query->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
                                   ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)

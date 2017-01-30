@@ -54,14 +54,13 @@ class DocumentRepository extends BaseRepository
     {
         $uploaded = $data['file'];
         $extension = strtolower($uploaded->getClientOriginalExtension());
-        if(empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])){
+        if (empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])) {
             $documentType = Document::$extraExtensions[$extension];
-        }
-        else{
+        } else {
             $documentType = $extension;
         }
 
-        if(empty(Document::$types[$documentType])){
+        if (empty(Document::$types[$documentType])) {
             return 'Unsupported file type';
         }
 
@@ -71,7 +70,7 @@ class DocumentRepository extends BaseRepository
         $name = $uploaded->getClientOriginalName();
         $size = filesize($filePath);
 
-        if($size/1000 > MAX_DOCUMENT_SIZE){
+        if ($size/1000 > MAX_DOCUMENT_SIZE) {
             return 'File too large';
         }
 
@@ -87,28 +86,28 @@ class DocumentRepository extends BaseRepository
         $document->fill($data);
 
         $disk = $document->getDisk();
-        if(!$disk->exists($filename)){// Have we already stored the same file
+        if (!$disk->exists($filename)) {// Have we already stored the same file
             $stream = fopen($filePath, 'r');
             $disk->getDriver()->putStream($filename, $stream, ['mimetype'=>$documentTypeData['mime']]);
             fclose($stream);
         }
 
         // This is an image; check if we need to create a preview
-        if(in_array($documentType, ['jpeg','png','gif','bmp','tiff','psd'])){
+        if (in_array($documentType, ['jpeg','png','gif','bmp','tiff','psd'])) {
             $makePreview = false;
             $imageSize = getimagesize($filePath);
             $width = $imageSize[0];
             $height = $imageSize[1];
             $imgManagerConfig = [];
-            if(in_array($documentType, ['gif','bmp','tiff','psd'])){
+            if (in_array($documentType, ['gif','bmp','tiff','psd'])) {
                 // Needs to be converted
                 $makePreview = true;
-            } else if($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE){
+            } elseif ($width > DOCUMENT_PREVIEW_SIZE || $height > DOCUMENT_PREVIEW_SIZE) {
                 $makePreview = true;
             }
 
-            if(in_array($documentType,['bmp','tiff','psd'])){
-                if(!class_exists('Imagick')){
+            if (in_array($documentType, ['bmp','tiff','psd'])) {
+                if (!class_exists('Imagick')) {
                     // Cant't read this
                     $makePreview = false;
                 } else {
@@ -116,24 +115,24 @@ class DocumentRepository extends BaseRepository
                 }
             }
 
-            if($makePreview){
+            if ($makePreview) {
                 $previewType = 'jpeg';
-                if(in_array($documentType, ['png','gif','tiff','psd'])){
+                if (in_array($documentType, ['png','gif','tiff','psd'])) {
                     // Has transparency
                     $previewType = 'png';
                 }
 
                 $document->preview = \Auth::user()->account->account_key.'/'.$hash.'.'.$documentType.'.x'.DOCUMENT_PREVIEW_SIZE.'.'.$previewType;
-                if(!$disk->exists($document->preview)){
+                if (!$disk->exists($document->preview)) {
                     // We haven't created a preview yet
                     $imgManager = new ImageManager($imgManagerConfig);
 
                     $img = $imgManager->make($filePath);
 
-                    if($width <= DOCUMENT_PREVIEW_SIZE && $height <= DOCUMENT_PREVIEW_SIZE){
+                    if ($width <= DOCUMENT_PREVIEW_SIZE && $height <= DOCUMENT_PREVIEW_SIZE) {
                         $previewWidth = $width;
                         $previewHeight = $height;
-                    } else if($width > $height) {
+                    } elseif ($width > $height) {
                         $previewWidth = DOCUMENT_PREVIEW_SIZE;
                         $previewHeight = $height * DOCUMENT_PREVIEW_SIZE / $width;
                     } else {
@@ -146,11 +145,10 @@ class DocumentRepository extends BaseRepository
                     $previewContent = (string) $img->encode($previewType);
                     $disk->put($document->preview, $previewContent);
                     $base64 = base64_encode($previewContent);
-                }
-                else{
+                } else {
                     $base64 = base64_encode($disk->get($document->preview));
                 }
-            }else{
+            } else {
                 $base64 = base64_encode(file_get_contents($filePath));
             }
         }
@@ -161,7 +159,7 @@ class DocumentRepository extends BaseRepository
         $document->hash = $hash;
         $document->name = substr($name, -255);
 
-        if(!empty($imageSize)){
+        if (!empty($imageSize)) {
             $document->width = $imageSize[0];
             $document->height = $imageSize[1];
         }
@@ -169,7 +167,7 @@ class DocumentRepository extends BaseRepository
         $document->save();
         $doc_array = $document->toArray();
 
-        if(!empty($base64)){
+        if (!empty($base64)) {
             $mime = Document::$types[!empty($previewType)?$previewType:$documentType]['mime'];
             $doc_array['base64'] = 'data:'.$mime.';base64,'.$base64;
         }
@@ -179,8 +177,7 @@ class DocumentRepository extends BaseRepository
 
     public function getClientDatatable($contactId, $entityType, $search)
     {
-
-       $query = DB::table('invitations')
+        $query = DB::table('invitations')
           ->join('accounts', 'accounts.id', '=', 'invitations.account_id')
           ->join('invoices', 'invoices.id', '=', 'invitations.invoice_id')
           ->join('documents', 'documents.invoice_id', '=', 'invitations.invoice_id')

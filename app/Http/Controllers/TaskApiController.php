@@ -117,7 +117,5 @@ class TaskApiController extends BaseAPIController
         $task = $this->taskRepo->save($task->public_id, \Illuminate\Support\Facades\Input::all());
 
         return $this->itemResponse($task);
-
     }
-
 }

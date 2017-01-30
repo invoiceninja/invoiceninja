@@ -201,7 +201,7 @@ class Vendor extends EntityModel
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense','vendor_id','id');
+        return $this->hasMany('App\Models\Expense', 'vendor_id', 'id');
     }
 
     /**

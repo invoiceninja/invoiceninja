@@ -75,9 +75,15 @@ class CreditRepository extends BaseRepository
                     );
 
         $table = \Datatable::query($query)
-            ->addColumn('credit_date', function ($model) { return Utils::fromSqlDate($model->credit_date); })
-            ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
-            ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id); })
+            ->addColumn('credit_date', function ($model) {
+                return Utils::fromSqlDate($model->credit_date);
+            })
+            ->addColumn('amount', function ($model) {
+                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('balance', function ($model) {
+                return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+            })
             ->make();
 
         return $table;

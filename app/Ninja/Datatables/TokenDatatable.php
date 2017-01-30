@@ -35,5 +35,4 @@ class TokenDatatable extends EntityDatatable
             ]
         ];
     }
-
 }

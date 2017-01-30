@@ -24,5 +24,4 @@ class PaymentWasArchived extends Event
     {
         $this->payment = $payment;
     }
-
 }

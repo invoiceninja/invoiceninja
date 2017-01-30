@@ -129,7 +129,8 @@ class QuoteController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');;
+        $action = Input::get('bulk_action') ?: Input::get('action');
+        ;
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
 
         if ($action == 'convert') {

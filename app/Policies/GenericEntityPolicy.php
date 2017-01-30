@@ -2,7 +2,6 @@
 
 namespace App\Policies;
 
-
 use Utils;
 use App\Models\User;
 use Illuminate\Support\Str;
@@ -21,7 +20,8 @@ class GenericEntityPolicy
      * @param $ownerUserId
      * @return bool|mixed
      */
-    public static function editByOwner(User $user, $entityType, $ownerUserId) {
+    public static function editByOwner(User $user, $entityType, $ownerUserId)
+    {
         $className = static::className($entityType);
         if (method_exists($className, 'editByOwner')) {
             return call_user_func([$className, 'editByOwner'], $user, $ownerUserId);
@@ -36,7 +36,8 @@ class GenericEntityPolicy
      * @param $ownerUserId
      * @return bool|mixed
      */
-    public static function viewByOwner(User $user, $entityType, $ownerUserId) {
+    public static function viewByOwner(User $user, $entityType, $ownerUserId)
+    {
         $className = static::className($entityType);
         if (method_exists($className, 'viewByOwner')) {
             return call_user_func([$className, 'viewByOwner'], $user, $ownerUserId);
@@ -50,7 +51,8 @@ class GenericEntityPolicy
      * @param $entityType
      * @return bool|mixed
      */
-    public static function create(User $user, $entityType) {
+    public static function create(User $user, $entityType)
+    {
         $className = static::className($entityType);
         if (method_exists($className, 'create')) {
             return call_user_func([$className, 'create'], $user, $entityType);
@@ -64,7 +66,8 @@ class GenericEntityPolicy
      * @param $entityType
      * @return bool|mixed
      */
-    public static function view(User $user, $entityType) {
+    public static function view(User $user, $entityType)
+    {
         $className = static::className($entityType);
         if (method_exists($className, 'view')) {
             return call_user_func([$className, 'view'], $user, $entityType);
@@ -75,7 +78,7 @@ class GenericEntityPolicy
 
     private static function className($entityType)
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             if ($module = \Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Policies\\{$module->getName()}Policy";
             }
@@ -84,5 +87,4 @@ class GenericEntityPolicy
         $studly = Str::studly($entityType);
         return "App\\Policies\\{$studly}Policy";
     }
-
 }

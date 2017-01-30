@@ -49,8 +49,7 @@ class PaymentController extends BaseController
         PaymentRepository $paymentRepo,
         ContactMailer $contactMailer,
         PaymentService $paymentService
-    )
-    {
+    ) {
         $this->paymentRepo = $paymentRepo;
         $this->contactMailer = $contactMailer;
         $this->paymentService = $paymentService;
@@ -130,7 +129,7 @@ class PaymentController extends BaseController
         }
         $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
         $actions[] = DropdownButton::DIVIDER;
-        if ( ! $payment->trashed()) {
+        if (! $payment->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_payment')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_payment')];
         } else {

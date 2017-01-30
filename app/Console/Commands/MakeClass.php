@@ -98,7 +98,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( ! $field) {
+            if (! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -120,7 +120,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( ! $field) {
+            if (! $field) {
                 continue;
             }
             $parts = explode(':', $field);
@@ -144,7 +144,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( ! $field) {
+            if (! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -161,7 +161,7 @@ class MakeClass extends GeneratorCommand
         $str = '';
 
         foreach ($fields as $field) {
-            if ( ! $field) {
+            if (! $field) {
                 continue;
             }
             $field = explode(':', $field)[0];
@@ -169,6 +169,5 @@ class MakeClass extends GeneratorCommand
         }
 
         return rtrim($str);
-
     }
 }

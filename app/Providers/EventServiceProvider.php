@@ -3,14 +3,15 @@
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
-class EventServiceProvider extends ServiceProvider {
+class EventServiceProvider extends ServiceProvider
+{
 
-	/**
-	 * The event handler mappings for the application.
-	 *
-	 * @var array
-	 */
-	protected $listen = [
+    /**
+     * The event handler mappings for the application.
+     *
+     * @var array
+     */
+    protected $listen = [
 
         // Clients
         'App\Events\ClientWasCreated' => [
@@ -158,33 +159,33 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\TaskWasCreated' => [
             'App\Listeners\ActivityListener@createdTask',
         ],
-		'App\Events\TaskWasUpdated' => [
+        'App\Events\TaskWasUpdated' => [
             'App\Listeners\ActivityListener@updatedTask',
         ],
-		'App\Events\TaskWasRestored' => [
+        'App\Events\TaskWasRestored' => [
             'App\Listeners\ActivityListener@restoredTask',
         ],
-		'App\Events\TaskWasArchived' => [
+        'App\Events\TaskWasArchived' => [
             'App\Listeners\ActivityListener@archivedTask',
         ],
-		'App\Events\TaskWasDeleted' => [
+        'App\Events\TaskWasDeleted' => [
             'App\Listeners\ActivityListener@deletedTask',
         ],
 
-		// Expense events
+        // Expense events
         'App\Events\ExpenseWasCreated' => [
             'App\Listeners\ActivityListener@createdExpense',
         ],
-		'App\Events\ExpenseWasUpdated' => [
+        'App\Events\ExpenseWasUpdated' => [
             'App\Listeners\ActivityListener@updatedExpense',
         ],
-		'App\Events\ExpenseWasRestored' => [
+        'App\Events\ExpenseWasRestored' => [
             'App\Listeners\ActivityListener@restoredExpense',
         ],
-		'App\Events\ExpenseWasArchived' => [
+        'App\Events\ExpenseWasArchived' => [
             'App\Listeners\ActivityListener@archivedExpense',
         ],
-		'App\Events\ExpenseWasDeleted' => [
+        'App\Events\ExpenseWasDeleted' => [
             'App\Listeners\ActivityListener@deletedExpense',
         ],
 
@@ -192,19 +193,18 @@ class EventServiceProvider extends ServiceProvider {
         \Codedge\Updater\Events\UpdateAvailable::class => [
             \Codedge\Updater\Listeners\SendUpdateAvailableNotification::class
         ],
-	];
+    ];
 
-	/**
-	 * Register any other events for your application.
-	 *
-	 * @param  \Illuminate\Contracts\Events\Dispatcher  $events
-	 * @return void
-	 */
-	public function boot(DispatcherContract $events)
-	{
-		parent::boot($events);
+    /**
+     * Register any other events for your application.
+     *
+     * @param  \Illuminate\Contracts\Events\Dispatcher  $events
+     * @return void
+     */
+    public function boot(DispatcherContract $events)
+    {
+        parent::boot($events);
 
-		//
-	}
-
+        //
+    }
 }

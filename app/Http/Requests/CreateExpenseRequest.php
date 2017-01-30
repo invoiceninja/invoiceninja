@@ -2,7 +2,7 @@
 
 class CreateExpenseRequest extends ExpenseRequest
 {
-    // Expenses 
+    // Expenses
     /**
      * Determine if the user is authorized to make this request.
      *

@@ -64,7 +64,7 @@ class Invitation extends EntityModel
      */
     public function getLink($type = 'view', $forceOnsite = false)
     {
-        if ( ! $this->account) {
+        if (! $this->account) {
             $this->load('account');
         }
 
@@ -147,7 +147,7 @@ class Invitation extends EntityModel
 
     public function signatureDiv()
     {
-        if ( ! $this->signature_base64) {
+        if (! $this->signature_base64) {
             return false;
         }
 

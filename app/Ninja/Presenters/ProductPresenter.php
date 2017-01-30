@@ -20,5 +20,4 @@ class ProductPresenter extends EntityPresenter
 
         return $card;
     }
-
 }

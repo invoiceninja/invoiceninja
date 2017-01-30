@@ -16,8 +16,9 @@ class EntityPolicy
      * @param User $user
      * @return bool
      */
-    public static function create(User $user, $item) {
-        if ( ! static::checkModuleEnabled($user, $item)) {
+    public static function create(User $user, $item)
+    {
+        if (! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -30,8 +31,9 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function edit(User $user, $item) {
-        if ( ! static::checkModuleEnabled($user, $item)) {
+    public static function edit(User $user, $item)
+    {
+        if (! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -44,8 +46,9 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function view(User $user, $item) {
-        if ( ! static::checkModuleEnabled($user, $item)) {
+    public static function view(User $user, $item)
+    {
+        if (! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -57,7 +60,8 @@ class EntityPolicy
      * @param $ownerUserId
      * @return bool
      */
-    public static function viewByOwner(User $user, $ownerUserId) {
+    public static function viewByOwner(User $user, $ownerUserId)
+    {
         return $user->hasPermission('view_all') || $user->id == $ownerUserId;
     }
 
@@ -66,7 +70,8 @@ class EntityPolicy
      * @param $ownerUserId
      * @return bool
      */
-    public static function editByOwner(User $user, $ownerUserId) {
+    public static function editByOwner(User $user, $ownerUserId)
+    {
         return $user->hasPermission('edit_all') || $user->id == $ownerUserId;
     }
 

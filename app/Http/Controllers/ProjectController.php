@@ -109,5 +109,4 @@ class ProjectController extends BaseController
 
         return redirect()->to('/projects');
     }
-
 }

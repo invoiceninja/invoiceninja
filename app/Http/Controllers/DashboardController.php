@@ -43,10 +43,10 @@ class DashboardController extends BaseController
         $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
 
-	    $showBlueVinePromo = $user->is_admin
+        $showBlueVinePromo = $user->is_admin
             && env('BLUEVINE_PARTNER_UNIQUE_ID')
             && ! $account->company->bluevine_status
-            && $account->created_at <= date( 'Y-m-d', strtotime( '-1 month' ));
+            && $account->created_at <= date('Y-m-d', strtotime('-1 month'));
 
         $showWhiteLabelExpired = Utils::isSelfHost() && $account->company->hasExpiredPlan(PLAN_WHITE_LABEL);
 
@@ -82,7 +82,7 @@ class DashboardController extends BaseController
 
         $data = [
             'account' => $user->account,
-	        'user' => $user,
+            'user' => $user,
             'paidToDate' => $paidToDate,
             'balances' => $balances,
             'averageInvoice' => $averageInvoice,
@@ -98,29 +98,29 @@ class DashboardController extends BaseController
             'currencies' => $currencies,
             'expenses' => $expenses,
             'tasks' => $tasks,
-	        'showBlueVinePromo' => $showBlueVinePromo,
+            'showBlueVinePromo' => $showBlueVinePromo,
             'showWhiteLabelExpired' => $showWhiteLabelExpired,
         ];
 
-	    if ($showBlueVinePromo) {
-		    $usdLast12Months = 0;
-            $pastYear = date( 'Y-m-d', strtotime( '-1 year' ));
-		    $paidLast12Months = $dashboardRepo->paidToDate( $account, $userId, $viewAll, $pastYear );
+        if ($showBlueVinePromo) {
+            $usdLast12Months = 0;
+            $pastYear = date('Y-m-d', strtotime('-1 year'));
+            $paidLast12Months = $dashboardRepo->paidToDate($account, $userId, $viewAll, $pastYear);
 
-		    foreach ( $paidLast12Months as $item ) {
-			    if ( $item->currency_id == null ) {
-				    $currency = $user->account->currency_id ?: DEFAULT_CURRENCY;
-			    } else {
-				    $currency = $item->currency_id;
-			    }
+            foreach ($paidLast12Months as $item) {
+                if ($item->currency_id == null) {
+                    $currency = $user->account->currency_id ?: DEFAULT_CURRENCY;
+                } else {
+                    $currency = $item->currency_id;
+                }
 
-			    if ( $currency == CURRENCY_DOLLAR ) {
-				    $usdLast12Months += $item->value;
-			    }
-		    }
+                if ($currency == CURRENCY_DOLLAR) {
+                    $usdLast12Months += $item->value;
+                }
+            }
 
-		    $data['usdLast12Months'] = $usdLast12Months;
-	    }
+            $data['usdLast12Months'] = $usdLast12Months;
+        }
 
         return View::make('dashboard', $data);
     }

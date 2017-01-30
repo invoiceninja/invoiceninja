@@ -41,5 +41,4 @@ class TaxRateDatatable extends EntityDatatable
             ]
         ];
     }
-
 }

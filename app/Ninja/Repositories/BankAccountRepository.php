@@ -36,7 +36,7 @@ class BankAccountRepository extends BaseRepository
         $account->bank_accounts()->save($bankAccount);
 
         foreach ($input['bank_accounts'] as $data) {
-            if ( ! isset($data['include']) || ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
+            if (! isset($data['include']) || ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
                 continue;
             }
 

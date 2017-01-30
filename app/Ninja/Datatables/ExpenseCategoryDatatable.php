@@ -14,9 +14,8 @@ class ExpenseCategoryDatatable extends EntityDatatable
         return [
             [
                 'name',
-                function ($model)
-                {
-                    if ( ! Auth::user()->can('editByOwner', [ENTITY_EXPENSE_CATEGORY, $model->user_id])) {
+                function ($model) {
+                    if (! Auth::user()->can('editByOwner', [ENTITY_EXPENSE_CATEGORY, $model->user_id])) {
                         return $model->category;
                     }
 
@@ -40,5 +39,4 @@ class ExpenseCategoryDatatable extends EntityDatatable
             ],
         ];
     }
-
 }

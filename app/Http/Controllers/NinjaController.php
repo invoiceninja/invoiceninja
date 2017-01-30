@@ -100,7 +100,7 @@ class NinjaController extends BaseController
 
         if (Input::has('product_id')) {
             Session::set('product_id', Input::get('product_id'));
-        } else if (!Session::has('product_id')) {
+        } elseif (!Session::has('product_id')) {
             Session::set('product_id', PRODUCT_ONE_CLICK_INSTALL);
         }
 
@@ -284,6 +284,6 @@ class NinjaController extends BaseController
         $company->plan = null;
         $company->save();
 
-		return RESULT_SUCCESS;
-	}
+        return RESULT_SUCCESS;
+    }
 }

@@ -66,7 +66,7 @@ class EntityModel extends Eloquent
         $entity->setRelation('user', $user);
         $entity->setRelation('account', $account);
 
-        if (method_exists($className, 'trashed')){
+        if (method_exists($className, 'trashed')) {
             $lastEntity = $className::whereAccountId($entity->account_id)->withTrashed();
         } else {
             $lastEntity = $className::whereAccountId($entity->account_id);
@@ -192,7 +192,7 @@ class EntityModel extends Eloquent
      */
     public static function getClassName($entityType)
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             if ($module = \Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
             }
@@ -211,7 +211,7 @@ class EntityModel extends Eloquent
      */
     public static function getTransformerName($entityType)
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             if ($module = \Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
             }
@@ -251,16 +251,18 @@ class EntityModel extends Eloquent
         // Use the API request if it exists
         $action = $entity ? 'update' : 'create';
         $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), ucwords($entityType));
-        if ( ! class_exists($requestClass)) {
+        if (! class_exists($requestClass)) {
             $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), ucwords($entityType));
         }
 
         $request = new $requestClass();
-        $request->setUserResolver(function() { return Auth::user(); });
+        $request->setUserResolver(function () {
+            return Auth::user();
+        });
         $request->setEntity($entity);
         $request->replace($data);
 
-        if ( ! $request->authorize()) {
+        if (! $request->authorize()) {
             return trans('texts.not_allowed');
         }
 
@@ -346,5 +348,4 @@ class EntityModel extends Eloquent
     {
         return '';
     }
-
 }

@@ -110,5 +110,4 @@ class ActivityRepository
                         'expenses.public_id as expense_public_id'
                     );
     }
-
 }

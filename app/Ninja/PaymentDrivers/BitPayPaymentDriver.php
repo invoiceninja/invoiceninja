@@ -8,5 +8,4 @@ class BitPayPaymentDriver extends BasePaymentDriver
             GATEWAY_TYPE_BITCOIN
         ];
     }
-
 }

@@ -30,5 +30,4 @@ class QuoteInvitationWasEmailed extends Event
         $this->invitation = $invitation;
         $this->notes = $notes;
     }
-
 }

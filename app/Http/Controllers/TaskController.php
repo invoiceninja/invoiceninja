@@ -54,8 +54,7 @@ class TaskController extends BaseController
         TaskRepository $taskRepo,
         InvoiceRepository $invoiceRepo,
         TaskService $taskService
-    )
-    {
+    ) {
         // parent::__construct();
 
         $this->taskRepo = $taskRepo;
@@ -227,7 +226,7 @@ class TaskController extends BaseController
 
         $task = $this->taskRepo->save($publicId, Input::all());
 
-        if($publicId) {
+        if ($publicId) {
             Session::flash('message', trans('texts.updated_task'));
         } else {
             Session::flash('message', trans('texts.created_task'));
@@ -252,7 +251,7 @@ class TaskController extends BaseController
             $this->taskRepo->save($ids, ['action' => $action]);
             Session::flash('message', trans('texts.stopped_task'));
             return Redirect::to('tasks');
-        } else if ($action == 'invoice' || $action == 'add_to_invoice') {
+        } elseif ($action == 'invoice' || $action == 'add_to_invoice') {
             $tasks = Task::scope($ids)->with('client')->orderBy('project_id', 'id')->get();
             $clientPublicId = false;
             $data = [];
@@ -262,7 +261,7 @@ class TaskController extends BaseController
                 if ($task->client) {
                     if (!$clientPublicId) {
                         $clientPublicId = $task->client->public_id;
-                    } else if ($clientPublicId != $task->client->public_id) {
+                    } elseif ($clientPublicId != $task->client->public_id) {
                         Session::flash('error', trans('texts.task_error_multiple_clients'));
                         return Redirect::to('tasks');
                     }
@@ -271,7 +270,7 @@ class TaskController extends BaseController
                 if ($task->is_running) {
                     Session::flash('error', trans('texts.task_error_running'));
                     return Redirect::to('tasks');
-                } else if ($task->invoice_id) {
+                } elseif ($task->invoice_id) {
                     Session::flash('error', trans('texts.task_error_invoiced'));
                     return Redirect::to('tasks');
                 }

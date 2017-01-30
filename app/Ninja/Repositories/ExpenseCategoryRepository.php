@@ -44,7 +44,7 @@ class ExpenseCategoryRepository extends BaseRepository
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        if ( ! $category) {
+        if (! $category) {
             $category = ExpenseCategory::createNew();
         }
 

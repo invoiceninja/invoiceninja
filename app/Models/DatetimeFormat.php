@@ -20,5 +20,5 @@ class DatetimeFormat extends Eloquent
         $date = mktime(0, 0, 0, 12, 31, date('Y'));
 
         return date($this->format, $date);
-    }    
+    }
 }

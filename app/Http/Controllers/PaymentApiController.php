@@ -150,5 +150,4 @@ class PaymentApiController extends BaseAPIController
 
         return $this->itemResponse($payment);
     }
-
 }

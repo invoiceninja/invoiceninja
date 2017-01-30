@@ -36,7 +36,6 @@ class DashboardRepository
         }
 
         foreach ($entitTypes as $entityType) {
-
             $data = [];
             $count = 0;
             $balance = 0;
@@ -108,7 +107,7 @@ class DashboardRepository
 
     private function rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId)
     {
-        if ( ! in_array($groupBy, ['DAYOFYEAR', 'WEEK', 'MONTH'])) {
+        if (! in_array($groupBy, ['DAYOFYEAR', 'WEEK', 'MONTH'])) {
             return [];
         }
 
@@ -168,10 +167,10 @@ class DashboardRepository
             ->where('invoices.is_recurring', '=', false)
             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD);
 
-        if (!$viewAll){
-            $metrics = $metrics->where(function($query) use($userId){
+        if (!$viewAll) {
+            $metrics = $metrics->where(function ($query) use ($userId) {
                 $query->where('invoices.user_id', '=', $userId);
-                $query->orwhere(function($query) use($userId){
+                $query->orwhere(function ($query) use ($userId) {
                     $query->where('invoices.user_id', '=', null);
                     $query->where('clients.user_id', '=', $userId);
                 });
@@ -198,7 +197,7 @@ class DashboardRepository
             ->where('payments.is_deleted', '=', false)
             ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
-        if (!$viewAll){
+        if (!$viewAll) {
             $paidToDate->where('invoices.user_id', '=', $userId);
         }
 
@@ -231,7 +230,7 @@ class DashboardRepository
             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('invoices.is_recurring', '=', false);
 
-        if (!$viewAll){
+        if (!$viewAll) {
             $averageInvoice->where('invoices.user_id', '=', $userId);
         }
 
@@ -271,7 +270,7 @@ class DashboardRepository
         $activities = Activity::where('activities.account_id', '=', $accountId)
                 ->where('activities.activity_type_id', '>', 0);
 
-        if (!$viewAll){
+        if (!$viewAll) {
             $activities = $activities->where('activities.user_id', '=', $userId);
         }
 
@@ -297,7 +296,7 @@ class DashboardRepository
                     ->where('contacts.is_primary', '=', true)
                     ->where('invoices.due_date', '<', date('Y-m-d'));
 
-        if (!$viewAll){
+        if (!$viewAll) {
             $pastDue = $pastDue->where('invoices.user_id', '=', $userId);
         }
 
@@ -324,7 +323,7 @@ class DashboardRepository
                     ->where('invoices.due_date', '>=', date('Y-m-d'))
                     ->orderBy('invoices.due_date', 'asc');
 
-        if (!$viewAll){
+        if (!$viewAll) {
             $upcoming = $upcoming->where('invoices.user_id', '=', $userId);
         }
 
@@ -347,7 +346,7 @@ class DashboardRepository
                     ->where('contacts.is_primary', '=', true)
                     ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
-        if (!$viewAll){
+        if (!$viewAll) {
             $payments = $payments->where('payments.user_id', '=', $userId);
         }
 
@@ -373,7 +372,7 @@ class DashboardRepository
             ->where('accounts.id', '=', $accountId)
             ->where('expenses.is_deleted', '=', false);
 
-        if (!$viewAll){
+        if (!$viewAll) {
             $paidToDate = $paidToDate->where('expenses.user_id', '=', $userId);
         }
 

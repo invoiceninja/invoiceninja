@@ -20,12 +20,9 @@ class AddInvoiceTypeSupport extends Migration
             });
         }
 
-        Schema::table('accounts', function($table)
-		{
-			$table->boolean('enable_second_tax_rate')->default(false);
-		});
-
-
+        Schema::table('accounts', function ($table) {
+            $table->boolean('enable_second_tax_rate')->default(false);
+        });
     }
 
     /**
@@ -39,9 +36,8 @@ class AddInvoiceTypeSupport extends Migration
             DB::update('update invoices set invoice_type_id = invoice_type_id - 1');
         }
 
-        Schema::table('accounts', function($table)
-		{
-			$table->dropColumn('enable_second_tax_rate');
-		});
+        Schema::table('accounts', function ($table) {
+            $table->dropColumn('enable_second_tax_rate');
+        });
     }
 }

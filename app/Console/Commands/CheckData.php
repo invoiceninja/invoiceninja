@@ -41,7 +41,8 @@ Options:
 /**
  * Class CheckData
  */
-class CheckData extends Command {
+class CheckData extends Command
+{
 
     /**
      * @var string
@@ -250,7 +251,6 @@ class CheckData extends Command {
             //$this->logMessage(var_dump($activities));
 
             foreach ($activities as $activity) {
-
                 $activityFix = false;
 
                 if ($activity->invoice_id) {
@@ -336,7 +336,7 @@ class CheckData extends Command {
                         $foundProblem = true;
                         $clientFix -= $activity->adjustment;
                         $activityFix = 0;
-                    } else if ((strtotime($activity->created_at) - strtotime($lastCreatedAt) <= 1) && $activity->adjustment > 0 && $activity->adjustment == $lastAdjustment) {
+                    } elseif ((strtotime($activity->created_at) - strtotime($lastCreatedAt) <= 1) && $activity->adjustment > 0 && $activity->adjustment == $lastAdjustment) {
                         $this->logMessage("Duplicate adjustment for updated invoice adjustment:{$activity->adjustment}");
                         $foundProblem = true;
                         $clientFix -= $activity->adjustment;
@@ -350,7 +350,7 @@ class CheckData extends Command {
                         $clientFix += $lastBalance - $activity->balance;
                         $activityFix = 0;
                     }
-                } else if ($activity->activity_type_id == ACTIVITY_TYPE_DELETE_PAYMENT) {
+                } elseif ($activity->activity_type_id == ACTIVITY_TYPE_DELETE_PAYMENT) {
                     // **Fix for deleting payment after deleting invoice**
                     if ($activity->adjustment != 0 && $invoice->is_deleted && $activity->created_at > $invoice->deleted_at) {
                         $this->logMessage("Incorrect adjustment for deleted payment adjustment:{$activity->adjustment}");
@@ -423,5 +423,4 @@ class CheckData extends Command {
             ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
         ];
     }
-
 }

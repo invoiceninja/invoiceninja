@@ -1,10 +1,8 @@
 <?php namespace App\Http\Requests;
 
-
-
 class CreateTaxRateRequest extends TaxRateRequest
 {
-    // Expenses 
+    // Expenses
     /**
      * Determine if the user is authorized to make this request.
      *

@@ -126,5 +126,4 @@ class PaymentTermController extends BaseController
 
         return Redirect::to('settings/' . ACCOUNT_PAYMENT_TERMS);
     }
-
 }

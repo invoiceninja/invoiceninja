@@ -79,7 +79,7 @@ class DatatableService
                     if (count($action)) {
                         // if show function isn't set default to true
                         if (count($action) == 2) {
-                            $action[] = function() {
+                            $action[] = function () {
                                 return true;
                             };
                         }
@@ -101,17 +101,17 @@ class DatatableService
                                 $lastIsDivider = false;
                             }
                         }
-                    } elseif ( ! $lastIsDivider) {
+                    } elseif (! $lastIsDivider) {
                         $dropdown_contents .= '<li class="divider"></li>';
                         $lastIsDivider = true;
                     }
                 }
 
-                if ( ! $hasAction) {
+                if (! $hasAction) {
                     return '';
                 }
 
-                if ( $can_edit && ! $lastIsDivider) {
+                if ($can_edit && ! $lastIsDivider) {
                     $dropdown_contents .= '<li class="divider"></li>';
                 }
 
@@ -119,7 +119,7 @@ class DatatableService
                     $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('archive', {$model->public_id})\">"
                             . mtrans($datatable->entityType, "archive_{$datatable->entityType}") . '</a></li>';
                 }
-            } else if($can_edit) {
+            } elseif ($can_edit) {
                 $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('restore', {$model->public_id})\">"
                     . mtrans($datatable->entityType, "restore_{$datatable->entityType}") . '</a></li>';
             }

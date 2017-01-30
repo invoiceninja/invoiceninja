@@ -25,7 +25,7 @@ class InvoiceReport extends AbstractReport
         $clients = Client::scope()
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function($query) use ($status) {
+                        ->with(['invoices' => function ($query) use ($status) {
                             if ($status == 'draft') {
                                 $query->whereIsPublic(false);
                             } elseif ($status == 'unpaid' || $status == 'paid') {
@@ -35,8 +35,8 @@ class InvoiceReport extends AbstractReport
                                   ->withArchived()
                                   ->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['payments' => function($query) {
-                                        $query->withArchived()
+                                  ->with(['payments' => function ($query) {
+                                      $query->withArchived()
                                               ->excludeFailed()
                                               ->with('payment_type', 'account_gateway.gateway');
                                   }, 'invoice_items']);
@@ -44,10 +44,9 @@ class InvoiceReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-
                 $payments = count($invoice->payments) ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
-                    if ( ! $payment && $status == 'paid') {
+                    if (! $payment && $status == 'paid') {
                         continue;
                     } elseif ($payment && $status == 'unpaid') {
                         continue;

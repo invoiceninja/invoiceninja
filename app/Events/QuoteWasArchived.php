@@ -16,5 +16,4 @@ class QuoteWasArchived extends Event
     {
         $this->quote = $quote;
     }
-
 }

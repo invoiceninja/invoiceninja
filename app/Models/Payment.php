@@ -352,7 +352,6 @@ class Payment extends EntityModel
 }
 
 Payment::creating(function ($payment) {
-
 });
 
 Payment::created(function ($payment) {

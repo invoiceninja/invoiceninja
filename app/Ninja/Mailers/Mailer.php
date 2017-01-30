@@ -37,7 +37,6 @@ class Mailer
 
         try {
             $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
-
                 $toEmail = strtolower($toEmail);
                 $replyEmail = $fromEmail;
                 $fromEmail = CONTACT_EMAIL;
@@ -64,8 +63,8 @@ class Mailer
                 }
 
                 // Attach documents to the email
-                if (!empty($data['documents'])){
-                    foreach($data['documents'] as $document){
+                if (!empty($data['documents'])) {
+                    foreach ($data['documents'] as $document) {
                         $message->attachData($document['data'], $document['name']);
                     }
                 }
@@ -130,7 +129,7 @@ class Mailer
             $invitation = $data['invitation'];
             $invitation->email_error = $emailError;
             $invitation->save();
-        } elseif ( ! Utils::isNinjaProd()) {
+        } elseif (! Utils::isNinjaProd()) {
             Utils::logError(Utils::getErrorString($exception));
         }
 

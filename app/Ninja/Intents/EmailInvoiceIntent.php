@@ -12,7 +12,7 @@ class EmailInvoiceIntent extends InvoiceIntent
     {
         $invoice = $this->stateInvoice();
 
-        if ( ! Auth::user()->can('edit', $invoice)) {
+        if (! Auth::user()->can('edit', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 

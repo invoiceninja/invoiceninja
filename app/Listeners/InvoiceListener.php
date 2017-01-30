@@ -136,7 +136,7 @@ class InvoiceListener
      */
     public function restoredPayment(PaymentWasRestored $event)
     {
-        if ( ! $event->fromDeleted) {
+        if (! $event->fromDeleted) {
             return;
         }
 

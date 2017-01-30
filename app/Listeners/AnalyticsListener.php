@@ -13,7 +13,7 @@ class AnalyticsListener
      */
     public function trackRevenue(PaymentWasCreated $event)
     {
-        if ( ! Utils::isNinja() || ! env('ANALYTICS_KEY')) {
+        if (! Utils::isNinja() || ! env('ANALYTICS_KEY')) {
             return;
         }
 

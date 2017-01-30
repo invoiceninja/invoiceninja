@@ -8,7 +8,7 @@ use App\Models\TaxRate;
 
 class TaxRateTransformer extends EntityTransformer
 {
-        /**
+    /**
          * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
          * @SWG\Property(property="name", type="string", example="GST")
          * @SWG\Property(property="account_key", type="string", example="asimplestring", readOnly=true)

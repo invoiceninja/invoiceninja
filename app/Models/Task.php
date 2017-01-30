@@ -102,14 +102,14 @@ class Task extends EntityModel
 
     public function getLastStartTime()
     {
-      $parts = json_decode($this->time_log) ?: [];
+        $parts = json_decode($this->time_log) ?: [];
 
-      if (count($parts)) {
-          $index = count($parts) - 1;
-          return $parts[$index][0];
-      } else {
-          return '';
-      }
+        if (count($parts)) {
+            $index = count($parts) - 1;
+            return $parts[$index][0];
+        } else {
+            return '';
+        }
     }
 
     /**

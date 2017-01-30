@@ -25,7 +25,7 @@ class ClientPortalHeaderComposer
     {
         $contactKey = session('contact_key');
 
-        if ( ! $contactKey) {
+        if (! $contactKey) {
             return false;
         }
 
@@ -33,7 +33,7 @@ class ClientPortalHeaderComposer
                         ->with('client')
                         ->first();
 
-        if ( ! $contact || $contact->is_deleted) {
+        if (! $contact || $contact->is_deleted) {
             return false;
         }
 

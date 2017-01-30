@@ -1,6 +1,5 @@
 <?php namespace App\Ninja\Mailers;
 
-
 use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Payment;
@@ -48,8 +47,7 @@ class UserMailer extends Mailer
         Invoice $invoice,
         $notificationType,
         Payment $payment = null
-    )
-    {
+    ) {
         if (! $user->email || $user->cannot('view', $invoice)) {
             return;
         }

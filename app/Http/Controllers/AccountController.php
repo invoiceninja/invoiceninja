@@ -87,8 +87,7 @@ class AccountController extends BaseController
         ContactMailer $contactMailer,
         ReferralRepository $referralRepository,
         PaymentService $paymentService
-    )
-    {
+    ) {
         $this->accountRepo = $accountRepo;
         $this->userMailer = $userMailer;
         $this->contactMailer = $contactMailer;
@@ -161,7 +160,8 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function changePlan() {
+    public function changePlan()
+    {
         $user = Auth::user();
         $account = $user->account;
         $company = $account->company;
@@ -171,7 +171,7 @@ class AccountController extends BaseController
         $numUsers = Input::get('num_users');
 
         if ($plan != PLAN_ENTERPRISE) {
-          $numUsers = 1;
+            $numUsers = 1;
         }
 
         $planDetails = $account->getPlanDetails(false, false);
@@ -221,12 +221,11 @@ class AccountController extends BaseController
         if ($newPlan['price'] > $credit) {
             $invitation = $this->accountRepo->enablePlan($newPlan, $credit);
             if ($hasPaid) {
-              return Redirect::to('view/' . $invitation->invitation_key);
+                return Redirect::to('view/' . $invitation->invitation_key);
             } else {
-              return Redirect::to('payment/' . $invitation->invitation_key);
+                return Redirect::to('payment/' . $invitation->invitation_key);
             }
         } else {
-
             if ($plan == PLAN_FREE) {
                 $company->discount = 0;
             } else {
@@ -290,7 +289,7 @@ class AccountController extends BaseController
      */
     public function showSection($section = false)
     {
-        if ( ! Auth::user()->is_admin) {
+        if (! Auth::user()->is_admin) {
             return Redirect::to('/settings/user_details');
         }
 
@@ -749,7 +748,7 @@ class AccountController extends BaseController
         $account->live_preview = Input::get('live_preview') ? true : false;
 
         // Automatically disable live preview when using a large font
-        $fonts = Cache::get('fonts')->filter(function($font) use ($account) {
+        $fonts = Cache::get('fonts')->filter(function ($font) use ($account) {
             if ($font->google_font) {
                 return false;
             }
@@ -1036,14 +1035,13 @@ class AccountController extends BaseController
             }
 
             $extension = strtolower($uploaded->getClientOriginalExtension());
-            if(empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])){
+            if (empty(Document::$types[$extension]) && !empty(Document::$extraExtensions[$extension])) {
                 $documentType = Document::$extraExtensions[$extension];
-            }
-            else{
+            } else {
                 $documentType = $extension;
             }
 
-            if(!in_array($documentType, ['jpeg', 'png', 'gif'])){
+            if (!in_array($documentType, ['jpeg', 'png', 'gif'])) {
                 Session::flash('warning', 'Unsupported file type');
             } else {
                 $documentTypeData = Document::$types[$documentType];
@@ -1051,7 +1049,7 @@ class AccountController extends BaseController
                 $filePath = $uploaded->path();
                 $size = filesize($filePath);
 
-                if($size/1000 > MAX_DOCUMENT_SIZE){
+                if ($size/1000 > MAX_DOCUMENT_SIZE) {
                     Session::flash('warning', 'File too large');
                 } else {
                     if ($documentType != 'gif') {
@@ -1128,7 +1126,7 @@ class AccountController extends BaseController
             $user->email = trim(strtolower(Input::get('email')));
             $user->phone = trim(Input::get('phone'));
 
-            if ( ! Auth::user()->is_admin) {
+            if (! Auth::user()->is_admin) {
                 $user->notify_sent = Input::get('notify_sent');
                 $user->notify_viewed = Input::get('notify_viewed');
                 $user->notify_paid = Input::get('notify_paid');
@@ -1204,7 +1202,7 @@ class AccountController extends BaseController
         $gateway_type_id = intval(Input::get('gateway_type_id'));
         $gateway_settings = AccountGatewaySettings::scope()->where('gateway_type_id', '=', $gateway_type_id)->first();
 
-        if ( ! $gateway_settings) {
+        if (! $gateway_settings) {
             $gateway_settings = AccountGatewaySettings::createNew();
             $gateway_settings->gateway_type_id = $gateway_type_id;
         }
@@ -1232,7 +1230,7 @@ class AccountController extends BaseController
     {
         $account = Auth::user()->account;
         if ($account->hasLogo()) {
-            if ( ! Utils::isNinjaProd()) {
+            if (! Utils::isNinjaProd()) {
                 $account->getLogoDisk()->delete($account->logo);
             }
 
@@ -1349,7 +1347,7 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
 
-        Document::scope()->each(function($item, $key) {
+        Document::scope()->each(function ($item, $key) {
             $item->delete();
         });
 
@@ -1416,7 +1414,7 @@ class AccountController extends BaseController
                     ->withTrashed()
                     ->first();
 
-        if ( ! $invoice) {
+        if (! $invoice) {
             return trans('texts.create_invoice_for_sample');
         }
 

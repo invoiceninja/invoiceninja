@@ -132,7 +132,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             $paymentMethod->bank_name = $source->bank_name;
             $paymentMethod->source_reference = $source->payment_bank_id;
 
-            switch($source->state) {
+            switch ($source->state) {
                 case 'new':
                 case 'pending':
                     $paymentMethod->status = 'new';
@@ -187,7 +187,7 @@ class WePayPaymentDriver extends BasePaymentDriver
 
     protected function attemptVoidPayment($response, $payment, $amount)
     {
-        if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
+        if (! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;
         }
 
@@ -283,5 +283,4 @@ class WePayPaymentDriver extends BasePaymentDriver
             return 'Ignoring event';
         }
     }
-
 }

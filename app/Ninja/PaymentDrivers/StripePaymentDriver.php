@@ -60,14 +60,14 @@ class StripePaymentDriver extends BasePaymentDriver
             ->fetchCustomer(['customerReference' => $customer->token])
             ->send();
 
-        if ( ! $response->isSuccessful()) {
+        if (! $response->isSuccessful()) {
             return false;
         }
 
         $this->tokenResponse = $response->getData();
 
         // import Stripe tokens created before payment methods table was added
-        if ( ! count($customer->payment_methods)) {
+        if (! count($customer->payment_methods)) {
             if ($paymentMethod = $this->createPaymentMethod($customer)) {
                 $customer->default_payment_method_id = $paymentMethod->id;
                 $customer->save();
@@ -94,12 +94,12 @@ class StripePaymentDriver extends BasePaymentDriver
         // Stripe complains if the email field is set
         unset($data['email']);
 
-        if ( ! empty($this->input['sourceToken'])) {
+        if (! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
             unset($data['card']);
         }
 
-        if ( ! empty($this->input['plaidPublicToken'])) {
+        if (! empty($this->input['plaidPublicToken'])) {
             $data['plaidPublicToken'] = $this->input['plaidPublicToken'];
             $data['plaidAccountId'] = $this->input['plaidAccountId'];
             unset($data['card']);
@@ -116,7 +116,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $data = $this->paymentDetails();
         $data['description'] = $client->getDisplayName();
 
-        if ( ! empty($data['plaidPublicToken'])) {
+        if (! empty($data['plaidPublicToken'])) {
             $plaidResult = $this->getPlaidToken($data['plaidPublicToken'], $data['plaidAccountId']);
             unset($data['plaidPublicToken']);
             unset($data['plaidAccountId']);
@@ -164,7 +164,7 @@ class StripePaymentDriver extends BasePaymentDriver
             $source = $data['card'];
         }
 
-        if ( ! $source) {
+        if (! $source) {
             return false;
         }
 
@@ -174,12 +174,9 @@ class StripePaymentDriver extends BasePaymentDriver
         // For older users the Stripe account may just have the customer token but not the card version
         // In that case we'd use GATEWAY_TYPE_TOKEN even though we're creating the credit card
         if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD) || $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
-
             $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
             $paymentMethod->payment_type_id = $this->parseCardType($source['brand']);
-
         } elseif ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
-
             $paymentMethod->routing_number = $source['routing_number'];
             $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
             $paymentMethod->status = $source['status'];
@@ -189,7 +186,6 @@ class StripePaymentDriver extends BasePaymentDriver
                 $paymentMethod->currency_id = $currency->id;
                 $paymentMethod->setRelation('currency', $currency);
             }
-
         }
 
         return $paymentMethod;
@@ -208,7 +204,7 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         parent::removePaymentMethod($paymentMethod);
 
-        if ( ! $paymentMethod->relationLoaded('account_gateway_token')) {
+        if (! $paymentMethod->relationLoaded('account_gateway_token')) {
             $paymentMethod->load('account_gateway_token');
         }
 
@@ -288,7 +284,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
         $paymentMethod->save();
 
-        if ( ! $customer->default_payment_method_id) {
+        if (! $customer->default_payment_method_id) {
             $customer->default_payment_method_id = $paymentMethod->id;
             $customer->save();
         }
@@ -304,7 +300,7 @@ class StripePaymentDriver extends BasePaymentDriver
             return 'No API key set';
         }
 
-        try{
+        try {
             $options = [
                 'headers'  => ['content-type' => 'application/x-www-form-urlencoded'],
                 'auth' => [$apiKey, ''],
@@ -398,7 +394,7 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($eventType == 'charge.refunded') {
                 $payment->recordRefund($charge['amount_refunded'] / 100 - $payment->refunded);
             }
-        } elseif($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
+        } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
             $source = $eventDetails['data']['object'];
             $sourceRef = $source['id'];
 

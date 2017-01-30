@@ -27,7 +27,7 @@ class AppLanguageComposer
     {
         $code = app()->getLocale();
 
-        if(preg_match('/_/', $code)) {
+        if (preg_match('/_/', $code)) {
             $codes = explode('_', $code);
             $code = $codes[0];
         }

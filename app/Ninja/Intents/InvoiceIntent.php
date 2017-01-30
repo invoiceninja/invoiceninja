@@ -22,17 +22,17 @@ class InvoiceIntent extends BaseIntent
     {
         $invoiceId = $this->stateEntity(ENTITY_INVOICE);
 
-        if ( ! $invoiceId) {
+        if (! $invoiceId) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
         $invoice = Invoice::scope($invoiceId)->first();
 
-        if ( ! $invoice) {
+        if (! $invoice) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
-        if ( ! Auth::user()->can('view', $invoice)) {
+        if (! Auth::user()->can('view', $invoice)) {
             throw new Exception(trans('texts.not_allowed'));
         }
 
@@ -46,7 +46,7 @@ class InvoiceIntent extends BaseIntent
         $invoiceItems = [];
         $offset = 0;
 
-        if ( ! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
+        if (! isset($this->data->compositeEntities) || ! count($this->data->compositeEntities)) {
             return [];
         }
 
@@ -102,5 +102,4 @@ class InvoiceIntent extends BaseIntent
 
         return $invoiceItems;
     }
-
 }

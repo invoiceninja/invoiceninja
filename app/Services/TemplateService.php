@@ -30,11 +30,11 @@ class TemplateService
 
         if ($account->hasFeature(FEATURE_DOCUMENTS) && $invoice->hasDocuments()) {
             $documentsHTML .= trans('texts.email_documents_header').'<ul>';
-            foreach($invoice->documents as $document){
+            foreach ($invoice->documents as $document) {
                 $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
             }
-            foreach($invoice->expenses as $expense){
-                foreach($expense->documents as $document){
+            foreach ($invoice->expenses as $expense) {
+                foreach ($expense->documents as $document) {
                     $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
                 }
             }
@@ -85,8 +85,7 @@ class TemplateService
 
         if (!$includesPasswordPlaceholder && $passwordHTML) {
             $pos = strrpos($str, '$password');
-            if ($pos !== false)
-            {
+            if ($pos !== false) {
                 $str = substr_replace($str, $passwordHTML, $pos, 9/* length of "$password" */);
             }
         }

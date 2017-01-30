@@ -127,7 +127,6 @@ class AuthController extends Controller
      */
     public function postLoginWrapper(Request $request)
     {
-
         $userId = Auth::check() ? Auth::user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
 
@@ -155,7 +154,6 @@ class AuthController extends Controller
 
             $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             Session::put(SESSION_USER_ACCOUNTS, $users);
-
         } elseif ($user) {
             $user->failed_logins = $user->failed_logins + 1;
             $user->save();
@@ -173,7 +171,7 @@ class AuthController extends Controller
             $account = Auth::user()->account;
             $this->accountRepo->unlinkAccount($account);
 
-            if ( ! $account->hasMultipleAccounts()) {
+            if (! $account->hasMultipleAccounts()) {
                 $account->company->forceDelete();
             }
             $account->forceDelete();

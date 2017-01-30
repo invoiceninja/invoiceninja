@@ -39,5 +39,4 @@ class InvoiceDesignsSeeder extends Seeder
             }
         }
     }
-
 }

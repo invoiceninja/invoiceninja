@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
  */
 class PaymentWasDeleted extends Event
 {
-	use SerializesModels;
+    use SerializesModels;
 
     /**
      * @var Payment
@@ -19,7 +19,7 @@ class PaymentWasDeleted extends Event
 
     /**
      * Create a new event instance.
-     * 
+     *
      * @param Payment $payment
      */
     public function __construct(Payment $payment)

@@ -38,8 +38,7 @@ class InvoiceService extends BaseService
         ClientRepository $clientRepo,
         InvoiceRepository $invoiceRepo,
         DatatableService $datatableService
-    )
-    {
+    ) {
         $this->clientRepo = $clientRepo;
         $this->invoiceRepo = $invoiceRepo;
         $this->datatableService = $datatableService;
@@ -92,7 +91,7 @@ class InvoiceService extends BaseService
         }
 
         // if no contacts are selected auto-select the first to enusre there's an invitation
-        if ( ! count($sendInvoiceIds)) {
+        if (! count($sendInvoiceIds)) {
             $sendInvoiceIds[] = $client->contacts[0]->id;
         }
 
@@ -136,7 +135,7 @@ class InvoiceService extends BaseService
     {
         $account = $quote->account;
 
-        if ( ! $account->hasFeature(FEATURE_QUOTES) || ! $quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
+        if (! $account->hasFeature(FEATURE_QUOTES) || ! $quote->isType(INVOICE_TYPE_QUOTE) || $quote->quote_invoice_id) {
             return null;
         }
 
@@ -165,11 +164,10 @@ class InvoiceService extends BaseService
         $query = $this->invoiceRepo->getInvoices($accountId, $clientPublicId, $entityType, $search)
                     ->where('invoices.invoice_type_id', '=', $entityType == ENTITY_QUOTE ? INVOICE_TYPE_QUOTE : INVOICE_TYPE_STANDARD);
 
-        if(!Utils::hasPermission('view_all')){
+        if (!Utils::hasPermission('view_all')) {
             $query->where('invoices.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
-
 }

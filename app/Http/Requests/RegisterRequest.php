@@ -30,7 +30,6 @@ class RegisterRequest extends Request
      */
     public function rules()
     {
-
         $rules = [
             'email' => 'required|unique:users',
             'first_name' => 'required',
@@ -44,13 +43,13 @@ class RegisterRequest extends Request
     public function response(array $errors)
     {
         /* If the user is not validating from a mobile app - pass through parent::response */
-        if(!isset($this->req->api_secret))
+        if (!isset($this->req->api_secret)) {
             return parent::response($errors);
+        }
 
         /* If the user is validating from a mobile app - pass through first error string and return error */
-        foreach($errors as $error) {
+        foreach ($errors as $error) {
             foreach ($error as $key => $value) {
-
                 $message['error'] = ['message'=>$value];
                 $message = json_encode($message, JSON_PRETTY_PRINT);
                 $headers = Utils::getApiHeaders();
@@ -59,5 +58,4 @@ class RegisterRequest extends Request
             }
         }
     }
-
 }

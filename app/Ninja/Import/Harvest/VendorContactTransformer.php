@@ -15,7 +15,7 @@ class VendorContactTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if ( ! $this->hasVendor($data->vendor)) {
+        if (! $this->hasVendor($data->vendor)) {
             return false;
         }
 

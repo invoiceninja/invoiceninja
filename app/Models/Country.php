@@ -35,7 +35,7 @@ class Country extends Eloquent
     /**
      * @return mixed
      */
-    public function getName() 
+    public function getName()
     {
         return $this->name;
     }

@@ -124,7 +124,7 @@ class InvoiceController extends BaseController
 
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
-        if(!Auth::user()->hasPermission('view_all')){
+        if (!Auth::user()->hasPermission('view_all')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
@@ -151,7 +151,7 @@ class InvoiceController extends BaseController
         }
 
         // Set the invitation data on the client's contacts
-        if ( ! $clone) {
+        if (! $clone) {
             $clients = $data['clients'];
             foreach ($clients as $client) {
                 if ($client->id != $invoice->client->id) {
@@ -247,9 +247,12 @@ class InvoiceController extends BaseController
         ];
 
         $ends = ['th','st','nd','rd','th','th','th','th','th','th'];
-        for($i = 1; $i < 31; $i++){
-            if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
-            else $ordinal = $i . $ends[$i % 10];
+        for ($i = 1; $i < 31; $i++) {
+            if ($i >= 11 && $i <= 13) {
+                $ordinal = $i. 'th';
+            } else {
+                $ordinal = $i . $ends[$i % 10];
+            }
 
             $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
             $str = trans('texts.day_of_month', ['ordinal'=>$ordinal]);
@@ -268,8 +271,8 @@ class InvoiceController extends BaseController
             trans('texts.friday'),
             trans('texts.saturday'),
         ];
-        foreach(['1st','2nd','3rd','4th'] as $i=>$ordinal){
-            foreach($daysOfWeek as $j=>$dayOfWeek){
+        foreach (['1st','2nd','3rd','4th'] as $i=>$ordinal) {
+            foreach ($daysOfWeek as $j=>$dayOfWeek) {
                 $str = trans('texts.day_of_week_after', ['ordinal' => $ordinal, 'day' => $dayOfWeek]);
 
                 $day = $i * 7 + $j  + 1;
@@ -327,7 +330,6 @@ class InvoiceController extends BaseController
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
             'expenses' => Session::get('expenses') ? Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get() : [],
         ];
-
     }
 
     /**
@@ -467,7 +469,8 @@ class InvoiceController extends BaseController
      */
     public function bulk($entityType = ENTITY_INVOICE)
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');;
+        $action = Input::get('bulk_action') ?: Input::get('action');
+        ;
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
@@ -554,7 +557,7 @@ class InvoiceController extends BaseController
         }
 
         // Show the current version as the last in the history
-        if ( ! $paymentId) {
+        if (! $paymentId) {
             $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
         }
 
@@ -586,5 +589,4 @@ class InvoiceController extends BaseController
 
         return $count ? RESULT_FAILURE : RESULT_SUCCESS;
     }
-
 }

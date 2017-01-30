@@ -1,4 +1,5 @@
 <?php namespace App\Models;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -27,6 +28,4 @@ class BankSubaccount extends EntityModel
     {
         return $this->belongsTo('App\Models\BankAccount');
     }
-
 }
-

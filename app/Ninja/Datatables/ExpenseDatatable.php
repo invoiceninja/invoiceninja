@@ -15,10 +15,9 @@ class ExpenseDatatable extends EntityDatatable
         return [
             [
                 'vendor_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->vendor_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])){
+                        if (!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])) {
                             return $model->vendor_name;
                         }
 
@@ -31,10 +30,9 @@ class ExpenseDatatable extends EntityDatatable
             ],
             [
                 'client_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->client_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                        if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                             return Utils::getClientDisplayName($model);
                         }
 
@@ -48,7 +46,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'expense_date',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
                         return Utils::fromSqlDate($model->expense_date);
                     }
 
@@ -131,5 +129,4 @@ class ExpenseDatatable extends EntityDatatable
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
-
 }

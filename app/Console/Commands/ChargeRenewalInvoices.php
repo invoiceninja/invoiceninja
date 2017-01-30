@@ -71,17 +71,17 @@ class ChargeRenewalInvoices extends Command
             // check if account has switched to free since the invoice was created
             $account = Account::find($invoice->client->public_id);
 
-            if ( ! $account) {
+            if (! $account) {
                 continue;
             }
 
             $company = $account->company;
-            if ( ! $company->plan || $company->plan == PLAN_FREE) {
+            if (! $company->plan || $company->plan == PLAN_FREE) {
                 continue;
             }
 
             $this->info("Charging invoice {$invoice->invoice_number}");
-            if ( ! $this->paymentService->autoBillInvoice($invoice)) {
+            if (! $this->paymentService->autoBillInvoice($invoice)) {
                 $this->info('Failed to auto-bill, emailing invoice');
                 $this->mailer->sendInvoice($invoice);
             }

@@ -43,5 +43,4 @@ class QuoteApiController extends BaseAPIController
 
          return $this->listResponse($invoices);
      }
-
 }

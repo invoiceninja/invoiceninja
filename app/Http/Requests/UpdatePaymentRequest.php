@@ -20,6 +20,5 @@ class UpdatePaymentRequest extends PaymentRequest
     public function rules()
     {
         return [];
-
     }
 }

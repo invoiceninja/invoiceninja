@@ -14,7 +14,7 @@ class PaymentTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if ( ! $this->getInvoiceClientId($data->invoice_num)) {
+        if (! $this->getInvoiceClientId($data->invoice_num)) {
             return false;
         }
 

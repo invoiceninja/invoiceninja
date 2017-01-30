@@ -88,6 +88,5 @@ class PaymentLibrariesSeeder extends Seeder
                 Gateway::create($gateway);
             }
         }
-
     }
 }

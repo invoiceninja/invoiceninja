@@ -38,5 +38,4 @@ class RecurringInvoiceController extends BaseController
 
         return response()->view('list_wrapper', $data);
     }
-
 }

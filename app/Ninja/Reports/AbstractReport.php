@@ -25,7 +25,6 @@ class AbstractReport
 
     public function run()
     {
-
     }
 
     public function results()
@@ -41,11 +40,11 @@ class AbstractReport
     {
         $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
 
-        if ( ! isset($this->totals[$currencyId][$dimension])) {
+        if (! isset($this->totals[$currencyId][$dimension])) {
             $this->totals[$currencyId][$dimension] = [];
         }
 
-        if ( ! isset($this->totals[$currencyId][$dimension][$field])) {
+        if (! isset($this->totals[$currencyId][$dimension][$field])) {
             $this->totals[$currencyId][$dimension][$field] = 0;
         }
 

@@ -12,8 +12,7 @@ class SupportNewPricing extends Migration
     */
     public function up()
     {
-        Schema::table('companies', function (Blueprint $table)
-        {
+        Schema::table('companies', function (Blueprint $table) {
             $table->decimal('plan_price', 7, 2)->nullable();
             $table->decimal('pending_plan_price', 7, 2)->nullable();
             $table->smallInteger('num_users')->default(1);
@@ -78,8 +77,7 @@ class SupportNewPricing extends Migration
     */
     public function down()
     {
-        Schema::table('companies', function (Blueprint $table)
-        {
+        Schema::table('companies', function (Blueprint $table) {
             $table->dropColumn('plan_price');
             $table->dropColumn('pending_plan_price');
             $table->dropColumn('num_users');

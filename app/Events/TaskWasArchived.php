@@ -24,5 +24,4 @@ class TaskWasArchived extends Event
     {
         $this->task = $task;
     }
-
 }

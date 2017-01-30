@@ -14,24 +14,23 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Illuminate\Foundation\Validation\ValidationException;
 
-
 /**
  * Class Handler
  */
 class Handler extends ExceptionHandler
 {
 
-	/**
-	 * A list of the exception types that should not be reported.
-	 *
-	 * @var array
-	 */
-	protected $dontReport = [
+    /**
+     * A list of the exception types that should not be reported.
+     *
+     * @var array
+     */
+    protected $dontReport = [
         AuthorizationException::class,
         HttpException::class,
         ModelNotFoundException::class,
         ValidationException::class,
-	];
+    ];
 
     /**
      * Report or log an exception.
@@ -41,8 +40,8 @@ class Handler extends ExceptionHandler
      * @param  \Exception $e
      * @return bool|void
      */
-	public function report(Exception $e)
-	{
+    public function report(Exception $e)
+    {
         // don't show these errors in the logs
         if ($e instanceof NotFoundHttpException) {
             if (Crawler::isCrawler()) {
@@ -60,18 +59,19 @@ class Handler extends ExceptionHandler
         }
     }
 
-	/**
-	 * Render an exception into an HTTP response.
-	 *
-	 * @param  \Illuminate\Http\Request  $request
-	 * @param  \Exception  $e
-	 * @return \Illuminate\Http\Response
-	 */
-	public function render($request, Exception $e)
-	{
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Exception  $e
+     * @return \Illuminate\Http\Response
+     */
+    public function render($request, Exception $e)
+    {
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
-        } if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+        }
+        if ($e instanceof \Illuminate\Session\TokenMismatchException) {
             // prevent loop since the page auto-submits
             if ($request->path() != 'get_started') {
                 // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
@@ -84,13 +84,11 @@ class Handler extends ExceptionHandler
             }
         }
 
-        if($this->isHttpException($e))
-        {
-            switch ($e->getStatusCode())
-            {
+        if ($this->isHttpException($e)) {
+            switch ($e->getStatusCode()) {
                 // not found
                 case 404:
-                    if($request->header('X-Ninja-Token') != '') {
+                    if ($request->header('X-Ninja-Token') != '') {
                         //API request which has hit a route which does not exist
 
                         $error['error'] = ['message'=>'Route does not exist'];
@@ -98,13 +96,12 @@ class Handler extends ExceptionHandler
                         $headers = Utils::getApiHeaders();
 
                         return response()->make($error, 404, $headers);
-
                     }
                     break;
 
                 // internal error
                 case '500':
-                    if($request->header('X-Ninja-Token') != '') {
+                    if ($request->header('X-Ninja-Token') != '') {
                         //API request which produces 500 error
 
                         $error['error'] = ['message'=>'Internal Server Error'];
@@ -132,5 +129,5 @@ class Handler extends ExceptionHandler
         } else {
             return parent::render($request, $e);
         }
-	}
+    }
 }

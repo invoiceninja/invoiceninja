@@ -70,5 +70,4 @@ class InvoiceItem extends EntityModel
     {
         return $this->belongsTo('App\Models\Account');
     }
-
 }

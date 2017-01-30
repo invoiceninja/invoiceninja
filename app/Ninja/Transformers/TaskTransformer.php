@@ -23,7 +23,6 @@ class TaskTransformer extends EntityTransformer
     public function __construct(Account $account)
     {
         parent::__construct($account);
-
     }
 
     public function includeClient(Task $task)

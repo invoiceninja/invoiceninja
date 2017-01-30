@@ -48,5 +48,4 @@ class SendPushNotification extends Job implements ShouldQueue
     {
         $pushService->sendNotification($this->invoice, $this->type);
     }
-
 }

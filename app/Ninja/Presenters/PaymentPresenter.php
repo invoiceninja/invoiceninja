@@ -3,8 +3,8 @@
 use Carbon;
 use Utils;
 
-class PaymentPresenter extends EntityPresenter {
-
+class PaymentPresenter extends EntityPresenter
+{
     public function amount()
     {
         return Utils::formatMoney($this->entity->amount, $this->entity->client->currency_id);

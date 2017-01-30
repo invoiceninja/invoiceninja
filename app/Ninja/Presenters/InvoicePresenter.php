@@ -6,8 +6,8 @@ use Utils;
 use DropdownButton;
 use App\Libraries\Skype\InvoiceCard;
 
-class InvoicePresenter extends EntityPresenter {
-
+class InvoicePresenter extends EntityPresenter
+{
     public function client()
     {
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';
@@ -47,7 +47,7 @@ class InvoicePresenter extends EntityPresenter {
 
     public function age()
     {
-        if ( ! $this->entity->due_date || $this->entity->date_date == '0000-00-00') {
+        if (! $this->entity->due_date || $this->entity->date_date == '0000-00-00') {
             return 0;
         }
 
@@ -100,7 +100,7 @@ class InvoicePresenter extends EntityPresenter {
     // https://schema.org/PaymentStatusType
     public function paymentStatus()
     {
-        if ( ! $this->entity->balance) {
+        if (! $this->entity->balance) {
             return 'PaymentComplete';
         } elseif ($this->entity->isOverdue()) {
             return 'PaymentPastDue';
@@ -152,7 +152,7 @@ class InvoicePresenter extends EntityPresenter {
         $client = $this->entity->client;
         $paymentMethod = $client->defaultPaymentMethod();
 
-        if ( ! $paymentMethod) {
+        if (! $paymentMethod) {
             return false;
         }
 

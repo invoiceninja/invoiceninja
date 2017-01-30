@@ -14,7 +14,7 @@ class ContactTransformer extends BaseTransformer
      */
     public function transform($data)
     {
-        if ( ! $this->hasClient($data->client)) {
+        if (! $this->hasClient($data->client)) {
             return false;
         }
 

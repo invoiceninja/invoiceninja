@@ -1,6 +1,5 @@
 <?php namespace App\Events;
 
-
 use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
@@ -29,5 +28,4 @@ class InvoiceWasRestored extends Event
         $this->invoice = $invoice;
         $this->fromDeleted = $fromDeleted;
     }
-
 }

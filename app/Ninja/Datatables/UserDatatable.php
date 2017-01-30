@@ -29,7 +29,7 @@ class UserDatatable extends EntityDatatable
                     } elseif ($model->deleted_at) {
                         return self::getStatusLabel(USER_STATE_DISABLED);
                     } elseif ($model->confirmed) {
-                        if($model->is_admin){
+                        if ($model->is_admin) {
                             return self::getStatusLabel(USER_STATE_ADMIN);
                         } else {
                             return self::getStatusLabel(USER_STATE_ACTIVE);
@@ -89,6 +89,4 @@ class UserDatatable extends EntityDatatable
         }
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
-
-
 }

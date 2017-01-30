@@ -1,8 +1,7 @@
 <?php namespace App\Ninja\Presenters;
 
-
-class ClientPresenter extends EntityPresenter {
-
+class ClientPresenter extends EntityPresenter
+{
     public function country()
     {
         return $this->entity->country ? $this->entity->country->name : '';

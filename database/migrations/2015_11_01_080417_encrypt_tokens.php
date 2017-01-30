@@ -3,15 +3,16 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EncryptTokens extends Migration {
+class EncryptTokens extends Migration
+{
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
         $gateways = DB::table('account_gateways')
                         ->get(['id', 'config']);
         foreach ($gateways as $gateway) {
@@ -19,15 +20,15 @@ class EncryptTokens extends Migration {
                 ->where('id', $gateway->id)
                 ->update(['config' => Crypt::encrypt($gateway->config)]);
         }
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
         $gateways = DB::table('account_gateways')
                         ->get(['id', 'config']);
         foreach ($gateways as $gateway) {
@@ -35,7 +36,5 @@ class EncryptTokens extends Migration {
                 ->where('id', $gateway->id)
                 ->update(['config' => Crypt::decrypt($gateway->config)]);
         }
-
-	}
-
+    }
 }

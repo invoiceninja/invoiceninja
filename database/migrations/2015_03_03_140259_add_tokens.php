@@ -3,17 +3,17 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddTokens extends Migration {
+class AddTokens extends Migration
+{
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-        Schema::create('account_tokens', function($table)
-        {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('account_tokens', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id')->index();
             $table->unsignedInteger('user_id');
@@ -30,25 +30,22 @@ class AddTokens extends Migration {
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('activities', function($table)
-        {
+        Schema::table('activities', function ($table) {
             $table->unsignedInteger('token_id')->nullable();
         });
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
         Schema::drop('account_tokens');
 
-        Schema::table('activities', function($table)
-        {
+        Schema::table('activities', function ($table) {
             $table->dropColumn('token_id');
         });
-	}
-
+    }
 }

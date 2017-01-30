@@ -143,7 +143,6 @@ trait PresentsInvoice
         }
 
         return $fields;
-
     }
 
     /**
@@ -238,6 +237,4 @@ trait PresentsInvoice
 
         return $data;
     }
-
-
 }

@@ -24,10 +24,10 @@ class PaymentReport extends AbstractReport
         $payments = Payment::scope()
                         ->withArchived()
                         ->excludeFailed()
-                        ->whereHas('client', function($query) {
+                        ->whereHas('client', function ($query) {
                             $query->where('is_deleted', '=', false);
                         })
-                        ->whereHas('invoice', function($query) {
+                        ->whereHas('invoice', function ($query) {
                             $query->where('is_deleted', '=', false);
                         })
                         ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway')

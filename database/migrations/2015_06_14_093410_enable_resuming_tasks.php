@@ -3,17 +3,17 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class EnableResumingTasks extends Migration {
+class EnableResumingTasks extends Migration
+{
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-        Schema::table('tasks', function($table)
-        {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('tasks', function ($table) {
             $table->boolean('is_running')->default(false);
             $table->integer('break_duration')->nullable();
             $table->timestamp('resume_time')->nullable();
@@ -36,23 +36,20 @@ class EnableResumingTasks extends Migration {
                 ->where('id', $task->id)
                 ->update($data);
         }
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
-
-        Schema::table('tasks', function($table)
-        {
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('tasks', function ($table) {
             $table->dropColumn('is_running');
             $table->dropColumn('resume_time');
             $table->dropColumn('break_duration');
             $table->dropColumn('time_log');
         });
-	}
-
+    }
 }

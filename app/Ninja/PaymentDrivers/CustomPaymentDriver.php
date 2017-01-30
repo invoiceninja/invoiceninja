@@ -8,5 +8,4 @@ class CustomPaymentDriver extends BasePaymentDriver
             GATEWAY_TYPE_CUSTOM
         ];
     }
-
 }

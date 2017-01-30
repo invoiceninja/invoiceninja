@@ -49,7 +49,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     protected function checkCustomerExists($customer)
     {
-        if ( ! parent::checkCustomerExists($customer)) {
+        if (! parent::checkCustomerExists($customer)) {
             return false;
         }
 
@@ -74,7 +74,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             $data['ButtonSource'] = 'InvoiceNinja_SP';
         }
 
-        if ( ! $paymentMethod && ! empty($this->input['sourceToken'])) {
+        if (! $paymentMethod && ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
         }
 
@@ -169,7 +169,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     protected function attemptVoidPayment($response, $payment, $amount)
     {
-        if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
+        if (! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;
         }
 

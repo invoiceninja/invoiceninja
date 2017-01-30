@@ -3,17 +3,17 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddBankSubaccounts extends Migration {
+class AddBankSubaccounts extends Migration
+{
 
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-        Schema::create('bank_subaccounts', function($table)
-        {
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('bank_subaccounts', function ($table) {
             $table->increments('id');
             $table->unsignedInteger('account_id');
             $table->unsignedInteger('user_id');
@@ -33,37 +33,32 @@ class AddBankSubaccounts extends Migration {
             $table->unique(['account_id', 'public_id']);
         });
 
-        Schema::table('expenses', function($table)
-        {
+        Schema::table('expenses', function ($table) {
             $table->string('transaction_id')->nullable();
             $table->unsignedInteger('bank_id')->nullable();
         });
 
-        Schema::table('vendors', function($table)
-        {
+        Schema::table('vendors', function ($table) {
             $table->string('transaction_name')->nullable();
         });
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
         Schema::drop('bank_subaccounts');
 
-        Schema::table('expenses', function($table)
-        {
+        Schema::table('expenses', function ($table) {
             $table->dropColumn('transaction_id');
             $table->dropColumn('bank_id');
         });
 
-        Schema::table('vendors', function($table)
-        {
+        Schema::table('vendors', function ($table) {
             $table->dropColumn('transaction_name');
         });
-	}
-
+    }
 }

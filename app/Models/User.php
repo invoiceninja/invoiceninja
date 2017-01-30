@@ -296,23 +296,24 @@ class User extends Authenticatable
      * @param  mixed  $value
      * @return $this
      */
-     protected function setPermissionsAttribute($value){
-         if(empty($value)) {
+     protected function setPermissionsAttribute($value)
+     {
+         if (empty($value)) {
              $this->attributes['permissions'] = 0;
          } else {
              $bitmask = 0;
-             foreach($value as $permission){
-                if ( ! $permission) {
-                    continue;
-                }
-                $bitmask = $bitmask | static::$all_permissions[$permission];
+             foreach ($value as $permission) {
+                 if (! $permission) {
+                     continue;
+                 }
+                 $bitmask = $bitmask | static::$all_permissions[$permission];
              }
 
              $this->attributes['permissions'] = $bitmask;
          }
 
          return $this;
-    }
+     }
 
     /**
      * Expands the value of the permissions attribute
@@ -320,10 +321,11 @@ class User extends Authenticatable
      * @param  mixed  $value
      * @return mixed
      */
-    protected function getPermissionsAttribute($value){
+    protected function getPermissionsAttribute($value)
+    {
         $permissions = [];
-        foreach(static::$all_permissions as $permission => $bitmask){
-            if(($value & $bitmask) == $bitmask) {
+        foreach (static::$all_permissions as $permission => $bitmask) {
+            if (($value & $bitmask) == $bitmask) {
                 $permissions[$permission] = $permission;
             }
         }
@@ -338,13 +340,14 @@ class User extends Authenticatable
      * @param boolean True to require all permissions, false to require only one
      * @return boolean
      */
-    public function hasPermission($permission, $requireAll = false){
+    public function hasPermission($permission, $requireAll = false)
+    {
         if ($this->is_admin) {
             return true;
-        } else if(is_string($permission)){
+        } elseif (is_string($permission)) {
             return !empty($this->permissions[$permission]);
-        } else if(is_array($permission)) {
-            if($requireAll){
+        } elseif (is_array($permission)) {
+            if ($requireAll) {
                 return count(array_diff($permission, $this->permissions)) == 0;
             } else {
                 return count(array_intersect($permission, $this->permissions)) > 0;
@@ -358,23 +361,25 @@ class User extends Authenticatable
      * @param $entity
      * @return bool
      */
-    public function owns($entity) {
+    public function owns($entity)
+    {
         return !empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
     /**
      * @return bool|mixed
      */
-    public function filterId() {
+    public function filterId()
+    {
         return $this->hasPermission('view_all') ? false : $this->id;
     }
 
 
     public function caddAddUsers()
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             return true;
-        } elseif ( ! $this->hasFeature(FEATURE_USERS)) {
+        } elseif (! $this->hasFeature(FEATURE_USERS)) {
             return false;
         }
 

@@ -75,7 +75,7 @@ class ClientRepository extends BaseRepository
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         if ($client) {
-           // do nothing
+            // do nothing
         } elseif (!$publicId || $publicId == '-1') {
             $client = Client::createNew();
             if (Auth::check() && Auth::user()->account->client_number_counter && empty($data['id_number'])) {
@@ -92,7 +92,7 @@ class ClientRepository extends BaseRepository
         // convert currency code to id
         if (isset($data['currency_code'])) {
             $currencyCode = strtolower($data['currency_code']);
-            $currency = Cache::get('currencies')->filter(function($item) use ($currencyCode) {
+            $currency = Cache::get('currencies')->filter(function ($item) use ($currencyCode) {
                 return strtolower($item->code) == $currencyCode;
             })->first();
             if ($currency) {
@@ -128,7 +128,7 @@ class ClientRepository extends BaseRepository
             $first = false;
         }
 
-        if ( ! $client->wasRecentlyCreated) {
+        if (! $client->wasRecentlyCreated) {
             foreach ($client->contacts as $contact) {
                 if (!in_array($contact->public_id, $contactIds)) {
                     $contact->delete();
@@ -158,7 +158,7 @@ class ClientRepository extends BaseRepository
         foreach ($clients as $client) {
             $map[$client->id] = $client;
 
-            if ( ! $client->name) {
+            if (! $client->name) {
                 continue;
             }
 
@@ -173,7 +173,7 @@ class ClientRepository extends BaseRepository
         $contacts = Contact::scope()->get(['client_id', 'first_name', 'last_name', 'public_id']);
 
         foreach ($contacts as $contact) {
-            if ( ! $contact->getFullName() || ! isset($map[$contact->client_id])) {
+            if (! $contact->getFullName() || ! isset($map[$contact->client_id])) {
                 continue;
             }
 
@@ -187,5 +187,4 @@ class ClientRepository extends BaseRepository
 
         return ($clientId && isset($map[$clientId])) ? $map[$clientId] : null;
     }
-
 }

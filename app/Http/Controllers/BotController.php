@@ -29,7 +29,7 @@ class BotController extends Controller
         $input = Input::all();
         $botUserId = $input['from']['id'];
 
-        if ( ! $token = $this->authenticate($input)) {
+        if (! $token = $this->authenticate($input)) {
             return SkypeResponse::message(trans('texts.not_authorized'));
         }
 
@@ -71,7 +71,7 @@ class BotController extends Controller
                     } elseif ($text == 'status') {
                         $response = SkypeResponse::message(trans('texts.intent_not_supported'));
                     } else {
-                        if ( ! $user = User::whereBotUserId($botUserId)->with('account')->first()) {
+                        if (! $user = User::whereBotUserId($botUserId)->with('account')->first()) {
                             return SkypeResponse::message(trans('texts.not_authorized'));
                         }
 
@@ -102,7 +102,7 @@ class BotController extends Controller
 
         if (Utils::isNinjaDev()) {
             // skip validation for testing
-        } elseif ( ! $this->validateToken($token)) {
+        } elseif (! $this->validateToken($token)) {
             return false;
         }
 
@@ -186,7 +186,7 @@ class BotController extends Controller
 
     private function validateEmail($email, $botUserId)
     {
-        if ( ! $email || ! $botUserId) {
+        if (! $email || ! $botUserId) {
             return false;
         }
 
@@ -203,7 +203,7 @@ class BotController extends Controller
                     ->whereNull('bot_user_id')
                     ->first();
 
-        if ( ! $user) {
+        if (! $user) {
             return false;
         }
 
@@ -221,7 +221,7 @@ class BotController extends Controller
 
     private function validateCode($input, $botUserId)
     {
-        if ( ! $input || ! $botUserId) {
+        if (! $input || ! $botUserId) {
             return false;
         }
 
@@ -230,11 +230,11 @@ class BotController extends Controller
                     ->where('attempts', '<', 5)
                     ->first();
 
-        if ( ! $code) {
+        if (! $code) {
             return false;
         }
 
-        if ( ! hash_equals($code->code, $input)) {
+        if (! hash_equals($code->code, $input)) {
             $code->attempts += 1;
             $code->save();
             return false;
@@ -256,7 +256,7 @@ class BotController extends Controller
 
     private function validateToken($token)
     {
-        if ( ! $token) {
+        if (! $token) {
             return false;
         }
 
@@ -273,17 +273,17 @@ class BotController extends Controller
         $sig_enc = $token_arr[2];
 
         // 2 base 64 url decoding
-        $headers_arr = json_decode($this->base64_url_decode($headers_enc), TRUE);
-        $claims_arr = json_decode($this->base64_url_decode($claims_enc), TRUE);
+        $headers_arr = json_decode($this->base64_url_decode($headers_enc), true);
+        $claims_arr = json_decode($this->base64_url_decode($claims_enc), true);
         $sig = $this->base64_url_decode($sig_enc);
 
         // 3 get key list
         $keylist = file_get_contents('https://api.aps.skype.com/v1/keys');
-        $keylist_arr = json_decode($keylist, TRUE);
-        foreach($keylist_arr['keys'] as $key => $value) {
+        $keylist_arr = json_decode($keylist, true);
+        foreach ($keylist_arr['keys'] as $key => $value) {
 
             // 4 select one key (which matches)
-            if($value['kid'] == $headers_arr['kid']) {
+            if ($value['kid'] == $headers_arr['kid']) {
 
                 // 5 get public key from key info
                 $cert_txt = '-----BEGIN CERTIFICATE-----' . "\n" . chunk_split($value['x5c'][0], 64) . '-----END CERTIFICATE-----';
@@ -301,7 +301,8 @@ class BotController extends Controller
         return ($token_valid == 1);
     }
 
-    private function base64_url_decode($arg) {
+    private function base64_url_decode($arg)
+    {
         $res = $arg;
         $res = str_replace('-', '+', $res);
         $res = str_replace('_', '/', $res);

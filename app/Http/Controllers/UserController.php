@@ -95,12 +95,12 @@ class UserController extends BaseController
      */
     public function create()
     {
-        if ( ! Auth::user()->registered) {
+        if (! Auth::user()->registered) {
             Session::flash('error', trans('texts.register_to_add_user'));
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
 
-        if ( ! Auth::user()->confirmed) {
+        if (! Auth::user()->confirmed) {
             Session::flash('error', trans('texts.confirmation_required'));
             return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
@@ -132,7 +132,7 @@ class UserController extends BaseController
         if ($action === 'archive') {
             $user->delete();
         } else {
-            if ( ! Auth::user()->caddAddUsers()) {
+            if (! Auth::user()->caddAddUsers()) {
                 return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT)
                     ->with('error', trans('texts.max_users_reached'));
             }
@@ -326,7 +326,7 @@ class UserController extends BaseController
     {
         $user = $this->accountRepo->findUser(Auth::user(), $accountKey);
 
-        if ( ! $user) {
+        if (! $user) {
             return redirect()->to('/');
         }
 

@@ -77,5 +77,4 @@ class RecurringInvoiceDatatable extends EntityDatatable
 
         ];
     }
-
 }

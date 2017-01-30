@@ -113,7 +113,7 @@ class InvoiceApiController extends BaseAPIController
 
         if (isset($data['email'])) {
             $email = $data['email'];
-            $client = Client::scope()->whereHas('contacts', function($query) use ($email) {
+            $client = Client::scope()->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', '=', $email);
             })->first();
 
@@ -152,7 +152,7 @@ class InvoiceApiController extends BaseAPIController
 
                 $client = $this->clientRepo->save($clientData);
             }
-        } else if (isset($data['client_id'])) {
+        } elseif (isset($data['client_id'])) {
             $client = Client::scope($data['client_id'])->firstOrFail();
         }
 
@@ -174,7 +174,7 @@ class InvoiceApiController extends BaseAPIController
         if ($invoice->isInvoice()) {
             if ($isAutoBill) {
                 $payment = $this->paymentService->autoBillInvoice($invoice);
-            } else if ($isPaid) {
+            } elseif ($isPaid) {
                 $payment = $this->paymentRepo->save([
                     'invoice_id' => $invoice->id,
                     'client_id' => $client->id,
@@ -187,7 +187,7 @@ class InvoiceApiController extends BaseAPIController
             if ($payment) {
                 app('App\Ninja\Mailers\ContactMailer')->sendPaymentConfirmation($payment);
                 //$this->dispatch(new SendPaymentEmail($payment));
-            } elseif ( ! $invoice->is_recurring) {
+            } elseif (! $invoice->is_recurring) {
                 app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
                 //$this->dispatch(new SendInvoiceEmail($invoice));
             }

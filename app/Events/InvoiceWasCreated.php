@@ -24,5 +24,4 @@ class InvoiceWasCreated extends Event
     {
         $this->invoice = $invoice;
     }
-
 }

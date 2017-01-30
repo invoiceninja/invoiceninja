@@ -157,5 +157,4 @@ class TokenController extends BaseController
 
         return Redirect::to('settings/' . ACCOUNT_API_TOKENS);
     }
-
 }

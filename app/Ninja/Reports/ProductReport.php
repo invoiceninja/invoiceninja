@@ -23,7 +23,7 @@ class ProductReport extends AbstractReport
                         ->withTrashed()
                         ->with('contacts')
                         ->where('is_deleted', '=', false)
-                        ->with(['invoices' => function($query) {
+                        ->with(['invoices' => function ($query) {
                             $query->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
                                   ->where('is_deleted', '=', false)
@@ -35,7 +35,6 @@ class ProductReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-
                 foreach ($invoice->invoice_items as $invoiceItem) {
                     $this->data[] = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,

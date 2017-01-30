@@ -11,7 +11,8 @@ use App\Libraries\HistoryUtils;
 /**
  * Class HandleUserLoggedIn
  */
-class HandleUserLoggedIn {
+class HandleUserLoggedIn
+{
 
     /**
      * @var AccountRepository
@@ -23,20 +24,20 @@ class HandleUserLoggedIn {
      *
      * @param AccountRepository $accountRepo
      */
-	public function __construct(AccountRepository $accountRepo)
-	{
+    public function __construct(AccountRepository $accountRepo)
+    {
         $this->accountRepo = $accountRepo;
-	}
+    }
 
-	/**
-	 * Handle the event.
-	 *
-	 * @param  UserLoggedIn  $event
+    /**
+     * Handle the event.
      *
-	 * @return void
-	 */
-	public function handle(UserLoggedIn $event)
-	{
+     * @param  UserLoggedIn  $event
+     *
+     * @return void
+     */
+    public function handle(UserLoggedIn $event)
+    {
         $account = Auth::user()->account;
 
         if (empty($account->last_login)) {
@@ -63,5 +64,5 @@ class HandleUserLoggedIn {
         } elseif ($account->isLogoTooLarge()) {
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
-	}
+    }
 }

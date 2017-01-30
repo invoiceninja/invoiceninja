@@ -15,7 +15,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'client_name',
                 function ($model) {
-                    if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                    if (!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                         return Utils::getClientDisplayName($model);
                     }
 
@@ -38,7 +38,7 @@ class CreditDatatable extends EntityDatatable
             [
                 'credit_date',
                 function ($model) {
-                    if ( ! Auth::user()->can('viewByOwner', [ENTITY_CREDIT, $model->user_id])){
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_CREDIT, $model->user_id])) {
                         return Utils::fromSqlDate($model->credit_date);
                     }
 

@@ -136,7 +136,7 @@ class HomeController extends BaseController
     {
         Mail::raw(request()->message, function ($message) {
             $subject = 'Customer Message';
-            if ( ! Utils::isNinja()) {
+            if (! Utils::isNinja()) {
                 $subject .= ': v' . NINJA_VERSION;
             }
             $message->to(CONTACT_EMAIL)
