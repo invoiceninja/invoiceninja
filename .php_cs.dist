@@ -11,7 +11,7 @@ $finder = PhpCsFixer\Finder::create()
     ->ignoreVCS(true);
 
 return PhpCsFixer\Config::create()
-    ->setRules(array(
+    ->setRules([
         '@PSR2' => true,
         'binary_operator_spaces' => true,
         'blank_line_after_namespace' => true,
@@ -61,6 +61,7 @@ return PhpCsFixer\Config::create()
         'not_operator_with_successor_space' => true,
         'object_operator_without_whitespace' => true,
         'ordered_imports' => true,
+        'phpdoc_add_missing_param_annotation' => true,
         'phpdoc_align' => true,
         'phpdoc_indent' => true,
         'phpdoc_inline_tag' => true,
@@ -74,10 +75,8 @@ return PhpCsFixer\Config::create()
         'phpdoc_trim' => true,
         'phpdoc_types' => true,
         'phpdoc_var_without_name' => true,
-        //'psr4' => true,
         'self_accessor' => true,
         'short_scalar_cast' => true,
-        //'simplified_null_return' => true,
         'single_blank_line_at_eof' => true,
         'single_blank_line_before_namespace' => true,
         'single_import_per_statement' => true,
@@ -93,8 +92,6 @@ return PhpCsFixer\Config::create()
         'unary_operator_spaces' => true,
         'visibility_required' => true,
         'whitespace_after_comma_in_array' => true,
-        //'strict_param' => true,
         'array_syntax' => array('syntax' => 'short'),
-    ))
-    ->setFinder($finder)
-;
+    ])
+    ->setFinder($finder);

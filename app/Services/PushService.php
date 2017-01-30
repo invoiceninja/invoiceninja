@@ -55,6 +55,7 @@ class PushService
      * @param Invoice $invoice
      * @param $token
      * @param $type
+     * @param mixed $device
      */
     private function pushMessage(Invoice $invoice, $token, $type, $device)
     {

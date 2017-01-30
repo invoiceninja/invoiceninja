@@ -13,7 +13,8 @@ class EntityPolicy
     use HandlesAuthorization;
 
     /**
-     * @param User $user
+     * @param User  $user
+     * @param mixed $item
      *
      * @return bool
      */

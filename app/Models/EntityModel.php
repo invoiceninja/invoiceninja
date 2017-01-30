@@ -253,6 +253,7 @@ class EntityModel extends Eloquent
     /**
      * @param $data
      * @param $entityType
+     * @param mixed $entity
      *
      * @return bool|string
      */

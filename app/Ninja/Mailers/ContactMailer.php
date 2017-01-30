@@ -143,6 +143,7 @@ class ContactMailer extends Mailer
      * @param $subject
      * @param $pdfString
      * @param $documentStrings
+     * @param mixed $reminder
      *
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
      *

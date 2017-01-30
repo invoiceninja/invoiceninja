@@ -41,6 +41,7 @@ class ProductService extends BaseService
 
     /**
      * @param $accountId
+     * @param mixed $search
      *
      * @return \Illuminate\Http\JsonResponse
      */

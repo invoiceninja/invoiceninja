@@ -41,6 +41,10 @@ class SendNotificationEmail extends Job implements ShouldQueue
      * @param UserMailer    $userMailer
      * @param ContactMailer $contactMailer
      * @param PushService   $pushService
+     * @param mixed         $user
+     * @param mixed         $invoice
+     * @param mixed         $type
+     * @param mixed         $payment
      */
     public function __construct($user, $invoice, $type, $payment)
     {

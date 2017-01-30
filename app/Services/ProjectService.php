@@ -43,6 +43,7 @@ class ProjectService extends BaseService
 
     /**
      * @param $data
+     * @param mixed $project
      *
      * @return mixed|null
      */
@@ -58,6 +59,7 @@ class ProjectService extends BaseService
     /**
      * @param $clientPublicId
      * @param $search
+     * @param mixed $userId
      *
      * @return \Illuminate\Http\JsonResponse
      */

@@ -7,7 +7,8 @@ use App\Models\User;
 class VendorPolicy extends EntityPolicy
 {
     /**
-     * @param User $user
+     * @param User  $user
+     * @param mixed $item
      *
      * @return bool
      */

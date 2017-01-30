@@ -26,6 +26,7 @@ class InvoiceInvitationWasEmailed extends Event
      * Create a new event instance.
      *
      * @param Invitation $invitation
+     * @param mixed      $notes
      */
     public function __construct(Invitation $invitation, $notes)
     {

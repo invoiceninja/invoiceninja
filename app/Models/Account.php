@@ -492,8 +492,9 @@ class Account extends Eloquent
 
     /**
      * @param $amount
-     * @param null $client
-     * @param bool $hideSymbol
+     * @param null  $client
+     * @param bool  $hideSymbol
+     * @param mixed $decorator
      *
      * @return string
      */

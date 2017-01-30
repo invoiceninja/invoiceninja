@@ -16,6 +16,9 @@ class DashboardRepository
      * @param $groupBy
      * @param $startDate
      * @param $endDate
+     * @param mixed $account
+     * @param mixed $currencyId
+     * @param mixed $includeExpenses
      *
      * @return array
      */

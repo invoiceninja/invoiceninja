@@ -148,6 +148,10 @@ class parseCSV
      * Constructor.
      *
      * @param   input   CSV file or string
+     * @param null|mixed $input
+     * @param null|mixed $offset
+     * @param null|mixed $limit
+     * @param null|mixed $conditions
      *
      * @return nothing
      */
@@ -175,6 +179,10 @@ class parseCSV
      * Parse CSV file or string.
      *
      * @param   input   CSV file or string
+     * @param null|mixed $input
+     * @param null|mixed $offset
+     * @param null|mixed $limit
+     * @param null|mixed $conditions
      *
      * @return nothing
      */
@@ -211,6 +219,10 @@ class parseCSV
      * @param   data     2D array with data
      * @param   append   append current data to end of target CSV if exists
      * @param   fields   field names
+     * @param null|mixed $file
+     * @param mixed      $data
+     * @param mixed      $append
+     * @param mixed      $fields
      *
      * @return true or false
      */
@@ -233,6 +245,11 @@ class parseCSV
      * @param   data        2D array with data
      * @param   fields      field names
      * @param   delimiter   delimiter used to separate data
+     * @param mixed      $output
+     * @param null|mixed $filename
+     * @param mixed      $data
+     * @param mixed      $fields
+     * @param null|mixed $delimiter
      *
      * @return CSV data using delimiter of choice, or default
      */
@@ -259,6 +276,8 @@ class parseCSV
      *
      * @param   input    input character encoding, uses default if left blank
      * @param   output   output character encoding, uses default if left blank
+     * @param null|mixed $input
+     * @param null|mixed $output
      *
      * @return nothing
      */
@@ -282,6 +301,11 @@ class parseCSV
      * @param   search_depth   number of rows to analyze
      * @param   preferred      preferred delimiter characters
      * @param   enclosure      enclosure character, default is double quote (").
+     * @param null|mixed $file
+     * @param mixed      $parse
+     * @param null|mixed $search_depth
+     * @param null|mixed $preferred
+     * @param null|mixed $enclosure
      *
      * @return delimiter character
      */
@@ -382,6 +406,7 @@ class parseCSV
      * Read file to string and call parse_string().
      *
      * @param   file   local CSV file
+     * @param null|mixed $file
      *
      * @return 2D array with CSV data, or false on failure
      */
@@ -401,6 +426,7 @@ class parseCSV
      * Parse CSV strings to arrays.
      *
      * @param   data   CSV string
+     * @param null|mixed $data
      *
      * @return 2D array with CSV data, or false on failure
      */
@@ -506,6 +532,11 @@ class parseCSV
      * @param   is_php      if a php die() call should be put on the first
      *                      line of the file, this is later ignored when read.
      * @param   delimiter   field delimiter to use
+     * @param mixed      $data
+     * @param mixed      $fields
+     * @param mixed      $append
+     * @param mixed      $is_php
+     * @param null|mixed $delimiter
      *
      * @return CSV data (text string)
      */
@@ -549,6 +580,7 @@ class parseCSV
      * Load local file or string.
      *
      * @param   input   local CSV file
+     * @param null|mixed $input
      *
      * @return true or false
      */
@@ -593,6 +625,8 @@ class parseCSV
      *
      * @param   row          array with values from a row
      * @param   conditions   specified conditions that the row must match
+     * @param mixed      $row
+     * @param null|mixed $conditions
      *
      * @return true of false
      */
@@ -629,6 +663,8 @@ class parseCSV
      *
      * @param   row          array with values from a row
      * @param   condition   specified condition that the row must match
+     * @param mixed $row
+     * @param mixed $condition
      *
      * @return true of false
      */
@@ -692,6 +728,7 @@ class parseCSV
      * Validates if the row is within the offset or not if sorting is disabled.
      *
      * @param   current_row   the current row number being processed
+     * @param mixed $current_row
      *
      * @return true of false
      */
@@ -709,6 +746,7 @@ class parseCSV
      *  - only used by unparse().
      *
      * @param   value   string to process
+     * @param null|mixed $value
      *
      * @return Processed value
      */
@@ -730,6 +768,7 @@ class parseCSV
      * Check file data.
      *
      * @param   file   local filename
+     * @param null|mixed $file
      *
      * @return true or false
      */
@@ -751,6 +790,10 @@ class parseCSV
      *  - only used by find_delimiter().
      *
      * @return special string used for delimiter selection, or false
+     * @param  mixed   $char
+     * @param  mixed   $array
+     * @param  mixed   $depth
+     * @param  mixed   $preferred
      */
     public function _check_count($char, $array, $depth, $preferred)
     {
@@ -786,6 +829,7 @@ class parseCSV
      * Read local file.
      *
      * @param   file   local filename
+     * @param null|mixed $file
      *
      * @return Data from file, or false on failure
      */
@@ -811,6 +855,10 @@ class parseCSV
      * @param   string   data to write to file
      * @param   mode     fopen() mode
      * @param   lock     flock() mode
+     * @param mixed $file
+     * @param mixed $string
+     * @param mixed $mode
+     * @param mixed $lock
      *
      * @return true or false
      */

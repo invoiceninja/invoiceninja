@@ -342,6 +342,7 @@ class User extends Authenticatable
      *
      * @param mixed $permission Either a single permission or an array of possible permissions
      * @param bool True to require all permissions, false to require only one
+     * @param mixed $requireAll
      *
      * @return bool
      */

@@ -454,7 +454,8 @@ class InvoiceController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param int $id
+     * @param int   $id
+     * @param mixed $publicId
      *
      * @return Response
      */
@@ -468,7 +469,8 @@ class InvoiceController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param int $id
+     * @param int   $id
+     * @param mixed $entityType
      *
      * @return Response
      */

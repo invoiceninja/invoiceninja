@@ -44,6 +44,7 @@ class CreditService extends BaseService
 
     /**
      * @param $data
+     * @param null|mixed $credit
      *
      * @return mixed|null
      */

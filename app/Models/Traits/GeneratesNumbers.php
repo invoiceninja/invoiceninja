@@ -117,6 +117,7 @@ trait GeneratesNumbers
 
     /**
      * @param $entityType
+     * @param mixed $invoice
      *
      * @return string
      */
@@ -129,6 +130,7 @@ trait GeneratesNumbers
 
     /**
      * @param $entity
+     * @param mixed $counter
      *
      * @return bool|mixed
      */

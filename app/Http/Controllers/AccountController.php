@@ -248,6 +248,7 @@ class AccountController extends BaseController
     /**
      * @param $entityType
      * @param $visible
+     * @param mixed $filter
      *
      * @return mixed
      */

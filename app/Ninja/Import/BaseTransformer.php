@@ -146,6 +146,8 @@ class BaseTransformer extends TransformerAbstract
     /**
      * @param $date
      * @param string $format
+     * @param mixed  $data
+     * @param mixed  $field
      *
      * @return null
      */

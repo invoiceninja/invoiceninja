@@ -37,6 +37,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @param Invoice $invoice
      * @param string  $pdf
      * @param bool    $reminder
+     * @param mixed   $pdfString
      */
     public function __construct(Invoice $invoice, $reminder = false, $pdfString = false)
     {

@@ -124,6 +124,7 @@ class ClientApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
+     * @param mixed $publicId
      */
     public function update(UpdateClientRequest $request, $publicId)
     {

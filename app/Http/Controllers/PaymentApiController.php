@@ -71,6 +71,7 @@ class PaymentApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
+     * @param mixed $publicId
      */
     public function update(UpdatePaymentRequest $request, $publicId)
     {

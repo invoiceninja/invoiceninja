@@ -842,6 +842,7 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param $clientId
+     * @param mixed $entityType
      *
      * @return mixed
      */

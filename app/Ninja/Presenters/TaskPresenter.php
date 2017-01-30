@@ -35,6 +35,7 @@ class TaskPresenter extends EntityPresenter
 
     /**
      * @param $account
+     * @param mixed $showProject
      *
      * @return mixed
      */

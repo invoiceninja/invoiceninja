@@ -45,6 +45,7 @@ class PushFactory
      *
      * @param $token - device token
      * @param $message - user specific message
+     * @param mixed $device
      *
      * @return void
      */

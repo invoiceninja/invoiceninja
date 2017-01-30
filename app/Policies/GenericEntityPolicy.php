@@ -35,6 +35,7 @@ class GenericEntityPolicy
      * @param User $user
      * @param $entityTypee
      * @param $ownerUserId
+     * @param mixed $entityType
      *
      * @return bool|mixed
      */

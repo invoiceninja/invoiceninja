@@ -107,6 +107,7 @@ class ProductApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
+     * @param mixed $publicId
      */
     public function update(UpdateProductRequest $request, $publicId)
     {

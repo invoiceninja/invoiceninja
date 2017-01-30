@@ -325,6 +325,7 @@ class InvoiceApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
+     * @param mixed $publicId
      */
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {

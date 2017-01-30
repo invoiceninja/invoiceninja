@@ -10,7 +10,8 @@ use App\Models\User;
 class DocumentPolicy extends EntityPolicy
 {
     /**
-     * @param User $user
+     * @param User  $user
+     * @param mixed $item
      *
      * @return bool
      */

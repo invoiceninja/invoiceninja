@@ -466,7 +466,8 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @param bool $notify
+     * @param bool  $notify
+     * @param mixed $reminder
      */
     public function markInvitationsSent($notify = false, $reminder = false)
     {
@@ -496,8 +497,9 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     /**
      * @param $invitation
-     * @param bool $messageId
-     * @param bool $notify
+     * @param bool  $messageId
+     * @param bool  $notify
+     * @param mixed $notes
      */
     public function markInvitationSent($invitation, $messageId = false, $notify = true, $notes = false)
     {

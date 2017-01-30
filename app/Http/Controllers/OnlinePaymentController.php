@@ -60,8 +60,9 @@ class OnlinePaymentController extends BaseController
 
     /**
      * @param $invitationKey
-     * @param bool $gatewayType
-     * @param bool $sourceId
+     * @param bool  $gatewayType
+     * @param bool  $sourceId
+     * @param mixed $gatewayTypeAlias
      *
      * @return \Illuminate\Http\RedirectResponse
      */
