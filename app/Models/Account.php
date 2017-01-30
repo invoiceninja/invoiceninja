@@ -1726,11 +1726,26 @@ class Account extends Eloquent
         return $this->enable_email_markup;
     }
 
-    public function defaultDueDate()
+    public function defaultDaysDue($client = false)
     {
-        $numDays = $this->payment_terms == -1 ? 0 : $this->payment_terms;
+        if ($client && $client->payment_terms != 0) {
+            return $client->defaultDaysDue();
+        }
 
-        return Carbon::now($this->getTimezone())->addDays($numDays)->format('Y-m-d');
+        return $this->payment_terms == -1 ? 0 : $this->payment_terms;
+    }
+
+    public function defaultDueDate($client = false)
+    {
+        if ($client && $client->payment_terms != 0) {
+            $numDays = $client->defaultDaysDue();
+        } elseif ($this->payment_terms != 0) {
+            $numDays = $this->defaultDaysDue();
+        } else {
+            return null;
+        }
+
+        return Carbon::now()->addDays($numDays)->format('Y-m-d');
     }
 
     public function hasMultipleAccounts()

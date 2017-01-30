@@ -531,6 +531,11 @@ class Client extends EntityModel
     public function hasAutoBillConfigurableInvoices(){
         return $this->invoices()->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
     }
+
+    public function defaultDaysDue()
+    {
+        return $this->payment_terms == -1 ? 0 : $this->payment_terms;
+    }
 }
 
 Client::creating(function ($client) {

@@ -5,6 +5,7 @@ use DB;
 use Utils;
 use Auth;
 use Carbon;
+use App\Models\Client;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
@@ -308,8 +309,11 @@ class InvoiceRepository extends BaseRepository
             if (isset($data['has_expenses']) && filter_var($data['has_expenses'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_expenses = true;
             }
-            if ($account->payment_terms != 0) {
-               $invoice->due_date = $account->defaultDueDate();
+
+            // set the default due date
+            if ($entityType == ENTITY_INVOICE) {
+                $client = Client::scope()->whereId($data['client_id'])->first();
+                $invoice->due_date = $account->defaultDueDate($client);
             }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
@@ -667,6 +671,7 @@ class InvoiceRepository extends BaseRepository
         }
         $clone->invoice_number = $invoiceNumber ?: $account->getNextNumber($clone);
         $clone->invoice_date = Utils::today(false)->format('Y-m-d');
+        $clone->due_date = $account->defaultDueDate($invoice->client);
 
         foreach ([
           'client_id',
