@@ -151,6 +151,7 @@ class UserController extends BaseController
 
     /**
      * Stores new account.
+     *
      * @param mixed $userPublicId
      */
     public function save($userPublicId = false)

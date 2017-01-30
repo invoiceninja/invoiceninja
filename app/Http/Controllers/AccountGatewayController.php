@@ -166,6 +166,7 @@ class AccountGatewayController extends BaseController
 
     /**
      * Stores new account.
+     *
      * @param mixed $accountGatewayPublicId
      */
     public function save($accountGatewayPublicId = false)

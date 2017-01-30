@@ -28,6 +28,7 @@ return PhpCsFixer\Config::create()
         'hash_to_slash_comment' => true,
         'heredoc_to_nowdoc' => true,
         'include' => true,
+        'linebreak_after_opening_tag' => true,
         'lowercase_cast' => true,
         'lowercase_constants' => true,
         'lowercase_keywords' => true,

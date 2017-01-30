@@ -789,11 +789,12 @@ class parseCSV
      * Check if passed info might be delimiter
      *  - only used by find_delimiter().
      *
+     * @param mixed $char
+     * @param mixed $array
+     * @param mixed $depth
+     * @param mixed $preferred
+     *
      * @return special string used for delimiter selection, or false
-     * @param  mixed   $char
-     * @param  mixed   $array
-     * @param  mixed   $depth
-     * @param  mixed   $preferred
      */
     public function _check_count($char, $array, $depth, $preferred)
     {
