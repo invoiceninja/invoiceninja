@@ -29,7 +29,7 @@ class EntityPresenter extends Presenter
         return $this->url() . '/edit';
     }
 
-    public function statusLabel()
+    public function statusLabel($label = false)
     {
         $class = $text = '';
 
@@ -41,7 +41,7 @@ class EntityPresenter extends Presenter
             $label = trans('texts.archived');
         } else {
             $class = $this->entity->statusClass();
-            $label = $this->entity->statusLabel();
+            $label = $label ?: $this->entity->statusLabel();
         }
 
         return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";

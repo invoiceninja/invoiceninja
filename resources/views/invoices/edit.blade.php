@@ -51,7 +51,11 @@
 			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
 			<li class="active">{{ $invoice->invoice_number }}</li>
 		@endif
-		{!! $invoice->present()->statusLabel !!}
+		@if ($invoice->is_recurring && $invoice->isSent() && (! $invoice->last_sent_date || $invoice->last_sent_date == '0000-00-00'))
+			{!! $invoice->present()->statusLabel(trans('texts.active')) !!}
+		@else
+			{!! $invoice->present()->statusLabel !!}
+		@endif
 		</ol>
 	@endif
 
@@ -559,7 +563,7 @@
 						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 					@else
 						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'draftButton', 'onclick' => 'onSaveDraftClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-						{!! Button::success(trans("texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
+						{!! Button::success(trans($invoice->is_recurring ? "texts.mark_active" : "texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
 					@endif
         		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
                     @if (!$invoice->trashed())
@@ -1246,13 +1250,16 @@
         var invoice = model.invoice();
         if (invoice.is_recurring()) {
             var recurring = false;
-            var label = "{{ trans('texts.enable_recurring')}}";
+            var enableLabel = "{{ trans('texts.enable_recurring')}}";
+			var actionLabel = "{{ trans('texts.mark_sent') }}";
         } else {
             var recurring = true;
-            var label = "{{ trans('texts.disable_recurring')}}";
+            var enableLabel = "{{ trans('texts.disable_recurring')}}";
+			var actionLabel = "{{ trans('texts.mark_active') }}";
         }
         invoice.is_recurring(recurring);
-        $('#recurrButton').html(label + "<span class='glyphicon glyphicon-repeat'></span>");
+        $('#recurrButton').html(enableLabel + "<span class='glyphicon glyphicon-repeat'></span>");
+		$('#saveButton').html(actionLabel + "<span class='glyphicon glyphicon-globe'></span>");
     }
 
 	function onEmailClick() {
