@@ -225,6 +225,12 @@
   }
 
   $(function() {
+    // auto-logout after 8 hours
+    window.setTimeout(function() {
+        window.location = '{{ URL::to('/logout?reason=inactivity') }}';
+    }, 1000 * 60 * 60 * 8);
+
+    // auto-hide status alerts
     window.setTimeout(function() {
         $(".alert-hide").fadeOut();
     }, 3000);

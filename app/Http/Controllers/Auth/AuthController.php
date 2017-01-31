@@ -186,6 +186,10 @@ class AuthController extends Controller
 
         Session::flush();
 
+        if ($reason = request()->reason) {
+            Session::flash('warning', trans("texts.{$reason}_logout"));
+        }
+
         return $response;
     }
 }
