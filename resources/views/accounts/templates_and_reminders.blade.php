@@ -148,7 +148,7 @@
                             <li>$customInvoice1</li>
                         @endif
                         @if ($account->custom_invoice_text_label2)
-                            <li>$customInvoice1</li>
+                            <li>$customInvoice2</li>
                         @endif
                         @if (count($account->account_gateways) > 0)
                             @foreach (\App\Models\Gateway::$gatewayTypes as $type)
