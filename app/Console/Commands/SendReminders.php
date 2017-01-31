@@ -32,7 +32,7 @@ class SendReminders extends Command
      * @var InvoiceRepository
      */
     protected $invoiceRepo;
-    
+
     /**
      * @var accountRepository
      */
@@ -80,6 +80,14 @@ class SendReminders extends Command
         }
 
         $this->info('Done');
+
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw('EOM', function ($message) use ($errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('SendReminders: Finished successfully');
+            });
+        }
     }
 
     /**
