@@ -1174,7 +1174,7 @@
             }
         }
 
-        @if (!$invoice->id)
+        @if (!$invoice->id || $invoice->is_recurring)
             if (!invoice.terms) {
                 invoice.terms = account['{{ $entityType }}_terms'];
             }
