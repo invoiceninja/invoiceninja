@@ -141,7 +141,7 @@
                 <p><i class="fa fa-language" style="width: 20px"></i>{{ $client->language->name }}</p>
             @endif
 
-		  	<p>{{ $client->payment_terms ? trans('texts.payment_terms') . ": Net " . $client->payment_terms : '' }}</p>
+            <p>{{ $client->present()->paymentTerms }}</p>
 		</div>
 
 		<div class="col-md-3">

@@ -24,4 +24,15 @@ class ClientPresenter extends EntityPresenter
 
         return $account->formatMoney($client->paid_to_date, $client);
     }
+
+    public function paymentTerms()
+    {
+        $client = $this->entity;
+
+        if (! $client->payment_terms) {
+            return '';
+        }
+
+        return sprintf('%s: %s %s', trans('texts.payment_terms'), trans('texts.payment_terms_net'), $client->defaultDaysDue());
+    }
 }
