@@ -610,7 +610,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public static function calcStatusClass($statusId, $balance, $dueDate)
     {
-        if (static::calcIsOverdue($balance, $dueDate)) {
+        if ($statusId >= INVOICE_STATUS_SENT && static::calcIsOverdue($balance, $dueDate)) {
             return 'danger';
         }
 
