@@ -486,17 +486,25 @@ NINJA.invoiceLines = function(invoice) {
 }
 
 NINJA.invoiceDocuments = function(invoice) {
-    if(!invoice.account.invoice_embed_documents)return[];
+    if (!invoice.account.invoice_embed_documents) {
+        return [];
+    }
+
     var stack = [];
     var stackItem = null;
 
-    var j = 0;
-    for (var i = 0; i < invoice.documents.length; i++)addDoc(invoice.documents[i]);
+    if (invoice.documents) {
+        for (var i = 0; i < invoice.documents.length; i++) {
+            addDoc(invoice.documents[i]);
+        }
+    }
 
-    if(invoice.expenses){
+    if (invoice.expenses) {
         for (var i = 0; i < invoice.expenses.length; i++) {
             var expense = invoice.expenses[i];
-            for (var j = 0; j < expense.documents.length; j++)addDoc(expense.documents[j]);
+            for (var j = 0; j < expense.documents.length; j++) {
+                addDoc(expense.documents[j]);
+            }
         }
     }
 
