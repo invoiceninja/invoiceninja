@@ -980,6 +980,7 @@ class InvoiceRepository extends BaseRepository
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)
+                    ->whereIsPublic(true)
                     ->whereRaw('('.$sql.')')
                     ->get();
 
