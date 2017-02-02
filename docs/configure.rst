@@ -6,7 +6,7 @@ Review the `.env.example <https://github.com/invoiceninja/invoiceninja/blob/mast
 Recurring invoices and reminder emails
 """"""""""""""""""""""""""""""""""""""
 
-Create a cron to call the ninja:send-invoices and ninja:send-reminders Artisan commands once daily.
+Create a cron to call the ``ninja:send-invoices`` and ``ninja:send-reminders`` Artisan commands **once daily**.
 
 .. code-block:: shell
 
@@ -16,9 +16,9 @@ Create a cron to call the ninja:send-invoices and ninja:send-reminders Artisan c
 Email Queues
 """"""""""""
 
-Add `QUEUE_DRIVER=database` or `QUEUE_DRIVER=redis` to the .env file to enable email queues.
+When sending an email in the app the default behavior is to wait for the response, you can use queues to improve the perceived performance. To enable the feature add ``QUEUE_DRIVER=database`` or ``QUEUE_DRIVER=redis`` to the .env file.
 
-If you select `database` you can process the jobs by running `php artisan queue:listen`.
+.. Note:: If you select ``database`` you can process the jobs by running ``php artisan queue:listen``.
 
 Postmark bounce and open notifications
 """"""""""""""""""""""""""""""""""""""
