@@ -1804,6 +1804,18 @@ class Account extends Eloquent
     {
         return $this->company->accounts->count() > 1;
     }
+
+    public function financialYearStart()
+    {
+        $yearStart = Carbon::parse($this->financial_year_start);
+        $yearStart->year = date('Y');
+
+        if ($yearStart->isFuture()) {
+            $yearStart->subYear();
+        }
+
+        return $yearStart->format('Y-m-d');
+    }
 }
 
 Account::updated(function ($account) {
