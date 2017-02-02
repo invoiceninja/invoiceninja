@@ -841,12 +841,9 @@ class AccountController extends BaseController
             foreach ([REMINDER1, REMINDER2, REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
                 $account->$enableField = Input::get($enableField) ? true : false;
-
-                if ($account->$enableField) {
-                    $account->{"num_days_{$type}"} = Input::get("num_days_{$type}");
-                    $account->{"field_{$type}"} = Input::get("field_{$type}");
-                    $account->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
-                }
+                $account->{"num_days_{$type}"} = Input::get("num_days_{$type}");
+                $account->{"field_{$type}"} = Input::get("field_{$type}");
+                $account->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
             }
 
             $account->save();

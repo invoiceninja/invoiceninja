@@ -245,7 +245,6 @@
         function enableReminder(id) {
             var checked = $('#enable_reminder' + id).is(':checked');
             $('.enable-reminder' + id).attr('disabled', !checked)
-            editors['reminder' + id].editor.enable(checked);
         }
 
         function setDirectionShown(field) {

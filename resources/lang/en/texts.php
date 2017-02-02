@@ -864,8 +864,8 @@ $LANG = array(
     'created_invoices' => 'Successfully created :count invoice(s)',
     'next_invoice_number' => 'The next invoice number is :number.',
     'next_quote_number' => 'The next quote number is :number.',
-    'days_before' => 'days before',
-    'days_after' => 'days after',
+    'days_before' => 'days before the',
+    'days_after' => 'days after the',
     'field_due_date' => 'due date',
     'field_invoice_date' => 'invoice date',
     'schedule' => 'Schedule',
@@ -2346,6 +2346,7 @@ $LANG = array(
     'statement_date' => 'Statement Date',
     'inactivity_logout' => 'Due to inactivity, you have been automatically logged out.',
     'mark_active' => 'Mark Active',
+    'send_automatically' => 'Send Automatically',
 
 );
 
