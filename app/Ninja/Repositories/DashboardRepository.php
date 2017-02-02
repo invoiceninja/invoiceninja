@@ -7,7 +7,6 @@ use App\Models\Invoice;
 use App\Models\Task;
 use DateInterval;
 use DatePeriod;
-use Carbon;
 
 class DashboardRepository
 {
@@ -206,12 +205,7 @@ class DashboardRepository
         if ($startDate) {
             $paidToDate->where('payments.payment_date', '>=', $startDate);
         } elseif ($account->financial_year_start) {
-            $yearStart = Carbon::parse($account->financial_year_start);
-            $yearStart->year = date('Y');
-            if ($yearStart->isFuture()) {
-                $yearStart->subYear();
-            }
-            $paidToDate->where('payments.payment_date', '>=', $yearStart->format('Y-m-d'));
+            $paidToDate->where('payments.payment_date', '>=', $account->financialYearStart());
         }
 
         return $paidToDate->groupBy('payments.account_id')
@@ -241,8 +235,7 @@ class DashboardRepository
         }
 
         if ($account->financial_year_start) {
-            $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
-            $averageInvoice->where('invoices.invoice_date', '>=', $yearStart);
+            $averageInvoice->where('invoices.invoice_date', '>=', $account->financialYearStart());
         }
 
         return $averageInvoice->groupBy('accounts.id')

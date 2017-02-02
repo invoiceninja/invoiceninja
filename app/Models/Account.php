@@ -1732,6 +1732,18 @@ class Account extends Eloquent
 
         return Carbon::now($this->getTimezone())->addDays($numDays)->format('Y-m-d');
     }
+
+    public function financialYearStart()
+    {
+        $yearStart = Carbon::parse($this->financial_year_start);
+        $yearStart->year = date('Y');
+
+        if ($yearStart->isFuture()) {
+            $yearStart->subYear();
+        }
+
+        return $yearStart->format('Y-m-d');
+    }
 }
 
 Account::updated(function ($account)
