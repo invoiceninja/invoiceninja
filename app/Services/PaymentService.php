@@ -95,6 +95,10 @@ class PaymentService extends BaseService
 
         $paymentMethod = $customer->default_payment_method;
 
+        if (! $paymentMethod) {
+            return false;
+        }
+
         if ($paymentMethod->requiresDelayedAutoBill()) {
             $invoiceDate = \DateTime::createFromFormat('Y-m-d', $invoice->invoice_date);
             $minDueDate = clone $invoiceDate;
