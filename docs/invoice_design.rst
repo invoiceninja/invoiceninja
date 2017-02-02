@@ -25,19 +25,19 @@ Design Invoice Ninja provides a selection of design templates to choose from. Ex
 .. TIP:: The invoice design templates are based on a two-tone color scheme. Make sure to select primary and secondary colors that are complementary and reflect your design taste and your company's design theme.
 
 Invoice Labels
-^^^^^^^^^^^^^^
+""""""""""""""
 
 Want to change the column names or terms on your invoice template? To customize the names of the Item, Description, Unit Cost, Quantity, Line Total and Terms on your invoice, enter the desired text in the relevant field.
 
 Invoice Options
-^^^^^^^^^^^^^^^
+"""""""""""""""
 
 Hide Quantity If your line items are always 1, then you can opt to hide the Quantity field. To hide Quantity, check the box.
 
 Hide Paid to Date If you wish to hide the Paid to Date column until payment has been made, check the box. Then, your invoices won't ever display 'Paid to Date 0.00'.
 
 Header/Footer
-^^^^^^^^^^^^^
+"""""""""""""
 
 Want your header and footer to appear on all pages of the invoice, or the first page only? Select the desired setting here.
 
