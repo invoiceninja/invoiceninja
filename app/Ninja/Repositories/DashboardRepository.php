@@ -210,8 +210,12 @@ class DashboardRepository
         if ($startDate) {
             $paidToDate->where('payments.payment_date', '>=', $startDate);
         } elseif ($account->financial_year_start) {
-            $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
-            $paidToDate->where('payments.payment_date', '>=', $yearStart);
+            $yearStart = Carbon::parse($account->financial_year_start);
+            $yearStart->year = date('Y');
+            if ($yearStart->isFuture()) {
+                $yearStart->subYear();
+            }
+            $paidToDate->where('payments.payment_date', '>=', $yearStart->format('Y-m-d'));
         }
 
         return $paidToDate->groupBy('payments.account_id')
