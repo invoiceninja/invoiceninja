@@ -411,10 +411,13 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, false, $pdfUpload);
-            $response = true;
-            //$this->dispatch(new SendInvoiceEmail($invoice, false, $pdfUpload));
-            //return true;
+            // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
+            if (config('queue.default') === 'sync') {
+                $response = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, false, $pdfUpload);
+            } else {
+                $this->dispatch(new SendInvoiceEmail($invoice, false, $pdfUpload));
+                $response = true;
+            }
         }
 
         if ($response === true) {
@@ -445,9 +448,13 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            return app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
-            //$this->dispatch(new SendInvoiceEmail($invoice));
-            //return true;
+            // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
+            if (config('queue.default') === 'sync') {
+                return app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+            } else {
+                $this->dispatch(new SendInvoiceEmail($invoice));
+                return true;
+            }
         }
     }
 
