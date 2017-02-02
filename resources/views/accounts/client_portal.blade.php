@@ -236,12 +236,12 @@
                                 ->inlineHelp('buy_now_buttons_warning')
                                 ->addGroupClass('product-select') !!}
 
-                            {!! Former::checkboxes('client_fields')
+                            {!! Former::inline_checkboxes('client_fields')
                                     ->onchange('updateBuyNowButtons()')
                                     ->checkboxes([
+                                        trans('texts.email') => ['value' => 'email', 'name' => 'email'],
                                         trans('texts.first_name') => ['value' => 'first_name', 'name' => 'first_name'],
                                         trans('texts.last_name') => ['value' => 'last_name', 'name' => 'last_name'],
-                                        trans('texts.email') => ['value' => 'email', 'name' => 'email'],
                                     ]) !!}
 
                             {!! Former::inline_radios('landing_page')
@@ -273,9 +273,11 @@
 
                                 {!! Former::select('frequency_id')
                                         ->options(\App\Models\Frequency::selectOptions())
+                                        ->onchange('updateBuyNowButtons()')
                                         ->value(FREQUENCY_MONTHLY) !!}
 
                                 {!! Former::select('auto_bill')
+                                        ->onchange('updateBuyNowButtons()')
                                         ->options([
                                             AUTO_BILL_OFF => trans('texts.off'),
                                             AUTO_BILL_OPT_IN => trans('texts.opt_in'),
@@ -407,7 +409,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
         var landingPage = $('input[name=landing_page_type]:checked').val()
         var paymentType = (landingPage == 'payment') ? '/' + $('#payment_type').val() : '/';
         var redirectUrl = $('#redirect_url').val();
-        var isRecurring = $('#is_recurring').val();
+        var isRecurring = $('input[name=is_recurring]:checked').val()
         var frequencyId = $('#frequency_id').val();
         var autoBillId = $('#auto_bill').val();
 
