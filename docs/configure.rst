@@ -13,6 +13,13 @@ Create a cron to call the ninja:send-invoices and ninja:send-reminders Artisan c
    0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-invoices
    0 8 * * * /usr/local/bin/php /path/to/ninja/artisan ninja:send-reminders
 
+Email Queues
+""""""""""""
+
+Add `QUEUE_DRIVER=database` or `QUEUE_DRIVER=redis` to the .env file to enable email queues.
+
+If you select `database` you can process the jobs by running `php artisan queue:listen`.
+
 Postmark bounce and open notifications
 """"""""""""""""""""""""""""""""""""""
 
