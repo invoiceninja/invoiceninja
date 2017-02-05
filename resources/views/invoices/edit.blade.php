@@ -1307,11 +1307,11 @@
 		}
 	}
 
-	@if (Utils::isNinjaDev())
-		$(function() {
-			onEmailClick();
-		})
-	@endif
+	/*
+	$(function() {
+		onEmailClick();
+	})
+	*/
 
 	function onSaveDraftClick() {
 		model.invoice().is_public(false);
