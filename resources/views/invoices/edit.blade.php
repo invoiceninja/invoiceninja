@@ -799,6 +799,7 @@
 	  </div>
 	</div>
 
+	@include('partials.email_templates')
 	@include('invoices.email')
 
     {!! Former::close() !!}
@@ -1286,8 +1287,7 @@
             return;
         }
 
-		$('#recipients').html(getSendToEmails());
-		$('#emailModal').modal('show');
+		showEmailModal();
 	}
 
 	function onConfirmEmailClick() {
@@ -1307,11 +1307,9 @@
 		}
 	}
 
-	/*
 	$(function() {
-		onEmailClick();
+		//onEmailClick();
 	})
-	*/
 
 	function onSaveDraftClick() {
 		model.invoice().is_public(false);

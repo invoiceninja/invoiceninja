@@ -33,6 +33,7 @@
                             ) !!}
                 </div>
             </div>
+            <br/>
         @endif
         <div class="row">
             <div class="col-md-6">

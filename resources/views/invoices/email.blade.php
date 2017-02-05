@@ -14,8 +14,9 @@
                         ->value('') !!}
 
                 {!! Former::select('template')
+                        ->onchange('refreshPreview()')
                         ->options([
-                            'initial' => trans('texts.initial_email'),
+                            $invoice->getEntityType() => trans('texts.initial_email'),
                             'reminder1' => trans('texts.first_reminder'),
                             'reminder2' => trans('texts.second_reminder'),
                             'reminder3' => trans('texts.third_reminder'),
@@ -36,8 +37,10 @@
                     </ul>
                 </div>
                 <div class="tab-content">
-                    <div role="tabpanel" class="tab-pane active" id="preview">
+                    <div role="tabpanel" class="tab-pane well active" id="preview">
+                        <br/>
                         <div id="emailSubject"></div>
+                        <br/>
                         <div id="emailBody"></div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="customize">
@@ -75,7 +78,6 @@
                         @endif
                     </div>
                 </div>
-
             </div>
             </div>
 
@@ -89,5 +91,35 @@
 </div>
 
 <script type="text/javascript">
+
+    var emailSubjects = [];
+    emailSubjects['{{ $invoice->getEntityType() }}'] = "{{ $account->getEmailSubject($invoice->getEntityType()) }}";
+    emailSubjects['reminder1'] = "{{ $account->getEmailSubject('reminder1') }}";
+    emailSubjects['reminder2'] = "{{ $account->getEmailSubject('reminder2') }}";
+    emailSubjects['reminder3'] = "{{ $account->getEmailSubject('reminder3') }}";
+
+    var emailTemplates = [];
+    emailTemplates['{{ $invoice->getEntityType() }}'] = "{{ $account->getEmailTemplate($invoice->getEntityType()) }}";
+    emailTemplates['reminder1'] = "{{ $account->getEmailTemplate('reminder1') }}";
+    emailTemplates['reminder2'] = "{{ $account->getEmailTemplate('reminder2') }}";
+    emailTemplates['reminder3'] = "{{ $account->getEmailTemplate('reminder3') }}";
+
+    function showEmailModal() {
+        refreshPreview();
+        $('#recipients').html(getSendToEmails());
+		$('#emailModal').modal('show');
+    }
+
+    function refreshPreview() {
+        var invoice = createInvoiceModel();
+        var template = dencodeEntities(emailSubjects[$('#template').val()]);
+        $('#emailSubject').html('<b>' + renderEmailTemplate(template, invoice) + '</b>');
+        var template = dencodeEntities(emailTemplates[$('#template').val()]);
+        $('#emailBody').html(renderEmailTemplate(template, invoice));
+    }
+
+    function dencodeEntities(s){
+		return $("<div/>").html(s).text();
+	}
 
 </script>

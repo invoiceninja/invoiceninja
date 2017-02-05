@@ -15,31 +15,6 @@ use Utils;
 class ContactMailer extends Mailer
 {
     /**
-     * @var array
-     */
-    public static $variableFields = [
-        'footer',
-        'account',
-        'dueDate',
-        'invoiceDate',
-        'client',
-        'amount',
-        'contact',
-        'firstName',
-        'invoice',
-        'quote',
-        'password',
-        'documents',
-        'viewLink',
-        'viewButton',
-        'paymentLink',
-        'paymentButton',
-        'autoBill',
-        'portalLink',
-        'portalButton',
-    ];
-
-    /**
      * @var TemplateService
      */
     protected $templateService;

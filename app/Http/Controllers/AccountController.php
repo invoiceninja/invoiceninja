@@ -699,7 +699,6 @@ class AccountController extends BaseController
                 'template' => $account->getDefaultEmailTemplate($type),
             ];
         }
-        $data['emailFooter'] = $account->getEmailFooter();
         $data['title'] = trans('texts.email_templates');
 
         return View::make('accounts.templates_and_reminders', $data);
