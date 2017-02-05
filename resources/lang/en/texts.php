@@ -494,7 +494,7 @@ $LANG = array(
     'email_address' => 'Email address',
     'lets_go' => 'Let\'s go',
     'password_recovery' => 'Password Recovery',
-    'send_email' => 'Send email',
+    'send_email' => 'Send Email',
     'set_password' => 'Set Password',
     'converted' => 'Converted',
     'email_approved' => 'Email me when a quote is <b>approved</b>',
@@ -2347,6 +2347,13 @@ $LANG = array(
     'inactivity_logout' => 'Due to inactivity, you have been automatically logged out.',
     'mark_active' => 'Mark Active',
     'send_automatically' => 'Send Automatically',
+    'template' => 'Template',
+    'initial_email' => 'Initial Email',
+    'invoice_not_emailed' => 'This invoice hasn\'t been emailed.',
+    'quote_not_emailed' => 'This quote hasn\'t been emailed.',
+    'days_ago' => ':count day ago|:count days ago',
+    'sent_by' => 'Sent by :user',
+    'recipients' => 'Recipients',
 
 );
 

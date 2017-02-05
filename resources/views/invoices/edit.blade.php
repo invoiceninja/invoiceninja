@@ -799,6 +799,8 @@
 	  </div>
 	</div>
 
+	@include('invoices.email')
+
     {!! Former::close() !!}
     </form>
 
@@ -1284,23 +1286,32 @@
             return;
         }
 
-		sweetConfirm(function() {
-			model.invoice().is_public(true);
-            var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
-            var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
-            var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
-
-            // if they aren't attaching the pdf no need to generate it
-            if ( ! attachPDF) {
-                submitAction('email');
-            // if the client's language is different then we can't use the browser version of the PDF
-            } else if (clientLanguageId && clientLanguageId != accountLanguageId) {
-                submitAction('email');
-            } else {
-                preparePdfData('email');
-            }
-		}, getSendToEmails());
+		$('#recipients').html(getSendToEmails());
+		$('#emailModal').modal('show');
 	}
+
+	function onConfirmEmailClick() {
+		model.invoice().is_public(true);
+		var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
+		var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
+		var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
+
+		// if they aren't attaching the pdf no need to generate it
+		if ( ! attachPDF) {
+			submitAction('email');
+		// if the client's language is different then we can't use the browser version of the PDF
+		} else if (clientLanguageId && clientLanguageId != accountLanguageId) {
+			submitAction('email');
+		} else {
+			preparePdfData('email');
+		}
+	}
+
+	@if (Utils::isNinjaDev())
+		$(function() {
+			onEmailClick();
+		})
+	@endif
 
 	function onSaveDraftClick() {
 		model.invoice().is_public(false);
@@ -1310,7 +1321,7 @@
 	function onMarkSentClick() {
 		if (model.invoice().is_recurring()) {
             // warn invoice will be emailed when saving new recurring invoice
-            var text = getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+            var text = '\n' + getSendToEmails() + '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
             var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
             sweetConfirm(function() {
 				model.invoice().is_public(true);

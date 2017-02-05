@@ -4,12 +4,20 @@ namespace App\Models;
 
 use Auth;
 use Eloquent;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
  * Class Activity.
  */
 class Activity extends Eloquent
 {
+    use PresentableTrait;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
+
     /**
      * @var bool
      */

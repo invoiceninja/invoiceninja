@@ -641,13 +641,13 @@ function ContactModel(data) {
     self.displayName = ko.computed(function() {
         var str = '';
         if (self.first_name() || self.last_name()) {
-            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + '\n';
+            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + ' ';
         }
         if (self.email()) {
-            str += self.email() + '\n';
+            str += '&lt;' + self.email() + '&gt;';
         }
 
-        return str;
+        return str + '<br/>';
     });
 
     self.email.display = ko.computed(function() {

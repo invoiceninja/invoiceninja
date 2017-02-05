@@ -9,6 +9,7 @@ use App\Events\QuoteInvitationWasEmailed;
 use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Libraries\CurlUtils;
+use App\Models\Activity;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -1440,6 +1441,16 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         return $statuses;
+    }
+
+    public function emailHistory()
+    {
+        return Activity::scope()
+                ->with(['contact'])
+                ->whereInvoiceId($this->id)
+                ->whereIn('activity_type_id', [ACTIVITY_TYPE_EMAIL_INVOICE, ACTIVITY_TYPE_EMAIL_QUOTE])
+                ->orderBy('id', 'desc')
+                ->get();
     }
 }
 
