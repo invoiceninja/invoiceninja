@@ -359,7 +359,7 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'email') {
-            $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice, Input::get('reminder'), Input::get('pdfupload'), Input::get('emailTemplate'));
         }
 
         return url($invoice->getRoute());
@@ -390,13 +390,13 @@ class InvoiceController extends BaseController
         } elseif ($action == 'convert') {
             return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
-            $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice, Input::get('reminder'), Input::get('pdfupload'), Input::get('emailTemplate'));
         }
 
         return url($invoice->getRoute());
     }
 
-    private function emailInvoice($invoice, $pdfUpload)
+    private function emailInvoice($invoice, $reminder = false, $pdfUpload = false, $template = false)
     {
         $entityType = $invoice->getEntityType();
         $pdfUpload = Utils::decodePDF($pdfUpload);
@@ -413,9 +413,9 @@ class InvoiceController extends BaseController
         } else {
             // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
             if (config('queue.default') === 'sync') {
-                $response = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, false, $pdfUpload);
+                $response = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder, $pdfUpload, $template);
             } else {
-                $this->dispatch(new SendInvoiceEmail($invoice, false, $pdfUpload));
+                $this->dispatch(new SendInvoiceEmail($invoice, $reminder, $pdfUpload, $template));
                 $response = true;
             }
         }

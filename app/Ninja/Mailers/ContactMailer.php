@@ -36,7 +36,7 @@ class ContactMailer extends Mailer
      *
      * @return bool|null|string
      */
-    public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
+    public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false, $template = false)
     {
         if ($invoice->is_recurring) {
             return false;
@@ -57,8 +57,8 @@ class ContactMailer extends Mailer
         }
 
         $account->loadLocalizationSettings($client);
-        $emailTemplate = $account->getEmailTemplate($reminder ?: $entityType);
-        $emailSubject = $account->getEmailSubject($reminder ?: $entityType);
+        $emailTemplate = !empty($template['body']) ? $template['body'] : $account->getEmailTemplate($reminder ?: $entityType);
+        $emailSubject = !empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
 
         $sent = false;
 

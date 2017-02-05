@@ -2354,6 +2354,7 @@ $LANG = array(
     'days_ago' => ':count day ago|:count days ago',
     'sent_by' => 'Sent by :user',
     'recipients' => 'Recipients',
+    'today' => 'Today',
 
 );
 

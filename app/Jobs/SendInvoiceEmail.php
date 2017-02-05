@@ -32,6 +32,11 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     protected $pdfString;
 
     /**
+     * @var array
+     */
+    protected $template;
+
+    /**
      * Create a new job instance.
      *
      * @param Invoice $invoice
@@ -39,11 +44,12 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @param bool    $reminder
      * @param mixed   $pdfString
      */
-    public function __construct(Invoice $invoice, $reminder = false, $pdfString = false)
+    public function __construct(Invoice $invoice, $reminder = false, $pdfString = false, $template = false)
     {
         $this->invoice = $invoice;
         $this->reminder = $reminder;
         $this->pdfString = $pdfString;
+        $this->template = $template;
     }
 
     /**
@@ -53,7 +59,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      */
     public function handle(ContactMailer $mailer)
     {
-        $mailer->sendInvoice($this->invoice, $this->reminder, $this->pdfString);
+        $mailer->sendInvoice($this->invoice, $this->reminder, $this->pdfString, $this->template);
     }
 
     /*

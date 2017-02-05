@@ -5,7 +5,7 @@
             return '';
         }
 
-        var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<p>'.trans('texts.password').': XXXXXXXXX<p>':'' !!}";
+        var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<br/>'.trans('texts.password').': XXXXXXXXX<br/>':'' !!}";
 
         @if ($account->isPro())
             var documentsHtml = "{!! trans('texts.email_documents_header').'<ul><li><a>'.trans('texts.email_documents_example_1').'</a></li><li><a>'.trans('texts.email_documents_example_2').'</a></li></ul>' !!}";
@@ -19,16 +19,16 @@
             'dueDate': "{{ $account->formatDate($account->getDateTime()) }}",
             'invoiceDate': "{{ $account->formatDate($account->getDateTime()) }}",
             'client': invoice ? getClientDisplayName(invoice.client) : 'Client Name',
-            'amount': invoice ? formatMoneyInvoice(invoice.amount, invoice) : formatMoneyAccount(100, account),
+            'amount': invoice ? formatMoneyInvoice(parseFloat(invoice.partial) || parseFloat(invoice.balance_amount), invoice) : formatMoneyAccount(100, account),
             'contact': invoice ? getContactDisplayName(invoice.client.contacts[0]) : 'Contact Name',
             'firstName': invoice ? invoice.client.contacts[0].first_name : 'First Name',
             'invoice': invoice ? invoice.invoice_number : '0001',
             'quote': invoice ? invoice.invoice_number : '0001',
             'password': passwordHtml,
             'documents': documentsHtml,
-            'viewLink': "{{ URL::to('/view/...') }}$password",
+            'viewLink': '{{ link_to('#', url('/view/...')) }}$password',
             'viewButton': '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
-            'paymentLink': "{{ URL::to('/payment/...') }}$password",
+            'paymentLink': '{{ link_to('#', url('/payment/...')) }}$password',
             'paymentButton': '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
             'autoBill': '{{ trans('texts.auto_bill_notification_placeholder') }}',
             'portalLink': "{{ URL::to('/client/portal/...') }}",

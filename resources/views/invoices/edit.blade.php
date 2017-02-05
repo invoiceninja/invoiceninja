@@ -11,6 +11,8 @@
 	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
+	<link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
+	<script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 
     <style type="text/css">
         select.tax-select {
