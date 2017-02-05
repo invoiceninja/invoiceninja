@@ -54,9 +54,9 @@ class ProfitAndLossReport extends AbstractReport
                 $expense->present()->category,
             ];
 
-            $this->addToTotals($client->currency_id, 'revenue', 0, $expense->present()->month);
-            $this->addToTotals($client->currency_id, 'expenses', $expense->amount, $expense->present()->month);
-            $this->addToTotals($client->currency_id, 'profit', $expense->amount * -1, $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'revenue', 0, $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'expenses', $expense->amount, $expense->present()->month);
+            $this->addToTotals($expense->expense_currency_id, 'profit', $expense->amount * -1, $expense->present()->month);
         }
 
         //$this->addToTotals($client->currency_id, 'paid', $payment ? $payment->getCompletedAmount() : 0);
