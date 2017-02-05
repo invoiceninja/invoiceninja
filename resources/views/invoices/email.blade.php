@@ -1,13 +1,14 @@
 <div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
+        <div class="modal-content" style="background-color: #f8f8f8">
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                 <h4 class="modal-title" id="emailModalLabel">{{ trans('texts.email_invoice') }}</h4>
             </div>
 
-            <div class="modal-body">
+            <div class="container" style="width: 100%; padding-bottom: 0px !important">
+            <div class="panel panel-default">
             <div class="panel-body">
 
                 {!! Former::plaintext('recipients')
@@ -54,7 +55,7 @@
                                 ->raw() !!}
                         <br/>
                         <div id="templateEditor" class="form-control" style="min-height:160px"></div>
-                        <div style="displayx:none">
+                        <div style="display:none">
                             {!! Former::textarea("emailTemplate[body]")
                                     ->raw() !!}
                             {!! Former::text('emailTemplate[subject]')
@@ -103,7 +104,7 @@
                 <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
                 <button type="button" class="btn btn-info" onclick="onConfirmEmailClick()">{{ trans('texts.send_email') }}</button>
             </div>
-
+            </div>
         </div>
     </div>
 </div>
@@ -191,7 +192,7 @@
 <style type="text/css">
     @media only screen and (min-width : 767px) {
         .modal-dialog {
-            width: 660px;
+            width: 670px;
         }
     }
 </style>
