@@ -1,8 +1,14 @@
 <?php namespace App\Ninja\Presenters;
 
+use Carbon;
 use Utils;
 
 class PaymentPresenter extends EntityPresenter {
+
+    public function amount()
+    {
+        return Utils::formatMoney($this->entity->amount, $this->entity->client->currency_id);
+    }
 
     public function client()
     {
@@ -14,6 +20,11 @@ class PaymentPresenter extends EntityPresenter {
         return Utils::fromSqlDate($this->entity->payment_date);
     }
 
+    public function month()
+    {
+        return Carbon::parse($this->entity->payment_date)->format('Y m');
+    }
+
     public function method()
     {
         if ($this->entity->account_gateway) {
@@ -22,5 +33,4 @@ class PaymentPresenter extends EntityPresenter {
             return $this->entity->payment_type->name;
         }
     }
-
 }

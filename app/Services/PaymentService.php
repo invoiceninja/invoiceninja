@@ -3,6 +3,7 @@
 use App\Models\Invoice;
 use Utils;
 use Auth;
+use Exception;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Activity;
@@ -44,6 +45,10 @@ class PaymentService extends BaseService
      */
     public function autoBillInvoice(Invoice $invoice)
     {
+        if ( ! $invoice->canBePaid()) {
+            return false;
+        }
+
         /** @var \App\Models\Client $client */
         $client = $invoice->client;
 
@@ -56,6 +61,8 @@ class PaymentService extends BaseService
         if ( ! $invitation) {
             return false;
         }
+
+        $invoice->markSentIfUnsent();
 
         if ($credits = $client->credits->sum('balance')) {
             $balance = $invoice->balance;
@@ -120,7 +127,11 @@ class PaymentService extends BaseService
             }
         }
 
-        return $paymentDriver->completeOnsitePurchase(false, $paymentMethod);
+        try {
+            return $paymentDriver->completeOnsitePurchase(false, $paymentMethod);
+        } catch (Exception $exception) {
+            return false;
+        }
     }
 
     public function getDatatable($clientPublicId, $search)
@@ -154,6 +165,9 @@ class PaymentService extends BaseService
                         if ($paymentDriver->refundPayment($payment, $amount)) {
                             $successful++;
                         }
+                    } else {
+                        $payment->recordRefund($amount);
+                        $successful++;
                     }
                 }
             }

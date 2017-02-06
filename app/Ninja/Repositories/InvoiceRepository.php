@@ -4,6 +4,7 @@ use App\Models\Account;
 use DB;
 use Utils;
 use Auth;
+use Carbon;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Invitation;
@@ -12,6 +13,7 @@ use App\Models\Task;
 use App\Models\Document;
 use App\Models\Expense;
 use App\Services\PaymentService;
+use App\Jobs\SendInvoiceEmail;
 
 class InvoiceRepository extends BaseRepository
 {
@@ -141,6 +143,8 @@ class InvoiceRepository extends BaseRepository
                         'frequencies.name as frequency',
                         'invoices.start_date',
                         'invoices.end_date',
+                        'invoices.last_sent_date',
+                        'invoices.last_sent_date as last_sent',
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',
@@ -160,7 +164,10 @@ class InvoiceRepository extends BaseRepository
         if ($filter) {
             $query->where(function ($query) use ($filter) {
                 $query->where('clients.name', 'like', '%'.$filter.'%')
-                      ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%');
+                      ->orWhere('invoices.invoice_number', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.first_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.last_name', 'like', '%'.$filter.'%')
+                      ->orWhere('contacts.email', 'like', '%'.$filter.'%');
             });
         }
 
@@ -231,8 +238,8 @@ class InvoiceRepository extends BaseRepository
           ->where('contacts.is_primary', '=', true)
           ->where('invoices.is_recurring', '=', false)
           ->where('invoices.is_public', '=', true)
-          // This needs to be a setting to also hide the activity on the dashboard page
-          //->where('invoices.invoice_status_id', '>=', INVOICE_STATUS_SENT)
+          // Only show paid invoices for ninja accounts
+          ->whereRaw(sprintf("((accounts.account_key != '%s' and accounts.account_key != '%s') or invoices.invoice_status_id = %d)", env('NINJA_LICENSE_ACCOUNT_KEY'), NINJA_ACCOUNT_KEY, INVOICE_STATUS_PAID))
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
@@ -301,6 +308,9 @@ class InvoiceRepository extends BaseRepository
             if (isset($data['has_expenses']) && filter_var($data['has_expenses'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_expenses = true;
             }
+            if ($account->payment_terms != 0) {
+               $invoice->due_date = $account->defaultDueDate();
+            }
         } else {
             $invoice = Invoice::scope($publicId)->firstOrFail();
             if (Utils::isNinjaDev()) {
@@ -312,8 +322,7 @@ class InvoiceRepository extends BaseRepository
             return $invoice;
         }
 
-        // set default to true for backwards compatability
-        if ( ! isset($data['is_public']) || filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN)) {
+        if (isset($data['is_public']) && filter_var($data['is_public'], FILTER_VALIDATE_BOOLEAN)) {
             $invoice->is_public = true;
             if ( ! $invoice->isSent()) {
                 $invoice->invoice_status_id = INVOICE_STATUS_SENT;
@@ -333,7 +342,7 @@ class InvoiceRepository extends BaseRepository
             $account->save();
         }
 
-        if (isset($data['invoice_number']) && !$invoice->is_recurring) {
+        if (!empty($data['invoice_number']) && !$invoice->is_recurring) {
             $invoice->invoice_number = trim($data['invoice_number']);
         }
 
@@ -357,15 +366,15 @@ class InvoiceRepository extends BaseRepository
         }
 
         if ($invoice->is_recurring) {
-            if ($invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
+            if (isset($data['start_date']) && $invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
                 $invoice->last_sent_date = null;
             }
 
-            $invoice->frequency_id = $data['frequency_id'] ? $data['frequency_id'] : 0;
-            $invoice->start_date = Utils::toSqlDate($data['start_date']);
-            $invoice->end_date = Utils::toSqlDate($data['end_date']);
+            $invoice->frequency_id = array_get($data, 'frequency_id', 0);
+            $invoice->start_date = Utils::toSqlDate(array_get($data, 'start_date'));
+            $invoice->end_date = Utils::toSqlDate(array_get($data, 'end_date'));
             $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
-            $invoice->auto_bill = isset($data['auto_bill']) ? intval($data['auto_bill']) : AUTO_BILL_OFF;
+            $invoice->auto_bill = array_get($data, 'auto_bill_id') ?: array_get($data, 'auto_bill', AUTO_BILL_OFF);
 
             if ($invoice->auto_bill < AUTO_BILL_OFF || $invoice->auto_bill > AUTO_BILL_ALWAYS ) {
                 $invoice->auto_bill = AUTO_BILL_OFF;
@@ -377,7 +386,7 @@ class InvoiceRepository extends BaseRepository
                 $invoice->due_date = $data['due_date'];
             }
         } else {
-            if (isset($data['due_date']) || isset($data['due_date_sql'])) {
+            if (!empty($data['due_date']) || !empty($data['due_date_sql'])) {
                 $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
             }
             $invoice->frequency_id = 0;
@@ -387,7 +396,7 @@ class InvoiceRepository extends BaseRepository
 
         if (isset($data['terms']) && trim($data['terms'])) {
             $invoice->terms = trim($data['terms']);
-        } elseif ($isNew && $account->{"{$entityType}_terms"}) {
+        } elseif ($isNew && ! $invoice->is_recurring && $account->{"{$entityType}_terms"}) {
             $invoice->terms = $account->{"{$entityType}_terms"};
         } else {
             $invoice->terms = '';
@@ -409,7 +418,7 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->invoice_design_id = isset($data['invoice_design_id']) ? $data['invoice_design_id'] : $account->invoice_design_id;
 
-        // provide backwards compatability
+        // provide backwards compatibility
         if (isset($data['tax_name']) && isset($data['tax_rate'])) {
             $data['tax_name1'] = $data['tax_name'];
             $data['tax_rate1'] = $data['tax_rate'];
@@ -459,8 +468,8 @@ class InvoiceRepository extends BaseRepository
             if ($invoice->is_amount_discount) {
                 $total -= $invoice->discount;
             } else {
-                $total *= (100 - $invoice->discount) / 100;
-                $total = round($total, 2);
+                $discount = round($total * ($invoice->discount/100), 2);
+                $total -= $discount;
             }
         }
 
@@ -492,8 +501,8 @@ class InvoiceRepository extends BaseRepository
             $total += $invoice->custom_value2;
         }
 
-        $taxAmount1 = round($total * $invoice->tax_rate1 / 100, 2);
-        $taxAmount2 = round($total * $invoice->tax_rate2 / 100, 2);
+        $taxAmount1 = round($total * ($invoice->tax_rate1 ? $invoice->tax_rate1 : 0) / 100, 2);
+        $taxAmount2 = round($total * ($invoice->tax_rate2 ? $invoice->tax_rate2 : 0) / 100, 2);
         $total = round($total + $taxAmount1 + $taxAmount2, 2);
         $total += $itemTax;
 
@@ -656,7 +665,7 @@ class InvoiceRepository extends BaseRepository
                 $invoiceNumber = false;
             }
         }
-        $clone->invoice_number = $invoiceNumber ?: $account->getNextInvoiceNumber($clone);
+        $clone->invoice_number = $invoiceNumber ?: $account->getNextNumber($clone);
         $clone->invoice_date = date_create()->format('Y-m-d');
 
         foreach ([
@@ -746,16 +755,22 @@ class InvoiceRepository extends BaseRepository
     /**
      * @param Invoice $invoice
      */
+    public function emailInvoice(Invoice $invoice)
+    {
+        // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
+        if (config('queue.default') === 'sync') {
+            app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+        } else {
+            dispatch(new SendInvoiceEmail($invoice));
+        }
+    }
+
+    /**
+     * @param Invoice $invoice
+     */
     public function markSent(Invoice $invoice)
     {
-        if ( ! $invoice->isSent()) {
-            $invoice->invoice_status_id = INVOICE_STATUS_SENT;
-        }
-
-        $invoice->is_public = true;
-        $invoice->save();
-        
-        $invoice->markInvitationsSent();
+        $invoice->markSent();
     }
 
     /**
@@ -763,9 +778,11 @@ class InvoiceRepository extends BaseRepository
      */
     public function markPaid(Invoice $invoice)
     {
-        if (floatval($invoice->balance) <= 0) {
+        if ( ! $invoice->canBePaid()) {
             return;
         }
+
+        $invoice->markSentIfUnsent();
 
         $data = [
             'client_id' => $invoice->client_id,
@@ -790,7 +807,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         $invoice = $invitation->invoice;
-        if (!$invoice || $invoice->is_deleted || ! $invoice->is_public) {
+        if (!$invoice || $invoice->is_deleted) {
             return false;
         }
 
@@ -811,15 +828,16 @@ class InvoiceRepository extends BaseRepository
     public function findOpenInvoices($clientId, $entityType = false)
     {
         $query = Invoice::scope()
-                ->invoiceType(INVOICE_TYPE_STANDARD)
-                ->whereClientId($clientId)
-                ->whereIsRecurring(false)
-                ->whereDeletedAt(null);
+                    ->invoiceType(INVOICE_TYPE_STANDARD)
+                    ->whereClientId($clientId)
+                    ->whereIsRecurring(false)
+                    ->whereDeletedAt(null)
+                    ->where('balance', '>', 0);
 
         if ($entityType == ENTITY_TASK) {
             $query->whereHasTasks(true);
         } elseif ($entityType == ENTITY_EXPENSE) {
-            $query->whereHasExpenses(true);
+            $query->whereHasTasks(false);
         }
 
         return $query->where('invoice_status_id', '<', 5)
@@ -852,15 +870,15 @@ class InvoiceRepository extends BaseRepository
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
         $invoice->client_id = $recurInvoice->client_id;
         $invoice->recurring_invoice_id = $recurInvoice->id;
-        $invoice->invoice_number = $recurInvoice->account->getNextInvoiceNumber($invoice);
+        $invoice->invoice_number = $recurInvoice->account->getNextNumber($invoice);
         $invoice->amount = $recurInvoice->amount;
         $invoice->balance = $recurInvoice->amount;
         $invoice->invoice_date = date_create()->format('Y-m-d');
         $invoice->discount = $recurInvoice->discount;
         $invoice->po_number = $recurInvoice->po_number;
         $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes);
-        $invoice->terms = Utils::processVariables($recurInvoice->terms);
-        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer);
+        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $recurInvoice->account->invoice_terms);
+        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer ?: $recurInvoice->account->invoice_footer);
         $invoice->tax_name1 = $recurInvoice->tax_name1;
         $invoice->tax_rate1 = $recurInvoice->tax_rate1;
         $invoice->tax_name2 = $recurInvoice->tax_name2;
@@ -939,6 +957,7 @@ class InvoiceRepository extends BaseRepository
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)
+                    ->whereIsPublic(true)
                     ->whereRaw('('.$sql.')')
                     ->get();
 

@@ -108,6 +108,9 @@ class PaymentApiController extends BaseAPIController
      */
     public function store(CreatePaymentAPIRequest $request)
     {
+        // check payment has been marked sent
+        $request->invoice->markSentIfUnsent();
+
         $payment = $this->paymentRepo->save($request->input());
 
         if (Input::get('email_receipt')) {
@@ -142,7 +145,7 @@ class PaymentApiController extends BaseAPIController
     public function destroy(UpdatePaymentRequest $request)
     {
         $payment = $request->entity();
-        
+
         $this->clientRepo->delete($payment);
 
         return $this->itemResponse($payment);

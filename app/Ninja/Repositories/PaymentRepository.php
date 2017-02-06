@@ -62,7 +62,7 @@ class PaymentRepository extends BaseRepository
                         'invoices.is_deleted as invoice_is_deleted',
                         'gateways.name as gateway_name',
                         'gateways.id as gateway_id',
-                        'payment_statuses.name as payment_status_name'
+                        'payment_statuses.name as status'
                     );
 
         $this->applyFilters($query, ENTITY_PAYMENT);

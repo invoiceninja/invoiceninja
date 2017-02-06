@@ -12,12 +12,13 @@ use App\Models\Product;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
+use App\Jobs\SendInvoiceEmail;
+use App\Jobs\SendPaymentEmail;
 
 class InvoiceApiController extends BaseAPIController
 {
@@ -25,7 +26,7 @@ class InvoiceApiController extends BaseAPIController
 
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, Mailer $mailer, PaymentService $paymentService)
+    public function __construct(InvoiceService $invoiceService, InvoiceRepository $invoiceRepo, ClientRepository $clientRepo, PaymentRepository $paymentRepo, PaymentService $paymentService)
     {
         parent::__construct();
 
@@ -33,7 +34,6 @@ class InvoiceApiController extends BaseAPIController
         $this->clientRepo = $clientRepo;
         $this->paymentRepo = $paymentRepo;
         $this->invoiceService = $invoiceService;
-        $this->mailer = $mailer;
         $this->paymentService = $paymentService;
     }
 
@@ -158,13 +158,23 @@ class InvoiceApiController extends BaseAPIController
 
         $data = self::prepareData($data, $client);
         $data['client_id'] = $client->id;
+
+        // in these cases the invoice needs to be set as public
+        $isAutoBill = isset($data['auto_bill']) && filter_var($data['auto_bill'], FILTER_VALIDATE_BOOLEAN);
+        $isEmailInvoice = isset($data['email_invoice']) && filter_var($data['email_invoice'], FILTER_VALIDATE_BOOLEAN);
+        $isPaid = isset($data['paid']) && floatval($data['paid']);
+
+        if ($isAutoBill || $isPaid || $isEmailInvoice) {
+            $data['is_public'] = true;
+        }
+
         $invoice = $this->invoiceService->save($data);
         $payment = false;
 
         if ($invoice->isInvoice()) {
-            if (isset($data['auto_bill']) && boolval($data['auto_bill'])) {
+            if ($isAutoBill) {
                 $payment = $this->paymentService->autoBillInvoice($invoice);
-            } else if (isset($data['paid']) && $data['paid']) {
+            } else if ($isPaid) {
                 $payment = $this->paymentRepo->save([
                     'invoice_id' => $invoice->id,
                     'client_id' => $client->id,
@@ -173,11 +183,13 @@ class InvoiceApiController extends BaseAPIController
             }
         }
 
-        if (isset($data['email_invoice']) && $data['email_invoice']) {
+        if ($isEmailInvoice) {
             if ($payment) {
-                $this->mailer->sendPaymentConfirmation($payment);
+                app('App\Ninja\Mailers\ContactMailer')->sendPaymentConfirmation($payment);
+                //$this->dispatch(new SendPaymentEmail($payment));
             } elseif ( ! $invoice->is_recurring) {
-                $this->mailer->sendInvoice($invoice);
+                app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+                //$this->dispatch(new SendInvoiceEmail($invoice));
             }
         }
 
@@ -283,7 +295,7 @@ class InvoiceApiController extends BaseAPIController
     {
         $invoice = $request->entity();
 
-        $this->mailer->sendInvoice($invoice);
+        $this->dispatch(new SendInvoiceEmail($invoice));
 
         $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();

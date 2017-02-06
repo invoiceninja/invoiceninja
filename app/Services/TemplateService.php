@@ -58,10 +58,10 @@ class TemplateService
             '$viewButton' => Form::emailViewButton($invitation->getLink(), $invoice->getEntityType()).'$password',
             '$paymentLink' => $invitation->getLink('payment').'$password',
             '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
-            '$customClient1' => $account->custom_client_label1,
-            '$customClient2' => $account->custom_client_label2,
-            '$customInvoice1' => $account->custom_invoice_text_label1,
-            '$customInvoice2' => $account->custom_invoice_text_label2,
+            '$customClient1' => $client->custom_value1,
+            '$customClient2' => $client->custom_value2,
+            '$customInvoice1' => $invoice->custom_text_value1,
+            '$customInvoice2' => $invoice->custom_text_value2,
             '$documents' => $documentsHTML,
             '$autoBill' => empty($data['autobill'])?'':$data['autobill'],
             '$portalLink' => $invitation->contact->link,
@@ -74,8 +74,9 @@ class TemplateService
                 continue;
             }
             $camelType = Utils::toCamelCase(GatewayType::getAliasFromId($type));
-            $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$type}";
-            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$type}");
+            $snakeCase = Utils::toSnakeCase(GatewayType::getAliasFromId($type));
+            $variables["\${$camelType}Link"] = $invitation->getLink('payment') . "/{$snakeCase}";
+            $variables["\${$camelType}Button"] = Form::emailPaymentButton($invitation->getLink('payment')  . "/{$snakeCase}");
         }
 
         $includesPasswordPlaceholder = strpos($template, '$password') !== false;

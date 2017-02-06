@@ -38,6 +38,11 @@
 	<center class="buttons">
         {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(url('/expense_categories'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+		@if ($category && Auth::user()->can('create', ENTITY_EXPENSE))
+	    	{!! Button::primary(trans('texts.new_expense'))->large()
+					->asLinkTo(url("/expenses/create/0/0/{$category->public_id}"))
+					->appendIcon(Icon::create('plus-sign')) !!}
+		@endif
 	</center>
 
 	{!! Former::close() !!}

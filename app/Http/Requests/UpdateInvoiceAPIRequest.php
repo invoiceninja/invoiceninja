@@ -1,5 +1,7 @@
 <?php namespace App\Http\Requests;
 
+use App\Models\Client;
+
 class UpdateInvoiceAPIRequest extends InvoiceRequest
 {
     /**
@@ -34,6 +36,11 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
             //'start_date' => 'date',
             //'end_date' => 'date',
         ];
+
+        if ($this->user()->account->client_number_counter) {
+            $clientId = Client::getPrivateId(request()->input('client')['public_id']);
+            $rules['client.id_number'] = 'unique:clients,id_number,'.$clientId.',id,account_id,' . $this->user()->account_id;
+        }
 
         return $rules;
     }

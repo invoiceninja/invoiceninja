@@ -136,6 +136,7 @@ class DashboardRepository
         if ($entityType == ENTITY_INVOICE) {
             $records->select(DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
                     ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                    ->where('invoices.is_public', '=', true)
                     ->where('is_recurring', '=', false);
         } elseif ($entityType == ENTITY_PAYMENT) {
             $records->select(DB::raw('sum(payments.amount - payments.refunded) as total, count(payments.id) as count, '.$timeframe.' as '.$groupBy))
@@ -166,6 +167,7 @@ class DashboardRepository
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_recurring', '=', false)
+            ->where('invoices.is_public', '=', true)
             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD);
 
         if (!$viewAll){
@@ -205,8 +207,7 @@ class DashboardRepository
         if ($startDate) {
             $paidToDate->where('payments.payment_date', '>=', $startDate);
         } elseif ($account->financial_year_start) {
-            $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
-            $paidToDate->where('payments.payment_date', '>=', $yearStart);
+            $paidToDate->where('payments.payment_date', '>=', $account->financialYearStart());
         }
 
         return $paidToDate->groupBy('payments.account_id')
@@ -228,6 +229,7 @@ class DashboardRepository
             ->where('accounts.id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
+            ->where('invoices.is_public', '=', true)
             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('invoices.is_recurring', '=', false);
 
@@ -236,8 +238,7 @@ class DashboardRepository
         }
 
         if ($account->financial_year_start) {
-            $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
-            $averageInvoice->where('invoices.invoice_date', '>=', $yearStart);
+            $averageInvoice->where('invoices.invoice_date', '>=', $account->financialYearStart());
         }
 
         return $averageInvoice->groupBy('accounts.id')
@@ -294,6 +295,7 @@ class DashboardRepository
                     ->where('invoices.balance', '>', 0)
                     ->where('invoices.is_deleted', '=', false)
                     ->where('invoices.deleted_at', '=', null)
+                    ->where('invoices.is_public', '=', true)
                     ->where('contacts.is_primary', '=', true)
                     ->where('invoices.due_date', '<', date('Y-m-d'));
 
@@ -320,6 +322,7 @@ class DashboardRepository
                     ->where('invoices.quote_invoice_id', '=', null)
                     ->where('invoices.balance', '>', 0)
                     ->where('invoices.is_deleted', '=', false)
+                    ->where('invoices.is_public', '=', true)
                     ->where('contacts.is_primary', '=', true)
                     ->where('invoices.due_date', '>=', date('Y-m-d'))
                     ->orderBy('invoices.due_date', 'asc');

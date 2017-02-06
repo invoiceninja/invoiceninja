@@ -32,7 +32,21 @@ class ExportController extends BaseController
     {
         $format = $request->input('format');
         $date = date('Y-m-d');
-        $fileName = "invoice-ninja-{$date}";
+
+        // set the filename based on the entity types selected
+        if ($request->include == 'all') {
+            $fileName = "invoice-ninja-{$date}";
+        } else {
+            $fields = $request->all();
+            $fields = array_filter(array_map(function ($key) {
+                if ( ! in_array($key, ['format', 'include', '_token'])) {
+                    return $key;
+                } else {
+                    return null;
+                }
+            }, array_keys($fields), $fields));
+            $fileName = "invoice-ninja-" . join('-', $fields) . "-{$date}";
+        }
 
         if ($format === 'JSON') {
             return $this->returnJSON($request, $fileName);

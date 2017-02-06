@@ -1,5 +1,6 @@
 <?php namespace App\Ninja\Import\CSV;
 
+use Utils;
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
@@ -16,7 +17,7 @@ class ExpenseTransformer extends BaseTransformer
     {
         return new Item($data, function ($data) {
             return [
-                'amount' => isset($data->amount) ? (float) $data->amount : null,
+                'amount' => $this->getFloat($data, 'amount'),
                 'vendor_id' => isset($data->vendor) ? $this->getVendorId($data->vendor) : null,
                 'client_id' => isset($data->client) ? $this->getClientId($data->client) : null,
                 'expense_date' => isset($data->expense_date) ? date('Y-m-d', strtotime($data->expense_date)) : null,

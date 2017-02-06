@@ -6,6 +6,7 @@ use Input;
 use Utils;
 use View;
 use Validator;
+use Auth;
 use URL;
 use Cache;
 use Omnipay;
@@ -274,4 +275,15 @@ class NinjaController extends BaseController
         Session::flash('error', $message);
         Utils::logError("Payment Error [{$type}]: " . ($exception ? Utils::getErrorString($exception) : $message), 'PHP', true);
     }
+
+    public function hideWhiteLabelMessage()
+    {
+        $user = Auth::user();
+        $company = $user->account->company;
+
+        $company->plan = null;
+        $company->save();
+
+		return RESULT_SUCCESS;
+	}
 }

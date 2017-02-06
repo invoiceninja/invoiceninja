@@ -13,7 +13,8 @@
 
     {!! Former::checkbox('authorize_ach')
             ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName(), 'email' => $account->work_email]))
-            ->label(' ') !!}
+            ->label(' ')
+            ->value(1) !!}
 
     {!! Former::checkbox('tos_agree')
             ->text(trans('texts.wepay_payment_tos_agree', [
@@ -21,7 +22,8 @@
             'privacy_policy' => '<a href="https://go.wepay.com/privacy-policy-us" target="_blank">'.trans('texts.privacy_policy').'</a>',
             ]))
             ->help(trans('texts.payment_processed_through_wepay'))
-            ->label(' ') !!}
+            ->label(' ')
+            ->value(1) !!}
 
     <input type="hidden" name="sourceToken" value="{{$sourceId}}">
 

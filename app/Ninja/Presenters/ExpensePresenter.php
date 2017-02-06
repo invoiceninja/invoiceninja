@@ -1,6 +1,7 @@
 <?php namespace App\Ninja\Presenters;
 
 use Utils;
+use Carbon;
 
 /**
  * Class ExpensePresenter
@@ -22,6 +23,11 @@ class ExpensePresenter extends EntityPresenter
     public function expense_date()
     {
         return Utils::fromSqlDate($this->entity->expense_date);
+    }
+
+    public function month()
+    {
+        return Carbon::parse($this->entity->payment_date)->format('Y m');
     }
 
     public function amount()

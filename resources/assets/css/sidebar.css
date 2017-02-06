@@ -99,7 +99,7 @@
 
     #left-sidebar-wrapper .sidebar-nav li {
         text-indent: 20px;
-        line-height: 40px;
+        line-height: 36px;
     }
 
     #left-sidebar-wrapper .sidebar-nav li span.badge {
@@ -113,13 +113,19 @@
     }
 
     #right-sidebar-wrapper .sidebar-nav li a.btn {
-        margin-top:5px;
+        margin-top:0px;
         margin-right:10px;
         text-indent:0px
     }
 
     #left-sidebar-wrapper ul {
-        min-height: 720px;
+        min-height: 730px;
+    }
+
+    @media (max-height: 744px) {
+        div.nav-footer {
+            min-width: 234px !important;
+        }
     }
 
     .sidebar-nav li > a {
@@ -189,6 +195,10 @@
         color:#fff !important;
     }
 
+    #wrapper.toggled-left #left-sidebar-wrapper .nav-footer {
+        visibility: hidden;
+    }
+
     #wrapper {
         padding-left: 250px;
         padding-right: 250px;
@@ -203,7 +213,7 @@
     }
 
     #left-sidebar-wrapper a.btn {
-        margin-top:10px;
+        margin-top:8px;
         margin-right:10px;
         text-indent:0px
     }

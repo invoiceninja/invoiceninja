@@ -148,7 +148,7 @@
                             <li>$customInvoice1</li>
                         @endif
                         @if ($account->custom_invoice_text_label2)
-                            <li>$customInvoice1</li>
+                            <li>$customInvoice2</li>
                         @endif
                         @if (count($account->account_gateways) > 0)
                             @foreach (\App\Models\Gateway::$gatewayTypes as $type)
@@ -190,6 +190,7 @@
         var entityTypes = ['invoice', 'quote', 'payment', 'reminder1', 'reminder2', 'reminder3'];
         var stringTypes = ['subject', 'template'];
         var templates = {!! json_encode($defaultTemplates) !!};
+        var account = {!! Auth::user()->account !!};
 
         function refreshPreview() {
             for (var i=0; i<entityTypes.length; i++) {
@@ -277,7 +278,7 @@
                 "{{ $account->formatDate($account->getDateTime()) }}",
                 "{{ $account->formatDate($account->getDateTime()) }}",
                 "Client Name",
-                formatMoney(100),
+                formatMoneyAccount(100, account),
                 "Contact Name",
                 "First Name",
                 "0001",

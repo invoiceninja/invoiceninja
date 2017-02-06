@@ -15,7 +15,7 @@
 @section('content')
 
 	{!! Former::open($url)
-        ->addClass('col-md-10 col-md-offset-1 warn-on-exit')
+        ->addClass('col-md-10 col-md-offset-1 warn-on-exit main-form')
         ->onsubmit('onFormSubmit(event)')
         ->method($method)
         ->rules(array(
@@ -30,6 +30,7 @@
 
     <span style="display:none">
         {!! Former::text('public_id') !!}
+        {!! Former::text('action') !!}
     </span>
 
 	<div class="row">
@@ -38,7 +39,11 @@
             <div class="panel panel-default">
             <div class="panel-body">
 
-            @if (!$payment)
+            @if ($payment)
+             {!! Former::plaintext()->label('client')->value($payment->client->getDisplayName()) !!}
+             {!! Former::plaintext()->label('invoice')->value($payment->invoice->getDisplayName()) !!}
+             {!! Former::plaintext()->label('amount')->value($payment->present()->amount) !!}
+            @else
 			 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
 			 {!! Former::select('invoice')->addOption('', '')->addGroupClass('invoice-select') !!}
 			 {!! Former::text('amount') !!}
@@ -62,7 +67,7 @@
 			{!! Former::text('transaction_reference') !!}
 
             @if (!$payment)
-                {!! Former::checkbox('email_receipt')->label('&nbsp;')->text(trans('texts.email_receipt')) !!}
+                {!! Former::checkbox('email_receipt')->label('&nbsp;')->text(trans('texts.email_receipt'))->value(1) !!}
             @endif
 
             </div>
@@ -77,6 +82,14 @@
         @if (!$payment || !$payment->is_deleted)
             {!! Button::success(trans('texts.save'))->withAttributes(['id' => 'saveButton'])->appendIcon(Icon::create('floppy-disk'))->submit()->large() !!}
         @endif
+
+        @if ($payment)
+            {!! DropdownButton::normal(trans('texts.more_actions'))
+                  ->withContents($actions)
+                  ->large()
+                  ->dropup() !!}
+        @endif
+
 	</center>
 
 	{!! Former::close() !!}
@@ -115,6 +128,17 @@
 
     function onFormSubmit(event) {
         $('#saveButton').attr('disabled', true);
+    }
+
+    function submitAction(action) {
+        $('#action').val(action);
+        $('.main-form').submit();
+    }
+
+    function onDeleteClick() {
+        sweetConfirm(function() {
+            submitAction('delete');
+        });
     }
 
 	</script>

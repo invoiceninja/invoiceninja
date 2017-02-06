@@ -76,6 +76,7 @@ return array(
     "has_counter" => "The value must contain {\$counter}",
     "valid_contacts" => "The contact must have either an email or name",
     "valid_invoice_items" => "The invoice exceeds the maximum amount",
+    "valid_subdomain" => "The subdomain is restricted",
 
     /*
     |--------------------------------------------------------------------------

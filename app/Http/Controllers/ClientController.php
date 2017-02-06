@@ -84,7 +84,10 @@ class ClientController extends BaseController
         $user = Auth::user();
 
         $actionLinks = [];
-        if($user->can('create', ENTITY_TASK)){
+        if ($user->can('create', ENTITY_INVOICE)){
+            $actionLinks[] = ['label' => trans('texts.new_invoice'), 'url' => URL::to('/invoices/create/'.$client->public_id)];
+        }
+        if ($user->can('create', ENTITY_TASK)){
             $actionLinks[] = ['label' => trans('texts.new_task'), 'url' => URL::to('/tasks/create/'.$client->public_id)];
         }
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {
@@ -214,5 +217,29 @@ class ClientController extends BaseController
         Session::flash('message', $message);
 
         return $this->returnBulk(ENTITY_CLIENT, $action, $ids);
+    }
+
+    public function statement()
+    {
+        $account = Auth::user()->account;
+        $client = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
+        $invoice = $account->createInvoice(ENTITY_INVOICE);
+        $invoice->client = $client;
+        $invoice->date_format = $account->date_format ? $account->date_format->format_moment : 'MMM D, YYYY';
+        $invoice->invoice_items = Invoice::scope()
+            ->with(['client'])
+            ->whereClientId($client->id)
+            ->invoices()
+            ->whereIsPublic(true)
+            ->where('balance', '>', 0)
+            ->get();
+
+        $data = [
+            'showBreadcrumbs' => false,
+            'client' => $client,
+            'invoice' => $invoice,
+        ];
+
+        return view('clients.statement', $data);
     }
 }

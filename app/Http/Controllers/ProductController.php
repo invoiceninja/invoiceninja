@@ -74,7 +74,7 @@ class ProductController extends BaseController
 
         $data = [
           'account' => $account,
-          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
+          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']) : null,
           'product' => $product,
           'entity' => $product,
           'method' => 'PUT',
@@ -94,7 +94,7 @@ class ProductController extends BaseController
 
         $data = [
           'account' => $account,
-          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
+          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']) : null,
           'product' => null,
           'method' => 'POST',
           'url' => 'products',

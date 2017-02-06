@@ -220,7 +220,8 @@
 
     {!! Former::checkbox('authorize_ach')
             ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName(), 'email' => $account->work_email]))
-            ->label(' ') !!}
+            ->label(' ')
+            ->value(1) !!}
 
 
     <div class="col-md-12">

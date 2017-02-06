@@ -63,6 +63,8 @@ class ClientPortalController extends BaseController
             ]);
         }
 
+        $account->loadLocalizationSettings($client);
+
         if (!Input::has('phantomjs') && !Input::has('silent') && !Session::has($invitationKey)
             && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
@@ -74,8 +76,6 @@ class ClientPortalController extends BaseController
 
         Session::put($invitationKey, true); // track this invitation has been seen
         Session::put('contact_key', $invitation->contact->contact_key);// track current contact
-
-        $account->loadLocalizationSettings($client);
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
@@ -98,6 +98,11 @@ class ClientPortalController extends BaseController
             'email',
             'phone',
         ]);
+
+        // translate the client country name
+        if ($invoice->client->country) {
+            $invoice->client->country->name = trans('texts.country_' . $invoice->client->country->name);
+        }
 
         $data = [];
         $paymentTypes = $this->getPaymentTypes($account, $client, $invitation);
@@ -204,9 +209,13 @@ class ClientPortalController extends BaseController
             return RESULT_FAILURE;
         }
 
-        $invitation->signature_base64 = Input::get('signature');
-        $invitation->signature_date = date_create();
-        $invitation->save();
+        if ($signature = Input::get('signature')) {
+            $invitation->signature_base64 = $signature;
+            $invitation->signature_date = date_create();
+            $invitation->save();
+        }
+
+        session(['authorized:' . $invitation->invitation_key => true]);
 
         return RESULT_SUCCESS;
     }

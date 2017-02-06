@@ -149,7 +149,8 @@ class StartupCheck
                         $company = Auth::user()->account->company;
                         $company->plan_term = PLAN_TERM_YEARLY;
                         $company->plan_paid = $data;
-                        $company->plan_expires = date_create($data)->modify('+1 year')->format('Y-m-d');
+                        $date = max(date_create($data), date_create($company->plan_expires));
+                        $company->plan_expires = $date->modify('+1 year')->format('Y-m-d');
                         $company->plan = PLAN_WHITE_LABEL;
                         $company->save();
 

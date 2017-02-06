@@ -2,6 +2,7 @@
 
 use DB;
 use Mail;
+use Utils;
 use Carbon;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -72,17 +73,14 @@ class CheckData extends Command {
 
         $this->logMessage('Done');
         $errorEmail = env('ERROR_EMAIL');
+        $this->info($this->log);
 
-        if ( ! $this->isValid) {
-            if ($errorEmail) {
-                Mail::raw($this->log, function ($message) use ($errorEmail) {
-                    $message->to($errorEmail)
-                            ->from(CONTACT_EMAIL)
-                            ->subject('Check-Data');
-                });
-            } else {
-                $this->info($this->log);
-            }
+        if ($errorEmail) {
+            Mail::raw($this->log, function ($message) use ($errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('Check-Data');
+            });
         }
     }
 
@@ -142,20 +140,26 @@ class CheckData extends Command {
                 ENTITY_VENDOR,
                 ENTITY_INVOICE,
                 ENTITY_USER
+            ],
+            'products' => [
+                ENTITY_USER,
+            ],
+            'expense_categories' => [
+                ENTITY_USER,
+            ],
+            'projects' => [
+                ENTITY_USER,
+                ENTITY_CLIENT,
             ]
         ];
 
         foreach ($tables as $table => $entityTypes) {
             foreach ($entityTypes as $entityType) {
+                $tableName = Utils::pluralizeEntityType($entityType);
                 $records = DB::table($table)
-                                ->join("{$entityType}s", "{$entityType}s.id", '=', "{$table}.{$entityType}_id");
-
-                if ($entityType != ENTITY_CLIENT) {
-                    $records = $records->join('clients', 'clients.id', '=', "{$table}.client_id");
-                }
-
-                $records = $records->where("{$table}.account_id", '!=', DB::raw("{$entityType}s.account_id"))
-                                ->get(["{$table}.id", 'clients.account_id', 'clients.user_id']);
+                                ->join($tableName, "{$tableName}.id", '=', "{$table}.{$entityType}_id")
+                                ->where("{$table}.account_id", '!=', DB::raw("{$tableName}.account_id"))
+                                ->get(["{$table}.id"]);
 
                 if (count($records)) {
                     $this->isValid = false;

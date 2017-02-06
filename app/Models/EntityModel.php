@@ -154,7 +154,7 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && ! Auth::user()->hasPermission('view_all') && $this->getEntityType() != ENTITY_TAX_RATE) {
+        if (Auth::check() && ! Auth::user()->hasPermission('view_all') && method_exists($this, 'getEntityType') && $this->getEntityType() != ENTITY_TAX_RATE) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
@@ -289,6 +289,7 @@ class EntityModel extends Eloquent
             'vendors' => 'building',
             'settings' => 'cog',
             'self-update' => 'download',
+            'reports' => 'th-list',
         ];
 
         return array_get($icons, $entityType);
@@ -335,4 +336,15 @@ class EntityModel extends Eloquent
 
         return $class::getStatuses($entityType);
     }
+
+    public function statusClass()
+    {
+        return '';
+    }
+
+    public function statusLabel()
+    {
+        return '';
+    }
+
 }

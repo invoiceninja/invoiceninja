@@ -1,5 +1,9 @@
 <?php namespace App\Listeners;
 
+use App\Events\InvoiceWasDeleted;
+use App\Events\InvoiceWasUpdated;
+use App\Events\QuoteWasUpdated;
+use App\Events\QuoteWasDeleted;
 use Utils;
 use App\Models\EntityModel;
 use App\Events\ClientWasCreated;
@@ -79,6 +83,42 @@ class SubscriptionListener
     public function createdExpense(ExpenseWasCreated $event)
     {
 
+    }
+
+	/**
+	 * @param InvoiceWasUpdated $event
+	 */
+    public function updatedInvoice(InvoiceWasUpdated $event)
+    {
+	    $transformer = new InvoiceTransformer($event->invoice->account);
+	    $this->checkSubscriptions(EVENT_UPDATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+	 * @param InvoiceWasDeleted $event
+	 */
+    public function deletedInvoice(InvoiceWasDeleted $event)
+    {
+	    $transformer = new InvoiceTransformer($event->invoice->account);
+	    $this->checkSubscriptions(EVENT_DELETE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+	 * @param QuoteWasUpdated $event
+	 */
+    public function updatedQuote(QuoteWasUpdated $event)
+    {
+	    $transformer = new InvoiceTransformer($event->quote->account);
+	    $this->checkSubscriptions(EVENT_UPDATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+	 * @param InvoiceWasDeleted $event
+	 */
+    public function deletedQuote(QuoteWasDeleted $event)
+    {
+	    $transformer = new InvoiceTransformer($event->quote->account);
+	    $this->checkSubscriptions(EVENT_DELETE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
     }
 
     /**

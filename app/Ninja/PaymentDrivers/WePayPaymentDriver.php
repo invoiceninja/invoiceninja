@@ -3,6 +3,7 @@
 use Session;
 use Utils;
 use App\Models\Payment;
+use App\Models\PaymentMethod;
 use Exception;
 
 class WePayPaymentDriver extends BasePaymentDriver
