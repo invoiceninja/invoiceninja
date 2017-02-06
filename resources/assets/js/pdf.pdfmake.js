@@ -486,10 +486,11 @@ NINJA.invoiceLines = function(invoice) {
 }
 
 NINJA.invoiceDocuments = function(invoice) {
-    if (!invoice.account.invoice_embed_documents) {
+    if (invoice.account.invoice_embed_documents != '1') {
         return [];
     }
 
+    var j = 0;
     var stack = [];
     var stackItem = null;
 
