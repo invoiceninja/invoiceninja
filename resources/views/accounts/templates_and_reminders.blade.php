@@ -135,6 +135,29 @@
                 <div class="modal-body">
                     <p>{{ trans('texts.template_help_1') }}</p>
                     <ul>
+                        @foreach([
+                            'footer',
+                            'account',
+                            'dueDate',
+                            'invoiceDate',
+                            'client',
+                            'amount',
+                            'contact',
+                            'firstName',
+                            'invoice',
+                            'quote',
+                            'password',
+                            'documents',
+                            'viewLink',
+                            'viewButton',
+                            'paymentLink',
+                            'paymentButton',
+                            'autoBill',
+                            'portalLink',
+                            'portalButton',
+                        ] as $field)
+                            <li>${{ $field }}</li>
+                        @endforeach
                         @if ($account->custom_client_label1)
                             <li>$customClient1</li>
                         @endif
