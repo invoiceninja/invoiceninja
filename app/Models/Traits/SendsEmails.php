@@ -154,6 +154,18 @@ trait SendsEmails
         return false;
     }
 
+    public function setTemplateDefaults($type, $subject, $body)
+    {
+        if ($subject) {
+            $this->{"email_subject_" . $type} = $subject;
+        }
+
+        if ($body) {
+            $this->{"email_template_" . $type} = $body;
+        }
+
+        $this->save();
+    }
 
     public function getBccEmail()
     {

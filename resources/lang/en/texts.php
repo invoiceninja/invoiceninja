@@ -2347,14 +2347,13 @@ $LANG = array(
     'inactivity_logout' => 'Due to inactivity, you have been automatically logged out.',
     'mark_active' => 'Mark Active',
     'send_automatically' => 'Send Automatically',
-    'template' => 'Template',
     'initial_email' => 'Initial Email',
     'invoice_not_emailed' => 'This invoice hasn\'t been emailed.',
     'quote_not_emailed' => 'This quote hasn\'t been emailed.',
-    'days_ago' => ':count day ago|:count days ago',
     'sent_by' => 'Sent by :user',
     'recipients' => 'Recipients',
-    'today' => 'Today',
+    'save_as_default' => 'Save as default',
+    'template' => 'Template',
 
 );
 

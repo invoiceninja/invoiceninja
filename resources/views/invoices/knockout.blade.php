@@ -644,7 +644,11 @@ function ContactModel(data) {
             str += (self.first_name() || '') + ' ' + (self.last_name() || '') + ' ';
         }
         if (self.email()) {
-            str += '&lt;' + self.email() + '&gt;';
+            if (str) {
+                str += '&lt;' + self.email() + '&gt;';
+            } else {
+                str += self.email();
+            }
         }
 
         return str + '<br/>';

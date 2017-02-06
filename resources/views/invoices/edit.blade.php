@@ -20,9 +20,9 @@
             float: left;
         }
 
-        .btn-info:disabled {
-            background-color: #e89259;
-            border-color: #e89259;
+		.btn-info:disabled {
+            background-color: #e89259 !important;
+            border-color: #e89259 !important;
         }
 
         #scrollable-dropdown-menu .tt-menu {
@@ -750,7 +750,7 @@
         </div>
         </div>
 
-         <div class="modal-footer" style="margin-top: 0px; padding-top:0px;">
+         <div class="modal-footer" style="margin-top: 0px; padding-top:0px; padding-right:20px">
             <span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">{{ trans('texts.provide_name_or_email') }}</span><span>&nbsp;</span>
             <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
             <button type="button" class="btn btn-default" data-bind="click: $root.showMoreFields, text: $root.showMore() ? '{{ trans('texts.less_fields') }}' : '{{ trans('texts.more_fields') }}'"></button>
@@ -1293,6 +1293,7 @@
 	}
 
 	function onConfirmEmailClick() {
+		$('#emailModal div.modal-footer button').attr('disabled', true);
 		model.invoice().is_public(true);
 		var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
 		var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
@@ -1308,10 +1309,6 @@
 			preparePdfData('email');
 		}
 	}
-
-	$(function() {
-		//onEmailClick();
-	})
 
 	function onSaveDraftClick() {
 		model.invoice().is_public(false);
@@ -1432,6 +1429,7 @@
                 location.href = data;
             }).fail(function(data) {
                 $('#saveButton, #emailButton, #draftButton').attr('disabled', false);
+				$('#emailModal div.modal-footer button').attr('disabled', false);
                 var error = firstJSONError(data.responseJSON) || data.statusText;
                 swal("{!! trans('texts.invoice_save_error') !!}", error);
             });

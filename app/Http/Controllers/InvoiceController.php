@@ -359,7 +359,7 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'email') {
-            $this->emailInvoice($invoice, Input::get('reminder'), Input::get('pdfupload'), Input::get('emailTemplate'));
+            $this->emailInvoice($invoice);
         }
 
         return url($invoice->getRoute());
@@ -390,16 +390,23 @@ class InvoiceController extends BaseController
         } elseif ($action == 'convert') {
             return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
-            $this->emailInvoice($invoice, Input::get('reminder'), Input::get('pdfupload'), Input::get('emailTemplate'));
+            $this->emailInvoice($invoice);
         }
 
         return url($invoice->getRoute());
     }
 
-    private function emailInvoice($invoice, $reminder = false, $pdfUpload = false, $template = false)
+    private function emailInvoice($invoice)
     {
+        $reminder = Input::get('reminder');
+        $template = Input::get('template');
+        $pdfUpload = Utils::decodePDF(Input::get('pdfupload'));
         $entityType = $invoice->getEntityType();
-        $pdfUpload = Utils::decodePDF($pdfUpload);
+
+        if (filter_var(Input::get('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {
+            $account = Auth::user()->account;
+            $account->setTemplateDefaults(Input::get('template_type'), $template['subject'], $template['body']);
+        }
 
         if (! Auth::user()->confirmed) {
             $errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');

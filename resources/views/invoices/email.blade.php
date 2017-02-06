@@ -8,20 +8,23 @@
             </div>
 
             <div class="container" style="width: 100%; padding-bottom: 0px !important">
-            <div class="panel panel-default">
+            <div class="panel panel-default" style="margin-bottom: 0px">
             <div class="panel-body">
 
                 {!! Former::plaintext('recipients')
                         ->value('') !!}
 
-                {!! Former::select('template')
-                        ->onchange('loadTemplate()')
-                        ->options([
-                            $invoice->getEntityType() => trans('texts.initial_email'),
-                            'reminder1' => trans('texts.first_reminder'),
-                            'reminder2' => trans('texts.second_reminder'),
-                            'reminder3' => trans('texts.third_reminder'),
-                        ]) !!}
+                @if (Utils::isPro())
+                    {!! Former::select('template_type')
+                            ->label('template')
+                            ->onchange('loadTemplate()')
+                            ->options([
+                                $invoice->getEntityType() => trans('texts.initial_email'),
+                                'reminder1' => trans('texts.first_reminder'),
+                                'reminder2' => trans('texts.second_reminder'),
+                                'reminder3' => trans('texts.third_reminder'),
+                            ]) !!}
+                @endif
 
                 <br/>
                 <div role="tabpanel">
@@ -29,11 +32,13 @@
                         <li role="presentation" class="active">
                             <a href="#preview" aria-controls="preview" role="tab" data-toggle="tab">{{ trans('texts.preview') }}</a>
                         </li>
-                        <li role="presentation">
-                            <a href="#customize" aria-controls="customize" role="tab" data-toggle="tab">
-                                {{ trans('texts.customize') }} {!! Auth::user()->isTrial() ? '<sup>' . trans('texts.pro') . '</sup>' : '' !!}
-                            </a>
-                        </li>
+                        @if (Utils::isPro())
+                            <li role="presentation">
+                                <a href="#customize" aria-controls="customize" role="tab" data-toggle="tab">
+                                    {{ trans('texts.customize') }} {!! Auth::user()->isTrial() ? '<sup>' . trans('texts.pro') . '</sup>' : '' !!}
+                                </a>
+                            </li>
+                        @endif
                         <li role="presentation">
                             <a href="#history" aria-controls="history" role="tab" data-toggle="tab">{{ trans('texts.history') }}</a>
                         </li>
@@ -41,24 +46,24 @@
                 </div>
                 <div class="tab-content">
                     <div role="tabpanel" class="tab-pane active" id="preview">
-                        <div style="padding:31px 14px 0px 14px">
+                        <div style="padding:10px 14px 0px 14px">
                             <div id="emailSubjectDiv"></div>
                             <br/>
                             <div id="emailBodyDiv"></div>
                         </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="customize">
-                        <br/>
                         {!! Former::text('emailSubject')
                                 ->placeholder('subject')
                                 ->onchange('onEmailSubjectChange()')
+                                ->oninput('onEmailSubjectInput()')
                                 ->raw() !!}
                         <br/>
                         <div id="templateEditor" class="form-control" style="min-height:160px"></div>
                         <div style="display:none">
-                            {!! Former::textarea("emailTemplate[body]")
+                            {!! Former::textarea("template[body]")
                                     ->raw() !!}
-                            {!! Former::text('emailTemplate[subject]')
+                            {!! Former::text('template[subject]')
                                     ->raw() !!}
                             {!! Former::text('reminder')
                                     ->raw() !!}
@@ -66,7 +71,6 @@
                         @include('partials/quill_toolbar', ['name' => 'template'])
                     </div>
                     <div role="tabpanel" class="tab-pane" id="history">
-                        <br/>
                         @if (count($activities = $invoice->emailHistory()))
                         <table class="table table-striped data-table">
                             <tr>
@@ -84,14 +88,25 @@
                                 </td>
                                 <td>
                                     <span title="{{ $activity->present()->createdAt }}">
-                                        {{ $activity->present()->createdAtDate }} - {{ $activity->created_at->diffInDays() > 0 ? trans_choice('texts.days_ago', $activity->created_at->diffInDays()) : trans('texts.today') }}
+                                        {{ $activity->present()->createdAtDate }} - {{ $activity->created_at->diffForHumans() }}
                                     </span>
                                 </td>
+                                <script type="text/javascript">
+                                    @if ($activity->notes == 'reminder3')
+                                        if (!window.defaultTemplate) window.defaultTemplate = 'reminder3';
+                                    @elseif ($activity->notes == 'reminder2')
+                                        if (!window.defaultTemplate) window.defaultTemplate = 'reminder3';
+                                    @elseif ($activity->notes == 'reminder1')
+                                        if (!window.defaultTemplate) window.defaultTemplate = 'reminder2';
+                                    @else
+                                        if (!window.defaultTemplate) window.defaultTemplate = 'reminder1';
+                                    @endif
+                                </script>
                             </tr>
                             @endforeach
                         </table>
                         @else
-                            <center style="font-size:16px;color:#888888;padding-top:20px;">
+                            <center style="font-size:16px;color:#888888;padding:30px;">
                                 {{ trans("texts.{$invoice->getEntityType()}_not_emailed") }}
                             </center>
                         @endif
@@ -100,7 +115,12 @@
             </div>
             </div>
 
-            <div class="modal-footer" style="margin-top: 0px">
+            <div class="modal-footer" style="margin-top: 0px; padding-right:0px">
+                <div id="defaultDiv" style="display:none" class="pull-left">
+                    {!! Former::checkbox('save_as_default')
+                            ->text('save_as_default')
+                            ->raw() !!}
+                </div>
                 <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
                 <button type="button" class="btn btn-info" onclick="onConfirmEmailClick()">{{ trans('texts.send_email') }}</button>
             </div>
@@ -130,25 +150,31 @@
     }
 
     function loadTemplate() {
-        var template = dencodeEntities(emailSubjects[$('#template').val()]);
+        @if (Utils::isPro())
+            var templateType = $('#template_type').val();
+        @else
+            var templateType = '{{ $invoice->getEntityType() }}';
+        @endif
+
+        var template = dencodeEntities(emailSubjects[templateType]);
         $("#emailSubject").val(template);
 
-        var template = dencodeEntities(emailTemplates[$('#template').val()]);
+        var template = dencodeEntities(emailTemplates[templateType]);
         emailEditor.setHTML(template);
 
-        var reminder = $('#template').val();
+        var reminder = $('#template_type').val();
         if (reminder == '{{ $invoice->getEntityType() }}') {
             reminder = '';
         }
         $('#reminder').val(reminder);
 
+        $('#defaultDiv').hide();
         refreshPreview();
     }
 
     function refreshPreview() {
         var invoice = createInvoiceModel();
         invoice = calculateAmounts(invoice);
-        console.log(invoice);
         var template = $("#emailSubject").val();
         $('#emailSubjectDiv').html('<b>' + renderEmailTemplate(template, invoice) + '</b>');
         var template = emailEditor.getHTML();
@@ -159,10 +185,14 @@
 		return $("<div/>").html(s).text();
 	}
 
-    function onEmailSubjectChange() {
-        $("#emailTemplate\\[subject\\]").val($('#emailSubject').val());
-        refreshPreview();
+    function onEmailSubjectInput() {
+        $('#defaultDiv').show();
         NINJA.formIsChanged = true;
+    }
+
+    function onEmailSubjectChange() {
+        $("#template\\[subject\\]").val($('#emailSubject').val());
+        refreshPreview();
     }
 
     var emailEditor;
@@ -181,18 +211,31 @@
             return;
           }
           var html = emailEditor.getHTML();
-          $("#emailTemplate\\[body\\]").val(html);
+          $("#template\\[body\\]").val(html);
+          $('#defaultDiv').show();
           refreshPreview();
           NINJA.formIsChanged = true;
         });
+
+      @if (Utils::isPro())
+          if (window.defaultTemplate) {
+              $('#template_type').val(window.defaultTemplate);
+          }
+      @endif
     });
 
 </script>
 
 <style type="text/css">
+    #emailModal .tab-pane {
+        margin-top:20px;
+        max-height:320px;
+        overflow-y:auto;
+    }
+
     @media only screen and (min-width : 767px) {
         .modal-dialog {
-            width: 670px;
+            width: 690px;
         }
     }
 </style>
