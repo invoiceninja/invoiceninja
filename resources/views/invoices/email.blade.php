@@ -234,6 +234,10 @@
         overflow-y:auto;
     }
 
+    #emailModal #customize.tab-pane {
+        margin-top: 20px;
+    }
+
     #templateEditor {
         max-height: 300px;
     }
