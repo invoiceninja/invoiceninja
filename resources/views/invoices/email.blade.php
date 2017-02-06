@@ -227,10 +227,15 @@
 </script>
 
 <style type="text/css">
-    #emailModal .tab-pane {
-        margin-top:20px;
-        max-height:320px;
+    #emailModal #preview.tab-pane,
+    #emailModal #history.tab-pane {
+        margin-top: 20px;
+        max-height: 320px;
         overflow-y:auto;
+    }
+
+    #templateEditor {
+        max-height: 300px;
     }
 
     @media only screen and (min-width : 767px) {
