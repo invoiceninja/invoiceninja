@@ -91,8 +91,10 @@ class ContactMailer extends Mailer
             }
         }
 
+        $isFirst = true;
         foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings, $reminder);
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings, $reminder, $isFirst);
+            $isFirst = false;
             if ($response === true) {
                 $sent = true;
             }
@@ -131,7 +133,8 @@ class ContactMailer extends Mailer
         $subject,
         $pdfString,
         $documentStrings,
-        $reminder
+        $reminder,
+        $isFirst
     ) {
         $client = $invoice->client;
         $account = $invoice->account;
@@ -185,7 +188,7 @@ class ContactMailer extends Mailer
             'invoice' => $invoice,
             'documents' => $documentStrings,
             'notes' => $reminder,
-            'bccEmail' => $account->getBccEmail(),
+            'bccEmail' => $isFirst ? $account->getBccEmail() : false,
             'fromEmail' => $account->getFromEmail(),
         ];
 
