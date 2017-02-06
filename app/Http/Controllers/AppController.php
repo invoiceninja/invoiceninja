@@ -231,6 +231,7 @@ class AppController extends BaseController
 
         $data = [
             'text' => 'Test email',
+            'fromEmail' =>  $email
         ];
 
         try {
