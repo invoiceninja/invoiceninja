@@ -1048,7 +1048,7 @@ td.right {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 2px;
+    width: 3px;
     content: "";
     background-color: #e37329;
 }
