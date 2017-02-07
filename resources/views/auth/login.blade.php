@@ -82,7 +82,7 @@
 @section('body')
 <div class="container">
 
-    @include('partials.warn_session', ['redirectTo' => '/login'])
+    @include('partials.warn_session', ['redirectTo' => '/logout?reason=inactivity'])
 
     {!! Former::open('login')
             ->rules(['email' => 'required|email', 'password' => 'required'])
