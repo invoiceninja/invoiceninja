@@ -97,7 +97,8 @@ class InvoiceRepository extends BaseRepository
                 if (in_array(INVOICE_STATUS_OVERDUE, $statuses)) {
                     $query->orWhere(function ($query) use ($statuses) {
                         $query->where('invoices.balance', '>', 0)
-                              ->where('invoices.due_date', '<', date('Y-m-d'));
+                              ->where('invoices.due_date', '<', date('Y-m-d'))
+                              ->where('invoices.is_public', '=', true);
                     });
                 }
             });
