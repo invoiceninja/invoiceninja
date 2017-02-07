@@ -32,7 +32,7 @@ class ExpenseReport extends AbstractReport
             $this->data[] = [
                 $expense->vendor ? ($this->isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
                 $expense->client ? ($this->isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
-                $expense->present()->expense_date,
+                $this->isExport ? $expense->present()->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
                 $expense->present()->category,
                 Utils::formatMoney($amount, $expense->currency_id),
             ];
