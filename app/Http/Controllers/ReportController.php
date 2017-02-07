@@ -63,14 +63,13 @@ class ReportController extends BaseController
         }
 
         $reportTypes = [
-            'client',
-            'product',
-            'invoice',
-            'invoice_details',
             'aging',
-            'profit_and_loss',
-            'payment',
+            'client',
             'expense',
+            'invoice',
+            'payment',
+            'product',
+            'profit_and_loss',
             'task',
             'tax_rate',
         ];

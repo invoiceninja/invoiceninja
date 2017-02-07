@@ -101,7 +101,7 @@
                             </div>
                         </div>
 
-						<div id="statusField" style="display:{{ in_array($reportType, ['invoice', 'invoice_details']) ? 'block' : 'none' }}">
+						<div id="statusField" style="display:{{ in_array($reportType, [ENTITY_INVOICE, ENTITY_PRODUCT]) ? 'block' : 'none' }}">
 							{!! Former::select('invoice_status')->label('status')
 									->addOption(trans('texts.all'), 'all')
 									->addOption(trans('texts.draft'), 'draft')
@@ -256,7 +256,7 @@
             } else {
                 $('#dateField').fadeOut();
             }
-			if (val == '{{ ENTITY_INVOICE }}' || val == 'invoice_details') {
+			if (val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}') {
                 $('#statusField').fadeIn();
             } else {
                 $('#statusField').fadeOut();
