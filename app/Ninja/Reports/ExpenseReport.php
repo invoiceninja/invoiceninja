@@ -13,7 +13,7 @@ class ExpenseReport extends AbstractReport
         'client',
         'date',
         'category',
-        'expense_amount',
+        'amount',
     ];
 
     public function run()

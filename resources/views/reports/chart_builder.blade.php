@@ -243,7 +243,7 @@
 
 	var sumColumns = [];
 	@foreach ($columns as $column)
-		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance']) ? trans("texts.{$column}") : false }}");
+		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost']) ? trans("texts.{$column}") : false }}");
 	@endforeach
 
     $(function() {
