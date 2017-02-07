@@ -38,7 +38,7 @@ class DashboardController extends BaseController
         $pastDue = $dashboardRepo->pastDue($accountId, $userId, $viewAll);
         $upcoming = $dashboardRepo->upcoming($accountId, $userId, $viewAll);
         $payments = $dashboardRepo->payments($accountId, $userId, $viewAll);
-        $expenses = $dashboardRepo->expenses($accountId, $userId, $viewAll);
+        $expenses = $dashboardRepo->expenses($account, $userId, $viewAll);
         $tasks = $dashboardRepo->tasks($accountId, $userId, $viewAll);
 
         $showBlueVinePromo = $user->is_admin

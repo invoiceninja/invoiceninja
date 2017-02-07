@@ -1663,6 +1663,10 @@ class Account extends Eloquent
 
     public function financialYearStart()
     {
+        if (! $this->financial_year_start) {
+            return false;
+        }
+
         $yearStart = Carbon::parse($this->financial_year_start);
         $yearStart->year = date('Y');
 

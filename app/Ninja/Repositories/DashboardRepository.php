@@ -211,8 +211,8 @@ class DashboardRepository
 
         if ($startDate) {
             $paidToDate->where('payments.payment_date', '>=', $startDate);
-        } elseif ($account->financial_year_start) {
-            $paidToDate->where('payments.payment_date', '>=', $account->financialYearStart());
+        } elseif ($startDate = $account->financialYearStart()) {
+            $paidToDate->where('payments.payment_date', '>=', $startDate);
         }
 
         return $paidToDate->groupBy('payments.account_id')
@@ -242,8 +242,8 @@ class DashboardRepository
             $averageInvoice->where('invoices.user_id', '=', $userId);
         }
 
-        if ($account->financial_year_start) {
-            $averageInvoice->where('invoices.invoice_date', '>=', $account->financialYearStart());
+        if ($startDate = $account->financialYearStart()) {
+            $averageInvoice->where('invoices.invoice_date', '>=', $startDate);
         }
 
         return $averageInvoice->groupBy('accounts.id')
@@ -365,7 +365,7 @@ class DashboardRepository
                     ->get();
     }
 
-    public function expenses($accountId, $userId, $viewAll)
+    public function expenses($account, $userId, $viewAll)
     {
         $amountField = DB::getQueryGrammar()->wrap('expenses.amount', true);
         $taxRate1Field = DB::getQueryGrammar()->wrap('expenses.tax_rate1', true);
@@ -375,17 +375,21 @@ class DashboardRepository
             "SUM({$amountField} + ({$amountField} * {$taxRate1Field} / 100) + ({$amountField} * {$taxRate2Field} / 100)) as value,"
                   .DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true).' as currency_id'
         );
-        $paidToDate = DB::table('accounts')
+        $expenses = DB::table('accounts')
             ->select($select)
             ->leftJoin('expenses', 'accounts.id', '=', 'expenses.account_id')
-            ->where('accounts.id', '=', $accountId)
+            ->where('accounts.id', '=', $account->id)
             ->where('expenses.is_deleted', '=', false);
 
         if (! $viewAll) {
-            $paidToDate = $paidToDate->where('expenses.user_id', '=', $userId);
+            $expenses = $expenses->where('expenses.user_id', '=', $userId);
         }
 
-        return $paidToDate->groupBy('accounts.id')
+        if ($startDate = $account->financialYearStart()) {
+            $expenses->where('expenses.expense_date', '>=', $startDate);
+        }
+
+        return $expenses->groupBy('accounts.id')
             ->groupBy('expenses.expense_currency_id')
             ->get();
     }
