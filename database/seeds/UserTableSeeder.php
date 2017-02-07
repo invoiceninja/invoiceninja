@@ -39,7 +39,7 @@ class UserTableSeeder extends Seeder
             'header_font_id' => min(Font::all()->random()->id, 17),
             'body_font_id' => min(Font::all()->random()->id, 17),
             'primary_color' => $faker->hexcolor,
-            'timezone_id' => 1,
+            'timezone_id' => 58,
             'company_id' => $company->id,
             //'date_format_id' => DateFormat::all()->random()->id,
         ]);
