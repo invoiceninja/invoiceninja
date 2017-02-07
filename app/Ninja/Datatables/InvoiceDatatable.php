@@ -168,7 +168,7 @@ class InvoiceDatatable extends EntityDatatable
 
     private function getStatusLabel($model)
     {
-        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date);
+        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date, $model->is_recurring);
         $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";

@@ -608,9 +608,9 @@ class Invoice extends EntityModel implements BalanceAffecting
         return trans("texts.{$label}");
     }
 
-    public static function calcStatusClass($statusId, $balance, $dueDate)
+    public static function calcStatusClass($statusId, $balance, $dueDate, $isRecurring)
     {
-        if ($statusId >= INVOICE_STATUS_SENT && static::calcIsOverdue($balance, $dueDate)) {
+        if ($statusId >= INVOICE_STATUS_SENT && ! $isRecurring && static::calcIsOverdue($balance, $dueDate)) {
             return 'danger';
         }
 
@@ -637,7 +637,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function statusClass()
     {
-        return static::calcStatusClass($this->invoice_status_id, $this->balance, $this->getOriginal('due_date'));
+        return static::calcStatusClass($this->invoice_status_id, $this->balance, $this->getOriginal('due_date'), $this->is_recurring);
     }
 
     public function statusLabel()
