@@ -221,6 +221,11 @@
         </tbody>
         </table>
 
+		<br/>
+		<div style="color:#888888">
+			{{ trans('texts.reports_help') }}
+		</div>
+
         </div>
         </div>
 
