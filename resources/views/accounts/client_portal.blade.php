@@ -362,7 +362,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
 </div>
 
 
-<script>
+<script type="text/javascript">
 
     var products = {!! $products !!};
 
@@ -471,10 +471,6 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
 
     $('.iframe_url .input-group-addon').click(function() {
         $('#iframeHelpModal').modal('show');
-    });
-
-    $('.email_design_id .input-group-addon').click(function() {
-        $('#designHelpModal').modal('show');
     });
 
     $(function() {
