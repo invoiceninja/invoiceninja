@@ -79,7 +79,8 @@ class InvoiceRepository extends BaseRepository
                 'invoices.is_deleted',
                 'invoices.partial',
                 'invoices.user_id',
-                'invoices.is_public'
+                'invoices.is_public',
+                'invoices.is_recurring'
             );
 
         $this->applyFilters($query, $entityType, ENTITY_INVOICE);
