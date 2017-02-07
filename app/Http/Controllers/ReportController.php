@@ -48,6 +48,10 @@ class ReportController extends BaseController
      */
     public function showReports()
     {
+        if (! Auth::user()->hasPermission('view_all')) {
+            return redirect('/');
+        }
+
         $action = Input::get('action');
 
         if (Input::get('report_type')) {
@@ -118,6 +122,10 @@ class ReportController extends BaseController
      */
     private function export($reportType, $data, $columns, $totals)
     {
+        if (! Auth::user()->hasPermission('view_all')) {
+            exit;
+        }
+
         $output = fopen('php://output', 'w') or Utils::fatalError();
         $reportType = trans("texts.{$reportType}s");
         $date = date('Y-m-d');

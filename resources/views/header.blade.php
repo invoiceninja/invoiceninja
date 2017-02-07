@@ -521,7 +521,7 @@
                     ])
                 @endforeach
             @endif
-            @if (Auth::user()->is_admin)
+            @if (Auth::user()->hasPermission('view_all'))
                 @include('partials.navigation_option', ['option' => 'reports'])
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])

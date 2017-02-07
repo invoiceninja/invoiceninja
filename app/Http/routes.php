@@ -216,6 +216,9 @@ Route::group(['middleware' => 'auth:user'], function () {
     Route::get('bluevine/hide_message', 'BlueVineController@hideMessage');
     Route::get('bluevine/completed', 'BlueVineController@handleCompleted');
     Route::get('white_label/hide_message', 'NinjaController@hideWhiteLabelMessage');
+
+    Route::get('reports', 'ReportController@showReports');
+    Route::post('reports', 'ReportController@showReports');
 });
 
 Route::group([
@@ -244,8 +247,6 @@ Route::group([
     Route::post('settings/email_settings', 'AccountController@saveEmailSettings');
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
-    Route::get('reports', 'ReportController@showReports');
-    Route::post('reports', 'ReportController@showReports');
 
     Route::post('settings/change_plan', 'AccountController@changePlan');
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
