@@ -179,7 +179,8 @@ if (! defined('APP_NAME')) {
     define('INVOICE_STATUS_APPROVED', 4);
     define('INVOICE_STATUS_PARTIAL', 5);
     define('INVOICE_STATUS_PAID', 6);
-    define('INVOICE_STATUS_OVERDUE', 7);
+    define('INVOICE_STATUS_OVERDUE', -1);
+    define('INVOICE_STATUS_UNPAID', -2);
 
     define('PAYMENT_STATUS_PENDING', 1);
     define('PAYMENT_STATUS_VOIDED', 2);

@@ -1437,6 +1437,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         if ($entityType == ENTITY_INVOICE) {
+            $statuses[INVOICE_STATUS_UNPAID] = trans('texts.unpaid');
             $statuses[INVOICE_STATUS_OVERDUE] = trans('texts.overdue');
         }
 

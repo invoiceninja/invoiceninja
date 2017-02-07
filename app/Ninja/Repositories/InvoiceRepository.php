@@ -96,6 +96,12 @@ class InvoiceRepository extends BaseRepository
                     }
                     $query->orWhere('invoice_status_id', '=', $status);
                 }
+                if (in_array(INVOICE_STATUS_UNPAID, $statuses)) {
+                    $query->orWhere(function ($query) use ($statuses) {
+                        $query->where('invoices.balance', '>', 0)
+                              ->where('invoices.is_public', '=', true);
+                    });
+                }
                 if (in_array(INVOICE_STATUS_OVERDUE, $statuses)) {
                     $query->orWhere(function ($query) use ($statuses) {
                         $query->where('invoices.balance', '>', 0)
