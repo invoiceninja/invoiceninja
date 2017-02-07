@@ -48,6 +48,7 @@
 
   {!! Former::checkbox('is_admin')
       ->label('&nbsp;')
+      ->value(1)
       ->text(trans('texts.administrator'))
       ->help(trans('texts.administrator_help')) !!}
   {!! Former::checkbox('permissions[create_all]')
