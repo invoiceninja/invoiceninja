@@ -119,4 +119,12 @@
 
     {!! Former::close() !!}
 
+    <script type="text/javascript">
+
+        $('.email_design_id .input-group-addon').click(function() {
+            $('#designHelpModal').modal('show');
+        });
+
+    </script>
+
 @stop
