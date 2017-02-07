@@ -754,6 +754,8 @@ class InvoiceRepository extends BaseRepository
                 'tax_rate1',
                 'tax_name2',
                 'tax_rate2',
+                'custom_value1',
+                'custom_value2',
             ] as $field) {
                 $cloneItem->$field = $item->$field;
             }
