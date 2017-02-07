@@ -2354,6 +2354,8 @@ $LANG = array(
     'recipients' => 'Recipients',
     'save_as_default' => 'Save as default',
     'template' => 'Template',
+    'start_of_week_help' => 'Used by the <b>date</b> selector',
+    'financial_year_start_help' => 'Used by the <b>date range</b> selector',
 
 );
 
