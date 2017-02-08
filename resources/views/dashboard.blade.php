@@ -148,6 +148,15 @@
 
                     $('.currency').hide();
                     $('.currency_' + chartCurrencyId).show();
+
+					// add blank values to fix layout
+					var divs = ['revenue', 'expenses', 'outstanding']
+					for (var i=0; i<divs.length; i++) {
+						var type = divs[i];
+						if (!$('.' + type + '-panel .currency_' + chartCurrencyId).length) {
+							$('.' + type + '-panel .currency_blank').text(formatMoney(0, chartCurrencyId)).show();
+						}
+					}
                 })
             }
 
@@ -211,7 +220,7 @@
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body revenue-panel">
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.total_revenue') }}
@@ -230,6 +239,9 @@
                                 {{ Utils::formatMoney(0) }}
                             </div>
                         @endif
+						<div class="currency currency_blank" style="display:none">
+							&nbsp;
+						</div>
                     </div>
 					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
 						{{ trans('texts.last_30_days') }}
@@ -240,7 +252,7 @@
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body expenses-panel">
                 <div style="overflow:hidden">
                     @if (count($expenses))
                         <div class="in-thin">
@@ -254,6 +266,9 @@
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
                                 </div>
                             @endforeach
+							<div class="currency currency_blank" style="display:none">
+								&nbsp;
+							</div>
                         </div>
                     @else
                         <div class="in-thin">
@@ -273,6 +288,9 @@
                                     {{ Utils::formatMoney(0) }}
                                 </div>
                             @endif
+							<div class="currency currency_blank" style="display:none">
+								&nbsp;
+							</div>
                         </div>
                     @endif
 					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
@@ -284,7 +302,7 @@
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body outstanding-panel">
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.outstanding') }}
@@ -303,6 +321,9 @@
                                 {{ Utils::formatMoney(0) }}
                             </div>
                         @endif
+						<div class="currency currency_blank" style="display:none">
+							&nbsp;
+						</div>
                     </div>
 					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
 						{{ trans('texts.last_30_days') }}
