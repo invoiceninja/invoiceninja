@@ -122,7 +122,7 @@
                             ->raw() !!}
                 </div>
                 <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-                <button type="button" class="btn btn-info" onclick="onConfirmEmailClick()">{{ trans('texts.send_email') }}</button>
+                <button id="sendEmailButton" type="button" class="btn btn-info" onclick="onConfirmEmailClick()">{{ trans('texts.send_email') }}</button>
             </div>
             </div>
         </div>
@@ -148,6 +148,10 @@
         $('#recipients').html(getSendToEmails());
 		$('#emailModal').modal('show');
     }
+
+    $('#emailModal').on('shown.bs.modal', function () {
+        $('#sendEmailButton').focus();
+    });
 
     function loadTemplate() {
         @if (Utils::isPro())
