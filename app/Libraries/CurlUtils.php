@@ -57,11 +57,11 @@ class CurlUtils
 
         // Send the request
         $client->send($request, $response);
-        
+
         if ($response->getStatus() === 200) {
             return $response->getContent();
         } else {
-            //$response->getStatus();
+            Utils::logError('Local PhantomJS Error: ' . $response->getStatus() . ' - ' . $url);
             return false;
         }
     }
