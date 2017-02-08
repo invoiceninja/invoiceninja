@@ -41,7 +41,7 @@ class UserTableSeeder extends Seeder
             'primary_color' => $faker->hexcolor,
             'timezone_id' => 58,
             'company_id' => $company->id,
-            //'date_format_id' => DateFormat::all()->random()->id,
+            'pdf_email_attachment' => true,
         ]);
 
         $user = User::create([
