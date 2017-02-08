@@ -1288,6 +1288,9 @@
             // if the client's language is different then we can't use the browser version of the PDF
             } else if (clientLanguageId && clientLanguageId != accountLanguageId) {
                 submitAction('email');
+			// if queues are enabled we need to use PhantomJS
+			} else if ({{ config('queue.default') != 'sync' ? 'true' : 'false' }}) {
+				submitAction('email');
             } else {
                 preparePdfData('email');
             }
