@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "312df7e739006b94ffe7480e06284bdc",
-    "content-hash": "cba8dbe698812a5b877b7f6858e729e2",
+    "hash": "b6e23b5f8c00ff201ae64cc063b7df43",
+    "content-hash": "0754071754805a0616f43673985cd580",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -1088,16 +1088,16 @@
         },
         {
             "name": "collizo4sky/omnipay-wepay",
-            "version": "dev-address-fix",
+            "version": "1.3.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/hillelcoren/omnipay-wepay.git",
-                "reference": "f8bb3e4010c236018e4bd936f1b930b87f17e063"
+                "url": "https://github.com/collizo4sky/omnipay-wepay.git",
+                "reference": "ba24261cdbbbbe89bb9deaf3bcf4543bff772c21"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/f8bb3e4010c236018e4bd936f1b930b87f17e063",
-                "reference": "f8bb3e4010c236018e4bd936f1b930b87f17e063",
+                "url": "https://api.github.com/repos/collizo4sky/omnipay-wepay/zipball/ba24261cdbbbbe89bb9deaf3bcf4543bff772c21",
+                "reference": "ba24261cdbbbbe89bb9deaf3bcf4543bff772c21",
                 "shasum": ""
             },
             "require": {
@@ -1113,6 +1113,7 @@
                     "Omnipay\\WePay\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -1126,10 +1127,7 @@
                 "payment",
                 "wepay"
             ],
-            "support": {
-                "source": "https://github.com/hillelcoren/omnipay-wepay/tree/address-fix"
-            },
-            "time": "2016-12-12 18:28:29"
+            "time": "2017-01-17 16:39:16"
         },
         {
             "name": "container-interop/container-interop",
@@ -7439,7 +7437,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.16",
+            "version": "v2.8.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -7597,16 +7595,16 @@
         },
         {
             "name": "symfony/http-foundation",
-            "version": "v2.8.16",
+            "version": "v2.8.17",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/http-foundation.git",
-                "reference": "464cdde6757a40701d758112cc7ff2c6adf6e82f"
+                "reference": "37658106408cbde9617b41ddca633a22823ca45e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/464cdde6757a40701d758112cc7ff2c6adf6e82f",
-                "reference": "464cdde6757a40701d758112cc7ff2c6adf6e82f",
+                "url": "https://api.github.com/repos/symfony/http-foundation/zipball/37658106408cbde9617b41ddca633a22823ca45e",
+                "reference": "37658106408cbde9617b41ddca633a22823ca45e",
                 "shasum": ""
             },
             "require": {
@@ -7648,7 +7646,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2017-01-08 20:43:03"
+            "time": "2017-02-02 13:38:20"
         },
         {
             "name": "symfony/http-kernel",
@@ -11062,7 +11060,6 @@
         "jlapp/swaggervel": 20,
         "omnipay/braintree": 20,
         "gatepay/fedachdir": 20,
-        "collizo4sky/omnipay-wepay": 20,
         "codedge/laravel-selfupdater": 20
     },
     "prefer-stable": false,
