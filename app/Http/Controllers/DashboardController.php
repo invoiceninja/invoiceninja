@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Expense;
 use App\Ninja\Repositories\DashboardRepository;
 use Auth;
 use Utils;
@@ -58,26 +59,6 @@ class DashboardController extends BaseController
             }
         }
 
-        // check if the account has multiple curencies
-        $currencyIds = $account->currency_id ? [$account->currency_id] : [DEFAULT_CURRENCY];
-        $data = Client::scope()
-            ->withArchived()
-            ->distinct()
-            ->get(['currency_id'])
-            ->toArray();
-
-        array_map(function ($item) use (&$currencyIds) {
-            $currencyId = intval($item['currency_id']);
-            if ($currencyId && ! in_array($currencyId, $currencyIds)) {
-                $currencyIds[] = $currencyId;
-            }
-        }, $data);
-
-        $currencies = [];
-        foreach ($currencyIds as $currencyId) {
-            $currencies[$currencyId] = Utils::getFromCache($currencyId, 'currencies')->code;
-        }
-
         $data = [
             'account' => $user->account,
             'user' => $user,
@@ -93,7 +74,7 @@ class DashboardController extends BaseController
             'title' => trans('texts.dashboard'),
             'hasQuotes' => $hasQuotes,
             'showBreadcrumbs' => false,
-            'currencies' => $currencies,
+            'currencies' => $this->getCurrencyCodes(),
             'expenses' => $expenses,
             'tasks' => $tasks,
             'showBlueVinePromo' => $showBlueVinePromo,
@@ -121,6 +102,47 @@ class DashboardController extends BaseController
         }
 
         return View::make('dashboard', $data);
+    }
+
+    private function getCurrencyCodes()
+    {
+        $account = Auth::user()->account;
+        $currencyIds = $account->currency_id ? [$account->currency_id] : [DEFAULT_CURRENCY];
+
+        // get client/invoice currencies
+        $data = Client::scope()
+            ->withArchived()
+            ->distinct()
+            ->get(['currency_id'])
+            ->toArray();
+
+        array_map(function ($item) use (&$currencyIds) {
+            $currencyId = intval($item['currency_id']);
+            if ($currencyId && ! in_array($currencyId, $currencyIds)) {
+                $currencyIds[] = $currencyId;
+            }
+        }, $data);
+
+        // get expense currencies
+        $data = Expense::scope()
+            ->withArchived()
+            ->distinct()
+            ->get(['expense_currency_id'])
+            ->toArray();
+
+        array_map(function ($item) use (&$currencyIds) {
+            $currencyId = intval($item['expense_currency_id']);
+            if ($currencyId && ! in_array($currencyId, $currencyIds)) {
+                $currencyIds[] = $currencyId;
+            }
+        }, $data);
+
+        $currencies = [];
+        foreach ($currencyIds as $currencyId) {
+            $currencies[$currencyId] = Utils::getFromCache($currencyId, 'currencies')->code;
+        }
+
+        return $currencies;
     }
 
     public function chartData($groupBy, $startDate, $endDate, $currencyCode, $includeExpenses)
