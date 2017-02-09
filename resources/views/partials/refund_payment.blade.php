@@ -13,7 +13,7 @@
                 <div class="col-sm-4">
                     <div class="input-group">
                             <span class="input-group-addon" id="refundCurrencySymbol"></span>
-                        <input type="number" class="form-control" id="refundAmount" name="amount" step="0.01" min="0.01" placeholder="{{ trans('texts.amount') }}">
+                        <input type="number" class="form-control" id="refundAmount" name="refund_amount" step="0.01" min="0.01" placeholder="{{ trans('texts.amount') }}">
                     </div>
                     <div class="help-block">{{ trans('texts.refund_max') }} <span id="refundMax"></span></div>
                 </div>
