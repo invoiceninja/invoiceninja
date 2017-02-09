@@ -139,7 +139,7 @@ class HomeController extends BaseController
             if ( ! Utils::isNinja()) {
                 $subject .= ': v' . NINJA_VERSION;
             }
-            $message->to(CONTACT_EMAIL)
+            $message->to(env('CONTACT_EMAIL'))
                     ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
                     ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
                     ->subject($subject);
