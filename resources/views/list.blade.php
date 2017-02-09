@@ -132,7 +132,7 @@
 			$('#public_id_{{ $entityType }}').val(id);
 		}
 
-		if (action == 'delete') {
+		if (action == 'delete' || action == 'emailInvoice') {
 	        sweetConfirm(function() {
 	            $('#action_{{ $entityType }}').val(action);
 	    		$('form.listForm_{{ $entityType }}').submit();
