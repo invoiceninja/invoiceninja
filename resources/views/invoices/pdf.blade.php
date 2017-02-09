@@ -1,6 +1,6 @@
 @if (empty($hide_pdf))
-<iframe id="theFrame" style="display:block" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></iframe>
-<div id="theCanvasDiv" style="display:none;width:100%;background-color:#525659;border:solid 2px #9a9a9a;padding-top:40px;text-align:center">
+<object id="pdfObject" type="application/pdf" style="display:block;background-color:#525659;border:solid 2px #9a9a9a;" frameborder="1" width="100%" height="{{ isset($pdfHeight) ? $pdfHeight : 1180 }}px"></object>
+<div id="pdfCanvas" style="display:none;width:100%;background-color:#525659;border:solid 2px #9a9a9a;padding-top:40px;text-align:center">
     <canvas id="theCanvas" style="max-width:100%;border:solid 1px #CCCCCC;"></canvas>
 </div>
 @endif
@@ -126,7 +126,7 @@
     var forceJS = {{ Auth::check() && Auth::user()->force_pdfjs ? 'true' : 'false' }};
     // Use the browser's built in PDF viewer
     if ((isChrome || isFirefox) && ! forceJS && ! isMobile) {
-      $('#theFrame').attr('src', string).show();
+      document.getElementById('pdfObject').data = string;
     // Use PDFJS to view the PDF
     } else {
       if (isRefreshing) {
@@ -147,8 +147,8 @@
           canvas.width = viewport.width;
 
           page.render({canvasContext: context, viewport: viewport});
-          $('#theFrame').hide();
-          $('#theCanvasDiv').show();
+          $('#pdfObject').hide();
+          $('#pdfCanvas').show();
           isRefreshing = false;
           if (needsRefresh) {
             needsRefresh = false;
