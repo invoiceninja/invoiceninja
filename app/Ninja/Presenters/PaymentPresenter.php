@@ -12,6 +12,11 @@ class PaymentPresenter extends EntityPresenter
         return Utils::formatMoney($this->entity->amount, $this->entity->client->currency_id);
     }
 
+    public function currencySymbol()
+    {
+        return Utils::getFromCache($this->entity->currency_id ? $this->entity->currency_id : DEFAULT_CURRENCY, 'currencies')->symbol;
+    }
+
     public function client()
     {
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';

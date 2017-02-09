@@ -92,6 +92,8 @@
 
 	</center>
 
+    @include('partials/refund_payment')
+
 	{!! Former::close() !!}
 
 	<script type="text/javascript">
@@ -133,6 +135,10 @@
     function submitAction(action) {
         $('#action').val(action);
         $('.main-form').submit();
+    }
+
+    function submitForm_payment(action) {
+        submitAction(action);
     }
 
     function onDeleteClick() {

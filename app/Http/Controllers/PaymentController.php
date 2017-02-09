@@ -134,6 +134,11 @@ class PaymentController extends BaseController
             $actions[] = ['url' => url("/invoices/invoice_history/{$payment->invoice->public_id}?payment_id={$payment->public_id}"), 'label' => trans('texts.view_invoice')];
         }
         $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
+
+        if ($payment->canBeRefunded()) {
+            $actions[] = ['url' => "javascript:showRefundModal({$payment->public_id}, \"{$payment->getCompletedAmount()}\", \"{$payment->present()->amount}\", \"{$payment->present()->currencySymbol}\")", 'label' => trans('texts.refund_payment')];
+        }
+
         $actions[] = DropdownButton::DIVIDER;
         if (! $payment->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_payment')];
@@ -195,7 +200,7 @@ class PaymentController extends BaseController
      */
     public function update(UpdatePaymentRequest $request)
     {
-        if (in_array($request->action, ['archive', 'delete', 'restore'])) {
+        if (in_array($request->action, ['archive', 'delete', 'restore', 'refund'])) {
             return self::bulk();
         }
 

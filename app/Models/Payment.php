@@ -281,6 +281,11 @@ class Payment extends EntityModel
         return $this->amount - $this->refunded;
     }
 
+    public function canBeRefunded()
+    {
+        return $this->getCompletedAmount() > 0 && ($this->isCompleted() || $this->isPartiallyRefunded());
+    }
+
     /**
      * @return mixed|null|\stdClass|string
      */
