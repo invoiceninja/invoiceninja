@@ -2356,7 +2356,8 @@ $LANG = array(
     'template' => 'Template',
     'start_of_week_help' => 'Used by <b>date</b> selectors',
     'financial_year_start_help' => 'Used by <b>date range</b> selectors',
-    'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.'
+    'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.',
+    'this_year' => 'This Year',
 
 );
 

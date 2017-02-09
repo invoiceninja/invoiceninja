@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Presenters;
 
+use Carbon;
 use Domain;
 use Laracasts\Presenter\Presenter;
 use stdClass;
@@ -111,5 +112,24 @@ class AccountPresenter extends Presenter
         $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => time()]);
 
         return $data;
+    }
+
+    public function dateRangeOptions()
+    {
+        $yearStart = Carbon::parse($this->entity->financialYearStart() ?: '2000-01-01');
+        $month = $yearStart->month - 1;
+        $year = $yearStart->year;
+        $lastYear = $year - 1;
+
+        $str = '{
+            "' . trans('texts.last_7_days') . '": [moment().subtract(6, "days"), moment()],
+            "' . trans('texts.last_30_days') . '": [moment().subtract(29, "days"), moment()],
+            "' . trans('texts.this_month') . '": [moment().startOf("month"), moment().endOf("month")],
+            "' . trans('texts.last_month') . '": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
+            "' . trans('texts.this_year') . '": [moment().date(1).month(' . $month . ').year(' . $year . '), moment()],
+            "' . trans('texts.last_year') . '": [moment().date(1).month(' . $month . ').year(' . $lastYear . '), moment().date(1).month(' . $month . ').year(' . $year . ').subtract(1, "day")],
+        }';
+
+        return $str;
     }
 }
