@@ -136,7 +136,7 @@ class PaymentController extends BaseController
         $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
 
         if ($payment->canBeRefunded()) {
-            $actions[] = ['url' => "javascript:showRefundModal({$payment->public_id}, \"{$payment->getCompletedAmount()}\", \"{$payment->present()->amount}\", \"{$payment->present()->currencySymbol}\")", 'label' => trans('texts.refund_payment')];
+            $actions[] = ['url' => "javascript:showRefundModal({$payment->public_id}, \"{$payment->getCompletedAmount()}\", \"{$payment->present()->completedAmount}\", \"{$payment->present()->currencySymbol}\")", 'label' => trans('texts.refund_payment')];
         }
 
         $actions[] = DropdownButton::DIVIDER;
