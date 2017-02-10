@@ -4,6 +4,7 @@ namespace App\Ninja\Presenters;
 
 use Carbon;
 use Domain;
+use App\Models\TaxRate;
 use Laracasts\Presenter\Presenter;
 use stdClass;
 use Utils;
@@ -131,5 +132,21 @@ class AccountPresenter extends Presenter
         }';
 
         return $str;
+    }
+
+    public function taxRateOptions()
+    {
+        $rates = TaxRate::scope()->orderBy('name')->get();
+        $options = [];
+
+        foreach ($rates as $rate) {
+            $name = $rate->name . ' ' . ($rate->rate + 0) . '%';
+            if ($rate->is_inclusive) {
+                $name .= ' - ' . trans('texts.inclusive');
+            }
+            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
+        }
+
+        return $options;
     }
 }

@@ -219,6 +219,8 @@ class InvoiceController extends BaseController
 
     private static function getViewModel($invoice)
     {
+        $account = Auth::user()->account;
+
         $recurringHelp = '';
         $recurringDueDateHelp = '';
         $recurringDueDates = [];
@@ -282,25 +284,6 @@ class InvoiceController extends BaseController
             }
         }
 
-        // Tax rate $options
-        $account = Auth::user()->account;
-        $rates = TaxRate::scope()->orderBy('name')->get();
-        $options = [];
-        $defaultTax = false;
-
-        foreach ($rates as $rate) {
-            $name = $rate->name . ' ' . ($rate->rate + 0) . '%';
-            if ($rate->is_inclusive) {
-                $name .= ' - ' . trans('texts.inclusive');
-            }
-            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
-
-            // load default invoice tax
-            if ($rate->id == $account->default_tax_rate_id) {
-                $defaultTax = $rate;
-            }
-        }
-
         // Check for any taxes which have been deleted
         if ($invoice->exists) {
             foreach ($invoice->getTaxes() as $key => $rate) {
@@ -315,8 +298,8 @@ class InvoiceController extends BaseController
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
-            'taxRateOptions' => $options,
-            'defaultTax' => $defaultTax,
+            'taxRateOptions' => $account->present()->taxRateOptions,
+            'defaultTax' => $account->default_tax_rate,
             'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),
             'paymentTerms' => Cache::get('paymentTerms'),
