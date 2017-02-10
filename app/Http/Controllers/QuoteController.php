@@ -98,7 +98,11 @@ class QuoteController extends BaseController
         $defaultTax = false;
 
         foreach ($rates as $rate) {
-            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';
+            $name = $rate->name . ' ' . ($rate->rate + 0) . '%';
+            if ($rate->is_inclusive) {
+                $name .= ' - ' . trans('texts.inclusive');
+            }
+            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
 
             // load default invoice tax
             if ($rate->id == $account->default_tax_rate_id) {
