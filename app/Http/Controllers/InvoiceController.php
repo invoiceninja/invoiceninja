@@ -167,6 +167,11 @@ class InvoiceController extends BaseController
                             $contact->invitation_openend = $invitation->opened_date && $invitation->opened_date != '0000-00-00 00:00:00' ? $invitation->opened_date : false;
                             $contact->invitation_status = $contact->email_error ? false : $invitation->getStatus();
                             $contact->invitation_signature_svg = $invitation->signatureDiv();
+
+                            // when using invoice.services prevent markng as viewed
+                            if (Utils::isNinja() && $account->domain_id != \Domain::INVOICENINJA_COM) {
+                                $contact->invitation_link .= '?silent=true';
+                            }
                         }
                     }
                 }
