@@ -12,6 +12,8 @@ Detailed Guides
 
 - Debian and Nginx: `rosehosting.com <https://www.rosehosting.com/blog/install-invoice-ninja-on-a-debian-7-vps/>`_
 
+- CentOS, Nginx, MariaDB and PHP 7: `thishosting.rocks <https://thishosting.rocks/how-to-install-invoice-ninja-on-centos/>`_
+
 Automated Installers
 ^^^^^^^^^^^^^^^^^^^^
 
