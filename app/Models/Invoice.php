@@ -956,6 +956,10 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getNextSendDate()
     {
+        if (! $this->is_public) {
+            return null;
+        }
+
         if ($this->start_date && ! $this->last_sent_date) {
             $startDate = $this->getOriginal('start_date') . ' ' . $this->account->recurring_hour . ':00:00';
 
