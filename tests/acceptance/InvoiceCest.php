@@ -28,6 +28,8 @@ class InvoiceCest
         $I->click('Save');
         $I->see($clientEmail);
 
+        $clientId = $I->grabFromCurrentUrl('~clients/(\d+)~');
+
         $I->amOnPage('/tax_rates/create');
         $I->fillField(['name' => 'name'], $itemTaxName);
         $I->fillField(['name' => 'rate'], 21);
@@ -38,18 +40,22 @@ class InvoiceCest
 
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
+        // check tax and discount rounding
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->selectDataPicker($I, '#invoice_date');
         $I->selectDataPicker($I, '#due_date', '+ 15 day');
         $I->fillField('#po_number', rand(100, 200));
         $I->fillField('#discount', 15);
-
+        $I->selectOption('#taxRateSelect1', $itemTaxName . ' 21%');
         $this->fillItem($I, 1, 'Item', 'Notes', 64.50, 3);
 
         $I->click('#saveButton');
         $I->wait(1);
         $I->see($invoiceNumber);
-        //$I->see('199.01');
+        $I->see('199.01');
+
+        $I->amOnPage("/clients/{$clientId}#invoices");
+        $I->see('199.01');
     }
 
     /*
@@ -87,7 +93,8 @@ class InvoiceCest
         }
     }
     */
-    private function createRecurringInvoice(AcceptanceTester $I)
+
+    public function createRecurringInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
 
@@ -118,7 +125,7 @@ class InvoiceCest
     }
 
 
-    private function cloneInvoice(AcceptanceTester $I)
+    public function cloneInvoice(AcceptanceTester $I)
     {
         $I->wantTo('clone an invoice');
         $I->amOnPage('/invoices/1/clone');
