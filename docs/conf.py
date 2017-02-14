@@ -49,7 +49,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Invoice Ninja'
-copyright = u'2016, Invoice Ninja'
+copyright = u'2017, Invoice Ninja'
 author = u'Invoice Ninja'
 
 # The version info for the project you're documenting, acts as replacement for
