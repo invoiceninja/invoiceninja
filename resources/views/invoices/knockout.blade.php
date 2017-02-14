@@ -894,9 +894,9 @@ ko.bindingHandlers.productTypeahead = {
             name: 'data',
             display: allBindings.key,
             limit: 50,
-            //templates: {
-            //    suggestion: function(item) { return '<div>' + item.product_key + '<div class="pull-right">' + item.cost + '</div>' }
-            //},
+            templates: {
+                suggestion: function(item) { return '<div title="' + item.product_key + '">' + item.product_key + '</div>' }
+            },
             source: searchData(allBindings.items, allBindings.key)
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)
