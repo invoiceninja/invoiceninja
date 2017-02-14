@@ -19,6 +19,7 @@ class InvoiceCest
     public function createInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
+        $itemTaxName = 'TAX_21';
 
         $I->wantTo('create an invoice');
 
@@ -28,7 +29,7 @@ class InvoiceCest
         $I->see($clientEmail);
 
         $I->amOnPage('/tax_rates/create');
-        $I->fillField(['name' => 'name'], 'TAX_21');
+        $I->fillField(['name' => 'name'], $itemTaxName);
         $I->fillField(['name' => 'rate'], 21);
         $I->click('Save');
         $I->see($itemTaxName);
@@ -43,11 +44,12 @@ class InvoiceCest
         $I->fillField('#po_number', rand(100, 200));
         $I->fillField('#discount', 15);
 
-        $this->fillItem($I, 'Item', 'Notes', 64.50, 3);
+        $this->fillItem($I, 1, 'Item', 'Notes', 64.50, 3);
 
         $I->click('#saveButton');
         $I->wait(1);
         $I->see($invoiceNumber);
+        //$I->see('199.01');
     }
 
     /*
@@ -150,23 +152,24 @@ class InvoiceCest
 
     private function fillItems(AcceptanceTester $I, $max = 2)
     {
-        for ($i = 1; $i <= $max; $i++) {
-            $row_selector = sprintf('table.invoice-table tbody tr:nth-child(%d) ', $i);
+        for ($row = 1; $row <= $max; $row++) {
 
             $product = $this->faker->text(10);
             $description = $this->faker->text(80);
             $cost = $this->faker->randomFloat(2, 0, 100);
             $quantity = $this->faker->randomDigitNotNull;
 
-            $this->fillItem($I, $product, $description, $cost, $quantity);
+            $this->fillItem($I, $row, $product, $description, $cost, $quantity);
         }
     }
 
-    private function fillItem(AcceptanceTester $I, $product, $description, $cost, $quantity)
+    private function fillItem(AcceptanceTester $I, $row, $product, $description, $cost, $quantity)
     {
-        $I->fillField($row_selector.'#product_key', $product_key);
+        $row_selector = sprintf('table.invoice-table tbody tr:nth-child(%d) ', $row);
+
+        $I->fillField($row_selector.'#product_key', $product);
         $I->fillField($row_selector.'textarea', $description);
-        $I->fillField($row_selector.'td:nth-child(4) input', $unit_cost);
+        $I->fillField($row_selector.'td:nth-child(4) input', $cost);
         $I->fillField($row_selector.'td:nth-child(5) input', $quantity);
     }
 }
