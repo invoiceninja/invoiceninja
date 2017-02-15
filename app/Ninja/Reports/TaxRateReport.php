@@ -8,6 +8,7 @@ use Auth;
 class TaxRateReport extends AbstractReport
 {
     public $columns = [
+        'invoice',
         'tax_name',
         'tax_rate',
         'amount',
@@ -22,7 +23,10 @@ class TaxRateReport extends AbstractReport
                         ->withArchived()
                         ->with('contacts')
                         ->with(['invoices' => function ($query) {
-                            $query->with('invoice_items')->withArchived();
+                            $query->with('invoice_items')
+                                ->withArchived()
+                                ->invoices()
+                                ->where('is_public', '=', true);
                             if ($this->options['date_field'] == FILTER_INVOICE_DATE) {
                                 $query->where('invoice_date', '>=', $this->startDate)
                                       ->where('invoice_date', '<=', $this->endDate)
@@ -43,11 +47,10 @@ class TaxRateReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             $currencyId = $client->currency_id ?: Auth::user()->account->getCurrencyId();
-            $amount = 0;
-            $paid = 0;
-            $taxTotals = [];
 
             foreach ($client->invoices as $invoice) {
+                $taxTotals = [];
+
                 foreach ($invoice->getTaxes(true) as $key => $tax) {
                     if (! isset($taxTotals[$currencyId])) {
                         $taxTotals[$currencyId] = [];
@@ -60,22 +63,20 @@ class TaxRateReport extends AbstractReport
                     }
                 }
 
-                $amount += $invoice->amount;
-                $paid += $invoice->getAmountPaid();
-            }
+                foreach ($taxTotals as $currencyId => $taxes) {
+                    foreach ($taxes as $tax) {
+                        $this->data[] = [
+                            $invoice->present()->link,
+                            $tax['name'],
+                            $tax['rate'] . '%',
+                            $account->formatMoney($tax['amount'], $client),
+                            $account->formatMoney($tax['paid'], $client),
+                        ];
+                    }
 
-            foreach ($taxTotals as $currencyId => $taxes) {
-                foreach ($taxes as $tax) {
-                    $this->data[] = [
-                        $tax['name'],
-                        $tax['rate'] . '%',
-                        $account->formatMoney($tax['amount'], $client),
-                        $account->formatMoney($tax['paid'], $client),
-                    ];
+                    $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
+                    $this->addToTotals($client->currency_id, 'paid', $invoice->getAmountPaid());
                 }
-
-                $this->addToTotals($client->currency_id, 'amount', $tax['amount']);
-                $this->addToTotals($client->currency_id, 'paid', $tax['paid']);
             }
         }
     }
