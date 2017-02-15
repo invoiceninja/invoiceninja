@@ -72,10 +72,10 @@ class TaxRateReport extends AbstractReport
                             $account->formatMoney($tax['amount'], $client),
                             $account->formatMoney($tax['paid'], $client),
                         ];
-                    }
 
-                    $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
-                    $this->addToTotals($client->currency_id, 'paid', $invoice->getAmountPaid());
+                        $this->addToTotals($client->currency_id, 'amount', $tax['amount']);
+                        $this->addToTotals($client->currency_id, 'paid', $tax['paid']);
+                    }
                 }
             }
         }
