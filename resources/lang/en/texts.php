@@ -2359,6 +2359,12 @@ $LANG = array(
     'reports_help' => 'Shift + Click to sort by multple columns, Ctrl + Click to clear the grouping.',
     'this_year' => 'This Year',
 
+	// Updated login screen
+	'ninja_tagline' => 'Create. Send. Get Paid.',
+	'login_or_existing' => 'Or login with an existing account.',
+	'sign_up_now' => 'Sign Up Now',
+	'not_a_member_yet' => 'Not a member yet?',
+	'login_create_an_account' => 'Create an Account!',
 );
 
 return $LANG;
