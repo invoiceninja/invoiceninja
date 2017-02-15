@@ -1203,7 +1203,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         try {
             if (env('PHANTOMJS_BIN_PATH')) {
-                $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true');
+                $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
             } elseif ($key = env('PHANTOMJS_CLOUD_KEY')) {
                 if (Utils::isNinjaDev()) {
                     $link = env('TEST_LINK');
