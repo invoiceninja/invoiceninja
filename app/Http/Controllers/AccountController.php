@@ -797,7 +797,8 @@ class AccountController extends BaseController
     {
         $account = $request->user()->account;
         $account->fill($request->all());
-        $account->subdomain = $request->subdomain;
+        $account->client_view_css = $request->client_view_css;
+		$account->subdomain = $request->subdomain;
         $account->iframe_url = $request->iframe_url;
         $account->save();
 
