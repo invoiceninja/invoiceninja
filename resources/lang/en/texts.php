@@ -2365,6 +2365,7 @@ $LANG = array(
 	'sign_up_now' => 'Sign Up Now',
 	'not_a_member_yet' => 'Not a member yet?',
 	'login_create_an_account' => 'Create an Account!',
+	'client_login' => 'Client Login',
 );
 
 return $LANG;

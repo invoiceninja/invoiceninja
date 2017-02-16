@@ -22,7 +22,7 @@
         </div>
     @endif
 
-<!-- if there are login errors, show them here -->
+    <!-- if there are login errors, show them here -->
     @if (Session::has('warning'))
         <div class="alert alert-warning">{{ Session::get('warning') }}</div>
     @endif

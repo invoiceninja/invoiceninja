@@ -59,9 +59,6 @@ class ClientPortalController extends BaseController
         if (! $account->checkSubdomain(Request::server('HTTP_HOST'))) {
             return response()->view('error', [
                 'error' => trans('texts.invoice_not_found'),
-                'hideHeader' => true,
-                'clientViewCSS' => $account->clientViewCSS(),
-                'clientFontUrl' => $account->getFontsUrl(),
             ]);
         }
 

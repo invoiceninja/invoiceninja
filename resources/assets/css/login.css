@@ -11,6 +11,10 @@ hr.green {
     border: 0;
 }
 
+.alert li{
+    list-style: none;
+}
+
 /****** HEADER ********************************************************************/
 
 .row.header {
@@ -316,7 +320,5 @@ fieldset[disabled] .btn-primary.active {
 
 .form-signin .form-control {
     padding: 15px;
+    border: 1px solid #e8e8e8;
 }
-
-.form-control {
-    border: 1px solid #e8e8

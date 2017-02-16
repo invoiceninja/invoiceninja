@@ -28,7 +28,9 @@ class AuthController extends Controller
      */
     public function showLoginForm()
     {
-        $data = [];
+        $data = [
+			'clientauth' => true,
+		];
 
         $contactKey = session('contact_key');
         if ($contactKey) {
@@ -86,6 +88,6 @@ class AuthController extends Controller
      */
     public function getSessionExpired()
     {
-        return view('clientauth.sessionexpired');
+        return view('clientauth.sessionexpired')->with(['clientauth' => true]);
     }
 }

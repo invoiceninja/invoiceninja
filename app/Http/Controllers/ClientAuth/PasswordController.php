@@ -48,7 +48,9 @@ class PasswordController extends Controller
      */
     public function showLinkRequestForm()
     {
-        $data = [];
+        $data = [
+        	'clientauth' => true,
+		];
         $contactKey = session('contact_key');
         if ($contactKey) {
             $contact = Contact::where('contact_key', '=', $contactKey)->first();
@@ -115,7 +117,11 @@ class PasswordController extends Controller
             return $this->getEmail();
         }
 
-        $data = compact('token');
+        $data = array(
+        	'token' => $token,
+			'clientauth' => true,
+		);
+
         if ($key) {
             $contact = Contact::where('contact_key', '=', $key)->first();
             if ($contact && ! $contact->is_deleted) {
