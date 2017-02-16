@@ -1231,19 +1231,18 @@ class AccountController extends BaseController
     public function removeLogo()
     {
         $account = Auth::user()->account;
-        if ($account->hasLogo()) {
-            if ( ! Utils::isNinjaProd()) {
-                $account->getLogoDisk()->delete($account->logo);
-            }
 
-            $account->logo = null;
-            $account->logo_size = null;
-            $account->logo_width = null;
-            $account->logo_height = null;
-            $account->save();
-
-            Session::flash('message', trans('texts.removed_logo'));
+        if (! Utils::isNinjaProd() && $account->hasLogo()) {
+            $account->getLogoDisk()->delete($account->logo);
         }
+
+        $account->logo = null;
+        $account->logo_size = null;
+        $account->logo_width = null;
+        $account->logo_height = null;
+        $account->save();
+
+        Session::flash('message', trans('texts.removed_logo'));
 
         return Redirect::to('settings/'.ACCOUNT_COMPANY_DETAILS);
     }
