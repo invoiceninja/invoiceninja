@@ -32,17 +32,6 @@ class AuthController extends Controller
 			'clientauth' => true,
 		];
 
-        $contactKey = session('contact_key');
-        if ($contactKey) {
-            $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted) {
-                $account = $contact->account;
-
-                $data['account'] = $account;
-                $data['clientFontUrl'] = $account->getFontsUrl();
-            }
-        }
-
         return view('clientauth.login')->with($data);
     }
 
