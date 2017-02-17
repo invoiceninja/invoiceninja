@@ -28,18 +28,9 @@ class AuthController extends Controller
      */
     public function showLoginForm()
     {
-        $data = [];
-
-        $contactKey = session('contact_key');
-        if ($contactKey) {
-            $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted) {
-                $account = $contact->account;
-
-                $data['account'] = $account;
-                $data['clientFontUrl'] = $account->getFontsUrl();
-            }
-        }
+        $data = [
+			'clientauth' => true,
+		];
 
         return view('clientauth.login')->with($data);
     }
@@ -86,6 +77,6 @@ class AuthController extends Controller
      */
     public function getSessionExpired()
     {
-        return view('clientauth.sessionexpired');
+        return view('clientauth.sessionexpired')->with(['clientauth' => true]);
     }
 }

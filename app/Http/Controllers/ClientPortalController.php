@@ -59,9 +59,6 @@ class ClientPortalController extends BaseController
         if (! $account->checkSubdomain(Request::server('HTTP_HOST'))) {
             return response()->view('error', [
                 'error' => trans('texts.invoice_not_found'),
-                'hideHeader' => true,
-                'clientViewCSS' => $account->clientViewCSS(),
-                'clientFontUrl' => $account->getFontsUrl(),
             ]);
         }
 
@@ -134,7 +131,6 @@ class ClientPortalController extends BaseController
             'account' => $account,
             'showApprove' => $showApprove,
             'showBreadcrumbs' => false,
-            'clientFontUrl' => $account->getFontsUrl(),
             'invoice' => $invoice->hidePrivateFields(),
             'invitation' => $invitation,
             'invoiceLabels' => $account->getInvoiceLabels(),
@@ -255,7 +251,6 @@ class ClientPortalController extends BaseController
             'contact' => $contact,
             'account' => $account,
             'client' => $client,
-            'clientFontUrl' => $account->getFontsUrl(),
             'gateway' => $account->getTokenGateway(),
             'paymentMethods' => $customer ? $customer->payment_methods : false,
             'transactionToken' => $paymentDriver ? $paymentDriver->createTransactionToken() : false,
@@ -321,7 +316,6 @@ class ClientPortalController extends BaseController
             'color' => $color,
             'account' => $account,
             'client' => $contact->client,
-            'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.recurring_invoices'),
             'entityType' => ENTITY_RECURRING_INVOICE,
             'columns' => Utils::trans(['frequency', 'start_date', 'end_date', 'invoice_total', 'auto_bill']),
@@ -349,7 +343,6 @@ class ClientPortalController extends BaseController
             'color' => $color,
             'account' => $account,
             'client' => $contact->client,
-            'clientFontUrl' => $account->getFontsUrl(),
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
             'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date']),
@@ -394,7 +387,6 @@ class ClientPortalController extends BaseController
         $data = [
             'color' => $color,
             'account' => $account,
-            'clientFontUrl' => $account->getFontsUrl(),
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
             'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'status']),
@@ -479,7 +471,6 @@ class ClientPortalController extends BaseController
         $data = [
           'color' => $color,
           'account' => $account,
-          'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
           'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
@@ -515,7 +506,6 @@ class ClientPortalController extends BaseController
         $data = [
           'color' => $color,
           'account' => $account,
-          'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.credits'),
           'entityType' => ENTITY_CREDIT,
           'columns' => Utils::trans(['credit_date', 'credit_amount', 'credit_balance']),
@@ -551,7 +541,6 @@ class ClientPortalController extends BaseController
         $data = [
           'color' => $color,
           'account' => $account,
-          'clientFontUrl' => $account->getFontsUrl(),
           'title' => trans('texts.documents'),
           'entityType' => ENTITY_DOCUMENT,
           'columns' => Utils::trans(['invoice_number', 'name', 'document_date', 'document_size']),
@@ -760,8 +749,6 @@ class ClientPortalController extends BaseController
             'contact' => $contact,
             'color' => $account->primary_color ? $account->primary_color : '#0b4d78',
             'client' => $client,
-            'clientViewCSS' => $account->clientViewCSS(),
-            'clientFontUrl' => $account->getFontsUrl(),
             'paymentMethods' => $customer ? $customer->payment_methods : false,
             'gateway' => $account->getTokenGateway(),
             'title' => trans('texts.payment_methods'),

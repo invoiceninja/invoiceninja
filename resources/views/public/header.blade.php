@@ -43,11 +43,16 @@
   }
 
   $(function() {
-      // check that the footer appears at the bottom of the screen
-      var height = $(window).height() - ($('#header').height() + $('#footer').height());
-      if ($('#mainContent').height() < height) {
-          $('#mainContent').height(height);
+      function positionFooter() {
+          // check that the footer appears at the bottom of the screen
+          var height = $(window).height() - ($('#header').height() + $('#footer').height());
+          if ($('#mainContent').height() < height) {
+              $('#mainContent').css('min-height', height);
+          }
       }
+
+      positionFooter();
+      $(window).resize(positionFooter);
   })
 
 </script>
@@ -65,7 +70,8 @@
                 </button>
                 @if (!isset($account) || !$account->hasFeature(FEATURE_WHITE_LABEL))
                     {{-- Per our license, please do not remove or modify this link. --}}
-                    <a class="navbar-brand" href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank"><img src="{{ asset('images/invoiceninja-logo.png') }}" style="height:20px"></a>
+                    <a class="navbar-brand" href="{{ URL::to(NINJA_WEB_URL) }}" target="_blank"><img
+                                src="{{ asset('images/invoiceninja-logo.png') }}" style="height:27px"></a>
                 @endif
             </div>
             <div id="navbar" class="collapse navbar-collapse">

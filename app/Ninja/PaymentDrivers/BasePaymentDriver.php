@@ -166,7 +166,6 @@ class BasePaymentDriver
             'currencyCode' => $this->client()->getCurrencyCode(),
             'account' => $this->account(),
             'sourceId' => $sourceId,
-            'clientFontUrl' => $this->account()->getFontsUrl(),
             'tokenize' => $this->tokenize(),
             'transactionToken' => $this->createTransactionToken(),
         ];

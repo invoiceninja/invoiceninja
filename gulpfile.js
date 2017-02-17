@@ -55,8 +55,12 @@ elixir(function(mix) {
         'style.css',
         'sidebar.css',
         'colors.css',
-        'fonts.css'
+        'fonts.css',
     ], 'public/css/built.css');
+
+    mix.styles([
+       'login.css'
+    ], 'public/css/built.login.css');
 
     mix.styles([
         bowerDir + '/bootstrap-daterangepicker/daterangepicker.css'

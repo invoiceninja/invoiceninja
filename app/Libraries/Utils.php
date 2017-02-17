@@ -102,6 +102,46 @@ class Utils
         return self::getResllerType() ? true : false;
     }
 
+	public static function clientViewCSS()
+	{
+		$account = false;
+
+		if (Auth::check()) {
+			$account = Auth::user()->account;
+		} elseif ($contactKey = session('contact_key')) {
+			if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+				$account = $contact->account;
+			}
+		}
+
+		if ( !$account && ! self::isNinja()) {
+			// For self-hosted accounts, pick the first account
+			$account = \App\Models\Account::first();
+		}
+
+		return $account ? $account->clientViewCSS() : '';
+	}
+
+	public static function getAccountFontsUrl($protocol = '')
+	{
+		$account = false;
+
+		if (Auth::check()) {
+			$account = Auth::user()->account;
+		} elseif ($contactKey = session('contact_key')) {
+			if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+				$account = $contact->account;
+			}
+		}
+
+		if ( !$account && ! self::isNinja()) {
+			// For self-hosted accounts, pick the first account
+			$account = \App\Models\Account::first();
+		}
+
+		return $account ? $account->getFontsUrl($protocol) : false;
+	}
+
     public static function isWhiteLabel()
     {
         $account = false;
