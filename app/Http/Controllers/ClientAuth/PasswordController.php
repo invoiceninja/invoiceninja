@@ -48,16 +48,11 @@ class PasswordController extends Controller
      */
     public function showLinkRequestForm()
     {
-        $data = [];
+        $data = [
+        	'clientauth' => true,
+		];
         $contactKey = session('contact_key');
-        if ($contactKey) {
-            $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted) {
-                $account = $contact->account;
-                $data['account'] = $account;
-                $data['clientFontUrl'] = $account->getFontsUrl();
-            }
-        } else {
+        if (!$contactKey) {
             return \Redirect::to('/client/sessionexpired');
         }
 
@@ -115,7 +110,11 @@ class PasswordController extends Controller
             return $this->getEmail();
         }
 
-        $data = compact('token');
+        $data = array(
+        	'token' => $token,
+			'clientauth' => true,
+		);
+
         if ($key) {
             $contact = Contact::where('contact_key', '=', $key)->first();
             if ($contact && ! $contact->is_deleted) {
@@ -130,10 +129,7 @@ class PasswordController extends Controller
                 }
             }
 
-            if (! empty($account)) {
-                $data['account'] = $account;
-                $data['clientFontUrl'] = $account->getFontsUrl();
-            } else {
+            if ( empty($account)) {
                 return \Redirect::to('/client/sessionexpired');
             }
         }

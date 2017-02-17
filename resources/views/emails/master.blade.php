@@ -3,7 +3,9 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <!--[if !mso]><!-- -->
-    <link href="{{ isset($account) ? $account->getFontsUrl('http') : '' }}" rel="stylesheet" type="text/css" />
+    @if($fontsUrl = Utils::getAccountFontsUrl())
+    <link href="{{ $fontsUrl }}" rel="stylesheet" type="text/css" />
+    @endif
     <!--<![endif]-->
 </head>
 <body style="color: #000000;{!! isset($account) ? $account->getBodyFontCss() : '' !!}font-size: 12px; -webkit-text-size-adjust: none; -ms-text-size-adjust: none; background: #F4F5F5; margin: 0; padding: 0;" 
