@@ -2366,6 +2366,9 @@ $LANG = array(
 	'not_a_member_yet' => 'Not a member yet?',
 	'login_create_an_account' => 'Create an Account!',
 	'client_login' => 'Client Login',
+
+	// New Client Portal styling
+	'invoice_from' => 'Invoices From:',
 );
 
 return $LANG;
