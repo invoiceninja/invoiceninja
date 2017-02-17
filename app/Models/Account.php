@@ -717,10 +717,6 @@ class Account extends Eloquent
      */
     public function hasLogo()
     {
-        if($this->logo == ''){
-            $this->calculateLogoDetails();
-        }
-
         return !empty($this->logo);
     }
 

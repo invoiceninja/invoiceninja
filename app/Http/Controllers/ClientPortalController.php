@@ -46,6 +46,11 @@ class ClientPortalController extends BaseController
 
     public function view($invitationKey)
     {
+        if (request()->silent) {
+            session(['silent' => true]);
+            return redirect(request()->url());
+        }
+
         if (!$invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();
         }
@@ -65,7 +70,7 @@ class ClientPortalController extends BaseController
 
         $account->loadLocalizationSettings($client);
 
-        if (!Input::has('phantomjs') && !Input::has('silent') && !Session::has($invitationKey)
+        if (! Input::has('phantomjs') && ! session('silent') && ! Session::has($invitationKey)
             && (!Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
