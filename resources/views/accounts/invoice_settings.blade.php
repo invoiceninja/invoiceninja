@@ -29,7 +29,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{!! trans('texts.invoice_quote_number') !!}</h3>
+            <h3 class="panel-title">{!! trans('texts.generated_numbers') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
 
@@ -40,6 +40,9 @@
                     </li>
                     <li role="presentation">
                         <a href="#quote_number" aria-controls="quote_number" role="tab" data-toggle="tab">{{ trans('texts.quote_number') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#client_number" aria-controls="client_number" role="tab" data-toggle="tab">{{ trans('texts.client_number') }}</a>
                     </li>
                     <li role="presentation">
                         <a href="#recurring_invoice_number" aria-controls="recurring_invoice_number" role="tab" data-toggle="tab">{{ trans('texts.recurring_invoice_number') }}</a>
@@ -94,12 +97,48 @@
                         {!! Former::text('quote_number_counter')
                                 ->label(trans('texts.counter'))
                                 ->addGroupClass('pad-checkbox')
-                                ->append(Former::checkbox('share_counter')->raw()
+                                ->append(Former::checkbox('share_counter')->raw()->value(1)
                                 ->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter'))
                                 ->help(trans('texts.quote_number_help') . ' ' .
                                     trans('texts.next_quote_number', ['number' => $account->previewNextInvoiceNumber(ENTITY_QUOTE)])) !!}
 
 
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="client_number">
+                    <div class="panel-body">
+                        {!! Former::checkbox('client_number_enabled')
+                                ->label('client_number')
+                                ->onchange('onClientNumberEnabled()')
+                                ->text('enable')
+                                ->value(1)
+                                ->check($account->client_number_counter > 0) !!}
+
+                        <div id="clientNumberDiv" style="display:none">
+
+                            {!! Former::inline_radios('client_number_type')
+                                    ->onchange('onClientNumberTypeChange()')
+                                    ->label(trans('texts.type'))
+                                    ->radios([
+                                        trans('texts.prefix') => ['value' => 'prefix', 'name' => 'client_number_type'],
+                                        trans('texts.pattern') => ['value' => 'pattern', 'name' => 'client_number_type'],
+                                    ])->check($account->client_number_pattern ? 'pattern' : 'prefix') !!}
+
+                            {!! Former::text('client_number_prefix')
+                                    ->addGroupClass('client-prefix')
+                                    ->label(trans('texts.prefix')) !!}
+                            {!! Former::text('client_number_pattern')
+                                    ->appendIcon('question-sign')
+                                    ->addGroupClass('client-pattern')
+                                    ->addGroupClass('number-pattern')
+                                    ->label(trans('texts.pattern')) !!}
+                            {!! Former::text('client_number_counter')
+                                    ->label(trans('texts.counter'))
+                                    ->addGroupClass('pad-checkbox')
+                                    ->help(trans('texts.client_number_help') . ' ' .
+                                        trans('texts.next_client_number', ['number' => $account->getNextNumber() ?: '0001'])) !!}
+
+                        </div>
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="recurring_invoice_number">
@@ -199,11 +238,13 @@
                                 ->label(trans('texts.field_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes1')
+                                ->value(1)
                                 ->raw() . trans('texts.charge_taxes')) !!}
                         {!! Former::text('custom_invoice_label2')
                                 ->label(trans('texts.field_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')
+                                ->value(1)
                                 ->raw() . trans('texts.charge_taxes'))
                                 ->help(trans('texts.custom_invoice_charges_helps')) !!}
 
@@ -220,7 +261,8 @@
         <div class="panel-body form-padding-right">
             {!! Former::checkbox('auto_convert_quote')
                     ->text(trans('texts.enable'))
-                    ->blockHelp(trans('texts.auto_convert_quote_help')) !!}
+                    ->blockHelp(trans('texts.auto_convert_quote_help'))
+                    ->value(1) !!}
         </div>
     </div>
 
@@ -339,6 +381,28 @@
         }
     }
 
+    function onClientNumberTypeChange() {
+        var val = $('input[name=client_number_type]:checked').val()
+        if (val == 'prefix') {
+            $('.client-prefix').show();
+            $('.client-pattern').hide();
+        } else {
+            $('.client-prefix').hide();
+            $('.client-pattern').show();
+        }
+    }
+
+    function onClientNumberEnabled() {
+        var enabled = $('#client_number_enabled').is(':checked');
+        if (enabled) {
+            $('#clientNumberDiv').show();
+            $('#client_number_counter').val({{ $account->client_number_counter ?: 1 }});
+        } else {
+            $('#clientNumberDiv').hide();
+            $('#client_number_counter').val(0);
+        }
+    }
+
     $('.number-pattern .input-group-addon').click(function() {
         $('#patternHelpModal').modal('show');
     });
@@ -347,6 +411,8 @@
     	setQuoteNumberEnabled();
         onInvoiceNumberTypeChange();
         onQuoteNumberTypeChange();
+        onClientNumberTypeChange();
+        onClientNumberEnabled();
     });
 
 	</script>

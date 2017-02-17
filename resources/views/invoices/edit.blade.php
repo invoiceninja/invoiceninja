@@ -129,7 +129,7 @@
                             @if (Utils::isConfirmed())
 	                            <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
 	                                    data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
-	                            <span style="vertical-align:text-top" class="fa fa-info-circle"
+	                            <span style="vertical-align:text-top;padding-top:2px" class="fa fa-info-circle"
 	                                    data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
 	                                    style: {color: $data.info_color}"></span>
 								<span class="signature-wrapper">&nbsp;
@@ -297,19 +297,19 @@
                         style="text-align: right" class="form-control invoice-item" name="quantity"/>
 				</td>
 				<td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
-                    {!! Former::select('')
-                            ->addOption('', '')
-                            ->options($taxRateOptions)
-                            ->data_bind('value: tax1')
-                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
-                            ->raw() !!}
+	                    {!! Former::select('')
+	                            ->addOption('', '')
+	                            ->options($taxRateOptions)
+	                            ->data_bind('value: tax1, event:{change:onTax1Change}')
+	                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
+	                            ->raw() !!}
                     <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
                     <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
                     <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
                         {!! Former::select('')
                                 ->addOption('', '')
                                 ->options($taxRateOptions)
-                                ->data_bind('value: tax2')
+                                ->data_bind('value: tax2, event:{change:onTax2Change}')
                                 ->addClass('tax-select')
                                 ->raw() !!}
                     </div>
@@ -452,7 +452,7 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
-                            ->data_bind('value: tax1')
+                            ->data_bind('value: tax1, event:{change:onTax1Change}')
                             ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
@@ -461,7 +461,7 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
-                            ->data_bind('value: tax2')
+                            ->data_bind('value: tax2, event:{change:onTax2Change}')
                             ->raw() !!}
                     </div>
                     <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
@@ -580,14 +580,7 @@
 	</div>
 	<p>&nbsp;</p>
 
-	@if (Auth::user()->account->live_preview)
-		@include('invoices.pdf', ['account' => Auth::user()->account])
-	@else
-		<script type="text/javascript">
-			var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
-			function refreshPDF() {}
-		</script>
-	@endif
+	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview])
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
@@ -616,11 +609,20 @@
                     ->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }")
                     ->label('client_name') !!}
 
+				@if ( ! $account->client_number_counter)
                 <span data-bind="visible: $root.showMore">
+				@endif
 
-                    {!! Former::text('client[id_number]')
+            	{!! Former::text('client[id_number]')
                             ->label('id_number')
+							->placeholder($account->clientNumbersEnabled() ? $account->getNextNumber() : ' ')
                             ->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
+
+				@if ( ! $account->client_number_counter)
+				</span>
+				@endif
+
+				<span data-bind="visible: $root.showMore">
                     {!! Former::text('client[vat_number]')
                             ->label('vat_number')
                             ->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") !!}
@@ -1589,7 +1591,7 @@
         @if ($invoice->id || !$account->hasClientNumberPattern($invoice))
             return;
         @endif
-        var number = '{{ $account->getNumberPattern($invoice) }}';
+        var number = '{{ $account->applyNumberPattern($invoice) }}';
         number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
         model.invoice().invoice_number(number);

@@ -22,23 +22,28 @@
 
     {!! Former::checkbox('invoice_taxes')
         ->text(trans('texts.enable_invoice_tax'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
     {!! Former::checkbox('invoice_item_taxes')
         ->text(trans('texts.enable_line_item_tax'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
     {!! Former::checkbox('show_item_taxes')
         ->text(trans('texts.show_line_item_tax'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
     {!! Former::checkbox('include_item_taxes_inline')
         ->text(trans('texts.include_item_taxes_inline'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
     {!! Former::checkbox('enable_second_tax_rate')
         ->text(trans('texts.enable_second_tax_rate'))
-        ->label('&nbsp;') !!}
+        ->label('&nbsp;')
+        ->value(1) !!}
 
       &nbsp;
 
@@ -65,12 +70,13 @@
       ->addColumn(
         trans('texts.name'),
         trans('texts.rate'),
+        trans('texts.type'),
         trans('texts.action'))
       ->setUrl(url('api/tax_rates/'))
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "40%" ], [ "sWidth"=> "40%" ], ["sWidth"=> "20%"]])
+      ->setOptions('aoColumns', [[ "sWidth"=> "25%" ], [ "sWidth"=> "25%" ], ["sWidth"=> "25%"], ["sWidth"=> "25%"]])
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[2]]])
       ->render('datatable') !!}
 

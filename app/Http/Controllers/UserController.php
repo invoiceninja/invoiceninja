@@ -240,7 +240,7 @@ class UserController extends BaseController
         $user = User::where('confirmation_code', '=', $code)->get()->first();
 
         if ($user) {
-            $notice_msg = trans('texts.security.confirmation');
+            $notice_msg = trans('texts.security_confirmation');
 
             $user->confirmed = true;
             $user->confirmation_code = '';
@@ -356,7 +356,7 @@ class UserController extends BaseController
         Session::put(SESSION_USER_ACCOUNTS, $users);
 
         Session::flash('message', trans('texts.unlinked_account'));
-        return Redirect::to('/dashboard');
+        return Redirect::to('/manage_companies');
     }
 
     public function manageCompanies()

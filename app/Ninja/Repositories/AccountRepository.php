@@ -278,7 +278,7 @@ class AccountRepository
         $invoice->user_id = $account->users()->first()->id;
         $invoice->public_id = $publicId;
         $invoice->client_id = $client->id;
-        $invoice->invoice_number = $account->getNextInvoiceNumber($invoice);
+        $invoice->invoice_number = $account->getNextNumber($invoice);
         $invoice->invoice_date = $renewalDate->format('Y-m-d');
         $invoice->amount = $invoice->balance = $plan_cost - $credit;
         $invoice->invoice_type_id = INVOICE_TYPE_STANDARD;
@@ -336,11 +336,15 @@ class AccountRepository
         if ($account) {
             return $account;
         } else {
+            $company = new Company();
+            $company->save();
+
             $account = new Account();
             $account->name = 'Invoice Ninja';
             $account->work_email = 'contact@invoiceninja.com';
             $account->work_phone = '(800) 763-1948';
             $account->account_key = NINJA_ACCOUNT_KEY;
+            $account->company_id = $company->id;
             $account->save();
 
             $random = str_random(RANDOM_KEY_LENGTH);

@@ -15,7 +15,8 @@
     @include('accounts.nav', ['selected' => ACCOUNT_EMAIL_SETTINGS, 'advanced' => true])
 
     {!! Former::open()->rules([
-            'iframe_url' => 'url'
+            'iframe_url' => 'url',
+            'bcc_email' => 'email',
         ])->addClass('warn-on-exit') !!}
     {{ Former::populate($account) }}
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
@@ -27,8 +28,22 @@
             <h3 class="panel-title">{!! trans('texts.email_settings') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
-            {!! Former::checkbox('pdf_email_attachment')->text(trans('texts.enable')) !!}
-            {!! Former::checkbox('document_email_attachment')->text(trans('texts.enable')) !!}
+
+            {!! Former::checkbox('pdf_email_attachment')
+                    ->text(trans('texts.enable'))
+                    ->value(1)
+                    ->help( ! Utils::isNinja() ? (env('PHANTOMJS_BIN_PATH') ? 'phantomjs_local' : trans('texts.phantomjs_help', [
+                        'link_phantom' => link_to('https://phantomjscloud.com/', 'phantomjscloud.com', ['target' => '_blank']),
+                        'link_docs' => link_to('https://www.invoiceninja.com/self-host/#phantomjs', 'PhantomJS', ['target' => '_blank'])
+                    ])) : false) !!}
+
+            {!! Former::checkbox('document_email_attachment')
+                    ->text(trans('texts.enable'))
+                    ->value(1) !!}
+
+            &nbsp;
+
+            {!! Former::text('bcc_email')->help('bcc_email_help') !!}
 
             &nbsp;
 
@@ -80,7 +95,8 @@
                 {!! Former::checkbox('enable_email_markup')
                         ->text(trans('texts.enable') .
                             '<a href="'.EMAIL_MARKUP_URL.'" target="_blank" title="'.trans('texts.learn_more').'">' . Icon::create('question-sign') . '</a> ')
-                        ->help(trans('texts.enable_email_markup_help')) !!}
+                        ->help(trans('texts.enable_email_markup_help'))
+                        ->value(1) !!}
             @endif
         </div>
     </div>

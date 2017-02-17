@@ -189,6 +189,10 @@
         color:#fff !important;
     }
 
+    #wrapper.toggled-left #left-sidebar-wrapper .nav-footer {
+        visibility: hidden;
+    }
+
     #wrapper {
         padding-left: 250px;
         padding-right: 250px;

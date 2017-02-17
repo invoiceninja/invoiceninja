@@ -7,7 +7,8 @@
             <div class="row" style="padding-bottom:20px">
                 <div class="col-md-6">
                     {!! Former::checkbox('enable_' . $field)
-                            ->text(trans('texts.enable'))->label('') !!}
+                            ->text(trans('texts.enable'))->label('')
+                            ->value(1) !!}
 
                     {!! Former::plaintext('schedule')
                             ->value(

@@ -340,6 +340,15 @@ class Payment extends EntityModel
         return static::calcStatusLabel($this->payment_status_id, $this->payment_status->name, $amount);
     }
 
+    public function invoiceJsonBackup()
+    {
+        $activity = Activity::wherePaymentId($this->id)
+                        ->whereActivityTypeId(ACTIVITY_TYPE_CREATE_PAYMENT)
+                        ->get(['json_backup'])
+                        ->first();
+
+        return $activity->json_backup;
+    }
 }
 
 Payment::creating(function ($payment) {

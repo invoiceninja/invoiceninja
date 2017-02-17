@@ -3,6 +3,7 @@
 namespace App\Ninja\Notifications;
 
 use Davibennun\LaravelPushNotification\Facades\PushNotification;
+use Illuminate\Support\Facades\Log;
 
 /**
  * Class PushFactory
@@ -15,7 +16,6 @@ class PushFactory
      */
     public function __construct()
     {
-        $this->certificate = IOS_PUSH_CERTIFICATE;
     }
 
     /**
@@ -28,14 +28,15 @@ class PushFactory
      * @param $token
      * @param $message
      * @param $messageArray
+     * @param string $device - Type of device the message is being pushed to.
      *
      * @return void
      */
-    public function customMessage($token, $message, $messageArray)
+    public function customMessage($token, $message, $messageArray, $device)
     {
         $customMessage = PushNotification::Message($message, $messageArray);
 
-        $this->message($token, $customMessage);
+        $this->message($token, $customMessage, $device);
     }
 
     /**
@@ -51,11 +52,17 @@ class PushFactory
      * @return void
      */
 
-    public function message($token, $message)
+    public function message($token, $message, $device)
     {
-        PushNotification::app($this->certificate)
-            ->to($token)
-            ->send($message);
+        try {
+            PushNotification::app($device)
+                ->to($token)
+                ->send($message);
+        }
+        catch(\Exception $e) {
+            Log::error($e->getMessage());
+        }
+
     }
 
     /**
@@ -69,13 +76,13 @@ class PushFactory
      *
      * @param string $token - A valid token (can be any valid token)
      * @param string $message - Nil value for message
-     *
+     * @param string $device - Type of device the message is being pushed to.
      * @return array
      */
-    public function getFeedback($token, $message = '')
+    public function getFeedback($token, $message = '', $device)
     {
 
-        $feedback = PushNotification::app($this->certificate)
+        $feedback = PushNotification::app($device)
             ->to($token)
             ->send($message);
 

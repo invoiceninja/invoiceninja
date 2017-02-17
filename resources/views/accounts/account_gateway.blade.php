@@ -18,8 +18,8 @@
         {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
-        {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? '1' : null) !!}
-        {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? '1' : null) !!}
+        {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
+        {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? 1 : 0) !!}
         {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
         {!! Former::populateField('plaid_secret', $accountGateway->getPlaidSecret() ? str_repeat('*', strlen($accountGateway->getPlaidSecret())) : '') !!}
         {!! Former::populateField('plaid_public_key', $accountGateway->getPlaidPublicKey() ? str_repeat('*', strlen($accountGateway->getPlaidPublicKey())) : '') !!}
@@ -77,7 +77,7 @@
                     && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET']))
                     {{-- do nothing --}}
                 @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox')
-                    {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('Enable')->value('true') !!}
+                    {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('Enable')->value(1) !!}
                 @elseif ($field == 'username' || $field == 'password')
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
                 @elseif ($gateway->isCustom() && $field == 'text')
@@ -115,7 +115,8 @@
                                 'link'=>'<a href="https://articles.braintreepayments.com/guides/paypal/setup-guide" target="_blank">'.
                                     trans('texts.braintree_paypal_help_link_text').'</a>'
                             ]))
-                           ->text(trans('texts.braintree_enable_paypal')) !!}
+                           ->text(trans('texts.braintree_enable_paypal'))
+                           ->value(1) !!}
                 @endif
             @endif
 
@@ -135,17 +136,21 @@
         {!! Former::checkbox('show_address')
                 ->label(trans('texts.billing_address'))
                 ->text(trans('texts.show_address_help'))
-                ->addGroupClass('gateway-option') !!}
+                ->addGroupClass('gateway-option')
+                ->value(1) !!}
+
         {!! Former::checkbox('update_address')
                 ->label(' ')
                 ->text(trans('texts.update_address_help'))
-                ->addGroupClass('gateway-option') !!}
+                ->addGroupClass('gateway-option')
+                ->value(1) !!}
 
         {!! Former::checkboxes('creditCardTypes[]')
                 ->label('Accepted Credit Cards')
                 ->checkboxes($creditCardTypes)
                 ->class('creditcard-types')
                 ->addGroupClass('gateway-option')
+                ->value(1)
         !!}
     </div>
 
@@ -154,7 +159,8 @@
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
                 ->text(trans('texts.enable_ach'))
-                ->help(trans('texts.stripe_ach_help')) !!}
+                ->help(trans('texts.stripe_ach_help'))
+                ->value(1) !!}
             <div class="stripe-ach-options">
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-4">
@@ -171,7 +177,8 @@
     @elseif ($accountGateway && $accountGateway->gateway_id == GATEWAY_WEPAY)
             {!! Former::checkbox('enable_ach')
                         ->label(trans('texts.ach'))
-                        ->text(trans('texts.enable_ach')) !!}
+                        ->text(trans('texts.enable_ach'))
+                        ->value(1) !!}
     @endif
 
     </div>

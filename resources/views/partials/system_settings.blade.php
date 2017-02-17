@@ -4,8 +4,8 @@
       </div>
       <div class="panel-body form-padding-right">
         {!! Former::text('app[url]')->label(trans('texts.url'))->value(isset($_ENV['APP_URL']) ? $_ENV['APP_URL'] : Request::root()) !!}
-        {!! Former::checkbox('https')->text(trans('texts.require'))->check(env('REQUIRE_HTTPS')) !!}
-        {!! Former::checkbox('debug')->text(trans('texts.enable'))->check(config('app.debug')) !!}
+        {!! Former::checkbox('https')->text(trans('texts.require'))->check(env('REQUIRE_HTTPS'))->value(1) !!}
+        {!! Former::checkbox('debug')->text(trans('texts.enable'))->check(config('app.debug'))->value(1) !!}
 
       </div>
     </div>

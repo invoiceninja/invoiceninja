@@ -233,6 +233,7 @@ class AccountController extends BaseController
                 $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
             }
 
+            $company->trial_plan = null;
             $company->plan = $plan;
             $company->save();
 
@@ -521,7 +522,7 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.tax_rates'),
-            'taxRates' => TaxRate::scope()->get(['id', 'name', 'rate']),
+            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']),
         ];
 
         return View::make('accounts.tax_rates', $data);
@@ -958,6 +959,7 @@ class AccountController extends BaseController
                 $account->pdf_email_attachment = Input::get('pdf_email_attachment') ? true : false;
                 $account->document_email_attachment = Input::get('document_email_attachment') ? true : false;
                 $account->email_design_id = Input::get('email_design_id');
+                $account->bcc_email = Input::get('bcc_email');
 
                 if (Utils::isNinja()) {
                     $account->enable_email_markup = Input::get('enable_email_markup') ? true : false;
@@ -977,10 +979,12 @@ class AccountController extends BaseController
     private function saveInvoiceSettings()
     {
         if (Auth::user()->account->hasFeature(FEATURE_INVOICE_SETTINGS)) {
-            $rules = [
-                'invoice_number_pattern' => 'has_counter',
-                'quote_number_pattern' => 'has_counter',
-            ];
+            $rules = [];
+            foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
+                if (Input::get("{$entityType}_number_type") == 'pattern') {
+                    $rules["{$entityType}_number_pattern"] = 'has_counter';
+                }
+            }
 
             $validator = Validator::make(Input::all(), $rules);
 
@@ -1015,6 +1019,10 @@ class AccountController extends BaseController
                 $account->auto_convert_quote = Input::get('auto_convert_quote');
                 $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
+                $account->client_number_prefix = trim(Input::get('client_number_prefix'));
+                $account->client_number_pattern = trim(Input::get('client_number_pattern'));
+                $account->client_number_counter = Input::get('client_number_counter');
+
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
                 }
@@ -1023,20 +1031,14 @@ class AccountController extends BaseController
                     $account->quote_number_counter = Input::get('quote_number_counter');
                 }
 
-                if (Input::get('invoice_number_type') == 'prefix') {
-                    $account->invoice_number_prefix = trim(Input::get('invoice_number_prefix'));
-                    $account->invoice_number_pattern = null;
-                } else {
-                    $account->invoice_number_pattern = trim(Input::get('invoice_number_pattern'));
-                    $account->invoice_number_prefix = null;
-                }
-
-                if (Input::get('quote_number_type') == 'prefix') {
-                    $account->quote_number_prefix = trim(Input::get('quote_number_prefix'));
-                    $account->quote_number_pattern = null;
-                } else {
-                    $account->quote_number_pattern = trim(Input::get('quote_number_pattern'));
-                    $account->quote_number_prefix = null;
+                foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
+                    if (Input::get("{$entityType}_number_type") == 'prefix') {
+                        $account->{"{$entityType}_number_prefix"} = trim(Input::get("{$entityType}_number_prefix"));
+                        $account->{"{$entityType}_number_pattern"} = null;
+                    } else {
+                        $account->{"{$entityType}_number_pattern"} = trim(Input::get("{$entityType}_number_pattern"));
+                        $account->{"{$entityType}_number_prefix"} = null;
+                    }
                 }
 
                 if (!$account->share_counter
@@ -1217,6 +1219,13 @@ class AccountController extends BaseController
             $user->username = trim(Input::get('email'));
             $user->email = trim(strtolower(Input::get('email')));
             $user->phone = trim(Input::get('phone'));
+
+            if ( ! Auth::user()->is_admin) {
+                $user->notify_sent = Input::get('notify_sent');
+                $user->notify_viewed = Input::get('notify_viewed');
+                $user->notify_paid = Input::get('notify_paid');
+                $user->notify_approved = Input::get('notify_approved');
+            }
 
             if (Utils::isNinja()) {
                 if (Input::get('referral_code') && !$user->referral_code) {
@@ -1459,22 +1468,6 @@ class AccountController extends BaseController
         $this->userMailer->sendConfirmation($user);
 
         return Redirect::to('/settings/'.ACCOUNT_USER_DETAILS)->with('message', trans('texts.confirmation_resent'));
-    }
-
-    /**
-     * @param $plan
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function startTrial($plan)
-    {
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        if ($user->isEligibleForTrial($plan)) {
-            $user->account->startTrial($plan);
-        }
-
-        return Redirect::back()->with('message', trans('texts.trial_success'));
     }
 
     /**

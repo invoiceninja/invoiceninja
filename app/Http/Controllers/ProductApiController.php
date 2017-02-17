@@ -33,7 +33,20 @@ class ProductApiController extends BaseAPIController
     }
 
     /**
-     * @return \Illuminate\Http\Response
+     * @SWG\Get(
+     *   path="/products",
+     *   summary="List of products",
+     *   tags={"product"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list with products",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Product"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
      */
     public function index()
     {
@@ -45,8 +58,25 @@ class ProductApiController extends BaseAPIController
     }
 
     /**
-     * @param CreateProductRequest $request
-     * @return \Illuminate\Http\Response
+     * @SWG\Post(
+     *   path="/products",
+     *   tags={"product"},
+     *   summary="Create a product",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Product")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="New product",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Product"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
      */
     public function store(CreateProductRequest $request)
     {
@@ -56,16 +86,32 @@ class ProductApiController extends BaseAPIController
     }
 
     /**
-     * @param UpdateProductRequest $request
-     * @param $publicId
-     * @return \Illuminate\Http\Response
+     * @SWG\Put(
+     *   path="/products/{product_id}",
+     *   tags={"product"},
+     *   summary="Update a product",
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     @SWG\Schema(ref="#/definitions/Product")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Update product",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Product"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
      */
     public function update(UpdateProductRequest $request, $publicId)
     {
         if ($request->action) {
             return $this->handleAction($request);
         }
-        
+
         $data = $request->input();
         $data['public_id'] = $publicId;
         $product = $this->productRepo->save($data, $request->entity());

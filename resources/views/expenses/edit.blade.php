@@ -82,14 +82,16 @@
                         {!! Former::checkbox('should_be_invoiced')
                                 ->text(trans('texts.should_be_invoiced'))
                                 ->data_bind('checked: should_be_invoiced() || client_id(), enable: !client_id()')
-                                ->label(' ') !!}
+                                ->label(' ')
+                                ->value(1) !!}
                     @endif
 
                     @if (!$expense || ($expense && ! $expense->isExchanged()))
                         {!! Former::checkbox('convert_currency')
                                 ->text(trans('texts.convert_currency'))
                                 ->data_bind('checked: convert_currency')
-                                ->label(' ') !!}
+                                ->label(' ')
+                                ->value(1) !!}
                     @endif
 
 
@@ -123,7 +125,8 @@
                         {!! Former::checkbox('apply_taxes')
                                 ->text(trans('texts.apply_taxes'))
                                 ->data_bind('checked: apply_taxes')
-                                ->label(' ') !!}
+                                ->label(' ')
+                                ->value(1) !!}
                     @endif
 
                     <div style="display:none" data-bind="visible: apply_taxes">

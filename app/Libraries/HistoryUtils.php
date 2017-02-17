@@ -36,15 +36,14 @@ class HistoryUtils
             ACTIVITY_TYPE_VIEW_QUOTE,
         ];
 
-        $activities = Activity::scope()
-            ->with(['client.contacts', 'invoice', 'task', 'expense'])
+        $activities = Activity::with(['client.contacts', 'invoice', 'task', 'expense'])
             ->whereIn('user_id', $userIds)
             ->whereIn('activity_type_id', $activityTypes)
-            ->orderBy('id', 'asc')
+            ->orderBy('id', 'desc')
             ->limit(100)
             ->get();
 
-        foreach ($activities as $activity)
+        foreach ($activities->reverse() as $activity)
         {
             if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_CLIENT) {
                 $entity = $activity->client;

@@ -139,15 +139,6 @@ class User extends Authenticatable
     }
 
     /**
-     * @param null $plan
-     * @return mixed
-     */
-    public function isEligibleForTrial($plan = null)
-    {
-        return $this->account->isEligibleForTrial($plan);
-    }
-
-    /**
      * @return int
      */
     public function maxInvoiceDesignId()
@@ -402,6 +393,11 @@ class User extends Authenticatable
     {
         return (($entity && $this->can('edit', $entity))
             || (!$entity && $this->can('create', $entityType)));
+    }
+
+    public function primaryAccount()
+    {
+        return $this->account->company->accounts->sortBy('id')->first();
     }
 }
 

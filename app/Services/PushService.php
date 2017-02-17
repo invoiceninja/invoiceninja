@@ -30,10 +30,6 @@ class PushService
      */
     public function sendNotification(Invoice $invoice, $type)
     {
-        if (! IOS_PUSH_CERTIFICATE) {
-            return;
-        }
-
         //check user has registered for push notifications
         if(!$this->checkDeviceExists($invoice->account))
             return;
@@ -43,8 +39,10 @@ class PushService
 
         foreach($devices as $device)
         {
-            if(($device["notify_{$type}"] == TRUE) && ($device['device'] == 'ios'))
-                $this->pushMessage($invoice, $device['token'], $type);
+            if(($device["notify_{$type}"] == TRUE) && ($device['device'] == 'ios') && IOS_DEVICE)
+                $this->pushMessage($invoice, $device['token'], $type, IOS_DEVICE);
+            elseif(($device["notify_{$type}"] == TRUE) && ($device['device'] == 'fcm') && ANDROID_DEVICE)
+                $this->pushMessage($invoice, $device['token'], $type, ANDROID_DEVICE);
         }
     }
 
@@ -57,9 +55,9 @@ class PushService
      * @param $token
      * @param $type
      */
-    private function pushMessage(Invoice $invoice, $token, $type)
+    private function pushMessage(Invoice $invoice, $token, $type, $device)
     {
-        $this->pushFactory->message($token, $this->messageType($invoice, $type));
+        $this->pushFactory->message($token, $this->messageType($invoice, $type), $device);
     }
 
     /**
