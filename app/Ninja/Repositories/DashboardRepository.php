@@ -57,8 +57,15 @@ class DashboardRepository
 
             foreach ($period as $d) {
                 $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
-                // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
-                $date = $groupBy == 'DAYOFYEAR' ? $d->format('Y').($d->format($dateFormat) + 1) : $d->format('Y'.$dateFormat);
+                if ($groupBy == 'DAYOFYEAR') {
+                    // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
+                    $date = $d->format('Y') . ($d->format($dateFormat) + 1);
+                } elseif ($groupBy == 'WEEK' && ($d->format($dateFormat) < 10)) {
+                    // PHP zero pads the week
+                    $date = $d->format('Y') . round($d->format($dateFormat));
+                } else {
+                    $date = $d->format('Y'.$dateFormat);
+                }
                 $records[] = isset($data[$date]) ? $data[$date] : 0;
 
                 if ($entityType == ENTITY_INVOICE) {
