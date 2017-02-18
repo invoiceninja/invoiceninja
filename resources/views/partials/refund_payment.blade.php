@@ -6,7 +6,9 @@
         <h4 class="modal-title" id="paymentRefundModalLabel">{{ trans('texts.refund_payment') }}</h4>
       </div>
 
-        <div class="modal-body">
+      <div class="container" style="width: 100%; padding-bottom: 0px !important">
+      <div class="panel panel-default" style="margin-bottom: 0px">
+      <div class="panel-body">
             <div class="form-horizontal">
               <div class="form-group">
                 <label for="refundAmount" class="col-sm-offset-2 col-sm-2 control-label">{{ trans('texts.amount') }}</label>
@@ -19,7 +21,9 @@
                 </div>
               </div>
             </div>
-        </div>
+    </div>
+    </div>
+    </div>
 
      <div class="modal-footer" style="margin-top: 0px">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>

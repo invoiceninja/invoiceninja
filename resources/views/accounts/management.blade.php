@@ -104,7 +104,9 @@
 								@endif
 							</h4>
 						</div>
-						<div class="modal-body">
+						<div class="container" style="width: 100%; padding-bottom: 0px !important">
+			            <div class="panel panel-default" style="margin-bottom: 0px">
+			            <div class="panel-body">
 
 							@if ($planDetails && $planDetails['active'])
     							{!! Former::select('plan')
@@ -136,6 +138,8 @@
 							{!! Former::plaintext(' ')
 								->inlineHelp($account->company->present()->promoMessage) !!}
 
+						</div>
+						</div>
 						</div>
 						<div class="modal-footer" style="margin-top: 0px">
                             @if (Utils::isPro())

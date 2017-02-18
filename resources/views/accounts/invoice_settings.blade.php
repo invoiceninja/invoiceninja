@@ -321,7 +321,9 @@
                     <h4 class="modal-title" id="patternHelpModalLabel">{{ trans('texts.pattern_help_title') }}</h4>
                 </div>
 
-                <div class="modal-body">
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                <div class="panel panel-default" style="margin-bottom: 0px">
+                <div class="panel-body">
                     <p>{{ trans('texts.pattern_help_1') }}</p>
                     <p>{{ trans('texts.pattern_help_2') }}</p>
                     <ul>
@@ -337,6 +339,8 @@
                             'example' => '{$year}-{$counter}',
                             'value' => date('Y') . '-0001'
                         ]) }}</p>
+                </div>
+                </div>
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px">

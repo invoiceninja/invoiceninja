@@ -339,7 +339,9 @@
                 <h4 class="modal-title" id="iframeHelpModalLabel">{{ trans('texts.iframe_url') }}</h4>
             </div>
 
-            <div class="modal-body">
+            <div class="container" style="width: 100%; padding-bottom: 0px !important">
+            <div class="panel panel-default" style="margin-bottom: 0px">
+            <div class="panel-body">
                 <p>{{ trans('texts.iframe_url_help1') }}</p>
                 <pre>&lt;center&gt;
 &lt;iframe id="invoiceIFrame" width="100%" height="1200" style="max-width:1000px"&gt;&lt;/iframe&gt;
@@ -352,10 +354,13 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
                 <p>{{ trans('texts.iframe_url_help2') }}</p>
                 <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
                 </div>
+            </div>
+            </div>
 
             <div class="modal-footer" style="margin-top: 0px">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
             </div>
+
 
         </div>
     </div>

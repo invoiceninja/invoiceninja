@@ -1254,3 +1254,11 @@ div.panel-body div.panel-body {
     border-radius: 2px;
     padding: 2px;
 }
+
+.modal-content {
+    background-color: #f8f8f8;
+}
+
+.modal-footer {
+    padding-right: 20px;
+}
