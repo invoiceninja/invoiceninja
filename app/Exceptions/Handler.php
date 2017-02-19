@@ -128,7 +128,7 @@ class Handler extends ExceptionHandler
                 'hideHeader' => true,
             ];
 
-            return response()->view('error', $data);
+            return response()->view('error', $data, 500);
         } else {
             return parent::render($request, $e);
         }
