@@ -86,6 +86,13 @@ If you need to set a list of trusted proxies you can add a TRUSTED_PROXIES value
 
    TRUSTED_PROXIES='10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'
 
+Stay logged in
+""""""""""""""
+
+By default the app clears the session when the browser is closed and automatically logs the user out after 8 hours.
+
+This can be modified by setting ``REMEMBER_ME_ENABLED`` and ``AUTO_LOGOUT_SECONDS`` in the .env file.
+
 Customizations
 """"""""""""""
 

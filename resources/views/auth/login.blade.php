@@ -35,13 +35,15 @@
             </div>
         @endif
 
-        {{ Former::populateField('remember', 'true') }}
+        @if (env('REMEMBER_ME_ENABLED'))
+            {{ Former::populateField('remember', 'true') }}
+            {!! Former::hidden('remember')->raw() !!}
+        @endif
 
         <div>
             {!! Former::text('email')->placeholder(trans('texts.email_address'))->raw() !!}
             {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}
         </div>
-        {!! Former::hidden('remember')->raw() !!}
 
         {!! Button::success(trans('texts.login'))
                     ->withAttributes(['id' => 'loginButton', 'class' => 'green'])
