@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Utils;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
@@ -142,6 +143,23 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
      */
     public function getLinkAttribute()
     {
-        return \URL::to('client/dashboard/' . $this->contact_key);
+        if (! $this->account) {
+            $this->load('account');
+        }
+
+        $account = $this->account;
+        $url = trim(SITE_URL, '/');
+
+        if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
+            if (Utils::isNinjaProd()) {
+                $url = $account->present()->clientPortalLink();
+            }
+
+            if ($this->account->subdomain) {
+                $url = Utils::replaceSubdomain($url, $account->subdomain);
+            }
+        }
+
+        return "{$url}/client/dashboard/{$this->contact_key}";
     }
 }

@@ -228,6 +228,11 @@ class ClientPortalController extends BaseController
 
     public function dashboard($contactKey = false)
     {
+        if (request()->silent) {
+            session(['silent' => true]);
+            return redirect(request()->url());
+        }
+
         if ($contactKey) {
             if (! $contact = Contact::where('contact_key', '=', $contactKey)->first()) {
                 return $this->returnError();
