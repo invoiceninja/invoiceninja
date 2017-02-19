@@ -29,7 +29,7 @@
     "fuse.js": "~2.0.2",
     "dropzone": "~4.3.0",
     "nouislider": "~8.5.1",
-    "bootstrap-daterangepicker": "~2.1.24",
+    "bootstrap-daterangepicker": "~2.1.25",
     "sweetalert2": "^5.3.8",
     "jSignature": "brinley/jSignature#^2.1.0",
     "select2": "select2-dist#^4.0.3",
