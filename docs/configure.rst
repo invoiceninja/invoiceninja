@@ -18,7 +18,7 @@ Email Queues
 
 When sending an email in the app the default behavior is to wait for the response, you can use queues to improve the perceived performance. To enable the feature add ``QUEUE_DRIVER=database`` or ``QUEUE_DRIVER=redis`` to the .env file.
 
-.. Note:: If you select ``database`` you can process the jobs by running ``php artisan queue:listen``.
+.. Note:: You can process the jobs by running ``php artisan queue:listen`` or ``php artisan queue:work --daemon``.
 
 Postmark bounce and open notifications
 """"""""""""""""""""""""""""""""""""""
@@ -55,7 +55,11 @@ We use phantomjscloud.com to attach PDFs to emails sent by background processes.
 
    PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'
 
-You can install PhantomJS to generate the file locally, to enable it add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs``. To determine the path you can run ``which phantomjs`` from the command line.
+You can install PhantomJS to generate the PDF locally, to enable it add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs``.
+
+.. TIP:: To determine the path you can run ``which phantomjs`` from the command line.
+
+If you require contacts to enter a password to see their invoice you'll need to set a value for PHANTOMJS_SECRET.
 
 Custom Fonts
 """"""""""""
