@@ -2369,6 +2369,8 @@ $LANG = array(
 
 	// New Client Portal styling
 	'invoice_from' => 'Invoices From:',
+    'email_alias_message' => 'Note: we require each user to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
+
 );
 
 return $LANG;

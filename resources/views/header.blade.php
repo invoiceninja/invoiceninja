@@ -688,7 +688,9 @@
             </div>
 
             <div class="col-md-11 col-md-offset-1">
-                @if (Utils::isNinja())
+                @if (Auth::user()->account->hasMultipleAccounts())
+                    <div style="padding-top:20px;padding-bottom:10px;">{!! trans('texts.email_alias_message') !!}</div>
+                @elseif (Utils::isNinja())
                     <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
                 @endif
             </div>
