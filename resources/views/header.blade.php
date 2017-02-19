@@ -564,7 +564,9 @@
           @include('partials.warn_session', ['redirectTo' => '/dashboard'])
 
           @if (Session::has('warning'))
-          <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+            <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+          @elseif (env('WARNING_MESSAGE'))
+            <div class="alert alert-warning">{!! env('WARNING_MESSAGE') !!}</div>
           @endif
 
           @if (Session::has('message'))
