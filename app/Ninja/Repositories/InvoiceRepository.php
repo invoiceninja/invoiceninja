@@ -789,12 +789,7 @@ class InvoiceRepository extends BaseRepository
      */
     public function emailInvoice(Invoice $invoice)
     {
-        // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
-        if (config('queue.default') === 'sync') {
-            app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
-        } else {
-            dispatch(new SendInvoiceEmail($invoice));
-        }
+        dispatch(new SendInvoiceEmail($invoice));
     }
 
     /**

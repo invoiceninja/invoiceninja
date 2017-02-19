@@ -1,49 +1,20 @@
-<?php
+<?php namespace App\Listeners;
 
-namespace App\Listeners;
-
-use App\Events\InvoiceInvitationWasViewed;
 use App\Events\InvoiceWasEmailed;
-use App\Events\PaymentWasCreated;
-use App\Events\QuoteInvitationWasApproved;
-use App\Events\QuoteInvitationWasViewed;
 use App\Events\QuoteWasEmailed;
-use App\Ninja\Mailers\ContactMailer;
-use App\Ninja\Mailers\UserMailer;
-use App\Services\PushService;
+use App\Events\InvoiceInvitationWasViewed;
+use App\Events\QuoteInvitationWasViewed;
+use App\Events\QuoteInvitationWasApproved;
+use App\Events\PaymentWasCreated;
+use App\Jobs\SendPaymentEmail;
+use App\Jobs\SendNotificationEmail;
+use App\Jobs\SendPushNotification;
 
 /**
- * Class NotificationListener.
+ * Class NotificationListener
  */
 class NotificationListener
 {
-    /**
-     * @var UserMailer
-     */
-    protected $userMailer;
-    /**
-     * @var ContactMailer
-     */
-    protected $contactMailer;
-    /**
-     * @var PushService
-     */
-    protected $pushService;
-
-    /**
-     * NotificationListener constructor.
-     *
-     * @param UserMailer    $userMailer
-     * @param ContactMailer $contactMailer
-     * @param PushService   $pushService
-     */
-    public function __construct(UserMailer $userMailer, ContactMailer $contactMailer, PushService $pushService)
-    {
-        $this->userMailer = $userMailer;
-        $this->contactMailer = $contactMailer;
-        $this->pushService = $pushService;
-    }
-
     /**
      * @param $invoice
      * @param $type
@@ -51,9 +22,11 @@ class NotificationListener
      */
     private function sendEmails($invoice, $type, $payment = null)
     {
-        foreach ($invoice->account->users as $user) {
-            if ($user->{"notify_{$type}"}) {
-                $this->userMailer->sendNotification($user, $invoice, $type, $payment);
+        foreach ($invoice->account->users as $user)
+        {
+            if ($user->{"notify_{$type}"})
+            {
+                dispatch(new SendNotificationEmail($user, $invoice, $type, $payment));
             }
         }
     }
@@ -64,7 +37,7 @@ class NotificationListener
     public function emailedInvoice(InvoiceWasEmailed $event)
     {
         $this->sendEmails($event->invoice, 'sent');
-        $this->pushService->sendNotification($event->invoice, 'sent');
+        dispatch(new SendPushNotification($event->invoice, 'sent'));
     }
 
     /**
@@ -73,7 +46,7 @@ class NotificationListener
     public function emailedQuote(QuoteWasEmailed $event)
     {
         $this->sendEmails($event->quote, 'sent');
-        $this->pushService->sendNotification($event->quote, 'sent');
+        dispatch(new SendPushNotification($event->quote, 'sent'));
     }
 
     /**
@@ -81,12 +54,12 @@ class NotificationListener
      */
     public function viewedInvoice(InvoiceInvitationWasViewed $event)
     {
-        if (! floatval($event->invoice->balance)) {
+        if ( ! floatval($event->invoice->balance)) {
             return;
         }
 
         $this->sendEmails($event->invoice, 'viewed');
-        $this->pushService->sendNotification($event->invoice, 'viewed');
+        dispatch(new SendPushNotification($event->invoice, 'viewed'));
     }
 
     /**
@@ -99,7 +72,7 @@ class NotificationListener
         }
 
         $this->sendEmails($event->quote, 'viewed');
-        $this->pushService->sendNotification($event->quote, 'viewed');
+        dispatch(new SendPushNotification($event->quote, 'viewed'));
     }
 
     /**
@@ -108,7 +81,7 @@ class NotificationListener
     public function approvedQuote(QuoteInvitationWasApproved $event)
     {
         $this->sendEmails($event->quote, 'approved');
-        $this->pushService->sendNotification($event->quote, 'approved');
+        dispatch(new SendPushNotification($event->quote, 'approved'));
     }
 
     /**
@@ -117,13 +90,13 @@ class NotificationListener
     public function createdPayment(PaymentWasCreated $event)
     {
         // only send emails for online payments
-        if (! $event->payment->account_gateway_id) {
+        if ( ! $event->payment->account_gateway_id) {
             return;
         }
 
-        $this->contactMailer->sendPaymentConfirmation($event->payment);
         $this->sendEmails($event->payment->invoice, 'paid', $event->payment);
-
-        $this->pushService->sendNotification($event->payment->invoice, 'paid');
+        dispatch(new SendPaymentEmail($event->payment));
+        dispatch(new SendPushNotification($event->payment->invoice, 'paid'));
     }
+
 }
