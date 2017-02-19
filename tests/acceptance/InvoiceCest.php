@@ -114,7 +114,7 @@ class InvoiceCest
         $this->fillItems($I);
 
         $I->executeJS("submitAction('email')");
-        $I->wait(2);
+        $I->wait(3);
         $I->see($clientEmail);
 
         $I->click('#lastSent');
