@@ -769,11 +769,15 @@
 	        <h4 class="modal-title" id="recurringModalLabel">{{ trans('texts.recurring_invoices') }}</h4>
 	      </div>
 
-	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-	    	&nbsp; {!! isset($recurringHelp) ? $recurringHelp : '' !!} &nbsp;
-		</div>
+		  <div class="container" style="width: 100%; padding-bottom: 0px !important">
+          <div class="panel panel-default">
+			 <div class="panel-body">
+				 {!! isset($recurringHelp) ? $recurringHelp : '' !!}
+			 </div>
+		  </div>
+		  </div>
 
-	     <div class="modal-footer" style="margin-top: 0px">
+	     <div class="modal-footer" style="padding-top: 0px">
 	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
 	     </div>
 
@@ -789,11 +793,15 @@
 	        <h4 class="modal-title" id="recurringDueDateModalLabel">{{ trans('texts.recurring_due_dates') }}</h4>
 	      </div>
 
-	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-	    	&nbsp; {!! isset($recurringDueDateHelp) ? $recurringDueDateHelp : '' !!} &nbsp;
-		</div>
+		  <div class="container" style="width: 100%; padding-bottom: 0px !important">
+          <div class="panel panel-default">
+			 <div class="panel-body">
+				 {!! isset($recurringDueDateHelp) ? $recurringDueDateHelp : '' !!}
+			</div>
+		 </div>
+		 </div>
 
-	     <div class="modal-footer" style="margin-top: 0px">
+	     <div class="modal-footer" style="padding-top: 0px">
 	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
 	     </div>
 
