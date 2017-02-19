@@ -117,7 +117,7 @@ class AccountPresenter extends Presenter
 
     public function dateRangeOptions()
     {
-        $yearStart = Carbon::parse($this->entity->financialYearStart() ?: '2000-01-01');
+        $yearStart = Carbon::parse($this->entity->financialYearStart() ?: date('Y') . '-01-01');
         $month = $yearStart->month - 1;
         $year = $yearStart->year;
         $lastYear = $year - 1;
