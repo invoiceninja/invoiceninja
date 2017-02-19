@@ -133,7 +133,7 @@ class InvoiceCest
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
         $I->executeJS('submitAction()');
-        $I->wait(1);
+        $I->wait(3);
 
         $I->see($invoiceNumber);
     }
