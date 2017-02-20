@@ -25,7 +25,7 @@
     </div>
     </div>
 
-     <div class="modal-footer" style="margin-top: 0px">
+     <div class="modal-footer" style="margin-top: 2px">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
         <button type="button" class="btn btn-primary" id="completeRefundButton">{{ trans('texts.refund') }}</button>
      </div>

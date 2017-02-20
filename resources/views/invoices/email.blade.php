@@ -115,7 +115,7 @@
             </div>
             </div>
 
-            <div class="modal-footer" style="margin-top: 0px; padding-right:0px">
+            <div class="modal-footer" style="margin-top: 2px; padding-right:0px">
                 <div id="defaultDiv" style="display:none" class="pull-left">
                     {!! Former::checkbox('save_as_default')
                             ->text('save_as_default')

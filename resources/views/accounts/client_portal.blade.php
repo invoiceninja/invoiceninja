@@ -357,7 +357,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
             </div>
             </div>
 
-            <div class="modal-footer" style="margin-top: 0px">
+            <div class="modal-footer" style="margin-top: 2px">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
             </div>
 
