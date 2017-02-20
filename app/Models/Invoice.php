@@ -60,6 +60,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         'counter',
         'custom1',
         'custom2',
+        'random',
         'userId',
         'year',
         'date:',
