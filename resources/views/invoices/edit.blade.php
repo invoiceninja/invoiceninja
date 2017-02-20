@@ -1297,7 +1297,13 @@
             return;
         }
 
-		showEmailModal();
+		if (model.invoice().is_recurring()) {
+			sweetConfirm(function() {
+				onConfirmEmailClick();
+			}, getSendToEmails());
+		} else {
+			showEmailModal();
+		}
 	}
 
 	function onConfirmEmailClick() {
