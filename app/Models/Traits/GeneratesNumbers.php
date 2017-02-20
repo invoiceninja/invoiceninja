@@ -137,6 +137,9 @@ trait GeneratesNumbers
 
         $search[] = '{$counter}';
         $replace[] = str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
+        
+        $search[] = '{$random}';
+        $replace[] = mt_rand (111111 , 999999);
 
         if (strstr($pattern, '{$userId}')) {
             $userId = $entity->user ? $entity->user->public_id : (Auth::check() ? Auth::user()->public_id : 0);
