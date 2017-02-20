@@ -104,6 +104,7 @@ class InvoiceController extends BaseController
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
             $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->deleted_at = null;
             $method = 'POST';
             $url = "{$entityType}s";
         } else {

@@ -225,7 +225,7 @@ class InvoicePresenter extends EntityPresenter
                 $actions[] = ['url' => url("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (! $invoice->is_recurring && $invoice->balance > 0) {
+            if (!$invoice->deleted_at && ! $invoice->is_recurring && $invoice->balance > 0) {
                 $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }
@@ -243,8 +243,12 @@ class InvoicePresenter extends EntityPresenter
             $actions[] = DropdownButton::DIVIDER;
         }
 
-        $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
-        $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
+        if (! $invoice->trashed()) {
+            $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
+        }
+        if (! $invoice->is_deleted) {
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
+        }
 
         return $actions;
     }
