@@ -69,7 +69,7 @@ class ClientPortalController extends BaseController
 
         $account->loadLocalizationSettings($client);
 
-        if (! Input::has('phantomjs') && ! session('silent') && ! Session::has($invitationKey)
+        if (! Input::has('phantomjs') && ! session('silent') && ! Session::has($invitation->invitation_key)
             && (! Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
@@ -78,7 +78,7 @@ class ClientPortalController extends BaseController
             }
         }
 
-        Session::put($invitationKey, true); // track this invitation has been seen
+        Session::put($invitation->invitation_key, true); // track this invitation has been seen
         Session::put('contact_key', $invitation->contact->contact_key); // track current contact
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);

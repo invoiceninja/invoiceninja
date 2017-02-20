@@ -104,6 +104,9 @@ class Authenticate
      */
     protected function getInvitation($key)
     {
+        // check for extra params at end of value (from website feature)
+        list($key) = explode('&', $key);
+
         $invitation = Invitation::withTrashed()->where('invitation_key', '=', $key)->first();
         if ($invitation && ! $invitation->is_deleted) {
             return $invitation;

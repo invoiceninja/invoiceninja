@@ -827,6 +827,9 @@ class InvoiceRepository extends BaseRepository
      */
     public function findInvoiceByInvitation($invitationKey)
     {
+        // check for extra params at end of value (from website feature)
+        list($invitationKey) = explode('&', $invitationKey);
+
         /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
 
