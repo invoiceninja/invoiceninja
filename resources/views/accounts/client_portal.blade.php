@@ -291,19 +291,19 @@
                             <div role="tabpanel">
                                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                                     <li role="presentation" class="active">
-                                        <a href="#form" aria-controls="form" role="tab" data-toggle="tab">{{ trans('texts.form') }}</a>
+                                        <a href="#buy_now_link" aria-controls="buy_now_link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
                                     </li>
                                     <li role="presentation">
-                                        <a href="#buy_now_link" aria-controls="buy_now_link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                                        <a href="#form" aria-controls="form" role="tab" data-toggle="tab">{{ trans('texts.form') }}</a>
                                     </li>
                                 </ul>
                             </div>
                             <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane active" id="form">
-                                    <textarea id="formTextarea" class="form-control" rows="4" readonly></textarea>
-                                </div>
-                                <div role="tabpanel" class="tab-pane" id="buy_now_link">
+                                <div role="tabpanel" class="tab-pane active" id="buy_now_link">
                                     <textarea id="linkTextarea" class="form-control" rows="4" readonly></textarea>
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="form">
+                                    <textarea id="formTextarea" class="form-control" rows="4" readonly></textarea>
                                 </div>
                             </div>
 
