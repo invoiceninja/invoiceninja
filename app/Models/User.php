@@ -17,6 +17,7 @@ use Session;
 class User extends Authenticatable
 {
     use PresentableTrait;
+    use SoftDeletes;
 
     /**
      * @var string
