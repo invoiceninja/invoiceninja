@@ -55,11 +55,11 @@ We use phantomjscloud.com to attach PDFs to emails sent by background processes.
 
    PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'
 
+If you require contacts to enter a password to see their invoice you'll need to set a random value for ``PHANTOMJS_SECRET``.
+
 You can install PhantomJS to generate the PDF locally, to enable it add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs``.
 
 .. TIP:: To determine the path you can run ``which phantomjs`` from the command line.
-
-If you require contacts to enter a password to see their invoice you'll need to set a value for PHANTOMJS_SECRET.
 
 Custom Fonts
 """"""""""""
