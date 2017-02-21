@@ -462,7 +462,7 @@ NINJA.invoiceLines = function(invoice) {
         }
         if (!hideQuantity) {
             row.push({style:["cost", rowStyle], text:cost});
-            row.push({style:["quantity", rowStyle], text:qty || ' '});
+            row.push({style:["quantity", rowStyle], text:formatAmount(qty, invoice.client.currency_id) || ' '});
         }
         if (showItemTaxes) {
             var str = ' ';
