@@ -69,6 +69,7 @@ class CheckData extends Command
         $this->checkBalances();
 
         if (! $this->option('client_id')) {
+            $this->checkFailedJobs();
             $this->checkAccountData();
         }
 
@@ -89,6 +90,17 @@ class CheckData extends Command
     private function logMessage($str)
     {
         $this->log .= $str . "\n";
+    }
+
+    private function checkFailedJobs()
+    {
+        $count = DB::table('failed_jobs')->count();
+
+        if ($count > 0) {
+            $this->isValid = false;
+        }
+
+        $this->logMessage($count . ' failed jobs');
     }
 
     private function checkBlankInvoiceHistory()
