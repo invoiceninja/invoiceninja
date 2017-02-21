@@ -1028,6 +1028,10 @@ ul.user-accounts a:hover div.remove {
     visibility: visible;
 }
 
+.invoice-contact {
+    word-break: break-all;
+}
+
 .invoice-contact .tooltip-inner {
     text-align:left;
     width: 350px;
