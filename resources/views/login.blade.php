@@ -16,11 +16,13 @@
 @endsection
 
 @section('body')
-    @if (!Utils::isWhiteLabel() || empty($clientauth))
+    @if (!Utils::isWhiteLabel())
         <div class="container-fluid">
             <div class="row header">
                 <div class="col-md-6 col-xs-12 text-center">
-                    <a><img width="231" src="{{ asset('images/invoiceninja-logox53.png') }}"/></a>
+                    <a href="https://www.invoiceninja.com/" target="_blank">
+                        <img width="231" src="{{ asset('images/invoiceninja-logox53.png') }}"/>
+                    </a>
                 </div>
                 <div class="col-md-6 text-right visible-lg">
                     <p>{{trans('texts.ninja_tagline')}}</p>

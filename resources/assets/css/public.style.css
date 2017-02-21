@@ -28,8 +28,8 @@ html {
     font-weight: 500;
     font-size: 15px;
     font-weight: bold;
-    padding-left: 20px;
-    padding-right: 20px;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
 }
 
 .navbar {

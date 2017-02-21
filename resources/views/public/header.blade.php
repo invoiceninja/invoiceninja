@@ -78,7 +78,7 @@
                 @if (isset($account) && $account->enable_client_portal)
                 <ul class="nav navbar-nav navbar-right">
                     @if (isset($account) && $account->enable_client_portal_dashboard)
-                        <li {!! Request::is('*client/dashboard') ? 'class="active"' : '' !!}>
+                        <li {!! Request::is('*client/dashboard*') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/dashboard', trans('texts.dashboard') ) !!}
                         </li>
                     @endif
