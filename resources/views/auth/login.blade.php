@@ -54,7 +54,7 @@
                 <p>{{ trans('texts.login_or_existing') }}</p>
                 @foreach (App\Services\AuthService::$providers as $provider)
                     <div class="col-md-3 col-xs-6">
-                        <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-lg"
+                        <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-lg" title="{{ $provider }}"
                            id="{{ strtolower($provider) }}LoginButton">
                             @if($provider == SOCIAL_GITHUB)
                                 <i class="fa fa-github-alt"></i>

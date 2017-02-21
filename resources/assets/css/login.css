@@ -83,8 +83,8 @@ hr.green {
     border-top-right-radius: 0;
 }
 
-.form-signin input {
-    text-align: center;
+.form-signin input.form-control {
+    background-color: #ffffff !important;
 }
 
 .btn-block {
@@ -114,7 +114,7 @@ hr.green {
 }
 
 .row.meta {
-    font-size: 11px;
+    font-size: 12px;
     text-transform: uppercase;
     color: #464545;
     letter-spacing: 2px;
@@ -126,7 +126,7 @@ hr.green {
 }
 
 .row.meta a {
-    color: #9b9c9b;
+    color: #464545;
 }
 
 @media only screen and (min-width: 64.063em) {
@@ -159,6 +159,10 @@ hr.green {
 .row.sign-up p {
     font-size: 17px;
     font-weight: 200;
+}
+
+.row.sign-up a {
+    margin-top: 0px;
 }
 
 .row.sign-up button {
