@@ -1309,6 +1309,9 @@
 	function onConfirmEmailClick() {
 		$('#emailModal div.modal-footer button').attr('disabled', true);
 		model.invoice().is_public(true);
+		submitAction('email');
+
+		/*
 		var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
 		var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
 		var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
@@ -1325,6 +1328,7 @@
 		} else {
 			preparePdfData('email');
 		}
+		*/
 	}
 
 	function onSaveDraftClick() {
