@@ -844,6 +844,7 @@
         // create client dictionary
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
+            clientMap[client.public_id] = client;
             var clientName = getClientDisplayName(client);
             if (!clientName) {
                 continue;
@@ -858,7 +859,6 @@
                     $clientSelect.append(new Option(contactName, client.public_id));
                 }
             }
-            clientMap[client.public_id] = client;
             $clientSelect.append(new Option(clientName, client.public_id));
         }
 
