@@ -96,11 +96,11 @@ function ViewModel(data) {
             name = email;
         }
 
-        var isValid = true;
+        var isValid = name ? true : false;
         var contacts = self.invoice().client().contacts();
         $(contacts).each(function(item, value) {
-            if (!value.isValid()) {
-                isValid = false;
+            if (value.isValid()) {
+                isValid = true;
             }
         });
         if (!isValid) {

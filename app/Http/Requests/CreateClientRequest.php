@@ -21,9 +21,7 @@ class CreateClientRequest extends ClientRequest
      */
     public function rules()
     {
-        $rules = [
-            'contacts' => 'valid_contacts',
-        ];
+        $rules = [];
 
         if ($this->user()->account->client_number_counter) {
             $rules['id_number'] = 'unique:clients,id_number,,id,account_id,' . $this->user()->account_id;

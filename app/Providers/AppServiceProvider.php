@@ -178,20 +178,6 @@ class AppServiceProvider extends ServiceProvider
             return ! $value || strstr($value, '{$counter}');
         });
 
-        Validator::extend('valid_contacts', function ($attribute, $value, $parameters) {
-            foreach ($value as $contact) {
-                $validator = Validator::make($contact, [
-                        'email' => 'email|required_without:first_name',
-                        'first_name' => 'required_without:email',
-                    ]);
-                if ($validator->fails()) {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
         Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters) {
             $total = 0;
             foreach ($value as $item) {

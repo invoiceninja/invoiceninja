@@ -26,7 +26,7 @@ class UpdateInvoiceRequest extends InvoiceRequest
         $invoiceId = $this->entity()->id;
 
         $rules = [
-            'client.contacts' => 'valid_contacts',
+            'client' => 'required',
             'invoice_items' => 'valid_invoice_items',
             'invoice_number' => 'required|unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
             'discount' => 'positive',
