@@ -187,6 +187,9 @@ table.dataTable { border-radius: 3px; border-collapse: collapse;
 table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
     color:#fff;
 }
+
+table.da
+
 th:first-child {
     border-radius: 3px 0 0 0;
     border-left: none;
@@ -213,7 +216,7 @@ table.dataTable.no-footer {
 }
 .table-striped>tbody>tr:nth-child(odd)>td,
 .table-striped>tbody>tr:nth-child(odd)>th {
-    background-color: #FDFDFD;
+    background-color: #f9f9f9;
 }
 table.table thead .sorting_asc {
     background: url('../images/sort_asc.png') no-repeat 90% 50%;
