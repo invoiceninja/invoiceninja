@@ -95,6 +95,10 @@ class Client extends EntityModel
      * @var string
      */
     public static $fieldVatNumber = 'vat_number';
+    /**
+     * @var string
+     */
+    public static $fieldIdNumber = 'id_number';
 
     /**
      * @return array
@@ -113,6 +117,7 @@ class Client extends EntityModel
             self::$fieldNotes,
             self::$fieldWebsite,
             self::$fieldVatNumber,
+            self::$fieldIdNumber,
             Contact::$fieldFirstName,
             Contact::$fieldLastName,
             Contact::$fieldPhone,
@@ -140,6 +145,7 @@ class Client extends EntityModel
             'note' => 'notes',
             'site|website' => 'website',
             'vat' => 'vat_number',
+            'id|number' => 'id_number',
         ];
     }
 
