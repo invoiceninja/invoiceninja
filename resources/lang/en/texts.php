@@ -2112,7 +2112,7 @@ $LANG = array(
     'account_fields' => 'Company Fields',
     'facebook_and_twitter' => 'Facebook and Twitter',
     'facebook_and_twitter_help' => 'Follow our feeds to help support our project',
-    'reseller_text' => 'Note: the white-label license is intended for personal use, please email us at :email if you\'d like to resell our app.',
+    'reseller_text' => 'Note: the white-label license is intended for personal use, please email us at :email if you\'d like to resell the app.',
     'unnamed_client' => 'Unnamed Client',
 
     'day' => 'Day',
