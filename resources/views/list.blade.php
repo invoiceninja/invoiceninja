@@ -46,7 +46,7 @@
 </div>
 
 <div id="top_right_buttons" class="pull-right">
-	<input id="tableFilter_{{ $entityType }}" type="text" style="width:140px;margin-right:17px;background-color: white !important"
+	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
     @if ($entityType == ENTITY_EXPENSE)
