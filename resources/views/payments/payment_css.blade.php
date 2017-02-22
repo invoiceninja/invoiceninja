@@ -42,6 +42,7 @@ body {
 }
 
 div.col-md-3,
+div.col-md-4,
 div.col-md-5,
 div.col-md-6,
 div.col-md-7,

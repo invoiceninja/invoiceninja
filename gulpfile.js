@@ -96,6 +96,10 @@ elixir(function(mix) {
     ], 'public/js/daterangepicker.min.js');
 
     mix.scripts([
+        bowerDir + '/card/dist/card.js',
+    ], 'public/js/card.min.js');
+
+    mix.scripts([
         bowerDir + '/tablesorter/dist/js/jquery.tablesorter.combined.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-grouping.min.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-uitheme.min.js',
