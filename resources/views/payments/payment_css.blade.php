@@ -126,7 +126,7 @@ header h3 em {
     }
 
 .secure h3 {
-    color: #42d165;
+    color: #5cb85c;
     font-size: 30px;
     margin-bottom: 8px;
     margin-top: 0px;

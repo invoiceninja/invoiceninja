@@ -5,6 +5,13 @@
 
     <script src="{{ asset('js/card.min.js') }}"></script>
 
+    <style type="text/css">
+        div.jp-card-container {
+            transform: scale(.89) !important;
+            transform-origin: right top;
+        }
+    </style>
+
     <script type="text/javascript">
 
         $(function() {
@@ -29,7 +36,7 @@
                         nameInput: 'input#first_name, input#last_name'
                     },
 
-                    width: 255, // optional — default 350px
+                    //width: 100, // optional — default 350px
                     formatting: true, // optional - default true
 
                     // Strings for translation - optional
@@ -196,14 +203,14 @@
     @endif
 
     <div class="row">
-        <div class="col-md-{{ ($accountGateway->gateway_id == GATEWAY_BRAINTREE) ? 12 : 8 }}">
+        <div class="col-lg-{{ ($accountGateway->gateway_id == GATEWAY_BRAINTREE) ? 12 : 8 }}">
 
             <h3>
                 {{ trans('texts.billing_method') }}
                 @if (isset($acceptedCreditCardTypes))
                     &nbsp;
                     @foreach ($acceptedCreditCardTypes as $card)
-                        <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 34px; display: inline; margin-left: 8px;"/>
+                        <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 34px; display: inline; margin-left: 7px;"/>
                     @endforeach
                 @endif
                 <br/>
@@ -283,8 +290,7 @@
 
             <div class="row" style="padding-top:18px">
 
-                <div class="col-md-5">
-
+                <div class="col-md-12">
                     @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
                         <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
                         <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
@@ -299,7 +305,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-lg-4">
             <div class='card-wrapper'></div>
         </div>
     </div>
