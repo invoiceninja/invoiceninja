@@ -614,7 +614,7 @@ $LANG = array(
     'or' => 'or',
     'email_error' => 'There was a problem sending the email',
     'confirm_recurring_timing' => 'Note: emails are sent at the start of the hour.',
-    'payment_terms_help' => 'Sets the default invoice due date',
+    'payment_terms_help' => 'Sets the default <b>invoice due date</b>.',
     'unlink_account' => 'Unlink Account',
     'unlink' => 'Unlink',
     'show_address' => 'Show Address',
@@ -2378,7 +2378,9 @@ $LANG = array(
     'custom_product_fields_help' => 'Add a field when creating a product or invoice and display the label and value on the PDF.',
     'freq_two_months' => 'Two months',
     'freq_yearly' => 'Annually',
-    
+    'profile' => 'Profile',
+    'payment_type_help' => 'Sets the default <b>payment type</b>.',
+
 );
 
 return $LANG;

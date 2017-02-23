@@ -92,6 +92,7 @@ class Account extends Eloquent
         'enable_email_markup',
         'domain_id',
         'payment_terms',
+        'payment_type_id',
     ];
 
     /**

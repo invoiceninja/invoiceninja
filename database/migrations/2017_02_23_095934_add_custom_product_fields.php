@@ -32,6 +32,7 @@ class AddCustomProductFields extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->smallInteger('reset_counter_frequency_id')->nullable();
+            $table->smallInteger('payment_type_id')->nullable();
         });
 
         DB::table('currencies')->where('code', '=', 'HKR')->update(['code' => 'HRK']);
@@ -73,6 +74,7 @@ class AddCustomProductFields extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->dropColumn('reset_counter_frequency_id');
+            $table->dropColumn('payment_type_id');
         });
 
         DB::table('currencies')->where('code', '=', 'HRK')->update(['code' => 'HKR']);

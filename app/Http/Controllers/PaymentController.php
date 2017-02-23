@@ -11,6 +11,7 @@ use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Services\PaymentService;
+use Auth;
 use Cache;
 use DropdownButton;
 use Input;
@@ -93,6 +94,7 @@ class PaymentController extends BaseController
                     ->orderBy('invoice_number')->get();
 
         $data = [
+            'account' => Auth::user()->account,
             'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
             'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : ($request->invoice_id ?: 0),
             'invoice' => null,
@@ -148,6 +150,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
+            'account' => Auth::user()->account,
             'client' => null,
             'invoice' => null,
             'invoices' => Invoice::scope()

@@ -59,20 +59,6 @@
                 </div>
                 @endif
 
-                {!! Former::select('payment_terms')
-                        ->addOption('','')
-    				    ->fromQuery(Cache::get('paymentTerms'), 'name', 'num_days')
-                        ->help(trans('texts.payment_terms_help')) !!}
-
-                {!! Former::select('size_id')
-                        ->addOption('','')
-                        ->fromQuery($sizes, 'name', 'id') !!}
-
-                {!! Former::select('industry_id')
-                        ->addOption('','')
-                        ->fromQuery($industries, 'name', 'id')
-                        ->help('texts.industry_help') !!}
-
             </div>
         </div>
 
@@ -96,14 +82,62 @@
 
         <div class="panel panel-default">
           <div class="panel-heading">
-            <h3 class="panel-title">{!! trans('texts.signature') !!}</h3>
+            <h3 class="panel-title">{!! trans('texts.settings') !!}</h3>
           </div>
-            <div class="panel-body">
+            <div class="panel-body form-padding-right">
+
+                <div role="tabpanel">
+                    <ul class="nav nav-tabs" role="tablist" style="border: none">
+                        <li role="presentation" class="active">
+                            <a href="#defaults" aria-controls="client_fields" role="tab" data-toggle="tab">{{ trans('texts.defaults') }}</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#profile" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.profile') }}</a>
+                        </li>
+                        <li role="presentation">
+                            <a href="#signature" aria-controls="company_fields" role="tab" data-toggle="tab">{{ trans('texts.signature') }}</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <div role="tabpanel" class="tab-pane active" id="defaults">
+
+                        <br/>&nbsp;<br/>
+                        {!! Former::select('payment_type_id')
+                                ->addOption('','')
+            				    ->fromQuery(Cache::get('paymentTypes'), 'name', 'num_days')
+                                ->help(trans('texts.payment_type_help')) !!}
+
+                        {!! Former::select('payment_terms')
+                                ->addOption('','')
+            				    ->fromQuery(Cache::get('paymentTerms'), 'name', 'num_days')
+                                ->help(trans('texts.payment_terms_help')) !!}
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="profile">
+
+                        <br/>&nbsp;<br/>
+                        {!! Former::select('size_id')
+                                ->addOption('','')
+                                ->fromQuery($sizes, 'name', 'id') !!}
+
+                        {!! Former::select('industry_id')
+                                ->addOption('','')
+                                ->fromQuery($industries, 'name', 'id')
+                                ->help('texts.industry_help') !!}
+
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="signature">
+
+                        <br/>
+                        {!! Former::textarea('email_footer')->style('display:none')->raw() !!}
+                        <div id="signatureEditor" class="form-control" style="min-height:160px" onclick="focusEditor()"></div>
+                        @include('partials/quill_toolbar', ['name' => 'signature'])
+
+                    </div>
+                </div>
 
                 <div class="col-md-10 col-md-offset-1">
-                    {!! Former::textarea('email_footer')->style('display:none')->raw() !!}
-                    <div id="signatureEditor" class="form-control" style="min-height:160px" onclick="focusEditor()"></div>
-                    @include('partials/quill_toolbar', ['name' => 'signature'])
                 </div>
 
             </div>
