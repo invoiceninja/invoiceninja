@@ -140,8 +140,7 @@ class ProductController extends BaseController
         $product->product_key = trim(Input::get('product_key'));
         $product->notes = trim(Input::get('notes'));
         $product->cost = trim(Input::get('cost'));
-        $product->default_tax_rate_id = Input::get('default_tax_rate_id');
-
+        $product->fill(Input::all());
         $product->save();
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');

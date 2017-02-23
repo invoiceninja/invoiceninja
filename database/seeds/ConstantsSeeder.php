@@ -24,14 +24,6 @@ class ConstantsSeeder extends Seeder
         Theme::create(['name' => 'united']);
         Theme::create(['name' => 'yeti']);
 
-        Frequency::create(['name' => 'Weekly']);
-        Frequency::create(['name' => 'Two weeks']);
-        Frequency::create(['name' => 'Four weeks']);
-        Frequency::create(['name' => 'Monthly']);
-        Frequency::create(['name' => 'Three months']);
-        Frequency::create(['name' => 'Six months']);
-        Frequency::create(['name' => 'Annually']);
-
         Size::create(['name' => '1 - 3']);
         Size::create(['name' => '4 - 10']);
         Size::create(['name' => '11 - 50']);

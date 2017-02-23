@@ -921,6 +921,16 @@ ko.bindingHandlers.productTypeahead = {
                         $select.val('0 ' + datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name).trigger('change');
                     }
                 @endif
+                @if (Auth::user()->isPro() && $account->custom_invoice_item_label1)
+                    if (datum.custom_value1) {
+                        model.custom_value1(datum.custom_value1);
+                    }
+                @endif
+                @if (Auth::user()->isPro() && $account->custom_invoice_item_label2)
+                    if (datum.custom_value2) {
+                        model.custom_value2(datum.custom_value2);
+                    }
+                @endif
             @endif
             onItemChange();
         }).on('typeahead:change', function(element, datum, name) {

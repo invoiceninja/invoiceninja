@@ -2374,6 +2374,11 @@ $LANG = array(
     'month_year' => 'MONTH/YEAR',
     'valid_thru' => 'Valid\nthru',
 
+    'product_fields' => 'Product Fields',
+    'custom_product_fields_help' => 'Add a field when creating a product or invoice and display the label and value on the PDF.',
+    'freq_two_months' => 'Two months',
+    'freq_yearly' => 'Annually',
+    
 );
 
 return $LANG;

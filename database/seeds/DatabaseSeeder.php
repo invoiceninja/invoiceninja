@@ -28,5 +28,6 @@ class DatabaseSeeder extends Seeder
         $this->call('PaymentTypesSeeder');
         $this->call('LanguageSeeder');
         $this->call('IndustrySeeder');
+        $this->call('FrequencySeeder');
     }
 }

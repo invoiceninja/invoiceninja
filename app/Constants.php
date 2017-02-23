@@ -204,9 +204,10 @@ if (! defined('APP_NAME')) {
     define('FREQUENCY_TWO_WEEKS', 2);
     define('FREQUENCY_FOUR_WEEKS', 3);
     define('FREQUENCY_MONTHLY', 4);
-    define('FREQUENCY_THREE_MONTHS', 5);
-    define('FREQUENCY_SIX_MONTHS', 6);
-    define('FREQUENCY_ANNUALLY', 7);
+    define('FREQUENCY_TWO_MONTHS', 5);
+    define('FREQUENCY_THREE_MONTHS', 6);
+    define('FREQUENCY_SIX_MONTHS', 7);
+    define('FREQUENCY_ANNUALLY', 8);
 
     define('SESSION_TIMEZONE', 'timezone');
     define('SESSION_CURRENCY', 'currency');
@@ -391,6 +392,12 @@ if (! defined('APP_NAME')) {
     define('REMINDER1', 'reminder1');
     define('REMINDER2', 'reminder2');
     define('REMINDER3', 'reminder3');
+
+    define('RESET_FREQUENCY_DAILY', 1);
+    define('RESET_FREQUENCY_WEEKLY', 2);
+    define('RESET_FREQUENCY_MONTHLY', 3);
+    define('RESET_FREQUENCY_QUATERLY', 4);
+    define('RESET_FREQUENCY_YEARLY', 5);
 
     define('REMINDER_DIRECTION_AFTER', 1);
     define('REMINDER_DIRECTION_BEFORE', 2);

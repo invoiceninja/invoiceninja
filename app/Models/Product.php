@@ -31,6 +31,8 @@ class Product extends EntityModel
         'cost',
         'qty',
         'default_tax_rate_id',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**

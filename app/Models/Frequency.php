@@ -16,6 +16,13 @@ class Frequency extends Eloquent
      */
     public $timestamps = false;
 
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'name',
+    ];
+
     public static function selectOptions()
     {
         $data = [];
