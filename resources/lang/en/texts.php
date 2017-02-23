@@ -1438,7 +1438,7 @@ $LANG = array(
     'industry_Transportation' => 'Transportation',
     'industry_Travel & Luxury' => 'Travel & Luxury',
     'industry_Other' => 'Other',
-    'industry_Photography' =>'Photography',
+    'industry_Photography' => 'Photography',
 
     // Countries
     'country_Afghanistan' => 'Afghanistan',
@@ -2380,6 +2380,7 @@ $LANG = array(
     'freq_yearly' => 'Annually',
     'profile' => 'Profile',
     'payment_type_help' => 'Sets the default <b>payment type</b>.',
+    'industry_Construction' => 'Construction',
 
 );
 
