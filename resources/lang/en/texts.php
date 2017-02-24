@@ -2381,6 +2381,9 @@ $LANG = array(
     'profile' => 'Profile',
     'payment_type_help' => 'Sets the default <b>payment type</b>.',
     'industry_Construction' => 'Construction',
+    'your_statement' => 'Your Statement',
+    'statement_issued_to' => 'Statement issued to',
+    'statement_to' => 'Statement to',
 
 );
 
