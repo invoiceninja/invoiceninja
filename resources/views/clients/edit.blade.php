@@ -126,7 +126,7 @@
                 ->placeholder($account->language ? trans('texts.lang_'.$account->language->name) : '')
                 ->fromQuery($languages, 'name', 'id') !!}
 			{!! Former::select('payment_terms')->addOption('','')
-				->fromQuery($paymentTerms, 'name', 'num_days')
+				->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
 				->placeholder($account->present()->paymentTerms)
                 ->help(trans('texts.payment_terms_help')) !!}
 			{!! Former::select('size_id')->addOption('','')

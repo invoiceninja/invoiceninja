@@ -96,7 +96,7 @@
 
                 {!! Former::select('payment_terms')
                         ->addOption('','')
-                        ->fromQuery(Cache::get('paymentTerms'), 'name', 'num_days')
+                        ->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
                         ->help(trans('texts.payment_terms_help') . ' | ' . link_to('/settings/payment_terms', trans('texts.customize_options'))) !!}
 
             </div>

@@ -729,7 +729,7 @@
                         ->data_bind('value: language_id')
                         ->fromQuery($languages, 'name', 'id') !!}
                 {!! Former::select('client[payment_terms]')->addOption('','')->data_bind('value: payment_terms')
-                        ->fromQuery($paymentTerms, 'name', 'num_days')
+                        ->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
                         ->label(trans('texts.payment_terms'))
                         ->help(trans('texts.payment_terms_help')) !!}
                 {!! Former::select('client[size_id]')->addOption('','')->data_bind('value: size_id')

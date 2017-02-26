@@ -303,7 +303,6 @@ class InvoiceController extends BaseController
             'defaultTax' => $account->default_tax_rate,
             'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),
-            'paymentTerms' => Cache::get('paymentTerms'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
             'invoiceFonts' => Cache::get('fonts'),
             'frequencies' => \App\Models\Frequency::selectOptions(),
