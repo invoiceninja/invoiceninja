@@ -48,11 +48,6 @@ class ClientPortalController extends BaseController
 
     public function view($invitationKey)
     {
-        if (request()->silent) {
-            session(['silent' => true]);
-            return redirect(request()->url());
-        }
-
         if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return $this->returnError();
         }
@@ -60,6 +55,11 @@ class ClientPortalController extends BaseController
         $invoice = $invitation->invoice;
         $client = $invoice->client;
         $account = $invoice->account;
+
+        if (request()->silent) {
+            session(['silent:' . $client->id => true]);
+            return redirect(request()->url());
+        }
 
         if (! $account->checkSubdomain(Request::server('HTTP_HOST'))) {
             return response()->view('error', [
@@ -69,7 +69,7 @@ class ClientPortalController extends BaseController
 
         $account->loadLocalizationSettings($client);
 
-        if (! Input::has('phantomjs') && ! session('silent') && ! Session::has($invitation->invitation_key)
+        if (! Input::has('phantomjs') && ! session('silent:' . $client->id) && ! Session::has($invitation->invitation_key)
             && (! Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
                 event(new QuoteInvitationWasViewed($invoice, $invitation));
@@ -228,11 +228,6 @@ class ClientPortalController extends BaseController
 
     public function dashboard($contactKey = false)
     {
-        if (request()->silent) {
-            session(['silent' => true]);
-            return redirect(request()->url());
-        }
-
         if ($contactKey) {
             if (! $contact = Contact::where('contact_key', '=', $contactKey)->first()) {
                 return $this->returnError();
@@ -244,8 +239,13 @@ class ClientPortalController extends BaseController
 
         $client = $contact->client;
         $account = $client->account;
-        $account->loadLocalizationSettings($client);
 
+        if (request()->silent) {
+            session(['silent:' . $client->id => true]);
+            return redirect(request()->url());
+        }
+
+        $account->loadLocalizationSettings($client);
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
         $customer = false;
 
