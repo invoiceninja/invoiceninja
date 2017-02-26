@@ -96,18 +96,19 @@ class CreditRepository extends BaseRepository
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         if ($credit) {
-            // do nothing
+            $credit->balance = Utils::parseFloat($input['balance']);
         } elseif ($publicId) {
             $credit = Credit::scope($publicId)->firstOrFail();
+            $credit->balance = Utils::parseFloat($input['balance']);
             \Log::warning('Entity not set in credit repo save');
         } else {
             $credit = Credit::createNew();
+            $credit->balance = Utils::parseFloat($input['amount']);
             $credit->client_id = Client::getPrivateId($input['client']);
         }
 
         $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         $credit->amount = Utils::parseFloat($input['amount']);
-        $credit->balance = Utils::parseFloat($input['amount']);
         $credit->private_notes = trim($input['private_notes']);
         $credit->save();
 
