@@ -110,7 +110,7 @@ trait SendsEmails
      */
     public function getEmailFooter()
     {
-        if ($this->email_footer) {
+        if ($this->isPro() && $this->email_footer) {
             // Add line breaks if HTML isn't already being used
             return strip_tags($this->email_footer) == $this->email_footer ? nl2br($this->email_footer) : $this->email_footer;
         } else {

@@ -38,7 +38,7 @@
 {!! Former::populateField('require_invoice_signature', intval($account->require_invoice_signature)) !!}
 {!! Former::populateField('require_quote_signature', intval($account->require_quote_signature)) !!}
 
-@include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL])
+@include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL, 'advanced' => true])
 
 <div class="row">
     <div class="col-md-12">
@@ -324,9 +324,11 @@
 </div>
 
 
-<center>
-	{!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
-</center>
+@if (Auth::user()->isPro())
+    <center>
+    	{!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+    </center>
+@endif
 
 {!! Former::close() !!}
 
