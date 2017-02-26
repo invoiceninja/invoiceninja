@@ -614,7 +614,7 @@ $LANG = array(
     'or' => 'or',
     'email_error' => 'There was a problem sending the email',
     'confirm_recurring_timing' => 'Note: emails are sent at the start of the hour.',
-    'payment_terms_help' => 'Sets the default <b>invoice due date</b>.',
+    'payment_terms_help' => 'Sets the default <b>invoice due date</b>',
     'unlink_account' => 'Unlink Account',
     'unlink' => 'Unlink',
     'show_address' => 'Show Address',
@@ -912,7 +912,7 @@ $LANG = array(
     'expense_error_multiple_clients' => 'The expenses can\'t belong to different clients',
     'expense_error_invoiced' => 'Expense has already been invoiced',
     'convert_currency' => 'Convert currency',
-    'num_days' => 'Number of days',
+    'num_days' => 'Number of Days',
     'create_payment_term' => 'Create Payment Term',
     'edit_payment_terms' => 'Edit Payment Term',
     'edit_payment_term' => 'Edit Payment Term',
@@ -2384,7 +2384,10 @@ $LANG = array(
     'your_statement' => 'Your Statement',
     'statement_issued_to' => 'Statement issued to',
     'statement_to' => 'Statement to',
-
+    'customize_options' => 'Customize options',
+    'created_payment_term' => 'Successfully created payment term',
+    'updated_payment_term' => 'Successfully updated payment term',
+    'archived_payment_term' => 'Successfully archived payment term',
 );
 
 return $LANG;

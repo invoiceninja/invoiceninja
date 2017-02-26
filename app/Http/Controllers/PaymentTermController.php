@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentTerm;
 use App\Services\PaymentTermService;
+use Auth;
 use Input;
 use Redirect;
 use Session;
@@ -43,7 +44,9 @@ class PaymentTermController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->paymentTermService->getDatatable();
+        $accountId = Auth::user()->account_id;
+
+        return $this->paymentTermService->getDatatable($accountId);
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Ninja\Repositories\PaymentTermRepository;
+use App\Ninja\Datatables\PaymentTermDatatable;
 use URL;
 
 class PaymentTermService extends BaseService
@@ -37,9 +38,11 @@ class PaymentTermService extends BaseService
      */
     public function getDatatable($accountId = 0)
     {
-        $query = $this->paymentTermRepo->find();
+        $datatable = new PaymentTermDatatable(false);
 
-        return $this->datatableService->createDatatable(ENTITY_PAYMENT_TERM, $query, false);
+        $query = $this->paymentTermRepo->find($accountId);
+
+        return $this->datatableService->createDatatable($datatable, $query);
     }
 
     public function columns($entityType, $hideClient)

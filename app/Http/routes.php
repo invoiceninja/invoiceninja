@@ -266,6 +266,14 @@ Route::group([
     Route::get('api/gateways', 'AccountGatewayController@getDatatable');
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
+    Route::get('payment_terms', 'PaymentTermController@index');
+    Route::get('api/payment_terms', 'PaymentTermController@getDatatable');
+    Route::get('payment_terms/create', 'PaymentTermController@create');
+    Route::post('payment_terms', 'PaymentTermController@store');
+    Route::put('payment_terms/{payment_terms}', 'PaymentTermController@update');
+    Route::get('payment_terms/{payment_terms}/edit', 'PaymentTermController@edit');
+    Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
+
     Route::get('bank_accounts/import_ofx', 'BankAccountController@showImportOFX');
     Route::post('bank_accounts/import_ofx', 'BankAccountController@doImportOFX');
     Route::resource('bank_accounts', 'BankAccountController');

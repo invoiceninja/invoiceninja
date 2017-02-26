@@ -542,7 +542,6 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.payment_terms'),
-            'taxRates' => PaymentTerm::scope()->get(['id', 'name', 'num_days']),
         ];
 
         return View::make('accounts.payment_terms', $data);
