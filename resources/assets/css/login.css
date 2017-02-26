@@ -326,3 +326,16 @@ fieldset[disabled] .btn-primary.active {
     padding: 15px;
     border: 1px solid #e8e8e8;
 }
+
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+   font-weight: normal;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   font-weight: normal;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+   font-weight: normal;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   font-weight: normal;
+}
