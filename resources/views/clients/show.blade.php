@@ -159,9 +159,9 @@
                 @if (Auth::user()->confirmed && $client->account->enable_client_portal)
                     <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}"
                         onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_client_portal') }}
-                    </a>
-                    <br/>
+                    </a><br/>
                 @endif
+                <br/>
 		  	@endforeach
 		</div>
 
