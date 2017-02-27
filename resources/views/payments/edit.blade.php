@@ -44,8 +44,8 @@
             <div class="panel-body">
 
             @if ($payment)
-             {!! Former::plaintext()->label('client')->value($payment->client->getDisplayName()) !!}
-             {!! Former::plaintext()->label('invoice')->value($payment->invoice->getDisplayName()) !!}
+             {!! Former::plaintext()->label('client')->value($payment->client->present()->link) !!}
+             {!! Former::plaintext()->label('invoice')->value($payment->invoice->present()->link) !!}
              {!! Former::plaintext()->label('amount')->value($payment->present()->amount) !!}
             @else
 			 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
