@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class Affiliate
+ * Class Affiliate.
  */
 class Affiliate extends Eloquent
 {

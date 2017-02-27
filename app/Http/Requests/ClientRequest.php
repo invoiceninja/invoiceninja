@@ -1,7 +1,9 @@
-<?php namespace App\Http\Requests;
+<?php
 
-class ClientRequest extends EntityRequest {
+namespace App\Http\Requests;
 
+class ClientRequest extends EntityRequest
+{
     protected $entityType = ENTITY_CLIENT;
 
     public function entity()

@@ -1,15 +1,18 @@
-<?php namespace App\Ninja\Import\Hiveage;
+<?php
+
+namespace App\Ninja\Import\Hiveage;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 /**
- * Class PaymentTransformer
+ * Class PaymentTransformer.
  */
 class PaymentTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return Item
      */
     public function transform($data)

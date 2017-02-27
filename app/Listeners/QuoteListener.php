@@ -1,9 +1,11 @@
-<?php namespace App\Listeners;
+<?php
+
+namespace App\Listeners;
 
 use App\Events\QuoteInvitationWasViewed;
 
 /**
- * Class QuoteListener
+ * Class QuoteListener.
  */
 class QuoteListener
 {

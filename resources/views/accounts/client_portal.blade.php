@@ -38,7 +38,7 @@
 {!! Former::populateField('require_invoice_signature', intval($account->require_invoice_signature)) !!}
 {!! Former::populateField('require_quote_signature', intval($account->require_quote_signature)) !!}
 
-@include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL])
+@include('accounts.nav', ['selected' => ACCOUNT_CLIENT_PORTAL, 'advanced' => true])
 
 <div class="row">
     <div class="col-md-12">
@@ -236,17 +236,12 @@
                                 ->inlineHelp('buy_now_buttons_warning')
                                 ->addGroupClass('product-select') !!}
 
-                            {!! Former::text('redirect_url')
-                                    ->onchange('updateBuyNowButtons()')
-                                    ->placeholder('https://www.example.com')
-                                    ->help('redirect_url_help') !!}
-
-                            {!! Former::checkboxes('client_fields')
+                            {!! Former::inline_checkboxes('client_fields')
                                     ->onchange('updateBuyNowButtons()')
                                     ->checkboxes([
+                                        trans('texts.email') => ['value' => 'email', 'name' => 'email'],
                                         trans('texts.first_name') => ['value' => 'first_name', 'name' => 'first_name'],
                                         trans('texts.last_name') => ['value' => 'last_name', 'name' => 'last_name'],
-                                        trans('texts.email') => ['value' => 'email', 'name' => 'email'],
                                     ]) !!}
 
                             {!! Former::inline_radios('landing_page')
@@ -262,29 +257,58 @@
                                     ->options($gateway_types) !!}
                             </div>
 
+                            {!! Former::text('redirect_url')
+                                    ->onchange('updateBuyNowButtons()')
+                                    ->placeholder('https://www.example.com')
+                                    ->help('redirect_url_help') !!}
+
+
+                            {!! Former::checkbox('is_recurring')
+                                ->text('enable')
+                                ->label('recurring')
+                                ->onchange('showRecurring();updateBuyNowButtons();')
+                                ->value(1) !!}
+
+                            <div id="recurringDiv" style="display:none">
+
+                                {!! Former::select('frequency_id')
+                                        ->options(\App\Models\Frequency::selectOptions())
+                                        ->onchange('updateBuyNowButtons()')
+                                        ->value(FREQUENCY_MONTHLY) !!}
+
+                                {!! Former::select('auto_bill')
+                                        ->onchange('updateBuyNowButtons()')
+                                        ->options([
+                                            AUTO_BILL_OFF => trans('texts.off'),
+                                            AUTO_BILL_OPT_IN => trans('texts.opt_in'),
+                                            AUTO_BILL_OPT_OUT => trans('texts.opt_out'),
+                                            AUTO_BILL_ALWAYS => trans('texts.always'),
+                                        ]) !!}
+                            </div>
+
                             <p>&nbsp;</p>
 
                             <div role="tabpanel">
                                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                                     <li role="presentation" class="active">
-                                        <a href="#form" aria-controls="form" role="tab" data-toggle="tab">{{ trans('texts.form') }}</a>
+                                        <a href="#buy_now_link" aria-controls="buy_now_link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
                                     </li>
                                     <li role="presentation">
-                                        <a href="#buy_now_link" aria-controls="buy_now_link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                                        <a href="#form" aria-controls="form" role="tab" data-toggle="tab">{{ trans('texts.form') }}</a>
                                     </li>
                                 </ul>
                             </div>
                             <div class="tab-content">
-                                <div role="tabpanel" class="tab-pane active" id="form">
-                                    <textarea id="formTextarea" class="form-control" rows="4" readonly></textarea>
-                                </div>
-                                <div role="tabpanel" class="tab-pane" id="buy_now_link">
+                                <div role="tabpanel" class="tab-pane active" id="buy_now_link">
                                     <textarea id="linkTextarea" class="form-control" rows="4" readonly></textarea>
+                                </div>
+                                <div role="tabpanel" class="tab-pane" id="form">
+                                    <textarea id="formTextarea" class="form-control" rows="4" readonly></textarea>
                                 </div>
                             </div>
 
                         @endif
-
+                        &nbsp;
                     @else
 
                         <center style="font-size:16px;color:#888888;">
@@ -300,9 +324,11 @@
 </div>
 
 
-<center>
-	{!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
-</center>
+@if (Auth::user()->isPro())
+    <center>
+    	{!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+    </center>
+@endif
 
 {!! Former::close() !!}
 
@@ -315,7 +341,9 @@
                 <h4 class="modal-title" id="iframeHelpModalLabel">{{ trans('texts.iframe_url') }}</h4>
             </div>
 
-            <div class="modal-body">
+            <div class="container" style="width: 100%; padding-bottom: 0px !important">
+            <div class="panel panel-default" style="margin-bottom: 0px">
+            <div class="panel-body">
                 <p>{{ trans('texts.iframe_url_help1') }}</p>
                 <pre>&lt;center&gt;
 &lt;iframe id="invoiceIFrame" width="100%" height="1200" style="max-width:1000px"&gt;&lt;/iframe&gt;
@@ -328,10 +356,13 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
                 <p>{{ trans('texts.iframe_url_help2') }}</p>
                 <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
                 </div>
+            </div>
+            </div>
 
-            <div class="modal-footer" style="margin-top: 0px">
+            <div class="modal-footer" style="margin-top: 2px">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
             </div>
+
 
         </div>
     </div>
@@ -367,7 +398,16 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
         if (val == '{{ ENTITY_PAYMENT }}') {
             $('#paymentTypesDiv').fadeIn();
         } else {
-            $('#paymentTypesDiv').hide();
+            $('#paymentTypesDiv').fadeOut();
+        }
+    }
+
+    function showRecurring() {
+        var val = $('input[name=is_recurring]:checked').val()
+        if (val) {
+            $('#recurringDiv').fadeIn();
+        } else {
+            $('#recurringDiv').fadeOut();
         }
     }
 
@@ -376,6 +416,9 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
         var landingPage = $('input[name=landing_page_type]:checked').val()
         var paymentType = (landingPage == 'payment') ? '/' + $('#payment_type').val() : '/';
         var redirectUrl = $('#redirect_url').val();
+        var isRecurring = $('input[name=is_recurring]:checked').val()
+        var frequencyId = $('#frequency_id').val();
+        var autoBillId = $('#auto_bill').val();
 
         var form = '';
         var link = '';
@@ -397,6 +440,13 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
             if (redirectUrl) {
                 link += '&redirect_url=' + encodeURIComponent(redirectUrl);
                 form += '<input type="hidden" name="redirect_url" value="' + redirectUrl + '"/>' + "\n";
+            }
+
+            if (isRecurring) {
+                link += "&is_recurring=true&frequency_id=" + frequencyId + "&auto_bill_id=" + autoBillId;
+                form += '<input type="hidden" name="is_recurring" value="true"/>' + "\n"
+                        + '<input type="hidden" name="frequency_id" value="' + frequencyId + '"/>' + "\n"
+                        + '<input type="hidden" name="auto_bill_id" value="' + autoBillId + '"/>' + "\n";
             }
 
             form += '<input type="submit" value="Buy Now" name="submit"/>' + "\n" + '</form>';

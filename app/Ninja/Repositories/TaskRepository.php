@@ -1,10 +1,12 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use Auth;
-use Session;
+namespace App\Ninja\Repositories;
+
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
+use Auth;
+use Session;
 
 class TaskRepository extends BaseRepository
 {
@@ -74,7 +76,7 @@ class TaskRepository extends BaseRepository
                 }
                 if (in_array(TASK_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('tasks.invoice_id', '>', 0);
-                    if ( ! in_array(TASK_STATUS_PAID, $statuses)) {
+                    if (! in_array(TASK_STATUS_PAID, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
@@ -137,11 +139,11 @@ class TaskRepository extends BaseRepository
             if ($data['action'] == 'start') {
                 $task->is_running = true;
                 $timeLog[] = [strtotime('now'), false];
-            } else if ($data['action'] == 'resume') {
+            } elseif ($data['action'] == 'resume') {
                 $task->is_running = true;
                 $timeLog[] = [strtotime('now'), false];
-            } else if ($data['action'] == 'stop' && $task->is_running) {
-                $timeLog[count($timeLog)-1][1] = time();
+            } elseif ($data['action'] == 'stop' && $task->is_running) {
+                $timeLog[count($timeLog) - 1][1] = time();
                 $task->is_running = false;
             }
         }
@@ -151,5 +153,4 @@ class TaskRepository extends BaseRepository
 
         return $task;
     }
-
 }

@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
 
-use Utils;
+namespace App\Models;
+
 use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Utils;
 
 /**
- * Class Invitation
+ * Class Invitation.
  */
 class Invitation extends EntityModel
 {
@@ -57,14 +59,16 @@ class Invitation extends EntityModel
 
     // If we're getting the link for PhantomJS to generate the PDF
     // we need to make sure it's served from our site
+
     /**
      * @param string $type
-     * @param bool $forceOnsite
+     * @param bool   $forceOnsite
+     *
      * @return string
      */
     public function getLink($type = 'view', $forceOnsite = false)
     {
-        if ( ! $this->account) {
+        if (! $this->account) {
             $this->load('account');
         }
 
@@ -77,7 +81,7 @@ class Invitation extends EntityModel
                 $url = $account->present()->clientPortalLink();
             }
 
-            if ($iframe_url && !$forceOnsite) {
+            if ($iframe_url && ! $forceOnsite) {
                 return "{$iframe_url}?{$this->invitation_key}";
             } elseif ($this->account->subdomain) {
                 $url = Utils::replaceSubdomain($url, $account->subdomain);
@@ -147,7 +151,7 @@ class Invitation extends EntityModel
 
     public function signatureDiv()
     {
-        if ( ! $this->signature_base64) {
+        if (! $this->signature_base64) {
             return false;
         }
 

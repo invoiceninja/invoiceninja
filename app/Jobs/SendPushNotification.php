@@ -3,15 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\Invoice;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Services\PushService;
-use Monolog\Logger;
-use Carbon;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class SendInvoiceEmail
+ * Class SendInvoiceEmail.
  */
 class SendPushNotification extends Job implements ShouldQueue
 {
@@ -27,11 +25,11 @@ class SendPushNotification extends Job implements ShouldQueue
      */
     protected $type;
 
-
     /**
      * Create a new job instance.
 
      * @param Invoice $invoice
+     * @param mixed   $type
      */
     public function __construct($invoice, $type)
     {
@@ -48,5 +46,4 @@ class SendPushNotification extends Job implements ShouldQueue
     {
         $pushService->sendNotification($this->invoice, $this->type);
     }
-
 }

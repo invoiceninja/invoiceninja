@@ -1,15 +1,15 @@
-<?php namespace App\Events;
+<?php
 
+namespace App\Events;
 
 use App\Models\Credit;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class CreditWasArchived
+ * Class CreditWasArchived.
  */
 class CreditWasArchived extends Event
 {
-
     use SerializesModels;
 
     /**
@@ -26,5 +26,4 @@ class CreditWasArchived extends Event
     {
         $this->credit = $credit;
     }
-
 }

@@ -1,8 +1,7 @@
-<?
+<?php
 
 class Entity
 {
-	public $id;
-	public $type;
+    public $id;
+    public $type;
 }
-

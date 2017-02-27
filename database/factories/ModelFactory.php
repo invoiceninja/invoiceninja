@@ -1,7 +1,7 @@
 <?php
 
-use App\Models\Client; 
-use App\Models\Contact; 
+use App\Models\Client;
+use App\Models\Contact;
 use App\Models\Country;
 
 /*
@@ -17,7 +17,7 @@ use App\Models\Country;
 
 $factory->define(Contact::class, function (Faker\Generator $faker) {
     return [
-        'client_id' => function() {
+        'client_id' => function () {
             return factory(Client::class)->create()->id;
         },
         'user_id' => 1,
@@ -43,6 +43,6 @@ $factory->define(Client::class, function (Faker\Generator $faker) {
         'city' => $faker->city,
         'state' => $faker->state,
         'postal_code' => $faker->postcode,
-        'country_id' => Country::all()->random()->id, 
+        'country_id' => Country::all()->random()->id,
     ];
 });

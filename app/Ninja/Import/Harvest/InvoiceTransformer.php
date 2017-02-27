@@ -1,20 +1,23 @@
-<?php namespace App\Ninja\Import\Harvest;
+<?php
+
+namespace App\Ninja\Import\Harvest;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 /**
- * Class InvoiceTransformer
+ * Class InvoiceTransformer.
  */
 class InvoiceTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
     {
-        if ( ! $this->getClientId($data->client)) {
+        if (! $this->getClientId($data->client)) {
             return false;
         }
 
@@ -35,7 +38,7 @@ class InvoiceTransformer extends BaseTransformer
                         'notes' => $this->getString($data, 'subject'),
                         'cost' => (float) $data->invoice_amount,
                         'qty' => 1,
-                    ]
+                    ],
                 ],
             ];
         });

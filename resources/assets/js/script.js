@@ -459,7 +459,7 @@ if (window.ko) {
 function getContactDisplayName(contact)
 {
     if (contact.first_name || contact.last_name) {
-        return (contact.first_name || '') + ' ' + (contact.last_name || '');
+        return $.trim((contact.first_name || '') + ' ' + (contact.last_name || ''));
     } else {
         return contact.email;
     }

@@ -1,17 +1,20 @@
-<?php namespace App\Models\Traits;
+<?php
 
+namespace App\Models\Traits;
+
+use App\Models\Client;
+use App\Models\Invoice;
 use Auth;
 use Carbon;
-use App\Models\Invoice;
-use App\Models\Client;
 
 /**
- * Class GeneratesNumbers
+ * Class GeneratesNumbers.
  */
 trait GeneratesNumbers
 {
     /**
      * @param $entity
+     *
      * @return mixed|string
      */
     public function getNextNumber($entity = false)
@@ -53,7 +56,7 @@ trait GeneratesNumbers
                     $this->save();
                 }
             } elseif ($entity->isType(INVOICE_TYPE_QUOTE)) {
-                if ( ! $this->share_counter) {
+                if (! $this->share_counter) {
                     $this->quote_number_counter += $counterOffset - 1;
                     $this->save();
                 }
@@ -72,34 +75,39 @@ trait GeneratesNumbers
 
     /**
      * @param $entityType
+     *
      * @return string
      */
     public function getNumberPrefix($entityType)
     {
-        if ( ! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
+        if (! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             return '';
         }
 
         $field = "{$entityType}_number_prefix";
+
         return $this->$field ?: '';
     }
 
     /**
      * @param $entityType
+     *
      * @return bool
      */
     public function getNumberPattern($entityType)
     {
-        if ( ! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
+        if (! $this->hasFeature(FEATURE_INVOICE_SETTINGS)) {
             return false;
         }
 
         $field = "{$entityType}_number_pattern";
+
         return $this->$field;
     }
 
     /**
      * @param $entityType
+     *
      * @return bool
      */
     public function hasNumberPattern($entityType)
@@ -109,17 +117,21 @@ trait GeneratesNumbers
 
     /**
      * @param $entityType
+     * @param mixed $invoice
+     *
      * @return string
      */
     public function hasClientNumberPattern($invoice)
     {
         $pattern = $invoice->invoice_type_id == INVOICE_TYPE_QUOTE ? $this->quote_number_pattern : $this->invoice_number_pattern;
 
-        return strstr($pattern, '$custom');
+        return strstr($pattern, '$custom') || strstr($pattern, '$idNumber');
     }
 
     /**
      * @param $entity
+     * @param mixed $counter
+     *
      * @return bool|mixed
      */
     public function applyNumberPattern($entity, $counter = 0)
@@ -128,7 +140,7 @@ trait GeneratesNumbers
         $counter = $counter ?: $this->getCounter($entityType);
         $pattern = $this->getNumberPattern($entityType);
 
-        if (!$pattern) {
+        if (! $pattern) {
             return false;
         }
 
@@ -165,22 +177,25 @@ trait GeneratesNumbers
     /**
      * @param $pattern
      * @param $invoice
+     *
      * @return mixed
      */
     private function getClientInvoiceNumber($pattern, $invoice)
     {
-        if (!$invoice->client) {
+        if (! $invoice->client) {
             return $pattern;
         }
 
         $search = [
             '{$custom1}',
             '{$custom2}',
+            '{$idNumber}',
         ];
 
         $replace = [
             $invoice->client->custom_value1,
             $invoice->client->custom_value2,
+            $invoice->client->id_number,
         ];
 
         return str_replace($search, $replace, $pattern);
@@ -188,6 +203,7 @@ trait GeneratesNumbers
 
     /**
      * @param $entityType
+     *
      * @return mixed
      */
     public function getCounter($entityType)
@@ -203,11 +219,13 @@ trait GeneratesNumbers
 
     /**
      * @param $entityType
+     *
      * @return mixed|string
      */
     public function previewNextInvoiceNumber($entityType = ENTITY_INVOICE)
     {
         $invoice = $this->createInvoice($entityType);
+
         return $this->getNextNumber($invoice);
     }
 

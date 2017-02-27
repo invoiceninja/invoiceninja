@@ -1,14 +1,17 @@
-<?php namespace App\Ninja\Transformers;
+<?php
+
+namespace App\Ninja\Transformers;
 
 use App\Models\Contact;
 
 /**
- * Class ContactTransformer
+ * Class ContactTransformer.
  */
 class ContactTransformer extends EntityTransformer
 {
     /**
      * @param Contact $contact
+     *
      * @return array
      */
     public function transform(Contact $contact)

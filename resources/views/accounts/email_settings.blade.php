@@ -3,6 +3,9 @@
 @section('head')
     @parent
 
+    <link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
+    <script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
+
     <style type="text/css">
         .iframe_url {
             display: none;
@@ -78,6 +81,17 @@
         </div>
     </div>
 
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.signature') !!}</h3>
+        </div>
+        <div class="panel-body">
+            {!! Former::textarea('email_footer')->style('display:none')->raw() !!}
+            <div id="signatureEditor" class="form-control" style="min-height:160px" onclick="focusEditor()"></div>
+            @include('partials/quill_toolbar', ['name' => 'signature'])
+        </div>
+    </div>
+
     @if (Auth::user()->hasFeature(FEATURE_CUSTOM_EMAILS))
         <center>
             {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
@@ -92,7 +106,9 @@
                     <h4 class="modal-title" id="designHelpModalLabel">{{ trans('texts.email_designs') }}</h4>
                 </div>
 
-                <div class="modal-body">
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                <div class="panel panel-default" style="margin-bottom: 0px">
+                <div class="panel-body">
                     <div class="row" style="text-align:center">
                         <div class="col-md-4">
                             <h4>{{ trans('texts.plain') }}</h4><br/>
@@ -108,8 +124,10 @@
                         </div>
                     </div>
                 </div>
+                </div>
+                </div>
 
-                <div class="modal-footer" style="margin-top: 0px">
+                <div class="modal-footer" style="margin-top: 2px">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 
@@ -120,6 +138,30 @@
     {!! Former::close() !!}
 
     <script type="text/javascript">
+
+        var editor = false;
+        $(function() {
+            editor = new Quill('#signatureEditor', {
+                modules: {
+                    'toolbar': { container: '#signatureToolbar' },
+                    'link-tooltip': true
+                },
+                theme: 'snow'
+            });
+            editor.setHTML($('#email_footer').val());
+            editor.on('text-change', function(delta, source) {
+                if (source == 'api') {
+                    return;
+                }
+                var html = editor.getHTML();
+                $('#email_footer').val(html);
+                NINJA.formIsChanged = true;
+            });
+        });
+
+        function focusEditor() {
+            editor.focus();
+        }
 
         $('.email_design_id .input-group-addon').click(function() {
             $('#designHelpModal').modal('show');

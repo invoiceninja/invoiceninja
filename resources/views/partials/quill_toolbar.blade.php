@@ -1,4 +1,4 @@
-<div id="toolbar-toolbar" class="toolbar ql-toolbar ql-snow">
+<div id="toolbar-toolbar" class="toolbar ql-toolbar ql-snow" style="padding-left:0px;padding-right:0px">
     <div id="{{ $name }}Toolbar" class="toolbar" style="padding-left: 0px">
         <span class="ql-format-group">
             <select title="Font" class="ql-font">

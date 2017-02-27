@@ -1,13 +1,16 @@
-<?php namespace App\Ninja\Presenters;
+<?php
 
+namespace App\Ninja\Presenters;
+
+use App\Libraries\Skype\InvoiceCard;
+use App\Models\Activity;
 use Carbon;
+use DropdownButton;
 use stdClass;
 use Utils;
-use DropdownButton;
-use App\Libraries\Skype\InvoiceCard;
 
-class InvoicePresenter extends EntityPresenter {
-
+class InvoicePresenter extends EntityPresenter
+{
     public function client()
     {
         return $this->entity->client ? $this->entity->client->getDisplayName() : '';
@@ -47,7 +50,7 @@ class InvoicePresenter extends EntityPresenter {
 
     public function age()
     {
-        if ( ! $this->entity->due_date || $this->entity->date_date == '0000-00-00') {
+        if (! $this->entity->due_date || $this->entity->date_date == '0000-00-00') {
             return 0;
         }
 
@@ -100,7 +103,7 @@ class InvoicePresenter extends EntityPresenter {
     // https://schema.org/PaymentStatusType
     public function paymentStatus()
     {
-        if ( ! $this->entity->balance) {
+        if (! $this->entity->balance) {
             return 'PaymentComplete';
         } elseif ($this->entity->isOverdue()) {
             return 'PaymentPastDue';
@@ -120,6 +123,7 @@ class InvoicePresenter extends EntityPresenter {
         } else {
             $status = $this->entity->invoice_status ? $this->entity->invoice_status->name : 'draft';
             $status = strtolower($status);
+
             return trans("texts.status_{$status}");
         }
     }
@@ -138,12 +142,14 @@ class InvoicePresenter extends EntityPresenter {
     {
         $frequency = $this->entity->frequency ? $this->entity->frequency->name : '';
         $frequency = strtolower($frequency);
+
         return trans('texts.freq_'.$frequency);
     }
 
     public function email()
     {
         $client = $this->entity->client;
+
         return count($client->contacts) ? $client->contacts[0]->email : '';
     }
 
@@ -152,7 +158,7 @@ class InvoicePresenter extends EntityPresenter {
         $client = $this->entity->client;
         $paymentMethod = $client->defaultPaymentMethod();
 
-        if ( ! $paymentMethod) {
+        if (! $paymentMethod) {
             return false;
         }
 
@@ -205,7 +211,7 @@ class InvoicePresenter extends EntityPresenter {
         $actions = [
             ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
             ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')],
-            DropdownButton::DIVIDER
+            DropdownButton::DIVIDER,
         ];
 
         if ($entityType == ENTITY_QUOTE) {
@@ -219,7 +225,7 @@ class InvoicePresenter extends EntityPresenter {
                 $actions[] = ['url' => url("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (!$invoice->is_recurring && $invoice->balance > 0) {
+            if (!$invoice->deleted_at && ! $invoice->is_recurring && $invoice->balance > 0) {
                 $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }
@@ -237,8 +243,12 @@ class InvoicePresenter extends EntityPresenter {
             $actions[] = DropdownButton::DIVIDER;
         }
 
-        $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
-        $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
+        if (! $invoice->trashed()) {
+            $actions[] = ['url' => 'javascript:onArchiveClick()', 'label' => trans("texts.archive_{$entityType}")];
+        }
+        if (! $invoice->is_deleted) {
+            $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans("texts.delete_{$entityType}")];
+        }
 
         return $actions;
     }

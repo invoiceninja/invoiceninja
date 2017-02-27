@@ -1,9 +1,10 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Utils;
-use Auth;
+namespace App\Ninja\Repositories;
+
 use App\Models\Project;
+use Auth;
+use DB;
 
 class ProjectRepository extends BaseRepository
 {
@@ -63,7 +64,7 @@ class ProjectRepository extends BaseRepository
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        if ( ! $project) {
+        if (! $project) {
             $project = Project::createNew();
             $project['client_id'] = $input['client_id'];
         }

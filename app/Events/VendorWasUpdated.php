@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Vendor;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class VendorWasUpdated
+ * Class VendorWasUpdated.
  */
 class VendorWasUpdated extends Event
 {

@@ -225,6 +225,12 @@
   }
 
   $(function() {
+    // auto-logout after 8 hours
+    window.setTimeout(function() {
+        window.location = '{{ URL::to('/logout?reason=inactivity') }}';
+    }, {{ 1000 * env('AUTO_LOGOUT_SECONDS', (60 * 60 * 8)) }});
+
+    // auto-hide status alerts
     window.setTimeout(function() {
         $(".alert-hide").fadeOut();
     }, 3000);
@@ -506,21 +512,20 @@
                 || Auth::user()->can('create', substr($option, 0, -1)))
                 @include('partials.navigation_option')
             @endif
-        @endforeach
-        @if ( ! Utils::isNinjaProd())
-            @foreach (Module::all() as $module)
-                @include('partials.navigation_option', [
-                    'option' => $module->getAlias(),
-                    'icon' => $module->get('icon', 'th-large'),
-                ])
             @endforeach
-        @endif
-        @if (Auth::user()->is_admin)
-            @include('partials.navigation_option', ['option' => 'reports'])
-        @endif
-        @include('partials.navigation_option', ['option' => 'settings'])
-        <li style="width:100%;">
-                <div class="nav-footer">
+            @if ( ! Utils::isNinjaProd())
+                @foreach (Module::all() as $module)
+                    @include('partials.navigation_option', [
+                        'option' => $module->getAlias(),
+                        'icon' => $module->get('icon', 'th-large'),
+                    ])
+                @endforeach
+            @endif
+            @if (Auth::user()->hasPermission('view_all'))
+                @include('partials.navigation_option', ['option' => 'reports'])
+            @endif
+            @include('partials.navigation_option', ['option' => 'settings'])
+            <li style="width:100%;">                <div class="nav-footer">
                     <a href="javascript:showContactUs()" target="_blank" title="{{ trans('texts.contact_us') }}">
                         <i class="fa fa-envelope"></i>
                     </a>
@@ -558,7 +563,9 @@
           @include('partials.warn_session', ['redirectTo' => '/dashboard'])
 
           @if (Session::has('warning'))
-          <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+            <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+          @elseif (env('WARNING_MESSAGE'))
+            <div class="alert alert-warning">{!! env('WARNING_MESSAGE') !!}</div>
           @endif
 
           @if (Session::has('message'))
@@ -682,7 +689,9 @@
             </div>
 
             <div class="col-md-11 col-md-offset-1">
-                @if (Utils::isNinja())
+                @if (Auth::user()->account->hasMultipleAccounts())
+                    <div style="padding-top:20px;padding-bottom:10px;">{!! trans('texts.email_alias_message') !!}</div>
+                @elseif (Utils::isNinja())
                     <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
                 @endif
             </div>

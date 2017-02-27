@@ -1,12 +1,14 @@
-<?php namespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use App\Http\Requests\ClientRequest;
-use Response;
-use Input;
-use App\Models\Client;
-use App\Ninja\Repositories\ClientRepository;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Models\Client;
+use App\Ninja\Repositories\ClientRepository;
+use Input;
+use Response;
 
 class ClientApiController extends BaseAPIController
 {
@@ -69,14 +71,10 @@ class ClientApiController extends BaseAPIController
      *   )
      * )
      */
-
     public function show(ClientRequest $request)
     {
         return $this->itemResponse($request->entity());
     }
-
-
-
 
     /**
      * @SWG\Post(
@@ -126,8 +124,9 @@ class ClientApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
+     *
+     * @param mixed $publicId
      */
-
     public function update(UpdateClientRequest $request, $publicId)
     {
         if ($request->action) {
@@ -142,7 +141,6 @@ class ClientApiController extends BaseAPIController
 
         return $this->itemResponse($client);
     }
-
 
     /**
      * @SWG\Delete(
@@ -165,7 +163,6 @@ class ClientApiController extends BaseAPIController
      *   )
      * )
      */
-
     public function destroy(UpdateClientRequest $request)
     {
         $client = $request->entity();
@@ -174,5 +171,4 @@ class ClientApiController extends BaseAPIController
 
         return $this->itemResponse($client);
     }
-
 }

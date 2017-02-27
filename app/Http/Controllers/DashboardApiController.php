@@ -1,9 +1,10 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use DB;
+namespace App\Http\Controllers;
+
 use App\Ninja\Repositories\DashboardRepository;
 use App\Ninja\Transformers\ActivityTransformer;
+use Auth;
 
 class DashboardApiController extends BaseAPIController
 {

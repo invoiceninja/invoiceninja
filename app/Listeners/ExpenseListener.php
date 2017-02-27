@@ -1,11 +1,13 @@
-<?php namespace App\Listeners;
+<?php
 
-use App\Models\Expense;
+namespace App\Listeners;
+
 use App\Events\InvoiceWasDeleted;
+use App\Models\Expense;
 use App\Ninja\Repositories\ExpenseRepository;
 
 /**
- * Class ExpenseListener
+ * Class ExpenseListener.
  */
 class ExpenseListener
 {
@@ -17,6 +19,7 @@ class ExpenseListener
 
     /**
      * ExpenseListener constructor.
+     *
      * @param ExpenseRepository $expenseRepo
      */
     public function __construct(ExpenseRepository $expenseRepo)

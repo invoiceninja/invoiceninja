@@ -1,16 +1,19 @@
-<?php namespace App\Ninja\Presenters;
+<?php
 
+namespace App\Ninja\Presenters;
+
+use Carbon;
+use Domain;
+use App\Models\TaxRate;
+use Laracasts\Presenter\Presenter;
 use stdClass;
 use Utils;
-use Domain;
-use Laracasts\Presenter\Presenter;
 
 /**
- * Class AccountPresenter
+ * Class AccountPresenter.
  */
 class AccountPresenter extends Presenter
 {
-
     /**
      * @return mixed
      */
@@ -34,6 +37,7 @@ class AccountPresenter extends Presenter
     {
         $currencyId = $this->entity->getCurrencyId();
         $currency = Utils::getFromCache($currencyId, 'currencies');
+
         return $currency->code;
     }
 
@@ -109,5 +113,40 @@ class AccountPresenter extends Presenter
         $data[] = $this->createRBit('external_account', 'partner_database', ['is_partner_account' => 'yes', 'account_type' => 'Invoice Ninja', 'create_time' => time()]);
 
         return $data;
+    }
+
+    public function dateRangeOptions()
+    {
+        $yearStart = Carbon::parse($this->entity->financialYearStart() ?: date('Y') . '-01-01');
+        $month = $yearStart->month - 1;
+        $year = $yearStart->year;
+        $lastYear = $year - 1;
+
+        $str = '{
+            "' . trans('texts.last_7_days') . '": [moment().subtract(6, "days"), moment()],
+            "' . trans('texts.last_30_days') . '": [moment().subtract(29, "days"), moment()],
+            "' . trans('texts.this_month') . '": [moment().startOf("month"), moment().endOf("month")],
+            "' . trans('texts.last_month') . '": [moment().subtract(1, "month").startOf("month"), moment().subtract(1, "month").endOf("month")],
+            "' . trans('texts.this_year') . '": [moment().date(1).month(' . $month . ').year(' . $year . '), moment()],
+            "' . trans('texts.last_year') . '": [moment().date(1).month(' . $month . ').year(' . $lastYear . '), moment().date(1).month(' . $month . ').year(' . $year . ').subtract(1, "day")],
+        }';
+
+        return $str;
+    }
+
+    public function taxRateOptions()
+    {
+        $rates = TaxRate::scope()->orderBy('name')->get();
+        $options = [];
+
+        foreach ($rates as $rate) {
+            $name = $rate->name . ' ' . ($rate->rate + 0) . '%';
+            if ($rate->is_inclusive) {
+                $name .= ' - ' . trans('texts.inclusive');
+            }
+            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
+        }
+
+        return $options;
     }
 }

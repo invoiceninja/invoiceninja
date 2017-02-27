@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 class UpdateExpenseCategoryRequest extends ExpenseCategoryRequest
 {
@@ -19,7 +21,7 @@ class UpdateExpenseCategoryRequest extends ExpenseCategoryRequest
      */
     public function rules()
     {
-          return [
+        return [
             'name' => 'required',
             'name' => sprintf('required|unique:expense_categories,name,%s,id,account_id,%s', $this->entity()->id, $this->user()->account_id),
         ];

@@ -1,10 +1,12 @@
-<?php namespace App\Ninja\Repositories;
+<?php
+
+namespace App\Ninja\Repositories;
 
 use Auth;
 use Utils;
 
 /**
- * Class BaseRepository
+ * Class BaseRepository.
  */
 class BaseRepository
 {
@@ -22,12 +24,14 @@ class BaseRepository
     private function getInstance()
     {
         $className = $this->getClassName();
+
         return new $className();
     }
 
     /**
      * @param $entity
      * @param $type
+     *
      * @return string
      */
     private function getEventClass($entity, $type)
@@ -58,7 +62,7 @@ class BaseRepository
      */
     public function restore($entity)
     {
-        if ( ! $entity->trashed()) {
+        if (! $entity->trashed()) {
             return;
         }
 
@@ -102,11 +106,12 @@ class BaseRepository
     /**
      * @param $ids
      * @param $action
+     *
      * @return int
      */
     public function bulk($ids, $action)
     {
-        if ( ! $ids ) {
+        if (! $ids) {
             return 0;
         }
 
@@ -123,6 +128,7 @@ class BaseRepository
 
     /**
      * @param $ids
+     *
      * @return mixed
      */
     public function findByPublicIds($ids)
@@ -132,6 +138,7 @@ class BaseRepository
 
     /**
      * @param $ids
+     *
      * @return mixed
      */
     public function findByPublicIdsWithTrashed($ids)
@@ -155,7 +162,7 @@ class BaseRepository
                     $query->orWhere(function ($query) use ($table) {
                         $query->whereNotNull($table . '.deleted_at');
 
-                        if ( ! in_array($table, ['users'])) {
+                        if (! in_array($table, ['users'])) {
                             $query->where($table . '.is_deleted', '=', 0);
                         }
                     });

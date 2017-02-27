@@ -1,17 +1,16 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Config;
-use Input;
-use Utils;
-use DB;
-use Session;
-use Str;
-use View;
+namespace App\Http\Controllers;
+
 use App\Models\Account;
+use Auth;
+use Input;
+use Str;
+use Utils;
+use View;
 
 /**
- * Class ReportController
+ * Class ReportController.
  */
 class ReportController extends BaseController
 {
@@ -49,6 +48,10 @@ class ReportController extends BaseController
      */
     public function showReports()
     {
+        if (! Auth::user()->hasPermission('view_all')) {
+            return redirect('/');
+        }
+
         $action = Input::get('action');
 
         if (Input::get('report_type')) {
@@ -64,14 +67,13 @@ class ReportController extends BaseController
         }
 
         $reportTypes = [
-            'client',
-            'product',
-            'invoice',
-            'invoice_details',
             'aging',
-            'profit_and_loss',
-            'payment',
+            'client',
             'expense',
+            'invoice',
+            'payment',
+            'product',
+            'profit_and_loss',
             'task',
             'tax_rate',
         ];
@@ -120,6 +122,10 @@ class ReportController extends BaseController
      */
     private function export($reportType, $data, $columns, $totals)
     {
+        if (! Auth::user()->hasPermission('view_all')) {
+            exit;
+        }
+
         $output = fopen('php://output', 'w') or Utils::fatalError();
         $reportType = trans("texts.{$reportType}s");
         $date = date('Y-m-d');

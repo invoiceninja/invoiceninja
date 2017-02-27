@@ -15,10 +15,11 @@ class InvoiceCest
 
         $this->faker = Factory::create();
     }
-    /*
+
     public function createInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
+        $itemTaxName = 'TAX_21';
 
         $I->wantTo('create an invoice');
 
@@ -27,23 +28,37 @@ class InvoiceCest
         $I->click('Save');
         $I->see($clientEmail);
 
+        $clientId = $I->grabFromCurrentUrl('~clients/(\d+)~');
+
+        $I->amOnPage('/tax_rates/create');
+        $I->fillField(['name' => 'name'], $itemTaxName);
+        $I->fillField(['name' => 'rate'], 21);
+        $I->click('Save');
+        $I->see($itemTaxName);
+
         $I->amOnPage('/invoices/create');
 
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
+        // check tax and discount rounding
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->selectDataPicker($I, '#invoice_date');
         $I->selectDataPicker($I, '#due_date', '+ 15 day');
         $I->fillField('#po_number', rand(100, 200));
-        $I->fillField('#discount', rand(0, 20));
-
-        $this->fillItems($I);
+        $I->fillField('#discount', 15);
+        $I->selectOption('#taxRateSelect1', $itemTaxName . ' 21%');
+        $this->fillItem($I, 1, 'Item', 'Notes', 64.50, 3);
 
         $I->click('#saveButton');
         $I->wait(1);
         $I->see($invoiceNumber);
+        $I->see('199.01');
+
+        $I->amOnPage("/clients/{$clientId}#invoices");
+        $I->see('199.01');
     }
 
+    /*
     public function editInvoice(AcceptanceTester $I)
     {
         $I->wantTo('edit an invoice');
@@ -78,6 +93,7 @@ class InvoiceCest
         }
     }
     */
+
     public function createRecurringInvoice(AcceptanceTester $I)
     {
         $clientEmail = $this->faker->safeEmail;
@@ -98,7 +114,7 @@ class InvoiceCest
         $this->fillItems($I);
 
         $I->executeJS("submitAction('email')");
-        $I->wait(2);
+        $I->wait(3);
         $I->see($clientEmail);
 
         $I->click('#lastSent');
@@ -117,7 +133,7 @@ class InvoiceCest
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
         $I->executeJS('submitAction()');
-        $I->wait(1);
+        $I->wait(3);
 
         $I->see($invoiceNumber);
     }
@@ -143,18 +159,24 @@ class InvoiceCest
 
     private function fillItems(AcceptanceTester $I, $max = 2)
     {
-        for ($i = 1; $i <= $max; $i++) {
-            $row_selector = sprintf('table.invoice-table tbody tr:nth-child(%d) ', $i);
+        for ($row = 1; $row <= $max; $row++) {
 
-            $product_key  = $this->faker->text(10);
-            $description  = $this->faker->text(80);
-            $unit_cost    = $this->faker->randomFloat(2, 0, 100);
-            $quantity     = $this->faker->randomDigitNotNull;
+            $product = $this->faker->text(10);
+            $description = $this->faker->text(80);
+            $cost = $this->faker->randomFloat(2, 0, 100);
+            $quantity = $this->faker->randomDigitNotNull;
 
-            $I->fillField($row_selector.'#product_key', $product_key);
-            $I->fillField($row_selector.'textarea', $description);
-            $I->fillField($row_selector.'td:nth-child(4) input', $unit_cost);
-            $I->fillField($row_selector.'td:nth-child(5) input', $quantity);
+            $this->fillItem($I, $row, $product, $description, $cost, $quantity);
         }
+    }
+
+    private function fillItem(AcceptanceTester $I, $row, $product, $description, $cost, $quantity)
+    {
+        $row_selector = sprintf('table.invoice-table tbody tr:nth-child(%d) ', $row);
+
+        $I->fillField($row_selector.'#product_key', $product);
+        $I->fillField($row_selector.'textarea', $description);
+        $I->fillField($row_selector.'td:nth-child(4) input', $cost);
+        $I->fillField($row_selector.'td:nth-child(5) input', $quantity);
     }
 }

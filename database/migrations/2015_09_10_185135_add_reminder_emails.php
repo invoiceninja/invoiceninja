@@ -1,17 +1,16 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddReminderEmails extends Migration {
-
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
+class AddReminderEmails extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
         Schema::table('accounts', function ($table) {
             $table->string('email_subject_invoice')->nullable();
             $table->string('email_subject_quote')->nullable();
@@ -33,15 +32,15 @@ class AddReminderEmails extends Migration {
             $table->smallInteger('num_days_reminder2')->default(14);
             $table->smallInteger('num_days_reminder3')->default(30);
         });
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
         Schema::table('accounts', function ($table) {
             $table->dropColumn('email_subject_invoice');
             $table->dropColumn('email_subject_quote');
@@ -63,6 +62,5 @@ class AddReminderEmails extends Migration {
             $table->dropColumn('num_days_reminder2');
             $table->dropColumn('num_days_reminder3');
         });
-	}
-
+    }
 }

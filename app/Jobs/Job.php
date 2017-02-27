@@ -17,7 +17,7 @@ abstract class Job
      */
     protected $jobName;
 
-    /**
+    /*
      * Handle a job failure.
      *
      * @param ContactMailer $mailer

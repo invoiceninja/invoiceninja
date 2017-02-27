@@ -1,13 +1,25 @@
-<?php namespace App\Ninja\Presenters;
+<?php
+
+namespace App\Ninja\Presenters;
 
 use Carbon;
 use Utils;
 
-class PaymentPresenter extends EntityPresenter {
-
+class PaymentPresenter extends EntityPresenter
+{
     public function amount()
     {
         return Utils::formatMoney($this->entity->amount, $this->entity->client->currency_id);
+    }
+
+    public function completedAmount()
+    {
+        return Utils::formatMoney($this->entity->getCompletedAmount(), $this->entity->client->currency_id);
+    }
+
+    public function currencySymbol()
+    {
+        return Utils::getFromCache($this->entity->currency_id ? $this->entity->currency_id : DEFAULT_CURRENCY, 'currencies')->symbol;
     }
 
     public function client()
@@ -30,7 +42,7 @@ class PaymentPresenter extends EntityPresenter {
         if ($this->entity->account_gateway) {
             return $this->entity->account_gateway->gateway->name;
         } elseif ($this->entity->payment_type) {
-            return $this->entity->payment_type->name;
+            return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
     }
 }

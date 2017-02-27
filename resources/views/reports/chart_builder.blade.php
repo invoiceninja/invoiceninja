@@ -37,18 +37,13 @@
 
             $('#reportrange').daterangepicker({
                 locale: {
-                    "format": "{{ $account->getMomentDateFormat() }}",
+					format: "{{ $account->getMomentDateFormat() }}",
+					customRangeLabel: "{{ trans('texts.custom_range') }}",
                 },
                 startDate: chartStartDate,
                 endDate: chartEndDate,
                 linkedCalendars: false,
-                ranges: {
-                   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                   'This Month': [moment().startOf('month'), moment().endOf('month')],
-                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                   'This Year': [moment().startOf('year'), moment().endOf('month')]
-                }
+				ranges: {!! $account->present()->dateRangeOptions !!}
             }, cb);
 
             cb(chartStartDate, chartEndDate);
@@ -101,7 +96,7 @@
                             </div>
                         </div>
 
-						<div id="statusField" style="display:{{ in_array($reportType, ['invoice', 'invoice_details']) ? 'block' : 'none' }}">
+						<div id="statusField" style="display:{{ in_array($reportType, [ENTITY_INVOICE, ENTITY_PRODUCT]) ? 'block' : 'none' }}">
 							{!! Former::select('invoice_status')->label('status')
 									->addOption(trans('texts.all'), 'all')
 									->addOption(trans('texts.draft'), 'draft')
@@ -221,6 +216,11 @@
         </tbody>
         </table>
 
+		<br/>
+		<div style="color:#888888">
+			{{ trans('texts.reports_help') }}
+		</div>
+
         </div>
         </div>
 
@@ -238,7 +238,7 @@
 
 	var sumColumns = [];
 	@foreach ($columns as $column)
-		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance']) ? trans("texts.{$column}") : false }}");
+		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost']) ? trans("texts.{$column}") : false }}");
 	@endforeach
 
     $(function() {
@@ -256,7 +256,7 @@
             } else {
                 $('#dateField').fadeOut();
             }
-			if (val == '{{ ENTITY_INVOICE }}' || val == 'invoice_details') {
+			if (val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}') {
                 $('#statusField').fadeIn();
             } else {
                 $('#statusField').fadeOut();

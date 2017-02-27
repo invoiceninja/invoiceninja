@@ -1,13 +1,15 @@
-<?php namespace App\Console\Commands;
+<?php
+
+namespace App\Console\Commands;
 
 use App\Models\Invoice;
-use Illuminate\Console\Command;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
+use Illuminate\Console\Command;
 
 /**
- * Class SendReminders
+ * Class SendReminders.
  */
 class SendReminders extends Command
 {
@@ -30,7 +32,7 @@ class SendReminders extends Command
      * @var InvoiceRepository
      */
     protected $invoiceRepo;
-    
+
     /**
      * @var accountRepository
      */
@@ -38,7 +40,8 @@ class SendReminders extends Command
 
     /**
      * SendReminders constructor.
-     * @param Mailer $mailer
+     *
+     * @param Mailer            $mailer
      * @param InvoiceRepository $invoiceRepo
      * @param accountRepository $accountRepo
      */
@@ -60,7 +63,7 @@ class SendReminders extends Command
 
         /** @var \App\Models\Account $account */
         foreach ($accounts as $account) {
-            if (!$account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
                 continue;
             }
 
@@ -77,6 +80,14 @@ class SendReminders extends Command
         }
 
         $this->info('Done');
+
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw('EOM', function ($message) use ($errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('SendReminders: Finished successfully');
+            });
+        }
     }
 
     /**

@@ -1,6 +1,8 @@
-<?php namespace App\Http\Requests;
+<?php
 
-class ProductRequest extends EntityRequest {
+namespace App\Http\Requests;
 
+class ProductRequest extends EntityRequest
+{
     protected $entityType = ENTITY_PRODUCT;
 }

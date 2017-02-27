@@ -62,7 +62,7 @@
                         ->label(trans('texts.project')) !!}
             @endif
 
-            {!! Former::textarea('description')->rows(3) !!}
+            {!! Former::textarea('description')->rows(4) !!}
 
             @if ($task)
 
@@ -197,7 +197,7 @@
             lang: '{{ $appLanguage }}',
             lazyInit: true,
             validateOnBlur: false,
-            step: 30,
+            step: {{ env('TASK_TIME_STEP', 15) }},
             format: '{{ $datetimeFormat }}',
             formatDate: '{{ $account->getMomentDateFormat() }}',
             formatTime: '{{ $account->military_time ? 'H:mm' : 'h:mm A' }}',

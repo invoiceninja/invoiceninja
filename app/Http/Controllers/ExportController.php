@@ -1,25 +1,27 @@
-<?php namespace App\Http\Controllers;
+<?php
 
+namespace App\Http\Controllers;
+
+use App\Models\Client;
+use App\Models\Contact;
+use App\Models\Credit;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\Task;
+use App\Models\Vendor;
+use App\Models\VendorContact;
+use App\Ninja\Serializers\ArraySerializer;
+use App\Ninja\Transformers\AccountTransformer;
 use Auth;
 use Excel;
 use Illuminate\Http\Request;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use App\Ninja\Serializers\ArraySerializer;
-use App\Ninja\Transformers\AccountTransformer;
-use App\Models\Client;
-use App\Models\Contact;
-use App\Models\Credit;
-use App\Models\Task;
-use App\Models\Invoice;
-use App\Models\Product;
-use App\Models\Payment;
-use App\Models\Expense;
-use App\Models\Vendor;
-use App\Models\VendorContact;
 
 /**
- * Class ExportController
+ * Class ExportController.
  */
 class ExportController extends BaseController
 {
@@ -39,13 +41,13 @@ class ExportController extends BaseController
         } else {
             $fields = $request->all();
             $fields = array_filter(array_map(function ($key) {
-                if ( ! in_array($key, ['format', 'include', '_token'])) {
+                if (! in_array($key, ['format', 'include', '_token'])) {
                     return $key;
                 } else {
                     return null;
                 }
             }, array_keys($fields), $fields));
-            $fileName = "invoice-ninja-" . join('-', $fields) . "-{$date}";
+            $fileName = 'invoice-ninja-' . implode('-', $fields) . "-{$date}";
         }
 
         if ($format === 'JSON') {
@@ -74,17 +76,17 @@ class ExportController extends BaseController
 
         // eager load data, include archived but exclude deleted
         $account = Auth::user()->account;
-        $account->load(['clients' => function($query) {
+        $account->load(['clients' => function ($query) {
             $query->withArchived()
-                  ->with(['contacts', 'invoices' => function($query) {
+                  ->with(['contacts', 'invoices' => function ($query) {
                       $query->withArchived()
-                            ->with(['invoice_items', 'payments' => function($query) {
+                            ->with(['invoice_items', 'payments' => function ($query) {
                                 $query->withArchived();
                             }]);
                   }]);
         }]);
 
-        $resource = new Item($account, new AccountTransformer);
+        $resource = new Item($account, new AccountTransformer());
         $data = $manager->parseIncludes('clients.invoices.payments')
                     ->createData($resource)
                     ->toArray();
@@ -102,8 +104,8 @@ class ExportController extends BaseController
     {
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function($excel) use ($data) {
-            $excel->sheet('', function($sheet) use ($data) {
+        return Excel::create($fileName, function ($excel) use ($data) {
+            $excel->sheet('', function ($sheet) use ($data) {
                 $sheet->loadView('export', $data);
             });
         })->download('csv');
@@ -120,8 +122,7 @@ class ExportController extends BaseController
         $user = Auth::user();
         $data = $this->getData($request);
 
-        return Excel::create($fileName, function($excel) use ($user, $data) {
-
+        return Excel::create($fileName, function ($excel) use ($user, $data) {
             $excel->setTitle($data['title'])
                   ->setCreator($user->getDisplayName())
                   ->setLastModifiedBy($user->getDisplayName())
@@ -140,7 +141,7 @@ class ExportController extends BaseController
                     $key = 'recurring_invoices';
                 }
                 $label = trans("texts.{$key}");
-                $excel->sheet($label, function($sheet) use ($key, $data) {
+                $excel->sheet($label, function ($sheet) use ($key, $data) {
                     if ($key === 'quotes') {
                         $key = 'invoices';
                         $data['entityType'] = ENTITY_QUOTE;
@@ -164,7 +165,7 @@ class ExportController extends BaseController
         $data = [
             'account' => $account,
             'title' => 'Invoice Ninja v' . NINJA_VERSION . ' - ' . $account->formatDateTime($account->getDateTime()),
-            'multiUser' => $account->users->count() > 1
+            'multiUser' => $account->users->count() > 1,
         ];
 
         if ($request->input('include') === 'all' || $request->input('clients')) {

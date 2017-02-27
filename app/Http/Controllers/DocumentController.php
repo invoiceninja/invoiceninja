@@ -1,13 +1,15 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Redirect;
-use View;
-use Response;
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateDocumentRequest;
+use App\Http\Requests\DocumentRequest;
+use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
-use App\Http\Requests\DocumentRequest;
-use App\Http\Requests\CreateDocumentRequest;
-use App\Http\Requests\UpdateDocumentRequest;
+use Redirect;
+use Response;
+use View;
 
 class DocumentController extends BaseController
 {
@@ -26,25 +28,25 @@ class DocumentController extends BaseController
         return static::getDownloadResponse($request->entity());
     }
 
-    public static function getDownloadResponse($document){
+    public static function getDownloadResponse($document)
+    {
         $direct_url = $document->getDirectUrl();
-        if($direct_url){
+        if ($direct_url) {
             return redirect($direct_url);
         }
 
         $stream = $document->getStream();
 
-        if($stream){
+        if ($stream) {
             $headers = [
-                'Content-Type'        => Document::$types[$document->type]['mime'],
-                'Content-Length'      => $document->size,
+                'Content-Type' => Document::$types[$document->type]['mime'],
+                'Content-Length' => $document->size,
             ];
 
-            $response = Response::stream(function() use ($stream) {
+            $response = Response::stream(function () use ($stream) {
                 fpassthru($stream);
             }, 200, $headers);
-        }
-        else{
+        } else {
             $response = Response::make($document->getRaw(), 200);
             $response->header('content-type', Document::$types[$document->type]['mime']);
         }
@@ -56,12 +58,12 @@ class DocumentController extends BaseController
     {
         $document = $request->entity();
 
-        if(empty($document->preview)){
-            return Response::view('error', ['error'=>'Preview does not exist!'], 404);
+        if (empty($document->preview)) {
+            return Response::view('error', ['error' => 'Preview does not exist!'], 404);
         }
 
         $direct_url = $document->getDirectPreviewUrl();
-        if($direct_url){
+        if ($direct_url) {
             return redirect($direct_url);
         }
 
@@ -76,15 +78,15 @@ class DocumentController extends BaseController
     {
         $document = $request->entity();
 
-        if(substr($name, -3)=='.js'){
+        if (substr($name, -3) == '.js') {
             $name = substr($name, 0, -3);
         }
 
-        if(!$document->isPDFEmbeddable()){
-            return Response::view('error', ['error'=>'Image does not exist!'], 404);
+        if (! $document->isPDFEmbeddable()) {
+            return Response::view('error', ['error' => 'Image does not exist!'], 404);
         }
 
-        $content = $document->preview?$document->getRawPreview():$document->getRaw();
+        $content = $document->preview ? $document->getRawPreview() : $document->getRaw();
         $content = 'ninjaAddVFSDoc('.json_encode(intval($publicId).'/'.strval($name)).',"'.base64_encode($content).'")';
         $response = Response::make($content, 200);
         $response->header('content-type', 'text/javascript');
@@ -97,16 +99,16 @@ class DocumentController extends BaseController
     {
         $result = $this->documentRepo->upload($request->all(), $doc_array);
 
-        if(is_string($result)){
-             return Response::json([
+        if (is_string($result)) {
+            return Response::json([
                 'error' => $result,
-                'code'  => 400
+                'code' => 400,
             ], 400);
         } else {
-             return Response::json([
+            return Response::json([
                 'error' => false,
                 'document' => $doc_array,
-                'code'  => 200
+                'code' => 200,
             ], 200);
         }
     }

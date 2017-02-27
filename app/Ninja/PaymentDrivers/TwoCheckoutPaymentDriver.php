@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
+
+namespace App\Ninja\PaymentDrivers;
 
 class TwoCheckoutPaymentDriver extends BasePaymentDriver
 {
@@ -9,5 +11,4 @@ class TwoCheckoutPaymentDriver extends BasePaymentDriver
     {
         return $this->createPayment($input['order_number']);
     }
-    
 }

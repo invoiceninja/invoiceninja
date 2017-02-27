@@ -4,13 +4,14 @@
 
             {!! Former::populateField('enable_' . $field, intval($account->{'enable_' . $field})) !!}
 
-            <div class="row" style="padding-bottom:20px">
-                <div class="col-md-6">
+            <div class="row well" style="padding-bottom:20px">
+                <div class="col-md-4" style="padding-top:10px">
                     {!! Former::checkbox('enable_' . $field)
-                            ->text(trans('texts.enable'))->label('')
+                            ->text(trans('texts.send_automatically'))->label('')
                             ->value(1) !!}
-
-                    {!! Former::plaintext('schedule')
+                </div>
+                <div class="col-md-8">
+                    {!! Former::plaintext('')
                             ->value(
                                 Former::input('num_days_' . $field)
                                     ->addClass('enable-' . $field)
@@ -32,6 +33,7 @@
                             ) !!}
                 </div>
             </div>
+            <br/>
         @endif
         <div class="row">
             <div class="col-md-6">
@@ -39,8 +41,7 @@
                 {!! Former::text('email_subject_' . $field)
                         ->label(trans('texts.subject'))
                         ->appendIcon('question-sign')
-                        ->addGroupClass('email-subject')
-                        ->addClass('enable-' . $field) !!}
+                        ->addGroupClass('email-subject') !!}
             </div>
         <div class="col-md-6">
             <p>&nbsp;<p/>
@@ -53,9 +54,8 @@
                 <div class="pull-right"><a href="#" onclick="return resetText('{{ 'template' }}', '{{ $field }}')">{{ trans("texts.reset") }}</a></div>
                 {!! Former::textarea('email_template_' . $field)
                         ->label(trans('texts.body'))
-                        ->addClass('enable-' . $field)
                         ->style('display:none') !!}
-                <div id="{{ $field }}Editor" class="form-control enable-{{ $field }}" style="min-height:160px">
+                <div id="{{ $field }}Editor" class="form-control" style="min-height:160px">
                 </div>
             </div>
             <div class="col-md-6">
@@ -68,7 +68,7 @@
             <div class="col-md-9 show-when-ready" style="display:none">
                 @include('partials/quill_toolbar', ['name' => $field])
             </div>
-            <div class="col-md-3 pull-right" style="padding-top:10px">
+            <div class="col-md-3 pull-right" style="padding-top:10px;text-align:right">
                 {!! Button::normal(trans('texts.raw'))->withAttributes(['onclick' => 'showRaw("'.$field.'")'])->small() !!}
                 {!! Button::primary(trans('texts.preview'))->withAttributes(['onclick' => 'serverPreview("'.$field.'")'])->small() !!}
             </div>

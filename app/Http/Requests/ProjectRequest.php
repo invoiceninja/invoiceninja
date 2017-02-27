@@ -1,7 +1,8 @@
-<?php namespace App\Http\Requests;
+<?php
 
-class ProjectRequest extends EntityRequest {
+namespace App\Http\Requests;
 
+class ProjectRequest extends EntityRequest
+{
     protected $entityType = ENTITY_PROJECT;
-
 }

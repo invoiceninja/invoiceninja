@@ -227,7 +227,7 @@
             @endif
           </div>
 
-         <div class="modal-footer" style="margin-top: 0px">
+         <div class="modal-footer" style="margin-top: 2px">
             <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
          </div>
 

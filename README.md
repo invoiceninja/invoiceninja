@@ -61,9 +61,9 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
 ## Development
-* [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
-* [PHP SDK](https://github.com/invoiceninja/sdk-php)
 * [API Documentation](https://www.invoiceninja.com/api-documentation/)
+* [PHP SDK](https://github.com/invoiceninja/sdk-php)
+* [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
 
 ## Contributing
 All contributors are welcome!  

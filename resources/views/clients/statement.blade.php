@@ -26,15 +26,16 @@
                   invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
               };
 
-            /*
             var invoiceDesignId = parseInt(invoice.invoice_design_id);
+            // We don't currently support the hipster design to be used as a statement
+            if (invoiceDesignId == 8) {
+                invoiceDesignId = 1;
+            }
             var invoiceDesign = _.findWhere(invoiceDesigns, {id: invoiceDesignId});
             if (!invoiceDesign) {
                 invoiceDesign = invoiceDesigns[0];
             }
-            */
-            var invoiceDesign = invoiceDesigns[0];
-            
+
             generatePDF(invoice, invoiceDesign.javascript, true, cb);
         }
 

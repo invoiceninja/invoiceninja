@@ -43,7 +43,7 @@ class PaymentCest
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->click('Mark Sent');
-        $I->wait(1);
+        $I->wait(2);
         $I->see($clientEmail);
 
         $I->amOnPage('/payments/create');

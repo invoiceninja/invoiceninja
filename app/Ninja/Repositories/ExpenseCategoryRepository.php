@@ -1,9 +1,10 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Utils;
-use Auth;
+namespace App\Ninja\Repositories;
+
 use App\Models\ExpenseCategory;
+use Auth;
+use DB;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
@@ -44,7 +45,7 @@ class ExpenseCategoryRepository extends BaseRepository
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        if ( ! $category) {
+        if (! $category) {
             $category = ExpenseCategory::createNew();
         }
 

@@ -96,11 +96,11 @@ function ViewModel(data) {
             name = email;
         }
 
-        var isValid = true;
+        var isValid = name ? true : false;
         var contacts = self.invoice().client().contacts();
         $(contacts).each(function(item, value) {
-            if (!value.isValid()) {
-                isValid = false;
+            if (value.isValid()) {
+                isValid = true;
             }
         });
         if (!isValid) {
@@ -641,13 +641,17 @@ function ContactModel(data) {
     self.displayName = ko.computed(function() {
         var str = '';
         if (self.first_name() || self.last_name()) {
-            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + '\n';
+            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + ' ';
         }
         if (self.email()) {
-            str += self.email() + '\n';
+            if (str) {
+                str += '&lt;' + self.email() + '&gt;';
+            } else {
+                str += self.email();
+            }
         }
 
-        return str;
+        return str + '<br/>';
     });
 
     self.email.display = ko.computed(function() {
@@ -892,9 +896,9 @@ ko.bindingHandlers.productTypeahead = {
             name: 'data',
             display: allBindings.key,
             limit: 50,
-            //templates: {
-            //    suggestion: function(item) { return '<div>' + item.product_key + '<div class="pull-right">' + item.cost + '</div>' }
-            //},
+            templates: {
+                suggestion: function(item) { return '<div title="' + item.product_key + '">' + item.product_key + '</div>' }
+            },
             source: searchData(allBindings.items, allBindings.key)
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)
@@ -915,6 +919,16 @@ ko.bindingHandlers.productTypeahead = {
                     if (datum.default_tax_rate) {
                         var $select = $(this).parentsUntil('tbody').find('select').first();
                         $select.val('0 ' + datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name).trigger('change');
+                    }
+                @endif
+                @if (Auth::user()->isPro() && $account->custom_invoice_item_label1)
+                    if (datum.custom_value1) {
+                        model.custom_value1(datum.custom_value1);
+                    }
+                @endif
+                @if (Auth::user()->isPro() && $account->custom_invoice_item_label2)
+                    if (datum.custom_value2) {
+                        model.custom_value2(datum.custom_value2);
                     }
                 @endif
             @endif

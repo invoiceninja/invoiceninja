@@ -9,7 +9,7 @@ class AppLanguageComposer
     /**
      * Bind data to the view.
      *
-     * @param  View  $view
+     * @param View $view
      *
      * @return void
      */
@@ -19,7 +19,7 @@ class AppLanguageComposer
     }
 
     /**
-     * Get the language from the current locale
+     * Get the language from the current locale.
      *
      * @return string
      */
@@ -27,7 +27,7 @@ class AppLanguageComposer
     {
         $code = app()->getLocale();
 
-        if(preg_match('/_/', $code)) {
+        if (preg_match('/_/', $code)) {
             $codes = explode('_', $code);
             $code = $codes[0];
         }

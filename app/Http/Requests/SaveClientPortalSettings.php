@@ -1,7 +1,9 @@
-<?php namespace App\Http\Requests;
+<?php
 
-use Utils;
+namespace App\Http\Requests;
+
 use HTMLUtils;
+use Utils;
 
 class SaveClientPortalSettings extends Request
 {
@@ -48,11 +50,10 @@ class SaveClientPortalSettings extends Request
             $iframeURL = preg_replace('/[^a-zA-Z0-9_\-\:\/\.]/', '', $iframeURL);
             $input['iframe_url'] = rtrim($iframeURL, '/');
             $input['subdomain'] = null;
-        }         
+        }
 
         $this->replace($input);
 
         return $this->all();
     }
-
 }

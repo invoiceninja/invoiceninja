@@ -188,7 +188,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" style="margin-top: 0px">
+            <div class="modal-footer" style="margin-top: 2px">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
                 <button type="submit" class="btn btn-primary">{{ trans('texts.complete_verification') }}</button>
             </div>
@@ -209,7 +209,7 @@
             <div class="modal-body">
                 <p>{{ trans('texts.confirm_remove_payment_method') }}</p>
             </div>
-            <div class="modal-footer" style="margin-top: 0px">
+            <div class="modal-footer" style="margin-top: 2px">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
                 <button type="submit" class="btn btn-primary">{{ trans('texts.remove') }}</button>
             </div>

@@ -1,7 +1,10 @@
-<?php namespace App\Services;
+<?php
 
-use URL;
+namespace App\Services;
+
 use App\Ninja\Repositories\PaymentTermRepository;
+use App\Ninja\Datatables\PaymentTermDatatable;
+use URL;
 
 class PaymentTermService extends BaseService
 {
@@ -12,7 +15,7 @@ class PaymentTermService extends BaseService
      * PaymentTermService constructor.
      *
      * @param PaymentTermRepository $paymentTermRepo
-     * @param DatatableService $datatableService
+     * @param DatatableService      $datatableService
      */
     public function __construct(PaymentTermRepository $paymentTermRepo, DatatableService $datatableService)
     {
@@ -30,13 +33,16 @@ class PaymentTermService extends BaseService
 
     /**
      * @param int $accountId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($accountId = 0)
     {
-        $query = $this->paymentTermRepo->find();
+        $datatable = new PaymentTermDatatable(false);
 
-        return $this->datatableService->createDatatable(ENTITY_PAYMENT_TERM, $query, false);
+        $query = $this->paymentTermRepo->find($accountId);
+
+        return $this->datatableService->createDatatable($datatable, $query);
     }
 
     public function columns($entityType, $hideClient)
@@ -46,14 +52,14 @@ class PaymentTermService extends BaseService
                 'name',
                 function ($model) {
                     return link_to("payment_terms/{$model->public_id}/edit", $model->name)->toHtml();
-                }
+                },
             ],
             [
                 'days',
                 function ($model) {
                     return $model->num_days;
-                }
-            ]
+                },
+            ],
         ];
     }
 
@@ -64,8 +70,8 @@ class PaymentTermService extends BaseService
                 uctrans('texts.edit_payment_terms'),
                 function ($model) {
                     return URL::to("payment_terms/{$model->public_id}/edit");
-                }
-            ]
+                },
+            ],
         ];
     }
 }

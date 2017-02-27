@@ -1,9 +1,11 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class QuoteWasUpdated
+ * Class QuoteWasUpdated.
  */
 class QuoteWasUpdated extends Event
 {
@@ -19,5 +21,4 @@ class QuoteWasUpdated extends Event
     {
         $this->quote = $quote;
     }
-
 }

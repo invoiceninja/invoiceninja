@@ -104,7 +104,9 @@
 								@endif
 							</h4>
 						</div>
-						<div class="modal-body">
+						<div class="container" style="width: 100%; padding-bottom: 0px !important">
+			            <div class="panel panel-default" style="margin-bottom: 0px">
+			            <div class="panel-body">
 
 							@if ($planDetails && $planDetails['active'])
     							{!! Former::select('plan')
@@ -137,7 +139,9 @@
 								->inlineHelp($account->company->present()->promoMessage) !!}
 
 						</div>
-						<div class="modal-footer" style="margin-top: 0px">
+						</div>
+						</div>
+						<div class="modal-footer" style="margin-top: 2px">
                             @if (Utils::isPro())
                                 <div class="pull-left" style="padding-top: 8px;color:#888888">
                                     {{ trans('texts.changes_take_effect_immediately') }}
@@ -240,7 +244,7 @@
 						&nbsp;<p>{!! Former::textarea('reason')->placeholder(trans('texts.reason_for_canceling'))->raw() !!}</p>&nbsp;
 					</div>
 
-					<div class="modal-footer" style="margin-top: 0px">
+					<div class="modal-footer" style="margin-top: 2px">
 						<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
 						<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>
 					</div>

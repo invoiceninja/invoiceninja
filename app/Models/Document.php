@@ -1,10 +1,12 @@
-<?php namespace App\Models;
+<?php
 
-use Illuminate\Support\Facades\Storage;
+namespace App\Models;
+
 use DB;
+use Illuminate\Support\Facades\Storage;
 
 /**
- * Class Document
+ * Class Document.
  */
 class Document extends EntityModel
 {
@@ -40,7 +42,7 @@ class Document extends EntityModel
         'application/msword',
         'application/excel', 'application/vnd.ms-excel', 'application/x-excel', 'application/x-msexcel',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','application/postscript', 'image/svg+xml',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/postscript', 'image/svg+xml',
         'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint',
     ];
 
@@ -97,13 +99,14 @@ class Document extends EntityModel
 
     /**
      * @param array $attributes
+     *
      * @return $this
      */
     public function fill(array $attributes)
     {
         parent::fill($attributes);
 
-        if(empty($this->attributes['disk'])){
+        if (empty($this->attributes['disk'])) {
             $this->attributes['disk'] = env('DOCUMENT_FILESYSTEM', 'documents');
         }
 
@@ -145,8 +148,9 @@ class Document extends EntityModel
     /**
      * @return mixed
      */
-    public function getDisk(){
-        return Storage::disk(!empty($this->disk)?$this->disk:env('DOCUMENT_FILESYSTEM', 'documents'));
+    public function getDisk()
+    {
+        return Storage::disk(! empty($this->disk) ? $this->disk : env('DOCUMENT_FILESYSTEM', 'documents'));
     }
 
     /**
@@ -154,49 +158,54 @@ class Document extends EntityModel
      */
     public function setDiskAttribute($value)
     {
-        $this->attributes['disk'] = $value?$value:env('DOCUMENT_FILESYSTEM', 'documents');
+        $this->attributes['disk'] = $value ? $value : env('DOCUMENT_FILESYSTEM', 'documents');
     }
 
     /**
      * @return null|string
      */
-    public function getDirectUrl(){
+    public function getDirectUrl()
+    {
         return static::getDirectFileUrl($this->path, $this->getDisk());
     }
 
     /**
      * @return null|string
      */
-    public function getDirectPreviewUrl(){
-        return $this->preview?static::getDirectFileUrl($this->preview, $this->getDisk(), true):null;
+    public function getDirectPreviewUrl()
+    {
+        return $this->preview ? static::getDirectFileUrl($this->preview, $this->getDisk(), true) : null;
     }
 
     /**
      * @param $path
      * @param $disk
      * @param bool $prioritizeSpeed
-     * @return null|string
+     *
      * @throws \OpenCloud\Common\Exceptions\NoNameError
+     *
+     * @return null|string
      */
-    public static function getDirectFileUrl($path, $disk, $prioritizeSpeed = false){
+    public static function getDirectFileUrl($path, $disk, $prioritizeSpeed = false)
+    {
         $adapter = $disk->getAdapter();
         $fullPath = $adapter->applyPathPrefix($path);
 
-        if($adapter instanceof \League\Flysystem\AwsS3v3\AwsS3Adapter) {
+        if ($adapter instanceof \League\Flysystem\AwsS3v3\AwsS3Adapter) {
             $client = $adapter->getClient();
             $command = $client->getCommand('GetObject', [
                 'Bucket' => $adapter->getBucket(),
-                'Key'    => $fullPath
+                'Key' => $fullPath,
             ]);
 
             return (string) $client->createPresignedRequest($command, '+10 minutes')->getUri();
-        } else if (!$prioritizeSpeed // Rackspace temp URLs are slow, so we don't use them for previews
+        } elseif (! $prioritizeSpeed // Rackspace temp URLs are slow, so we don't use them for previews
                    && $adapter instanceof \League\Flysystem\Rackspace\RackspaceAdapter) {
             $secret = env('RACKSPACE_TEMP_URL_SECRET');
-            if($secret){
+            if ($secret) {
                 $object = $adapter->getContainer()->getObject($fullPath);
 
-                if(env('RACKSPACE_TEMP_URL_SECRET_SET')){
+                if (env('RACKSPACE_TEMP_URL_SECRET_SET')) {
                     // Go ahead and set the secret too
                     $object->getService()->getAccount()->setTempUrlSecret($secret);
                 }
@@ -206,6 +215,7 @@ class Document extends EntityModel
                 $urlPath = urldecode($url->getPath());
                 $body = sprintf("%s\n%d\n%s", 'GET', $expiry, $urlPath);
                 $hash = hash_hmac('sha1', $body, $secret);
+
                 return sprintf('%s?temp_url_sig=%s&temp_url_expires=%d', $url, $hash, $expiry);
             }
         }
@@ -216,7 +226,8 @@ class Document extends EntityModel
     /**
      * @return mixed
      */
-    public function getRaw(){
+    public function getRaw()
+    {
         $disk = $this->getDisk();
 
         return $disk->get($this->path);
@@ -225,7 +236,8 @@ class Document extends EntityModel
     /**
      * @return mixed
      */
-    public function getStream(){
+    public function getStream()
+    {
         $disk = $this->getDisk();
 
         return $disk->readStream($this->path);
@@ -234,7 +246,8 @@ class Document extends EntityModel
     /**
      * @return mixed
      */
-    public function getRawPreview(){
+    public function getRawPreview()
+    {
         $disk = $this->getDisk();
 
         return $disk->get($this->preview);
@@ -243,46 +256,59 @@ class Document extends EntityModel
     /**
      * @return \Illuminate\Contracts\Routing\UrlGenerator|string
      */
-    public function getUrl(){
+    public function getUrl()
+    {
         return url('documents/'.$this->public_id.'/'.$this->name);
     }
 
     /**
      * @param $invitation
+     *
      * @return \Illuminate\Contracts\Routing\UrlGenerator|string
      */
-    public function getClientUrl($invitation){
+    public function getClientUrl($invitation)
+    {
         return url('client/documents/'.$invitation->invitation_key.'/'.$this->public_id.'/'.$this->name);
     }
 
     /**
      * @return bool
      */
-    public function isPDFEmbeddable(){
+    public function isPDFEmbeddable()
+    {
         return $this->type == 'jpeg' || $this->type == 'png' || $this->preview;
     }
 
     /**
      * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
      */
-    public function getVFSJSUrl(){
-        if(!$this->isPDFEmbeddable())return null;
+    public function getVFSJSUrl()
+    {
+        if (! $this->isPDFEmbeddable()) {
+            return null;
+        }
+
         return url('documents/js/'.$this->public_id.'/'.$this->name.'.js');
     }
 
     /**
      * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
      */
-    public function getClientVFSJSUrl(){
-        if(!$this->isPDFEmbeddable())return null;
+    public function getClientVFSJSUrl()
+    {
+        if (! $this->isPDFEmbeddable()) {
+            return null;
+        }
+
         return url('client/documents/js/'.$this->public_id.'/'.$this->name.'.js');
     }
 
     /**
      * @return \Illuminate\Contracts\Routing\UrlGenerator|null|string
      */
-    public function getPreviewUrl(){
-        return $this->preview?url('documents/preview/'.$this->public_id.'/'.$this->name.'.'.pathinfo($this->preview, PATHINFO_EXTENSION)):null;
+    public function getPreviewUrl()
+    {
+        return $this->preview ? url('documents/preview/'.$this->public_id.'/'.$this->name.'.'.pathinfo($this->preview, PATHINFO_EXTENSION)) : null;
     }
 
     /**
@@ -292,8 +318,12 @@ class Document extends EntityModel
     {
         $array = parent::toArray();
 
-        if(empty($this->visible) || in_array('url', $this->visible))$array['url'] = $this->getUrl();
-        if(empty($this->visible) || in_array('preview_url', $this->visible))$array['preview_url'] = $this->getPreviewUrl();
+        if (empty($this->visible) || in_array('url', $this->visible)) {
+            $array['url'] = $this->getUrl();
+        }
+        if (empty($this->visible) || in_array('preview_url', $this->visible)) {
+            $array['preview_url'] = $this->getPreviewUrl();
+        }
 
         return $array;
     }
@@ -301,8 +331,9 @@ class Document extends EntityModel
     /**
      * @return mixed
      */
-    public function cloneDocument(){
-        $document = Document::createNew($this);
+    public function cloneDocument()
+    {
+        $document = self::createNew($this);
         $document->path = $this->path;
         $document->preview = $this->preview;
         $document->name = $this->name;
@@ -324,19 +355,18 @@ Document::deleted(function ($document) {
         ->where('documents.disk', '=', $document->disk)
         ->count();
 
-    if(!$same_path_count){
+    if (! $same_path_count) {
         $document->getDisk()->delete($document->path);
     }
 
-    if($document->preview){
+    if ($document->preview) {
         $same_preview_count = DB::table('documents')
             ->where('documents.account_id', '=', $document->account_id)
             ->where('documents.preview', '=', $document->preview)
             ->where('documents.disk', '=', $document->disk)
             ->count();
-        if(!$same_preview_count){
+        if (! $same_preview_count) {
             $document->getDisk()->delete($document->preview);
         }
     }
-
 });

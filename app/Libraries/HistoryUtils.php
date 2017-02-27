@@ -1,10 +1,11 @@
-<?php namespace App\Libraries;
+<?php
 
-use Request;
-use stdClass;
-use Session;
-use App\Models\EntityModel;
+namespace App\Libraries;
+
 use App\Models\Activity;
+use App\Models\EntityModel;
+use Session;
+use stdClass;
 
 class HistoryUtils
 {
@@ -43,25 +44,24 @@ class HistoryUtils
             ->limit(100)
             ->get();
 
-        foreach ($activities->reverse() as $activity)
-        {
+        foreach ($activities->reverse() as $activity) {
             if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_CLIENT) {
                 $entity = $activity->client;
-            } else if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_TASK || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_TASK) {
+            } elseif ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_TASK || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_TASK) {
                 $entity = $activity->task;
-                if ( ! $entity) {
+                if (! $entity) {
                     continue;
                 }
                 $entity->setRelation('client', $activity->client);
-            } else if ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_EXPENSE || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_EXPENSE) {
+            } elseif ($activity->activity_type_id == ACTIVITY_TYPE_CREATE_EXPENSE || $activity->activity_type_id == ACTIVITY_TYPE_UPDATE_EXPENSE) {
                 $entity = $activity->expense;
-                if ( ! $entity) {
+                if (! $entity) {
                     continue;
                 }
                 $entity->setRelation('client', $activity->client);
             } else {
                 $entity = $activity->invoice;
-                if ( ! $entity) {
+                if (! $entity) {
                     continue;
                 }
                 $entity->setRelation('client', $activity->client);
@@ -79,20 +79,20 @@ class HistoryUtils
             ENTITY_INVOICE,
             ENTITY_QUOTE,
             ENTITY_TASK,
-            ENTITY_EXPENSE
+            ENTITY_EXPENSE,
         ];
 
-        if ( ! in_array($entityType, $trackedTypes)) {
+        if (! in_array($entityType, $trackedTypes)) {
             return;
         }
 
-        $object =  static::convertToObject($entity);
+        $object = static::convertToObject($entity);
         $history = Session::get(RECENTLY_VIEWED) ?: [];
         $accountHistory = isset($history[$entity->account_id]) ? $history[$entity->account_id] : [];
         $data = [];
 
         // Add to the list and make sure to only show each item once
-        for ($i = 0; $i<count($accountHistory); $i++) {
+        for ($i = 0; $i < count($accountHistory); $i++) {
             $item = $accountHistory[$i];
 
             if ($object->url == $item->url) {
@@ -151,20 +151,18 @@ class HistoryUtils
         $history = Session::get(RECENTLY_VIEWED, []);
         $history = isset($history[$accountId]) ? $history[$accountId] : [];
 
-        foreach ($history as $item)
-        {
+        foreach ($history as $item) {
             if ($item->entityType == ENTITY_CLIENT && isset($clientMap[$item->client_id])) {
                 continue;
             }
 
             $clientMap[$item->client_id] = true;
 
-            if ($lastClientId === false || $item->client_id != $lastClientId)
-            {
+            if ($lastClientId === false || $item->client_id != $lastClientId) {
                 $icon = '<i class="fa fa-users" style="width:32px"></i>';
                 if ($item->client_id) {
                     $link = url('/clients/' . $item->client_id);
-                    $name = $item->client_name ;
+                    $name = $item->client_name;
 
                     $buttonLink = url('/invoices/create/' . $item->client_id);
                     $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">

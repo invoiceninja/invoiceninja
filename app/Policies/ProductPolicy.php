@@ -2,12 +2,9 @@
 
 namespace App\Policies;
 
-use App\Models\User;
-
 /**
- * Class ProductPolicy
+ * Class ProductPolicy.
  */
 class ProductPolicy extends EntityPolicy
 {
-
 }

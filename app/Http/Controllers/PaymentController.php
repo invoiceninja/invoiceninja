@@ -1,20 +1,23 @@
-<?php namespace App\Http\Controllers;
+<?php
 
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreatePaymentRequest;
+use App\Http\Requests\PaymentRequest;
+use App\Http\Requests\UpdatePaymentRequest;
+use App\Models\Client;
+use App\Models\Invoice;
+use App\Ninja\Datatables\PaymentDatatable;
+use App\Ninja\Mailers\ContactMailer;
+use App\Ninja\Repositories\PaymentRepository;
+use App\Services\PaymentService;
+use Auth;
+use Cache;
+use DropdownButton;
 use Input;
 use Session;
 use Utils;
 use View;
-use Cache;
-use DropdownButton;
-use App\Models\Invoice;
-use App\Models\Client;
-use App\Ninja\Repositories\PaymentRepository;
-use App\Ninja\Mailers\ContactMailer;
-use App\Services\PaymentService;
-use App\Http\Requests\PaymentRequest;
-use App\Http\Requests\CreatePaymentRequest;
-use App\Http\Requests\UpdatePaymentRequest;
-use App\Ninja\Datatables\PaymentDatatable;
 
 class PaymentController extends BaseController
 {
@@ -42,15 +45,14 @@ class PaymentController extends BaseController
      * PaymentController constructor.
      *
      * @param PaymentRepository $paymentRepo
-     * @param ContactMailer $contactMailer
-     * @param PaymentService $paymentService
+     * @param ContactMailer     $contactMailer
+     * @param PaymentService    $paymentService
      */
     public function __construct(
         PaymentRepository $paymentRepo,
         ContactMailer $contactMailer,
         PaymentService $paymentService
-    )
-    {
+    ) {
         $this->paymentRepo = $paymentRepo;
         $this->contactMailer = $contactMailer;
         $this->paymentService = $paymentService;
@@ -70,6 +72,7 @@ class PaymentController extends BaseController
 
     /**
      * @param null $clientPublicId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($clientPublicId = null)
@@ -79,6 +82,7 @@ class PaymentController extends BaseController
 
     /**
      * @param PaymentRequest $request
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function create(PaymentRequest $request)
@@ -90,6 +94,7 @@ class PaymentController extends BaseController
                     ->orderBy('invoice_number')->get();
 
         $data = [
+            'account' => Auth::user()->account,
             'clientPublicId' => Input::old('client') ? Input::old('client') : ($request->client_id ?: 0),
             'invoicePublicId' => Input::old('invoice') ? Input::old('invoice') : ($request->invoice_id ?: 0),
             'invoice' => null,
@@ -106,6 +111,7 @@ class PaymentController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function show($publicId)
@@ -117,6 +123,7 @@ class PaymentController extends BaseController
 
     /**
      * @param PaymentRequest $request
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit(PaymentRequest $request)
@@ -129,8 +136,13 @@ class PaymentController extends BaseController
             $actions[] = ['url' => url("/invoices/invoice_history/{$payment->invoice->public_id}?payment_id={$payment->public_id}"), 'label' => trans('texts.view_invoice')];
         }
         $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
+
+        if ($payment->canBeRefunded()) {
+            $actions[] = ['url' => "javascript:showRefundModal({$payment->public_id}, \"{$payment->getCompletedAmount()}\", \"{$payment->present()->completedAmount}\", \"{$payment->present()->currencySymbol}\")", 'label' => trans('texts.refund_payment')];
+        }
+
         $actions[] = DropdownButton::DIVIDER;
-        if ( ! $payment->trashed()) {
+        if (! $payment->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_payment')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_payment')];
         } else {
@@ -138,6 +150,7 @@ class PaymentController extends BaseController
         }
 
         $data = [
+            'account' => Auth::user()->account,
             'client' => null,
             'invoice' => null,
             'invoices' => Invoice::scope()
@@ -160,6 +173,7 @@ class PaymentController extends BaseController
 
     /**
      * @param CreatePaymentRequest $request
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function store(CreatePaymentRequest $request)
@@ -184,11 +198,12 @@ class PaymentController extends BaseController
 
     /**
      * @param UpdatePaymentRequest $request
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(UpdatePaymentRequest $request)
     {
-        if (in_array($request->action, ['archive', 'delete', 'restore'])) {
+        if (in_array($request->action, ['archive', 'delete', 'restore', 'refund'])) {
             return self::bulk();
         }
 
@@ -207,10 +222,10 @@ class PaymentController extends BaseController
         $action = Input::get('action');
         $amount = Input::get('amount');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
-        $count = $this->paymentService->bulk($ids, $action, ['amount'=>$amount]);
+        $count = $this->paymentService->bulk($ids, $action, ['amount' => $amount]);
 
         if ($count > 0) {
-            $message = Utils::pluralize($action=='refund' ? 'refunded_payment':$action.'d_payment', $count);
+            $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action.'d_payment', $count);
             Session::flash('message', $message);
         }
 

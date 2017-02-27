@@ -1,9 +1,10 @@
-<?php namespace App\Ninja\Intents;
+<?php
 
-use stdClass;
-use Exception;
-use App\Libraries\CurlUtils;
+namespace App\Ninja\Intents;
+
 use App\Libraries\Skype\SkypeResponse;
+use Exception;
+use stdClass;
 
 class BaseIntent
 {
@@ -14,10 +15,10 @@ class BaseIntent
     public function __construct($state, $data)
     {
         //if (true) {
-        if ( ! $state || is_string($state)) {
-            $state = new stdClass;
+        if (! $state || is_string($state)) {
+            $state = new stdClass();
             foreach (['current', 'previous'] as $reference) {
-                $state->$reference = new stdClass;
+                $state->$reference = new stdClass();
                 $state->$reference->entityType = false;
                 foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
                     $state->$reference->$entityType = [];
@@ -33,7 +34,7 @@ class BaseIntent
 
     public static function createIntent($state, $data)
     {
-        if ( ! count($data->intents)) {
+        if (! count($data->intents)) {
             throw new Exception(trans('texts.intent_not_found'));
         }
 
@@ -47,7 +48,7 @@ class BaseIntent
             }
         }
 
-        if ( ! $entityType) {
+        if (! $entityType) {
             $entityType = $state->current->entityType;
         }
 
@@ -57,13 +58,12 @@ class BaseIntent
 
         //echo "Intent: $intent<p>";
 
-        if ( ! class_exists($className)) {
+        if (! class_exists($className)) {
             throw new Exception(trans('texts.intent_not_supported'));
         }
 
-        return (new $className($state, $data));
+        return new $className($state, $data);
     }
-
 
     public function process()
     {
@@ -72,7 +72,7 @@ class BaseIntent
 
     public function setStateEntities($entityType, $entities)
     {
-        if ( ! is_array($entities)) {
+        if (! is_array($entities)) {
             $entities = [$entities];
         }
 
@@ -116,7 +116,6 @@ class BaseIntent
         return $this->state->current->entityType;
     }
 
-
     public function getState()
     {
         return $this->state;
@@ -140,7 +139,7 @@ class BaseIntent
     {
         $data = [];
 
-        if ( ! isset($this->data->compositeEntities)) {
+        if (! isset($this->data->compositeEntities)) {
             return [];
         }
 
@@ -154,7 +153,8 @@ class BaseIntent
 
             foreach ($compositeEntity->children as $child) {
                 if ($child->type == 'Field') {
-                    $field = $child->value;;
+                    $field = $child->value;
+                    ;
                 } elseif ($child->type == 'Value') {
                     $value = $child->value;
                 }
@@ -213,7 +213,7 @@ class BaseIntent
         } else {
             if ($content instanceof \Illuminate\Database\Eloquent\Collection) {
                 // do nothing
-            } elseif ( ! is_array($content)) {
+            } elseif (! is_array($content)) {
                 $content = [$content];
             }
 

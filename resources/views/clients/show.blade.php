@@ -141,7 +141,7 @@
                 <p><i class="fa fa-language" style="width: 20px"></i>{{ $client->language->name }}</p>
             @endif
 
-		  	<p>{{ $client->payment_terms ? trans('texts.payment_terms') . ": Net " . $client->payment_terms : '' }}</p>
+            <p>{{ $client->present()->paymentTerms }}</p>
 		</div>
 
 		<div class="col-md-3">
@@ -157,8 +157,11 @@
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
                 @endif
                 @if (Auth::user()->confirmed && $client->account->enable_client_portal)
-                    <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}" target="_blank">{{ trans('texts.view_client_portal') }}</a><br/>
+                    <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}"
+                        onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_client_portal') }}
+                    </a><br/>
                 @endif
+                <br/>
 		  	@endforeach
 		</div>
 

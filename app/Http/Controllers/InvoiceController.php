@@ -1,34 +1,36 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Session;
-use Utils;
-use View;
-use Input;
-use Cache;
-use Redirect;
-use DB;
-use URL;
-use App\Models\Invoice;
-use App\Models\Client;
-use App\Models\Account;
-use App\Models\Product;
-use App\Models\Expense;
-use App\Models\Payment;
-use App\Models\TaxRate;
-use App\Models\InvoiceDesign;
-use App\Models\Activity;
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateInvoiceRequest;
+use App\Http\Requests\InvoiceRequest;
+use App\Http\Requests\UpdateInvoiceRequest;
 use App\Jobs\SendInvoiceEmail;
-use App\Ninja\Repositories\InvoiceRepository;
+use App\Models\Account;
+use App\Models\Activity;
+use App\Models\Client;
+use App\Models\Expense;
+use App\Models\Invoice;
+use App\Models\InvoiceDesign;
+use App\Models\Payment;
+use App\Models\Product;
+use App\Models\TaxRate;
+use App\Ninja\Datatables\InvoiceDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\DocumentRepository;
-use App\Ninja\Datatables\InvoiceDatatable;
+use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use App\Services\RecurringInvoiceService;
-use App\Http\Requests\InvoiceRequest;
-use App\Http\Requests\CreateInvoiceRequest;
-use App\Http\Requests\UpdateInvoiceRequest;
+use Auth;
+use Cache;
+use DB;
+use Input;
+use Redirect;
+use Session;
+use URL;
+use Utils;
+use View;
 
 class InvoiceController extends BaseController
 {
@@ -102,6 +104,7 @@ class InvoiceController extends BaseController
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
             $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->deleted_at = null;
             $method = 'POST';
             $url = "{$entityType}s";
         } else {
@@ -111,7 +114,7 @@ class InvoiceController extends BaseController
         }
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
-        $invoice->recurring_due_date = $invoice->due_date;// Keep in SQL form
+        $invoice->recurring_due_date = $invoice->due_date; // Keep in SQL form
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
         $invoice->start_date = Utils::fromSqlDate($invoice->start_date);
         $invoice->end_date = Utils::fromSqlDate($invoice->end_date);
@@ -124,7 +127,7 @@ class InvoiceController extends BaseController
 
         $lastSent = ($invoice->is_recurring && $invoice->last_sent_date) ? $invoice->recurring_invoices->last() : null;
 
-        if(!Auth::user()->hasPermission('view_all')){
+        if (! Auth::user()->hasPermission('view_all')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
@@ -139,10 +142,10 @@ class InvoiceController extends BaseController
                 'title' => trans("texts.edit_{$entityType}"),
                 'client' => $invoice->client,
                 'isRecurring' => $invoice->is_recurring,
-                'lastSent' => $lastSent];
+                'lastSent' => $lastSent, ];
         $data = array_merge($data, self::getViewModel($invoice));
 
-        if ($invoice->isSent() && $invoice->getAutoBillEnabled() && !$invoice->isPaid()) {
+        if ($invoice->isSent() && $invoice->getAutoBillEnabled() && ! $invoice->isPaid()) {
             $data['autoBillChangeWarning'] = $invoice->client->autoBillLater();
         }
 
@@ -151,7 +154,7 @@ class InvoiceController extends BaseController
         }
 
         // Set the invitation data on the client's contacts
-        if ( ! $clone) {
+        if (! $clone) {
             $clients = $data['clients'];
             foreach ($clients as $client) {
                 if ($client->id != $invoice->client->id) {
@@ -193,7 +196,7 @@ class InvoiceController extends BaseController
         $invoice->public_id = 0;
 
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
-        if (!Auth::user()->hasPermission('view_all')) {
+        if (! Auth::user()->hasPermission('view_all')) {
             $clients = $clients->where('clients.user_id', '=', Auth::user()->id);
         }
 
@@ -217,6 +220,8 @@ class InvoiceController extends BaseController
 
     private static function getViewModel($invoice)
     {
+        $account = Auth::user()->account;
+
         $recurringHelp = '';
         $recurringDueDateHelp = '';
         $recurringDueDates = [];
@@ -246,18 +251,20 @@ class InvoiceController extends BaseController
             trans('texts.use_client_terms') => ['value' => '', 'class' => 'monthly weekly'],
         ];
 
-        $ends = ['th','st','nd','rd','th','th','th','th','th','th'];
-        for($i = 1; $i < 31; $i++){
-            if ($i >= 11 && $i <= 13) $ordinal = $i. 'th';
-            else $ordinal = $i . $ends[$i % 10];
+        $ends = ['th', 'st', 'nd', 'rd', 'th', 'th', 'th', 'th', 'th', 'th'];
+        for ($i = 1; $i < 31; $i++) {
+            if ($i >= 11 && $i <= 13) {
+                $ordinal = $i. 'th';
+            } else {
+                $ordinal = $i . $ends[$i % 10];
+            }
 
             $dayStr = str_pad($i, 2, '0', STR_PAD_LEFT);
-            $str = trans('texts.day_of_month', ['ordinal'=>$ordinal]);
+            $str = trans('texts.day_of_month', ['ordinal' => $ordinal]);
 
             $recurringDueDates[$str] = ['value' => "1998-01-$dayStr", 'data-num' => $i, 'class' => 'monthly'];
         }
         $recurringDueDates[trans('texts.last_day_of_month')] = ['value' => '1998-01-31', 'data-num' => 31, 'class' => 'monthly'];
-
 
         $daysOfWeek = [
             trans('texts.sunday'),
@@ -268,32 +275,13 @@ class InvoiceController extends BaseController
             trans('texts.friday'),
             trans('texts.saturday'),
         ];
-        foreach(['1st','2nd','3rd','4th'] as $i=>$ordinal){
-            foreach($daysOfWeek as $j=>$dayOfWeek){
+        foreach (['1st', '2nd', '3rd', '4th'] as $i => $ordinal) {
+            foreach ($daysOfWeek as $j => $dayOfWeek) {
                 $str = trans('texts.day_of_week_after', ['ordinal' => $ordinal, 'day' => $dayOfWeek]);
 
-                $day = $i * 7 + $j  + 1;
+                $day = $i * 7 + $j + 1;
                 $dayStr = str_pad($day, 2, '0', STR_PAD_LEFT);
                 $recurringDueDates[$str] = ['value' => "1998-02-$dayStr", 'data-num' => $day, 'class' => 'weekly'];
-            }
-        }
-
-        // Tax rate $options
-        $account = Auth::user()->account;
-        $rates = TaxRate::scope()->orderBy('name')->get();
-        $options = [];
-        $defaultTax = false;
-
-        foreach ($rates as $rate) {
-            $name = $rate->name . ' ' . ($rate->rate+0) . '%';
-            if ($rate->is_inclusive) {
-                $name .= ' - ' . trans('texts.inclusive');
-            }
-            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
-
-            // load default invoice tax
-            if ($rate->id == $account->default_tax_rate_id) {
-                $defaultTax = $rate;
             }
         }
 
@@ -311,22 +299,13 @@ class InvoiceController extends BaseController
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
-            'taxRateOptions' => $options,
-            'defaultTax' => $defaultTax,
+            'taxRateOptions' => $account->present()->taxRateOptions,
+            'defaultTax' => $account->default_tax_rate,
             'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),
-            'paymentTerms' => Cache::get('paymentTerms'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
             'invoiceFonts' => Cache::get('fonts'),
-            'frequencies' => [
-                1 => trans('texts.freq_weekly'),
-                2 => trans('texts.freq_two_weeks'),
-                3 => trans('texts.freq_four_weeks'),
-                4 => trans('texts.freq_monthly'),
-                5 => trans('texts.freq_three_months'),
-                6 => trans('texts.freq_six_months'),
-                7 => trans('texts.freq_annually'),
-            ],
+            'frequencies' => \App\Models\Frequency::selectOptions(),
             'recurringDueDates' => $recurringDueDates,
             'recurringHelp' => $recurringHelp,
             'recurringDueDateHelp' => $recurringDueDateHelp,
@@ -335,7 +314,6 @@ class InvoiceController extends BaseController
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
             'expenses' => Session::get('expenses') ? Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get() : [],
         ];
-
     }
 
     /**
@@ -364,7 +342,7 @@ class InvoiceController extends BaseController
         Session::flash('message', $message);
 
         if ($action == 'email') {
-            $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice);
         }
 
         return url($invoice->getRoute());
@@ -373,7 +351,8 @@ class InvoiceController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param int $id
+     *
      * @return Response
      */
     public function update(UpdateInvoiceRequest $request)
@@ -394,34 +373,36 @@ class InvoiceController extends BaseController
         } elseif ($action == 'convert') {
             return $this->convertQuote($request, $invoice->public_id);
         } elseif ($action == 'email') {
-            $this->emailInvoice($invoice, Input::get('pdfupload'));
+            $this->emailInvoice($invoice);
         }
 
         return url($invoice->getRoute());
     }
 
-
-    private function emailInvoice($invoice, $pdfUpload)
+    private function emailInvoice($invoice)
     {
+        $reminder = Input::get('reminder');
+        $template = Input::get('template');
+        $pdfUpload = Utils::decodePDF(Input::get('pdfupload'));
         $entityType = $invoice->getEntityType();
-        $pdfUpload = Utils::decodePDF($pdfUpload);
 
-        if (!Auth::user()->confirmed) {
+        if (filter_var(Input::get('save_as_default'), FILTER_VALIDATE_BOOLEAN)) {
+            $account = Auth::user()->account;
+            $account->setTemplateDefaults(Input::get('template_type'), $template['subject'], $template['body']);
+        }
+
+        if (! Auth::user()->confirmed) {
             $errorMessage = trans(Auth::user()->registered ? 'texts.confirmation_required' : 'texts.registration_required');
             Session::flash('error', $errorMessage);
+
             return Redirect::to('invoices/'.$invoice->public_id.'/edit');
         }
 
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
-            if (config('queue.default') === 'sync') {
-                $response = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, false, $pdfUpload);
-            } else {
-                $this->dispatch(new SendInvoiceEmail($invoice, false, $pdfUpload));
-                $response = true;
-            }
+            $this->dispatch(new SendInvoiceEmail($invoice, $reminder, $pdfUpload, $template));
+            $response = true;
         }
 
         if ($response === true) {
@@ -434,10 +415,11 @@ class InvoiceController extends BaseController
 
     private function emailRecurringInvoice(&$invoice)
     {
-        if (!$invoice->shouldSendToday()) {
+        if (! $invoice->shouldSendToday()) {
             if ($date = $invoice->getNextSendDate()) {
                 $date = $invoice->account->formatDate($date);
                 $date .= ' ' . DEFAULT_SEND_RECURRING_HOUR . ':00 am ' . $invoice->account->getTimezone();
+
                 return trans('texts.recurring_too_soon', ['date' => $date]);
             } else {
                 return trans('texts.no_longer_running');
@@ -464,7 +446,9 @@ class InvoiceController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int      $id
+     * @param int   $id
+     * @param mixed $publicId
+     *
      * @return Response
      */
     public function show($publicId)
@@ -477,12 +461,15 @@ class InvoiceController extends BaseController
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int      $id
+     * @param int   $id
+     * @param mixed $entityType
+     *
      * @return Response
      */
     public function bulk($entityType = ENTITY_INVOICE)
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');;
+        $action = Input::get('bulk_action') ?: Input::get('action');
+        ;
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
@@ -569,7 +556,7 @@ class InvoiceController extends BaseController
         }
 
         // Show the current version as the last in the history
-        if ( ! $paymentId) {
+        if (! $paymentId) {
             $versionsSelect[$lastId] = Utils::timestampToDateTimeString(strtotime($invoice->created_at)) . ' - ' . $invoice->user->getDisplayName();
         }
 
@@ -601,5 +588,4 @@ class InvoiceController extends BaseController
 
         return $count ? RESULT_FAILURE : RESULT_SUCCESS;
     }
-
 }

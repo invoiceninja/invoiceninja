@@ -1,11 +1,12 @@
-<?php namespace App\Events;
+<?php
 
+namespace App\Events;
 
 use App\Models\Task;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class TaskWasRestored
+ * Class TaskWasRestored.
  */
 class TaskWasRestored extends Event
 {
@@ -25,5 +26,4 @@ class TaskWasRestored extends Event
     {
         $this->task = $task;
     }
-
 }

@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Datatables;
+<?php
 
-use Utils;
-use URL;
+namespace App\Ninja\Datatables;
+
 use Auth;
+use URL;
+use Utils;
 
 class ProjectDatatable extends EntityDatatable
 {
@@ -14,21 +16,19 @@ class ProjectDatatable extends EntityDatatable
         return [
             [
                 'project',
-                function ($model)
-                {
-                    if ( ! Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id])) {
+                function ($model) {
+                    if (! Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id])) {
                         return $model->project;
                     }
 
                     return link_to("projects/{$model->public_id}/edit", $model->project)->toHtml();
-                }
+                },
             ],
             [
                 'client_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->client_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                        if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                             return Utils::getClientDisplayName($model);
                         }
 
@@ -36,8 +36,8 @@ class ProjectDatatable extends EntityDatatable
                     } else {
                         return '';
                     }
-                }
-            ]
+                },
+            ],
         ];
     }
 
@@ -47,13 +47,12 @@ class ProjectDatatable extends EntityDatatable
             [
                 trans('texts.edit_project'),
                 function ($model) {
-                    return URL::to("projects/{$model->public_id}/edit") ;
+                    return URL::to("projects/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_PROJECT, $model->user_id]);
-                }
+                },
             ],
         ];
     }
-
 }

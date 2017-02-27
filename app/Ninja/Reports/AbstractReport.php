@@ -25,7 +25,6 @@ class AbstractReport
 
     public function run()
     {
-
     }
 
     public function results()
@@ -41,11 +40,11 @@ class AbstractReport
     {
         $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
 
-        if ( ! isset($this->totals[$currencyId][$dimension])) {
+        if (! isset($this->totals[$currencyId][$dimension])) {
             $this->totals[$currencyId][$dimension] = [];
         }
 
-        if ( ! isset($this->totals[$currencyId][$dimension][$field])) {
+        if (! isset($this->totals[$currencyId][$dimension][$field])) {
             $this->totals[$currencyId][$dimension][$field] = 0;
         }
 
@@ -66,9 +65,8 @@ class AbstractReport
             }
 
             if (strpos($field, 'date') !== false) {
-                //$class[] = 'group-date-monthyear';
                 $class[] = 'group-date-' . (isset($this->options['group_dates_by']) ? $this->options['group_dates_by'] : 'monthyear');
-            } elseif (in_array($field, ['client', 'method'])) {
+            } elseif (in_array($field, ['client', 'vendor', 'product', 'method', 'category'])) {
                 $class[] = 'group-letter-100';
             } elseif (in_array($field, ['amount', 'paid', 'balance'])) {
                 $class[] = 'group-number-50';

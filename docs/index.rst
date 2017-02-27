@@ -19,6 +19,7 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    tasks
    expenses
    vendors
+   reports
    settings
 
 .. _advanced-settings:
@@ -29,10 +30,9 @@ Want to find out everything there is to know about how to use your Invoice Ninja
 
    invoice_settings
    invoice_design
+   client_portal
    email_settings
    templates_and_reminders
-   client_portal
-   reports
    data_visualizations
    api_tokens
    user_management
@@ -43,5 +43,8 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    :maxdepth: 1
    :caption: Self Host
 
+   install
+   configure
+   update
    iphone_app
    custom_modules

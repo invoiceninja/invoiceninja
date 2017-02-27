@@ -4,14 +4,12 @@ namespace App\Jobs;
 
 use App\Models\Payment;
 use App\Ninja\Mailers\UserMailer;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Monolog\Logger;
-use Carbon;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 
 /**
- * Class SendInvoiceEmail
+ * Class SendInvoiceEmail.
  */
 class SendNotificationEmail extends Job implements ShouldQueue
 {
@@ -37,13 +35,16 @@ class SendNotificationEmail extends Job implements ShouldQueue
      */
     protected $payment;
 
-
     /**
      * Create a new job instance.
 
-     * @param UserMailer $userMailer
+     * @param UserMailer    $userMailer
      * @param ContactMailer $contactMailer
-     * @param PushService $pushService
+     * @param PushService   $pushService
+     * @param mixed         $user
+     * @param mixed         $invoice
+     * @param mixed         $type
+     * @param mixed         $payment
      */
     public function __construct($user, $invoice, $type, $payment)
     {
@@ -62,5 +63,4 @@ class SendNotificationEmail extends Job implements ShouldQueue
     {
         $userMailer->sendNotification($this->user, $this->invoice, $this->type, $this->payment);
     }
-
 }

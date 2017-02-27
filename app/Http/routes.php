@@ -11,7 +11,6 @@
 |
 */
 
-
 // Application setup
 Route::get('/setup', 'AppController@showSetup');
 Route::post('/setup', 'AppController@doSetup');
@@ -26,7 +25,7 @@ Route::get('/keep_alive', 'HomeController@keepAlive');
 Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
-Route::group(['middleware' => 'auth:client'], function() {
+Route::group(['middleware' => 'auth:client'], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@view');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::put('sign/{invitation_key}', 'ClientPortalController@sign');
@@ -54,15 +53,14 @@ Route::group(['middleware' => 'auth:client'], function() {
     Route::get('client/documents/{invitation_key}/{documents}/{filename?}', 'ClientPortalController@getDocument');
     Route::get('client/documents/{invitation_key}/{filename?}', 'ClientPortalController@getInvoiceDocumentsZip');
 
-    Route::get('api/client.quotes', ['as'=>'api.client.quotes', 'uses'=>'ClientPortalController@quoteDatatable']);
-    Route::get('api/client.credits', ['as'=>'api.client.credits', 'uses'=>'ClientPortalController@creditDatatable']);
-    Route::get('api/client.invoices', ['as'=>'api.client.invoices', 'uses'=>'ClientPortalController@invoiceDatatable']);
-    Route::get('api/client.recurring_invoices', ['as'=>'api.client.recurring_invoices', 'uses'=>'ClientPortalController@recurringInvoiceDatatable']);
-    Route::get('api/client.documents', ['as'=>'api.client.documents', 'uses'=>'ClientPortalController@documentDatatable']);
-    Route::get('api/client.payments', ['as'=>'api.client.payments', 'uses'=>'ClientPortalController@paymentDatatable']);
-    Route::get('api/client.activity', ['as'=>'api.client.activity', 'uses'=>'ClientPortalController@activityDatatable']);
+    Route::get('api/client.quotes', ['as' => 'api.client.quotes', 'uses' => 'ClientPortalController@quoteDatatable']);
+    Route::get('api/client.credits', ['as' => 'api.client.credits', 'uses' => 'ClientPortalController@creditDatatable']);
+    Route::get('api/client.invoices', ['as' => 'api.client.invoices', 'uses' => 'ClientPortalController@invoiceDatatable']);
+    Route::get('api/client.recurring_invoices', ['as' => 'api.client.recurring_invoices', 'uses' => 'ClientPortalController@recurringInvoiceDatatable']);
+    Route::get('api/client.documents', ['as' => 'api.client.documents', 'uses' => 'ClientPortalController@documentDatatable']);
+    Route::get('api/client.payments', ['as' => 'api.client.payments', 'uses' => 'ClientPortalController@paymentDatatable']);
+    Route::get('api/client.activity', ['as' => 'api.client.activity', 'uses' => 'ClientPortalController@activityDatatable']);
 });
-
 
 Route::get('license', 'NinjaController@show_license_payment');
 Route::post('license', 'NinjaController@do_license_payment');
@@ -102,7 +100,6 @@ Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth
 Route::get('/client/password/reset/{invitation_key}/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset']);
 Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postReset']);
 
-
 if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
     Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
@@ -113,7 +110,7 @@ if (Utils::isReseller()) {
     Route::post('/reseller_stats', 'AppController@stats');
 }
 
-Route::group(['middleware' => 'auth:user'], function() {
+Route::group(['middleware' => 'auth:user'], function () {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
     Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');
@@ -192,10 +189,8 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::resource('products', 'ProductController');
     Route::post('products/bulk', 'ProductController@bulk');
 
-
     Route::get('/resend_confirmation', 'AccountController@resendConfirmation');
     Route::post('/update_setup', 'AppController@updateSetup');
-
 
     // vendor
     Route::resource('vendors', 'VendorController');
@@ -216,22 +211,26 @@ Route::group(['middleware' => 'auth:user'], function() {
     Route::get('expense_categories/{expense_categories}/edit', 'ExpenseCategoryController@edit');
     Route::post('expense_categories/bulk', 'ExpenseCategoryController@bulk');
 
-	// BlueVine
-	Route::post('bluevine/signup', 'BlueVineController@signup');
-	Route::get('bluevine/hide_message', 'BlueVineController@hideMessage');
-	Route::get('bluevine/completed', 'BlueVineController@handleCompleted');
+    // BlueVine
+    Route::post('bluevine/signup', 'BlueVineController@signup');
+    Route::get('bluevine/hide_message', 'BlueVineController@hideMessage');
+    Route::get('bluevine/completed', 'BlueVineController@handleCompleted');
     Route::get('white_label/hide_message', 'NinjaController@hideWhiteLabelMessage');
+
+    Route::get('reports', 'ReportController@showReports');
+    Route::post('reports', 'ReportController@showReports');
 });
 
 Route::group([
     'middleware' => ['auth:user', 'permissions.required'],
     'permissions' => 'admin',
-], function() {
+], function () {
     Route::get('api/users', 'UserController@getDatatable');
     Route::resource('users', 'UserController');
     Route::post('users/bulk', 'UserController@bulk');
     Route::get('send_confirmation/{user_id}', 'UserController@sendConfirmation');
     Route::get('/switch_account/{user_id}', 'UserController@switchAccount');
+    Route::get('/account/{account_key}', 'UserController@viewAccountByKey');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
 
@@ -248,8 +247,6 @@ Route::group([
     Route::post('settings/email_settings', 'AccountController@saveEmailSettings');
     Route::get('company/{section}/{subSection?}', 'AccountController@redirectLegacy');
     Route::get('settings/data_visualizations', 'ReportController@d3');
-    Route::get('reports', 'ReportController@showReports');
-    Route::post('reports', 'ReportController@showReports');
 
     Route::post('settings/change_plan', 'AccountController@changePlan');
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
@@ -269,6 +266,14 @@ Route::group([
     Route::get('api/gateways', 'AccountGatewayController@getDatatable');
     Route::post('account_gateways/bulk', 'AccountGatewayController@bulk');
 
+    Route::get('payment_terms', 'PaymentTermController@index');
+    Route::get('api/payment_terms', 'PaymentTermController@getDatatable');
+    Route::get('payment_terms/create', 'PaymentTermController@create');
+    Route::post('payment_terms', 'PaymentTermController@store');
+    Route::put('payment_terms/{payment_terms}', 'PaymentTermController@update');
+    Route::get('payment_terms/{payment_terms}/edit', 'PaymentTermController@edit');
+    Route::post('payment_terms/bulk', 'PaymentTermController@bulk');
+
     Route::get('bank_accounts/import_ofx', 'BankAccountController@showImportOFX');
     Route::post('bank_accounts/import_ofx', 'BankAccountController@doImportOFX');
     Route::resource('bank_accounts', 'BankAccountController');
@@ -281,13 +286,12 @@ Route::group([
     Route::get('self-update/download', 'SelfUpdateController@download');
 });
 
-Route::group(['middleware' => 'auth:user'], function() {
+Route::group(['middleware' => 'auth:user'], function () {
     Route::get('settings/{section?}', 'AccountController@showSection');
 });
 
 // Route groups for API
-Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
-{
+Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function () {
     Route::get('ping', 'AccountApiController@ping');
     Route::post('login', 'AccountApiController@login');
     Route::post('oauth_login', 'AccountApiController@oauthLogin');
@@ -309,7 +313,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
     Route::resource('products', 'ProductApiController');
     Route::resource('tax_rates', 'TaxRateApiController');
     Route::resource('users', 'UserApiController');
-    Route::resource('expenses','ExpenseApiController');
+    Route::resource('expenses', 'ExpenseApiController');
     Route::post('add_token', 'AccountApiController@addDeviceToken');
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
     Route::get('dashboard', 'DashboardApiController@index');
@@ -319,37 +323,37 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function()
 });
 
 // Redirects for legacy links
-Route::get('/rocksteady', function() {
+Route::get('/rocksteady', function () {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
-Route::get('/about', function() {
+Route::get('/about', function () {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
-Route::get('/contact', function() {
+Route::get('/contact', function () {
     return Redirect::to(NINJA_WEB_URL.'/contact', 301);
 });
-Route::get('/plans', function() {
+Route::get('/plans', function () {
     return Redirect::to(NINJA_WEB_URL.'/pricing', 301);
 });
-Route::get('/faq', function() {
+Route::get('/faq', function () {
     return Redirect::to(NINJA_WEB_URL.'/how-it-works', 301);
 });
-Route::get('/features', function() {
+Route::get('/features', function () {
     return Redirect::to(NINJA_WEB_URL.'/features', 301);
 });
-Route::get('/testimonials', function() {
+Route::get('/testimonials', function () {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
-Route::get('/compare-online-invoicing{sites?}', function() {
+Route::get('/compare-online-invoicing{sites?}', function () {
     return Redirect::to(NINJA_WEB_URL, 301);
 });
-Route::get('/forgot', function() {
+Route::get('/forgot', function () {
     return Redirect::to(NINJA_APP_URL.'/recover_password', 301);
 });
-Route::get('/feed', function() {
+Route::get('/feed', function () {
     return Redirect::to(NINJA_WEB_URL.'/feed', 301);
 });
-Route::get('/comments/feed', function() {
+Route::get('/comments/feed', function () {
     return Redirect::to(NINJA_WEB_URL.'/comments/feed', 301);
 });
 

@@ -4,7 +4,7 @@
   @parent
 
   @include('money_script')
-  <script src="{!! asset('js/d3.min.js') !!}" type="text/javascript"></script>   
+  <script src="{!! asset('js/d3.min.js') !!}" type="text/javascript"></script>
 
   <style type="text/css">
 
@@ -19,11 +19,11 @@
     border-radius: 10px;
     -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
     -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);    
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
   }
 
   .no-pointer-events {
-    pointer-events: none; 
+    pointer-events: none;
   }
 
   </style>
@@ -39,8 +39,8 @@
       <a class="pull-right" href="#" target="_blank">View</a>
     </p>
     <p>Total <span id="tooltipTotal" class="pull-right"></span></p>
-    <p>Balance <span id="tooltipBalance" class="pull-right"></span></p>    
-    <p>Age <span id="tooltipAge" class="pull-right"></span></p>    
+    <p>Balance <span id="tooltipBalance" class="pull-right"></span></p>
+    <p>Age <span id="tooltipAge" class="pull-right"></span></p>
   </div>
 
   <form class="form-inline" role="form">
@@ -62,10 +62,10 @@
     // store data as JSON
     var data = {!! $clients !!};
 
-    _.each(data, function(client) { 
-      _.each(client.invoices, function(invoice) { 
-        _.each(invoice.invoice_items, function(invoice_item) { 
-          invoice_item.invoice = invoice;          
+    _.each(data, function(client) {
+      _.each(client.invoices, function(invoice) {
+        _.each(invoice.invoice_items, function(invoice_item) {
+          invoice_item.invoice = invoice;
         });
       });
     });
@@ -75,26 +75,26 @@
     var invoices = _.flatten(_.pluck(clients, 'invoices'));
 
     // remove quotes and recurring invoices
-    invoices = _.filter(invoices, function(invoice) {       
-      return !parseInt(invoice.is_quote) && !invoice.is_recurring; 
-    });    
+    invoices = _.filter(invoices, function(invoice) {
+      return !parseInt(invoice.is_quote) && !invoice.is_recurring;
+    });
 
     var products = _.flatten(_.pluck(invoices, 'invoice_items'));
     products = d3.nest()
       .key(function(d) { return d.product_key; })
       .sortKeys(d3.ascending)
-      .rollup(function(d) { return {        
-        amount: d3.sum(d, function(g) { 
-          return g.qty * g.cost; 
+      .rollup(function(d) { return {
+        amount: d3.sum(d, function(g) {
+          return g.qty * g.cost;
         }),
-        paid: d3.sum(d, function(g) { 
-          return g.invoice && g.invoice.invoice_status_id == 5 ? (g.qty * g.cost) : 0; 
+        paid: d3.sum(d, function(g) {
+          return g.invoice && g.invoice.invoice_status_id == {{ INVOICE_STATUS_PAID }} ? (g.qty * g.cost) : 0;
         }),
-        age: d3.mean(d, function(g) { 
-          return calculateInvoiceAge(g.invoice) || null;           
-        }),        
+        age: d3.mean(d, function(g) {
+          return calculateInvoiceAge(g.invoice) || null;
+        }),
       }})
-      .entries(products);    
+      .entries(products);
 
     // create standardized display properties
     _.each(clients, function(client) {
@@ -102,10 +102,10 @@
       client.displayTotal = +client.paid_to_date + +client.balance;
       client.displayBalance = +client.balance;
       client.displayPercent = (+client.paid_to_date / (+client.paid_to_date + +client.balance)).toFixed(2);
-      var oldestInvoice = _.max(client.invoices, function(invoice) { return calculateInvoiceAge(invoice) });      
+      var oldestInvoice = _.max(client.invoices, function(invoice) { return calculateInvoiceAge(invoice) });
       client.displayAge = oldestInvoice ? calculateInvoiceAge(oldestInvoice) : -1;
-    });    
-    
+    });
+
     _.each(invoices, function(invoice) {
       invoice.displayName = invoice.invoice_number;
       invoice.displayTotal = +invoice.amount;
@@ -125,7 +125,7 @@
     //console.log(JSON.stringify(clients));
     //console.log(JSON.stringify(invoices));
     //console.log(JSON.stringify(products));
-    
+
     var arc = d3.svg.arc()
       .innerRadius(function(d) { return d.r })
       .outerRadius(function(d) { return d.r - 8 })
@@ -193,8 +193,8 @@
 
         d3.select("#tooltipTitle").text(truncate(d.displayName, 18));
         d3.select("#tooltipTotal").text(formatMoney(d.displayTotal));
-        d3.select("#tooltipBalance").text(formatMoney(d.displayBalance));      
-        d3.select("#tooltipAge").text(pluralize('? day', parseInt(Math.max(0, d.displayAge))));  
+        d3.select("#tooltipBalance").text(formatMoney(d.displayBalance));
+        d3.select("#tooltipAge").text(pluralize('? day', parseInt(Math.max(0, d.displayAge))));
 
         if (groupBy == "products" || !d.public_id) {
           d3.select("#tooltip a").classed("hidden", true);
@@ -205,11 +205,11 @@
       });
 
       svg.on("click", function() {
-        visibleTooltip = false;        
+        visibleTooltip = false;
         d3.select("#tooltip")
           .classed("hidden", true);
       });
-    
+
       node.append("circle")
         .attr("fill", "#ffffff")
         .attr("r", function(d) { return d.r });
@@ -237,15 +237,15 @@
       d3.selectAll("path.animate-grow")
         .transition()
         .delay(function(d, i) { return (Math.random() * 500) })
-        .duration(1000)      
+        .duration(1000)
         .call(arcTween, 5);
 
       d3.selectAll("path.animate-fade")
         .transition()
-        .duration(1000)      
-        .style("fill", function(d, i) { 
+        .duration(1000)
+        .style("fill", function(d, i) {
           return 'red';
-        });                
+        });
 
       selection.exit().remove();
     }
@@ -256,7 +256,7 @@
     function arcTween(transition, newAngle) {
       transition.attrTween("d", function(d) {
         var interpolate = d3.interpolate( 0, 360 * d.displayPercent * Math.PI/180 );
-        return function(t) {          
+        return function(t) {
           d.endAngle = interpolate(t);
           return arc(d);
         };
@@ -273,7 +273,7 @@
       @else
         var date = new Date().getTime() - (dayInSeconds * Math.random() * 100);
       @endif
-      
+
       return parseInt((new Date().getTime() - date) / dayInSeconds);
     }
 

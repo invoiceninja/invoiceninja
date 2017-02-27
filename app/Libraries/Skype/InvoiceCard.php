@@ -1,4 +1,6 @@
-<?php namespace App\Libraries\Skype;
+<?php
+
+namespace App\Libraries\Skype;
 
 use HTML;
 use stdClass;
@@ -8,7 +10,7 @@ class InvoiceCard
     public function __construct($invoice)
     {
         $this->contentType = 'application/vnd.microsoft.card.receipt';
-        $this->content = new stdClass;
+        $this->content = new stdClass();
         $this->content->facts = [];
         $this->content->items = [];
         $this->content->buttons = [];
@@ -17,7 +19,7 @@ class InvoiceCard
 
         $this->setTitle(trans('texts.invoice_for_client', [
             'invoice' => link_to($invoice->getRoute(), $invoice->invoice_number),
-            'client' => link_to($invoice->client->getRoute(), $invoice->client->getDisplayName())
+            'client' => link_to($invoice->client->getRoute(), $invoice->client->getDisplayName()),
         ]));
 
         $this->addFact(trans('texts.email'), HTML::mailto($invoice->client->contacts[0]->email)->toHtml());
@@ -60,7 +62,7 @@ class InvoiceCard
 
     public function addFact($key, $value)
     {
-        $fact = new stdClass;
+        $fact = new stdClass();
         $fact->key = $key;
         $fact->value = $value;
 
