@@ -1118,6 +1118,9 @@ class Invoice extends EntityModel implements BalanceAffecting
             case FREQUENCY_MONTHLY:
                 $rule = 'FREQ=MONTHLY;';
                 break;
+            case FREQUENCY_TWO_MONTHS:
+                $rule = 'FREQ=MONTHLY;INTERVAL=2;';
+                break;
             case FREQUENCY_THREE_MONTHS:
                 $rule = 'FREQ=MONTHLY;INTERVAL=3;';
                 break;
@@ -1193,6 +1196,8 @@ class Invoice extends EntityModel implements BalanceAffecting
                 return $daysSinceLastSent >= 28;
             case FREQUENCY_MONTHLY:
                 return $monthsSinceLastSent >= 1;
+            case FREQUENCY_TWO_MONTHS:
+                return $monthsSinceLastSent >= 2;
             case FREQUENCY_THREE_MONTHS:
                 return $monthsSinceLastSent >= 3;
             case FREQUENCY_SIX_MONTHS:
