@@ -286,14 +286,3 @@ fieldset[disabled] .btn-success.active {
 .btn-success .badge {
     color: #5cb85c;
 }
-
-.btn-success:hover,
-.btn-success:focus,
-.btn-success.focus,
-.btn-success:active,
-.btn-success.active,
-.open > .dropdown-toggle.btn-success,
-.label-success[href]:hover,
-.label-success[href]:focus{
-    background-color: #5cb85c;
-}
