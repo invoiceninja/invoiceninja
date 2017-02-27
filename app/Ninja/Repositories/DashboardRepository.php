@@ -336,7 +336,10 @@ class DashboardRepository
                     ->where('invoices.is_deleted', '=', false)
                     ->where('invoices.is_public', '=', true)
                     ->where('contacts.is_primary', '=', true)
-                    ->where('invoices.due_date', '>=', date('Y-m-d'))
+                    ->where(function($query) {
+                        $query->where('invoices.due_date', '>=', date('Y-m-d'))
+                            ->orWhereNull('invoices.due_date');
+                    })
                     ->orderBy('invoices.due_date', 'asc');
 
         if (! $viewAll) {
