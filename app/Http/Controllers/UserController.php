@@ -210,7 +210,7 @@ class UserController extends BaseController
 
             $user->save();
 
-            if (! $user->confirmed) {
+            if (! $user->confirmed && Input::get('action') === 'email') {
                 $this->userMailer->sendConfirmation($user, Auth::user());
                 $message = trans('texts.sent_invite');
             } else {

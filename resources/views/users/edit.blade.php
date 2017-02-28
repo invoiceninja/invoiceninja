@@ -4,7 +4,7 @@
   @parent
   @include('accounts.nav', ['selected' => ACCOUNT_USER_MANAGEMENT])
 
-  {!! Former::open($url)->method($method)->addClass('warn-on-exit')->rules(array(
+  {!! Former::open($url)->method($method)->addClass('warn-on-exit user-form')->rules(array(
       'first_name' => 'required',
       'last_name' => 'required',
       'email' => 'required|email',
@@ -17,6 +17,10 @@
     {{ Former::populateField('permissions[view_all]', intval($user->hasPermission('view_all'))) }}
     {{ Former::populateField('permissions[edit_all]', intval($user->hasPermission('edit_all'))) }}
   @endif
+
+  <div style="display:none">
+      {!! Former::text('action') !!}
+  </div>
 
 <div class="panel panel-default">
 <div class="panel-heading">
@@ -39,7 +43,7 @@
 
     @if ( ! Utils::hasFeature(FEATURE_USER_PERMISSIONS))
       <div class="alert alert-warning">{{ trans('texts.upgrade_for_permissions') }}</div>
-      <script>
+      <script type="text/javascript">
           $(function() {
               $('input[type=checkbox]').prop('disabled', true);
           })
@@ -75,10 +79,20 @@
 
   {!! Former::actions(
       Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/user_management'))->appendIcon(Icon::create('remove-circle'))->large(),
-      Button::success(trans($user && $user->confirmed ? 'texts.save' : 'texts.send_invite'))->submit()->large()->appendIcon(Icon::create($user && $user->confirmed ? 'floppy-disk' : 'send'))
+      ($user) ? Button::success(trans('texts.save'))->withAttributes(['onclick' => 'submitAction("save")'])->large()->appendIcon(Icon::create('floppy-disk')) : false,
+      (! $user || ! $user->confirmed) ? Button::info(trans($user ? 'texts.resend_invite' : 'texts.send_invite'))->withAttributes(['onclick' => 'submitAction("email")'])->large()->appendIcon(Icon::create('send')) : false
   )!!}
 
   {!! Former::close() !!}
+
+  <script type="text/javascript">
+
+      function submitAction(value) {
+          $('#action').val(value);
+          $('.user-form').submit();
+      }
+
+  </script>
 
 @stop
 

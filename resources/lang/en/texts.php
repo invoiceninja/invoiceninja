@@ -354,7 +354,7 @@ $LANG = array(
     'charge_taxes' => 'Charge taxes',
     'user_management' => 'User Management',
     'add_user' => 'Add User',
-    'send_invite' => 'Send invitation',
+    'send_invite' => 'Send Invitation',
     'sent_invite' => 'Successfully sent invitation',
     'updated_user' => 'Successfully updated user',
     'invitation_message' => 'You\'ve been invited by :invitor. ',
@@ -2388,6 +2388,8 @@ $LANG = array(
     'created_payment_term' => 'Successfully created payment term',
     'updated_payment_term' => 'Successfully updated payment term',
     'archived_payment_term' => 'Successfully archived payment term',
+    'resend_invite' => 'Resend Invitation',
+
 );
 
 return $LANG;
