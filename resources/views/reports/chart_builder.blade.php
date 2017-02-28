@@ -261,6 +261,9 @@
             } else {
                 $('#statusField').fadeOut();
             }
+            if (isStorageSupported()) {
+                localStorage.setItem('last:report_type', val);
+            }
         });
 
 		$(function(){
@@ -295,6 +298,11 @@
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme'],
 			}).show();
+
+			var lastReportType = localStorage.getItem('last:report_type');
+			if (lastReportType) {
+				$('#report_type').val(lastReportType);
+			}
 		});
     })
 
