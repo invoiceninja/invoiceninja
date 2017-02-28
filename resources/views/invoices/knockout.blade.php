@@ -906,7 +906,7 @@ ko.bindingHandlers.productTypeahead = {
                 if (model.expense_public_id()) {
                     return;
                 }
-                if (datum.notes) {
+                if (datum.notes && (!model.notes() || !model.task_public_id())) {
                     model.notes(datum.notes);
                 }
                 if (datum.cost) {
