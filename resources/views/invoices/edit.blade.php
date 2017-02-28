@@ -853,7 +853,7 @@
                 if (contact.is_primary === '1') {
                     contact.send_invoice = true;
                 }
-                if (clientName != contactName) {
+                if (contactName && clientName != contactName) {
                     $clientSelect.append(new Option(contactName, client.public_id));
                 }
             }
