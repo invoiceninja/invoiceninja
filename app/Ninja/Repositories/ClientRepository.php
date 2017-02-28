@@ -51,7 +51,8 @@ class ClientRepository extends BaseRepository
                         'contacts.email',
                         'clients.deleted_at',
                         'clients.is_deleted',
-                        'clients.user_id'
+                        'clients.user_id',
+                        'clients.id_number'
                     );
 
         $this->applyFilters($query, ENTITY_CLIENT);

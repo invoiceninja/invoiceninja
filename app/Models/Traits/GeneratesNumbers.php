@@ -249,6 +249,6 @@ trait GeneratesNumbers
 
     public function clientNumbersEnabled()
     {
-        return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->client_number_counter;
+        return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->client_number_counter > 0;
     }
 }
