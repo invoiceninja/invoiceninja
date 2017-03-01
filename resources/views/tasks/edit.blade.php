@@ -58,7 +58,9 @@
                 @endif
             @else
                 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
-                {!! Former::select('project_id')->addOption('', '')->addGroupClass('project-select')
+                {!! Former::select('project_id')
+                        ->addOption('', '')
+                        ->addGroupClass('project-select')
                         ->label(trans('texts.project')) !!}
             @endif
 
@@ -552,6 +554,7 @@
           $projectCombobox = $('select#project_id');
           $projectCombobox.find('option').remove().end().combobox('refresh');
           $projectCombobox.append(new Option('', ''));
+          $projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
           var list = clientId ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []).concat(projectsForAllClients) : projects;
           for (var i=0; i<list.length; i++) {
             var project = list[i];
@@ -561,23 +564,46 @@
         });
 
         var $projectSelect = $('select#project_id').on('change', function(e) {
-          $clientCombobox = $('select#client');
-          var projectId = $('input[name=project_id]').val();
-          if (projectId) {
-            var project = projectMap[projectId];
-            if (project.client) {
-                var client = clientMap[project.client.public_id];
-                if (client) {
-                    project.client = client;
-                    setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+            $clientCombobox = $('select#client');
+            var projectId = $('input[name=project_id]').val();
+            if (projectId == '-1') {
+                $('input[name=project_name]').val(projectName);
+            } else if (projectId) {
+                // when selecting a project make sure the client is loaded
+                var project = projectMap[projectId];
+                if (project && project.client) {
+                    var client = clientMap[project.client.public_id];
+                    if (client) {
+                        project.client = client;
+                        setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+                    }
                 }
+            } else {
+                $clientSelect.trigger('change');
             }
-          } else {
-            $clientSelect.trigger('change');
-          }
         });
 
-        $projectSelect.combobox();
+        var projectName = '';
+        $projectSelect.combobox({
+            highlighter: function (item) {
+                if (item.indexOf("{{ trans('texts.create_project') }}") == 0) {
+                    projectName = this.query;
+                    return "{{ trans('texts.create_project') }}: " + this.query;
+                } else {
+                    var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+                    return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+                      return '<strong>' + match + '</strong>';
+                    })
+                }
+            },
+            template: '<div class="combobox-container"> <input type="hidden" /> <div class="input-group"> <input type="text" name="project_name" autocomplete="off" /> <span class="input-group-addon dropdown-toggle" data-dropdown="dropdown"> <span class="caret" /> <i class="fa fa-times"></i> </span> </div> </div> ',
+            matcher: function (item) {
+                if (item.indexOf("{{ trans('texts.create_project') }}") == 0) {
+                    return this.query.length;
+                }
+                return ~item.toLowerCase().indexOf(this.query.toLowerCase());
+            }
+        });
 
         if (projectId) {
            var project = projectMap[projectId];

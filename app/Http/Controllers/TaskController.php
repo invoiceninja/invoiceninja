@@ -96,7 +96,7 @@ class TaskController extends BaseController
      */
     public function store(CreateTaskRequest $request)
     {
-        return $this->save();
+        return $this->save($request);
     }
 
     /**
@@ -202,7 +202,7 @@ class TaskController extends BaseController
     {
         $task = $request->entity();
 
-        return $this->save($task->public_id);
+        return $this->save($request, $task->public_id);
     }
 
     /**
@@ -222,7 +222,7 @@ class TaskController extends BaseController
      *
      * @return \Illuminate\Http\RedirectResponse
      */
-    private function save($publicId = null)
+    private function save($request, $publicId = null)
     {
         $action = Input::get('action');
 
@@ -230,7 +230,7 @@ class TaskController extends BaseController
             return self::bulk();
         }
 
-        $task = $this->taskRepo->save($publicId, Input::all());
+        $task = $this->taskRepo->save($publicId, $request->input());
 
         if ($publicId) {
             Session::flash('message', trans('texts.updated_task'));
