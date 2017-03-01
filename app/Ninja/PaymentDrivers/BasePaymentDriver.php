@@ -161,6 +161,7 @@ class BasePaymentDriver
             'invoiceNumber' => $this->invoice()->invoice_number,
             'client' => $this->client(),
             'contact' => $this->invitation->contact,
+            'invitation' => $this->invitation,
             'gatewayType' => $this->gatewayType,
             'currencyId' => $this->client()->getCurrencyId(),
             'currencyCode' => $this->client()->getCurrencyCode(),
