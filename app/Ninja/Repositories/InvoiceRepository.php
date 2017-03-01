@@ -545,7 +545,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         if ($publicId) {
-            $invoice->balance = $total - ($invoice->amount - $invoice->balance);
+            $invoice->balance = round($total - ($invoice->amount - $invoice->balance), 2);
         } else {
             $invoice->balance = $total;
         }
