@@ -6,6 +6,7 @@ use App\Http\Requests\CreatePaymentRequest;
 use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Mailers\ContactMailer;
@@ -180,17 +181,28 @@ class PaymentController extends BaseController
     {
         // check payment has been marked sent
         $request->invoice->markSentIfUnsent();
-
         $input = $request->input();
-        $input['invoice_id'] = Invoice::getPrivateId($input['invoice']);
-        $input['client_id'] = Client::getPrivateId($input['client']);
-        $payment = $this->paymentRepo->save($input);
+        $amount = Utils::parseFloat($input['amount']);
+        $credit = false;
+
+        // if the payment amount is more than the balance create a credit
+        if ($amount > $request->invoice->balance) {
+            $credit = Credit::createNew();
+            $credit->client_id = $request->invoice->client_id;
+            $credit->credit_date = date_create()->format('Y-m-d');
+            $credit->amount = $credit->balance = $amount - $request->invoice->balance;
+            $credit->private_notes = trans('texts.credit_created_by', ['transaction_reference' => $input['transaction_reference']]);
+            $credit->save();
+            $input['amount'] = $request->invoice->balance;
+        }
+
+        $payment = $this->paymentService->save($input);
 
         if (Input::get('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
-            Session::flash('message', trans('texts.created_payment_emailed_client'));
+            Session::flash('message', trans($credit ? 'texts.created_payment_and_credit_emailed_client' : 'texts.created_payment_emailed_client'));
         } else {
-            Session::flash('message', trans('texts.created_payment'));
+            Session::flash('message', trans($credit ? 'texts.created_payment_and_credit' : 'texts.created_payment'));
         }
 
         return redirect()->to($payment->client->getRoute() . '#payments');

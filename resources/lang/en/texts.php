@@ -2389,6 +2389,9 @@ $LANG = array(
     'updated_payment_term' => 'Successfully updated payment term',
     'archived_payment_term' => 'Successfully archived payment term',
     'resend_invite' => 'Resend Invitation',
+    'credit_created_by' => 'Credit created by payment :transaction_reference',
+    'created_payment_and_credit' => 'Successfully created payment and credit',
+    'created_payment_and_credit_emailed_client' => 'Successfully created payment and credit, and emailed client',
 
 );
 

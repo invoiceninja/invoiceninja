@@ -140,6 +140,12 @@ class PaymentService extends BaseService
         }
     }
 
+    public function save($input, $payment = null)
+    {
+        return $this->paymentRepo->save($input, $payment);
+    }
+
+
     public function getDatatable($clientPublicId, $search)
     {
         $datatable = new PaymentDatatable(true, $clientPublicId);
