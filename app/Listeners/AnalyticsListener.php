@@ -23,7 +23,7 @@ class AnalyticsListener
         $invoice = $payment->invoice;
         $account = $payment->account;
 
-        if ($account->account_key != NINJA_ACCOUNT_KEY) {
+        if (! in_array($account->account_key, [NINJA_ACCOUNT_KEY, NINJA_LICENSE_ACCOUNT_KEY])) {
             return;
         }
 
