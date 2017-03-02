@@ -18,7 +18,7 @@ class TaskRequest extends EntityRequest
             && $this->user()->can('create', ENTITY_PROJECT))
         {
             $project = app('App\Ninja\Repositories\ProjectRepository')->save([
-                'name' => $this->project_name,
+                'name' => trim($this->project_name),
                 'client_id' => Client::getPrivateId($this->client),
             ]);
             $input['project_id'] = $project->public_id;

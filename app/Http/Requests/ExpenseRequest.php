@@ -30,7 +30,7 @@ class ExpenseRequest extends EntityRequest
             && $this->user()->can('create', ENTITY_EXPENSE_CATEGORY))
         {
             $category = app('App\Ninja\Repositories\ExpenseCategoryRepository')->save([
-                'name' => $this->expense_category_name,
+                'name' => trim($this->expense_category_name),
             ]);
             $input['expense_category_id'] = $category->id;
         } elseif ($this->expense_category_id) {
@@ -43,7 +43,7 @@ class ExpenseRequest extends EntityRequest
             && $this->user()->can('create', ENTITY_VENDOR))
         {
             $vendor = app('App\Ninja\Repositories\VendorRepository')->save([
-                'name' => $this->vendor_name,
+                'name' => trim($this->vendor_name),
             ]);
             // TODO change to private id once service is refactored
             $input['vendor_id'] = $vendor->public_id;
