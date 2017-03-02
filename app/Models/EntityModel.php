@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Str;
 use Auth;
 use Eloquent;
 use Utils;
@@ -258,16 +259,22 @@ class EntityModel extends Eloquent
      * @param $data
      * @param $entityType
      * @param mixed $entity
-     *
+     * TODO Remove $entityType parameter
      * @return bool|string
      */
-    public static function validate($data, $entityType, $entity = false)
+    public static function validate($data, $entityType = false, $entity = false)
     {
+        if (! $entityType) {
+            $className = get_called_class();
+            $entityBlank = new $className();
+            $entityType = $entityBlank->getEntityType();
+        }
+
         // Use the API request if it exists
         $action = $entity ? 'update' : 'create';
-        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), ucwords($entityType));
+        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), Str::studly($entityType));
         if (! class_exists($requestClass)) {
-            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), ucwords($entityType));
+            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), Str::studly($entityType));
         }
 
         $request = new $requestClass();

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Models\Client;
+use App\Models\Project;
 
 class TaskRequest extends EntityRequest
 {
@@ -13,15 +14,17 @@ class TaskRequest extends EntityRequest
         $input = $this->all();
 
         // check if we're creating a new project
-        if ($this->project_id == '-1'
-            && trim($this->project_name)
-            && $this->user()->can('create', ENTITY_PROJECT))
-        {
-            $project = app('App\Ninja\Repositories\ProjectRepository')->save([
+        if ($this->project_id == '-1') {
+            $project = [
                 'name' => trim($this->project_name),
                 'client_id' => Client::getPrivateId($this->client),
-            ]);
-            $input['project_id'] = $project->public_id;
+            ];
+            if (Project::validate($project) === true) {
+                $project = app('App\Ninja\Repositories\ProjectRepository')->save($project);
+                $input['project_id'] = $project->public_id;
+            } else {
+                $input['project_id'] = null;
+            }
         }
 
         $this->replace($input);
