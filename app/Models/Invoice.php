@@ -1263,7 +1263,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         if ($this->discount > 0) {
             if ($this->is_amount_discount) {
-                $total -= $invoiceTotal ? ($total / $invoiceTotal * $this->discount) : 0;
+                $total -= $invoiceTotal ? ($total / ($invoiceTotal + $this->discount) * $this->discount) : 0;
             } else {
                 $total *= (100 - $this->discount) / 100;
                 $total = round($total, 2);
