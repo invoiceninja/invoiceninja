@@ -24,6 +24,7 @@ class ExpenseRequest extends EntityRequest
     {
         $input = $this->all();
 
+        // check if we're creating a new expense category
         if ($this->expense_category_id == '-1'
             && trim($this->expense_category_name)
             && $this->user()->can('create', ENTITY_EXPENSE_CATEGORY))
@@ -36,6 +37,7 @@ class ExpenseRequest extends EntityRequest
             $input['expense_category_id'] = ExpenseCategory::getPrivateId($this->expense_category_id);
         }
 
+        // check if we're creating a new vendor
         if ($this->vendor_id == '-1'
             && trim($this->vendor_name)
             && $this->user()->can('create', ENTITY_VENDOR))
