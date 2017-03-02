@@ -2393,6 +2393,8 @@ $LANG = array(
     'created_payment_and_credit' => 'Successfully created payment and credit',
     'created_payment_and_credit_emailed_client' => 'Successfully created payment and credit, and emailed client',
     'create_project' => 'Create project',
+    'create_vendor' => 'Create vendor',
+    'create_expense_category' => 'Create category',
 
 );
 

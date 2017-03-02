@@ -586,27 +586,7 @@
             }
         });
 
-        var projectName = '';
-        $projectSelect.combobox({
-            highlighter: function (item) {
-                if (item.indexOf("{{ trans('texts.create_project') }}") == 0) {
-                    projectName = this.query;
-                    return "{{ trans('texts.create_project') }}: " + this.query;
-                } else {
-                    var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
-                    return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-                      return '<strong>' + match + '</strong>';
-                    })
-                }
-            },
-            template: '<div class="combobox-container"> <input type="hidden" /> <div class="input-group"> <input type="text" name="project_name" autocomplete="off" /> <span class="input-group-addon dropdown-toggle" data-dropdown="dropdown"> <span class="caret" /> <i class="fa fa-times"></i> </span> </div> </div> ',
-            matcher: function (item) {
-                if (item.indexOf("{{ trans('texts.create_project') }}") == 0) {
-                    return this.query.length;
-                }
-                return ~item.toLowerCase().indexOf(this.query.toLowerCase());
-            }
-        });
+        @include('partials/entity_combobox', ['entityType' => ENTITY_PROJECT])
 
         if (projectId) {
            var project = projectMap[projectId];
@@ -618,5 +598,6 @@
     });
 
     </script>
+
 
 @stop

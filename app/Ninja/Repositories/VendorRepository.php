@@ -85,7 +85,14 @@ class VendorRepository extends BaseRepository
         $vendor->save();
 
         $first = true;
-        $vendorcontacts = isset($data['vendor_contact']) ? [$data['vendor_contact']] : $data['vendor_contacts'];
+        if (isset($data['vendor_contact'])) {
+            $vendorcontacts = [$data['vendor_contact']];
+        } elseif (isset($data['vendor_contacts'])) {
+            $vendorcontacts = $data['vendor_contacts'];
+        } else {
+            $vendorcontacts = [[]];
+        }
+
         $vendorcontactIds = [];
 
         foreach ($vendorcontacts as $vendorcontact) {
