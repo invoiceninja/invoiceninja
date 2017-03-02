@@ -2189,7 +2189,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
 	'bluevine_promo' => 'Krijg flexibele zakelijke kredietlijnen en factuur factoring met BlueVine.',
 	'bluevine_modal_label' => 'Aanmelden met BlueVine',
 	'bluevine_modal_text' => '<h3>Snelle financiering voor uw bedrijf. Geen papierwerk.</h3>
-<ul><i>Flexibele zakelijke kredietlijnen en factuur factoring.</li></ul>',
+<ul><li>Flexibele zakelijke kredietlijnen en factuur factoring.</li></ul>',
 	'bluevine_create_account' => 'Account aanmaken',
 	'quote_types' => 'Ontvang een offerte voor',
 	'invoice_factoring' => 'Factuur factoring',
