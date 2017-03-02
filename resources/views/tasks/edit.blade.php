@@ -443,12 +443,6 @@
     ko.applyBindings(model);
 
     $(function() {
-        @if (!$task && !$clientPublicId)
-            $('.client-select input.form-control').focus();
-        @else
-            $('#description').focus();
-        @endif
-
         $('input[type=radio]').change(function(event) {
             var val = $(event.target).val();
             if (val == 'timer') {
@@ -595,6 +589,12 @@
         } else {
            $clientSelect.trigger('change');
         }
+
+        @if (!$task && !$clientPublicId)
+            $('.client-select input.form-control').focus();
+        @else
+            $('#description').focus();
+        @endif
     });
 
     </script>
