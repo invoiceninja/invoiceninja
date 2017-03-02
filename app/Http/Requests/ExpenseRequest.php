@@ -37,6 +37,7 @@ class ExpenseRequest extends EntityRequest
             $vendor = app('App\Ninja\Repositories\VendorRepository')->save([
                 'name' => $this->vendor_name,
             ]);
+            // TODO change to private id once service is refactored
             $input['vendor_id'] = $vendor->public_id;
         }
 
