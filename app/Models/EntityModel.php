@@ -95,6 +95,10 @@ class EntityModel extends Eloquent
      */
     public static function getPrivateId($publicId)
     {
+        if (! $publicId) {
+            return null;
+        }
+
         $className = get_called_class();
 
         return $className::scope($publicId)->withTrashed()->value('id');
