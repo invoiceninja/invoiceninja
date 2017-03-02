@@ -24,7 +24,10 @@ class ExpenseRequest extends EntityRequest
     {
         $input = $this->all();
 
-        if ($this->expense_category_id == '-1' && $this->user()->can('create', ENTITY_EXPENSE_CATEGORY)) {
+        if ($this->expense_category_id == '-1'
+            && trim($this->expense_category_name)
+            && $this->user()->can('create', ENTITY_EXPENSE_CATEGORY))
+        {
             $category = app('App\Ninja\Repositories\ExpenseCategoryRepository')->save([
                 'name' => $this->expense_category_name,
             ]);
@@ -33,7 +36,10 @@ class ExpenseRequest extends EntityRequest
             $input['expense_category_id'] = ExpenseCategory::getPrivateId($this->expense_category_id);
         }
 
-        if ($this->vendor_id == '-1' && $this->user()->can('create', ENTITY_VENDOR)) {
+        if ($this->vendor_id == '-1'
+            && trim($this->vendor_name)
+            && $this->user()->can('create', ENTITY_VENDOR))
+        {
             $vendor = app('App\Ninja\Repositories\VendorRepository')->save([
                 'name' => $this->vendor_name,
             ]);
