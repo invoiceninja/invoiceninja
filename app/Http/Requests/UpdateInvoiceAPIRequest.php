@@ -39,11 +39,6 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
             //'end_date' => 'date',
         ];
 
-        if ($this->user()->account->client_number_counter) {
-            $clientId = Client::getPrivateId(request()->input('client')['public_id']);
-            $rules['client.id_number'] = 'unique:clients,id_number,'.$clientId.',id,account_id,' . $this->user()->account_id;
-        }
-
         return $rules;
     }
 }
