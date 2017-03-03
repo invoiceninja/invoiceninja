@@ -46,11 +46,11 @@
                             ->label(trans('texts.category'))
                             ->addGroupClass('expense-category-select') !!}
 
-                    {!! Former::text('expense_date')
-                            ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
-                            ->addGroupClass('expense_date')
-                            ->label(trans('texts.date'))
-                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                    {!! Former::text('amount')
+                            ->label(trans('texts.amount'))
+                            ->data_bind("value: amount, valueUpdate: 'afterkeydown'")
+                            ->addGroupClass('amount')
+                            ->append('<span data-bind="html: expenseCurrencyCode"></span>') !!}
 
                     {!! Former::select('expense_currency_id')->addOption('','')
                             ->data_bind('combobox: expense_currency_id')
@@ -58,11 +58,11 @@
                             ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
                             ->fromQuery($currencies, 'name', 'id') !!}
 
-                    {!! Former::text('amount')
-                            ->label(trans('texts.amount'))
-                            ->data_bind("value: amount, valueUpdate: 'afterkeydown'")
-                            ->addGroupClass('amount')
-                            ->append('<span data-bind="html: expenseCurrencyCode"></span>') !!}
+                    {!! Former::text('expense_date')
+                            ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                            ->addGroupClass('expense_date')
+                            ->label(trans('texts.date'))
+                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 
                     @if ($expense && $expense->invoice_id)
                         {!! Former::plaintext()
