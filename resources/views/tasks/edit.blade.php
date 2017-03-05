@@ -124,8 +124,8 @@
                                         class="form-control time-input time-input-end" placeholder="{{ trans('texts.end_time') }}"/>
                                 </div>
                             </td>
-                            <td style="width:100px">
-                                <div data-bind="text: duration.pretty, visible: !isEmpty()"></div>
+                            <td style="padding: 0px 12px 12px 0 !important; width:100px">
+                                <input type="text" data-bind="value: duration.pretty, visible: !isEmpty()" class="form-control"></div>
                                 <a href="#" data-bind="click: function() { setNow(), $root.refresh() }, visible: isEmpty()">{{ trans('texts.set_now') }}</a>
                             </td>
                             <td style="width:30px" class="td-icon">
@@ -350,23 +350,27 @@
             self.endTime(moment.tz(timezone).unix());
         }
 
-        self.duration.pretty = ko.computed(function() {
-            var duration = false;
-            var start = self.startTime();
-            var end = self.endTime();
+        self.duration.pretty = ko.computed({
+            read: function() {
+                var duration = false;
+                var start = self.startTime();
+                var end = self.endTime();
 
-            if (start && end) {
-                var duration = end - start;
+                if (start && end) {
+                    var duration = end - start;
+                }
+
+                var duration = moment.duration(duration * 1000);
+                return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
+            },
+            write: function(data) {
+                self.endTime(self.startTime() + convertToSeconds(data));
             }
-
-            var duration = moment.duration(duration * 1000);
-            return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
-        }, self);
+        });
 
         /*
-        self.isEmpty = function() {
-            return false;
-        };
+        self.duration.pretty = ko.computed(function() {
+        }, self);
         */
 
         self.hideActions = function() {
@@ -376,6 +380,17 @@
         self.showActions = function() {
             self.actionsVisible(true);
         };
+    }
+
+    function convertToSeconds(str) {
+        if (!str) {
+            return 0;
+        }
+        if (str.indexOf(':') >= 0) {
+            return moment.duration(str).asSeconds();
+        } else {
+            return parseFloat(str) * 60 * 60;
+        }
     }
 
     function loadTimeLog(data) {
