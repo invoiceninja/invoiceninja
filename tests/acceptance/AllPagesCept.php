@@ -81,14 +81,10 @@ $I->see('Invoice Design');
 $I->amOnPage('/settings/templates_and_reminders');
 $I->see('Invoice Email');
 
-$I->amOnPage('/settings/reports');
-$I->see('Report Settings');
+$I->amOnPage('/reports');
+$I->see('Reports');
 
 //try to logout
 //$I->click('#myAccountButton');
 //$I->see('Log Out');
 //$I->click('Log Out');
-
-// Miscellaneous pages
-$I->amOnPage('/terms');
-$I->see('Terms');

@@ -1,14 +1,17 @@
-<?php namespace App\Ninja\Transformers;
+<?php
+
+namespace App\Ninja\Transformers;
 
 use App\Models\Credit;
 
 /**
- * Class CreditTransformer
+ * Class CreditTransformer.
  */
 class CreditTransformer extends EntityTransformer
 {
     /**
      * @param Credit $credit
+     *
      * @return array
      */
     public function transform(Credit $credit)

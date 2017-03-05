@@ -1,20 +1,21 @@
-<?php namespace App\Http\Controllers\Auth;
+<?php
 
-use Auth;
-use Event;
-use Utils;
-use Session;
-use Illuminate\Http\Request;
-use App\Models\User;
+namespace App\Http\Controllers\Auth;
+
 use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\AuthService;
+use Auth;
+use Event;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
+use Illuminate\Http\Request;
+use Session;
+use Utils;
 
 class AuthController extends Controller
 {
-
     /*
     |--------------------------------------------------------------------------
     | Registration & Login Controller
@@ -47,7 +48,8 @@ class AuthController extends Controller
      * Create a new authentication controller instance.
      *
      * @param AccountRepository $repo
-     * @param AuthService $authService
+     * @param AuthService       $authService
+     *
      * @internal param \Illuminate\Contracts\Auth\Guard $auth
      * @internal param \Illuminate\Contracts\Auth\Registrar $registrar
      */
@@ -59,6 +61,7 @@ class AuthController extends Controller
 
     /**
      * @param array $data
+     *
      * @return mixed
      */
     public function validator(array $data)
@@ -73,7 +76,7 @@ class AuthController extends Controller
     /**
      * Create a new user instance after a valid registration.
      *
-     * @param  array $data
+     * @param array $data
      *
      * @return User
      */
@@ -105,6 +108,7 @@ class AuthController extends Controller
         $this->accountRepo->unlinkUserFromOauth(Auth::user());
 
         Session::flash('message', trans('texts.updated_settings'));
+
         return redirect()->to('/settings/' . ACCOUNT_USER_DETAILS);
     }
 
@@ -113,7 +117,7 @@ class AuthController extends Controller
      */
     public function getLoginWrapper()
     {
-        if (!Utils::isNinja() && !User::count()) {
+        if (! Utils::isNinja() && ! User::count()) {
             return redirect()->to('invoice_now');
         }
 
@@ -127,12 +131,12 @@ class AuthController extends Controller
      */
     public function postLoginWrapper(Request $request)
     {
-
         $userId = Auth::check() ? Auth::user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
 
         if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
             Session::flash('error', trans('texts.invalid_credentials'));
+
             return redirect()->to('login');
         }
 
@@ -155,7 +159,6 @@ class AuthController extends Controller
 
             $users = $this->accountRepo->loadAccounts(Auth::user()->id);
             Session::put(SESSION_USER_ACCOUNTS, $users);
-
         } elseif ($user) {
             $user->failed_logins = $user->failed_logins + 1;
             $user->save();
@@ -169,10 +172,11 @@ class AuthController extends Controller
      */
     public function getLogoutWrapper()
     {
-        if (Auth::check() && !Auth::user()->registered) {
+        if (Auth::check() && ! Auth::user()->registered) {
             $account = Auth::user()->account;
             $this->accountRepo->unlinkAccount($account);
-            if ($account->company->accounts->count() == 1) {
+
+            if (! $account->hasMultipleAccounts()) {
                 $account->company->forceDelete();
             }
             $account->forceDelete();
@@ -181,6 +185,10 @@ class AuthController extends Controller
         $response = self::getLogout();
 
         Session::flush();
+
+        if ($reason = request()->reason) {
+            Session::flash('warning', trans("texts.{$reason}_logout"));
+        }
 
         return $response;
     }

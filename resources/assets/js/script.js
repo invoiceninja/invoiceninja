@@ -8,6 +8,7 @@ var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 // https://code.google.com/p/chromium/issues/detail?id=574648
 var isChrome48 = isChrome && navigator.userAgent.indexOf('Chrome/48') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
+var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
 var refreshTimer;
 function generatePDF(invoice, javascript, force, cb) {
@@ -458,7 +459,7 @@ if (window.ko) {
 function getContactDisplayName(contact)
 {
     if (contact.first_name || contact.last_name) {
-        return (contact.first_name || '') + ' ' + (contact.last_name || '');
+        return $.trim((contact.first_name || '') + ' ' + (contact.last_name || ''));
     } else {
         return contact.email;
     }
@@ -631,7 +632,7 @@ function calculateAmounts(invoice) {
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
-    var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
+    var lineTotal = invoice.is_statement ? roundToTwo(NINJA.parseFloat(item.balance)) : roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
     lineTotal = roundToTwo(lineTotal);
     if (lineTotal) {
       total += lineTotal;

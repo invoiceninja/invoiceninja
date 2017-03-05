@@ -297,9 +297,8 @@ div.panel {
     padding-right: 0px !important;
 }
 .panel {
-border-radius: 3px;
--webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 1px 1px rgba(0,0,0,.2);
+    border-color: #ffffff !important;
 }
 
 .pointer {
@@ -810,7 +809,7 @@ box-shadow:         0px 0px 15px 0px rgba(0, 5, 5, 0.2);
         width: 760px;
    }
    .large-dialog {
-        width: 960px;
+        width: 960px !important;
    }
    .hide-desktop {
         display: none;
@@ -1029,6 +1028,10 @@ ul.user-accounts a:hover div.remove {
     visibility: visible;
 }
 
+.invoice-contact {
+    word-break: break-all;
+}
+
 .invoice-contact .tooltip-inner {
     text-align:left;
     width: 350px;
@@ -1048,7 +1051,7 @@ td.right {
     top: 0;
     left: 0;
     bottom: 0;
-    width: 2px;
+    width: 3px;
     content: "";
     background-color: #e37329;
 }
@@ -1253,4 +1256,12 @@ div.panel-body div.panel-body {
     border: 1px solid #dfe0e1 !important;
     border-radius: 2px;
     padding: 2px;
+}
+
+.modal-content {
+    background-color: #f8f8f8;
+}
+
+.modal-footer {
+    padding-right: 20px;
 }

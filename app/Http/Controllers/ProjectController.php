@@ -1,17 +1,18 @@
-<?php namespace App\Http\Controllers;
+<?php
 
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateProjectRequest;
+use App\Http\Requests\ProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
+use App\Models\Client;
+use App\Ninja\Datatables\ProjectDatatable;
+use App\Ninja\Repositories\ProjectRepository;
+use App\Services\ProjectService;
 use Auth;
-use View;
-use Utils;
 use Input;
 use Session;
-use App\Models\Client;
-use App\Services\ProjectService;
-use App\Ninja\Repositories\ProjectRepository;
-use App\Ninja\Datatables\ProjectDatatable;
-use App\Http\Requests\ProjectRequest;
-use App\Http\Requests\CreateProjectRequest;
-use App\Http\Requests\UpdateProjectRequest;
+use View;
 
 class ProjectController extends BaseController
 {
@@ -109,5 +110,4 @@ class ProjectController extends BaseController
 
         return redirect()->to('/projects');
     }
-
 }

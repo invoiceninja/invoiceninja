@@ -14,7 +14,8 @@
                     id="bluevineModalLabel">{{ trans('texts.bluevine_modal_label') }}</h4>
             </div>
 
-            <div class="modal-body">
+            <div class="container" style="width: 100%; padding-bottom: 0px !important">
+            <div class="panel panel-default" style="margin-bottom: 0px">
             <div class="panel-body">
                 {!! Former::open('/bluevine/signup')->id('bluevineSignup') !!}
                 {!! trans('texts.bluevine_modal_text') !!}<br/>
@@ -52,7 +53,8 @@
                 {!! Former::close() !!}
             </div>
             </div>
-
+            </div>
+            
             <div class="modal-footer">
                 <button type="button" class="btn btn-default"
                         data-dismiss="modal">{{ trans('texts.cancel') }}</button>

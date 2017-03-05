@@ -1,22 +1,24 @@
-<?php namespace App\Ninja\Transformers;
+<?php
+
+namespace App\Ninja\Transformers;
 
 use App\Models\Activity;
 
 /**
  * @SWG\Definition(definition="Activity", @SWG\Xml(name="Activity"))
  */
-
 class ActivityTransformer extends EntityTransformer
 {
-    protected $defaultIncludes = [ ];
+    protected $defaultIncludes = [];
 
     /**
      * @var array
      */
-    protected $availableIncludes = [ ];
+    protected $availableIncludes = [];
 
     /**
      * @param Activity $activity
+     *
      * @return array
      */
     public function transform(Activity $activity)
@@ -32,7 +34,7 @@ class ActivityTransformer extends EntityTransformer
             'updated_at' => $this->getTimestamp($activity->updated_at),
             'expense_id' => $activity->expense_id ? $activity->expense->public_id : null,
             'is_system' => $activity->is_system ? (bool) $activity->is_system : null,
-            'contact_id' => $activity->contact_id ? $activity->contact->public_id : null
+            'contact_id' => $activity->contact_id ? $activity->contact->public_id : null,
         ];
     }
 }

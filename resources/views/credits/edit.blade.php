@@ -28,6 +28,11 @@
 			@endif
 
 			{!! Former::text('amount') !!}
+
+			@if ($credit)
+				{!! Former::text('balance') !!}
+			@endif
+
 			{!! Former::text('credit_date')
                         ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                         ->addGroupClass('credit_date')

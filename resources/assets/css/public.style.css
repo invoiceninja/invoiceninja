@@ -1,31 +1,90 @@
 body {
     font-family: 'Roboto', sans-serif;
     font-size: 14px;
-    background-color: #f8f8f8;
+    background-color: #f0f0f0;
 }
 html {
   overflow-y: scroll;
 }
 
+@media (min-width: 1400px) {
+    .container {
+        width: 1370px;
+    }
+}
 
 .navbar-header {
     padding-top: 4px;
     padding-bottom: 4px;
 }
+
+.navbar-brand {
+    height: 62px;
+    padding: 21px 15px;
+}
+
 .navbar li a {
     padding-top: 18px;
     font-weight: 500;
     font-size: 15px;
     font-weight: bold;
-    padding-left: 20px;
-    padding-right: 20px;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
 }
 
 .navbar {
     x-moz-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
     x-webkit-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
     box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
+    border-width: 0;
+    border-radius: 0;
 }
+
+.navbar-inverse .navbar-nav > li > a {
+    font-weight: 400;
+    text-transform: uppercase;
+    border-top: 2px solid transparent;
+    letter-spacing: 2px;
+    font-size: 14px;
+    color: #838181;
+}
+
+.navbar-inverse .navbar-nav > .active > a,
+.navbar-inverse .navbar-nav > .active > a:hover,
+.navbar-inverse .navbar-nav > .active > a:focus {
+    background: none;
+    border-top-color: #42d165;
+}
+
+@media (min-width: 768px) {
+    .navbar-nav > li > a {
+        padding: 24px 0 26px;
+        margin: 0 10px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .navbar-nav > li > a {
+        margin: 0 25px;
+    }
+}
+
+@media (min-width: 1220px) and (max-width: 1399px) {
+    .navbar .container {
+        padding: 0;
+    }
+}
+
+@media (min-width: 1420px) {
+    .navbar .container {
+        padding: 0;
+    }
+}
+
+.navbar-nav > li > a:last-child {
+    margin-right: 0;
+}
+
 
 #footer {
     text-align: center
@@ -128,6 +187,9 @@ table.dataTable { border-radius: 3px; border-collapse: collapse;
 table.dataTable thead > tr > th, table.invoice-table thead > tr > th {
     color:#fff;
 }
+
+table.da
+
 th:first-child {
     border-radius: 3px 0 0 0;
     border-left: none;
@@ -154,7 +216,7 @@ table.dataTable.no-footer {
 }
 .table-striped>tbody>tr:nth-child(odd)>td,
 .table-striped>tbody>tr:nth-child(odd)>th {
-    background-color: #FDFDFD;
+    background-color: #f9f9f9;
 }
 table.table thead .sorting_asc {
     background: url('../images/sort_asc.png') no-repeat 90% 50%;
@@ -195,3 +257,32 @@ table td {
 
 /* hide table sorting indicators */
 table.data-table thead .sorting { background: url('') no-repeat center right; }
+
+/* Make Success color match the Dashboard's green */
+.label-success,
+.progress-bar-success,
+.btn-success,
+.btn-success.disabled,
+.btn-success[disabled],
+fieldset[disabled] .btn-success,
+.btn-success.disabled:hover,
+.btn-success[disabled]:hover,
+fieldset[disabled] .btn-success:hover,
+.btn-success.disabled:focus,
+.btn-success[disabled]:focus,
+fieldset[disabled] .btn-success:focus,
+.btn-success.disabled.focus,
+.btn-success[disabled].focus,
+fieldset[disabled] .btn-success.focus,
+.btn-success.disabled:active,
+.btn-success[disabled]:active,
+fieldset[disabled] .btn-success:active,
+.btn-success.disabled.active,
+.btn-success[disabled].active,
+fieldset[disabled] .btn-success.active {
+    background: #5cb85c;
+}
+
+.btn-success .badge {
+    color: #5cb85c;
+}

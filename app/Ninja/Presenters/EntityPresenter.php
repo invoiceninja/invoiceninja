@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Presenters;
+<?php
 
-use Utils;
-use URL;
+namespace App\Ninja\Presenters;
+
 use Laracasts\Presenter\Presenter;
+use URL;
+use Utils;
 
 class EntityPresenter extends Presenter
 {
@@ -11,11 +13,15 @@ class EntityPresenter extends Presenter
      */
     public function url()
     {
+        return url($this->path());
+    }
+
+    public function path()
+    {
         $type = Utils::pluralizeEntityType($this->entity->getEntityType());
         $id = $this->entity->public_id;
-        $link = sprintf('/%s/%s', $type, $id);
 
-        return URL::to($link);
+        return sprintf('/%s/%s', $type, $id);
     }
 
     public function editUrl()
@@ -23,7 +29,7 @@ class EntityPresenter extends Presenter
         return $this->url() . '/edit';
     }
 
-    public function statusLabel()
+    public function statusLabel($label = false)
     {
         $class = $text = '';
 
@@ -35,7 +41,7 @@ class EntityPresenter extends Presenter
             $label = trans('texts.archived');
         } else {
             $class = $this->entity->statusClass();
-            $label = $this->entity->statusLabel();
+            $label = $label ?: $this->entity->statusLabel();
         }
 
         return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";

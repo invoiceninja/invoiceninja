@@ -1,9 +1,11 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Crypt;
+namespace App\Ninja\Repositories;
+
 use App\Models\BankAccount;
 use App\Models\BankSubaccount;
+use Crypt;
+use DB;
 
 class BankAccountRepository extends BaseRepository
 {
@@ -36,7 +38,7 @@ class BankAccountRepository extends BaseRepository
         $account->bank_accounts()->save($bankAccount);
 
         foreach ($input['bank_accounts'] as $data) {
-            if ( ! isset($data['include']) || ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
+            if (! isset($data['include']) || ! filter_var($data['include'], FILTER_VALIDATE_BOOLEAN)) {
                 continue;
             }
 

@@ -1,19 +1,18 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class SupportNewPricing extends Migration
 {
     /**
-    * Run the migrations.
-    *
-    * @return void
-    */
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        Schema::table('companies', function (Blueprint $table)
-        {
+        Schema::table('companies', function (Blueprint $table) {
             $table->decimal('plan_price', 7, 2)->nullable();
             $table->decimal('pending_plan_price', 7, 2)->nullable();
             $table->smallInteger('num_users')->default(1);
@@ -30,8 +29,19 @@ class SupportNewPricing extends Migration
         // https://github.com/invoiceninja/invoiceninja/pull/955
         Schema::table('activities', function (Blueprint $table) {
             $table->integer('task_id')->after('invitation_id')->nullable();
-            $table->dropForeign('activities_client_id_foreign');
+            if (Schema::hasColumn('activities', 'client_id')) {
+                $table->unsignedInteger('client_id')->nullable()->change();
+            }
         });
+
+        // This may fail if the table was created as MyISAM
+        try {
+            Schema::table('activities', function (Blueprint $table) {
+                $table->dropForeign('activities_client_id_foreign');
+            });
+        } catch (Exception $e) {
+            // do nothing
+        }
 
         // https://github.com/invoiceninja/invoiceninja/pull/950
         Schema::table('accounts', function (Blueprint $table) {
@@ -61,14 +71,13 @@ class SupportNewPricing extends Migration
     }
 
     /**
-    * Reverse the migrations.
-    *
-    * @return void
-    */
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
-        Schema::table('companies', function (Blueprint $table)
-        {
+        Schema::table('companies', function (Blueprint $table) {
             $table->dropColumn('plan_price');
             $table->dropColumn('pending_plan_price');
             $table->dropColumn('num_users');

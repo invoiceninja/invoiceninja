@@ -8,7 +8,8 @@
   {!! Former::open($url)->method($method)
       ->rules([
         'name' => 'required',
-        'rate' => 'required'
+        'rate' => 'required',
+        'is_inclusive' => 'required',
        ])
       ->addClass('warn-on-exit') !!}
 

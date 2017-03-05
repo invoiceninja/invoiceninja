@@ -1,19 +1,17 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class MultiCompanySupport extends Migration {
-
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-        Schema::create('user_accounts', function($table)
-        {
+class MultiCompanySupport extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('user_accounts', function ($table) {
             $table->increments('id');
             
             $table->unsignedInteger('user_id1')->nullable();
@@ -28,15 +26,15 @@ class MultiCompanySupport extends Migration {
             $table->foreign('user_id4')->references('id')->on('users');
             $table->foreign('user_id5')->references('id')->on('users');
         });
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
         Schema::dropIfExists('user_accounts');
-	}
+    }
 }

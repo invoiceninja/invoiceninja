@@ -1,15 +1,17 @@
-<?php namespace App\Services;
+<?php
 
+namespace App\Services;
+
+use App\Models\Account;
+use App\Models\Activity;
+use App\Models\Client;
 use App\Models\Invoice;
-use Utils;
+use App\Ninja\Datatables\PaymentDatatable;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Repositories\PaymentRepository;
 use Auth;
 use Exception;
-use App\Models\Account;
-use App\Models\Client;
-use App\Models\Activity;
-use App\Ninja\Repositories\PaymentRepository;
-use App\Ninja\Repositories\AccountRepository;
-use App\Ninja\Datatables\PaymentDatatable;
+use Utils;
 
 class PaymentService extends BaseService
 {
@@ -18,14 +20,13 @@ class PaymentService extends BaseService
      *
      * @param PaymentRepository $paymentRepo
      * @param AccountRepository $accountRepo
-     * @param DatatableService $datatableService
+     * @param DatatableService  $datatableService
      */
     public function __construct(
         PaymentRepository $paymentRepo,
         AccountRepository $accountRepo,
         DatatableService $datatableService
-    )
-    {
+    ) {
         $this->datatableService = $datatableService;
         $this->paymentRepo = $paymentRepo;
         $this->accountRepo = $accountRepo;
@@ -41,10 +42,15 @@ class PaymentService extends BaseService
 
     /**
      * @param Invoice $invoice
+     *
      * @return bool
      */
     public function autoBillInvoice(Invoice $invoice)
     {
+        if (! $invoice->canBePaid()) {
+            return false;
+        }
+
         /** @var \App\Models\Client $client */
         $client = $invoice->client;
 
@@ -54,9 +60,11 @@ class PaymentService extends BaseService
         /** @var \App\Models\Invitation $invitation */
         $invitation = $invoice->invitations->first();
 
-        if ( ! $invitation) {
+        if (! $invitation) {
             return false;
         }
+
+        $invoice->markSentIfUnsent();
 
         if ($credits = $client->credits->sum('balance')) {
             $balance = $invoice->balance;
@@ -75,17 +83,21 @@ class PaymentService extends BaseService
 
         $paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_TOKEN);
 
-        if ( ! $paymentDriver) {
+        if (! $paymentDriver) {
             return false;
         }
 
         $customer = $paymentDriver->customer();
 
-        if ( ! $customer) {
+        if (! $customer) {
             return false;
         }
 
         $paymentMethod = $customer->default_payment_method;
+
+        if (! $paymentMethod) {
+            return false;
+        }
 
         if ($paymentMethod->requiresDelayedAutoBill()) {
             $invoiceDate = \DateTime::createFromFormat('Y-m-d', $invoice->invoice_date);
@@ -128,23 +140,28 @@ class PaymentService extends BaseService
         }
     }
 
+    public function save($input, $payment = null)
+    {
+        return $this->paymentRepo->save($input, $payment);
+    }
+
+
     public function getDatatable($clientPublicId, $search)
     {
         $datatable = new PaymentDatatable(true, $clientPublicId);
         $query = $this->paymentRepo->find($clientPublicId, $search);
 
-        if(!Utils::hasPermission('view_all')){
+        if (! Utils::hasPermission('view_all')) {
             $query->where('payments.user_id', '=', Auth::user()->id);
         }
 
         return $this->datatableService->createDatatable($datatable, $query);
     }
 
-
     public function bulk($ids, $action, $params = [])
     {
         if ($action == 'refund') {
-            if ( ! $ids ) {
+            if (! $ids) {
                 return 0;
             }
 
@@ -153,12 +170,15 @@ class PaymentService extends BaseService
 
             foreach ($payments as $payment) {
                 if (Auth::user()->can('edit', $payment)) {
-                    $amount = !empty($params['amount']) ? floatval($params['amount']) : null;
+                    $amount = ! empty($params['refund_amount']) ? floatval($params['refund_amount']) : null;
                     if ($accountGateway = $payment->account_gateway) {
                         $paymentDriver = $accountGateway->paymentDriver();
                         if ($paymentDriver->refundPayment($payment, $amount)) {
                             $successful++;
                         }
+                    } else {
+                        $payment->recordRefund($amount);
+                        $successful++;
                     }
                 }
             }

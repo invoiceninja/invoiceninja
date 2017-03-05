@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Transformers;
+<?php
+
+namespace App\Ninja\Transformers;
 
 use App\Models\Account;
 use App\Models\Client;
@@ -7,18 +9,16 @@ use App\Models\Invoice;
 /**
  * @SWG\Definition(definition="Invoice", required={"invoice_number"}, @SWG\Xml(name="Invoice"))
  */
-
 class InvoiceTransformer extends EntityTransformer
 {
     /**
-    * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-    * @SWG\Property(property="amount", type="float", example=10, readOnly=true)
-    * @SWG\Property(property="balance", type="float", example=10, readOnly=true)
-    * @SWG\Property(property="client_id", type="integer", example=1)
-    * @SWG\Property(property="invoice_number", type="string", example="0001")
-    * @SWG\Property(property="invoice_status_id", type="integer", example=1)
-    */
-
+     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+     * @SWG\Property(property="amount", type="float", example=10, readOnly=true)
+     * @SWG\Property(property="balance", type="float", example=10, readOnly=true)
+     * @SWG\Property(property="client_id", type="integer", example=1)
+     * @SWG\Property(property="invoice_number", type="string", example="0001")
+     * @SWG\Property(property="invoice_status_id", type="integer", example=1)
+     */
     protected $defaultIncludes = [
         'invoice_items',
     ];
@@ -40,39 +40,44 @@ class InvoiceTransformer extends EntityTransformer
     public function includeInvoiceItems(Invoice $invoice)
     {
         $transformer = new InvoiceItemTransformer($this->account, $this->serializer);
+
         return $this->includeCollection($invoice->invoice_items, $transformer, ENTITY_INVOICE_ITEM);
     }
 
     public function includeInvitations(Invoice $invoice)
     {
         $transformer = new InvitationTransformer($this->account, $this->serializer);
+
         return $this->includeCollection($invoice->invitations, $transformer, ENTITY_INVITATION);
     }
 
     public function includePayments(Invoice $invoice)
     {
         $transformer = new PaymentTransformer($this->account, $this->serializer, $invoice);
+
         return $this->includeCollection($invoice->payments, $transformer, ENTITY_PAYMENT);
     }
 
     public function includeClient(Invoice $invoice)
     {
         $transformer = new ClientTransformer($this->account, $this->serializer);
+
         return $this->includeItem($invoice->client, $transformer, ENTITY_CLIENT);
     }
 
     public function includeExpenses(Invoice $invoice)
     {
         $transformer = new ExpenseTransformer($this->account, $this->serializer);
+
         return $this->includeCollection($invoice->expenses, $transformer, ENTITY_EXPENSE);
     }
 
     public function includeDocuments(Invoice $invoice)
     {
         $transformer = new DocumentTransformer($this->account, $this->serializer);
+
         return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
     }
-
 
     public function transform(Invoice $invoice)
     {
@@ -85,7 +90,7 @@ class InvoiceTransformer extends EntityTransformer
             'updated_at' => $this->getTimestamp($invoice->updated_at),
             'archived_at' => $this->getTimestamp($invoice->deleted_at),
             'invoice_number' => $invoice->invoice_number,
-            'discount' => (double) $invoice->discount,
+            'discount' => (float) $invoice->discount,
             'po_number' => $invoice->po_number,
             'invoice_date' => $invoice->invoice_date,
             'due_date' => $invoice->due_date,

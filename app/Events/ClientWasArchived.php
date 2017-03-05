@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Client;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class ClientWasArchived
+ * Class ClientWasArchived.
  */
 class ClientWasArchived extends Event
 {

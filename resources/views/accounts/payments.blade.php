@@ -64,8 +64,9 @@
                     <h4 class="modal-title" id="paymentLimitsModalLabel"></h4>
                 </div>
 
-                <div class="modal-body">
-                    <div class="panel-body">
+				<div class="container" style="width: 100%; padding-bottom: 0px !important">
+	            <div class="panel panel-default" style="margin-bottom: 0px">
+	            <div class="panel-body">
                         <div class="row" style="text-align:center">
                             <div class="col-xs-12">
                                 <div id="payment-limits-slider"></div>
@@ -99,8 +100,9 @@
                             </div>
                         </div>
                         <input type="hidden" name="gateway_type_id" id="payment-limit-gateway-type">
-                    </div>
                 </div>
+                </div>
+				</div>
 
                 <div class="modal-footer" style="margin-top: 0px">
                     <button type="button" class="btn btn-default"

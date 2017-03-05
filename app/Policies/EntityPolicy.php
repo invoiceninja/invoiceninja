@@ -6,18 +6,21 @@ use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 /**
- * Class EntityPolicy
+ * Class EntityPolicy.
  */
 class EntityPolicy
 {
     use HandlesAuthorization;
 
     /**
-     * @param User $user
+     * @param User  $user
+     * @param mixed $item
+     *
      * @return bool
      */
-    public static function create(User $user, $item) {
-        if ( ! static::checkModuleEnabled($user, $item)) {
+    public static function create(User $user, $item)
+    {
+        if (! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -30,8 +33,9 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function edit(User $user, $item) {
-        if ( ! static::checkModuleEnabled($user, $item)) {
+    public static function edit(User $user, $item)
+    {
+        if (! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -44,8 +48,9 @@ class EntityPolicy
      *
      * @return bool
      */
-    public static function view(User $user, $item) {
-        if ( ! static::checkModuleEnabled($user, $item)) {
+    public static function view(User $user, $item)
+    {
+        if (! static::checkModuleEnabled($user, $item)) {
             return false;
         }
 
@@ -55,18 +60,22 @@ class EntityPolicy
     /**
      * @param User $user
      * @param $ownerUserId
+     *
      * @return bool
      */
-    public static function viewByOwner(User $user, $ownerUserId) {
+    public static function viewByOwner(User $user, $ownerUserId)
+    {
         return $user->hasPermission('view_all') || $user->id == $ownerUserId;
     }
 
     /**
      * @param User $user
      * @param $ownerUserId
+     *
      * @return bool
      */
-    public static function editByOwner(User $user, $ownerUserId) {
+    public static function editByOwner(User $user, $ownerUserId)
+    {
         return $user->hasPermission('edit_all') || $user->id == $ownerUserId;
     }
 

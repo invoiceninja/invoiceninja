@@ -1,10 +1,12 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class ExpenseCategory
+ * Class ExpenseCategory.
  */
 class Project extends EntityModel
 {
@@ -52,7 +54,6 @@ class Project extends EntityModel
     {
         return $this->belongsTo('App\Models\Client')->withTrashed();
     }
-
 }
 
 Project::creating(function ($project) {

@@ -1,8 +1,10 @@
-<?php namespace App\Ninja\Intents;
+<?php
 
-use Exception;
+namespace App\Ninja\Intents;
+
 use App\Models\EntityModel;
 use App\Models\Invoice;
+use Exception;
 
 class UpdateInvoiceIntent extends InvoiceIntent
 {
@@ -38,7 +40,7 @@ class UpdateInvoiceIntent extends InvoiceIntent
         $invoice = $this->invoiceRepo->save($data, $invoice);
 
         $invoiceItems = array_slice($invoice->invoice_items->toArray(), count($invoiceItems) * -1);
-        $invoiceItemIds = array_map(function($item) {
+        $invoiceItemIds = array_map(function ($item) {
             return $item['public_id'];
         }, $invoiceItems);
 

@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 use App\Models\Invoice;
 
@@ -22,19 +24,23 @@ class CreatePaymentRequest extends PaymentRequest
     public function rules()
     {
         $input = $this->input();
-        $invoice = Invoice::scope($input['invoice'])
+        $this->invoice = $invoice = Invoice::scope($input['invoice'])
             ->invoices()
-            ->whereIsPublic(true)
             ->firstOrFail();
+
+        $this->merge([
+            'invoice_id' => $invoice->id,
+            'client_id' => $invoice->client->id,
+        ]);
 
         $rules = [
             'client' => 'required', // TODO: change to client_id once views are updated
             'invoice' => 'required', // TODO: change to invoice_id once views are updated
-            'amount' => "required|numeric|between:0.01,{$invoice->balance}",
+            'amount' => "required|numeric|min:0.01",
             'payment_date' => 'required',
         ];
 
-        if ( ! empty($input['payment_type_id']) && $input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
+        if (! empty($input['payment_type_id']) && $input['payment_type_id'] == PAYMENT_TYPE_CREDIT) {
             $rules['payment_type_id'] = 'has_credit:'.$input['client'].','.$input['amount'];
         }
 

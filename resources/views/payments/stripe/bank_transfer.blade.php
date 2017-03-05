@@ -232,6 +232,8 @@
 
     <div class="col-md-8 col-md-offset-4">
 
+        {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+        &nbsp;&nbsp;
         {!! Button::success(strtoupper(trans('texts.add_account')))
                         ->submit()
                         ->withAttributes(['id'=>'add_account_button'])

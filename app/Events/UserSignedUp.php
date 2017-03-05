@@ -1,9 +1,11 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class UserSignedUp
+ * Class UserSignedUp.
  */
 class UserSignedUp extends Event
 {

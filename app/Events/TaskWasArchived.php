@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Task;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class TaskWasArchived
+ * Class TaskWasArchived.
  */
 class TaskWasArchived extends Event
 {
@@ -24,5 +26,4 @@ class TaskWasArchived extends Event
     {
         $this->task = $task;
     }
-
 }

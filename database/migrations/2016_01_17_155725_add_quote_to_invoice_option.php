@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class AddQuoteToInvoiceOption extends Migration
 {
@@ -21,7 +21,7 @@ class AddQuoteToInvoiceOption extends Migration
         if (DB::table('invoice_statuses')->count() == 5) {
             DB::table('invoice_statuses')->insert([
                 'id' => 6,
-                'name' => 'Paid'
+                'name' => 'Paid',
             ]);
         }
 

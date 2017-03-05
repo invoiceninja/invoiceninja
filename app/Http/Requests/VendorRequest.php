@@ -1,7 +1,9 @@
-<?php namespace App\Http\Requests;
+<?php
 
-class VendorRequest extends EntityRequest {
+namespace App\Http\Requests;
 
+class VendorRequest extends EntityRequest
+{
     protected $entityType = ENTITY_VENDOR;
 
     public function entity()
@@ -15,5 +17,4 @@ class VendorRequest extends EntityRequest {
          
         return $vendor;
     }
-
 }

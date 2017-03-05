@@ -1,20 +1,23 @@
-<?php namespace App\Ninja\Import\Ronin;
+<?php
+
+namespace App\Ninja\Import\Ronin;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 /**
- * Class InvoiceTransformer
+ * Class InvoiceTransformer.
  */
 class InvoiceTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
     {
-        if ( ! $this->getClientId($data->client)) {
+        if (! $this->getClientId($data->client)) {
             return false;
         }
 
@@ -36,7 +39,7 @@ class InvoiceTransformer extends BaseTransformer
                         'notes' => $this->getString($data, 'line_item'),
                         'cost' => (float) $data->total,
                         'qty' => 1,
-                    ]
+                    ],
                 ],
             ];
         });

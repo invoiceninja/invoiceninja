@@ -1,19 +1,21 @@
-<?php namespace App\Http\Controllers;
+<?php
 
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateCreditRequest;
+use App\Http\Requests\CreditRequest;
+use App\Http\Requests\UpdateCreditRequest;
+use App\Models\Client;
+use App\Models\Credit;
+use App\Ninja\Datatables\CreditDatatable;
+use App\Ninja\Repositories\CreditRepository;
+use App\Services\CreditService;
 use Input;
 use Redirect;
 use Session;
 use URL;
 use Utils;
 use View;
-use App\Models\Client;
-use App\Models\Credit;
-use App\Services\CreditService;
-use App\Ninja\Repositories\CreditRepository;
-use App\Http\Requests\UpdateCreditRequest;
-use App\Http\Requests\CreateCreditRequest;
-use App\Http\Requests\CreditRequest;
-use App\Ninja\Datatables\CreditDatatable;
 
 class CreditController extends BaseController
 {
@@ -70,7 +72,7 @@ class CreditController extends BaseController
 
         $credit->credit_date = Utils::fromSqlDate($credit->credit_date);
 
-        $data = array(
+        $data = [
             'client' => $credit->client,
             'clientPublicId' => $credit->client->public_id,
             'credit' => $credit,
@@ -78,7 +80,7 @@ class CreditController extends BaseController
             'url' => 'credits/'.$publicId,
             'title' => 'Edit Credit',
             'clients' => null,
-        );
+        ];
 
         return View::make('credits.edit', $data);
     }

@@ -1,12 +1,14 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use App\Models\Product;
-use App\Ninja\Repositories\ProductRepository;
+namespace App\Http\Controllers;
+
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Models\Product;
+use App\Ninja\Repositories\ProductRepository;
 
 /**
- * Class ProductApiController
+ * Class ProductApiController.
  */
 class ProductApiController extends BaseAPIController
 {
@@ -105,6 +107,8 @@ class ProductApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
+     *
+     * @param mixed $publicId
      */
     public function update(UpdateProductRequest $request, $publicId)
     {

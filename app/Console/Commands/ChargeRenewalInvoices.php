@@ -1,14 +1,16 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use Illuminate\Console\Command;
+namespace App\Console\Commands;
+
+use App\Models\Account;
+use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
-use App\Models\Invoice;
-use App\Models\Account;
+use Illuminate\Console\Command;
 
 /**
- * Class ChargeRenewalInvoices
+ * Class ChargeRenewalInvoices.
  */
 class ChargeRenewalInvoices extends Command
 {
@@ -39,9 +41,10 @@ class ChargeRenewalInvoices extends Command
 
     /**
      * ChargeRenewalInvoices constructor.
-     * @param Mailer $mailer
+     *
+     * @param Mailer            $mailer
      * @param AccountRepository $repo
-     * @param PaymentService $paymentService
+     * @param PaymentService    $paymentService
      */
     public function __construct(Mailer $mailer, AccountRepository $repo, PaymentService $paymentService)
     {
@@ -71,17 +74,17 @@ class ChargeRenewalInvoices extends Command
             // check if account has switched to free since the invoice was created
             $account = Account::find($invoice->client->public_id);
 
-            if ( ! $account) {
+            if (! $account) {
                 continue;
             }
 
             $company = $account->company;
-            if ( ! $company->plan || $company->plan == PLAN_FREE) {
+            if (! $company->plan || $company->plan == PLAN_FREE) {
                 continue;
             }
 
             $this->info("Charging invoice {$invoice->invoice_number}");
-            if ( ! $this->paymentService->autoBillInvoice($invoice)) {
+            if (! $this->paymentService->autoBillInvoice($invoice)) {
                 $this->info('Failed to auto-bill, emailing invoice');
                 $this->mailer->sendInvoice($invoice);
             }

@@ -1,15 +1,18 @@
-<?php namespace App\Ninja\Import\CSV;
+<?php
+
+namespace App\Ninja\Import\CSV;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 /**
- * Class ClientTransformer
+ * Class ClientTransformer.
  */
 class ClientTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
@@ -29,6 +32,7 @@ class ClientTransformer extends BaseTransformer
                 'private_notes' => $this->getString($data, 'notes'),
                 'website' => $this->getString($data, 'website'),
                 'vat_number' => $this->getString($data, 'vat_number'),
+                'id_number' => $this->getString($data, 'id_number'),
                 'contacts' => [
                     [
                         'first_name' => $this->getString($data, 'first_name'),

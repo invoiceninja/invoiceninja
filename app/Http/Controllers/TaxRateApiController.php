@@ -1,9 +1,11 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use App\Models\TaxRate;
-use App\Ninja\Repositories\TaxRateRepository;
+namespace App\Http\Controllers;
+
 use App\Http\Requests\CreateTaxRateRequest;
 use App\Http\Requests\UpdateTaxRateRequest;
+use App\Models\TaxRate;
+use App\Ninja\Repositories\TaxRateRepository;
 
 class TaxRateApiController extends BaseAPIController
 {
@@ -19,6 +21,7 @@ class TaxRateApiController extends BaseAPIController
 
     /**
      * TaxRateApiController constructor.
+     *
      * @param TaxRateRepository $taxRateRepo
      */
     public function __construct(TaxRateRepository $taxRateRepo)
@@ -101,6 +104,8 @@ class TaxRateApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
+     *
+     * @param mixed $publicId
      */
     public function update(UpdateTaxRateRequest $request, $publicId)
     {

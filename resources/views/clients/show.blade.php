@@ -57,7 +57,7 @@
                     @endcan
                     @if ( ! $client->trashed())
                         @can('create', ENTITY_INVOICE)
-                            {!! DropdownButton::primary(trans('texts.new_invoice'))
+                            {!! DropdownButton::primary(trans('texts.view_statement'))
                                     ->withAttributes(['class'=>'primaryDropDown'])
                                     ->withContents($actionLinks)->split() !!}
                         @endcan
@@ -141,7 +141,7 @@
                 <p><i class="fa fa-language" style="width: 20px"></i>{{ $client->language->name }}</p>
             @endif
 
-		  	<p>{{ $client->payment_terms ? trans('texts.payment_terms') . ": Net " . $client->payment_terms : '' }}</p>
+            <p>{{ $client->present()->paymentTerms }}</p>
 		</div>
 
 		<div class="col-md-3">
@@ -157,8 +157,11 @@
                     <i class="fa fa-phone" style="width: 20px"></i>{{ $contact->phone }}<br/>
                 @endif
                 @if (Auth::user()->confirmed && $client->account->enable_client_portal)
-                    <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}" target="_blank">{{ trans('texts.view_client_portal') }}</a><br/>
+                    <i class="fa fa-dashboard" style="width: 20px"></i><a href="{{ $contact->link }}"
+                        onclick="window.open('{{ $contact->link }}?silent=true', '_blank');return false;">{{ trans('texts.view_client_portal') }}
+                    </a><br/>
                 @endif
+                <br/>
 		  	@endforeach
 		</div>
 
@@ -292,7 +295,7 @@
 			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
 		});
 		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
-			window.location = '{{ URL::to('invoices/create/' . $client->public_id ) }}';
+			window.location = '{{ URL::to('clients/statement/' . $client->public_id ) }}';
 		});
 
         // load datatable data when tab is shown and remember last tab selected

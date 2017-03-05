@@ -1,12 +1,14 @@
-<?php namespace App\Ninja\Mailers;
+<?php
 
-use Utils;
+namespace App\Ninja\Mailers;
+
+use App\Models\Invoice;
 use Exception;
 use Mail;
-use App\Models\Invoice;
+use Utils;
 
 /**
- * Class Mailer
+ * Class Mailer.
  */
 class Mailer
 {
@@ -17,6 +19,7 @@ class Mailer
      * @param $subject
      * @param $view
      * @param array $data
+     *
      * @return bool|string
      */
     public function sendTo($toEmail, $fromEmail, $fromName, $subject, $view, $data = [])
@@ -37,10 +40,15 @@ class Mailer
 
         try {
             $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {
-
                 $toEmail = strtolower($toEmail);
                 $replyEmail = $fromEmail;
                 $fromEmail = CONTACT_EMAIL;
+                //\Log::info("{$toEmail} | {$replyEmail} | $fromEmail");
+
+                // Optionally send for alternate domain
+                if (! empty($data['fromEmail'])) {
+                    $fromEmail = $data['fromEmail'];
+                }
 
                 $message->to($toEmail)
                         ->from($fromEmail, $fromName)
@@ -48,18 +56,18 @@ class Mailer
                         ->subject($subject);
 
                 // Optionally BCC the email
-                if (!empty($data['bcc_email'])) {
-                    $message->bcc($data['bcc_email']);
+                if (! empty($data['bccEmail'])) {
+                    $message->bcc($data['bccEmail']);
                 }
 
                 // Attach the PDF to the email
-                if (!empty($data['pdfString']) && !empty($data['pdfFileName'])) {
+                if (! empty($data['pdfString']) && ! empty($data['pdfFileName'])) {
                     $message->attachData($data['pdfString'], $data['pdfFileName']);
                 }
 
                 // Attach documents to the email
-                if(!empty($data['documents'])){
-                    foreach($data['documents'] as $document){
+                if (! empty($data['documents'])) {
+                    foreach ($data['documents'] as $document) {
                         $message->attachData($document['data'], $document['name']);
                     }
                 }
@@ -74,6 +82,7 @@ class Mailer
     /**
      * @param $response
      * @param $data
+     *
      * @return bool
      */
     private function handleSuccess($response, $data)
@@ -89,7 +98,7 @@ class Mailer
                 $messageId = $json->MessageID;
             }
 
-            $notes = isset($data['notes']) ? $data['notes']: false;
+            $notes = isset($data['notes']) ? $data['notes'] : false;
             $invoice->markInvitationSent($invitation, $messageId, true, $notes);
         }
 
@@ -98,6 +107,7 @@ class Mailer
 
     /**
      * @param $exception
+     *
      * @return string
      */
     private function handleFailure($exception)
@@ -108,7 +118,12 @@ class Mailer
             if (! $response) {
                 $error = trans('texts.postmark_error', ['link' => link_to('https://status.postmarkapp.com/')]);
                 Utils::logError($error);
-                return $error;
+
+                if (config('queue.default') === 'sync') {
+                    return $error;
+                } else {
+                    throw $exception;
+                }
             }
 
             $response = $response->getBody()->getContents();
@@ -122,7 +137,7 @@ class Mailer
             $invitation = $data['invitation'];
             $invitation->email_error = $emailError;
             $invitation->save();
-        } elseif ( ! Utils::isNinja()) {
+        } elseif (! Utils::isNinjaProd()) {
             Utils::logError(Utils::getErrorString($exception));
         }
 

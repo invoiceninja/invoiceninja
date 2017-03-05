@@ -1,7 +1,8 @@
-<?php namespace App\Http\Requests;
+<?php
 
-class TaxRateRequest extends EntityRequest {
+namespace App\Http\Requests;
 
+class TaxRateRequest extends EntityRequest
+{
     protected $entityType = ENTITY_TAX_RATE;
-    
 }

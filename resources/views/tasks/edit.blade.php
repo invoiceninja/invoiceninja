@@ -58,11 +58,13 @@
                 @endif
             @else
                 {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
-                {!! Former::select('project_id')->addOption('', '')->addGroupClass('project-select')
+                {!! Former::select('project_id')
+                        ->addOption('', '')
+                        ->addGroupClass('project-select')
                         ->label(trans('texts.project')) !!}
             @endif
 
-            {!! Former::textarea('description')->rows(3) !!}
+            {!! Former::textarea('description')->rows(4) !!}
 
             @if ($task)
 
@@ -197,7 +199,7 @@
             lang: '{{ $appLanguage }}',
             lazyInit: true,
             validateOnBlur: false,
-            step: 30,
+            step: {{ env('TASK_TIME_STEP', 15) }},
             format: '{{ $datetimeFormat }}',
             formatDate: '{{ $account->getMomentDateFormat() }}',
             formatTime: '{{ $account->military_time ? 'H:mm' : 'h:mm A' }}',
@@ -544,14 +546,18 @@
           var clientId = $('input[name=client]').val();
           var projectId = $('input[name=project_id]').val();
           var project = projectMap[projectId];
-          if (project && ((project.client && project.client.public_id == clientId) || !project.client)) {
-            e.preventDefault();
-            return;
+          if (projectId == '-1') {
+            e.preventDefault();return;
+          } else if (project && ((project.client && project.client.public_id == clientId) || !project.client)) {
+            e.preventDefault();return;
           }
           setComboboxValue($('.project-select'), '', '');
           $projectCombobox = $('select#project_id');
           $projectCombobox.find('option').remove().end().combobox('refresh');
           $projectCombobox.append(new Option('', ''));
+          @if (Auth::user()->can('create', ENTITY_PROJECT))
+            $projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
+          @endif
           var list = clientId ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []).concat(projectsForAllClients) : projects;
           for (var i=0; i<list.length; i++) {
             var project = list[i];
@@ -561,23 +567,26 @@
         });
 
         var $projectSelect = $('select#project_id').on('change', function(e) {
-          $clientCombobox = $('select#client');
-          var projectId = $('input[name=project_id]').val();
-          if (projectId) {
-            var project = projectMap[projectId];
-            if (project.client) {
-                var client = clientMap[project.client.public_id];
-                if (client) {
-                    project.client = client;
-                    setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+            $clientCombobox = $('select#client');
+            var projectId = $('input[name=project_id]').val();
+            if (projectId == '-1') {
+                $('input[name=project_name]').val(projectName);
+            } else if (projectId) {
+                // when selecting a project make sure the client is loaded
+                var project = projectMap[projectId];
+                if (project && project.client) {
+                    var client = clientMap[project.client.public_id];
+                    if (client) {
+                        project.client = client;
+                        setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+                    }
                 }
+            } else {
+                $clientSelect.trigger('change');
             }
-          } else {
-            $clientSelect.trigger('change');
-          }
         });
 
-        $projectSelect.combobox();
+        @include('partials/entity_combobox', ['entityType' => ENTITY_PROJECT])
 
         if (projectId) {
            var project = projectMap[projectId];
@@ -589,5 +598,6 @@
     });
 
     </script>
+
 
 @stop

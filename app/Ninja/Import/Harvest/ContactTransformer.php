@@ -1,20 +1,23 @@
-<?php namespace App\Ninja\Import\Harvest;
+<?php
+
+namespace App\Ninja\Import\Harvest;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 /**
- * Class ContactTransformer
+ * Class ContactTransformer.
  */
 class ContactTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
     {
-        if ( ! $this->hasClient($data->client)) {
+        if (! $this->hasClient($data->client)) {
             return false;
         }
 

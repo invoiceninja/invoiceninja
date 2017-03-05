@@ -1,25 +1,27 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Utils;
-use View;
-use URL;
-use Input;
-use Session;
-use Redirect;
-use Cache;
-use App\Models\Vendor;
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateExpenseRequest;
+use App\Http\Requests\ExpenseRequest;
+use App\Http\Requests\UpdateExpenseRequest;
+use App\Models\Client;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
-use App\Models\Client;
 use App\Models\TaxRate;
+use App\Models\Vendor;
+use App\Ninja\Datatables\ExpenseDatatable;
+use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\ExpenseService;
-use App\Ninja\Repositories\ExpenseRepository;
-use App\Http\Requests\ExpenseRequest;
-use App\Http\Requests\CreateExpenseRequest;
-use App\Http\Requests\UpdateExpenseRequest;
-use App\Ninja\Datatables\ExpenseDatatable;
+use Auth;
+use Cache;
+use Input;
+use Redirect;
+use Session;
+use URL;
+use Utils;
+use View;
 
 class ExpenseController extends BaseController
 {
@@ -110,11 +112,10 @@ class ExpenseController extends BaseController
             foreach ($invoices as $invoice) {
                 $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
             }
-
         }
 
         $actions[] = \DropdownButton::DIVIDER;
-        if (!$expense->trashed()) {
+        if (! $expense->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_expense')];
             $actions[] = ['url' => 'javascript:onDeleteClick()', 'label' => trans('texts.delete_expense')];
         } else {
@@ -144,7 +145,8 @@ class ExpenseController extends BaseController
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param int $id
+     *
      * @return Response
      */
     public function update(UpdateExpenseRequest $request)
@@ -179,10 +181,9 @@ class ExpenseController extends BaseController
     public function bulk()
     {
         $action = Input::get('action');
-        $ids    = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
+        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
 
-        switch($action)
-        {
+        switch ($action) {
             case 'invoice':
             case 'add_to_invoice':
                 $expenses = Expense::scope($ids)->with('client')->get();
@@ -190,26 +191,28 @@ class ExpenseController extends BaseController
                 $currencyId = null;
 
                 // Validate that either all expenses do not have a client or if there is a client, it is the same client
-                foreach ($expenses as $expense)
-                {
+                foreach ($expenses as $expense) {
                     if ($expense->client) {
-                        if (!$clientPublicId) {
+                        if (! $clientPublicId) {
                             $clientPublicId = $expense->client->public_id;
                         } elseif ($clientPublicId != $expense->client->public_id) {
                             Session::flash('error', trans('texts.expense_error_multiple_clients'));
+
                             return Redirect::to('expenses');
                         }
                     }
 
-                    if (!$currencyId) {
+                    if (! $currencyId) {
                         $currencyId = $expense->invoice_currency_id;
                     } elseif ($currencyId != $expense->invoice_currency_id && $expense->invoice_currency_id) {
                         Session::flash('error', trans('texts.expense_error_multiple_currencies'));
+
                         return Redirect::to('expenses');
                     }
 
                     if ($expense->invoice_id) {
                         Session::flash('error', trans('texts.expense_error_invoiced'));
+
                         return Redirect::to('expenses');
                     }
                 }
@@ -220,15 +223,15 @@ class ExpenseController extends BaseController
                             ->with('expenses', $ids);
                 } else {
                     $invoiceId = Input::get('invoice_id');
+
                     return Redirect::to("invoices/{$invoiceId}/edit")
                             ->with('expenseCurrencyId', $currencyId)
                             ->with('expenses', $ids);
-
                 }
                 break;
 
             default:
-                $count  = $this->expenseService->bulk($ids, $action);
+                $count = $this->expenseService->bulk($ids, $action);
         }
 
         if ($count > 0) {

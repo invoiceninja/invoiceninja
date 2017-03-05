@@ -1,12 +1,14 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use stdClass;
-use DB;
+namespace App\Ninja\Repositories;
+
 use App\Models\Activity;
 use App\Models\Invoice;
 use App\Models\Task;
 use DateInterval;
 use DatePeriod;
+use DB;
+use stdClass;
 
 class DashboardRepository
 {
@@ -14,6 +16,10 @@ class DashboardRepository
      * @param $groupBy
      * @param $startDate
      * @param $endDate
+     * @param mixed $account
+     * @param mixed $currencyId
+     * @param mixed $includeExpenses
+     *
      * @return array
      */
     public function chartData($account, $groupBy, $startDate, $endDate, $currencyId, $includeExpenses)
@@ -28,7 +34,7 @@ class DashboardRepository
 
         $datasets = [];
         $labels = [];
-        $totals = new stdClass;
+        $totals = new stdClass();
 
         $entitTypes = [ENTITY_INVOICE, ENTITY_PAYMENT];
         if ($includeExpenses) {
@@ -36,7 +42,6 @@ class DashboardRepository
         }
 
         foreach ($entitTypes as $entityType) {
-
             $data = [];
             $count = 0;
             $balance = 0;
@@ -57,8 +62,15 @@ class DashboardRepository
 
             foreach ($period as $d) {
                 $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
-                // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
-                $date = $groupBy == 'DAYOFYEAR' ? $d->format('Y').($d->format($dateFormat) + 1) : $d->format('Y'.$dateFormat);
+                if ($groupBy == 'DAYOFYEAR') {
+                    // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
+                    $date = $d->format('Y') . ($d->format($dateFormat) + 1);
+                } elseif ($groupBy == 'WEEK' && ($d->format($dateFormat) < 10)) {
+                    // PHP zero pads the week
+                    $date = $d->format('Y') . round($d->format($dateFormat));
+                } else {
+                    $date = $d->format('Y'.$dateFormat);
+                }
                 $records[] = isset($data[$date]) ? $data[$date] : 0;
 
                 if ($entityType == ENTITY_INVOICE) {
@@ -74,7 +86,7 @@ class DashboardRepository
                 $color = '128,128,128';
             }
 
-            $record = new stdClass;
+            $record = new stdClass();
             $record->data = $records;
             $record->label = trans("texts.{$entityType}s");
             $record->lineTension = 0;
@@ -95,11 +107,11 @@ class DashboardRepository
             }
         }
 
-        $data = new stdClass;
+        $data = new stdClass();
         $data->labels = $labels;
         $data->datasets = $datasets;
 
-        $response = new stdClass;
+        $response = new stdClass();
         $response->data = $data;
         $response->totals = $totals;
 
@@ -108,7 +120,7 @@ class DashboardRepository
 
     private function rawChartData($entityType, $account, $groupBy, $startDate, $endDate, $currencyId)
     {
-        if ( ! in_array($groupBy, ['DAYOFYEAR', 'WEEK', 'MONTH'])) {
+        if (! in_array($groupBy, ['DAYOFYEAR', 'WEEK', 'MONTH'])) {
             return [];
         }
 
@@ -136,6 +148,7 @@ class DashboardRepository
         if ($entityType == ENTITY_INVOICE) {
             $records->select(DB::raw('sum(invoices.amount) as total, sum(invoices.balance) as balance, count(invoices.id) as count, '.$timeframe.' as '.$groupBy))
                     ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
+                    ->where('invoices.is_public', '=', true)
                     ->where('is_recurring', '=', false);
         } elseif ($entityType == ENTITY_PAYMENT) {
             $records->select(DB::raw('sum(payments.amount - payments.refunded) as total, count(payments.id) as count, '.$timeframe.' as '.$groupBy))
@@ -166,12 +179,13 @@ class DashboardRepository
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
             ->where('invoices.is_recurring', '=', false)
+            ->where('invoices.is_public', '=', true)
             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD);
 
-        if (!$viewAll){
-            $metrics = $metrics->where(function($query) use($userId){
+        if (! $viewAll) {
+            $metrics = $metrics->where(function ($query) use ($userId) {
                 $query->where('invoices.user_id', '=', $userId);
-                $query->orwhere(function($query) use($userId){
+                $query->orwhere(function ($query) use ($userId) {
                     $query->where('invoices.user_id', '=', null);
                     $query->where('clients.user_id', '=', $userId);
                 });
@@ -198,15 +212,14 @@ class DashboardRepository
             ->where('payments.is_deleted', '=', false)
             ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
-        if (!$viewAll){
+        if (! $viewAll) {
             $paidToDate->where('invoices.user_id', '=', $userId);
         }
 
         if ($startDate) {
             $paidToDate->where('payments.payment_date', '>=', $startDate);
-        } elseif ($account->financial_year_start) {
-            $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
-            $paidToDate->where('payments.payment_date', '>=', $yearStart);
+        } elseif ($startDate = $account->financialYearStart()) {
+            //$paidToDate->where('payments.payment_date', '>=', $startDate);
         }
 
         return $paidToDate->groupBy('payments.account_id')
@@ -228,16 +241,16 @@ class DashboardRepository
             ->where('accounts.id', '=', $accountId)
             ->where('clients.is_deleted', '=', false)
             ->where('invoices.is_deleted', '=', false)
+            ->where('invoices.is_public', '=', true)
             ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
             ->where('invoices.is_recurring', '=', false);
 
-        if (!$viewAll){
+        if (! $viewAll) {
             $averageInvoice->where('invoices.user_id', '=', $userId);
         }
 
-        if ($account->financial_year_start) {
-            $yearStart = str_replace('2000', date('Y'), $account->financial_year_start);
-            $averageInvoice->where('invoices.invoice_date', '>=', $yearStart);
+        if ($startDate = $account->financialYearStart()) {
+            //$averageInvoice->where('invoices.invoice_date', '>=', $startDate);
         }
 
         return $averageInvoice->groupBy('accounts.id')
@@ -259,7 +272,7 @@ class DashboardRepository
             ->groupBy('accounts.id')
             ->groupBy(DB::raw('CASE WHEN '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' IS NULL THEN CASE WHEN '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' IS NULL THEN 1 ELSE '.DB::getQueryGrammar()->wrap('accounts.currency_id', true).' END ELSE '.DB::getQueryGrammar()->wrap('clients.currency_id', true).' END'));
 
-        if (!$viewAll) {
+        if (! $viewAll) {
             $balances->where('clients.user_id', '=', $userId);
         }
 
@@ -271,7 +284,7 @@ class DashboardRepository
         $activities = Activity::where('activities.account_id', '=', $accountId)
                 ->where('activities.activity_type_id', '>', 0);
 
-        if (!$viewAll){
+        if (! $viewAll) {
             $activities = $activities->where('activities.user_id', '=', $userId);
         }
 
@@ -294,10 +307,11 @@ class DashboardRepository
                     ->where('invoices.balance', '>', 0)
                     ->where('invoices.is_deleted', '=', false)
                     ->where('invoices.deleted_at', '=', null)
+                    ->where('invoices.is_public', '=', true)
                     ->where('contacts.is_primary', '=', true)
                     ->where('invoices.due_date', '<', date('Y-m-d'));
 
-        if (!$viewAll){
+        if (! $viewAll) {
             $pastDue = $pastDue->where('invoices.user_id', '=', $userId);
         }
 
@@ -320,11 +334,15 @@ class DashboardRepository
                     ->where('invoices.quote_invoice_id', '=', null)
                     ->where('invoices.balance', '>', 0)
                     ->where('invoices.is_deleted', '=', false)
+                    ->where('invoices.is_public', '=', true)
                     ->where('contacts.is_primary', '=', true)
-                    ->where('invoices.due_date', '>=', date('Y-m-d'))
+                    ->where(function($query) {
+                        $query->where('invoices.due_date', '>=', date('Y-m-d'))
+                            ->orWhereNull('invoices.due_date');
+                    })
                     ->orderBy('invoices.due_date', 'asc');
 
-        if (!$viewAll){
+        if (! $viewAll) {
             $upcoming = $upcoming->where('invoices.user_id', '=', $userId);
         }
 
@@ -347,7 +365,7 @@ class DashboardRepository
                     ->where('contacts.is_primary', '=', true)
                     ->whereNotIn('payments.payment_status_id', [PAYMENT_STATUS_VOIDED, PAYMENT_STATUS_FAILED]);
 
-        if (!$viewAll){
+        if (! $viewAll) {
             $payments = $payments->where('payments.user_id', '=', $userId);
         }
 
@@ -357,7 +375,7 @@ class DashboardRepository
                     ->get();
     }
 
-    public function expenses($accountId, $userId, $viewAll)
+    public function expenses($account, $userId, $viewAll)
     {
         $amountField = DB::getQueryGrammar()->wrap('expenses.amount', true);
         $taxRate1Field = DB::getQueryGrammar()->wrap('expenses.tax_rate1', true);
@@ -367,17 +385,21 @@ class DashboardRepository
             "SUM({$amountField} + ({$amountField} * {$taxRate1Field} / 100) + ({$amountField} * {$taxRate2Field} / 100)) as value,"
                   .DB::getQueryGrammar()->wrap('expenses.expense_currency_id', true).' as currency_id'
         );
-        $paidToDate = DB::table('accounts')
+        $expenses = DB::table('accounts')
             ->select($select)
             ->leftJoin('expenses', 'accounts.id', '=', 'expenses.account_id')
-            ->where('accounts.id', '=', $accountId)
+            ->where('accounts.id', '=', $account->id)
             ->where('expenses.is_deleted', '=', false);
 
-        if (!$viewAll){
-            $paidToDate = $paidToDate->where('expenses.user_id', '=', $userId);
+        if (! $viewAll) {
+            $expenses = $expenses->where('expenses.user_id', '=', $userId);
         }
 
-        return $paidToDate->groupBy('accounts.id')
+        if ($startDate = $account->financialYearStart()) {
+            //$expenses->where('expenses.expense_date', '>=', $startDate);
+        }
+
+        return $expenses->groupBy('accounts.id')
             ->groupBy('expenses.expense_currency_id')
             ->get();
     }

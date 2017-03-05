@@ -1,9 +1,11 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Utils;
-use Request;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+namespace App\Http\Controllers;
+
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Request;
+use Utils;
 
 class BaseController extends Controller
 {
@@ -25,7 +27,7 @@ class BaseController extends Controller
 
     protected function returnBulk($entityType, $action, $ids)
     {
-        if ( ! is_array($ids)) {
+        if (! is_array($ids)) {
             $ids = [$ids];
         }
 

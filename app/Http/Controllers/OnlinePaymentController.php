@@ -1,30 +1,32 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Session;
-use Input;
-use Utils;
-use View;
-use Auth;
-use URL;
-use Crawler;
-use Exception;
-use Validator;
-use App\Models\Invitation;
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateOnlinePaymentRequest;
 use App\Models\Account;
 use App\Models\Client;
+use App\Models\GatewayType;
+use App\Models\Invitation;
 use App\Models\Payment;
-use App\Models\Product;
 use App\Models\PaymentMethod;
-use App\Services\PaymentService;
+use App\Models\Product;
 use App\Ninja\Mailers\UserMailer;
-use App\Http\Requests\CreateOnlinePaymentRequest;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\InvoiceService;
-use App\Models\GatewayType;
+use App\Services\PaymentService;
+use Auth;
+use Crawler;
+use Exception;
+use Input;
+use Session;
+use URL;
+use Utils;
+use Validator;
+use View;
 
 /**
- * Class OnlinePaymentController
+ * Class OnlinePaymentController.
  */
 class OnlinePaymentController extends BaseController
 {
@@ -47,7 +49,7 @@ class OnlinePaymentController extends BaseController
      * OnlinePaymentController constructor.
      *
      * @param PaymentService $paymentService
-     * @param UserMailer $userMailer
+     * @param UserMailer     $userMailer
      */
     public function __construct(PaymentService $paymentService, UserMailer $userMailer, InvoiceRepository $invoiceRepo)
     {
@@ -58,20 +60,22 @@ class OnlinePaymentController extends BaseController
 
     /**
      * @param $invitationKey
-     * @param bool $gatewayType
-     * @param bool $sourceId
+     * @param bool  $gatewayType
+     * @param bool  $sourceId
+     * @param mixed $gatewayTypeAlias
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function showPayment($invitationKey, $gatewayTypeAlias = false, $sourceId = false)
     {
-        if ( ! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+        if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
             return response()->view('error', [
                 'error' => trans('texts.invoice_not_found'),
                 'hideHeader' => true,
             ]);
         }
 
-        if ( ! $invitation->invoice->canBePaid()) {
+        if (! $invitation->invoice->canBePaid()) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
@@ -84,7 +88,7 @@ class OnlinePaymentController extends BaseController
 
         $account->loadLocalizationSettings($invitation->invoice->client);
 
-        if ( ! $gatewayTypeAlias) {
+        if (! $gatewayTypeAlias) {
             $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
         } elseif ($gatewayTypeAlias != GATEWAY_TYPE_TOKEN) {
             $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
@@ -103,6 +107,7 @@ class OnlinePaymentController extends BaseController
 
     /**
      * @param CreateOnlinePaymentRequest $request
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function doPayment(CreateOnlinePaymentRequest $request)
@@ -111,7 +116,7 @@ class OnlinePaymentController extends BaseController
         $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
 
-        if ( ! $invitation->invoice->canBePaid()) {
+        if (! $invitation->invoice->canBePaid()) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
@@ -131,8 +136,9 @@ class OnlinePaymentController extends BaseController
     }
 
     /**
-     * @param bool $invitationKey
+     * @param bool  $invitationKey
      * @param mixed $gatewayTypeAlias
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function offsitePayment($invitationKey = false, $gatewayTypeAlias = false)
@@ -141,7 +147,7 @@ class OnlinePaymentController extends BaseController
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
                         ->where('invitation_key', '=', $invitationKey)->firstOrFail();
 
-        if ( ! $gatewayTypeAlias) {
+        if (! $gatewayTypeAlias) {
             $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
         } elseif ($gatewayTypeAlias != GATEWAY_TYPE_TOKEN) {
             $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
@@ -159,6 +165,7 @@ class OnlinePaymentController extends BaseController
             if ($paymentDriver->completeOffsitePurchase(Input::all())) {
                 Session::flash('message', trans('texts.applied_payment'));
             }
+
             return $this->completePurchase($invitation, true);
         } catch (Exception $exception) {
             return $this->error($paymentDriver, $exception);
@@ -169,6 +176,7 @@ class OnlinePaymentController extends BaseController
     {
         if ($redirectUrl = session('redirect_url:' . $invitation->invitation_key)) {
             $separator = strpos($redirectUrl, '?') === false ? '?' : '&';
+
             return redirect()->to($redirectUrl . $separator . 'invoice_id=' . $invitation->invoice->public_id);
         } else {
             // Allow redirecting to iFrame for offsite payments
@@ -184,6 +192,7 @@ class OnlinePaymentController extends BaseController
      * @param $paymentDriver
      * @param $exception
      * @param bool $showPayment
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     private function error($paymentDriver, $exception, $showPayment = false)
@@ -203,15 +212,18 @@ class OnlinePaymentController extends BaseController
         Utils::logError($message, 'PHP', true);
 
         $route = $showPayment ? 'payment/' : 'view/';
+
         return redirect()->to($route . $paymentDriver->invitation->invitation_key);
     }
 
     /**
      * @param $routingNumber
+     *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getBankInfo($routingNumber) {
-        if (strlen($routingNumber) != 9 || !preg_match('/\d{9}/', $routingNumber)) {
+    public function getBankInfo($routingNumber)
+    {
+        if (strlen($routingNumber) != 9 || ! preg_match('/\d{9}/', $routingNumber)) {
             return response()->json([
                 'message' => 'Invalid routing number',
             ], 400);
@@ -223,7 +235,7 @@ class OnlinePaymentController extends BaseController
             return response()->json([
                 'message' => $data,
             ], 500);
-        } elseif (!empty($data)) {
+        } elseif (! empty($data)) {
             return response()->json($data);
         }
 
@@ -235,6 +247,7 @@ class OnlinePaymentController extends BaseController
     /**
      * @param $accountKey
      * @param $gatewayId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function handlePaymentWebhook($accountKey, $gatewayId)
@@ -243,7 +256,7 @@ class OnlinePaymentController extends BaseController
 
         $account = Account::where('accounts.account_key', '=', $accountKey)->first();
 
-        if (!$account) {
+        if (! $account) {
             return response()->json([
                 'message' => 'Unknown account',
             ], 404);
@@ -251,7 +264,7 @@ class OnlinePaymentController extends BaseController
 
         $accountGateway = $account->getGatewayConfig(intval($gatewayId));
 
-        if (!$accountGateway) {
+        if (! $accountGateway) {
             return response()->json([
                 'message' => 'Unknown gateway',
             ], 404);
@@ -261,9 +274,11 @@ class OnlinePaymentController extends BaseController
 
         try {
             $result = $paymentDriver->handleWebHook(Input::all());
+
             return response()->json(['message' => $result]);
         } catch (Exception $exception) {
             Utils::logError($exception->getMessage(), 'PHP');
+
             return response()->json(['message' => $exception->getMessage()], 500);
         }
     }
@@ -278,14 +293,14 @@ class OnlinePaymentController extends BaseController
         $redirectUrl = Input::get('redirect_url');
         $failureUrl = URL::previous();
 
-        if ( ! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
+        if (! $account || ! $account->enable_buy_now_buttons || ! $account->hasFeature(FEATURE_BUY_NOW_BUTTONS)) {
             return redirect()->to("{$failureUrl}/?error=invalid account");
         }
 
         Auth::onceUsingId($account->users[0]->id);
         $product = Product::scope(Input::get('product_id'))->first();
 
-        if ( ! $product) {
+        if (! $product) {
             return redirect()->to("{$failureUrl}/?error=invalid product");
         }
 
@@ -296,7 +311,7 @@ class OnlinePaymentController extends BaseController
                 $query->where('contact_key', $contactKey);
             })->first();
         }
-        if ( ! $client) {
+        if (! $client) {
             $rules = [
                 'first_name' => 'string|max:100',
                 'last_name' => 'string|max:100',
@@ -310,13 +325,18 @@ class OnlinePaymentController extends BaseController
 
             $data = [
                 'currency_id' => $account->currency_id,
-                'contact' => Input::all()
+                'contact' => Input::all(),
             ];
             $client = $clientRepo->save($data);
         }
 
         $data = [
             'client_id' => $client->id,
+            'is_public' => true,
+            'is_recurring' => filter_var(Input::get('is_recurring'), FILTER_VALIDATE_BOOLEAN),
+            'frequency_id' => Input::get('frequency_id'),
+            'auto_bill_id' => Input::get('auto_bill_id'),
+            'start_date' => Input::get('start_date', date('Y-m-d')),
             'tax_rate1' => $account->default_tax_rate ? $account->default_tax_rate->rate : 0,
             'tax_name1' => $account->default_tax_rate ? $account->default_tax_rate->name : '',
             'invoice_items' => [[
@@ -326,9 +346,12 @@ class OnlinePaymentController extends BaseController
                 'qty' => 1,
                 'tax_rate1' => $product->default_tax_rate ? $product->default_tax_rate->rate : 0,
                 'tax_name1' => $product->default_tax_rate ? $product->default_tax_rate->name : '',
-            ]]
+            ]],
         ];
         $invoice = $invoiceService->save($data);
+        if ($invoice->is_recurring) {
+            $invoice = $this->invoiceRepo->createRecurringInvoice($invoice->fresh());
+        }
         $invitation = $invoice->invitations[0];
         $link = $invitation->getLink();
 

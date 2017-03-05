@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('content') 
+@section('content')
   @parent
 
   @include('accounts.nav', ['selected' => ACCOUNT_PAYMENT_TERMS])
@@ -12,22 +12,21 @@
 
   @include('partials.bulk_form', ['entityType' => ENTITY_PAYMENT_TERM])
 
-  {!! Datatable::table()   
+  {!! Datatable::table()
       ->addColumn(
-        trans('texts.name'),
         trans('texts.num_days'),
         trans('texts.action'))
-      ->setUrl(url('api/payment_terms/'))      
+      ->setUrl(url('api/payment_terms/'))
       ->setOptions('sPaginationType', 'bootstrap')
-      ->setOptions('bFilter', false)      
-      ->setOptions('bAutoWidth', false)      
-      ->setOptions('aoColumns', [[ "sWidth"=> "40%" ], [ "sWidth"=> "40%" ], ["sWidth"=> "20%"]])
-      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[2]]])
+      ->setOptions('bFilter', false)
+      ->setOptions('bAutoWidth', false)
+      ->setOptions('aoColumns', [[ "sWidth"=> "50%" ], [ "sWidth"=> "50%" ]])
+      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
       ->render('datatable') !!}
 
   <script>
     window.onDatatableReady = actionListHandler;
-  </script>  
+  </script>
 
 
 @stop

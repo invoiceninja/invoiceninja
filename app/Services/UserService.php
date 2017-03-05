@@ -1,10 +1,12 @@
-<?php namespace App\Services;
+<?php
 
-use App\Ninja\Repositories\UserRepository;
+namespace App\Services;
+
 use App\Ninja\Datatables\UserDatatable;
+use App\Ninja\Repositories\UserRepository;
 
 /**
- * Class UserService
+ * Class UserService.
  */
 class UserService extends BaseService
 {
@@ -21,7 +23,7 @@ class UserService extends BaseService
     /**
      * UserService constructor.
      *
-     * @param UserRepository $userRepo
+     * @param UserRepository   $userRepo
      * @param DatatableService $datatableService
      */
     public function __construct(UserRepository $userRepo, DatatableService $datatableService)
@@ -40,6 +42,7 @@ class UserService extends BaseService
 
     /**
      * @param $accountId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($accountId)

@@ -1,10 +1,12 @@
-<?php namespace App\Listeners;
+<?php
 
-use Utils;
+namespace App\Listeners;
+
 use App\Events\PaymentWasCreated;
+use Utils;
 
 /**
- * Class AnalyticsListener
+ * Class AnalyticsListener.
  */
 class AnalyticsListener
 {
@@ -13,7 +15,7 @@ class AnalyticsListener
      */
     public function trackRevenue(PaymentWasCreated $event)
     {
-        if ( ! Utils::isNinja() || ! env('ANALYTICS_KEY')) {
+        if (! Utils::isNinja() || ! env('ANALYTICS_KEY')) {
             return;
         }
 
@@ -21,7 +23,7 @@ class AnalyticsListener
         $invoice = $payment->invoice;
         $account = $payment->account;
 
-        if ($account->account_key != NINJA_ACCOUNT_KEY) {
+        if (! in_array($account->account_key, [NINJA_ACCOUNT_KEY, NINJA_LICENSE_ACCOUNT_KEY])) {
             return;
         }
 

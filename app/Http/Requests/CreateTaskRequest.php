@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 class CreateTaskRequest extends TaskRequest
 {

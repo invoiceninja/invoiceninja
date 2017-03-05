@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
+
+namespace App\Ninja\PaymentDrivers;
 
 use Exception;
 
@@ -14,11 +16,10 @@ class MolliePaymentDriver extends BasePaymentDriver
 
         if ($response->isCancelled()) {
             return false;
-        } elseif ( ! $response->isSuccessful()) {
+        } elseif (! $response->isSuccessful()) {
             throw new Exception($response->getMessage());
         }
 
         return $this->createPayment($response->getTransactionReference());
     }
-
 }

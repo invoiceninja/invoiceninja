@@ -1,8 +1,6 @@
-<?php namespace App\Ninja\Intents;
+<?php
 
-use Auth;
-use Exception;
-
+namespace App\Ninja\Intents;
 
 class ProductIntent extends BaseIntent
 {

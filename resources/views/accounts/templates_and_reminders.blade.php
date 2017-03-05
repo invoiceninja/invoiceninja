@@ -94,7 +94,7 @@
                 </div>
 
                 <div class="modal-body">
-                    <iframe id="server-preview" frameborder="1" width="100%" height="500px"/></iframe>
+                    <iframe id="server-preview" style="background-color:#FFFFFF" frameborder="1" width="100%" height="500px"/></iframe>
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px">
@@ -132,10 +132,32 @@
                     <h4 class="modal-title" id="templateHelpModalLabel">{{ trans('texts.template_help_title') }}</h4>
                 </div>
 
-                <div class="modal-body">
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                <div class="panel panel-default" style="margin-bottom: 0px">
+                <div class="panel-body">
                     <p>{{ trans('texts.template_help_1') }}</p>
                     <ul>
-                        @foreach (\App\Ninja\Mailers\ContactMailer::$variableFields as $field)
+                        @foreach([
+                            'footer',
+                            'account',
+                            'dueDate',
+                            'invoiceDate',
+                            'client',
+                            'amount',
+                            'contact',
+                            'firstName',
+                            'invoice',
+                            'quote',
+                            'password',
+                            'documents',
+                            'viewLink',
+                            'viewButton',
+                            'paymentLink',
+                            'paymentButton',
+                            'autoBill',
+                            'portalLink',
+                            'portalButton',
+                        ] as $field)
                             <li>${{ $field }}</li>
                         @endforeach
                         @if ($account->custom_client_label1)
@@ -148,7 +170,7 @@
                             <li>$customInvoice1</li>
                         @endif
                         @if ($account->custom_invoice_text_label2)
-                            <li>$customInvoice1</li>
+                            <li>$customInvoice2</li>
                         @endif
                         @if (count($account->account_gateways) > 0)
                             @foreach (\App\Models\Gateway::$gatewayTypes as $type)
@@ -161,6 +183,8 @@
                             @endforeach
                         @endif
                     </ul>
+                </div>
+                </div>
                 </div>
 
                 <div class="modal-footer" style="margin-top: 0px">
@@ -200,7 +224,7 @@
                     var idName = '#email_' + stringType + '_' + entityType;
                     var value = $(idName).val();
                     var previewName = '#' + entityType + '_' + stringType + '_preview';
-                    $(previewName).html(processVariables(value));
+                    $(previewName).html(renderEmailTemplate(value));
                 }
             }
         }
@@ -256,73 +280,6 @@
                 $('#days_after_' + field).hide();
                 $('#direction_' + field).show();
             }
-        }
-
-        function processVariables(str) {
-            if (!str) {
-                return '';
-            }
-
-            var keys = {!! json_encode(\App\Ninja\Mailers\ContactMailer::$variableFields) !!};
-            var passwordHtml = "{!! $account->isPro() && $account->enable_portal_password && $account->send_portal_password?'<p>'.trans('texts.password').': 6h2NWNdw6<p>':'' !!}";
-
-            @if ($account->isPro())
-            var documentsHtml = "{!! trans('texts.email_documents_header').'<ul><li><a>'.trans('texts.email_documents_example_1').'</a></li><li><a>'.trans('texts.email_documents_example_2').'</a></li></ul>' !!}";
-            @else
-            var documentsHtml = "";
-            @endif
-
-            var vals = [
-                {!! json_encode($emailFooter) !!},
-                "{{ $account->getDisplayName() }}",
-                "{{ $account->formatDate($account->getDateTime()) }}",
-                "{{ $account->formatDate($account->getDateTime()) }}",
-                "Client Name",
-                formatMoneyAccount(100, account),
-                "Contact Name",
-                "First Name",
-                "0001",
-                "0001",
-                passwordHtml,
-                documentsHtml,
-                "{{ URL::to('/view/...') }}$password",
-                '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
-                "{{ URL::to('/payment/...') }}$password",
-                '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
-                '{{ trans('texts.auto_bill_notification_placeholder') }}',
-                "{{ URL::to('/client/portal/...') }}",
-                '{!! Form::flatButton('view_portal', '#36c157') !!}',
-            ];
-
-            // Add blanks for custom values
-            keys.push('customClient1', 'customClient2', 'customInvoice1', 'customInvoice2');
-            vals.push('custom value', 'custom value', 'custom value', 'custom value');
-
-            // Add any available payment method links
-            @foreach (\App\Models\Gateway::$gatewayTypes as $type)
-                @if ($type != GATEWAY_TYPE_TOKEN)
-                    {!! "keys.push('" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)).'Link' . "');" !!}
-                    {!! "vals.push('" . URL::to('/payment/...') . "');" !!}
-
-                    {!! "keys.push('" . Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)).'Button' . "');" !!}
-                    {!! "vals.push('" . Form::flatButton('pay_now', '#36c157') . "');" !!}
-                @endif
-            @endforeach
-
-            var includesPasswordPlaceholder = str.indexOf('$password') != -1;
-
-            for (var i=0; i<keys.length; i++) {
-                var regExp = new RegExp('\\$'+keys[i], 'g');
-                str = str.replace(regExp, vals[i]);
-            }
-
-            if(!includesPasswordPlaceholder){
-                var lastSpot = str.lastIndexOf('$password')
-                str = str.slice(0, lastSpot) + str.slice(lastSpot).replace('$password', passwordHtml);
-            }
-            str = str.replace(/\$password/g,'');
-
-            return str;
         }
 
         function resetText(section, field) {
@@ -387,5 +344,7 @@
         }
 
     </script>
+
+    @include('partials.email_templates')
 
 @stop

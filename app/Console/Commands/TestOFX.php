@@ -1,10 +1,12 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use Illuminate\Console\Command;
+namespace App\Console\Commands;
+
 use App\Services\BankAccountService;
+use Illuminate\Console\Command;
 
 /**
- * Class TestOFX
+ * Class TestOFX.
  */
 class TestOFX extends Command
 {

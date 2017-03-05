@@ -5,8 +5,8 @@
         <td>{{ trans('texts.user') }}</td>
     @endif
     <td>{{ trans(isset($entityType) && $entityType == ENTITY_QUOTE ? 'texts.quote_number' : 'texts.invoice_number') }}</td>
-    <td>{{ trans('texts.balance') }}</td>
     <td>{{ trans('texts.amount') }}</td>
+    <td>{{ trans('texts.paid') }}</td>
     <td>{{ trans('texts.po_number') }}</td>
     <td>{{ trans('texts.status') }}</td>
     <td>{{ trans(isset($entityType) && $entityType == ENTITY_QUOTE ? 'texts.quote_date' : 'texts.invoice_date') }}</td>
@@ -34,8 +34,8 @@
                 <td>{{ $invoice->present()->user }}</td>
             @endif
             <td>{{ $invoice->invoice_number }}</td>
-            <td>{{ $account->formatMoney($invoice->balance, $invoice->client) }}</td>
             <td>{{ $account->formatMoney($invoice->amount, $invoice->client) }}</td>
+            <td>{{ $account->formatMoney($invoice->amount - $invoice->balance, $invoice->client) }}</td>
             <td>{{ $invoice->po_number }}</td>
             <td>{{ $invoice->present()->status }}</td>
             <td>{{ $invoice->present()->invoice_date }}</td>

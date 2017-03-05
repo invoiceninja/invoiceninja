@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class DatetimeFormat
+ * Class DatetimeFormat.
  */
 class DatetimeFormat extends Eloquent
 {
@@ -20,5 +22,5 @@ class DatetimeFormat extends Eloquent
         $date = mktime(0, 0, 0, 12, 31, date('Y'));
 
         return date($this->format, $date);
-    }    
+    }
 }

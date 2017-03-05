@@ -1,6 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
 
-
+namespace App\Http\Requests;
 
 class UpdateTaxRateRequest extends TaxRateRequest
 {
