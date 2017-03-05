@@ -115,13 +115,13 @@
                             <td style="padding: 0px 12px 12px 0 !important">
                                 <div data-bind="css: { 'has-error': !isStartValid() }">
                                     <input type="text" data-bind="dateTimePicker: startTime.pretty, event:{ change: $root.refresh }"
-                                        class="form-control time-input" placeholder="{{ trans('texts.start_time') }}"/>
+                                        class="form-control time-input time-input-start" placeholder="{{ trans('texts.start_time') }}"/>
                                 </div>
                             </td>
                             <td style="padding: 0px 12px 12px 0 !important">
                                 <div data-bind="css: { 'has-error': !isEndValid() }">
                                     <input type="text" data-bind="dateTimePicker: endTime.pretty, event:{ change: $root.refresh }"
-                                        class="form-control time-input" placeholder="{{ trans('texts.end_time') }}"/>
+                                        class="form-control time-input time-input-end" placeholder="{{ trans('texts.end_time') }}"/>
                                 </div>
                             </td>
                             <td style="width:100px">
@@ -208,6 +208,13 @@
                 $(element).datetimepicker({
                     value: current_time
                 });
+                // set end to an hour after the start time
+                if ($(element).hasClass('time-input-start')) {
+                    var timeModel = ko.dataFor(element);
+                    if (!timeModel.endTime()) {
+                        timeModel.endTime((current_time.getTime() / 1000) + (60*60));
+                    }
+                }
             },
             dayOfWeekStart: {{ Session::get('start_of_week') }}
          });
@@ -219,7 +226,9 @@
       },
       update: function (element, valueAccessor) {
         var value = ko.utils.unwrapObservable(valueAccessor());
-        if (value) $(element).val(value);
+        if (value) {
+            $(element).val(value);
+        }
       }
     }
 
@@ -442,28 +451,35 @@
     window.model = new ViewModel({!! $task !!});
     ko.applyBindings(model);
 
+    function onTaskTypeChange() {
+        var val = $('input[name=task_type]:checked').val();
+        if (val == 'timer') {
+            $('#datetime-details').hide();
+        } else {
+            $('#datetime-details').fadeIn();
+        }
+        setButtonsVisible();
+        if (isStorageSupported()) {
+            localStorage.setItem('last:task_type', val);
+        }
+    }
+
+    function setButtonsVisible() {
+        var val = $('input[name=task_type]:checked').val();
+        if (val == 'timer') {
+            $('#start-button').show();
+            $('#save-button').hide();
+        } else {
+            $('#start-button').hide();
+            $('#save-button').show();
+        }
+    }
+
     $(function() {
-        $('input[type=radio]').change(function(event) {
-            var val = $(event.target).val();
-            if (val == 'timer') {
-                $('#datetime-details').hide();
-            } else {
-                $('#datetime-details').fadeIn();
-            }
-            setButtonsVisible();
+        $('input[type=radio]').change(function() {
+            onTaskTypeChange();
         })
 
-        function setButtonsVisible() {
-            //model.removeItems();
-            var val = $('input[name=task_type]:checked').val();
-            if (val == 'timer') {
-                $('#start-button').show();
-                $('#save-button').hide();
-            } else {
-                $('#start-button').hide();
-                $('#save-button').show();
-            }
-        }
         setButtonsVisible();
 
         $('#start-button').click(function() {
@@ -588,6 +604,12 @@
            $projectSelect.trigger('change');
         } else {
            $clientSelect.trigger('change');
+        }
+
+        var taskType = localStorage.getItem('last:task_type');
+        if (taskType) {
+            $('input[name=task_type][value='+taskType+']').prop('checked', true);
+            onTaskTypeChange();
         }
 
         @if (!$task && !$clientPublicId)
