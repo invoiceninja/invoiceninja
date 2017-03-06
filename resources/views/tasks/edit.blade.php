@@ -212,7 +212,7 @@
                 if ($(element).hasClass('time-input-start')) {
                     var timeModel = ko.dataFor(element);
                     if (!timeModel.endTime()) {
-                        timeModel.endTime((current_time.getTime() / 1000) + (60*60));
+                        timeModel.endTime((current_time.getTime() / 1000));
                     }
                 }
             },
