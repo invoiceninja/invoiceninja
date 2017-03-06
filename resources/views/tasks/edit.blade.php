@@ -621,11 +621,13 @@
            $clientSelect.trigger('change');
         }
 
-        var taskType = localStorage.getItem('last:task_type');
-        if (taskType) {
-            $('input[name=task_type][value='+taskType+']').prop('checked', true);
-            onTaskTypeChange();
-        }
+        @if (!$task)
+            var taskType = localStorage.getItem('last:task_type');
+            if (taskType) {
+                $('input[name=task_type][value='+taskType+']').prop('checked', true);
+                onTaskTypeChange();
+            }
+        @endif
 
         @if (!$task && !$clientPublicId)
             $('.client-select input.form-control').focus();
