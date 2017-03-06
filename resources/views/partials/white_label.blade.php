@@ -85,6 +85,23 @@
 
     function buyProduct(affiliateKey, productId) {
         window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/buy_now/?account_key={{ NINJA_LICENSE_ACCOUNT_KEY }}&product_id=' + productId + '&contact_key={{ Auth::user()->primaryAccount()->account_key }}' + '&redirect_url=' + window.location);
+        /*
+        var url = '{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/buy_now/';
+        var data = {
+            'account_key': '{{ NINJA_LICENSE_ACCOUNT_KEY }}',
+            'contact_key': '{{ Auth::user()->primaryAccount()->account_key }}',
+            'product_id': productId,
+            'redirect_url': window.location,
+            'first_name': '{{ Auth::user()->first_name }}',
+            'last_name': '{{ Auth::user()->last_name }}',
+            'email': '{{ Auth::user()->email }}',
+        };
+        $.post(url, function (data) {
+            var w = window.open();
+            w.document.write(data);
+            w.document.close();
+        });
+        */
     }
 
     function showApplyLicense() {
