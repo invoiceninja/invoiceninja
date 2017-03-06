@@ -34,5 +34,6 @@ class Kernel extends HttpKernel
         'permissions.required' => 'App\Http\Middleware\PermissionsRequired',
         'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
         'api' => 'App\Http\Middleware\ApiCheck',
+        'cors' => '\App\Http\Middleware\Cors',
     ];
 }
