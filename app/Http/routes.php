@@ -73,7 +73,7 @@ Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
 Route::get('/auth_unlink', 'Auth\AuthController@authUnlink');
 
 Route::group(['middleware' => 'cors'], function () {
-    Route::match(['GET', 'POST'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
+    Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
 });
 
 Route::post('/hook/email_bounced', 'AppController@emailBounced');
