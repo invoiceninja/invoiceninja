@@ -1606,7 +1606,7 @@ class Account extends Eloquent
 
     public function showAcceptTerms($invoice)
     {
-        if (! $this->isPro() || ! $invoice->terms) {
+        if (! $this->isPro()) {
             return false;
         }
 
