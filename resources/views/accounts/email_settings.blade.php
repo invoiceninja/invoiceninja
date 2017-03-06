@@ -37,7 +37,7 @@
                     ->value(1)
                     ->help( ! Utils::isNinja() ? (env('PHANTOMJS_BIN_PATH') ? 'phantomjs_local' : trans('texts.phantomjs_help', [
                         'link_phantom' => link_to('https://phantomjscloud.com/', 'phantomjscloud.com', ['target' => '_blank']),
-                        'link_docs' => link_to('https://www.invoiceninja.com/self-host/#phantomjs', 'PhantomJS', ['target' => '_blank'])
+                        'link_docs' => link_to('http://docs.invoiceninja.com/en/latest/configure.html#phantomjs', 'PhantomJS', ['target' => '_blank'])
                     ])) : false) !!}
 
             {!! Former::checkbox('document_email_attachment')
