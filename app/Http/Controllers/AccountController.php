@@ -1343,7 +1343,7 @@ class AccountController extends BaseController
 
             $subject = 'Invoice Ninja - Canceled Account';
 
-            $this->userMailer->sendTo(CONTACT_EMAIL, $email, $name, $subject, 'contact', $data);
+            $this->userMailer->sendTo(env('CONTACT_EMAIL', CONTACT_EMAIL), $email, $name, $subject, 'contact', $data);
         }
 
         $user = Auth::user();
