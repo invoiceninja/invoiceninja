@@ -2395,6 +2395,7 @@ $LANG = array(
     'create_project' => 'Create project',
     'create_vendor' => 'Create vendor',
     'create_expense_category' => 'Create category',
+    'pro_plan_reports' => ':link to enable reports by joining the Pro Plan',
 
 );
 

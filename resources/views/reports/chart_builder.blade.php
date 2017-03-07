@@ -21,6 +21,14 @@
 
 @section('content')
 
+	@if (!Utils::isPro())
+	    <div class="alert alert-warning" style="font-size:larger;">
+	    <center>
+	        {!! trans('texts.pro_plan_reports', ['link'=>'<a href="javascript:showUpgradeModal()">' . trans('texts.pro_plan_remove_logo_link') . '</a>']) !!}
+	    </center>
+	    </div>
+	@endif
+
     <script type="text/javascript">
 
         $(function() {
