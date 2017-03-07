@@ -337,6 +337,9 @@
         if (history.pushState) {
             history.pushState(null, null, target);
         }
+        if (isStorageSupported() && /\/settings\//.test(location.href)) {
+            localStorage.setItem('last:settings_page', location.href);
+        }
     });
 
   });

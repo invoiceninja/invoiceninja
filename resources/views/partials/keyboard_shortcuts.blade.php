@@ -103,7 +103,11 @@
         });
 
         Mousetrap.bind('g s', function(e) {
-            location.href = "{{ url('/settings/company_details') }}";
+            var url = '{{ url('/settings/company_details') }}';
+            if (isStorageSupported()) {
+                url = localStorage.getItem('last:settings_page') || url;
+            }
+            location.href = url;
         });
 
         Mousetrap.bind('h', function(e) {
