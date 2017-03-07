@@ -7,6 +7,7 @@ use App\Models\EntityModel;
 use App\Models\Expense;
 use App\Models\ExpenseCategory;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Vendor;
 use App\Ninja\Import\BaseTransformer;
@@ -376,7 +377,7 @@ class ImportService
         if ($entityType == ENTITY_INVOICE) {
             $data['is_public'] = true;
         }
-        
+
         $entity = $this->{"{$entityType}Repo"}->save($data);
 
         // update the entity maps
@@ -452,16 +453,19 @@ class ImportService
      * @param $clientId
      * @param $invoiceId
      */
-    private function createPayment($source, $data, $clientId, $invoiceId)
+    private function createPayment($source, $row, $clientId, $invoiceId)
     {
         $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT, $this->maps);
 
-        $data->client_id = $clientId;
-        $data->invoice_id = $invoiceId;
+        $row->client_id = $clientId;
+        $row->invoice_id = $invoiceId;
 
-        if ($resource = $paymentTransformer->transform($data)) {
+        if ($resource = $paymentTransformer->transform($row)) {
             $data = $this->fractal->createData($resource)->toArray();
-            $this->paymentRepo->save($data);
+            $data['amount'] = min($data['amount'], $row->amount);
+            if (Payment::validate($data) === true) {
+                $this->paymentRepo->save($data);
+            }
         }
     }
 
@@ -817,6 +821,11 @@ class ImportService
     private function addClientToMaps(Client $client)
     {
         if ($name = strtolower(trim($client->name))) {
+            $this->maps['client'][$name] = $client->id;
+            $this->maps['client_ids'][$client->public_id] = $client->id;
+        }
+
+        if ($name = strtolower(trim($client->getDisplayName()))) {
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
