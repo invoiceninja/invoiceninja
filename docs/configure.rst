@@ -72,6 +72,19 @@ Follow these steps to add custom ttf fonts: ie, Google fonts
 - Run ``php artisan db:seed --class=FontsSeeder``
 - Clear the cache by adding ``?clear_cache=true`` to the end of the URL
 
+Omnipay
+"""""""
+
+We use `Omnipay <https://github.com/thephpleague/omnipay-braintree>`_ to support our payment gateway integrations.
+
+Follow these steps to add a driver.
+
+- Add the package to composer.json and then run ``composer install``
+- Add a row to the gateways table. ``name`` is used in the gateway select, ``provider`` needs to match the Omnipay driver name
+- Clear the cache by adding ``?clear_cache=true`` to the end of the URL
+
+.. NOTE:: Most drivers also require `code changes <https://github.com/invoiceninja/invoiceninja/tree/master/app/Ninja/PaymentDrivers>`_ to work correctly.
+
 Google Map
 """"""""""
 
