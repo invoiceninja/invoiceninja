@@ -196,7 +196,7 @@ class Task extends EntityModel
     public function getDisplayName()
     {
         if ($this->description) {
-            return mb_strimwidth($this->description, 0, 16, '...');
+            return Utils::truncateString($this->description, 16);
         }
 
         return '#' . $this->public_id;

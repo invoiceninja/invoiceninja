@@ -137,7 +137,7 @@ class Expense extends EntityModel
         if ($this->transaction_id) {
             return $this->transaction_id;
         } elseif ($this->public_notes) {
-            return mb_strimwidth($this->public_notes, 0, 16, '...');
+            return Utils::truncateString($this->public_notes, 16);
         } else {
             return '#' . $this->public_id;
         }
