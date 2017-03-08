@@ -50,9 +50,11 @@ class CurlUtils
         }
 
         $client = Client::getInstance();
+        $client->isLazy();
         $client->getEngine()->setPath($path);
 
         $request = $client->getMessageFactory()->createRequest($url, $method);
+        $request->setTimeout(5000);
         $response = $client->getMessageFactory()->createResponse();
 
         // Send the request
