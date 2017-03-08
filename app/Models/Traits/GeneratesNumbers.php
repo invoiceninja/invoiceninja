@@ -161,7 +161,7 @@ trait GeneratesNumbers
         if (count($matches) > 1) {
             $format = $matches[1];
             $search[] = $matches[0];
-            $date = Carbon::now(session(SESSION_TIMEZONE, DEFAULT_TIMEZONE))->format($format);
+            $date = date_create()->format($format);
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 
