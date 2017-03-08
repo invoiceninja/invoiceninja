@@ -1231,6 +1231,6 @@ class Utils
 
     public static function truncateString($string, $length)
     {
-        return strlen($string) > $length ? rtrim(substr($string, 0, $length)) . '...' : $in;
+        return strlen($string) > $length ? rtrim(substr($string, 0, $length)) . '...' : $string;
     }
 }
