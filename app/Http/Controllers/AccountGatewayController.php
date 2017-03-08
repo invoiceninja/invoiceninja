@@ -372,7 +372,7 @@ class AccountGatewayController extends BaseController
             'tos_agree' => 'required',
             'first_name' => 'required',
             'last_name' => 'required',
-            'email' => 'required',
+            'email' => 'required|email',
         ];
 
         if (WEPAY_ENABLE_CANADA) {
@@ -385,6 +385,13 @@ class AccountGatewayController extends BaseController
             return Redirect::to('gateways/create')
                 ->withErrors($validator)
                 ->withInput();
+        }
+
+        if (! $user->email) {
+            $user->email = trim(Input::get('email'));
+            $user->first_name = trim(Input::get('first_name'));
+            $user->last_name = trim(Input::get('last_name'));
+            $user->save();
         }
 
         try {
