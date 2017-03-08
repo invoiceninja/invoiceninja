@@ -32,7 +32,7 @@ class ExpenseApiController extends BaseAPIController
      *   tags={"expense"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with expenses",
+     *     description="A list of expenses",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Expense"))
      *   ),
      *   @SWG\Response(
@@ -52,13 +52,40 @@ class ExpenseApiController extends BaseAPIController
     }
 
     /**
+     * @SWG\Get(
+     *   path="/expenses/{expense_id}",
+     *   tags={"expense"},
+     *   summary="Retrieve an expense",
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="expense_id",
+     *     type="integer",
+     *     required="true"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single expense",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Expense"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function show(ExpenseRequest $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+    /**
      * @SWG\Post(
      *   path="/expenses",
      *   tags={"expense"},
-     *   summary="Create a expense",
+     *   summary="Create an expense",
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="expense",
      *     @SWG\Schema(ref="#/definitions/Expense")
      *   ),
      *   @SWG\Response(
@@ -87,15 +114,21 @@ class ExpenseApiController extends BaseAPIController
      * @SWG\Put(
      *   path="/expenses/{expense_id}",
      *   tags={"expense"},
-     *   summary="Update a expense",
+     *   summary="Update an expense",
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="expense_id",
+     *     type="integer",
+     *     required="true"
+     *   ),
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="expense",
      *     @SWG\Schema(ref="#/definitions/Expense")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update expense",
+     *     description="Updated expense",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Expense"))
      *   ),
      *   @SWG\Response(
@@ -123,15 +156,16 @@ class ExpenseApiController extends BaseAPIController
      * @SWG\Delete(
      *   path="/expenses/{expense_id}",
      *   tags={"expense"},
-     *   summary="Delete a expense",
+     *   summary="Delete an expense",
      *   @SWG\Parameter(
-     *     in="body",
-     *     name="body",
-     *     @SWG\Schema(ref="#/definitions/Expense")
+     *     in="path",
+     *     name="expense_id",
+     *     type="integer",
+     *     required="true"
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Delete expense",
+     *     description="Deleted expense",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Expense"))
      *   ),
      *   @SWG\Response(

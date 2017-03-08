@@ -30,7 +30,7 @@ class ClientApiController extends BaseAPIController
      *   tags={"client"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with clients",
+     *     description="A list of clients",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Client"))
      *   ),
      *   @SWG\Response(
@@ -60,6 +60,12 @@ class ClientApiController extends BaseAPIController
      *   path="/clients/{client_id}",
      *   summary="Individual Client",
      *   tags={"client"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="client_id",
+     *     type="integer",
+     *     required="true"
+     *   ),
      *   @SWG\Response(
      *     response=200,
      *     description="A single client",
@@ -83,7 +89,7 @@ class ClientApiController extends BaseAPIController
      *   summary="Create a client",
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="client",
      *     @SWG\Schema(ref="#/definitions/Client")
      *   ),
      *   @SWG\Response(
@@ -110,13 +116,19 @@ class ClientApiController extends BaseAPIController
      *   tags={"client"},
      *   summary="Update a client",
      *   @SWG\Parameter(
+     *     in="path",
+     *     name="client_id",
+     *     type="integer",
+     *     required="true"
+     *   ),
+     *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="client",
      *     @SWG\Schema(ref="#/definitions/Client")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update client",
+     *     description="Updated client",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
      *   ),
      *   @SWG\Response(
@@ -148,13 +160,14 @@ class ClientApiController extends BaseAPIController
      *   tags={"client"},
      *   summary="Delete a client",
      *   @SWG\Parameter(
-     *     in="body",
-     *     name="body",
-     *     @SWG\Schema(ref="#/definitions/Client")
+     *     in="path",
+     *     name="client_id",
+     *     type="integer",
+     *     required="true"
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Delete client",
+     *     description="Deleted client",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
      *   ),
      *   @SWG\Response(
@@ -163,7 +176,7 @@ class ClientApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(UpdateClientRequest $request)
+    public function destroy(ClientRequest $request)
     {
         $client = $request->entity();
 

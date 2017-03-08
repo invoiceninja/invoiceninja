@@ -39,7 +39,7 @@ class VendorApiController extends BaseAPIController
      *   tags={"vendor"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with vendors",
+     *     description="A list of vendors",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
      *   @SWG\Response(
@@ -58,13 +58,40 @@ class VendorApiController extends BaseAPIController
     }
 
     /**
+     * @SWG\Get(
+     *   path="/vendors/{vendor_id}",
+     *   summary="Individual vendor",
+     *   tags={"client"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="vendor_id",
+     *     type="integer",
+     *     required="true"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single vendor",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function show(VendorRequest $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+    /**
      * @SWG\Post(
      *   path="/vendors",
      *   tags={"vendor"},
      *   summary="Create a vendor",
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="vendor",
      *     @SWG\Schema(ref="#/definitions/Vendor")
      *   ),
      *   @SWG\Response(
@@ -95,13 +122,19 @@ class VendorApiController extends BaseAPIController
      *   tags={"vendor"},
      *   summary="Update a vendor",
      *   @SWG\Parameter(
+     *     in="path",
+     *     name="vendor_id",
+     *     type="integer",
+     *     required="true"
+     *   ),
+     *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="vendor",
      *     @SWG\Schema(ref="#/definitions/Vendor")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update vendor",
+     *     description="Updated vendor",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
      *   @SWG\Response(
@@ -133,13 +166,14 @@ class VendorApiController extends BaseAPIController
      *   tags={"vendor"},
      *   summary="Delete a vendor",
      *   @SWG\Parameter(
-     *     in="body",
-     *     name="body",
-     *     @SWG\Schema(ref="#/definitions/Vendor")
+     *     in="path",
+     *     name="vendor_id",
+     *     type="integer",
+     *     required="true"
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Delete vendor",
+     *     description="Deleted vendor",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
      *   @SWG\Response(

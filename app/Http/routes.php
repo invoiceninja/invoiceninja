@@ -303,12 +303,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function () {
     Route::get('accounts', 'AccountApiController@show');
     Route::put('accounts', 'AccountApiController@update');
     Route::resource('clients', 'ClientApiController');
-    Route::get('quotes', 'QuoteApiController@index');
-    Route::get('invoices', 'InvoiceApiController@index');
+    Route::ressource('quotes', 'QuoteApiController');
     Route::get('download/{invoice_id}', 'InvoiceApiController@download');
     Route::resource('invoices', 'InvoiceApiController');
     Route::resource('payments', 'PaymentApiController');
-    Route::get('tasks', 'TaskApiController@index');
     Route::resource('tasks', 'TaskApiController');
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
