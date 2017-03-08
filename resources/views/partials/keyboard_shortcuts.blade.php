@@ -89,6 +89,15 @@
 
     $(function() {
 
+        var settingsURL = '{{ url('/settings/company_details') }}';
+        if (isStorageSupported()) {
+            settingsURL = localStorage.getItem('last:settings_page') || url;
+        }
+        // if they're on the last viewed settings page link to main settings page
+        if ('{{ request()->url() }}' != settingsURL) {
+            $('.nav-settings .nav-link').attr("href", settingsURL);
+        }
+
         Mousetrap.bind('?', function(e) {
             showKeyboardShortcuts();
         });
@@ -103,11 +112,7 @@
         });
 
         Mousetrap.bind('g s', function(e) {
-            var url = '{{ url('/settings/company_details') }}';
-            if (isStorageSupported()) {
-                url = localStorage.getItem('last:settings_page') || url;
-            }
-            location.href = url;
+            location.href = settingsURL;
         });
 
         Mousetrap.bind('h', function(e) {
