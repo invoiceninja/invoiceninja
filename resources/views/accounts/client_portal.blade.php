@@ -236,14 +236,6 @@
                                 ->inlineHelp('buy_now_buttons_warning')
                                 ->addGroupClass('product-select') !!}
 
-                            {!! Former::inline_checkboxes('client_fields')
-                                    ->onchange('updateBuyNowButtons()')
-                                    ->checkboxes([
-                                        trans('texts.email') => ['value' => 'email', 'name' => 'email'],
-                                        trans('texts.first_name') => ['value' => 'first_name', 'name' => 'first_name'],
-                                        trans('texts.last_name') => ['value' => 'last_name', 'name' => 'last_name'],
-                                    ]) !!}
-
                             {!! Former::inline_radios('landing_page')
                                     ->onchange('showPaymentTypes();updateBuyNowButtons();')
                                     ->radios([
@@ -429,13 +421,6 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
                 '&product_id=' + productId;
 
             var form = '<form action="' + link + '" method="post" target="_top">' + "\n";
-
-            @foreach (['first_name', 'last_name', 'email'] as $field)
-                if ($('input#{{ $field }}').is(':checked')) {
-                    form += '<input type="{{ $field == 'email' ? 'email' : 'text' }}" name="{{ $field }}" placeholder="{{ trans("texts.{$field}") }}" required/>' + "\n";
-                    link += '&{{ $field }}=';
-                }
-            @endforeach
 
             if (redirectUrl) {
                 link += '&redirect_url=' + encodeURIComponent(redirectUrl);
