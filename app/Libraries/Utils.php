@@ -1228,4 +1228,9 @@ class Utils
 
         return round($amount + $tax1 + $tax2, 2);
     }
+
+    public static function truncateString($string, $length)
+    {
+        return strlen($string) > $length ? rtrim(substr($string, 0, $length)) . '...' : $in;
+    }
 }
