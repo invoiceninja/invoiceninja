@@ -205,7 +205,7 @@ class Task extends EntityModel
     public function scopeDateRange($query, $startDate, $endDate)
     {
         $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) >= ' . $startDate->format('U'));
-        $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) <= ' . $endDate->format('U'));
+        $query->whereRaw('cast(substring(time_log, 3, 10) as unsigned) <= ' . $endDate->modify('+1 day')->format('U'));
 
         return $query;
     }
