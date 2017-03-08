@@ -111,6 +111,10 @@
             location.href = "{{ url('/dashboard') }}";
         });
 
+        Mousetrap.bind('g r', function(e) {
+            location.href = "{{ url('/reports') }}";
+        });
+
         Mousetrap.bind('g s', function(e) {
             location.href = settingsURL;
         });
