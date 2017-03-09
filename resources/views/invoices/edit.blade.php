@@ -1464,7 +1464,7 @@
     }
 
 	function isSaveValid() {
-		var isValid = model.invoice().client().name ? true : false;
+		var isValid = model.invoice().client().name() ? true : false;
 		for (var i=0; i<model.invoice().client().contacts().length; i++) {
 			var contact = model.invoice().client().contacts()[i];
 			if (isValidEmailAddress(contact.email()) || contact.first_name() || contact.last_name()) {
