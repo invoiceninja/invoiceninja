@@ -2,6 +2,7 @@
 
 namespace App\Listeners;
 
+use Illuminate\Queue\Events\JobExceptionOccurred;
 use App\Events\InvoiceInvitationWasViewed;
 use App\Events\InvoiceWasCreated;
 use App\Events\InvoiceWasUpdated;
@@ -148,5 +149,10 @@ class InvoiceListener
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
+    }
+
+    public function jobFailed(JobExceptionOccurred $exception)
+    {
+        Utils::logError($exception->exception);
     }
 }
