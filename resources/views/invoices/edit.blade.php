@@ -1308,25 +1308,6 @@
 		$('#emailModal div.modal-footer button').attr('disabled', true);
 		model.invoice().is_public(true);
 		submitAction('email');
-
-		/*
-		var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
-		var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
-		var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
-
-		// if they aren't attaching the pdf no need to generate it
-		if ( ! attachPDF) {
-			submitAction('email');
-		// if the client's language is different then we can't use the browser version of the PDF
-		} else if (clientLanguageId && clientLanguageId != accountLanguageId) {
-			submitAction('email');
-		// if queues are enabled we need to use PhantomJS
-		} else if ({{ config('queue.default') != 'sync' ? 'true' : 'false' }}) {
-			submitAction('email');
-		} else {
-			preparePdfData('email');
-		}
-		*/
 	}
 
 	function onSaveDraftClick() {

@@ -401,7 +401,7 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $this->dispatch(new SendInvoiceEmail($invoice, $reminder, $pdfUpload, $template));
+            $this->dispatch(new SendInvoiceEmail($invoice, $reminder, $template));
             $response = true;
         }
 

@@ -36,7 +36,7 @@ class ContactMailer extends Mailer
      *
      * @return bool|null|string
      */
-    public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false, $template = false)
+    public function sendInvoice(Invoice $invoice, $reminder = false, $template = false)
     {
         if ($invoice->is_recurring) {
             return false;
@@ -61,8 +61,9 @@ class ContactMailer extends Mailer
         $emailSubject = !empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
 
         $sent = false;
+        $pdfString = false;
 
-        if ($account->attachPDF() && ! $pdfString) {
+        if ($account->attachPDF()) {
             $pdfString = $invoice->getPDFString();
         }
 
