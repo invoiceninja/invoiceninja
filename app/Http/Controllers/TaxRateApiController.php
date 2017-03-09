@@ -35,7 +35,8 @@ class TaxRateApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/tax_rates",
-     *   summary="List of tax rates",
+     *   summary="List tax rates",
+     *   operationId="listTaxRates",
      *   tags={"tax_rate"},
      *   @SWG\Response(
      *     response=200,
@@ -60,8 +61,9 @@ class TaxRateApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/tax_rates/{tax_rate_id}",
-     *   tags={"tax_rate"},
      *   summary="Retrieve a tax rate",
+     *   operationId="getTaxRate",
+     *   tags={"tax_rate"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="tax_rate_id",
@@ -87,8 +89,9 @@ class TaxRateApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/tax_rates",
-     *   tags={"tax_rate"},
      *   summary="Create a tax rate",
+     *   operationId="createTaxRate",
+     *   tags={"tax_rate"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="tax_rate",
@@ -115,8 +118,9 @@ class TaxRateApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/tax_rates/{tax_rate_id}",
-     *   tags={"tax_rate"},
      *   summary="Update a tax rate",
+     *   operationId="updateTaxRate",
+     *   tags={"tax_rate"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="tax_rate_id",
@@ -157,8 +161,9 @@ class TaxRateApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/tax_rates/{tax_rate_id}",
-     *   tags={"tax_rate"},
      *   summary="Delete a tax rate",
+     *   operationId="deleteTaxRate",
+     *   tags={"tax_rate"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="tax_rate_id",

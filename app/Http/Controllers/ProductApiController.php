@@ -38,7 +38,8 @@ class ProductApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/products",
-     *   summary="List of products",
+     *   summary="List products",
+     *   operationId="listProducts",
      *   tags={"product"},
      *   @SWG\Response(
      *     response=200,
@@ -63,8 +64,9 @@ class ProductApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/products/{product_id}",
-     *   tags={"product"},
      *   summary="Retrieve a product",
+     *   operationId="getProduct",
+     *   tags={"product"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="product_id",
@@ -90,8 +92,9 @@ class ProductApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/products",
-     *   tags={"product"},
      *   summary="Create a product",
+     *   operationId="createProduct",
+     *   tags={"product"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="body",
@@ -118,8 +121,9 @@ class ProductApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/products/{product_id}",
-     *   tags={"product"},
      *   summary="Update a product",
+     *   operationId="updateProduct",
+     *   tags={"product"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="product_id",
@@ -160,8 +164,9 @@ class ProductApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/products/{product_id}",
-     *   tags={"product"},
      *   summary="Delete a product",
+     *   operationId="deleteProduct",
+     *   tags={"product"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="product_id",

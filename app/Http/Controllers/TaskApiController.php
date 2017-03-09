@@ -27,8 +27,9 @@ class TaskApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/tasks",
+     *   summary="List tasks",
+     *   operationId="listTasks",
      *   tags={"task"},
-     *   summary="List of tasks",
      *   @SWG\Response(
      *     response=200,
      *     description="A list of tasks",
@@ -53,7 +54,8 @@ class TaskApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/tasks/{task_id}",
-     *   summary="Individual task",
+     *   summary="Retrieve a task",
+     *   operationId="getTask",
      *   tags={"task"},
      *   @SWG\Parameter(
      *     in="path",
@@ -80,8 +82,9 @@ class TaskApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/tasks",
-     *   tags={"task"},
      *   summary="Create a task",
+     *   operationId="createTask",
+     *   tags={"task"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="task",
@@ -119,8 +122,9 @@ class TaskApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/tasks/{task_id}",
-     *   tags={"task"},
      *   summary="Update a task",
+     *   operationId="updateTask",
+     *   tags={"task"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="task_id",
@@ -155,8 +159,9 @@ class TaskApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/tasks/{task_id}",
-     *   tags={"task"},
      *   summary="Delete a task",
+     *   operationId="deleteTask",
+     *   tags={"task"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="task_id",

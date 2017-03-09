@@ -23,7 +23,8 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/$LOWER_NAME$",
-     *   summary="List of $LOWER_NAME$",
+     *   summary="List $LOWER_NAME$",
+     *   operationId="list$STUDLY_NAME$s",
      *   tags={"$LOWER_NAME$"},
      *   @SWG\Response(
      *     response=200,
@@ -47,6 +48,7 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      * @SWG\Get(
      *   path="/$LOWER_NAME$/{$LOWER_NAME$_id}",
      *   summary="Individual $STUDLY_NAME$",
+     *   operationId="get$STUDLY_NAME$",
      *   tags={"$LOWER_NAME$"},
      *   @SWG\Parameter(
      *     in="path",
@@ -76,8 +78,9 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/$LOWER_NAME$",
-     *   tags={"$LOWER_NAME$"},
      *   summary="Create a $LOWER_NAME$",
+     *   operationId="create$STUDLY_NAME$",
+     *   tags={"$LOWER_NAME$"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="$LOWER_NAME$",
@@ -104,8 +107,9 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/$LOWER_NAME$/{$LOWER_NAME$_id}",
-     *   tags={"$LOWER_NAME$"},
      *   summary="Update a $LOWER_NAME$",
+     *   operationId="update$STUDLY_NAME$",
+     *   tags={"$LOWER_NAME$"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="$LOWER_NAME$_id",
@@ -143,8 +147,9 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/$LOWER_NAME$/{$LOWER_NAME$_id}",
-     *   tags={"$LOWER_NAME$"},
      *   summary="Delete a $LOWER_NAME$",
+     *   operationId="delete$STUDLY_NAME$",
+     *   tags={"$LOWER_NAME$"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="$LOWER_NAME$_id",

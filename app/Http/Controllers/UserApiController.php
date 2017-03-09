@@ -29,7 +29,8 @@ class UserApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/users",
-     *   summary="List of users",
+     *   summary="List users",
+     *   operationId="listUsers",
      *   tags={"user"},
      *   @SWG\Response(
      *     response=200,
@@ -54,7 +55,8 @@ class UserApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/users/{user_id}",
-     *   summary="Individual user",
+     *   summary="Retrieve a user",
+     *   operationId="getUser",
      *   tags={"client"},
      *   @SWG\Parameter(
      *     in="path",
@@ -81,8 +83,9 @@ class UserApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/users",
-     *   tags={"user"},
      *   summary="Create a user",
+     *   operationId="createUser",
+     *   tags={"user"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="user",
@@ -107,8 +110,9 @@ class UserApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/users/{user_id}",
-     *   tags={"user"},
      *   summary="Update a user",
+     *   operationId="updateUser",
+     *   tags={"user"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="user_id",
@@ -162,8 +166,9 @@ class UserApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/users/{user_id}",
-     *   tags={"user"},
      *   summary="Delete a user",
+     *   operationId="deleteUser",
+     *   tags={"user"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="user_id",

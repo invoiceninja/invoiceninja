@@ -27,7 +27,8 @@ class ExpenseCategoryApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/expense_categories",
-     *   summary="List of expense categories",
+     *   summary="List expense categories",
+     *   operationId="listExpenseCategories",
      *   tags={"expense_category"},
      *   @SWG\Response(
      *     response=200,
@@ -52,7 +53,8 @@ class ExpenseCategoryApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/expense_categories/{expense_category_id}",
-     *   summary="Individual Expense Category",
+     *   summary="Retrieve an Expense Category",
+     *   operationId="getExpenseCategory",
      *   tags={"expense_category"},
      *   @SWG\Parameter(
      *     in="path",
@@ -79,8 +81,9 @@ class ExpenseCategoryApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/expense_categories",
-     *   tags={"expense_category"},
      *   summary="Create an expense category",
+     *   operationId="createExpenseCategory",
+     *   tags={"expense_category"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="expense_category",
@@ -107,8 +110,9 @@ class ExpenseCategoryApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/expense_categories/{expense_category_id}",
-     *   tags={"expense_category"},
      *   summary="Update an expense category",
+     *   operationId="updateExpenseCategory",
+     *   tags={"expense_category"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="expense_category_id",
@@ -141,8 +145,9 @@ class ExpenseCategoryApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/expense_categories/{expense_category_id}",
-     *   tags={"expense_category"},
      *   summary="Delete an expense category",
+     *   operationId="deleteExpenseCategory",
+     *   tags={"expense_category"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="expense_category_id",

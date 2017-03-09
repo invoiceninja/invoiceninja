@@ -34,7 +34,8 @@ class VendorApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/vendors",
-     *   summary="List of vendors",
+     *   summary="List vendors",
+     *   operationId="listVendors",
      *   tags={"vendor"},
      *   @SWG\Response(
      *     response=200,
@@ -59,7 +60,8 @@ class VendorApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/vendors/{vendor_id}",
-     *   summary="Individual vendor",
+     *   summary="Retrieve a vendor",
+     *   operationId="getVendor",
      *   tags={"client"},
      *   @SWG\Parameter(
      *     in="path",
@@ -86,8 +88,9 @@ class VendorApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/vendors",
-     *   tags={"vendor"},
      *   summary="Create a vendor",
+     *   operationId="createVendor",
+     *   tags={"vendor"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="vendor",
@@ -118,8 +121,9 @@ class VendorApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/vendors/{vendor_id}",
-     *   tags={"vendor"},
      *   summary="Update a vendor",
+     *   operationId="updateVendor",
+     *   tags={"vendor"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="vendor_id",
@@ -162,8 +166,9 @@ class VendorApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/vendors/{vendor_id}",
-     *   tags={"vendor"},
      *   summary="Delete a vendor",
+     *   operationId="deleteVendor",
+     *   tags={"vendor"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="vendor_id",
