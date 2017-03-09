@@ -1336,6 +1336,10 @@
 
 	function onMarkSentClick() {
 		if (model.invoice().is_recurring()) {
+			if (!isSaveValid()) {
+	            model.showClientForm();
+	            return false;
+	        }
             // warn invoice will be emailed when saving new recurring invoice
             var text = '\n' + getSendToEmails() + '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
             var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
@@ -1464,7 +1468,7 @@
     }
 
 	function isSaveValid() {
-		var isValid = model.invoice().client().name ? true : false;
+		var isValid = model.invoice().client().name() ? true : false;
 		for (var i=0; i<model.invoice().client().contacts().length; i++) {
 			var contact = model.invoice().client().contacts()[i];
 			if (isValidEmailAddress(contact.email()) || contact.first_name() || contact.last_name()) {
