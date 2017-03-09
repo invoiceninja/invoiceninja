@@ -78,7 +78,7 @@ class CheckData extends Command
         $errorEmail = env('ERROR_EMAIL');
 
         $this->info($this->log);
-        throw new Exception('Check data failed!!');
+
         if ($errorEmail) {
             Mail::raw($this->log, function ($message) use ($errorEmail) {
                 $message->to($errorEmail)

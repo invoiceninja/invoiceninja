@@ -113,7 +113,7 @@ if (Utils::isReseller()) {
     Route::post('/reseller_stats', 'AppController@stats');
 }
 
-if (Utils::isTravis() || true) {
+if (Utils::isTravis()) {
     Route::get('/check_data', 'AppController@checkData');
 }
 
