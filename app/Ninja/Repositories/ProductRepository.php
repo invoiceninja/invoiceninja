@@ -3,6 +3,7 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Product;
+use Utils;
 use DB;
 
 class ProductRepository extends BaseRepository
@@ -64,6 +65,9 @@ class ProductRepository extends BaseRepository
         }
 
         $product->fill($data);
+        $product->product_key = trim($data['product_key']);
+        $product->notes = trim($data['notes']);
+        $product->cost = Utils::parseFloat($data['cost']);
         $product->save();
 
         return $product;
