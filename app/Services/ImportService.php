@@ -462,7 +462,7 @@ class ImportService
 
         if ($resource = $paymentTransformer->transform($row)) {
             $data = $this->fractal->createData($resource)->toArray();
-            $data['amount'] = min($data['amount'], $row->amount);
+            $data['amount'] = min($data['amount'], Utils::parseFloat($row->amount));
             if (Payment::validate($data) === true) {
                 $this->paymentRepo->save($data);
             }
@@ -824,8 +824,7 @@ class ImportService
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
-
-        if ($name = strtolower(trim($client->getDisplayName()))) {
+        if ($name = strtolower(trim($client->contacts[0]->email))) {
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
