@@ -1237,18 +1237,21 @@ class Invoice extends EntityModel implements BalanceAffecting
 
             $pdfString = strip_tags($pdfString);
         } catch (\Exception $exception) {
-            Utils::logError("PhantomJS - Failed to create pdf: {$exception->getMessage()}");
-
+            Utils::logError("PhantomJS - Failed to load: {$exception->getMessage()}");
             return false;
         }
 
         if (! $pdfString || strlen($pdfString) < 200) {
-            Utils::logError("PhantomJS - Failed to create pdf: {$pdfString}");
-
+            Utils::logError("PhantomJS - Invalid response: {$pdfString}");
             return false;
         }
 
-        return Utils::decodePDF($pdfString);
+        if ($pdf = Utils::decodePDF($pdfString)) {
+            return $pdf;
+        } else {
+            Utils::logError("PhantomJS - Unable to decode: {$pdfString}");
+            return false;
+        }
     }
 
     /**
