@@ -167,6 +167,9 @@ class CheckData extends Command
             'expense_categories' => [
                 ENTITY_USER,
             ],
+            'payment_terms' => [
+                ENTITY_USER,
+            ],
             'projects' => [
                 ENTITY_USER,
                 ENTITY_CLIENT,
