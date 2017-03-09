@@ -384,7 +384,7 @@ class InvoiceApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(UpdateInvoiceRequest $request)
+    public function destroy(UpdateInvoiceAPIRequest $request)
     {
         $invoice = $request->entity();
 
