@@ -13,12 +13,12 @@ class VendorTransformer extends EntityTransformer
 {
     /**
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
-     * @SWG\Property(property="balance", type="float", example=10, readOnly=true)
-     * @SWG\Property(property="paid_to_date", type="float", example=10, readOnly=true)
+     * @SWG\Property(property="balance", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="paid_to_date", type="number", format="float", example=10, readOnly=true)
      * @SWG\Property(property="user_id", type="integer", example=1)
      * @SWG\Property(property="account_key", type="string", example="123456")
-     * @SWG\Property(property="updated_at", type="timestamp", example="")
-     * @SWG\Property(property="archived_at", type="timestamp", example="1451160233")
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="address1", type="string", example="10 Main St.")
      * @SWG\Property(property="address2", type="string", example="1st Floor")
      * @SWG\Property(property="city", type="string", example="New York")
@@ -27,7 +27,7 @@ class VendorTransformer extends EntityTransformer
      * @SWG\Property(property="country_id", type="integer", example=840)
      * @SWG\Property(property="work_phone", type="string", example="(212) 555-1212")
      * @SWG\Property(property="private_notes", type="string", example="Notes...")
-     * @SWG\Property(property="last_login", type="date-time", example="2016-01-01 12:10:00")
+     * @SWG\Property(property="last_login", type="string", format="date-time", example="2016-01-01 12:10:00")
      * @SWG\Property(property="website", type="string", example="http://www.example.com")
      * @SWG\Property(property="is_deleted", type="boolean", example=false)
      * @SWG\Property(property="vat_number", type="string", example="123456")
@@ -36,12 +36,12 @@ class VendorTransformer extends EntityTransformer
     protected $defaultIncludes = [
         'vendor_contacts',
     ];
-    
+
     protected $availableIncludes = [
         'invoices',
         //'expenses',
     ];
-    
+
     public function includeVendorContacts(Vendor $vendor)
     {
         $transformer = new VendorContactTransformer($this->account, $this->serializer);

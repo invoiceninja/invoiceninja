@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\TaxRateRequest;
 use App\Http\Requests\CreateTaxRateRequest;
 use App\Http\Requests\UpdateTaxRateRequest;
 use App\Models\TaxRate;
@@ -38,7 +39,7 @@ class TaxRateApiController extends BaseAPIController
      *   tags={"tax_rate"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with tax rates",
+     *     description="A list of tax rates",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/TaxRate"))
      *   ),
      *   @SWG\Response(
@@ -57,13 +58,40 @@ class TaxRateApiController extends BaseAPIController
     }
 
     /**
+     * @SWG\Get(
+     *   path="/tax_rates/{tax_rate_id}",
+     *   tags={"tax_rate"},
+     *   summary="Retrieve a tax rate",
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="tax_rate_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single tax rate",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/TaxRate"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function show(TaxRateRequest $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+    /**
      * @SWG\Post(
      *   path="/tax_rates",
      *   tags={"tax_rate"},
      *   summary="Create a tax rate",
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="tax_rate",
      *     @SWG\Schema(ref="#/definitions/TaxRate")
      *   ),
      *   @SWG\Response(
@@ -90,13 +118,19 @@ class TaxRateApiController extends BaseAPIController
      *   tags={"tax_rate"},
      *   summary="Update a tax rate",
      *   @SWG\Parameter(
+     *     in="path",
+     *     name="tax_rate_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="tax_rate",
      *     @SWG\Schema(ref="#/definitions/TaxRate")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update tax rate",
+     *     description="Updated tax rate",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/TaxRate"))
      *   ),
      *   @SWG\Response(
@@ -118,5 +152,36 @@ class TaxRateApiController extends BaseAPIController
         $taxRate = $this->taxRateRepo->save($data, $request->entity());
 
         return $this->itemResponse($taxRate);
+    }
+
+    /**
+     * @SWG\Delete(
+     *   path="/tax_rates/{tax_rate_id}",
+     *   tags={"tax_rate"},
+     *   summary="Delete a tax rate",
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="tax_rate_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Deleted tax rate",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/TaxRate"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function destroy(UpdateTaxRateRequest $request)
+    {
+        $entity = $request->entity();
+
+        $this->taxRateRepo->delete($entity);
+
+        return $this->itemResponse($entity);
     }
 }

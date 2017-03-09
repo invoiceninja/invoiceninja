@@ -14,8 +14,8 @@ class DocumentTransformer extends EntityTransformer
      * @SWG\Property(property="name", type="string", example="Test")
      * @SWG\Property(property="type", type="string", example="CSV")
      * @SWG\Property(property="invoice_id", type="integer", example=1)
-     * @SWG\Property(property="updated_at", type="timestamp", example=1451160233, readOnly=true)
-     * @SWG\Property(property="archived_at", type="timestamp", example=1451160233, readOnly=true)
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      */
     public function transform(Document $document)
     {
