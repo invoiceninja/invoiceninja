@@ -54,7 +54,7 @@
 			<li class="active">{{ $invoice->invoice_number }}</li>
 		@endif
 		@if ($invoice->is_recurring && $invoice->isSent() && (! $invoice->last_sent_date || $invoice->last_sent_date == '0000-00-00'))
-			{!! $invoice->present()->statusLabel(trans('texts.active')) !!}
+			{!! $invoice->present()->statusLabel(trans('texts.pending')) !!}
 		@else
 			{!! $invoice->present()->statusLabel !!}
 		@endif
@@ -564,7 +564,7 @@
 					@else
 						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'draftButton', 'onclick' => 'onSaveDraftClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 						@if (! $invoice->trashed())
-							{!! Button::success(trans($invoice->is_recurring ? "texts.mark_active" : "texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
+							{!! Button::success(trans($invoice->is_recurring ? "texts.mark_ready" : "texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
 						@endif
 					@endif
 					@if (! $invoice->trashed())

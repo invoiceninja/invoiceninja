@@ -136,6 +136,7 @@ class InvoiceRepository extends BaseRepository
         $query = DB::table('invoices')
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
+                    ->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
                     ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
@@ -160,7 +161,13 @@ class InvoiceRepository extends BaseRepository
                         'contacts.email',
                         'invoices.deleted_at',
                         'invoices.is_deleted',
-                        'invoices.user_id'
+                        'invoices.user_id',
+                        'invoice_statuses.name as invoice_status_name',
+                        'invoices.invoice_status_id',
+                        'invoices.balance',
+                        'invoices.due_date',
+                        'invoices.is_recurring',
+                        'invoices.quote_invoice_id'
                     );
 
         if ($clientPublicId) {
