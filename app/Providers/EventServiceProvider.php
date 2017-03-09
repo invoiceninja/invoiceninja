@@ -190,10 +190,16 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\ActivityListener@deletedExpense',
         ],
 
+        'Illuminate\Queue\Events\JobExceptionOccurred' => [
+            'App\Listeners\InvoiceListener@jobFailed'
+        ]
+
+        /*
         // Update events
         \Codedge\Updater\Events\UpdateAvailable::class => [
             \Codedge\Updater\Listeners\SendUpdateAvailableNotification::class,
         ],
+        */
     ];
 
     /**
