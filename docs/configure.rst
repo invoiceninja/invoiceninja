@@ -90,6 +90,8 @@ Google Map
 
 You need to create a Google Maps API key for the Javascript, Geocoding and Embed APIs and then add ``GOOGLE_MAPS_API_KEY=your_key`` to the .env file.
 
+You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env file.
+
 Using a Proxy
 """""""""""""
 
