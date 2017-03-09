@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Carbon;
 use DB;
+use Exception;
 use Illuminate\Console\Command;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
@@ -77,13 +78,15 @@ class CheckData extends Command
         $errorEmail = env('ERROR_EMAIL');
 
         $this->info($this->log);
-
+        throw new Exception('Check data failed!!');
         if ($errorEmail) {
             Mail::raw($this->log, function ($message) use ($errorEmail) {
                 $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
                         ->subject('Check-Data: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
             });
+        } elseif (! $this->isValid) {
+            throw new Exception('Check data failed!!');
         }
     }
 
