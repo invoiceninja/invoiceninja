@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
@@ -25,7 +26,7 @@ class CreateTestData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:create-test-data {count=1}';
+    protected $signature = 'ninja:create-test-data {count=1} {create_account=false}';
 
     /**
      * @var
@@ -40,13 +41,15 @@ class CreateTestData extends Command
      * @param PaymentRepository $paymentRepo
      * @param VendorRepository  $vendorRepo
      * @param ExpenseRepository $expenseRepo
+     * @param AccountRepository $accountRepo
      */
     public function __construct(
         ClientRepository $clientRepo,
         InvoiceRepository $invoiceRepo,
         PaymentRepository $paymentRepo,
         VendorRepository $vendorRepo,
-        ExpenseRepository $expenseRepo)
+        ExpenseRepository $expenseRepo,
+        AccountRepository $accountRepo)
     {
         parent::__construct();
 
@@ -57,6 +60,7 @@ class CreateTestData extends Command
         $this->paymentRepo = $paymentRepo;
         $this->vendorRepo = $vendorRepo;
         $this->expenseRepo = $expenseRepo;
+        $this->accountRepo = $accountRepo;
     }
 
     /**
@@ -69,9 +73,20 @@ class CreateTestData extends Command
         }
 
         $this->info(date('Y-m-d').' Running CreateTestData...');
-
-        Auth::loginUsingId(1);
         $this->count = $this->argument('count');
+
+        if (filter_var($this->argument('create_account'), FILTER_VALIDATE_BOOLEAN)) {
+            $this->info('Creating new account...');
+            $account = $this->accountRepo->create(
+                $this->faker->firstName,
+                $this->faker->lastName,
+                $this->faker->safeEmail
+            );
+            Auth::login($account->users[0]);
+        } else {
+            $this->info('Using first account...');
+            Auth::loginUsingId(1);
+        }
 
         $this->createClients();
         $this->createVendors();
@@ -182,7 +197,7 @@ class CreateTestData extends Command
                 'vendor_id' => $vendor->id,
                 'amount' => $this->faker->randomFloat(2, 1, 10),
                 'expense_date' => null,
-                'public_notes' => null,
+                'public_notes' => '',
             ];
 
             $expense = $this->expenseRepo->save($data);
