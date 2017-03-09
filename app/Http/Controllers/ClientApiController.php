@@ -26,7 +26,8 @@ class ClientApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/clients",
-     *   summary="List of clients",
+     *   summary="List clients",
+     *   operationId="listClients",
      *   tags={"client"},
      *   @SWG\Response(
      *     response=200,
@@ -58,7 +59,8 @@ class ClientApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/clients/{client_id}",
-     *   summary="Individual Client",
+     *   summary="Retrieve a client",
+     *   operationId="getClient",
      *   tags={"client"},
      *   @SWG\Parameter(
      *     in="path",
@@ -85,8 +87,9 @@ class ClientApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/clients",
-     *   tags={"client"},
      *   summary="Create a client",
+     *   operationId="createClient",
+     *   tags={"client"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="client",
@@ -113,8 +116,9 @@ class ClientApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/clients/{client_id}",
-     *   tags={"client"},
      *   summary="Update a client",
+     *   operationId="updateClient",
+     *   tags={"client"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="client_id",
@@ -157,8 +161,9 @@ class ClientApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/clients/{client_id}",
-     *   tags={"client"},
      *   summary="Delete a client",
+     *   operationId="deleteClient",
+     *   tags={"client"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="client_id",

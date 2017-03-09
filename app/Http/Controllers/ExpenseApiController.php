@@ -28,7 +28,8 @@ class ExpenseApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/expenses",
-     *   summary="List of expenses",
+     *   summary="List expenses",
+     *   operationId="listExpenses",
      *   tags={"expense"},
      *   @SWG\Response(
      *     response=200,
@@ -54,8 +55,9 @@ class ExpenseApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/expenses/{expense_id}",
-     *   tags={"expense"},
      *   summary="Retrieve an expense",
+     *   operationId="getExpense",
+     *   tags={"expense"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="expense_id",
@@ -81,8 +83,9 @@ class ExpenseApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/expenses",
-     *   tags={"expense"},
      *   summary="Create an expense",
+     *   operationId="createExpense",
+     *   tags={"expense"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="expense",
@@ -113,8 +116,9 @@ class ExpenseApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/expenses/{expense_id}",
-     *   tags={"expense"},
      *   summary="Update an expense",
+     *   operationId="updateExpense",
+     *   tags={"expense"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="expense_id",
@@ -155,8 +159,9 @@ class ExpenseApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/expenses/{expense_id}",
-     *   tags={"expense"},
      *   summary="Delete an expense",
+     *   operationId="deleteExpense",
+     *   tags={"expense"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="expense_id",

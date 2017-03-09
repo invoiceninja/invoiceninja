@@ -42,7 +42,8 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/invoices",
-     *   summary="List of invoices",
+     *   summary="List invoices",
+     *   operationId="listInvoices",
      *   tags={"invoice"},
      *   @SWG\Response(
      *     response=200,
@@ -68,7 +69,7 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/invoices/{invoice_id}",
-     *   summary="Individual Invoice",
+     *   summary="Retrieve an Invoice",
      *   tags={"invoice"},
      *   @SWG\Parameter(
      *     in="path",
@@ -95,8 +96,8 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/invoices",
-     *   tags={"invoice"},
      *   summary="Create an invoice",
+     *   tags={"invoice"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="invoice",
@@ -314,8 +315,8 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/invoices/{invoice_id}",
-     *   tags={"invoice"},
      *   summary="Update an invoice",
+     *   tags={"invoice"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="invoice_id",
@@ -365,8 +366,8 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/invoices/{invoice_id}",
-     *   tags={"invoice"},
      *   summary="Delete an invoice",
+     *   tags={"invoice"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="invoice_id",

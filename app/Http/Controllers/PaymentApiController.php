@@ -29,8 +29,9 @@ class PaymentApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/payments",
+     *   summary="List payments",
+     *   operationId="listPayments",
      *   tags={"payment"},
-     *   summary="List of payments",
      *   @SWG\Response(
      *     response=200,
      *     description="A list of payments",
@@ -55,8 +56,9 @@ class PaymentApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/payments/{payment_id}",
-     *   tags={"payment"},
      *   summary="Retrieve a payment",
+     *   operationId="getPayment",
+     *   tags={"payment"},
      *   @SWG\Parameter(
      *     in="path",
      *     name="payment_id",
@@ -83,6 +85,7 @@ class PaymentApiController extends BaseAPIController
      * @SWG\Post(
      *   path="/payments",
      *   summary="Create a payment",
+     *   operationId="createPayment",
      *   tags={"payment"},
      *   @SWG\Parameter(
      *     in="body",
@@ -118,6 +121,7 @@ class PaymentApiController extends BaseAPIController
      * @SWG\Put(
      *   path="/payments/{payment_id}",
      *   summary="Update a payment",
+     *   operationId="updatePayment",
      *   tags={"payment"},
      *   @SWG\Parameter(
      *     in="path",
@@ -160,6 +164,7 @@ class PaymentApiController extends BaseAPIController
      * @SWG\Delete(
      *   path="/payments/{payment_id}",
      *   summary="Delete a payment",
+     *   operationId="deletePayment",
      *   tags={"payment"},
      *   @SWG\Parameter(
      *     in="path",

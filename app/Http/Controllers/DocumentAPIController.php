@@ -38,7 +38,8 @@ class DocumentAPIController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/documents",
-     *   summary="List of document",
+     *   summary="List document",
+     *   operationId="listDocuments",
      *   tags={"document"},
      *   @SWG\Response(
      *     response=200,
@@ -65,8 +66,9 @@ class DocumentAPIController extends BaseAPIController
      *
      * @SWG\Get(
      *   path="/documents/{document_id}",
-     *   tags={"document"},
      *   summary="Download a document",
+     *   operationId="getDocument",
+     *   tags={"document"},
      *   produces={"application/octet-stream"},
      *   @SWG\Parameter(
      *     in="path",
@@ -99,8 +101,9 @@ class DocumentAPIController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/documents",
-     *   tags={"document"},
      *   summary="Create a document",
+     *   operationId="createDocument",
+     *   tags={"document"},
      *   @SWG\Parameter(
      *     in="body",
      *     name="document",
@@ -127,8 +130,9 @@ class DocumentAPIController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/documents/{document_id}",
+     *   summary="Delete a document",
+     *   operationId="deleteDocument",
      *   tags={"document"},
-     *   summary="Delete a client",
      *   @SWG\Parameter(
      *     in="path",
      *     name="document_id",

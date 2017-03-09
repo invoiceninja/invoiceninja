@@ -20,6 +20,7 @@ use Utils;
  *     schemes={"http","https"},
  *     host="ninja.dev",
  *     basePath="/api/v1",
+ *     produces={"application/json"},
  *     @SWG\Info(
  *         version="1.0.0",
  *         title="Invoice Ninja API",

@@ -22,8 +22,9 @@ class QuoteApiController extends InvoiceAPIController
     /**
      * @SWG\Get(
      *   path="/quotes",
+     *   summary="List quotes",
+     *   operationId="listQuotes",
      *   tags={"quote"},
-     *   summary="List of quotes",
      *   @SWG\Response(
      *     response=200,
      *     description="A list of quotes",
