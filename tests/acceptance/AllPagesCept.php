@@ -84,6 +84,10 @@ $I->see('Invoice Email');
 $I->amOnPage('/reports');
 $I->see('Reports');
 
+$I->amOnPage('/check_data');
+$I->see('success');
+
+
 //try to logout
 //$I->click('#myAccountButton');
 //$I->see('Log Out');

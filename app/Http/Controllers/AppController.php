@@ -320,6 +320,16 @@ class AppController extends BaseController
         return RESULT_SUCCESS;
     }
 
+    public function checkData()
+    {
+        try {
+            Artisan::call('ninja:check-data');
+            return RESULT_SUCCESS;
+        } catch (Exception $exception) {
+            return RESULT_FAILURE;
+        }
+    }
+
     public function stats()
     {
         if (! hash_equals(Input::get('password'), env('RESELLER_PASSWORD'))) {

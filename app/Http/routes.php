@@ -113,6 +113,10 @@ if (Utils::isReseller()) {
     Route::post('/reseller_stats', 'AppController@stats');
 }
 
+if (Utils::isTravis() || true) {
+    Route::get('/check_data', 'AppController@checkData');
+}
+
 Route::group(['middleware' => 'auth:user'], function () {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
