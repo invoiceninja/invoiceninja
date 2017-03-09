@@ -59,7 +59,7 @@ class TaskApiController extends BaseAPIController
      *     in="path",
      *     name="task_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -125,7 +125,7 @@ class TaskApiController extends BaseAPIController
      *     in="path",
      *     name="task_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -161,7 +161,7 @@ class TaskApiController extends BaseAPIController
      *     in="path",
      *     name="task_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -174,7 +174,7 @@ class TaskApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(TaskRequest $request)
+    public function destroy(UpdateTaskRequest $request)
     {
         $task = $request->entity();
 

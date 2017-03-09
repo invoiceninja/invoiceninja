@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\ExpenseRequest;
+use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
 use App\Ninja\Repositories\ExpenseRepository;
@@ -60,7 +60,7 @@ class ExpenseApiController extends BaseAPIController
      *     in="path",
      *     name="expense_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -119,7 +119,7 @@ class ExpenseApiController extends BaseAPIController
      *     in="path",
      *     name="expense_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -161,7 +161,7 @@ class ExpenseApiController extends BaseAPIController
      *     in="path",
      *     name="expense_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -174,7 +174,7 @@ class ExpenseApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(ExpenseRequest $request)
+    public function destroy(UpdateExpenseRequest $request)
     {
         $expense = $request->entity();
 

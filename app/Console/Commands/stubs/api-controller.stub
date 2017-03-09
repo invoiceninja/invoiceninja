@@ -52,7 +52,7 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *     in="path",
      *     name="$LOWER_NAME$_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -110,7 +110,7 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *     in="path",
      *     name="$LOWER_NAME$_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -149,7 +149,7 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *     in="path",
      *     name="$LOWER_NAME$_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -162,7 +162,7 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy($STUDLY_NAME$Request $request)
+    public function destroy(Update$STUDLY_NAME$Request $request)
     {
         $$LOWER_NAME$ = $request->entity();
 

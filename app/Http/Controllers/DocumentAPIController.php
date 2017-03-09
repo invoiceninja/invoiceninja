@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\DocumentRequest;
 use App\Http\Requests\CreateDocumentRequest;
+use App\Http\Requests\UpdateDocumentRequest;
 use App\Models\Document;
 use App\Ninja\Repositories\DocumentRepository;
 
@@ -71,7 +72,7 @@ class DocumentAPIController extends BaseAPIController
      *     in="path",
      *     name="document_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -132,7 +133,7 @@ class DocumentAPIController extends BaseAPIController
      *     in="path",
      *     name="document_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -145,7 +146,7 @@ class DocumentAPIController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(DocumentRequest $request)
+    public function destroy(UpdateDocumentRequest $request)
     {
         $entity = $request->entity();
 

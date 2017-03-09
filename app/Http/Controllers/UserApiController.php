@@ -60,7 +60,7 @@ class UserApiController extends BaseAPIController
      *     in="path",
      *     name="user_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -113,7 +113,7 @@ class UserApiController extends BaseAPIController
      *     in="path",
      *     name="user_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -168,7 +168,7 @@ class UserApiController extends BaseAPIController
      *     in="path",
      *     name="user_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -181,7 +181,7 @@ class UserApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(UserRequest $request)
+    public function destroy(UpdateUserRequest $request)
     {
         $entity = $request->entity();
 

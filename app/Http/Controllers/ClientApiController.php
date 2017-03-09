@@ -64,7 +64,7 @@ class ClientApiController extends BaseAPIController
      *     in="path",
      *     name="client_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -119,7 +119,7 @@ class ClientApiController extends BaseAPIController
      *     in="path",
      *     name="client_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -163,7 +163,7 @@ class ClientApiController extends BaseAPIController
      *     in="path",
      *     name="client_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -176,7 +176,7 @@ class ClientApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(ClientRequest $request)
+    public function destroy(UpdateClientRequest $request)
     {
         $client = $request->entity();
 

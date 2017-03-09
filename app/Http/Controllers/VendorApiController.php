@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-// vendor
+use App\Http\Requests\VendorRequest;
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
-use App\Http\Requests\VendorRequest;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
 use Input;
@@ -66,7 +65,7 @@ class VendorApiController extends BaseAPIController
      *     in="path",
      *     name="vendor_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -125,7 +124,7 @@ class VendorApiController extends BaseAPIController
      *     in="path",
      *     name="vendor_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -169,7 +168,7 @@ class VendorApiController extends BaseAPIController
      *     in="path",
      *     name="vendor_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -182,7 +181,7 @@ class VendorApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(VendorRequest $request)
+    public function destroy(UpdateVendorRequest $request)
     {
         $vendor = $request->entity();
 

@@ -58,7 +58,7 @@ class ExpenseCategoryApiController extends BaseAPIController
      *     in="path",
      *     name="expense_category_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -113,7 +113,7 @@ class ExpenseCategoryApiController extends BaseAPIController
      *     in="path",
      *     name="expense_category_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -147,7 +147,7 @@ class ExpenseCategoryApiController extends BaseAPIController
      *     in="path",
      *     name="expense_category_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -160,7 +160,7 @@ class ExpenseCategoryApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(ExpenseCategoryRequest $request)
+    public function destroy(UpdateExpenseCategoryRequest $request)
     {
         $entity = $request->entity();
 

@@ -61,7 +61,7 @@ class PaymentApiController extends BaseAPIController
      *     in="path",
      *     name="payment_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -123,7 +123,7 @@ class PaymentApiController extends BaseAPIController
      *     in="path",
      *     name="payment_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -165,7 +165,7 @@ class PaymentApiController extends BaseAPIController
      *     in="path",
      *     name="payment_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -178,7 +178,7 @@ class PaymentApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(PaymentRequest $request)
+    public function destroy(UpdatePaymentRequest $request)
     {
         $payment = $request->entity();
 

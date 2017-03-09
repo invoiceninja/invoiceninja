@@ -66,7 +66,7 @@ class TaxRateApiController extends BaseAPIController
      *     in="path",
      *     name="tax_rate_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -121,7 +121,7 @@ class TaxRateApiController extends BaseAPIController
      *     in="path",
      *     name="tax_rate_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -163,7 +163,7 @@ class TaxRateApiController extends BaseAPIController
      *     in="path",
      *     name="tax_rate_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -176,7 +176,7 @@ class TaxRateApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(TaxRateRequest $request)
+    public function destroy(UpdateTaxRateRequest $request)
     {
         $entity = $request->entity();
 

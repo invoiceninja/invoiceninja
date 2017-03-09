@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\InvoiceRequest;
+use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Jobs\SendInvoiceEmail;
 use App\Jobs\SendPaymentEmail;
@@ -74,7 +74,7 @@ class InvoiceApiController extends BaseAPIController
      *     in="path",
      *     name="invoice_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -320,7 +320,7 @@ class InvoiceApiController extends BaseAPIController
      *     in="path",
      *     name="invoice_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -371,7 +371,7 @@ class InvoiceApiController extends BaseAPIController
      *     in="path",
      *     name="invoice_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -384,7 +384,7 @@ class InvoiceApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(InvoiceRequest $request)
+    public function destroy(UpdateInvoiceRequest $request)
     {
         $invoice = $request->entity();
 

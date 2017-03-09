@@ -69,7 +69,7 @@ class ProductApiController extends BaseAPIController
      *     in="path",
      *     name="product_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -124,7 +124,7 @@ class ProductApiController extends BaseAPIController
      *     in="path",
      *     name="product_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Parameter(
      *     in="body",
@@ -158,7 +158,7 @@ class ProductApiController extends BaseAPIController
     }
 
     /**
-     * @SWG\Get(
+     * @SWG\Delete(
      *   path="/products/{product_id}",
      *   tags={"product"},
      *   summary="Delete a product",
@@ -166,7 +166,7 @@ class ProductApiController extends BaseAPIController
      *     in="path",
      *     name="product_id",
      *     type="integer",
-     *     required="true"
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
@@ -179,7 +179,7 @@ class ProductApiController extends BaseAPIController
      *   )
      * )
      */
-     public function destroy(ProductRequest $request)
+     public function destroy(UpdateProductRequest $request)
      {
          $product = $request->entity();
 
