@@ -27,7 +27,7 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   tags={"$LOWER_NAME$"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with $LOWER_NAME$",
+     *     description="A list of $LOWER_NAME$",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/$STUDLY_NAME$"))
      *   ),
      *   @SWG\Response(
@@ -48,6 +48,12 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   path="/$LOWER_NAME$/{$LOWER_NAME$_id}",
      *   summary="Individual $STUDLY_NAME$",
      *   tags={"$LOWER_NAME$"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="$LOWER_NAME$_id",
+     *     type="integer",
+     *     required=true
+     *   ),
      *   @SWG\Response(
      *     response=200,
      *     description="A single $LOWER_NAME$",
@@ -59,7 +65,6 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   )
      * )
      */
-
     public function show($STUDLY_NAME$Request $request)
     {
         return $this->itemResponse($request->entity());
@@ -75,7 +80,7 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   summary="Create a $LOWER_NAME$",
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="$LOWER_NAME$",
      *     @SWG\Schema(ref="#/definitions/$STUDLY_NAME$")
      *   ),
      *   @SWG\Response(
@@ -102,13 +107,19 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   tags={"$LOWER_NAME$"},
      *   summary="Update a $LOWER_NAME$",
      *   @SWG\Parameter(
+     *     in="path",
+     *     name="$LOWER_NAME$_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="$LOWER_NAME$",
      *     @SWG\Schema(ref="#/definitions/$STUDLY_NAME$")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update $LOWER_NAME$",
+     *     description="Updated $LOWER_NAME$",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/$STUDLY_NAME$"))
      *   ),
      *   @SWG\Response(
@@ -117,7 +128,6 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   )
      * )
      */
-
     public function update(Update$STUDLY_NAME$Request $request, $publicId)
     {
         if ($request->action) {
@@ -136,13 +146,14 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   tags={"$LOWER_NAME$"},
      *   summary="Delete a $LOWER_NAME$",
      *   @SWG\Parameter(
-     *     in="body",
-     *     name="body",
-     *     @SWG\Schema(ref="#/definitions/$STUDLY_NAME$")
+     *     in="path",
+     *     name="$LOWER_NAME$_id",
+     *     type="integer",
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Delete $LOWER_NAME$",
+     *     description="Deleted $LOWER_NAME$",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/$STUDLY_NAME$"))
      *   ),
      *   @SWG\Response(
@@ -151,7 +162,6 @@ class $STUDLY_NAME$ApiController extends BaseAPIController
      *   )
      * )
      */
-
     public function destroy(Update$STUDLY_NAME$Request $request)
     {
         $$LOWER_NAME$ = $request->entity();

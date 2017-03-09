@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ExpenseCategoryRequest;
 use App\Http\Requests\CreateExpenseCategoryRequest;
 use App\Http\Requests\UpdateExpenseCategoryRequest;
+use App\Models\ExpenseCategory;
 use App\Ninja\Repositories\ExpenseCategoryRepository;
 use App\Services\ExpenseCategoryService;
 use Input;
@@ -23,13 +25,65 @@ class ExpenseCategoryApiController extends BaseAPIController
     }
 
     /**
+     * @SWG\Get(
+     *   path="/expense_categories",
+     *   summary="List of expense categories",
+     *   tags={"expense_category"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list of expense categories",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/ExpenseCategory"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function index()
+    {
+        $clients = ExpenseCategory::scope()
+            ->orderBy('created_at', 'desc')
+            ->withTrashed();
+
+        return $this->listResponse($clients);
+    }
+
+    /**
+     * @SWG\Get(
+     *   path="/expense_categories/{expense_category_id}",
+     *   summary="Individual Expense Category",
+     *   tags={"expense_category"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="expense_category_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single expense categroy",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/ExpenseCategory"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function show(ExpenseCategory $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+    /**
      * @SWG\Post(
      *   path="/expense_categories",
      *   tags={"expense_category"},
      *   summary="Create an expense category",
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="expense_category",
      *     @SWG\Schema(ref="#/definitions/ExpenseCategory")
      *   ),
      *   @SWG\Response(
@@ -56,13 +110,19 @@ class ExpenseCategoryApiController extends BaseAPIController
      *   tags={"expense_category"},
      *   summary="Update an expense category",
      *   @SWG\Parameter(
+     *     in="path",
+     *     name="expense_category_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="expense_category",
      *     @SWG\Schema(ref="#/definitions/ExpenseCategory")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update expense category",
+     *     description="Updated expense category",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/ExpenseCategory"))
      *   ),
      *   @SWG\Response(
@@ -76,5 +136,36 @@ class ExpenseCategoryApiController extends BaseAPIController
         $category = $this->categoryRepo->save($request->input(), $request->entity());
 
         return $this->itemResponse($category);
+    }
+
+    /**
+     * @SWG\Delete(
+     *   path="/expense_categories/{expense_category_id}",
+     *   tags={"expense_category"},
+     *   summary="Delete an expense category",
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="expense_category_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Deleted expense category",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/ExpenseCategory"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function destroy(UpdateExpenseCategoryRequest $request)
+    {
+        $entity = $request->entity();
+
+        $this->expenseCategoryRepo->delete($entity);
+
+        return $this->itemResponse($entity);
     }
 }
