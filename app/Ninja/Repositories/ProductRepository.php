@@ -65,9 +65,9 @@ class ProductRepository extends BaseRepository
         }
 
         $product->fill($data);
-        $product->product_key = trim($data['product_key']);
-        $product->notes = trim($data['notes']);
-        $product->cost = Utils::parseFloat($data['cost']);
+        $product->product_key = isset($data['product_key']) ? trim($data['product_key']) : '';
+        $product->notes = isset($data['notes']) ? trim($data['notes']) : '';
+        $product->cost = isset($data['cost']) ? Utils::parseFloat($data['cost']) : 0;
         $product->save();
 
         return $product;
