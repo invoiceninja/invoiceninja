@@ -91,7 +91,7 @@
 
         var settingsURL = '{{ url('/settings/company_details') }}';
         if (isStorageSupported()) {
-            settingsURL = localStorage.getItem('last:settings_page') || url;
+            settingsURL = localStorage.getItem('last:settings_page') || settingsURL;
         }
         // if they're on the last viewed settings page link to main settings page
         if ('{{ request()->url() }}' != settingsURL) {
