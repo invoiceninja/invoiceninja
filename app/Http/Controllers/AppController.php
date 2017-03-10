@@ -308,6 +308,14 @@ class AppController extends BaseController
     // We need to make sure all tables are InnoDB to prevent migration failures
     public function checkInnoDB()
     {
+        $result = DB::select("SELECT engine
+                    FROM information_schema.TABLES
+                    WHERE TABLE_NAME='clients' AND TABLE_SCHEMA='ninja'");
+
+        if (count($result) && $result[0]->engine == 'InnoDB') {
+            return;
+        }
+
         $tables = DB::select('SHOW TABLES');
         $sql = "SET sql_mode = 'ALLOW_INVALID_DATES';\n";
 
