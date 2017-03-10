@@ -1220,6 +1220,10 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
+        if (Utils::isTravis()) {
+            return false;
+        }
+
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
         $pdfString = false;
