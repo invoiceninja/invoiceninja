@@ -312,7 +312,7 @@ class Client extends EntityModel
      */
     public function updateBalances($balanceAdjustment, $paidToDateAdjustment)
     {
-        if ($balanceAdjustment === 0 && $paidToDateAdjustment === 0) {
+        if ($balanceAdjustment == 0 && $paidToDateAdjustment == 0) {
             return;
         }
 
