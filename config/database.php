@@ -62,6 +62,7 @@ return [
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
             'strict'    => env('DB_STRICT', false),
+            'engine'    => 'InnoDB',
         ],
 
         'pgsql' => [
