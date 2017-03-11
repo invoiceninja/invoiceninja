@@ -333,14 +333,26 @@
     }
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var target = $(e.target).attr("href") // activated tab
-        if (history.pushState) {
-            history.pushState(null, null, target);
-        }
         if (isStorageSupported() && /\/settings\//.test(location.href)) {
-            localStorage.setItem('last:settings_page', location.href);
+            var target = $(e.target).attr("href") // activated tab
+            if (history.pushState) {
+                history.pushState(null, null, target);
+            }
+            localStorage.setItem('last:settings_page', location.href.replace(location.hash, ''));
         }
     });
+
+    // set timeout onDomReady
+    setTimeout(delayedFragmentTargetOffset, 500);
+
+    // add scroll offset to fragment target (if there is one)
+    function delayedFragmentTargetOffset(){
+        var offset = $(':target').offset();
+        if (offset) {
+            var scrollto = offset.top - 180; // minus fixed header height
+            $('html, body').animate({scrollTop:scrollto}, 0);
+        }
+    }
 
   });
 
