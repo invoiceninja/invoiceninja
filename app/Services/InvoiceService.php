@@ -144,6 +144,8 @@ class InvoiceService extends BaseService
             return null;
         }
 
+        event(new QuoteInvitationWasApproved($quote, $invitation));
+
         if ($account->auto_convert_quote) {
             $invoice = $this->convertQuote($quote);
 
@@ -155,8 +157,6 @@ class InvoiceService extends BaseService
         } else {
             $quote->markApproved();
         }
-
-        event(new QuoteInvitationWasApproved($quote, $invitation));
 
         return $invitation->invitation_key;
     }
