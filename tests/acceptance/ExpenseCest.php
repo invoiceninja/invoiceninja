@@ -9,7 +9,7 @@ class ExpenseCest
      * @var \Faker\Generator
      */
     private $faker;
-    
+
     public function _before(AcceptanceTester $I)
     {
         $I->checkIfLogin($I);
@@ -51,7 +51,7 @@ class ExpenseCest
         $I->executeJS('submitAction(\'invoice\')');
         $I->wait(2);
         $I->click('Save');
-        $I->wait(2);
+        $I->wait(4);
         $I->see($clientEmail);
         $I->see($amount);
     }
