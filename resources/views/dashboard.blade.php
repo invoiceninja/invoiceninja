@@ -349,7 +349,11 @@
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
                     @if ($invoicesSent)
                         <div class="pull-right" style="font-size:14px;padding-top:4px">
-                            {{ trans_choice('texts.invoices_sent', $invoicesSent) }}
+							@if (App::getLocale() == 'pl')
+								<!-- https://github.com/invoiceninja/invoiceninja/issues/613 -->
+							@else
+								{{ trans_choice('texts.invoices_sent', $invoicesSent) }}
+							@endif
                         </div>
                     @endif
                 </h3>
