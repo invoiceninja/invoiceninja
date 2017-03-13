@@ -66,14 +66,14 @@ before_script:
   - sleep 5
   # Make sure the app is up-to-date
   - curl -L http://ninja.dev:8000/update
-  #- php artisan ninja:create-test-data 4 true
+  - php artisan ninja:create-test-data 4 true
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
 
 script:
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance ExpenseCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
   #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
