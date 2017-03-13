@@ -58,8 +58,7 @@ class Authenticate
 
             if ($contact_key) {
                 $contact = $this->getContact($contact_key);
-            } elseif (! empty($request->invitation_key)) {
-                $invitation = $this->getInvitation($request->invitation_key);
+            } elseif ($invitation = $this->getInvitation($request->invitation_key)) {
                 $contact = $invitation->contact;
                 Session::put('contact_key', $contact->contact_key);
             } else {
@@ -108,6 +107,10 @@ class Authenticate
      */
     protected function getInvitation($key)
     {
+        if (! $key) {
+            return false;
+        }
+
         // check for extra params at end of value (from website feature)
         list($key) = explode('&', $key);
 
