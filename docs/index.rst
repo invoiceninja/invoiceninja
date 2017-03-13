@@ -47,4 +47,6 @@ Want to find out everything there is to know about how to use your Invoice Ninja
    configure
    update
    iphone_app
+   api
+   developer_guide
    custom_modules
