@@ -22,6 +22,7 @@ class ExpenseCest
         $I->wantTo('Create an expense');
 
         $vendorName = $this->faker->name;
+        $clientName = $this->faker->name;
         $clientEmail = $this->faker->safeEmail;
         $amount = $this->faker->numberBetween(10, 20);
 
@@ -34,24 +35,27 @@ class ExpenseCest
 
         // create client
         $I->amOnPage('/clients/create');
+        $I->fillField(['name' => 'name'], $clientName);
         $I->fillField(['name' => 'contacts[0][email]'], $clientEmail);
         $I->click('Save');
         $I->see($clientEmail);
+        $clientId = $I->grabFromDatabase('clients', 'id', ['name' => $clientName]);
 
         // create expense
         $I->amOnPage('/expenses/create');
         $I->fillField(['name' => 'amount'], $amount);
         $I->selectDropdown($I, $vendorName, '.vendor-select .dropdown-toggle');
-        $I->selectDropdown($I, $clientEmail, '.client-select .dropdown-toggle');
+        $I->selectDropdown($I, $clientName, '.client-select .dropdown-toggle');
         $I->click('Save');
         $I->wait(2);
         $I->seeInDatabase('expenses', ['vendor_id' => $vendorId]);
+        $I->seeInDatabase('expenses', ['client_id' => $clientId]);
 
         // invoice expense
         $I->executeJS('submitAction(\'invoice\')');
         $I->wait(2);
         $I->click('Save');
-        $I->wait(4);
+        $I->wait(2);
         $I->see($clientEmail);
         $I->see($amount);
     }
