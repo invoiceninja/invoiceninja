@@ -51,10 +51,12 @@
 
                 <div role="tabpanel">
                     <ul class="nav nav-tabs" role="tablist" style="border: none">
-                        <li role="presentation" class="active">
-                            <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
-                        </li>
-                        <li role="presentation">
+                        @if (Utils::isNinja())
+                            <li role="presentation" class="active">
+                                <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                            </li>
+                        @endif
+                        <li role="presentation" {{ Utils::isNinja() ? '' : 'class="active"' }}>
                             <a href="#navigation" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.navigation') }}</a>
                         </li>
                         <li role="presentation">
@@ -64,10 +66,11 @@
                 </div>
 
                 <div class="tab-content">
+                    @if (Utils::isNinja())
                     <div role="tabpanel" class="tab-pane active" id="link">
                         <div class="panel-body">
 
-                            @if (Utils::isNinja() && ! Utils::isReseller())
+                            @if (! Utils::isReseller())
                                 {!! Former::inline_radios('domain_id')
                                         ->label(trans('texts.domain'))
                                         ->radios([
@@ -105,7 +108,8 @@
 
                         </div>
                     </div>
-                    <div role="tabpanel" class="tab-pane" id="navigation">
+                    @endif
+                    <div role="tabpanel" class="tab-pane  {{ Utils::isNinja() ? '' : 'active' }}" id="navigation">
                         <div class="panel-body">
 
                             {!! Former::checkbox('enable_client_portal')
