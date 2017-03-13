@@ -14,11 +14,11 @@ Reading Data
 
 Here’s an example of reading the list of clients using cURL from the command line.
 
-``curl -X GET ninja.dev/api/v1/clients -H "X-Ninja-Token: TOKEN" -H "X-Requested-With: XMLHttpRequest"``
+  ``curl -X GET ninja.dev/api/v1/clients -H "X-Ninja-Token: TOKEN" -H "X-Requested-With: XMLHttpRequest"``
 
 For invoices, quotes, tasks and payments simply change the object type. ie,
 
-``curl -X GET ninja.dev/api/v1/invoices -H "X-Ninja-Token: TOKEN" -H "X-Requested-With: XMLHttpRequest"``
+  curl -X GET ninja.dev/api/v1/invoices -H "X-Ninja-Token: TOKEN" -H "X-Requested-With: XMLHttpRequest"
 
 To load a single record specify the Id in the URL. Note: you can add ?invoice_number=0001 to search invoices by invoice number.
 
