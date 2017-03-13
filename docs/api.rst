@@ -14,7 +14,9 @@ Reading Data
 
 Here’s an example of reading the list of clients using cURL from the command line.
 
-  ``curl -X GET ninja.dev/api/v1/clients -H "X-Ninja-Token: TOKEN" -H "X-Requested-With: XMLHttpRequest"``
+.. code-block:: shell
+
+  curl -X GET ninja.dev/api/v1/clients -H "X-Ninja-Token: TOKEN" -H "X-Requested-With: XMLHttpRequest"
 
 For invoices, quotes, tasks and payments simply change the object type. ie,
 
