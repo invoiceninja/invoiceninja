@@ -101,6 +101,7 @@ class AppController extends BaseController
         $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
         $_ENV['MAIL_PASSWORD'] = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
+        $_ENV['PHANTOMJS_SECRET'] = str_random(RANDOM_KEY_LENGTH);
         $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
         $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
 
