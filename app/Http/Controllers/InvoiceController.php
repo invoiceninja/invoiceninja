@@ -464,7 +464,6 @@ class InvoiceController extends BaseController
     public function bulk($entityType = ENTITY_INVOICE)
     {
         $action = Input::get('bulk_action') ?: Input::get('action');
-        ;
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
@@ -480,6 +479,10 @@ class InvoiceController extends BaseController
             }
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
+        }
+
+        if (strpos(\Request::server('HTTP_REFERER'), 'recurring_invoices')) {
+            $entityType = ENTITY_RECURRING_INVOICE;
         }
 
         return $this->returnBulk($entityType, $action, $ids);
