@@ -311,24 +311,22 @@ class OnlinePaymentController extends BaseController
                 $query->where('contact_key', $contactKey);
             })->first();
         }
-        if (! $client) {
-            $rules = [
-                'first_name' => 'string|max:100',
-                'last_name' => 'string|max:100',
-                'email' => 'email|string|max:100',
-            ];
+        $rules = [
+            'first_name' => 'string|max:100',
+            'last_name' => 'string|max:100',
+            'email' => 'email|string|max:100',
+        ];
 
-            $validator = Validator::make(Input::all(), $rules);
-            if ($validator->fails()) {
-                return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
-            }
-
-            $data = [
-                'currency_id' => $account->currency_id,
-                'contact' => Input::all(),
-            ];
-            $client = $clientRepo->save($data);
+        $validator = Validator::make(Input::all(), $rules);
+        if ($validator->fails()) {
+            return redirect()->to("{$failureUrl}/?error=" . $validator->errors()->first());
         }
+
+        $data = [
+            'currency_id' => $account->currency_id,
+            'contact' => Input::all(),
+        ];
+        $client = $clientRepo->save($data, $client);
 
         $data = [
             'client_id' => $client->id,
