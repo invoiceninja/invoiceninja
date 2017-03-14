@@ -2398,6 +2398,14 @@ $LANG = array(
     'pro_plan_reports' => ':link to enable reports by joining the Pro Plan',
     'mark_ready' => 'Mark Ready',
 
+    'limits' => 'Limits',
+    'fees' => 'Fees',
+    'set_limits_fees' => 'Set :gateway_type Limits/Fees',
+    'fee_amount' => 'Amount',
+    'fee_percent' => 'Percent',
+    'fees_tax_help' => 'Enable line item taxes to set fee tax rates.',
+    'fees_sample' => 'For a :amount invoice the fees would be :total.',
+
 );
 
 return $LANG;

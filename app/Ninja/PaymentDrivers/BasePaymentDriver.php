@@ -888,6 +888,11 @@ class BasePaymentDriver
         return $links;
     }
 
+    public function supportsGatewayType($gatewayTypeId)
+    {
+        return in_array($gatewayTypeId, $this->gatewayTypes());
+    }
+
     protected function meetsGatewayTypeLimits($gatewayTypeId)
     {
         if (! $gatewayTypeId) {

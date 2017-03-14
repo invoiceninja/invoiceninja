@@ -103,6 +103,12 @@ class AccountGatewayDatatable extends EntityDatatable
                     return $html;
                 },
             ],
+            [
+                'fees',
+                function ($model) {
+                    return 'Fees description...';
+                },
+            ],
         ];
     }
 
@@ -160,7 +166,7 @@ class AccountGatewayDatatable extends EntityDatatable
 
         foreach (Cache::get('gatewayTypes') as $gatewayType) {
             $actions[] = [
-                trans('texts.set_limits', ['gateway_type' => $gatewayType->name]),
+                trans('texts.set_limits_fees', ['gateway_type' => $gatewayType->name]),
                 function () use ($gatewayType) {
                     $accountGatewaySettings = AccountGatewaySettings::scope()
                         ->where('account_gateway_settings.gateway_type_id', '=', $gatewayType->id)
@@ -176,10 +182,7 @@ class AccountGatewayDatatable extends EntityDatatable
                         return $gatewayType->id == GATEWAY_TYPE_CUSTOM;
                     } else {
                         $accountGateway = $this->getAccountGateway($model->id);
-                        $paymentDriver = $accountGateway->paymentDriver();
-                        $gatewayTypes = $paymentDriver->gatewayTypes();
-
-                        return in_array($gatewayType->id, $gatewayTypes);
+                        return $accountGateway->paymentDriver()->supportsGatewayType($gatewayType->id);
                     }
                 },
             ];

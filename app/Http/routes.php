@@ -130,7 +130,7 @@ Route::group(['middleware' => 'auth:user'], function () {
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
-    Route::post('settings/payment_gateway_limits', 'AccountController@savePaymentGatewayLimits');
+    Route::post('settings/payment_gateway_limits', 'AccountGatewayController@savePaymentGatewayLimits');
     Route::post('users/change_password', 'UserController@changePassword');
 
     Route::resource('clients', 'ClientController');

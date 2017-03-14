@@ -3,6 +3,7 @@
 @section('content')
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_PAYMENTS])
+	@include('money_script')
 
     {!! Former::open()->addClass('warn-on-exit') !!}
     {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
@@ -43,14 +44,15 @@
   {!! Datatable::table()
       ->addColumn(
         trans('texts.name'),
-        trans('texts.limit'),
+        trans('texts.limits'),
+		trans('texts.fees'),
         trans('texts.action'))
       ->setUrl(url('api/gateways/'))
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "50%" ], ["sWidth"=> "30%"], ["sWidth"=> "20%"]])
-      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1]]])
+      ->setOptions('aoColumns', [[ "sWidth"=> "30%" ], ["sWidth"=> "30%"], ["sWidth"=> "20%"], ["sWidth"=> "20%"]])
+      ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1, 2, 3]]])
       ->render('datatable') !!}
 
     {!! Former::open( 'settings/payment_gateway_limits') !!}
@@ -64,42 +66,107 @@
                     <h4 class="modal-title" id="paymentLimitsModalLabel"></h4>
                 </div>
 
-				<div class="container" style="width: 100%; padding-bottom: 0px !important">
+				<div class="container" style="width: 100%; padding-bottom: 2px !important">
 	            <div class="panel panel-default" style="margin-bottom: 0px">
 	            <div class="panel-body">
-                        <div class="row" style="text-align:center">
-                            <div class="col-xs-12">
-                                <div id="payment-limits-slider"></div>
-                            </div>
-                        </div><br/>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div id="payment-limit-min-container">
-                                    <label for="payment-limit-min">{{ trans('texts.min') }}</label><br>
-                                    <div class="input-group" style="padding-bottom:8px">
-                                        <span class="input-group-addon">{{ $currency->symbol }}</span>
-                                        <input type="number" class="form-control" min="0" id="payment-limit-min"
-                                               name="limit_min">
-                                    </div>
-                                    <label><input type="checkbox" id="payment-limit-min-enable"
-                                                  name="limit_min_enable"> {{ trans('texts.enable_min') }}</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div id="payment-limit-max-container">
-                                    <label for="payment-limit-max">{{ trans('texts.max') }}</label><br>
+					<div role="tabpanel">
+		                <ul class="nav nav-tabs" role="tablist" style="border: none">
+		                    <li role="presentation" class="active">
+		                        <a href="#limits" aria-controls="limits" role="tab" data-toggle="tab">{{ trans('texts.limits') }}</a>
+		                    </li>
+		                    <li role="presentation">
+		                        <a href="#fees" aria-controls="fees" role="tab" data-toggle="tab">{{ trans('texts.fees') }}</a>
+		                    </li>
+		                </ul>
+		            </div>
+		            <div class="tab-content">
+		                <div role="tabpanel" class="tab-pane active" id="limits">
+		                    <div class="panel-body"><br/>
+								<div class="row" style="text-align:center">
+			                        <div class="col-xs-12">
+			                            <div id="payment-limits-slider"></div>
+			                        </div>
+			                    </div><br/>
+			                    <div class="row">
+			                        <div class="col-md-6">
+			                            <div id="payment-limit-min-container">
+			                                <label for="payment-limit-min">{{ trans('texts.min') }}</label><br>
+			                                <div class="input-group" style="padding-bottom:8px">
+			                                    <span class="input-group-addon">{{ $currency->symbol }}</span>
+			                                    <input type="number" class="form-control" min="0" id="payment-limit-min"
+			                                           name="limit_min">
+			                                </div>
+			                                <label><input type="checkbox" id="payment-limit-min-enable"
+			                                              name="limit_min_enable"> {{ trans('texts.enable_min') }}</label>
+			                            </div>
+			                        </div>
+			                        <div class="col-md-6">
+			                            <div id="payment-limit-max-container">
+			                                <label for="payment-limit-max">{{ trans('texts.max') }}</label><br>
 
-                                    <div class="input-group" style="padding-bottom:8px">
-                                        <span class="input-group-addon">{{ $currency->symbol }}</span>
-                                        <input type="number" class="form-control" min="0" id="payment-limit-max"
-                                               name="limit_max">
-                                    </div>
-                                    <label><input type="checkbox" id="payment-limit-max-enable"
-                                                  name="limit_max_enable"> {{ trans('texts.enable_max') }}</label>
-                                </div>
-                            </div>
-                        </div>
-                        <input type="hidden" name="gateway_type_id" id="payment-limit-gateway-type">
+			                                <div class="input-group" style="padding-bottom:8px">
+			                                    <span class="input-group-addon">{{ $currency->symbol }}</span>
+			                                    <input type="number" class="form-control" min="0" id="payment-limit-max"
+			                                           name="limit_max">
+			                                </div>
+			                                <label><input type="checkbox" id="payment-limit-max-enable"
+			                                              name="limit_max_enable"> {{ trans('texts.enable_max') }}</label>
+			                            </div>
+			                        </div>
+			                    </div>
+
+		                    </div>
+		                </div>
+						<div role="tabpanel" class="tab-pane active" id="fees">
+		                    <div class="panel-body">
+
+								{!! Former::text('fee_amount')
+										->onchange('updateFeeSample()')
+										->type('number')
+										->min('0')
+										->step('any') !!}
+
+								{!! Former::text('fee_percent')
+										->onchange('updateFeeSample()')
+										->type('number')
+										->min('0')
+										->step('any')
+										->append('%') !!}
+
+								@if ($account->invoice_item_taxes)
+							        {!! Former::select('tax_rate1')
+										  ->onchange('onTaxRateChange(1)')
+							              ->addOption('', '')
+							              ->label(trans('texts.tax_rate'))
+							              ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'id') !!}
+
+									{!! Former::text('fee_tax_name1') !!}
+									{!! Former::text('fee_tax_rate1') !!}
+
+									@if ($account->enable_second_tax_rate)
+									{!! Former::select('tax_rate2')
+										  ->onchange('onTaxRateChange(2)')
+							              ->addOption('', '')
+							              ->label(trans('texts.tax_rate'))
+							              ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'id') !!}
+									@endif
+
+									{!! Former::text('fee_tax_name2') !!}
+									{!! Former::text('fee_tax_rate2') !!}
+
+								@endif
+
+								<br/><div id="feeSample" class="help-block"></div>
+
+								@if (!$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
+									<br/><div class="help-block">{{ trans('texts.fees_tax_help') }}</div>
+							    @endif
+
+		                    </div>
+		                </div>
+					</div>
+
+                    <input type="hidden" name="gateway_type_id" id="payment-limit-gateway-type">
                 </div>
                 </div>
 				</div>
@@ -117,8 +184,10 @@
   <script>
     window.onDatatableReady = actionListHandler;
 
+	var taxRates = {!! $taxRates !!};
+
     function showLimitsModal(gateway_type, gateway_type_id, min_limit, max_limit) {
-        var modalLabel = {!! json_encode(trans('texts.set_limits')) !!};
+        var modalLabel = {!! json_encode(trans('texts.set_limits_fees')) !!};
         $('#paymentLimitsModalLabel').text(modalLabel.replace(':gateway_type', gateway_type));
 
         limitsSlider.noUiSlider.set([min_limit !== null ? min_limit : 0, max_limit !== null ? max_limit : 100000]);
@@ -196,6 +265,49 @@
             $('#payment-limit-max').attr('disabled', 'disabled');
         }
     });
+
+	function updateFeeSample() {
+		var feeAmount = NINJA.parseFloat($('#fee_amount').val()) || 0;
+		var feePercent = NINJA.parseFloat($('#fee_percent').val()) || 0;
+		var total = feeAmount + feePercent
+		var subtotal = total;
+
+		var taxRate1 = $('#tax_rate1').val();
+		if (taxRate1) {
+			taxRate1 = NINJA.parseFloat(taxRates[taxRate1-1].rate);
+			total += subtotal * taxRate1 / 100;
+		}
+
+		var taxRate2 = NINJA.parseFloat($('#tax_rate2').val());
+		if (taxRate2) {
+			taxRate2 = NINJA.parseFloat(taxRates[taxRate2-1].rate);
+			total += subtotal * taxRate2 / 100;
+		}
+
+		var str = "{{ trans('texts.fees_sample') }}";
+		str = str.replace(':amount', formatMoney(100));
+		str = str.replace(':total', formatMoney(total));
+		$('#feeSample').text(str);
+	}
+
+	function onTaxRateChange(instance) {
+		var taxRate = $('#tax_rate' + instance).val();
+		if (taxRate) {
+			taxRate = taxRates[taxRate-1];
+		}
+
+		$('#fee_tax_name' + instance).val(taxRate ? taxRate.name : '');
+		$('#fee_tax_rate' + instance).val(taxRate ? taxRate.rate : '');
+
+		updateFeeSample();
+	}
+
+	@if (Utils::isNinja())
+		updateFeeSample();
+		$(function() {
+			javascript:showLimitsModal('Credit Card', 1, null, null);
+		});
+	@endif
 
   </script>
 
