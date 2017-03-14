@@ -203,9 +203,12 @@
         var modalLabel = {!! json_encode(trans('texts.set_limits_fees')) !!};
         $('#paymentLimitsModalLabel').text(modalLabel.replace(':gateway_type', gateway_type));
 
-        limitsSlider.noUiSlider.set([settings.min_limit !== null ? settings.min_limit : 0, settings.max_limit !== null ? settings.max_limit : 100000]);
+		var min_limit = settings ? settings.min_limit : null;
+		var max_limit = settings ? settings.max_limit : null
 
-        if (settings.min_limit !== null) {
+		limitsSlider.noUiSlider.set([min_limit !== null ? min_limit : 0, max_limit !== null ? max_limit : 100000]);
+
+        if (min_limit !== null) {
             $('#payment-limit-min').removeAttr('disabled');
             $('#payment-limit-min-enable').prop('checked', true);
         } else {
@@ -213,7 +216,7 @@
             $('#payment-limit-min-enable').prop('checked', false);
         }
 
-        if (settings.max_limit !== null) {
+        if (max_limit !== null) {
             $('#payment-limit-max').removeAttr('disabled');
             $('#payment-limit-max-enable').prop('checked', true);
         } else {
@@ -222,12 +225,17 @@
         }
 
         $('#payment-limit-gateway-type').val(gateway_type_id);
-		$('#fee_amount').val(settings.fee_amount);
-		$('#fee_percent').val(settings.fee_percent);
-		setTaxRate(1, settings.fee_tax_name1, settings.fee_tax_rate1);
-		setTaxRate(2, settings.fee_tax_name2, settings.fee_tax_rate2);
+
+		if (settings) {
+			$('#fee_amount').val(settings.fee_amount);
+			$('#fee_percent').val(settings.fee_percent);
+			setTaxRate(1, settings.fee_tax_name1, settings.fee_tax_rate1);
+			setTaxRate(2, settings.fee_tax_name2, settings.fee_tax_rate2);
+		}
 
         $('#paymentLimitsModal').modal('show');
+		
+		updateFeeSample();
     }
 
     var limitsSlider = document.getElementById('payment-limits-slider');
@@ -288,7 +296,7 @@
 		var feePercent = NINJA.parseFloat($('#fee_percent').val()) || 0;
 		var total = feeAmount + feePercent
 		var subtotal = total;
-
+		console.log('feeAmount: %s', feeAmount);
 		var taxRate1 = $('#tax_rate1').val();
 		if (taxRate1) {
 			taxRate1 = NINJA.parseFloat(taxRatesMap[taxRate1].rate);
@@ -338,13 +346,6 @@
 
 		onTaxRateChange(instance);
 	}
-
-	@if (Utils::isNinja())
-		updateFeeSample();
-		$(function() {
-			javascript:showLimitsModal('Credit Card', 1);
-		});
-	@endif
 
   </script>
 

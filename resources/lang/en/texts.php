@@ -2404,7 +2404,7 @@ $LANG = array(
     'fee_amount' => 'Amount',
     'fee_percent' => 'Percent',
     'fees_tax_help' => 'Enable line item taxes to set fee tax rates.',
-    'fees_sample' => 'For a :amount invoice the fees would be :total.',
+    'fees_sample' => 'The fee for a :amount invoice would be :total.',
 
 );
 
