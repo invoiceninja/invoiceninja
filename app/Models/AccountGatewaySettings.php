@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Utils;
+
 /**
  * Class AccountGatewaySettings.
  */
@@ -40,5 +42,29 @@ class AccountGatewaySettings extends EntityModel
     public function setCreatedAtAttribute($value)
     {
         // to Disable created_at
+    }
+
+    public function areFeesEnabled()
+    {
+        return floatval($this->fee_amount) || floatval($this->fee_percent);
+    }
+
+    public function feesToString()
+    {
+        $parts = [];
+
+        if (floatval($this->fee_amount)) {
+            $parts[] = Utils::formatMoney($this->fee_amount);
+        }
+
+        if (floatval($this->fee_percent)) {
+            $parts[] = $this->fee_percent . '%';
+        }
+
+        if (floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate1)) {
+            $parts[] = trans('texts.tax');
+        }
+
+        return join(' + ', $parts);
     }
 }

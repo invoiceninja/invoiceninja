@@ -51,7 +51,7 @@
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "30%" ], ["sWidth"=> "30%"], ["sWidth"=> "20%"], ["sWidth"=> "20%"]])
+      ->setOptions('aoColumns', [[ "sWidth"=> "24%" ], ["sWidth"=> "27%"], ["sWidth"=> "27%"], ["sWidth"=> "20%"]])
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1, 2, 3]]])
       ->render('datatable') !!}
 
@@ -234,7 +234,7 @@
 		}
 
         $('#paymentLimitsModal').modal('show');
-		
+
 		updateFeeSample();
     }
 
