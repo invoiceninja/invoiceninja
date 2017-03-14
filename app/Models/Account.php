@@ -192,6 +192,14 @@ class Account extends Eloquent
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
+    public function account_gateway_settings()
+    {
+        return $this->hasMany('App\Models\AccountGatewaySettings');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
     public function bank_accounts()
     {
         return $this->hasMany('App\Models\BankAccount');

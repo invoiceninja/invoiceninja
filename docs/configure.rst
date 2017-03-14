@@ -64,7 +64,7 @@ You can install PhantomJS to generate the PDF locally, to enable it add ``PHANTO
 Custom Fonts
 """"""""""""
 
-Follow these steps to add custom ttf fonts: ie, Google fonts
+Follow these steps to add custom ttf fonts: ie, `Google fonts <https://www.google.com/get/noto/>`_
 
 - Create a new folder in ``public/fonts/invoice-fonts/`` and copy over the ttf files
 - Run ``grunt dump_dir``

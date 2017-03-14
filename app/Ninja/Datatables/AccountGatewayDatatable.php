@@ -171,10 +171,9 @@ class AccountGatewayDatatable extends EntityDatatable
                     $accountGatewaySettings = AccountGatewaySettings::scope()
                         ->where('account_gateway_settings.gateway_type_id', '=', $gatewayType->id)
                         ->first();
-                    $min = $accountGatewaySettings && $accountGatewaySettings->min_limit !== null ? $accountGatewaySettings->min_limit : 'null';
-                    $max = $accountGatewaySettings && $accountGatewaySettings->max_limit !== null ? $accountGatewaySettings->max_limit : 'null';
-
-                    return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id}, $min, $max)";
+                    //$min = $accountGatewaySettings && $accountGatewaySettings->min_limit !== null ? $accountGatewaySettings->min_limit : 'null';
+                    //$max = $accountGatewaySettings && $accountGatewaySettings->max_limit !== null ? $accountGatewaySettings->max_limit : 'null';
+                    return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id})";
                 },
                 function ($model) use ($gatewayType) {
                     // Only show this action if the given gateway supports this gateway type

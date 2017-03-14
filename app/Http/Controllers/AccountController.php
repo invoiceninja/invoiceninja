@@ -500,7 +500,7 @@ class AccountController extends BaseController
                 'title' => trans('texts.online_payments'),
                 'tokenBillingOptions' => $tokenBillingOptions,
                 'currency' => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
-                'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']),
+                'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('rate')->get(['public_id', 'name', 'rate']),
                 'account' => $account,
             ]);
         }

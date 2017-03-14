@@ -117,7 +117,7 @@
 
 		                    </div>
 		                </div>
-						<div role="tabpanel" class="tab-pane active" id="fees">
+						<div role="tabpanel" class="tab-pane" id="fees">
 		                    <div class="panel-body">
 
 								{!! Former::text('fee_amount')
@@ -138,23 +138,24 @@
 										  ->onchange('onTaxRateChange(1)')
 							              ->addOption('', '')
 							              ->label(trans('texts.tax_rate'))
-							              ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'id') !!}
-
-									{!! Former::text('fee_tax_name1') !!}
-									{!! Former::text('fee_tax_rate1') !!}
+							              ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'public_id') !!}
 
 									@if ($account->enable_second_tax_rate)
 									{!! Former::select('tax_rate2')
 										  ->onchange('onTaxRateChange(2)')
 							              ->addOption('', '')
 							              ->label(trans('texts.tax_rate'))
-							              ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'id') !!}
+							              ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'public_id') !!}
 									@endif
 
+								@endif
+
+								<div style="display:none">
+									{!! Former::text('fee_tax_name1') !!}
+									{!! Former::text('fee_tax_rate1') !!}
 									{!! Former::text('fee_tax_name2') !!}
 									{!! Former::text('fee_tax_rate2') !!}
-
-								@endif
+								</div>
 
 								<br/><div id="feeSample" class="help-block"></div>
 
@@ -185,14 +186,26 @@
     window.onDatatableReady = actionListHandler;
 
 	var taxRates = {!! $taxRates !!};
+	var taxRatesMap = {};
+	for (var i=0; i<taxRates.length; i++) {
+		var taxRate = taxRates[i];
+		taxRatesMap[taxRate.public_id] = taxRate;
+	}
+	var gatewaySettings = {};
 
-    function showLimitsModal(gateway_type, gateway_type_id, min_limit, max_limit) {
+	@foreach ($account->account_gateway_settings as $setting)
+		gatewaySettings[{{ $setting->gateway_type_id }}] = {!! $setting !!};
+	@endforeach
+
+    //function showLimitsModal(gateway_type, gateway_type_id, min_limit, max_limit, fee_amount, fee_percent, fee_tax_name1, fee_tax_rate1, fee_tax_name2, fee_tax_rate2) {
+	function showLimitsModal(gateway_type, gateway_type_id) {
+		var settings = gatewaySettings[gateway_type_id];
         var modalLabel = {!! json_encode(trans('texts.set_limits_fees')) !!};
         $('#paymentLimitsModalLabel').text(modalLabel.replace(':gateway_type', gateway_type));
 
-        limitsSlider.noUiSlider.set([min_limit !== null ? min_limit : 0, max_limit !== null ? max_limit : 100000]);
+        limitsSlider.noUiSlider.set([settings.min_limit !== null ? settings.min_limit : 0, settings.max_limit !== null ? settings.max_limit : 100000]);
 
-        if (min_limit !== null) {
+        if (settings.min_limit !== null) {
             $('#payment-limit-min').removeAttr('disabled');
             $('#payment-limit-min-enable').prop('checked', true);
         } else {
@@ -200,7 +213,7 @@
             $('#payment-limit-min-enable').prop('checked', false);
         }
 
-        if (max_limit !== null) {
+        if (settings.max_limit !== null) {
             $('#payment-limit-max').removeAttr('disabled');
             $('#payment-limit-max-enable').prop('checked', true);
         } else {
@@ -209,6 +222,10 @@
         }
 
         $('#payment-limit-gateway-type').val(gateway_type_id);
+		$('#fee_amount').val(settings.fee_amount);
+		$('#fee_percent').val(settings.fee_percent);
+		setTaxRate(1, settings.fee_tax_name1, settings.fee_tax_rate1);
+		setTaxRate(2, settings.fee_tax_name2, settings.fee_tax_rate2);
 
         $('#paymentLimitsModal').modal('show');
     }
@@ -274,13 +291,13 @@
 
 		var taxRate1 = $('#tax_rate1').val();
 		if (taxRate1) {
-			taxRate1 = NINJA.parseFloat(taxRates[taxRate1-1].rate);
+			taxRate1 = NINJA.parseFloat(taxRatesMap[taxRate1].rate);
 			total += subtotal * taxRate1 / 100;
 		}
 
 		var taxRate2 = NINJA.parseFloat($('#tax_rate2').val());
 		if (taxRate2) {
-			taxRate2 = NINJA.parseFloat(taxRates[taxRate2-1].rate);
+			taxRate2 = NINJA.parseFloat(taxRatesMap[taxRate2].rate);
 			total += subtotal * taxRate2 / 100;
 		}
 
@@ -293,7 +310,7 @@
 	function onTaxRateChange(instance) {
 		var taxRate = $('#tax_rate' + instance).val();
 		if (taxRate) {
-			taxRate = taxRates[taxRate-1];
+			taxRate = taxRatesMap[taxRate];
 		}
 
 		$('#fee_tax_name' + instance).val(taxRate ? taxRate.name : '');
@@ -302,10 +319,30 @@
 		updateFeeSample();
 	}
 
+	function setTaxRate(instance, name, rate) {
+		if (!name || !rate) {
+			return;
+		}
+		var found = false;
+		for (var i=0; i<taxRates.length; i++) {
+			var taxRate = taxRates[i];
+			if (taxRate.name == name && taxRate.rate == rate) {
+				$('#tax_rate' + instance).val(taxRate.public_id);
+				found = true;
+			}
+		}
+		if (!found) {
+			taxRatesMap[0] = {name:name, rate:rate, public_id:0};
+			$('#tax_rate' + instance).append(new Option(name + ' ' + rate + '%', 0)).val(0);
+		}
+
+		onTaxRateChange(instance);
+	}
+
 	@if (Utils::isNinja())
 		updateFeeSample();
 		$(function() {
-			javascript:showLimitsModal('Credit Card', 1, null, null);
+			javascript:showLimitsModal('Credit Card', 1);
 		});
 	@endif
 
