@@ -159,6 +159,8 @@
 
 								<br/><div id="feeSample" class="help-block"></div>
 
+								<br/><b>{{ trans('texts.gateway_fees_disclaimer') }}</b>
+
 								@if (!$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
 									<br/><div class="help-block">{{ trans('texts.fees_tax_help') }}</div>
 							    @endif

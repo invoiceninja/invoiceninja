@@ -2,6 +2,7 @@
 
 namespace App\Models\Traits;
 
+use App\Models\GatewayType;
 use App\Models\InvoiceItem;
 use App\Models\AccountGatewaySettings;
 
@@ -87,7 +88,7 @@ trait ChargesFees
             $item = $item ?: InvoiceItem::createNew($this);
             $item->invoice_item_type_id = INVOICE_ITEM_TYPE_GATEWAY_FEE;
             $item->product_key = trans('texts.fee');
-            $item->notes = '';
+            $item->notes = trans('texts.' . GatewayType::getAliasFromId($gatewayTypeId));
             $item->cost = $feePreTax;
             $item->qty = 1;
             $item->tax_rate1 = $settings->fee_tax_rate1;
