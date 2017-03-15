@@ -60,7 +60,7 @@ function ViewModel(data) {
     });
 
     self.invoice_item_taxes.show = ko.computed(function() {
-        if (self.invoice_item_taxes()) {
+        if (self.invoice_item_taxes() && {{ count($taxRateOptions) ? 'true' : 'false' }}) {
             return true;
         }
         for (var i=0; i<self.invoice().invoice_items().length; i++) {
