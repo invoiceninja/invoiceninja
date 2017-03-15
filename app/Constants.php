@@ -41,6 +41,10 @@ if (! defined('APP_NAME')) {
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
 
+    define('INVOICE_ITEM_TYPE_STANDARD', 1);
+    define('INVOICE_ITEM_TYPE_TASK', 2);
+    define('INVOICE_ITEM_TYPE_GATEWAY_FEE', 3);
+
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
     define('PERSON_VENDOR_CONTACT', 'vendorcontact');

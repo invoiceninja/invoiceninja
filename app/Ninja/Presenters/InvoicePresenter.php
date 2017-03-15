@@ -252,4 +252,28 @@ class InvoicePresenter extends EntityPresenter
 
         return $actions;
     }
+
+    public function gatewayFee($gatewayTypeId = false)
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+        $fees = $invoice->calcGatewayFee($gatewayTypeId);
+
+        if (! $fees) {
+            return false;
+        }
+
+        return $account->formatMoney($fees, $invoice->client);
+    }
+
+    public function payNowLabel($gatewayTypeId = false)
+    {
+        $str = trans('texts.pay_now');
+
+        if ($fees = $this->gatewayFee($gatewayTypeId)) {
+            $str .= sprintf(' - %s %s', $fees, trans('texts.fee'));
+        }
+
+        return $str;
+    }
 }

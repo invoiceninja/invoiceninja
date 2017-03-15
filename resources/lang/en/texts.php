@@ -2400,6 +2400,7 @@ $LANG = array(
 
     'limits' => 'Limits',
     'fees' => 'Fees',
+    'fee' => 'Fee',
     'set_limits_fees' => 'Set :gateway_type Limits/Fees',
     'fee_amount' => 'Amount',
     'fee_percent' => 'Percent',

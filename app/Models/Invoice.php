@@ -10,6 +10,7 @@ use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Libraries\CurlUtils;
 use App\Models\Activity;
+use App\Models\Traits\ChargesFees;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -23,6 +24,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 {
     use PresentableTrait;
     use OwnedByClientTrait;
+    use ChargesFees;
     use SoftDeletes {
         SoftDeletes::trashed as parentTrashed;
     }

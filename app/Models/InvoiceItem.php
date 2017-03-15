@@ -72,4 +72,20 @@ class InvoiceItem extends EntityModel
     {
         return $this->belongsTo('App\Models\Account');
     }
+
+    public function amount()
+    {
+        $amount = $this->cost * $this->qty;
+        $preTaxAmount = $amount;
+
+        if ($this->tax_rate1) {
+            $amount += $preTaxAmount * $this->tax_rate1 / 100;
+        }
+
+        if ($this->tax_rate2) {
+            $amount += $preTaxAmount * $this->tax_rate2 / 100;
+        }
+
+        return $amount;
+    }
 }

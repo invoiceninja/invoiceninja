@@ -132,6 +132,9 @@ class BasePaymentDriver
             return redirect()->to('view/' . $this->invitation->invitation_key);
         }
 
+        // apply gateway fees
+        $this->invoice()->setGatewayFee($this->gatewayType);
+
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
             if (Session::has('error')) {
                 Session::reflash();
@@ -846,6 +849,10 @@ class BasePaymentDriver
                 $label = trans('texts.payment_type_on_file', ['type' => $paymentMethod->payment_type->name]);
             }
 
+            if ($fees = $this->invoice()->present()->gatewayFee($paymentMethod->payment_type->gateway_type_id)) {
+                $label .= sprintf(' - %s %s', $fees, trans('texts.fee'));
+            }
+
             $links[] = [
                 'url' => $url,
                 'label' => $label,
@@ -876,6 +883,10 @@ class BasePaymentDriver
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);
                 $label = trans("texts.{$gatewayTypeAlias}");
+            }
+
+            if ($fees = $this->invoice()->present()->gatewayFee($gatewayTypeId)) {
+                $label .= sprintf(' - %s %s', $fees, trans('texts.fee'));
             }
 
             $links[] = [

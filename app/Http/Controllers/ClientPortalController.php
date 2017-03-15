@@ -146,6 +146,7 @@ class ClientPortalController extends BaseController
             'paymentTypes' => $paymentTypes,
             'paymentURL' => $paymentURL,
             'phantomjs' => Input::has('phantomjs'),
+            'gatewayTypeId' => count($paymentTypes) == 1 ? $paymentTypes[0]['gatewayTypeId'] : false,
         ];
 
         if ($paymentDriver = $account->paymentDriver($invitation, GATEWAY_TYPE_CREDIT_CARD)) {

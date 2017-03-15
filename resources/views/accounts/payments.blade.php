@@ -296,7 +296,7 @@
 		var feePercent = NINJA.parseFloat($('#fee_percent').val()) || 0;
 		var total = feeAmount + feePercent
 		var subtotal = total;
-		console.log('feeAmount: %s', feeAmount);
+
 		var taxRate1 = $('#tax_rate1').val();
 		if (taxRate1) {
 			taxRate1 = NINJA.parseFloat(taxRatesMap[taxRate1].rate);

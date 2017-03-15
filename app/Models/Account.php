@@ -410,6 +410,22 @@ class Account extends Eloquent
         return $user->getDisplayName();
     }
 
+    public function getGatewaySettings($gatewayTypeId)
+    {
+        if (! $this->relationLoaded('account_gateway_settings')) {
+            $this->load('account_gateway_settings');
+        }
+
+        foreach ($this->account_gateway_settings as $settings) {
+            if ($settings->gateway_type_id == $gatewayTypeId) {
+                return $settings;
+            }
+        }
+
+        return false;
+    }
+
+
     /**
      * @return string
      */
