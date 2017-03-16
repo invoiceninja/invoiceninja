@@ -268,21 +268,8 @@ class InvoicePresenter extends EntityPresenter
             return '';
         }
 
-        $parts = [];
-
-        if (floatval($settings->fee_amount) != 0) {
-            $parts[] = $account->formatMoney($settings->fee_amount, $invoice->client);
-        }
-
-        if (floatval($settings->fee_percent) != 0) {
-            $parts[] = (floor($settings->fee_percent * 1000) / 1000) . '%';
-        }
-
-        if (! count($parts)) {
-            return '';
-        }
-
-        $str = join(' + ', $parts);
+        $fee = $invoice->calcGatewayFee($gatewayTypeId);
+        $fee = $account->formatMoney($fee, $invoice->client);
 
         if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
             $label = trans('texts.discount');
@@ -290,6 +277,6 @@ class InvoicePresenter extends EntityPresenter
             $label = trans('texts.fee');
         }
 
-        return $label . ': ' . $str;
+        return $fee . ' ' . $label;
     }
 }

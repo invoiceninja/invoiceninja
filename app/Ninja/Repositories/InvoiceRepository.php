@@ -1004,12 +1004,12 @@ class InvoiceRepository extends BaseRepository
         return $invoices;
     }
 
-    public function setGatewayFee($invoice, $gatewayTypeId)
+    public function clearGatewayFee($invoice)
     {
         $account = $invoice->account;
         $location = $account->gateway_fee_location;
 
-        if (! $location) {
+        if (! $location || $invoice->amount != $invoice->balance) {
             return;
         }
 
@@ -1027,10 +1027,23 @@ class InvoiceRepository extends BaseRepository
                 $invoice = $this->save($data, $invoice);
             }
         }
+    }
+
+    public function setGatewayFee($invoice, $gatewayTypeId)
+    {
+        $account = $invoice->account;
+        $location = $account->gateway_fee_location;
+
+        if (! $location) {
+            return;
+        }
+
+        $this->clearGatewayFee($invoice);
 
         $fee = $invoice->calcGatewayFee($gatewayTypeId);
         $data = $invoice->toArray();
         $data[$location] = $fee;
+
         $this->save($data, $invoice);
     }
 }
