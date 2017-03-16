@@ -11,10 +11,11 @@ use App\Models\AccountGatewaySettings;
  */
 trait ChargesFees
 {
-    public function calcGatewayFee($gatewayTypeId = false, $includeTax = true)
+    public function calcGatewayFee($gatewayTypeId = false, $includeTax = false)
     {
         $account = $this->account;
         $settings = $account->getGatewaySettings($gatewayTypeId);
+        $taxField = $account->gateway_fee_location == FEE_LOCATION_CHARGE1 ? 'custom_taxes1' : 'custom_taxes1';
         $fee = 0;
 
         if (! $settings) {
@@ -28,7 +29,6 @@ trait ChargesFees
         if ($settings->fee_percent) {
             // prevent charging taxes twice on the surcharge
             $amount = $this->amount;
-            $taxField = $account->gateway_fee_location == FEE_LOCATION_CHARGE1 ? 'custom_taxes1' : 'custom_taxes1';
             if ($this->$taxField) {
                 $taxAmount = 0;
                 foreach ($this->getTaxes() as $key => $tax) {
@@ -40,6 +40,18 @@ trait ChargesFees
             $fee += $amount * $settings->fee_percent / 100;
         }
 
+        // calculate final amount with tax
+        if ($includeTax && $this->$taxField) {
+            $preTaxFee = $fee;
+            if (floatval($this->tax_rate1)) {
+                $fee += round($preTaxFee * $this->tax_rate1 / 100, 2);
+            }
+            if (floatval($this->tax_rate2)) {
+                $fee += round($preTaxFee * $this->tax_rate2 / 100, 2);
+            }
+        }
+
+        /*
         if ($account->gateway_fee_location == FEE_LOCATION_ITEM && $includeTax) {
             $preTaxFee = $fee;
 
@@ -51,6 +63,7 @@ trait ChargesFees
                 $fee += $preTaxFee * $settings->fee_tax_rate2 / 100;
             }
         }
+        */
 
         return round($fee, 2);
     }

@@ -268,7 +268,7 @@ class InvoicePresenter extends EntityPresenter
             return '';
         }
 
-        $fee = $invoice->calcGatewayFee($gatewayTypeId);
+        $fee = $invoice->calcGatewayFee($gatewayTypeId, true);
         $fee = $account->formatMoney($fee, $invoice->client);
 
         if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
