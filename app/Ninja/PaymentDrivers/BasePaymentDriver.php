@@ -132,9 +132,11 @@ class BasePaymentDriver
             return redirect()->to('view/' . $this->invitation->invitation_key);
         }
 
-        // apply gateway fees
-        $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
-        $invoicRepo->setGatewayFee($this->invoice(), $this->gatewayType);
+        if (! $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
+            // apply gateway fees
+            $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoicRepo->setGatewayFee($this->invoice(), $this->gatewayType);
+        }
 
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
             if (Session::has('error')) {
@@ -266,6 +268,9 @@ class BasePaymentDriver
                     ->wherePublicId($this->sourceId)
                     ->firstOrFail();
             }
+
+            $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoicRepo->setGatewayFee($this->invoice(), $paymentMethod->payment_type->gateway_type_id);
 
             if (! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL

@@ -27,12 +27,12 @@ trait ChargesFees
 
         if ($settings->fee_percent) {
             // prevent charging taxes twice on the surcharge
-            $amount = $this->getRequestedAmount();
+            $amount = $this->amount;
             $taxField = $account->gateway_fee_location == FEE_LOCATION_CHARGE1 ? 'custom_invoice_taxes1' : 'custom_invoice_taxes1';
             if ($account->$taxField) {
                 $taxAmount = 0;
                 foreach ($this->getTaxes() as $key => $tax) {
-                    $taxAmount += $tax['amount'] - $tax['paid'];
+                    $taxAmount += $tax['amount'];
                 }
                 $amount -= $taxAmount;
             }
