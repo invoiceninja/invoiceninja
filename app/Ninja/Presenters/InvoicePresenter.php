@@ -257,6 +257,11 @@ class InvoicePresenter extends EntityPresenter
     {
         $invoice = $this->entity;
         $account = $invoice->account;
+
+        if (! $account->gateway_fee_location) {
+            return '';
+        }
+
         $settings = $account->getGatewaySettings($gatewayTypeId);
 
         if (! $settings || ! $settings->areFeesEnabled()) {
@@ -265,14 +270,28 @@ class InvoicePresenter extends EntityPresenter
 
         $parts = [];
 
-        if ($settings->fee_amount) {
+        if (floatval($settings->fee_amount) != 0) {
             $parts[] = $account->formatMoney($settings->fee_amount, $invoice->client);
         }
 
-        if (floatval($settings->fee_percent) > 0) {
+        if (floatval($settings->fee_percent) != 0) {
             $parts[] = (floor($settings->fee_percent * 1000) / 1000) . '%';
         }
 
-        return join(' + ', $parts);
+        if (! count($parts)) {
+            return '';
+        }
+
+        $str = join(' + ', $parts);
+
+        if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
+            $label = trans('texts.discount');
+        } else {
+            //$field = $account->gateway_fee_location == FEE_LOCATION_CHARGE1 ? 'custom_invoice_label1' : 'custom_invoice_label2';
+            //$label = $account->$field;
+            $label = trans('texts.fee');
+        }
+
+        return $label . ': ' . $str;
     }
 }

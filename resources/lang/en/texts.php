@@ -2403,6 +2403,7 @@ $LANG = array(
     'set_limits_fees' => 'Set :gateway_type Limits/Fees',
     'fees_tax_help' => 'Enable line item taxes to set fee tax rates.',
     'fees_sample' => 'The fee for a :amount invoice would be :total.',
+    'discount_sample' => 'The discount for a :amount invoice would be :total.',
     'no_fees' => 'No Fees',
     'gateway_fees_disclaimer' => 'Warning: not all states/payment gateways allow adding fees, please review local laws/terms of service.',
     'percent' => 'Percent',

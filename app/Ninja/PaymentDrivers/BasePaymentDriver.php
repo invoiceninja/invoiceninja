@@ -851,7 +851,7 @@ class BasePaymentDriver
             }
 
             if ($fee = $this->invoice()->present()->gatewayFee($paymentMethod->payment_type->gateway_type_id)) {
-                $label .= sprintf(' - %s: %s', trans('texts.fee'), $fee);
+                $label .= ' - ' . $fee;
             }
 
             $links[] = [
@@ -887,7 +887,7 @@ class BasePaymentDriver
             }
 
             if ($fee = $this->invoice()->present()->gatewayFee($gatewayTypeId)) {
-                $label .= sprintf(' - %s: %s', trans('texts.fee'), $fee);
+                $label .= ' - ' . $fee;
             }
 
             $links[] = [

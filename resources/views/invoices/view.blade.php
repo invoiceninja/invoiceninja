@@ -125,7 +125,7 @@
                 @elseif (count($paymentTypes) == 1)
                     <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
 					@if ($fee = $invoice->present()->gatewayFee($gatewayTypeId))
-						<div class="help-block">{{ trans('texts.online_payment_surcharge') }}: {{ $fee }}</div>
+						<div class="help-block">{{ $fee }}</div>
 					@endif
                 @endif
     		@else

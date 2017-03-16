@@ -131,14 +131,12 @@
 										->label('amount')
 										->onchange('updateFeeSample()')
 										->type('number')
-										->min('0')
 										->step('any') !!}
 
 								{!! Former::text('fee_percent')
 										->label('percent')
 										->onchange('updateFeeSample()')
 										->type('number')
-										->min('0')
 										->step('any')
 										->append('%') !!}
 
@@ -312,7 +310,7 @@
 	function updateFeeSample() {
 		var feeAmount = NINJA.parseFloat($('#fee_amount').val()) || 0;
 		var feePercent = NINJA.parseFloat($('#fee_percent').val()) || 0;
-		var total = feeAmount + feePercent
+		var total = feeAmount + (feePercent * 100 / 100);
 		var subtotal = total;
 
 		var taxRate1 = $('#tax_rate1').val();
@@ -327,7 +325,11 @@
 			total += subtotal * taxRate2 / 100;
 		}
 
-		var str = "{{ trans('texts.fees_sample') }}";
+		if (total > 0) {
+			var str = "{{ trans('texts.fees_sample') }}";
+		} else {
+			var str = "{{ trans('texts.discount_sample') }}";
+		}
 		str = str.replace(':amount', formatMoney(100));
 		str = str.replace(':total', formatMoney(total));
 		$('#feeSample').text(str);

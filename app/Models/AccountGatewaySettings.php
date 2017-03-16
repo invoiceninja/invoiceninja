@@ -53,11 +53,11 @@ class AccountGatewaySettings extends EntityModel
     {
         $parts = [];
 
-        if (floatval($this->fee_amount)) {
+        if (floatval($this->fee_amount) != 0) {
             $parts[] = Utils::formatMoney($this->fee_amount);
         }
 
-        if (floatval($this->fee_percent)) {
+        if (floatval($this->fee_percent) != 0) {
             $parts[] = (floor($this->fee_percent * 1000) / 1000) . '%';
         }
 
