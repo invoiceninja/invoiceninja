@@ -336,6 +336,8 @@ class InvoiceRepository extends BaseRepository
             }
             $invoice = $account->createInvoice($entityType, $data['client_id']);
             $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->custom_taxes1 = $account->custom_invoice_taxes1 ?: false;
+            $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
             if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_tasks = true;
             }
@@ -512,15 +514,9 @@ class InvoiceRepository extends BaseRepository
 
         if (isset($data['custom_value1'])) {
             $invoice->custom_value1 = round($data['custom_value1'], 2);
-            if ($isNew) {
-                $invoice->custom_taxes1 = $account->custom_invoice_taxes1 ?: false;
-            }
         }
         if (isset($data['custom_value2'])) {
             $invoice->custom_value2 = round($data['custom_value2'], 2);
-            if ($isNew) {
-                $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
-            }
         }
 
         if (isset($data['custom_text_value1'])) {
