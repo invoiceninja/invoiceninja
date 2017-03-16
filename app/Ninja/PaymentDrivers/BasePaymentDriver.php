@@ -855,9 +855,7 @@ class BasePaymentDriver
                 $label = trans('texts.payment_type_on_file', ['type' => $paymentMethod->payment_type->name]);
             }
 
-            if ($fee = $this->invoice()->present()->gatewayFee($paymentMethod->payment_type->gateway_type_id)) {
-                $label .= ' - ' . $fee;
-            }
+            $label .= $this->invoice()->present()->gatewayFee($paymentMethod->payment_type->gateway_type_id);
 
             $links[] = [
                 'url' => $url,
@@ -891,9 +889,7 @@ class BasePaymentDriver
                 $label = trans("texts.{$gatewayTypeAlias}");
             }
 
-            if ($fee = $this->invoice()->present()->gatewayFee($gatewayTypeId)) {
-                $label .= ' - ' . $fee;
-            }
+            $label .= $this->invoice()->present()->gatewayFee($gatewayTypeId);
 
             $links[] = [
                 'gatewayTypeId' => $gatewayTypeId,

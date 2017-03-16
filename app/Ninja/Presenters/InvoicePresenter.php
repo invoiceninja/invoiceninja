@@ -277,6 +277,6 @@ class InvoicePresenter extends EntityPresenter
             $label = trans('texts.fee');
         }
 
-        return $fee . ' ' . $label;
+        return ' - ' . $fee . ' ' . $label;
     }
 }
