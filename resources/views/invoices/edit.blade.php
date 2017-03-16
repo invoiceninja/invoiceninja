@@ -418,7 +418,7 @@
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 			</tr>
 
-            @if ($account->showCustomField('custom_invoice_label1', $invoice) && $account->custom_invoice_taxes1)
+            @if ($account->showCustomField('custom_invoice_label1', $invoice) && $invoice->custom_taxes1)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -427,7 +427,7 @@
 				</tr>
 			@endif
 
-            @if ($account->showCustomField('custom_invoice_label2', $invoice) && $account->custom_invoice_taxes2)
+            @if ($account->showCustomField('custom_invoice_label2', $invoice) && $invoice->custom_taxes2)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -475,7 +475,7 @@
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 			</tr>
 
-            @if ($account->showCustomField('custom_invoice_label1', $invoice) && !$account->custom_invoice_taxes1)
+            @if ($account->showCustomField('custom_invoice_label1', $invoice) && !$invoice->custom_taxes1)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -484,7 +484,7 @@
 				</tr>
 			@endif
 
-            @if ($account->showCustomField('custom_invoice_label2', $invoice) && !$account->custom_invoice_taxes2)
+            @if ($account->showCustomField('custom_invoice_label2', $invoice) && !$invoice->custom_taxes2)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -883,8 +883,6 @@
                 }
                 model.invoice().addItem(); // add blank item
             @else
-                model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
-                model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
                 // set the default account tax rate
                 @if ($account->invoice_taxes && ! empty($defaultTax))
                     var defaultTax = {!! $defaultTax->toJson() !!};

@@ -912,6 +912,8 @@ class Account extends Eloquent
         $invoice->start_date = Utils::today();
         $invoice->invoice_design_id = $this->invoice_design_id;
         $invoice->client_id = $clientId;
+        $invoice->custom_taxes1 = $this->custom_invoice_taxes1;
+        $invoice->custom_taxes2 = $this->custom_invoice_taxes2;
 
         if ($entityType === ENTITY_RECURRING_INVOICE) {
             $invoice->invoice_number = microtime(true);
