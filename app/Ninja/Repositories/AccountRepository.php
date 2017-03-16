@@ -41,8 +41,6 @@ class AccountRepository
         $account->ip = Request::getClientIp();
         $account->account_key = str_random(RANDOM_KEY_LENGTH);
         $account->company_id = $company->id;
-        $account->invoice_taxes = false;
-        $account->invoice_item_taxes = true;
 
         // Track referal code
         if ($referralCode = Session::get(SESSION_REFERRAL_CODE)) {

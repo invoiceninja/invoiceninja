@@ -236,12 +236,15 @@
 
                         {!! Former::text('custom_invoice_label1')
                                 ->label(trans('texts.field_label'))
+                                ->placeholder($account->gateway_fee_location == FEE_LOCATION_CHARGE1 ? trans('texts.surcharge') : ' ')
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes1')
                                 ->value(1)
                                 ->raw() . trans('texts.charge_taxes')) !!}
+
                         {!! Former::text('custom_invoice_label2')
                                 ->label(trans('texts.field_label'))
+                                ->placeholder($account->gateway_fee_location == FEE_LOCATION_CHARGE2 ? trans('texts.surcharge') : ' ')
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')
                                 ->value(1)

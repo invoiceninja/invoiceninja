@@ -30,8 +30,8 @@
 
 			{!! Former::select('gateway_fee_location')
 					->addOption(trans('texts.disabled'), '')
-					->addOption(trans('texts.first_surcharge') . ($account->custom_invoice_label1 ? ': ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
-					->addOption(trans('texts.second_surcharge') . ($account->custom_invoice_label2 ? ': ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
+					->addOption(trans('texts.first_surcharge') . ($account->custom_invoice_label1 ? ' | ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
+					->addOption(trans('texts.second_surcharge') . ($account->custom_invoice_label2 ? ' | ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
 					//->addOption(trans('texts.line_item'), FEE_LOCATION_ITEM)
 					->label('gateway_fees')!!}
 
@@ -246,6 +246,11 @@
 			$('#fee_percent').val(settings.fee_percent);
 			setTaxRate(1, settings.fee_tax_name1, settings.fee_tax_rate1);
 			setTaxRate(2, settings.fee_tax_name2, settings.fee_tax_rate2);
+		} else {
+			$('#fee_amount').val('');
+			$('#fee_percent').val('');
+			setTaxRate(1, '', '');
+			setTaxRate(2, '', '');
 		}
 
         $('#paymentLimitsModal').modal('show');
