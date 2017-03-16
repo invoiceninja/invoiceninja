@@ -20,7 +20,7 @@ class AccountGatewayDatatable extends EntityDatatable
     {
         return [
             [
-                'name',
+                'gateway',
                 function ($model) {
                     if ($model->deleted_at) {
                         return $model->name;

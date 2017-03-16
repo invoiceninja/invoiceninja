@@ -49,7 +49,7 @@
 
   {!! Datatable::table()
       ->addColumn(
-        trans('texts.name'),
+        trans('texts.gateway'),
         trans('texts.limits'),
 		trans('texts.fees'),
         trans('texts.action'))

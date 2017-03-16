@@ -23,6 +23,7 @@ class AccountGatewayRepository extends BaseRepository
             'account_gateways.id',
             'account_gateways.public_id',
             'gateways.name',
+            'gateways.name as gateway',
             'account_gateways.deleted_at',
             'account_gateways.gateway_id',
             'accounts.gateway_fee_location');

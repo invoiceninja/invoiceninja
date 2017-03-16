@@ -2416,6 +2416,7 @@ $LANG = array(
     'gateway_fees' => 'Gateway Fees',
     'fees_disabled' => 'Fees are disabled',
     'gateway_fees_help' => 'Automatically add an online payment surcharge [partial payments are not supported].',
+    'gateway' => 'Gateway',
 
 );
 
