@@ -287,8 +287,6 @@ class InvoicePresenter extends EntityPresenter
         if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
             $label = trans('texts.discount');
         } else {
-            //$field = $account->gateway_fee_location == FEE_LOCATION_CHARGE1 ? 'custom_invoice_label1' : 'custom_invoice_label2';
-            //$label = $account->$field;
             $label = trans('texts.fee');
         }
 

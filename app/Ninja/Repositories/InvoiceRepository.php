@@ -1025,22 +1025,16 @@ class InvoiceRepository extends BaseRepository
         if ($location == FEE_LOCATION_ITEM) {
             // todo
         } else {
-            if ($location == FEE_LOCATION_CHARGE1) {
-                $field = 'custom_value1';
-            } elseif ($location == FEE_LOCATION_CHARGE2) {
-                $field = 'custom_value2';
-            }
-
             if ($invoice->$field > 0) {
                 $data = $invoice->toArray();
-                $data[$field] = 0;
+                $data[$location] = 0;
                 $invoice = $this->save($data, $invoice);
             }
         }
 
         $fee = $invoice->calcGatewayFee($gatewayTypeId);
         $data = $invoice->toArray();
-        $data[$field] = $fee;
+        $data[$location] = $fee;
         $this->save($data, $invoice);
     }
 }

@@ -394,8 +394,8 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_CUSTOM', 6);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
-    define('FEE_LOCATION_CHARGE1', 'invoice_charge1');
-    define('FEE_LOCATION_CHARGE2', 'invoice_charge2');
+    define('FEE_LOCATION_CHARGE1', 'custom_value1');
+    define('FEE_LOCATION_CHARGE2', 'custom_value2');
     define('FEE_LOCATION_ITEM', 'invoice_item');
 
     define('REMINDER1', 'reminder1');
