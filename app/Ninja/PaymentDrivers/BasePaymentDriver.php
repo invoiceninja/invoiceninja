@@ -133,7 +133,8 @@ class BasePaymentDriver
         }
 
         // apply gateway fees
-        $this->invoice()->setGatewayFee($this->gatewayType);
+        $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
+        $invoicRepo->setGatewayFee($this->invoice(), $this->gatewayType);
 
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
             if (Session::has('error')) {
@@ -849,8 +850,8 @@ class BasePaymentDriver
                 $label = trans('texts.payment_type_on_file', ['type' => $paymentMethod->payment_type->name]);
             }
 
-            if ($fees = $this->invoice()->present()->gatewayFee($paymentMethod->payment_type->gateway_type_id)) {
-                $label .= sprintf(' - %s %s', $fees, trans('texts.fee'));
+            if ($fee = $this->invoice()->present()->gatewayFee($paymentMethod->payment_type->gateway_type_id)) {
+                $label .= sprintf(' - %s: %s', trans('texts.fee'), $fee);
             }
 
             $links[] = [
@@ -885,8 +886,8 @@ class BasePaymentDriver
                 $label = trans("texts.{$gatewayTypeAlias}");
             }
 
-            if ($fees = $this->invoice()->present()->gatewayFee($gatewayTypeId)) {
-                $label .= sprintf(' - %s %s', $fees, trans('texts.fee'));
+            if ($fee = $this->invoice()->present()->gatewayFee($gatewayTypeId)) {
+                $label .= sprintf(' - %s: %s', trans('texts.fee'), $fee);
             }
 
             $links[] = [

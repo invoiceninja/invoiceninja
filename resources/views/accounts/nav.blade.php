@@ -8,7 +8,7 @@
 
 <script type="text/javascript">
     $(function() {
-        if (isStorageSupported()) {
+        if (isStorageSupported() && /\/settings\//.test(location.href)) {
             localStorage.setItem('last:settings_page', location.href);
         }
 

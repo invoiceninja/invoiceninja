@@ -8,7 +8,7 @@
     {!! Former::open()->addClass('warn-on-exit') !!}
     {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
     {!! Former::populateField('auto_bill_on_due_date', $account->auto_bill_on_due_date) !!}
-
+	{!! Former::populateField('gateway_fee_location', $account->gateway_fee_location) !!}
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -27,6 +27,14 @@
             <div class="form-group">
                 <div class="col-sm-offset-4 col-sm-8"><p>{!! trans('texts.payment_settings_supported_gateways') !!}</p></div>
             </div>
+
+			{!! Former::select('gateway_fee_location')
+					->addOption(trans('texts.disabled'), '')
+					->addOption(trans('texts.first_surcharge') . ($account->custom_invoice_label1 ? ': ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
+					->addOption(trans('texts.second_surcharge') . ($account->custom_invoice_label2 ? ': ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
+					//->addOption(trans('texts.line_item'), FEE_LOCATION_ITEM)
+					->label('gateway_fees')!!}
+
             {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>
     </div>
@@ -56,6 +64,7 @@
       ->render('datatable') !!}
 
     {!! Former::open( 'settings/payment_gateway_limits') !!}
+
     <div class="modal fade" id="paymentLimitsModal" tabindex="-1" role="dialog"
          aria-labelledby="paymentLimitsModalLabel"
          aria-hidden="true">
@@ -121,18 +130,21 @@
 		                    <div class="panel-body">
 
 								{!! Former::text('fee_amount')
+										->label('amount')
 										->onchange('updateFeeSample()')
 										->type('number')
 										->min('0')
 										->step('any') !!}
 
 								{!! Former::text('fee_percent')
+										->label('percent')
 										->onchange('updateFeeSample()')
 										->type('number')
 										->min('0')
 										->step('any')
 										->append('%') !!}
 
+								<div id="taxDiv" style="display:none">
 								@if ($account->invoice_item_taxes)
 							        {!! Former::select('tax_rate1')
 										  ->onchange('onTaxRateChange(1)')
@@ -149,6 +161,7 @@
 									@endif
 
 								@endif
+								</div>
 
 								<div style="display:none">
 									{!! Former::text('fee_tax_name1') !!}
@@ -159,11 +172,11 @@
 
 								<br/><div id="feeSample" class="help-block"></div>
 
-								<br/><b>{{ trans('texts.gateway_fees_disclaimer') }}</b>
-
 								@if (!$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
 									<br/><div class="help-block">{{ trans('texts.fees_tax_help') }}</div>
 							    @endif
+
+								<br/><b>{{ trans('texts.gateway_fees_disclaimer') }}</b>
 
 		                    </div>
 		                </div>
@@ -348,9 +361,11 @@
 
 		onTaxRateChange(instance);
 	}
-
+	/*
+	$(function() {
+		javascript:showLimitsModal('Credit Card', 1);
+	})
+	*/
   </script>
-
-
 
 @stop

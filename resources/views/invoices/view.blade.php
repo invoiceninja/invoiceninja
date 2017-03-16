@@ -123,7 +123,10 @@
                 @if (count($paymentTypes) > 1)
                     {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
                 @elseif (count($paymentTypes) == 1)
-                    <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ $invoice->present()->payNowLabel($gatewayTypeId) }}</a>
+                    <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
+					@if ($fee = $invoice->present()->gatewayFee($gatewayTypeId))
+						<div class="help-block">{{ trans('texts.online_payment_surcharge') }}: {{ $fee }}</div>
+					@endif
                 @endif
     		@else
     			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}

@@ -700,7 +700,7 @@ $LANG = array(
     'oneclick_login' => 'One-Click Login',
     'disable' => 'Disable',
     'invoice_quote_number' => 'Invoice and Quote Numbers',
-    'invoice_charges' => 'Invoice Charges',
+    'invoice_charges' => 'Invoice Surcharges',
     'notification_invoice_bounced' => 'We were unable to deliver Invoice :invoice to :contact.',
     'notification_invoice_bounced_subject' => 'Unable to deliver Invoice :invoice',
     'notification_quote_bounced' => 'We were unable to deliver Quote :invoice to :contact.',
@@ -1353,7 +1353,7 @@ $LANG = array(
     'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
     'privacy_policy' => 'Privacy Policy',
     'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
-    'payment_settings_supported_gateways' => 'These options are supported by the WePay, Stripe, and Braintree gateways.',
+    'payment_settings_supported_gateways' => 'Note: token billing is supported by WePay, Stripe, and Braintree.',
     'ach_email_prompt' => 'Please enter your email address:',
     'verification_pending' => 'Verification Pending',
 
@@ -2402,13 +2402,19 @@ $LANG = array(
     'fees' => 'Fees',
     'fee' => 'Fee',
     'set_limits_fees' => 'Set :gateway_type Limits/Fees',
-    'fee_amount' => 'Amount',
-    'fee_percent' => 'Percent',
     'fees_tax_help' => 'Enable line item taxes to set fee tax rates.',
     'fees_sample' => 'The fee for a :amount invoice would be :total.',
     'no_fees' => 'No Fees',
     'gateway_fees_disclaimer' => 'Warning: not all payment gateways allow adding fees, please review their terms of service.',
-
+    'percent' => 'Percent',
+    'location' => 'Location',
+    'line_item' => 'Line Item',
+    'surcharge' => 'Surcharge',
+    'first_surcharge' => 'Enabled - Use first surcharge',
+    'second_surcharge' => 'Enabled - Use second surcharge',
+    'online_payment_surcharge' => 'Online Payment Surcharge',
+    'gateway_fees' => 'Gateway Fees',
+    'fees_disabled' => 'Fees are disabled',
 );
 
 return $LANG;

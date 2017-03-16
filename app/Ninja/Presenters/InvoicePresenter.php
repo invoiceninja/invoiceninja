@@ -257,23 +257,22 @@ class InvoicePresenter extends EntityPresenter
     {
         $invoice = $this->entity;
         $account = $invoice->account;
-        $fees = $invoice->calcGatewayFee($gatewayTypeId);
+        $settings = $account->getGatewaySettings($gatewayTypeId);
 
-        if (! $fees) {
-            return false;
+        if (! $settings || ! $settings->areFeesEnabled()) {
+            return '';
         }
 
-        return $account->formatMoney($fees, $invoice->client);
-    }
+        $parts = [];
 
-    public function payNowLabel($gatewayTypeId = false)
-    {
-        $str = trans('texts.pay_now');
-
-        if ($fees = $this->gatewayFee($gatewayTypeId)) {
-            $str .= sprintf(' - %s %s', $fees, trans('texts.fee'));
+        if ($settings->fee_amount) {
+            $parts[] = $account->formatMoney($settings->fee_amount, $invoice->client);
         }
 
-        return $str;
+        if (floatval($settings->fee_percent) > 0) {
+            $parts[] = (floor($settings->fee_percent * 1000) / 1000) . '%';
+        }
+
+        return join(' + ', $parts);
     }
 }

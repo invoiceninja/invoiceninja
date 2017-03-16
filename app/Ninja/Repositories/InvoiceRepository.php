@@ -1007,4 +1007,40 @@ class InvoiceRepository extends BaseRepository
 
         return $invoices;
     }
+
+    public function setGatewayFee($invoice, $gatewayTypeId)
+    {
+        $account = $invoice->account;
+        $location = $account->gateway_fee_location;
+
+        if (! $location) {
+            return;
+        }
+
+        if (! $invoice->relationLoaded('invoice_items')) {
+            $invoice->load('invoice_items');
+        }
+
+        // first remove fee if already set
+        if ($location == FEE_LOCATION_ITEM) {
+            // todo
+        } else {
+            if ($location == FEE_LOCATION_CHARGE1) {
+                $field = 'custom_value1';
+            } elseif ($location == FEE_LOCATION_CHARGE2) {
+                $field = 'custom_value2';
+            }
+
+            if ($invoice->$field > 0) {
+                $data = $invoice->toArray();
+                $data[$field] = 0;
+                $invoice = $this->save($data, $invoice);
+            }
+        }
+
+        $fee = $invoice->calcGatewayFee($gatewayTypeId);
+        $data = $invoice->toArray();
+        $data[$field] = $fee;
+        $this->save($data, $invoice);
+    }
 }

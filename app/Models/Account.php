@@ -93,6 +93,7 @@ class Account extends Eloquent
         'domain_id',
         'payment_terms',
         'payment_type_id',
+        'gateway_fee_location',
     ];
 
     /**

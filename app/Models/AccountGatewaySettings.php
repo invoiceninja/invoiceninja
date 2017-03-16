@@ -58,10 +58,10 @@ class AccountGatewaySettings extends EntityModel
         }
 
         if (floatval($this->fee_percent)) {
-            $parts[] = $this->fee_percent . '%';
+            $parts[] = (floor($this->fee_percent * 1000) / 1000) . '%';
         }
 
-        if (floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate1)) {
+        if ($this->fee_location == FEE_LOCATION_ITEM && (floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate1))) {
             $parts[] = trans('texts.tax');
         }
 

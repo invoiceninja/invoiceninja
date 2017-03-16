@@ -97,6 +97,10 @@ class AccountGatewayDatatable extends EntityDatatable
             [
                 'fees',
                 function ($model) {
+                    if (! $model->gateway_fee_location) {
+                        return trans('texts.fees_disabled');
+                    }
+
                     $gatewayTypes = $this->getGatewayTypes($model->id, $model->gateway_id);
                     $html = '';
                     foreach ($gatewayTypes as $gatewayTypeId) {

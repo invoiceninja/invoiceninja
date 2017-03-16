@@ -208,7 +208,7 @@ trait PresentsInvoice
             'website',
             'phone',
             'blank',
-            'adjustment',
+            'surcharge',
             'tax_invoice',
             'tax_quote',
             'statement',

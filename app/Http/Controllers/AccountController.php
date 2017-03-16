@@ -1188,6 +1188,7 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         $account->token_billing_type_id = Input::get('token_billing_type_id');
         $account->auto_bill_on_due_date = boolval(Input::get('auto_bill_on_due_date'));
+        $account->gateway_fee_location = Input::get('gateway_fee_location') ?: null;
         $account->save();
 
         event(new UserSettingsChanged());
