@@ -168,7 +168,7 @@
 
 								<br/><div id="feeSample" class="help-block"></div>
 
-								@if (!$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
+								@if (false && !$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
 									<br/><div class="help-block">{{ trans('texts.fees_tax_help') }}</div>
 							    @endif
 
@@ -325,7 +325,7 @@
 			total += subtotal * taxRate2 / 100;
 		}
 
-		if (total > 0) {
+		if (total >= 0) {
 			var str = "{{ trans('texts.fees_sample') }}";
 		} else {
 			var str = "{{ trans('texts.discount_sample') }}";
