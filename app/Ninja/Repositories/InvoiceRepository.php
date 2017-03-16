@@ -1021,7 +1021,7 @@ class InvoiceRepository extends BaseRepository
         if ($location == FEE_LOCATION_ITEM) {
             // todo
         } else {
-            if ($invoice->$location > 0) {
+            if ($invoice->$location != 0) {
                 $data = $invoice->toArray();
                 $data[$location] = 0;
                 $invoice = $this->save($data, $invoice);
