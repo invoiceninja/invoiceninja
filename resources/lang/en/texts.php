@@ -439,7 +439,7 @@ $LANG = array(
     'reset_all' => 'Reset All',
     'approve' => 'Approve',
     'token_billing_type_id' => 'Token Billing',
-    'token_billing_help' => 'Enables you to store credit cards with your gateway, and charge them at a later date.',
+    'token_billing_help' => 'Enables you to store payment details with WePay, Stripe or Braintree.',
     'token_billing_1' => 'Disabled',
     'token_billing_2' => 'Opt-in - checkbox is shown but not selected',
     'token_billing_3' => 'Opt-out - checkbox is shown and selected',
@@ -1345,7 +1345,7 @@ $LANG = array(
 
     'on_send_date' => 'On send date',
     'on_due_date' => 'On due date',
-    'auto_bill_ach_date_help' => 'ACH auto bill will always happen on the due date',
+    'auto_bill_ach_date_help' => 'ACH will always auto bill on the due date.',
     'warn_change_auto_bill' => 'Due to NACHA rules, changes to this invoice may prevent ACH auto bill.',
 
     'bank_account' => 'Bank Account',
@@ -1353,7 +1353,6 @@ $LANG = array(
     'wepay_payment_tos_agree' => 'I agree to the WePay :terms and :privacy_policy.',
     'privacy_policy' => 'Privacy Policy',
     'wepay_payment_tos_agree_required' => 'You must agree to the WePay Terms of Service and Privacy Policy.',
-    'payment_settings_supported_gateways' => 'Note: token billing is supported by WePay, Stripe, and Braintree.',
     'ach_email_prompt' => 'Please enter your email address:',
     'verification_pending' => 'Verification Pending',
 
@@ -2415,6 +2414,8 @@ $LANG = array(
     'online_payment_surcharge' => 'Online Payment Surcharge',
     'gateway_fees' => 'Gateway Fees',
     'fees_disabled' => 'Fees are disabled',
+    'gateway_fees_help' => 'Automatically add an online payment surcharge.',
+
 );
 
 return $LANG;

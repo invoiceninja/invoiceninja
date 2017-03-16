@@ -24,17 +24,15 @@
                             trans('texts.on_send_date') => ['value'=>0, 'name'=>'auto_bill_on_due_date'],
                             trans('texts.on_due_date') => ['value'=>1, 'name'=>'auto_bill_on_due_date'],
                         ])->help(trans('texts.auto_bill_ach_date_help')) !!}
-            <div class="form-group">
-                <div class="col-sm-offset-4 col-sm-8"><p>{!! trans('texts.payment_settings_supported_gateways') !!}</p></div>
-            </div>
-
+			<br/>
 			{!! Former::select('gateway_fee_location')
 					->addOption(trans('texts.disabled'), '')
 					->addOption(trans('texts.first_surcharge') . ($account->custom_invoice_label1 ? ' | ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
 					->addOption(trans('texts.second_surcharge') . ($account->custom_invoice_label2 ? ' | ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
 					//->addOption(trans('texts.line_item'), FEE_LOCATION_ITEM)
+					->help('gateway_fees_help')
 					->label('gateway_fees')!!}
-
+			<br/>
             {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>
     </div>
@@ -366,11 +364,7 @@
 
 		onTaxRateChange(instance);
 	}
-	/*
-	$(function() {
-		javascript:showLimitsModal('Credit Card', 1);
-	})
-	*/
+
   </script>
 
 @stop
