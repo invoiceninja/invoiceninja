@@ -177,7 +177,7 @@
                         <a href="#invoice_fields" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoice_charges" aria-controls="invoice_charges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
+                        <a href="#invoice_surcharges" aria-controls="invoice_surcharges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
                     </li>
                 </ul>
             </div>
@@ -231,7 +231,7 @@
 
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="invoice_charges">
+                <div role="tabpanel" class="tab-pane" id="invoice_surcharges">
                     <div class="panel-body">
 
                         {!! Former::text('custom_invoice_label1')
