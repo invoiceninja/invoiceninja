@@ -320,7 +320,7 @@ class InvoiceRepository extends BaseRepository
     public function save(array $data, Invoice $invoice = null)
     {
         /** @var Account $account */
-        $account = \Auth::user()->account;
+        $account = $invoice ? $invoice->account : \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         $isNew = ! $publicId || $publicId == '-1';
@@ -623,7 +623,7 @@ class InvoiceRepository extends BaseRepository
             }
 
             if ($productKey = trim($item['product_key'])) {
-                if (\Auth::user()->account->update_products
+                if ($account->update_products
                     && ! $invoice->has_tasks
                     && ! $invoice->has_expenses
                     && $productKey != trans('texts.surcharge')
