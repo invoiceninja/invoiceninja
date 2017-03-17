@@ -12,6 +12,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Product;
 use App\Models\Task;
+use App\Models\GatewayType;
 use App\Services\PaymentService;
 use Auth;
 use DB;
@@ -1017,9 +1018,14 @@ class InvoiceRepository extends BaseRepository
             $invoice->load('invoice_items');
         }
 
-        // first remove fee if already set
         if ($location == FEE_LOCATION_ITEM) {
-            // todo
+            $data = $invoice->toArray();
+            foreach ($data['invoice_items'] as $key => $item) {
+                if ($item['invoice_item_type_id'] == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
+                    unset($data[$key]);
+                }
+            }
+            //dd($data['invoice_items']);
         } else {
             if ($invoice->$location != 0) {
                 $data = $invoice->toArray();
@@ -1033,16 +1039,35 @@ class InvoiceRepository extends BaseRepository
     {
         $account = $invoice->account;
         $location = $account->gateway_fee_location;
+        $settings = $account->getGatewaySettings($gatewayTypeId);
 
         if (! $location) {
             return;
         }
 
         $this->clearGatewayFee($invoice);
-
-        $fee = $invoice->calcGatewayFee($gatewayTypeId);
         $data = $invoice->toArray();
-        $data[$location] = $fee;
+
+        if ($location == FEE_LOCATION_ITEM) {
+            $fee = $invoice->calcGatewayFee($gatewayTypeId, false);
+
+            $item = [];
+            $item['product_key'] = trans('texts.surcharge');
+            $item['notes'] = trans('texts.online_payment_surcharge');
+            $item['qty'] = 1;
+            $item['cost'] = $fee;
+            $item['tax_rate1'] = $settings->fee_tax_rate1;
+            $item['tax_name1'] = $settings->fee_tax_name1;
+            $item['tax_rate2'] = $settings->fee_tax_rate2;
+            $item['tax_name2'] = $settings->fee_tax_name2;
+            $item['invoice_item_type_id'] = INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE;
+
+            $data['invoice_items'][] = $item;
+        } else {
+            $fee = $invoice->calcGatewayFee($gatewayTypeId);
+
+            $data[$location] = $fee;
+        }
 
         $this->save($data, $invoice);
     }

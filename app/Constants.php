@@ -43,7 +43,8 @@ if (! defined('APP_NAME')) {
 
     define('INVOICE_ITEM_TYPE_STANDARD', 1);
     define('INVOICE_ITEM_TYPE_TASK', 2);
-    define('INVOICE_ITEM_TYPE_GATEWAY_FEE', 3);
+    define('INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE', 3);
+    define('INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE', 4);
 
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');

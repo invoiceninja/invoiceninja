@@ -51,7 +51,6 @@ trait ChargesFees
             }
         }
 
-        /*
         if ($account->gateway_fee_location == FEE_LOCATION_ITEM && $includeTax) {
             $preTaxFee = $fee;
 
@@ -63,8 +62,22 @@ trait ChargesFees
                 $fee += $preTaxFee * $settings->fee_tax_rate2 / 100;
             }
         }
-        */
 
         return round($fee, 2);
+    }
+
+    public function getGatewayFeeItem()
+    {
+        if (! $this->relationLoaded('invoice_items')) {
+            $this->load('invoice_items');
+        }
+
+        foreach ($this->invoice_items as $item) {
+            if ($item->invoice_item_type_id == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
+                return $item;
+            }
+        }
+
+        return false;
     }
 }
