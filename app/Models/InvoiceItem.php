@@ -39,6 +39,7 @@ class InvoiceItem extends EntityModel
         'tax_rate1',
         'tax_name2',
         'tax_rate2',
+        'invoice_item_type_id',
     ];
 
     /**

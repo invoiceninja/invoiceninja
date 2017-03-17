@@ -623,7 +623,11 @@ class InvoiceRepository extends BaseRepository
             }
 
             if ($productKey = trim($item['product_key'])) {
-                if (\Auth::user()->account->update_products && ! $invoice->has_tasks && ! $invoice->has_expenses) {
+                if (\Auth::user()->account->update_products
+                    && ! $invoice->has_tasks
+                    && ! $invoice->has_expenses
+                    && $productKey != trans('texts.surcharge')
+                ) {
                     $product = Product::findProductByKey($productKey);
                     if (! $product) {
                         if (Auth::user()->can('create', ENTITY_PRODUCT)) {
@@ -644,6 +648,7 @@ class InvoiceRepository extends BaseRepository
             }
 
             $invoiceItem = InvoiceItem::createNew();
+            $invoiceItem->fill($item);
             $invoiceItem->product_id = isset($product) ? $product->id : null;
             $invoiceItem->product_key = isset($item['product_key']) ? (trim($invoice->is_recurring ? $item['product_key'] : Utils::processVariables($item['product_key']))) : '';
             $invoiceItem->notes = trim($invoice->is_recurring ? $item['notes'] : Utils::processVariables($item['notes']));
@@ -1010,8 +1015,13 @@ class InvoiceRepository extends BaseRepository
         $account = $invoice->account;
         $location = $account->gateway_fee_location;
 
-        if (! $location || $invoice->amount != $invoice->balance) {
-            return;
+        if (! $location) {
+            return false;
+        }
+
+        // once an invoice with fee surcharge has been paid don't clear it
+        if (($location == FEE_LOCATION_CHARGE1 || $location == FEE_LOCATION_CHARGE2) && $invoice->amount != $invoice->balance) {
+            return false;
         }
 
         if (! $invoice->relationLoaded('invoice_items')) {
@@ -1022,15 +1032,17 @@ class InvoiceRepository extends BaseRepository
             $data = $invoice->toArray();
             foreach ($data['invoice_items'] as $key => $item) {
                 if ($item['invoice_item_type_id'] == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
-                    unset($data[$key]);
+                    unset($data['invoice_items'][$key]);
+                    $this->save($data, $invoice);
+                    $invoice->load('invoice_items');
+                    break;
                 }
             }
-            //dd($data['invoice_items']);
         } else {
             if ($invoice->$location != 0) {
                 $data = $invoice->toArray();
                 $data[$location] = 0;
-                $invoice = $this->save($data, $invoice);
+                $this->save($data, $invoice);
             }
         }
     }
@@ -1046,6 +1058,11 @@ class InvoiceRepository extends BaseRepository
         }
 
         $this->clearGatewayFee($invoice);
+
+        if (! $settings) {
+            return;
+        }
+
         $data = $invoice->toArray();
 
         if ($location == FEE_LOCATION_ITEM) {
