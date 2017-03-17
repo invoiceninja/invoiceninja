@@ -15,7 +15,8 @@ trait ChargesFees
     {
         $account = $this->account;
         $settings = $account->getGatewaySettings($gatewayTypeId);
-        $taxField = $account->gateway_fee_location == FEE_LOCATION_CHARGE1 ? 'custom_taxes1' : 'custom_taxes1';
+        $location = $account->gateway_fee_location;
+        $taxField = $location == FEE_LOCATION_CHARGE1 ? 'custom_taxes1' : 'custom_taxes1';
         $fee = 0;
 
         if (! $settings) {
@@ -28,42 +29,63 @@ trait ChargesFees
 
         if ($settings->fee_percent) {
             // prevent charging taxes twice on the surcharge
-            $amount = $this->amount;
-            if ($this->$taxField) {
-                $taxAmount = 0;
-                foreach ($this->getTaxes() as $key => $tax) {
-                    $taxAmount += $tax['amount'];
+            if ($location == FEE_LOCATION_ITEM) {
+                $amount = $this->partial > 0 ? $this->partial : $this->balance;
+            } else {
+                $amount = $this->amount;
+                if ($this->$taxField) {
+                    $taxAmount = 0;
+                    foreach ($this->getTaxes() as $key => $tax) {
+                        $taxAmount += $tax['amount'];
+                    }
+                    $amount -= $taxAmount;
                 }
-                $amount -= $taxAmount;
             }
 
             $fee += $amount * $settings->fee_percent / 100;
         }
 
         // calculate final amount with tax
-        if ($includeTax && $this->$taxField) {
-            $preTaxFee = $fee;
-            if (floatval($this->tax_rate1)) {
-                $fee += round($preTaxFee * $this->tax_rate1 / 100, 2);
-            }
-            if (floatval($this->tax_rate2)) {
-                $fee += round($preTaxFee * $this->tax_rate2 / 100, 2);
-            }
-        }
+        if ($includeTax) {
+            if ($location == FEE_LOCATION_ITEM) {
+                $preTaxFee = $fee;
 
-        if ($account->gateway_fee_location == FEE_LOCATION_ITEM && $includeTax) {
-            $preTaxFee = $fee;
+                if ($settings->fee_tax_rate1) {
+                    $fee += $preTaxFee * $settings->fee_tax_rate1 / 100;
+                }
 
-            if ($settings->fee_tax_rate1) {
-                $fee += $preTaxFee * $settings->fee_tax_rate1 / 100;
-            }
-
-            if ($settings->fee_tax_rate2) {
-                $fee += $preTaxFee * $settings->fee_tax_rate2 / 100;
+                if ($settings->fee_tax_rate2) {
+                    $fee += $preTaxFee * $settings->fee_tax_rate2 / 100;
+                }
+            } elseif ($this->$taxField) {
+                $preTaxFee = $fee;
+                if (floatval($this->tax_rate1)) {
+                    $fee += round($preTaxFee * $this->tax_rate1 / 100, 2);
+                }
+                if (floatval($this->tax_rate2)) {
+                    $fee += round($preTaxFee * $this->tax_rate2 / 100, 2);
+                }
             }
         }
 
         return round($fee, 2);
+    }
+
+    public function getGatewayFee()
+    {
+        $account = $this->account;
+        $location = $account->gateway_fee_location;
+
+        if (! $location) {
+            return 0;
+        }
+
+        if ($location == FEE_LOCATION_ITEM) {
+            $item = $this->getGatewayFeeItem();
+            return $item ? $item->amount() : 0;
+        } else {
+            return $this->$location;
+        }
     }
 
     public function getGatewayFeeItem()

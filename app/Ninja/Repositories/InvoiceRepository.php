@@ -1087,5 +1087,6 @@ class InvoiceRepository extends BaseRepository
         }
 
         $this->save($data, $invoice);
+        $invoice->load('invoice_items');
     }
 }

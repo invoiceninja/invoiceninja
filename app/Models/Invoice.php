@@ -768,7 +768,16 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getRequestedAmount()
     {
-        return $this->partial > 0 ? $this->partial : $this->balance;
+        $fee = 0;
+        if ($this->account->gateway_fee_location) {
+            $fee = $this->getGatewayFee();
+        }
+
+        if ($this->partial > 0) {
+            return $this->partial + $fee;
+        } else {
+            return $this->balance;
+        }
     }
 
     /**
