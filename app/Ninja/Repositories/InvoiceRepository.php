@@ -622,32 +622,34 @@ class InvoiceRepository extends BaseRepository
                 }
             }
 
-            if ($productKey = trim($item['product_key'])) {
-                if ($account->update_products
-                    && ! $invoice->has_tasks
-                    && ! $invoice->has_expenses
-                    && $productKey != trans('texts.surcharge')
-                ) {
-                    $product = Product::findProductByKey($productKey);
-                    if (! $product) {
-                        if (Auth::user()->can('create', ENTITY_PRODUCT)) {
-                            $product = Product::createNew();
-                            $product->product_key = trim($item['product_key']);
-                        } else {
-                            $product = null;
+            if (Auth::check()) {
+                if ($productKey = trim($item['product_key'])) {
+                    if ($account->update_products
+                        && ! $invoice->has_tasks
+                        && ! $invoice->has_expenses
+                        && $productKey != trans('texts.surcharge')
+                    ) {
+                        $product = Product::findProductByKey($productKey);
+                        if (! $product) {
+                            if (Auth::user()->can('create', ENTITY_PRODUCT)) {
+                                $product = Product::createNew();
+                                $product->product_key = trim($item['product_key']);
+                            } else {
+                                $product = null;
+                            }
                         }
-                    }
-                    if ($product && (Auth::user()->can('edit', $product))) {
-                        $product->notes = ($task || $expense) ? '' : $item['notes'];
-                        $product->cost = $expense ? 0 : $item['cost'];
-                        $product->custom_value1 = isset($item['custom_value1']) ? $item['custom_value1'] : null;
-                        $product->custom_value2 = isset($item['custom_value2']) ? $item['custom_value2'] : null;
-                        $product->save();
+                        if ($product && (Auth::user()->can('edit', $product))) {
+                            $product->notes = ($task || $expense) ? '' : $item['notes'];
+                            $product->cost = $expense ? 0 : $item['cost'];
+                            $product->custom_value1 = isset($item['custom_value1']) ? $item['custom_value1'] : null;
+                            $product->custom_value2 = isset($item['custom_value2']) ? $item['custom_value2'] : null;
+                            $product->save();
+                        }
                     }
                 }
             }
 
-            $invoiceItem = InvoiceItem::createNew();
+            $invoiceItem = InvoiceItem::createNew($invoice);
             $invoiceItem->fill($item);
             $invoiceItem->product_id = isset($product) ? $product->id : null;
             $invoiceItem->product_key = isset($item['product_key']) ? (trim($invoice->is_recurring ? $item['product_key'] : Utils::processVariables($item['product_key']))) : '';
@@ -1043,6 +1045,7 @@ class InvoiceRepository extends BaseRepository
                 $data = $invoice->toArray();
                 $data[$location] = 0;
                 $this->save($data, $invoice);
+                $invoice->load('invoice_items');
             }
         }
     }
