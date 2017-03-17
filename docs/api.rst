@@ -49,7 +49,10 @@ Emailing Invoices
 
 To email an invoice use the email_invoice command passing the id of the invoice.
 
-  ``curl -X POST ninja.dev/api/v1/email_invoice -H "Content-Type:application/json" -d '{"id":1}' -H "X-Ninja-Token: TOKEN" -H "X-Requested-With: XMLHttpRequest"``
+.. code-block:: shell
+
+  curl -X POST ninja.dev/api/v1/email_invoice -H "Content-Type:application/json" -d '{"id":1}'
+    -H "X-Ninja-Token: TOKEN" -H "X-Requested-With: XMLHttpRequest"
 
 Optional Settings
 """""""""""""""""
