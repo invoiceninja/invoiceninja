@@ -38,11 +38,12 @@ use Utils;
  *         description="Find out more about Invoice Ninja",
  *         url="https://www.invoiceninja.com"
  *     ),
+ *     security={"api_key": {}},
  *     @SWG\SecurityScheme(
  *         securityDefinition="api_key",
  *         type="apiKey",
  *         in="header",
- *         name="TOKEN"
+ *         name="X-Ninja-Token"
  *     )
  * )
  */
