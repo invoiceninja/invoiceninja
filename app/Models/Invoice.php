@@ -575,6 +575,13 @@ class Invoice extends EntityModel implements BalanceAffecting
             return;
         }
 
+        $balanceAdjustment = floatval($balanceAdjustment);
+        $partial = floatval($partial);
+
+        if (! $balanceAdjustment && $this->partial == $partial) {
+            return;
+        }
+
         $this->balance = $this->balance + $balanceAdjustment;
 
         if ($this->partial > 0) {
@@ -582,6 +589,13 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         $this->save();
+
+        // mark fees as paid
+        if ($balanceAdjustment != 0 && $this->account->gateway_fee_location == FEE_LOCATION_ITEM) {
+            if ($invoiceItem = $this->getGatewayFeeItem()) {
+                $invoiceItem->markFeePaid();
+            }
+        }
     }
 
     /**

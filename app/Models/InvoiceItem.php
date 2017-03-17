@@ -89,4 +89,12 @@ class InvoiceItem extends EntityModel
 
         return $amount;
     }
+
+    public function markFeePaid()
+    {
+        if ($this->invoice_item_type_id == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
+            $this->invoice_item_type_id = INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE;
+            $this->save();
+        }
+    }
 }
