@@ -1019,13 +1019,13 @@ class InvoiceRepository extends BaseRepository
             return false;
         }
 
+        if (! $invoice->relationLoaded('invoice_items')) {
+            $invoice->load('invoice_items');
+        }
+
         // once an invoice with fee surcharge has been paid don't clear it
         if (($location == FEE_LOCATION_CHARGE1 || $location == FEE_LOCATION_CHARGE2) && $invoice->amount != $invoice->balance) {
             return false;
-        }
-
-        if (! $invoice->relationLoaded('invoice_items')) {
-            $invoice->load('invoice_items');
         }
 
         if ($location == FEE_LOCATION_ITEM) {
@@ -1066,7 +1066,7 @@ class InvoiceRepository extends BaseRepository
         $data = $invoice->toArray();
 
         if ($location == FEE_LOCATION_ITEM) {
-            $fee = $invoice->calcGatewayFee($gatewayTypeId, false);
+            $fee = $invoice->calcGatewayFee($gatewayTypeId);
 
             $item = [];
             $item['product_key'] = trans('texts.surcharge');
