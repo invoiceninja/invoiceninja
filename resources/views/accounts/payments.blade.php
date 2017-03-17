@@ -27,9 +27,9 @@
 			<br/>
 			{!! Former::select('gateway_fee_location')
 					->addOption(trans('texts.disabled'), '')
-					->addOption(trans('texts.first_surcharge') . ($account->custom_invoice_label1 ? ' | ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
-					->addOption(trans('texts.second_surcharge') . ($account->custom_invoice_label2 ? ' | ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
-					//->addOption(trans('texts.line_item'), FEE_LOCATION_ITEM)
+					->addOption(trans('texts.location_first_surcharge') . ($account->custom_invoice_label1 ? ' | ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
+					->addOption(trans('texts.location_second_surcharge') . ($account->custom_invoice_label2 ? ' | ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
+					->addOption(trans('texts.location_line_item'), FEE_LOCATION_ITEM)
 					->help('gateway_fees_help')
 					->label('gateway_fees')!!}
 			<br/>
@@ -164,13 +164,14 @@
 									{!! Former::text('fee_tax_rate1') !!}
 									{!! Former::text('fee_tax_name2') !!}
 									{!! Former::text('fee_tax_rate2') !!}
+								</div><br/>
+
+								<div class="help-block">
+									<span id="feeSample"></span>
+									@if ($account->gateway_fee_location == FEE_LOCATION_ITEM && !$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
+										{{ trans('texts.fees_tax_help') }}
+								    @endif
 								</div>
-
-								<br/><div id="feeSample" class="help-block"></div>
-
-								@if (false && !$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
-									<br/><div class="help-block">{{ trans('texts.fees_tax_help') }}</div>
-							    @endif
 
 								<br/><b>{{ trans('texts.gateway_fees_disclaimer') }}</b>
 
@@ -252,6 +253,10 @@
         $('#paymentLimitsModal').modal('show');
 
 		updateFeeSample();
+
+		@if ($account->gateway_fee_location == FEE_LOCATION_ITEM)
+			$('#taxDiv').show();
+		@endif
     }
 
     var limitsSlider = document.getElementById('payment-limits-slider');

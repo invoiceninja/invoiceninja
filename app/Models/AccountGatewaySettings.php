@@ -49,6 +49,11 @@ class AccountGatewaySettings extends EntityModel
         return floatval($this->fee_amount) || floatval($this->fee_percent);
     }
 
+    public function hasTaxes()
+    {
+        return floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate1);
+    }
+
     public function feesToString()
     {
         $parts = [];
@@ -59,10 +64,6 @@ class AccountGatewaySettings extends EntityModel
 
         if (floatval($this->fee_percent) != 0) {
             $parts[] = (floor($this->fee_percent * 1000) / 1000) . '%';
-        }
-
-        if ($this->fee_location == FEE_LOCATION_ITEM && (floatval($this->fee_tax_rate1) || floatval($this->fee_tax_rate1))) {
-            $parts[] = trans('texts.tax');
         }
 
         return join(' + ', $parts);
