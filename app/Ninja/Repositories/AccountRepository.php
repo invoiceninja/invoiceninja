@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserAccount;
 use Auth;
 use Input;
+use Image;
 use Request;
 use Schema;
 use Session;
