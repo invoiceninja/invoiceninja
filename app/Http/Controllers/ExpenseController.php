@@ -85,6 +85,7 @@ class ExpenseController extends BaseController
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $request->client_id,
             'categoryPublicId' => $request->category_id,
+            'paymentTypes' => Cache::get('paymentTypes'),
         ];
 
         $data = array_merge($data, self::getViewModel());
@@ -134,6 +135,7 @@ class ExpenseController extends BaseController
             'clients' => Client::scope()->with('contacts')->orderBy('name')->get(),
             'clientPublicId' => $expense->client ? $expense->client->public_id : null,
             'categoryPublicId' => $expense->expense_category ? $expense->expense_category->public_id : null,
+            'paymentTypes' => Cache::get('paymentTypes'),
         ];
 
         $data = array_merge($data, self::getViewModel());

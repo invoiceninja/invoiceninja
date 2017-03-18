@@ -38,10 +38,10 @@
             <div class="row">
                 <div class="col-md-6">
 
-    				{!! Former::select('vendor_id')->addOption('', '')
-                            ->data_bind('combobox: vendor_id')
-                            ->label(trans('texts.vendor'))
-                            ->addGroupClass('vendor-select') !!}
+            				{!! Former::select('vendor_id')->addOption('', '')
+                                    ->data_bind('combobox: vendor_id')
+                                    ->label(trans('texts.vendor'))
+                                    ->addGroupClass('vendor-select') !!}
 
                     {!! Former::select('expense_category_id')->addOption('', '')
                             ->data_bind('combobox: expense_category_id')
@@ -77,6 +77,25 @@
                                 ->data_bind('combobox: client_id')
                                 ->addGroupClass('client-select') !!}
                     @endif
+
+
+                    @if (isset($paymentTypeId) && $paymentTypeId)
+                        {!! Former::populateField('payment_type_id', $paymentTypeId) !!}
+                    @endif
+                    
+                    @if (!$expense || !$expense->account_gateway_id)
+                        {!! Former::select('payment_type_id')
+                                ->addOption('','')
+                                ->fromQuery($paymentTypes, 'name', 'id')
+                                ->addGroupClass('payment-type-select') !!}
+                    @endif
+
+                    {!! Former::text('payment_date')
+                            ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+                            ->addGroupClass('payment_date')
+                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                            
+                    {!! Former::text('transaction_reference') !!}
 
                     @if (!$expense || ($expense && !$expense->invoice_id && !$expense->client_id))
                         {!! Former::checkbox('should_be_invoiced')
@@ -277,7 +296,7 @@
                 $categorySelect.append(new Option(category.name, category.public_id));
             }
             $categorySelect.combobox();
-
+            
             $('#expense_date').datepicker('update', '{{ $expense ? $expense->expense_date : 'new Date()' }}');
 
             $('.expense_date .input-group-addon').click(function() {
@@ -300,6 +319,11 @@
             setTaxSelect(1);
             setTaxSelect(2);
 
+            $('select#payment_type_id').combobox();
+            $('select#tax_select1').combobox();
+
+            $('#payment_date').datepicker('update', '{{ $expense ? $expense->payment_date : 'new Date()' }}');
+            
             @if ($data)
                 // this means we failed so we'll reload the previous state
                 window.model = new ViewModel({!! $data !!});

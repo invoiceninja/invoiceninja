@@ -118,6 +118,14 @@ class Expense extends EntityModel
     {
         return $this->belongsTo('App\Models\Invoice')->withTrashed();
     }
+    
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function payment_type()
+    {
+        return $this->belongsTo('App\Models\PaymentType');
+    }
 
     /**
      * @return mixed
