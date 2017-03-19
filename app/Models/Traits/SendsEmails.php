@@ -36,7 +36,7 @@ trait SendsEmails
             $value = $this->$field;
 
             if ($value) {
-                return $value;
+                return preg_replace("/\r\n|\r|\n/", ' ', $value);
             }
         }
 
@@ -66,7 +66,7 @@ trait SendsEmails
         }
 
         if ($message) {
-            $template .= "$message<p/>\r\n\r\n";
+            $template .= "$message<p/>";
         }
 
         return $template . '$footer';
@@ -90,6 +90,8 @@ trait SendsEmails
         if (! $template) {
             $template = $this->getDefaultEmailTemplate($entityType, $message);
         }
+
+        $template = preg_replace("/\r\n|\r|\n/", ' ', $template);
 
         // <br/> is causing page breaks with the email designs
         return str_replace('/>', ' />', $template);
