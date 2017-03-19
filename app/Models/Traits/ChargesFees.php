@@ -29,18 +29,6 @@ trait ChargesFees
 
         if ($settings->fee_percent) {
             $amount = $this->partial > 0 ? $this->partial : $this->balance;
-
-            // prevent charging taxes twice on the surcharge
-            if ($location != FEE_LOCATION_ITEM) {
-                if ($this->$taxField) {
-                    $taxAmount = 0;
-                    foreach ($this->getTaxes() as $key => $tax) {
-                        $taxAmount += $tax['amount'] - $tax['paid'];
-                    }
-                    $amount -= $taxAmount;
-                }
-            }
-
             $fee += $amount * $settings->fee_percent / 100;
         }
 

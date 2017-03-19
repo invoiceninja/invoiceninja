@@ -75,7 +75,7 @@ Optional Settings
 
 The following are optional query parameter settings:
 
-- ``serializer``: Either array (the default) or json. If json is selected the data is returned using the `JSON API <http://jsonapi.org/>`_ format.
+- ``serializer``: Either array (the default) or `JSON <http://jsonapi.org/>`_.
 - ``include``: A comma-separated list of nested relationships to include.
 - ``client_id``: If set the results will be filtered by the client.
 - ``page``: The page number of results to return when the results are paginated.

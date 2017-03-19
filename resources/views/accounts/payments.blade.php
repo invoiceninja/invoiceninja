@@ -33,7 +33,7 @@
 					->help('gateway_fees_help')
 					->label('gateway_fees')!!}
 			<br/>
-            {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
+            {!! Former::actions( Button::success(trans('texts.save'))->withAttributes(['id' => 'formSave'])->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>
     </div>
     {!! Former::close() !!}
@@ -146,14 +146,14 @@
 										  ->onchange('onTaxRateChange(1)')
 							              ->addOption('', '')
 							              ->label(trans('texts.tax_rate'))
-							              ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'public_id') !!}
+							              ->fromQuery($taxRates, function($model) { return $model->name . ': ' . $model->rate . '%'; }, 'public_id') !!}
 
 									@if ($account->enable_second_tax_rate)
 									{!! Former::select('tax_rate2')
 										  ->onchange('onTaxRateChange(2)')
 							              ->addOption('', '')
 							              ->label(trans('texts.tax_rate'))
-							              ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'public_id') !!}
+							              ->fromQuery($taxRates, function($model) { return $model->name . ': ' . $model->rate . '%'; }, 'public_id') !!}
 									@endif
 
 								@endif
@@ -187,7 +187,7 @@
                 <div class="modal-footer" style="margin-top: 0px">
                     <button type="button" class="btn btn-default"
                             data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-                    <button type="submit" class="btn btn-primary">{{ trans('texts.save') }}</button>
+                    <button type="submit" class="btn btn-primary" id="modalSave">{{ trans('texts.save') }}</button>
                 </div>
             </div>
         </div>

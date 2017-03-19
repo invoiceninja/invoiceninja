@@ -34,17 +34,8 @@ class TaxRatesCest
         $invoiceTaxRate = number_format($invoiceTaxRate, 3);
 
         // create tax rates
-        $I->amOnPage('/tax_rates/create');
-        $I->fillField(['name' => 'name'], $itemTaxName);
-        $I->fillField(['name' => 'rate'], $itemTaxRate);
-        $I->click('Save');
-        $I->see($itemTaxName);
-
-        $I->amOnPage('/tax_rates/create');
-        $I->fillField(['name' => 'name'], $invoiceTaxName);
-        $I->fillField(['name' => 'rate'], $invoiceTaxRate);
-        $I->click('Save');
-        $I->see($invoiceTaxName);
+        $I->createTaxRate($I, $itemTaxName, $itemTaxRate);
+        $I->createTaxRate($I, $invoiceTaxName, $invoiceTaxRate);
 
         // enable line item taxes
         $I->amOnPage('/settings/tax_rates');

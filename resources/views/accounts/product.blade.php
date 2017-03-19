@@ -37,7 +37,7 @@
       {!! Former::select('default_tax_rate_id')
             ->addOption('', '')
             ->label(trans('texts.tax_rate'))
-            ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'id') !!}
+            ->fromQuery($taxRates, function($model) { return $model->name . ': ' . $model->rate . '%'; }, 'id') !!}
   @endif
 
   </div>
