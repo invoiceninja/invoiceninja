@@ -170,8 +170,11 @@
 								<div class="help-block">
 									<span id="feeSample"></span>
 									@if ($account->gateway_fee_location == FEE_LOCATION_ITEM && !$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
-										{{ trans('texts.fees_tax_help') }}
+										<br/>{{ trans('texts.fees_tax_help') }}
 								    @endif
+									@if ($account->gateway_fee_location == FEE_LOCATION_CHARGE1 || $account->gateway_fee_location == 2)
+										<br/>{!! trans('texts.fees_surcharge_help', ['link' => link_to('/settings/invoice_settings#invoice_surcharges', trans('texts.label_and_taxes'), ['target' => '_blank'])]) !!}
+									@endif
 								</div>
 
 								<br/><b>{{ trans('texts.gateway_fees_disclaimer') }}</b>
