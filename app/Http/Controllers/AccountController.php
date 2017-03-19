@@ -1190,13 +1190,6 @@ class AccountController extends BaseController
         $account->auto_bill_on_due_date = boolval(Input::get('auto_bill_on_due_date'));
         $account->gateway_fee_location = Input::get('gateway_fee_location') ?: null;
 
-        /*
-        if ($account->gateway_fee_location) {
-            $taxField = $account->gateway_fee_location == FEE_LOCATION_CHARGE1 ? 'custom_invoice_taxes1' : 'custom_invoice_taxes1';
-            $account->$taxField = false;
-        }
-        */
-
         $account->save();
 
         event(new UserSettingsChanged());

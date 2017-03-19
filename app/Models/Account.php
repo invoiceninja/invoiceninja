@@ -396,6 +396,11 @@ class Account extends Eloquent
         return $this->invoice_number_prefix != $this->quote_number_prefix;
     }
 
+    public function hasGatewayFeeSurcharge()
+    {
+        return $this->gateway_fee_location == FEE_LOCATION_CHARGE1 || $this->gateway_fee_location == FEE_LOCATION_CHARGE2;
+    }
+
     /**
      * @return mixed
      */
