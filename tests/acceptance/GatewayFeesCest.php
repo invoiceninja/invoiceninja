@@ -142,7 +142,7 @@ class GatewayFeesCest
         $I->click('#modalSave');
     }
 
-    private function createInvoice($I, $clientEmail, $productKey, $amount, $fee, $partial = false)
+    private function createInvoice($I, $clientName, $productKey, $amount, $fee, $partial = false)
     {
         $I->fillInvoice($I, $clientEmail, $productKey);
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
@@ -153,9 +153,10 @@ class GatewayFeesCest
         }
 
         $I->click('Mark Sent');
-        $I->see($clientEmail);
+        $I->see($clientName);
 
-        $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
+        //$clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
+        $clientId = $I->grabFromDatabase('clients', 'id', ['name' => $clientName]);
         $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'invoice_number' => $invoiceNumber]);
         $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
 
