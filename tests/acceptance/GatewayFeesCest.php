@@ -144,7 +144,7 @@ class GatewayFeesCest
 
     private function createInvoice($I, $clientName, $productKey, $amount, $fee, $partial = false)
     {
-        $I->fillInvoice($I, $clientEmail, $productKey);
+        $I->fillInvoice($I, $clientName, $productKey);
         $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
 
         if ($partial) {
