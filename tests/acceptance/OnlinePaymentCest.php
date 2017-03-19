@@ -47,7 +47,7 @@ class OnlinePaymentCest
         $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'invoice_number' => $invoiceNumber]);
         $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
 
-        $I->createOnlinePayment($I, $invoiceNumber);
+        $I->createOnlinePayment($I, $invitationKey);
 
         /*
         $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId]);
