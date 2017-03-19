@@ -30,6 +30,7 @@
 					->addOption(trans('texts.location_first_surcharge') . ($account->custom_invoice_label1 ? ' | ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
 					->addOption(trans('texts.location_second_surcharge') . ($account->custom_invoice_label2 ? ' | ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
 					->addOption(trans('texts.location_line_item'), FEE_LOCATION_ITEM)
+					->onchange('onGatewayFeeChange()')
 					->help('gateway_fees_help')
 					->label('gateway_fees')!!}
 			<br/>
@@ -57,7 +58,7 @@
       ->setOptions('sPaginationType', 'bootstrap')
       ->setOptions('bFilter', false)
       ->setOptions('bAutoWidth', false)
-      ->setOptions('aoColumns', [[ "sWidth"=> "24%" ], ["sWidth"=> "27%"], ["sWidth"=> "27%"], ["sWidth"=> "20%"]])
+      ->setOptions('aoColumns', [[ "sWidth"=> "20%" ], ["sWidth"=> "20%"], ["sWidth"=> "30%"], ["sWidth"=> "20%"]])
       ->setOptions('aoColumnDefs', [['bSortable'=>false, 'aTargets'=>[1, 2, 3]]])
       ->render('datatable') !!}
 
@@ -370,6 +371,21 @@
 		}
 
 		onTaxRateChange(instance);
+	}
+
+	function onGatewayFeeChange()
+	{
+		if (window.hasShownGatewayFeeWarning) {
+			return;
+		}
+		window.hasShownGatewayFeeWarning = true;
+
+		var settingLocation = $('#gateway_fee_location').val();
+		var accountLocation = '{{ $account->gateway_fee_location }}';
+
+		if (accountLocation && settingLocation && accountLocation != settingLocation) {
+			swal("{!! trans('texts.warning') !!}", "{!! trans('texts.gateway_fee_change_warning') !!}");
+		}
 	}
 
   </script>

@@ -2416,9 +2416,9 @@ $LANG = array(
     'online_payment_surcharge' => 'Online Payment Surcharge',
     'gateway_fees' => 'Gateway Fees',
     'fees_disabled' => 'Fees are disabled',
-    //'gateway_fees_help' => 'Automatically add an online payment surcharge [partial payments are not supported].',
     'gateway_fees_help' => 'Automatically add an online payment surcharge or line item.<br/>Use \'Line item\' to support partial payments.',
     'gateway' => 'Gateway',
+    'gateway_fee_change_warning' => 'If there are unpaid invoices with fees applied they need to be removed to prevent duplicate fees.',
 
 );
 
