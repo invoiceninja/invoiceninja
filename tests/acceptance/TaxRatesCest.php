@@ -1,4 +1,4 @@
-/<?php
+<?php
 
 use Codeception\Util\Fixtures;
 use Faker\Factory;
@@ -63,7 +63,7 @@ class TaxRatesCest
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
-        $I->selectOption('#taxRateSelect1', $invoiceTaxName . ': ' . $invoiceTaxRate . '%');
+        $I->selectOption('#taxRateSelect1', $invoiceTaxName . ' ' . $invoiceTaxRate . '%');
         $I->wait(3);
 
         // check total is right before saving
