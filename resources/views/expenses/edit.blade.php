@@ -67,7 +67,7 @@
                     @if ($expense && $expense->invoice_id)
                         {!! Former::plaintext()
                                 ->label('client')
-                                ->value($expense->client->getDisplayName()) !!}
+                                ->value($expense->client->present()->link)  !!}
                     @else
                         {!! Former::select('client_id')
                                 ->addOption('', '')
@@ -76,10 +76,10 @@
                                 ->addGroupClass('client-select') !!}
                     @endif
 
-                    @if (!$expense || ($expense && !$expense->invoice_id && !$expense->client_id))
+                    @if (!$expense || ($expense && !$expense->invoice_id))
                         {!! Former::checkbox('should_be_invoiced')
                                 ->text(trans('texts.billable'))
-                                ->data_bind('checked: should_be_invoiced')
+                                ->data_bind('checked: should_be_invoiced()')
                                 ->label(' ')
                                 ->value(1) !!}
                     @endif
