@@ -25,7 +25,14 @@ For invoices, quotes, tasks and payments simply change the object type.
 
   curl -X GET ninja.dev/api/v1/invoices -H "X-Ninja-Token: TOKEN"
 
-To load a single record specify the Id in the URL. Note: you can add ?invoice_number=0001 to search invoices by invoice number.
+You can search clients by their email address and invoices by their invoice number.
+
+.. code-block:: shell
+
+  curl -X GET ninja.dev/api/v1/clients?email=<value> -H "X-Ninja-Token: TOKEN"
+  curl -X GET ninja.dev/api/v1/invoices?invoice_number=<value> -H "X-Ninja-Token: TOKEN"
+
+To load a single record specify the Id in the URL.
 
 .. code-block:: shell
 
@@ -43,8 +50,22 @@ You can download a PDF using the following URL
 
   curl -X GET ninja.dev/api/v1/download/1 -H "X-Ninja-Token: TOKEN"
 
+Optional Settings
+"""""""""""""""""
+
+The following are optional query parameter settings:
+
+- ``serializer``: Either array (the default) or `JSON <http://jsonapi.org/>`_.
+- ``include``: A comma-separated list of nested relationships to include.
+- ``client_id``: If set the results will be filtered by the client.
+- ``page``: The page number of results to return when the results are paginated.
+- ``per_page``: The number of results to return per page.
+- ``updated_at``: Timestamp used as a filter to only show recently updated records.
+
 Creating Data
 """""""""""""
+
+.. TIP:: Add ``-H "X-Requested-With: XMLHttpRequest"`` to see validation errors in the response.
 
 Here’s an example of creating a client. Note that email address is a property of the client’s contact not the client itself.
 
@@ -61,9 +82,13 @@ You can also update a client by specifying a value for ‘id’. Next, here’s 
     -d '{"client_id":"1", "invoice_items":[{"product_key": "ITEM", "notes":"Test", "cost":10, "qty":1}]}'
     -H "X-Ninja-Token: TOKEN"
 
-If the product_key is set and matches an existing record the product fields will be auto-populated. If the email field is set then we’ll search for a matching client. If no matches are found a new client will be created. To email the invoice set email_invoice to true.
+If the product_key is set and matches an existing record the product fields will be auto-populated. If the email field is set then we’ll search for a matching client. If no matches are found a new client will be created.
 
-To set the invoice date field you can either use the "invoice_date” field passing a date formatted the same way the company is configured or use "invoice_date_sql” to pass a SQL formatted date (ie, "YYYY-MM-DD”).
+Options
+^^^^^^^
+- ``email_invoice``: Email the invoice to the client.
+- ``auto_bill``: Attempt to auto-bill the invoice using stored payment methods or credits.
+- ``paid``: Create a payment for the defined amount.
 
 Emailing Invoices
 """""""""""""""""
@@ -74,19 +99,6 @@ To email an invoice use the email_invoice command passing the id of the invoice.
 
   curl -X POST ninja.dev/api/v1/email_invoice -d '{"id":1}'
     -H "Content-Type:application/json" -H "X-Ninja-Token: TOKEN"
-
-
-Optional Settings
-"""""""""""""""""
-
-The following are optional query parameter settings:
-
-- ``serializer``: Either array (the default) or `JSON <http://jsonapi.org/>`_.
-- ``include``: A comma-separated list of nested relationships to include.
-- ``client_id``: If set the results will be filtered by the client.
-- ``page``: The page number of results to return when the results are paginated.
-- ``per_page``: The number of results to return per page.
-- ``updated_at``: Timestamp used as a filter to only show recently updated records.
 
 Subscriptions
 """""""""""""

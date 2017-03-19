@@ -63,6 +63,11 @@ class InvoiceApiController extends BaseAPIController
                         ->with('invoice_items', 'client')
                         ->orderBy('created_at', 'desc');
 
+        // Filter by invoice number
+        if ($invoiceNumber = Input::get('invoice_number')) {
+            $invoices->whereInvoiceNumber($invoiceNumber);
+        }
+
         return $this->listResponse($invoices);
     }
 
