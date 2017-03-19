@@ -1026,7 +1026,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         // once an invoice with fee surcharge has been paid don't clear it
-        if (($location == FEE_LOCATION_CHARGE1 || $location == FEE_LOCATION_CHARGE2) && $invoice->amount != $invoice->balance) {
+        if ($account->hasGatewayFeeSurcharge() && $invoice->amount != $invoice->balance) {
             return false;
         }
 
