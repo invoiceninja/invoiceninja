@@ -35,6 +35,7 @@ class OnlinePaymentCest
 
         // create invoice
         $I->amOnPage('/invoices/create');
+        $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
@@ -43,7 +44,9 @@ class OnlinePaymentCest
 
         // enter payment
         $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
-        $invoiceNumber = $I->grabFromDatabase('invoices', 'invoice_number', ['client_id' => $clientId]);
+        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'invoice_number' => $invoiceNumber]);
+        $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
+
         $I->createOnlinePayment($I, $invoiceNumber);
 
         /*

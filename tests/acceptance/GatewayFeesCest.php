@@ -70,8 +70,8 @@ class GatewayFeesCest
 
 
         // partial invoice
-        $invoiceNumber = $this->createInvoice($I, $clientName, $productKey, $total, $partialFeeWithTax, $total / 2);
-        $this->createPayment($I, $invoiceNumber, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
+        $invitationKey = $this->createInvoice($I, $clientName, $productKey, $total, $partialFeeWithTax, $total / 2);
+        $this->createPayment($I, $invitationKey, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
     }
 
     private function configureGatewayFeeTax($I, $taxName = '', $taxRate = '')
@@ -155,17 +155,18 @@ class GatewayFeesCest
         $I->click('Mark Sent');
         $I->see($clientEmail);
 
-        $balance = $partial ? ($amount - $partial) : 0;
-        $this->createPayment($I, $invoiceNumber, $amount, $balance, $fee);
-
-        return $invoiceNumber;
-    }
-
-    private function createPayment($I, $invoiceNumber, $amount, $balance, $fee)
-    {
-        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['invoice_number' => $invoiceNumber]);
+        $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
+        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'invoice_number' => $invoiceNumber]);
         $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
 
+        $balance = $partial ? ($amount - $partial) : 0;
+        $this->createPayment($I, $invitationKey, $amount, $balance, $fee);
+
+        return $invitationKey;
+    }
+
+    private function createPayment($I, $invitationKey, $amount, $balance, $fee)
+    {
         // check we correctly remove/add back the gateway fee
         $I->amOnPage('/view/' . $invitationKey);
         $I->click('Pay Now');
@@ -181,9 +182,12 @@ class GatewayFeesCest
         $I->see('$' . number_format($fee, 2) . ' Fee');
         $I->see('$' . number_format($fee * 2, 2) . ' Fee');
 
-        $I->createOnlinePayment($I, $invoiceNumber);
+        $I->createOnlinePayment($I, $invitationKey);
+
+        $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
+
         $I->seeInDatabase('invoices', [
-            'invoice_number' => $invoiceNumber,
+            'invoice_id' => $invoiceId,
             'amount' => ($amount + $fee),
             'balance' => $balance
         ]);

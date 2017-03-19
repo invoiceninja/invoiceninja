@@ -19,7 +19,7 @@ Here’s an example of reading the list of clients using cURL from the command l
 
   curl -X GET ninja.dev/api/v1/clients -H "X-Ninja-Token: TOKEN"
 
-For invoices, quotes, tasks and payments simply change the object type. ie,
+For invoices, quotes, tasks and payments simply change the object type.
 
 .. code-block:: shell
 
@@ -30,6 +30,12 @@ To load a single record specify the Id in the URL. Note: you can add ?invoice_nu
 .. code-block:: shell
 
   curl -X GET ninja.dev/api/v1/invoices/1 -H "X-Ninja-Token: TOKEN"
+
+You can specify additional relationships to load using the ``include`` parameter.
+
+.. code-block:: shell
+
+  curl -X GET ninja.dev/api/v1/clients/1?include=invoices.invitations -H "X-Ninja-Token: TOKEN"
 
 You can download a PDF using the following URL
 

@@ -110,11 +110,8 @@ class AcceptanceTester extends \Codeception\Actor
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
     }
 
-    function createOnlinePayment(\AcceptanceTester $I, $invoiceNumber)
+    function createOnlinePayment(\AcceptanceTester $I, $invitationKey)
     {
-        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['invoice_number' => $invoiceNumber]);
-        $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
-
         $clientSession = $I->haveFriend('client');
         $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
             $I->amOnPage('/view/' . $invitationKey);
