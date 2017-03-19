@@ -2420,7 +2420,8 @@ $LANG = array(
     'gateway' => 'Gateway',
     'gateway_fee_change_warning' => 'If there are unpaid invoices with fees they need to be removed to prevent duplicate fees from being charged.',
     'fees_surcharge_help' => 'Customize surcharge :link.',
-    'label_and_taxes' => 'label and taxes'
+    'label_and_taxes' => 'label and taxes',
+    'billable' => 'Billable',
 
 );
 

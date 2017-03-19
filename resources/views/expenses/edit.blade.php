@@ -78,8 +78,8 @@
 
                     @if (!$expense || ($expense && !$expense->invoice_id && !$expense->client_id))
                         {!! Former::checkbox('should_be_invoiced')
-                                ->text(trans('texts.should_be_invoiced'))
-                                ->data_bind('checked: should_be_invoiced() || client_id(), enable: !client_id()')
+                                ->text(trans('texts.billable'))
+                                ->data_bind('checked: should_be_invoiced')
                                 ->label(' ')
                                 ->value(1) !!}
                     @endif
