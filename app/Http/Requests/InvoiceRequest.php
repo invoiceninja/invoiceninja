@@ -17,7 +17,11 @@ class InvoiceRequest extends EntityRequest
             $invoice = Invoice::scope()
                         ->whereInvoiceNumber($this->invoice_number)
                         ->withTrashed()
-                        ->firstOrFail();
+                        ->first();
+
+            if (! $invoice) {
+                abort(404);
+            }
         }
 
         // eager load the invoice items
