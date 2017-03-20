@@ -142,7 +142,7 @@ trait SendsEmails
      *
      * @return bool|string
      */
-    public function getInvoiceReminder(Invoice $invoice)
+    public function getInvoiceReminder($invoice)
     {
         for ($i = 1; $i <= 3; $i++) {
             if ($date = $this->getReminderDate($i)) {
