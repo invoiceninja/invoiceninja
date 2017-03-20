@@ -106,7 +106,9 @@
   @endif
 
   function handleSignedUp() {
-      localStorage.setItem('guest_key', '');
+      if (isStorageSupported()) {
+          localStorage.setItem('guest_key', '');
+      }
       fbq('track', 'CompleteRegistration');
       trackEvent('/account', '/signed_up');
   }
@@ -155,10 +157,6 @@
     } else {
         $('.signup-form a.btn').addClass('disabled');
     }
-  }
-
-  function setSocialLoginProvider(provider) {
-    localStorage.setItem('auth_provider', provider);
   }
 
   window.loadedSearchData = false;
@@ -338,7 +336,9 @@
             if (history.pushState) {
                 history.pushState(null, null, target);
             }
-            localStorage.setItem('last:settings_page', location.href.replace(location.hash, ''));
+            if (isStorageSupported()) {
+                localStorage.setItem('last:settings_page', location.href.replace(location.hash, ''));
+            }
         }
     });
 
@@ -666,7 +666,7 @@
                     <h4>{{ trans('texts.sign_up_using') }}</h4><br/>
                     @foreach (App\Services\AuthService::$providers as $provider)
                     <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block"
-                        onclick="setSocialLoginProvider('{{ strtolower($provider) }}')" id="{{ strtolower($provider) }}LoginButton">
+                        id="{{ strtolower($provider) }}LoginButton">
                         <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
                         {{ $provider }}
                     </a>

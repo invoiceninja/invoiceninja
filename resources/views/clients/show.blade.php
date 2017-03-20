@@ -302,7 +302,9 @@
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           var target = $(e.target).attr("href") // activated tab
           target = target.substring(1);
-          localStorage.setItem('client_tab', target);
+          if (isStorageSupported()) {
+              localStorage.setItem('client_tab', target);
+          }
           if (!loadedTabs.hasOwnProperty(target)) {
             loadedTabs[target] = true;
             window['load_' + target]();

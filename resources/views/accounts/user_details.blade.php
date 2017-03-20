@@ -168,8 +168,6 @@
             $('#passwordModal').on('shown.bs.modal', function () {
                 $('#current_password').focus();
            })
-
-            localStorage.setItem('auth_provider', '{{ strtolower($oauthProviderName) }}');
         });
 
         function showChangePassword() {
