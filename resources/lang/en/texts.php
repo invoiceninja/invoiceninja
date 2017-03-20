@@ -2422,6 +2422,9 @@ $LANG = array(
     'fees_surcharge_help' => 'Customize surcharge :link.',
     'label_and_taxes' => 'label and taxes',
     'billable' => 'Billable',
+    'logo_warning_too_large' => 'The image file is too large.',
+    'logo_warning_fileinfo' => 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.',
+    'logo_warning_invalid' => 'There was a problem reading the image file, please try a different format.',
 
 );
 

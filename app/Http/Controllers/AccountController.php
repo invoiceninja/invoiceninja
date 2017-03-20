@@ -37,6 +37,7 @@ use Request;
 use Response;
 use Session;
 use stdClass;
+use Exception;
 use URL;
 use Utils;
 
@@ -1053,28 +1054,32 @@ class AccountController extends BaseController
                 $size = filesize($filePath);
 
                 if ($size / 1000 > MAX_DOCUMENT_SIZE) {
-                    Session::flash('warning', 'File too large');
+                    Session::flash('warning', trans('texts.logo_warning_too_large'));
                 } else {
                     if ($documentType != 'gif') {
                         $account->logo = $account->account_key.'.'.$documentType;
 
-                        $imageSize = getimagesize($filePath);
-                        $account->logo_width = $imageSize[0];
-                        $account->logo_height = $imageSize[1];
-                        $account->logo_size = $size;
+                        try {
+                            $imageSize = getimagesize($filePath);
+                            $account->logo_width = $imageSize[0];
+                            $account->logo_height = $imageSize[1];
+                            $account->logo_size = $size;
 
-                        // make sure image isn't interlaced
-                        if (extension_loaded('fileinfo')) {
-                            $image = Image::make($path);
-                            $image->interlace(false);
-                            $imageStr = (string) $image->encode($documentType);
-                            $disk->put($account->logo, $imageStr);
+                            // make sure image isn't interlaced
+                            if (extension_loaded('fileinfo')) {
+                                $image = Image::make($path);
+                                $image->interlace(false);
+                                $imageStr = (string) $image->encode($documentType);
+                                $disk->put($account->logo, $imageStr);
 
-                            $account->logo_size = strlen($imageStr);
-                        } else {
-                            $stream = fopen($filePath, 'r');
-                            $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
-                            fclose($stream);
+                                $account->logo_size = strlen($imageStr);
+                            } else {
+                                $stream = fopen($filePath, 'r');
+                                $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
+                                fclose($stream);
+                            }
+                        } catch (Exception $exception) {
+                            Session::flash('warning', trans('texts.logo_warning_invalid'));
                         }
                     } else {
                         if (extension_loaded('fileinfo')) {
@@ -1092,7 +1097,7 @@ class AccountController extends BaseController
                             $account->logo_width = $image->width();
                             $account->logo_height = $image->height();
                         } else {
-                            Session::flash('warning', 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.');
+                            Session::flash('warning', trans('texts.logo_warning_fileinfo'));
                         }
                     }
                 }
