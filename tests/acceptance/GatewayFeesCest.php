@@ -189,7 +189,7 @@ class GatewayFeesCest
         $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
 
         $I->seeInDatabase('invoices', [
-            'invoice_id' => $invoiceId,
+            'id' => $invoiceId,
             'amount' => ($amount + $fee),
             'balance' => $balance
         ]);
