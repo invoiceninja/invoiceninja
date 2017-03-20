@@ -10,6 +10,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Foundation\Validation\ValidationException;
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Session\TokenMismatchException;
 use Redirect;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -26,10 +27,11 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        AuthorizationException::class,
-        HttpException::class,
-        ModelNotFoundException::class,
-        ValidationException::class,
+        TokenMismatchException::class,
+        //AuthorizationException::class,
+        //HttpException::class,
+        //ModelNotFoundException::class,
+        //ValidationException::class,
     ];
 
     /**
@@ -43,6 +45,10 @@ class Handler extends ExceptionHandler
      */
     public function report(Exception $e)
     {
+        if (! $this->shouldReport($e)) {
+            return false;
+        }
+
         // don't show these errors in the logs
         if ($e instanceof NotFoundHttpException) {
             if (Crawler::isCrawler()) {
@@ -74,9 +80,10 @@ class Handler extends ExceptionHandler
         if ($e instanceof ModelNotFoundException) {
             return Redirect::to('/');
         }
-        if ($e instanceof \Illuminate\Session\TokenMismatchException) {
+
+        if ($e instanceof TokenMismatchException) {
             // prevent loop since the page auto-submits
-            if ($request->path() != 'get_started') {
+            if ($request->path() != 'get_started' && $request->path() != 'save_sidebar_state') {
                 // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
                 return redirect()
                         ->back()
