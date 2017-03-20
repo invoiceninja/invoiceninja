@@ -95,6 +95,15 @@ class VendorRepository extends BaseRepository
 
         $vendorcontactIds = [];
 
+        // If the primary is set ensure it's listed first
+        usort($vendorcontacts, function ($left, $right) {
+            if (isset($right['is_primary']) && isset($left['is_primary'])) {
+                return $right['is_primary'] - $left['is_primary'];
+            } else {
+                return 0;
+            }
+        });
+
         foreach ($vendorcontacts as $vendorcontact) {
             $vendorcontact = $vendor->addVendorContact($vendorcontact, $first);
             $vendorcontactIds[] = $vendorcontact->public_id;
