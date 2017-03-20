@@ -277,7 +277,7 @@ class OnlinePaymentController extends BaseController
 
             return response()->json(['message' => $result]);
         } catch (Exception $exception) {
-            Utils::logError($exception->getMessage(), 'PHP');
+            //Utils::logError($exception->getMessage(), 'PHP');
 
             return response()->json(['message' => $exception->getMessage()], 500);
         }
