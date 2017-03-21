@@ -257,7 +257,10 @@
 					data: data,
 				    success: function(response) {
 				 		redirectToPayment();
-				    }
+				    },
+					error: function(response) {
+						// TODO
+					}
 				});
 			}
 

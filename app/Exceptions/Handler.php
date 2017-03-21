@@ -82,8 +82,7 @@ class Handler extends ExceptionHandler
         }
 
         if ($e instanceof TokenMismatchException) {
-            // prevent loop since the page auto-submits
-            if ($request->path() != 'get_started' && $request->path() != 'save_sidebar_state') {
+            if (! in_array($request->path(), ['get_started', 'save_sidebar_state'])) {
                 // https://gist.github.com/jrmadsen67/bd0f9ad0ef1ed6bb594e
                 return redirect()
                         ->back()
