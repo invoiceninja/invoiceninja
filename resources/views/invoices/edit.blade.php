@@ -1429,7 +1429,7 @@
             $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
-				if (data && data.startsWith('http')) {
+				if (data && data.startsWith && data.startsWith('http')) {
 					NINJA.formIsChanged = false;
 					location.href = data;
 				} else {
