@@ -132,6 +132,10 @@ class AccountGatewayController extends BaseController
         $currentGateways = $account->account_gateways;
         $gateways = Gateway::where('payment_library_id', '=', 1)->orderBy('name')->get();
 
+        if ($accountGateway) {
+            $accountGateway->fields = [];
+        }
+
         foreach ($gateways as $gateway) {
             $fields = $gateway->getFields();
             if (! $gateway->isCustom()) {
