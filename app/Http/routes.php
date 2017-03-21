@@ -362,6 +362,9 @@ Route::get('/feed', function () {
 Route::get('/comments/feed', function () {
     return Redirect::to(NINJA_WEB_URL.'/comments/feed', 301);
 });
+Route::get('/terms', function () {
+    return Redirect::to(NINJA_WEB_URL.'/terms', 301);
+});
 
 /*
 if (Utils::isNinjaDev())
