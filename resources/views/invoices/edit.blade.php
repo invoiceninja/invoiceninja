@@ -1429,19 +1429,30 @@
             $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
-                NINJA.formIsChanged = false;
-                location.href = data;
+				if (data && data.startsWith('http')) {
+					NINJA.formIsChanged = false;
+					location.href = data;
+				} else {
+					handleSaveFailed();
+				}
             }).fail(function(data) {
-                $('#saveButton, #emailButton, #draftButton').attr('disabled', false);
-				$('#emailModal div.modal-footer button').attr('disabled', false);
-                var error = firstJSONError(data.responseJSON) || data.statusText;
-                swal("{!! trans('texts.invoice_save_error') !!}", error);
+				handleSaveFailed(data);
             });
             return false;
         @else
             return false;
         @endif
     }
+
+	function handleSaveFailed(data) {
+		$('#saveButton, #emailButton, #draftButton').attr('disabled', false);
+		$('#emailModal div.modal-footer button').attr('disabled', false);
+		var error = '';
+		if (data) {
+			var error = firstJSONError(data.responseJSON) || data.statusText;
+		}
+		swal("{!! trans('texts.invoice_save_error') !!}", error);
+	}
 
     function submitBulkAction(value) {
         $('#bulk_action').val(value);
