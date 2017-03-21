@@ -157,6 +157,7 @@ return [
         'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
         Codedge\Updater\UpdaterServiceProvider::class,
         Nwidart\Modules\LaravelModulesServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
 
         /*
          * Application Service Providers...

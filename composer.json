@@ -82,7 +82,8 @@
         "predis/predis": "^1.1",
         "nwidart/laravel-modules": "^1.14",
         "jonnyw/php-phantomjs": "4.*",
-        "collizo4sky/omnipay-wepay": "^1.3"
+        "collizo4sky/omnipay-wepay": "^1.3",
+        "barryvdh/laravel-cors": "^0.9.1"
     },
     "require-dev": {
         "phpunit/phpunit": "~4.0",

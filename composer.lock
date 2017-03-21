@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "16c087062022dc367fa7c330cb8f1bea",
-    "content-hash": "154f02784a3e9bb390f10ec0f23068e4",
+    "hash": "5c6d080c3a38d42e07ab70bf32760976",
+    "content-hash": "dcf4534113b5e62eb3f1fa6b453c82be",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -444,6 +444,64 @@
                 "zip"
             ],
             "time": "2017-01-13 14:52:38"
+        },
+        {
+            "name": "barryvdh/laravel-cors",
+            "version": "v0.9.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/barryvdh/laravel-cors.git",
+                "reference": "9fe3dfb7198ed6df0fca333347e5c9b2db62a2f4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/barryvdh/laravel-cors/zipball/9fe3dfb7198ed6df0fca333347e5c9b2db62a2f4",
+                "reference": "9fe3dfb7198ed6df0fca333347e5c9b2db62a2f4",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "5.1.x|5.2.x|5.3.x|5.4.x",
+                "php": ">=5.5.9",
+                "symfony/http-foundation": "~2.7|~3.0",
+                "symfony/http-kernel": "~2.7|~3.0"
+            },
+            "require-dev": {
+                "orchestra/testbench": "3.x",
+                "phpunit/phpunit": "^4.8|^5.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "0.9-dev",
+                    "dev-develop": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Barryvdh\\Cors\\": "src/"
+                },
+                "classmap": [
+                    "tests"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Barry vd. Heuvel",
+                    "email": "barryvdh@gmail.com"
+                }
+            ],
+            "description": "Adds CORS (Cross-Origin Resource Sharing) headers support in your Laravel application",
+            "keywords": [
+                "api",
+                "cors",
+                "crossdomain",
+                "laravel"
+            ],
+            "time": "2017-03-20 15:05:31"
         },
         {
             "name": "barryvdh/laravel-debugbar",

@@ -360,9 +360,15 @@ class OnlinePaymentController extends BaseController
         }
 
         if ($gatewayTypeAlias) {
-            return redirect()->to($invitation->getLink('payment') . "/{$gatewayTypeAlias}");
+            $link = $invitation->getLink('payment') . "/{$gatewayTypeAlias}";
         } else {
-            return redirect()->to($invitation->getLink());
+            $link = $invitation->getLink();
+        }
+
+        if (filter_var(Input::get('return_link'), FILTER_VALIDATE_BOOLEAN)) {
+            return $link;
+        } else {
+            return redirect()->to($link);
         }
     }
 }
