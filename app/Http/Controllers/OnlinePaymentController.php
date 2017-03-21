@@ -98,6 +98,10 @@ class OnlinePaymentController extends BaseController
 
         $paymentDriver = $account->paymentDriver($invitation, $gatewayTypeId);
 
+        if (! $paymentDriver) {
+            return redirect()->to('view/' . $invitation->invitation_key);
+        }
+
         try {
             return $paymentDriver->startPurchase(Input::all(), $sourceId);
         } catch (Exception $exception) {
