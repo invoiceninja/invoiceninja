@@ -267,15 +267,6 @@ function isValidEmailAddress(emailAddress) {
     return pattern.test(emailAddress);
 };
 
-$(function() {
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-});
-
-
 function enableHoverClick($combobox, $entityId, url) {
   /*
   $combobox.mouseleave(function() {

@@ -244,6 +244,12 @@
             NINJA.formIsChanged = true;
         });
 
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
             @if (Session::get('trackEventAction') === '/buy_pro_plan')
                 fbq('track', 'Purchase', {value: '{{ session('trackEventAmount') }}', currency: 'USD'});
