@@ -2426,6 +2426,8 @@ $LANG = array(
     'logo_warning_fileinfo' => 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.',
     'logo_warning_invalid' => 'There was a problem reading the image file, please try a different format.',
 
+    'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
+
 );
 
 return $LANG;

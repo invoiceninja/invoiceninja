@@ -259,7 +259,7 @@
 				 		redirectToPayment();
 				    },
 					error: function(response) {
-						// TODO
+						alert("{{ trans('texts.error_refresh_page') }}");
 					}
 				});
 			}
