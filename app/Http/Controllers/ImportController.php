@@ -45,9 +45,11 @@ class ImportController extends BaseController
 
                 return View::make('accounts.import_map', ['data' => $data]);
             } elseif ($source === IMPORT_JSON) {
-                $results = $this->importService->importJSON($files[IMPORT_JSON]);
+                $includeData = filter_var(Input::get('data'), FILTER_VALIDATE_BOOLEAN);
+                $includeSettings = filter_var(Input::get('settings'), FILTER_VALIDATE_BOOLEAN);
+                $results = $this->importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
 
-                return $this->showResult($results);
+                return $this->showResult($results, $includeSettings);
             } else {
                 $results = $this->importService->importFiles($source, $files);
 
@@ -78,10 +80,14 @@ class ImportController extends BaseController
         }
     }
 
-    private function showResult($results)
+    private function showResult($results, $includeSettings = false)
     {
         $message = '';
         $skipped = [];
+
+        if ($includeSettings) {
+            $message = trans('texts.imported_settings') . '<br/>';
+        }
 
         foreach ($results as $entityType => $entityResults) {
             if ($count = count($entityResults[RESULT_SUCCESS])) {

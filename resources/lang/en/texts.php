@@ -2427,7 +2427,8 @@ $LANG = array(
     'logo_warning_invalid' => 'There was a problem reading the image file, please try a different format.',
 
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
-
+    'data' => 'Data',
+    'imported_settings' => 'Successfully imported settings',
 );
 
 return $LANG;

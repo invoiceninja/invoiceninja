@@ -145,7 +145,7 @@ class ImportService
      *
      * @return array
      */
-    public function importJSON($file)
+    public function importJSON($file, $includeData, $includeSettings)
     {
         $this->initMaps();
 
@@ -156,51 +156,69 @@ class ImportService
 
         $this->checkClientCount(count($json['clients']));
 
-        foreach ($json['products'] as $jsonProduct) {
-            if ($transformer->hasProduct($jsonProduct['product_key'])) {
-                continue;
+        if ($includeSettings) {
+            // remove blank id values
+            $settings = [];
+            foreach ($json as $field => $value) {
+                if (strstr($field, '_id') && ! $value) {
+                    // continue;
+                } else {
+                    $settings[$field] = $value;
+                }
             }
-            if (EntityModel::validate($jsonProduct, ENTITY_PRODUCT) === true) {
-                $product = $this->productRepo->save($jsonProduct);
-                $this->addProductToMaps($product);
-                $this->addSuccess($product);
-            } else {
-                $this->addFailure(ENTITY_PRODUCT, $jsonProduct);
-                continue;
-            }
+            //dd($settings);
+            $account = Auth::user()->account;
+            $account->fill($settings);
+            $account->save();
         }
 
-        foreach ($json['clients'] as $jsonClient) {
-            if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
-                $client = $this->clientRepo->save($jsonClient);
-                $this->addClientToMaps($client);
-                $this->addSuccess($client);
-            } else {
-                $this->addFailure(ENTITY_CLIENT, $jsonClient);
-                continue;
+        if ($includeData) {
+            foreach ($json['products'] as $jsonProduct) {
+                if ($transformer->hasProduct($jsonProduct['product_key'])) {
+                    continue;
+                }
+                if (EntityModel::validate($jsonProduct, ENTITY_PRODUCT) === true) {
+                    $product = $this->productRepo->save($jsonProduct);
+                    $this->addProductToMaps($product);
+                    $this->addSuccess($product);
+                } else {
+                    $this->addFailure(ENTITY_PRODUCT, $jsonProduct);
+                    continue;
+                }
             }
 
-            foreach ($jsonClient['invoices'] as $jsonInvoice) {
-                $jsonInvoice['client_id'] = $client->id;
-                if (EntityModel::validate($jsonInvoice, ENTITY_INVOICE) === true) {
-                    $invoice = $this->invoiceRepo->save($jsonInvoice);
-                    $this->addInvoiceToMaps($invoice);
-                    $this->addSuccess($invoice);
+            foreach ($json['clients'] as $jsonClient) {
+                if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
+                    $client = $this->clientRepo->save($jsonClient);
+                    $this->addClientToMaps($client);
+                    $this->addSuccess($client);
                 } else {
-                    $this->addFailure(ENTITY_INVOICE, $jsonInvoice);
+                    $this->addFailure(ENTITY_CLIENT, $jsonClient);
                     continue;
                 }
 
-                foreach ($jsonInvoice['payments'] as $jsonPayment) {
-                    $jsonPayment['invoice_id'] = $invoice->public_id;
-                    if (EntityModel::validate($jsonPayment, ENTITY_PAYMENT) === true) {
-                        $jsonPayment['client_id'] = $client->id;
-                        $jsonPayment['invoice_id'] = $invoice->id;
-                        $payment = $this->paymentRepo->save($jsonPayment);
-                        $this->addSuccess($payment);
+                foreach ($jsonClient['invoices'] as $jsonInvoice) {
+                    $jsonInvoice['client_id'] = $client->id;
+                    if (EntityModel::validate($jsonInvoice, ENTITY_INVOICE) === true) {
+                        $invoice = $this->invoiceRepo->save($jsonInvoice);
+                        $this->addInvoiceToMaps($invoice);
+                        $this->addSuccess($invoice);
                     } else {
-                        $this->addFailure(ENTITY_PAYMENT, $jsonPayment);
+                        $this->addFailure(ENTITY_INVOICE, $jsonInvoice);
                         continue;
+                    }
+
+                    foreach ($jsonInvoice['payments'] as $jsonPayment) {
+                        $jsonPayment['invoice_id'] = $invoice->public_id;
+                        if (EntityModel::validate($jsonPayment, ENTITY_PAYMENT) === true) {
+                            $jsonPayment['client_id'] = $client->id;
+                            $jsonPayment['invoice_id'] = $invoice->id;
+                            $payment = $this->paymentRepo->save($jsonPayment);
+                            $this->addSuccess($payment);
+                        } else {
+                            $this->addFailure(ENTITY_PAYMENT, $jsonPayment);
+                            continue;
+                        }
                     }
                 }
             }
