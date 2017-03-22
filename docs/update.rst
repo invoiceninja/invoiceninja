@@ -1,7 +1,7 @@
 Update
 ======
 
-.. Note:: We recommend backing up your database before updating the app.
+.. NOTE:: We recommend backing up your database before updating the app.
 
 To update the app you just need to copy over the latest code. The app tracks the current version in a file called version.txt, if it notices a change it loads ``/update`` to run the database migrations.
 
@@ -13,6 +13,8 @@ If the auto-update fails you can manually run the update with the following comm
    php artisan optimize --force
    php artisan migrate
    php artisan db:seed --class=UpdateSeeder
+
+.. NOTE:: If you've downloaded the code from GitHub you also need to run ``composer install``
 
 Version 2.6
 """""""""""
