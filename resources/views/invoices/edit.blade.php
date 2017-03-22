@@ -1429,12 +1429,16 @@
             $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
             // if save fails ensure user can try again
             $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
+				NINJA.formIsChanged = false;
+				location.href = data;
+				/*
 				if (data && data.startsWith && data.startsWith('http')) {
 					NINJA.formIsChanged = false;
 					location.href = data;
 				} else {
 					handleSaveFailed();
 				}
+				*/
             }).fail(function(data) {
 				handleSaveFailed(data);
             });
