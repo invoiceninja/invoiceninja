@@ -50,6 +50,7 @@ before_script:
   - sed -i 's/APP_ENV=production/APP_ENV=development/g' .env
   - sed -i 's/APP_DEBUG=false/APP_DEBUG=true/g' .env
   - sed -i 's/MAIL_DRIVER=smtp/MAIL_DRIVER=log/g' .env
+  - sed -i 's/PHANTOMJS_CLOUD_KEY/#PHANTOMJS_CLOUD_KEY/g' .env
   - sed -i '$a NINJA_DEV=true' .env
   - sed -i '$a TRAVIS=true' .env
   # create the database and user
