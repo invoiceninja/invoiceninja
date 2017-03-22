@@ -369,7 +369,7 @@ class BasePaymentDriver
     {
         $invoice = $this->invoice();
         $gatewayTypeAlias = $this->gatewayType == GATEWAY_TYPE_TOKEN ? $this->gatewayType : GatewayType::getAliasFromId($this->gatewayType);
-        $completeUrl = $this->invitation->getLink('complete') . '/' . $gatewayTypeAlias;
+        $completeUrl = $this->invitation->getLink('complete', true) . '/' . $gatewayTypeAlias;
 
         $data = [
             'amount' => $invoice->getRequestedAmount(),
