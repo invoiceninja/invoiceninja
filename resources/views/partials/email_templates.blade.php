@@ -18,7 +18,7 @@
             'account': "{{ $account->getDisplayName() }}",
             'dueDate': "{{ $account->formatDate($account->getDateTime()) }}",
             'invoiceDate': "{{ $account->formatDate($account->getDateTime()) }}",
-            'client': invoice ? getClientDisplayName(invoice.client) : 'Client Name',
+            'client': invoice ? getClientDisplayName(invoice.client) : "{{ trans('texts.client_name') }}",
             'amount': invoice ? formatMoneyInvoice(parseFloat(invoice.partial) || parseFloat(invoice.balance_amount), invoice) : formatMoneyAccount(100, account),
             'contact': invoice ? getContactDisplayName(invoice.client.contacts[0]) : 'Contact Name',
             'firstName': invoice ? invoice.client.contacts[0].first_name : 'First Name',
