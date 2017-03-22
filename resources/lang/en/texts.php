@@ -2429,6 +2429,8 @@ $LANG = array(
     'error_refresh_page' => 'An error occurred, please refresh the page and try again.',
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
+    'lang_Greek' => 'Greek',
+
 );
 
 return $LANG;
