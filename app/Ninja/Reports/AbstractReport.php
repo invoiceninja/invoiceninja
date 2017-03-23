@@ -67,7 +67,7 @@ class AbstractReport
 
             if (strpos($field, 'date') !== false) {
                 $class[] = 'group-date-' . (isset($this->options['group_dates_by']) ? $this->options['group_dates_by'] : 'monthyear');
-            } elseif (in_array($field, ['client', 'vendor', 'product', 'method', 'category', 'project'])) {
+            } elseif (in_array($field, ['client', 'vendor', 'product', 'user', 'method', 'category', 'project'])) {
                 $class[] = 'group-letter-100';
             } elseif (in_array($field, ['amount', 'paid', 'balance'])) {
                 $class[] = 'group-number-50';
