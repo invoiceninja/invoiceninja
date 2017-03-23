@@ -104,11 +104,13 @@
 					chartEndDate = lastRange[1];
 				}
 
-				var currencyId = localStorage.getItem('last:dashboard_currency_id');
-				if (currencyId) {
-					chartCurrencyId = currencyId;
-					$("#currency-btn-group [data-button=\"" + chartCurrencyId + "\"]").addClass("active").siblings().removeClass("active");
-				}
+				@if (count($currencies) > 1)
+					var currencyId = localStorage.getItem('last:dashboard_currency_id');
+					if (currencyId) {
+						chartCurrencyId = currencyId;
+						$("#currency-btn-group [data-button=\"" + chartCurrencyId + "\"]").addClass("active").siblings().removeClass("active");
+					}
+				@endif
 
 				var groupBy = localStorage.getItem('last:dashboard_group_by');
 				if (groupBy) {
