@@ -66,7 +66,7 @@ Please see these guides for detailed information on configuring Apache or Nginx.
 
 Once you can access the site the initial setup screen will enable you to configure the database and email settings as well as create the initial admin user.
 
-.. Tip:: The best practice to remove public/ from the URL is to map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file.
+.. Tip:: To remove public/ from the URL map the webroot to the /public folder, alternatively you can uncomment ``RewriteRule ^(.*)$ public/$1 [L]`` in the .htaccess file.
 
 Troubleshooting
 ^^^^^^^^^^^^^^^
