@@ -279,4 +279,18 @@ class InvoicePresenter extends EntityPresenter
 
         return ' - ' . $fee . ' ' . $label;
     }
+
+    public function multiAccountLink()
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        if ($account->hasMultipleAccounts()) {
+            $link = url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
+        } else {
+            $link = $invoice->present()->url;
+        }
+
+        return $link;
+    }
 }

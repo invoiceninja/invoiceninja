@@ -58,12 +58,7 @@ class UserMailer extends Mailer
         $view = ($notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE) . "_{$notificationType}";
         $account = $user->account;
         $client = $invoice->client;
-
-        if ($account->hasMultipleAccounts()) {
-            $link = url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
-        } else {
-            $link = $invoice->present()->url;
-        }
+        $link = $invoice->present()->multiAccountLink;
 
         $data = [
             'entityType' => $entityType,
@@ -111,6 +106,26 @@ class UserMailer extends Mailer
             'entityType' => $entityType,
             'contactName' => $invitation->contact->getDisplayName(),
             'invoiceNumber' => $invoice->invoice_number,
+        ];
+
+        $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    /**
+     * @param Invitation $invitation
+     */
+    public function sendMessage($user, $subject, $message, $invoice)
+    {
+        if (! $user->email) {
+            return;
+        }
+
+        $view = 'user_message';
+        $data = [
+            'userName' => $user->getDisplayName(),
+            'primaryMessage' => $subject,
+            'secondaryMessage' => $message,
+            'invoiceLink' => $invoice->present()->multiAccountLink,
         ];
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
