@@ -2434,6 +2434,7 @@ $LANG = array(
     'next_reset' => 'Next Reset',
     'reset_counter_help' => 'Automatically reset the invoice and quote counters.',
     'auto_bill_failed' => 'Auto-billing for invoice :invoice_number failed',
+    'online_payment_discount' => 'Online Payment Discount',
 
 );
 

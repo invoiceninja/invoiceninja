@@ -1072,8 +1072,8 @@ class InvoiceRepository extends BaseRepository
             $fee = $invoice->calcGatewayFee($gatewayTypeId);
 
             $item = [];
-            $item['product_key'] = trans('texts.surcharge');
-            $item['notes'] = trans('texts.online_payment_surcharge');
+            $item['product_key'] = $fee >= 0 ? trans('texts.surcharge') : trans('texts.discount');
+            $item['notes'] = $fee >= 0 ? trans('texts.online_payment_surcharge') : trans('texts.online_payment_discount');
             $item['qty'] = 1;
             $item['cost'] = $fee;
             $item['tax_rate1'] = $settings->fee_tax_rate1;
