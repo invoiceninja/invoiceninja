@@ -2430,6 +2430,9 @@ $LANG = array(
     'data' => 'Data',
     'imported_settings' => 'Successfully imported settings',
     'lang_Greek' => 'Greek',
+    'reset_counter' => 'Reset Counter',
+    'next_reset' => 'Next Reset',
+    'reset_counter_help' => 'Automatically reset the invoice and quote counters.',
 
 );
 

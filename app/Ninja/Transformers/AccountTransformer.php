@@ -264,6 +264,7 @@ class AccountTransformer extends EntityTransformer
             'reset_counter_frequency_id' => (int) $account->reset_counter_frequency_id,
             'payment_type_id' => (int) $account->payment_type_id,
             'gateway_fee_location' => $account->gateway_fee_location,
+            'reset_counter_date' => $account->reset_counter_date,
         ];
     }
 }

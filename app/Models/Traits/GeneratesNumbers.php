@@ -252,4 +252,50 @@ trait GeneratesNumbers
     {
         return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->client_number_counter > 0;
     }
+
+    public function checkCounterReset()
+    {
+        if (! $this->reset_counter_frequency_id || ! $this->reset_counter_date) {
+            return false;
+        }
+
+        $timezone = $this->getTimezone();
+        $resetDate = Carbon::parse($this->reset_counter_date, $timezone);
+
+        if (! $resetDate->isToday()) {
+            return false;
+        }
+
+        switch ($this->reset_counter_frequency_id) {
+            case FREQUENCY_WEEKLY:
+                $resetDate->addWeek();
+                break;
+            case FREQUENCY_TWO_WEEKS:
+                $resetDate->addWeeks(2);
+                break;
+            case FREQUENCY_FOUR_WEEKS:
+                $resetDate->addWeeks(4);
+                break;
+            case FREQUENCY_MONTHLY:
+                $resetDate->addMonth();
+                break;
+            case FREQUENCY_TWO_MONTHS:
+                $resetDate->addMonths(2);
+                break;
+            case FREQUENCY_THREE_MONTHS:
+                $resetDate->addMonths(3);
+                break;
+            case FREQUENCY_SIX_MONTHS:
+                $resetDate->addMonths(6);
+                break;
+            case FREQUENCY_ANNUALLY:
+                $resetDate->addYear();
+                break;
+        }
+
+        $this->reset_counter_date = $resetDate->format('Y-m-d');
+        $this->invoice_number_counter = 1;
+        $this->quote_number_counter = 1;
+        $this->save();
+    }
 }

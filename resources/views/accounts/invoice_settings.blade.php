@@ -47,6 +47,9 @@
                     <li role="presentation">
                         <a href="#recurring_invoice_number" aria-controls="recurring_invoice_number" role="tab" data-toggle="tab">{{ trans('texts.recurring_invoice_number') }}</a>
                     </li>
+                    <li role="presentation">
+                        <a href="#reset_counter" aria-controls="reset_counter" role="tab" data-toggle="tab">{{ trans('texts.reset_counter') }}</a>
+                    </li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -73,7 +76,6 @@
                                 ->label(trans('texts.counter'))
                                 ->help(trans('texts.invoice_number_help') . ' ' .
                                     trans('texts.next_invoice_number', ['number' => $account->previewNextInvoiceNumber()])) !!}
-
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="quote_number">
@@ -147,6 +149,24 @@
                         {!! Former::text('recurring_invoice_number_prefix')
                                 ->label(trans('texts.prefix'))
                                 ->help(trans('texts.recurring_invoice_number_prefix_help')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="reset_counter">
+                    <div class="panel-body">
+
+                        {!! Former::select('reset_counter_frequency_id')
+                                ->onchange('onResetFrequencyChange()')
+                                ->label('frequency')
+                                ->addOption(trans('texts.never'), '')
+                                ->options(\App\Models\Frequency::selectOptions())                                
+                                ->help('reset_counter_help') !!}
+
+                        {!! Former::text('reset_counter_date')
+                                    ->label('next_reset')
+                                    ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                                    ->addGroupClass('reset_counter_date_group')
+                                    ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 
                     </div>
                 </div>
@@ -410,6 +430,15 @@
         }
     }
 
+    function onResetFrequencyChange() {
+        var val = $('#reset_counter_frequency_id').val();
+        if (val) {
+            $('.reset_counter_date_group').show();
+        } else {
+            $('.reset_counter_date_group').hide();
+        }
+    }
+
     $('.number-pattern .input-group-addon').click(function() {
         $('#patternHelpModal').modal('show');
     });
@@ -420,6 +449,13 @@
         onQuoteNumberTypeChange();
         onClientNumberTypeChange();
         onClientNumberEnabled();
+        onResetFrequencyChange();
+
+        $('#reset_counter_date').datepicker('update', '{{ Utils::fromSqlDate($account->reset_counter_date) ?: 'new Date()' }}');
+        $('.reset_counter_date_group .input-group-addon').click(function() {
+            toggleDatePicker('reset_counter_date');
+        });
+
     });
 
 	</script>

@@ -172,6 +172,7 @@ class Account extends Eloquent
         'reset_counter_frequency_id',
         'payment_type_id',
         'gateway_fee_location',
+        'reset_counter_date',
     ];
 
     /**
