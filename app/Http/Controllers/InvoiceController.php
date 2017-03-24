@@ -286,12 +286,14 @@ class InvoiceController extends BaseController
         }
 
         // Check for any taxes which have been deleted
+        $taxRateOptions = $account->present()->taxRateOptions;
         if ($invoice->exists) {
             foreach ($invoice->getTaxes() as $key => $rate) {
-                if (isset($options[$key])) {
+                $key = '0 ' . $key;
+                if (isset($taxRateOptions[$key])) {
                     continue;
                 }
-                $options['0 ' . $key] = $rate['name'] . ' ' . $rate['rate'] . '%';
+                $taxRateOptions[$key] = $rate['name'] . ' ' . $rate['rate'] . '%';
             }
         }
 
@@ -299,7 +301,7 @@ class InvoiceController extends BaseController
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
-            'taxRateOptions' => $account->present()->taxRateOptions,
+            'taxRateOptions' => $taxRateOptions,
             'defaultTax' => $account->default_tax_rate,
             'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),
