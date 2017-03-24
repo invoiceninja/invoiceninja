@@ -134,7 +134,12 @@
 		                    </div>
 		                </div>
 						<div role="tabpanel" class="tab-pane" id="fees">
-		                    <div class="panel-body">
+							<div id="feesDisabled" class="panel-body" style="display:none">
+								<div class="help-block">
+									{{ trans('texts.fees_disabled_for_gateway') }}
+								</div>
+							</div>
+		                    <div id="feesEnabled" class="panel-body">
 
 								{!! Former::text('fee_amount')
 										->label('amount')
@@ -262,13 +267,21 @@
 			setTaxRate(2, '', '');
 		}
 
-        $('#paymentLimitsModal').modal('show');
-
 		updateFeeSample();
 
 		@if ($account->gateway_fee_location == FEE_LOCATION_ITEM)
 			$('#taxDiv').show();
 		@endif
+
+		if (gateway_type_id == {{ GATEWAY_TYPE_CUSTOM }}) {
+			$('#feesEnabled').hide();
+			$('#feesDisabled').show();
+		} else {
+			$('#feesDisabled').hide();
+			$('#feesEnabled').show();
+		}
+
+		$('#paymentLimitsModal').modal('show');
     }
 
     var limitsSlider = document.getElementById('payment-limits-slider');

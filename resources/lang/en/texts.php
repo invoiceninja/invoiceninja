@@ -2436,6 +2436,7 @@ $LANG = array(
     'auto_bill_failed' => 'Auto-billing for invoice :invoice_number failed',
     'online_payment_discount' => 'Online Payment Discount',
     'created_new_company' => 'Successfully created new company',
+    'fees_disabled_for_gateway' => 'Fees are disabled for this gateway.',
 
 );
 

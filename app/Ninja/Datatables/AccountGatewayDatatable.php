@@ -192,9 +192,6 @@ class AccountGatewayDatatable extends EntityDatatable
             $actions[] = [
                 trans('texts.set_limits_fees', ['gateway_type' => $gatewayType->name]),
                 function () use ($gatewayType) {
-                    //$accountGatewaySettings = $this->getAccountGatewaySetting($gatewayType->id);
-                    //$min = $accountGatewaySettings && $accountGatewaySettings->min_limit !== null ? $accountGatewaySettings->min_limit : 'null';
-                    //$max = $accountGatewaySettings && $accountGatewaySettings->max_limit !== null ? $accountGatewaySettings->max_limit : 'null';
                     return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id})";
                 },
                 function ($model) use ($gatewayType) {
