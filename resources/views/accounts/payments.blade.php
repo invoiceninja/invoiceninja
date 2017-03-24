@@ -25,14 +25,22 @@
                             trans('texts.on_due_date') => ['value'=>1, 'name'=>'auto_bill_on_due_date'],
                         ])->help(trans('texts.auto_bill_ach_date_help')) !!}
 			<br/>
-			{!! Former::select('gateway_fee_location')
+
+			{!! Former::checkbox('gateway_fee_location')
+						->onchange('onGatewayFeeChange()')
+						->help('gateway_fees_help')
+						->label('gateway_fees')
+						->text('enable')
+			 			->value(FEE_LOCATION_ITEM) !!}
+
+			{{-- Former::select('gateway_fee_location')
 					->addOption(trans('texts.disabled'), '')
 					->addOption(trans('texts.location_first_surcharge') . ($account->custom_invoice_label1 ? ' | ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
 					->addOption(trans('texts.location_second_surcharge') . ($account->custom_invoice_label2 ? ' | ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
 					->addOption(trans('texts.location_line_item'), FEE_LOCATION_ITEM)
 					->onchange('onGatewayFeeChange()')
 					->help('gateway_fees_help')
-					->label('gateway_fees')!!}
+					->label('gateway_fees') --}}
 			<br/>
             {!! Former::actions( Button::success(trans('texts.save'))->withAttributes(['id' => 'formSave'])->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>
@@ -383,10 +391,9 @@
 		}
 		window.hasShownGatewayFeeWarning = true;
 
-		var settingLocation = $('#gateway_fee_location').val();
-		var accountLocation = '{{ $account->gateway_fee_location }}';
-
-		if (accountLocation && settingLocation && accountLocation != settingLocation) {
+		var accountEnabled = '{{ $account->gateway_fee_location ? 'true' : 'false' }}';
+		var formEnabled = $('#gateway_fee_location').is(':checked');
+		if (accountEnabled && ! formEnabled) {
 			swal("{!! trans('texts.warning') !!}", "{!! trans('texts.gateway_fee_change_warning') !!}");
 		}
 	}
