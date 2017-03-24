@@ -65,12 +65,6 @@ class HomeController extends BaseController
      */
     public function invoiceNow()
     {
-        if (Auth::check() && Input::get('new_company')) {
-            Session::put(PREV_USER_ID, Auth::user()->id);
-            Auth::user()->clearSession();
-            Auth::logout();
-        }
-
         // Track the referral/campaign code
         if (Input::has('rc')) {
             Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));

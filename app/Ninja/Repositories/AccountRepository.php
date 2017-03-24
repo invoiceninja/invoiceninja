@@ -27,15 +27,17 @@ use Validator;
 
 class AccountRepository
 {
-    public function create($firstName = '', $lastName = '', $email = '', $password = '')
+    public function create($firstName = '', $lastName = '', $email = '', $password = '', $company = false)
     {
-        $company = new Company();
-        $company->utm_source = Input::get('utm_source');
-        $company->utm_medium = Input::get('utm_medium');
-        $company->utm_campaign = Input::get('utm_campaign');
-        $company->utm_term = Input::get('utm_term');
-        $company->utm_content = Input::get('utm_content');
-        $company->save();
+        if (! $company) {
+            $company = new Company();
+            $company->utm_source = Input::get('utm_source');
+            $company->utm_medium = Input::get('utm_medium');
+            $company->utm_campaign = Input::get('utm_campaign');
+            $company->utm_term = Input::get('utm_term');
+            $company->utm_content = Input::get('utm_content');
+            $company->save();
+        }
 
         $account = new Account();
         $account->ip = Request::getClientIp();
@@ -617,61 +619,7 @@ class AccountRepository
 
         $record->save();
 
-        $users = $this->getUserAccounts($record);
-
-        // Pick the primary user
-        foreach ($users as $user) {
-            if (! $user->public_id) {
-                $useAsPrimary = false;
-                if (empty($primaryUser)) {
-                    $useAsPrimary = true;
-                }
-
-                $planDetails = $user->account->getPlanDetails(false, false);
-                $planLevel = 0;
-
-                if ($planDetails) {
-                    $planLevel = 1;
-                    if ($planDetails['plan'] == PLAN_ENTERPRISE) {
-                        $planLevel = 2;
-                    }
-
-                    if (! $useAsPrimary && (
-                        $planLevel > $primaryUserPlanLevel
-                        || ($planLevel == $primaryUserPlanLevel && $planDetails['expires'] > $primaryUserPlanExpires)
-                    )) {
-                        $useAsPrimary = true;
-                    }
-                }
-
-                if ($useAsPrimary) {
-                    $primaryUser = $user;
-                    $primaryUserPlanLevel = $planLevel;
-                    if ($planDetails) {
-                        $primaryUserPlanExpires = $planDetails['expires'];
-                    }
-                }
-            }
-        }
-
-        // Merge other companies into the primary user's company
-        if (! empty($primaryUser)) {
-            foreach ($users as $user) {
-                if ($user == $primaryUser || $user->public_id) {
-                    continue;
-                }
-
-                if ($user->account->company_id != $primaryUser->account->company_id) {
-                    foreach ($user->account->company->accounts as $account) {
-                        $account->company_id = $primaryUser->account->company_id;
-                        $account->save();
-                    }
-                    $user->account->company->forceDelete();
-                }
-            }
-        }
-
-        return $users;
+        return $this->loadAccounts($userId1);
     }
 
     public function unlinkAccount($account)

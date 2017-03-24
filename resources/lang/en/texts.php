@@ -2368,7 +2368,7 @@ $LANG = array(
 
 	// New Client Portal styling
 	'invoice_from' => 'Invoices From:',
-    'email_alias_message' => 'Note: we require each user to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
+    'email_alias_message' => 'We require each company to have a unique email address.<br/>Consider using an alias. ie, email+label@example.com',
     'full_name' => 'Full Name',
     'month_year' => 'MONTH/YEAR',
     'valid_thru' => 'Valid\nthru',
@@ -2435,6 +2435,7 @@ $LANG = array(
     'reset_counter_help' => 'Automatically reset the invoice and quote counters.',
     'auto_bill_failed' => 'Auto-billing for invoice :invoice_number failed',
     'online_payment_discount' => 'Online Payment Discount',
+    'created_new_company' => 'Successfully created new company',
 
 );
 

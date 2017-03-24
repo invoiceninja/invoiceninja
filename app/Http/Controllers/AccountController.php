@@ -123,17 +123,16 @@ class AccountController extends BaseController
     {
         $user = false;
         $guestKey = Input::get('guest_key'); // local storage key to login until registered
-        $prevUserId = Session::pull(PREV_USER_ID); // last user id used to link to new account
 
         if (Auth::check()) {
             return Redirect::to('invoices/create');
         }
 
-        if (! Utils::isNinja() && (Account::count() > 0 && ! $prevUserId)) {
+        if (! Utils::isNinja() && Account::count() > 0) {
             return Redirect::to('/login');
         }
 
-        if ($guestKey && ! $prevUserId) {
+        if ($guestKey) {
             $user = User::where('password', '=', $guestKey)->first();
 
             if ($user && $user->registered) {
@@ -144,11 +143,6 @@ class AccountController extends BaseController
         if (! $user) {
             $account = $this->accountRepo->create();
             $user = $account->users()->first();
-
-            if ($prevUserId) {
-                $users = $this->accountRepo->associateAccounts($user->id, $prevUserId);
-                Session::put(SESSION_USER_ACCOUNTS, $users);
-            }
         }
 
         Auth::login($user, true);
@@ -1234,7 +1228,7 @@ class AccountController extends BaseController
     public function checkEmail()
     {
         $email = User::withTrashed()->where('email', '=', Input::get('email'))
-                                    ->where('id', '<>', Auth::user()->id)
+                                    ->where('id', '<>', Auth::user()->registered ? 0 : Auth::user()->id)
                                     ->first();
 
         if ($email) {
@@ -1249,12 +1243,19 @@ class AccountController extends BaseController
      */
     public function submitSignup()
     {
+        $user = Auth::user();
+        $account = $user->account;
+
         $rules = [
             'new_first_name' => 'required',
             'new_last_name' => 'required',
             'new_password' => 'required|min:6',
-            'new_email' => 'email|required|unique:users,email,'.Auth::user()->id.',id',
+            'new_email' => 'email|required|unique:users,email',
         ];
+
+        if (! $user->registered) {
+            $rules['new_email'] .= ',' . Auth::user()->id . ',id';
+        }
 
         $validator = Validator::make(Input::all(), $rules);
 
@@ -1262,23 +1263,38 @@ class AccountController extends BaseController
             return '';
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->first_name = trim(Input::get('new_first_name'));
-        $user->last_name = trim(Input::get('new_last_name'));
-        $user->email = trim(strtolower(Input::get('new_email')));
-        $user->username = $user->email;
-        $user->password = bcrypt(trim(Input::get('new_password')));
-        $user->registered = true;
-        $user->save();
+        $firstName = trim(Input::get('new_first_name'));
+        $lastName = trim(Input::get('new_last_name'));
+        $email = trim(strtolower(Input::get('new_email')));
+        $password = trim(Input::get('new_password'));
 
-        $user->account->startTrial(PLAN_PRO);
+        if ($user->registered) {
+            $newAccount = $this->accountRepo->create($firstName, $lastName, $email, $password, $account->company);
+            $newUser = $newAccount->users()->first();
+            $users = $this->accountRepo->associateAccounts($user->id, $newUser->id);
 
-        if (Input::get('go_pro') == 'true') {
-            Session::set(REQUESTED_PRO_PLAN, true);
+            Session::flash('message', trans('texts.created_new_company'));
+            Session::put(SESSION_USER_ACCOUNTS, $users);
+            Auth::loginUsingId($newUser->id);
+
+            return RESULT_SUCCESS;
+        } else {
+            $user->first_name = $firstName;
+            $user->last_name = $lastName;
+            $user->email = $email;
+            $user->username = $user->email;
+            $user->password = bcrypt($password);
+            $user->registered = true;
+            $user->save();
+
+            $user->account->startTrial(PLAN_PRO);
+
+            if (Input::get('go_pro') == 'true') {
+                Session::set(REQUESTED_PRO_PLAN, true);
+            }
+
+            return "{$user->first_name} {$user->last_name}";
         }
-
-        return "{$user->first_name} {$user->last_name}";
     }
 
     /**
