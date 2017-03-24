@@ -267,7 +267,7 @@
         <button type="button" class="btn btn-default" id="closeSignUpButton" data-dismiss="modal">{{ trans('texts.close') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
         <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>{{ trans('texts.save') }} <i class="glyphicon glyphicon-floppy-disk"></i></button>
       </div>
-
+    </div>
     </div>
   </div>
 </div>
@@ -281,14 +281,18 @@
         <h4 class="modal-title" id="myModalLabel">{{ trans('texts.logout') }}</h4>
       </div>
 
-      <div class="container">
-        <h3>{{ trans('texts.are_you_sure') }}</h3>
+      <div class="container" style="width: 100%; padding-bottom: 0px !important">
+      <div class="panel panel-default" style="margin-bottom: 2px">
+      <div class="panel-body">
+        <h3>{{ trans('texts.are_you_sure') }}</h3><br/>
         <p>{{ trans('texts.erase_data') }}</p>
+      </div>
+      </div>
       </div>
 
       <div class="modal-footer" id="signUpFooter">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-        <button type="button" class="btn btn-danger" onclick="logout(true)">{{ trans('texts.logout') }}</button>
+        <button type="button" class="btn btn-danger" onclick="logout(true)">{{ trans('texts.logout_and_delete') }}</button>
       </div>
     </div>
   </div>

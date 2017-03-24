@@ -266,7 +266,7 @@ $LANG = array(
     'working' => 'Working',
     'success' => 'Success',
     'success_message' => 'You have successfully registered! Please visit the link in the account confirmation email to verify your email address.',
-    'erase_data' => 'This will permanently erase your data.',
+    'erase_data' => 'Your account is not registered, this will permanently erase your data.',
     'password' => 'Password',
     'pro_plan_product' => 'Pro Plan',
     'pro_plan_success' => 'Thanks for choosing Invoice Ninja\'s Pro plan!<p/>&nbsp;<br/>
@@ -2437,6 +2437,7 @@ $LANG = array(
     'online_payment_discount' => 'Online Payment Discount',
     'created_new_company' => 'Successfully created new company',
     'fees_disabled_for_gateway' => 'Fees are disabled for this gateway.',
+    'logout_and_delete' => 'Log Out/Delete Account',
 
 );
 

@@ -23,7 +23,7 @@
     }
 
     if (force || NINJA.isRegistered) {
-      window.location = '{{ URL::to('logout') }}';
+      window.location = '{{ URL::to('logout') }}' + (force ? '?force_logout=true' : '');
     } else {
       $('#logoutModal').modal('show');
     }

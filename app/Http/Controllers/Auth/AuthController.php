@@ -173,13 +173,17 @@ class AuthController extends Controller
     public function getLogoutWrapper()
     {
         if (Auth::check() && ! Auth::user()->registered) {
-            $account = Auth::user()->account;
-            $this->accountRepo->unlinkAccount($account);
+            if (request()->force_logout) {
+                $account = Auth::user()->account;
+                $this->accountRepo->unlinkAccount($account);
 
-            if (! $account->hasMultipleAccounts()) {
-                $account->company->forceDelete();
+                if (! $account->hasMultipleAccounts()) {
+                    $account->company->forceDelete();
+                }
+                $account->forceDelete();
+            } else {
+                return redirect('/');
             }
-            $account->forceDelete();
         }
 
         $response = self::getLogout();
