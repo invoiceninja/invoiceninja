@@ -286,12 +286,13 @@ class InvoiceController extends BaseController
         }
 
         // Check for any taxes which have been deleted
+        $taxRateOptions = $account->present()->taxRateOptions;
         if ($invoice->exists) {
             foreach ($invoice->getTaxes() as $key => $rate) {
-                if (isset($options[$key])) {
+                if (isset($taxRateOptions[$key])) {
                     continue;
                 }
-                $options['0 ' . $key] = $rate['name'] . ' ' . $rate['rate'] . '%';
+                $taxRateOptions['0 ' . $key] = $rate['name'] . ' ' . $rate['rate'] . '%';
             }
         }
 
@@ -299,7 +300,7 @@ class InvoiceController extends BaseController
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
-            'taxRateOptions' => $account->present()->taxRateOptions,
+            'taxRateOptions' => $taxRateOptions,
             'defaultTax' => $account->default_tax_rate,
             'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),
@@ -401,7 +402,7 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $this->dispatch(new SendInvoiceEmail($invoice, $reminder, $pdfUpload, $template));
+            $this->dispatch(new SendInvoiceEmail($invoice, $reminder, $template));
             $response = true;
         }
 
@@ -433,13 +434,8 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            // TODO remove this with Laravel 5.3 (https://github.com/invoiceninja/invoiceninja/issues/1303)
-            if (config('queue.default') === 'sync') {
-                return app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
-            } else {
-                $this->dispatch(new SendInvoiceEmail($invoice));
-                return true;
-            }
+            $this->dispatch(new SendInvoiceEmail($invoice));
+            return true;
         }
     }
 
@@ -469,7 +465,6 @@ class InvoiceController extends BaseController
     public function bulk($entityType = ENTITY_INVOICE)
     {
         $action = Input::get('bulk_action') ?: Input::get('action');
-        ;
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
         $count = $this->invoiceService->bulk($ids, $action);
 
@@ -485,6 +480,10 @@ class InvoiceController extends BaseController
             }
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
+        }
+
+        if (strpos(\Request::server('HTTP_REFERER'), 'recurring_invoices')) {
+            $entityType = ENTITY_RECURRING_INVOICE;
         }
 
         return $this->returnBulk($entityType, $action, $ids);
