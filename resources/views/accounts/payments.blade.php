@@ -18,13 +18,13 @@
             {!! Former::select('token_billing_type_id')
                         ->options($tokenBillingOptions)
                         ->help(trans('texts.token_billing_help')) !!}
+
             {!! Former::inline_radios('auto_bill_on_due_date')
                         ->label(trans('texts.auto_bill'))
                         ->radios([
                             trans('texts.on_send_date') => ['value'=>0, 'name'=>'auto_bill_on_due_date'],
                             trans('texts.on_due_date') => ['value'=>1, 'name'=>'auto_bill_on_due_date'],
                         ])->help(trans('texts.auto_bill_ach_date_help')) !!}
-			<br/>
 
 			{!! Former::checkbox('gateway_fee_location')
 						->onchange('onGatewayFeeChange()')
