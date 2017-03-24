@@ -59,6 +59,7 @@ class Gateway extends Eloquent
         GATEWAY_PAYPAL_EXPRESS,
         GATEWAY_BITPAY,
         GATEWAY_DWOLLA,
+        GATEWAY_CUSTOM,
     ];
 
     /**
