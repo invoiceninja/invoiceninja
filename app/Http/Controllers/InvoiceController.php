@@ -289,7 +289,7 @@ class InvoiceController extends BaseController
         $taxRateOptions = $account->present()->taxRateOptions;
         if ($invoice->exists) {
             foreach ($invoice->getTaxes() as $key => $rate) {
-                $key = '0 ' . $key;
+                $key = '0 ' . $key; // mark it as a standard exclusive rate option
                 if (isset($taxRateOptions[$key])) {
                     continue;
                 }
