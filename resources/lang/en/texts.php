@@ -2439,6 +2439,7 @@ $LANG = array(
     'fees_disabled_for_gateway' => 'Fees are disabled for this gateway.',
     'logout_and_delete' => 'Log Out/Delete Account',
     'tax_rate_type_help' => 'Inclusive taxes adjust the line item cost when selected.',
+    'invoice_footer_help' => 'Use $pageNumber and $pageCount to display the page information.',
 
 );
 

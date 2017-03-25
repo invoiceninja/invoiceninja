@@ -58,11 +58,11 @@ function GetPdfMake(invoice, javascript, callback) {
         if (invoice.features.customize_invoice_design) {
             if (key === 'header') {
                 return function(page, pages) {
-                    return page === 1 || invoice.account.all_pages_header == '1' ? val : '';
+                    return page === 1 || invoice.account.all_pages_header == '1' ? NINJA.updatePageCount(JSON.parse(JSON.stringify(val)), page, pages) : '';
                 }
             } else if (key === 'footer') {
                 return function(page, pages) {
-                    return page === pages || invoice.account.all_pages_footer == '1' ? val : '';
+                    return page === pages || invoice.account.all_pages_footer == '1' ? NINJA.updatePageCount(JSON.parse(JSON.stringify(val)), page, pages) : '';
                 }
             }
         }
@@ -146,6 +146,28 @@ function GetPdfMake(invoice, javascript, callback) {
     };
 
     return doc;
+}
+
+NINJA.updatePageCount = function(obj, pageNumber, pageCount)
+{
+    var pageNumberRegExp = new RegExp('\\$pageNumber', 'g');
+    var pageCountRegExp = new RegExp('\\$pageCount', 'g');
+
+    for (key in obj) {
+        if (!obj.hasOwnProperty(key)) {
+            continue;
+        }
+        var val = obj[key];
+        if (typeof val === 'string') {
+            val = val.replace(pageNumberRegExp, pageNumber);
+            val = val.replace(pageCountRegExp, pageCount);
+            obj[key] = val;
+        } else if (typeof val === 'object') {
+            obj[key] = NINJA.updatePageCount(val, pageNumber, pageCount);
+        }
+    }
+
+    return obj;
 }
 
 NINJA.decodeJavascript = function(invoice, javascript)

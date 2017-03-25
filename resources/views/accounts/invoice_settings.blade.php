@@ -159,7 +159,7 @@
                                 ->onchange('onResetFrequencyChange()')
                                 ->label('frequency')
                                 ->addOption(trans('texts.never'), '')
-                                ->options(\App\Models\Frequency::selectOptions())                                
+                                ->options(\App\Models\Frequency::selectOptions())
                                 ->help('reset_counter_help') !!}
 
                         {!! Former::text('reset_counter_date')
@@ -314,6 +314,7 @@
                     <div class="panel-body">
                         {!! Former::textarea('invoice_footer')
                                 ->label(trans('texts.default_invoice_footer'))
+                                ->help('invoice_footer_help')
                                 ->rows(4) !!}
                     </div>
                 </div>
