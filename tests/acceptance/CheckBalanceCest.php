@@ -55,7 +55,7 @@ class CheckBalanceCest
         // update the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
         $I->fillField(['name' => 'invoice_items[0][qty]'], 2);
-        $I->click('Save');
+        $I->click('Save Invoice');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
         $I->see('Balance $' . ($productPrice * 2));

@@ -68,7 +68,7 @@ class TaxRatesCest
 
         // check total is right before saving
         $I->see("\${$total}");
-        $I->click('Save');
+        $I->click('Save Draft');
         $I->wait(3);
         $I->see($clientEmail);
 
