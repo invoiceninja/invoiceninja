@@ -49,6 +49,13 @@ class AcceptanceTester extends \Codeception\Actor
         $I->click(sprintf('ul.typeahead li[data-value="%s"]', $option));
     }
 
+    function selectDropdownCreate(\AcceptanceTester $I, $entityType, $value, $entityTypeShort = false)
+    {
+        $entityTypeShort = $entityTypeShort ?: $entityType;
+        $I->fillField("#{$entityType}_name", $value);
+        $I->click(sprintf('ul.typeahead li[data-value="%s"]', "Create {$entityTypeShort}: \$name"));
+    }
+
     function selectDropdownRow(\AcceptanceTester $I, $option, $dropdownSelector)
     {
         $I->click("$dropdownSelector span.dropdown-toggle");

@@ -19,11 +19,14 @@ class TaskCest
     public function createTimerTask(AcceptanceTester $I)
     {
         $description = $this->faker->text(100);
+        $project = $this->faker->text(20);
 
         $I->wantTo('create a timed task');
         $I->amOnPage('/tasks/create');
         $I->seeCurrentUrlEquals('/tasks/create');
 
+        $I->selectDropdown($I, 'Wilford Borer', '.client-select .dropdown-toggle');
+        $I->selectDropdownCreate($I, 'project', $project);
         $I->fillField('#description', $description);
 
         $I->click('Start');
@@ -32,6 +35,7 @@ class TaskCest
         $I->click('Save');
 
         $I->seeInDatabase('tasks', ['description' => $description]);
+        $I->seeInDatabase('projects', ['name' => $project]);
     }
 
     public function createManualTask(AcceptanceTester $I)

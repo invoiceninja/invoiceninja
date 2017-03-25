@@ -81,6 +81,8 @@ class ExpenseRepository extends BaseRepository
                         'expenses.tax_rate1',
                         'expenses.tax_rate2',
                         'expense_categories.name as category',
+                        'expense_categories.user_id as category_user_id',
+                        'expense_categories.public_id as category_public_id',
                         'invoices.public_id as invoice_public_id',
                         'invoices.user_id as invoice_user_id',
                         'invoices.balance',
