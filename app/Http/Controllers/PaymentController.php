@@ -90,7 +90,7 @@ class PaymentController extends BaseController
     {
         $invoices = Invoice::scope()
                     ->invoices()
-                    ->where('invoices.balance', '>', 0)
+                    ->where('invoices.balance', '!=', 0)
                     ->with('client', 'invoice_status')
                     ->orderBy('invoice_number')->get();
 

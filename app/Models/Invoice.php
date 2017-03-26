@@ -541,7 +541,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function updatePaidStatus($save = true)
     {
         $statusId = false;
-        if ($this->amount > 0 && $this->balance == 0) {
+        if ($this->amount != 0 && $this->balance == 0) {
             $statusId = INVOICE_STATUS_PAID;
         } elseif ($this->balance > 0 && $this->balance < $this->amount) {
             $statusId = INVOICE_STATUS_PARTIAL;
@@ -626,7 +626,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function canBePaid()
     {
-        return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice();
+        return floatval($this->balance) != 0 && ! $this->is_deleted && $this->isInvoice();
     }
 
     public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)
