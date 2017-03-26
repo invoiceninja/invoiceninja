@@ -82,6 +82,7 @@ class GatewayFeesCest
     private function configureLineItemTaxRates($I, $taxName, $taxRate)
     {
         $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
+        $I->createTaxRate($I, $taxName, $taxRate);
 
         // set the gateway fee to use line items
         $I->amOnPage('/settings/online_payments#fees');
