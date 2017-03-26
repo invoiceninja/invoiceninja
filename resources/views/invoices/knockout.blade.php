@@ -670,7 +670,7 @@ function ContactModel(data) {
         var str = '';
         @if (Utils::isConfirmed())
         if (self.invitation_link()) {
-            // clicking add 'silent=true' however it's removed when copying the link
+            // clicking adds 'silent=true' however it's removed when copying the link
             str += '<a href="' + self.invitation_link() + '" onclick="window.open(\'' + self.invitation_link()
                     + '?silent=true\', \'_blank\');return false;">{{ trans('texts.view_as_recipient') }}</a>';
         }

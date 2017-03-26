@@ -844,9 +844,11 @@
             var client = clients[i];
             clientMap[client.public_id] = client;
             var clientName = getClientDisplayName(client);
-            if (!clientName) {
-                continue;
-            }
+            @if (! $invoice->id)
+	            if (!clientName) {
+	                continue;
+	            }
+            @endif
             for (var j=0; j<client.contacts.length; j++) {
                 var contact = client.contacts[j];
                 var contactName = getContactDisplayName(contact);
@@ -1384,6 +1386,11 @@
     }
 
 	function submitAction(value) {
+		if (!isSaveValid()) {
+            model.showClientForm();
+            return false;
+        }
+
 		$('#action').val(value);
 		$('#submitButton').click();
 	}
