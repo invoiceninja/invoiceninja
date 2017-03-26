@@ -718,6 +718,7 @@ function ItemModel(data) {
     self.tax_rate2IsInclusive = ko.observable(0);
     self.task_public_id = ko.observable('');
     self.expense_public_id = ko.observable('');
+    self.invoice_item_type_id = ko.observable({{ INVOICE_ITEM_TYPE_STANDARD }});
     self.actionsVisible = ko.observable(false);
 
     this.tax1 = ko.computed({

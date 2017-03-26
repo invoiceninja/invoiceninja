@@ -281,6 +281,7 @@
                         rows="1" cols="60" style="resize: vertical;height:42px" class="form-control word-wrap"></textarea>
                         <input type="text" data-bind="value: task_public_id, attr: {name: 'invoice_items[' + $index() + '][task_public_id]'}" style="display: none"/>
 						<input type="text" data-bind="value: expense_public_id, attr: {name: 'invoice_items[' + $index() + '][expense_public_id]'}" style="display: none"/>
+						<input type="text" data-bind="value: invoice_item_type_id, attr: {name: 'invoice_items[' + $index() + '][invoice_item_type_id]'}" style="display: none"/>
 				</td>
                 @if ($account->showCustomField('custom_invoice_item_label1'))
                     <td>

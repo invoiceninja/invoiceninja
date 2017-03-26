@@ -670,6 +670,11 @@ class InvoiceRepository extends BaseRepository
                 $item['tax_rate1'] = $item['tax_rate'];
             }
 
+            // provide backwards compatability
+            if (! isset($item['invoice_item_type_id']) && in_array($invoiceItem->notes, [trans('texts.online_payment_surcharge'), trans('texts.online_payment_discount')])) {
+                $invoiceItem->invoice_item_type_id = $invoice->balance > 0 ? INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE : INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE;
+            }
+
             $invoiceItem->fill($item);
 
             $invoice->invoice_items()->save($invoiceItem);
