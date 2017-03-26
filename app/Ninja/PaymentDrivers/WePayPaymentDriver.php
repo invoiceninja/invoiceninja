@@ -56,12 +56,14 @@ class WePayPaymentDriver extends BasePaymentDriver
             $data['transaction_id'] = $transactionId;
         }
 
-        $data['applicationFee'] = (env('WEPAY_APP_FEE_MULTIPLIER') * $data['amount']) + env('WEPAY_APP_FEE_FIXED');
         $data['feePayer'] = env('WEPAY_FEE_PAYER');
         $data['callbackUri'] = $this->accountGateway->getWebhookUrl();
 
         if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
             $data['paymentMethodType'] = 'payment_bank';
+            $data['applicationFee'] = (env('WEPAY_APP_FEE_ACH_MULTIPLIER') * $data['amount']) + env('WEPAY_APP_FEE_FIXED');
+        } else {
+            $data['applicationFee'] = (env('WEPAY_APP_FEE_CC_MULTIPLIER') * $data['amount']) + env('WEPAY_APP_FEE_FIXED');
         }
 
         $data['transaction_rbits'] = $this->invoice()->present()->rBits;
