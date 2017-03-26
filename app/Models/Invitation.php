@@ -76,6 +76,10 @@ class Invitation extends EntityModel
         $iframe_url = $account->iframe_url;
         $url = trim(SITE_URL, '/');
 
+        if (env('REQUIRE_HTTPS')) {
+            $url = str_replace('http://', 'https://', $url);
+        }
+
         if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
             if (Utils::isNinjaProd()) {
                 $url = $account->present()->clientPortalLink();
