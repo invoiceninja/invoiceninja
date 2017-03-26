@@ -847,6 +847,7 @@ class InvoiceRepository extends BaseRepository
     {
         // check for extra params at end of value (from website feature)
         list($invitationKey) = explode('&', $invitationKey);
+        $invitationKey = substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
         /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();

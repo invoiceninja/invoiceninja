@@ -347,7 +347,7 @@
 &lt;script language="javascript"&gt;
 var iframe = document.getElementById('invoiceIFrame');
 iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
-             + window.location.search.substring(1);
+             + window.location.search.substring(1, 33);
 &lt;/script&gt;</pre>
                 <p>{{ trans('texts.iframe_url_help2') }}</p>
                 <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
