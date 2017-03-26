@@ -2445,6 +2445,7 @@ $LANG = array(
     'credit_to' => 'Credit to',
     'your_credit' => 'Your Credit',
     'credit_number' => 'Credit Number',
+    'create_credit_note' => 'Create Credit Note',
 
 );
 

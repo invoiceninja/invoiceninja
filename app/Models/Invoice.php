@@ -1497,7 +1497,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 }
 
 Invoice::creating(function ($invoice) {
-    if (! $invoice->is_recurring) {
+    if (! $invoice->is_recurring && $invoice->amount >= 0) {
         $invoice->account->incrementCounter($invoice);
     }
 });
