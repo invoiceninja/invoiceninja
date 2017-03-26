@@ -216,6 +216,12 @@ trait PresentsInvoice
             'your_statement',
             'statement_issued_to',
             'statement_to',
+            'credit_note',
+            'credit_date',
+            'credit_number',
+            'credit_issued_to',
+            'credit_to',
+            'your_credit',
         ];
 
         foreach ($fields as $field) {

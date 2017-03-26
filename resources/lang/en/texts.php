@@ -2440,6 +2440,11 @@ $LANG = array(
     'logout_and_delete' => 'Log Out/Delete Account',
     'tax_rate_type_help' => 'Inclusive taxes adjust the line item cost when selected.',
     'invoice_footer_help' => 'Use $pageNumber and $pageCount to display the page information.',
+    'credit_note' => 'Credit Note',
+    'credit_issued_to' => 'Credit issued to',
+    'credit_to' => 'Credit to',
+    'your_credit' => 'Your Credit',
+    'credit_number' => 'Credit Number',
 
 );
 
