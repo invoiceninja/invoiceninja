@@ -84,6 +84,10 @@ class GatewayFeesCest
         $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
         $I->createTaxRate($I, $taxName, $taxRate);
 
+        $I->amOnPage('/settings/tax_rates');
+        $I->checkOption('#invoice_item_taxes');
+        $I->click('Save');
+
         // set the gateway fee to use line items
         $I->amOnPage('/settings/online_payments#fees');
         $I->checkOption('gateway_fee_enabled');
