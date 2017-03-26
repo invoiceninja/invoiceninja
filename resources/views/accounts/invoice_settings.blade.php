@@ -344,7 +344,7 @@
                 </div>
 
                 <div class="container" style="width: 100%; padding-bottom: 0px !important">
-                <div class="panel panel-default" style="margin-bottom: 0px">
+                <div class="panel panel-default">
                 <div class="panel-body">
                     <p>{{ trans('texts.pattern_help_1') }}</p>
                     <p>{{ trans('texts.pattern_help_2') }}</p>
@@ -365,7 +365,7 @@
                 </div>
                 </div>
 
-                <div class="modal-footer" style="margin-top: 2px">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 

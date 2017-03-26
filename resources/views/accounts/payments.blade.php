@@ -35,6 +35,7 @@
             {!! Former::actions( Button::success(trans('texts.save'))->withAttributes(['id' => 'formSave'])->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>
     </div>
+	
     {!! Former::close() !!}
 
   @if ($showAdd)
@@ -73,7 +74,7 @@
                 </div>
 
 				<div class="container" style="width: 100%; padding-bottom: 2px !important">
-	            <div class="panel panel-default" style="margin-bottom: 0px">
+	            <div class="panel panel-default">
 	            <div class="panel-body">
 					<div role="tabpanel">
 		                <ul class="nav nav-tabs" role="tablist" style="border: none">
@@ -186,7 +187,7 @@
                 </div>
 				</div>
 
-                <div class="modal-footer" style="margin-top: 0px">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-default"
                             data-dismiss="modal">{{ trans('texts.cancel') }}</button>
                     <button type="submit" class="btn btn-primary" id="modalSave">{{ trans('texts.save') }}</button>

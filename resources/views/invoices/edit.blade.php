@@ -748,7 +748,7 @@
         </div>
         </div>
 
-         <div class="modal-footer" style="margin-top: 0px; padding-top:0px; padding-right:20px">
+         <div class="modal-footer">
             <span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">{{ trans('texts.provide_name_or_email') }}</span><span>&nbsp;</span>
             <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
             <button type="button" class="btn btn-default" data-bind="click: $root.showMoreFields, text: $root.showMore() ? '{{ trans('texts.less_fields') }}' : '{{ trans('texts.more_fields') }}'"></button>

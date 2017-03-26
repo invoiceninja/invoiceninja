@@ -218,16 +218,20 @@
             <h4 class="modal-title" id="helpModalLabel">{{ trans('texts.help') }}</h4>
           </div>
 
-          <div class="panel-body" style="background-color: #fff">
-            {!! trans('texts.customize_help') !!}<br/>
+		  <div class="container" style="width: 100%; padding-bottom: 0px !important">
+		  <div class="panel panel-default">
+		  <div class="panel-body">
+	            {!! trans('texts.customize_help') !!}<br/>
 
-            <pre id="sampleData" style="display:none;height:200px;padding-top:16px;"></pre>
-            @if (empty($sampleInvoice))
-                <div class="help-block">{{ trans('texts.create_invoice_for_sample') }}</div>
-            @endif
+	            <pre id="sampleData" style="display:none;height:200px;padding-top:16px;"></pre>
+	            @if (empty($sampleInvoice))
+	                <div class="help-block">{{ trans('texts.create_invoice_for_sample') }}</div>
+	            @endif
           </div>
-
-         <div class="modal-footer" style="margin-top: 2px">
+	  	  </div>
+  		  </div>
+		  
+         <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
          </div>
 

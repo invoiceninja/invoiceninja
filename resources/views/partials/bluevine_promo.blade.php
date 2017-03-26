@@ -15,7 +15,7 @@
             </div>
 
             <div class="container" style="width: 100%; padding-bottom: 0px !important">
-            <div class="panel panel-default" style="margin-bottom: 0px">
+            <div class="panel panel-default">
             <div class="panel-body">
                 {!! Former::open('/bluevine/signup')->id('bluevineSignup') !!}
                 {!! trans('texts.bluevine_modal_text') !!}<br/>

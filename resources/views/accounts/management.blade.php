@@ -105,7 +105,7 @@
 							</h4>
 						</div>
 						<div class="container" style="width: 100%; padding-bottom: 0px !important">
-			            <div class="panel panel-default" style="margin-bottom: 0px">
+			            <div class="panel panel-default">
 			            <div class="panel-body">
 
 							@if ($planDetails && $planDetails['active'])
@@ -141,7 +141,7 @@
 						</div>
 						</div>
 						</div>
-						<div class="modal-footer" style="margin-top: 2px">
+						<div class="modal-footer">
                             @if (Utils::isPro())
                                 <div class="pull-left" style="padding-top: 8px;color:#888888">
                                     {{ trans('texts.changes_take_effect_immediately') }}

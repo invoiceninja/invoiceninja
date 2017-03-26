@@ -426,6 +426,10 @@ canvas {
     border-radius: 3px;
 }
 
+.modal .panel-default {
+    margin-bottom: 2px;
+}
+
 .navbar .active > a {
   background-color: #09334f !important;
   background-image: none;

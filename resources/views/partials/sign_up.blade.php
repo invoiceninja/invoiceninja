@@ -156,7 +156,7 @@
       </div>
 
       <div class="container" style="width: 100%; padding-bottom: 0px !important">
-      <div class="panel panel-default" style="margin-bottom: 2px">
+      <div class="panel panel-default">
       <div class="panel-body">
 
       <div id="signUpDiv" onkeyup="validateSignUp()" onclick="validateSignUp()" onkeydown="checkForEnter(event)">
@@ -282,7 +282,7 @@
       </div>
 
       <div class="container" style="width: 100%; padding-bottom: 0px !important">
-      <div class="panel panel-default" style="margin-bottom: 2px">
+      <div class="panel panel-default">
       <div class="panel-body">
         <h3>{{ trans('texts.are_you_sure') }}</h3><br/>
         <p>{{ trans('texts.erase_data') }}</p>
