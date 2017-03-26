@@ -171,7 +171,7 @@ class Account extends Eloquent
         'payment_terms',
         'reset_counter_frequency_id',
         'payment_type_id',
-        'gateway_fee_location',
+        'gateway_fee_enabled',
         'reset_counter_date',
     ];
 
@@ -473,11 +473,6 @@ class Account extends Eloquent
         }
 
         return $this->invoice_number_prefix != $this->quote_number_prefix;
-    }
-
-    public function hasGatewayFeeSurcharge()
-    {
-        return $this->gateway_fee_location == FEE_LOCATION_CHARGE1 || $this->gateway_fee_location == FEE_LOCATION_CHARGE2;
     }
 
     /**

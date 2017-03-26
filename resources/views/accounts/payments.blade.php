@@ -8,7 +8,7 @@
     {!! Former::open()->addClass('warn-on-exit') !!}
     {!! Former::populateField('token_billing_type_id', $account->token_billing_type_id) !!}
     {!! Former::populateField('auto_bill_on_due_date', $account->auto_bill_on_due_date) !!}
-	{!! Former::populateField('gateway_fee_location', $account->gateway_fee_location) !!}
+	{!! Former::populateField('gateway_fee_enabled', $account->gateway_fee_enabled) !!}
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -26,21 +26,11 @@
                             trans('texts.on_due_date') => ['value'=>1, 'name'=>'auto_bill_on_due_date'],
                         ])->help(trans('texts.auto_bill_ach_date_help')) !!}
 
-			{!! Former::checkbox('gateway_fee_location')
-						->onchange('onGatewayFeeChange()')
+			{!! Former::checkbox('gateway_fee_enabled')
 						->help('gateway_fees_help')
 						->label('gateway_fees')
 						->text('enable')
-			 			->value(FEE_LOCATION_ITEM) !!}
-
-			{{-- Former::select('gateway_fee_location')
-					->addOption(trans('texts.disabled'), '')
-					->addOption(trans('texts.location_first_surcharge') . ($account->custom_invoice_label1 ? ' | ' . $account->custom_invoice_label1 : ''), FEE_LOCATION_CHARGE1)
-					->addOption(trans('texts.location_second_surcharge') . ($account->custom_invoice_label2 ? ' | ' . $account->custom_invoice_label2 : '' ), FEE_LOCATION_CHARGE2)
-					->addOption(trans('texts.location_line_item'), FEE_LOCATION_ITEM)
-					->onchange('onGatewayFeeChange()')
-					->help('gateway_fees_help')
-					->label('gateway_fees') --}}
+			 			->value(1) !!}
 			<br/>
             {!! Former::actions( Button::success(trans('texts.save'))->withAttributes(['id' => 'formSave'])->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>
@@ -154,7 +144,6 @@
 										->step('any')
 										->append('%') !!}
 
-								<div id="taxDiv" style="display:none">
 								@if ($account->invoice_item_taxes)
 							        {!! Former::select('tax_rate1')
 										  ->onchange('onTaxRateChange(1)')
@@ -171,7 +160,6 @@
 									@endif
 
 								@endif
-								</div>
 
 								<div style="display:none">
 									{!! Former::text('fee_tax_name1') !!}
@@ -182,12 +170,9 @@
 
 								<div class="help-block">
 									<span id="feeSample"></span>
-									@if ($account->gateway_fee_location == FEE_LOCATION_ITEM && !$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
+									@if ($account->gateway_fee_enabled && !$account->invoice_item_taxes && $account->invoice_taxes && count($taxRates))
 										<br/>{{ trans('texts.fees_tax_help') }}
 								    @endif
-									@if ($account->hasGatewayFeeSurcharge())
-										<br/>{!! trans('texts.fees_surcharge_help', ['link' => link_to('/settings/invoice_settings#invoice_surcharges', trans('texts.label_and_taxes'), ['target' => '_blank'])]) !!}
-									@endif
 								</div>
 
 								<br/><b>{{ trans('texts.gateway_fees_disclaimer') }}</b>
@@ -268,10 +253,6 @@
 		}
 
 		updateFeeSample();
-
-		@if ($account->gateway_fee_location == FEE_LOCATION_ITEM)
-			$('#taxDiv').show();
-		@endif
 
 		if (gateway_type_id == {{ GATEWAY_TYPE_CUSTOM }}) {
 			$('#feesEnabled').hide();
@@ -395,20 +376,6 @@
 		}
 
 		onTaxRateChange(instance);
-	}
-
-	function onGatewayFeeChange()
-	{
-		if (window.hasShownGatewayFeeWarning) {
-			return;
-		}
-		window.hasShownGatewayFeeWarning = true;
-
-		var accountEnabled = '{{ $account->gateway_fee_location ? 'true' : 'false' }}';
-		var formEnabled = $('#gateway_fee_location').is(':checked');
-		if (accountEnabled && ! formEnabled) {
-			swal("{!! trans('texts.warning') !!}", "{!! trans('texts.gateway_fee_change_warning') !!}");
-		}
 	}
 
   </script>

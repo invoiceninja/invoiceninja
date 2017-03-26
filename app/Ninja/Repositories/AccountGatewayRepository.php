@@ -26,6 +26,6 @@ class AccountGatewayRepository extends BaseRepository
             'gateways.name as gateway',
             'account_gateways.deleted_at',
             'account_gateways.gateway_id',
-            'accounts.gateway_fee_location');
+            'accounts.gateway_fee_enabled');
     }
 }

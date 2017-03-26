@@ -39,21 +39,7 @@ class GatewayFeesCest
         $partialFee = $feeAmount + ($total / 2 * $feeAmount / 100);
         $partialFeeWithTax = $partialFee + ($partialFee * $taxRate / 100);
 
-        // surcharge gateway fee
-        $this->configureSurchargeTaxRates($I, $taxName, $taxRate);
-        $this->configureFees($I, $feeAmount, $feePercent);
-
-        $I->createProduct($I, $productKey, $cost);
         $I->createClient($I, $clientEmail, $clientName);
-
-        // without taxing the fee
-        $I->uncheckSettingOption($I, 'invoice_settings#invoice_surcharges', 'custom_invoice_taxes1');
-        $this->createInvoice($I, $clientName, $productKey, $total, $fee);
-
-        // with taxing the fee
-        $I->checkSettingOption($I, 'invoice_settings#invoice_surcharges', 'custom_invoice_taxes1');
-        $this->createInvoice($I, $clientName, $productKey, $total, $feeWithTax);
-
 
         // line item gateway fee
         $this->configureLineItemTaxRates($I, $taxName, $taxRate);
@@ -67,7 +53,6 @@ class GatewayFeesCest
         // with taxing the fee
         $this->configureGatewayFeeTax($I, $taxName, $taxRate);
         $this->createInvoice($I, $clientName, $productKey, $total, $feeWithTax);
-
 
         // partial invoice
         $invitationKey = $this->createInvoice($I, $clientName, $productKey, $total, $partialFeeWithTax, $total / 2);
@@ -94,24 +79,13 @@ class GatewayFeesCest
         $I->click('#modalSave');
     }
 
-    private function configureSurchargeTaxRates($I, $taxName, $taxRate)
-    {
-        $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
-
-        $I->createTaxRate($I, $taxName, $taxRate);
-        $I->amOnPage('/settings/tax_rates');
-        $I->checkOption('#invoice_item_taxes');
-        $I->selectOption('default_tax_rate_id', $taxOption);
-        $I->click('Save');
-    }
-
     private function configureLineItemTaxRates($I, $taxName, $taxRate)
     {
         $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
 
         // set the gateway fee to use line items
         $I->amOnPage('/settings/online_payments#fees');
-        $I->selectOption('gateway_fee_location', 'invoice_item');
+        $I->checkOption('gateway_fee_enabled');
         $I->click('#formSave');
 
         // disable the default invoice tax

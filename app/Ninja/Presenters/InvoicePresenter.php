@@ -258,7 +258,7 @@ class InvoicePresenter extends EntityPresenter
         $invoice = $this->entity;
         $account = $invoice->account;
 
-        if (! $account->gateway_fee_location) {
+        if (! $account->gateway_fee_enabled) {
             return '';
         }
 

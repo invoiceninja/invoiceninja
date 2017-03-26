@@ -97,7 +97,7 @@ class AccountGatewayDatatable extends EntityDatatable
             [
                 'fees',
                 function ($model) {
-                    if (! $feeLocation = $model->gateway_fee_location) {
+                    if (! $model->gateway_fee_enabled) {
                         return trans('texts.fees_disabled');
                     }
 
@@ -119,15 +119,8 @@ class AccountGatewayDatatable extends EntityDatatable
                         }
                         $html .= $accountGatewaySettings->feesToString();
 
-                        if ($feeLocation == FEE_LOCATION_ITEM) {
-                            if ($accountGatewaySettings->hasTaxes()) {
-                                $html .= ' + ' . trans('texts.tax');
-                            }
-                        } else {
-                            $field = ($feeLocation == FEE_LOCATION_CHARGE1 ? 'custom_invoice_taxes1' : 'custom_invoice_taxes1');
-                            if (\Auth::user()->account->$field) {
-                                $html .= ' + ' . trans('texts.tax');
-                            }
+                        if ($accountGatewaySettings->hasTaxes()) {
+                            $html .= ' + ' . trans('texts.tax');
                         }
                     };
                     return $html ?: trans('texts.no_fees');

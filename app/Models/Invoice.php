@@ -591,7 +591,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $this->save();
 
         // mark fees as paid
-        if ($balanceAdjustment != 0 && $this->account->gateway_fee_location == FEE_LOCATION_ITEM) {
+        if ($balanceAdjustment != 0 && $this->account->gateway_fee_enabled) {
             if ($invoiceItem = $this->getGatewayFeeItem()) {
                 $invoiceItem->markFeePaid();
             }
@@ -769,7 +769,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getRequestedAmount()
     {
         $fee = 0;
-        if ($this->account->gateway_fee_location) {
+        if ($this->account->gateway_fee_enabled) {
             $fee = $this->getGatewayFee();
         }
 

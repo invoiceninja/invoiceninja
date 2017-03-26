@@ -1015,37 +1015,18 @@ class InvoiceRepository extends BaseRepository
     public function clearGatewayFee($invoice)
     {
         $account = $invoice->account;
-        $location = $account->gateway_fee_location;
-
-        if (! $location) {
-            return false;
-        }
 
         if (! $invoice->relationLoaded('invoice_items')) {
             $invoice->load('invoice_items');
         }
 
-        // once an invoice with fee surcharge has been paid don't clear it
-        if ($account->hasGatewayFeeSurcharge() && $invoice->amount != $invoice->balance) {
-            return false;
-        }
-
-        if ($location == FEE_LOCATION_ITEM) {
-            $data = $invoice->toArray();
-            foreach ($data['invoice_items'] as $key => $item) {
-                if ($item['invoice_item_type_id'] == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
-                    unset($data['invoice_items'][$key]);
-                    $this->save($data, $invoice);
-                    $invoice->load('invoice_items');
-                    break;
-                }
-            }
-        } else {
-            if ($invoice->$location != 0) {
-                $data = $invoice->toArray();
-                $data[$location] = 0;
+        $data = $invoice->toArray();
+        foreach ($data['invoice_items'] as $key => $item) {
+            if ($item['invoice_item_type_id'] == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
+                unset($data['invoice_items'][$key]);
                 $this->save($data, $invoice);
                 $invoice->load('invoice_items');
+                break;
             }
         }
     }
@@ -1053,13 +1034,12 @@ class InvoiceRepository extends BaseRepository
     public function setGatewayFee($invoice, $gatewayTypeId)
     {
         $account = $invoice->account;
-        $location = $account->gateway_fee_location;
-        $settings = $account->getGatewaySettings($gatewayTypeId);
 
-        if (! $location) {
+        if (! $account->gateway_fee_enabled) {
             return;
         }
 
+        $settings = $account->getGatewaySettings($gatewayTypeId);
         $this->clearGatewayFee($invoice);
 
         if (! $settings) {
@@ -1067,27 +1047,19 @@ class InvoiceRepository extends BaseRepository
         }
 
         $data = $invoice->toArray();
+        $fee = $invoice->calcGatewayFee($gatewayTypeId);
 
-        if ($location == FEE_LOCATION_ITEM) {
-            $fee = $invoice->calcGatewayFee($gatewayTypeId);
-
-            $item = [];
-            $item['product_key'] = $fee >= 0 ? trans('texts.surcharge') : trans('texts.discount');
-            $item['notes'] = $fee >= 0 ? trans('texts.online_payment_surcharge') : trans('texts.online_payment_discount');
-            $item['qty'] = 1;
-            $item['cost'] = $fee;
-            $item['tax_rate1'] = $settings->fee_tax_rate1;
-            $item['tax_name1'] = $settings->fee_tax_name1;
-            $item['tax_rate2'] = $settings->fee_tax_rate2;
-            $item['tax_name2'] = $settings->fee_tax_name2;
-            $item['invoice_item_type_id'] = INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE;
-
-            $data['invoice_items'][] = $item;
-        } else {
-            $fee = $invoice->calcGatewayFee($gatewayTypeId);
-
-            $data[$location] = $fee;
-        }
+        $item = [];
+        $item['product_key'] = $fee >= 0 ? trans('texts.surcharge') : trans('texts.discount');
+        $item['notes'] = $fee >= 0 ? trans('texts.online_payment_surcharge') : trans('texts.online_payment_discount');
+        $item['qty'] = 1;
+        $item['cost'] = $fee;
+        $item['tax_rate1'] = $settings->fee_tax_rate1;
+        $item['tax_name1'] = $settings->fee_tax_name1;
+        $item['tax_rate2'] = $settings->fee_tax_rate2;
+        $item['tax_name2'] = $settings->fee_tax_name2;
+        $item['invoice_item_type_id'] = INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE;
+        $data['invoice_items'][] = $item;
 
         $this->save($data, $invoice);
         $invoice->load('invoice_items');
