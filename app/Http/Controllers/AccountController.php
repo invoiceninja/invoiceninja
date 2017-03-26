@@ -482,23 +482,19 @@ class AccountController extends BaseController
             }
         }
 
-        if ($trashedCount == 0) {
-            return Redirect::to('gateways/create');
-        } else {
-            $tokenBillingOptions = [];
-            for ($i = 1; $i <= 4; $i++) {
-                $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
-            }
-
-            return View::make('accounts.payments', [
-                'showAdd' => $count < count(Gateway::$alternate) + 1,
-                'title' => trans('texts.online_payments'),
-                'tokenBillingOptions' => $tokenBillingOptions,
-                'currency' => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
-                'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('rate')->get(['public_id', 'name', 'rate']),
-                'account' => $account,
-            ]);
+        $tokenBillingOptions = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
         }
+
+        return View::make('accounts.payments', [
+            'showAdd' => $count < count(Gateway::$alternate) + 1,
+            'title' => trans('texts.online_payments'),
+            'tokenBillingOptions' => $tokenBillingOptions,
+            'currency' => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
+            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('rate')->get(['public_id', 'name', 'rate']),
+            'account' => $account,
+        ]);
     }
 
     /**
