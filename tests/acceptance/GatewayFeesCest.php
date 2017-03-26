@@ -89,9 +89,9 @@ class GatewayFeesCest
         $I->click('#formSave');
 
         // disable the default invoice tax
-        $I->amOnPage('/settings/tax_rates');
-        $I->selectOption('#default_tax_rate_id', '');
-        $I->click('Save');
+        //$I->amOnPage('/settings/tax_rates');
+        //$I->selectOption('#default_tax_rate_id', '');
+        //$I->click('Save');
     }
 
     private function configureFees($I, $feeAmount, $feePercent)
