@@ -40,6 +40,8 @@ class GatewayFeesCest
         $partialFeeWithTax = $partialFee + ($partialFee * $taxRate / 100);
 
         $I->createClient($I, $clientEmail, $clientName);
+        $I->createGateway($I);
+        $this->configureFees($I, $feeAmount, $feePercent);
 
         // line item gateway fee
         $this->configureLineItemTaxRates($I, $taxName, $taxRate);
@@ -88,11 +90,6 @@ class GatewayFeesCest
         $I->checkOption('#invoice_item_taxes');
         $I->click('Save');
 
-        // set the gateway fee to use line items
-        $I->amOnPage('/settings/online_payments#fees');
-        $I->checkOption('gateway_fee_enabled');
-        $I->click('#formSave');
-
         // disable the default invoice tax
         //$I->amOnPage('/settings/tax_rates');
         //$I->selectOption('#default_tax_rate_id', '');
@@ -105,7 +102,7 @@ class GatewayFeesCest
 
         // enable gateway fees
         $I->amOnPage('/settings/online_payments#fees');
-        $I->selectOption('gateway_fee_location', 'custom_value1');
+        $I->checkOption('gateway_fee_enabled');
         $I->click('#formSave');
 
         $I->executeJS('javascript:showLimitsModal(\'Credit Card\', 1)');
