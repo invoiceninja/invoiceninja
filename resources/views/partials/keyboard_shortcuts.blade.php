@@ -31,6 +31,9 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel">{{ trans('texts.keyboard_shortcuts') }}</h4>
       </div>
+
+      <div class="container" style="width: 100%; padding-bottom: 0px !important">
+      <div class="panel panel-default">
       <div class="panel-body help-panel">
           <div class="row">
               <div class="col-md-3"><div>?</div></div>
@@ -46,13 +49,13 @@
           </div>
           <div class="row">
               <div class="col-md-3"><div>M</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.toggle_menu') }}</div>
+              <div class="col-md-3 key-label">{{ trans('texts.menu') }}</div>
               <div class="col-md-3"><div>N</div><div>...</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.new_...') }}</div>
           </div>
           <div class="row">
               <div class="col-md-3"><div>H</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.toggle_history') }}</div>
+              <div class="col-md-3 key-label">{{ trans('texts.history') }}</div>
           </div>
           <div class="row">
               <div class="col-md-3"></div>
@@ -72,6 +75,8 @@
               <div class="col-md-3"><div>L</div><div>...</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.list_...') }}</div>
           </div>
+      </div>
+      </div>
       </div>
 
       <div class="modal-footer">
