@@ -1337,17 +1337,19 @@
 	}
 
 	function onSaveClick() {
-		if (model.invoice().is_recurring()) {
-            if (model.invoice().start_date() != model.invoice().start_date_orig()) {
-                var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
-                            + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
-                var title = "{!! trans("texts.warn_start_date_changed") !!}";
-                sweetConfirm(function() {
-                    submitAction('');
-                }, text, title);
-                return;
-            }
-        }
+		@if ($invoice->id)
+			if (model.invoice().is_recurring()) {
+	            if (model.invoice().start_date() != model.invoice().start_date_orig()) {
+	                var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
+	                            + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
+	                var title = "{!! trans("texts.warn_start_date_changed") !!}";
+	                sweetConfirm(function() {
+	                    submitAction('');
+	                }, text, title);
+	                return;
+	            }
+	        }
+		@endif
 
         @if (!empty($autoBillChangeWarning))
             var text = "{!! trans('texts.warn_change_auto_bill') !!}";
