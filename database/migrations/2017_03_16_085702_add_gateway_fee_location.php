@@ -23,7 +23,7 @@ class AddGatewayFeeLocation extends Migration
         DB::statement('update invoice_items
             left join invoices on invoices.id = invoice_items.invoice_id
             set invoice_item_type_id = 2
-            where invoices.has_tasks = 1')
+            where invoices.has_tasks = 1');
     }
 
     /**
