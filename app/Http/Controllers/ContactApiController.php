@@ -10,18 +10,21 @@ use App\Ninja\Repositories\ContactRepository;
 use Input;
 use Response;
 use Utils;
+use App\Services\ContactService;
 
 class ContactApiController extends BaseAPIController
 {
     protected $contactRepo;
+    protected $contactService;
 
     protected $entityType = ENTITY_CONTACT;
 
-    public function __construct(ContactRepository $contactRepo)
+    public function __construct(ContactRepository $contactRepo, ContactService $contactService)
     {
         parent::__construct();
 
         $this->contactRepo = $contactRepo;
+        $this->contactService = $contactService;
     }
 
     /**
@@ -99,7 +102,7 @@ class ContactApiController extends BaseAPIController
      */
     public function store(CreateContactRequest $request)
     {
-        $contact = $this->contactRepo->save($request->input());
+        $contact = $this->contactService->save($request->input());
 
         return $this->itemResponse($contact);
     }
@@ -141,7 +144,7 @@ class ContactApiController extends BaseAPIController
 
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $expense = $this->contactRepo->save($data, $request->entity());
+        $expense = $this->contactService->save($data, $request->entity());
 
         return $this->itemResponse($contact);
     }
