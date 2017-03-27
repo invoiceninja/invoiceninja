@@ -58,11 +58,27 @@ function GetPdfMake(invoice, javascript, callback) {
         if (invoice.features.customize_invoice_design) {
             if (key === 'header') {
                 return function(page, pages) {
-                    return page === 1 || invoice.account.all_pages_header == '1' ? NINJA.updatePageCount(JSON.parse(JSON.stringify(val)), page, pages) : '';
+                    if (page === 1 || invoice.account.all_pages_header == '1') {
+                        if (invoice.features.remove_created_by) {
+                            return NINJA.updatePageCount(JSON.parse(JSON.stringify(val)), page, pages);
+                        } else {
+                            return val;
+                        }
+                    } else {
+                        return '';
+                    }
                 }
             } else if (key === 'footer') {
                 return function(page, pages) {
-                    return page === pages || invoice.account.all_pages_footer == '1' ? NINJA.updatePageCount(JSON.parse(JSON.stringify(val)), page, pages) : '';
+                    if (page === pages || invoice.account.all_pages_footer == '1') {
+                        if (invoice.features.remove_created_by) {
+                            return NINJA.updatePageCount(JSON.parse(JSON.stringify(val)), page, pages);
+                        } else {
+                            return val;
+                        }
+                    } else {
+                        return '';
+                    }
                 }
             }
         }
@@ -282,7 +298,15 @@ NINJA.decodeJavascript = function(invoice, javascript)
             var match = matches[i];
 
             // reserved words
-            if (['"$none"', '"$firstAndLast"', '"$notFirstAndLastColumn"', '"$notFirst"', '"$amount"', '"$primaryColor"', '"$secondaryColor"'].indexOf(match) >= 0) {
+            if ([
+                '"$none"',
+                '"$firstAndLast"',
+                '"$notFirstAndLastColumn"',
+                '"$notFirst"',
+                '"$amount"',
+                '"$primaryColor"',
+                '"$secondaryColor"',
+            ].indexOf(match) >= 0) {
                 continue;
             }
 

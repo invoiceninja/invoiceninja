@@ -312,7 +312,7 @@
                     <div class="panel-body">
                         {!! Former::textarea('invoice_footer')
                                 ->label(trans('texts.default_invoice_footer'))
-                                ->help('invoice_footer_help')
+                                ->help($account->hasFeature(FEATURE_REMOVE_CREATED_BY) && ! $account->isTrial() ? 'invoice_footer_help' : '')
                                 ->rows(4) !!}
                     </div>
                 </div>
