@@ -384,10 +384,10 @@
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
                     @if ($invoicesSent)
                         <div class="pull-right" style="font-size:14px;padding-top:4px">
-							@if (in_array(App::getLocale(), ['pl', 'cs', 'hr', 'lt']))
-								<!-- https://github.com/invoiceninja/invoiceninja/issues/613 -->
+							@if ($invoicesSent == 1)
+								{{ trans('texts.invoice_sent', ['count' => $invoicesSent]) }}
 							@else
-								{{ trans_choice('texts.invoices_sent', $invoicesSent) }}
+								{{ trans('texts.invoices_sent', ['count' => $invoicesSent]) }}
 							@endif
                         </div>
                     @endif
