@@ -2447,6 +2447,7 @@ $LANG = array(
     'credit_number' => 'Credit Number',
     'create_credit_note' => 'Create Credit Note',
     'menu' => 'Menu',
+    'error_incorrect_gateway_ids' => 'Error: The gateways table has incorrect ids.',
 
 );
 
