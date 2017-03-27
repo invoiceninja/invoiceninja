@@ -144,7 +144,7 @@ class ContactApiController extends BaseAPIController
 
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $expense = $this->contactService->save($data, $request->entity());
+        $contact = $this->contactService->save($data, $request->entity());
 
         return $this->itemResponse($contact);
     }
