@@ -325,6 +325,13 @@ class ImportService
     private function transformRow($source, $entityType, $row)
     {
         $transformer = $this->getTransformer($source, $entityType, $this->maps);
+        $resource = $transformer->transform($row);
+
+        if (! $resource) {
+            return false;
+        }
+
+        $data = $this->fractal->createData($resource)->toArray();
 
         // Create expesnse category
         if ($entityType == ENTITY_EXPENSE) {
@@ -333,23 +340,17 @@ class ImportService
                 if (! $categoryId) {
                     $category = $this->expenseCategoryRepo->save(['name' => $row->expense_category]);
                     $this->addExpenseCategoryToMaps($category);
+                    $data['expense_category_id'] = $category->id;
                 }
             }
             if (! empty($row->vendor) && ($vendorName = trim($row->vendor))) {
                 if (! $transformer->getVendorId($vendorName)) {
                     $vendor = $this->vendorRepo->save(['name' => $vendorName, 'vendor_contact' => []]);
                     $this->addVendorToMaps($vendor);
+                    $data['vendor_id'] = $vendor->id;
                 }
             }
         }
-
-        $resource = $transformer->transform($row);
-
-        if (! $resource) {
-            return false;
-        }
-
-        $data = $this->fractal->createData($resource)->toArray();
 
         // if the invoice number is blank we'll assign it
         if ($entityType == ENTITY_INVOICE && ! $data['invoice_number']) {
@@ -404,7 +405,7 @@ class ImportService
 
         // if the invoice is paid we'll also create a payment record
         if ($entityType === ENTITY_INVOICE && isset($data['paid']) && $data['paid'] > 0) {
-            $this->createPayment($source, $row, $data['client_id'], $entity->id);
+            $this->createPayment($source, $row, $data['client_id'], $entity->id, $entity->public_id);
         }
 
         return $entity;
@@ -471,7 +472,7 @@ class ImportService
      * @param $clientId
      * @param $invoiceId
      */
-    private function createPayment($source, $row, $clientId, $invoiceId)
+    private function createPayment($source, $row, $clientId, $invoiceId, $invoicePublicId)
     {
         $paymentTransformer = $this->getTransformer($source, ENTITY_PAYMENT, $this->maps);
 
@@ -481,7 +482,9 @@ class ImportService
         if ($resource = $paymentTransformer->transform($row)) {
             $data = $this->fractal->createData($resource)->toArray();
             $data['amount'] = min($data['amount'], Utils::parseFloat($row->amount));
+            $data['invoice_id'] = $invoicePublicId;
             if (Payment::validate($data) === true) {
+                $data['invoice_id'] = $invoiceId;
                 $this->paymentRepo->save($data);
             }
         }

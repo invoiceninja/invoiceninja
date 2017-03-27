@@ -136,7 +136,7 @@ class Client extends EntityModel
             'email' => 'email',
             'mobile|phone' => 'phone',
             'name|organization' => 'name',
-            'street2|address2' => 'address2',
+            'apt|street2|address2' => 'address2',
             'street|address|address1' => 'address1',
             'city' => 'city',
             'state|province' => 'state',
@@ -145,7 +145,7 @@ class Client extends EntityModel
             'note' => 'notes',
             'site|website' => 'website',
             'vat' => 'vat_number',
-            'id|number' => 'id_number',
+            'number' => 'id_number',
         ];
     }
 
