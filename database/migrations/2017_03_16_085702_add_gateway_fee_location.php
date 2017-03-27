@@ -18,6 +18,12 @@ class AddGatewayFeeLocation extends Migration
             $table->boolean('gateway_fee_enabled')->default(0);
             $table->date('reset_counter_date')->nullable();
         });
+
+        // update invoice_item_type_id for task invoice items
+        DB::statement('update invoice_items
+            left join invoices on invoices.id = invoice_items.invoice_id
+            set invoice_item_type_id = 2
+            where invoices.has_tasks = 1')
     }
 
     /**

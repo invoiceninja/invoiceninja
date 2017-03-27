@@ -904,6 +904,7 @@
                     item.notes(task.description);
                     item.qty(task.duration);
                     item.task_public_id(task.publicId);
+                    item.invoice_item_type_id = {{ INVOICE_ITEM_TYPE_TASK }};
                 }
                 model.invoice().invoice_items.push(blank);
                 model.invoice().has_tasks(true);
