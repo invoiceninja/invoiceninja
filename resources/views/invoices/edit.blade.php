@@ -20,11 +20,6 @@
             float: left;
         }
 
-		.btn-info:disabled {
-            background-color: #e89259 !important;
-            border-color: #e89259 !important;
-        }
-
         #scrollable-dropdown-menu .tt-menu {
             max-height: 150px;
             overflow-y: auto;

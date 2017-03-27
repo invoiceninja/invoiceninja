@@ -23,6 +23,7 @@
     <div class="panel-body">
 
         {!! Former::open_for_files('/import')
+                ->onsubmit('return onFormSubmit(event)')
                 ->addClass('warn-on-exit') !!}
 
         {!! Former::select('source')
@@ -50,7 +51,7 @@
         </div>
         <br/>
 
-        {!! Former::actions( Button::info(trans('texts.upload'))->submit()->large()->appendIcon(Icon::create('open'))) !!}
+        {!! Former::actions( Button::info(trans('texts.upload'))->withAttributes(['id' => 'uploadButton'])->submit()->large()->appendIcon(Icon::create('open'))) !!}
         {!! Former::close() !!}
 
     </div>
@@ -116,6 +117,11 @@
       setFileTypesVisible();
       setCheckboxesEnabled();
   });
+
+  function onFormSubmit() {
+      $('#uploadButton').attr('disabled', true);
+      return true;
+  }
 
   function setCheckboxesEnabled() {
       var $checkboxes = $('.entity-types input[type=checkbox]');

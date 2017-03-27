@@ -203,6 +203,11 @@ padding: 5px 10px;
 -webkit-box-shadow: none;
 box-shadow: none;
 }
+.btn-info:disabled {
+    background-color: #e89259 !important;
+    border-color: #e89259 !important;
+}
+
 /*
 .xbtn-primary {
 background-color: #34495E;
