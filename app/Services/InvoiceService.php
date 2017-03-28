@@ -81,42 +81,7 @@ class InvoiceService extends BaseService
             }
         }
 
-        $invoice = $this->invoiceRepo->save($data, $invoice);
-
-        $client = $invoice->client;
-        $client->load('contacts');
-        $sendInvoiceIds = [];
-
-        foreach ($client->contacts as $contact) {
-            if ($contact->send_invoice) {
-                $sendInvoiceIds[] = $contact->id;
-            }
-        }
-
-        // if no contacts are selected auto-select the first to enusre there's an invitation
-        if (! count($sendInvoiceIds)) {
-            $sendInvoiceIds[] = $client->contacts[0]->id;
-        }
-
-        foreach ($client->contacts as $contact) {
-            $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
-
-            if (in_array($contact->id, $sendInvoiceIds) && ! $invitation) {
-                $invitation = Invitation::createNew();
-                $invitation->invoice_id = $invoice->id;
-                $invitation->contact_id = $contact->id;
-                $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
-                $invitation->save();
-            } elseif (! in_array($contact->id, $sendInvoiceIds) && $invitation) {
-                $invitation->delete();
-            }
-        }
-
-        if ($invoice->is_public && ! $invoice->areInvitationsSent()) {
-            $invoice->markInvitationsSent();
-        }
-
-        return $invoice;
+        return $this->invoiceRepo->save($data, $invoice);
     }
 
     /**
