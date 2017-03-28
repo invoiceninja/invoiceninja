@@ -49,5 +49,3 @@
         @endif
     </tr>
 @endforeach
-
-<tr><td></td></tr>

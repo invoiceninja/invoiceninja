@@ -25,5 +25,3 @@
         <td>{{ $vendor->present()->country }}</td>
     </tr>
 @endforeach
-
-<tr><td></td></tr>
