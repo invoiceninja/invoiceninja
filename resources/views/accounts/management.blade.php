@@ -221,38 +221,85 @@
 
 		{!! Former::close() !!}
 
-		{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
 		<div class="panel panel-default">
 			<div class="panel-heading">
-				<h3 class="panel-title">{!! trans('texts.cancel_account') !!}</h3>
+				<h3 class="panel-title">{!! trans('texts.delete_data') !!}</h3>
 			</div>
 			<div class="panel-body">
-				{!! Former::actions( Button::danger(trans('texts.cancel_account'))->large()->withAttributes(['onclick' => 'showConfirm()'])->appendIcon(Icon::create('trash'))) !!}
-			</div>
-		</div>
-
-		<div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
-			<div class="modal-dialog" style="min-width:150px">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-						<h4 class="modal-title" id="confirmCancelModalLabel">{!! trans('texts.cancel_account') !!}</h4>
+				{!! Former::open('settings/purge_data')->addClass('purge-data') !!}
+				{!! Former::actions(
+						Button::danger(trans('texts.purge_data'))
+							->withAttributes(['onclick' => 'showPurgeConfirm()'])
+							->appendIcon(Icon::create('trash'))
+							->large()
+						) !!}
+				<div class="form-group">
+					<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
+						<span class="help-block">{{ trans('texts.purge_data_help')}}</span>
 					</div>
-
-					<div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-						&nbsp;<p>{{ trans('texts.cancel_account_message') }}</p>&nbsp;
-						&nbsp;<p>{!! Former::textarea('reason')->placeholder(trans('texts.reason_for_canceling'))->raw() !!}</p>&nbsp;
-					</div>
-
-					<div class="modal-footer" style="margin-top: 2px">
-						<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-						<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>
-					</div>
-
 				</div>
+				<br/>
+				<div class="modal fade" id="confirmPurgeModal" tabindex="-1" role="dialog" aria-labelledby="confirmPurgeModalLabel" aria-hidden="true">
+					<div class="modal-dialog" style="min-width:150px">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title" id="confirmPurgeModalLabel">{!! trans('texts.purge_data') !!}</h4>
+							</div>
+							<div class="container" style="width: 100%; padding-bottom: 0px !important">
+			                <div class="panel panel-default">
+			                <div class="panel-body">
+								<p><b>{{ trans('texts.purge_data_message') }}</b></p>
+								<br/>
+							</div>
+							</div>
+							</div>
+							<div class="modal-footer" style="margin-top: 2px">
+								<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
+								<button type="button" class="btn btn-danger" onclick="confirmPurge()">{{ trans('texts.purge_data') }}</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				{!! Former::close() !!}
+
+				{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
+				{!! Former::actions( Button::danger(trans('texts.cancel_account'))->large()->withAttributes(['onclick' => 'showCancelConfirm()'])->appendIcon(Icon::create('trash'))) !!}
+				<div class="form-group">
+					<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
+						<span class="help-block">{{ trans('texts.cancel_account_help')}}</span>
+					</div>
+				</div>
+				<div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
+					<div class="modal-dialog" style="min-width:150px">
+						<div class="modal-content">
+							<div class="modal-header">
+								<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+								<h4 class="modal-title" id="confirmCancelModalLabel">{!! trans('texts.cancel_account') !!}</h4>
+							</div>
+							<div class="container" style="width: 100%; padding-bottom: 0px !important">
+			                <div class="panel panel-default">
+			                <div class="panel-body">
+								<p><b>{{ trans('texts.cancel_account_message') }}</b></p><br/>
+								<p>{!! Former::textarea('reason')
+											->placeholder(trans('texts.reason_for_canceling'))
+											->raw()
+											->rows(4) !!}</p>
+								<br/>
+							</div>
+							</div>
+							</div>
+							<div class="modal-footer" style="margin-top: 2px">
+								<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
+								<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				{!! Former::close() !!}
 			</div>
 		</div>
-		{!! Former::close() !!}
+
 	</div>
 </div>
 
@@ -271,12 +318,20 @@
 		$('form.change-plan').submit();
 	}
 
-	function showConfirm() {
+	function showCancelConfirm() {
 		$('#confirmCancelModal').modal('show');
+	}
+
+	function showPurgeConfirm() {
+		$('#confirmPurgeModal').modal('show');
 	}
 
 	function confirmCancel() {
 		$('form.cancel-account').submit();
+	}
+
+	function confirmPurge() {
+		$('form.purge-data').submit();
 	}
 
     function onPlanChange() {

@@ -257,6 +257,7 @@ Route::group([
 
     Route::post('settings/change_plan', 'AccountController@changePlan');
     Route::post('settings/cancel_account', 'AccountController@cancelAccount');
+    Route::post('settings/purge_data', 'AccountController@purgeData');
     Route::post('settings/company_details', 'AccountController@updateDetails');
     Route::post('settings/{section?}', 'AccountController@doSection');
 

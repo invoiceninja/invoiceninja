@@ -1310,6 +1310,16 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
+    public function purgeData()
+    {
+        $this->dispatch(new \App\Jobs\PurgeAccountData());
+
+        return redirect('/settings/account_management')->withMessage(trans('texts.purge_successful'));
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function cancelAccount()
     {
         if ($reason = trim(Input::get('reason'))) {
