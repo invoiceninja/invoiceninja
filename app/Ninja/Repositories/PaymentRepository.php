@@ -38,6 +38,7 @@ class PaymentRepository extends BaseRepository
                         'clients.public_id as client_public_id',
                         'clients.user_id as client_user_id',
                         'payments.amount',
+                        DB::raw("CONCAT(payments.payment_date, payments.created_at) as date"),
                         'payments.payment_date',
                         'payments.payment_status_id',
                         'payments.payment_type_id',
