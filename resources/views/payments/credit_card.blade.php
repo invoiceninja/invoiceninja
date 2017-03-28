@@ -261,18 +261,13 @@
                                 ->id('expiration_year')
                                 ->autocomplete('cc-exp-year')
                                 ->placeholder(trans('texts.expiration_year'))
-                                    ->addOption('2016', '2016')
-                                    ->addOption('2017', '2017')
-                                    ->addOption('2018', '2018')
-                                    ->addOption('2019', '2019')
-                                    ->addOption('2020', '2020')
-                                    ->addOption('2021', '2021')
-                                    ->addOption('2022', '2022')
-                                    ->addOption('2023', '2023')
-                                    ->addOption('2024', '2024')
-                                    ->addOption('2025', '2025')
-                                    ->addOption('2026', '2026')->label('')
-                                  !!}
+                                ->options(
+                                    array_combine(
+                                        range(date('Y'), date('Y') + 10),
+                                        range(date('Y'), date('Y') + 10)
+                                    )
+                                )
+                                ->label('') !!}
                     @endif
                 </div>
                 <div class="col-md-3">
