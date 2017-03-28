@@ -94,6 +94,8 @@
             "stateLoadParams": function (settings, data) {
                 // don't save filter to local storage
                 data.search.search = "";
+                // always start on first page of results
+                data.start = 0;
             }
         });
     }
