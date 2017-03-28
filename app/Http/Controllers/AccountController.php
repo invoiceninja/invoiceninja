@@ -180,22 +180,8 @@ class AccountController extends BaseController
         $newPlan['price'] = Utils::getPlanPrice($newPlan);
         $credit = 0;
 
-        if (! empty($planDetails['started']) && $plan == PLAN_FREE) {
-            // Downgrade
-            $refund_deadline = clone $planDetails['started'];
-            $refund_deadline->modify('+30 days');
-
-            if ($plan == PLAN_FREE && $refund_deadline >= date_create()) {
-                if ($payment = $account->company->payment) {
-                    $ninjaAccount = $this->accountRepo->getNinjaAccount();
-                    $paymentDriver = $ninjaAccount->paymentDriver();
-                    $paymentDriver->refundPayment($payment);
-                    Session::flash('message', trans('texts.plan_refunded'));
-                    \Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$refund_deadline->format('Y-m-d')}");
-                } else {
-                    Session::flash('message', trans('texts.updated_plan'));
-                }
-            }
+        if ($plan == PLAN_FREE && $company->processRefund(Auth::user())) {
+            Session::flash('warning', trans('texts.plan_refunded'));
         }
 
         $hasPaid = false;
@@ -234,6 +220,8 @@ class AccountController extends BaseController
             $company->trial_plan = null;
             $company->plan = $plan;
             $company->save();
+
+            Session::flash('message', trans('texts.updated_plan'));
 
             return Redirect::to('settings/account_management');
         }
@@ -1341,6 +1329,9 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
 
+        $company = $account->company;
+        $refunded = $company->processRefund(Auth::user());
+
         Document::scope()->each(function ($item, $key) {
             $item->delete();
         });
@@ -1355,6 +1346,10 @@ class AccountController extends BaseController
 
         Auth::logout();
         Session::flush();
+
+        if ($refunded) {
+            Session::flash('warning', trans('texts.plan_refunded'));
+        }
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }

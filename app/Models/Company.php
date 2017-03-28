@@ -140,4 +140,32 @@ class Company extends Eloquent
 
         return false;
     }
+
+    public function processRefund($user)
+    {
+        if (! $this->payment) {
+            return false;
+        }
+
+        $account = $this->accounts()->first();
+        $planDetails = $account->getPlanDetails(false, false);
+
+        if (! empty($planDetails['started'])) {
+            $deadline = clone $planDetails['started'];
+            $deadline->modify('+30 days');
+
+            if ($deadline >= date_create()) {
+                $accountRepo = app('App\Ninja\Repositories\AccountRepository');
+                $ninjaAccount = $accountRepo->getNinjaAccount();
+                $paymentDriver = $ninjaAccount->paymentDriver();
+                $paymentDriver->refundPayment($this->payment);
+
+                \Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
+
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

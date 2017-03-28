@@ -127,10 +127,11 @@
                 @endif
     		@else
     			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
-                @if ($account->isNinjaAccount())
-                    {!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/settings/account_management'))->large() !!}
-                @endif
     		@endif
+
+			@if ($account->isNinjaAccount())
+				{!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/settings/account_management'))->large() !!}
+			@endif
     		</div>
         @endif
 
