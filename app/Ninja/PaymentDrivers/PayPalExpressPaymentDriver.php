@@ -17,6 +17,7 @@ class PayPalExpressPaymentDriver extends BasePaymentDriver
 
         $data['ButtonSource'] = 'InvoiceNinja_SP';
         $data['solutionType'] = 'Sole'; // show 'Pay with credit card' option
+        $data['transactionId'] = $data['transactionId'] . '-' . time();
 
         return $data;
     }
