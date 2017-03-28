@@ -5,6 +5,7 @@ namespace App\Listeners;
 use App\Events\UserLoggedIn;
 use App\Events\UserSignedUp;
 use App\Libraries\HistoryUtils;
+use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
 use Utils;
 use Auth;
