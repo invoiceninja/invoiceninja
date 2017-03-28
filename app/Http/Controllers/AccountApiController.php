@@ -121,6 +121,7 @@ class AccountApiController extends BaseAPIController
         for ($x = 0; $x < count($devices); $x++) {
             if ($devices[$x]['email'] == Auth::user()->username) {
                 $devices[$x]['token'] = $request->token; //update
+                $devices[$x]['device'] = $request->device;
                     $account->devices = json_encode($devices);
                 $account->save();
                 $devices[$x]['account_key'] = $account->account_key;
