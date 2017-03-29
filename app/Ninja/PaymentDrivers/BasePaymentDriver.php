@@ -935,17 +935,6 @@ class BasePaymentDriver
         $account = $this->account();
         $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
 
-        $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
-
-        // PayPal doesn't allow being run in an iframe so we need to open in new tab
-        if ($gatewayTypeId === GATEWAY_TYPE_PAYPAL) {
-            $url .= '#braintree_paypal';
-
-            if ($account->iframe_url) {
-                return 'javascript:window.open("' . $url . '", "_blank")';
-            }
-        }
-
         return $url;
     }
 
