@@ -73,7 +73,7 @@ return array(
     "has_credit" => "The client does not have enough credit.",
     "notmasked" => "The values are masked",
     "less_than" => "The :attribute must be less than :value",
-    "has_counter" => "The value must contain {\$counter}",
+    "has_counter" => "To enusre all invoice numbers are unique the pattern needs to contain either {\$counter} or {\$clientIdNumber} and {\$clientInvoiceCounter}",
     "valid_contacts" => "The contact must have either an email or name",
     "valid_invoice_items" => "The invoice exceeds the maximum amount",
     "valid_subdomain" => "The subdomain is restricted",

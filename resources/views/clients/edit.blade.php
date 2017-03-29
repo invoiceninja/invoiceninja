@@ -24,8 +24,12 @@
 	@if ($client)
 		{!! Former::populate($client) !!}
         {!! Former::hidden('public_id') !!}
-	@elseif ($account->client_number_counter)
-		{!! Former::populateField('id_number', $account->getNextNumber()) !!}
+	@else
+		{!! Former::populateField('invoice_number_counter', 1) !!}
+		{!! Former::populateField('quote_number_counter', 1) !!}
+		@if ($account->client_number_counter)
+			{!! Former::populateField('id_number', $account->getNextNumber()) !!}
+		@endif
 	@endif
 
 	<div class="row">
@@ -52,8 +56,16 @@
 					{!! Former::text('custom_value2')->label($customLabel2) !!}
 				@endif
 			@endif
+
+			@if ($account->usesClientInvoiceCounter())
+				{!! Former::text('invoice_number_counter')->label('invoice_counter') !!}
+			@endif
+
+			@if ($account->usesClientQuoteCounter())
+				{!! Former::text('quote_number_counter')->label('quote_counter') !!}
+			@endif
             </div>
-            </div>
+        </div>
 
         <div class="panel panel-default" style="min-height: 500px">
           <div class="panel-heading">

@@ -132,7 +132,7 @@
                             {!! Former::text('client_number_pattern')
                                     ->appendIcon('question-sign')
                                     ->addGroupClass('client-pattern')
-                                    ->addGroupClass('number-pattern')
+                                    ->addGroupClass('client-number-pattern')
                                     ->label(trans('texts.pattern')) !!}
                             {!! Former::text('client_number_counter')
                                     ->label(trans('texts.counter'))
@@ -352,12 +352,14 @@
                         @foreach (\App\Models\Invoice::$patternFields as $field)
                             @if ($field == 'date:')
                                 <li>{$date:format} - {!! link_to(PHP_DATE_FORMATS, trans('texts.see_options'), ['target' => '_blank']) !!}</li>
+                            @elseif (strpos($field, 'client') !== false)
+                                <li class="hide-client">{${{ $field }}}</li>
                             @else
                                 <li>{${{ $field }}}</li>
                             @endif
                         @endforeach
                     </ul>
-                    <p>{{ trans('texts.pattern_help_3', [
+                    <p class="hide-client">{{ trans('texts.pattern_help_3', [
                             'example' => '{$year}-{$counter}',
                             'value' => date('Y') . '-0001'
                         ]) }}</p>
@@ -439,6 +441,12 @@
     }
 
     $('.number-pattern .input-group-addon').click(function() {
+        $('.hide-client').show();
+        $('#patternHelpModal').modal('show');
+    });
+
+    $('.client-number-pattern .input-group-addon').click(function() {
+        $('.hide-client').hide();
         $('#patternHelpModal').modal('show');
     });
 

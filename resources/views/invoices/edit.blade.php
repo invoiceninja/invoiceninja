@@ -1622,11 +1622,17 @@
     }
 
     function setInvoiceNumber(client) {
-        @if ($invoice->id || !$account->hasClientNumberPattern($invoice))
+		@if ($invoice->id || !$account->hasClientNumberPattern($invoice))
             return;
         @endif
         var number = '{{ $account->applyNumberPattern($invoice) }}';
-        number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
+        number = number.replace('{$clientCustom1}', client.custom_value1 ? client.custom_value1 : '');
+        number = number.replace('{$clientCustom2}', client.custom_value2 ? client.custom_value1 : '');
+        number = number.replace('{$clientIdNumber}', client.id_number ? client.id_number : '');
+        number = number.replace('{$clientInvoiceCounter}', pad(client.invoice_number_counter, {{ $account->invoice_number_padding }}));
+        number = number.replace('{$clientQuoteCounter}', pad(client.quote_number_counter, {{ $account->invoice_number_padding }}));
+		// backwards compatibility
+		number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
         number = number.replace('{$idNumber}', client.id_number ? client.id_number : '');
         model.invoice().invoice_number(number);

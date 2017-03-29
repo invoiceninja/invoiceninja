@@ -131,6 +131,8 @@ class ClientTransformer extends EntityTransformer
             'currency_id' => (int) $client->currency_id,
             'custom_value1' => $client->custom_value1,
             'custom_value2' => $client->custom_value2,
+            'invoice_number_counter' => (int) $client->invoice_number_counter,
+            'quote_number_counter' => (int) $client->quote_number_counter,
         ]);
     }
 }

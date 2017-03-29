@@ -49,6 +49,8 @@ class Client extends EntityModel
         'language_id',
         'payment_terms',
         'website',
+        'invoice_number_counter',
+        'quote_number_counter',
     ];
 
     /**

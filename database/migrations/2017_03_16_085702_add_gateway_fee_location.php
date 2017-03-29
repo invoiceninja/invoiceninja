@@ -19,6 +19,11 @@ class AddGatewayFeeLocation extends Migration
             $table->date('reset_counter_date')->nullable();
         });
 
+        Schema::table('clients', function ($table) {
+            $table->integer('invoice_number_counter')->default(1)->nullable();
+            $table->integer('quote_number_counter')->default(1)->nullable();
+        });
+
         // update invoice_item_type_id for task invoice items
         DB::statement('update invoice_items
             left join invoices on invoices.id = invoice_items.invoice_id
@@ -36,6 +41,11 @@ class AddGatewayFeeLocation extends Migration
         Schema::table('accounts', function ($table) {
             $table->dropColumn('gateway_fee_enabled');
             $table->dropColumn('reset_counter_date');
+        });
+
+        Schema::table('clients', function ($table) {
+            $table->dropColumn('invoice_number_counter');
+            $table->dropColumn('quote_number_counter');
         });
     }
 }

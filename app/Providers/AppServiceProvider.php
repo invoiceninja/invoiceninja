@@ -175,7 +175,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Validator::extend('has_counter', function ($attribute, $value, $parameters) {
-            return ! $value || strstr($value, '{$counter}');
+            if (! $value) {
+                return true;
+            }
+
+            if (strstr($value, '{$counter}') !== false) {
+                return true;
+            }
+
+            return ((strstr($value, '{$idNumber}') !== false || strstr($value, '{$clientIdNumber}') != false) && (strstr($value, '{$clientInvoiceCounter}') || strstr($value, '{$clientQuoteCounter}')));
         });
 
         Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters) {
