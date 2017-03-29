@@ -15,10 +15,6 @@
     {{ Former::populateField('email', $user->email) }}
     {{ Former::populateField('phone', $user->phone) }}
 
-    @if (Utils::isNinjaDev())
-        {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
-    @endif
-
     @if (Input::has('affiliate'))
         {{ Former::populateField('referral_code', true) }}
     @endif
@@ -67,16 +63,12 @@
                     @endif
                 @endif
 
-                @if (false && Utils::isNinjaDev())
-                    {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help'))->value(1) !!}
-                @endif
-
                 </div>
             </div>
 
         </div>
     </div>
-    
+
     @if ( ! Auth::user()->is_admin)
         @include('accounts.partials.notifications')
     @endif

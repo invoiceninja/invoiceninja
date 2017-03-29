@@ -13,8 +13,15 @@ class AddGatewayFeeLocation extends Migration
     public function up()
     {
         Schema::table('accounts', function ($table) {
-            $table->dropColumn('auto_wrap');
-            $table->dropColumn('utf8_invoices');
+            if (Schema::hasColumn('accounts', 'auto_wrap')) {
+                $table->dropColumn('auto_wrap');
+            }
+            if (Schema::hasColumn('accounts', 'utf8_invoices')) {
+                $table->dropColumn('utf8_invoices');
+            }
+            if (Schema::hasColumn('accounts', 'dark_mode')) {
+                $table->dropColumn('dark_mode');
+            }
             $table->boolean('gateway_fee_enabled')->default(0);
             $table->date('reset_counter_date')->nullable();
         });

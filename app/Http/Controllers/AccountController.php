@@ -1126,9 +1126,6 @@ class AccountController extends BaseController
                     $user->referral_code = $this->accountRepo->getReferralCode();
                 }
             }
-            if (Utils::isNinjaDev()) {
-                $user->dark_mode = Input::get('dark_mode') ? true : false;
-            }
 
             $user->save();
 
