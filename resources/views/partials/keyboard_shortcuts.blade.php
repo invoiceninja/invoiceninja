@@ -150,5 +150,31 @@
             });
         @endforeach
 
+        @foreach([
+            'g c d' => 'company_details',
+            'g u d' => 'user_details',
+            'g l' => 'localization',
+            'g o p' => 'online_payments',
+            'g t x' => 'tax_rates',
+            'g p' => 'products',
+            'g n' => 'notifications',
+            'g i e' => 'import_export',
+            'g a m' => 'account_management',
+            'g i s' => 'invoice_settings',
+            'g i d' => 'invoice_design',
+            'g c p' => 'client_portal',
+            'g e' => 'email_settings',
+            'g t r' => 'templates_and_reminders',
+            'g c c' => 'bank_accounts',
+            'g d v' => 'data_visualizations',
+            'g a t' => 'api_tokens',
+            'g u m' => 'user_management',
+        ] as $key => $val)
+            Mousetrap.bind('{{ $key }}', function(e) {
+                location.href = "{!! url('/settings/' . $val) !!}";
+            });
+        @endforeach
+
+
     });
 </script>
