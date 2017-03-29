@@ -25,11 +25,12 @@ For invoices, quotes, tasks and payments simply change the object type.
 
   curl -X GET ninja.dev/api/v1/invoices -H "X-Ninja-Token: TOKEN"
 
-You can search clients by their email address and invoices by their invoice number.
+You can search clients by their email address or id number and invoices by their invoice number.
 
 .. code-block:: shell
 
   curl -X GET ninja.dev/api/v1/clients?email=<value> -H "X-Ninja-Token: TOKEN"
+  curl -X GET ninja.dev/api/v1/clients?id_number=<value> -H "X-Ninja-Token: TOKEN"
   curl -X GET ninja.dev/api/v1/invoices?invoice_number=<value> -H "X-Ninja-Token: TOKEN"
 
 To load a single record specify the Id in the URL.

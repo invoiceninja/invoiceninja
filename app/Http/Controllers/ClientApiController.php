@@ -46,11 +46,12 @@ class ClientApiController extends BaseAPIController
             ->orderBy('created_at', 'desc')
             ->withTrashed();
 
-        // Filter by email
         if ($email = Input::get('email')) {
             $clients = $clients->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', $email);
             });
+        } elseif ($idNumber = Input::get('id_number')) {
+            $clients = $clients->whereIdNumber($idNumber);
         }
 
         return $this->listResponse($clients);
