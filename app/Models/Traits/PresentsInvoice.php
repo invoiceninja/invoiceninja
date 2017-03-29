@@ -96,14 +96,16 @@ trait PresentsInvoice
                 'client.client_name',
                 'client.id_number',
                 'client.vat_number',
+                'client.website',
+                'client.work_phone',
                 'client.address1',
                 'client.address2',
                 'client.city_state_postal',
                 'client.postal_city_state',
                 'client.country',
+                'client.contact_name',
                 'client.email',
                 'client.phone',
-                'client.contact_name',
                 'client.custom_value1',
                 'client.custom_value2',
                 '.blank',
@@ -138,6 +140,8 @@ trait PresentsInvoice
                 list($entityType, $fieldName) = explode('.', $field);
                 if (substr($fieldName, 0, 6) == 'custom') {
                     $fields[$section][$field] = $labels[$field];
+                } elseif (in_array($field, ['client.phone', 'client.email'])) {
+                    $fields[$section][$field] = trans('texts.contact_' . $fieldName);
                 } else {
                     $fields[$section][$field] = $labels[$fieldName];
                 }
@@ -222,6 +226,7 @@ trait PresentsInvoice
             'credit_issued_to',
             'credit_to',
             'your_credit',
+            'work_phone',
         ];
 
         foreach ($fields as $field) {

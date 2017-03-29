@@ -39,6 +39,10 @@ trait GeneratesNumbers
                 $number = $prefix . str_pad($counter, $this->invoice_number_padding, '0', STR_PAD_LEFT);
             }
 
+            if ($entity->recurring_invoice_id) {
+                $number = $this->recurring_invoice_number_prefix . $number;
+            }
+
             if ($entity->isEntityType(ENTITY_CLIENT)) {
                 $check = Client::scope(false, $this->id)->whereIdNumber($number)->withTrashed()->first();
             } else {
@@ -64,10 +68,6 @@ trait GeneratesNumbers
                 $this->invoice_number_counter += $counterOffset - 1;
                 $this->save();
             }
-        }
-
-        if ($entity->recurring_invoice_id) {
-            $number = $this->recurring_invoice_number_prefix . $number;
         }
 
         return $number;
@@ -161,7 +161,8 @@ trait GeneratesNumbers
         if (count($matches) > 1) {
             $format = $matches[1];
             $search[] = $matches[0];
-            $date = Carbon::now(session(SESSION_TIMEZONE, DEFAULT_TIMEZONE))->format($format);
+            $date = date_create()->format($format);
+            //$date = Carbon::now(session(SESSION_TIMEZONE, DEFAULT_TIMEZONE))->format($format);
             $replace[] = str_replace($format, $date, $matches[1]);
         }
 

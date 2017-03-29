@@ -1201,10 +1201,18 @@ class Invoice extends EntityModel implements BalanceAffecting
         if (! $this->last_sent_date) {
             return true;
         } else {
+            $date1 = new DateTime($this->last_sent_date);
+            $date2 = new DateTime();
+            $diff = $date2->diff($date1);
+            $daysSinceLastSent = $diff->format('%a');
+            $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
+
+            /*
             $date1 = Carbon::parse($this->last_sent_date, $timezone);
             $date2 = Carbon::now($timezone);
             $daysSinceLastSent = $date1->diffInDays($date2);
             $monthsSinceLastSent = $date1->diffInMonths($date2);
+            */
 
             if ($daysSinceLastSent == 0) {
                 return false;

@@ -2456,6 +2456,8 @@ $LANG = array(
     'purge_successful' => 'Successfully purged account data',
     'forbidden' => 'Forbidden',
     'purge_data_message' => 'Warning: This will permanently erase your data, there is no undo.',
+    'contact_phone' => 'Contact Phone',
+    'contact_email' => 'Contact Email',
 
 );
 
