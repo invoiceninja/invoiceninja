@@ -49,26 +49,6 @@ class OnlinePaymentCest
 
         $I->createOnlinePayment($I, $invitationKey);
 
-        /*
-        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId]);
-        $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
-
-        $clientSession = $I->haveFriend('client');
-        $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
-            $I->amOnPage('/view/' . $invitationKey);
-            $I->click('Pay Now');
-            $I->click('Credit Card');
-            $I->fillField('#card_number', '4242424242424242');
-            $I->fillField('#cvv', '100');
-            $I->selectOption('#expiration_month', 12);
-            $I->selectOption('#expiration_year', date('Y'));
-            $I->click('.btn-success');
-            $I->wait(3);
-            $I->see('Successfully applied payment');
-        });
-        $I->wait(1);
-        */
-
         // create recurring invoice and auto-bill
         $I->amOnPage('/recurring_invoices/create');
         $I->selectDropdown($I, 'Test Test', '.client_select .dropdown-toggle');
@@ -77,6 +57,11 @@ class OnlinePaymentCest
         $I->selectOption('#auto_bill', 3);
         $I->executeJS('onConfirmEmailClick()');
         $I->wait(4);
-        $I->see("$0.00");
+
+        $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'is_recurring' => true]);
+        $invoiceId = $I->grabFromDatabase('invoices', 'public_id', ['recurring_invoice_id' => $invoiceId]);
+
+        $I->amOnPage("/invoices/{$invoiceId}/edit");
+        $I->see('Successfully applied payment');
    }
 }
