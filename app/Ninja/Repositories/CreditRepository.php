@@ -113,10 +113,10 @@ class CreditRepository extends BaseRepository
             $credit->client_id = Client::getPrivateId($input['client']);
         }
 
+        $credit->fill($input);
         $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         $credit->amount = Utils::parseFloat($input['amount']);
         $credit->private_notes = trim($input['private_notes']);
-        $credit->public_notes = trim($input['public_notes']);
         $credit->save();
 
         return $credit;
