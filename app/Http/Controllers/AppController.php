@@ -192,7 +192,6 @@ class AppController extends BaseController
         }
 
         $filePath = base_path().'/.env';
-        copy($filePath, $filePath . '.backup.' . time());
         $fp = fopen($filePath, 'w');
         fwrite($fp, $config);
         fclose($fp);
