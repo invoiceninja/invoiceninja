@@ -56,6 +56,7 @@ class Authenticate
                 $contact_key = session('contact_key');
             }
 
+            $contact = false;
             if ($contact_key) {
                 $contact = $this->getContact($contact_key);
             } elseif ($invitation = $this->getInvitation($request->invitation_key)) {
