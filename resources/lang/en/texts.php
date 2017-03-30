@@ -2307,7 +2307,6 @@ $LANG = array(
     'notes_reminder2' => 'Second Reminder',
     'notes_reminder3' => 'Third Reminder',
     'bcc_email' => 'BCC Email',
-    'bcc_email_help' => 'All emails sent to your clients will also be sent to this address.',
     'tax_quote' => 'Tax Quote',
     'tax_invoice' => 'Tax Invoice',
     'emailed_invoices' => 'Successfully emailed invoices',
@@ -2458,6 +2457,9 @@ $LANG = array(
     'purge_data_message' => 'Warning: This will permanently erase your data, there is no undo.',
     'contact_phone' => 'Contact Phone',
     'contact_email' => 'Contact Email',
+    'reply_to_email' => 'Reply-To Email',
+    'reply_to_email_help' => 'Specify the reply-to address for client emails.',
+    'bcc_email_help' => 'Privately include this address with client emails.',
 
 );
 

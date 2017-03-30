@@ -199,7 +199,7 @@ class ContactMailer extends Mailer
         }
 
         $subject = $this->templateService->processVariables($subject, $variables);
-        $fromEmail = $user->email;
+        $fromEmail = $account->reply_to_email ?: $user->email;
         $view = $account->getTemplateView(ENTITY_INVOICE);
 
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
@@ -291,9 +291,10 @@ class ContactMailer extends Mailer
         $data['invoice_id'] = $payment->invoice->id;
 
         $view = $account->getTemplateView('payment_confirmation');
+        $fromEmail = $account->reply_to_email ?: $user->email;
 
         if ($user->email && $contact->email) {
-            $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
+            $this->sendTo($contact->email, $fromEmail, $accountName, $subject, $view, $data);
         }
 
         $account->loadLocalizationSettings();

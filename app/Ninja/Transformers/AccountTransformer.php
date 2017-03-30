@@ -265,6 +265,7 @@ class AccountTransformer extends EntityTransformer
             'payment_type_id' => (int) $account->payment_type_id,
             'gateway_fee_enabled' => (bool) $account->gateway_fee_enabled,
             'reset_counter_date' => $account->reset_counter_date,
+            'reply_to_email' => $account->reply_to_email,
         ];
     }
 }

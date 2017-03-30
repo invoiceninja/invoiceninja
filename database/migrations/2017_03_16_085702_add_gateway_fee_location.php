@@ -24,6 +24,7 @@ class AddGatewayFeeLocation extends Migration
             }
             $table->boolean('gateway_fee_enabled')->default(0);
             $table->date('reset_counter_date')->nullable();
+            $table->string('reply_to_email')->nullable();
         });
 
         Schema::table('clients', function ($table) {
@@ -52,6 +53,7 @@ class AddGatewayFeeLocation extends Migration
         Schema::table('accounts', function ($table) {
             $table->dropColumn('gateway_fee_enabled');
             $table->dropColumn('reset_counter_date');
+            $table->dropColumn('reply_to_email');
         });
 
         Schema::table('clients', function ($table) {

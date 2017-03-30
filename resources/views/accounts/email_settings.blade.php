@@ -19,6 +19,7 @@
 
     {!! Former::open()->rules([
             'bcc_email' => 'email',
+            'reply_to_email' => 'email',
         ])->addClass('warn-on-exit') !!}
 
     {{ Former::populate($account) }}
@@ -32,6 +33,15 @@
         </div>
         <div class="panel-body form-padding-right">
 
+            {!! Former::text('reply_to_email')
+                    ->placeholder(Auth::user()->registered ? Auth::user()->email : ' ')
+                    ->help('reply_to_email_help') !!}
+
+            {!! Former::text('bcc_email')
+                    ->help('bcc_email_help') !!}
+
+            &nbsp;
+
             {!! Former::checkbox('pdf_email_attachment')
                     ->text(trans('texts.enable'))
                     ->value(1)
@@ -43,10 +53,6 @@
             {!! Former::checkbox('document_email_attachment')
                     ->text(trans('texts.enable'))
                     ->value(1) !!}
-
-            &nbsp;
-
-            {!! Former::text('bcc_email')->help('bcc_email_help') !!}
 
             &nbsp;
 
