@@ -38,6 +38,7 @@ class CreditRepository extends BaseRepository
                         'contacts.last_name',
                         'contacts.email',
                         'credits.private_notes',
+                        'credits.public_notes',
                         'credits.deleted_at',
                         'credits.is_deleted',
                         'credits.user_id'
@@ -74,7 +75,8 @@ class CreditRepository extends BaseRepository
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'credits.amount',
                         'credits.balance',
-                        'credits.credit_date'
+                        'credits.credit_date',
+                        'credits.public_notes'
                     );
 
         $table = \Datatable::query($query)
@@ -86,6 +88,9 @@ class CreditRepository extends BaseRepository
             })
             ->addColumn('balance', function ($model) {
                 return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('public_notes', function ($model) {
+                return $model->public_notes;
             })
             ->make();
 
@@ -111,6 +116,7 @@ class CreditRepository extends BaseRepository
         $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         $credit->amount = Utils::parseFloat($input['amount']);
         $credit->private_notes = trim($input['private_notes']);
+        $credit->public_notes = trim($input['public_notes']);
         $credit->save();
 
         return $credit;

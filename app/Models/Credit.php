@@ -24,6 +24,14 @@ class Credit extends EntityModel
     protected $presenter = 'App\Ninja\Presenters\CreditPresenter';
 
     /**
+     * @var array
+     */
+    protected $fillable = [
+        'public_notes',
+        'private_notes',
+    ];
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function account()

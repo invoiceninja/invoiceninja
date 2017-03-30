@@ -523,7 +523,7 @@ class ClientPortalController extends BaseController
           'account' => $account,
           'title' => trans('texts.credits'),
           'entityType' => ENTITY_CREDIT,
-          'columns' => Utils::trans(['credit_date', 'credit_amount', 'credit_balance']),
+          'columns' => Utils::trans(['credit_date', 'credit_amount', 'credit_balance', 'notes']),
         ];
 
         return response()->view('public_list', $data);

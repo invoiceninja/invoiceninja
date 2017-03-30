@@ -31,6 +31,10 @@ class AddGatewayFeeLocation extends Migration
             $table->integer('quote_number_counter')->default(1)->nullable();
         });
 
+        Schema::table('credits', function ($table) {
+            $table->text('public_notes')->nullable();
+        });
+
         // update invoice_item_type_id for task invoice items
         DB::statement('update invoice_items
             left join invoices on invoices.id = invoice_items.invoice_id
@@ -53,6 +57,10 @@ class AddGatewayFeeLocation extends Migration
         Schema::table('clients', function ($table) {
             $table->dropColumn('invoice_number_counter');
             $table->dropColumn('quote_number_counter');
+        });
+
+        Schema::table('credits', function ($table) {
+            $table->dropColumn('public_notes');
         });
     }
 }
