@@ -711,7 +711,7 @@ class InvoiceRepository extends BaseRepository
             $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
 
             if (in_array($contact->id, $sendInvoiceIds) && ! $invitation) {
-                $invitation = Invitation::createNew();
+                $invitation = Invitation::createNew($invoice);
                 $invitation->invoice_id = $invoice->id;
                 $invitation->contact_id = $contact->id;
                 $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
