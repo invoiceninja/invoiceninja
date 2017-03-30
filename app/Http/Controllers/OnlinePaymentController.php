@@ -330,6 +330,8 @@ class OnlinePaymentController extends BaseController
             $data = [
                 'currency_id' => $account->currency_id,
                 'contact' => Input::all(),
+                'custom_value1' => Input::get('custom_client1'),
+                'custom_value2' => Input::get('custom_client2'),
             ];
             $client = $clientRepo->save($data, $client);
         }
@@ -343,6 +345,8 @@ class OnlinePaymentController extends BaseController
             'start_date' => Input::get('start_date', date('Y-m-d')),
             'tax_rate1' => $account->default_tax_rate ? $account->default_tax_rate->rate : 0,
             'tax_name1' => $account->default_tax_rate ? $account->default_tax_rate->name : '',
+            'custom_text_value1' => Input::get('custom_invoice1'),
+            'custom_text_value2' => Input::get('custom_invoice2'),
             'invoice_items' => [[
                 'product_key' => $product->product_key,
                 'notes' => $product->notes,
@@ -350,6 +354,8 @@ class OnlinePaymentController extends BaseController
                 'qty' => 1,
                 'tax_rate1' => $product->default_tax_rate ? $product->default_tax_rate->rate : 0,
                 'tax_name1' => $product->default_tax_rate ? $product->default_tax_rate->name : '',
+                'custom_value1' => Input::get('custom_product1') ?: $product->custom_value1,
+                'custom_value2' => Input::get('custom_product2') ?: $product->custom_value2,
             ]],
         ];
         $invoice = $invoiceService->save($data);
