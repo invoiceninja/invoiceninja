@@ -148,8 +148,8 @@ class GatewayFeesCest
         // check we correctly remove/add back the gateway fee
         $I->amOnPage('/view/' . $invitationKey);
         $I->click('Pay Now');
-        $I->see('$' . number_format($fee, 2) . ' Fee');
-        $I->see('$' . number_format($fee * 2, 2) . ' Fee');
+        $I->see(number_format($fee, 2) . ' Fee');
+        $I->see(number_format($fee * 2, 2) . ' Fee');
 
         $I->amOnPage('/payment/' . $invitationKey . '/credit_card');
         $I->amOnPage('/payment/' . $invitationKey . '/bank_transfer');
@@ -157,8 +157,8 @@ class GatewayFeesCest
 
         $I->amOnPage('/view/' . $invitationKey);
         $I->click('Pay Now');
-        $I->see('$' . number_format($fee, 2) . ' Fee');
-        $I->see('$' . number_format($fee * 2, 2) . ' Fee');
+        $I->see(number_format($fee, 2) . ' Fee');
+        $I->see(number_format($fee * 2, 2) . ' Fee');
 
         $I->createOnlinePayment($I, $invitationKey);
 
