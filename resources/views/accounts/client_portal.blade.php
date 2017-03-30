@@ -432,10 +432,10 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
 
             var form = '<form action="' + link + '" method="post" target="_top">' + "\n";
 
-            @foreach (['custom_client1', 'custom_client2', 'custom_invoice1', 'custom_invoice2', 'custom_product1', 'custom_product2'] as $field)
-                if ($('input#{{ $field }}').is(':checked')) {
-                    form += '<input type="text" name="{{ $field }}" placeholder="{{ trans("texts.{$field}") }}" required/>' + "\n";
-                    link += '&{{ $field }}=';
+            @foreach ($account->present()->customTextFields as $field => $val)
+                if ($('input#{{ $val['name'] }}').is(':checked')) {
+                    form += '<input type="text" name="{{ $val['name'] }}" placeholder="{{ $field }}" required/>' + "\n";
+                    link += '&{{ $val['name'] }}=';
                 }
             @endforeach
 
