@@ -4,37 +4,38 @@ use App\Models\User;
 
 class OAuth {
 
-    protected $provider;
+    private $providerInstance;
 
-    public function __construct($provider)
+    public function __construct()
     {
-        $this->provider = $provider;
     }
 
-    public function getProvider()
+    public function getProvider($provider)
     {
-        switch ($this->provider)
+        switch ($provider)
         {
             case 'google';
-                $this->provider = new Providers\Google();
-                break;
+                $this->providerInstance = new Providers\Google();
+                return $this;
+
             default:
+                return null;
                 break;
         }
     }
 
     public function getTokenResponse($token)
     {
-        $email = $this->provider->getTokenResponse($token);
+        $email = null;
+        $user = null;
 
-        if($email)
-            $user = User::where('email', $email)->first();
+        if($this->providerInstance)
+            $user = User::where('email', $this->providerInstance->getTokenResponse($token))->first();
 
         if ($user)
             return $user;
         else
             return false;
-
 
     }
 
