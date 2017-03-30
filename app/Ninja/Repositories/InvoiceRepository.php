@@ -685,7 +685,9 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_items()->save($invoiceItem);
         }
 
-        $invoice = $this->saveInvitations($invoice);
+        if (Auth::check()) {
+            $invoice = $this->saveInvitations($invoice);
+        }
 
         return $invoice;
     }
