@@ -290,6 +290,9 @@
 
 		$(function(){
   			$(".tablesorter-data").tablesorter({
+				@if (! request()->group_when_sorted)
+					sortList: [[0,0]],
+				@endif
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_when_sorted ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',

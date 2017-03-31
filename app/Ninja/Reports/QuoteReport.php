@@ -21,6 +21,7 @@ class QuoteReport extends AbstractReport
         $status = $this->options['invoice_status'];
 
         $clients = Client::scope()
+                        ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
                         ->with(['invoices' => function ($query) use ($status) {
@@ -43,9 +44,9 @@ class QuoteReport extends AbstractReport
                     $account->formatMoney($invoice->amount, $client),
                     $invoice->present()->status(),
                 ];
-            }
 
-            $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
+                $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
+            }            
         }
     }
 }

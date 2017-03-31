@@ -19,6 +19,7 @@ class ClientReport extends AbstractReport
         $account = Auth::user()->account;
 
         $clients = Client::scope()
+                        ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
                         ->with(['invoices' => function ($query) {

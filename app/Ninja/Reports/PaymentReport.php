@@ -22,6 +22,7 @@ class PaymentReport extends AbstractReport
         $account = Auth::user()->account;
 
         $payments = Payment::scope()
+                        ->orderBy('payment_date', 'desc')
                         ->withArchived()
                         ->excludeFailed()
                         ->whereHas('client', function ($query) {
