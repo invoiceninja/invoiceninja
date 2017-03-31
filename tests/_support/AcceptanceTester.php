@@ -112,9 +112,13 @@ class AcceptanceTester extends \Codeception\Actor
     function fillInvoice(\AcceptanceTester $I, $clientEmail, $productKey)
     {
         $I->amOnPage('/invoices/create');
+        $invoiceNumber = $I->grabValueFrom('#invoice_number');
+
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
+
+        return $invoiceNumber;
     }
 
     function createOnlinePayment(\AcceptanceTester $I, $invitationKey)

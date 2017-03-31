@@ -18,7 +18,7 @@ class GatewayFeesCest
 
     public function checkLineItemFee(AcceptanceTester $I)
     {
-        $clientName = $this->faker->word();
+        $clientName = $this->faker->text(14);
         $clientEmail = $this->faker->safeEmail;
         $productKey = $this->faker->word();
         $taxName = $this->faker->word();
@@ -120,8 +120,7 @@ class GatewayFeesCest
 
     private function createInvoice($I, $clientName, $productKey, $amount, $fee, $partial = false)
     {
-        $I->fillInvoice($I, $clientName, $productKey);
-        $invoiceNumber = $I->grabAttributeFrom('#invoice_number', 'value');
+        $invoiceNumber = $I->fillInvoice($I, $clientName, $productKey);
 
         if ($partial) {
             $amount = ($partial * 2);
@@ -145,24 +144,28 @@ class GatewayFeesCest
 
     private function createPayment($I, $invitationKey, $amount, $balance, $fee)
     {
+        $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
+
         // check we correctly remove/add back the gateway fee
-        $I->amOnPage('/view/' . $invitationKey);
-        $I->click('Pay Now');
-        $I->see(number_format($fee, 2) . ' Fee');
-        $I->see(number_format($fee * 2, 2) . ' Fee');
-
         $I->amOnPage('/payment/' . $invitationKey . '/credit_card');
+        $I->seeInDatabase('invoices', [
+            'id' => $invoiceId,
+            'amount' => ($amount + $fee),
+        ]);
+
         $I->amOnPage('/payment/' . $invitationKey . '/bank_transfer');
-        $I->amOnPage('/payment/' . $invitationKey . '/credit_card');
+        $I->seeInDatabase('invoices', [
+            'id' => $invoiceId,
+            'amount' => ($amount + $fee * 2),
+        ]);
 
         $I->amOnPage('/view/' . $invitationKey);
-        $I->click('Pay Now');
-        $I->see(number_format($fee, 2) . ' Fee');
-        $I->see(number_format($fee * 2, 2) . ' Fee');
+        $I->seeInDatabase('invoices', [
+            'id' => $invoiceId,
+            'amount' => ($amount),
+        ]);
 
         $I->createOnlinePayment($I, $invitationKey);
-
-        $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
 
         $I->seeInDatabase('invoices', [
             'id' => $invoiceId,
