@@ -7,6 +7,7 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use DB;
 use Utils;
+use Auth;
 
 class PaymentRepository extends BaseRepository
 {
@@ -161,6 +162,10 @@ class PaymentRepository extends BaseRepository
             }
         } else {
             $payment = Payment::createNew();
+
+            if (Auth::check()) {
+                $payment->payment_type_id = Auth::user()->account->payment_type_id;
+            }
         }
 
         if ($payment->is_deleted) {
