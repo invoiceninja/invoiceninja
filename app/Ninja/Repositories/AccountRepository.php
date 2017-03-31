@@ -3,6 +3,7 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Account;
+use App\Models\AccountEmailSettings;
 use App\Models\AccountGateway;
 use App\Models\AccountToken;
 use App\Models\Client;
@@ -81,6 +82,9 @@ class AccountRepository
         }
 
         $account->users()->save($user);
+
+        $emailSettings = new AccountEmailSettings();
+        $account->account_email_settings()->save($emailSettings);
 
         return $account;
     }

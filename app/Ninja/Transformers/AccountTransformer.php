@@ -18,6 +18,7 @@ class AccountTransformer extends EntityTransformer
         'tax_rates',
         'expense_categories',
         'projects',
+        'account_email_settings',
     ];
 
     /**
@@ -28,6 +29,18 @@ class AccountTransformer extends EntityTransformer
         'invoices',
         'payments',
     ];
+
+    /**
+     * @param Account $account
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
+    public function includeAccountEmailSettings(Account $account)
+    {
+        $transformer = new AccountEmailSettingsTransformer($account, $this->serializer);
+
+        return $this->includeItem($account->account_email_settings, $transformer, 'account_email_settings');
+    }
 
     /**
      * @param Account $account
@@ -184,9 +197,6 @@ class AccountTransformer extends EntityTransformer
             'quote_number_prefix' => $account->quote_number_prefix,
             'quote_number_counter' => $account->quote_number_counter,
             'share_counter' => (bool) $account->share_counter,
-            'email_template_invoice' => $account->email_template_invoice,
-            'email_template_quote' => $account->email_template_quote,
-            'email_template_payment' => $account->email_template_payment,
             'token_billing_type_id' => (int) $account->token_billing_type_id,
             'invoice_footer' => $account->invoice_footer,
             'pdf_email_attachment' => (bool) $account->pdf_email_attachment,
@@ -195,15 +205,6 @@ class AccountTransformer extends EntityTransformer
             'custom_design' => $account->custom_design,
             'show_item_taxes' => (bool) $account->show_item_taxes,
             'military_time' => (bool) $account->military_time,
-            'email_subject_invoice' => $account->email_subject_invoice,
-            'email_subject_quote' => $account->email_subject_quote,
-            'email_subject_payment' => $account->email_subject_payment,
-            'email_subject_reminder1' => $account->email_subject_reminder1,
-            'email_subject_reminder2' => $account->email_subject_reminder2,
-            'email_subject_reminder3' => $account->email_subject_reminder3,
-            'email_template_reminder1' => $account->email_template_reminder1,
-            'email_template_reminder2' => $account->email_template_reminder2,
-            'email_template_reminder3' => $account->email_template_reminder3,
             'enable_reminder1' => $account->enable_reminder1,
             'enable_reminder2' => $account->enable_reminder2,
             'enable_reminder3' => $account->enable_reminder3,
@@ -265,7 +266,6 @@ class AccountTransformer extends EntityTransformer
             'payment_type_id' => (int) $account->payment_type_id,
             'gateway_fee_enabled' => (bool) $account->gateway_fee_enabled,
             'reset_counter_date' => $account->reset_counter_date,
-            'reply_to_email' => $account->reply_to_email,
         ];
     }
 }

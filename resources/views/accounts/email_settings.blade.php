@@ -26,6 +26,8 @@
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
     {{ Former::populateField('document_email_attachment', intval($account->document_email_attachment)) }}
     {{ Former::populateField('enable_email_markup', intval($account->enable_email_markup)) }}
+    {{ Former::populateField('bcc_email', $account->account_email_settings->bcc_email) }}
+    {{ Former::populateField('reply_to_email', $account->account_email_settings->reply_to_email) }}
 
     <div class="panel panel-default">
         <div class="panel-heading">

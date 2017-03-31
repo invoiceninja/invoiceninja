@@ -789,9 +789,17 @@ class AccountController extends BaseController
     public function saveEmailSettings(SaveEmailSettings $request)
     {
         $account = $request->user()->account;
-        $account->fill($request->all());
-        $account->bcc_email = $request->bcc_email;
+        $account->pdf_email_attachment = boolval(Input::get('pdf_email_attachment'));
+        $account->document_email_attachment = boolval(Input::get('document_email_attachment'));
+        $account->enable_email_markup = boolval(Input::get('enable_email_markup'));
+        $account->email_design_id = Input::get('email_design_id');
+        $account->email_footer = trim(Input::get('email_footer'));
         $account->save();
+
+        $settings = $account->account_email_settings;
+        $settings->bcc_email = trim(Input::get('bcc_email'));
+        $settings->reply_to_email = trim(Input::get('reply_to_email'));
+        $settings->save();
 
         return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)
                 ->with('message', trans('texts.updated_settings'));
@@ -808,11 +816,11 @@ class AccountController extends BaseController
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
                 $subjectField = "email_subject_{$type}";
                 $subject = Input::get($subjectField, $account->getEmailSubject($type));
-                $account->$subjectField = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
+                $account->account_email_settings->$subjectField = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
 
                 $bodyField = "email_template_{$type}";
                 $body = Input::get($bodyField, $account->getEmailTemplate($type));
-                $account->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
+                $account->account_email_settings->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
             }
 
             foreach ([REMINDER1, REMINDER2, REMINDER3] as $type) {
@@ -824,6 +832,7 @@ class AccountController extends BaseController
             }
 
             $account->save();
+            $account->account_email_settings->save();
 
             Session::flash('message', trans('texts.updated_settings'));
         }

@@ -173,7 +173,6 @@ class Account extends Eloquent
         'payment_type_id',
         'gateway_fee_enabled',
         'reset_counter_date',
-        'reply_to_email',
     ];
 
     /**
@@ -276,6 +275,14 @@ class Account extends Eloquent
     public function account_gateway_settings()
     {
         return $this->hasMany('App\Models\AccountGatewaySettings');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function account_email_settings()
+    {
+        return $this->hasOne('App\Models\AccountEmailSettings');
     }
 
     /**

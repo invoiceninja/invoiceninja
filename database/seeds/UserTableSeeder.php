@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Account;
+use App\Models\AccountEmailSettings;
 use App\Models\Affiliate;
 use App\Models\Client;
 use App\Models\Company;
@@ -42,6 +43,10 @@ class UserTableSeeder extends Seeder
             'timezone_id' => 58,
             'company_id' => $company->id,
             'pdf_email_attachment' => true,
+        ]);
+
+        $emailSettings = AccountEmailSettings::create([
+            'account_id' => $account->id
         ]);
 
         $user = User::create([
