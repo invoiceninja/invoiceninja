@@ -173,7 +173,25 @@ class ExpenseRepository extends BaseRepository
         if (isset($input['amount'])) {
             $expense->amount = round(Utils::parseFloat($input['amount']), 2);
         }
+        
+        $paymentTypeId = false;
+        if (isset($input['payment_type_id'])) {
+            $paymentTypeId = $input['payment_type_id'] ? $input['payment_type_id'] : null;
+            $expense->payment_type_id = $paymentTypeId;
+        }
+        
+        if (isset($input['payment_date_sql'])) {
+            $expense->payment_date = $input['payment_date_sql'];
+        } elseif (isset($input['payment_date'])) {
+            $expense->payment_date = Utils::toSqlDate($input['payment_date']);
+        } else {
+            $expense->payment_date = date('Y-m-d');
+        }
 
+        if (isset($input['transaction_reference'])) {
+            $expense->transaction_reference = trim($input['transaction_reference']);
+        }
+        
         $expense->save();
 
         // Documents
