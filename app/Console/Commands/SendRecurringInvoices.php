@@ -58,7 +58,7 @@ class SendRecurringInvoices extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running SendRecurringInvoices...');
+        $this->info(date('Y-m-d H:i:s') . ' Running SendRecurringInvoices...');
         $today = new DateTime();
 
         // check for counter resets
@@ -114,7 +114,7 @@ class SendRecurringInvoices extends Command
             }
         }
 
-        $this->info('Done');
+        $this->info(date('Y-m-d H:i:s') . ' Done');
     }
 
     /**
