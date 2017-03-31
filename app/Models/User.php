@@ -60,7 +60,6 @@ class User extends Authenticatable
      */
     protected $hidden = ['password', 'remember_token', 'confirmation_code'];
 
-    use SoftDeletes;
     /**
      * @var array
      */
