@@ -182,4 +182,13 @@ trait SendsEmails
 
         return Domain::getEmailFromId($this->domain_id);
     }
+
+    public function getReplyToEmail()
+    {
+        if (! $this->isPro()) {
+            return false;
+        }
+
+        return $this->reply_to_email;
+    }
 }
