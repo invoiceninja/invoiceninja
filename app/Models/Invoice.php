@@ -1207,13 +1207,12 @@ class Invoice extends EntityModel implements BalanceAffecting
             $daysSinceLastSent = $diff->format('%a');
             $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
 
-            /*
-            $date1 = Carbon::parse($this->last_sent_date, $timezone);
-            $date2 = Carbon::now($timezone);
-            $daysSinceLastSent = $date1->diffInDays($date2);
-            $monthsSinceLastSent = $date1->diffInMonths($date2);
-            */
+            // check we don't send a few hours early due to timezone difference
+            if (Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
+                return false;
+            }
 
+            // check we never send twice on one day
             if ($daysSinceLastSent == 0) {
                 return false;
             }
