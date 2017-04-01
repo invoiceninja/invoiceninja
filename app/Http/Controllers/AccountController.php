@@ -789,16 +789,11 @@ class AccountController extends BaseController
     public function saveEmailSettings(SaveEmailSettings $request)
     {
         $account = $request->user()->account;
-        $account->pdf_email_attachment = boolval(Input::get('pdf_email_attachment'));
-        $account->document_email_attachment = boolval(Input::get('document_email_attachment'));
-        $account->enable_email_markup = boolval(Input::get('enable_email_markup'));
-        $account->email_design_id = Input::get('email_design_id');
-        $account->email_footer = trim(Input::get('email_footer'));
+        $account->fill($request->all());
         $account->save();
 
         $settings = $account->account_email_settings;
-        $settings->bcc_email = trim(Input::get('bcc_email'));
-        $settings->reply_to_email = trim(Input::get('reply_to_email'));
+        $settings->fill($request->all());
         $settings->save();
 
         return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)
