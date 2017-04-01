@@ -108,7 +108,7 @@
                         attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
 				@if ($account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password)
 					{!! Former::password('password')->data_bind("value: password()?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
-						attr: {name: 'contacts[' + \$index() + '][password]'}") !!}
+						attr: {name: 'contacts[' + \$index() + '][password]'}")->autocomplete('new-password') !!}
 			    @endif
 				<div class="form-group">
 					<div class="col-lg-8 col-lg-offset-4 bold">
