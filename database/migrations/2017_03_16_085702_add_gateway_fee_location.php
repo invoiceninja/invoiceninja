@@ -12,20 +12,6 @@ class AddGatewayFeeLocation extends Migration
      */
     public function up()
     {
-        Schema::table('accounts', function ($table) {
-            if (Schema::hasColumn('accounts', 'auto_wrap')) {
-                $table->dropColumn('auto_wrap');
-            }
-            if (Schema::hasColumn('accounts', 'utf8_invoices')) {
-                $table->dropColumn('utf8_invoices');
-            }
-            if (Schema::hasColumn('accounts', 'dark_mode')) {
-                $table->dropColumn('dark_mode');
-            }
-            $table->boolean('gateway_fee_enabled')->default(0);
-            $table->date('reset_counter_date')->nullable();
-        });
-
         Schema::table('clients', function ($table) {
             $table->integer('invoice_number_counter')->default(1)->nullable();
             $table->integer('quote_number_counter')->default(1)->nullable();
@@ -98,6 +84,7 @@ class AddGatewayFeeLocation extends Migration
             from accounts;');
 
         Schema::table('accounts', function ($table) {
+            $table->dropColumn('bcc_email');
             $table->dropColumn('email_subject_invoice');
             $table->dropColumn('email_subject_quote');
             $table->dropColumn('email_subject_payment');
@@ -110,6 +97,21 @@ class AddGatewayFeeLocation extends Migration
             $table->dropColumn('email_template_reminder1');
             $table->dropColumn('email_template_reminder2');
             $table->dropColumn('email_template_reminder3');
+
+            if (Schema::hasColumn('accounts', 'auto_wrap')) {
+                $table->dropColumn('auto_wrap');
+            }
+            if (Schema::hasColumn('accounts', 'utf8_invoices')) {
+                $table->dropColumn('utf8_invoices');
+            }
+            if (Schema::hasColumn('accounts', 'dark_mode')) {
+                $table->dropColumn('dark_mode');
+            }
+        });
+
+        Schema::table('accounts', function ($table) {
+            $table->boolean('gateway_fee_enabled')->default(0);
+            $table->date('reset_counter_date')->nullable();
         });
 
     }
