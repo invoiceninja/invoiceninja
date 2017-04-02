@@ -37,7 +37,7 @@ class ImportController extends BaseController
                 $destinationPath = storage_path() . '/import';
                 $extension = $file->getClientOriginalExtension();
 
-                if (! in_array($extension, ['csv', 'xls', 'json'])) {
+                if (! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
                     continue;
                 }
 
@@ -72,7 +72,7 @@ class ImportController extends BaseController
                         'include_settings' => $includeSettings,
                     ];
                     $this->dispatch(new ImportData(Auth::user(), IMPORT_JSON, $settings));
-                    $message = 'started...';
+                    $message = trans('texts.import_started');
                 }
             } else {
                 if (config('queue.default') === 'sync') {
@@ -84,7 +84,7 @@ class ImportController extends BaseController
                         'source' => $source,
                     ];
                     $this->dispatch(new ImportData(Auth::user(), false, $settings));
-                    $message = 'started...';
+                    $message = trans('texts.import_started');
                 }
             }
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withWarning($message);
@@ -112,7 +112,7 @@ class ImportController extends BaseController
                     'headers' => $headers,
                 ];
                 $this->dispatch(new ImportData(Auth::user(), IMPORT_CSV, $settings));
-                $message = 'started...';
+                $message = trans('texts.import_started');
             }
 
             return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withWarning($message);

@@ -2462,6 +2462,7 @@ $LANG = array(
     'bcc_email_help' => 'Privately include this address with client emails.',
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
+    'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
 
 );
 
