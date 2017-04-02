@@ -309,10 +309,15 @@ class InvoiceApiController extends BaseAPIController
     {
         $invoice = $request->entity();
 
-        $this->dispatch(new SendInvoiceEmail($invoice));
+        //$this->dispatch(new SendInvoiceEmail($invoice));
+        $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
 
-        $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
+        if ($result !== true) {
+            return $this->errorResponse($result, 500);
+        }
+
         $headers = Utils::getApiHeaders();
+        $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
 
         return Response::make($response, 200, $headers);
     }
