@@ -70,7 +70,7 @@ All contributors are welcome!
 For information on how contribute to Invoice Ninja, please see our [contributing guide](CONTRIBUTING.md).
 
 ## Credits
-* [Hillel Coren](https://github.com/hillelcoren)
+* [Hillel Coren](https://hillelcoren.com/)
 * [All contributors](https://github.com/invoiceninja/invoiceninja/graphs/contributors)
 
 **Special thanks to:**
