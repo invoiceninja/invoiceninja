@@ -894,6 +894,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'page_size',
             'include_item_taxes_inline',
             'invoice_fields',
+            'show_currency_code',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
