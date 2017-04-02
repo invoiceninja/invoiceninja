@@ -148,8 +148,9 @@ class ImportService
     public function importJSON($file, $includeData, $includeSettings)
     {
         $this->initMaps();
-
-        $file = file_get_contents(storage_path() . '/import/' . $file);
+        $fileName = storage_path() . '/import/' . $file;
+        $this->checkForFile($fileName);
+        $file = file_get_contents($fileName);
         $json = json_decode($file, true);
         $json = $this->removeIdFields($json);
         $transformer = new BaseTransformer($this->maps);
@@ -166,7 +167,7 @@ class ImportService
                     $settings[$field] = $value;
                 }
             }
-            //dd($settings);
+
             $account = Auth::user()->account;
             $account->fill($settings);
             $account->save();
@@ -228,6 +229,8 @@ class ImportService
             }
         }
 
+        unlink($fileName);
+
         return $this->results;
     }
 
@@ -284,9 +287,10 @@ class ImportService
 
         // Convert the data
         $row_list = [];
-        $file = storage_path() . '/import/' . $file;
+        $fileName = storage_path() . '/import/' . $file;
+        $this->checkForFile($fileName);
 
-        Excel::load($file, function ($reader) use ($source, $entityType, &$row_list, &$results) {
+        Excel::load($fileName, function ($reader) use ($source, $entityType, &$row_list, &$results) {
             $this->checkData($entityType, count($reader->all()));
 
             $reader->each(function ($row) use ($source, $entityType, &$row_list, &$results) {
@@ -316,6 +320,8 @@ class ImportService
                 $results[RESULT_FAILURE][] = $row_data['row'];
             }
         }
+
+        unlink($fileName);
 
         return $results;
     }
@@ -568,8 +574,6 @@ class ImportService
             }
         }
 
-        //Session::put("{$entityType}-data", $csv->data);
-
         $data = [
             'entityType' => $entityType,
             'data' => $data,
@@ -582,12 +586,16 @@ class ImportService
         return $data;
     }
 
-    private function getCsvData($filename)
+    private function getCsvData($fileName)
     {
         require_once app_path().'/Includes/parsecsv.lib.php';
+
+        $fileName = storage_path() . '/import/' . $fileName;
+        $this->checkForFile($fileName);
+
         $csv = new parseCSV();
         $csv->heading = false;
-        $csv->auto(storage_path() . '/import/' . $filename);
+        $csv->auto($fileName);
         $data = $csv->data;
 
         if (count($data) > 0) {
@@ -678,9 +686,8 @@ class ImportService
         ];
         $source = IMPORT_CSV;
 
-        //$data = Session::get("{$entityType}-data");
-        $filename = sprintf('%s_%s_%s.csv', Auth::user()->account_id, $timestamp, $entityType);
-        $data = $this->getCsvData($filename);
+        $fileName = sprintf('%s_%s_%s.csv', Auth::user()->account_id, $timestamp, $entityType);
+        $data = $this->getCsvData($fileName);
         $this->checkData($entityType, count($data));
         $this->initMaps();
 
@@ -719,7 +726,7 @@ class ImportService
             }
         }
 
-        //Session::forget("{$entityType}-data");
+        unlink($fileName);
 
         return $results;
     }
@@ -933,5 +940,20 @@ class ImportService
         }
 
         return $message;
+    }
+
+    private function checkForFile($fileName)
+    {
+        $counter = 0;
+
+        while (! file_exists($fileName)) {
+            $counter++;
+            if ($counter > 60) {
+                throw new Exception('File not found: ' . $fileName);
+            }
+            sleep(2);
+        }
+
+        return true;
     }
 }

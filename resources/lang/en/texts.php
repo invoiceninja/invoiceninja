@@ -2461,7 +2461,7 @@ $LANG = array(
     'reply_to_email_help' => 'Specify the reply-to address for client emails.',
     'bcc_email_help' => 'Privately include this address with client emails.',
     'import_complete' => 'Your import has successfully completed.',
-
+    'confirm_account_to_import' => 'Please confirm your account to import data.',
 
 );
 

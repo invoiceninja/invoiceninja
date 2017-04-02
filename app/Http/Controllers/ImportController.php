@@ -22,6 +22,10 @@ class ImportController extends BaseController
 
     public function doImport(Request $request)
     {
+        if (! Auth::user()->confirmed) {
+            return redirect('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.confirm_account_to_import'));
+        }
+
         $source = Input::get('source');
         $files = [];
         $timestamp = time();
