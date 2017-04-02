@@ -74,7 +74,7 @@ class DashboardRepository
                 $records[] = isset($data[$date]) ? $data[$date] : 0;
 
                 if ($entityType == ENTITY_INVOICE) {
-                    $labels[] = $d->format('r');
+                    $labels[] = $d->format('m/d/Y');
                 }
             }
 
