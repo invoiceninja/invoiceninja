@@ -1629,8 +1629,11 @@
         number = number.replace('{$clientCustom1}', client.custom_value1 ? client.custom_value1 : '');
         number = number.replace('{$clientCustom2}', client.custom_value2 ? client.custom_value1 : '');
         number = number.replace('{$clientIdNumber}', client.id_number ? client.id_number : '');
-        number = number.replace('{$clientInvoiceCounter}', pad(client.invoice_number_counter, {{ $account->invoice_number_padding }}));
-        number = number.replace('{$clientQuoteCounter}', pad(client.quote_number_counter, {{ $account->invoice_number_padding }}));
+		@if ($invoice->isQuote() && ! $account->share_counter)
+			number = number.replace('{$clientCounter}', pad(client.quote_number_counter, {{ $account->invoice_number_padding }}));
+		@else
+        	number = number.replace('{$clientCounter}', pad(client.invoice_number_counter, {{ $account->invoice_number_padding }}));
+		@endif
 		// backwards compatibility
 		number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');

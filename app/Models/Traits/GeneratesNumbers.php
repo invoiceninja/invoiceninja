@@ -191,8 +191,7 @@ trait GeneratesNumbers
             '{$clientCustom1}',
             '{$clientCustom2}',
             '{$clientIdNumber}',
-            '{$clientInvoiceCounter}',
-            '{$clientQuoteCounter}',
+            '{$clientCounter}',
         ];
 
         $replace = [
@@ -253,10 +252,11 @@ trait GeneratesNumbers
         }
 
         if ($this->usesClientInvoiceCounter()) {
-            $entity->client->invoice_number_counter += 1;
-            $entity->client->save();
-        } elseif ($this->usesClientQuoteCounter()) {
-            $entity->client->quote_number_counter += 1;
+            if ($entity->isType(INVOICE_TYPE_QUOTE) && ! $this->share_counter) {
+                $entity->client->quote_number_counter += 1;
+            } else {
+                $entity->client->invoice_number_counter += 1;
+            }
             $entity->client->save();
         }
 
@@ -277,12 +277,7 @@ trait GeneratesNumbers
 
     public function usesClientInvoiceCounter()
     {
-        return strpos($this->invoice_number_pattern, '{$clientInvoiceCounter}') !== false;
-    }
-
-    public function usesClientQuoteCounter()
-    {
-        return strpos($this->invoice_number_pattern, '{$clientQuoteCounter}') !== false;
+        return strpos($this->invoice_number_pattern, '{$clientCounter}') !== false;
     }
 
     public function clientNumbersEnabled()

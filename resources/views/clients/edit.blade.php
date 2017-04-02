@@ -59,10 +59,10 @@
 
 			@if ($account->usesClientInvoiceCounter())
 				{!! Former::text('invoice_number_counter')->label('invoice_counter') !!}
-			@endif
 
-			@if ($account->usesClientQuoteCounter())
-				{!! Former::text('quote_number_counter')->label('quote_counter') !!}
+				@if (! $account->share_counter)
+					{!! Former::text('quote_number_counter')->label('quote_counter') !!}
+				@endif
 			@endif
             </div>
         </div>

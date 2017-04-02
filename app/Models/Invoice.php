@@ -64,9 +64,8 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public static $patternFields = [
         'counter',
+        'clientCounter',
         'clientIdNumber',
-        'clientInvoiceCounter',
-        'clientQuoteCounter',
         'clientCustom1',
         'clientCustom2',
         'userId',

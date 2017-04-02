@@ -183,7 +183,7 @@ class AppServiceProvider extends ServiceProvider
                 return true;
             }
 
-            return ((strstr($value, '{$idNumber}') !== false || strstr($value, '{$clientIdNumber}') != false) && (strstr($value, '{$clientInvoiceCounter}') || strstr($value, '{$clientQuoteCounter}')));
+            return ((strstr($value, '{$idNumber}') !== false || strstr($value, '{$clientIdNumber}') != false) && (strstr($value, '{$clientCounter}')));
         });
 
         Validator::extend('valid_invoice_items', function ($attribute, $value, $parameters) {
