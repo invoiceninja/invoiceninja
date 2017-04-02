@@ -57,10 +57,6 @@ class VendorService extends BaseService
      */
     public function save(array $data, Vendor $vendor = null)
     {
-        if (Auth::user()->account->isNinjaAccount() && isset($data['plan'])) {
-            $this->ninjaRepo->updatePlanDetails($data['public_id'], $data);
-        }
-
         return $this->vendorRepo->save($data, $vendor);
     }
 

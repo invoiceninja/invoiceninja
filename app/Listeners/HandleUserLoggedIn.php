@@ -5,7 +5,9 @@ namespace App\Listeners;
 use App\Events\UserLoggedIn;
 use App\Events\UserSignedUp;
 use App\Libraries\HistoryUtils;
+use App\Models\Gateway;
 use App\Ninja\Repositories\AccountRepository;
+use Utils;
 use Auth;
 use Carbon;
 use Session;
@@ -64,6 +66,11 @@ class HandleUserLoggedIn
             Session::flash('warning', trans('texts.missing_publishable_key'));
         } elseif ($account->isLogoTooLarge()) {
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
+        }
+
+        // check custom gateway id is correct
+        if (! Utils::isNinja() && Gateway::find(GATEWAY_CUSTOM)->name !== 'Custom') {
+            Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
         }
     }
 }

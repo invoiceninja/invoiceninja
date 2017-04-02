@@ -119,7 +119,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
     public function getContactKeyAttribute($contact_key)
     {
         if (empty($contact_key) && $this->id) {
-            $this->contact_key = $contact_key = str_random(RANDOM_KEY_LENGTH);
+            $this->contact_key = $contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             static::where('id', $this->id)->update(['contact_key' => $contact_key]);
         }
 

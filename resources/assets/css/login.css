@@ -24,7 +24,7 @@ hr.green {
     background: linear-gradient(to bottom, #3c3b3b 0%, #2f2c2c 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3c3b3b', endColorstr='#2f2c2c', GradientType=0); /* IE6-9 */
     padding: 30px 55px;
-    margin-bottom: 95px;
+    margin-bottom: 60px;
 }
 
 .row.header .text-right {
@@ -146,7 +146,7 @@ hr.green {
 /****** SIGN UP ********************************************************************/
 
 .row.sign-up {
-    margin-top: 100px;
+    margin-top: 70px;
     text-align: center;
 }
 

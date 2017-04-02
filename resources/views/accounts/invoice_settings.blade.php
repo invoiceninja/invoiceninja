@@ -47,6 +47,9 @@
                     <li role="presentation">
                         <a href="#recurring_invoice_number" aria-controls="recurring_invoice_number" role="tab" data-toggle="tab">{{ trans('texts.recurring_invoice_number') }}</a>
                     </li>
+                    <li role="presentation">
+                        <a href="#reset_counter" aria-controls="reset_counter" role="tab" data-toggle="tab">{{ trans('texts.reset_counter') }}</a>
+                    </li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -73,7 +76,6 @@
                                 ->label(trans('texts.counter'))
                                 ->help(trans('texts.invoice_number_help') . ' ' .
                                     trans('texts.next_invoice_number', ['number' => $account->previewNextInvoiceNumber()])) !!}
-
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="quote_number">
@@ -130,7 +132,7 @@
                             {!! Former::text('client_number_pattern')
                                     ->appendIcon('question-sign')
                                     ->addGroupClass('client-pattern')
-                                    ->addGroupClass('number-pattern')
+                                    ->addGroupClass('client-number-pattern')
                                     ->label(trans('texts.pattern')) !!}
                             {!! Former::text('client_number_counter')
                                     ->label(trans('texts.counter'))
@@ -147,6 +149,24 @@
                         {!! Former::text('recurring_invoice_number_prefix')
                                 ->label(trans('texts.prefix'))
                                 ->help(trans('texts.recurring_invoice_number_prefix_help')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="reset_counter">
+                    <div class="panel-body">
+
+                        {!! Former::select('reset_counter_frequency_id')
+                                ->onchange('onResetFrequencyChange()')
+                                ->label('frequency')
+                                ->addOption(trans('texts.never'), '')
+                                ->options(\App\Models\Frequency::selectOptions())
+                                ->help('reset_counter_help') !!}
+
+                        {!! Former::text('reset_counter_date')
+                                    ->label('next_reset')
+                                    ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                                    ->addGroupClass('reset_counter_date_group')
+                                    ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 
                     </div>
                 </div>
@@ -177,7 +197,7 @@
                         <a href="#invoice_fields" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoice_charges" aria-controls="invoice_charges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
+                        <a href="#invoice_surcharges" aria-controls="invoice_surcharges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
                     </li>
                 </ul>
             </div>
@@ -231,22 +251,23 @@
 
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="invoice_charges">
+                <div role="tabpanel" class="tab-pane" id="invoice_surcharges">
                     <div class="panel-body">
 
                         {!! Former::text('custom_invoice_label1')
                                 ->label(trans('texts.field_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes1')
-                                ->value(1)
-                                ->raw() . trans('texts.charge_taxes')) !!}
+                                            ->value(1)
+                                            ->raw() . trans('texts.charge_taxes')) !!}
+
                         {!! Former::text('custom_invoice_label2')
                                 ->label(trans('texts.field_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')
-                                ->value(1)
-                                ->raw() . trans('texts.charge_taxes'))
-                                ->help(trans('texts.custom_invoice_charges_helps')) !!}
+                                            ->value(1)
+                                            ->raw() . trans('texts.charge_taxes'))
+                                            ->help(trans('texts.custom_invoice_charges_helps')) !!}
 
                     </div>
                 </div>
@@ -291,6 +312,7 @@
                     <div class="panel-body">
                         {!! Former::textarea('invoice_footer')
                                 ->label(trans('texts.default_invoice_footer'))
+                                ->help($account->hasFeature(FEATURE_REMOVE_CREATED_BY) && ! $account->isTrial() ? 'invoice_footer_help' : '')
                                 ->rows(4) !!}
                     </div>
                 </div>
@@ -322,7 +344,7 @@
                 </div>
 
                 <div class="container" style="width: 100%; padding-bottom: 0px !important">
-                <div class="panel panel-default" style="margin-bottom: 0px">
+                <div class="panel panel-default">
                 <div class="panel-body">
                     <p>{{ trans('texts.pattern_help_1') }}</p>
                     <p>{{ trans('texts.pattern_help_2') }}</p>
@@ -330,12 +352,14 @@
                         @foreach (\App\Models\Invoice::$patternFields as $field)
                             @if ($field == 'date:')
                                 <li>{$date:format} - {!! link_to(PHP_DATE_FORMATS, trans('texts.see_options'), ['target' => '_blank']) !!}</li>
+                            @elseif (strpos($field, 'client') !== false)
+                                <li class="hide-client">{${{ $field }}}</li>
                             @else
                                 <li>{${{ $field }}}</li>
                             @endif
                         @endforeach
                     </ul>
-                    <p>{{ trans('texts.pattern_help_3', [
+                    <p class="hide-client">{{ trans('texts.pattern_help_3', [
                             'example' => '{$year}-{$counter}',
                             'value' => date('Y') . '-0001'
                         ]) }}</p>
@@ -343,7 +367,7 @@
                 </div>
                 </div>
 
-                <div class="modal-footer" style="margin-top: 2px">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 
@@ -407,7 +431,22 @@
         }
     }
 
+    function onResetFrequencyChange() {
+        var val = $('#reset_counter_frequency_id').val();
+        if (val) {
+            $('.reset_counter_date_group').show();
+        } else {
+            $('.reset_counter_date_group').hide();
+        }
+    }
+
     $('.number-pattern .input-group-addon').click(function() {
+        $('.hide-client').show();
+        $('#patternHelpModal').modal('show');
+    });
+
+    $('.client-number-pattern .input-group-addon').click(function() {
+        $('.hide-client').hide();
         $('#patternHelpModal').modal('show');
     });
 
@@ -417,6 +456,13 @@
         onQuoteNumberTypeChange();
         onClientNumberTypeChange();
         onClientNumberEnabled();
+        onResetFrequencyChange();
+
+        $('#reset_counter_date').datepicker('update', '{{ Utils::fromSqlDate($account->reset_counter_date) ?: 'new Date()' }}');
+        $('.reset_counter_date_group .input-group-addon').click(function() {
+            toggleDatePicker('reset_counter_date');
+        });
+
     });
 
 	</script>

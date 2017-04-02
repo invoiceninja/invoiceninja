@@ -55,7 +55,7 @@ class QuoteCest
         $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
             $I->amOnPage('/view/' . $invitationKey);
             $I->click('Approve');
-            $I->see('This quote is approved');
+            $I->see('The quote has been approved');
         });
 
     }

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\InvoiceRequest;
+use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
 use App\Jobs\SendInvoiceEmail;
 use App\Jobs\SendPaymentEmail;
@@ -42,11 +42,12 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/invoices",
-     *   summary="List of invoices",
+     *   summary="List invoices",
+     *   operationId="listInvoices",
      *   tags={"invoice"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with invoices",
+     *     description="A list of invoices",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Invoice"))
      *   ),
      *   @SWG\Response(
@@ -62,14 +63,25 @@ class InvoiceApiController extends BaseAPIController
                         ->with('invoice_items', 'client')
                         ->orderBy('created_at', 'desc');
 
+        // Filter by invoice number
+        if ($invoiceNumber = Input::get('invoice_number')) {
+            $invoices->whereInvoiceNumber($invoiceNumber);
+        }
+
         return $this->listResponse($invoices);
     }
 
     /**
      * @SWG\Get(
      *   path="/invoices/{invoice_id}",
-     *   summary="Individual Invoice",
+     *   summary="Retrieve an Invoice",
      *   tags={"invoice"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="invoice_id",
+     *     type="integer",
+     *     required=true
+     *   ),
      *   @SWG\Response(
      *     response=200,
      *     description="A single invoice",
@@ -89,11 +101,11 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/invoices",
-     *   tags={"invoice"},
      *   summary="Create an invoice",
+     *   tags={"invoice"},
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="invoice",
      *     @SWG\Schema(ref="#/definitions/Invoice")
      *   ),
      *   @SWG\Response(
@@ -297,27 +309,38 @@ class InvoiceApiController extends BaseAPIController
     {
         $invoice = $request->entity();
 
-        $this->dispatch(new SendInvoiceEmail($invoice));
+        //$this->dispatch(new SendInvoiceEmail($invoice));
+        $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
 
-        $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
+        if ($result !== true) {
+            return $this->errorResponse($result, 500);
+        }
+
         $headers = Utils::getApiHeaders();
+        $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
 
         return Response::make($response, 200, $headers);
     }
 
     /**
      * @SWG\Put(
-     *   path="/invoices",
-     *   tags={"invoice"},
+     *   path="/invoices/{invoice_id}",
      *   summary="Update an invoice",
+     *   tags={"invoice"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="invoice_id",
+     *     type="integer",
+     *     required=true
+     *   ),
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="invoice",
      *     @SWG\Schema(ref="#/definitions/Invoice")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update invoice",
+     *     description="Updated invoice",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
      *   ),
      *   @SWG\Response(
@@ -352,17 +375,18 @@ class InvoiceApiController extends BaseAPIController
 
     /**
      * @SWG\Delete(
-     *   path="/invoices",
-     *   tags={"invoice"},
+     *   path="/invoices/{invoice_id}",
      *   summary="Delete an invoice",
+     *   tags={"invoice"},
      *   @SWG\Parameter(
-     *     in="body",
-     *     name="body",
-     *     @SWG\Schema(ref="#/definitions/Invoice")
+     *     in="path",
+     *     name="invoice_id",
+     *     type="integer",
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Delete invoice",
+     *     description="Deleted invoice",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
      *   ),
      *   @SWG\Response(

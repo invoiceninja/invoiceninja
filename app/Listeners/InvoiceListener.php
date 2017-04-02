@@ -153,6 +153,14 @@ class InvoiceListener
 
     public function jobFailed(JobExceptionOccurred $exception)
     {
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw(print_r($exception->data, true), function ($message) use ($errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('Job failed');
+            });
+        }
+
         Utils::logError($exception->exception);
     }
 }

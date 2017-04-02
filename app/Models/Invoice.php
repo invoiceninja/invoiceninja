@@ -10,6 +10,7 @@ use App\Events\QuoteWasCreated;
 use App\Events\QuoteWasUpdated;
 use App\Libraries\CurlUtils;
 use App\Models\Activity;
+use App\Models\Traits\ChargesFees;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
@@ -23,6 +24,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 {
     use PresentableTrait;
     use OwnedByClientTrait;
+    use ChargesFees;
     use SoftDeletes {
         SoftDeletes::trashed as parentTrashed;
     }
@@ -62,9 +64,10 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public static $patternFields = [
         'counter',
-        'custom1',
-        'custom2',
-        'idNumber',
+        'clientCounter',
+        'clientIdNumber',
+        'clientCustom1',
+        'clientCustom2',
         'userId',
         'year',
         'date:',
@@ -539,7 +542,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function updatePaidStatus($save = true)
     {
         $statusId = false;
-        if ($this->amount > 0 && $this->balance == 0) {
+        if ($this->amount != 0 && $this->balance == 0) {
             $statusId = INVOICE_STATUS_PAID;
         } elseif ($this->balance > 0 && $this->balance < $this->amount) {
             $statusId = INVOICE_STATUS_PARTIAL;
@@ -573,6 +576,13 @@ class Invoice extends EntityModel implements BalanceAffecting
             return;
         }
 
+        $balanceAdjustment = floatval($balanceAdjustment);
+        $partial = floatval($partial);
+
+        if (! $balanceAdjustment && $this->partial == $partial) {
+            return;
+        }
+
         $this->balance = $this->balance + $balanceAdjustment;
 
         if ($this->partial > 0) {
@@ -580,6 +590,13 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         $this->save();
+
+        // mark fees as paid
+        if ($balanceAdjustment != 0 && $this->account->gateway_fee_enabled) {
+            if ($invoiceItem = $this->getGatewayFeeItem()) {
+                $invoiceItem->markFeePaid();
+            }
+        }
     }
 
     /**
@@ -610,7 +627,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function canBePaid()
     {
-        return floatval($this->balance) > 0 && ! $this->is_deleted && $this->isInvoice();
+        return floatval($this->balance) != 0 && ! $this->is_deleted && $this->isInvoice();
     }
 
     public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)
@@ -752,7 +769,16 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function getRequestedAmount()
     {
-        return $this->partial > 0 ? $this->partial : $this->balance;
+        $fee = 0;
+        if ($this->account->gateway_fee_enabled) {
+            $fee = $this->getGatewayFee();
+        }
+
+        if ($this->partial > 0) {
+            return $this->partial + $fee;
+        } else {
+            return $this->balance;
+        }
     }
 
     /**
@@ -868,6 +894,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'page_size',
             'include_item_taxes_inline',
             'invoice_fields',
+            'show_currency_code',
         ]);
 
         foreach ($this->invoice_items as $invoiceItem) {
@@ -1231,6 +1258,10 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
+        if (Utils::isTravis()) {
+            return false;
+        }
+
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
         $pdfString = false;
@@ -1238,26 +1269,35 @@ class Invoice extends EntityModel implements BalanceAffecting
         try {
             if (env('PHANTOMJS_BIN_PATH')) {
                 $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
-            } elseif ($key = env('PHANTOMJS_CLOUD_KEY')) {
-                if (Utils::isNinjaDev()) {
-                    $link = env('TEST_LINK');
+            }
+
+            if (! $pdfString && (Utils::isNinja() || ! env('PHANTOMJS_BIN_PATH'))) {
+                if ($key = env('PHANTOMJS_CLOUD_KEY')) {
+                    if (Utils::isNinjaDev()) {
+                        $link = env('TEST_LINK');
+                    }
+                    $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+                    $pdfString = CurlUtils::get($url);
                 }
-                $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
-                $pdfString = CurlUtils::get($url);
             }
 
             $pdfString = strip_tags($pdfString);
         } catch (\Exception $exception) {
-            Utils::logError("PhantomJS - Failed to create pdf: {$exception->getMessage()}");
+            Utils::logError("PhantomJS - Failed to load: {$exception->getMessage()}");
             return false;
         }
 
         if (! $pdfString || strlen($pdfString) < 200) {
-            Utils::logError("PhantomJS - Failed to create pdf: {$pdfString}");
+            Utils::logError("PhantomJS - Invalid response: {$pdfString}");
             return false;
         }
 
-        return Utils::decodePDF($pdfString);
+        if ($pdf = Utils::decodePDF($pdfString)) {
+            return $pdf;
+        } else {
+            Utils::logError("PhantomJS - Unable to decode: {$pdfString}");
+            return false;
+        }
     }
 
     /**
@@ -1473,7 +1513,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 }
 
 Invoice::creating(function ($invoice) {
-    if (! $invoice->is_recurring) {
+    if (! $invoice->is_recurring && $invoice->amount >= 0) {
         $invoice->account->incrementCounter($invoice);
     }
 });

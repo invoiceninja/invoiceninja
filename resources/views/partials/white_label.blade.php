@@ -23,6 +23,8 @@
           <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
         </div>
 
+        <div class="container" style="width: 100%; padding-bottom: 0px !important">
+        <div class="panel panel-default">
         <div class="panel-body">
           <p>{{ trans('texts.white_label_text', ['price' => WHITE_LABEL_PRICE])}}</p>
           <div class="row">
@@ -34,8 +36,11 @@
                   <h4>{{ trans('texts.after') }}</h4>
                   <img src="{{ BLANK_IMAGE }}" data-src="{{ asset('images/pro_plan/white_label_after.png') }}" width="100%" alt="after">
               </div>
-          </div><br/>
+          </div>
+          <br/>
           <p>{!! trans('texts.reseller_text', ['email' => HTML::mailto('contact@invoiceninja.com')]) !!}</p>
+        </div>
+        </div>
         </div>
 
         <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
@@ -55,10 +60,14 @@
             <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
           </div>
 
+          <div class="container" style="width: 100%; padding-bottom: 0px !important">
+          <div class="panel panel-default">
           <div class="panel-body">
               {!! Former::open()->rules(['white_label_license_key' => 'required|min:24|max:24']) !!}
               {!! Former::input('white_label_license_key') !!}
               {!! Former::close() !!}
+          </div>
+          </div>
           </div>
 
           <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
@@ -85,6 +94,26 @@
 
     function buyProduct(affiliateKey, productId) {
         window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/buy_now/?account_key={{ NINJA_LICENSE_ACCOUNT_KEY }}&product_id=' + productId + '&contact_key={{ Auth::user()->primaryAccount()->account_key }}' + '&redirect_url=' + window.location.href);
+        /*
+        var url = '{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/buy_now/';
+        $.ajax({
+           url: url,
+           type: 'POST',
+           data: {
+               'account_key': '{{ NINJA_LICENSE_ACCOUNT_KEY }}',
+               'contact_key': '{{ Auth::user()->primaryAccount()->account_key }}',
+               'product_id': productId,
+               'first_name': '{{ Auth::user()->first_name }}',
+               'last_name': '{{ Auth::user()->last_name }}',
+               'email': '{{ Auth::user()->email }}',
+               'redirect_url': window.location.href,
+               'return_link': true,
+           },
+           success: function(response) {
+               openUrl(response, '/white_label')
+           }
+        });
+        */
     }
 
     function showApplyLicense() {

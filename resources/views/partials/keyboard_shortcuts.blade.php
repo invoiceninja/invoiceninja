@@ -31,6 +31,9 @@
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel">{{ trans('texts.keyboard_shortcuts') }}</h4>
       </div>
+
+      <div class="container" style="width: 100%; padding-bottom: 0px !important">
+      <div class="panel panel-default">
       <div class="panel-body help-panel">
           <div class="row">
               <div class="col-md-3"><div>?</div></div>
@@ -46,13 +49,13 @@
           </div>
           <div class="row">
               <div class="col-md-3"><div>M</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.toggle_menu') }}</div>
+              <div class="col-md-3 key-label">{{ trans('texts.menu') }}</div>
               <div class="col-md-3"><div>N</div><div>...</div></div>
               <div class="col-md-3 key-label">{{ trans('texts.new_...') }}</div>
           </div>
           <div class="row">
               <div class="col-md-3"><div>H</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.toggle_history') }}</div>
+              <div class="col-md-3 key-label">{{ trans('texts.history') }}</div>
           </div>
           <div class="row">
               <div class="col-md-3"></div>
@@ -73,6 +76,8 @@
               <div class="col-md-3 key-label">{{ trans('texts.list_...') }}</div>
           </div>
       </div>
+      </div>
+      </div>
 
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
@@ -89,6 +94,15 @@
 
     $(function() {
 
+        var settingsURL = '{{ url('/settings/company_details') }}';
+        if (isStorageSupported()) {
+            settingsURL = localStorage.getItem('last:settings_page') || settingsURL;
+        }
+        // if they're on the last viewed settings page link to main settings page
+        if ('{{ request()->url() }}' != settingsURL) {
+            $('.nav-settings .nav-link').attr("href", settingsURL);
+        }
+
         Mousetrap.bind('?', function(e) {
             showKeyboardShortcuts();
         });
@@ -102,8 +116,12 @@
             location.href = "{{ url('/dashboard') }}";
         });
 
+        Mousetrap.bind('g r', function(e) {
+            location.href = "{{ url('/reports') }}";
+        });
+
         Mousetrap.bind('g s', function(e) {
-            location.href = "{{ url('/settings/company_details') }}";
+            location.href = settingsURL;
         });
 
         Mousetrap.bind('h', function(e) {
@@ -131,6 +149,32 @@
                 location.href = "{{ url($value . 's') }}";
             });
         @endforeach
+
+        @foreach([
+            'g c d' => 'company_details',
+            'g u d' => 'user_details',
+            'g l' => 'localization',
+            'g o p' => 'online_payments',
+            'g t x' => 'tax_rates',
+            'g p' => 'products',
+            'g n' => 'notifications',
+            'g i e' => 'import_export',
+            'g a m' => 'account_management',
+            'g i s' => 'invoice_settings',
+            'g i d' => 'invoice_design',
+            'g c p' => 'client_portal',
+            'g e' => 'email_settings',
+            'g t r' => 'templates_and_reminders',
+            'g c c' => 'bank_accounts',
+            'g d v' => 'data_visualizations',
+            'g a t' => 'api_tokens',
+            'g u m' => 'user_management',
+        ] as $key => $val)
+            Mousetrap.bind('{{ $key }}', function(e) {
+                location.href = "{!! url('/settings/' . $val) !!}";
+            });
+        @endforeach
+
 
     });
 </script>

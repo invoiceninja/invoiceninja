@@ -24,8 +24,12 @@
 	@if ($client)
 		{!! Former::populate($client) !!}
         {!! Former::hidden('public_id') !!}
-	@elseif ($account->client_number_counter)
-		{!! Former::populateField('id_number', $account->getNextNumber()) !!}
+	@else
+		{!! Former::populateField('invoice_number_counter', 1) !!}
+		{!! Former::populateField('quote_number_counter', 1) !!}
+		@if ($account->client_number_counter)
+			{!! Former::populateField('id_number', $account->getNextNumber()) !!}
+		@endif
 	@endif
 
 	<div class="row">
@@ -52,8 +56,16 @@
 					{!! Former::text('custom_value2')->label($customLabel2) !!}
 				@endif
 			@endif
+
+			@if ($account->usesClientInvoiceCounter())
+				{!! Former::text('invoice_number_counter')->label('invoice_counter') !!}
+
+				@if (! $account->share_counter)
+					{!! Former::text('quote_number_counter')->label('quote_counter') !!}
+				@endif
+			@endif
             </div>
-            </div>
+        </div>
 
         <div class="panel panel-default" style="min-height: 500px">
           <div class="panel-heading">
@@ -96,7 +108,7 @@
                         attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
 				@if ($account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password)
 					{!! Former::password('password')->data_bind("value: password()?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
-						attr: {name: 'contacts[' + \$index() + '][password]'}") !!}
+						attr: {name: 'contacts[' + \$index() + '][password]'}")->autocomplete('new-password') !!}
 			    @endif
 				<div class="form-group">
 					<div class="col-lg-8 col-lg-offset-4 bold">

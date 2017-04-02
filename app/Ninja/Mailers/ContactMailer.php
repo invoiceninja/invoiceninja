@@ -36,7 +36,7 @@ class ContactMailer extends Mailer
      *
      * @return bool|null|string
      */
-    public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false, $template = false)
+    public function sendInvoice(Invoice $invoice, $reminder = false, $template = false)
     {
         if ($invoice->is_recurring) {
             return false;
@@ -61,8 +61,9 @@ class ContactMailer extends Mailer
         $emailSubject = !empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
 
         $sent = false;
+        $pdfString = false;
 
-        if ($account->attachPDF() && ! $pdfString) {
+        if ($account->attachPDF()) {
             $pdfString = $invoice->getPDFString();
         }
 
@@ -198,7 +199,7 @@ class ContactMailer extends Mailer
         }
 
         $subject = $this->templateService->processVariables($subject, $variables);
-        $fromEmail = $user->email;
+        $fromEmail = $account->getReplyToEmail() ?: $user->email;
         $view = $account->getTemplateView(ENTITY_INVOICE);
 
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
@@ -290,9 +291,10 @@ class ContactMailer extends Mailer
         $data['invoice_id'] = $payment->invoice->id;
 
         $view = $account->getTemplateView('payment_confirmation');
+        $fromEmail = $account->getReplyToEmail() ?: $user->email;
 
         if ($user->email && $contact->email) {
-            $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
+            $this->sendTo($contact->email, $fromEmail, $accountName, $subject, $view, $data);
         }
 
         $account->loadLocalizationSettings();

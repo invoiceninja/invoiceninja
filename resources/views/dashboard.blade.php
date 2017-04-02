@@ -18,11 +18,10 @@
     @if (Auth::user()->hasPermission('view_all'))
         function loadChart(data) {
             var ctx = document.getElementById('chart-canvas').getContext('2d');
-
             if (window.myChart) {
                 window.myChart.config.data = data;
-                window.myChart.config.options.scales.xAxes[0].time.unit = chartGropuBy.toLowerCase();
-                window.myChart.config.options.scales.xAxes[0].time.round = chartGropuBy.toLowerCase();
+                window.myChart.config.options.scales.xAxes[0].time.unit = chartGroupBy.toLowerCase();
+                window.myChart.config.options.scales.xAxes[0].time.round = chartGroupBy.toLowerCase();
                 window.myChart.update();
             } else {
                 $('#progress-div').hide();
@@ -63,8 +62,8 @@
                             xAxes: [{
                                 type: 'time',
                                 time: {
-                                    unit: 'day',
-                                    round: 'day',
+                                    unit: chartGroupBy,
+                                    round: chartGroupBy,
                                 },
                                 gridLines: {
                                     display: false,
@@ -85,14 +84,40 @@
         }
 
         var account = {!! $account !!};
-        var chartStartDate = moment().subtract(29, 'days');
-        var chartEndDate = moment();
-        var chartGropuBy = 'day';
+        var chartGroupBy = 'day';
         var chartCurrencyId = {{ $account->getCurrencyId() }};
+		var dateRanges = {!! $account->present()->dateRangeOptions !!};
+		var chartStartDate;
+        var chartEndDate;
 
         $(function() {
 
             // Initialize date range selector
+			chartStartDate = moment().subtract(29, 'days');
+	        chartEndDate = moment();
+
+			if (isStorageSupported()) {
+				var lastRange = localStorage.getItem('last:dashboard_range');
+				lastRange = dateRanges[lastRange];
+				if (lastRange) {
+					chartStartDate = lastRange[0];
+					chartEndDate = lastRange[1];
+				}
+
+				@if (count($currencies) > 1)
+					var currencyId = localStorage.getItem('last:dashboard_currency_id');
+					if (currencyId) {
+						chartCurrencyId = currencyId;
+						$("#currency-btn-group [data-button=\"" + chartCurrencyId + "\"]").addClass("active").siblings().removeClass("active");
+					}
+				@endif
+
+				var groupBy = localStorage.getItem('last:dashboard_group_by');
+				if (groupBy) {
+					chartGroupBy = groupBy;
+					$("#group-btn-group [data-button=\"" + groupBy + "\"]").addClass("active").siblings().removeClass("active");
+				}
+			}
 
             function cb(start, end, label) {
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
@@ -100,6 +125,10 @@
                 chartEndDate = end;
 				$('.range-label-div').text(label);
                 loadData();
+
+				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
+					localStorage.setItem('last:dashboard_range', label);
+				}
             }
 
             $('#reportrange').daterangepicker({
@@ -110,7 +139,7 @@
 				startDate: chartStartDate,
                 endDate: chartEndDate,
                 linkedCalendars: false,
-                ranges: {!! $account->present()->dateRangeOptions !!}
+                ranges: dateRanges,
             }, cb);
 
             cb(chartStartDate, chartEndDate);
@@ -119,17 +148,23 @@
                 $(this).addClass("active").siblings().removeClass("active");
                 chartCurrencyId = currencyMap[$(this).text()].id;
                 loadData();
+				if (isStorageSupported()) {
+					localStorage.setItem('last:dashboard_currency_id', $(this).attr('data-button'));
+				}
             });
 
             $("#group-btn-group > .btn").click(function(){
                 $(this).addClass("active").siblings().removeClass("active");
-                chartGropuBy = $(this).attr('data-button');
+                chartGroupBy = $(this).attr('data-button');
                 loadData();
+				if (isStorageSupported()) {
+					localStorage.setItem('last:dashboard_group_by', chartGroupBy);
+				}
             });
 
             function loadData() {
                 var includeExpenses = "{{ count($expenses) ? 'true' : 'false' }}";
-                var url = "{!! url('/dashboard_chart_data') !!}/" + chartGropuBy + '/' + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD') + '/' + chartCurrencyId + '/' + includeExpenses;
+                var url = "{!! url('/dashboard_chart_data') !!}/" + chartGroupBy + '/' + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD') + '/' + chartCurrencyId + '/' + includeExpenses;
                 $.get(url, function(response) {
                     response = JSON.parse(response);
                     loadChart(response.data);
@@ -183,7 +218,7 @@
             <div id="currency-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc;">
               @foreach ($currencies as $key => $val)
                 <button type="button" class="btn btn-normal {{ array_values($currencies)[0] == $val ? 'active' : '' }}"
-                    style="font-weight:normal !important;background-color:white">{{ $val }}</button>
+                    data-button="{{ $key }}" style="font-weight:normal !important;background-color:white">{{ $val }}</button>
               @endforeach
             </div>
             @endif
@@ -349,10 +384,10 @@
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
                     @if ($invoicesSent)
                         <div class="pull-right" style="font-size:14px;padding-top:4px">
-							@if (in_array(App::getLocale(), ['pl', 'cs', 'hr', 'lt']))
-								<!-- https://github.com/invoiceninja/invoiceninja/issues/613 -->
+							@if ($invoicesSent == 1)
+								{{ trans('texts.invoice_sent', ['count' => $invoicesSent]) }}
 							@else
-								{{ trans_choice('texts.invoices_sent', $invoicesSent) }}
+								{{ trans('texts.invoices_sent', ['count' => $invoicesSent]) }}
 							@endif
                         </div>
                     @endif

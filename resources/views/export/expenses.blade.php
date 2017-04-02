@@ -25,5 +25,3 @@
         <td>{{ $expense->private_notes }}</td>
     </tr>
 @endforeach
-
-<tr><td></td></tr>

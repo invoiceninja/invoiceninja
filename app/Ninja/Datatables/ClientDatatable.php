@@ -33,6 +33,13 @@ class ClientDatatable extends EntityDatatable
                 },
             ],
             [
+                'id_number',
+                function ($model) {
+                    return $model->id_number;
+                },
+                Auth::user()->account->clientNumbersEnabled()
+            ],
+            [
                 'client_created_at',
                 function ($model) {
                     return Utils::timestampToDateString(strtotime($model->created_at));

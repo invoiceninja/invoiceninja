@@ -5,6 +5,7 @@ namespace App\Ninja\PaymentDrivers;
 use Braintree\Customer;
 use Exception;
 use Session;
+use App\Models\GatewayType;
 
 class BraintreePaymentDriver extends BasePaymentDriver
 {
@@ -60,6 +61,17 @@ class BraintreePaymentDriver extends BasePaymentDriver
             ->getData();
 
         return $customer instanceof Customer;
+    }
+
+    protected function paymentUrl($gatewayTypeAlias)
+    {
+        $url = parent::paymentUrl($gatewayTypeAlias);
+
+        if (GatewayType::getIdFromAlias($gatewayTypeAlias) === GATEWAY_TYPE_PAYPAL) {
+            $url .= '#braintree_paypal';
+        }
+
+        return $url;
     }
 
     protected function paymentDetails($paymentMethod = false)

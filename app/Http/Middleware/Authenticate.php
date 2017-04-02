@@ -56,12 +56,14 @@ class Authenticate
                 $contact_key = session('contact_key');
             }
 
+            $contact = false;
             if ($contact_key) {
                 $contact = $this->getContact($contact_key);
             } elseif ($invitation = $this->getInvitation($request->invitation_key)) {
                 $contact = $invitation->contact;
                 Session::put('contact_key', $contact->contact_key);
-            } else {
+            }
+            if (! $contact) {
                 return \Redirect::to('client/sessionexpired');
             }
             $account = $contact->account;
@@ -113,6 +115,7 @@ class Authenticate
 
         // check for extra params at end of value (from website feature)
         list($key) = explode('&', $key);
+        $key = substr($key, 0, RANDOM_KEY_LENGTH);
 
         $invitation = Invitation::withTrashed()->where('invitation_key', '=', $key)->first();
         if ($invitation && ! $invitation->is_deleted) {

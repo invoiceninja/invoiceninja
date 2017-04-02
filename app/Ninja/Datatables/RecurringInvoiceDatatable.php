@@ -5,6 +5,7 @@ namespace App\Ninja\Datatables;
 use Auth;
 use URL;
 use Utils;
+use App\Models\Invoice;
 
 class RecurringInvoiceDatatable extends EntityDatatable
 {
@@ -32,19 +33,19 @@ class RecurringInvoiceDatatable extends EntityDatatable
             [
                 'start_date',
                 function ($model) {
-                    return Utils::fromSqlDate($model->start_date);
+                    return Utils::fromSqlDate($model->start_date_sql);
                 },
             ],
             [
                 'last_sent',
                 function ($model) {
-                    return Utils::fromSqlDate($model->last_sent_date);
+                    return Utils::fromSqlDate($model->last_sent_date_sql);
                 },
             ],
             [
                 'end_date',
                 function ($model) {
-                    return Utils::fromSqlDate($model->end_date);
+                    return Utils::fromSqlDate($model->end_date_sql);
                 },
             ],
             [
@@ -53,7 +54,25 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
                 },
             ],
+            [
+                'status',
+                function ($model) {
+                    return self::getStatusLabel($model);
+                },
+            ],
         ];
+    }
+
+    private function getStatusLabel($model)
+    {
+        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date_sql, $model->is_recurring);
+        $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
+
+        if ($model->invoice_status_id == INVOICE_STATUS_SENT && (! $model->last_sent_date_sql || $model->last_sent_date_sql == '0000-00-00')) {
+            $label = trans('texts.pending');
+        }
+
+        return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
 
     public function actions()

@@ -92,7 +92,7 @@ class PaymentDatatable extends EntityDatatable
                 },
             ],
             [
-                'payment_date',
+                'date',
                 function ($model) {
                     if ($model->is_deleted) {
                         return Utils::dateToString($model->payment_date);

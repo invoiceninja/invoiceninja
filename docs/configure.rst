@@ -59,12 +59,14 @@ If you require contacts to enter a password to see their invoice you'll need to 
 
 You can install PhantomJS to generate the PDF locally, to enable it add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs``.
 
+We suggest using version >= 2.1.1, users have reported seeing 'Error: 0' with older versions.
+
 .. TIP:: To determine the path you can run ``which phantomjs`` from the command line.
 
 Custom Fonts
 """"""""""""
 
-Follow these steps to add custom ttf fonts: ie, Google fonts
+Follow these steps to add custom ttf fonts: ie, `Google fonts <https://www.google.com/get/noto/>`_
 
 - Create a new folder in ``public/fonts/invoice-fonts/`` and copy over the ttf files
 - Run ``grunt dump_dir``
@@ -72,10 +74,25 @@ Follow these steps to add custom ttf fonts: ie, Google fonts
 - Run ``php artisan db:seed --class=FontsSeeder``
 - Clear the cache by adding ``?clear_cache=true`` to the end of the URL
 
+Omnipay
+"""""""
+
+We use `Omnipay <https://github.com/thephpleague/omnipay-braintree>`_ to support our payment gateway integrations.
+
+Follow these steps to add a driver.
+
+- Add the package to composer.json and then run ``composer install``
+- Add a row to the gateways table. ``name`` is used in the gateway select, ``provider`` needs to match the Omnipay driver name
+- Clear the cache by adding ``?clear_cache=true`` to the end of the URL
+
+.. NOTE:: Most drivers also require `code changes <https://github.com/invoiceninja/invoiceninja/tree/master/app/Ninja/PaymentDrivers>`_ to work correctly.
+
 Google Map
 """"""""""
 
 You need to create a Google Maps API key for the Javascript, Geocoding and Embed APIs and then add ``GOOGLE_MAPS_API_KEY=your_key`` to the .env file.
+
+You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env file.
 
 Using a Proxy
 """""""""""""

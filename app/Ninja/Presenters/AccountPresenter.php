@@ -149,4 +149,28 @@ class AccountPresenter extends Presenter
 
         return $options;
     }
+
+    public function customTextFields()
+    {
+        $fields = [
+            'custom_client_label1' => 'custom_client1',
+            'custom_client_label2' => 'custom_client2',
+            'custom_invoice_text_label1' => 'custom_invoice1',
+            'custom_invoice_text_label2' => 'custom_invoice2',
+            'custom_invoice_item_label1' => 'custom_product1',
+            'custom_invoice_item_label2' => 'custom_product2',
+        ];
+        $data = [];
+
+        foreach ($fields as $key => $val) {
+            if ($this->$key) {
+                $data[$this->$key] = [
+                    'value' => $val,
+                    'name' => $val,
+                ];
+            }
+        }
+
+        return $data;
+    }
 }

@@ -3,6 +3,7 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\Account;
+use App\Models\AccountEmailSettings;
 use App\Models\AccountGateway;
 use App\Models\AccountToken;
 use App\Models\Client;
@@ -27,19 +28,21 @@ use Validator;
 
 class AccountRepository
 {
-    public function create($firstName = '', $lastName = '', $email = '', $password = '')
+    public function create($firstName = '', $lastName = '', $email = '', $password = '', $company = false)
     {
-        $company = new Company();
-        $company->utm_source = Input::get('utm_source');
-        $company->utm_medium = Input::get('utm_medium');
-        $company->utm_campaign = Input::get('utm_campaign');
-        $company->utm_term = Input::get('utm_term');
-        $company->utm_content = Input::get('utm_content');
-        $company->save();
+        if (! $company) {
+            $company = new Company();
+            $company->utm_source = Input::get('utm_source');
+            $company->utm_medium = Input::get('utm_medium');
+            $company->utm_campaign = Input::get('utm_campaign');
+            $company->utm_term = Input::get('utm_term');
+            $company->utm_content = Input::get('utm_content');
+            $company->save();
+        }
 
         $account = new Account();
         $account->ip = Request::getClientIp();
-        $account->account_key = str_random(RANDOM_KEY_LENGTH);
+        $account->account_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         $account->company_id = $company->id;
 
         // Track referal code
@@ -59,14 +62,14 @@ class AccountRepository
 
         $user = new User();
         if (! $firstName && ! $lastName && ! $email && ! $password) {
-            $user->password = str_random(RANDOM_KEY_LENGTH);
-            $user->username = str_random(RANDOM_KEY_LENGTH);
+            $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->username = strtolower(str_random(RANDOM_KEY_LENGTH));
         } else {
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->email = $user->username = $email;
             if (! $password) {
-                $password = str_random(RANDOM_KEY_LENGTH);
+                $password = strtolower(str_random(RANDOM_KEY_LENGTH));
             }
             $user->password = bcrypt($password);
         }
@@ -75,10 +78,13 @@ class AccountRepository
         $user->registered = ! Utils::isNinja() || $email;
 
         if (! $user->confirmed) {
-            $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
+            $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
         }
 
         $account->users()->save($user);
+
+        $emailSettings = new AccountEmailSettings();
+        $account->account_email_settings()->save($emailSettings);
 
         return $account;
     }
@@ -126,7 +132,7 @@ class AccountRepository
         foreach ($clients as $client) {
             if ($client->name) {
                 $data['clients'][] = [
-                    'value' => $client->name,
+                    'value' => ($account->clientNumbersEnabled() && $client->id_number ? $client->id_number . ': ' : '') . $client->name,
                     'tokens' => implode(',', [$client->name, $client->id_number, $client->vat_number, $client->work_phone]),
                     'url' => $client->present()->url,
                 ];
@@ -326,7 +332,7 @@ class AccountRepository
         $invitation->public_id = $publicId;
         $invitation->invoice_id = $invoice->id;
         $invitation->contact_id = $client->contacts()->first()->id;
-        $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
+        $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         $invitation->save();
 
         return $invitation;
@@ -350,7 +356,7 @@ class AccountRepository
             $account->company_id = $company->id;
             $account->save();
 
-            $random = str_random(RANDOM_KEY_LENGTH);
+            $random = strtolower(str_random(RANDOM_KEY_LENGTH));
             $user = new User();
             $user->registered = true;
             $user->confirmed = true;
@@ -617,61 +623,7 @@ class AccountRepository
 
         $record->save();
 
-        $users = $this->getUserAccounts($record);
-
-        // Pick the primary user
-        foreach ($users as $user) {
-            if (! $user->public_id) {
-                $useAsPrimary = false;
-                if (empty($primaryUser)) {
-                    $useAsPrimary = true;
-                }
-
-                $planDetails = $user->account->getPlanDetails(false, false);
-                $planLevel = 0;
-
-                if ($planDetails) {
-                    $planLevel = 1;
-                    if ($planDetails['plan'] == PLAN_ENTERPRISE) {
-                        $planLevel = 2;
-                    }
-
-                    if (! $useAsPrimary && (
-                        $planLevel > $primaryUserPlanLevel
-                        || ($planLevel == $primaryUserPlanLevel && $planDetails['expires'] > $primaryUserPlanExpires)
-                    )) {
-                        $useAsPrimary = true;
-                    }
-                }
-
-                if ($useAsPrimary) {
-                    $primaryUser = $user;
-                    $primaryUserPlanLevel = $planLevel;
-                    if ($planDetails) {
-                        $primaryUserPlanExpires = $planDetails['expires'];
-                    }
-                }
-            }
-        }
-
-        // Merge other companies into the primary user's company
-        if (! empty($primaryUser)) {
-            foreach ($users as $user) {
-                if ($user == $primaryUser || $user->public_id) {
-                    continue;
-                }
-
-                if ($user->account->company_id != $primaryUser->account->company_id) {
-                    foreach ($user->account->company->accounts as $account) {
-                        $account->company_id = $primaryUser->account->company_id;
-                        $account->save();
-                    }
-                    $user->account->company->forceDelete();
-                }
-            }
-        }
-
-        return $users;
+        return $this->loadAccounts($userId1);
     }
 
     public function unlinkAccount($account)
@@ -731,7 +683,7 @@ class AccountRepository
 
             $token = AccountToken::createNew($user);
             $token->name = $name;
-            $token->token = str_random(RANDOM_KEY_LENGTH);
+            $token->token = strtolower(str_random(RANDOM_KEY_LENGTH));
             $token->save();
         }
     }

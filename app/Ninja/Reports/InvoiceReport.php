@@ -12,6 +12,7 @@ class InvoiceReport extends AbstractReport
         'invoice_number',
         'invoice_date',
         'amount',
+        'status',
         'payment_date',
         'paid',
         'method',
@@ -23,6 +24,7 @@ class InvoiceReport extends AbstractReport
         $status = $this->options['invoice_status'];
 
         $clients = Client::scope()
+                        ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
                         ->with(['invoices' => function ($query) use ($status) {
@@ -56,6 +58,7 @@ class InvoiceReport extends AbstractReport
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
                         $account->formatMoney($invoice->amount, $client),
+                        $invoice->present()->status(),
                         $payment ? $payment->present()->payment_date : '',
                         $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',

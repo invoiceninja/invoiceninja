@@ -49,10 +49,10 @@ class ExpenseDatatable extends EntityDatatable
                 'expense_date',
                 function ($model) {
                     if (! Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
-                        return Utils::fromSqlDate($model->expense_date);
+                        return Utils::fromSqlDate($model->expense_date_sql);
                     }
 
-                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date))->toHtml();
+                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml();
                 },
             ],
             [
@@ -73,7 +73,12 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'category',
                 function ($model) {
-                    return $model->category != null ? substr($model->category, 0, 100) : '';
+                    $category = $model->category != null ? substr($model->category, 0, 100) : '';
+                    if (! Auth::user()->can('editByOwner', [ENTITY_EXPENSE_CATEGORY, $model->category_user_id])) {
+                        return $category;
+                    }
+
+                    return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
                 },
             ],
             [

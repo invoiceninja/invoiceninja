@@ -46,7 +46,7 @@ class CheckBalanceCest
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->click('Mark Sent');
-        $I->wait(2);
+        $I->wait(5);
         $I->see($clientEmail);
         $invoiceId = $I->grabFromCurrentUrl('~invoices/(\d+)~');
         $I->amOnPage("/clients/{$clientId}");
@@ -55,7 +55,7 @@ class CheckBalanceCest
         // update the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
         $I->fillField(['name' => 'invoice_items[0][qty]'], 2);
-        $I->click('Save');
+        $I->click('Save Invoice');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
         $I->see('Balance $' . ($productPrice * 2));

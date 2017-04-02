@@ -21,6 +21,7 @@ class ExpenseReport extends AbstractReport
         $account = Auth::user()->account;
 
         $expenses = Expense::scope()
+                        ->orderBy('expense_date', 'desc')
                         ->withArchived()
                         ->with('client.contacts', 'vendor')
                         ->where('expense_date', '>=', $this->startDate)

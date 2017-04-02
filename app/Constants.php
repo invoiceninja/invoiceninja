@@ -41,6 +41,11 @@ if (! defined('APP_NAME')) {
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
 
+    define('INVOICE_ITEM_TYPE_STANDARD', 1);
+    define('INVOICE_ITEM_TYPE_TASK', 2);
+    define('INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE', 3);
+    define('INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE', 4);
+
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
     define('PERSON_VENDOR_CONTACT', 'vendorcontact');
@@ -283,7 +288,6 @@ if (! defined('APP_NAME')) {
 
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
     define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
-    define('PREV_USER_ID', 'PREV_USER_ID');
     define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
     define('NINJA_LICENSE_ACCOUNT_KEY', 'AsFmBAeLXF0IKf7tmi0eiyZfmWW9hxMT');
     define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
@@ -292,7 +296,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.1.3' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.2.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));

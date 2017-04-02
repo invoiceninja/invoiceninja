@@ -23,6 +23,7 @@ class SaveEmailSettings extends Request
     {
         return [
             'bcc_email' => 'email',
+            'reply_to_email' => 'email',
         ];
     }
 }

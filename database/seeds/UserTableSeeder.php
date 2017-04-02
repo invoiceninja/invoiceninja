@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Account;
+use App\Models\AccountEmailSettings;
 use App\Models\Affiliate;
 use App\Models\Client;
 use App\Models\Company;
@@ -31,7 +32,7 @@ class UserTableSeeder extends Seeder
             'state' => $faker->state,
             'postal_code' => $faker->postcode,
             'country_id' => Country::all()->random()->id,
-            'account_key' => str_random(RANDOM_KEY_LENGTH),
+            'account_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
             'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),
             'work_phone' => $faker->phoneNumber,
             'work_email' => $faker->safeEmail,
@@ -42,6 +43,10 @@ class UserTableSeeder extends Seeder
             'timezone_id' => 58,
             'company_id' => $company->id,
             'pdf_email_attachment' => true,
+        ]);
+
+        $emailSettings = AccountEmailSettings::create([
+            'account_id' => $account->id
         ]);
 
         $user = User::create([

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\ExpenseRequest;
+use App\Http\Requests\CreateExpenseRequest;
 use App\Http\Requests\UpdateExpenseRequest;
 use App\Models\Expense;
 use App\Ninja\Repositories\ExpenseRepository;
@@ -28,11 +28,12 @@ class ExpenseApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/expenses",
-     *   summary="List of expenses",
+     *   summary="List expenses",
+     *   operationId="listExpenses",
      *   tags={"expense"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with expenses",
+     *     description="A list of expenses",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Expense"))
      *   ),
      *   @SWG\Response(
@@ -52,13 +53,42 @@ class ExpenseApiController extends BaseAPIController
     }
 
     /**
+     * @SWG\Get(
+     *   path="/expenses/{expense_id}",
+     *   summary="Retrieve an expense",
+     *   operationId="getExpense",
+     *   tags={"expense"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="expense_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single expense",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Expense"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function show(ExpenseRequest $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+    /**
      * @SWG\Post(
      *   path="/expenses",
+     *   summary="Create an expense",
+     *   operationId="createExpense",
      *   tags={"expense"},
-     *   summary="Create a expense",
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="expense",
      *     @SWG\Schema(ref="#/definitions/Expense")
      *   ),
      *   @SWG\Response(
@@ -86,16 +116,23 @@ class ExpenseApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/expenses/{expense_id}",
+     *   summary="Update an expense",
+     *   operationId="updateExpense",
      *   tags={"expense"},
-     *   summary="Update a expense",
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="expense_id",
+     *     type="integer",
+     *     required=true
+     *   ),
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="expense",
      *     @SWG\Schema(ref="#/definitions/Expense")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update expense",
+     *     description="Updated expense",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Expense"))
      *   ),
      *   @SWG\Response(
@@ -122,16 +159,18 @@ class ExpenseApiController extends BaseAPIController
     /**
      * @SWG\Delete(
      *   path="/expenses/{expense_id}",
+     *   summary="Delete an expense",
+     *   operationId="deleteExpense",
      *   tags={"expense"},
-     *   summary="Delete a expense",
      *   @SWG\Parameter(
-     *     in="body",
-     *     name="body",
-     *     @SWG\Schema(ref="#/definitions/Expense")
+     *     in="path",
+     *     name="expense_id",
+     *     type="integer",
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Delete expense",
+     *     description="Deleted expense",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Expense"))
      *   ),
      *   @SWG\Response(
@@ -140,7 +179,7 @@ class ExpenseApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(ExpenseRequest $request)
+    public function destroy(UpdateExpenseRequest $request)
     {
         $expense = $request->entity();
 

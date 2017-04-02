@@ -56,7 +56,7 @@ class AppController extends BaseController
         $test = Input::get('test');
 
         $app = Input::get('app');
-        $app['key'] = env('APP_KEY') ?: str_random(RANDOM_KEY_LENGTH);
+        $app['key'] = env('APP_KEY') ?: strtolower(str_random(RANDOM_KEY_LENGTH));
         $app['debug'] = Input::get('debug') ? 'true' : 'false';
         $app['https'] = Input::get('https') ? 'true' : 'false';
 
@@ -101,7 +101,7 @@ class AppController extends BaseController
         $_ENV['MAIL_FROM_ADDRESS'] = $mail['from']['address'];
         $_ENV['MAIL_PASSWORD'] = $mail['password'];
         $_ENV['PHANTOMJS_CLOUD_KEY'] = 'a-demo-key-with-low-quota-per-ip-address';
-        $_ENV['PHANTOMJS_SECRET'] = str_random(RANDOM_KEY_LENGTH);
+        $_ENV['PHANTOMJS_SECRET'] = strtolower(str_random(RANDOM_KEY_LENGTH));
         $_ENV['MAILGUN_DOMAIN'] = $mail['mailgun_domain'];
         $_ENV['MAILGUN_SECRET'] = $mail['mailgun_secret'];
 
@@ -191,7 +191,8 @@ class AppController extends BaseController
             $config .= "{$key}={$val}\n";
         }
 
-        $fp = fopen(base_path().'/.env', 'w');
+        $filePath = base_path().'/.env';
+        $fp = fopen($filePath, 'w');
         fwrite($fp, $config);
         fclose($fp);
 
@@ -343,6 +344,16 @@ class AppController extends BaseController
         return $this->emailService->markOpened($messageId) ? RESULT_SUCCESS : RESULT_FAILURE;
 
         return RESULT_SUCCESS;
+    }
+
+    public function checkData()
+    {
+        try {
+            Artisan::call('ninja:check-data');
+            return RESULT_SUCCESS;
+        } catch (Exception $exception) {
+            return RESULT_FAILURE;
+        }
     }
 
     public function stats()

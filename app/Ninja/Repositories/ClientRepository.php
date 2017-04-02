@@ -51,7 +51,8 @@ class ClientRepository extends BaseRepository
                         'contacts.email',
                         'clients.deleted_at',
                         'clients.is_deleted',
-                        'clients.user_id'
+                        'clients.user_id',
+                        'clients.id_number'
                     );
 
         $this->applyFilters($query, ENTITY_CLIENT);
@@ -80,11 +81,13 @@ class ClientRepository extends BaseRepository
             // do nothing
         } elseif (! $publicId || $publicId == '-1') {
             $client = Client::createNew();
-            if (Auth::check() && Auth::user()->account->client_number_counter && empty($data['id_number'])) {
-                $data['id_number'] = Auth::user()->account->getNextNumber();
-            }
         } else {
             $client = Client::scope($publicId)->with('contacts')->firstOrFail();
+        }
+
+        // auto-set the client id number
+        if (Auth::check() && Auth::user()->account->client_number_counter && !$client->id_number && empty($data['id_number'])) {
+            $data['id_number'] = Auth::user()->account->getNextNumber();
         }
 
         if ($client->is_deleted) {

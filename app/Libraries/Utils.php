@@ -394,6 +394,7 @@ class Utils
             'user_name' => Auth::check() ? Auth::user()->getDisplayName() : '',
             'method' => Request::method(),
             'url' => Input::get('url', Request::url()),
+            'previous' => url()->previous(),
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Account;
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
@@ -57,8 +58,17 @@ class SendRecurringInvoices extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running SendRecurringInvoices...');
+        $this->info(date('Y-m-d H:i:s') . ' Running SendRecurringInvoices...');
         $today = new DateTime();
+
+        // check for counter resets
+        $accounts = Account::where('reset_counter_frequency_id', '>', 0)
+            ->orderBy('id', 'asc')
+            ->get();
+
+        foreach ($accounts as $account) {
+            $account->checkCounterReset();
+        }
 
         $invoices = Invoice::with('account.timezone', 'invoice_items', 'client', 'user')
             ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND is_recurring IS TRUE AND is_public IS TRUE AND frequency_id > 0 AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
@@ -74,7 +84,8 @@ class SendRecurringInvoices extends Command
                 continue;
             }
 
-            $recurInvoice->account->loadLocalizationSettings($recurInvoice->client);
+            $account = $recurInvoice->account;
+            $account->loadLocalizationSettings($recurInvoice->client);
             $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 
             if ($invoice && ! $invoice->isPaid()) {
@@ -103,7 +114,7 @@ class SendRecurringInvoices extends Command
             }
         }
 
-        $this->info('Done');
+        $this->info(date('Y-m-d H:i:s') . ' Done');
     }
 
     /**

@@ -51,10 +51,12 @@
 
                 <div role="tabpanel">
                     <ul class="nav nav-tabs" role="tablist" style="border: none">
-                        <li role="presentation" class="active">
-                            <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
-                        </li>
-                        <li role="presentation">
+                        @if (Utils::isNinja())
+                            <li role="presentation" class="active">
+                                <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                            </li>
+                        @endif
+                        <li role="presentation" {{ Utils::isNinja() ? '' : 'class="active"' }}>
                             <a href="#navigation" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.navigation') }}</a>
                         </li>
                         <li role="presentation">
@@ -64,10 +66,11 @@
                 </div>
 
                 <div class="tab-content">
+                    @if (Utils::isNinja())
                     <div role="tabpanel" class="tab-pane active" id="link">
                         <div class="panel-body">
 
-                            @if (Utils::isNinja() && ! Utils::isReseller())
+                            @if (! Utils::isReseller())
                                 {!! Former::inline_radios('domain_id')
                                         ->label(trans('texts.domain'))
                                         ->radios([
@@ -105,7 +108,8 @@
 
                         </div>
                     </div>
-                    <div role="tabpanel" class="tab-pane" id="navigation">
+                    @endif
+                    <div role="tabpanel" class="tab-pane  {{ Utils::isNinja() ? '' : 'active' }}" id="navigation">
                         <div class="panel-body">
 
                             {!! Former::checkbox('enable_client_portal')
@@ -236,13 +240,11 @@
                                 ->inlineHelp('buy_now_buttons_warning')
                                 ->addGroupClass('product-select') !!}
 
-                            {!! Former::inline_checkboxes('client_fields')
-                                    ->onchange('updateBuyNowButtons()')
-                                    ->checkboxes([
-                                        trans('texts.email') => ['value' => 'email', 'name' => 'email'],
-                                        trans('texts.first_name') => ['value' => 'first_name', 'name' => 'first_name'],
-                                        trans('texts.last_name') => ['value' => 'last_name', 'name' => 'last_name'],
-                                    ]) !!}
+                            @if (count($account->present()->customTextFields))
+                                {!! Former::inline_checkboxes('custom_fields')
+                                        ->onchange('updateBuyNowButtons()')
+                                        ->checkboxes($account->present()->customTextFields) !!}
+                            @endif
 
                             {!! Former::inline_radios('landing_page')
                                     ->onchange('showPaymentTypes();updateBuyNowButtons();')
@@ -342,7 +344,7 @@
             </div>
 
             <div class="container" style="width: 100%; padding-bottom: 0px !important">
-            <div class="panel panel-default" style="margin-bottom: 0px">
+            <div class="panel panel-default">
             <div class="panel-body">
                 <p>{{ trans('texts.iframe_url_help1') }}</p>
                 <pre>&lt;center&gt;
@@ -351,7 +353,7 @@
 &lt;script language="javascript"&gt;
 var iframe = document.getElementById('invoiceIFrame');
 iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
-             + window.location.search.substring(1);
+             + window.location.search.substring(1, 33);
 &lt;/script&gt;</pre>
                 <p>{{ trans('texts.iframe_url_help2') }}</p>
                 <p><b>{{ trans('texts.iframe_url_help3') }}</b></p>
@@ -359,7 +361,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
             </div>
             </div>
 
-            <div class="modal-footer" style="margin-top: 2px">
+            <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
             </div>
 
@@ -430,10 +432,10 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
 
             var form = '<form action="' + link + '" method="post" target="_top">' + "\n";
 
-            @foreach (['first_name', 'last_name', 'email'] as $field)
-                if ($('input#{{ $field }}').is(':checked')) {
-                    form += '<input type="{{ $field == 'email' ? 'email' : 'text' }}" name="{{ $field }}" placeholder="{{ trans("texts.{$field}") }}" required/>' + "\n";
-                    link += '&{{ $field }}=';
+            @foreach ($account->present()->customTextFields as $field => $val)
+                if ($('input#{{ $val['name'] }}').is(':checked')) {
+                    form += '<input type="text" name="{{ $val['name'] }}" placeholder="{{ $field }}" required/>' + "\n";
+                    link += '&{{ $val['name'] }}=';
                 }
             @endforeach
 

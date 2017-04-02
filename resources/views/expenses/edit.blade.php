@@ -5,7 +5,6 @@
 
         @include('money_script')
 
-
         <style type="text/css">
             .input-group-addon {
                 min-width: 40px;
@@ -40,26 +39,12 @@
                 <div class="col-md-6">
 
     				{!! Former::select('vendor_id')->addOption('', '')
-                            ->data_bind('combobox: vendor_id')
                             ->label(trans('texts.vendor'))
                             ->addGroupClass('vendor-select') !!}
 
                     {!! Former::select('expense_category_id')->addOption('', '')
-                            ->data_bind('combobox: expense_category_id')
                             ->label(trans('texts.category'))
-                            ->addGroupClass('category-select') !!}
-
-                    {!! Former::text('expense_date')
-                            ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
-                            ->addGroupClass('expense_date')
-                            ->label(trans('texts.date'))
-                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
-
-                    {!! Former::select('expense_currency_id')->addOption('','')
-                            ->data_bind('combobox: expense_currency_id')
-                            ->label(trans('texts.currency_id'))
-                            ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
-                            ->fromQuery($currencies, 'name', 'id') !!}
+                            ->addGroupClass('expense-category-select') !!}
 
                     {!! Former::text('amount')
                             ->label(trans('texts.amount'))
@@ -67,10 +52,22 @@
                             ->addGroupClass('amount')
                             ->append('<span data-bind="html: expenseCurrencyCode"></span>') !!}
 
+                    {!! Former::select('expense_currency_id')->addOption('','')
+                            ->data_bind('combobox: expense_currency_id')
+                            ->label(trans('texts.currency_id'))
+                            ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
+                            ->fromQuery($currencies, 'name', 'id') !!}
+
+                    {!! Former::text('expense_date')
+                            ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                            ->addGroupClass('expense_date')
+                            ->label(trans('texts.date'))
+                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+
                     @if ($expense && $expense->invoice_id)
                         {!! Former::plaintext()
                                 ->label('client')
-                                ->value($expense->client->getDisplayName()) !!}
+                                ->value($expense->client->present()->link)  !!}
                     @else
                         {!! Former::select('client_id')
                                 ->addOption('', '')
@@ -79,10 +76,10 @@
                                 ->addGroupClass('client-select') !!}
                     @endif
 
-                    @if (!$expense || ($expense && !$expense->invoice_id && !$expense->client_id))
+                    @if (!$expense || ($expense && !$expense->invoice_id))
                         {!! Former::checkbox('should_be_invoiced')
-                                ->text(trans('texts.should_be_invoiced'))
-                                ->data_bind('checked: should_be_invoiced() || client_id(), enable: !client_id()')
+                                ->text(trans('texts.billable'))
+                                ->data_bind('checked: should_be_invoiced()')
                                 ->label(' ')
                                 ->value(1) !!}
                     @endif
@@ -106,7 +103,7 @@
                                     ->fromQuery($currencies, 'name', 'id') !!}
                         </span>
                         <span style="display:none;" data-bind="visible: client_id">
-                            {!! Former::plaintext('test')
+                            {!! Former::plaintext('')
                                     ->value('<span data-bind="html: invoiceCurrencyName"></span>')
                                     ->style('min-height:46px')
                                     ->label(trans('texts.invoice_currency')) !!}
@@ -159,25 +156,28 @@
 	            </div>
                 <div class="col-md-6">
 
-                    {!! Former::textarea('public_notes')->rows(8) !!}
-                    {!! Former::textarea('private_notes')->rows(8) !!}
+                    {!! Former::textarea('public_notes')->rows(6) !!}
+                    {!! Former::textarea('private_notes')->rows(6) !!}
+
+                    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                        <div class="form-group">
+                            <label for="public_notes" class="control-label col-lg-4 col-sm-4">
+                                {{trans('texts.documents')}}
+                            </label>
+                            <div class="col-lg-8 col-sm-8">
+                                <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
+                                    <div id="document-upload" class="dropzone">
+                                        <div data-bind="foreach: documents">
+                                            <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
 
                 </div>
             </div>
-            @if ($account->hasFeature(FEATURE_DOCUMENTS))
-            <div clas="row">
-                <div class="col-md-2 col-sm-4"><div class="control-label" style="margin-bottom:10px;">{{trans('texts.expense_documents')}}</div></div>
-                <div class="col-md-12 col-sm-8">
-                    <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
-                        <div id="document-upload" class="dropzone">
-                            <div data-bind="foreach: documents">
-                                <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
         </div>
     </div>
 
@@ -225,6 +225,9 @@
         var taxRates = {!! $taxRates !!};
 
         var clientMap = {};
+        var vendorMap = {};
+        var categoryMap = {};
+
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
             clientMap[client.public_id] = client;
@@ -264,20 +267,37 @@
         }
 
         $(function() {
-
+            var vendorId = {{ $vendorPublicId ?: 0 }};
             var $vendorSelect = $('select#vendor_id');
+            @if (Auth::user()->can('create', ENTITY_VENDOR))
+                $vendorSelect.append(new Option("{{ trans('texts.create_vendor')}}: $name", '-1'));
+            @endif
             for (var i = 0; i < vendors.length; i++) {
                 var vendor = vendors[i];
+                vendorMap[vendor.public_id] = vendor;
                 $vendorSelect.append(new Option(getClientDisplayName(vendor), vendor.public_id));
             }
-            $vendorSelect.combobox();
+            @include('partials/entity_combobox', ['entityType' => ENTITY_VENDOR])
+            if (vendorId) {
+                var vendor = vendorMap[vendorId];
+                setComboboxValue($('.vendor-select'), vendor.public_id, vendor.name);
+            }
 
-            var $categorySelect = $('select#expense_category_id');
+            var categoryId = {{ $categoryPublicId ?: 0 }};
+            var $expense_categorySelect = $('select#expense_category_id');
+            @if (Auth::user()->can('create', ENTITY_EXPENSE_CATEGORY))
+                $expense_categorySelect.append(new Option("{{ trans('texts.create_expense_category')}}: $name", '-1'));
+            @endif
             for (var i = 0; i < categories.length; i++) {
                 var category = categories[i];
-                $categorySelect.append(new Option(category.name, category.public_id));
+                categoryMap[category.public_id] = category;
+                $expense_categorySelect.append(new Option(category.name, category.public_id));
             }
-            $categorySelect.combobox();
+            @include('partials/entity_combobox', ['entityType' => ENTITY_EXPENSE_CATEGORY])
+            if (categoryId) {
+                var category = categoryMap[categoryId];
+                setComboboxValue($('.expense-category-select'), category.public_id, category.name);
+            }
 
             $('#expense_date').datepicker('update', '{{ $expense ? $expense->expense_date : 'new Date()' }}');
 
@@ -400,8 +420,8 @@
 
             self.account_currency_id = ko.observable({{ $account->getCurrencyId() }});
             self.client_id = ko.observable({{ $clientPublicId }});
-            self.vendor_id = ko.observable({{ $vendorPublicId }});
-            self.expense_category_id = ko.observable({{ $categoryPublicId }});
+            //self.vendor_id = ko.observable({{ $vendorPublicId }});
+            //self.expense_category_id = ko.observable({{ $categoryPublicId }});
 
             self.convertedAmount = ko.computed({
                 read: function () {
@@ -544,7 +564,6 @@
                 $select.append(option);
             }
         }
-
 
     </script>
 

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Carbon;
 use DB;
+use Exception;
 use Illuminate\Console\Command;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
@@ -83,6 +84,8 @@ class CheckData extends Command
                         ->from(CONTACT_EMAIL)
                         ->subject('Check-Data: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
             });
+        } elseif (! $this->isValid) {
+            throw new Exception('Check data failed!!');
         }
     }
 
@@ -157,7 +160,13 @@ class CheckData extends Command
             'products' => [
                 ENTITY_USER,
             ],
+            'vendors' => [
+                ENTITY_USER,
+            ],
             'expense_categories' => [
+                ENTITY_USER,
+            ],
+            'payment_terms' => [
                 ENTITY_USER,
             ],
             'projects' => [

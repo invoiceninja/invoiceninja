@@ -9,7 +9,6 @@ use App\Http\Requests\SaveEmailSettings;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
 use App\Models\AccountGateway;
-use App\Models\AccountGatewaySettings;
 use App\Models\Affiliate;
 use App\Models\Document;
 use App\Models\Gateway;
@@ -38,6 +37,7 @@ use Request;
 use Response;
 use Session;
 use stdClass;
+use Exception;
 use URL;
 use Utils;
 
@@ -123,17 +123,16 @@ class AccountController extends BaseController
     {
         $user = false;
         $guestKey = Input::get('guest_key'); // local storage key to login until registered
-        $prevUserId = Session::pull(PREV_USER_ID); // last user id used to link to new account
 
         if (Auth::check()) {
             return Redirect::to('invoices/create');
         }
 
-        if (! Utils::isNinja() && (Account::count() > 0 && ! $prevUserId)) {
+        if (! Utils::isNinja() && Account::count() > 0) {
             return Redirect::to('/login');
         }
 
-        if ($guestKey && ! $prevUserId) {
+        if ($guestKey) {
             $user = User::where('password', '=', $guestKey)->first();
 
             if ($user && $user->registered) {
@@ -144,11 +143,6 @@ class AccountController extends BaseController
         if (! $user) {
             $account = $this->accountRepo->create();
             $user = $account->users()->first();
-
-            if ($prevUserId) {
-                $users = $this->accountRepo->associateAccounts($user->id, $prevUserId);
-                Session::put(SESSION_USER_ACCOUNTS, $users);
-            }
         }
 
         Auth::login($user, true);
@@ -186,22 +180,8 @@ class AccountController extends BaseController
         $newPlan['price'] = Utils::getPlanPrice($newPlan);
         $credit = 0;
 
-        if (! empty($planDetails['started']) && $plan == PLAN_FREE) {
-            // Downgrade
-            $refund_deadline = clone $planDetails['started'];
-            $refund_deadline->modify('+30 days');
-
-            if ($plan == PLAN_FREE && $refund_deadline >= date_create()) {
-                if ($payment = $account->company->payment) {
-                    $ninjaAccount = $this->accountRepo->getNinjaAccount();
-                    $paymentDriver = $ninjaAccount->paymentDriver();
-                    $paymentDriver->refundPayment($payment);
-                    Session::flash('message', trans('texts.plan_refunded'));
-                    \Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$refund_deadline->format('Y-m-d')}");
-                } else {
-                    Session::flash('message', trans('texts.updated_plan'));
-                }
-            }
+        if ($plan == PLAN_FREE && $company->processRefund(Auth::user())) {
+            Session::flash('warning', trans('texts.plan_refunded'));
         }
 
         $hasPaid = false;
@@ -240,6 +220,8 @@ class AccountController extends BaseController
             $company->trial_plan = null;
             $company->plan = $plan;
             $company->save();
+
+            Session::flash('message', trans('texts.updated_plan'));
 
             return Redirect::to('settings/account_management');
         }
@@ -488,23 +470,19 @@ class AccountController extends BaseController
             }
         }
 
-        if ($trashedCount == 0) {
-            return Redirect::to('gateways/create');
-        } else {
-            $tokenBillingOptions = [];
-            for ($i = 1; $i <= 4; $i++) {
-                $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
-            }
-
-            return View::make('accounts.payments', [
-                'showAdd' => $count < count(Gateway::$alternate) + 1,
-                'title' => trans('texts.online_payments'),
-                'tokenBillingOptions' => $tokenBillingOptions,
-                'currency' => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY),
-                    'currencies'),
-                'account' => $account,
-            ]);
+        $tokenBillingOptions = [];
+        for ($i = 1; $i <= 4; $i++) {
+            $tokenBillingOptions[$i] = trans("texts.token_billing_{$i}");
         }
+
+        return View::make('accounts.payments', [
+            'showAdd' => $count < count(Gateway::$alternate) + 1,
+            'title' => trans('texts.online_payments'),
+            'tokenBillingOptions' => $tokenBillingOptions,
+            'currency' => Utils::getFromCache(Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY), 'currencies'),
+            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('rate')->get(['public_id', 'name', 'rate']),
+            'account' => $account,
+        ]);
     }
 
     /**
@@ -812,8 +790,11 @@ class AccountController extends BaseController
     {
         $account = $request->user()->account;
         $account->fill($request->all());
-        $account->bcc_email = $request->bcc_email;
         $account->save();
+
+        $settings = $account->account_email_settings;
+        $settings->fill($request->all());
+        $settings->save();
 
         return redirect('settings/' . ACCOUNT_EMAIL_SETTINGS)
                 ->with('message', trans('texts.updated_settings'));
@@ -830,11 +811,11 @@ class AccountController extends BaseController
             foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
                 $subjectField = "email_subject_{$type}";
                 $subject = Input::get($subjectField, $account->getEmailSubject($type));
-                $account->$subjectField = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
+                $account->account_email_settings->$subjectField = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
 
                 $bodyField = "email_template_{$type}";
                 $body = Input::get($bodyField, $account->getEmailTemplate($type));
-                $account->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
+                $account->account_email_settings->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
             }
 
             foreach ([REMINDER1, REMINDER2, REMINDER3] as $type) {
@@ -846,6 +827,7 @@ class AccountController extends BaseController
             }
 
             $account->save();
+            $account->account_email_settings->save();
 
             Session::flash('message', trans('texts.updated_settings'));
         }
@@ -932,6 +914,8 @@ class AccountController extends BaseController
                 $account->client_number_prefix = trim(Input::get('client_number_prefix'));
                 $account->client_number_pattern = trim(Input::get('client_number_pattern'));
                 $account->client_number_counter = Input::get('client_number_counter');
+                $account->reset_counter_frequency_id = Input::get('reset_counter_frequency_id');
+                $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Input::get('reset_counter_date')) : null;
 
                 if (Input::has('recurring_hour')) {
                     $account->recurring_hour = Input::get('recurring_hour');
@@ -1054,28 +1038,32 @@ class AccountController extends BaseController
                 $size = filesize($filePath);
 
                 if ($size / 1000 > MAX_DOCUMENT_SIZE) {
-                    Session::flash('warning', 'File too large');
+                    Session::flash('warning', trans('texts.logo_warning_too_large'));
                 } else {
                     if ($documentType != 'gif') {
                         $account->logo = $account->account_key.'.'.$documentType;
 
-                        $imageSize = getimagesize($filePath);
-                        $account->logo_width = $imageSize[0];
-                        $account->logo_height = $imageSize[1];
-                        $account->logo_size = $size;
+                        try {
+                            $imageSize = getimagesize($filePath);
+                            $account->logo_width = $imageSize[0];
+                            $account->logo_height = $imageSize[1];
+                            $account->logo_size = $size;
 
-                        // make sure image isn't interlaced
-                        if (extension_loaded('fileinfo')) {
-                            $image = Image::make($path);
-                            $image->interlace(false);
-                            $imageStr = (string) $image->encode($documentType);
-                            $disk->put($account->logo, $imageStr);
+                            // make sure image isn't interlaced
+                            if (extension_loaded('fileinfo')) {
+                                $image = Image::make($path);
+                                $image->interlace(false);
+                                $imageStr = (string) $image->encode($documentType);
+                                $disk->put($account->logo, $imageStr);
 
-                            $account->logo_size = strlen($imageStr);
-                        } else {
-                            $stream = fopen($filePath, 'r');
-                            $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
-                            fclose($stream);
+                                $account->logo_size = strlen($imageStr);
+                            } else {
+                                $stream = fopen($filePath, 'r');
+                                $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
+                                fclose($stream);
+                            }
+                        } catch (Exception $exception) {
+                            Session::flash('warning', trans('texts.logo_warning_invalid'));
                         }
                     } else {
                         if (extension_loaded('fileinfo')) {
@@ -1093,7 +1081,7 @@ class AccountController extends BaseController
                             $account->logo_width = $image->width();
                             $account->logo_height = $image->height();
                         } else {
-                            Session::flash('warning', 'Warning: To support gifs the fileinfo PHP extension needs to be enabled.');
+                            Session::flash('warning', trans('texts.logo_warning_fileinfo'));
                         }
                     }
                 }
@@ -1142,9 +1130,6 @@ class AccountController extends BaseController
                     $user->referral_code = $this->accountRepo->getReferralCode();
                 }
             }
-            if (Utils::isNinjaDev()) {
-                $user->dark_mode = Input::get('dark_mode') ? true : false;
-            }
 
             $user->save();
 
@@ -1189,6 +1174,8 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         $account->token_billing_type_id = Input::get('token_billing_type_id');
         $account->auto_bill_on_due_date = boolval(Input::get('auto_bill_on_due_date'));
+        $account->gateway_fee_enabled = boolval(Input::get('gateway_fee_enabled'));
+
         $account->save();
 
         event(new UserSettingsChanged());
@@ -1196,35 +1183,6 @@ class AccountController extends BaseController
         Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('settings/'.ACCOUNT_PAYMENTS);
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function savePaymentGatewayLimits()
-    {
-        $gateway_type_id = intval(Input::get('gateway_type_id'));
-        $gateway_settings = AccountGatewaySettings::scope()->where('gateway_type_id', '=', $gateway_type_id)->first();
-
-        if (! $gateway_settings) {
-            $gateway_settings = AccountGatewaySettings::createNew();
-            $gateway_settings->gateway_type_id = $gateway_type_id;
-        }
-
-        $gateway_settings->min_limit = Input::get('limit_min_enable') ? intval(Input::get('limit_min')) : null;
-        $gateway_settings->max_limit = Input::get('limit_max_enable') ? intval(Input::get('limit_max')) : null;
-
-        if ($gateway_settings->max_limit !== null && $gateway_settings->min_limit > $gateway_settings->max_limit) {
-            $gateway_settings->max_limit = $gateway_settings->min_limit;
-        }
-
-        $gateway_settings->save();
-
-        event(new UserSettingsChanged());
-
-        Session::flash('message', trans('texts.updated_settings'));
-
-        return Redirect::to('settings/' . ACCOUNT_PAYMENTS);
     }
 
     /**
@@ -1255,7 +1213,7 @@ class AccountController extends BaseController
     public function checkEmail()
     {
         $email = User::withTrashed()->where('email', '=', Input::get('email'))
-                                    ->where('id', '<>', Auth::user()->id)
+                                    ->where('id', '<>', Auth::user()->registered ? 0 : Auth::user()->id)
                                     ->first();
 
         if ($email) {
@@ -1270,12 +1228,19 @@ class AccountController extends BaseController
      */
     public function submitSignup()
     {
+        $user = Auth::user();
+        $account = $user->account;
+
         $rules = [
             'new_first_name' => 'required',
             'new_last_name' => 'required',
             'new_password' => 'required|min:6',
-            'new_email' => 'email|required|unique:users,email,'.Auth::user()->id.',id',
+            'new_email' => 'email|required|unique:users,email',
         ];
+
+        if (! $user->registered) {
+            $rules['new_email'] .= ',' . Auth::user()->id . ',id';
+        }
 
         $validator = Validator::make(Input::all(), $rules);
 
@@ -1283,23 +1248,38 @@ class AccountController extends BaseController
             return '';
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-        $user->first_name = trim(Input::get('new_first_name'));
-        $user->last_name = trim(Input::get('new_last_name'));
-        $user->email = trim(strtolower(Input::get('new_email')));
-        $user->username = $user->email;
-        $user->password = bcrypt(trim(Input::get('new_password')));
-        $user->registered = true;
-        $user->save();
+        $firstName = trim(Input::get('new_first_name'));
+        $lastName = trim(Input::get('new_last_name'));
+        $email = trim(strtolower(Input::get('new_email')));
+        $password = trim(Input::get('new_password'));
 
-        $user->account->startTrial(PLAN_PRO);
+        if ($user->registered) {
+            $newAccount = $this->accountRepo->create($firstName, $lastName, $email, $password, $account->company);
+            $newUser = $newAccount->users()->first();
+            $users = $this->accountRepo->associateAccounts($user->id, $newUser->id);
 
-        if (Input::get('go_pro') == 'true') {
-            Session::set(REQUESTED_PRO_PLAN, true);
+            Session::flash('message', trans('texts.created_new_company'));
+            Session::put(SESSION_USER_ACCOUNTS, $users);
+            Auth::loginUsingId($newUser->id);
+
+            return RESULT_SUCCESS;
+        } else {
+            $user->first_name = $firstName;
+            $user->last_name = $lastName;
+            $user->email = $email;
+            $user->username = $user->email;
+            $user->password = bcrypt($password);
+            $user->registered = true;
+            $user->save();
+
+            $user->account->startTrial(PLAN_PRO);
+
+            if (Input::get('go_pro') == 'true') {
+                Session::set(REQUESTED_PRO_PLAN, true);
+            }
+
+            return "{$user->first_name} {$user->last_name}";
         }
-
-        return "{$user->first_name} {$user->last_name}";
     }
 
     /**
@@ -1331,6 +1311,16 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
+    public function purgeData()
+    {
+        $this->dispatch(new \App\Jobs\PurgeAccountData());
+
+        return redirect('/settings/account_management')->withMessage(trans('texts.purge_successful'));
+    }
+
+    /**
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function cancelAccount()
     {
         if ($reason = trim(Input::get('reason'))) {
@@ -1350,6 +1340,9 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
 
+        $company = $account->company;
+        $refunded = $company->processRefund(Auth::user());
+
         Document::scope()->each(function ($item, $key) {
             $item->delete();
         });
@@ -1364,6 +1357,10 @@ class AccountController extends BaseController
 
         Auth::logout();
         Session::flush();
+
+        if ($refunded) {
+            Session::flash('warning', trans('texts.plan_refunded'));
+        }
 
         return Redirect::to('/')->with('clearGuestKey', true);
     }
@@ -1414,18 +1411,17 @@ class AccountController extends BaseController
     public function previewEmail(TemplateService $templateService)
     {
         $template = Input::get('template');
-        $invoice = Invoice::scope()
-                    ->invoices()
-                    ->withTrashed()
-                    ->first();
+        $invitation = \App\Models\Invitation::scope()
+                        ->with('invoice.client.contacts')
+                        ->first();
 
-        if (! $invoice) {
+        if (! $invitation) {
             return trans('texts.create_invoice_for_sample');
         }
 
         /** @var \App\Models\Account $account */
         $account = Auth::user()->account;
-        $invitation = $invoice->invitations->first();
+        $invoice = $invitation->invoice;
 
         // replace the variables with sample data
         $data = [

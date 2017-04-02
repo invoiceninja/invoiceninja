@@ -33,7 +33,7 @@ trait SendsEmails
     {
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
             $field = "email_subject_{$entityType}";
-            $value = $this->$field;
+            $value = $this->account_email_settings->$field;
 
             if ($value) {
                 return preg_replace("/\r\n|\r|\n/", ' ', $value);
@@ -84,7 +84,7 @@ trait SendsEmails
 
         if ($this->hasFeature(FEATURE_CUSTOM_EMAILS)) {
             $field = "email_template_{$entityType}";
-            $template = $this->$field;
+            $template = $this->account_email_settings->$field;
         }
 
         if (! $template) {
@@ -158,20 +158,27 @@ trait SendsEmails
 
     public function setTemplateDefaults($type, $subject, $body)
     {
+        $settings = $this->account_email_settings;
+
         if ($subject) {
-            $this->{"email_subject_" . $type} = $subject;
+            $settings->{"email_subject_" . $type} = $subject;
         }
 
         if ($body) {
-            $this->{"email_template_" . $type} = $body;
+            $settings->{"email_template_" . $type} = $body;
         }
 
-        $this->save();
+        $settings->save();
     }
 
     public function getBccEmail()
     {
-        return $this->isPro() ? $this->bcc_email : false;
+        return $this->isPro() ? $this->account_email_settings->bcc_email : false;
+    }
+
+    public function getReplyToEmail()
+    {
+        return $this->isPro() ? $this->account_email_settings->reply_to_email : false;
     }
 
     public function getFromEmail()

@@ -60,7 +60,7 @@ function ViewModel(data) {
     });
 
     self.invoice_item_taxes.show = ko.computed(function() {
-        if (self.invoice_item_taxes()) {
+        if (self.invoice_item_taxes() && {{ count($taxRateOptions) ? 'true' : 'false' }}) {
             return true;
         }
         for (var i=0; i<self.invoice().invoice_items().length; i++) {
@@ -670,7 +670,7 @@ function ContactModel(data) {
         var str = '';
         @if (Utils::isConfirmed())
         if (self.invitation_link()) {
-            // clicking add 'silent=true' however it's removed when copying the link
+            // clicking adds 'silent=true' however it's removed when copying the link
             str += '<a href="' + self.invitation_link() + '" onclick="window.open(\'' + self.invitation_link()
                     + '?silent=true\', \'_blank\');return false;">{{ trans('texts.view_as_recipient') }}</a>';
         }
@@ -718,6 +718,7 @@ function ItemModel(data) {
     self.tax_rate2IsInclusive = ko.observable(0);
     self.task_public_id = ko.observable('');
     self.expense_public_id = ko.observable('');
+    self.invoice_item_type_id = ko.observable({{ INVOICE_ITEM_TYPE_STANDARD }});
     self.actionsVisible = ko.observable(false);
 
     this.tax1 = ko.computed({

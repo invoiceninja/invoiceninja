@@ -12,6 +12,7 @@ use Utils;
 class AccountGatewayDatatable extends EntityDatatable
 {
     private static $accountGateways;
+    private static $accountGatewaySettings;
 
     public $entityType = ENTITY_ACCOUNT_GATEWAY;
 
@@ -19,7 +20,7 @@ class AccountGatewayDatatable extends EntityDatatable
     {
         return [
             [
-                'name',
+                'gateway',
                 function ($model) {
                     if ($model->deleted_at) {
                         return $model->name;
@@ -62,26 +63,16 @@ class AccountGatewayDatatable extends EntityDatatable
             [
                 'limit',
                 function ($model) {
-                    if ($model->gateway_id == GATEWAY_CUSTOM) {
-                        $gatewayTypes = [GATEWAY_TYPE_CUSTOM];
-                    } else {
-                        $accountGateway = $this->getAccountGateway($model->id);
-                        $paymentDriver = $accountGateway->paymentDriver();
-                        $gatewayTypes = $paymentDriver->gatewayTypes();
-                        $gatewayTypes = array_diff($gatewayTypes, [GATEWAY_TYPE_TOKEN]);
-                    }
-
+                    $gatewayTypes = $this->getGatewayTypes($model->id, $model->gateway_id);
                     $html = '';
                     foreach ($gatewayTypes as $gatewayTypeId) {
-                        $accountGatewaySettings = AccountGatewaySettings::scope()->where('account_gateway_settings.gateway_type_id',
-                            '=', $gatewayTypeId)->first();
-                        $gatewayType = GatewayType::find($gatewayTypeId);
+                        $accountGatewaySettings = $this->getAccountGatewaySetting($gatewayTypeId);
+                        $gatewayType = Utils::getFromCache($gatewayTypeId, 'gatewayTypes');
 
                         if (count($gatewayTypes) > 1) {
                             if ($html) {
                                 $html .= '<br>';
                             }
-
                             $html .= $gatewayType->name . ' &mdash; ';
                         }
 
@@ -101,6 +92,38 @@ class AccountGatewayDatatable extends EntityDatatable
                     }
 
                     return $html;
+                },
+            ],
+            [
+                'fees',
+                function ($model) {
+                    if (! $model->gateway_fee_enabled) {
+                        return trans('texts.fees_disabled');
+                    }
+
+                    $gatewayTypes = $this->getGatewayTypes($model->id, $model->gateway_id);
+                    $html = '';
+                    foreach ($gatewayTypes as $gatewayTypeId) {
+                        $accountGatewaySettings = $this->getAccountGatewaySetting($gatewayTypeId);
+                        if (! $accountGatewaySettings || ! $accountGatewaySettings->areFeesEnabled()) {
+                            continue;
+                        }
+
+                        $gatewayType = Utils::getFromCache($gatewayTypeId, 'gatewayTypes');
+
+                        if (count($gatewayTypes) > 1) {
+                            if ($html) {
+                                $html .= '<br>';
+                            }
+                            $html .= $gatewayType->name . ' &mdash; ';
+                        }
+                        $html .= $accountGatewaySettings->feesToString();
+
+                        if ($accountGatewaySettings->hasTaxes()) {
+                            $html .= ' + ' . trans('texts.tax');
+                        }
+                    };
+                    return $html ?: trans('texts.no_fees');
                 },
             ],
         ];
@@ -160,15 +183,9 @@ class AccountGatewayDatatable extends EntityDatatable
 
         foreach (Cache::get('gatewayTypes') as $gatewayType) {
             $actions[] = [
-                trans('texts.set_limits', ['gateway_type' => $gatewayType->name]),
+                trans('texts.set_limits_fees', ['gateway_type' => $gatewayType->name]),
                 function () use ($gatewayType) {
-                    $accountGatewaySettings = AccountGatewaySettings::scope()
-                        ->where('account_gateway_settings.gateway_type_id', '=', $gatewayType->id)
-                        ->first();
-                    $min = $accountGatewaySettings && $accountGatewaySettings->min_limit !== null ? $accountGatewaySettings->min_limit : 'null';
-                    $max = $accountGatewaySettings && $accountGatewaySettings->max_limit !== null ? $accountGatewaySettings->max_limit : 'null';
-
-                    return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id}, $min, $max)";
+                    return "javascript:showLimitsModal('{$gatewayType->name}', {$gatewayType->id})";
                 },
                 function ($model) use ($gatewayType) {
                     // Only show this action if the given gateway supports this gateway type
@@ -176,10 +193,7 @@ class AccountGatewayDatatable extends EntityDatatable
                         return $gatewayType->id == GATEWAY_TYPE_CUSTOM;
                     } else {
                         $accountGateway = $this->getAccountGateway($model->id);
-                        $paymentDriver = $accountGateway->paymentDriver();
-                        $gatewayTypes = $paymentDriver->gatewayTypes();
-
-                        return in_array($gatewayType->id, $gatewayTypes);
+                        return $accountGateway->paymentDriver()->supportsGatewayType($gatewayType->id);
                     }
                 },
             ];
@@ -197,5 +211,31 @@ class AccountGatewayDatatable extends EntityDatatable
         static::$accountGateways[$id] = AccountGateway::find($id);
 
         return static::$accountGateways[$id];
+    }
+
+    private function getAccountGatewaySetting($gatewayTypeId)
+    {
+        if (isset(static::$accountGatewaySettings[$gatewayTypeId])) {
+            return static::$accountGatewaySettings[$gatewayTypeId];
+        }
+
+        static::$accountGatewaySettings[$gatewayTypeId] = AccountGatewaySettings::scope()
+            ->where('account_gateway_settings.gateway_type_id', '=', $gatewayTypeId)->first();
+
+        return static::$accountGatewaySettings[$gatewayTypeId];
+    }
+
+    private function getGatewayTypes($id, $gatewayId)
+    {
+        if ($gatewayId == GATEWAY_CUSTOM) {
+            $gatewayTypes = [GATEWAY_TYPE_CUSTOM];
+        } else {
+            $accountGateway = $this->getAccountGateway($id);
+            $paymentDriver = $accountGateway->paymentDriver();
+            $gatewayTypes = $paymentDriver->gatewayTypes();
+            $gatewayTypes = array_diff($gatewayTypes, [GATEWAY_TYPE_TOKEN]);
+        }
+
+        return $gatewayTypes;
     }
 }

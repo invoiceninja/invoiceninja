@@ -24,6 +24,7 @@ class ProductReport extends AbstractReport
         $status = $this->options['invoice_status'];
 
         $clients = Client::scope()
+                        ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
                         ->with(['invoices' => function ($query) use ($status) {

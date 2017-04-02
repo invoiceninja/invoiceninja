@@ -21,6 +21,7 @@ class ProfitAndLossReport extends AbstractReport
         $account = Auth::user()->account;
 
         $payments = Payment::scope()
+                        ->orderBy('payment_date', 'desc')
                         ->with('client.contacts')
                         ->withArchived()
                         ->excludeFailed()
@@ -43,6 +44,7 @@ class ProfitAndLossReport extends AbstractReport
         }
 
         $expenses = Expense::scope()
+                        ->orderBy('expense_date', 'desc')
                         ->with('client.contacts')
                         ->withArchived()
                         ->where('expense_date', '>=', $this->startDate)

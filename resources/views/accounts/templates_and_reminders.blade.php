@@ -93,11 +93,15 @@
                     <h4 class="modal-title" id="templatePreviewModalLabel">{{ trans('texts.preview') }}</h4>
                 </div>
 
-                <div class="modal-body">
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                <div class="panel panel-default">
+                <div class="panel-body">
                     <iframe id="server-preview" style="background-color:#FFFFFF" frameborder="1" width="100%" height="500px"/></iframe>
                 </div>
+                </div>
+                </div>
 
-                <div class="modal-footer" style="margin-top: 0px">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
             </div>
@@ -112,11 +116,15 @@
                     <h4 class="modal-title" id="rawModalLabel">{{ trans('texts.raw_html') }}</h4>
                 </div>
 
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                <div class="panel panel-default">
                 <div class="modal-body">
                     <textarea id="raw-textarea" rows="20" style="width:100%"></textarea>
                 </div>
+                </div>
+                </div>
 
-                <div class="modal-footer" style="margin-top: 0px">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
                     <button type="button" onclick="updateRaw()" class="btn btn-success" data-dismiss="modal">{{ trans('texts.update') }}</button>
                 </div>
@@ -133,7 +141,7 @@
                 </div>
 
                 <div class="container" style="width: 100%; padding-bottom: 0px !important">
-                <div class="panel panel-default" style="margin-bottom: 0px">
+                <div class="panel panel-default">
                 <div class="panel-body">
                     <p>{{ trans('texts.template_help_1') }}</p>
                     <ul>
@@ -187,7 +195,7 @@
                 </div>
                 </div>
 
-                <div class="modal-footer" style="margin-top: 0px">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 

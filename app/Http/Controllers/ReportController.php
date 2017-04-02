@@ -67,6 +67,7 @@ class ReportController extends BaseController
         }
 
         $reportTypes = [
+            'activity',
             'aging',
             'client',
             'expense',
@@ -76,6 +77,7 @@ class ReportController extends BaseController
             'profit_and_loss',
             'task',
             'tax_rate',
+            'quote',
         ];
 
         $params = [

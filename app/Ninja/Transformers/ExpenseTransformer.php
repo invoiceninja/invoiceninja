@@ -4,8 +4,36 @@ namespace App\Ninja\Transformers;
 
 use App\Models\Expense;
 
+/**
+ * @SWG\Definition(definition="Expense", @SWG\Xml(name="Expense"))
+ */
 class ExpenseTransformer extends EntityTransformer
 {
+    /**
+     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+     * @SWG\Property(property="private_notes", type="string", example="Notes...")
+     * @SWG\Property(property="public_notes", type="string", example="Notes...")
+     * @SWG\Property(property="should_be_invoiced", type="boolean", example=false)
+     * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
+     * @SWG\Property(property="transaction_id", type="integer", example=1)
+     * @SWG\Property(property="bank_id", type="integer", example=1)
+     * @SWG\Property(property="expense_currency_id", type="integer", example=1)
+     * @SWG\Property(property="expense_category_id", type="integer", example=1)
+     * @SWG\Property(property="amount", type="number", format="float,", example="17.5")
+     * @SWG\Property(property="expense_date", type="string", format="date", example="2016-01-01")
+     * @SWG\Property(property="exchange_rate", type="number", format="float", example="")
+     * @SWG\Property(property="invoice_currency_id", type="integer", example=1)
+     * @SWG\Property(property="is_deleted", type="boolean", example=false)
+     * @SWG\Property(property="tax_name1", type="string", example="VAT")
+     * @SWG\Property(property="tax_name2", type="string", example="Upkeep")
+     * @SWG\Property(property="tax_rate1", type="number", format="float", example="17.5")
+     * @SWG\Property(property="tax_rate2", type="number", format="float", example="30.0")
+     * @SWG\Property(property="client_id", type="integer", example=1)
+     * @SWG\Property(property="invoice_id", type="integer", example=1)
+     * @SWG\Property(property="vendor_id", type="integer", example=1)
+     */
+
     public function __construct($account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);

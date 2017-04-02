@@ -15,14 +15,14 @@
             </div>
 
             <div class="container" style="width: 100%; padding-bottom: 0px !important">
-            <div class="panel panel-default" style="margin-bottom: 0px">
+            <div class="panel panel-default">
             <div class="panel-body">
                 {!! Former::open('/bluevine/signup')->id('bluevineSignup') !!}
                 {!! trans('texts.bluevine_modal_text') !!}<br/>
                 <h3>{!! trans('texts.bluevine_create_account') !!}</h3>
                 {!! Former::text('name')->id('bluevine_name')->placeholder(trans('texts.name'))->value($user->first_name . ' ' . $user->last_name)->required() !!}
                 {!! Former::text('email')->id('bluevine_email')->placeholder(trans('texts.email'))->value($user->email)->required() !!}
-                {!! Former::text('phone')->id('bluevine_phone')->placeholder(trans('texts.phone'))->value(!empty($user->phone) ? $user->phone : '')->required() !!}
+                {!! Former::text('phone')->id('bluevine_phone')->placeholder(trans('texts.phone'))->value(!empty($user->phone) ? $user->phone : '')->maxlength(10)->required() !!}
                 {!! Former::number('fico_score')->min(300)->max(850)->placeholder(trans('texts.fico_score'))->required() !!}
                 {!! Former::text('business_inception')->append('<span class="glyphicon glyphicon-calendar"></span>')->placeholder(trans('texts.business_inception'))->required() !!}
                 {!! Former::number('annual_revenue')->prepend('$')->append('.00')->placeholder(trans('texts.annual_revenue'))->value(floor($usdLast12Months))->required() !!}
@@ -54,7 +54,7 @@
             </div>
             </div>
             </div>
-            
+
             <div class="modal-footer">
                 <button type="button" class="btn btn-default"
                         data-dismiss="modal">{{ trans('texts.cancel') }}</button>

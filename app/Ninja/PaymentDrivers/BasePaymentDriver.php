@@ -132,6 +132,12 @@ class BasePaymentDriver
             return redirect()->to('view/' . $this->invitation->invitation_key);
         }
 
+        if (! $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
+            // apply gateway fees
+            $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoicRepo->setGatewayFee($this->invoice(), $this->gatewayType);
+        }
+
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
             if (Session::has('error')) {
                 Session::reflash();
@@ -161,6 +167,7 @@ class BasePaymentDriver
             'invoiceNumber' => $this->invoice()->invoice_number,
             'client' => $this->client(),
             'contact' => $this->invitation->contact,
+            'invitation' => $this->invitation,
             'gatewayType' => $this->gatewayType,
             'currencyId' => $this->client()->getCurrencyId(),
             'currencyCode' => $this->client()->getCurrencyCode(),
@@ -261,6 +268,9 @@ class BasePaymentDriver
                     ->wherePublicId($this->sourceId)
                     ->firstOrFail();
             }
+
+            $invoicRepo = app('App\Ninja\Repositories\InvoiceRepository');
+            $invoicRepo->setGatewayFee($this->invoice(), $paymentMethod->payment_type->gateway_type_id);
 
             if (! $this->meetsGatewayTypeLimits($paymentMethod->payment_type->gateway_type_id)) {
                 // The customer must have hacked the URL
@@ -854,6 +864,8 @@ class BasePaymentDriver
                 $label = trans('texts.payment_type_on_file', ['type' => $paymentMethod->payment_type->name]);
             }
 
+            $label .= $this->invoice()->present()->gatewayFee($paymentMethod->payment_type->gateway_type_id);
+
             $links[] = [
                 'url' => $url,
                 'label' => $label,
@@ -886,6 +898,8 @@ class BasePaymentDriver
                 $label = trans("texts.{$gatewayTypeAlias}");
             }
 
+            $label .= $this->invoice()->present()->gatewayFee($gatewayTypeId);
+
             $links[] = [
                 'gatewayTypeId' => $gatewayTypeId,
                 'url' => $url,
@@ -894,6 +908,11 @@ class BasePaymentDriver
         }
 
         return $links;
+    }
+
+    public function supportsGatewayType($gatewayTypeId)
+    {
+        return in_array($gatewayTypeId, $this->gatewayTypes());
     }
 
     protected function meetsGatewayTypeLimits($gatewayTypeId)
@@ -924,17 +943,6 @@ class BasePaymentDriver
     {
         $account = $this->account();
         $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
-
-        $gatewayTypeId = GatewayType::getIdFromAlias($gatewayTypeAlias);
-
-        // PayPal doesn't allow being run in an iframe so we need to open in new tab
-        if ($gatewayTypeId === GATEWAY_TYPE_PAYPAL) {
-            $url .= '#braintree_paypal';
-
-            if ($account->iframe_url) {
-                return 'javascript:window.open("' . $url . '", "_blank")';
-            }
-        }
 
         return $url;
     }

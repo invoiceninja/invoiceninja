@@ -41,10 +41,16 @@ class CreditDatatable extends EntityDatatable
                 'credit_date',
                 function ($model) {
                     if (! Auth::user()->can('viewByOwner', [ENTITY_CREDIT, $model->user_id])) {
-                        return Utils::fromSqlDate($model->credit_date);
+                        return Utils::fromSqlDate($model->credit_date_sql);
                     }
 
-                    return link_to("credits/{$model->public_id}/edit", Utils::fromSqlDate($model->credit_date))->toHtml();
+                    return link_to("credits/{$model->public_id}/edit", Utils::fromSqlDate($model->credit_date_sql))->toHtml();
+                },
+            ],
+            [
+                'public_notes',
+                function ($model) {
+                    return $model->public_notes;
                 },
             ],
             [

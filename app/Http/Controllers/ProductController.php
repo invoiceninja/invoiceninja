@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Ninja\Datatables\ProductDatatable;
+use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
 use Auth;
 use Input;
@@ -25,15 +26,21 @@ class ProductController extends BaseController
     protected $productService;
 
     /**
+     * @var ProductRepository
+     */
+    protected $productRepo;
+
+    /**
      * ProductController constructor.
      *
      * @param ProductService $productService
      */
-    public function __construct(ProductService $productService)
+    public function __construct(ProductService $productService, ProductRepository $productRepo)
     {
         //parent::__construct();
 
         $this->productService = $productService;
+        $this->productRepo = $productRepo;
     }
 
     /**
@@ -137,11 +144,7 @@ class ProductController extends BaseController
             $product = Product::createNew();
         }
 
-        $product->product_key = trim(Input::get('product_key'));
-        $product->notes = trim(Input::get('notes'));
-        $product->cost = trim(Input::get('cost'));
-        $product->fill(Input::all());
-        $product->save();
+        $this->productRepo->save(Input::all(), $product);
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);

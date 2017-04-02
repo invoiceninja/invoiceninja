@@ -19,12 +19,15 @@
 
     {!! Former::open()->rules([
             'bcc_email' => 'email',
+            'reply_to_email' => 'email',
         ])->addClass('warn-on-exit') !!}
 
     {{ Former::populate($account) }}
     {{ Former::populateField('pdf_email_attachment', intval($account->pdf_email_attachment)) }}
     {{ Former::populateField('document_email_attachment', intval($account->document_email_attachment)) }}
     {{ Former::populateField('enable_email_markup', intval($account->enable_email_markup)) }}
+    {{ Former::populateField('bcc_email', $account->account_email_settings->bcc_email) }}
+    {{ Former::populateField('reply_to_email', $account->account_email_settings->reply_to_email) }}
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -32,21 +35,26 @@
         </div>
         <div class="panel-body form-padding-right">
 
+            {!! Former::text('reply_to_email')
+                    ->placeholder(Auth::user()->registered ? Auth::user()->email : ' ')
+                    ->help('reply_to_email_help') !!}
+
+            {!! Former::text('bcc_email')
+                    ->help('bcc_email_help') !!}
+
+            &nbsp;
+
             {!! Former::checkbox('pdf_email_attachment')
                     ->text(trans('texts.enable'))
                     ->value(1)
                     ->help( ! Utils::isNinja() ? (env('PHANTOMJS_BIN_PATH') ? 'phantomjs_local' : trans('texts.phantomjs_help', [
                         'link_phantom' => link_to('https://phantomjscloud.com/', 'phantomjscloud.com', ['target' => '_blank']),
-                        'link_docs' => link_to('https://www.invoiceninja.com/self-host/#phantomjs', 'PhantomJS', ['target' => '_blank'])
+                        'link_docs' => link_to('http://docs.invoiceninja.com/en/latest/configure.html#phantomjs', 'PhantomJS', ['target' => '_blank'])
                     ])) : false) !!}
 
             {!! Former::checkbox('document_email_attachment')
                     ->text(trans('texts.enable'))
                     ->value(1) !!}
-
-            &nbsp;
-
-            {!! Former::text('bcc_email')->help('bcc_email_help') !!}
 
             &nbsp;
 
@@ -107,7 +115,7 @@
                 </div>
 
                 <div class="container" style="width: 100%; padding-bottom: 0px !important">
-                <div class="panel panel-default" style="margin-bottom: 0px">
+                <div class="panel panel-default">
                 <div class="panel-body">
                     <div class="row" style="text-align:center">
                         <div class="col-md-4">
@@ -127,7 +135,7 @@
                 </div>
                 </div>
 
-                <div class="modal-footer" style="margin-top: 2px">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 

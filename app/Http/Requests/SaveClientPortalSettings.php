@@ -53,7 +53,7 @@ class SaveClientPortalSettings extends Request
                 $input['subdomain'] = null;
             }
         }
-
+        
         $this->replace($input);
 
         return $this->all();

@@ -68,12 +68,18 @@
         @endif
 
         <div class="row meta">
-            <div class="col-md-7 col-sm-12">
-                {!! link_to('/recover_password', trans('texts.recover_password')) !!}
-            </div>
-            <div class="col-md-5 col-sm-12">
-                {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank']) !!}
-            </div>
+            @if (Utils::isWhiteLabel())
+                <center>
+                    <br/>{!! link_to('/recover_password', trans('texts.recover_password')) !!}
+                </center>
+            @else
+                <div class="col-md-7 col-sm-12">
+                    {!! link_to('/recover_password', trans('texts.recover_password')) !!}
+                </div>
+                <div class="col-md-5 col-sm-12">
+                    {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank']) !!}
+                </div>
+            @endif
         </div>
         {!! Former::close() !!}
 

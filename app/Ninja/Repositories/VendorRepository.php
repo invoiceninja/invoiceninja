@@ -39,7 +39,6 @@ class VendorRepository extends BaseRepository
                         'vendor_contacts.first_name',
                         'vendor_contacts.last_name',
                         'vendors.created_at',
-                        'vendors.created_at as date',
                         'vendors.work_phone',
                         'vendors.city',
                         'vendor_contacts.email',
@@ -85,8 +84,24 @@ class VendorRepository extends BaseRepository
         $vendor->save();
 
         $first = true;
-        $vendorcontacts = isset($data['vendor_contact']) ? [$data['vendor_contact']] : $data['vendor_contacts'];
+        if (isset($data['vendor_contact'])) {
+            $vendorcontacts = [$data['vendor_contact']];
+        } elseif (isset($data['vendor_contacts'])) {
+            $vendorcontacts = $data['vendor_contacts'];
+        } else {
+            $vendorcontacts = [[]];
+        }
+
         $vendorcontactIds = [];
+
+        // If the primary is set ensure it's listed first
+        usort($vendorcontacts, function ($left, $right) {
+            if (isset($right['is_primary']) && isset($left['is_primary'])) {
+                return $right['is_primary'] - $left['is_primary'];
+            } else {
+                return 0;
+            }
+        });
 
         foreach ($vendorcontacts as $vendorcontact) {
             $vendorcontact = $vendor->addVendorContact($vendorcontact, $first);

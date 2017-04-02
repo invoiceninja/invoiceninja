@@ -33,7 +33,8 @@
           trans('texts.inclusive') => array('name' => 'is_inclusive', 'value' => 1),
       ])->inline()
         ->check(0)
-        ->label('type') !!}
+        ->label('type')
+        ->help('tax_rate_type_help') !!}
 
 
   </div>

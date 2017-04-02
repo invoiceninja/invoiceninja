@@ -21,18 +21,40 @@
 
 @section('content')
 
+	@if (!Utils::isPro())
+	    <div class="alert alert-warning" style="font-size:larger;">
+	    <center>
+	        {!! trans('texts.pro_plan_reports', ['link'=>'<a href="javascript:showUpgradeModal()">' . trans('texts.pro_plan_remove_logo_link') . '</a>']) !!}
+	    </center>
+	    </div>
+	@endif
+
     <script type="text/javascript">
+
+		var chartStartDate = moment("{{ $startDate }}");
+		var chartEndDate = moment("{{ $endDate }}");
+		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
         $(function() {
 
-            var chartStartDate = moment("{{ $startDate }}");
-            var chartEndDate = moment("{{ $endDate }}");
+			if (isStorageSupported()) {
+				var lastRange = localStorage.getItem('last:report_range');
+				lastRange = dateRanges[lastRange];
+				if (lastRange) {
+					chartStartDate = lastRange[0];
+					chartEndDate = lastRange[1];
+				}
+			}
 
             // Initialize date range selector
-            function cb(start, end) {
+            function cb(start, end, label) {
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
                 $('#start_date').val(start.format('YYYY-MM-DD'));
                 $('#end_date').val(end.format('YYYY-MM-DD'));
+
+				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
+					localStorage.setItem('last:report_range', label);
+				}
             }
 
             $('#reportrange').daterangepicker({
@@ -43,7 +65,7 @@
                 startDate: chartStartDate,
                 endDate: chartEndDate,
                 linkedCalendars: false,
-				ranges: {!! $account->present()->dateRangeOptions !!}
+				ranges: dateRanges,
             }, cb);
 
             cb(chartStartDate, chartEndDate);
@@ -261,10 +283,16 @@
             } else {
                 $('#statusField').fadeOut();
             }
+            if (isStorageSupported()) {
+                localStorage.setItem('last:report_type', val);
+            }
         });
 
 		$(function(){
   			$(".tablesorter-data").tablesorter({
+				@if (! request()->group_when_sorted)
+					sortList: [[0,0]],
+				@endif
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_when_sorted ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',
@@ -295,6 +323,11 @@
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme'],
 			}).show();
+
+			var lastReportType = localStorage.getItem('last:report_type');
+			if (lastReportType) {
+				$('#report_type').val(lastReportType);
+			}
 		});
     })
 

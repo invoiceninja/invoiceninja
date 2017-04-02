@@ -1,7 +1,7 @@
 Update
 ======
 
-.. Note:: We recommend backing up your database before updating the app.
+.. NOTE:: We recommend backing up your database before updating the app.
 
 To update the app you just need to copy over the latest code. The app tracks the current version in a file called version.txt, if it notices a change it loads ``/update`` to run the database migrations.
 
@@ -14,7 +14,7 @@ If the auto-update fails you can manually run the update with the following comm
    php artisan migrate
    php artisan db:seed --class=UpdateSeeder
 
-We’ve seen some updates fail when moving the app to a new server because the MySQL default storage engine has changed with MySQL 5.7. If you see ``SQLSTATE[HY000]: General error: 1215`` error you may be able to fix it by running this `SQL query <https://www.invoiceninja.com/forums/topic/problem-with-new-install/#post-5313>`_
+.. NOTE:: If you've downloaded the code from GitHub you also need to run ``composer install``
 
 Version 2.6
 """""""""""

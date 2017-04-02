@@ -225,7 +225,7 @@ class InvoicePresenter extends EntityPresenter
                 $actions[] = ['url' => url("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (!$invoice->deleted_at && ! $invoice->is_recurring && $invoice->balance > 0) {
+            if (!$invoice->deleted_at && ! $invoice->is_recurring && $invoice->balance != 0) {
                 $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }
@@ -251,5 +251,46 @@ class InvoicePresenter extends EntityPresenter
         }
 
         return $actions;
+    }
+
+    public function gatewayFee($gatewayTypeId = false)
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        if (! $account->gateway_fee_enabled) {
+            return '';
+        }
+
+        $settings = $account->getGatewaySettings($gatewayTypeId);
+
+        if (! $settings || ! $settings->areFeesEnabled()) {
+            return '';
+        }
+
+        $fee = $invoice->calcGatewayFee($gatewayTypeId, true);
+        $fee = $account->formatMoney($fee, $invoice->client);
+
+        if (floatval($settings->fee_amount) < 0 || floatval($settings->fee_percent) < 0) {
+            $label = trans('texts.discount');
+        } else {
+            $label = trans('texts.fee');
+        }
+
+        return ' - ' . $fee . ' ' . $label;
+    }
+
+    public function multiAccountLink()
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        if ($account->hasMultipleAccounts()) {
+            $link = url(sprintf('/account/%s?redirect_to=%s', $account->account_key, $invoice->present()->path));
+        } else {
+            $link = $invoice->present()->url;
+        }
+
+        return $link;
     }
 }

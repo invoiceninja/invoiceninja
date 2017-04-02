@@ -6,6 +6,7 @@ use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
+use App\Ninja\OAuth\OAuth;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Transformers\AccountTransformer;
 use App\Ninja\Transformers\UserAccountTransformer;
@@ -121,6 +122,7 @@ class AccountApiController extends BaseAPIController
         for ($x = 0; $x < count($devices); $x++) {
             if ($devices[$x]['email'] == Auth::user()->username) {
                 $devices[$x]['token'] = $request->token; //update
+                $devices[$x]['device'] = $request->device;
                     $account->devices = json_encode($devices);
                 $account->save();
                 $devices[$x]['account_key'] = $account->account_key;
@@ -187,25 +189,15 @@ class AccountApiController extends BaseAPIController
         $token = $request->input('token');
         $provider = $request->input('provider');
 
-        try {
-            $user = Socialite::driver($provider)->stateless()->userFromToken($token);
-        } catch (Exception $exception) {
-            return $this->errorResponse(['message' => $exception->getMessage()], 401);
-        }
+        $oAuth = new OAuth();
+        $user = $oAuth->getProvider($provider)->getTokenResponse($token);
 
-        if ($user) {
-            $providerId = AuthService::getProviderId($provider);
-            $user = $this->accountRepo->findUserByOauth($providerId, $user->id);
-        }
-
-        if ($user) {
+        if($user) {
             Auth::login($user);
-
             return $this->processLogin($request);
-        } else {
-            sleep(ERROR_DELAY);
-
-            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
+        else
+            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+
     }
 }

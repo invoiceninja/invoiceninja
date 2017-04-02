@@ -49,6 +49,8 @@ class Client extends EntityModel
         'language_id',
         'payment_terms',
         'website',
+        'invoice_number_counter',
+        'quote_number_counter',
     ];
 
     /**
@@ -136,7 +138,7 @@ class Client extends EntityModel
             'email' => 'email',
             'mobile|phone' => 'phone',
             'name|organization' => 'name',
-            'street2|address2' => 'address2',
+            'apt|street2|address2' => 'address2',
             'street|address|address1' => 'address1',
             'city' => 'city',
             'state|province' => 'state',
@@ -145,7 +147,7 @@ class Client extends EntityModel
             'note' => 'notes',
             'site|website' => 'website',
             'vat' => 'vat_number',
-            'id|number' => 'id_number',
+            'number' => 'id_number',
         ];
     }
 
@@ -288,7 +290,7 @@ class Client extends EntityModel
             if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
                 $contact->contact_key = $data['contact_key'];
             } else {
-                $contact->contact_key = str_random(RANDOM_KEY_LENGTH);
+                $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             }
         }
 

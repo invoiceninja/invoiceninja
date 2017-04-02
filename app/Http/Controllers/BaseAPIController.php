@@ -20,6 +20,7 @@ use Utils;
  *     schemes={"http","https"},
  *     host="ninja.dev",
  *     basePath="/api/v1",
+ *     produces={"application/json"},
  *     @SWG\Info(
  *         version="1.0.0",
  *         title="Invoice Ninja API",
@@ -37,11 +38,12 @@ use Utils;
  *         description="Find out more about Invoice Ninja",
  *         url="https://www.invoiceninja.com"
  *     ),
+ *     security={"api_key": {}},
  *     @SWG\SecurityScheme(
  *         securityDefinition="api_key",
  *         type="apiKey",
  *         in="header",
- *         name="TOKEN"
+ *         name="X-Ninja-Token"
  *     )
  * )
  */

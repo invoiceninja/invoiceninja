@@ -12,6 +12,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Product;
 use App\Models\Task;
+use App\Models\GatewayType;
 use App\Services\PaymentService;
 use Auth;
 use DB;
@@ -67,9 +68,11 @@ class InvoiceRepository extends BaseRepository
                 'invoices.public_id',
                 'invoices.amount',
                 'invoices.balance',
-                'invoices.invoice_date as date',
-                'invoices.due_date',
-                'invoices.due_date as valid_until',
+                'invoices.invoice_date',
+                'invoices.due_date as due_date_sql',
+                DB::raw("CONCAT(invoices.invoice_date, invoices.created_at) as date"),
+                DB::raw("CONCAT(invoices.due_date, invoices.created_at) as due_date"),
+                DB::raw("CONCAT(invoices.due_date, invoices.created_at) as valid_until"),
                 'invoice_statuses.name as status',
                 'invoice_statuses.name as invoice_status_name',
                 'contacts.first_name',
@@ -136,6 +139,7 @@ class InvoiceRepository extends BaseRepository
         $query = DB::table('invoices')
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
+                    ->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
                     ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
@@ -151,16 +155,25 @@ class InvoiceRepository extends BaseRepository
                         'invoices.public_id',
                         'invoices.amount',
                         'frequencies.name as frequency',
-                        'invoices.start_date',
-                        'invoices.end_date',
-                        'invoices.last_sent_date',
-                        'invoices.last_sent_date as last_sent',
+                        'invoices.start_date as start_date_sql',
+                        'invoices.end_date as end_date_sql',
+                        'invoices.last_sent_date as last_sent_date_sql',
+                        DB::raw("CONCAT(invoices.start_date, invoices.created_at) as start_date"),
+                        DB::raw("CONCAT(invoices.end_date, invoices.created_at) as end_date"),
+                        DB::raw("CONCAT(invoices.last_sent_date, invoices.created_at) as last_sent"),
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',
                         'invoices.deleted_at',
                         'invoices.is_deleted',
-                        'invoices.user_id'
+                        'invoices.user_id',
+                        'invoice_statuses.name as invoice_status_name',
+                        'invoices.invoice_status_id',
+                        'invoices.balance',
+                        'invoices.due_date',
+                        'invoices.due_date as due_date_sql',
+                        'invoices.is_recurring',
+                        'invoices.quote_invoice_id'
                     );
 
         if ($clientPublicId) {
@@ -312,7 +325,7 @@ class InvoiceRepository extends BaseRepository
     public function save(array $data, Invoice $invoice = null)
     {
         /** @var Account $account */
-        $account = \Auth::user()->account;
+        $account = $invoice ? $invoice->account : \Auth::user()->account;
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         $isNew = ! $publicId || $publicId == '-1';
@@ -329,6 +342,8 @@ class InvoiceRepository extends BaseRepository
             }
             $invoice = $account->createInvoice($entityType, $data['client_id']);
             $invoice->invoice_date = date_create()->format('Y-m-d');
+            $invoice->custom_taxes1 = $account->custom_invoice_taxes1 ?: false;
+            $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
             if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
                 $invoice->has_tasks = true;
             }
@@ -505,15 +520,9 @@ class InvoiceRepository extends BaseRepository
 
         if (isset($data['custom_value1'])) {
             $invoice->custom_value1 = round($data['custom_value1'], 2);
-            if ($isNew) {
-                $invoice->custom_taxes1 = $account->custom_invoice_taxes1 ?: false;
-            }
         }
         if (isset($data['custom_value2'])) {
             $invoice->custom_value2 = round($data['custom_value2'], 2);
-            if ($isNew) {
-                $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
-            }
         }
 
         if (isset($data['custom_text_value1'])) {
@@ -618,28 +627,35 @@ class InvoiceRepository extends BaseRepository
                 }
             }
 
-            if ($productKey = trim($item['product_key'])) {
-                if (\Auth::user()->account->update_products && ! $invoice->has_tasks && ! $invoice->has_expenses) {
-                    $product = Product::findProductByKey($productKey);
-                    if (! $product) {
-                        if (Auth::user()->can('create', ENTITY_PRODUCT)) {
-                            $product = Product::createNew();
-                            $product->product_key = trim($item['product_key']);
-                        } else {
-                            $product = null;
+            if (Auth::check()) {
+                if ($productKey = trim($item['product_key'])) {
+                    if ($account->update_products
+                        && ! $invoice->has_tasks
+                        && ! $invoice->has_expenses
+                        && $productKey != trans('texts.surcharge')
+                    ) {
+                        $product = Product::findProductByKey($productKey);
+                        if (! $product) {
+                            if (Auth::user()->can('create', ENTITY_PRODUCT)) {
+                                $product = Product::createNew();
+                                $product->product_key = trim($item['product_key']);
+                            } else {
+                                $product = null;
+                            }
                         }
-                    }
-                    if ($product && (Auth::user()->can('edit', $product))) {
-                        $product->notes = ($task || $expense) ? '' : $item['notes'];
-                        $product->cost = $expense ? 0 : $item['cost'];
-                        $product->custom_value1 = isset($item['custom_value1']) ? $item['custom_value1'] : null;
-                        $product->custom_value2 = isset($item['custom_value2']) ? $item['custom_value2'] : null;
-                        $product->save();
+                        if ($product && (Auth::user()->can('edit', $product))) {
+                            $product->notes = ($task || $expense) ? '' : $item['notes'];
+                            $product->cost = $expense ? 0 : $item['cost'];
+                            $product->custom_value1 = isset($item['custom_value1']) ? $item['custom_value1'] : null;
+                            $product->custom_value2 = isset($item['custom_value2']) ? $item['custom_value2'] : null;
+                            $product->save();
+                        }
                     }
                 }
             }
 
-            $invoiceItem = InvoiceItem::createNew();
+            $invoiceItem = InvoiceItem::createNew($invoice);
+            $invoiceItem->fill($item);
             $invoiceItem->product_id = isset($product) ? $product->id : null;
             $invoiceItem->product_key = isset($item['product_key']) ? (trim($invoice->is_recurring ? $item['product_key'] : Utils::processVariables($item['product_key']))) : '';
             $invoiceItem->notes = trim($invoice->is_recurring ? $item['notes'] : Utils::processVariables($item['notes']));
@@ -659,9 +675,56 @@ class InvoiceRepository extends BaseRepository
                 $item['tax_rate1'] = $item['tax_rate'];
             }
 
+            // provide backwards compatability
+            if (! isset($item['invoice_item_type_id']) && in_array($invoiceItem->notes, [trans('texts.online_payment_surcharge'), trans('texts.online_payment_discount')])) {
+                $invoiceItem->invoice_item_type_id = $invoice->balance > 0 ? INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE : INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE;
+            }
+
             $invoiceItem->fill($item);
 
             $invoice->invoice_items()->save($invoiceItem);
+        }
+
+        if (Auth::check()) {
+            $invoice = $this->saveInvitations($invoice);
+        }
+
+        return $invoice;
+    }
+
+    private function saveInvitations($invoice)
+    {
+        $client = $invoice->client;
+        $client->load('contacts');
+        $sendInvoiceIds = [];
+
+        foreach ($client->contacts as $contact) {
+            if ($contact->send_invoice) {
+                $sendInvoiceIds[] = $contact->id;
+            }
+        }
+
+        // if no contacts are selected auto-select the first to enusre there's an invitation
+        if (! count($sendInvoiceIds)) {
+            $sendInvoiceIds[] = $client->contacts[0]->id;
+        }
+
+        foreach ($client->contacts as $contact) {
+            $invitation = Invitation::scope()->whereContactId($contact->id)->whereInvoiceId($invoice->id)->first();
+
+            if (in_array($contact->id, $sendInvoiceIds) && ! $invitation) {
+                $invitation = Invitation::createNew($invoice);
+                $invitation->invoice_id = $invoice->id;
+                $invitation->contact_id = $contact->id;
+                $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $invitation->save();
+            } elseif (! in_array($contact->id, $sendInvoiceIds) && $invitation) {
+                $invitation->delete();
+            }
+        }
+
+        if ($invoice->is_public && ! $invoice->areInvitationsSent()) {
+            $invoice->markInvitationsSent();
         }
 
         return $invoice;
@@ -779,7 +842,7 @@ class InvoiceRepository extends BaseRepository
         foreach ($invoice->invitations as $invitation) {
             $cloneInvitation = Invitation::createNew($invoice);
             $cloneInvitation->contact_id = $invitation->contact_id;
-            $cloneInvitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
+            $cloneInvitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             $clone->invitations()->save($cloneInvitation);
         }
 
@@ -836,6 +899,7 @@ class InvoiceRepository extends BaseRepository
     {
         // check for extra params at end of value (from website feature)
         list($invitationKey) = explode('&', $invitationKey);
+        $invitationKey = substr($invitationKey, 0, RANDOM_KEY_LENGTH);
 
         /** @var \App\Models\Invitation $invitation */
         $invitation = Invitation::where('invitation_key', '=', $invitationKey)->first();
@@ -959,7 +1023,7 @@ class InvoiceRepository extends BaseRepository
         foreach ($recurInvoice->invitations as $recurInvitation) {
             $invitation = Invitation::createNew($recurInvitation);
             $invitation->contact_id = $recurInvitation->contact_id;
-            $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
+            $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             $invoice->invitations()->save($invitation);
         }
 
@@ -1004,5 +1068,58 @@ class InvoiceRepository extends BaseRepository
                     ->get();
 
         return $invoices;
+    }
+
+    public function clearGatewayFee($invoice)
+    {
+        $account = $invoice->account;
+
+        if (! $invoice->relationLoaded('invoice_items')) {
+            $invoice->load('invoice_items');
+        }
+
+        $data = $invoice->toArray();
+        foreach ($data['invoice_items'] as $key => $item) {
+            if ($item['invoice_item_type_id'] == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
+                unset($data['invoice_items'][$key]);
+                $this->save($data, $invoice);
+                $invoice->load('invoice_items');
+                break;
+            }
+        }
+    }
+
+    public function setGatewayFee($invoice, $gatewayTypeId)
+    {
+        $account = $invoice->account;
+
+        if (! $account->gateway_fee_enabled) {
+            return;
+        }
+
+        $settings = $account->getGatewaySettings($gatewayTypeId);
+        $this->clearGatewayFee($invoice);
+
+        if (! $settings) {
+            return;
+        }
+
+        $data = $invoice->toArray();
+        $fee = $invoice->calcGatewayFee($gatewayTypeId);
+
+        $item = [];
+        $item['product_key'] = $fee >= 0 ? trans('texts.surcharge') : trans('texts.discount');
+        $item['notes'] = $fee >= 0 ? trans('texts.online_payment_surcharge') : trans('texts.online_payment_discount');
+        $item['qty'] = 1;
+        $item['cost'] = $fee;
+        $item['tax_rate1'] = $settings->fee_tax_rate1;
+        $item['tax_name1'] = $settings->fee_tax_name1;
+        $item['tax_rate2'] = $settings->fee_tax_rate2;
+        $item['tax_name2'] = $settings->fee_tax_name2;
+        $item['invoice_item_type_id'] = INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE;
+        $data['invoice_items'][] = $item;
+
+        $this->save($data, $invoice);
+        $invoice->load('invoice_items');
     }
 }

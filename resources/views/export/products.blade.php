@@ -17,5 +17,3 @@
         <td>{{ $product->cost }}</td>
     </tr>
 @endforeach
-
-<tr><td></td></tr>

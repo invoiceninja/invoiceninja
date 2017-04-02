@@ -8,7 +8,7 @@
             </div>
 
             <div class="container" style="width: 100%; padding-bottom: 0px !important">
-            <div class="panel panel-default" style="margin-bottom: 0px">
+            <div class="panel panel-default">
             <div class="panel-body">
 
                 {!! Former::plaintext('recipients')
