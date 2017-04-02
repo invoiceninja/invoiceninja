@@ -145,7 +145,7 @@ class TokenController extends BaseController
             } else {
                 $token = AccountToken::createNew();
                 $token->name = trim(Input::get('name'));
-                $token->token = str_random(RANDOM_KEY_LENGTH);
+                $token->token = strtolower(str_random(RANDOM_KEY_LENGTH));
             }
 
             $token->save();

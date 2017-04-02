@@ -199,8 +199,8 @@ class UserController extends BaseController
                 $user->username = trim(Input::get('email'));
                 $user->email = trim(Input::get('email'));
                 $user->registered = true;
-                $user->password = str_random(RANDOM_KEY_LENGTH);
-                $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
+                $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
                 $user->public_id = $lastUser->public_id + 1;
                 if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
                     $user->is_admin = boolval(Input::get('is_admin'));

@@ -42,7 +42,7 @@ class AccountRepository
 
         $account = new Account();
         $account->ip = Request::getClientIp();
-        $account->account_key = str_random(RANDOM_KEY_LENGTH);
+        $account->account_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         $account->company_id = $company->id;
 
         // Track referal code
@@ -62,14 +62,14 @@ class AccountRepository
 
         $user = new User();
         if (! $firstName && ! $lastName && ! $email && ! $password) {
-            $user->password = str_random(RANDOM_KEY_LENGTH);
-            $user->username = str_random(RANDOM_KEY_LENGTH);
+            $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->username = strtolower(str_random(RANDOM_KEY_LENGTH));
         } else {
             $user->first_name = $firstName;
             $user->last_name = $lastName;
             $user->email = $user->username = $email;
             if (! $password) {
-                $password = str_random(RANDOM_KEY_LENGTH);
+                $password = strtolower(str_random(RANDOM_KEY_LENGTH));
             }
             $user->password = bcrypt($password);
         }
@@ -78,7 +78,7 @@ class AccountRepository
         $user->registered = ! Utils::isNinja() || $email;
 
         if (! $user->confirmed) {
-            $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
+            $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
         }
 
         $account->users()->save($user);
@@ -332,7 +332,7 @@ class AccountRepository
         $invitation->public_id = $publicId;
         $invitation->invoice_id = $invoice->id;
         $invitation->contact_id = $client->contacts()->first()->id;
-        $invitation->invitation_key = str_random(RANDOM_KEY_LENGTH);
+        $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         $invitation->save();
 
         return $invitation;
@@ -356,7 +356,7 @@ class AccountRepository
             $account->company_id = $company->id;
             $account->save();
 
-            $random = str_random(RANDOM_KEY_LENGTH);
+            $random = strtolower(str_random(RANDOM_KEY_LENGTH));
             $user = new User();
             $user->registered = true;
             $user->confirmed = true;
@@ -683,7 +683,7 @@ class AccountRepository
 
             $token = AccountToken::createNew($user);
             $token->name = $name;
-            $token->token = str_random(RANDOM_KEY_LENGTH);
+            $token->token = strtolower(str_random(RANDOM_KEY_LENGTH));
             $token->save();
         }
     }

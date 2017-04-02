@@ -290,7 +290,7 @@ class Client extends EntityModel
             if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
                 $contact->contact_key = $data['contact_key'];
             } else {
-                $contact->contact_key = str_random(RANDOM_KEY_LENGTH);
+                $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             }
         }
 
