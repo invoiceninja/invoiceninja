@@ -149,7 +149,7 @@ class ImportService
     {
         $this->initMaps();
 
-        $file = file_get_contents($file);
+        $file = file_get_contents(storage_path() . '/import/' . $file);
         $json = json_decode($file, true);
         $json = $this->removeIdFields($json);
         $transformer = new BaseTransformer($this->maps);
@@ -284,6 +284,7 @@ class ImportService
 
         // Convert the data
         $row_list = [];
+        $file = storage_path() . '/import/' . $file;
 
         Excel::load($file, function ($reader) use ($source, $entityType, &$row_list, &$results) {
             $this->checkData($entityType, count($reader->all()));
@@ -539,29 +540,13 @@ class ImportService
      */
     public function mapFile($entityType, $filename, $columns, $map)
     {
-        require_once app_path().'/Includes/parsecsv.lib.php';
-        $csv = new parseCSV();
-        $csv->heading = false;
-        $csv->auto($filename);
-
+        $data = $this->getCsvData($filename);
         $headers = false;
         $hasHeaders = false;
         $mapped = [];
 
-        if (count($csv->data) > 0) {
-            $headers = $csv->data[0];
-
-            // Remove Invoice Ninja headers
-            if (count($headers) && count($csv->data) > 4) {
-                $firstCell = $headers[0];
-                if (strstr($firstCell, APP_NAME)) {
-                    array_shift($csv->data); // Invoice Ninja...
-                    array_shift($csv->data); // <blank line>
-                    array_shift($csv->data); // Enitty Type Header
-                }
-                $headers = $csv->data[0];
-            }
-
+        if (count($data) > 0) {
+            $headers = $data[0];
             foreach ($headers as $title) {
                 if (strpos(strtolower($title), 'name') > 0) {
                     $hasHeaders = true;
@@ -583,16 +568,41 @@ class ImportService
             }
         }
 
-        Session::put("{$entityType}-data", $csv->data);
+        //Session::put("{$entityType}-data", $csv->data);
 
         $data = [
             'entityType' => $entityType,
-            'data' => $csv->data,
+            'data' => $data,
             'headers' => $headers,
             'hasHeaders' => $hasHeaders,
             'columns' => $columns,
             'mapped' => $mapped,
         ];
+
+        return $data;
+    }
+
+    private function getCsvData($filename)
+    {
+        require_once app_path().'/Includes/parsecsv.lib.php';
+        $csv = new parseCSV();
+        $csv->heading = false;
+        $csv->auto(storage_path() . '/import/' . $filename);
+        $data = $csv->data;
+
+        if (count($data) > 0) {
+            $headers = $data[0];
+
+            // Remove Invoice Ninja headers
+            if (count($headers) && count($data) > 4) {
+                $firstCell = $headers[0];
+                if (strstr($firstCell, APP_NAME)) {
+                    array_shift($data); // Invoice Ninja...
+                    array_shift($data); // <blank line>
+                    array_shift($data); // Enitty Type Header
+                }
+            }
+        }
 
         return $data;
     }
@@ -642,12 +652,12 @@ class ImportService
      *
      * @return array
      */
-    public function importCSV(array $maps, $headers)
+    public function importCSV(array $maps, $headers, $timestamp)
     {
         $results = [];
 
         foreach ($maps as $entityType => $map) {
-            $results[$entityType] = $this->executeCSV($entityType, $map, $headers[$entityType]);
+            $results[$entityType] = $this->executeCSV($entityType, $map, $headers[$entityType], $timestamp);
         }
 
         return $results;
@@ -660,7 +670,7 @@ class ImportService
      *
      * @return array
      */
-    private function executeCSV($entityType, $map, $hasHeaders)
+    private function executeCSV($entityType, $map, $hasHeaders, $timestamp)
     {
         $results = [
             RESULT_SUCCESS => [],
@@ -668,7 +678,9 @@ class ImportService
         ];
         $source = IMPORT_CSV;
 
-        $data = Session::get("{$entityType}-data");
+        //$data = Session::get("{$entityType}-data");
+        $filename = sprintf('%s_%s_%s.csv', Auth::user()->account_id, $timestamp, $entityType);
+        $data = $this->getCsvData($filename);
         $this->checkData($entityType, count($data));
         $this->initMaps();
 
@@ -707,7 +719,7 @@ class ImportService
             }
         }
 
-        Session::forget("{$entityType}-data");
+        //Session::forget("{$entityType}-data");
 
         return $results;
     }
@@ -893,5 +905,33 @@ class ImportService
         }
 
         return $isEmpty;
+    }
+
+    public function presentResults($results, $includeSettings = false)
+    {
+        $message = '';
+        $skipped = [];
+
+        if ($includeSettings) {
+            $message = trans('texts.imported_settings') . '<br/>';
+        }
+
+        foreach ($results as $entityType => $entityResults) {
+            if ($count = count($entityResults[RESULT_SUCCESS])) {
+                $message .= trans("texts.created_{$entityType}s", ['count' => $count]) . '<br/>';
+            }
+            if (count($entityResults[RESULT_FAILURE])) {
+                $skipped = array_merge($skipped, $entityResults[RESULT_FAILURE]);
+            }
+        }
+
+        if (count($skipped)) {
+            $message .= '<p/>' . trans('texts.failed_to_import') . '<br/>';
+            foreach ($skipped as $skip) {
+                $message .= json_encode($skip) . '<br/>';
+            }
+        }
+
+        return $message;
     }
 }

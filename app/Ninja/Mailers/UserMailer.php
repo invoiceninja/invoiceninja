@@ -114,7 +114,7 @@ class UserMailer extends Mailer
     /**
      * @param Invitation $invitation
      */
-    public function sendMessage($user, $subject, $message, $invoice)
+    public function sendMessage($user, $subject, $message, $invoice = false)
     {
         if (! $user->email) {
             return;
@@ -125,7 +125,7 @@ class UserMailer extends Mailer
             'userName' => $user->getDisplayName(),
             'primaryMessage' => $subject,
             'secondaryMessage' => $message,
-            'invoiceLink' => $invoice->present()->multiAccountLink,
+            'invoiceLink' => $invoice ? $invoice->present()->multiAccountLink : false,
         ];
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);

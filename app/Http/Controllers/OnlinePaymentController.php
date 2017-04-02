@@ -302,6 +302,7 @@ class OnlinePaymentController extends BaseController
         }
 
         Auth::onceUsingId($account->users[0]->id);
+        $account->loadLocalizationSettings();
         $product = Product::scope(Input::get('product_id'))->first();
 
         if (! $product) {

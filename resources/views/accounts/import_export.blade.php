@@ -33,7 +33,7 @@
 
         <br/>
         @foreach (\App\Services\ImportService::$entityTypes as $entityType)
-            {!! Former::file("{$entityType}_file")
+            {!! Former::file($entityType)
                     ->addGroupClass("import-file {$entityType}-file") !!}
         @endforeach
 
