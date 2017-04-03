@@ -211,7 +211,6 @@ class InvoiceRepository extends BaseRepository
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', true)
           ->where('invoices.is_public', '=', true)
-          ->whereIn('invoices.auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])
           //->where('invoices.start_date', '>=', date('Y-m-d H:i:s'))
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
@@ -225,6 +224,7 @@ class InvoiceRepository extends BaseRepository
                 'invoices.amount',
                 'invoices.start_date',
                 'invoices.end_date',
+                'invoices.auto_bill',
                 'invoices.client_enable_auto_bill',
                 'frequencies.name as frequency'
             );
@@ -243,7 +243,11 @@ class InvoiceRepository extends BaseRepository
                 return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
             })
             ->addColumn('client_enable_auto_bill', function ($model) {
-                if ($model->client_enable_auto_bill) {
+                if ($model->auto_bill == AUTO_BILL_OFF) {
+                    return trans('texts.disabled');
+                } elseif ($model->auto_bill == AUTO_BILL_ALWAYS) {
+                    return trans('texts.enabled');
+                } elseif ($model->client_enable_auto_bill) {
                     return trans('texts.enabled') . ' - <a href="javascript:setAutoBill('.$model->public_id.',false)">'.trans('texts.disable').'</a>';
                 } else {
                     return trans('texts.disabled') . ' - <a href="javascript:setAutoBill('.$model->public_id.',true)">'.trans('texts.enable').'</a>';
