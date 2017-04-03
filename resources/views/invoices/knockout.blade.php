@@ -35,6 +35,16 @@ function ViewModel(data) {
         @endif
     }
 
+    self.clearBlankContacts = function() {
+        var client = self.invoice().client();
+        var contacts = client.contacts();
+        $(contacts).each(function(index, contact) {
+            if (index > 0 && contact.isBlank()) {
+                client.contacts.remove(contact);
+            }
+        });
+    }
+
     self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
     self.invoice_item_taxes = ko.observable({{ Auth::user()->account->invoice_item_taxes ? 'true' : 'false' }});
     self.show_item_taxes = ko.observable({{ Auth::user()->account->show_item_taxes ? 'true' : 'false' }});
@@ -115,6 +125,8 @@ function ViewModel(data) {
         }
 
         model.setDueDate();
+        model.clearBlankContacts();
+
         setComboboxValue($('.client_select'), -1, name);
 
         var client = $.parseJSON(ko.toJSON(self.invoice().client()));
@@ -637,6 +649,10 @@ function ContactModel(data) {
     if (data) {
         ko.mapping.fromJS(data, {}, this);
     }
+
+    self.isBlank = ko.computed(function() {
+        return ! self.first_name() && ! self.last_name() && ! self.email() && ! self.phone();
+    });
 
     self.displayName = ko.computed(function() {
         var str = '';
