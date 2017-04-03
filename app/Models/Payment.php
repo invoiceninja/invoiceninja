@@ -238,11 +238,11 @@ class Payment extends EntityModel
             return false;
         }
 
+        Event::fire(new PaymentWasVoided($this));
+
         $this->refunded = $this->amount;
         $this->payment_status_id = PAYMENT_STATUS_VOIDED;
         $this->save();
-
-        Event::fire(new PaymentWasVoided($this));
 
         return true;
     }
