@@ -75,7 +75,7 @@
     </script>
 
 
-    {!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required'])->addClass('warn-on-exit') !!}
+    {!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
 
     <div style="display:none">
     {!! Former::text('action') !!}
