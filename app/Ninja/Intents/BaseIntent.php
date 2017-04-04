@@ -43,7 +43,7 @@ class BaseIntent
 
         foreach ($data->entities as $entity) {
             if ($entity->type === 'EntityType') {
-                $entityType = $entity->entity;
+                $entityType = rtrim($entity->entity, 's');
                 break;
             }
         }
@@ -53,6 +53,9 @@ class BaseIntent
         }
 
         $entityType = ucwords(strtolower($entityType));
+        if ($entityType == 'Recurring') {
+            $entityType = 'RecurringInvoice';
+        }
         $intent = str_replace('Entity', $entityType, $intent);
 
         if ($platform == BOT_PLATFORM_WEB_APP) {
@@ -64,7 +67,7 @@ class BaseIntent
         //echo "Intent: $intent<p>";
 
         if (! class_exists($className)) {
-            throw new Exception(trans('texts.intent_not_supported'));
+            throw new Exception($intent . ': ' . trans('texts.intent_not_supported'));
         }
 
         return new $className($state, $data);
@@ -181,6 +184,22 @@ class BaseIntent
         }
 
         return $data;
+    }
+
+    protected function requestFieldsAsString($fields)
+    {
+        $str = '';
+
+        foreach ($this->requestFields() as $field => $value) {
+            if (in_array($field, $fields)) {
+                $str .= $field . '=' . urlencode($value) . '&';
+            }
+        }
+
+        $str = rtrim($str, '?');
+        $str = rtrim($str, '&');
+
+        return $str;
     }
 
     protected function processField($field)

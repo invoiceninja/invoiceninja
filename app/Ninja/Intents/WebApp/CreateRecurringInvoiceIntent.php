@@ -3,11 +3,9 @@
 namespace App\Ninja\Intents\WebApp;
 
 use App\Models\Invoice;
-use App\Models\EntityModel;
-use App\Ninja\Intents\InvoiceIntent;
-use Exception;
+use App\Ninja\Intents\BaseIntent;
 
-class CreateInvoiceIntent extends InvoiceIntent
+class CreateRecurringInvoiceIntent extends BaseIntent
 {
     public function process()
     {
@@ -16,7 +14,7 @@ class CreateInvoiceIntent extends InvoiceIntent
 
         //$invoiceItems = $this->requestInvoiceItems();
 
-        $url = '/invoices/create/' . $clientPublicId . '?';
+        $url = '/recurring_invoices/create/' . $clientPublicId . '?';
         $url .= $this->requestFieldsAsString(Invoice::$requestFields);
 
         return redirect($url);
