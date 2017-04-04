@@ -1041,7 +1041,7 @@ $LANG = array(
     'invoiced_amount' => 'Invoiced Amount',
     'invoice_item_fields' => 'Invoice Item Fields',
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
-    'recurring_invoice_number' => 'Recurring Invoice Number',
+    'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
 
     // Client Passwords
@@ -2464,7 +2464,7 @@ $LANG = array(
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
     'listening' => 'Listening...',
-    'microphone_help' => 'Say \'Create new invoice for...\'',
+    'microphone_help' => 'Say \'new invoice for...\'',
 
 );
 

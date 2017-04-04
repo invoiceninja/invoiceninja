@@ -12,17 +12,14 @@ class NavigateToIntent extends BaseIntent
         $location = $this->getField('Location');
         $location = str_replace(' ', '_', $location);
 
-        $map = [
-            'report' => 'reports',
-            'settings' => ACCOUNT_COMPANY_DETAILS,
-        ];
-
-        if (isset($map[$location])) {
-            $location = $map[$location];
-        }
-
         if (in_array($location, array_merge(Account::$basicSettings, Account::$advancedSettings))) {
             $location = '/settings/' . $location;
+        } elseif (in_array($location, ['report', 'reports'])) {
+            $location = '/reports';
+        } elseif ($location == 'settings') {
+            $location = '/settings';
+        } else {
+            $location = '/dashboard';
         }
 
         return redirect($location);

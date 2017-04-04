@@ -173,8 +173,8 @@
 
     function onMicrophoneClick() {
       //$('#search').val('create new invoice for edgar a po number of 1234');
+      //$('#search').val('invoice for edgar');
       //$('#search').val('create a task for edgar');
-      //$('#search').val('go to settings');
       //$('#search-form').submit();
       //return;
 
