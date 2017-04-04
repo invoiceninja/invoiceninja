@@ -172,11 +172,11 @@
     }
 
     function onMicrophoneClick() {
-      //$('#search').val('create new invoice for edgar a po number of 1234');
+      $('#search').val('new payment for invoice 1279');
       //$('#search').val('invoice for edgar');
       //$('#search').val('create a task for edgar');
-      //$('#search-form').submit();
-      //return;
+      $('#search-form').submit();
+      return;
 
       $('.fa-microphone').hide();
       $('#search').val("{{ trans('texts.listening') }}");

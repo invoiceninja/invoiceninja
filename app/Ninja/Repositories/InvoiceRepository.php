@@ -1121,4 +1121,26 @@ class InvoiceRepository extends BaseRepository
         $this->save($data, $invoice);
         $invoice->load('invoice_items');
     }
+
+    public function findPhonetically($invoiceNumber)
+    {
+        $map = [];
+        $max = SIMILAR_MIN_THRESHOLD;
+        $invoiceId = 0;
+
+        $invoices = Invoice::scope()->get(['id', 'invoice_number', 'public_id']);
+
+        foreach ($invoices as $invoice) {
+            $map[$invoice->id] = $invoice;
+            $similar = similar_text($invoiceNumber, $invoice->invoice_number, $percent);
+            var_dump($similar);
+            if ($percent > $max) {
+                $invoiceId = $invoice->id;
+                $max = $percent;
+            }
+        }
+
+        return ($invoiceId && isset($map[$invoiceId])) ? $map[$invoiceId] : null;
+    }
+
 }

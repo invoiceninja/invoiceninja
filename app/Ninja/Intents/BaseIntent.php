@@ -84,6 +84,17 @@ class BaseIntent
         return false;
     }
 
+    protected function hasField($field, $value = false)
+    {
+        $fieldValue = $this->getField($field);
+
+        if ($value) {
+            return $fieldValue && $fieldValue == $value;
+        } else {
+            return $fieldValue ? true : false;
+        }
+    }
+
     public function process()
     {
         throw new Exception(trans('texts.intent_not_supported'));
@@ -152,6 +163,20 @@ class BaseIntent
         }
 
         return $client;
+    }
+
+    protected function requestInvoice()
+    {
+        $invoiceRepo = app('App\Ninja\Repositories\InvoiceRepository');
+        $invoice = false;
+
+        foreach ($this->data->entities as $param) {
+            if ($param->type == 'builtin.number') {
+                return $invoiceRepo->findPhonetically($param->entity);
+            }
+        }
+
+        return false;
     }
 
     protected function requestFields()

@@ -8,12 +8,18 @@ class CreatePaymentIntent extends BaseIntent
 {
     public function process()
     {
-        $client = $this->requestClient();
-        $clientPublicId = $client ? $client->public_id : null;
+        $clientPublicId = 0;
+        $invoicePublicId = 0;
+
+        if ($invoice = $this->requestInvoice()) {
+            $invoicePublicId = $invoice->public_id;
+        } elseif ($client = $this->requestClient()) {
+            $clientPublicId = $client->public_id;
+        }
 
         //$invoiceItems = $this->requestInvoiceItems();
 
-        $url = '/payments/create/' . $clientPublicId . '?';
+        $url = sprintf('/payments/create/%s/%s', $clientPublicId, $invoicePublicId);
         //$url .= $this->requestFieldsAsString(Invoice::$requestFields);
 
         return redirect($url);
