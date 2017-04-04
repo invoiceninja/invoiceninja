@@ -2464,6 +2464,7 @@ $LANG = array(
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
     'listening' => 'Listening...',
+    'microphone_help' => 'Say \'Create new invoice for...\'',
 
 );
 

@@ -319,6 +319,15 @@ class EntityModel extends Eloquent
         return array_get($icons, $entityType);
     }
 
+    public function loadFromRequest()
+    {
+        foreach (static::$requestFields as $field) {
+            if ($value = request()->$field) {
+                $this->$field = strpos($field, 'date') ? Utils::fromSqlDate($value) : $value;
+            }
+        }
+    }
+
     // isDirty return true if the field's new value is the same as the old one
     public function isChanged()
     {

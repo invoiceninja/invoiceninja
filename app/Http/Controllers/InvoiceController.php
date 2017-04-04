@@ -194,6 +194,7 @@ class InvoiceController extends BaseController
 
         $invoice = $account->createInvoice($entityType, $clientId);
         $invoice->public_id = 0;
+        $invoice->loadFromRequest();
 
         $clients = Client::scope()->with('contacts', 'country')->orderBy('name');
         if (! Auth::user()->hasPermission('view_all')) {

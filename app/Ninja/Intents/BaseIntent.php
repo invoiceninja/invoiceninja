@@ -187,9 +187,11 @@ class BaseIntent
     {
         $field = str_replace(' ', '_', $field);
 
+        /* Shouldn't be need any more
         if (strpos($field, 'date') !== false) {
             $field .= '_sql';
         }
+        */
 
         return $field;
     }

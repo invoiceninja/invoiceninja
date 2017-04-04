@@ -73,6 +73,18 @@ class Invoice extends EntityModel implements BalanceAffecting
         'date:',
     ];
 
+    /**
+     * @var array
+     */
+    public static $requestFields = [
+        'invoice_number',
+        'invoice_date',
+        'due_date',
+        'po_number',
+        'discount',
+        'partial',
+    ];
+
     public static $statusClasses = [
         INVOICE_STATUS_SENT => 'info',
         INVOICE_STATUS_VIEWED => 'warning',

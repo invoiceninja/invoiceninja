@@ -2,6 +2,7 @@
 
 namespace App\Ninja\Intents\WebApp;
 
+use App\Models\Invoice;
 use App\Models\EntityModel;
 use App\Ninja\Intents\InvoiceIntent;
 use Exception;
@@ -11,18 +12,21 @@ class CreateInvoiceIntent extends InvoiceIntent
     public function process()
     {
         $client = $this->requestClient();
-        $invoiceItems = $this->requestInvoiceItems();
+        $clientPublicId = $client ? $client->public_id : null;
 
-        if (! $client) {
-            throw new Exception(trans('texts.client_not_found'));
+        //$invoiceItems = $this->requestInvoiceItems();
+
+        $url = '/invoices/create/' . $clientPublicId . '?';
+
+        foreach ($this->requestFields() as $field => $value) {
+            if (in_array($field, Invoice::$requestFields)) {
+                $url .= $field . '=' . urlencode($value) . '&';
+            }
         }
 
-        $data = array_merge($this->requestFields(), [
-            'client_id' => $client->public_id,
-            'invoice_items' => $invoiceItems,
-        ]);
+        $url = rtrim($url, '?');
+        $url = rtrim($url, '&');
 
-        //var_dump($data);
-        dd($data);
+        return redirect($url);
     }
 }

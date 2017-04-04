@@ -132,6 +132,12 @@
             $('#left-menu-toggle').trigger('click');
         });
 
+        @if (Utils::isNinja())
+            Mousetrap.bind('r', function(e) {
+                onMicrophoneClick();
+            });
+        @endif
+        
         @foreach([
             'i' => ENTITY_INVOICE,
             'p' => ENTITY_PAYMENT,

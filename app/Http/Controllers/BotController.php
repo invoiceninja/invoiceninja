@@ -100,6 +100,7 @@ class BotController extends Controller
     public function handleCommand()
     {
         $data = $this->parseMessage(request()->command);
+        //dd($data);
         $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, false, $data);
 
         return $intent->process();

@@ -1,20 +1,25 @@
 <i id="microphone" class="fa fa-microphone form-control-feedback"
-  style=""
-  onclick="startButton(event)" aria-hidden="true"></i>
+  title="{{ trans('texts.microphone_help') }}"
+  onclick="onMicrophoneClick()" aria-hidden="true"></i>
 
 <style type="text/css">
     #microphone {
-        font-size:16px;
-        padding-top:8px;
-        cursor:pointer;
-        pointer-events:auto;
-        color:#888;
+        font-size: 16px;
+        padding-top: 8px;
+        cursor: pointer;
+        pointer-events: auto;
+        color: #888;
+    }
+
+    #microphone:hover {
+        color: black;
     }
 </style>
 
 <script type="text/javascript">
 
     // https://developers.google.com/web/updates/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API
+    /*
     $(function() {
         $('#search').keypress(function(event) {
             if (event.keyCode === 13) {
@@ -22,6 +27,7 @@
             }
         })
     })
+    */
 
     var langs =
     [['Afrikaans',       ['af-ZA']],
@@ -99,10 +105,9 @@
     var final_transcript = '';
     var recognizing = false;
     var ignore_onend;
-    var start_timestamp;
 
     if (!('webkitSpeechRecognition' in window)) {
-      upgrade();
+      $('.fa-microphone').hide();
     } else {
       var recognition = new webkitSpeechRecognition();
       recognition.continuous = false;
@@ -136,6 +141,7 @@
         if (!final_transcript) {
           return;
         }
+        $('#search-form').submit();
       };
 
       recognition.onresult = function(event) {
@@ -143,7 +149,7 @@
         if (typeof(event.results) == 'undefined') {
           recognition.onend = null;
           recognition.stop();
-          upgrade();
+          $('.fa-microphone').hide();
           return;
         }
         for (var i = event.resultIndex; i < event.results.length; ++i) {
@@ -154,7 +160,6 @@
           }
         }
         final_transcript = capitalize(final_transcript);
-
         var value = final_transcript || interim_transcript;
         var $search = document.getElementById('search');
         $search.value = value;
@@ -162,22 +167,16 @@
       };
     }
 
-    function upgrade() {
-      $('.fa-microphone').hide();
-    }
-
-    var two_line = /\n\n/g;
-    var one_line = /\n/g;
-    function linebreak(s) {
-      return s.replace(two_line, '<p></p>').replace(one_line, '<br>');
-    }
-
     var first_char = /\S/;
     function capitalize(s) {
       return s.replace(first_char, function(m) { return m.toUpperCase(); });
     }
 
-    function startButton(event) {
+    function onMicrophoneClick() {
+      $('#search').val('create new invoice for edgar a po number of 1234');
+      $('#search-form').submit();
+      return;
+
       $('.fa-microphone').hide();
       $('#search').val("{{ trans('texts.listening') }}");
       if (recognizing) {
@@ -188,7 +187,6 @@
       recognition.lang = 'en-US';
       recognition.start();
       ignore_onend = false;
-      start_timestamp = event.timeStamp;
     }
 
 </script>
