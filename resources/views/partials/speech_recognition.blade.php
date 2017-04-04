@@ -1,6 +1,20 @@
-<i class="fa fa-microphone form-control-feedback" style="font-size:16px;padding-top:8px" aria-hidden="true"></i>
+<i id="microphone" class="fa fa-microphone form-control-feedback"
+  style=""
+  onclick="startButton(event)" aria-hidden="true"></i>
+
+<style type="text/css">
+    #microphone {
+        font-size:16px;
+        padding-top:8px;
+        cursor:pointer;
+        pointer-events:auto;
+        color:#888;
+    }
+</style>
 
 <script type="text/javascript">
+
+    // https://developers.google.com/web/updates/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API
     $(function() {
         $('#search').keypress(function(event) {
             if (event.keyCode === 13) {
@@ -90,54 +104,37 @@
     if (!('webkitSpeechRecognition' in window)) {
       upgrade();
     } else {
-      //start_button.style.display = 'inline-block';
       var recognition = new webkitSpeechRecognition();
-      recognition.continuous = true;
+      recognition.continuous = false;
       recognition.interimResults = true;
 
       recognition.onstart = function() {
         recognizing = true;
-        showInfo('info_speak_now');
-        //start_img.src = '/intl/en/chrome/assets/common/images/content/mic-animate.gif';
       };
 
       recognition.onerror = function(event) {
+        $('.fa-microphone').show();
+        $('#search').val('');
         if (event.error == 'no-speech') {
-          //start_img.src = '/intl/en/chrome/assets/common/images/content/mic.gif';
-          showInfo('info_no_speech');
           ignore_onend = true;
         }
         if (event.error == 'audio-capture') {
-          //start_img.src = '/intl/en/chrome/assets/common/images/content/mic.gif';
-          showInfo('info_no_microphone');
           ignore_onend = true;
         }
         if (event.error == 'not-allowed') {
-          if (event.timeStamp - start_timestamp < 100) {
-            showInfo('info_blocked');
-          } else {
-            showInfo('info_denied');
-          }
           ignore_onend = true;
         }
       };
 
       recognition.onend = function() {
         recognizing = false;
+        $('.fa-microphone').show();
+        $('#search').val('');
         if (ignore_onend) {
           return;
         }
-        //start_img.src = '/intl/en/chrome/assets/common/images/content/mic.gif';
         if (!final_transcript) {
-          showInfo('info_start');
           return;
-        }
-        showInfo('');
-        if (window.getSelection) {
-          window.getSelection().removeAllRanges();
-          var range = document.createRange();
-          range.selectNode(document.getElementById('final_span'));
-          window.getSelection().addRange(range);
         }
       };
 
@@ -157,16 +154,16 @@
           }
         }
         final_transcript = capitalize(final_transcript);
-        //final_span.innerHTML = linebreak(final_transcript);
-        //interim_span.innerHTML = linebreak(interim_transcript);
-        console.log('final_span: %s', linebreak(final_transcript));
-        console.log('interim_span: %s', linebreak(interim_transcript));
+
+        var value = final_transcript || interim_transcript;
+        var $search = document.getElementById('search');
+        $search.value = value;
+        $search.scrollLeft = $search.scrollWidth;
       };
     }
 
     function upgrade() {
-      start_button.style.visibility = 'hidden';
-      showInfo('info_upgrade');
+      $('.fa-microphone').hide();
     }
 
     var two_line = /\n\n/g;
@@ -181,35 +178,17 @@
     }
 
     function startButton(event) {
+      $('.fa-microphone').hide();
+      $('#search').val("{{ trans('texts.listening') }}");
       if (recognizing) {
         recognition.stop();
         return;
       }
       final_transcript = '';
-      recognition.lang = select_dialect.value;
+      recognition.lang = 'en-US';
       recognition.start();
       ignore_onend = false;
-      final_span.innerHTML = '';
-      interim_span.innerHTML = '';
-      //start_img.src = '/intl/en/chrome/assets/common/images/content/mic-slash.gif';
-      showInfo('info_allow');
       start_timestamp = event.timeStamp;
-    }
-
-    function showInfo(s) {
-      console.log('Info: ' + s);
-      /*
-      if (s) {
-        for (var child = info.firstChild; child; child = child.nextSibling) {
-          if (child.style) {
-            child.style.display = child.id == s ? 'inline' : 'none';
-          }
-        }
-        info.style.visibility = 'visible';
-      } else {
-        info.style.visibility = 'hidden';
-      }
-      */
     }
 
 </script>
