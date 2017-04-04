@@ -134,7 +134,6 @@
       recognition.onend = function() {
         recognizing = false;
         $('.fa-microphone').show();
-        $('#search').val('');
         if (ignore_onend) {
           return;
         }
@@ -174,8 +173,8 @@
 
     function onMicrophoneClick() {
       //$('#search').val('create new invoice for edgar a po number of 1234');
-      $('#search').val('create a task for edgar');
-      //$('#search').val('show me all vendors');
+      //$('#search').val('create a task for edgar');
+      $('#search').val('go to localization');
       $('#search-form').submit();
       return;
 

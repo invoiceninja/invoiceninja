@@ -73,6 +73,17 @@ class BaseIntent
         return new $className($state, $data);
     }
 
+    protected function getField($field)
+    {
+        foreach ($this->data->entities as $entity) {
+            if ($entity->type === $field) {
+                return $entity->entity;
+            }
+        }
+
+        return false;
+    }
+
     public function process()
     {
         throw new Exception(trans('texts.intent_not_supported'));
