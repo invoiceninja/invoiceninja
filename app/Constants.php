@@ -325,6 +325,9 @@ if (! defined('APP_NAME')) {
     define('SKYPE_API_URL', 'https://apis.skype.com/v3');
     define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
 
+    define('BOT_PLATFORM_WEB_APP', 'WebApp');
+    define('BOT_PLATFORM_SKYPE', 'Skype');
+
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
 
     define('COUNT_FREE_DESIGNS', 4);

@@ -80,7 +80,7 @@ class BotController extends Controller
                         $user->account->loadLocalizationSettings();
 
                         $data = $this->parseMessage($text);
-                        $intent = BaseIntent::createIntent($state, $data);
+                        $intent = BaseIntent::createIntent($platform, $state, $data);
                         $response = $intent->process();
                         $state = $intent->getState();
                     }
@@ -95,6 +95,14 @@ class BotController extends Controller
         $this->sendResponse($token, $botUserId, $response);
 
         return RESULT_SUCCESS;
+    }
+
+    public function handleCommand()
+    {
+        $data = $this->parseMessage(request()->command);
+        $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, false, $data);
+
+        return $intent->process();
     }
 
     private function authenticate($input)

@@ -32,7 +32,7 @@ class BaseIntent
         //var_dump($state);
     }
 
-    public static function createIntent($state, $data)
+    public static function createIntent($platform, $state, $data)
     {
         if (! count($data->intents)) {
             throw new Exception(trans('texts.intent_not_found'));
@@ -48,13 +48,18 @@ class BaseIntent
             }
         }
 
-        if (! $entityType) {
+        if ($state && ! $entityType) {
             $entityType = $state->current->entityType;
         }
 
         $entityType = ucwords(strtolower($entityType));
         $intent = str_replace('Entity', $entityType, $intent);
-        $className = "App\\Ninja\\Intents\\{$intent}Intent";
+
+        if ($platform == BOT_PLATFORM_WEB_APP) {
+            $className = "App\\Ninja\\Intents\\WebApp\\{$intent}Intent";
+        } else {
+            $className = "App\\Ninja\\Intents\\{$intent}Intent";
+        }
 
         //echo "Intent: $intent<p>";
 
