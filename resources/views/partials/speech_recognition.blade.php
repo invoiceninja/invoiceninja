@@ -174,9 +174,9 @@
     function onMicrophoneClick() {
       //$('#search').val('create new invoice for edgar a po number of 1234');
       //$('#search').val('create a task for edgar');
-      $('#search').val('go to localization');
-      $('#search-form').submit();
-      return;
+      //$('#search').val('go to settings');
+      //$('#search-form').submit();
+      //return;
 
       $('.fa-microphone').hide();
       $('#search').val("{{ trans('texts.listening') }}");

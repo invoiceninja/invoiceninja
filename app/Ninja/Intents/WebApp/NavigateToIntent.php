@@ -14,6 +14,7 @@ class NavigateToIntent extends BaseIntent
 
         $map = [
             'report' => 'reports',
+            'settings' => ACCOUNT_COMPANY_DETAILS,
         ];
 
         if (isset($map[$location])) {
