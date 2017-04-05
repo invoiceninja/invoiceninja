@@ -80,13 +80,6 @@ class BaseIntent
         return new $className($state, $data);
     }
 
-    protected function hasField($field, $value = false)
-    {
-        $fieldValue = $this->getField($field);
-
-        return $value ? $value == $fieldValue : !!$fieldValue;
-    }
-
     protected function getField($field)
     {
         foreach ($this->data->entities as $entity) {
