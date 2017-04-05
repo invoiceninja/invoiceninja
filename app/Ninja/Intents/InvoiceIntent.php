@@ -117,7 +117,7 @@ class InvoiceIntent extends BaseIntent
             }
         }
 
-        if (count($statusIds)) {
+        if (count($statusIds) || $this->hasField('Filter', 'all')) {
             session(['entity_status_filter:' . $entityType => join(',', $statusIds)]);
         }
     }

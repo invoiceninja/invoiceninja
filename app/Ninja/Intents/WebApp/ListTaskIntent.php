@@ -10,7 +10,7 @@ class ListTaskIntent extends BaseIntent
     {
         $this->loadStates(ENTITY_TASK);
 
-        if ($client = $this->requestClient()) {
+        if (! $this->hasField('Filter', 'all') && $client = $this->requestClient()) {
             $url = $client->present()->url . '#tasks';
         } else {
             $url = '/tasks';

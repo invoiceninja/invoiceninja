@@ -110,7 +110,7 @@ class BaseIntent
             return in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]);
         });
 
-        if (count($states)) {
+        if (count($states) || $this->hasField('Filter', 'all')) {
             session(['entity_state_filter:' . $entityType => join(',', $states)]);
         }
     }
