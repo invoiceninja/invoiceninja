@@ -80,6 +80,13 @@ class BaseIntent
         return new $className($state, $data);
     }
 
+    protected function hasField($field, $value = false)
+    {
+        $fieldValue = $this->getField($field);
+
+        return $value ? $value == $fieldValue : !!$fieldValue;
+    }
+
     protected function getField($field)
     {
         foreach ($this->data->entities as $entity) {
@@ -106,7 +113,7 @@ class BaseIntent
 
     protected function loadStates($entityType)
     {
-        $states = array_filter($this->getFields('State'), function($state) {
+        $states = array_filter($this->getFields('Filter'), function($state) {
             return in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]);
         });
 

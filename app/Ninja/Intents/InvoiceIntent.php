@@ -109,7 +109,7 @@ class InvoiceIntent extends BaseIntent
     protected function loadStatuses($entityType)
     {
         $statusIds = [];
-        $statuses = $this->getFields('State');
+        $statuses = $this->getFields('Filter');
 
         foreach ($statuses as $status) {
             if ($statusId = InvoiceStatus::getIdFromAlias($status)) {
