@@ -51,7 +51,7 @@ class BaseIntent
         if ($state && ! $entityType) {
             $entityType = $state->current->entityType;
         }
-
+        $entityType = $entityType ?: 'client';
         $entityType = ucwords(strtolower($entityType));
         if ($entityType == 'Recurring') {
             $entityType = 'RecurringInvoice';

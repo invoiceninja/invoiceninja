@@ -100,6 +100,7 @@ class BotController extends Controller
     public function handleCommand()
     {
         $data = $this->parseMessage(request()->command);
+        //dd($data);
         $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, false, $data);
         return $intent->process();
     }
@@ -153,7 +154,8 @@ class BotController extends Controller
         $subKey = env('MSBOT_LUIS_SUBSCRIPTION_KEY');
         $message = rawurlencode($message);
 
-        $url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
+        $url = sprintf('%s/%s?subscription-key=%s&verbose=true&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
+        //$url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
         $data = file_get_contents($url);
         $data = json_decode($data);
 

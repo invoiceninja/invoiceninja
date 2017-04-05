@@ -8,6 +8,12 @@ class ListQuotesIntent extends BaseIntent
 {
     public function process()
     {
-        return redirect('/quotes');
+        if ($client = $this->requestClient()) {
+            $url = $client->present()->url . '#quotes';
+        } else {
+            $url = '/quotes';
+        }
+
+        return redirect($url);
     }
 }

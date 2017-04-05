@@ -8,6 +8,12 @@ class ListTaskIntent extends BaseIntent
 {
     public function process()
     {
-        return redirect('/tasks');
+        if ($client = $this->requestClient()) {
+            $url = $client->present()->url . '#tasks';
+        } else {
+            $url = '/tasks';
+        }
+
+        return redirect($url);
     }
 }

@@ -172,9 +172,8 @@
     }
 
     function onMicrophoneClick() {
-      $('#search').val('new payment for invoice 1279');
-      //$('#search').val('invoice for edgar');
-      //$('#search').val('create a task for edgar');
+      //$('#search').val("show me all of edgar's credits");
+      $('#search').val("show me edgar's credits");
       $('#search-form').submit();
       return;
 

@@ -8,6 +8,12 @@ class ListInvoiceIntent extends InvoiceIntent
 {
     public function process()
     {
-        return redirect('/invoices');
+        if ($client = $this->requestClient()) {
+            $url = $client->present()->url . '#invoices';
+        } else {
+            $url = '/invoices';
+        }
+
+        return redirect($url);
     }
 }

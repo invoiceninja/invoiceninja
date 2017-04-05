@@ -8,6 +8,12 @@ class ListCreditIntent extends BaseIntent
 {
     public function process()
     {
-        return redirect('/credits');
+        if ($client = $this->requestClient()) {
+            $url = $client->present()->url . '#credits';
+        } else {
+            $url = '/credits';
+        }
+
+        return redirect($url);
     }
 }

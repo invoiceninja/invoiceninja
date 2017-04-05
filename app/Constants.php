@@ -321,7 +321,7 @@ if (! defined('APP_NAME')) {
     define('FIREFOX_PDF_HELP_URL', 'https://support.mozilla.org/en-US/kb/view-pdf-files-firefox');
 
     define('MSBOT_LOGIN_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/token');
-    define('MSBOT_LUIS_URL', 'https://api.projectoxford.ai/luis/v1/application');
+    define('MSBOT_LUIS_URL', 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps');
     define('SKYPE_API_URL', 'https://apis.skype.com/v3');
     define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
 

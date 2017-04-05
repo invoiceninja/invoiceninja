@@ -8,6 +8,12 @@ class ListRecurringInvoiceIntent extends BaseIntent
 {
     public function process()
     {
-        return redirect('/recurring_invoices');
+        if ($client = $this->requestClient()) {
+            $url = $client->present()->url . '#recurring_invoices';
+        } else {
+            $url = '/recurring_invoices';
+        }
+
+        return redirect($url);
     }
 }

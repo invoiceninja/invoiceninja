@@ -8,6 +8,12 @@ class ListPaymentIntent extends BaseIntent
 {
     public function process()
     {
-        return redirect('/payments');
+        if ($client = $this->requestClient()) {
+            $url = $client->present()->url . '#payments';
+        } else {
+            $url = '/payments';
+        }
+
+        return redirect($url);
     }
 }
