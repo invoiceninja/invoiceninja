@@ -2,12 +2,15 @@
 
 namespace App\Ninja\Intents\WebApp;
 
-use App\Ninja\Intents\BaseIntent;
+use App\Ninja\Intents\InvoiceIntent;
 
-class ListQuotesIntent extends BaseIntent
+class ListQuoteIntent extends InvoiceIntent
 {
     public function process()
     {
+        $this->loadStates(ENTITY_QUOTE);
+        $this->loadStatuses(ENTITY_QUOTE);
+
         if ($client = $this->requestClient()) {
             $url = $client->present()->url . '#quotes';
         } else {

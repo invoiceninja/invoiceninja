@@ -8,6 +8,8 @@ class ListClientIntent extends BaseIntent
 {
     public function process()
     {
+        $this->loadStates(ENTITY_CLIENT);
+
         return redirect('/clients');
     }
 }

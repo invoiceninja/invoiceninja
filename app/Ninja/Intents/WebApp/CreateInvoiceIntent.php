@@ -19,6 +19,9 @@ class CreateInvoiceIntent extends InvoiceIntent
         $url = '/invoices/create/' . $clientPublicId . '?';
         $url .= $this->requestFieldsAsString(Invoice::$requestFields);
 
+        $url = rtrim($url, '?');
+        $url = rtrim($url, '&');
+
         return redirect($url);
     }
 }

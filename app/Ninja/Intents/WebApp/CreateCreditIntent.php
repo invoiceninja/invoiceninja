@@ -13,7 +13,7 @@ class CreateCreditIntent extends BaseIntent
 
         //$invoiceItems = $this->requestInvoiceItems();
 
-        $url = '/credits/create/' . $clientPublicId . '?';
+        $url = '/credits/create/' . $clientPublicId;
         //$url .= $this->requestFieldsAsString(Invoice::$requestFields);
 
         return redirect($url);

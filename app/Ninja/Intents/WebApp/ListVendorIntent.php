@@ -8,6 +8,8 @@ class ListVendorIntent extends BaseIntent
 {
     public function process()
     {
+        $this->loadStates(ENTITY_VENDOR);
+
         return redirect('/vendors');
     }
 }

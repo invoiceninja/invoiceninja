@@ -8,6 +8,8 @@ class ListExpenseIntent extends BaseIntent
 {
     public function process()
     {
+        $this->loadStates(ENTITY_EXPENSE);
+
         return redirect('/expenses');
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Ninja\Intents;
 
 use App\Models\Invoice;
+use App\Models\InvoiceStatus;
 use Auth;
 use Exception;
 
@@ -103,5 +104,21 @@ class InvoiceIntent extends BaseIntent
         */
 
         return $invoiceItems;
+    }
+
+    protected function loadStatuses($entityType)
+    {
+        $statusIds = [];
+        $statuses = $this->getFields('State');
+
+        foreach ($statuses as $status) {
+            if ($statusId = InvoiceStatus::getIdFromAlias($status)) {
+                $statusIds[] = $statusId;
+            }
+        }
+
+        if (count($statusIds)) {
+            session(['entity_status_filter:' . $entityType => join(',', $statusIds)]);
+        }
     }
 }

@@ -8,6 +8,8 @@ class ListCreditIntent extends BaseIntent
 {
     public function process()
     {
+        $this->loadStates(ENTITY_CREDIT);
+
         if ($client = $this->requestClient()) {
             $url = $client->present()->url . '#credits';
         } else {

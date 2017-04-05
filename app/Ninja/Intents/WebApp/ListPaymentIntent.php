@@ -8,6 +8,8 @@ class ListPaymentIntent extends BaseIntent
 {
     public function process()
     {
+        $this->loadStates(ENTITY_PAYMENT);
+
         if ($client = $this->requestClient()) {
             $url = $client->present()->url . '#payments';
         } else {

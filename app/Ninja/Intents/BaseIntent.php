@@ -16,20 +16,27 @@ class BaseIntent
     {
         //if (true) {
         if (! $state || is_string($state)) {
-            $state = new stdClass();
-            foreach (['current', 'previous'] as $reference) {
-                $state->$reference = new stdClass();
-                $state->$reference->entityType = false;
-                foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
-                    $state->$reference->$entityType = [];
-                }
-            }
+            $state = static::blankState();
         }
 
         $this->state = $state;
         $this->data = $data;
 
         //var_dump($state);
+    }
+
+    public static function blankState()
+    {
+        $state = new stdClass();
+        foreach (['current', 'previous'] as $reference) {
+            $state->$reference = new stdClass();
+            $state->$reference->entityType = false;
+            foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
+                $state->$reference->$entityType = [];
+            }
+        }
+
+        return $state;
     }
 
     public static function createIntent($platform, $state, $data)
@@ -67,7 +74,7 @@ class BaseIntent
         //echo "Intent: $intent<p>";
 
         if (! class_exists($className)) {
-            throw new Exception($intent . ': ' . trans('texts.intent_not_supported'));
+            throw new Exception($intent . '... ' . trans('texts.intent_not_supported'));
         }
 
         return new $className($state, $data);
@@ -82,6 +89,30 @@ class BaseIntent
         }
 
         return false;
+    }
+
+    protected function getFields($field)
+    {
+        $data = [];
+
+        foreach ($this->data->entities as $entity) {
+            if ($entity->type === $field) {
+                $data[] = $entity->entity;
+            }
+        }
+
+        return $data;
+    }
+
+    protected function loadStates($entityType)
+    {
+        $states = array_filter($this->getFields('State'), function($state) {
+            return in_array($state, [STATUS_ACTIVE, STATUS_ARCHIVED, STATUS_DELETED]);
+        });
+
+        if (count($states)) {
+            session(['entity_state_filter:' . $entityType => join(',', $states)]);
+        }
     }
 
     protected function hasField($field, $value = false)
@@ -158,8 +189,13 @@ class BaseIntent
 
         foreach ($this->data->entities as $param) {
             if ($param->type == 'Name') {
+                $param->type = rtrim($param->type, ' \' s');
                 $client = $clientRepo->findPhonetically($param->entity);
             }
+        }
+
+        if (! $client) {
+            $client = $this->state->current->client;
         }
 
         return $client;

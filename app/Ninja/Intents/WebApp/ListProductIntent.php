@@ -8,6 +8,8 @@ class ListProductIntent extends BaseIntent
 {
     public function process()
     {
+        $this->loadStates(ENTITY_PRODUCT);
+
         return redirect('/products');
     }
 }

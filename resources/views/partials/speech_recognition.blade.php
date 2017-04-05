@@ -173,9 +173,10 @@
 
     function onMicrophoneClick() {
       //$('#search').val("show me all of edgar's credits");
-      $('#search').val("show me edgar's credits");
-      $('#search-form').submit();
-      return;
+      //$('#search').val("new invoice for joe, set the due date to today and the discount to ten percent");
+      //$('#search').val("list joe's active and approved quotes");
+      //$('#search-form').submit();
+      //return;
 
       $('.fa-microphone').hide();
       $('#search').val("{{ trans('texts.listening') }}");
