@@ -2,6 +2,10 @@
 
 namespace App\Ninja\Repositories;
 
+use App\Events\InvoiceWasCreated;
+use App\Events\InvoiceWasUpdated;
+use App\Events\QuoteWasCreated;
+use App\Events\QuoteWasUpdated;
 use App\Jobs\SendInvoiceEmail;
 use App\Models\Account;
 use App\Models\Client;
@@ -693,6 +697,8 @@ class InvoiceRepository extends BaseRepository
             $invoice = $this->saveInvitations($invoice);
         }
 
+        $this->dispachEvents($invoice);
+
         return $invoice;
     }
 
@@ -732,6 +738,23 @@ class InvoiceRepository extends BaseRepository
         }
 
         return $invoice;
+    }
+
+    private function dispachEvents($invoice)
+    {
+        if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
+            if ($invoice->wasRecentlyCreated) {
+                event(new QuoteWasCreated($invoice));
+            } else {
+                event(new QuoteWasUpdated($invoice));
+            }
+        } else {
+            if ($invoice->wasRecentlyCreated) {
+                event(new InvoiceWasCreated($invoice));
+            } else {
+                event(new InvoiceWasUpdated($invoice));
+            }
+        }
     }
 
     /**

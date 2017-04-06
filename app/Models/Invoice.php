@@ -3,11 +3,7 @@
 namespace App\Models;
 
 use App\Events\InvoiceInvitationWasEmailed;
-use App\Events\InvoiceWasCreated;
-use App\Events\InvoiceWasUpdated;
 use App\Events\QuoteInvitationWasEmailed;
-use App\Events\QuoteWasCreated;
-use App\Events\QuoteWasUpdated;
 use App\Libraries\CurlUtils;
 use App\Models\Activity;
 use App\Models\Traits\ChargesFees;
@@ -1520,21 +1516,5 @@ class Invoice extends EntityModel implements BalanceAffecting
 Invoice::creating(function ($invoice) {
     if (! $invoice->is_recurring && $invoice->amount >= 0) {
         $invoice->account->incrementCounter($invoice);
-    }
-});
-
-Invoice::created(function ($invoice) {
-    if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-        event(new QuoteWasCreated($invoice));
-    } else {
-        event(new InvoiceWasCreated($invoice));
-    }
-});
-
-Invoice::updating(function ($invoice) {
-    if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-        event(new QuoteWasUpdated($invoice));
-    } else {
-        event(new InvoiceWasUpdated($invoice));
     }
 });
