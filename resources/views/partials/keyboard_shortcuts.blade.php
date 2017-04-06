@@ -36,7 +36,7 @@
       <div class="panel panel-default">
       <div class="panel-body help-panel">
 
-          @if (Utils::isNinja() && Utils::isPro())
+          @if (env('SPEECH_ENABLED'))
               <div role="tabpanel">
                   <ul class="nav nav-tabs" role="tablist" style="border: none">
                       <li role="presentation" class="active">
