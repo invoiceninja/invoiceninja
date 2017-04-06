@@ -313,7 +313,7 @@
         <div class="form-group has-feedback">
           <input type="text" name="command" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px;margin-right:12px;"
             class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}"/>
-            @if (Utils::isNinja() && Utils::isPro() && env('SPEECH_ENABLED'))
+            @if (env('SPEECH_ENABLED'))
                 @include('partials/speech_recognition')
             @endif
         </div>

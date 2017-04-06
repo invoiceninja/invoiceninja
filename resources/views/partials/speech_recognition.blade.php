@@ -19,15 +19,6 @@
 <script type="text/javascript">
 
     // https://developers.google.com/web/updates/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API
-    /*
-    $(function() {
-        $('#search').keypress(function(event) {
-            if (event.keyCode === 13) {
-                $('#search-form').submit();
-            }
-        })
-    })
-    */
 
     var langs =
     [['Afrikaans',       ['af-ZA']],
@@ -172,9 +163,7 @@
     }
 
     function onMicrophoneClick() {
-      //$('#search').val("show me all deleted payments");
-      //$('#search').val("new invoice for joe, set the due date to today and the discount to ten percent");
-      //$('#search').val("34123 1234123 1324");
+      //$('#search').val("");
       //$('#search-form').submit();
       //return;
 
