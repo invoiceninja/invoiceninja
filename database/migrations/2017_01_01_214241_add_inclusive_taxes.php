@@ -59,7 +59,9 @@ class AddInclusiveTaxes extends Migration
 
         Schema::table('accounts', function ($table) {
             $table->enum('bluevine_status', ['ignored', 'signed_up'])->nullable();
-            $table->dropColumn('bcc_email');
+            if (Schema::hasColumn('accounts', 'bcc_email')) {
+                $table->dropColumn('bcc_email');
+            }
             $table->dropColumn('client_number_prefix');
             $table->dropColumn('client_number_counter');
             $table->dropColumn('client_number_pattern');
