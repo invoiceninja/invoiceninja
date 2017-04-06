@@ -2465,6 +2465,9 @@ $LANG = array(
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
     'listening' => 'Listening...',
     'microphone_help' => 'Say \'new invoice for...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
 
 );
 

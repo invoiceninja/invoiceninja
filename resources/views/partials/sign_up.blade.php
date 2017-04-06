@@ -228,7 +228,7 @@
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
             </div>
 
-            <center><div id="errorTaken" style="display:none">&nbsp;<br/><b>{{ trans('texts.email_taken') }}<b></div></center>
+            <center><div id="errorTaken" style="display:none">&nbsp;<br/><b>{{ trans('texts.email_taken') }}</b></div></center>
 
             <div class="col-md-12">
                 @if (Auth::user()->registered)

@@ -398,7 +398,7 @@
                     <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
                         <i class="fa fa-list-ul"></i>
                     </a>
-                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.keyboard_shortcuts') }}">
+                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.help') }}">
                         <i class="fa fa-question-circle"></i>
                     </a>
                     <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="Facebook">
