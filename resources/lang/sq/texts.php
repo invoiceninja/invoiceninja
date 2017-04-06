@@ -848,6 +848,7 @@ $LANG = array(
     'dark' => 'E mbylltë',
     'industry_help' => 'Përdoret për të realizuar krahasime ndaj kompanive mesatere me numër puntorësh të ngjashëm.',
     'subdomain_help' => 'Set the subdomain or display the invoice on your own website.',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Caktoni një prefiks ose ndonjë shabllon të caktuar për të dinamizuar numrin e faturave.',
     'quote_number_help' => 'Caktoni një prefiks ose ndonjë shabllon të caktuar për të dinamizuar numrin e ofertave.',
     'custom_client_fields_helps' => 'Shtoni një fushë ë kur të zgjedhni klientin të shfaqet vlera në PDF.',
@@ -1039,7 +1040,7 @@ $LANG = array(
     'invoice_item_fields' => '
 Fushat e njësive në faturë',
     'custom_invoice_item_fields_help' => 'Shtoni një fushë ë kur të krijoni faturë dhe etiketa me vlerë të shfaqen në PDF.',
-    'recurring_invoice_number' => 'Numri i faturës së përsëritshme',
+    'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Cakto një prefiks që i shtohet numrit të faturave të përsëritshme. Vlera e paracaktuar është "R".',
 
     // Client Passwords
@@ -2461,6 +2462,12 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'listening' => 'Listening...',
+    'microphone_help' => 'Say \'new invoice for...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 

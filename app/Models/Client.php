@@ -543,7 +543,15 @@ class Client extends EntityModel
      */
     public function hasAutoBillConfigurableInvoices()
     {
-        return $this->invoices()->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
+        return $this->invoices()->whereIsPublic(true)->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRecurringInvoices()
+    {
+        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->count() > 0;
     }
 
     public function defaultDaysDue()

@@ -29,52 +29,95 @@
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.keyboard_shortcuts') }}</h4>
+        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.help') }}</h4>
       </div>
 
       <div class="container" style="width: 100%; padding-bottom: 0px !important">
       <div class="panel panel-default">
       <div class="panel-body help-panel">
-          <div class="row">
-              <div class="col-md-3"><div>?</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.help') }}</div>
-              <div class="col-md-3"><div>N</div><div>C</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.new_client') }}</div>
+
+          @if (Utils::isNinja() && Utils::isPro())
+              <div role="tabpanel">
+                  <ul class="nav nav-tabs" role="tablist" style="border: none">
+                      <li role="presentation" class="active">
+                          <a href="#keyboard_shortcuts" aria-controls="keyboard_shortcuts" role="tab" data-toggle="tab">{{ trans('texts.keyboard_shortcuts') }}</a>
+                      </li>
+                      <li role="presentation">
+                          <a href="#voice_commands" aria-controls="voice_commands" role="tab" data-toggle="tab">{{ trans('texts.voice_commands') }}</a>
+                      </li>
+                  </ul>
+              </div>
+              </br>
+          @endif
+
+          <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="keyboard_shortcuts">
+
+                  <div class="row">
+                      <div class="col-md-3"><div>?</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.help') }}</div>
+                      <div class="col-md-3"><div>N</div><div>C</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.new_client') }}</div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-3"><div>/</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.search') }}</div>
+                      <div class="col-md-3"><div>N</div><div>I</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.new_invoice') }}</div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-3"><div>M</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.menu') }}</div>
+                      <div class="col-md-3"><div>N</div><div>...</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.new_...') }}</div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-3"><div>H</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.history') }}</div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-3"></div>
+                      <div class="col-md-3"></div>
+                      <div class="col-md-3"><div>L</div><div>C</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.list_clients') }}</div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-3"><div>G</div><div>D</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.dashboard') }}</div>
+                      <div class="col-md-3"><div>L</div><div>I</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.list_invoices') }}</div>
+                  </div>
+                  <div class="row">
+                      <div class="col-md-3"><div>G</div><div>S</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.settings') }}</div>
+                      <div class="col-md-3"><div>L</div><div>...</div></div>
+                      <div class="col-md-3 key-label">{{ trans('texts.list_...') }}</div>
+                  </div>
+
+              </div>
+
+              <div role="tabpanel" class="tab-pane" id="voice_commands">
+                  <div class="row">
+                      <p>
+                          {{ trans('texts.sample_commands') }}:
+                      </p>
+                      <p>
+                          <ul>
+                              <li>Go to the dashboard</li>
+                              <li>List active and deleted tasks</li>
+                              <li>Find &lt;client name&gt;</li>
+                              <li>Show me &lt;client name&gt;'s overdue invoices</li>
+                              <li>New invoice for &lt;client name&gt;</li>
+                              <li>Create payment for invoice &lt;invoice number&gt;</li>
+                          </ul>
+                      </p>
+                      <p>
+                          {!! trans('texts.voice_commands_feedback', ['email' => HTML::mailto(CONTACT_EMAIL)]) !!}
+                      </p>
+                  </div>
+              </div>
           </div>
-          <div class="row">
-              <div class="col-md-3"><div>/</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.search') }}</div>
-              <div class="col-md-3"><div>N</div><div>I</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.new_invoice') }}</div>
-          </div>
-          <div class="row">
-              <div class="col-md-3"><div>M</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.menu') }}</div>
-              <div class="col-md-3"><div>N</div><div>...</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.new_...') }}</div>
-          </div>
-          <div class="row">
-              <div class="col-md-3"><div>H</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.history') }}</div>
-          </div>
-          <div class="row">
-              <div class="col-md-3"></div>
-              <div class="col-md-3"></div>
-              <div class="col-md-3"><div>L</div><div>C</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.list_clients') }}</div>
-          </div>
-          <div class="row">
-              <div class="col-md-3"><div>G</div><div>D</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.dashboard') }}</div>
-              <div class="col-md-3"><div>L</div><div>I</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.list_invoices') }}</div>
-          </div>
-          <div class="row">
-              <div class="col-md-3"><div>G</div><div>S</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.settings') }}</div>
-              <div class="col-md-3"><div>L</div><div>...</div></div>
-              <div class="col-md-3 key-label">{{ trans('texts.list_...') }}</div>
-          </div>
+
       </div>
       </div>
       </div>
@@ -131,6 +174,12 @@
         Mousetrap.bind('m', function(e) {
             $('#left-menu-toggle').trigger('click');
         });
+
+        @if (Utils::isNinja())
+            Mousetrap.bind('r', function(e) {
+                onMicrophoneClick();
+            });
+        @endif
 
         @foreach([
             'i' => ENTITY_INVOICE,

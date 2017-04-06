@@ -127,6 +127,7 @@ Route::group(['middleware' => 'auth:user'], function () {
     Route::get('check_invoice_number/{invoice_id?}', 'InvoiceController@checkInvoiceNumber');
     Route::post('save_sidebar_state', 'UserController@saveSidebarState');
     Route::post('contact_us', 'HomeController@contactUs');
+    Route::post('handle_command', 'BotController@handleCommand');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');

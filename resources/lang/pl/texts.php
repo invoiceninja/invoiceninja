@@ -851,6 +851,7 @@ $LANG = array(
     'dark' => 'Ciemny',
     'industry_help' => 'Informacje używane w celach porównawczych przy obliczaniu statystyk firm podobnych rozmiarów i branż.',
     'subdomain_help' => 'Ustaw subdomenę lub wyświetl fakturę na swojej stronie.',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
     'quote_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the quote number.',
     'custom_client_fields_helps' => 'Add a field when creating a client and display the label and value on the PDF.',
@@ -1041,7 +1042,7 @@ $LANG = array(
     'invoiced_amount' => 'Fakturowana kwota',
     'invoice_item_fields' => 'Invoice Item Fields',
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
-    'recurring_invoice_number' => 'Numer faktury okresowej',
+    'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Dodaj własny prefix do numeru faktury okresowej. Wartość domyślna to \'R\'.',
 
     // Client Passwords
@@ -2463,6 +2464,12 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'listening' => 'Listening...',
+    'microphone_help' => 'Say \'new invoice for...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 

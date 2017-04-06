@@ -850,6 +850,7 @@ $LANG = array(
     'dark' => 'Mörk',
     'industry_help' => 'Används för att ge jämförelser mot genomsnitten för företag med liknande storlek och bransch.',
     'subdomain_help' => 'Ställ in subdomänen eller visa fakturorna på din egen hemsida',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Specifiera ett prefix eller anpassat mönster för att dynamiskt sätta fakturanummer.',
     'quote_number_help' => 'Specifiera ett prefix eller använd ett anpassat mönster för att dynamiskt sätta offert nummer.',
     'custom_client_fields_helps' => 'Lägga till ett fält när du skapar en klient och visa etiketten och värdet på PDF.',
@@ -1040,7 +1041,7 @@ $LANG = array(
     'invoiced_amount' => 'Fakturerad summa',
     'invoice_item_fields' => 'Fakturerat varu belopp',
     'custom_invoice_item_fields_help' => 'Lägg till ett fält när fakturan skapas och visa namn samt värde på PDF´n',
-    'recurring_invoice_number' => 'Återkommande faktura nummer',
+    'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Specificera ett prefix att lägga till på återkommande fakturor. Standard värde är \'R\'',
 
     // Client Passwords
@@ -2476,6 +2477,12 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'listening' => 'Listening...',
+    'microphone_help' => 'Say \'new invoice for...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 

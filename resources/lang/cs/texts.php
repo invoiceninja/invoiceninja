@@ -852,6 +852,7 @@ $LANG = array(
     'dark' => 'Tmavý',
     'industry_help' => 'Používá se pro porovnání proti průměru u firem podobné velikosti a podobného odvětví.',
     'subdomain_help' => 'Set the subdomain or display the invoice on your own website.',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Určete prefix nebo použijte upravitelný vzorec pro nastavení číslování faktur.',
     'quote_number_help' => 'Určete prefix nebo použijte upravitelný vzorec pro nastavení číslování nabídek.',
     'custom_client_fields_helps' => 'Když vytváříte klienta - přidejte nové pole a jeho popis a hodnotu pro zobrazení v PDF.',
@@ -1043,7 +1044,7 @@ $LANG = array(
     'invoiced_amount' => 'Fakturovaná částka',
     'invoice_item_fields' => 'Pole položky faktury',
     'custom_invoice_item_fields_help' => 'Během vytváření faktury si přidejte pole a zobrazte si jeho popis a hodnotu v PDF.',
-    'recurring_invoice_number' => 'Číslo pravidelné faktury',
+    'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Určete prefix, který se přidá k číslu pravidelných faktur. Výchozí hodnota je \'R\'.',
 
     // Client Passwords
@@ -2465,6 +2466,12 @@ $LANG = array(
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'listening' => 'Listening...',
+    'microphone_help' => 'Say \'new invoice for...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 

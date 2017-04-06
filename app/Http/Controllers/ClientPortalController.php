@@ -326,14 +326,20 @@ class ClientPortalController extends BaseController
         }
 
         $color = $account->primary_color ? $account->primary_color : '#0b4d78';
+        $columns = ['frequency', 'start_date', 'end_date', 'invoice_total'];
+        $client = $contact->client;
+
+        if ($client->hasAutoBillConfigurableInvoices()) {
+            $columns[] = 'auto_bill';
+        }
 
         $data = [
             'color' => $color,
             'account' => $account,
-            'client' => $contact->client,
+            'client' => $client,
             'title' => trans('texts.recurring_invoices'),
             'entityType' => ENTITY_RECURRING_INVOICE,
-            'columns' => Utils::trans(['frequency', 'start_date', 'end_date', 'invoice_total', 'auto_bill']),
+            'columns' => Utils::trans($columns),
         ];
 
         return response()->view('public_list', $data);

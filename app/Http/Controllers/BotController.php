@@ -80,7 +80,7 @@ class BotController extends Controller
                         $user->account->loadLocalizationSettings();
 
                         $data = $this->parseMessage($text);
-                        $intent = BaseIntent::createIntent($state, $data);
+                        $intent = BaseIntent::createIntent($platform, $state, $data);
                         $response = $intent->process();
                         $state = $intent->getState();
                     }
@@ -95,6 +95,20 @@ class BotController extends Controller
         $this->sendResponse($token, $botUserId, $response);
 
         return RESULT_SUCCESS;
+    }
+
+    public function handleCommand()
+    {
+        $command = request()->command;
+        $data = $this->parseMessage($command);
+
+        try {
+            $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, false, $data);
+            return $intent->process();
+        } catch (Exception $exception) {
+            $message = sprintf('"%s"<br/>%s', $command, $exception->getMessage());
+            return redirect()->back()->withWarning($message);
+        }
     }
 
     private function authenticate($input)
@@ -146,7 +160,8 @@ class BotController extends Controller
         $subKey = env('MSBOT_LUIS_SUBSCRIPTION_KEY');
         $message = rawurlencode($message);
 
-        $url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
+        $url = sprintf('%s/%s?subscription-key=%s&verbose=true&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
+        //$url = sprintf('%s?id=%s&subscription-key=%s&q=%s', MSBOT_LUIS_URL, $appId, $subKey, $message);
         $data = file_get_contents($url);
         $data = json_decode($data);
 

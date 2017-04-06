@@ -309,12 +309,15 @@
 
       </div>
 
-      <form id="search-form" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px"
-            class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}">
+      {!! Former::open('/handle_command')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
+        <div class="form-group has-feedback">
+          <input type="text" name="command" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px;margin-right:12px;"
+            class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}"/>
+            @if (env('SPEECH_ENABLED'))
+                @include('partials/speech_recognition')
+            @endif
         </div>
-      </form>
+      {!! Former::close() !!}
 
       @if (false && Utils::isAdmin())
       <ul class="nav navbar-nav navbar-right">
@@ -394,7 +397,7 @@
                     <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
                         <i class="fa fa-list-ul"></i>
                     </a>
-                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.keyboard_shortcuts') }}">
+                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.help') }}">
                         <i class="fa fa-question-circle"></i>
                     </a>
                     <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="Facebook">

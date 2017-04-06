@@ -845,6 +845,7 @@ $LANG = array(
     'dark' => 'Foncé',
     'industry_help' => 'Pour des fins de comparaison entre des entreprises de même taille et du même secteur d\'activité.',
     'subdomain_help' => 'Définissez le sous-domaine ou affichez la facture sur votre site web.',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Spécifiez un préfixe ou utilisez un modèle personnalisé pour la création du numéro de facture.',
     'quote_number_help' => 'Spécifiez un préfixe ou utilisez un modèle personnalisé pour la création du numéro de soumission.',
     'custom_client_fields_helps' => 'Ajoutez un champ personnalisé à la page de création/édition de client et affichez le titre et la valeur dans le fichier PDF.',
@@ -1032,7 +1033,7 @@ $LANG = array(
     'invoiced_amount' => 'Montant facturé',
     'invoice_item_fields' => 'Champs d\'items de facture',
     'custom_invoice_item_fields_help' => 'Ajoutez un champ lors de la création d\'une facture pour afficher le libellé et la valeur du champ sur le PDF.',
-    'recurring_invoice_number' => 'Numéro de facture récurrente',
+    'recurring_invoice_number' => 'Numéro récurrent',
     'recurring_invoice_number_prefix_help' => 'Spécifiez un préfixe qui sera ajouté au numéro de la facture récurrente. La valeur par défaut est \'R\'.',
 
     // Client Passwords
@@ -2452,9 +2453,15 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'reply_to_email' => 'Courriel de réponse',
     'reply_to_email_help' => 'Spécifie une adresse courriel de réponse',
     'bcc_email_help' => 'Inclut de façon privée cette adresse avec les courriels du client.',
-    'import_complete' => 'Your import has successfully completed.',
-    'confirm_account_to_import' => 'Please confirm your account to import data.',
-    'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'import_complete' => 'L\'importation est réussie.',
+    'confirm_account_to_import' => 'Veuillez confirmer votre compte pour l\'importation des données.',
+    'import_started' => 'L\'importation est en cours. Vous recevrez un courriel lorsqu\'elle sera complétée.',
+    'listening' => 'En écoute...',
+    'microphone_help' => 'Dites \'Nouvelle facture pour...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 

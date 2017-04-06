@@ -51,12 +51,10 @@
 
                 <div role="tabpanel">
                     <ul class="nav nav-tabs" role="tablist" style="border: none">
-                        @if (Utils::isNinja())
-                            <li role="presentation" class="active">
-                                <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
-                            </li>
-                        @endif
-                        <li role="presentation" {{ Utils::isNinja() ? '' : 'class="active"' }}>
+                        <li role="presentation" class="active">
+                            <a href="#link" aria-controls="link" role="tab" data-toggle="tab">{{ trans('texts.link') }}</a>
+                        </li>
+                        <li role="presentation">
                             <a href="#navigation" aria-controls="navigation" role="tab" data-toggle="tab">{{ trans('texts.navigation') }}</a>
                         </li>
                         <li role="presentation">
@@ -66,11 +64,10 @@
                 </div>
 
                 <div class="tab-content">
-                    @if (Utils::isNinja())
                     <div role="tabpanel" class="tab-pane active" id="link">
                         <div class="panel-body">
 
-                            @if (! Utils::isReseller())
+                            @if (Utils::isNinja() && ! Utils::isReseller())
                                 {!! Former::inline_radios('domain_id')
                                         ->label(trans('texts.domain'))
                                         ->radios([
@@ -80,36 +77,38 @@
                                         ->help($account->iframe_url ? 'domain_help_website' : 'domain_help') !!}
                             @endif
 
-                            {!! Former::inline_radios('custom_invoice_link')
-                                    ->onchange('onCustomLinkChange()')
-                                    ->label(trans('texts.customize'))
-                                    ->radios([
-                                        trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
-                                        trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
-                                    ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
-                            {{ Former::setOption('capitalize_translations', false) }}
+                            @if (Utils::isNinja())
 
-                            {!! Former::text('subdomain')
-                                        ->placeholder(Utils::isNinja() ? 'app' : trans('texts.www'))
-                                        ->onchange('onSubdomainChange()')
-                                        ->addGroupClass('subdomain')
-                                        ->label(' ')
-                                        ->help(trans('texts.subdomain_help')) !!}
+                                {!! Former::inline_radios('custom_invoice_link')
+                                        ->onchange('onCustomLinkChange()')
+                                        ->label(trans('texts.customize'))
+                                        ->radios([
+                                            trans('texts.subdomain') => ['value' => 'subdomain', 'name' => 'custom_link'],
+                                            trans('texts.website') => ['value' => 'website', 'name' => 'custom_link'],
+                                        ])->check($account->iframe_url ? 'website' : 'subdomain') !!}
+                                {{ Former::setOption('capitalize_translations', false) }}
+
+                                {!! Former::text('subdomain')
+                                            ->placeholder(Utils::isNinja() ? 'app' : trans('texts.www'))
+                                            ->onchange('onSubdomainChange()')
+                                            ->addGroupClass('subdomain')
+                                            ->label(' ')
+                                            ->help(trans('texts.subdomain_help')) !!}
+                            @endif
 
                             {!! Former::text('iframe_url')
                                         ->placeholder('https://www.example.com/invoice')
                                         ->appendIcon('question-sign')
                                         ->addGroupClass('iframe_url')
-                                        ->label(' ')
-                                        ->help(trans('texts.subdomain_help')) !!}
+                                        ->label(Utils::isNinja() ? ' ' : trans('texts.website'))
+                                        ->help(trans(Utils::isNinja() ? 'texts.subdomain_help' : 'texts.website_help')) !!}
 
                             {!! Former::plaintext('preview')
                                         ->value($account->getSampleLink()) !!}
 
                         </div>
                     </div>
-                    @endif
-                    <div role="tabpanel" class="tab-pane  {{ Utils::isNinja() ? '' : 'active' }}" id="navigation">
+                    <div role="tabpanel" class="tab-pane" id="navigation">
                         <div class="panel-body">
 
                             {!! Former::checkbox('enable_client_portal')
