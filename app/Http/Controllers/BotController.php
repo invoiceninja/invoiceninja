@@ -6,7 +6,6 @@ use App\Libraries\CurlUtils;
 use App\Libraries\Skype\SkypeResponse;
 use App\Models\SecurityCode;
 use App\Models\User;
-use App\Models\Client;
 use App\Ninja\Intents\BaseIntent;
 use App\Ninja\Mailers\UserMailer;
 use Auth;
@@ -100,27 +99,14 @@ class BotController extends Controller
 
     public function handleCommand()
     {
-        $data = $this->parseMessage(request()->command);
-
-        // If they're viewing a client set it as the current state
-        $state = false;
-        $url = url()->previous();
-        preg_match('/clients\/(\d*)/', $url, $matches);
-        if (count($matches) >= 2) {
-            if ($client = Client::scope($matches[1])->first()) {
-                $state = BaseIntent::blankState();
-                $state->current->client = $client;
-            }
-        }
+        $command = request()->command;
+        $data = $this->parseMessage($command);
 
         try {
-            $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, $state, $data);
+            $intent = BaseIntent::createIntent(BOT_PLATFORM_WEB_APP, false, $data);
             return $intent->process();
         } catch (Exception $exception) {
-            $message = $exception->getMessage();
-            if (env('APP_DEBUG')) {
-                $message .= '<br/>' . request()->command . ' => ' . json_encode($data);
-            }
+            $message = sprintf('"%s"<br/>%s', $command, $exception->getMessage());
             return redirect()->back()->withWarning($message);
         }
     }

@@ -11,7 +11,7 @@ class ListQuoteIntent extends InvoiceIntent
         $this->loadStates(ENTITY_QUOTE);
         $this->loadStatuses(ENTITY_QUOTE);
 
-        if (! $this->hasField('Filter', 'all') && $client = $this->requestClient()) {
+        if ($client = $this->requestClient()) {
             $url = $client->present()->url . '#quotes';
         } else {
             $url = '/quotes';

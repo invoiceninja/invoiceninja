@@ -3,6 +3,7 @@
 namespace App\Ninja\Intents;
 
 use App\Libraries\Skype\SkypeResponse;
+use App\Models\Client;
 use Exception;
 use stdClass;
 
@@ -16,27 +17,31 @@ class BaseIntent
     {
         //if (true) {
         if (! $state || is_string($state)) {
-            $state = static::blankState();
+            $state = new stdClass();
+            foreach (['current', 'previous'] as $reference) {
+                $state->$reference = new stdClass();
+                $state->$reference->entityType = false;
+                foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
+                    $state->$reference->$entityType = [];
+                }
+            }
         }
 
         $this->state = $state;
         $this->data = $data;
-
-        //var_dump($state);
-    }
-
-    public static function blankState()
-    {
-        $state = new stdClass();
-        foreach (['current', 'previous'] as $reference) {
-            $state->$reference = new stdClass();
-            $state->$reference->entityType = false;
-            foreach ([ENTITY_INVOICE, ENTITY_CLIENT, ENTITY_INVOICE_ITEM] as $entityType) {
-                $state->$reference->$entityType = [];
+        
+        // If they're viewing a client set it as the current state
+        if (! $this->hasField('Filter', 'all')) {
+            $url = url()->previous();
+            preg_match('/clients\/(\d*)/', $url, $matches);
+            if (count($matches) >= 2) {
+                if ($client = Client::scope($matches[1])->first()) {
+                    $this->state->current->client = $client;
+                }
             }
         }
 
-        return $state;
+        //var_dump($state);
     }
 
     public static function createIntent($platform, $state, $data)
@@ -71,10 +76,8 @@ class BaseIntent
             $className = "App\\Ninja\\Intents\\{$intent}Intent";
         }
 
-        //echo "Intent: $intent<p>";
-
         if (! class_exists($className)) {
-            throw new Exception($intent . '... ' . trans('texts.intent_not_supported'));
+            throw new Exception(trans('texts.intent_not_supported'));
         }
 
         return new $className($state, $data);

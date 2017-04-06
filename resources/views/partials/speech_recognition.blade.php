@@ -172,9 +172,9 @@
     }
 
     function onMicrophoneClick() {
-      //$('#search').val("show me all of edgar's credits");
+      //$('#search').val("show me all deleted payments");
       //$('#search').val("new invoice for joe, set the due date to today and the discount to ten percent");
-      //$('#search').val("list joe's active and approved quotes");
+      //$('#search').val("34123 1234123 1324");
       //$('#search-form').submit();
       //return;
 

@@ -10,7 +10,7 @@ class ListPaymentIntent extends BaseIntent
     {
         $this->loadStates(ENTITY_PAYMENT);
 
-        if (! $this->hasField('Filter', 'all') && $client = $this->requestClient()) {
+        if ($client = $this->requestClient()) {
             $url = $client->present()->url . '#payments';
         } else {
             $url = '/payments';

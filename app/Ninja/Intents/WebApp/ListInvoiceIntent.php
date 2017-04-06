@@ -11,7 +11,7 @@ class ListInvoiceIntent extends InvoiceIntent
         $this->loadStates(ENTITY_INVOICE);
         $this->loadStatuses(ENTITY_INVOICE);
 
-        if (! $this->hasField('Filter', 'all') && $client = $this->requestClient()) {
+        if ($client = $this->requestClient()) {
             $url = $client->present()->url . '#invoices';
         } else {
             $url = '/invoices';
