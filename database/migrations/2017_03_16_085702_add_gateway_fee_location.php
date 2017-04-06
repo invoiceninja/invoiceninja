@@ -138,5 +138,7 @@ class AddGatewayFeeLocation extends Migration
         Schema::table('credits', function ($table) {
             $table->dropColumn('public_notes');
         });
+
+        Schema::drop('account_email_settings');
     }
 }
