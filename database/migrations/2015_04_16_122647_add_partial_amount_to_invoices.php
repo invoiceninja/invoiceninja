@@ -34,8 +34,12 @@ class AddPartialAmountToInvoices extends Migration
         });
 
         Schema::table('accounts', function ($table) {
-            $table->dropColumn('utf8_invoices');
-            $table->dropColumn('auto_wrap');
+            if (Schema::hasColumn('accounts', 'utf8_invoices')) {
+                $table->dropColumn('utf8_invoices');
+            }
+            if (Schema::hasColumn('accounts', 'auto_wrap')) {
+                $table->dropColumn('auto_wrap');
+            }
             $table->dropColumn('subdomain');
         });
     }
