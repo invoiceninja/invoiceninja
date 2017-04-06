@@ -2469,6 +2469,7 @@ $LANG = array(
     'voice_commands' => 'Voice Commands',
     'sample_commands' => 'Sample commands',
     'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 
