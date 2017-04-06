@@ -845,6 +845,7 @@ $LANG = array(
     'dark' => 'Donker',
     'industry_help' => 'Wordt gebruikt om een vergelijking te kunnen maken met de gemiddelden van andere bedrijven uit dezelfde sector en van dezelfde grootte.',
     'subdomain_help' => 'Stel het subdomein in of toon het factuur op uw eigen website.',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Kies een voorvoegsel of gebruik een patroon om het factuurnummer dynamisch te genereren.',
     'quote_number_help' => 'Kies een voorvoegsel of gebruik een patroon om het offertenummer dynamisch te genereren.',
     'custom_client_fields_helps' => 'Plaatst een tekstveld op de klanten aanmaak-/bewerkpagina en toont het gekozen label op de PDF.',
@@ -1032,7 +1033,7 @@ $LANG = array(
     'invoiced_amount' => 'Gefactureerd bedrag',
     'invoice_item_fields' => 'Factuurregels',
     'custom_invoice_item_fields_help' => 'Voeg een veld toe bij het aanmaken van een factuurregel en toon het label met de waarde op de PDF.',
-    'recurring_invoice_number' => 'Nummer terugkerende factuur',
+    'recurring_invoice_number' => 'Terugkerend nummer',
     'recurring_invoice_number_prefix_help' => 'Kies een voorvoegsel voor het factuurnummer van terugkerende facturen. De standaard is: \'R\'.',
 
     // Client Passwords
@@ -2452,9 +2453,15 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'reply_to_email' => 'Antwoord naar e-mail',
     'reply_to_email_help' => 'Geef het antwoord-aan adres voor klant e-mails.',
     'bcc_email_help' => 'Dit adres heimelijk gebruiken met klant e-mails.',
-    'import_complete' => 'Your import has successfully completed.',
-    'confirm_account_to_import' => 'Please confirm your account to import data.',
-    'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'import_complete' => 'Het importeren is succesvol uitgevoerd.',
+    'confirm_account_to_import' => 'Gelieve uw account te bevestigen om de gegevens te importeren.',
+    'import_started' => 'Het importeren is gestart, we sturen u een e-mail van zodra het proces afgerond is.',
+    'listening' => 'Luisteren...',
+    'microphone_help' => 'Zeg \'nieuw factuur voor...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 

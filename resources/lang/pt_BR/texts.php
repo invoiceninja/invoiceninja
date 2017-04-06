@@ -845,6 +845,7 @@ $LANG = array(
     'dark' => 'Escuro',
     'industry_help' => 'Usado para fornecer comparações contra as médias das empresas de tamanho e indústria similar.',
     'subdomain_help' => 'Set the subdomain or display the invoice on your own website.',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Especifique um prefixo ou usar um padrão personalizado para definir dinamicamente o número da fatura.',
     'quote_number_help' => 'Especifique um prefixo ou usar um padrão personalizado para definir dinamicamente o número do orçamento.',
     'custom_client_fields_helps' => 'Adicionar uma entrada de texto na página Criar/Editar Cliente e exibir no PDF.',
@@ -1032,7 +1033,7 @@ $LANG = array(
     'invoiced_amount' => 'Total Faturado',
     'invoice_item_fields' => 'Campos de Ítens da Fatura',
     'custom_invoice_item_fields_help' => 'Adicionar um campo ao adicionar um ítem na fatura e exibir no PDF.',
-    'recurring_invoice_number' => 'Número da Fatura Recorrente',
+    'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Informe um prefixo para a numeração das faturas recorrentes. O valor padrão é \'R\'.',
 
     // Client Passwords
@@ -2454,6 +2455,12 @@ Quando tiver os valores dos depósitos, volte a esta pagina e complete a verific
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'listening' => 'Listening...',
+    'microphone_help' => 'Say \'new invoice for...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 

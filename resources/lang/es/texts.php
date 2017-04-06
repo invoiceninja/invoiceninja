@@ -845,6 +845,7 @@ $LANG = array(
     'dark' => 'Oscuro',
     'industry_help' => 'Usado para proporcionar comparaciones de las medias de las empresas de tamaño y industria similar.',
     'subdomain_help' => 'Asigne el suubdominio o mostrar la factura en su propio sitio web.',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Especifique un prefijo o utilice un patrón a medida para establecer dinámicamente el número de factura.',
     'quote_number_help' => 'Especifique un prefijo o utilice un patrón a medida para establecer dinámicamente el número de presupuesto.',
     'custom_client_fields_helps' => 'Agregar una entrada de texto a la pagina de crear/editar cliente y mostrar la etiqueta y el valor en el PDF.',
@@ -1034,7 +1035,7 @@ $LANG = array(
     'invoiced_amount' => 'Importe Facturado',
     'invoice_item_fields' => 'Campos de Ítem de Factura',
     'custom_invoice_item_fields_help' => 'Agregar un campo al crear un ítem de factura y mostrar la etiqueta y valor en el PDF.',
-    'recurring_invoice_number' => 'Número de Factura Recurrente',
+    'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Especificar un prefijo para las facturas recurrentes. Por defecto es \'R\'.',
 
     // Client Passwords
@@ -2456,6 +2457,12 @@ $LANG = array(
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'listening' => 'Listening...',
+    'microphone_help' => 'Say \'new invoice for...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 

@@ -845,6 +845,7 @@ Si vous avez besoin d\'aide à ce sujet, vous pouvez publier une question sur no
     'dark' => 'Sombre',
     'industry_help' => 'Utilisé dans le but de fournir des statistiques la taille et le secteur de l\'entreprise.',
     'subdomain_help' => 'Définissez un sous-domaine ou affichez la facture sur votre propre site web.',
+    'website_help' => 'Display the invoice in an iFrame on your own website',
     'invoice_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the invoice number.',
     'quote_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the quote number.',
     'custom_client_fields_helps' => 'Add a text input to the client create/edit page and display the label and value on the PDF.',
@@ -1035,7 +1036,7 @@ Si vous avez besoin d\'aide à ce sujet, vous pouvez publier une question sur no
     'invoiced_amount' => 'Montant de la facture',
     'invoice_item_fields' => 'Invoice Item Fields',
     'custom_invoice_item_fields_help' => 'Add a field when creating an invoice item and display the label and value on the PDF.',
-    'recurring_invoice_number' => 'Numéros de Factures Récurrentes',
+    'recurring_invoice_number' => 'Recurring Number',
     'recurring_invoice_number_prefix_help' => 'Speciy a prefix to be added to the invoice number for recurring invoices. The default value is \'R\'.',
 
     // Client Passwords
@@ -2457,6 +2458,12 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'import_complete' => 'Your import has successfully completed.',
     'confirm_account_to_import' => 'Please confirm your account to import data.',
     'import_started' => 'Your import has started, we\'ll send you an email once it completes.',
+    'listening' => 'Listening...',
+    'microphone_help' => 'Say \'new invoice for...\'',
+    'voice_commands' => 'Voice Commands',
+    'sample_commands' => 'Sample commands',
+    'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
+    'payment_type_Venmo' => 'Venmo',
 
 );
 
