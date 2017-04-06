@@ -54,9 +54,11 @@ class SimplifyTasks extends Migration
             $table->integer('break_duration')->nullable();
         });
 
-        Schema::table('users', function ($table) {
-            $table->dropColumn('dark_mode');
-        });
+        if (Schema::hasColumn('accounts', 'dark_mode')) {
+            Schema::table('users', function ($table) {
+                $table->dropColumn('dark_mode');
+            });
+        }
         Schema::table('users', function ($table) {
             $table->integer('theme_id')->nullable();
         });
