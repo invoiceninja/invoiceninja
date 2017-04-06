@@ -25,10 +25,12 @@ class AddEmailTemplates extends Migration
      */
     public function down()
     {
-        Schema::table('accounts', function ($table) {
-            $table->dropColumn('email_template_invoice');
-            $table->dropColumn('email_template_quote');
-            $table->dropColumn('email_template_payment');
-        });
+        if (Schema::hasColumn('accounts', 'email_template_invoice')) {
+            Schema::table('accounts', function ($table) {
+                $table->dropColumn('email_template_invoice');
+                $table->dropColumn('email_template_quote');
+                $table->dropColumn('email_template_payment');
+            });
+        }
     }
 }
