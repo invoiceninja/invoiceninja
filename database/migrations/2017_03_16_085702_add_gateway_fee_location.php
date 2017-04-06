@@ -84,7 +84,6 @@ class AddGatewayFeeLocation extends Migration
             from accounts;');
 
         Schema::table('accounts', function ($table) {
-            $table->dropColumn('bcc_email');
             $table->dropColumn('email_subject_invoice');
             $table->dropColumn('email_subject_quote');
             $table->dropColumn('email_subject_payment');
@@ -98,6 +97,9 @@ class AddGatewayFeeLocation extends Migration
             $table->dropColumn('email_template_reminder2');
             $table->dropColumn('email_template_reminder3');
 
+            if (Schema::hasColumn('accounts', 'bcc_email')) {
+                $table->dropColumn('bcc_email');
+            }
             if (Schema::hasColumn('accounts', 'auto_wrap')) {
                 $table->dropColumn('auto_wrap');
             }
