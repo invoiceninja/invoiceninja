@@ -697,7 +697,7 @@ class InvoiceRepository extends BaseRepository
             $invoice = $this->saveInvitations($invoice);
         }
 
-        $this->dispachEvents($invoice);
+        //$this->dispachEvents($invoice);
 
         return $invoice;
     }
