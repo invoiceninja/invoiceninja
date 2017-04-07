@@ -104,7 +104,7 @@ class ExpenseApiController extends BaseAPIController
      */
     public function store(CreateExpenseRequest $request)
     {
-        $expense = $this->expenseRepo->save($request->input());
+        $expense = $this->expenseService->save($request->input());
 
         $expense = Expense::scope($expense->public_id)
             ->with('client', 'invoice', 'vendor')
@@ -151,7 +151,7 @@ class ExpenseApiController extends BaseAPIController
 
         $data = $request->input();
         $data['public_id'] = $publicId;
-        $expense = $this->expenseRepo->save($data, $request->entity());
+        $expense = $this->expenseService->save($data, $request->entity());
 
         return $this->itemResponse($expense);
     }
