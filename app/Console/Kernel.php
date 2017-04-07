@@ -20,6 +20,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\CheckData',
         'App\Console\Commands\PruneData',
         'App\Console\Commands\CreateTestData',
+        'App\Console\Commands\CreateLuisData',
         'App\Console\Commands\SendRenewalInvoices',
         'App\Console\Commands\ChargeRenewalInvoices',
         'App\Console\Commands\SendReminders',

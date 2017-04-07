@@ -18,7 +18,6 @@ use Utils;
  */
 class CreateTestData extends Command
 {
-    //protected $name = 'ninja:create-test-data';
     /**
      * @var string
      */
