@@ -26,6 +26,8 @@ class BotController extends Controller
 
     public function handleMessage($platform)
     {
+        abort(404);
+
         $input = Input::all();
         $botUserId = $input['from']['id'];
 
