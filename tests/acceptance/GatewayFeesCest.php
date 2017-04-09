@@ -59,7 +59,7 @@ class GatewayFeesCest
         // partial invoice (resaving invoice between payments)
         $invitationKey = $this->createInvoice($I, $clientName, $productKey, $total, $partialFeeWithTax, $total / 2);
         $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
-        $invoicePublicId = $I->grabFromDatabase('invoices', 'public_id', ['invoice_id' => $invoiceId]);
+        $invoicePublicId = $I->grabFromDatabase('invoices', 'public_id', ['id' => $invoiceId]);
         $I->amOnPage('/invoices/' . $invoicePublicId . '/edit');
         $I->click('Save');
         $I->wait(2);
