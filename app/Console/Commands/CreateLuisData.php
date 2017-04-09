@@ -21,7 +21,7 @@ class CreateLuisData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:create-luis-data';
+    protected $signature = 'ninja:create-luis-data {faker_field=name}';
 
     /**
      * CreateLuisData constructor.
@@ -39,6 +39,8 @@ class CreateLuisData extends Command
      */
     public function fire()
     {
+        $this->fakerField = $this->argument('faker_field');
+
         $intents = [];
         $entityTypes = [
             ENTITY_INVOICE,
@@ -87,7 +89,7 @@ class CreateLuisData extends Command
                 $entityType => 'EntityType',
             ]);
             if ($entityType != ENTITY_CLIENT) {
-                $client = $this->faker->firstName;
+                $client = $this->faker->{$this->fakerField};
                 $phrase .= " for {$client}";
                 $intents[] = $this->createIntent('CreateEntity', $phrase, [
                     $entityType => 'EntityType',
@@ -104,13 +106,13 @@ class CreateLuisData extends Command
         $intents = [];
 
         if (in_array($entityType, [ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_QUOTE])) {
-            $name = $entityType === ENTITY_CLIENT ? $this->faker->firstName : $this->faker->randomNumber(4);
+            $name = $entityType === ENTITY_CLIENT ? $this->faker->{$this->fakerField} : $this->faker->randomNumber(4);
             $intents[] = $this->createIntent('FindEntity', "find {$entityType} {$name}", [
                 $entityType => 'EntityType',
                 $name => 'Name',
             ]);
             if ($entityType === ENTITY_CLIENT) {
-                $name = $this->faker->firstName;
+                $name = $this->faker->{$this->fakerField};
                 $intents[] = $this->createIntent('FindEntity', "find {$name}", [
                     $name => 'Name',
                 ]);
@@ -143,7 +145,7 @@ class CreateLuisData extends Command
         ]);
 
         if ($entityType != ENTITY_CLIENT) {
-            $client = $this->faker->firstName;
+            $client = $this->faker->{$this->fakerField};
             $intents[] = $this->createIntent('ListEntity', "list {$entityTypePlural} for {$client}", [
                 $entityTypePlural => 'EntityType',
                 $client => 'Name',
