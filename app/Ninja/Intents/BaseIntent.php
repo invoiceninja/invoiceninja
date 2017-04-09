@@ -29,7 +29,7 @@ class BaseIntent
 
         $this->state = $state;
         $this->data = $data;
-        
+
         // If they're viewing a client set it as the current state
         if (! $this->hasField('Filter', 'all')) {
             $url = url()->previous();
@@ -237,7 +237,6 @@ class BaseIntent
             foreach ($compositeEntity->children as $child) {
                 if ($child->type == 'Field') {
                     $field = $child->value;
-                    ;
                 } elseif ($child->type == 'Value') {
                     $value = $child->value;
                 }
