@@ -56,8 +56,14 @@ class GatewayFeesCest
         $this->configureGatewayFeeTax($I, $taxName, $taxRate);
         $this->createInvoice($I, $clientName, $productKey, $total, $feeWithTax);
 
-        // partial invoice
+        // partial invoice (resaving invoice between payments)
         $invitationKey = $this->createInvoice($I, $clientName, $productKey, $total, $partialFeeWithTax, $total / 2);
+        $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
+        $invoicePublicId = $I->grabFromDatabase('invoices', 'public_id', ['invoice_id' => $invoiceId]);
+        $I->amOnPage('/invoices/' . $invoicePublicId . '/edit');
+        $I->click('Save');
+        $I->wait(2);
+        $I->see('Successfully updated invoice');
         $this->createPayment($I, $invitationKey, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
     }
 
