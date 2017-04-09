@@ -2256,7 +2256,7 @@ $LANG = array(
     'edit_credit' => 'Edit Credit',
     'live_preview_help' => 'Display a live PDF preview on the invoice page.<br/>Disable this to improve performance when editing invoices.',
     'force_pdfjs_help' => 'Replace the built-in PDF viewer in :chrome_link and :firefox_link.<br/>Enable this if your browser is automatically downloading the PDF.',
-    'force_pdfjs' => 'PDF Viewer',
+    'force_pdfjs' => 'Prevent Download',
     'redirect_url' => 'Redirect URL',
     'redirect_url_help' => 'Optionally specify a URL to redirect to after a payment is entered.',
     'save_draft' => 'Save Draft',
@@ -2471,6 +2471,8 @@ $LANG = array(
     'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
     'payment_type_Venmo' => 'Venmo',
     'archived_products' => 'Successfully archived :count products',
+    'recommend_on' => 'We recommend <b>enabling</b> this setting.',
+    'recommend_off' => 'We recommend <b>disabling</b> this setting.',
 
 );
 
