@@ -447,6 +447,13 @@ if (window.ko) {
   };
 }
 
+function comboboxHighlighter(item) {
+    var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+    return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+        return match ? '<strong>' + match + '</strong>' : query;
+    })
+}
+
 function getContactDisplayName(contact)
 {
     if (contact.first_name || contact.last_name) {
@@ -454,6 +461,21 @@ function getContactDisplayName(contact)
     } else {
         return contact.email;
     }
+}
+
+function getContactDisplayNameWithEmail(contact)
+{
+    var str = '';
+
+    if (contact.first_name || contact.last_name) {
+        str += $.trim((contact.first_name || '') + ' ' + (contact.last_name || ''));
+    }
+
+    if (contact.email) {
+        str += ' &lt;' + contact.email + '&gt;';
+    }
+
+    return $.trim(str);
 }
 
 function getClientDisplayName(client)

@@ -424,6 +424,18 @@ ul.dropdown-menu,
     overflow-x: hidden;
 }
 
+ul.typeahead li:first-child {
+    border-top: solid 1px #EEE;
+}
+
+ul.typeahead li {
+    border-bottom: solid 1px #EEE;
+}
+
+.combobox-container .active {
+    border-color: #EEE !important;
+}
+
 .panel-default,
 canvas {
     border: 1px solid;

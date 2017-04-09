@@ -101,7 +101,11 @@
 				<div style="display:none">
     		@endif
 
-            {!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addClass('client-input')->addGroupClass('client_select closer-row') !!}
+            {!! Former::select('client')
+					->addOption('', '')
+					->data_bind("dropdown: client, dropdownOptions: {highlighter: comboboxHighlighter}")
+					->addClass('client-input')
+					->addGroupClass('client_select closer-row') !!}
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
@@ -838,21 +842,21 @@
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
             clientMap[client.public_id] = client;
-            var clientName = getClientDisplayName(client);
             @if (! $invoice->id)
-	            if (!clientName) {
+	            if (!getClientDisplayName(client)) {
 	                continue;
 	            }
             @endif
-            for (var j=0; j<client.contacts.length; j++) {
+			var clientName = client.name;
+			for (var j=0; j<client.contacts.length; j++) {
                 var contact = client.contacts[j];
-                var contactName = getContactDisplayName(contact);
-                if (contact.is_primary === '1') {
-                    contact.send_invoice = true;
-                }
-                if (contactName && clientName != contactName) {
-                    $clientSelect.append(new Option(contactName, client.public_id));
-                }
+                var contactName = getContactDisplayNameWithEmail(contact);
+				if (clientName && contactName) {
+					clientName += '<br/>  • ';
+				}
+				if (contactName) {
+					clientName += contactName;
+				}
             }
             $clientSelect.append(new Option(clientName, client.public_id));
         }
