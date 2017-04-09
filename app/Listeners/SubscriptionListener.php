@@ -129,12 +129,12 @@ class SubscriptionListener
     private function checkSubscriptions($eventId, $entity, $transformer, $include = '')
     {
         if (! EntityModel::$notifySubscriptions) {
-            //return;
+            return;
         }
 
         $subscription = $entity->account->getSubscription($eventId);
 
-        if (true || $subscription) {
+        if ($subscription) {
             $manager = new Manager();
             $manager->setSerializer(new ArraySerializer());
             $manager->parseIncludes($include);
@@ -146,8 +146,8 @@ class SubscriptionListener
             if (isset($data['client_id'])) {
                 $data['client_name'] = $entity->client->getDisplayName();
             }
-            \Log::info($data);
-            //Utils::notifyZapier($subscription, $data);
+
+            Utils::notifyZapier($subscription, $data);
         }
     }
 }
