@@ -1,5 +1,5 @@
 <i id="microphone" class="fa fa-microphone form-control-feedback"
-  title="Say &quot;new invoice for [client]&quot; or &quot;show me [client]\'s archived payments&quot;"
+  title="Say &quot;new invoice for [client]&quot; or &quot;show me [client]'s archived payments&quot;"
   data-toggle="tooltip" data-placement="bottom"
   onclick="onMicrophoneClick()" aria-hidden="true"></i>
 
