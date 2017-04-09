@@ -21,6 +21,7 @@
 
     // https://developers.google.com/web/updates/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API
 
+    /*
     var langs =
     [['Afrikaans',       ['af-ZA']],
      ['Bahasa Indonesia',['id-ID']],
@@ -92,7 +93,7 @@
      ['日本語',           ['ja-JP']],
      ['हिन्दी',            ['hi-IN']],
      ['ภาษาไทย',         ['th-TH']]];
-
+     */
 
     var final_transcript = '';
     var recognizing = false;
