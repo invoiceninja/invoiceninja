@@ -454,6 +454,14 @@ function comboboxHighlighter(item) {
     })
 }
 
+function comboboxMatcher(item) {
+    // http://stackoverflow.com/a/5002618/497368
+    var div = document.createElement("div");
+    div.innerHTML = item;
+    var text = div.textContent || div.innerText || '';
+    return ~text.toLowerCase().indexOf(this.query.toLowerCase());
+}
+
 function getContactDisplayName(contact)
 {
     if (contact.first_name || contact.last_name) {

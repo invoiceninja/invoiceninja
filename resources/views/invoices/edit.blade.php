@@ -103,7 +103,7 @@
 
             {!! Former::select('client')
 					->addOption('', '')
-					->data_bind("dropdown: client, dropdownOptions: {highlighter: comboboxHighlighter}")
+					->data_bind("dropdown: client, dropdownOptions: {highlighter: comboboxHighlighter, matcher: comboboxMatcher}")
 					->addClass('client-input')
 					->addGroupClass('client_select closer-row') !!}
 
