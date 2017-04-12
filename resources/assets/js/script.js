@@ -472,7 +472,11 @@ function getContactDisplayNameWithEmail(contact)
     }
 
     if (contact.email) {
-        str += ' &lt;' + contact.email + '&gt;';
+        if (str) {
+            str += ' - ';
+        }
+
+        str += contact.email;
     }
 
     return $.trim(str);
