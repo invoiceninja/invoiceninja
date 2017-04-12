@@ -74,10 +74,9 @@ class AcceptanceTester extends \Codeception\Actor
         }
     }
 
-    function createClient(\AcceptanceTester $I, $email, $name = '')
+    function createClient(\AcceptanceTester $I, $email)
     {
         $I->amOnPage('/clients/create');
-        $I->fillField(['name' => 'name'], $name);
         $I->fillField(['name' => 'contacts[0][email]'], $email);
         $I->click('Save');
         $I->see($email);

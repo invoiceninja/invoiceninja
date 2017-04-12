@@ -2293,6 +2293,7 @@ $LANG = array(
     'renew_license' => 'Renew License',
     'iphone_app_message' => 'Consider downloading our :link',
     'iphone_app' => 'iPhone app',
+    'android_app' => 'Android app',
     'logged_in' => 'Logged In',
     'switch_to_primary' => 'Switch to your primary company (:name) to manage your plan.',
     'inclusive' => 'Inclusive',
