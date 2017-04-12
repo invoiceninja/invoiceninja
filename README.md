@@ -17,8 +17,8 @@ All Pro and Enterprise features from the hosted app are included in the open-sou
 The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 
 ## Affiliates Programs
-* Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-* White-label reseller (you pay us): $500 sign up fee and 10% of revenue or $1 per account per month
+* Referral program (we pay you): $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+* White-label reseller (you pay us): $500 sign up fee and either 10% of revenue or $1 per account per month
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
