@@ -449,17 +449,23 @@ if (window.ko) {
 
 function comboboxHighlighter(item) {
     var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
-    return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+    var result = item.replace('<br/>', "\n");
+    result = result.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
         return match ? '<strong>' + match + '</strong>' : query;
-    })
+    });
+    result = result.replace("\n", '<br/>');
+    return result;
 }
 
 function comboboxMatcher(item) {
+    return ~stripHtmlTags(item).toLowerCase().indexOf(this.query.toLowerCase());
+}
+
+function stripHtmlTags(text) {
     // http://stackoverflow.com/a/5002618/497368
     var div = document.createElement("div");
-    div.innerHTML = item;
-    var text = div.textContent || div.innerText || '';
-    return ~text.toLowerCase().indexOf(this.query.toLowerCase());
+    div.innerHTML = text;
+    return div.textContent || div.innerText || '';
 }
 
 function getContactDisplayName(contact)
