@@ -6,18 +6,11 @@ use App\Models\Invoice;
 use App\Ninja\Repositories\InvoiceRepository;
 use Response;
 
-class QuoteApiController extends InvoiceAPIController
+class QuoteApiController extends InvoiceApiController
 {
     protected $invoiceRepo;
 
     protected $entityType = ENTITY_INVOICE;
-
-    public function __construct(InvoiceRepository $invoiceRepo)
-    {
-        parent::__construct();
-
-        $this->invoiceRepo = $invoiceRepo;
-    }
 
     /**
      * @SWG\Get(
