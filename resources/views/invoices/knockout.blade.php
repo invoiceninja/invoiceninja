@@ -28,9 +28,10 @@ function ViewModel(data) {
                 if (paymentTerms == -1) paymentTerms = 0;
                 var dueDate = $('#invoice_date').datepicker('getDate');
                 dueDate.setDate(dueDate.getDate() + paymentTerms);
-                self.invoice().due_date(dueDate);
-                // We're using the datepicker to handle the date formatting
-                self.invoice().due_date($('#due_date').val());
+                dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
+                $('#due_date').attr('placeholder', dueDate);
+            } else {
+                $('#due_date').attr('placeholder', "{{ $invoice->exists || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder() }}");
             }
         @endif
     }
