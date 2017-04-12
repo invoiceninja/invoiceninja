@@ -18,7 +18,7 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 
 ## Affiliates Programs
 * Referral program (we pay you): $100 per signup paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-* White-label reseller (you pay us): 10% of revenue with a $500 sign up fee
+* White-label reseller (you pay us): $500 sign up fee and 10% of revenue or $1 per account per month
 
 ### Installation Options
 * [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
