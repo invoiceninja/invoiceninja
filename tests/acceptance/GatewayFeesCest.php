@@ -61,8 +61,7 @@ class GatewayFeesCest
         $invoicePublicId = $I->grabFromDatabase('invoices', 'public_id', ['id' => $invoiceId]);
         $I->amOnPage('/invoices/' . $invoicePublicId . '/edit');
         $I->click('Save Invoice');
-        $I->wait(3);
-        $I->see('Successfully updated invoice');
+        $I->wait(2);
         $this->createPayment($I, $invitationKey, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
     }
 
