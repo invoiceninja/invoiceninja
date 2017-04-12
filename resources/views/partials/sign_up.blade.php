@@ -160,7 +160,7 @@
       <div class="panel-body">
 
       <div id="signUpDiv" onkeyup="validateSignUp()" onclick="validateSignUp()" onkeydown="checkForEnter(event)">
-        {!! Former::open('signup/submit')->addClass('signUpForm')->autocomplete('on') !!}
+        {!! Former::open('signup/submit')->addClass('signUpForm')->autocomplete('off') !!}
 
         @if (Auth::check() && ! Auth::user()->registered)
             {!! Former::populateField('new_first_name', Auth::user()->first_name) !!}
@@ -222,6 +222,7 @@
                         ->label(' ') !!}
                 {!! Former::password('new_password')
                         ->placeholder(trans('texts.password'))
+                        ->autocomplete('new-password')
                         ->label(' ') !!}
 
                 {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
