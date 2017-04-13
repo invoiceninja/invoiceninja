@@ -163,7 +163,7 @@ class PaymentRepository extends BaseRepository
         } else {
             $payment = Payment::createNew();
 
-            if (Auth::check()) {
+            if (Auth::check() && Auth::user()->account->payment_type_id) {
                 $payment->payment_type_id = Auth::user()->account->payment_type_id;
             }
         }
