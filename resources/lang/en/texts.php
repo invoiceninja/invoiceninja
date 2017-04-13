@@ -2474,6 +2474,7 @@ $LANG = array(
     'archived_products' => 'Successfully archived :count products',
     'recommend_on' => 'We recommend <b>enabling</b> this setting.',
     'recommend_off' => 'We recommend <b>disabling</b> this setting.',
+    'notes_auto_billed' => 'Auto-billed',
 
 );
 
