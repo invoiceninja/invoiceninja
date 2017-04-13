@@ -69,8 +69,11 @@ class HandleUserLoggedIn
         }
 
         // check custom gateway id is correct
-        if (! Utils::isNinja() && Gateway::find(GATEWAY_CUSTOM)->name !== 'Custom') {
-            Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
+        if (! Utils::isNinja()) {
+            $gateway = Gateway::find(GATEWAY_CUSTOM);
+            if (! $gateway || $gateway->name !== 'Custom') {
+                Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
+            }
         }
     }
 }
