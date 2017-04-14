@@ -171,7 +171,7 @@ class ContactMailer extends Mailer
             $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
         }
 
-        if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
+        if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() && $account->send_portal_password) {
             // The contact needs a password
             $variables['password'] = $password = $this->generatePassword();
             $invitation->contact->password = bcrypt($password);

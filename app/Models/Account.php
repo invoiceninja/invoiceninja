@@ -1787,6 +1787,11 @@ class Account extends Eloquent
 
         return $yearStart->format('Y-m-d');
     }
+
+    public function isClientPortalPasswordEnabled()
+    {
+        return $this->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->enable_portal_password;
+    }
 }
 
 Account::updated(function ($account) {
