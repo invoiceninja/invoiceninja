@@ -105,9 +105,9 @@ class ContactMailer extends Mailer
 
         if ($sent === true) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-                event(new QuoteWasEmailed($invoice));
+                event(new QuoteWasEmailed($invoice, $reminder));
             } else {
-                event(new InvoiceWasEmailed($invoice));
+                event(new InvoiceWasEmailed($invoice, $reminder));
             }
         }
 
