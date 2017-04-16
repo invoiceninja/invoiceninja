@@ -699,6 +699,18 @@
                         {!! Former::password('password')->data_bind("value: (typeof password=='function'?password():null)?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
                             attr: {name: 'client[contacts][' + \$index() + '][password]'}")->autocomplete('new-password') !!}
                     @endif
+					@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
+	                    @if ($account->custom_contact_label1)
+	                        {!! Former::text('custom_contact1')->data_bind("value: custom_value1, valueUpdate: 'afterkeydown',
+		                            attr: {name: 'client[contacts][' + \$index() + '][custom_value1]'}")
+	                            ->label($account->custom_contact_label1) !!}
+	                    @endif
+	                    @if ($account->custom_contact_label2)
+							{!! Former::text('custom_contact2')->data_bind("value: custom_value2, valueUpdate: 'afterkeydown',
+									attr: {name: 'client[contacts][' + \$index() + '][custom_value2]'}")
+								->label($account->custom_contact_label2) !!}
+	                    @endif
+	                @endif
                     <div class="form-group">
                         <div class="col-lg-8 col-lg-offset-4">
                             <span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">

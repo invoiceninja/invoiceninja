@@ -646,6 +646,8 @@ function ContactModel(data) {
     self.email_error = ko.observable('');
     self.invitation_signature_svg = ko.observable('');
     self.invitation_signature_date = ko.observable('');
+    self.custom_value1 = ko.observable('');
+    self.custom_value2 = ko.observable('');
 
     if (data) {
         ko.mapping.fromJS(data, {}, this);

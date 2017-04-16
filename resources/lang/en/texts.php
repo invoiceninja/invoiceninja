@@ -2475,6 +2475,9 @@ $LANG = array(
     'recommend_on' => 'We recommend <b>enabling</b> this setting.',
     'recommend_off' => 'We recommend <b>disabling</b> this setting.',
     'notes_auto_billed' => 'Auto-billed',
+    'surcharge_label' => 'Surcharge Label',
+    'contact_fields' => 'Contact Fields',
+    'custom_contact_fields_help' => 'Add a field when creating a contact and display the label and value on the PDF.',
 
 );
 

@@ -37,6 +37,8 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         'email',
         'phone',
         'send_invoice',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**

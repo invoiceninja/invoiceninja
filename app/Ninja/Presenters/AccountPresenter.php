@@ -155,6 +155,8 @@ class AccountPresenter extends Presenter
         $fields = [
             'custom_client_label1' => 'custom_client1',
             'custom_client_label2' => 'custom_client2',
+            'custom_contact_label1' => 'custom_contact1',
+            'custom_contact_label2' => 'custom_contact2',
             'custom_invoice_text_label1' => 'custom_invoice1',
             'custom_invoice_text_label2' => 'custom_invoice2',
             'custom_invoice_item_label1' => 'custom_product1',

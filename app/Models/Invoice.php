@@ -901,6 +901,8 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'last_name',
                 'email',
                 'phone',
+                'custom_value1',
+                'custom_value2',
             ]);
         }
 

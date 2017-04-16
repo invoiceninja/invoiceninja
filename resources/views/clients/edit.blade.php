@@ -110,6 +110,20 @@
 					{!! Former::password('password')->data_bind("value: password()?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
 						attr: {name: 'contacts[' + \$index() + '][password]'}")->autocomplete('new-password') !!}
 			    @endif
+
+				@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
+					@if ($account->custom_contact_label1)
+						{!! Former::text('custom_contact1')->data_bind("value: custom_value1, valueUpdate: 'afterkeydown',
+								attr: {name: 'contacts[' + \$index() + '][custom_value1]'}")
+							->label($account->custom_contact_label1) !!}
+					@endif
+					@if ($account->custom_contact_label2)
+						{!! Former::text('custom_contact2')->data_bind("value: custom_value2, valueUpdate: 'afterkeydown',
+								attr: {name: 'contacts[' + \$index() + '][custom_value2]'}")
+							->label($account->custom_contact_label2) !!}
+					@endif
+				@endif
+
 				<div class="form-group">
 					<div class="col-lg-8 col-lg-offset-4 bold">
 						<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
@@ -212,6 +226,8 @@
 		self.email = ko.observable('');
 		self.phone = ko.observable('');
 		self.password = ko.observable('');
+		self.custom_value1 = ko.observable('');
+		self.custom_value2 = ko.observable('');
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);

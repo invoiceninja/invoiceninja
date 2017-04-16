@@ -188,6 +188,9 @@
                         <a href="#client_fields" aria-controls="client_fields" role="tab" data-toggle="tab">{{ trans('texts.client_fields') }}</a>
                     </li>
                     <li role="presentation">
+                        <a href="#contact_fields" aria-controls="contact_fields" role="tab" data-toggle="tab">{{ trans('texts.contact_fields') }}</a>
+                    </li>
+                    <li role="presentation">
                         <a href="#company_fields" aria-controls="company_fields" role="tab" data-toggle="tab">{{ trans('texts.company_fields') }}</a>
                     </li>
                     <li role="presentation">
@@ -195,9 +198,6 @@
                     </li>
                     <li role="presentation">
                         <a href="#invoice_fields" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
-                    </li>
-                    <li role="presentation">
-                        <a href="#invoice_surcharges" aria-controls="invoice_surcharges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
                     </li>
                 </ul>
             </div>
@@ -210,6 +210,17 @@
                         {!! Former::text('custom_client_label2')
                                 ->label(trans('texts.field_label'))
                                 ->help(trans('texts.custom_client_fields_helps')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="contact_fields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_contact_label1')
+                                ->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_contact_label2')
+                                ->label(trans('texts.field_label'))
+                                ->help(trans('texts.custom_contact_fields_help')) !!}
 
                     </div>
                 </div>
@@ -249,20 +260,15 @@
                                 ->label(trans('texts.field_label'))
                                 ->help(trans('texts.custom_invoice_fields_helps')) !!}
 
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="invoice_surcharges">
-                    <div class="panel-body">
-
                         {!! Former::text('custom_invoice_label1')
-                                ->label(trans('texts.field_label'))
+                                ->label(trans('texts.surcharge_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes1')
                                             ->value(1)
                                             ->raw() . trans('texts.charge_taxes')) !!}
 
                         {!! Former::text('custom_invoice_label2')
-                                ->label(trans('texts.field_label'))
+                                ->label(trans('texts.surcharge_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')
                                             ->value(1)

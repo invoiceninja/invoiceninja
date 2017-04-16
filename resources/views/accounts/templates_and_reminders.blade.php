@@ -174,6 +174,12 @@
                         @if ($account->custom_client_label2)
                             <li>$customClient2</li>
                         @endif
+                        @if ($account->custom_contact_label1)
+                            <li>$customContact1</li>
+                        @endif
+                        @if ($account->custom_contact_label2)
+                            <li>$customContact2</li>
+                        @endif
                         @if ($account->custom_invoice_text_label1)
                             <li>$customInvoice1</li>
                         @endif
