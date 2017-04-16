@@ -95,6 +95,9 @@ class ClientController extends BaseController
         if (Utils::hasFeature(FEATURE_QUOTES) && $user->can('create', ENTITY_QUOTE)) {
             $actionLinks[] = ['label' => trans('texts.new_quote'), 'url' => URL::to('/quotes/create/'.$client->public_id)];
         }
+        if ($user->can('create', ENTITY_RECURRING_INVOICE)) {
+            $actionLinks[] = ['label' => trans('texts.new_recurring_invoice'), 'url' => URL::to('/recurring_invoices/create/'.$client->public_id)];
+        }
 
         if (! empty($actionLinks)) {
             $actionLinks[] = \DropdownButton::DIVIDER;
