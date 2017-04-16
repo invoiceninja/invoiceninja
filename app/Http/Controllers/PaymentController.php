@@ -232,9 +232,9 @@ class PaymentController extends BaseController
     public function bulk()
     {
         $action = Input::get('action');
-        $amount = Input::get('amount');
+        $amount = Input::get('refund_amount');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
-        $count = $this->paymentService->bulk($ids, $action, ['amount' => $amount]);
+        $count = $this->paymentService->bulk($ids, $action, ['refund_amount' => $amount]);
 
         if ($count > 0) {
             $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action.'d_payment', $count);
