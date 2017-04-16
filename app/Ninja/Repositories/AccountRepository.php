@@ -356,6 +356,9 @@ class AccountRepository
             $account->company_id = $company->id;
             $account->save();
 
+            $emailSettings = new AccountEmailSettings();
+            $account->account_email_settings()->save($emailSettings);
+
             $random = strtolower(str_random(RANDOM_KEY_LENGTH));
             $user = new User();
             $user->registered = true;
