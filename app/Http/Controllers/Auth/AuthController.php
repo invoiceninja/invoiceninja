@@ -118,7 +118,7 @@ class AuthController extends Controller
     public function getLoginWrapper()
     {
         if (! Utils::isNinja() && ! User::count()) {
-            return redirect()->to('/setup');
+            return redirect()->to('/invoice_now');
         }
 
         if (Utils::isNinja()) {
