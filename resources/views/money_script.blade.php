@@ -95,7 +95,8 @@
         var currency = currencyMap[currencyId];
         var precision = currency.precision;
         var thousand = currency.thousand_separator;
-        var decimal = currency.decimal_separator;
+	var decimal = currency.decimal_separator;
+	var precision = currency.precision;
         var code = currency.code;
         var swapSymbol = currency.swap_currency_symbol;
 
