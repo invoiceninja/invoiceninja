@@ -193,7 +193,7 @@
             <div class="col-md-6">
                 {!! Former::select('country_id')
                         ->placeholder(trans('texts.country_id'))
-                        ->fromQuery(Cache::get('countries'), 'name', 'id')
+                        ->fromQuery($countries, 'name', 'id')
                         ->addGroupClass('country-select')
                         ->label('') !!}
             </div>

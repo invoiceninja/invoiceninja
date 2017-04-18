@@ -17,9 +17,11 @@ class ComposerServiceProvider extends ServiceProvider
             [
                 'accounts.details',
                 'clients.edit',
+                'vendors.edit',
                 'payments.edit',
                 'invoices.edit',
                 'accounts.localization',
+                'payments.credit_card',
             ],
             'App\Http\ViewComposers\TranslationComposer'
         );
