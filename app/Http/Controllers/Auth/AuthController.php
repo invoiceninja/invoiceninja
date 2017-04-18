@@ -120,8 +120,8 @@ class AuthController extends Controller
         if (! Utils::isNinja() && ! User::count()) {
             return redirect()->to('/setup');
         }
-        /*
-        if (Utils::isNinja()) {
+
+        if (Utils::isNinja() && ! Utils::isTravis()) {
             // make sure the user is on SITE_URL/login to ensure OAuth works
             $requestURL = request()->url();
             $loginURL = SITE_URL . '/login';
@@ -130,7 +130,7 @@ class AuthController extends Controller
                 return redirect()->to($loginURL);
             }
         }
-        */
+
         return self::getLogin();
     }
 
