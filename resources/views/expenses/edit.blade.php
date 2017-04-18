@@ -119,40 +119,43 @@
                     </div>
 
 
-                    @if (!$expense || ($expense && (!$expense->tax_name1 && !$expense->tax_name2)))
-                        {!! Former::checkbox('apply_taxes')
-                                ->text(trans('texts.apply_taxes'))
-                                ->data_bind('checked: apply_taxes')
-                                ->label(' ')
-                                ->value(1) !!}
-                    @endif
+                    @if (count($taxRates))
+                        @if (!$expense || ($expense && (!$expense->tax_name1 && !$expense->tax_name2)))
+                            {!! Former::checkbox('apply_taxes')
+                                    ->text(trans('texts.apply_taxes'))
+                                    ->data_bind('checked: apply_taxes')
+                                    ->label(' ')
+                                    ->value(1) !!}
+                        @endif
 
-                    <div style="display:none" data-bind="visible: apply_taxes">
-                        <br/>
-                        {!! Former::select('tax_select1')
-                            ->addOption('','')
-                            ->label(trans('texts.tax_rate'))
-                            ->onchange('taxSelectChange(event)')
-            				->fromQuery($taxRates) !!}
-
-                        <div style="display:none">
-                            {!! Former::input('tax_rate1') !!}
-                            {!! Former::input('tax_name1') !!}
-                        </div>
-
-                        <div style="display:{{ $account->enable_second_tax_rate ? 'block' : 'none' }}">
-                            {!! Former::select('tax_select2')
+                        <div style="display:none" data-bind="visible: apply_taxes">
+                            <br/>
+                            {!! Former::select('tax_select1')
                                 ->addOption('','')
                                 ->label(trans('texts.tax_rate'))
                                 ->onchange('taxSelectChange(event)')
                 				->fromQuery($taxRates) !!}
 
                             <div style="display:none">
-                                {!! Former::input('tax_rate2') !!}
-                                {!! Former::input('tax_name2') !!}
+                                {!! Former::input('tax_rate1') !!}
+                                {!! Former::input('tax_name1') !!}
+                            </div>
+
+                            <div style="display:{{ $account->enable_second_tax_rate ? 'block' : 'none' }}">
+                                {!! Former::select('tax_select2')
+                                    ->addOption('','')
+                                    ->label(trans('texts.tax_rate'))
+                                    ->onchange('taxSelectChange(event)')
+                    				->fromQuery($taxRates) !!}
+
+                                <div style="display:none">
+                                    {!! Former::input('tax_rate2') !!}
+                                    {!! Former::input('tax_name2') !!}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
+
 	            </div>
                 <div class="col-md-6">
 
