@@ -2478,6 +2478,7 @@ $LANG = array(
     'surcharge_label' => 'Surcharge Label',
     'contact_fields' => 'Contact Fields',
     'custom_contact_fields_help' => 'Add a field when creating a contact and display the label and value on the PDF.',
+    'datatable_info' => 'Showing :start to :end of :total entries',
 
 );
 
