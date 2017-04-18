@@ -803,6 +803,15 @@ NINJA.renderInvoiceField = function(invoice, field) {
         } else {
             return false;
         }
+    } else if (field == 'invoice.invoice_total') {
+        if (invoice.is_statement || invoice.is_quote || invoice.balance_amount < 0) {
+            return false;
+        } else {
+            return [
+                {text: invoiceLabels.invoice_total, style: ['invoiceTotalLabel']},
+                {text: formatMoneyInvoice(invoice.amount, invoice), style: ['invoiceTotal']}
+            ];
+        }
     } else if (field == '.blank') {
         return [{text: ' '}, {text: ' '}];
     }

@@ -92,6 +92,7 @@ trait PresentsInvoice
                 'invoice.po_number',
                 'invoice.invoice_date',
                 'invoice.due_date',
+                'invoice.invoice_total',
                 'invoice.balance_due',
                 'invoice.partial_due',
                 'invoice.custom_text_value1',
@@ -235,6 +236,7 @@ trait PresentsInvoice
             'credit_to',
             'your_credit',
             'work_phone',
+            'invoice_total',
         ];
 
         foreach ($fields as $field) {
