@@ -372,6 +372,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function payment_type()
+    {
+        return $this->belongsTo('App\Models\PaymentType');
+    }
+
+    /**
      * @return mixed
      */
     public function expenses()

@@ -90,7 +90,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'status',
                 function ($model) {
-                    return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance);
+                    return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance, $model->payment_date);
                 },
             ],
         ];
@@ -129,9 +129,9 @@ class ExpenseDatatable extends EntityDatatable
         ];
     }
 
-    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance)
+    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance, $paymentDate)
     {
-        $label = Expense::calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance);
+        $label = Expense::calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate);
         $class = Expense::calcStatusClass($shouldBeInvoiced, $invoiceId, $balance);
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";

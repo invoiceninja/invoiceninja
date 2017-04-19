@@ -200,8 +200,11 @@ if (! defined('APP_NAME')) {
     define('TASK_STATUS_PAID', 4);
 
     define('EXPENSE_STATUS_LOGGED', 1);
-    define('EXPENSE_STATUS_INVOICED', 2);
-    define('EXPENSE_STATUS_PAID', 3);
+    define('EXPENSE_STATUS_PENDING', 2);
+    define('EXPENSE_STATUS_INVOICED', 3);
+    define('EXPENSE_STATUS_BILLED', 4);
+    define('EXPENSE_STATUS_PAID', 5);
+    define('EXPENSE_STATUS_UNPAID', 6);
 
     define('CUSTOM_DESIGN', 11);
 

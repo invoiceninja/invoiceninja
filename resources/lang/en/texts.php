@@ -2481,6 +2481,8 @@ $LANG = array(
     'custom_contact_fields_help' => 'Add a field when creating a contact and display the label and value on the PDF.',
     'datatable_info' => 'Showing :start to :end of :total entries',
     'credit_total' => 'Credit Total',
+    'mark_billable' => 'Mark Billable',
+    'billed' => 'Billed',
 
 );
 

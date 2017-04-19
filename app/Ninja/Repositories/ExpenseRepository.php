@@ -81,6 +81,7 @@ class ExpenseRepository extends BaseRepository
                         'expenses.user_id',
                         'expenses.tax_rate1',
                         'expenses.tax_rate2',
+                        'expenses.payment_date',
                         'expense_categories.name as category',
                         'expense_categories.user_id as category_user_id',
                         'expense_categories.public_id as category_public_id',
@@ -112,13 +113,23 @@ class ExpenseRepository extends BaseRepository
                 }
                 if (in_array(EXPENSE_STATUS_INVOICED, $statuses)) {
                     $query->orWhere('expenses.invoice_id', '>', 0);
-                    if (! in_array(EXPENSE_STATUS_PAID, $statuses)) {
+                    if (! in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                         $query->where('invoices.balance', '>', 0);
                     }
                 }
-                if (in_array(EXPENSE_STATUS_PAID, $statuses)) {
+                if (in_array(EXPENSE_STATUS_BILLED, $statuses)) {
                     $query->orWhere('invoices.balance', '=', 0)
                           ->where('expenses.invoice_id', '>', 0);
+                }
+                if (in_array(EXPENSE_STATUS_PAID, $statuses)) {
+                    $query->orWhereNotNull('expenses.payment_date');
+                }
+                if (in_array(EXPENSE_STATUS_UNPAID, $statuses)) {
+                    $query->orWhereNull('expenses.payment_date');
+                }
+                if (in_array(EXPENSE_STATUS_PENDING, $statuses)) {
+                    $query->orWhere('expenses.should_be_invoiced', '=', 1)
+                            ->whereNull('expenses.invoice_id');
                 }
             });
         }
@@ -160,6 +171,9 @@ class ExpenseRepository extends BaseRepository
 
         if (isset($input['expense_date'])) {
             $expense->expense_date = Utils::toSqlDate($input['expense_date']);
+        }
+        if (isset($input['payment_date'])) {
+            $expense->payment_date = Utils::toSqlDate($input['payment_date']);
         }
 
         $expense->should_be_invoiced = isset($input['should_be_invoiced']) && floatval($input['should_be_invoiced']) || $expense->client_id ? true : false;

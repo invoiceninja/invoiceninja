@@ -26,6 +26,14 @@ class ExpensePresenter extends EntityPresenter
         return Utils::fromSqlDate($this->entity->expense_date);
     }
 
+    /**
+     * @return \DateTime|string
+     */
+    public function payment_date()
+    {
+        return Utils::fromSqlDate($this->entity->payment_date);
+    }
+
     public function month()
     {
         return Carbon::parse($this->entity->payment_date)->format('Y m');

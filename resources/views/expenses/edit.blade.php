@@ -78,10 +78,35 @@
 
                     @if (!$expense || ($expense && !$expense->invoice_id))
                         {!! Former::checkbox('should_be_invoiced')
-                                ->text(trans('texts.billable'))
+                                ->text(trans('texts.mark_billable'))
                                 ->data_bind('checked: should_be_invoiced()')
                                 ->label(' ')
                                 ->value(1) !!}
+                    @endif
+
+                    @if (! $expense || ! $expense->transaction_id)
+
+                        @if (! $expense || ! $expense->isPaid())
+                            {!! Former::checkbox('mark_paid')
+                                    ->data_bind('checked: mark_paid')
+                                    ->text(trans('texts.mark_paid'))
+                                    ->label(' ')
+                                    ->value(1) !!}
+                        @endif
+
+                        <div style="display:none" data-bind="visible: mark_paid">
+                            {!! Former::select('payment_type_id')
+                                    ->addOption('','')
+                                    ->fromQuery($paymentTypes, 'name', 'id')
+                                    ->addGroupClass('payment-type-select') !!}
+
+                            {!! Former::text('payment_date')
+                                    ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+                                    ->addGroupClass('payment_date')
+                                    ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+
+                            {!! Former::text('transaction_reference') !!}
+                        </div>
                     @endif
 
                     @if (!$expense || ($expense && ! $expense->isExchanged()))
@@ -302,7 +327,7 @@
                 setComboboxValue($('.expense-category-select'), category.public_id, category.name);
             }
 
-            $('#expense_date').datepicker('update', '{{ $expense ? $expense->expense_date : 'new Date()' }}');
+            $('#expense_date').datepicker('update', '{{ $expense ? Utils::fromSqlDate($expense->expense_date) : 'new Date()' }}');
 
             $('.expense_date .input-group-addon').click(function() {
                 toggleDatePicker('expense_date');
@@ -348,6 +373,23 @@
                 if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
                 else $(this).removeAttr('enctype')
             })
+
+            $('#payment_type_id').combobox();
+            $('#mark_paid').click(function(event) {
+                if ($('#mark_paid').is(':checked')) {
+                    $('#payment_date').datepicker('update', new Date());
+                    @if ($account->payment_type_id)
+                        setComboboxValue($('.payment-type-select'), {{ $account->payment_type_id }}, "{{ trans('texts.payment_type_' . $account->payment_type->name) }}");
+                    @endif
+                } else {
+                    $('#payment_date').datepicker('update', false);
+                    setComboboxValue($('.payment-type-select'), '', '');
+                }
+            })
+
+            @if ($expense && $expense->payment_date)
+                $('#payment_date').datepicker('update', '{{ Utils::fromSqlDate($expense->payment_date) }}');
+            @endif
 
             // Initialize document upload
             dropzone = new Dropzone('#document-upload', {
@@ -406,6 +448,7 @@
             self.amount = ko.observable();
             self.exchange_rate = ko.observable(1);
             self.should_be_invoiced = ko.observable();
+            self.mark_paid = ko.observable({{ $expense && $expense->isPaid() ? 'true' : 'false' }});
             self.convert_currency = ko.observable({{ ($expense && $expense->isExchanged()) ? 'true' : 'false' }});
             self.apply_taxes = ko.observable({{ ($expense && ($expense->tax_name1 || $expense->tax_name2)) ? 'true' : 'false' }});
 
