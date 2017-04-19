@@ -102,6 +102,8 @@ return array(
     |
     */
 
-    'attributes' => array(),
+    'attributes' => [
+        '42_apiKey' => 'Api Key'
+    ],
 
 );

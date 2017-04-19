@@ -110,7 +110,7 @@ return [
     */
 
     'attributes' => [
-        //
+        '42_apiKey' => 'Api Key'
     ],
 
 ];
