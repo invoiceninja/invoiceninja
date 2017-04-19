@@ -97,7 +97,7 @@ You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env 
 Voice Commands
 """"""""""""""
 
-Supporting voice commands requires creating a `LUIS.ai app <https://www.luis.ai/home/index>`_, once the app is created you can import this `model file <https://download.invoiceninja.com/luis.json>`_.
+Supporting voice commands requires creating a `LUIS.ai <https://www.luis.ai/home/index>`_ app, once the app is created you can import this `model file <https://download.invoiceninja.com/luis.json>`_.
 
 You'll also need to set the following values in the .env file.
 
