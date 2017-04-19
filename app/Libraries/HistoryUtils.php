@@ -162,7 +162,7 @@ class HistoryUtils
                 $icon = '<i class="fa fa-users" style="width:32px"></i>';
                 if ($item->client_id) {
                     $link = url('/clients/' . $item->client_id);
-                    $name = $item->client_name;
+                    $name = e($item->client_name);
 
                     $buttonLink = url('/invoices/create/' . $item->client_id);
                     $button = '<a type="button" class="btn btn-primary btn-sm pull-right" href="' . $buttonLink . '">
