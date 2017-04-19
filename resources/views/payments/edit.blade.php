@@ -102,8 +102,8 @@
 
 	<script type="text/javascript">
 
-	var invoices = {!! $invoices !!};
-	var clients = {!! $clients !!};
+	var invoices = {!! strip_tags(json_encode($invoices)) !!};
+	var clients = {!! strip_tags(json_encode($clients)) !!};
 
 	$(function() {
 

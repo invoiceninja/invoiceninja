@@ -102,7 +102,7 @@
       NINJA.bodyFont = "Roboto";
   @endif
 
-  var invoiceLabels = {!! json_encode($account->getInvoiceLabels()) !!};
+  var invoiceLabels = {!! strip_tags(json_encode($account->getInvoiceLabels())) !!};
 
   if (window.invoice) {
     //invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;

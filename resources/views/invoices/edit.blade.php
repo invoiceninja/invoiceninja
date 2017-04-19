@@ -839,8 +839,8 @@
 	<script type="text/javascript">
     Dropzone.autoDiscover = false;
 
-    var products = {!! $products !!};
-    var clients = {!! $clients !!};
+    var products = {!! strip_tags(json_encode($products)) !!};
+	var clients = {!! strip_tags(json_encode($clients)) !!};
     var account = {!! Auth::user()->account !!};
     var dropzone;
 
@@ -880,7 +880,7 @@
             // otherwise create blank model
             window.model = new ViewModel();
 
-            var invoice = {!! $invoice !!};
+            var invoice = {!! strip_tags(json_encode($invoice)) !!};
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
             model.invoice().start_date_orig(model.invoice().start_date());
@@ -898,7 +898,7 @@
             @else
                 // set the default account tax rate
                 @if ($account->invoice_taxes && ! empty($defaultTax))
-                    var defaultTax = {!! $defaultTax->toJson() !!};
+                    var defaultTax = {!! strip_tags(json_encode($defaultTax)) !!};
                     model.invoice().tax_rate1(defaultTax.rate);
                     model.invoice().tax_name1(defaultTax.name);
                 @endif
@@ -907,7 +907,7 @@
             @if (isset($tasks) && $tasks)
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var tasks = {!! $tasks !!};
+                var tasks = {!! strip_tags(json_encode($tasks)) !!};
 
                 for (var i=0; i<tasks.length; i++) {
                     var task = tasks[i];
@@ -926,7 +926,7 @@
 
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var expenses = {!! $expenses !!}
+                var expenses = {!! strip_tags(json_encode($expenses)) !!}
 
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];

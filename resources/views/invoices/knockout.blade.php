@@ -7,7 +7,7 @@ function ViewModel(data) {
     //self.invoice = data ? false : new InvoiceModel();
     self.invoice = ko.observable(data ? false : new InvoiceModel());
     self.expense_currency_id = ko.observable();
-    self.products = {!! $products !!};
+    self.products = {!! strip_tags(json_encode($products)) !!};
 
     self.loadClient = function(client) {
         ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
@@ -174,7 +174,7 @@ function InvoiceModel(data) {
     var self = this;
     this.client = ko.observable(clientModel);
     this.is_public = ko.observable(0);
-    self.account = {!! $account !!};
+    self.account = {!! strip_tags(json_encode($account)) !!};
     self.id = ko.observable('');
     self.discount = ko.observable('');
     self.is_amount_discount = ko.observable(0);

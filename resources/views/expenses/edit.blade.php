@@ -247,10 +247,10 @@
     <script type="text/javascript">
         Dropzone.autoDiscover = false;
 
-        var vendors = {!! $vendors !!};
-        var clients = {!! $clients !!};
-        var categories = {!! $categories !!};
-        var taxRates = {!! $taxRates !!};
+        var vendors = {!! strip_tags(json_encode($vendors)) !!};
+        var clients = {!! strip_tags(json_encode($clients)) !!};
+        var categories = {!! strip_tags(json_encode($categories)) !!};
+        var taxRates = {!! strip_tags(json_encode($taxRates)) !!};
 
         var clientMap = {};
         var vendorMap = {};

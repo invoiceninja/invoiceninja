@@ -58,7 +58,7 @@
                 e.preventDefault();
 
                 $('#wepay-error').remove();
-                var email = {!! json_encode($contact->email) !!} || prompt('{{ trans('texts.ach_email_prompt') }}');
+                var email = {!! strip_tags(json_encode($contact->email)) !!} || prompt('{{ trans('texts.ach_email_prompt') }}');
                 if(!email)return;
 
                 WePay.bank_account.create({

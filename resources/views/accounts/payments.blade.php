@@ -35,7 +35,7 @@
             {!! Former::actions( Button::success(trans('texts.save'))->withAttributes(['id' => 'formSave'])->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}
         </div>
     </div>
-	
+
     {!! Former::close() !!}
 
   @if ($showAdd)
@@ -200,7 +200,7 @@
   <script>
     window.onDatatableReady = actionListHandler;
 
-	var taxRates = {!! $taxRates !!};
+	var taxRates = {!! strip_tags(json_encode($taxRates)) !!};
 	var taxRatesMap = {};
 	for (var i=0; i<taxRates.length; i++) {
 		var taxRate = taxRates[i];
