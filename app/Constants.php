@@ -445,7 +445,7 @@ if (! defined('APP_NAME')) {
     define('CURRENCY_DECORATOR_NONE', 'none');
 
     define('RESELLER_REVENUE_SHARE', 'A');
-    define('RESELLER_LIMITED_USERS', 'B');
+    define('RESELLER_ACCOUNT_COUNT', 'B');
 
     define('AUTO_BILL_OFF', 1);
     define('AUTO_BILL_OPT_IN', 2);
