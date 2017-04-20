@@ -334,6 +334,9 @@ class OnlinePaymentController extends BaseController
                 'custom_value1' => Input::get('custom_client1'),
                 'custom_value2' => Input::get('custom_client2'),
             ];
+            if (request()->currency_code) {
+                $data['currency_code'] = request()->currency_code;
+            }
             $client = $clientRepo->save($data, $client);
         }
 
