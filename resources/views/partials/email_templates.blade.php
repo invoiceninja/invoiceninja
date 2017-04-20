@@ -15,6 +15,7 @@
 
         var keys = {
             'footer': {!! json_encode($account->getEmailFooter()) !!},
+            'emailSignature': {!! json_encode($account->getEmailFooter()) !!},
             'account': "{{ $account->getDisplayName() }}",
             'dueDate': "{{ $account->formatDate($account->getDateTime()) }}",
             'invoiceDate': "{{ $account->formatDate($account->getDateTime()) }}",

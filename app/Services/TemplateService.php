@@ -47,6 +47,7 @@ class TemplateService
 
         $variables = [
             '$footer' => $account->getEmailFooter(),
+            '$emailSignature' => $account->getEmailFooter(),
             '$client' => $client->getDisplayName(),
             '$account' => $account->getDisplayName(),
             '$dueDate' => $account->formatDate($invoice->due_date),

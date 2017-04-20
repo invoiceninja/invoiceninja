@@ -69,7 +69,7 @@ trait SendsEmails
             $template .= "$message<p/>";
         }
 
-        return $template . '$footer';
+        return $template . '$emailSignature';
     }
 
     /**

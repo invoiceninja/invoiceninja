@@ -146,7 +146,6 @@
                     <p>{{ trans('texts.template_help_1') }}</p>
                     <ul>
                         @foreach([
-                            'footer',
                             'account',
                             'dueDate',
                             'invoiceDate',
@@ -156,6 +155,7 @@
                             'firstName',
                             'invoice',
                             'quote',
+                            'emailSignature',
                             'password',
                             'documents',
                             'viewLink',
