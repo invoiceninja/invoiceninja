@@ -1069,12 +1069,8 @@ class AccountController extends BaseController
                         }
                     } else {
                         if (extension_loaded('fileinfo')) {
-                            $image = Image::make($path);
-                            $image->resize(200, 120, function ($constraint) {
-                                $constraint->aspectRatio();
-                            });
-
                             $account->logo = $account->account_key.'.png';
+                            $image = Image::make($path);
                             $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
                             $imageStr = (string) $image->encode('png');
                             $disk->put($account->logo, $imageStr);
