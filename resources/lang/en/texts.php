@@ -2483,6 +2483,11 @@ $LANG = array(
     'credit_total' => 'Credit Total',
     'mark_billable' => 'Mark Billable',
     'billed' => 'Billed',
+    'company_variables' => 'Company Variables',
+    'client_variables' => 'Client Variables',
+    'invoice_variables' => 'Invoice Variables',
+    'navigation_variables' => 'Navigation Variables',
+    'custom_variables' => 'Custom Variables',
 
 );
 
