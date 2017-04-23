@@ -8,6 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use Monolog\Logger;
 use App\Services\ImportService;
 use App\Ninja\Mailers\UserMailer;
+use App\Models\User;
 use Auth;
 
 /**
@@ -38,7 +39,7 @@ class ImportData extends Job implements ShouldQueue
      * @param mixed   $files
      * @param mixed   $settings
      */
-    public function __construct($user, $type, $settings)
+    public function __construct(User $user, $type, $settings)
     {
         $this->user = $user;
         $this->type = $type;
