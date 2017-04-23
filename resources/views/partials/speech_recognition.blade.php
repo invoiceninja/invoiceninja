@@ -127,11 +127,8 @@
       recognition.onend = function() {
         recognizing = false;
         $('.fa-microphone').show();
-        $('#search').val('');
-        if (ignore_onend) {
-          return;
-        }
-        if (!final_transcript) {
+        if (ignore_onend || !final_transcript) {
+          $('#search').val('');
           return;
         }
         $('#search-form').submit();
