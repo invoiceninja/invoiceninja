@@ -75,7 +75,7 @@
     </script>
 
 
-    {!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
+	{!! Former::open()->addClass('report-form')->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
 
     <div style="display:none">
     {!! Former::text('action') !!}
@@ -149,7 +149,7 @@
 	@if (!Auth::user()->hasFeature(FEATURE_REPORTS))
 	<script>
 		$(function() {
-			$('form.warn-on-exit').find('input, button').prop('disabled', true);
+			$('form.report-form').find('input, button').prop('disabled', true);
 		});
 	</script>
 	@endif
