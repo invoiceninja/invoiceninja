@@ -85,6 +85,15 @@ You can also update a client by specifying a value for ‘id’. Next, here’s 
 
 If the product_key is set and matches an existing record the product fields will be auto-populated. If the email field is set then we’ll search for a matching client. If no matches are found a new client will be created.
 
+Options
+^^^^^^^
+
+The following options are available when creating an invoice.
+
+- ``email_invoice``: Email the invoice to the client.
+- ``auto_bill``: Attempt to auto-bill the invoice using stored payment methods or credits.
+- ``paid``: Create a payment for the defined amount.
+
 Updating Data
 """""""""""""
 
@@ -95,12 +104,6 @@ Updating Data
   curl -X PUT ninja.dev/api/v1/clients/1 -H "Content-Type:application/json"
     -d '{"name":"test", "contacts":[{"id": 1, "first_name": "test"}]}'
     -H "X-Ninja-Token: TOKEN"
-
-Options
-^^^^^^^
-- ``email_invoice``: Email the invoice to the client.
-- ``auto_bill``: Attempt to auto-bill the invoice using stored payment methods or credits.
-- ``paid``: Create a payment for the defined amount.
 
 Emailing Invoices
 """""""""""""""""
