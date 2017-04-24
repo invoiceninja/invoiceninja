@@ -710,6 +710,10 @@ class InvoiceRepository extends BaseRepository
         $client->load('contacts');
         $sendInvoiceIds = [];
 
+        if (! count($client->contacts)) {
+            return $invoice;
+        }
+
         foreach ($client->contacts as $contact) {
             if ($contact->send_invoice) {
                 $sendInvoiceIds[] = $contact->id;
