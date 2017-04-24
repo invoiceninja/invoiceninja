@@ -1,24 +1,26 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Utils;
-use Response;
-use Input;
-use Validator;
-use App\Models\Invoice;
-use App\Models\Client;
-use App\Models\Contact;
-use App\Models\Product;
-use App\Ninja\Repositories\ClientRepository;
-use App\Ninja\Repositories\PaymentRepository;
-use App\Ninja\Repositories\InvoiceRepository;
+namespace App\Http\Controllers;
+
 use App\Http\Requests\InvoiceRequest;
 use App\Http\Requests\CreateInvoiceAPIRequest;
 use App\Http\Requests\UpdateInvoiceAPIRequest;
-use App\Services\InvoiceService;
-use App\Services\PaymentService;
 use App\Jobs\SendInvoiceEmail;
 use App\Jobs\SendPaymentEmail;
+use App\Models\Client;
+use App\Models\Contact;
+use App\Models\Invoice;
+use App\Models\Product;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\PaymentRepository;
+use App\Services\InvoiceService;
+use App\Services\PaymentService;
+use Auth;
+use Input;
+use Response;
+use Utils;
+use Validator;
 
 class InvoiceApiController extends BaseAPIController
 {
@@ -40,11 +42,12 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/invoices",
-     *   summary="List of invoices",
+     *   summary="List invoices",
+     *   operationId="listInvoices",
      *   tags={"invoice"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with invoices",
+     *     description="A list of invoices",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Invoice"))
      *   ),
      *   @SWG\Response(
@@ -60,26 +63,36 @@ class InvoiceApiController extends BaseAPIController
                         ->with('invoice_items', 'client')
                         ->orderBy('created_at', 'desc');
 
+        // Filter by invoice number
+        if ($invoiceNumber = Input::get('invoice_number')) {
+            $invoices->whereInvoiceNumber($invoiceNumber);
+        }
+
         return $this->listResponse($invoices);
     }
 
-        /**
-         * @SWG\Get(
-         *   path="/invoices/{invoice_id}",
-         *   summary="Individual Invoice",
-         *   tags={"invoice"},
-         *   @SWG\Response(
-         *     response=200,
-         *     description="A single invoice",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
-         *   ),
-         *   @SWG\Response(
-         *     response="default",
-         *     description="an ""unexpected"" error"
-         *   )
-         * )
-         */
-
+    /**
+     * @SWG\Get(
+     *   path="/invoices/{invoice_id}",
+     *   summary="Retrieve an Invoice",
+     *   tags={"invoice"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="invoice_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single invoice",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function show(InvoiceRequest $request)
     {
         return $this->itemResponse($request->entity());
@@ -88,11 +101,11 @@ class InvoiceApiController extends BaseAPIController
     /**
      * @SWG\Post(
      *   path="/invoices",
-     *   tags={"invoice"},
      *   summary="Create an invoice",
+     *   tags={"invoice"},
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="invoice",
      *     @SWG\Schema(ref="#/definitions/Invoice")
      *   ),
      *   @SWG\Response(
@@ -113,14 +126,15 @@ class InvoiceApiController extends BaseAPIController
 
         if (isset($data['email'])) {
             $email = $data['email'];
-            $client = Client::scope()->whereHas('contacts', function($query) use ($email) {
+            $client = Client::scope()->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', '=', $email);
             })->first();
 
-            if (!$client) {
-                $validator = Validator::make(['email'=>$email], ['email' => 'email']);
+            if (! $client) {
+                $validator = Validator::make(['email' => $email], ['email' => 'email']);
                 if ($validator->fails()) {
                     $messages = $validator->messages();
+
                     return $messages->first();
                 }
 
@@ -152,7 +166,7 @@ class InvoiceApiController extends BaseAPIController
 
                 $client = $this->clientRepo->save($clientData);
             }
-        } else if (isset($data['client_id'])) {
+        } elseif (isset($data['client_id'])) {
             $client = Client::scope($data['client_id'])->firstOrFail();
         }
 
@@ -174,11 +188,11 @@ class InvoiceApiController extends BaseAPIController
         if ($invoice->isInvoice()) {
             if ($isAutoBill) {
                 $payment = $this->paymentService->autoBillInvoice($invoice);
-            } else if ($isPaid) {
+            } elseif ($isPaid) {
                 $payment = $this->paymentRepo->save([
                     'invoice_id' => $invoice->id,
                     'client_id' => $client->id,
-                    'amount' => $data['paid']
+                    'amount' => $data['paid'],
                 ]);
             }
         }
@@ -187,7 +201,7 @@ class InvoiceApiController extends BaseAPIController
             if ($payment) {
                 app('App\Ninja\Mailers\ContactMailer')->sendPaymentConfirmation($payment);
                 //$this->dispatch(new SendPaymentEmail($payment));
-            } elseif ( ! $invoice->is_recurring) {
+            } elseif (! $invoice->is_recurring) {
                 app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
                 //$this->dispatch(new SendInvoiceEmail($invoice));
             }
@@ -223,22 +237,22 @@ class InvoiceApiController extends BaseAPIController
             'custom_value2' => 0,
             'custom_taxes1' => false,
             'custom_taxes2' => false,
-            'partial' => 0
+            'partial' => 0,
         ];
 
-        if (!isset($data['invoice_status_id']) || $data['invoice_status_id'] == 0) {
+        if (! isset($data['invoice_status_id']) || $data['invoice_status_id'] == 0) {
             $data['invoice_status_id'] = INVOICE_STATUS_DRAFT;
         }
 
-        if (!isset($data['invoice_date'])) {
+        if (! isset($data['invoice_date'])) {
             $fields['invoice_date_sql'] = date_create()->format('Y-m-d');
         }
-        if (!isset($data['due_date'])) {
+        if (! isset($data['due_date'])) {
             $fields['due_date_sql'] = false;
         }
 
         foreach ($fields as $key => $val) {
-            if (!isset($data[$key])) {
+            if (! isset($data[$key])) {
                 $data[$key] = $val;
             }
         }
@@ -263,7 +277,7 @@ class InvoiceApiController extends BaseAPIController
     private function prepareItem($item)
     {
         // if only the product key is set we'll load the cost and notes
-        if (!empty($item['product_key']) && empty($item['cost']) && empty($item['notes'])) {
+        if (! empty($item['product_key']) && empty($item['cost']) && empty($item['notes'])) {
             $product = Product::findProductByKey($item['product_key']);
             if ($product) {
                 if (empty($item['cost'])) {
@@ -279,11 +293,11 @@ class InvoiceApiController extends BaseAPIController
             'cost' => 0,
             'product_key' => '',
             'notes' => '',
-            'qty' => 1
+            'qty' => 1,
         ];
 
         foreach ($fields as $key => $val) {
-            if (!isset($item[$key])) {
+            if (! isset($item[$key])) {
                 $item[$key] = $val;
             }
         }
@@ -295,39 +309,54 @@ class InvoiceApiController extends BaseAPIController
     {
         $invoice = $request->entity();
 
-        $this->dispatch(new SendInvoiceEmail($invoice));
+        //$this->dispatch(new SendInvoiceEmail($invoice));
+        $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
 
-        $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
+        if ($result !== true) {
+            return $this->errorResponse($result, 500);
+        }
+
         $headers = Utils::getApiHeaders();
+        $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
+
         return Response::make($response, 200, $headers);
     }
 
-        /**
-         * @SWG\Put(
-         *   path="/invoices",
-         *   tags={"invoice"},
-         *   summary="Update an invoice",
-         *   @SWG\Parameter(
-         *     in="body",
-         *     name="body",
-         *     @SWG\Schema(ref="#/definitions/Invoice")
-         *   ),
-         *   @SWG\Response(
-         *     response=200,
-         *     description="Update invoice",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
-         *   ),
-         *   @SWG\Response(
-         *     response="default",
-         *     description="an ""unexpected"" error"
-         *   )
-         * )
-         */
+    /**
+     * @SWG\Put(
+     *   path="/invoices/{invoice_id}",
+     *   summary="Update an invoice",
+     *   tags={"invoice"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="invoice_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="invoice",
+     *     @SWG\Schema(ref="#/definitions/Invoice")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Updated invoice",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     *
+     * @param mixed $publicId
+     */
     public function update(UpdateInvoiceAPIRequest $request, $publicId)
     {
         if ($request->action == ACTION_CONVERT) {
             $quote = $request->entity();
             $invoice = $this->invoiceRepo->cloneInvoice($quote, $quote->id);
+
             return $this->itemResponse($invoice);
         } elseif ($request->action) {
             return $this->handleAction($request);
@@ -344,28 +373,28 @@ class InvoiceApiController extends BaseAPIController
         return $this->itemResponse($invoice);
     }
 
-        /**
-         * @SWG\Delete(
-         *   path="/invoices",
-         *   tags={"invoice"},
-         *   summary="Delete an invoice",
-         *   @SWG\Parameter(
-         *     in="body",
-         *     name="body",
-         *     @SWG\Schema(ref="#/definitions/Invoice")
-         *   ),
-         *   @SWG\Response(
-         *     response=200,
-         *     description="Delete invoice",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
-         *   ),
-         *   @SWG\Response(
-         *     response="default",
-         *     description="an ""unexpected"" error"
-         *   )
-         * )
-         */
-
+    /**
+     * @SWG\Delete(
+     *   path="/invoices/{invoice_id}",
+     *   summary="Delete an invoice",
+     *   tags={"invoice"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="invoice_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Deleted invoice",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Invoice"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
     public function destroy(UpdateInvoiceAPIRequest $request)
     {
         $invoice = $request->entity();

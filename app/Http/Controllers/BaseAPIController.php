@@ -1,23 +1,26 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Utils;
-use Auth;
-use Input;
-use Response;
-use Request;
-use League\Fractal\Manager;
-use League\Fractal\Resource\Item;
-use League\Fractal\Resource\Collection;
-use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+namespace App\Http\Controllers;
+
 use App\Models\EntityModel;
 use App\Ninja\Serializers\ArraySerializer;
+use Auth;
+use Input;
+use League\Fractal\Manager;
+use League\Fractal\Pagination\IlluminatePaginatorAdapter;
+use League\Fractal\Resource\Collection;
+use League\Fractal\Resource\Item;
 use League\Fractal\Serializer\JsonApiSerializer;
+use Request;
+use Response;
+use Utils;
 
 /**
  * @SWG\Swagger(
  *     schemes={"http","https"},
  *     host="ninja.dev",
  *     basePath="/api/v1",
+ *     produces={"application/json"},
  *     @SWG\Info(
  *         version="1.0.0",
  *         title="Invoice Ninja API",
@@ -35,11 +38,12 @@ use League\Fractal\Serializer\JsonApiSerializer;
  *         description="Find out more about Invoice Ninja",
  *         url="https://www.invoiceninja.com"
  *     ),
+ *     security={"api_key": {}},
  *     @SWG\SecurityScheme(
  *         securityDefinition="api_key",
  *         type="apiKey",
  *         in="header",
- *         name="TOKEN"
+ *         name="X-Ninja-Token"
  *     )
  * )
  */
@@ -92,13 +96,13 @@ class BaseAPIController extends Controller
         }
 
         if ($clientPublicId = Input::get('client_id')) {
-            $filter = function($query) use ($clientPublicId) {
+            $filter = function ($query) use ($clientPublicId) {
                 $query->where('public_id', '=', $clientPublicId);
             };
             $query->whereHas('client', $filter);
         }
 
-        if ( ! Utils::hasPermission('view_all')){
+        if (! Utils::hasPermission('view_all')) {
             if ($this->entityType == ENTITY_USER) {
                 $query->where('id', '=', Auth::user()->id);
             } else {
@@ -128,6 +132,7 @@ class BaseAPIController extends Controller
         }
 
         $resource = new Item($data, $transformer, $entityType);
+
         return $this->manager->createData($resource)->toArray();
     }
 
@@ -159,7 +164,7 @@ class BaseAPIController extends Controller
         } else {
             $meta = isset($response['meta']) ? $response['meta'] : null;
             $response = [
-                $index => $response
+                $index => $response,
             ];
 
             if ($meta) {
@@ -174,14 +179,13 @@ class BaseAPIController extends Controller
         return Response::make($response, 200, $headers);
     }
 
-    protected  function errorResponse($response, $httpErrorCode = 400)
+    protected function errorResponse($response, $httpErrorCode = 400)
     {
         $error['error'] = $response;
         $error = json_encode($error, JSON_PRETTY_PRINT);
         $headers = Utils::getApiHeaders();
 
         return Response::make($error, $httpErrorCode, $headers);
-
     }
 
     protected function getRequestIncludes($data)

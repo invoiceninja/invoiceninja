@@ -2,9 +2,9 @@
 
 namespace App\Ninja\Reports;
 
+use App\Models\Expense;
 use Auth;
 use Utils;
-use App\Models\Expense;
 
 class ExpenseReport extends AbstractReport
 {
@@ -13,7 +13,7 @@ class ExpenseReport extends AbstractReport
         'client',
         'date',
         'category',
-        'expense_amount',
+        'amount',
     ];
 
     public function run()
@@ -21,6 +21,7 @@ class ExpenseReport extends AbstractReport
         $account = Auth::user()->account;
 
         $expenses = Expense::scope()
+                        ->orderBy('expense_date', 'desc')
                         ->withArchived()
                         ->with('client.contacts', 'vendor')
                         ->where('expense_date', '>=', $this->startDate)
@@ -32,7 +33,7 @@ class ExpenseReport extends AbstractReport
             $this->data[] = [
                 $expense->vendor ? ($this->isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
                 $expense->client ? ($this->isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
-                $expense->present()->expense_date,
+                $this->isExport ? $expense->present()->expense_date : link_to($expense->present()->url, $expense->present()->expense_date),
                 $expense->present()->category,
                 Utils::formatMoney($amount, $expense->currency_id),
             ];

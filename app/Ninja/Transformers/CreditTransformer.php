@@ -1,14 +1,17 @@
-<?php namespace App\Ninja\Transformers;
+<?php
+
+namespace App\Ninja\Transformers;
 
 use App\Models\Credit;
 
 /**
- * Class CreditTransformer
+ * Class CreditTransformer.
  */
 class CreditTransformer extends EntityTransformer
 {
     /**
      * @param Credit $credit
+     *
      * @return array
      */
     public function transform(Credit $credit)
@@ -23,6 +26,7 @@ class CreditTransformer extends EntityTransformer
             'credit_date' => $credit->credit_date,
             'credit_number' => $credit->credit_number,
             'private_notes' => $credit->private_notes,
+            'public_notes' => $credit->public_notes,
         ]);
     }
 }

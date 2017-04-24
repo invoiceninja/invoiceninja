@@ -1,42 +1,19 @@
-<?php namespace App\Ninja\Mailers;
+<?php
 
-use App\Models\Invitation;
-use Utils;
-use Event;
-use Auth;
-use App\Services\TemplateService;
-use App\Models\Invoice;
-use App\Models\Payment;
+namespace App\Ninja\Mailers;
+
 use App\Events\InvoiceWasEmailed;
 use App\Events\QuoteWasEmailed;
+use App\Models\Invitation;
+use App\Models\Invoice;
+use App\Models\Payment;
+use App\Services\TemplateService;
+use Auth;
+use Event;
+use Utils;
 
 class ContactMailer extends Mailer
 {
-    /**
-     * @var array
-     */
-    public static $variableFields = [
-        'footer',
-        'account',
-        'dueDate',
-        'invoiceDate',
-        'client',
-        'amount',
-        'contact',
-        'firstName',
-        'invoice',
-        'quote',
-        'password',
-        'documents',
-        'viewLink',
-        'viewButton',
-        'paymentLink',
-        'paymentButton',
-        'autoBill',
-        'portalLink',
-        'portalButton',
-    ];
-
     /**
      * @var TemplateService
      */
@@ -44,6 +21,7 @@ class ContactMailer extends Mailer
 
     /**
      * ContactMailer constructor.
+     *
      * @param TemplateService $templateService
      */
     public function __construct(TemplateService $templateService)
@@ -53,11 +31,12 @@ class ContactMailer extends Mailer
 
     /**
      * @param Invoice $invoice
-     * @param bool $reminder
-     * @param bool $pdfString
+     * @param bool    $reminder
+     * @param bool    $pdfString
+     *
      * @return bool|null|string
      */
-    public function sendInvoice(Invoice $invoice, $reminder = false, $pdfString = false)
+    public function sendInvoice(Invoice $invoice, $reminder = false, $template = false)
     {
         if ($invoice->is_recurring) {
             return false;
@@ -78,12 +57,13 @@ class ContactMailer extends Mailer
         }
 
         $account->loadLocalizationSettings($client);
-        $emailTemplate = $account->getEmailTemplate($reminder ?: $entityType);
-        $emailSubject = $account->getEmailSubject($reminder ?: $entityType);
+        $emailTemplate = !empty($template['body']) ? $template['body'] : $account->getEmailTemplate($reminder ?: $entityType);
+        $emailSubject = !empty($template['subject']) ? $template['subject'] : $account->getEmailSubject($reminder ?: $entityType);
 
         $sent = false;
+        $pdfString = false;
 
-        if ($account->attachPDF() && !$pdfString) {
+        if ($account->attachPDF()) {
             $pdfString = $invoice->getPDFString();
         }
 
@@ -91,7 +71,7 @@ class ContactMailer extends Mailer
         if ($account->document_email_attachment && $invoice->hasDocuments()) {
             $documents = $invoice->documents;
 
-            foreach($invoice->expenses as $expense){
+            foreach ($invoice->expenses as $expense) {
                 $documents = $documents->merge($expense->documents);
             }
 
@@ -99,9 +79,11 @@ class ContactMailer extends Mailer
 
             $size = 0;
             $maxSize = MAX_EMAIL_DOCUMENTS_SIZE * 1000;
-            foreach($documents as $document){
+            foreach ($documents as $document) {
                 $size += $document->size;
-                if($size > $maxSize)break;
+                if ($size > $maxSize) {
+                    break;
+                }
 
                 $documentStrings[] = [
                     'name' => $document->name,
@@ -110,8 +92,10 @@ class ContactMailer extends Mailer
             }
         }
 
+        $isFirst = true;
         foreach ($invoice->invitations as $invitation) {
-            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings, $reminder);
+            $response = $this->sendInvitation($invitation, $invoice, $emailTemplate, $emailSubject, $pdfString, $documentStrings, $reminder, $isFirst);
+            $isFirst = false;
             if ($response === true) {
                 $sent = true;
             }
@@ -132,13 +116,16 @@ class ContactMailer extends Mailer
 
     /**
      * @param Invitation $invitation
-     * @param Invoice $invoice
+     * @param Invoice    $invoice
      * @param $body
      * @param $subject
      * @param $pdfString
      * @param $documentStrings
-     * @return bool|string
+     * @param mixed $reminder
+     *
      * @throws \Laracasts\Presenter\Exceptions\PresenterException
+     *
+     * @return bool|string
      */
     private function sendInvitation(
         Invitation $invitation,
@@ -147,10 +134,9 @@ class ContactMailer extends Mailer
         $subject,
         $pdfString,
         $documentStrings,
-        $reminder
-    )
-    {
-
+        $reminder,
+        $isFirst
+    ) {
         $client = $invoice->client;
         $account = $invoice->account;
 
@@ -163,11 +149,11 @@ class ContactMailer extends Mailer
             }
         }
 
-        if (!$user->email || !$user->registered) {
+        if (! $user->email || ! $user->registered) {
             return trans('texts.email_error_user_unregistered');
-        } elseif (!$user->confirmed) {
+        } elseif (! $user->confirmed) {
             return trans('texts.email_error_user_unconfirmed');
-        } elseif (!$invitation->contact->email) {
+        } elseif (! $invitation->contact->email) {
             return trans('texts.email_error_invalid_contact_email');
         } elseif ($invitation->contact->trashed()) {
             return trans('texts.email_error_inactive_contact');
@@ -177,7 +163,7 @@ class ContactMailer extends Mailer
             'account' => $account,
             'client' => $client,
             'invitation' => $invitation,
-            'amount' => $invoice->getRequestedAmount()
+            'amount' => $invoice->getRequestedAmount(),
         ];
 
         // Let the client know they'll be billed later
@@ -203,7 +189,7 @@ class ContactMailer extends Mailer
             'invoice' => $invoice,
             'documents' => $documentStrings,
             'notes' => $reminder,
-            'bccEmail' => $account->getBccEmail(),
+            'bccEmail' => $isFirst ? $account->getBccEmail() : false,
             'fromEmail' => $account->getFromEmail(),
         ];
 
@@ -213,7 +199,7 @@ class ContactMailer extends Mailer
         }
 
         $subject = $this->templateService->processVariables($subject, $variables);
-        $fromEmail = $user->email;
+        $fromEmail = $account->getReplyToEmail() ?: $user->email;
         $view = $account->getTemplateView(ENTITY_INVOICE);
 
         $response = $this->sendTo($invitation->contact->email, $fromEmail, $account->getDisplayName(), $subject, $view, $data);
@@ -227,6 +213,7 @@ class ContactMailer extends Mailer
 
     /**
      * @param int $length
+     *
      * @return string
      */
     protected function generatePassword($length = 9)
@@ -238,14 +225,14 @@ class ContactMailer extends Mailer
         ];
         $all = '';
         $password = '';
-        foreach($sets as $set)
-        {
+        foreach ($sets as $set) {
             $password .= $set[array_rand(str_split($set))];
             $all .= $set;
         }
         $all = str_split($all);
-        for($i = 0; $i < $length - count($sets); $i++)
+        for ($i = 0; $i < $length - count($sets); $i++) {
             $password .= $all[array_rand($all)];
+        }
         $password = str_shuffle($password);
 
         return $password;
@@ -304,9 +291,10 @@ class ContactMailer extends Mailer
         $data['invoice_id'] = $payment->invoice->id;
 
         $view = $account->getTemplateView('payment_confirmation');
+        $fromEmail = $account->getReplyToEmail() ?: $user->email;
 
         if ($user->email && $contact->email) {
-            $this->sendTo($contact->email, $user->email, $accountName, $subject, $view, $data);
+            $this->sendTo($contact->email, $fromEmail, $accountName, $subject, $view, $data);
         }
 
         $account->loadLocalizationSettings();
@@ -335,10 +323,9 @@ class ContactMailer extends Mailer
         $data = [
             'client' => $name,
             'amount' => Utils::formatMoney($amount, DEFAULT_CURRENCY, DEFAULT_COUNTRY),
-            'license' => $license
+            'license' => $license,
         ];
 
         $this->sendTo($email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
-
 }

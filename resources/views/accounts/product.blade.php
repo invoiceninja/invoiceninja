@@ -21,13 +21,23 @@
 
   {!! Former::text('product_key')->label('texts.product') !!}
   {!! Former::textarea('notes')->rows(6) !!}
+
+  @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
+      @if ($account->custom_invoice_item_label1)
+          {!! Former::text('custom_value1')->label($account->custom_invoice_item_label1) !!}
+      @endif
+      @if ($account->custom_invoice_item_label2)
+          {!! Former::text('custom_value2')->label($account->custom_invoice_item_label2) !!}
+      @endif
+  @endif
+
   {!! Former::text('cost') !!}
 
   @if ($account->invoice_item_taxes)
       {!! Former::select('default_tax_rate_id')
             ->addOption('', '')
             ->label(trans('texts.tax_rate'))
-            ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'id') !!}
+            ->fromQuery($taxRates, function($model) { return $model->name . ': ' . $model->rate . '%'; }, 'id') !!}
   @endif
 
   </div>

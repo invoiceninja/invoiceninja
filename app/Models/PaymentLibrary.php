@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class PaymentLibrary
+ * Class PaymentLibrary.
  */
 class PaymentLibrary extends Eloquent
 {

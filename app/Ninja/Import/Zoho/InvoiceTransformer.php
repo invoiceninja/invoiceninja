@@ -1,20 +1,23 @@
-<?php namespace App\Ninja\Import\Zoho;
+<?php
+
+namespace App\Ninja\Import\Zoho;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 /**
- * Class InvoiceTransformer
+ * Class InvoiceTransformer.
  */
 class InvoiceTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return bool|Item
      */
     public function transform($data)
     {
-        if ( ! $this->getClientId($data->customer_name)) {
+        if (! $this->getClientId($data->customer_name)) {
             return false;
         }
 
@@ -42,7 +45,7 @@ class InvoiceTransformer extends BaseTransformer
                         'tax_rate1' => (float) $data->item_tax1,
                         'tax_name2' => (float) $data->item_tax2 ? trans('texts.tax') : '',
                         'tax_rate2' => (float) $data->item_tax2,
-                    ]
+                    ],
                 ],
             ];
 

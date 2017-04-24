@@ -1,13 +1,12 @@
 @extends('header')
 
-@section('content') 
+@section('content')
   @parent
 
   @include('accounts.nav', ['selected' => ACCOUNT_PAYMENT_TERMS])
 
   {!! Former::open($url)->method($method)
       ->rules([
-        'name' => 'required',
         'num_days' => 'required'
        ])
       ->addClass('warn-on-exit') !!}
@@ -23,13 +22,15 @@
     {{ Former::populate($paymentTerm) }}
   @endif
 
-  {!! Former::text('name')->label('texts.name') !!}
-  {!! Former::text('num_days')->label('texts.num_days') !!}
+  {!! Former::text('num_days')
+        ->type('number')
+        ->min(1)
+        ->label('texts.num_days') !!}
 
   </div>
   </div>
 
-  {!! Former::actions( 
+  {!! Former::actions(
       Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/payment_terms'))->appendIcon(Icon::create('remove-circle')),
       Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
   ) !!}

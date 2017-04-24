@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Reports;
 
-use Auth;
 use App\Models\Client;
+use Auth;
 
 class ClientReport extends AbstractReport
 {
@@ -19,9 +19,10 @@ class ClientReport extends AbstractReport
         $account = Auth::user()->account;
 
         $clients = Client::scope()
+                        ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function($query) {
+                        ->with(['invoices' => function ($query) {
                             $query->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
                                   ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
@@ -42,7 +43,7 @@ class ClientReport extends AbstractReport
                 $this->isExport ? $client->getDisplayName() : $client->present()->link,
                 $account->formatMoney($amount, $client),
                 $account->formatMoney($paid, $client),
-                $account->formatMoney($amount - $paid, $client)
+                $account->formatMoney($amount - $paid, $client),
             ];
 
             $this->addToTotals($client->currency_id, 'amount', $amount);

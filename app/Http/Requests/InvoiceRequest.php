@@ -1,9 +1,11 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 use App\Models\Invoice;
 
-class InvoiceRequest extends EntityRequest {
-
+class InvoiceRequest extends EntityRequest
+{
     protected $entityType = ENTITY_INVOICE;
 
     public function entity()
@@ -15,7 +17,11 @@ class InvoiceRequest extends EntityRequest {
             $invoice = Invoice::scope()
                         ->whereInvoiceNumber($this->invoice_number)
                         ->withTrashed()
-                        ->firstOrFail();
+                        ->first();
+
+            if (! $invoice) {
+                abort(404);
+            }
         }
 
         // eager load the invoice items
@@ -25,5 +31,4 @@ class InvoiceRequest extends EntityRequest {
 
         return $invoice;
     }
-
 }

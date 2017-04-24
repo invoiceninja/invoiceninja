@@ -1,4 +1,4 @@
-/<?php
+<?php
 
 use Codeception\Util\Fixtures;
 use Faker\Factory;
@@ -34,17 +34,8 @@ class TaxRatesCest
         $invoiceTaxRate = number_format($invoiceTaxRate, 3);
 
         // create tax rates
-        $I->amOnPage('/tax_rates/create');
-        $I->fillField(['name' => 'name'], $itemTaxName);
-        $I->fillField(['name' => 'rate'], $itemTaxRate);
-        $I->click('Save');
-        $I->see($itemTaxName);
-
-        $I->amOnPage('/tax_rates/create');
-        $I->fillField(['name' => 'name'], $invoiceTaxName);
-        $I->fillField(['name' => 'rate'], $invoiceTaxRate);
-        $I->click('Save');
-        $I->see($invoiceTaxName);
+        $I->createTaxRate($I, $itemTaxName, $itemTaxRate);
+        $I->createTaxRate($I, $invoiceTaxName, $invoiceTaxRate);
 
         // enable line item taxes
         $I->amOnPage('/settings/tax_rates');
@@ -56,7 +47,7 @@ class TaxRatesCest
         $I->fillField(['name' => 'product_key'], $productKey);
         $I->fillField(['name' => 'notes'], $this->faker->text(80));
         $I->fillField(['name' => 'cost'], $itemCost);
-        $I->selectOption('select[name=default_tax_rate_id]', $itemTaxName . ' ' . $itemTaxRate . '%');
+        $I->selectOption('select[name=default_tax_rate_id]', $itemTaxName . ': ' . $itemTaxRate . '%');
         $I->click('Save');
         $I->wait(1);
         //$I->see($productKey);
@@ -77,7 +68,7 @@ class TaxRatesCest
 
         // check total is right before saving
         $I->see("\${$total}");
-        $I->click('Save');
+        $I->click('Save Draft');
         $I->wait(3);
         $I->see($clientEmail);
 

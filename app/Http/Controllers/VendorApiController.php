@@ -1,13 +1,15 @@
-<?php namespace App\Http\Controllers;
-// vendor
-use App\Http\Requests\UpdateVendorRequest;
+<?php
+
+namespace App\Http\Controllers;
+
 use App\Http\Requests\VendorRequest;
-use Utils;
-use Response;
-use Input;
+use App\Http\Requests\CreateVendorRequest;
+use App\Http\Requests\UpdateVendorRequest;
 use App\Models\Vendor;
 use App\Ninja\Repositories\VendorRepository;
-use App\Http\Requests\CreateVendorRequest;
+use Input;
+use Response;
+use Utils;
 
 class VendorApiController extends BaseAPIController
 {
@@ -32,11 +34,12 @@ class VendorApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/vendors",
-     *   summary="List of vendors",
+     *   summary="List vendors",
+     *   operationId="listVendors",
      *   tags={"vendor"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with vendors",
+     *     description="A list of vendors",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Vendor"))
      *   ),
      *   @SWG\Response(
@@ -55,13 +58,42 @@ class VendorApiController extends BaseAPIController
     }
 
     /**
+     * @SWG\Get(
+     *   path="/vendors/{vendor_id}",
+     *   summary="Retrieve a vendor",
+     *   operationId="getVendor",
+     *   tags={"client"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="vendor_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single vendor",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function show(VendorRequest $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+    /**
      * @SWG\Post(
      *   path="/vendors",
-     *   tags={"vendor"},
      *   summary="Create a vendor",
+     *   operationId="createVendor",
+     *   tags={"vendor"},
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="vendor",
      *     @SWG\Schema(ref="#/definitions/Vendor")
      *   ),
      *   @SWG\Response(
@@ -86,28 +118,36 @@ class VendorApiController extends BaseAPIController
         return $this->itemResponse($vendor);
     }
 
-        /**
-         * @SWG\Put(
-         *   path="/vendors/{vendor_id}",
-         *   tags={"vendor"},
-         *   summary="Update a vendor",
-         *   @SWG\Parameter(
-         *     in="body",
-         *     name="body",
-         *     @SWG\Schema(ref="#/definitions/Vendor")
-         *   ),
-         *   @SWG\Response(
-         *     response=200,
-         *     description="Update vendor",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
-         *   ),
-         *   @SWG\Response(
-         *     response="default",
-         *     description="an ""unexpected"" error"
-         *   )
-         * )
-         */
-
+    /**
+     * @SWG\Put(
+     *   path="/vendors/{vendor_id}",
+     *   summary="Update a vendor",
+     *   operationId="updateVendor",
+     *   tags={"vendor"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="vendor_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="vendor",
+     *     @SWG\Schema(ref="#/definitions/Vendor")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Updated vendor",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     *
+     * @param mixed $publicId
+     */
     public function update(UpdateVendorRequest $request, $publicId)
     {
         if ($request->action) {
@@ -123,30 +163,30 @@ class VendorApiController extends BaseAPIController
         return $this->itemResponse($vendor);
     }
 
-
-        /**
-         * @SWG\Delete(
-         *   path="/vendors/{vendor_id}",
-         *   tags={"vendor"},
-         *   summary="Delete a vendor",
-         *   @SWG\Parameter(
-         *     in="body",
-         *     name="body",
-         *     @SWG\Schema(ref="#/definitions/Vendor")
-         *   ),
-         *   @SWG\Response(
-         *     response=200,
-         *     description="Delete vendor",
-         *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
-         *   ),
-         *   @SWG\Response(
-         *     response="default",
-         *     description="an ""unexpected"" error"
-         *   )
-         * )
-         */
-
-    public function destroy(VendorRequest $request)
+    /**
+     * @SWG\Delete(
+     *   path="/vendors/{vendor_id}",
+     *   summary="Delete a vendor",
+     *   operationId="deleteVendor",
+     *   tags={"vendor"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="vendor_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Deleted vendor",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Vendor"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function destroy(UpdateVendorRequest $request)
     {
         $vendor = $request->entity();
 

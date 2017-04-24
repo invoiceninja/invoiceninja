@@ -1,7 +1,8 @@
-<?php namespace App\Http\Requests;
+<?php
 
-class ExpenseCategoryRequest extends EntityRequest {
+namespace App\Http\Requests;
 
+class ExpenseCategoryRequest extends EntityRequest
+{
     protected $entityType = ENTITY_EXPENSE_CATEGORY;
-    
 }

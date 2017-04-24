@@ -4,14 +4,13 @@ namespace App\Jobs;
 
 use App\Models\Invoice;
 use App\Ninja\Mailers\ContactMailer;
-use Illuminate\Queue\SerializesModels;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\SerializesModels;
 use Monolog\Logger;
-use Carbon;
 
 /**
- * Class SendInvoiceEmail
+ * Class SendInvoiceEmail.
  */
 class SendInvoiceEmail extends Job implements ShouldQueue
 {
@@ -28,22 +27,23 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     protected $reminder;
 
     /**
-     * @var string
+     * @var array
      */
-    protected $pdfString;
+    protected $template;
 
     /**
      * Create a new job instance.
      *
      * @param Invoice $invoice
-     * @param string $pdf
-     * @param bool $reminder
+     * @param string  $pdf
+     * @param bool    $reminder
+     * @param mixed   $pdfString
      */
-    public function __construct(Invoice $invoice, $reminder = false, $pdfString = false)
+    public function __construct(Invoice $invoice, $reminder = false, $template = false)
     {
         $this->invoice = $invoice;
         $this->reminder = $reminder;
-        $this->pdfString = $pdfString;
+        $this->template = $template;
     }
 
     /**
@@ -53,10 +53,10 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      */
     public function handle(ContactMailer $mailer)
     {
-        $mailer->sendInvoice($this->invoice, $this->reminder, $this->pdfString);
+        $mailer->sendInvoice($this->invoice, $this->reminder, $this->template);
     }
 
-    /**
+    /*
      * Handle a job failure.
      *
      * @param ContactMailer $mailer

@@ -1,9 +1,11 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
+namespace App\Ninja\Repositories;
+
+use App\Models\Client;
+use App\Models\Credit;
 use DB;
 use Utils;
-use App\Models\Credit;
-use App\Models\Client;
 
 class CreditRepository extends BaseRepository
 {
@@ -30,11 +32,13 @@ class CreditRepository extends BaseRepository
                         'clients.user_id as client_user_id',
                         'credits.amount',
                         'credits.balance',
-                        'credits.credit_date',
+                        'credits.credit_date as credit_date_sql',
+                        DB::raw("CONCAT(credits.credit_date, credits.created_at) as credit_date"),
                         'contacts.first_name',
                         'contacts.last_name',
                         'contacts.email',
                         'credits.private_notes',
+                        'credits.public_notes',
                         'credits.deleted_at',
                         'credits.is_deleted',
                         'credits.user_id'
@@ -71,13 +75,23 @@ class CreditRepository extends BaseRepository
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
                         'credits.amount',
                         'credits.balance',
-                        'credits.credit_date'
+                        'credits.credit_date',
+                        'credits.public_notes'
                     );
 
         $table = \Datatable::query($query)
-            ->addColumn('credit_date', function ($model) { return Utils::fromSqlDate($model->credit_date); })
-            ->addColumn('amount', function ($model) { return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id); })
-            ->addColumn('balance', function ($model) { return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id); })
+            ->addColumn('credit_date', function ($model) {
+                return Utils::fromSqlDate($model->credit_date);
+            })
+            ->addColumn('amount', function ($model) {
+                return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('balance', function ($model) {
+                return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
+            })
+            ->addColumn('public_notes', function ($model) {
+                return $model->public_notes;
+            })
             ->make();
 
         return $table;
@@ -88,18 +102,20 @@ class CreditRepository extends BaseRepository
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
         if ($credit) {
-            // do nothing
+            $credit->balance = Utils::parseFloat($input['balance']);
         } elseif ($publicId) {
             $credit = Credit::scope($publicId)->firstOrFail();
+            $credit->balance = Utils::parseFloat($input['balance']);
             \Log::warning('Entity not set in credit repo save');
         } else {
             $credit = Credit::createNew();
+            $credit->balance = Utils::parseFloat($input['amount']);
             $credit->client_id = Client::getPrivateId($input['client']);
         }
 
+        $credit->fill($input);
         $credit->credit_date = Utils::toSqlDate($input['credit_date']);
         $credit->amount = Utils::parseFloat($input['amount']);
-        $credit->balance = Utils::parseFloat($input['amount']);
         $credit->private_notes = trim($input['private_notes']);
         $credit->save();
 

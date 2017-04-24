@@ -1,13 +1,15 @@
-<?php namespace App\Models;
+<?php
 
+namespace App\Models;
+
+use Str;
 use Auth;
 use Eloquent;
-use Illuminate\Database\QueryException;
 use Utils;
 use Validator;
 
 /**
- * Class EntityModel
+ * Class EntityModel.
  */
 class EntityModel extends Eloquent
 {
@@ -42,6 +44,7 @@ class EntityModel extends Eloquent
 
     /**
      * @param null $context
+     *
      * @return mixed
      */
     public static function createNew($context = null)
@@ -66,7 +69,7 @@ class EntityModel extends Eloquent
         $entity->setRelation('user', $user);
         $entity->setRelation('account', $account);
 
-        if (method_exists($className, 'trashed')){
+        if (method_exists($className, 'trashed')) {
             $lastEntity = $className::whereAccountId($entity->account_id)->withTrashed();
         } else {
             $lastEntity = $className::whereAccountId($entity->account_id);
@@ -88,10 +91,15 @@ class EntityModel extends Eloquent
 
     /**
      * @param $publicId
+     *
      * @return mixed
      */
     public static function getPrivateId($publicId)
     {
+        if (! $publicId) {
+            return null;
+        }
+
         $className = get_called_class();
 
         return $className::scope($publicId)->withTrashed()->value('id');
@@ -136,11 +144,12 @@ class EntityModel extends Eloquent
      * @param $query
      * @param bool $publicId
      * @param bool $accountId
+     *
      * @return mixed
      */
     public function scopeScope($query, $publicId = false, $accountId = false)
     {
-        if (!$accountId) {
+        if (! $accountId) {
             $accountId = Auth::user()->account_id;
         }
 
@@ -154,7 +163,7 @@ class EntityModel extends Eloquent
             }
         }
 
-        if (Auth::check() && ! Auth::user()->hasPermission('view_all') && $this->getEntityType() != ENTITY_TAX_RATE) {
+        if (Auth::check() && ! Auth::user()->hasPermission('view_all') && method_exists($this, 'getEntityType') && $this->getEntityType() != ENTITY_TAX_RATE) {
             $query->where(Utils::pluralizeEntityType($this->getEntityType()) . '.user_id', '=', Auth::user()->id);
         }
 
@@ -163,6 +172,7 @@ class EntityModel extends Eloquent
 
     /**
      * @param $query
+     *
      * @return mixed
      */
     public function scopeWithArchived($query)
@@ -188,11 +198,12 @@ class EntityModel extends Eloquent
 
     /**
      * @param $entityType
+     *
      * @return string
      */
     public static function getClassName($entityType)
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             if ($module = \Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Models\\{$module->getName()}";
             }
@@ -207,11 +218,12 @@ class EntityModel extends Eloquent
 
     /**
      * @param $entityType
+     *
      * @return string
      */
     public static function getTransformerName($entityType)
     {
-        if ( ! Utils::isNinjaProd()) {
+        if (! Utils::isNinjaProd()) {
             if ($module = \Module::find($entityType)) {
                 return "Modules\\{$module->getName()}\\Transformers\\{$module->getName()}Transformer";
             }
@@ -223,13 +235,14 @@ class EntityModel extends Eloquent
     public function setNullValues()
     {
         foreach ($this->fillable as $field) {
-            if (strstr($field, '_id') && !$this->$field) {
+            if (strstr($field, '_id') && ! $this->$field) {
                 $this->$field = null;
             }
         }
     }
 
     // converts "App\Models\Client" to "client_id"
+
     /**
      * @return string
      */
@@ -237,30 +250,41 @@ class EntityModel extends Eloquent
     {
         $class = get_class($this);
         $parts = explode('\\', $class);
-        $name = $parts[count($parts)-1];
+        $name = $parts[count($parts) - 1];
+
         return strtolower($name) . '_id';
     }
 
     /**
      * @param $data
      * @param $entityType
+     * @param mixed $entity
+     * TODO Remove $entityType parameter
      * @return bool|string
      */
-    public static function validate($data, $entityType, $entity = false)
+    public static function validate($data, $entityType = false, $entity = false)
     {
+        if (! $entityType) {
+            $className = get_called_class();
+            $entityBlank = new $className();
+            $entityType = $entityBlank->getEntityType();
+        }
+
         // Use the API request if it exists
         $action = $entity ? 'update' : 'create';
-        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), ucwords($entityType));
-        if ( ! class_exists($requestClass)) {
-            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), ucwords($entityType));
+        $requestClass = sprintf('App\\Http\\Requests\\%s%sAPIRequest', ucwords($action), Str::studly($entityType));
+        if (! class_exists($requestClass)) {
+            $requestClass = sprintf('App\\Http\\Requests\\%s%sRequest', ucwords($action), Str::studly($entityType));
         }
 
         $request = new $requestClass();
-        $request->setUserResolver(function() { return Auth::user(); });
+        $request->setUserResolver(function () {
+            return Auth::user();
+        });
         $request->setEntity($entity);
         $request->replace($data);
 
-        if ( ! $request->authorize()) {
+        if (! $request->authorize()) {
             return trans('texts.not_allowed');
         }
 
@@ -293,6 +317,15 @@ class EntityModel extends Eloquent
         ];
 
         return array_get($icons, $entityType);
+    }
+
+    public function loadFromRequest()
+    {
+        foreach (static::$requestFields as $field) {
+            if ($value = request()->$field) {
+                $this->$field = strpos($field, 'date') ? Utils::fromSqlDate($value) : $value;
+            }
+        }
     }
 
     // isDirty return true if the field's new value is the same as the old one
@@ -346,5 +379,4 @@ class EntityModel extends Eloquent
     {
         return '';
     }
-
 }

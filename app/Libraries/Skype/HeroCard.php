@@ -1,4 +1,6 @@
-<?php namespace App\Libraries\Skype;
+<?php
+
+namespace App\Libraries\Skype;
 
 use stdClass;
 
@@ -7,7 +9,7 @@ class HeroCard
     public function __construct()
     {
         $this->contentType = 'application/vnd.microsoft.card.hero';
-        $this->content = new stdClass;
+        $this->content = new stdClass();
         $this->content->buttons = [];
     }
 

@@ -4,112 +4,8 @@
 @section('head')
 
   <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
-  <style type="text/css">
-    @if (Auth::check() && Auth::user()->dark_mode)
-        body {
-            background: #000 !important;
-            color: white !important;
-        }
-
-        .panel-body {
-            background: #272822 !important;
-            /*background: #e6e6e6 !important;*/
-        }
-
-        .panel-default {
-            border-color: #444;
-        }
-    @endif
-
-  </style>
 
 <script type="text/javascript">
-
-  @if (!Auth::check() || !Auth::user()->registered)
-  function validateSignUp(showError)
-  {
-    var isFormValid = true;
-    $(['first_name','last_name','email','password']).each(function(i, field) {
-      var $input = $('form.signUpForm #new_'+field),
-      val = $.trim($input.val());
-      var isValid = val && val.length >= (field == 'password' ? 6 : 1);
-      if (isValid && field == 'email') {
-        isValid = isValidEmailAddress(val);
-      }
-      if (isValid) {
-        $input.closest('div.form-group').removeClass('has-error').addClass('has-success');
-      } else {
-        isFormValid = false;
-        $input.closest('div.form-group').removeClass('has-success');
-        if (showError) {
-          $input.closest('div.form-group').addClass('has-error');
-        }
-      }
-    });
-
-    if (!$('#terms_checkbox').is(':checked')) {
-      isFormValid = false;
-    }
-
-    $('#saveSignUpButton').prop('disabled', !isFormValid);
-
-    return isFormValid;
-  }
-
-  function validateServerSignUp()
-  {
-    if (!validateSignUp(true)) {
-      return;
-    }
-
-    $('#signUpDiv, #signUpFooter').hide();
-    $('#working').show();
-
-    $.ajax({
-      type: 'POST',
-      url: '{{ URL::to('signup/validate') }}',
-      data: 'email=' + $('form.signUpForm #new_email').val(),
-      success: function(result) {
-        if (result == 'available') {
-          submitSignUp();
-        } else {
-          $('#errorTaken').show();
-          $('form.signUpForm #new_email').closest('div.form-group').removeClass('has-success').addClass('has-error');
-          $('#signUpDiv, #signUpFooter').show();
-          $('#working').hide();
-        }
-      }
-    });
-  }
-
-  function submitSignUp() {
-    $.ajax({
-      type: 'POST',
-      url: '{{ URL::to('signup/submit') }}',
-      data: 'new_email=' + encodeURIComponent($('form.signUpForm #new_email').val()) +
-      '&new_password=' + encodeURIComponent($('form.signUpForm #new_password').val()) +
-      '&new_first_name=' + encodeURIComponent($('form.signUpForm #new_first_name').val()) +
-      '&new_last_name=' + encodeURIComponent($('form.signUpForm #new_last_name').val()) +
-      '&go_pro=' + $('#go_pro').val(),
-      success: function(result) {
-        if (result) {
-          handleSignedUp();
-          NINJA.isRegistered = true;
-          $('#signUpButton').hide();
-          $('#myAccountButton').html(result);
-        }
-        $('#signUpSuccessDiv, #signUpFooter, #closeSignUpButton').show();
-        $('#working, #saveSignUpButton').hide();
-      }
-    });
-  }
-  @endif
-
-  function handleSignedUp() {
-      localStorage.setItem('guest_key', '');
-      fbq('track', 'CompleteRegistration');
-      trackEvent('/account', '/signed_up');
-  }
 
   function checkForEnter(event)
   {
@@ -127,18 +23,10 @@
     }
 
     if (force || NINJA.isRegistered) {
-      window.location = '{{ URL::to('logout') }}';
+      window.location = '{{ URL::to('logout') }}' + (force ? '?force_logout=true' : '');
     } else {
       $('#logoutModal').modal('show');
     }
-  }
-
-  function showSignUp() {
-    $('#signUpModal').modal('show');
-  }
-
-  function hideSignUp() {
-    $('#signUpModal').modal('hide');
   }
 
   function hideMessage() {
@@ -146,19 +34,6 @@
     $.get('/hide_message', function(response) {
       console.log('Reponse: %s', response);
     });
-  }
-
-  function setSignupEnabled(enabled) {
-    $('.signup-form input[type=text]').prop('disabled', !enabled);
-    if (enabled) {
-        $('.signup-form a.btn').removeClass('disabled');
-    } else {
-        $('.signup-form a.btn').addClass('disabled');
-    }
-  }
-
-  function setSocialLoginProvider(provider) {
-    localStorage.setItem('auth_provider', provider);
   }
 
   window.loadedSearchData = false;
@@ -225,6 +100,12 @@
   }
 
   $(function() {
+    // auto-logout after 8 hours
+    window.setTimeout(function() {
+        window.location = '{{ URL::to('/logout?reason=inactivity') }}';
+    }, {{ 1000 * env('AUTO_LOGOUT_SECONDS', (60 * 60 * 8)) }});
+
+    // auto-hide status alerts
     window.setTimeout(function() {
         $(".alert-hide").fadeOut();
     }, 3000);
@@ -237,31 +118,9 @@
 
     if (isStorageSupported()) {
       @if (Auth::check() && !Auth::user()->registered)
-      localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
+        localStorage.setItem('guest_key', '{{ Auth::user()->password }}');
       @endif
     }
-
-    @if (!Auth::check() || !Auth::user()->registered)
-    validateSignUp();
-
-    $('#signUpModal').on('shown.bs.modal', function () {
-      trackEvent('/account', '/view_sign_up');
-      $(['first_name','last_name','email','password']).each(function(i, field) {
-        var $input = $('form.signUpForm #new_'+field);
-        if (!$input.val()) {
-          $input.focus();
-          return false;
-        }
-      });
-    })
-    @endif
-
-    @if (Auth::check() && !Utils::isNinja() && !Auth::user()->registered)
-      $('#closeSignUpButton').hide();
-      showSignUp();
-    @elseif(Session::get('sign_up') || Input::get('sign_up'))
-      showSignUp();
-    @endif
 
     $('ul.navbar-settings, ul.navbar-search').hover(function () {
         if ($('.user-accounts').css('display') == 'block') {
@@ -273,14 +132,6 @@
 
     @if (Input::has('focus'))
         $('#{{ Input::get('focus') }}').focus();
-    @endif
-
-    // Ensure terms is checked for sign up form
-    @if (Auth::check() && !Auth::user()->registered)
-        setSignupEnabled(false);
-        $("#terms_checkbox").change(function() {
-            setSignupEnabled(this.checked);
-        });
     @endif
 
     // Focus the search input if the user clicks forward slash
@@ -327,11 +178,30 @@
     }
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-        var target = $(e.target).attr("href") // activated tab
-        if (history.pushState) {
-            history.pushState(null, null, target);
+        if (isStorageSupported() && /\/settings\//.test(location.href)) {
+            var target = $(e.target).attr("href") // activated tab
+            if (history.pushState) {
+                history.pushState(null, null, target);
+            }
+            if (isStorageSupported()) {
+                localStorage.setItem('last:settings_page', location.href.replace(location.hash, ''));
+            }
         }
     });
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+    // set timeout onDomReady
+    setTimeout(delayedFragmentTargetOffset, 500);
+
+    // add scroll offset to fragment target (if there is one)
+    function delayedFragmentTargetOffset(){
+        var offset = $(':target').offset();
+        if (offset) {
+            var scrollto = offset.top - 180; // minus fixed header height
+            $('html, body').animate({scrollTop:scrollto}, 0);
+        }
+    }
 
   });
 
@@ -432,7 +302,7 @@
               @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
                   <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
               @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-                  <li>{!! link_to('/invoice_now?new_company=true&sign_up=true', trans('texts.add_company')) !!}</li>
+                  <li>{!! link_to('#', trans('texts.add_company'), ['onclick' => 'showSignUp()']) !!}</li>
               @endif
             @endif
             <li>{!! link_to('#', trans('texts.logout'), array('onclick'=>'logout()')) !!}</li>
@@ -441,12 +311,15 @@
 
       </div>
 
-      <form id="search-form" class="navbar-form navbar-right" role="search">
-        <div class="form-group">
-          <input type="text" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px"
-            class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}">
+      {!! Former::open('/handle_command')->id('search-form')->addClass('navbar-form navbar-right')->role('search') !!}
+        <div class="form-group has-feedback">
+          <input type="text" name="command" id="search" style="width: 240px;padding-top:0px;padding-bottom:0px;margin-right:12px;"
+            class="form-control" placeholder="{{ trans('texts.search') . ': ' . trans('texts.search_hotkey')}}"/>
+            @if (env('SPEECH_ENABLED'))
+                @include('partials/speech_recognition')
+            @endif
         </div>
-      </form>
+      {!! Former::close() !!}
 
       @if (false && Utils::isAdmin())
       <ul class="nav navbar-nav navbar-right">
@@ -506,28 +379,27 @@
                 || Auth::user()->can('create', substr($option, 0, -1)))
                 @include('partials.navigation_option')
             @endif
-        @endforeach
-        @if ( ! Utils::isNinjaProd())
-            @foreach (Module::all() as $module)
-                @include('partials.navigation_option', [
-                    'option' => $module->getAlias(),
-                    'icon' => $module->get('icon', 'th-large'),
-                ])
             @endforeach
-        @endif
-        @if (Auth::user()->is_admin)
-            @include('partials.navigation_option', ['option' => 'reports'])
-        @endif
-        @include('partials.navigation_option', ['option' => 'settings'])
-        <li style="width:100%;">
-                <div class="nav-footer">
+            @if ( ! Utils::isNinjaProd())
+                @foreach (Module::all() as $module)
+                    @include('partials.navigation_option', [
+                        'option' => $module->getAlias(),
+                        'icon' => $module->get('icon', 'th-large'),
+                    ])
+                @endforeach
+            @endif
+            @if (Auth::user()->hasPermission('view_all'))
+                @include('partials.navigation_option', ['option' => 'reports'])
+            @endif
+            @include('partials.navigation_option', ['option' => 'settings'])
+            <li style="width:100%;">                <div class="nav-footer">
                     <a href="javascript:showContactUs()" target="_blank" title="{{ trans('texts.contact_us') }}">
                         <i class="fa fa-envelope"></i>
                     </a>
                     <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
                         <i class="fa fa-list-ul"></i>
                     </a>
-                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.keyboard_shortcuts') }}">
+                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.help') }}">
                         <i class="fa fa-question-circle"></i>
                     </a>
                     <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="Facebook">
@@ -558,7 +430,9 @@
           @include('partials.warn_session', ['redirectTo' => '/dashboard'])
 
           @if (Session::has('warning'))
-          <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+            <div class="alert alert-warning">{!! Session::get('warning') !!}</div>
+          @elseif (env('WARNING_MESSAGE'))
+            <div class="alert alert-warning">{!! env('WARNING_MESSAGE') !!}</div>
           @endif
 
           @if (Session::has('message'))
@@ -602,148 +476,7 @@
 </div>
 
 @include('partials.contact_us')
-
-@if (!Auth::check() || !Auth::user()->registered)
-<div class="modal fade" id="signUpModal" tabindex="-1" role="dialog" aria-labelledby="signUpModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.sign_up') }}</h4>
-      </div>
-
-      <div style="background-color: #fff; padding-right:20px" id="signUpDiv" onkeyup="validateSignUp()" onclick="validateSignUp()" onkeydown="checkForEnter(event)">
-        <br/>
-
-        {!! Former::open('signup/submit')->addClass('signUpForm')->autocomplete('on') !!}
-
-        @if (Auth::check())
-        {!! Former::populateField('new_first_name', Auth::user()->first_name) !!}
-        {!! Former::populateField('new_last_name', Auth::user()->last_name) !!}
-        {!! Former::populateField('new_email', Auth::user()->email) !!}
-        @endif
-
-        <div style="display:none">
-          {!! Former::text('path')->value(Request::path()) !!}
-          {!! Former::text('go_pro') !!}
-        </div>
-
-
-        <div class="row signup-form">
-            <div class="col-md-11 col-md-offset-1">
-                {!! Former::checkbox('terms_checkbox')
-                    ->label(' ')
-                    ->value(1)
-                    ->text(trans('texts.agree_to_terms', ['terms' => '<a href="'.Utils::getTermsLink().'" target="_blank">'.trans('texts.terms_of_service').'</a>']))
-                    ->raw() !!}
-                <br/>
-            </div>
-            @if (Utils::isOAuthEnabled())
-                <div class="col-md-4 col-md-offset-1">
-                    <h4>{{ trans('texts.sign_up_using') }}</h4><br/>
-                    @foreach (App\Services\AuthService::$providers as $provider)
-                    <a href="{{ URL::to('auth/' . $provider) }}" class="btn btn-primary btn-block"
-                        onclick="setSocialLoginProvider('{{ strtolower($provider) }}')" id="{{ strtolower($provider) }}LoginButton">
-                        <i class="fa fa-{{ strtolower($provider) }}"></i> &nbsp;
-                        {{ $provider }}
-                    </a>
-                    @endforeach
-                </div>
-                <div class="col-md-1">
-                    <div style="border-right:thin solid #CCCCCC;height:110px;width:8px;margin-bottom:10px;"></div>
-                    {{ trans('texts.or') }}
-                    <div style="border-right:thin solid #CCCCCC;height:110px;width:8px;margin-top:10px;"></div>
-                </div>
-                <div class="col-md-6">
-            @else
-                <div class="col-md-12">
-            @endif
-                {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 1) }}
-                {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 1) }}
-
-                {!! Former::text('new_first_name')
-                        ->placeholder(trans('texts.first_name'))
-                        ->autocomplete('given-name')
-                        ->label(' ') !!}
-                {!! Former::text('new_last_name')
-                        ->placeholder(trans('texts.last_name'))
-                        ->autocomplete('family-name')
-                        ->label(' ') !!}
-                {!! Former::text('new_email')
-                        ->placeholder(trans('texts.email'))
-                        ->autocomplete('email')
-                        ->label(' ') !!}
-                {!! Former::password('new_password')
-                        ->placeholder(trans('texts.password'))
-                        ->label(' ') !!}
-
-                {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
-                {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
-            </div>
-
-            <div class="col-md-11 col-md-offset-1">
-                @if (Utils::isNinja())
-                    <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
-                @endif
-            </div>
-        </div>
-
-        {!! Former::close() !!}
-
-
-
-        <center><div id="errorTaken" style="display:none">&nbsp;<br/>{{ trans('texts.email_taken') }}</div></center>
-        <br/>
-
-      </div>
-
-      <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="working">
-        <h3>{{ trans('texts.working') }}...</h3>
-        <div class="progress progress-striped active">
-          <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
-        </div>
-      </div>
-
-      <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="signUpSuccessDiv">
-        <br/>
-        <h3>{{ trans('texts.success') }}</h3>
-        @if (Utils::isNinja())
-          {{ trans('texts.success_message') }}
-        @endif
-        <br/>&nbsp;
-      </div>
-
-      <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
-        <button type="button" class="btn btn-default" id="closeSignUpButton" data-dismiss="modal">{{ trans('texts.close') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
-        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>{{ trans('texts.save') }} <i class="glyphicon glyphicon-floppy-disk"></i></button>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-        <h4 class="modal-title" id="myModalLabel">{{ trans('texts.logout') }}</h4>
-      </div>
-
-      <div class="container">
-        <h3>{{ trans('texts.are_you_sure') }}</h3>
-        <p>{{ trans('texts.erase_data') }}</p>
-      </div>
-
-      <div class="modal-footer" id="signUpFooter">
-        <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
-        <button type="button" class="btn btn-danger" onclick="logout(true)">{{ trans('texts.logout') }}</button>
-      </div>
-    </div>
-  </div>
-</div>
-@endif
-
+@include('partials.sign_up')
 @include('partials.keyboard_shortcuts')
 
 </div>

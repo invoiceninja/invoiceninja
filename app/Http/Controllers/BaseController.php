@@ -1,9 +1,11 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Utils;
-use Request;
-use Illuminate\Foundation\Bus\DispatchesJobs;
+namespace App\Http\Controllers;
+
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Request;
+use Utils;
 
 class BaseController extends Controller
 {
@@ -25,7 +27,7 @@ class BaseController extends Controller
 
     protected function returnBulk($entityType, $action, $ids)
     {
-        if ( ! is_array($ids)) {
+        if (! is_array($ids)) {
             $ids = [$ids];
         }
 
@@ -35,7 +37,7 @@ class BaseController extends Controller
 
         // when restoring redirect to entity
         if ($action == 'restore' && count($ids) == 1) {
-            return redirect("{$entityTypes}/" . $ids[0]);
+            return redirect("{$entityTypes}/" . $ids[0] . '/edit');
         // when viewing from a datatable list
         } elseif (strpos($referer, '/clients/')) {
             return redirect($referer);
@@ -43,7 +45,7 @@ class BaseController extends Controller
             return redirect("{$entityTypes}");
         // when viewing individual entity
         } elseif (count($ids)) {
-            return redirect("{$entityTypes}/" . $ids[0]);
+            return redirect("{$entityTypes}/" . $ids[0] . '/edit');
         } else {
             return redirect("{$entityTypes}");
         }

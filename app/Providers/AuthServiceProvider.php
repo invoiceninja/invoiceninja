@@ -14,6 +14,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         \App\Models\Client::class => \App\Policies\ClientPolicy::class,
+        \App\Models\Contact::class => \App\Policies\ContactPolicy::class,
         \App\Models\Credit::class => \App\Policies\CreditPolicy::class,
         \App\Models\Document::class => \App\Policies\DocumentPolicy::class,
         \App\Models\Expense::class => \App\Policies\ExpensePolicy::class,
@@ -34,12 +35,13 @@ class AuthServiceProvider extends ServiceProvider
     /**
      * Register any application authentication / authorization services.
      *
-     * @param  \Illuminate\Contracts\Auth\Access\Gate  $gate
+     * @param \Illuminate\Contracts\Auth\Access\Gate $gate
+     *
      * @return void
      */
     public function boot(GateContract $gate)
     {
-        foreach (get_class_methods(new \App\Policies\GenericEntityPolicy) as $method) {
+        foreach (get_class_methods(new \App\Policies\GenericEntityPolicy()) as $method) {
             $gate->define($method, "App\Policies\GenericEntityPolicy@{$method}");
         }
 

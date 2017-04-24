@@ -15,10 +15,6 @@
     {{ Former::populateField('email', $user->email) }}
     {{ Former::populateField('phone', $user->phone) }}
 
-    @if (Utils::isNinjaDev())
-        {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
-    @endif
-
     @if (Input::has('affiliate'))
         {{ Former::populateField('referral_code', true) }}
     @endif
@@ -67,10 +63,6 @@
                     @endif
                 @endif
 
-                @if (false && Utils::isNinjaDev())
-                    {!! Former::checkbox('dark_mode')->text(trans('texts.dark_mode_help'))->value(1) !!}
-                @endif
-
                 </div>
             </div>
 
@@ -104,38 +96,44 @@
                     <h4 class="modal-title" id="passwordModalLabel">{{ trans('texts.change_password') }}</h4>
                 </div>
 
-                <div style="background-color: #fff" id="changePasswordDiv" onkeyup="validateChangePassword()" onclick="validateChangePassword()" onkeydown="checkForEnter(event)">
-                    &nbsp;
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                <div class="panel panel-default">
+                <div class="panel-body">
 
-                    {!! Former::password('current_password')->style('width:300px') !!}
-                    {!! Former::password('newer_password')->style('width:300px')->label(trans('texts.new_password')) !!}
-                    {!! Former::password('confirm_password')->style('width:300px') !!}
+                    <div style="background-color: #fff" id="changePasswordDiv" onkeyup="validateChangePassword()" onclick="validateChangePassword()" onkeydown="checkForEnter(event)">
+                        &nbsp;
 
-                    &nbsp;
-                    <br/>
-                    <center>
-                        <div id="changePasswordError"></div>
-                    </center>
-                    <br/>
-                </div>
+                        {!! Former::password('current_password')->style('width:300px') !!}
+                        {!! Former::password('newer_password')->style('width:300px')->label(trans('texts.new_password')) !!}
+                        {!! Former::password('confirm_password')->style('width:300px') !!}
 
-                <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="working">
-                    <h3>{{ trans('texts.working') }}...</h3>
-                    <div class="progress progress-striped active">
-                        <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                        &nbsp;
+                        <br/>
+                        <center>
+                            <div id="changePasswordError"></div>
+                        </center>
+                        <br/>
                     </div>
+
+                    <div style="padding-left:40px;padding-right:40px;display:none;min-height:130px" id="working">
+                        <h3>{{ trans('texts.working') }}...</h3>
+                        <div class="progress progress-striped active">
+                            <div class="progress-bar"  role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="successDiv">
+                        <br/>
+                        <h3>{{ trans('texts.success') }}</h3>
+                        {{ trans('texts.updated_password') }}
+                        <br/>
+                    </div>
+
+                </div>
+                </div>
                 </div>
 
-                <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="successDiv">
-                    <br/>
-                    <h3>{{ trans('texts.success') }}</h3>
-                    {{ trans('texts.updated_password') }}
-                    <br/>
-                    &nbsp;
-                    <br/>
-                </div>
-
-                <div class="modal-footer" style="margin-top: 0px" id="changePasswordFooter">
+                <div class="modal-footer" id="changePasswordFooter">
                     <button type="button" class="btn btn-default" id="cancelChangePasswordButton" data-dismiss="modal">
                         {{ trans('texts.cancel') }}
                         <i class="glyphicon glyphicon-remove-circle"></i>
@@ -168,8 +166,6 @@
             $('#passwordModal').on('shown.bs.modal', function () {
                 $('#current_password').focus();
            })
-
-            localStorage.setItem('auth_provider', '{{ strtolower($oauthProviderName) }}');
         });
 
         function showChangePassword() {

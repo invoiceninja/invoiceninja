@@ -35,6 +35,16 @@ function ViewModel(data) {
         @endif
     }
 
+    self.clearBlankContacts = function() {
+        var client = self.invoice().client();
+        var contacts = client.contacts();
+        $(contacts).each(function(index, contact) {
+            if (index > 0 && contact.isBlank()) {
+                client.contacts.remove(contact);
+            }
+        });
+    }
+
     self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
     self.invoice_item_taxes = ko.observable({{ Auth::user()->account->invoice_item_taxes ? 'true' : 'false' }});
     self.show_item_taxes = ko.observable({{ Auth::user()->account->show_item_taxes ? 'true' : 'false' }});
@@ -60,7 +70,7 @@ function ViewModel(data) {
     });
 
     self.invoice_item_taxes.show = ko.computed(function() {
-        if (self.invoice_item_taxes()) {
+        if (self.invoice_item_taxes() && {{ count($taxRateOptions) ? 'true' : 'false' }}) {
             return true;
         }
         for (var i=0; i<self.invoice().invoice_items().length; i++) {
@@ -96,11 +106,11 @@ function ViewModel(data) {
             name = email;
         }
 
-        var isValid = true;
+        var isValid = name ? true : false;
         var contacts = self.invoice().client().contacts();
         $(contacts).each(function(item, value) {
-            if (!value.isValid()) {
-                isValid = false;
+            if (value.isValid()) {
+                isValid = true;
             }
         });
         if (!isValid) {
@@ -115,6 +125,8 @@ function ViewModel(data) {
         }
 
         model.setDueDate();
+        model.clearBlankContacts();
+
         setComboboxValue($('.client_select'), -1, name);
 
         var client = $.parseJSON(ko.toJSON(self.invoice().client()));
@@ -638,16 +650,24 @@ function ContactModel(data) {
         ko.mapping.fromJS(data, {}, this);
     }
 
+    self.isBlank = ko.computed(function() {
+        return ! self.first_name() && ! self.last_name() && ! self.email() && ! self.phone();
+    });
+
     self.displayName = ko.computed(function() {
         var str = '';
         if (self.first_name() || self.last_name()) {
-            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + '\n';
+            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + ' ';
         }
         if (self.email()) {
-            str += self.email() + '\n';
+            if (str) {
+                str += '&lt;' + self.email() + '&gt;';
+            } else {
+                str += self.email();
+            }
         }
 
-        return str;
+        return str + '<br/>';
     });
 
     self.email.display = ko.computed(function() {
@@ -666,7 +686,9 @@ function ContactModel(data) {
         var str = '';
         @if (Utils::isConfirmed())
         if (self.invitation_link()) {
-            str += '<a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
+            // clicking adds 'silent=true' however it's removed when copying the link
+            str += '<a href="' + self.invitation_link() + '" onclick="window.open(\'' + self.invitation_link()
+                    + '?silent=true\', \'_blank\');return false;">{{ trans('texts.view_as_recipient') }}</a>';
         }
         @endif
 
@@ -712,6 +734,7 @@ function ItemModel(data) {
     self.tax_rate2IsInclusive = ko.observable(0);
     self.task_public_id = ko.observable('');
     self.expense_public_id = ko.observable('');
+    self.invoice_item_type_id = ko.observable({{ INVOICE_ITEM_TYPE_STANDARD }});
     self.actionsVisible = ko.observable(false);
 
     this.tax1 = ko.computed({
@@ -890,9 +913,9 @@ ko.bindingHandlers.productTypeahead = {
             name: 'data',
             display: allBindings.key,
             limit: 50,
-            //templates: {
-            //    suggestion: function(item) { return '<div>' + item.product_key + '<div class="pull-right">' + item.cost + '</div>' }
-            //},
+            templates: {
+                suggestion: function(item) { return '<div title="' + item.product_key + '">' + item.product_key + '</div>' }
+            },
             source: searchData(allBindings.items, allBindings.key)
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)
@@ -900,7 +923,7 @@ ko.bindingHandlers.productTypeahead = {
                 if (model.expense_public_id()) {
                     return;
                 }
-                if (datum.notes) {
+                if (datum.notes && (!model.notes() || !model.task_public_id())) {
                     model.notes(datum.notes);
                 }
                 if (datum.cost) {
@@ -913,6 +936,16 @@ ko.bindingHandlers.productTypeahead = {
                     if (datum.default_tax_rate) {
                         var $select = $(this).parentsUntil('tbody').find('select').first();
                         $select.val('0 ' + datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name).trigger('change');
+                    }
+                @endif
+                @if (Auth::user()->isPro() && $account->custom_invoice_item_label1)
+                    if (datum.custom_value1) {
+                        model.custom_value1(datum.custom_value1);
+                    }
+                @endif
+                @if (Auth::user()->isPro() && $account->custom_invoice_item_label2)
+                    if (datum.custom_value2) {
+                        model.custom_value2(datum.custom_value2);
                     }
                 @endif
             @endif

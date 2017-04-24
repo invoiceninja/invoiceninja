@@ -1,12 +1,6 @@
 <?php
 
 use App\Models\Gateway;
-use App\Models\PaymentTerm;
-use App\Models\Currency;
-use App\Models\DateFormat;
-use App\Models\DatetimeFormat;
-use App\Models\InvoiceDesign;
-use App\Models\Country;
 
 class PaymentLibrariesSeeder extends Seeder
 {
@@ -52,7 +46,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'DataCash', 'provider' => 'DataCash'],
             ['name' => 'Neteller', 'provider' => 'Neteller', 'payment_library_id' => 2],
             ['name' => 'Pacnet', 'provider' => 'Pacnet'],
-            ['name' => 'PaymentSense', 'provider' => 'PaymentSense'],
+            ['name' => 'PaymentSense', 'provider' => 'PaymentSense', 'payment_library_id' => 2],
             ['name' => 'Realex', 'provider' => 'Realex_Remote'],
             ['name' => 'Sisow', 'provider' => 'Sisow'],
             ['name' => 'Skrill', 'provider' => 'Skrill', 'is_offsite' => true],
@@ -73,7 +67,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'Paytrace', 'provider' => 'Paytrace_CreditCard'],
             ['name' => 'Secure Trading', 'provider' => 'SecureTrading'],
             ['name' => 'SecPay', 'provider' => 'SecPay'],
-            ['name' => 'WeChat Express', 'provider' => 'WeChat_Express'],
+            ['name' => 'WeChat Express', 'provider' => 'WeChat_Express', 'payment_library_id' => 2],
             ['name' => 'WePay', 'provider' => 'WePay', 'is_offsite' => false],
             ['name' => 'Braintree', 'provider' => 'Braintree', 'sort_order' => 2],
             ['name' => 'Custom', 'provider' => 'Custom', 'is_offsite' => true, 'sort_order' => 8],
@@ -88,6 +82,5 @@ class PaymentLibrariesSeeder extends Seeder
                 Gateway::create($gateway);
             }
         }
-
     }
 }

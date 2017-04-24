@@ -1,17 +1,20 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use Auth;
-use Utils;
-use Illuminate\Console\Command;
-use Faker\Factory;
+namespace App\Console\Commands;
+
+use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\VendorRepository;
-use App\Ninja\Repositories\ExpenseRepository;
+use Auth;
+use Faker\Factory;
+use Illuminate\Console\Command;
+use Utils;
 
 /**
- * Class CreateTestData
+ * Class CreateTestData.
  */
 class CreateTestData extends Command
 {
@@ -23,7 +26,7 @@ class CreateTestData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:create-test-data {count=1}';
+    protected $signature = 'ninja:create-test-data {count=1} {create_account=false}';
 
     /**
      * @var
@@ -32,18 +35,21 @@ class CreateTestData extends Command
 
     /**
      * CreateTestData constructor.
-     * @param ClientRepository $clientRepo
+     *
+     * @param ClientRepository  $clientRepo
      * @param InvoiceRepository $invoiceRepo
      * @param PaymentRepository $paymentRepo
-     * @param VendorRepository $vendorRepo
+     * @param VendorRepository  $vendorRepo
      * @param ExpenseRepository $expenseRepo
+     * @param AccountRepository $accountRepo
      */
     public function __construct(
         ClientRepository $clientRepo,
         InvoiceRepository $invoiceRepo,
         PaymentRepository $paymentRepo,
         VendorRepository $vendorRepo,
-        ExpenseRepository $expenseRepo)
+        ExpenseRepository $expenseRepo,
+        AccountRepository $accountRepo)
     {
         parent::__construct();
 
@@ -54,6 +60,7 @@ class CreateTestData extends Command
         $this->paymentRepo = $paymentRepo;
         $this->vendorRepo = $vendorRepo;
         $this->expenseRepo = $expenseRepo;
+        $this->accountRepo = $accountRepo;
     }
 
     /**
@@ -66,9 +73,20 @@ class CreateTestData extends Command
         }
 
         $this->info(date('Y-m-d').' Running CreateTestData...');
-
-        Auth::loginUsingId(1);
         $this->count = $this->argument('count');
+
+        if (filter_var($this->argument('create_account'), FILTER_VALIDATE_BOOLEAN)) {
+            $this->info('Creating new account...');
+            $account = $this->accountRepo->create(
+                $this->faker->firstName,
+                $this->faker->lastName,
+                $this->faker->safeEmail
+            );
+            Auth::login($account->users[0]);
+        } else {
+            $this->info('Using first account...');
+            Auth::loginUsingId(1);
+        }
 
         $this->createClients();
         $this->createVendors();
@@ -78,7 +96,7 @@ class CreateTestData extends Command
 
     private function createClients()
     {
-        for ($i=0; $i<$this->count; $i++) {
+        for ($i = 0; $i < $this->count; $i++) {
             $data = [
                 'name' => $this->faker->name,
                 'address1' => $this->faker->streetAddress,
@@ -91,7 +109,7 @@ class CreateTestData extends Command
                     'last_name' => $this->faker->lastName,
                     'email' => $this->faker->safeEmail,
                     'phone' => $this->faker->phoneNumber,
-                ]]
+                ]],
             ];
 
             $client = $this->clientRepo->save($data);
@@ -106,7 +124,7 @@ class CreateTestData extends Command
      */
     private function createInvoices($client)
     {
-        for ($i=0; $i<$this->count; $i++) {
+        for ($i = 0; $i < $this->count; $i++) {
             $data = [
                 'client_id' => $client->id,
                 'invoice_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
@@ -115,8 +133,8 @@ class CreateTestData extends Command
                     'product_key' => $this->faker->word,
                     'qty' => $this->faker->randomDigit + 1,
                     'cost' => $this->faker->randomFloat(2, 1, 10),
-                    'notes' => $this->faker->text($this->faker->numberBetween(50, 300))
-                ]]
+                    'notes' => $this->faker->text($this->faker->numberBetween(50, 300)),
+                ]],
             ];
 
             $invoice = $this->invoiceRepo->save($data);
@@ -146,7 +164,7 @@ class CreateTestData extends Command
 
     private function createVendors()
     {
-        for ($i=0; $i<$this->count; $i++) {
+        for ($i = 0; $i < $this->count; $i++) {
             $data = [
                 'name' => $this->faker->name,
                 'address1' => $this->faker->streetAddress,
@@ -159,7 +177,7 @@ class CreateTestData extends Command
                     'last_name' => $this->faker->lastName,
                     'email' => $this->faker->safeEmail,
                     'phone' => $this->faker->phoneNumber,
-                ]]
+                ]],
             ];
 
             $vendor = $this->vendorRepo->save($data);
@@ -174,12 +192,12 @@ class CreateTestData extends Command
      */
     private function createExpense($vendor)
     {
-        for ($i=0; $i<$this->count; $i++) {
+        for ($i = 0; $i < $this->count; $i++) {
             $data = [
                 'vendor_id' => $vendor->id,
                 'amount' => $this->faker->randomFloat(2, 1, 10),
                 'expense_date' => null,
-                'public_notes' => null,
+                'public_notes' => '',
             ];
 
             $expense = $this->expenseRepo->save($data);

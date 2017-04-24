@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 use Omnipay;
 use Utils;
 
 /**
- * Class Gateway
+ * Class Gateway.
  */
 class Gateway extends Eloquent
 {
@@ -57,6 +59,7 @@ class Gateway extends Eloquent
         GATEWAY_PAYPAL_EXPRESS,
         GATEWAY_BITPAY,
         GATEWAY_DWOLLA,
+        GATEWAY_CUSTOM,
     ];
 
     /**
@@ -95,6 +98,7 @@ class Gateway extends Eloquent
 
     /**
      * @param $gatewayId
+     *
      * @return bool
      */
     public function isGateway($gatewayId)
@@ -104,6 +108,7 @@ class Gateway extends Eloquent
 
     /**
      * @param $type
+     *
      * @return string
      */
     public static function getPaymentTypeName($type)
@@ -113,6 +118,7 @@ class Gateway extends Eloquent
 
     /**
      * @param $gatewayIds
+     *
      * @return int
      */
     public static function hasStandardGateway($gatewayIds)

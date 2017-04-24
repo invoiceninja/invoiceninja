@@ -2,8 +2,8 @@
 
 namespace App\Ninja\Reports;
 
-use Auth;
 use App\Models\Client;
+use Auth;
 
 class InvoiceReport extends AbstractReport
 {
@@ -12,9 +12,10 @@ class InvoiceReport extends AbstractReport
         'invoice_number',
         'invoice_date',
         'amount',
+        'status',
         'payment_date',
         'paid',
-        'method'
+        'method',
     ];
 
     public function run()
@@ -23,9 +24,10 @@ class InvoiceReport extends AbstractReport
         $status = $this->options['invoice_status'];
 
         $clients = Client::scope()
+                        ->orderBy('name')
                         ->withArchived()
                         ->with('contacts')
-                        ->with(['invoices' => function($query) use ($status) {
+                        ->with(['invoices' => function ($query) use ($status) {
                             if ($status == 'draft') {
                                 $query->whereIsPublic(false);
                             } elseif ($status == 'unpaid' || $status == 'paid') {
@@ -35,8 +37,8 @@ class InvoiceReport extends AbstractReport
                                   ->withArchived()
                                   ->where('invoice_date', '>=', $this->startDate)
                                   ->where('invoice_date', '<=', $this->endDate)
-                                  ->with(['payments' => function($query) {
-                                        $query->withArchived()
+                                  ->with(['payments' => function ($query) {
+                                      $query->withArchived()
                                               ->excludeFailed()
                                               ->with('payment_type', 'account_gateway.gateway');
                                   }, 'invoice_items']);
@@ -44,10 +46,9 @@ class InvoiceReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
-
                 $payments = count($invoice->payments) ? $invoice->payments : [false];
                 foreach ($payments as $payment) {
-                    if ( ! $payment && $status == 'paid') {
+                    if (! $payment && $status == 'paid') {
                         continue;
                     } elseif ($payment && $status == 'unpaid') {
                         continue;
@@ -57,6 +58,7 @@ class InvoiceReport extends AbstractReport
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
                         $account->formatMoney($invoice->amount, $client),
+                        $invoice->present()->status(),
                         $payment ? $payment->present()->payment_date : '',
                         $payment ? $account->formatMoney($payment->getCompletedAmount(), $client) : '',
                         $payment ? $payment->present()->method : '',

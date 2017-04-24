@@ -1,11 +1,13 @@
-<?php namespace App\Console\Commands;
+<?php
 
-use DateTime;
+namespace App\Console\Commands;
+
 use App\Models\Document;
+use DateTime;
 use Illuminate\Console\Command;
 
 /**
- * Class RemoveOrphanedDocuments
+ * Class RemoveOrphanedDocuments.
  */
 class RemoveOrphanedDocuments extends Command
 {

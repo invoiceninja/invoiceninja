@@ -1,0 +1,341 @@
+.container {
+    padding-bottom: 50px;
+}
+
+hr.green {
+    background: #5ebb5e;
+    margin-top: 0px;
+    margin-bottom: 30px;
+    width: 55px;
+    height: 4px;
+    border: 0;
+}
+
+.alert li{
+    list-style: none;
+}
+
+/****** HEADER ********************************************************************/
+
+.row.header {
+    background: #3c3b3b; /* Old browsers */
+    background: -moz-linear-gradient(top, #3c3b3b 0%, #2f2c2c 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(top, #3c3b3b 0%, #2f2c2c 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(to bottom, #3c3b3b 0%, #2f2c2c 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#3c3b3b', endColorstr='#2f2c2c', GradientType=0); /* IE6-9 */
+    padding: 30px 55px;
+    margin-bottom: 60px;
+}
+
+.row.header .text-right {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 4px;
+    color: #fff;
+}
+
+@media only screen and (min-width: 64.063em) {
+    .row.header .col-md-6.col-xs-12.text-center {
+        text-align: left;
+    }
+}
+
+/****** FORM ********************************************************************/
+
+.form-signin {
+    max-width: 400px;
+    padding: 15px;
+    margin: 0 auto;
+    font-weight: 200;
+}
+
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+    margin-bottom: 10px;
+}
+
+.form-signin .checkbox {
+    font-weight: normal;
+}
+
+.form-signin .form-control {
+    position: relative;
+    height: auto;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.form-signin .form-control:focus {
+    z-index: 2;
+}
+
+.form-signin input:not(:last-child) {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.form-signin input:not(:first-child) {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.form-signin input.form-control {
+    background-color: #ffffff !important;
+}
+
+.btn-block {
+    margin-top: 10px;
+}
+
+.form-signin h2 {
+    font-weight: 200;
+    font-size: 28px;
+    text-align: center;
+}
+
+.row.existing-accounts {
+    margin-top: 60px;
+    text-align: center;
+    font-weight: 200;
+}
+
+.row.existing-accounts .col-md-3.col-xs-6:nth-of-type(1), .row.existing-accounts .col-md-3.col-xs-6:nth-of-type(2) {
+    margin-bottom: 30px;
+}
+
+.row.existing-accounts a {
+    width: 100%;
+    font-size: 22px;
+    padding-left: 2px;
+}
+
+.row.meta {
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #464545;
+    letter-spacing: 2px;
+    padding: 13px 0 0 0;
+}
+
+.row.meta .col-md-7, .row.meta .col-md-5 {
+    text-align: center;
+}
+
+.row.meta a {
+    color: #464545;
+}
+
+@media only screen and (min-width: 64.063em) {
+    .row.existing-accounts .col-md-3.col-xs-6:nth-of-type(1), .row.existing-accounts .col-md-3.col-xs-6:nth-of-type(2) {
+        margin-bottom: 0;
+    }
+
+    .row.meta .col-md-7 {
+        text-align: left;
+    }
+
+    .row.meta .col-md-5 {
+        text-align: right;
+    }
+}
+
+/****** SIGN UP ********************************************************************/
+
+.row.sign-up {
+    margin-top: 70px;
+    text-align: center;
+}
+
+.row.sign-up h3 {
+    font-size: 26px;
+    font-weight: 200;
+    margin: 0;
+}
+
+.row.sign-up p {
+    font-size: 17px;
+    font-weight: 200;
+}
+
+.row.sign-up a {
+    margin-top: 0px;
+}
+
+.row.sign-up button {
+    width: 100%;
+}
+
+.row.sign-up .col-md-3 {
+    border-top: 1px solid #eee;
+    padding: 30px;
+}
+
+.row.sign-up .col-md-3:nth-child(2) {
+    border-left: 0;
+    padding-left: 30px;
+}
+
+@media only screen and (min-width: 64.063em) {
+    .row.sign-up {
+        text-align: left;
+    }
+
+    .row.sign-up .col-md-3 {
+        padding: 40px 0 30px 0
+    }
+
+    .row.sign-up .col-md-3:nth-child(2) {
+        border-left: 1px solid #eee;
+        padding-left: 70px;
+    }
+}
+
+/****** SIGN UP ********************************************************************/
+
+.btn {
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border-radius: 3px;
+    font-size: 15px;
+    padding: 20px 0;
+}
+
+.btn-primary {
+    background-image: -webkit-linear-gradient(top, #474646 0%, #3d3d3d 100%);
+    background-image: -o-linear-gradient(top, #474646 0%, #3d3d3d 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#474646), to(#3d3d3d));
+    background-image: linear-gradient(to bottom, #474646 0%, #3d3d3d 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff337ab7', endColorstr='#ff265a88', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background-repeat: repeat-x;
+    border-color: #3d3d3d;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: #3d3d3d;
+    background-position: 0 -15px;
+}
+
+.btn-primary:active,
+.btn-primary.active {
+    background-color: #3d3d3d;
+    border-color: #3d3d3d;
+}
+
+.btn-primary.green {
+    background-image: -webkit-linear-gradient(top, #62c362 0%, #5cb85c 100%);
+    background-image: -o-linear-gradient(top, #62c362 0%, #5cb85c 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#62c362), to(#5cb85c));
+    background-image: linear-gradient(to bottom, #62c362 0%, #5cb85c 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff337ab7', endColorstr='#ff265a88', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background-repeat: repeat-x;
+    border-color: #5cb85c;
+}
+
+.btn-primary.green:hover,
+.btn-primary.green:focus {
+    background-color: #5cb85c;
+    background-position: 0 -15px;
+}
+
+.btn-primary.green:active,
+.btn-primary.green.active {
+    background-color: #5cb85c;
+    border-color: #5cb85c;
+}
+
+.btn-primary.blue {
+    background-image: -webkit-linear-gradient(top, #3e8ccc 0%, #377db6 100%);
+    background-image: -o-linear-gradient(top, #3e8ccc 0%, #377db6 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#3e8ccc), to(#377db6));
+    background-image: linear-gradient(to bottom, #3e8ccc 0%, #377db6 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff337ab7', endColorstr='#ff265a88', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background-repeat: repeat-x;
+    border-color: #377db6;
+}
+
+.btn-primary.blue:hover,
+.btn-primary.blue:focus {
+    background-color: #377db6;
+    background-position: 0 -15px;
+}
+
+.btn-primary.blue:active,
+.btn-primary.blue.active {
+    background-color: #377db6;
+    border-color: #377db6;
+}
+
+.btn-primary.disabled,
+.btn-primary[disabled],
+fieldset[disabled] .btn-primary,
+.btn-primary.disabled:hover,
+.btn-primary[disabled]:hover,
+fieldset[disabled] .btn-primary:hover,
+.btn-primary.disabled:focus,
+.btn-primary[disabled]:focus,
+fieldset[disabled] .btn-primary:focus,
+.btn-primary.disabled.focus,
+.btn-primary[disabled].focus,
+fieldset[disabled] .btn-primary.focus,
+.btn-primary.disabled:active,
+.btn-primary[disabled]:active,
+fieldset[disabled] .btn-primary:active,
+.btn-primary.disabled.active,
+.btn-primary[disabled].active,
+fieldset[disabled] .btn-primary.active {
+    background-color: #3d3d3d;
+    background-image: none;
+}
+
+.btn-default,
+.btn-primary,
+.btn-success,
+.btn-info,
+.btn-warning,
+.btn-danger {
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .2);
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
+}
+
+.btn-default:active,
+.btn-primary:active,
+.btn-success:active,
+.btn-info:active,
+.btn-warning:active,
+.btn-danger:active,
+.btn-default.active,
+.btn-primary.active,
+.btn-success.active,
+.btn-info.active,
+.btn-warning.active,
+.btn-danger.active {
+    -webkit-box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, .125);
+}
+
+.form-signin .form-control {
+    padding: 15px;
+    border: 1px solid #e8e8e8;
+}
+
+::-webkit-input-placeholder { /* WebKit, Blink, Edge */
+   font-weight: normal;
+}
+:-moz-placeholder { /* Mozilla Firefox 4 to 18 */
+   font-weight: normal;
+}
+::-moz-placeholder { /* Mozilla Firefox 19+ */
+   font-weight: normal;
+}
+:-ms-input-placeholder { /* Internet Explorer 10-11 */
+   font-weight: normal;
+}

@@ -1,20 +1,22 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Cache;
-use Auth;
-use Input;
-use Redirect;
-use Session;
-use View;
-use Crypt;
-use File;
-use Utils;
+namespace App\Http\Controllers;
+
+use App\Http\Requests\CreateBankAccountRequest;
 use App\Models\Account;
 use App\Models\BankAccount;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Services\BankAccountService;
-use App\Http\Requests\CreateBankAccountRequest;
+use Auth;
+use Cache;
+use Crypt;
+use File;
 use Illuminate\Http\Request;
+use Input;
+use Redirect;
+use Session;
+use Utils;
+use View;
 
 class BankAccountController extends BaseController
 {
@@ -58,8 +60,7 @@ class BankAccountController extends BaseController
     }
 
     /**
-     * Displays the form for account creation
-     *
+     * Displays the form for account creation.
      */
     public function create()
     {
@@ -132,13 +133,14 @@ class BankAccountController extends BaseController
         } catch (\Exception $e) {
             Session::flash('error', trans('texts.ofx_parse_failed'));
             Utils::logError($e);
+
             return view('accounts.import_ofx');
         }
 
         $data = [
             'banks' => null,
             'bankAccount' => null,
-            'transactions' => json_encode([$data])
+            'transactions' => json_encode([$data]),
         ];
 
         return View::make('accounts.bank_account', $data);

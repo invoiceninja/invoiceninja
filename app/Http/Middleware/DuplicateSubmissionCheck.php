@@ -1,16 +1,19 @@
-<?php namespace App\Http\Middleware;
+<?php
+
+namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
 
 /**
- * Class DuplicateSubmissionCheck
+ * Class DuplicateSubmissionCheck.
  */
 class DuplicateSubmissionCheck
 {
     /**
      * @param Request $request
      * @param Closure $next
+     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next)

@@ -1,4 +1,6 @@
-<?php namespace App\Libraries\Skype;
+<?php
+
+namespace App\Libraries\Skype;
 
 class InvoiceItemCard
 {

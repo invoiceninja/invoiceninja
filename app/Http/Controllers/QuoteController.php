@@ -1,26 +1,28 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Input;
-use Redirect;
-use Utils;
-use View;
-use Cache;
-use Session;
+namespace App\Http\Controllers;
+
+use App\Http\Requests\InvoiceRequest;
 use App\Models\Account;
 use App\Models\Client;
 use App\Models\Country;
+use App\Models\Invitation;
+use App\Models\Invoice;
 use App\Models\InvoiceDesign;
 use App\Models\Product;
 use App\Models\TaxRate;
-use App\Models\Invitation;
-use App\Models\Invoice;
-use App\Ninja\Mailers\ContactMailer as Mailer;
-use App\Ninja\Repositories\InvoiceRepository;
-use App\Ninja\Repositories\ClientRepository;
-use App\Services\InvoiceService;
-use App\Http\Requests\InvoiceRequest;
 use App\Ninja\Datatables\InvoiceDatatable;
+use App\Ninja\Mailers\ContactMailer as Mailer;
+use App\Ninja\Repositories\ClientRepository;
+use App\Ninja\Repositories\InvoiceRepository;
+use App\Services\InvoiceService;
+use Auth;
+use Cache;
+use Input;
+use Redirect;
+use Session;
+use Utils;
+use View;
 
 class QuoteController extends BaseController
 {
@@ -64,7 +66,7 @@ class QuoteController extends BaseController
 
     public function create(InvoiceRequest $request, $clientPublicId = 0)
     {
-        if (!Utils::hasFeature(FEATURE_QUOTES)) {
+        if (! Utils::hasFeature(FEATURE_QUOTES)) {
             return Redirect::to('/invoices/create');
         }
 
@@ -91,27 +93,14 @@ class QuoteController extends BaseController
 
     private static function getViewModel()
     {
-        // Tax rate $options
         $account = Auth::user()->account;
-        $rates = TaxRate::scope()->orderBy('name')->get();
-        $options = [];
-        $defaultTax = false;
-
-        foreach ($rates as $rate) {
-            $options[$rate->rate . ' ' . $rate->name] = $rate->name . ' ' . ($rate->rate+0) . '%';
-
-            // load default invoice tax
-            if ($rate->id == $account->default_tax_rate_id) {
-                $defaultTax = $rate;
-            }
-        }
 
         return [
           'entityType' => ENTITY_QUOTE,
-          'account' => Auth::user()->account,
+          'account' => $account,
           'products' => Product::scope()->orderBy('id')->get(['product_key', 'notes', 'cost', 'qty']),
-          'taxRateOptions' => $options,
-          'defaultTax' => $defaultTax,
+          'taxRateOptions' => $account->present()->taxRateOptions,
+          'defaultTax' => $account->default_tax_rate,
           'countries' => Cache::get('countries'),
           'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
           'taxRates' => TaxRate::scope()->orderBy('name')->get(),
@@ -129,7 +118,8 @@ class QuoteController extends BaseController
 
     public function bulk()
     {
-        $action = Input::get('bulk_action') ?: Input::get('action');;
+        $action = Input::get('bulk_action') ?: Input::get('action');
+        ;
         $ids = Input::get('bulk_public_id') ?: (Input::get('public_id') ?: Input::get('ids'));
 
         if ($action == 'convert') {
@@ -137,6 +127,7 @@ class QuoteController extends BaseController
             $clone = $this->invoiceService->convertQuote($invoice);
 
             Session::flash('message', trans('texts.converted_to_invoice'));
+
             return Redirect::to('invoices/'.$clone->public_id);
         }
 

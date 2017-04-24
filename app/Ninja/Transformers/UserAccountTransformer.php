@@ -1,12 +1,14 @@
-<?php namespace App\Ninja\Transformers;
+<?php
 
-use App\Models\User;
+namespace App\Ninja\Transformers;
+
 use App\Models\Account;
+use App\Models\User;
 
 class UserAccountTransformer extends EntityTransformer
 {
     protected $defaultIncludes = [
-        'user'
+        'user',
     ];
 
     protected $tokenName;
@@ -21,6 +23,7 @@ class UserAccountTransformer extends EntityTransformer
     public function includeUser(User $user)
     {
         $transformer = new UserTransformer($this->account, $this->serializer);
+
         return $this->includeItem($user, $transformer, 'user');
     }
 

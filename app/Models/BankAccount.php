@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class BankAccount
+ * Class BankAccount.
  */
 class BankAccount extends EntityModel
 {
@@ -37,4 +39,3 @@ class BankAccount extends EntityModel
         return $this->hasMany('App\Models\BankSubaccount');
     }
 }
-

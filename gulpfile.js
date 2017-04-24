@@ -55,8 +55,12 @@ elixir(function(mix) {
         'style.css',
         'sidebar.css',
         'colors.css',
-        'fonts.css'
+        'fonts.css',
     ], 'public/css/built.css');
+
+    mix.styles([
+       'login.css'
+    ], 'public/css/built.login.css');
 
     mix.styles([
         bowerDir + '/bootstrap-daterangepicker/daterangepicker.css'
@@ -82,6 +86,7 @@ elixir(function(mix) {
     mix.scripts([
         'pdf_viewer.js',
         'compatibility.js',
+        //bowerDir + '/pdfmake/build/pdfmake.js',
         'pdfmake.js',
         'vfs.js'
     ], 'public/pdf.built.js');
@@ -89,6 +94,10 @@ elixir(function(mix) {
     mix.scripts([
         bowerDir + '/bootstrap-daterangepicker/daterangepicker.js'
     ], 'public/js/daterangepicker.min.js');
+
+    mix.scripts([
+        bowerDir + '/card/dist/card.js',
+    ], 'public/js/card.min.js');
 
     mix.scripts([
         bowerDir + '/tablesorter/dist/js/jquery.tablesorter.combined.js',

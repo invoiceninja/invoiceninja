@@ -1,10 +1,13 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Utils;
-use App\Models\Payment;
+namespace App\Ninja\Repositories;
+
 use App\Models\Credit;
 use App\Models\Invoice;
+use App\Models\Payment;
+use DB;
+use Utils;
+use Auth;
 
 class PaymentRepository extends BaseRepository
 {
@@ -36,6 +39,7 @@ class PaymentRepository extends BaseRepository
                         'clients.public_id as client_public_id',
                         'clients.user_id as client_user_id',
                         'payments.amount',
+                        DB::raw("CONCAT(payments.payment_date, payments.created_at) as date"),
                         'payments.payment_date',
                         'payments.payment_status_id',
                         'payments.payment_type_id',
@@ -158,6 +162,10 @@ class PaymentRepository extends BaseRepository
             }
         } else {
             $payment = Payment::createNew();
+
+            if (Auth::check() && Auth::user()->account->payment_type_id) {
+                $payment->payment_type_id = Auth::user()->account->payment_type_id;
+            }
         }
 
         if ($payment->is_deleted) {
@@ -182,7 +190,7 @@ class PaymentRepository extends BaseRepository
             $payment->transaction_reference = trim($input['transaction_reference']);
         }
 
-        if (!$publicId) {
+        if (! $publicId) {
             $clientId = $input['client_id'];
             $amount = Utils::parseFloat($input['amount']);
 
@@ -193,7 +201,7 @@ class PaymentRepository extends BaseRepository
                 $remaining = $amount;
                 foreach ($credits as $credit) {
                     $remaining -= $credit->apply($remaining);
-                    if ( ! $remaining) {
+                    if (! $remaining) {
                         break;
                     }
                 }

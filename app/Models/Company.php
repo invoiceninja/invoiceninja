@@ -1,13 +1,15 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Carbon;
-use Utils;
 use Eloquent;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
+use Utils;
 
 /**
- * Class Company
+ * Class Company.
  */
 class Company extends Eloquent
 {
@@ -56,7 +58,7 @@ class Company extends Eloquent
     // handle promos and discounts
     public function hasActiveDiscount(Carbon $date = null)
     {
-        if ( ! $this->discount || ! $this->discount_expires) {
+        if (! $this->discount || ! $this->discount_expires) {
             return false;
         }
 
@@ -71,7 +73,7 @@ class Company extends Eloquent
 
     public function discountedPrice($price)
     {
-        if ( ! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
+        if (! $this->hasActivePromo() && ! $this->hasActiveDiscount()) {
             return $price;
         }
 
@@ -80,7 +82,7 @@ class Company extends Eloquent
 
     public function daysUntilPlanExpires()
     {
-        if ( ! $this->hasActivePlan()) {
+        if (! $this->hasActivePlan()) {
             return 0;
         }
 
@@ -103,7 +105,12 @@ class Company extends Eloquent
 
     public function hasEarnedPromo()
     {
-        if ( ! Utils::isNinjaProd() || Utils::isPro()) {
+        if (! Utils::isNinjaProd() || Utils::isPro()) {
+            return false;
+        }
+
+        // if they've already been pro return false
+        if ($this->plan_expires && $this->plan_expires != '0000-00-00') {
             return false;
         }
 
@@ -131,6 +138,35 @@ class Company extends Eloquent
                 $this->discount = $discount;
                 $this->promo_expires = date_create()->modify($validFor . ' days')->format('Y-m-d');
                 $this->save();
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function processRefund($user)
+    {
+        if (! $this->payment) {
+            return false;
+        }
+
+        $account = $this->accounts()->first();
+        $planDetails = $account->getPlanDetails(false, false);
+
+        if (! empty($planDetails['started'])) {
+            $deadline = clone $planDetails['started'];
+            $deadline->modify('+30 days');
+
+            if ($deadline >= date_create()) {
+                $accountRepo = app('App\Ninja\Repositories\AccountRepository');
+                $ninjaAccount = $accountRepo->getNinjaAccount();
+                $paymentDriver = $ninjaAccount->paymentDriver();
+                $paymentDriver->refundPayment($this->payment);
+
+                \Log::info("Refunded Plan Payment: {$account->name} - {$user->email} - Deadline: {$deadline->format('Y-m-d')}");
+
                 return true;
             }
         }

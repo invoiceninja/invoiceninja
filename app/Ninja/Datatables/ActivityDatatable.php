@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Datatables;
+<?php
+
+namespace App\Ninja\Datatables;
 
 use Utils;
 
@@ -13,7 +15,7 @@ class ActivityDatatable extends EntityDatatable
                 'activities.id',
                 function ($model) {
                     return Utils::timestampToDateTimeString(strtotime($model->created_at));
-                }
+                },
             ],
             [
                 'activity_type_id',
@@ -39,20 +41,20 @@ class ActivityDatatable extends EntityDatatable
                     }
 
                     return $str;
-                }
+                },
             ],
             [
                 'balance',
                 function ($model) {
                     return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
-                }
+                },
             ],
             [
                 'adjustment',
                 function ($model) {
                     return $model->adjustment != 0 ? Utils::wrapAdjustment($model->adjustment, $model->currency_id, $model->country_id) : '';
-                }
-            ]
+                },
+            ],
         ];
     }
 }

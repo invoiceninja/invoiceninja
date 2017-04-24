@@ -157,6 +157,7 @@ return [
         'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
         Codedge\Updater\UpdaterServiceProvider::class,
         Nwidart\Modules\LaravelModulesServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -262,6 +263,7 @@ return [
         'Module' => Nwidart\Modules\Facades\Module::class,
 
         'Utils' => App\Libraries\Utils::class,
+        'DateUtils' => App\Libraries\DateUtils::class,
         'HTMLUtils' => App\Libraries\HTMLUtils::class,
         'Domain' => App\Constants\Domain::class,
     ],

@@ -2,9 +2,8 @@
 
 namespace App\Ninja\Reports;
 
-use Auth;
-use Utils;
 use App\Models\Task;
+use Utils;
 
 class TaskReport extends AbstractReport
 {
@@ -19,6 +18,7 @@ class TaskReport extends AbstractReport
     public function run()
     {
         $tasks = Task::scope()
+                    ->orderBy('created_at', 'desc')
                     ->with('client.contacts')
                     ->withArchived()
                     ->dateRange($this->startDate, $this->endDate);

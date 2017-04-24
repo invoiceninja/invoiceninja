@@ -1,30 +1,26 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Response;
+namespace App\Http\Controllers;
+
 use App\Models\Invoice;
 use App\Ninja\Repositories\InvoiceRepository;
+use Response;
 
-class QuoteApiController extends BaseAPIController
+class QuoteApiController extends InvoiceApiController
 {
     protected $invoiceRepo;
 
     protected $entityType = ENTITY_INVOICE;
 
-    public function __construct(InvoiceRepository $invoiceRepo)
-    {
-        parent::__construct();
-
-        $this->invoiceRepo = $invoiceRepo;
-    }
-
     /**
      * @SWG\Get(
      *   path="/quotes",
+     *   summary="List quotes",
+     *   operationId="listQuotes",
      *   tags={"quote"},
-     *   summary="List of quotes",
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with quotes",
+     *     description="A list of quotes",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Invoice"))
      *   ),
      *   @SWG\Response(
@@ -43,5 +39,4 @@ class QuoteApiController extends BaseAPIController
 
          return $this->listResponse($invoices);
      }
-
 }

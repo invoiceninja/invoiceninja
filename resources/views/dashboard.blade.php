@@ -18,11 +18,10 @@
     @if (Auth::user()->hasPermission('view_all'))
         function loadChart(data) {
             var ctx = document.getElementById('chart-canvas').getContext('2d');
-
             if (window.myChart) {
                 window.myChart.config.data = data;
-                window.myChart.config.options.scales.xAxes[0].time.unit = chartGropuBy.toLowerCase();
-                window.myChart.config.options.scales.xAxes[0].time.round = chartGropuBy.toLowerCase();
+                window.myChart.config.options.scales.xAxes[0].time.unit = chartGroupBy.toLowerCase();
+                window.myChart.config.options.scales.xAxes[0].time.round = chartGroupBy.toLowerCase();
                 window.myChart.update();
             } else {
                 $('#progress-div').hide();
@@ -63,8 +62,8 @@
                             xAxes: [{
                                 type: 'time',
                                 time: {
-                                    unit: 'day',
-                                    round: 'day',
+                                    unit: chartGroupBy,
+                                    round: chartGroupBy,
                                 },
                                 gridLines: {
                                     display: false,
@@ -85,14 +84,40 @@
         }
 
         var account = {!! $account !!};
-        var chartStartDate = moment().subtract(29, 'days');
-        var chartEndDate = moment();
-        var chartGropuBy = 'day';
+        var chartGroupBy = 'day';
         var chartCurrencyId = {{ $account->getCurrencyId() }};
+		var dateRanges = {!! $account->present()->dateRangeOptions !!};
+		var chartStartDate;
+        var chartEndDate;
 
         $(function() {
 
             // Initialize date range selector
+			chartStartDate = moment().subtract(29, 'days');
+	        chartEndDate = moment();
+
+			if (isStorageSupported()) {
+				var lastRange = localStorage.getItem('last:dashboard_range');
+				lastRange = dateRanges[lastRange];
+				if (lastRange) {
+					chartStartDate = lastRange[0];
+					chartEndDate = lastRange[1];
+				}
+
+				@if (count($currencies) > 1)
+					var currencyId = localStorage.getItem('last:dashboard_currency_id');
+					if (currencyId) {
+						chartCurrencyId = currencyId;
+						$("#currency-btn-group [data-button=\"" + chartCurrencyId + "\"]").addClass("active").siblings().removeClass("active");
+					}
+				@endif
+
+				var groupBy = localStorage.getItem('last:dashboard_group_by');
+				if (groupBy) {
+					chartGroupBy = groupBy;
+					$("#group-btn-group [data-button=\"" + groupBy + "\"]").addClass("active").siblings().removeClass("active");
+				}
+			}
 
             function cb(start, end, label) {
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
@@ -100,6 +125,10 @@
                 chartEndDate = end;
 				$('.range-label-div').text(label);
                 loadData();
+
+				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
+					localStorage.setItem('last:dashboard_range', label);
+				}
             }
 
             $('#reportrange').daterangepicker({
@@ -110,13 +139,7 @@
 				startDate: chartStartDate,
                 endDate: chartEndDate,
                 linkedCalendars: false,
-                ranges: {
-                   "{{ trans('texts.last_7_days') }}": [moment().subtract(6, 'days'), moment()],
-                   "{{ trans('texts.last_30_days') }}": [moment().subtract(29, 'days'), moment()],
-                   "{{ trans('texts.this_month') }}": [moment().startOf('month'), moment().endOf('month')],
-                   "{{ trans('texts.last_month') }}": [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-				   "{{ trans('texts.last_year') }}": [moment().subtract(1, 'year'), moment()],
-                }
+                ranges: dateRanges,
             }, cb);
 
             cb(chartStartDate, chartEndDate);
@@ -125,17 +148,23 @@
                 $(this).addClass("active").siblings().removeClass("active");
                 chartCurrencyId = currencyMap[$(this).text()].id;
                 loadData();
+				if (isStorageSupported()) {
+					localStorage.setItem('last:dashboard_currency_id', $(this).attr('data-button'));
+				}
             });
 
             $("#group-btn-group > .btn").click(function(){
                 $(this).addClass("active").siblings().removeClass("active");
-                chartGropuBy = $(this).attr('data-button');
+                chartGroupBy = $(this).attr('data-button');
                 loadData();
+				if (isStorageSupported()) {
+					localStorage.setItem('last:dashboard_group_by', chartGroupBy);
+				}
             });
 
             function loadData() {
                 var includeExpenses = "{{ count($expenses) ? 'true' : 'false' }}";
-                var url = "{!! url('/dashboard_chart_data') !!}/" + chartGropuBy + '/' + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD') + '/' + chartCurrencyId + '/' + includeExpenses;
+                var url = "{!! url('/dashboard_chart_data') !!}/" + chartGroupBy + '/' + chartStartDate.format('YYYY-MM-DD') + '/' + chartEndDate.format('YYYY-MM-DD') + '/' + chartCurrencyId + '/' + includeExpenses;
                 $.get(url, function(response) {
                     response = JSON.parse(response);
                     loadChart(response.data);
@@ -148,6 +177,15 @@
 
                     $('.currency').hide();
                     $('.currency_' + chartCurrencyId).show();
+
+					// add blank values to fix layout
+					var divs = ['revenue', 'expenses', 'outstanding']
+					for (var i=0; i<divs.length; i++) {
+						var type = divs[i];
+						if (!$('.' + type + '-panel .currency_' + chartCurrencyId).length) {
+							$('.' + type + '-panel .currency_blank').text(formatMoney(0, chartCurrencyId)).show();
+						}
+					}
                 })
             }
 
@@ -180,7 +218,7 @@
             <div id="currency-btn-group" class="btn-group" role="group" style="border: 1px solid #ccc;">
               @foreach ($currencies as $key => $val)
                 <button type="button" class="btn btn-normal {{ array_values($currencies)[0] == $val ? 'active' : '' }}"
-                    style="font-weight:normal !important;background-color:white">{{ $val }}</button>
+                    data-button="{{ $key }}" style="font-weight:normal !important;background-color:white">{{ $val }}</button>
               @endforeach
             </div>
             @endif
@@ -211,7 +249,7 @@
 <div class="row">
     <div class="col-md-4">
         <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body revenue-panel">
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.total_revenue') }}
@@ -230,6 +268,9 @@
                                 {{ Utils::formatMoney(0) }}
                             </div>
                         @endif
+						<div class="currency currency_blank" style="display:none">
+							&nbsp;
+						</div>
                     </div>
 					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
 						{{ trans('texts.last_30_days') }}
@@ -240,7 +281,7 @@
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body expenses-panel">
                 <div style="overflow:hidden">
                     @if (count($expenses))
                         <div class="in-thin">
@@ -254,6 +295,9 @@
                                     {{ Utils::formatMoney($item->value, $item->currency_id) }}<br/>
                                 </div>
                             @endforeach
+							<div class="currency currency_blank" style="display:none">
+								&nbsp;
+							</div>
                         </div>
                     @else
                         <div class="in-thin">
@@ -273,6 +317,9 @@
                                     {{ Utils::formatMoney(0) }}
                                 </div>
                             @endif
+							<div class="currency currency_blank" style="display:none">
+								&nbsp;
+							</div>
                         </div>
                     @endif
 					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
@@ -284,7 +331,7 @@
     </div>
     <div class="col-md-4">
         <div class="panel panel-default">
-            <div class="panel-body">
+            <div class="panel-body outstanding-panel">
                 <div style="overflow:hidden">
                     <div class="in-thin">
                         {{ trans('texts.outstanding') }}
@@ -303,6 +350,9 @@
                                 {{ Utils::formatMoney(0) }}
                             </div>
                         @endif
+						<div class="currency currency_blank" style="display:none">
+							&nbsp;
+						</div>
                     </div>
 					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
 						{{ trans('texts.last_30_days') }}
@@ -334,7 +384,11 @@
                     <i class="glyphicon glyphicon-exclamation-sign"></i> {{ trans('texts.activity') }}
                     @if ($invoicesSent)
                         <div class="pull-right" style="font-size:14px;padding-top:4px">
-                            {{ trans_choice('texts.invoices_sent', $invoicesSent) }}
+							@if ($invoicesSent == 1)
+								{{ trans('texts.invoice_sent', ['count' => $invoicesSent]) }}
+							@else
+								{{ trans('texts.invoices_sent', ['count' => $invoicesSent]) }}
+							@endif
                         </div>
                     @endif
                 </h3>

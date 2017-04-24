@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class AccountToken
+ * Class AccountToken.
  */
 class AccountToken extends EntityModel
 {

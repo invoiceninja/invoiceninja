@@ -1,4 +1,6 @@
-<?php namespace App\Libraries;
+<?php
+
+namespace App\Libraries;
 
 use JonnyW\PhantomJs\Client;
 
@@ -43,25 +45,26 @@ class CurlUtils
 
     public static function phantom($method, $url)
     {
-        if ( ! $path = env('PHANTOMJS_BIN_PATH')) {
+        if (! $path = env('PHANTOMJS_BIN_PATH')) {
             return false;
         }
 
         $client = Client::getInstance();
+        $client->isLazy();
         $client->getEngine()->setPath($path);
 
         $request = $client->getMessageFactory()->createRequest($url, $method);
+        $request->setTimeout(5000);
         $response = $client->getMessageFactory()->createResponse();
 
         // Send the request
         $client->send($request, $response);
-        
+
         if ($response->getStatus() === 200) {
             return $response->getContent();
         } else {
-            //$response->getStatus();
+            Utils::logError('Local PhantomJS Error: ' . $response->getStatus() . ' - ' . $url);
             return false;
         }
-
     }
 }

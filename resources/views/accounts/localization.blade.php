@@ -54,10 +54,13 @@
                 <br/>&nbsp;<br/>
 
                 {!! Former::select('start_of_week')->addOption('','')
-                    ->fromQuery($weekdays) !!}
+                    ->fromQuery($weekdays)
+                    ->help('start_of_week_help') !!}
+
                 {!! Former::select('financial_year_start')
                         ->addOption('','')
-                        ->options($months) !!}
+                        ->options($months)
+                        ->help('financial_year_start_help') !!}
 
 
                 </div>

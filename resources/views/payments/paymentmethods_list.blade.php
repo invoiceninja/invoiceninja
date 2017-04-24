@@ -112,13 +112,13 @@
                 [{{trans('texts.verification_failed')}}]
             @endif
         @endif
-
+        |
         @if($paymentMethod->id == $paymentMethod->account_gateway_token->default_payment_method_id)
-            [{{trans('texts.used_for_auto_bill')}}]
+            {{trans('texts.used_for_auto_bill')}}
         @elseif($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED)
-            [<a href="#" onclick="setDefault('{{$paymentMethod->public_id}}')">{{trans('texts.use_for_auto_bill')}}</a>]
+            <a href="#" onclick="setDefault('{{$paymentMethod->public_id}}')">{{trans('texts.use_for_auto_bill')}}</a>
         @endif
-        <a href="#" title="{{ trans('texts.remove') }}" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">&times;</a>
+        | <a href="#" title="{{ trans('texts.remove') }}" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">{{ trans('texts.remove') }}</a>
 
     </div>
     @endforeach
@@ -188,7 +188,7 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer" style="margin-top: 0px">
+            <div class="modal-footer" style="margin-top: 2px">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
                 <button type="submit" class="btn btn-primary">{{ trans('texts.complete_verification') }}</button>
             </div>
@@ -209,7 +209,7 @@
             <div class="modal-body">
                 <p>{{ trans('texts.confirm_remove_payment_method') }}</p>
             </div>
-            <div class="modal-footer" style="margin-top: 0px">
+            <div class="modal-footer" style="margin-top: 2px">
                 <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
                 <button type="submit" class="btn btn-primary">{{ trans('texts.remove') }}</button>
             </div>

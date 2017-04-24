@@ -1,7 +1,10 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
+namespace App\Ninja\Repositories;
+
 use App\Models\Product;
+use Utils;
+use DB;
 
 class ProductRepository extends BaseRepository
 {
@@ -20,7 +23,7 @@ class ProductRepository extends BaseRepository
     public function find($accountId, $filter = null)
     {
         $query = DB::table('products')
-                ->leftJoin('tax_rates', function($join) {
+                ->leftJoin('tax_rates', function ($join) {
                     $join->on('tax_rates.id', '=', 'products.default_tax_rate_id')
                          ->whereNull('tax_rates.deleted_at');
                 })
@@ -62,6 +65,10 @@ class ProductRepository extends BaseRepository
         }
 
         $product->fill($data);
+        $product->product_key = isset($data['product_key']) ? trim($data['product_key']) : '';
+        $product->notes = isset($data['notes']) ? trim($data['notes']) : '';
+        $product->cost = isset($data['cost']) ? Utils::parseFloat($data['cost']) : 0;
+        $product->qty = isset($data['qty']) ? Utils::parseFloat($data['qty']) : 1;
         $product->save();
 
         return $product;
@@ -80,7 +87,7 @@ class ProductRepository extends BaseRepository
                         ->get();
 
         foreach ($products as $product) {
-            if ( ! $product->product_key) {
+            if (! $product->product_key) {
                 continue;
             }
 
@@ -95,6 +102,4 @@ class ProductRepository extends BaseRepository
 
         return ($productId && isset($map[$productId])) ? $map[$productId] : null;
     }
-
-
 }

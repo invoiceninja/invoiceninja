@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 class SaveEmailSettings extends Request
 {
@@ -21,7 +23,7 @@ class SaveEmailSettings extends Request
     {
         return [
             'bcc_email' => 'email',
+            'reply_to_email' => 'email',
         ];
     }
-
 }

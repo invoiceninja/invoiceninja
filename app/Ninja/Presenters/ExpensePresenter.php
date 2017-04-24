@@ -1,14 +1,15 @@
-<?php namespace App\Ninja\Presenters;
+<?php
 
-use Utils;
+namespace App\Ninja\Presenters;
+
 use Carbon;
+use Utils;
 
 /**
- * Class ExpensePresenter
+ * Class ExpensePresenter.
  */
 class ExpensePresenter extends EntityPresenter
 {
-
     /**
      * @return string
      */
@@ -39,5 +40,4 @@ class ExpensePresenter extends EntityPresenter
     {
         return $this->entity->expense_category ? $this->entity->expense_category->name : '';
     }
-
 }

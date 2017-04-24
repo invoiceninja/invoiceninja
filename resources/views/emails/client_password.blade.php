@@ -1,4 +1,4 @@
-@extends('emails.master_user')
+@extends('emails.master_contact')
 
 @section('body')
     <div>
@@ -14,11 +14,13 @@
             ])
         </center>
     </div>
-    &nbsp;
-    <div>
-        {{ trans('texts.email_signature') }}<br/>
-        {{ trans('texts.email_from') }}
-    </div>
+    @if (Utils::isNinja() || ! Utils::isWhiteLabel())
+        &nbsp;
+        <div>
+            {{ trans('texts.email_signature') }}<br/>
+            {{ trans('texts.email_from') }}
+        </div>
+    @endif
     &nbsp;
     <div>
         {{ trans('texts.reset_password_footer', ['email' => env('CONTACT_EMAIL', CONTACT_EMAIL)]) }}

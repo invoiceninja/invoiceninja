@@ -5,7 +5,7 @@
 
 <center>
     @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
-        {!! Button::success(trans('texts.add_company'))->asLinkTo(url('/invoice_now?new_company=true&sign_up=true')) !!}
+        {!! Button::success(trans('texts.add_company'))->withAttributes(['onclick' => 'showSignUp()']) !!}
     @endif
 </center>
 
@@ -37,7 +37,7 @@
                         @if ($account->user_id == Auth::user()->id)
                             <b>{{ trans('texts.logged_in')}}</b>
                         @else
-                            {!! Button::primary(trans('texts.unlink'))->withAttributes(['onclick'=>"return showUnlink({$account->id}, {$account->user_id})"]) !!}
+                            {{-- Button::primary(trans('texts.unlink'))->withAttributes(['onclick'=>"return showUnlink({$account->id}, {$account->user_id})"]) --}}
                         @endif
                     </td>
                 </tr>

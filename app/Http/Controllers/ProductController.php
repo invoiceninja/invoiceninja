@@ -1,19 +1,22 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use URL;
-use View;
-use Utils;
-use Input;
-use Session;
-use Redirect;
+namespace App\Http\Controllers;
+
 use App\Models\Product;
 use App\Models\TaxRate;
-use App\Services\ProductService;
 use App\Ninja\Datatables\ProductDatatable;
+use App\Ninja\Repositories\ProductRepository;
+use App\Services\ProductService;
+use Auth;
+use Input;
+use Redirect;
+use Session;
+use URL;
+use Utils;
+use View;
 
 /**
- * Class ProductController
+ * Class ProductController.
  */
 class ProductController extends BaseController
 {
@@ -23,15 +26,21 @@ class ProductController extends BaseController
     protected $productService;
 
     /**
+     * @var ProductRepository
+     */
+    protected $productRepo;
+
+    /**
      * ProductController constructor.
      *
      * @param ProductService $productService
      */
-    public function __construct(ProductService $productService)
+    public function __construct(ProductService $productService, ProductRepository $productRepo)
     {
         //parent::__construct();
 
         $this->productService = $productService;
+        $this->productRepo = $productRepo;
     }
 
     /**
@@ -54,7 +63,6 @@ class ProductController extends BaseController
         return Redirect::to("products/$publicId/edit");
     }
 
-
     /**
      * @return \Illuminate\Http\JsonResponse
      */
@@ -65,6 +73,7 @@ class ProductController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit($publicId)
@@ -114,6 +123,7 @@ class ProductController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update($publicId)
@@ -123,6 +133,7 @@ class ProductController extends BaseController
 
     /**
      * @param bool $productPublicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     private function save($productPublicId = false)
@@ -133,12 +144,7 @@ class ProductController extends BaseController
             $product = Product::createNew();
         }
 
-        $product->product_key = trim(Input::get('product_key'));
-        $product->notes = trim(Input::get('notes'));
-        $product->cost = trim(Input::get('cost'));
-        $product->default_tax_rate_id = Input::get('default_tax_rate_id');
-
-        $product->save();
+        $this->productRepo->save(Input::all(), $product);
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);

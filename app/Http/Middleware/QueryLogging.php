@@ -1,21 +1,24 @@
-<?php namespace App\Http\Middleware;
+<?php
 
+namespace App\Http\Middleware;
+
+use Closure;
 use DB;
 use Illuminate\Http\Request;
 use Log;
 use Utils;
-use Closure;
 
 /**
- * Class QueryLogging
+ * Class QueryLogging.
  */
 class QueryLogging
 {
     /**
      * Handle an incoming request.
      *
-     * @param  Request $request
-     * @param  Closure $next
+     * @param Request $request
+     * @param Closure $next
+     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next)

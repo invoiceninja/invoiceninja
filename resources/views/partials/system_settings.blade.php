@@ -45,7 +45,8 @@
                       ->value(isset($_ENV['MAIL_HOST']) ? $_ENV['MAIL_HOST'] : '') !!}
               {!! Former::text('mail[port]')->label('Port')
                       ->value(isset($_ENV['MAIL_PORT']) ? $_ENV['MAIL_PORT'] : '587')  !!}
-              {!! Former::select('mail[encryption]')->label('Encryption')->options(['tls' => 'TLS', 'ssl' => 'SSL'])
+              {!! Former::select('mail[encryption]')->label('Encryption')
+                      ->options(['tls' => 'TLS', 'ssl' => 'SSL', '' => 'None'])
                       ->value(isset($_ENV['MAIL_ENCRYPTION']) ? $_ENV['MAIL_ENCRYPTION'] : 'tls')  !!}
               {!! Former::password('mail[password]')->label('Password')
                       ->value(isset($_ENV['MAIL_PASSWORD']) ? $_ENV['MAIL_PASSWORD'] : '')  !!}

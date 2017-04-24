@@ -1,8 +1,11 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
 
+namespace App\Ninja\PaymentDrivers;
+
+use Braintree\Customer;
 use Exception;
 use Session;
-use Braintree\Customer;
+use App\Models\GatewayType;
 
 class BraintreePaymentDriver extends BasePaymentDriver
 {
@@ -49,7 +52,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     protected function checkCustomerExists($customer)
     {
-        if ( ! parent::checkCustomerExists($customer)) {
+        if (! parent::checkCustomerExists($customer)) {
             return false;
         }
 
@@ -57,7 +60,18 @@ class BraintreePaymentDriver extends BasePaymentDriver
             ->send()
             ->getData();
 
-        return ($customer instanceof Customer);
+        return $customer instanceof Customer;
+    }
+
+    protected function paymentUrl($gatewayTypeAlias)
+    {
+        $url = parent::paymentUrl($gatewayTypeAlias);
+
+        if (GatewayType::getIdFromAlias($gatewayTypeAlias) === GATEWAY_TYPE_PAYPAL) {
+            $url .= '#braintree_paypal';
+        }
+
+        return $url;
     }
 
     protected function paymentDetails($paymentMethod = false)
@@ -74,7 +88,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             $data['ButtonSource'] = 'InvoiceNinja_SP';
         }
 
-        if ( ! $paymentMethod && ! empty($this->input['sourceToken'])) {
+        if (! $paymentMethod && ! empty($this->input['sourceToken'])) {
             $data['token'] = $this->input['sourceToken'];
         }
 
@@ -121,7 +135,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             'company' => $this->client()->name,
             'email' => $this->contact()->email,
             'phone' => $this->contact()->phone,
-            'website' => $this->client()->website
+            'website' => $this->client()->website,
         ];
     }
 
@@ -157,7 +171,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         parent::removePaymentMethod($paymentMethod);
 
         $response = $this->gateway()->deletePaymentMethod([
-            'token' => $paymentMethod->source_reference
+            'token' => $paymentMethod->source_reference,
         ])->send();
 
         if ($response->isSuccessful()) {
@@ -169,7 +183,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     protected function attemptVoidPayment($response, $payment, $amount)
     {
-        if ( ! parent::attemptVoidPayment($response, $payment, $amount)) {
+        if (! parent::attemptVoidPayment($response, $payment, $amount)) {
             return false;
         }
 

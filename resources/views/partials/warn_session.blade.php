@@ -1,7 +1,5 @@
-<div class="container">
-  <div class="alert alert-warning" id="keepAliveDiv" style="display:none">
+<div class="alert alert-warning" style="display:none" id="keepAliveDiv">
     {!! trans('texts.page_expire', ['click_here' => link_to('#', trans('texts.click_here'), ['onclick' => 'keepAlive()'])]) !!}
-  </div>
 </div>
 
 <script type="text/javascript">

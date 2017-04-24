@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 class UpdateExpenseRequest extends ExpenseRequest
 {
@@ -19,7 +21,7 @@ class UpdateExpenseRequest extends ExpenseRequest
      */
     public function rules()
     {
-          return [
+        return [
             'amount' => 'numeric',
         ];
     }

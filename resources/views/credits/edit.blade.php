@@ -28,11 +28,18 @@
 			@endif
 
 			{!! Former::text('amount') !!}
+
+			@if ($credit)
+				{!! Former::text('balance') !!}
+			@endif
+
 			{!! Former::text('credit_date')
                         ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                         ->addGroupClass('credit_date')
                         ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
-			{!! Former::textarea('private_notes') !!}
+
+			{!! Former::textarea('public_notes')->rows(4) !!}
+			{!! Former::textarea('private_notes')->rows(4) !!}
 
             </div>
             </div>

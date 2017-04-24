@@ -267,15 +267,6 @@ function isValidEmailAddress(emailAddress) {
     return pattern.test(emailAddress);
 };
 
-$(function() {
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-    });
-});
-
-
 function enableHoverClick($combobox, $entityId, url) {
   /*
   $combobox.mouseleave(function() {
@@ -459,7 +450,7 @@ if (window.ko) {
 function getContactDisplayName(contact)
 {
     if (contact.first_name || contact.last_name) {
-        return (contact.first_name || '') + ' ' + (contact.last_name || '');
+        return $.trim((contact.first_name || '') + ' ' + (contact.last_name || ''));
     } else {
         return contact.email;
     }
@@ -1159,4 +1150,11 @@ function firstJSONError(json) {
         }
     }
     return false;
+}
+
+// http://stackoverflow.com/questions/10073699/pad-a-number-with-leading-zeros-in-javascript
+function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }

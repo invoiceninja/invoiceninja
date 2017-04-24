@@ -123,14 +123,15 @@
                 @if (count($paymentTypes) > 1)
                     {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
                 @elseif (count($paymentTypes) == 1)
-                    <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }}</a>
+                    <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }} {{ $invoice->present()->gatewayFee($gatewayTypeId) }}</a>
                 @endif
     		@else
     			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
-                @if ($account->isNinjaAccount())
-                    {!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/settings/account_management'))->large() !!}
-                @endif
     		@endif
+
+			@if ($account->isNinjaAccount())
+				{!! Button::primary(trans('texts.return_to_app'))->asLinkTo(URL::to('/settings/account_management'))->large() !!}
+			@endif
     		</div>
         @endif
 
@@ -257,7 +258,10 @@
 					data: data,
 				    success: function(response) {
 				 		redirectToPayment();
-				    }
+				    },
+					error: function(response) {
+						alert("{{ trans('texts.error_refresh_page') }}");
+					}
 				});
 			}
 

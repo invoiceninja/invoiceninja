@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 class UpdatePaymentRequest extends PaymentRequest
 {
@@ -20,6 +22,5 @@ class UpdatePaymentRequest extends PaymentRequest
     public function rules()
     {
         return [];
-
     }
 }

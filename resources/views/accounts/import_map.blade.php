@@ -6,6 +6,11 @@
     @include('accounts.nav', ['selected' => ACCOUNT_IMPORT_EXPORT])
 
 	{!! Former::open('/import_csv')->addClass('warn-on-exit') !!}
+	{!! Former::populateField('timestamp', $timestamp) !!}
+
+	<div style="display:none">
+		{!! Former::text('timestamp') !!}
+	</div>
 
     @foreach (App\Services\ImportService::$entityTypes as $entityType)
         @if (isset($data[$entityType]))

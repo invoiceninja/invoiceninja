@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class Language
+ * Class Language.
  */
 class Language extends Eloquent
 {
@@ -15,7 +17,7 @@ class Language extends Eloquent
     /**
      * @return mixed
      */
-    public function getName() 
+    public function getName()
     {
         return $this->name;
     }

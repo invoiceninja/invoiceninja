@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
+
+namespace App\Ninja\PaymentDrivers;
 
 use Request;
 
@@ -9,7 +11,7 @@ class PayFastPaymentDriver extends BasePaymentDriver
     public function completeOffsitePurchase($input)
     {
         parent::completeOffsitePurchase([
-            'token' => Request::query('pt')
+            'token' => Request::query('pt'),
         ]);
     }
 }

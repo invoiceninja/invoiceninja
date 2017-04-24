@@ -1,15 +1,18 @@
-<?php namespace App\Ninja\Import\FreshBooks;
+<?php
+
+namespace App\Ninja\Import\FreshBooks;
 
 use App\Ninja\Import\BaseTransformer;
 use League\Fractal\Resource\Item;
 
 /**
- * Class PaymentTransformer
+ * Class PaymentTransformer.
  */
 class PaymentTransformer extends BaseTransformer
 {
     /**
      * @param $data
+     *
      * @return Item
      */
     public function transform($data)

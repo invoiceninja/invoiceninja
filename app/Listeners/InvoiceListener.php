@@ -1,20 +1,23 @@
-<?php namespace App\Listeners;
+<?php
 
-use Utils;
-use Auth;
-use App\Models\Activity;
-use App\Events\InvoiceWasUpdated;
+namespace App\Listeners;
+
+use Illuminate\Queue\Events\JobExceptionOccurred;
+use App\Events\InvoiceInvitationWasViewed;
 use App\Events\InvoiceWasCreated;
+use App\Events\InvoiceWasUpdated;
+use App\Events\PaymentFailed;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
 use App\Events\PaymentWasRestored;
 use App\Events\PaymentWasVoided;
-use App\Events\PaymentFailed;
-use App\Events\InvoiceInvitationWasViewed;
+use App\Models\Activity;
+use Auth;
+use Utils;
 
 /**
- * Class InvoiceListener
+ * Class InvoiceListener.
  */
 class InvoiceListener
 {
@@ -136,7 +139,7 @@ class InvoiceListener
      */
     public function restoredPayment(PaymentWasRestored $event)
     {
-        if ( ! $event->fromDeleted) {
+        if (! $event->fromDeleted) {
             return;
         }
 
@@ -146,5 +149,18 @@ class InvoiceListener
 
         $invoice->updateBalances($adjustment);
         $invoice->updatePaidStatus();
+    }
+
+    public function jobFailed(JobExceptionOccurred $exception)
+    {
+        if ($errorEmail = env('ERROR_EMAIL')) {
+            \Mail::raw(print_r($exception->data, true), function ($message) use ($errorEmail) {
+                $message->to($errorEmail)
+                        ->from(CONTACT_EMAIL)
+                        ->subject('Job failed');
+            });
+        }
+
+        Utils::logError($exception->exception);
     }
 }

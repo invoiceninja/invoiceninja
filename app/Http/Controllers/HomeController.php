@@ -1,19 +1,21 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Response;
-use Request;
-use Redirect;
+namespace App\Http\Controllers;
+
+use App\Libraries\Utils;
+use App\Models\Account;
+use App\Ninja\Mailers\Mailer;
 use Auth;
-use View;
 use Input;
 use Mail;
+use Redirect;
+use Request;
+use Response;
 use Session;
-use App\Models\Account;
-use App\Libraries\Utils;
-use App\Ninja\Mailers\Mailer;
+use View;
 
 /**
- * Class HomeController
+ * Class HomeController.
  */
 class HomeController extends BaseController
 {
@@ -41,7 +43,7 @@ class HomeController extends BaseController
     {
         Session::reflash();
 
-        if (!Utils::isNinja() && (!Utils::isDatabaseSetup() || Account::count() == 0)) {
+        if (! Utils::isNinja() && (! Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
         } elseif (Auth::check()) {
             return Redirect::to('/dashboard');
@@ -63,12 +65,6 @@ class HomeController extends BaseController
      */
     public function invoiceNow()
     {
-        if (Auth::check() && Input::get('new_company')) {
-            Session::put(PREV_USER_ID, Auth::user()->id);
-            Auth::user()->clearSession();
-            Auth::logout();
-        }
-
         // Track the referral/campaign code
         if (Input::has('rc')) {
             Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));
@@ -76,6 +72,7 @@ class HomeController extends BaseController
 
         if (Auth::check()) {
             $redirectTo = Input::get('redirect_to', 'invoices/create');
+
             return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
         } else {
             return View::make('public.invoice_now');
@@ -85,6 +82,7 @@ class HomeController extends BaseController
     /**
      * @param $userType
      * @param $version
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function newsFeed($userType, $version)
@@ -134,18 +132,17 @@ class HomeController extends BaseController
      */
     public function contactUs()
     {
-        Mail::raw(request()->message, function ($message) {
+        Mail::raw(request()->contact_us_message, function ($message) {
             $subject = 'Customer Message';
-            if ( ! Utils::isNinja()) {
+            if (! Utils::isNinja()) {
                 $subject .= ': v' . NINJA_VERSION;
             }
-            $message->to(CONTACT_EMAIL)
+            $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
                     ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
                     ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
                     ->subject($subject);
         });
 
-        return redirect(Request::server('HTTP_REFERER'))
-                    ->with('message', trans('texts.contact_us_response'));
+        return RESULT_SUCCESS;
     }
 }

@@ -21,34 +21,51 @@
 
 @section('content')
 
+	@if (!Utils::isPro())
+	    <div class="alert alert-warning" style="font-size:larger;">
+	    <center>
+	        {!! trans('texts.pro_plan_reports', ['link'=>'<a href="javascript:showUpgradeModal()">' . trans('texts.pro_plan_remove_logo_link') . '</a>']) !!}
+	    </center>
+	    </div>
+	@endif
+
     <script type="text/javascript">
+
+		var chartStartDate = moment("{{ $startDate }}");
+		var chartEndDate = moment("{{ $endDate }}");
+		var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
         $(function() {
 
-            var chartStartDate = moment("{{ $startDate }}");
-            var chartEndDate = moment("{{ $endDate }}");
+			if (isStorageSupported()) {
+				var lastRange = localStorage.getItem('last:report_range');
+				lastRange = dateRanges[lastRange];
+				if (lastRange) {
+					chartStartDate = lastRange[0];
+					chartEndDate = lastRange[1];
+				}
+			}
 
             // Initialize date range selector
-            function cb(start, end) {
+            function cb(start, end, label) {
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
                 $('#start_date').val(start.format('YYYY-MM-DD'));
                 $('#end_date').val(end.format('YYYY-MM-DD'));
+
+				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
+					localStorage.setItem('last:report_range', label);
+				}
             }
 
             $('#reportrange').daterangepicker({
                 locale: {
-                    "format": "{{ $account->getMomentDateFormat() }}",
+					format: "{{ $account->getMomentDateFormat() }}",
+					customRangeLabel: "{{ trans('texts.custom_range') }}",
                 },
                 startDate: chartStartDate,
                 endDate: chartEndDate,
                 linkedCalendars: false,
-                ranges: {
-                   'Last 7 Days': [moment().subtract(6, 'days'), moment()],
-                   'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                   'This Month': [moment().startOf('month'), moment().endOf('month')],
-                   'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
-                   'This Year': [moment().startOf('year'), moment().endOf('month')]
-                }
+				ranges: dateRanges,
             }, cb);
 
             cb(chartStartDate, chartEndDate);
@@ -58,7 +75,7 @@
     </script>
 
 
-    {!! Former::open()->rules(['start_date' => 'required', 'end_date' => 'required'])->addClass('warn-on-exit') !!}
+	{!! Former::open()->addClass('report-form')->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
 
     <div style="display:none">
     {!! Former::text('action') !!}
@@ -101,7 +118,7 @@
                             </div>
                         </div>
 
-						<div id="statusField" style="display:{{ in_array($reportType, ['invoice', 'invoice_details']) ? 'block' : 'none' }}">
+						<div id="statusField" style="display:{{ in_array($reportType, [ENTITY_INVOICE, ENTITY_PRODUCT]) ? 'block' : 'none' }}">
 							{!! Former::select('invoice_status')->label('status')
 									->addOption(trans('texts.all'), 'all')
 									->addOption(trans('texts.draft'), 'draft')
@@ -132,7 +149,7 @@
 	@if (!Auth::user()->hasFeature(FEATURE_REPORTS))
 	<script>
 		$(function() {
-			$('form.warn-on-exit').find('input, button').prop('disabled', true);
+			$('form.report-form').find('input, button').prop('disabled', true);
 		});
 	</script>
 	@endif
@@ -221,6 +238,11 @@
         </tbody>
         </table>
 
+		<br/>
+		<div style="color:#888888">
+			{{ trans('texts.reports_help') }}
+		</div>
+
         </div>
         </div>
 
@@ -238,7 +260,7 @@
 
 	var sumColumns = [];
 	@foreach ($columns as $column)
-		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance']) ? trans("texts.{$column}") : false }}");
+		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost']) ? trans("texts.{$column}") : false }}");
 	@endforeach
 
     $(function() {
@@ -256,15 +278,21 @@
             } else {
                 $('#dateField').fadeOut();
             }
-			if (val == '{{ ENTITY_INVOICE }}' || val == 'invoice_details') {
+			if (val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}') {
                 $('#statusField').fadeIn();
             } else {
                 $('#statusField').fadeOut();
+            }
+            if (isStorageSupported()) {
+                localStorage.setItem('last:report_type', val);
             }
         });
 
 		$(function(){
   			$(".tablesorter-data").tablesorter({
+				@if (! request()->group_when_sorted)
+					sortList: [[0,0]],
+				@endif
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_when_sorted ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',
@@ -295,6 +323,11 @@
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme'],
 			}).show();
+
+			var lastReportType = localStorage.getItem('last:report_type');
+			if (lastReportType) {
+				$('#report_type').val(lastReportType);
+			}
 		});
     })
 

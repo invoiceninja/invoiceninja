@@ -1,7 +1,9 @@
-<?php namespace App\Models\Traits;
+<?php
+
+namespace App\Models\Traits;
 
 /**
- * Class PresentsInvoice
+ * Class PresentsInvoice.
  */
 trait PresentsInvoice
 {
@@ -9,6 +11,7 @@ trait PresentsInvoice
     {
         if ($this->invoice_fields) {
             $fields = json_decode($this->invoice_fields, true);
+
             return $this->applyLabels($fields);
         } else {
             return $this->getDefaultInvoiceFields();
@@ -93,14 +96,16 @@ trait PresentsInvoice
                 'client.client_name',
                 'client.id_number',
                 'client.vat_number',
+                'client.website',
+                'client.work_phone',
                 'client.address1',
                 'client.address2',
                 'client.city_state_postal',
                 'client.postal_city_state',
                 'client.country',
+                'client.contact_name',
                 'client.email',
                 'client.phone',
-                'client.contact_name',
                 'client.custom_value1',
                 'client.custom_value2',
                 '.blank',
@@ -120,7 +125,7 @@ trait PresentsInvoice
                 'account.custom_value1',
                 'account.custom_value2',
                 '.blank',
-            ]
+            ],
         ];
 
         return $this->applyLabels($fields);
@@ -135,6 +140,8 @@ trait PresentsInvoice
                 list($entityType, $fieldName) = explode('.', $field);
                 if (substr($fieldName, 0, 6) == 'custom') {
                     $fields[$section][$field] = $labels[$field];
+                } elseif (in_array($field, ['client.phone', 'client.email'])) {
+                    $fields[$section][$field] = trans('texts.contact_' . $fieldName);
                 } else {
                     $fields[$section][$field] = $labels[$fieldName];
                 }
@@ -143,7 +150,6 @@ trait PresentsInvoice
         }
 
         return $fields;
-
     }
 
     /**
@@ -206,11 +212,21 @@ trait PresentsInvoice
             'website',
             'phone',
             'blank',
-            'adjustment',
+            'surcharge',
             'tax_invoice',
             'tax_quote',
             'statement',
             'statement_date',
+            'your_statement',
+            'statement_issued_to',
+            'statement_to',
+            'credit_note',
+            'credit_date',
+            'credit_number',
+            'credit_issued_to',
+            'credit_to',
+            'your_credit',
+            'work_phone',
         ];
 
         foreach ($fields as $field) {
@@ -231,13 +247,11 @@ trait PresentsInvoice
             'client.custom_value1' => 'custom_client_label1',
             'client.custom_value2' => 'custom_client_label2',
             'account.custom_value1' => 'custom_label1',
-            'account.custom_value2' => 'custom_label2'
+            'account.custom_value2' => 'custom_label2',
         ] as $field => $property) {
             $data[$field] = $this->$property ?: trans('texts.custom_field');
         }
 
         return $data;
     }
-
-
 }

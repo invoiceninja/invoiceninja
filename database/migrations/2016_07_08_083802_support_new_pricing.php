@@ -1,19 +1,18 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class SupportNewPricing extends Migration
 {
     /**
-    * Run the migrations.
-    *
-    * @return void
-    */
+     * Run the migrations.
+     *
+     * @return void
+     */
     public function up()
     {
-        Schema::table('companies', function (Blueprint $table)
-        {
+        Schema::table('companies', function (Blueprint $table) {
             $table->decimal('plan_price', 7, 2)->nullable();
             $table->decimal('pending_plan_price', 7, 2)->nullable();
             $table->smallInteger('num_users')->default(1);
@@ -72,14 +71,13 @@ class SupportNewPricing extends Migration
     }
 
     /**
-    * Reverse the migrations.
-    *
-    * @return void
-    */
+     * Reverse the migrations.
+     *
+     * @return void
+     */
     public function down()
     {
-        Schema::table('companies', function (Blueprint $table)
-        {
+        Schema::table('companies', function (Blueprint $table) {
             $table->dropColumn('plan_price');
             $table->dropColumn('pending_plan_price');
             $table->dropColumn('num_users');

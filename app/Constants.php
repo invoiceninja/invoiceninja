@@ -1,7 +1,6 @@
 <?php
 
-if (!defined('APP_NAME'))
-{
+if (! defined('APP_NAME')) {
     define('APP_NAME', env('APP_NAME', 'Invoice Ninja'));
     define('CONTACT_EMAIL', env('MAIL_FROM_ADDRESS', env('MAIL_USERNAME')));
     define('CONTACT_NAME', env('MAIL_FROM_NAME'));
@@ -42,9 +41,14 @@ if (!defined('APP_NAME'))
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
 
+    define('INVOICE_ITEM_TYPE_STANDARD', 1);
+    define('INVOICE_ITEM_TYPE_TASK', 2);
+    define('INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE', 3);
+    define('INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE', 4);
+
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
-    define('PERSON_VENDOR_CONTACT','vendorcontact');
+    define('PERSON_VENDOR_CONTACT', 'vendorcontact');
 
     define('BASIC_SETTINGS', 'basic_settings');
     define('ADVANCED_SETTINGS', 'advanced_settings');
@@ -74,7 +78,7 @@ if (!defined('APP_NAME'))
     define('ACCOUNT_API_TOKENS', 'api_tokens');
     define('ACCOUNT_CUSTOMIZE_DESIGN', 'customize_design');
     define('ACCOUNT_SYSTEM_SETTINGS', 'system_settings');
-    define('ACCOUNT_PAYMENT_TERMS','payment_terms');
+    define('ACCOUNT_PAYMENT_TERMS', 'payment_terms');
 
     define('ACTION_RESTORE', 'restore');
     define('ACTION_ARCHIVE', 'archive');
@@ -129,7 +133,6 @@ if (!defined('APP_NAME'))
     define('ACTIVITY_TYPE_RESTORE_TASK', 46);
     define('ACTIVITY_TYPE_UPDATE_EXPENSE', 47);
 
-
     define('DEFAULT_INVOICE_NUMBER', '0001');
     define('RECENTLY_VIEWED_LIMIT', 20);
     define('LOGGED_ERROR_LIMIT', 100);
@@ -141,13 +144,13 @@ if (!defined('APP_NAME'))
     define('MAX_LOGO_FILE_SIZE', 200); // KB
     define('MAX_FAILED_LOGINS', 10);
     define('MAX_INVOICE_ITEMS', env('MAX_INVOICE_ITEMS', 100));
-    define('MAX_DOCUMENT_SIZE', env('MAX_DOCUMENT_SIZE', 10000));// KB
-    define('MAX_EMAIL_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 10000));// Total KB
-    define('MAX_ZIP_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 30000));// Total KB (uncompressed)
-    define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 300));// pixels
+    define('MAX_DOCUMENT_SIZE', env('MAX_DOCUMENT_SIZE', 10000)); // KB
+    define('MAX_EMAIL_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 10000)); // Total KB
+    define('MAX_ZIP_DOCUMENTS_SIZE', env('MAX_EMAIL_DOCUMENTS_SIZE', 30000)); // Total KB (uncompressed)
+    define('DOCUMENT_PREVIEW_SIZE', env('DOCUMENT_PREVIEW_SIZE', 300)); // pixels
     define('DEFAULT_FONT_SIZE', 9);
-    define('DEFAULT_HEADER_FONT', 1);// Roboto
-    define('DEFAULT_BODY_FONT', 1);// Roboto
+    define('DEFAULT_HEADER_FONT', 1); // Roboto
+    define('DEFAULT_BODY_FONT', 1); // Roboto
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
     define('IMPORT_CSV', 'CSV');
@@ -181,7 +184,8 @@ if (!defined('APP_NAME'))
     define('INVOICE_STATUS_APPROVED', 4);
     define('INVOICE_STATUS_PARTIAL', 5);
     define('INVOICE_STATUS_PAID', 6);
-    define('INVOICE_STATUS_OVERDUE', 7);
+    define('INVOICE_STATUS_OVERDUE', -1);
+    define('INVOICE_STATUS_UNPAID', -2);
 
     define('PAYMENT_STATUS_PENDING', 1);
     define('PAYMENT_STATUS_VOIDED', 2);
@@ -205,9 +209,10 @@ if (!defined('APP_NAME'))
     define('FREQUENCY_TWO_WEEKS', 2);
     define('FREQUENCY_FOUR_WEEKS', 3);
     define('FREQUENCY_MONTHLY', 4);
-    define('FREQUENCY_THREE_MONTHS', 5);
-    define('FREQUENCY_SIX_MONTHS', 6);
-    define('FREQUENCY_ANNUALLY', 7);
+    define('FREQUENCY_TWO_MONTHS', 5);
+    define('FREQUENCY_THREE_MONTHS', 6);
+    define('FREQUENCY_SIX_MONTHS', 7);
+    define('FREQUENCY_ANNUALLY', 8);
 
     define('SESSION_TIMEZONE', 'timezone');
     define('SESSION_CURRENCY', 'currency');
@@ -241,7 +246,6 @@ if (!defined('APP_NAME'))
 
     define('RESULT_SUCCESS', 'success');
     define('RESULT_FAILURE', 'failure');
-
 
     define('PAYMENT_LIBRARY_OMNIPAY', 1);
     define('PAYMENT_LIBRARY_PHP_PAYMENTS', 2);
@@ -284,15 +288,15 @@ if (!defined('APP_NAME'))
 
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
     define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
-    define('PREV_USER_ID', 'PREV_USER_ID');
     define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
+    define('NINJA_LICENSE_ACCOUNT_KEY', 'AsFmBAeLXF0IKf7tmi0eiyZfmWW9hxMT');
     define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
     define('NINJA_WEB_URL', env('NINJA_WEB_URL', 'https://www.invoiceninja.com'));
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.0.3' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.2.1' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -301,7 +305,7 @@ if (!defined('APP_NAME'))
     define('NINJA_FORUM_URL', env('NINJA_FORUM_URL', 'https://www.invoiceninja.com/forums/forum/support/'));
     define('NINJA_CONTACT_URL', env('NINJA_CONTACT_URL', 'https://www.invoiceninja.com/contact/'));
     define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
-    define('NINJA_IOS_APP_URL', 'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1072566815');
+    define('NINJA_IOS_APP_URL', 'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8');
     define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
     define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
     define('OUTDATE_BROWSER_URL', env('OUTDATE_BROWSER_URL', 'http://browsehappy.com/'));
@@ -317,9 +321,12 @@ if (!defined('APP_NAME'))
     define('FIREFOX_PDF_HELP_URL', 'https://support.mozilla.org/en-US/kb/view-pdf-files-firefox');
 
     define('MSBOT_LOGIN_URL', 'https://login.microsoftonline.com/common/oauth2/v2.0/token');
-    define('MSBOT_LUIS_URL', 'https://api.projectoxford.ai/luis/v1/application');
+    define('MSBOT_LUIS_URL', 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps');
     define('SKYPE_API_URL', 'https://apis.skype.com/v3');
     define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
+
+    define('BOT_PLATFORM_WEB_APP', 'WebApp');
+    define('BOT_PLATFORM_SKYPE', 'Skype');
 
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
 
@@ -393,6 +400,12 @@ if (!defined('APP_NAME'))
     define('REMINDER1', 'reminder1');
     define('REMINDER2', 'reminder2');
     define('REMINDER3', 'reminder3');
+
+    define('RESET_FREQUENCY_DAILY', 1);
+    define('RESET_FREQUENCY_WEEKLY', 2);
+    define('RESET_FREQUENCY_MONTHLY', 3);
+    define('RESET_FREQUENCY_QUATERLY', 4);
+    define('RESET_FREQUENCY_YEARLY', 5);
 
     define('REMINDER_DIRECTION_AFTER', 1);
     define('REMINDER_DIRECTION_BEFORE', 2);
@@ -470,7 +483,7 @@ if (!defined('APP_NAME'))
     define('FEATURE_DOCUMENTS', 'documents');
 
     // No Trial allowed
-    define('FEATURE_USERS', 'users');// Grandfathered for old Pro users
+    define('FEATURE_USERS', 'users'); // Grandfathered for old Pro users
     define('FEATURE_USER_PERMISSIONS', 'user_permissions');
 
     // Pro users who started paying on or before this date will be able to manage users
@@ -485,7 +498,7 @@ if (!defined('APP_NAME'))
     define('WEPAY_AUTO_UPDATE', env('WEPAY_AUTO_UPDATE', false));
     define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
     define('WEPAY_ENABLE_CANADA', env('WEPAY_ENABLE_CANADA', false));
-    define('WEPAY_THEME', env('WEPAY_THEME','{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
+    define('WEPAY_THEME', env('WEPAY_THEME', '{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
 
     define('SKYPE_CARD_RECEIPT', 'message/card.receipt');
     define('SKYPE_CARD_CAROUSEL', 'message/card.carousel');
@@ -515,7 +528,7 @@ if (!defined('APP_NAME'))
                 2 => ['card' => 'images/credit_cards/Test-MasterCard-Icon.png', 'text' => 'Master Card'],
                 4 => ['card' => 'images/credit_cards/Test-AmericanExpress-Icon.png', 'text' => 'American Express'],
                 8 => ['card' => 'images/credit_cards/Test-Diners-Icon.png', 'text' => 'Diners'],
-                16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover']
+                16 => ['card' => 'images/credit_cards/Test-Discover-Icon.png', 'text' => 'Discover'],
             ];
     define('CREDIT_CARDS', serialize($creditCards));
 
@@ -540,7 +553,6 @@ if (!defined('APP_NAME'))
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
-
     // TODO remove these translation functions
     function uctrans($text)
     {
@@ -557,6 +569,7 @@ if (!defined('APP_NAME'))
         } else {
             $string = trans($text);
             $english = trans($text, [], 'en');
+
             return $string != $english ? $string : '';
         }
     }
@@ -564,12 +577,12 @@ if (!defined('APP_NAME'))
     // include modules in translations
     function mtrans($entityType, $text = false)
     {
-        if ( ! $text) {
+        if (! $text) {
             $text = $entityType;
         }
 
         // check if this has been translated in a module language file
-        if ( ! Utils::isNinjaProd() && $module = Module::find($entityType)) {
+        if (! Utils::isNinjaProd() && $module = Module::find($entityType)) {
             $key = "{$module->getLowerName()}::texts.{$text}";
             $value = trans($key);
             if ($key != $value) {

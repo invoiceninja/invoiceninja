@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class DatetimeFormat
+ * Class DatetimeFormat.
  */
 class SecurityCode extends Eloquent
 {
@@ -11,5 +13,4 @@ class SecurityCode extends Eloquent
      * @var bool
      */
     public $timestamps = false;
-
 }

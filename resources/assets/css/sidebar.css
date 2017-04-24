@@ -113,9 +113,9 @@
     }
 
     #right-sidebar-wrapper .sidebar-nav li a.btn {
-        margin-top:0px;
-        margin-right:10px;
-        text-indent:0px
+        margin-top: 6px;
+        margin-right: 8px;
+        text-indent: 0px
     }
 
     #left-sidebar-wrapper ul {

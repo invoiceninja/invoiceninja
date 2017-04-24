@@ -2,4 +2,6 @@
 
 namespace App\Policies;
 
-class RecurringInvoicePolicy extends EntityPolicy {}
+class RecurringInvoicePolicy extends EntityPolicy
+{
+}

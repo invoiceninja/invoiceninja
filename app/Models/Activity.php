@@ -1,13 +1,23 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Auth;
 use Eloquent;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class Activity
+ * Class Activity.
  */
 class Activity extends Eloquent
 {
+    use PresentableTrait;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
+
     /**
      * @var bool
      */
@@ -15,6 +25,7 @@ class Activity extends Eloquent
 
     /**
      * @param $query
+     *
      * @return mixed
      */
     public function scopeScope($query)

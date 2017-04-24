@@ -2,10 +2,9 @@
 
 namespace App\Http\ViewComposers;
 
-use DB;
-use Cache;
-use Illuminate\View\View;
 use App\Models\Contact;
+use DB;
+use Illuminate\View\View;
 
 /**
  * ClientPortalHeaderComposer.php.
@@ -17,7 +16,7 @@ class ClientPortalHeaderComposer
     /**
      * Bind data to the view.
      *
-     * @param  View  $view
+     * @param View $view
      *
      * @return void
      */
@@ -25,7 +24,7 @@ class ClientPortalHeaderComposer
     {
         $contactKey = session('contact_key');
 
-        if ( ! $contactKey) {
+        if (! $contactKey) {
             return false;
         }
 
@@ -33,7 +32,7 @@ class ClientPortalHeaderComposer
                         ->with('client')
                         ->first();
 
-        if ( ! $contact || $contact->is_deleted) {
+        if (! $contact || $contact->is_deleted) {
             return false;
         }
 
