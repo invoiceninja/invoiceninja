@@ -8,7 +8,6 @@ use App\Models\Invitation;
 use App\Models\Invoice;
 use App\Models\Payment;
 use App\Services\TemplateService;
-use Auth;
 use Event;
 use Utils;
 
@@ -139,14 +138,10 @@ class ContactMailer extends Mailer
     ) {
         $client = $invoice->client;
         $account = $invoice->account;
+        $user = $invitation->user;
 
-        if (Auth::check()) {
-            $user = Auth::user();
-        } else {
-            $user = $invitation->user;
-            if ($invitation->user->trashed()) {
-                $user = $account->users()->orderBy('id')->first();
-            }
+        if ($user->trashed()) {
+            $user = $account->users()->orderBy('id')->first();
         }
 
         if (! $user->email || ! $user->registered) {
