@@ -76,5 +76,7 @@ class ImportData extends Job implements ShouldQueue
         $subject = trans('texts.import_complete');
         $message = $importService->presentResults($results, $includeSettings);
         $userMailer->sendMessage($this->user, $subject, $message);
+
+        Auth::logout();
     }
 }
