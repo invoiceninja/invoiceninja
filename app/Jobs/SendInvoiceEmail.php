@@ -9,6 +9,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Monolog\Logger;
 use Auth;
+use App;
 
 /**
  * Class SendInvoiceEmail.
@@ -61,13 +62,13 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     public function handle(ContactMailer $mailer)
     {
         // send email as user
-        if ($this->userId) {
+        if (App::runningInConsole() && $this->userId) {
             Auth::loginUsingId($this->userId);
         }
 
         $mailer->sendInvoice($this->invoice, $this->reminder, $this->template);
 
-        if ($this->userId) {
+        if (App::runningInConsole() && $this->userId) {
             Auth::logout();
         }
     }
