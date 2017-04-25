@@ -161,6 +161,7 @@ class Account extends Eloquent
         'payment_type_id',
         'gateway_fee_enabled',
         'reset_counter_date',
+        'domain_id',
     ];
 
     /**
