@@ -163,6 +163,7 @@ class Account extends Eloquent
         'reset_counter_date',
         'custom_contact_label1',
         'custom_contact_label2',
+        'domain_id',
     ];
 
     /**
