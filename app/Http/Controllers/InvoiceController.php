@@ -405,7 +405,8 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $this->dispatch(new SendInvoiceEmail($invoice, $reminder, $template));
+            $userId = Auth::user()->id;
+            $this->dispatch(new SendInvoiceEmail($invoice, $userId, $reminder, $template));
             $response = true;
         }
 
@@ -437,7 +438,8 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            $this->dispatch(new SendInvoiceEmail($invoice));
+            $userId = Auth::user()->id;
+            $this->dispatch(new SendInvoiceEmail($invoice, $userId));
             return true;
         }
     }
