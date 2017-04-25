@@ -17,5 +17,7 @@
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    RewriteBase /
+    # In case of running InvoiceNinja in a Subdomain like invoiceninja.example.com,
+    # you have to enable the following line:
+    # RewriteBase /
 </IfModule>
