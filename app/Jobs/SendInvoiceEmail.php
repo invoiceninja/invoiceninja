@@ -63,7 +63,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     {
         // send email as user
         if (App::runningInConsole() && $this->userId) {
-            Auth::loginUsingId($this->userId);
+            Auth::onceUsingId($this->userId);
         }
 
         $mailer->sendInvoice($this->invoice, $this->reminder, $this->template);

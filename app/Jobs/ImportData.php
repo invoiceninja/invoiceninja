@@ -55,8 +55,10 @@ class ImportData extends Job implements ShouldQueue
     {
         $includeSettings = false;
 
-        Auth::onceUsingId($this->user->id);
-        $this->user->account->loadLocalizationSettings();
+        if (App::runningInConsole()) {
+            Auth::onceUsingId($this->user->id);
+            $this->user->account->loadLocalizationSettings();
+        }
 
         if ($this->type === IMPORT_JSON) {
             $includeData = $this->settings['include_data'];
@@ -78,6 +80,8 @@ class ImportData extends Job implements ShouldQueue
         $message = $importService->presentResults($results, $includeSettings);
         $userMailer->sendMessage($this->user, $subject, $message);
 
-        Auth::logout();
+        if (App::runningInConsole()) {
+            Auth::logout();
+        }
     }
 }
