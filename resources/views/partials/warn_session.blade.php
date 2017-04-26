@@ -6,11 +6,12 @@
     var redirectTimer = null;
     function startWarnSessionTimeout() {
         var oneMinute = 1000 * 60;
-        var twoMinutes = oneMinute * 2;
-        var twoHours = oneMinute * 120;
+        var threeMinutes = oneMinute * 3;
+        var waitTime = oneMinute * 60 * 4; // 4 hours
+
         setTimeout(function() {
             warnSessionExpring();
-        }, (twoHours - twoMinutes));
+        }, (waitTime - threeMinutes));
     }
 
     function warnSessionExpring() {
