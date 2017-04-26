@@ -378,7 +378,7 @@ class AppController extends BaseController
                                 'payments.amount',
                             ]);
         } else {
-            $data = DB::table('companies')->count();
+            $data = DB::table('users')->count();
         }
 
         return json_encode($data);
