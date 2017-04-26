@@ -80,4 +80,39 @@ class AbstractReport
 
         return $str;
     }
+
+    // convert the date format to one supported by tablesorter
+    public function convertDateFormat()
+    {
+        $account = Auth::user()->account;
+        $format = $account->getMomentDateFormat();
+        $format = strtolower($format);
+        $format = str_replace('do', '', $format);
+
+        $orignalFormat = $format;
+        $format = preg_replace("/[^mdy]/", '', $format);
+
+        $lastLetter = false;
+        $reportParts = [];
+        $phpParts = [];
+
+        foreach (str_split($format) as $letter) {
+            if ($lastLetter && $letter == $lastLetter) {
+                continue;
+            }
+            $lastLetter = $letter;
+            if ($letter == 'm') {
+                $reportParts[] = 'mm';
+                $phpParts[] = 'm';
+            } elseif ($letter == 'd') {
+                $reportParts[] = 'dd';
+                $phpParts[] = 'd';
+            } elseif ($letter == 'y') {
+                $reportParts[] = 'yyyy';
+                $phpParts[] = 'Y';
+            }
+        }
+
+        return join('', $reportParts);
+    }
 }
