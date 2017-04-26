@@ -746,6 +746,7 @@ NINJA.accountAddress = function(invoice) {
 NINJA.renderInvoiceField = function(invoice, field) {
 
     var account = invoice.account;
+    var client = invoice.client;
 
     if (field == 'invoice.invoice_number') {
         if (invoice.is_statement) {
@@ -810,6 +811,15 @@ NINJA.renderInvoiceField = function(invoice, field) {
             return [
                 {text: invoiceLabels.invoice_total, style: ['invoiceTotalLabel']},
                 {text: formatMoneyInvoice(invoice.amount, invoice), style: ['invoiceTotal']}
+            ];
+        }
+    } else if (field == 'invoice.outstanding') {
+        if (invoice.is_statement || invoice.is_quote) {
+            return false;
+        } else {
+            return [
+                {text: invoiceLabels.outstanding, style: ['invoiceOutstandingLabel']},
+                {text: formatMoneyInvoice(client.balance, invoice), style: ['outstanding']}
             ];
         }
     } else if (field == '.blank') {
