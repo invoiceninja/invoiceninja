@@ -291,7 +291,7 @@
 		// parse 1,000.00 or 1.000,00
 		function convertStringToNumber(str) {
 			str = str + '' || '';
-			var number = Number(str.replace(/[^0-9]+/g,""));
+			var number = Number(str.replace(/[^0-9]+/g, ''));
 			return number / 100;
 		}
 
