@@ -2488,6 +2488,7 @@ $LANG = array(
     'invoice_variables' => 'Invoice Variables',
     'navigation_variables' => 'Navigation Variables',
     'custom_variables' => 'Custom Variables',
+    'invalid_file' => 'Invalid file type',
 
 );
 

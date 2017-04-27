@@ -40,10 +40,6 @@
         <div id="jsonIncludes" style="display:none">
             {!! Former::checkboxes('json_include_radio')
                     ->label(trans('texts.include'))
-                    //->check([
-                    //    'data' => true,
-                    //    'settings' => true
-                    //])
                     ->checkboxes([
                         trans('texts.data') => 'data',
                         trans('texts.settings') => 'settings',

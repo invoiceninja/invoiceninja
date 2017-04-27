@@ -37,8 +37,18 @@ class ImportController extends BaseController
                 $destinationPath = storage_path() . '/import';
                 $extension = $file->getClientOriginalExtension();
 
-                if (! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
-                    continue;
+                if ($source === IMPORT_CSV) {
+                    if ($extension != 'csv') {
+                        return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
+                    }
+                } elseif ($source === IMPORT_JSON) {
+                    if ($extension != 'json') {
+                        return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
+                    }
+                } else {
+                    if (! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
+                        return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
+                    }
                 }
 
                 $newFileName = sprintf('%s_%s_%s.%s', Auth::user()->account_id, $timestamp, $fileName, $extension);
