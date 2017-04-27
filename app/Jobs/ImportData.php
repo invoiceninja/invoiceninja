@@ -10,6 +10,7 @@ use App\Services\ImportService;
 use App\Ninja\Mailers\UserMailer;
 use App\Models\User;
 use Auth;
+use App;
 
 /**
  * Class SendInvoiceEmail.
