@@ -1240,4 +1240,13 @@ class Utils
     {
         return strlen($string) > $length ? rtrim(substr($string, 0, $length)) . '...' : $string;
     }
+
+    // http://stackoverflow.com/a/14238078/497368
+    public static function isInterlaced($filename)
+    {
+       $handle = fopen($filename, 'r');
+       $contents = fread($handle, 32);
+       fclose($handle);
+       return( ord($contents[28]) != 0 );
+    }    
 }
