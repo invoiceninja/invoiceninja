@@ -9,6 +9,7 @@ use Monolog\Logger;
 use App\Services\ImportService;
 use App\Ninja\Mailers\UserMailer;
 use Auth;
+use App;
 
 /**
  * Class SendInvoiceEmail.
