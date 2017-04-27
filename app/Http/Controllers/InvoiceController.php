@@ -314,7 +314,7 @@ class InvoiceController extends BaseController
             'recurringHelp' => $recurringHelp,
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
-            'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
+            'tasks' => Session::get('tasks') ? Session::get('tasks') : null,
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
             'expenses' => Session::get('expenses') ? Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get() : [],
         ];
