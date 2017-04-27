@@ -45,6 +45,14 @@ class AddCustomContactFields extends Migration
             $table->string('transaction_reference')->nullable();
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
         });
+
+        // remove duplicate annual frequency
+        if (DB::table('frequencies')->count() == 9) {
+            DB::statement('update invoices set frequency_id = 8 where is_recurring = 1 and frequency_id = 9');
+            DB::statement('update accounts set reset_counter_frequency_id = 8 where reset_counter_frequency_id = 9');
+            DB::statement('update frequencies set name = "Annually" where id = 8');
+            DB::statement('delete from frequencies where id = 9');
+        }
     }
 
     /**
