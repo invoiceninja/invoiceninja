@@ -46,6 +46,8 @@ class ProjectApiController extends BaseAPIController
 
     public function __construct(ProjectRepository $projectRepo, ProjectService $projectService)
     {
+        parent::__construct();
+
         $this->projectRepo = $projectRepo;
         $this->projectService = $projectService;
     }
@@ -67,7 +69,7 @@ class ProjectApiController extends BaseAPIController
      *   )
      * )
      */
-    
+
     public function index()
     {
         $projects = Project::scope()
@@ -101,12 +103,12 @@ class ProjectApiController extends BaseAPIController
      *   )
      * )
      */
-    
+
     public function show(ProjectRequest $request)
     {
         return $this->itemResponse($request->entity());
     }
-    
+
     /**
      * @SWG\Post(
      *   path="/projects",
@@ -129,15 +131,15 @@ class ProjectApiController extends BaseAPIController
      *   )
      * )
      */
-    
+
     public function store(CreateProjectRequest $request)
     {
         $project = $this->projectService->save($request->input());
 
         return $this->itemResponse($project);
     }
-    
-    
+
+
     /**
      * @SWG\Put(
      *   path="/projects/{project_id}",
@@ -168,7 +170,7 @@ class ProjectApiController extends BaseAPIController
      *
      * @param mixed $publicId
      */
-    
+
     public function update(UpdateProjectRequest $request, $publicId)
     {
         if ($request->action) {
@@ -205,7 +207,7 @@ class ProjectApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
-     * 
+     *
      */
 
      public function destroy(UpdateProjectRequest $request)
