@@ -39,7 +39,7 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 * Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Supports 50+ payment gateways with [Omnipay](https://github.com/thephpleague/omnipay)
-* Integrate with hundreds of apps with [Zapier](https://zapier.com/zapbook/invoice-ninja/)
+* Integrate with hundreds of apps with [Zapier](https://zapier.com/zapbook/invoice-ninja/) and [Integromat] (https://www.integromat.com/en/integrations/invoiceninja)
 * Recurring invoices with auto-billing
 * Expenses and vendors
 * Import bank statements with [OFX](http://www.ofxhome.com/)
@@ -63,6 +63,7 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 ## Development
 * [API Documentation](https://www.invoiceninja.com/api-documentation/)
 * [PHP SDK](https://github.com/invoiceninja/sdk-php)
+* [Zend Framework](https://github.com/alexz707/InvoiceNinjaModule)
 * [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
 
 ## Contributing
@@ -80,6 +81,7 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Joshua Dwire](https://github.com/joshuadwire) - [Some Techie](https://www.sometechie.com)
 * [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
 * [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
+* [Alexander Zamponi](https://github.com/alexz707)
 
 ## License
 Invoice Ninja is released under the Attribution Assurance License.  

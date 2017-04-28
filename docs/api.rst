@@ -6,7 +6,9 @@ Invoice Ninja provides a REST based API, `click here <https://app.invoiceninja.c
 To access the API you first need to create a token using the "Tokens” page under "Advanced Settings”.
 
 - **Zapier** [hosted or self-host]: https://zapier.com/zapbook/invoice-ninja/
+- **Integromat**: https://www.integromat.com/en/integrations/invoiceninja
 - **PHP SDK**: https://github.com/invoiceninja/sdk-php
+- **Zend Framework**: https://github.com/alexz707
 
 .. NOTE:: Replace ninja.dev with https://app.invoiceninja.com to access a hosted account.
 
