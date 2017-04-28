@@ -50,6 +50,7 @@ class Expense extends EntityModel
         'payment_date',
         'payment_type_id',
         'transaction_reference',
+        'invoice_documents',
     ];
 
     public static function getImportColumns()

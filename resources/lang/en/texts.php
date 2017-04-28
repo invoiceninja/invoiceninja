@@ -2481,7 +2481,7 @@ $LANG = array(
     'custom_contact_fields_help' => 'Add a field when creating a contact and display the label and value on the PDF.',
     'datatable_info' => 'Showing :start to :end of :total entries',
     'credit_total' => 'Credit Total',
-    'mark_billable' => 'Mark Billable',
+    'mark_billable' => 'Mark billable',
     'billed' => 'Billed',
     'company_variables' => 'Company Variables',
     'client_variables' => 'Client Variables',
@@ -2489,6 +2489,8 @@ $LANG = array(
     'navigation_variables' => 'Navigation Variables',
     'custom_variables' => 'Custom Variables',
     'invalid_file' => 'Invalid file type',
+    'add_documents_to_invoice' => 'Add documents to invoice',
+    'mark_expense_paid' => 'Mark paid',
 
 );
 

@@ -1406,6 +1406,22 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return int
+     */
+    public function countDocuments()
+    {
+        $count = count($this->documents);
+
+        foreach ($this->expenses as $expense) {
+            if ($expense->invoice_documents) {
+                $count += count($expense->documents);
+            }
+        }
+
+        return $count;
+    }
+
+    /**
      * @return bool
      */
     public function hasDocuments()
@@ -1423,7 +1439,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function hasExpenseDocuments()
     {
         foreach ($this->expenses as $expense) {
-            if (count($expense->documents)) {
+            if ($expense->invoice_documents && count($expense->documents)) {
                 return true;
             }
         }

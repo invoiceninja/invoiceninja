@@ -44,6 +44,7 @@ class AddCustomContactFields extends Migration
             $table->date('payment_date')->nullable();
             $table->string('transaction_reference')->nullable();
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
+            $table->boolean('invoice_documents')->default(true);
         });
 
         // remove duplicate annual frequency
@@ -76,6 +77,7 @@ class AddCustomContactFields extends Migration
             $table->dropColumn('payment_type_id');
             $table->dropColumn('payment_date');
             $table->dropColumn('transaction_reference');
+            $table->dropColumn('invoice_documents');
         });
     }
 }

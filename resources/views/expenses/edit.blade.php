@@ -89,7 +89,7 @@
                         @if (! $expense || ! $expense->isPaid())
                             {!! Former::checkbox('mark_paid')
                                     ->data_bind('checked: mark_paid')
-                                    ->text(trans('texts.mark_paid'))
+                                    ->text(trans('texts.mark_expense_paid'))
                                     ->label(' ')
                                     ->value(1) !!}
                         @endif
@@ -179,6 +179,15 @@
                                 </div>
                             </div>
                         </div>
+                    @endif
+
+                    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                        {!! Former::checkbox('invoice_documents')
+                                ->text(trans('texts.add_documents_to_invoice'))
+                                ->onchange('onInvoiceDocumentsChange()')
+                                ->data_bind('checked: invoice_documents')
+                                ->label(' ')
+                                ->value(1) !!}
                     @endif
 
 	            </div>
@@ -452,6 +461,12 @@
             self.convert_currency = ko.observable({{ ($expense && $expense->isExchanged()) ? 'true' : 'false' }});
             self.apply_taxes = ko.observable({{ ($expense && ($expense->tax_name1 || $expense->tax_name2)) ? 'true' : 'false' }});
 
+            var invoiceDocuments = false;
+            if (isStorageSupported()) {
+                invoiceDocuments = localStorage.getItem('last:invoice_documents');
+            }
+            self.invoice_documents = ko.observable({{ $expense ? $expense->invoice_documents : 'invoiceDocuments' }});
+
             self.mapping = {
                 'documents': {
                     create: function(options) {
@@ -608,6 +623,14 @@
                 var option = new Option(taxName + ': ' + taxRate + '%', '');
                 option.selected = true;
                 $select.append(option);
+            }
+        }
+
+        function onInvoiceDocumentsChange()
+        {
+            if (isStorageSupported()) {
+                var checked = $('#invoice_documents').is(':checked');
+                localStorage.setItem('last:invoice_documents', checked || '');
             }
         }
 
