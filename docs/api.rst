@@ -8,7 +8,7 @@ To access the API you first need to create a token using the "Tokens” page und
 - **Zapier** [hosted or self-host]: https://zapier.com/zapbook/invoice-ninja/
 - **Integromat**: https://www.integromat.com/en/integrations/invoiceninja
 - **PHP SDK**: https://github.com/invoiceninja/sdk-php
-- **Zend Framework**: https://github.com/alexz707
+- **Zend Framework**: https://github.com/alexz707/InvoiceNinjaModule
 
 .. NOTE:: Replace ninja.dev with https://app.invoiceninja.com to access a hosted account.
 
