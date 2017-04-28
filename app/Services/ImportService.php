@@ -148,7 +148,7 @@ class ImportService
     public function importJSON($file, $includeData, $includeSettings)
     {
         $this->initMaps();
-        $fileName = storage_path() . '/import/' . $file;
+        $fileName = $this->getFullPath($file);
         $this->checkForFile($fileName);
         $file = file_get_contents($fileName);
         $json = json_decode($file, true);
@@ -287,7 +287,7 @@ class ImportService
 
         // Convert the data
         $row_list = [];
-        $fileName = storage_path() . '/import/' . $file;
+        $fileName = $this->getFullPath($file);
         $this->checkForFile($fileName);
 
         Excel::load($fileName, function ($reader) use ($source, $entityType, &$row_list, &$results) {
@@ -590,7 +590,7 @@ class ImportService
     {
         require_once app_path().'/Includes/parsecsv.lib.php';
 
-        $fileName = storage_path() . '/import/' . $fileName;
+        $fileName = $this->getFullPath($fileName);
         $this->checkForFile($fileName);
 
         $csv = new parseCSV();
@@ -726,7 +726,7 @@ class ImportService
             }
         }
 
-        @unlink(storage_path() . '/import/' . $fileName);
+        @unlink($this->getFullPath($fileName));
 
         return $results;
     }
@@ -955,5 +955,10 @@ class ImportService
         }
 
         return true;
+    }
+
+    public function getFullPath($fileName)
+    {
+        return (env('FILE_IMPORT_PATH') ?: storage_path() . '/import') . '/' . $fileName;
     }
 }
