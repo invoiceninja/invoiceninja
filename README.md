@@ -39,7 +39,7 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 * Built using Laravel 5.2
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Supports 50+ payment gateways with [Omnipay](https://github.com/thephpleague/omnipay)
-* Integrate with hundreds of apps with [Zapier](https://zapier.com/zapbook/invoice-ninja/) and [Integromat] (https://www.integromat.com/en/integrations/invoiceninja)
+* Integrate with hundreds of apps with [Zapier](https://zapier.com/zapbook/invoice-ninja/) and [Integromat](https://www.integromat.com/en/integrations/invoiceninja)
 * Recurring invoices with auto-billing
 * Expenses and vendors
 * Import bank statements with [OFX](http://www.ofxhome.com/)
