@@ -1248,5 +1248,5 @@ class Utils
        $contents = fread($handle, 32);
        fclose($handle);
        return( ord($contents[28]) != 0 );
-    }    
+    }
 }
