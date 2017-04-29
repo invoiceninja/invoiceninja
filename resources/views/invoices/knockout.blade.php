@@ -473,8 +473,9 @@ function InvoiceModel(data) {
             total = NINJA.parseFloat(total) + customValue2;
         }
 
-        var taxAmount1 = roundToTwo(total * (parseFloat(self.tax_rate1())/100));
-        var taxAmount2 = roundToTwo(total * (parseFloat(self.tax_rate2())/100));
+        var taxAmount1 = roundToTwo(total * parseFloat(self.tax_rate1()) / 100);
+        var taxAmount2 = roundToTwo(total * parseFloat(self.tax_rate2()) / 100);
+
         total = NINJA.parseFloat(total) + taxAmount1 + taxAmount2;
         total = roundToTwo(total);
 
