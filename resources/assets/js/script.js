@@ -756,8 +756,8 @@ function calculateAmounts(invoice) {
   if (invoice.tax_rate2 && parseFloat(invoice.tax_rate2)) {
     taxRate2 = parseFloat(invoice.tax_rate2);
   }
-  taxAmount1 = roundToTwo(total * (taxRate1/100));
-  taxAmount2 = roundToTwo(total * (taxRate2/100));
+  taxAmount1 = roundToTwo(total * taxRate1 / 100);
+  taxAmount2 = roundToTwo(total * taxRate2 / 100);
   total = total + taxAmount1 + taxAmount2;
 
   for (var key in taxes) {
