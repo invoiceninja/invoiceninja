@@ -54,6 +54,81 @@ class AddCustomContactFields extends Migration
             DB::statement('update frequencies set name = "Annually" where id = 8');
             DB::statement('delete from frequencies where id = 9');
         }
+
+        /*
+        Schema::create('projects', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('account_id')->index();
+            $table->unsignedInteger('client_id')->index()->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+
+            $table->string('name')->nullable();
+            $table->boolean('is_deleted')->default(false);
+
+            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
+
+            $table->unsignedInteger('public_id')->index();
+            $table->unique(['account_id', 'public_id']);
+        });
+        */
+
+        Schema::create('db_servers', function ($table) {
+            $table->increments('id');
+            $table->string('name');
+        });
+
+        Schema::create('lookup_companies', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('db_server_id');
+
+            $table->foreign('db_server_id')->references('id')->on('db_servers');
+        });
+
+        Schema::create('lookup_accounts', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('lookup_company_id')->index();
+            $table->string('account_key');
+
+            $table->foreign('lookup_company_id')->references('id')->on('lookup_companies')->onDelete('cascade');
+        });
+
+        Schema::create('lookup_users', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('lookup_account_id')->index();
+            $table->string('email');
+
+            $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
+        });
+
+        Schema::create('lookup_contacts', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('lookup_account_id')->index();
+            $table->string('contact_key');
+
+            $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
+        });
+
+        Schema::create('lookup_invitations', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('lookup_account_id')->index();
+            $table->string('invitation_key');
+            $table->string('message_id');
+
+            $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
+        });
+
+        Schema::create('lookup_tokens', function ($table) {
+            $table->increments('id');
+            $table->unsignedInteger('lookup_account_id')->index();
+            $table->string('token');
+
+            $table->foreign('lookup_account_id')->references('id')->on('lookup_accounts')->onDelete('cascade');
+        });
+
     }
 
     /**
@@ -79,5 +154,13 @@ class AddCustomContactFields extends Migration
             $table->dropColumn('transaction_reference');
             $table->dropColumn('invoice_documents');
         });
+
+        Schema::dropIfExists('db_servers');
+        Schema::dropIfExists('lookup_companies');
+        Schema::dropIfExists('lookup_accounts');
+        Schema::dropIfExists('lookup_users');
+        Schema::dropIfExists('lookup_contacts');
+        Schema::dropIfExists('lookup_invitations');
+        Schema::dropIfExists('lookup_tokens');
     }
 }
