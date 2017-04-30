@@ -19,7 +19,7 @@ class InitLookup extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:init-lookup';
+    protected $signature = 'ninja:init-lookup {--truncate=} {--company_id=}';
 
     /**
      * The console command description.
@@ -45,50 +45,104 @@ class InitLookup extends Command
      */
     public function handle()
     {
-        $this->info(date('Y-m-d') . ' Running InitLookup...');
+        $this->info(date('Y-m-d h:i:s') . ' Running InitLookup...');
 
-        config(['database.default' => DB_NINJA_0]);
+        config(['database.default' => DB_NINJA_LOOKUP]);
 
         if (DbServer::count()) {
-            //exit('db_server record exists!');
+            $dbServer = DbServer::first();
+        } else {
+            $dbServer = DbServer::create(['name' => DB_NINJA_1]);
         }
 
-        $dbServer = DbServer::create(['name' => DB_NINJA_1]);
-        $count = DB::table('companies')->count();
-
-        for ($i=0; $i<$count; $i += 100) {
-            $this->initCompanies($offset);
+        if ($this->option('truncate')) {
+            $this->truncateTables();
         }
-    }
-
-    private function initCompanies($offset = 0)
-    {
-        $this->info(date('Y-m-d') . ' initCompanies - offset: ' . $offset);
 
         config(['database.default' => DB_NINJA_1]);
 
-        $companies = DB::table('companies')->orderBy('id')->get(['id']);
+        $count = DB::table('companies')
+                    ->where('id', '>=', $this->option('company_id') ?: 1)
+                    ->count();
 
-        foreach ($companies as $company) {
-            $this->parseCompany($dbServer->id, $company->id);
+        for ($i=0; $i<$count; $i += 100) {
+            $this->initCompanies($dbServer->id, $i);
         }
     }
 
-    private function parseCompany($dbServerId, $companyId)
+    private function initCompanies($dbServerId, $offset = 0)
+    {
+        $this->info(date('Y-m-d h:i:s') . ' initCompanies - offset: ' . $offset);
+        $data = [];
+
+        config(['database.default' => DB_NINJA_1]);
+
+        $companies = DB::table('companies')
+                        ->offset($offset)
+                        ->limit(100)
+                        ->orderBy('id')
+                        ->where('id', '>=', $this->option('company_id') ?: 1)
+                        ->get(['id']);
+        foreach ($companies as $company) {
+            $data[$company->id] = $this->parseCompany($company->id);
+        }
+
+        config(['database.default' => DB_NINJA_LOOKUP]);
+
+        foreach ($data as $companyId => $company) {
+            $this->info(date('Y-m-d h:i:s') . ' company: ' . $companyId);
+
+            $lookupCompany = LookupCompany::create([
+                'db_server_id' => $dbServerId,
+                'company_id' => $companyId,
+            ]);
+
+            foreach ($company as $accountKey => $account) {
+                $lookupAccount = LookupAccount::create([
+                    'lookup_company_id' => $lookupCompany->id,
+                    'account_key' => $accountKey
+                ]);
+                foreach ($account['users'] as $user) {
+                    LookupUser::create([
+                        'lookup_account_id' => $lookupAccount->id,
+                        'email' => $user['email'],
+                    ]);
+                }
+                foreach ($account['contacts'] as $contact) {
+                    LookupContact::create([
+                        'lookup_account_id' => $lookupAccount->id,
+                        'contact_key' => $contact['contact_key'],
+                    ]);
+                }
+                foreach ($account['invitations'] as $invitation) {
+                    LookupInvitation::create([
+                        'lookup_account_id' => $lookupAccount->id,
+                        'invitation_key' => $invitation['invitation_key'],
+                        'message_id' => $invitation['message_id'] ?: null,
+                    ]);
+                }
+                foreach ($account['tokens'] as $token) {
+                    LookupToken::create([
+                        'lookup_account_id' => $lookupAccount->id,
+                        'token' => $token['token'],
+                    ]);
+                }
+            }
+        }
+    }
+
+    private function parseCompany($companyId)
     {
         $data = [];
 
         config(['database.default' => DB_NINJA_1]);
 
-        $accounts = DB::table('accounts')->whereCompanyId($companyId)->orderBy('id')->get(['id']);
+        $accounts = DB::table('accounts')->whereCompanyId($companyId)->orderBy('id')->get(['id', 'account_key']);
         foreach ($accounts as $account) {
-            $data[$account->id] = $this->parseAccount($account->id);
+            $data[$account->account_key] = $this->parseAccount($account->id);
         }
 
-        print_r($data);exit;
-        config(['database.default' => DB_NINJA_0]);
-        ///$lookupCompany = LookupCompany::create(['db_server_id' => $dbServerId]);
-
+        return $data;
     }
 
     private function parseAccount($accountId)
@@ -122,4 +176,25 @@ class InitLookup extends Command
 
         return $data;
     }
+
+    private function truncateTables()
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
+        DB::statement('truncate lookup_companies');
+        DB::statement('truncate lookup_accounts');
+        DB::statement('truncate lookup_users');
+        DB::statement('truncate lookup_contacts');
+        DB::statement('truncate lookup_invitations');
+        DB::statement('truncate lookup_tokens');
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
+    }
+
+    protected function getOptions()
+    {
+        return [
+            ['truncate', null, InputOption::VALUE_OPTIONAL, 'Truncate', null],
+            ['company_id', null, InputOption::VALUE_OPTIONAL, 'Company Id', null],
+        ];
+    }
+
 }

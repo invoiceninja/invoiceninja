@@ -335,7 +335,7 @@ if (! defined('APP_NAME')) {
 
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
 
-    define('DB_NINJA_0', 'db-ninja-0');
+    define('DB_NINJA_LOOKUP', 'db-ninja-0');
     define('DB_NINJA_1', 'db-ninja-1');
     define('DB_NINJA_2', 'db-ninja-2');
 

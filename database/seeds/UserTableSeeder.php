@@ -85,6 +85,7 @@ class UserTableSeeder extends Seeder
             'email' => env('TEST_EMAIL', TEST_USERNAME),
             'is_primary' => true,
             'send_invoice' => true,
+            'contact_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
         ]);
 
         Product::create([

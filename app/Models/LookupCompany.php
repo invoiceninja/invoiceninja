@@ -19,6 +19,7 @@ class LookupCompany extends Eloquent
      */
     protected $fillable = [
         'db_server_id',
+        'company_id',
     ];
 
 }
