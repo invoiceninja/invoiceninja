@@ -28,7 +28,7 @@ class AppServiceProvider extends ServiceProvider
                 $contents = $image;
             }
 
-            return 'data:image/jpeg;base64,' . base64_encode($contents);
+            return $contents ? 'data:image/jpeg;base64,' . base64_encode($contents) : '';
         });
 
         Form::macro('nav_link', function ($url, $text) {

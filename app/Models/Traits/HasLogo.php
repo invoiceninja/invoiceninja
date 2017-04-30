@@ -58,6 +58,10 @@ trait HasLogo
 
         $disk = $this->getLogoDisk();
 
+        if (! $disk->exists($this->logo)) {
+            return null;
+        }
+
         return $disk->get($this->logo);
     }
 
