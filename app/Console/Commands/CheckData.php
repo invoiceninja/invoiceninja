@@ -10,6 +10,7 @@ use Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 use App\Models\Contact;
+use App\Models\Invitation;
 
 /*
 
@@ -64,14 +65,15 @@ class CheckData extends Command
         $this->logMessage(date('Y-m-d') . ' Running CheckData...');
 
         if (! $this->option('client_id')) {
-            $this->checkPaidToDate();
             $this->checkBlankInvoiceHistory();
+            $this->checkPaidToDate();
         }
 
         $this->checkBalances();
         $this->checkContacts();
 
         if (! $this->option('client_id')) {
+            $this->checkInvitations();
             $this->checkFailedJobs();
             $this->checkAccountData();
         }
@@ -177,6 +179,34 @@ class CheckData extends Command
         }
 
         $this->logMessage($count . ' activities with blank invoice backup');
+    }
+
+    private function checkInvitations()
+    {
+        $invoices = DB::table('invoices')
+                    ->leftJoin('invitations', 'invitations.invoice_id', '=', 'invoices.id')
+                    ->groupBy('invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id')
+                    ->havingRaw('count(invitations.id) = 0')
+                    ->get(['invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id']);
+
+        $this->logMessage(count($invoices) . ' invoices without any invitations');
+
+        if (count($invoices) > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($invoices as $invoice) {
+                $invitation = new Invitation();
+                $invitation->account_id = $invoice->account_id;
+                $invitation->user_id = $invoice->user_id;
+                $invitation->invoice_id = $invoice->id;
+                $invitation->contact_id = Contact::whereClientId($invoice->client_id)->whereIsPrimary(true)->first()->id;
+                $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $invitation->public_id = Invitation::whereAccountId($invoice->account_id)->withTrashed()->max('public_id') + 1;
+                $invitation->save();
+            }
+        }
     }
 
     private function checkAccountData()
