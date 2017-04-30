@@ -248,6 +248,7 @@ class CheckData extends Command
             ],
             'products' => [
                 ENTITY_USER,
+                ENTITY_TAX_RATE,
             ],
             'vendors' => [
                 ENTITY_USER,
@@ -262,14 +263,28 @@ class CheckData extends Command
                 ENTITY_USER,
                 ENTITY_CLIENT,
             ],
+            'accounts' => [
+                ENTITY_TAX_RATE,
+            ]
         ];
 
         foreach ($tables as $table => $entityTypes) {
             foreach ($entityTypes as $entityType) {
                 $tableName = Utils::pluralizeEntityType($entityType);
+                if ($entityType == ENTITY_TAX_RATE) {
+                    $field = 'default_' . $entityType;
+                } else {
+                    $field = $entityType;
+                }
+                if ($table == 'accounts') {
+                    $accountId = 'id';
+                } else {
+                    $accountId = 'account_id';
+                }
+
                 $records = DB::table($table)
-                                ->join($tableName, "{$tableName}.id", '=', "{$table}.{$entityType}_id")
-                                ->where("{$table}.account_id", '!=', DB::raw("{$tableName}.account_id"))
+                                ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
+                                ->where("{$table}.{$accountId}", '!=', DB::raw("{$tableName}.account_id"))
                                 ->get(["{$table}.id"]);
 
                 if (count($records)) {
