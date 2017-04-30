@@ -55,27 +55,6 @@ class AddCustomContactFields extends Migration
             DB::statement('delete from frequencies where id = 9');
         }
 
-        /*
-        Schema::create('projects', function ($table) {
-            $table->increments('id');
-            $table->unsignedInteger('user_id');
-            $table->unsignedInteger('account_id')->index();
-            $table->unsignedInteger('client_id')->index()->nullable();
-            $table->timestamps();
-            $table->softDeletes();
-
-            $table->string('name')->nullable();
-            $table->boolean('is_deleted')->default(false);
-
-            $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
-
-            $table->unsignedInteger('public_id')->index();
-            $table->unique(['account_id', 'public_id']);
-        });
-        */
-
         Schema::create('db_servers', function ($table) {
             $table->increments('id');
             $table->string('name');
