@@ -106,6 +106,7 @@ class InitLookup extends Command
                     LookupUser::create([
                         'lookup_account_id' => $lookupAccount->id,
                         'email' => $user['email'],
+                        'user_id' => $user['user_id'],
                     ]);
                 }
                 foreach ($account['contacts'] as $contact) {
@@ -154,24 +155,34 @@ class InitLookup extends Command
             'tokens' => [],
         ];
 
-        $users = DB::table('users')->whereAccountId($accountId)->orderBy('id')->get(['email']);
+        $users = DB::table('users')->whereAccountId($accountId)->orderBy('id')->get(['email', 'id']);
         foreach ($users as $user) {
-            $data['users'][] = ['email' => $user->email];
+            $data['users'][] = [
+                'email' => $user->email,
+                'user_id' => $user->id,
+            ];
         }
 
         $contacts = DB::table('contacts')->whereAccountId($accountId)->orderBy('id')->get(['contact_key']);
         foreach ($contacts as $contact) {
-            $data['contacts'][] = ['contact_key' => $contact->contact_key];
+            $data['contacts'][] = [
+                'contact_key' => $contact->contact_key,
+            ];
         }
 
         $invitations = DB::table('invitations')->whereAccountId($accountId)->orderBy('id')->get(['invitation_key', 'message_id']);
         foreach ($invitations as $invitation) {
-            $data['invitations'][] = ['invitation_key' => $invitation->invitation_key, 'message_id' => $invitation->message_id];
+            $data['invitations'][] = [
+                'invitation_key' => $invitation->invitation_key,
+                'message_id' => $invitation->message_id,
+            ];
         }
 
         $tokens = DB::table('account_tokens')->whereAccountId($accountId)->orderBy('id')->get(['token']);
         foreach ($tokens as $token) {
-            $data['tokens'][] = ['token' => $token->token];
+            $data['tokens'][] = [
+                'token' => $token->token,
+            ];
         }
 
         return $data;

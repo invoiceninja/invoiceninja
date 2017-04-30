@@ -26,6 +26,11 @@ class AddMultipleDatabaseSupport extends Migration
 
         Schema::table('lookup_users', function ($table) {
             $table->string('email')->change()->unique();
+            $table->unsignedInteger('user_id')->index();
+        });
+
+        Schema::table('lookup_users', function ($table) {
+            $table->unique(['lookup_account_id', 'user_id']);
         });
 
         Schema::table('lookup_contacts', function ($table) {
