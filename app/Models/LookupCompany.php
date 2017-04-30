@@ -17,4 +17,9 @@ class LookupCompany extends LookupModel
         'company_id',
     ];
 
+    public function dbServer()
+    {
+        return $this->belongsTo('App\Models\DbServer');
+    }
+
 }

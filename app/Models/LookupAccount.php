@@ -17,4 +17,9 @@ class LookupAccount extends LookupModel
         'account_key',
     ];
 
+    public function lookupCompany()
+    {
+        return $this->belongsTo('App\Models\LookupCompany');
+    }
+
 }

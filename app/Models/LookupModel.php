@@ -14,6 +14,10 @@ class LookupModel extends Eloquent
      */
     public $timestamps = false;
 
+    public function lookupAccount()
+    {
+        return $this->belongsTo('App\Models\LookupAccount');
+    }
 
     public static function createNew($accountKey, $data)
     {
@@ -35,5 +39,10 @@ class LookupModel extends Eloquent
         static::create($data);
 
         config(['database.default' => $current]);
+    }
+
+    public function getDbServer()
+    {
+        return $this->lookupAccount->lookupCompany->dbServer->name;
     }
 }

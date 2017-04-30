@@ -35,5 +35,6 @@ class Kernel extends HttpKernel
         'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
         'api' => 'App\Http\Middleware\ApiCheck',
         'cors' => '\Barryvdh\Cors\HandleCors',
+        'lookup' => 'App\Http\Middleware\DatabaseLookup',
     ];
 }

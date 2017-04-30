@@ -18,4 +18,20 @@ class LookupUser extends LookupModel
         'user_id',
     ];
 
+    public static function loadEmail($email)
+    {
+        if (! env('MULTI_DB_ENABLED')) {
+            return;
+        }
+
+        $current = config('database.default');
+        config(['database.default' => DB_NINJA_LOOKUP]);
+
+        if ($lookupUser = static::whereEmail($email)->first()) {
+            session(['SESSION_DB_SERVER' => $lookupUser->getDbServer()]);
+        }
+
+        config(['database.default' => $current]);
+
+    }
 }

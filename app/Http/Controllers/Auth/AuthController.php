@@ -13,6 +13,7 @@ use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
 use Session;
 use Utils;
+use App\Models\LookupUser;
 
 class AuthController extends Controller
 {
@@ -141,6 +142,8 @@ class AuthController extends Controller
      */
     public function postLoginWrapper(Request $request)
     {
+        LookupUser::loadEmail($request->input('email'));
+
         $userId = Auth::check() ? Auth::user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
 
