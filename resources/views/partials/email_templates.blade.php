@@ -15,9 +15,10 @@
 
         var keys = {
             'footer': {!! json_encode($account->getEmailFooter()) !!},
+            'emailSignature': {!! json_encode($account->getEmailFooter()) !!},
             'account': "{{ $account->getDisplayName() }}",
-            'dueDate': "{{ $account->formatDate($account->getDateTime()) }}",
-            'invoiceDate': "{{ $account->formatDate($account->getDateTime()) }}",
+            'dueDate': invoice ? invoice.due_date : "{{ $account->formatDate($account->getDateTime()) }}",
+            'invoiceDate': invoice ? invoice.invoice_date : "{{ $account->formatDate($account->getDateTime()) }}",
             'client': invoice ? getClientDisplayName(invoice.client) : "{{ trans('texts.client_name') }}",
             'amount': invoice ? formatMoneyInvoice(parseFloat(invoice.partial) || parseFloat(invoice.balance_amount), invoice) : formatMoneyAccount(100, account),
             'contact': invoice ? getContactDisplayName(invoice.client.contacts[0]) : 'Contact Name',
@@ -35,6 +36,8 @@
             'portalButton': '{!! Form::flatButton('view_portal', '#36c157') !!}',
             'customClient1': invoice ? invoice.client.custom_value1 : 'custom value',
             'customClient2': invoice ? invoice.client.custom_value2 : 'custom value',
+            'customContact1': invoice ? invoice.client.contacts[0].custom_value1 : 'custom value',
+            'customContact2': invoice ? invoice.client.contacts[0].custom_value2 : 'custom value',
             'customInvoice1': invoice ? invoice.custom_value1 : 'custom value',
             'customInvoice2': invoice ? invoice.custom_value2 : 'custom value',
         };
@@ -65,3 +68,110 @@
     }
 
 </script>
+
+<div class="modal fade" id="templateHelpModal" tabindex="-1" role="dialog" aria-labelledby="templateHelpModalLabel" aria-hidden="true" style="z-index:10001">
+    <div class="modal-dialog" style="min-width:150px">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="templateHelpModalLabel">{{ trans('texts.template_help_title') }}</h4>
+            </div>
+
+            <div class="container" style="width: 100%; padding-bottom: 0px !important">
+            <div class="panel panel-default">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p>{{ trans('texts.company_variables') }}</p>
+                        <ul>
+                            @foreach([
+                                'account',
+                                'emailSignature',
+                            ] as $field)
+                                <li>${{ $field }}</li>
+                            @endforeach
+                        </ul>
+                        <p>{{ trans('texts.client_variables') }}</p>
+                        <ul>
+                            @foreach([
+                                'client',
+                                'contact',
+                                'firstName',
+                                'password',
+                                'autoBill',
+                            ] as $field)
+                                <li>${{ $field }}</li>
+                            @endforeach
+                        </ul>
+                        <p>{{ trans('texts.invoice_variables') }}</p>
+                        <ul>
+                            @foreach([
+                                'invoice',
+                                'quote',
+                                'amount',
+                                'invoiceDate',
+                                'dueDate',
+                                'documents',
+                            ] as $field)
+                                <li>${{ $field }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <p>{{ trans('texts.navigation_variables') }}</p>
+                        <ul>
+                            @foreach([
+                                'viewLink',
+                                'viewButton',
+                                'paymentLink',
+                                'paymentButton',
+                                'portalLink',
+                                'portalButton',
+                            ] as $field)
+                                <li>${{ $field }}</li>
+                            @endforeach
+                            @foreach (\App\Models\Gateway::$gatewayTypes as $type)
+                                @if ($account->getGatewayByType($type))
+                                    @if ($type != GATEWAY_TYPE_TOKEN)
+                                        <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Link</li>
+                                        <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Button</li>
+                                    @endif
+                                @endif
+                            @endforeach
+                        </ul>
+                        @if ($account->custom_client_label1 || $account->custom_contact_label1 || $account->custom_invoice_text_label1)
+                            <p>{{ trans('texts.custom_variables') }}</p>
+                            <ul>
+                                @if ($account->custom_client_label1)
+                                    <li>$customClient1</li>
+                                @endif
+                                @if ($account->custom_client_label2)
+                                    <li>$customClient2</li>
+                                @endif
+                                @if ($account->custom_contact_label1)
+                                    <li>$customContact1</li>
+                                @endif
+                                @if ($account->custom_contact_label2)
+                                    <li>$customContact2</li>
+                                @endif
+                                @if ($account->custom_invoice_text_label1)
+                                    <li>$customInvoice1</li>
+                                @endif
+                                @if ($account->custom_invoice_text_label2)
+                                    <li>$customInvoice2</li>
+                                @endif
+                            </ul>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -13,8 +13,8 @@
 
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-    var currentInvoice = {!! $invoice !!};
-    var versionsJson = {!! $versionsJson !!};
+    var currentInvoice = {!! strip_tags(json_encode($invoice)) !!};
+    var versionsJson = {!! strip_tags($versionsJson) !!};
 
     function getPDFString(cb) {
 

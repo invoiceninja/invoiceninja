@@ -18,7 +18,6 @@ class GatewayFeesCest
 
     public function checkLineItemFee(AcceptanceTester $I)
     {
-        $clientName = $this->faker->text(14);
         $clientEmail = $this->faker->safeEmail;
         $productKey = $this->faker->word();
         $taxName = $this->faker->word();
@@ -39,7 +38,7 @@ class GatewayFeesCest
         $partialFee = $feeAmount + ($total / 2 * $feeAmount / 100);
         $partialFeeWithTax = $partialFee + ($partialFee * $taxRate / 100);
 
-        $I->createClient($I, $clientEmail, $clientName);
+        $I->createClient($I, $clientEmail);
         $I->createGateway($I);
         $this->configureFees($I, $feeAmount, $feePercent);
 
@@ -50,14 +49,20 @@ class GatewayFeesCest
 
         // without taxing the fee
         $this->configureGatewayFeeTax($I);
-        $this->createInvoice($I, $clientName, $productKey, $total, $fee);
+        $this->createInvoice($I, $clientEmail, $productKey, $total, $fee);
 
         // with taxing the fee
         $this->configureGatewayFeeTax($I, $taxName, $taxRate);
-        $this->createInvoice($I, $clientName, $productKey, $total, $feeWithTax);
+        $this->createInvoice($I, $clientEmail, $productKey, $total, $feeWithTax);
 
-        // partial invoice
-        $invitationKey = $this->createInvoice($I, $clientName, $productKey, $total, $partialFeeWithTax, $total / 2);
+        // partial invoice (resaving invoice between payments)
+        $invitationKey = $this->createInvoice($I, $clientEmail, $productKey, $total, $partialFeeWithTax, $total / 2);
+        $invoiceId = $I->grabFromDatabase('invitations', 'invoice_id', ['invitation_key' => $invitationKey]);
+        $invoicePublicId = $I->grabFromDatabase('invoices', 'public_id', ['id' => $invoiceId]);
+        $I->amOnPage('/invoices/' . $invoicePublicId . '/edit');
+        $I->wait(3);
+        $I->click('Save Invoice');
+        $I->wait(3);
         $this->createPayment($I, $invitationKey, $total + $partialFeeWithTax, 0, $partialFeeWithTax);
     }
 
@@ -118,9 +123,9 @@ class GatewayFeesCest
         $I->click('#modalSave');
     }
 
-    private function createInvoice($I, $clientName, $productKey, $amount, $fee, $partial = false)
+    private function createInvoice($I, $clientEmail, $productKey, $amount, $fee, $partial = false)
     {
-        $invoiceNumber = $I->fillInvoice($I, $clientName, $productKey);
+        $invoiceNumber = $I->fillInvoice($I, $clientEmail, $productKey);
 
         if ($partial) {
             $amount = ($partial * 2);
@@ -131,8 +136,8 @@ class GatewayFeesCest
         //$I->see($invoiceNumber);
         //$I->see('Successfully created invoice');
 
-        //$clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
-        $clientId = $I->grabFromDatabase('clients', 'id', ['name' => $clientName]);
+        $clientId = $I->grabFromDatabase('contacts', 'client_id', ['email' => $clientEmail]);
+        //$clientId = $I->grabFromDatabase('clients', 'id', ['name' => $clientEmail]);
         $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'invoice_number' => $invoiceNumber]);
         $invitationKey = $I->grabFromDatabase('invitations', 'invitation_key', ['invoice_id' => $invoiceId]);
 

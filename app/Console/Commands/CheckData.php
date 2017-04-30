@@ -9,6 +9,8 @@ use Illuminate\Console\Command;
 use Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
+use App\Models\Contact;
+use App\Models\Invitation;
 
 /*
 
@@ -63,13 +65,15 @@ class CheckData extends Command
         $this->logMessage(date('Y-m-d') . ' Running CheckData...');
 
         if (! $this->option('client_id')) {
-            $this->checkPaidToDate();
             $this->checkBlankInvoiceHistory();
+            $this->checkPaidToDate();
         }
 
         $this->checkBalances();
+        $this->checkContacts();
 
         if (! $this->option('client_id')) {
+            $this->checkInvitations();
             $this->checkFailedJobs();
             $this->checkAccountData();
         }
@@ -92,6 +96,62 @@ class CheckData extends Command
     private function logMessage($str)
     {
         $this->log .= $str . "\n";
+    }
+
+    private function checkContacts()
+    {
+        $clients = DB::table('clients')
+                    ->leftJoin('contacts', function($join) {
+                        $join->on('contacts.client_id', '=', 'clients.id')
+                            ->whereNull('contacts.deleted_at');
+                    })
+                    ->groupBy('clients.id', 'clients.user_id', 'clients.account_id')
+                    ->havingRaw('count(contacts.id) = 0');
+
+        if ($this->option('client_id')) {
+            $clients->where('clients.id', '=', $this->option('client_id'));
+        }
+
+        $clients = $clients->get(['clients.id', 'clients.user_id', 'clients.account_id']);
+        $this->logMessage(count($clients) . ' clients without any contacts');
+
+        if (count($clients) > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($clients as $client) {
+                $contact = new Contact();
+                $contact->account_id = $client->account_id;
+                $contact->user_id = $client->user_id;
+                $contact->client_id = $client->id;
+                $contact->is_primary = true;
+                $contact->send_invoice = true;
+                $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $contact->public_id = Contact::whereAccountId($client->account_id)->withTrashed()->max('public_id') + 1;
+                $contact->save();
+            }
+        }
+
+        $clients = DB::table('clients')
+                    ->leftJoin('contacts', function($join) {
+                        $join->on('contacts.client_id', '=', 'clients.id')
+                            ->where('contacts.is_primary', '=', true)
+                            ->whereNull('contacts.deleted_at');
+                    })
+                    ->groupBy('clients.id')
+                    ->havingRaw('count(contacts.id) != 1');
+
+        if ($this->option('client_id')) {
+            $clients->where('clients.id', '=', $this->option('client_id'));
+        }
+
+        $clients = $clients->get(['clients.id', DB::raw('count(contacts.id)')]);
+        $this->logMessage(count($clients) . ' clients without a single primary contact');
+
+        if (count($clients) > 0) {
+            $this->isValid = false;
+        }
     }
 
     private function checkFailedJobs()
@@ -118,6 +178,34 @@ class CheckData extends Command
         }
 
         $this->logMessage($count . ' activities with blank invoice backup');
+    }
+
+    private function checkInvitations()
+    {
+        $invoices = DB::table('invoices')
+                    ->leftJoin('invitations', 'invitations.invoice_id', '=', 'invoices.id')
+                    ->groupBy('invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id')
+                    ->havingRaw('count(invitations.id) = 0')
+                    ->get(['invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id']);
+
+        $this->logMessage(count($invoices) . ' invoices without any invitations');
+
+        if (count($invoices) > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($invoices as $invoice) {
+                $invitation = new Invitation();
+                $invitation->account_id = $invoice->account_id;
+                $invitation->user_id = $invoice->user_id;
+                $invitation->invoice_id = $invoice->id;
+                $invitation->contact_id = Contact::whereClientId($invoice->client_id)->whereIsPrimary(true)->first()->id;
+                $invitation->invitation_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+                $invitation->public_id = Invitation::whereAccountId($invoice->account_id)->withTrashed()->max('public_id') + 1;
+                $invitation->save();
+            }
+        }
     }
 
     private function checkAccountData()
@@ -159,6 +247,7 @@ class CheckData extends Command
             ],
             'products' => [
                 ENTITY_USER,
+                ENTITY_TAX_RATE,
             ],
             'vendors' => [
                 ENTITY_USER,
@@ -173,14 +262,28 @@ class CheckData extends Command
                 ENTITY_USER,
                 ENTITY_CLIENT,
             ],
+            'accounts' => [
+                ENTITY_TAX_RATE,
+            ]
         ];
 
         foreach ($tables as $table => $entityTypes) {
             foreach ($entityTypes as $entityType) {
                 $tableName = Utils::pluralizeEntityType($entityType);
+                if ($entityType == ENTITY_TAX_RATE) {
+                    $field = 'default_' . $entityType;
+                } else {
+                    $field = $entityType;
+                }
+                if ($table == 'accounts') {
+                    $accountId = 'id';
+                } else {
+                    $accountId = 'account_id';
+                }
+
                 $records = DB::table($table)
-                                ->join($tableName, "{$tableName}.id", '=', "{$table}.{$entityType}_id")
-                                ->where("{$table}.account_id", '!=', DB::raw("{$tableName}.account_id"))
+                                ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
+                                ->where("{$table}.{$accountId}", '!=', DB::raw("{$tableName}.account_id"))
                                 ->get(["{$table}.id"]);
 
                 if (count($records)) {

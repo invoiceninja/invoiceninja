@@ -213,7 +213,7 @@ class AccountTransformer extends EntityTransformer
             'num_days_reminder3' => $account->num_days_reminder3,
             'custom_invoice_text_label1' => $account->custom_invoice_text_label1,
             'custom_invoice_text_label2' => $account->custom_invoice_text_label2,
-            'default_tax_rate_id' => $account->default_tax_rate_id,
+            'default_tax_rate_id' => $account->default_tax_rate_id ? $account->default_tax_rate->public_id : 0,
             'recurring_hour' => $account->recurring_hour,
             'invoice_number_pattern' => $account->invoice_number_pattern,
             'quote_number_pattern' => $account->quote_number_pattern,
@@ -266,6 +266,8 @@ class AccountTransformer extends EntityTransformer
             'payment_type_id' => (int) $account->payment_type_id,
             'gateway_fee_enabled' => (bool) $account->gateway_fee_enabled,
             'reset_counter_date' => $account->reset_counter_date,
+            'custom_contact_label1' => $account->custom_contact_label1,
+            'custom_contact_label2' => $account->custom_contact_label2,
         ];
     }
 }

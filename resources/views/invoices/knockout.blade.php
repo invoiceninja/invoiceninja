@@ -7,7 +7,7 @@ function ViewModel(data) {
     //self.invoice = data ? false : new InvoiceModel();
     self.invoice = ko.observable(data ? false : new InvoiceModel());
     self.expense_currency_id = ko.observable();
-    self.products = {!! $products !!};
+    self.products = {!! strip_tags(json_encode($products)) !!};
 
     self.loadClient = function(client) {
         ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
@@ -28,9 +28,10 @@ function ViewModel(data) {
                 if (paymentTerms == -1) paymentTerms = 0;
                 var dueDate = $('#invoice_date').datepicker('getDate');
                 dueDate.setDate(dueDate.getDate() + paymentTerms);
-                self.invoice().due_date(dueDate);
-                // We're using the datepicker to handle the date formatting
-                self.invoice().due_date($('#due_date').val());
+                dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
+                $('#due_date').attr('placeholder', dueDate);
+            } else {
+                $('#due_date').attr('placeholder', "{{ $invoice->exists || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder() }}");
             }
         @endif
     }
@@ -173,7 +174,7 @@ function InvoiceModel(data) {
     var self = this;
     this.client = ko.observable(clientModel);
     this.is_public = ko.observable(0);
-    self.account = {!! $account !!};
+    self.account = {!! strip_tags(json_encode($account)) !!};
     self.id = ko.observable('');
     self.discount = ko.observable('');
     self.is_amount_discount = ko.observable(0);
@@ -472,8 +473,9 @@ function InvoiceModel(data) {
             total = NINJA.parseFloat(total) + customValue2;
         }
 
-        var taxAmount1 = roundToTwo(total * (parseFloat(self.tax_rate1())/100));
-        var taxAmount2 = roundToTwo(total * (parseFloat(self.tax_rate2())/100));
+        var taxAmount1 = roundToTwo(total * parseFloat(self.tax_rate1()) / 100);
+        var taxAmount2 = roundToTwo(total * parseFloat(self.tax_rate2()) / 100);
+
         total = NINJA.parseFloat(total) + taxAmount1 + taxAmount2;
         total = roundToTwo(total);
 
@@ -645,6 +647,8 @@ function ContactModel(data) {
     self.email_error = ko.observable('');
     self.invitation_signature_svg = ko.observable('');
     self.invitation_signature_date = ko.observable('');
+    self.custom_value1 = ko.observable('');
+    self.custom_value2 = ko.observable('');
 
     if (data) {
         ko.mapping.fromJS(data, {}, this);

@@ -71,7 +71,11 @@
 			{!! Former::text('transaction_reference') !!}
 
             @if (!$payment)
-                {!! Former::checkbox('email_receipt')->label('&nbsp;')->text(trans('texts.email_receipt'))->value(1) !!}
+                {!! Former::checkbox('email_receipt')
+                        ->onchange('onEmailReceiptChange()')
+                        ->label('&nbsp;')
+                        ->text(trans('texts.email_receipt'))
+                        ->value(1) !!}
             @endif
 
             </div>
@@ -102,8 +106,8 @@
 
 	<script type="text/javascript">
 
-	var invoices = {!! $invoices !!};
-	var clients = {!! $clients !!};
+	var invoices = {!! strip_tags(json_encode($invoices)) !!};
+	var clients = {!! strip_tags(json_encode($clients)) !!};
 
 	$(function() {
 
@@ -130,6 +134,12 @@
         $('.payment_date .input-group-addon').click(function() {
             toggleDatePicker('payment_date');
         });
+
+        if (isStorageSupported()) {
+            if (localStorage.getItem('last:send_email_receipt')) {
+                $('#email_receipt').prop('checked', true);
+            }
+        }
 	});
 
     function onFormSubmit(event) {
@@ -149,6 +159,14 @@
         sweetConfirm(function() {
             submitAction('delete');
         });
+    }
+
+    function onEmailReceiptChange() {
+        if (! isStorageSupported()) {
+            return;
+        }
+        var checked = $('#email_receipt').is(':checked');
+        localStorage.setItem('last:send_email_receipt', checked ? true : '');
     }
 
 	</script>

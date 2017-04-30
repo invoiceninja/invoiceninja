@@ -6,7 +6,9 @@ Invoice Ninja provides a REST based API, `click here <https://app.invoiceninja.c
 To access the API you first need to create a token using the "Tokens” page under "Advanced Settings”.
 
 - **Zapier** [hosted or self-host]: https://zapier.com/zapbook/invoice-ninja/
+- **Integromat**: https://www.integromat.com/en/integrations/invoiceninja
 - **PHP SDK**: https://github.com/invoiceninja/sdk-php
+- **Zend Framework**: https://github.com/alexz707/InvoiceNinjaModule
 
 .. NOTE:: Replace ninja.dev with https://app.invoiceninja.com to access a hosted account.
 
@@ -73,7 +75,7 @@ Here’s an example of creating a client. Note that email address is a property 
 .. code-block:: shell
 
   curl -X POST ninja.dev/api/v1/clients -H "Content-Type:application/json"
-    -d '{"name":"Client","contact":{"email":"test@gmail.com"}}' -H "X-Ninja-Token: TOKEN"
+    -d '{"name":"Client","contact":{"email":"test@example.com"}}' -H "X-Ninja-Token: TOKEN"
 
 You can also update a client by specifying a value for ‘id’. Next, here’s an example of creating an invoice.
 
@@ -87,9 +89,23 @@ If the product_key is set and matches an existing record the product fields will
 
 Options
 ^^^^^^^
+
+The following options are available when creating an invoice.
+
 - ``email_invoice``: Email the invoice to the client.
 - ``auto_bill``: Attempt to auto-bill the invoice using stored payment methods or credits.
 - ``paid``: Create a payment for the defined amount.
+
+Updating Data
+"""""""""""""
+
+.. NOTE:: When updating a client it's important to include the contact ids.
+
+.. code-block:: shell
+
+  curl -X PUT ninja.dev/api/v1/clients/1 -H "Content-Type:application/json"
+    -d '{"name":"test", "contacts":[{"id": 1, "first_name": "test"}]}'
+    -H "X-Ninja-Token: TOKEN"
 
 Emailing Invoices
 """""""""""""""""

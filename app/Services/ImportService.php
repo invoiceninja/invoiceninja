@@ -24,6 +24,7 @@ use Auth;
 use Cache;
 use Excel;
 use Exception;
+use File;
 use League\Fractal\Manager;
 use parsecsv;
 use Session;
@@ -145,10 +146,9 @@ class ImportService
      *
      * @return array
      */
-    public function importJSON($file, $includeData, $includeSettings)
+    public function importJSON($fileName, $includeData, $includeSettings)
     {
         $this->initMaps();
-        $fileName = storage_path() . '/import/' . $file;
         $this->checkForFile($fileName);
         $file = file_get_contents($fileName);
         $json = json_decode($file, true);
@@ -229,7 +229,7 @@ class ImportService
             }
         }
 
-        @unlink($fileName);
+        File::delete($fileName);
 
         return $this->results;
     }
@@ -278,7 +278,7 @@ class ImportService
      *
      * @return array
      */
-    private function execute($source, $entityType, $file)
+    private function execute($source, $entityType, $fileName)
     {
         $results = [
             RESULT_SUCCESS => [],
@@ -287,7 +287,6 @@ class ImportService
 
         // Convert the data
         $row_list = [];
-        $fileName = storage_path() . '/import/' . $file;
         $this->checkForFile($fileName);
 
         Excel::load($fileName, function ($reader) use ($source, $entityType, &$row_list, &$results) {
@@ -321,7 +320,7 @@ class ImportService
             }
         }
 
-        @unlink($fileName);
+        File::delete($fileName);
 
         return $results;
     }
@@ -590,7 +589,6 @@ class ImportService
     {
         require_once app_path().'/Includes/parsecsv.lib.php';
 
-        $fileName = storage_path() . '/import/' . $fileName;
         $this->checkForFile($fileName);
 
         $csv = new parseCSV();
@@ -686,7 +684,8 @@ class ImportService
         ];
         $source = IMPORT_CSV;
 
-        $fileName = sprintf('%s_%s_%s.csv', Auth::user()->account_id, $timestamp, $entityType);
+        $path = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
+        $fileName = sprintf('%s/%s_%s_%s.csv', $path, Auth::user()->account_id, $timestamp, $entityType);
         $data = $this->getCsvData($fileName);
         $this->checkData($entityType, count($data));
         $this->initMaps();
@@ -726,7 +725,7 @@ class ImportService
             }
         }
 
-        @unlink(storage_path() . '/import/' . $fileName);
+        File::delete($fileName);
 
         return $results;
     }
@@ -868,7 +867,7 @@ class ImportService
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }
-        if ($name = strtolower(trim($client->contacts[0]->email))) {
+        if (count($client->contacts) && $name = strtolower(trim($client->contacts[0]->email))) {
             $this->maps['client'][$name] = $client->id;
             $this->maps['client_ids'][$client->public_id] = $client->id;
         }

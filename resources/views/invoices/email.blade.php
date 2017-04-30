@@ -1,4 +1,4 @@
-<div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true">
+<div class="modal fade" id="emailModal" tabindex="-1" role="dialog" aria-labelledby="emailModalLabel" aria-hidden="true" style="z-index:10000">
     <div class="modal-dialog">
         <div class="modal-content" style="background-color: #f8f8f8">
 
@@ -53,20 +53,24 @@
                         </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="customize">
+                        {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
+                        {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
                         {!! Former::text('emailSubject')
                                 ->placeholder('subject')
+                                ->label(false)
                                 ->onchange('onEmailSubjectChange()')
                                 ->oninput('onEmailSubjectInput()')
-                                ->raw() !!}
+                                ->appendIcon('question-sign')
+                                ->addGroupClass('email-subject') !!}
+                        {{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
+                        {{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
+
                         <br/>
                         <div id="templateEditor" class="form-control" style="min-height:160px"></div>
                         <div style="display:none">
-                            {!! Former::textarea("template[body]")
-                                    ->raw() !!}
-                            {!! Former::text('template[subject]')
-                                    ->raw() !!}
-                            {!! Former::text('reminder')
-                                    ->raw() !!}
+                            {!! Former::textarea("template[body]")->raw() !!}
+                            {!! Former::text('template[subject]')->raw() !!}
+                            {!! Former::text('reminder')->raw() !!}
                         </div>
                         @include('partials/quill_toolbar', ['name' => 'template'])
                     </div>
@@ -226,6 +230,10 @@
               $('#template_type').val(window.defaultTemplate);
           }
       @endif
+
+      $('.email-subject .input-group-addon').click(function() {
+          $('#templateHelpModal').modal('show');
+      });
     });
 
 </script>

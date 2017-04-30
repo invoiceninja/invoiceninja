@@ -52,7 +52,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'method',
                 function ($model) {
-                    return ($model->payment_type && ! $model->last4) ? $model->payment_type : ($model->account_gateway_id ? $model->gateway_name : '');
+                    return ($model->payment_type && ! $model->last4) ? trans('texts.payment_type_' . $model->payment_type) : ($model->account_gateway_id ? $model->gateway_name : '');
                 },
             ],
             [

@@ -8,6 +8,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Monolog\Logger;
+use Auth;
+use App;
 
 /**
  * Class SendInvoiceEmail.
@@ -32,6 +34,11 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     protected $template;
 
     /**
+     * @var int
+     */
+    protected $userId;
+
+    /**
      * Create a new job instance.
      *
      * @param Invoice $invoice
@@ -39,9 +46,10 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      * @param bool    $reminder
      * @param mixed   $pdfString
      */
-    public function __construct(Invoice $invoice, $reminder = false, $template = false)
+    public function __construct(Invoice $invoice, $userId = false, $reminder = false, $template = false)
     {
         $this->invoice = $invoice;
+        $this->userId = $userId;
         $this->reminder = $reminder;
         $this->template = $template;
     }
@@ -53,7 +61,16 @@ class SendInvoiceEmail extends Job implements ShouldQueue
      */
     public function handle(ContactMailer $mailer)
     {
+        // send email as user
+        if (App::runningInConsole() && $this->userId) {
+            Auth::onceUsingId($this->userId);
+        }
+
         $mailer->sendInvoice($this->invoice, $this->reminder, $this->template);
+
+        if (App::runningInConsole() && $this->userId) {
+            Auth::logout();
+        }
     }
 
     /*

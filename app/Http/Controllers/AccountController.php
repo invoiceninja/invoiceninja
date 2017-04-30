@@ -546,6 +546,7 @@ class AccountController extends BaseController
         $client->postal_code = '10000';
         $client->work_phone = '(212) 555-0000';
         $client->work_email = 'sample@example.com';
+        $client->balance = 100;
 
         $invoice->invoice_number = '0000';
         $invoice->invoice_date = Utils::fromSqlDate(date('Y-m-d'));
@@ -892,6 +893,8 @@ class AccountController extends BaseController
                 $account->custom_value2 = trim(Input::get('custom_value2'));
                 $account->custom_client_label1 = trim(Input::get('custom_client_label1'));
                 $account->custom_client_label2 = trim(Input::get('custom_client_label2'));
+                $account->custom_contact_label1 = trim(Input::get('custom_contact_label1'));
+                $account->custom_contact_label2 = trim(Input::get('custom_contact_label2'));
                 $account->custom_invoice_label1 = trim(Input::get('custom_invoice_label1'));
                 $account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
                 $account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
@@ -1016,13 +1019,9 @@ class AccountController extends BaseController
         /* Logo image file */
         if ($uploaded = Input::file('logo')) {
             $path = Input::file('logo')->getRealPath();
-
             $disk = $account->getLogoDisk();
-            if ($account->hasLogo() && ! Utils::isNinjaProd()) {
-                $disk->delete($account->logo);
-            }
-
             $extension = strtolower($uploaded->getClientOriginalExtension());
+
             if (empty(Document::$types[$extension]) && ! empty(Document::$extraExtensions[$extension])) {
                 $documentType = Document::$extraExtensions[$extension];
             } else {
@@ -1038,7 +1037,7 @@ class AccountController extends BaseController
                 $size = filesize($filePath);
 
                 if ($size / 1000 > MAX_DOCUMENT_SIZE) {
-                    Session::flash('warning', trans('texts.logo_warning_too_large'));
+                    Session::flash('error', trans('texts.logo_warning_too_large'));
                 } else {
                     if ($documentType != 'gif') {
                         $account->logo = $account->account_key.'.'.$documentType;
@@ -1055,24 +1054,25 @@ class AccountController extends BaseController
                                 $image->interlace(false);
                                 $imageStr = (string) $image->encode($documentType);
                                 $disk->put($account->logo, $imageStr);
-
                                 $account->logo_size = strlen($imageStr);
                             } else {
-                                $stream = fopen($filePath, 'r');
-                                $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
-                                fclose($stream);
+                                if (Utils::isInterlaced($filePath)) {
+                                    $account->clearLogo();
+                                    Session::flash('error', trans('texts.logo_warning_invalid'));
+                                } else {
+                                    $stream = fopen($filePath, 'r');
+                                    $disk->getDriver()->putStream($account->logo, $stream, ['mimetype' => $documentTypeData['mime']]);
+                                    fclose($stream);
+                                }
                             }
                         } catch (Exception $exception) {
-                            Session::flash('warning', trans('texts.logo_warning_invalid'));
+                            $account->clearLogo();
+                            Session::flash('error', trans('texts.logo_warning_invalid'));
                         }
                     } else {
                         if (extension_loaded('fileinfo')) {
-                            $image = Image::make($path);
-                            $image->resize(200, 120, function ($constraint) {
-                                $constraint->aspectRatio();
-                            });
-
                             $account->logo = $account->account_key.'.png';
+                            $image = Image::make($path);
                             $image = Image::canvas($image->width(), $image->height(), '#FFFFFF')->insert($image);
                             $imageStr = (string) $image->encode('png');
                             $disk->put($account->logo, $imageStr);
@@ -1081,7 +1081,7 @@ class AccountController extends BaseController
                             $account->logo_width = $image->width();
                             $account->logo_height = $image->height();
                         } else {
-                            Session::flash('warning', trans('texts.logo_warning_fileinfo'));
+                            Session::flash('error', trans('texts.logo_warning_fileinfo'));
                         }
                     }
                 }

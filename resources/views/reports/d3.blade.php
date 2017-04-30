@@ -60,7 +60,7 @@
   <script type="text/javascript">
 
     // store data as JSON
-    var data = {!! $clients !!};
+    var data = {!! strip_tags(json_encode($clients)) !!};
 
     _.each(data, function(client) {
       _.each(client.invoices, function(invoice) {
@@ -76,7 +76,7 @@
 
     // remove quotes and recurring invoices
     invoices = _.filter(invoices, function(invoice) {
-      return !parseInt(invoice.is_quote) && !invoice.is_recurring;
+      return parseInt(invoice.invoice_type_id) == {{ INVOICE_TYPE_STANDARD }} && !invoice.is_recurring;
     });
 
     var products = _.flatten(_.pluck(invoices, 'invoice_items'));

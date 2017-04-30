@@ -294,7 +294,7 @@ class Client extends EntityModel
             }
         }
 
-        if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password) {
+        if ($this->account->isClientPortalPasswordEnabled()) {
             if (! empty($data['password']) && $data['password'] != '-%unchanged%-') {
                 $contact->password = bcrypt($data['password']);
             } elseif (empty($data['password'])) {

@@ -78,10 +78,35 @@
 
                     @if (!$expense || ($expense && !$expense->invoice_id))
                         {!! Former::checkbox('should_be_invoiced')
-                                ->text(trans('texts.billable'))
+                                ->text(trans('texts.mark_billable'))
                                 ->data_bind('checked: should_be_invoiced()')
                                 ->label(' ')
                                 ->value(1) !!}
+                    @endif
+
+                    @if (! $expense || ! $expense->transaction_id)
+
+                        @if (! $expense || ! $expense->isPaid())
+                            {!! Former::checkbox('mark_paid')
+                                    ->data_bind('checked: mark_paid')
+                                    ->text(trans('texts.mark_expense_paid'))
+                                    ->label(' ')
+                                    ->value(1) !!}
+                        @endif
+
+                        <div style="display:none" data-bind="visible: mark_paid">
+                            {!! Former::select('payment_type_id')
+                                    ->addOption('','')
+                                    ->fromQuery($paymentTypes, 'name', 'id')
+                                    ->addGroupClass('payment-type-select') !!}
+
+                            {!! Former::text('payment_date')
+                                    ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+                                    ->addGroupClass('payment_date')
+                                    ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+
+                            {!! Former::text('transaction_reference') !!}
+                        </div>
                     @endif
 
                     @if (!$expense || ($expense && ! $expense->isExchanged()))
@@ -119,40 +144,52 @@
                     </div>
 
 
-                    @if (!$expense || ($expense && (!$expense->tax_name1 && !$expense->tax_name2)))
-                        {!! Former::checkbox('apply_taxes')
-                                ->text(trans('texts.apply_taxes'))
-                                ->data_bind('checked: apply_taxes')
-                                ->label(' ')
-                                ->value(1) !!}
-                    @endif
+                    @if (count($taxRates))
+                        @if (!$expense || ($expense && (!$expense->tax_name1 && !$expense->tax_name2)))
+                            {!! Former::checkbox('apply_taxes')
+                                    ->text(trans('texts.apply_taxes'))
+                                    ->data_bind('checked: apply_taxes')
+                                    ->label(' ')
+                                    ->value(1) !!}
+                        @endif
 
-                    <div style="display:none" data-bind="visible: apply_taxes">
-                        <br/>
-                        {!! Former::select('tax_select1')
-                            ->addOption('','')
-                            ->label(trans('texts.tax_rate'))
-                            ->onchange('taxSelectChange(event)')
-            				->fromQuery($taxRates) !!}
-
-                        <div style="display:none">
-                            {!! Former::input('tax_rate1') !!}
-                            {!! Former::input('tax_name1') !!}
-                        </div>
-
-                        <div style="display:{{ $account->enable_second_tax_rate ? 'block' : 'none' }}">
-                            {!! Former::select('tax_select2')
+                        <div style="display:none" data-bind="visible: apply_taxes">
+                            <br/>
+                            {!! Former::select('tax_select1')
                                 ->addOption('','')
                                 ->label(trans('texts.tax_rate'))
                                 ->onchange('taxSelectChange(event)')
                 				->fromQuery($taxRates) !!}
 
                             <div style="display:none">
-                                {!! Former::input('tax_rate2') !!}
-                                {!! Former::input('tax_name2') !!}
+                                {!! Former::input('tax_rate1') !!}
+                                {!! Former::input('tax_name1') !!}
+                            </div>
+
+                            <div style="display:{{ $account->enable_second_tax_rate ? 'block' : 'none' }}">
+                                {!! Former::select('tax_select2')
+                                    ->addOption('','')
+                                    ->label(trans('texts.tax_rate'))
+                                    ->onchange('taxSelectChange(event)')
+                    				->fromQuery($taxRates) !!}
+
+                                <div style="display:none">
+                                    {!! Former::input('tax_rate2') !!}
+                                    {!! Former::input('tax_name2') !!}
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
+
+                    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                        {!! Former::checkbox('invoice_documents')
+                                ->text(trans('texts.add_documents_to_invoice'))
+                                ->onchange('onInvoiceDocumentsChange()')
+                                ->data_bind('checked: invoice_documents')
+                                ->label(' ')
+                                ->value(1) !!}
+                    @endif
+
 	            </div>
                 <div class="col-md-6">
 
@@ -219,10 +256,10 @@
     <script type="text/javascript">
         Dropzone.autoDiscover = false;
 
-        var vendors = {!! $vendors !!};
-        var clients = {!! $clients !!};
-        var categories = {!! $categories !!};
-        var taxRates = {!! $taxRates !!};
+        var vendors = {!! strip_tags(json_encode($vendors)) !!};
+        var clients = {!! strip_tags(json_encode($clients)) !!};
+        var categories = {!! strip_tags(json_encode($categories)) !!};
+        var taxRates = {!! strip_tags(json_encode($taxRates)) !!};
 
         var clientMap = {};
         var vendorMap = {};
@@ -299,7 +336,7 @@
                 setComboboxValue($('.expense-category-select'), category.public_id, category.name);
             }
 
-            $('#expense_date').datepicker('update', '{{ $expense ? $expense->expense_date : 'new Date()' }}');
+            $('#expense_date').datepicker('update', '{{ $expense ? Utils::fromSqlDate($expense->expense_date) : 'new Date()' }}');
 
             $('.expense_date .input-group-addon').click(function() {
                 toggleDatePicker('expense_date');
@@ -345,6 +382,23 @@
                 if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
                 else $(this).removeAttr('enctype')
             })
+
+            $('#payment_type_id').combobox();
+            $('#mark_paid').click(function(event) {
+                if ($('#mark_paid').is(':checked')) {
+                    $('#payment_date').datepicker('update', new Date());
+                    @if ($account->payment_type_id)
+                        setComboboxValue($('.payment-type-select'), {{ $account->payment_type_id }}, "{{ trans('texts.payment_type_' . $account->payment_type->name) }}");
+                    @endif
+                } else {
+                    $('#payment_date').datepicker('update', false);
+                    setComboboxValue($('.payment-type-select'), '', '');
+                }
+            })
+
+            @if ($expense && $expense->payment_date)
+                $('#payment_date').datepicker('update', '{{ Utils::fromSqlDate($expense->payment_date) }}');
+            @endif
 
             // Initialize document upload
             dropzone = new Dropzone('#document-upload', {
@@ -403,8 +457,15 @@
             self.amount = ko.observable();
             self.exchange_rate = ko.observable(1);
             self.should_be_invoiced = ko.observable();
+            self.mark_paid = ko.observable({{ $expense && $expense->isPaid() ? 'true' : 'false' }});
             self.convert_currency = ko.observable({{ ($expense && $expense->isExchanged()) ? 'true' : 'false' }});
             self.apply_taxes = ko.observable({{ ($expense && ($expense->tax_name1 || $expense->tax_name2)) ? 'true' : 'false' }});
+
+            var invoiceDocuments = false;
+            if (isStorageSupported()) {
+                invoiceDocuments = localStorage.getItem('last:invoice_documents');
+            }
+            self.invoice_documents = ko.observable({{ $expense ? $expense->invoice_documents : 'invoiceDocuments' }});
 
             self.mapping = {
                 'documents': {
@@ -562,6 +623,14 @@
                 var option = new Option(taxName + ': ' + taxRate + '%', '');
                 option.selected = true;
                 $select.append(option);
+            }
+        }
+
+        function onInvoiceDocumentsChange()
+        {
+            if (isStorageSupported()) {
+                var checked = $('#invoice_documents').is(':checked');
+                localStorage.setItem('last:invoice_documents', checked || '');
             }
         }
 

@@ -83,7 +83,7 @@
             }
         }
 
-        var account = {!! $account !!};
+        var account = {!! strip_tags(json_encode($account)) !!};
         var chartGroupBy = 'day';
         var chartCurrencyId = {{ $account->getCurrencyId() }};
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};
@@ -95,13 +95,15 @@
             // Initialize date range selector
 			chartStartDate = moment().subtract(29, 'days');
 	        chartEndDate = moment();
+			lastRange = false;
 
 			if (isStorageSupported()) {
-				var lastRange = localStorage.getItem('last:dashboard_range');
-				lastRange = dateRanges[lastRange];
-				if (lastRange) {
-					chartStartDate = lastRange[0];
-					chartEndDate = lastRange[1];
+				lastRange = localStorage.getItem('last:dashboard_range');
+				dateRange = dateRanges[lastRange];
+
+				if (dateRange) {
+					chartStartDate = dateRange[0];
+					chartEndDate = dateRange[1];
 				}
 
 				@if (count($currencies) > 1)
@@ -123,7 +125,10 @@
                 $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
                 chartStartDate = start;
                 chartEndDate = end;
-				$('.range-label-div').text(label);
+				$('.range-label-div').show();
+				if (label) {
+					$('.range-label-div').text(label);
+				}
                 loadData();
 
 				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
@@ -142,7 +147,7 @@
                 ranges: dateRanges,
             }, cb);
 
-            cb(chartStartDate, chartEndDate);
+            cb(chartStartDate, chartEndDate, lastRange);
 
             $("#currency-btn-group > .btn").click(function(){
                 $(this).addClass("active").siblings().removeClass("active");
@@ -272,7 +277,7 @@
 							&nbsp;
 						</div>
                     </div>
-					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;display:none;">
 						{{ trans('texts.last_30_days') }}
 					</div>
                 </div>
@@ -322,7 +327,7 @@
 							</div>
                         </div>
                     @endif
-					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;display:none;">
 						{{ trans('texts.last_30_days') }}
 					</div>
                 </div>
@@ -354,7 +359,7 @@
 							&nbsp;
 						</div>
                     </div>
-					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;">
+					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;display:none;">
 						{{ trans('texts.last_30_days') }}
 					</div>
                 </div>

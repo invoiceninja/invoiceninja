@@ -2,10 +2,10 @@
 
 namespace App\Ninja\Repositories;
 
-use App\Events\InvoiceWasCreated;
-use App\Events\InvoiceWasUpdated;
-use App\Events\QuoteWasCreated;
-use App\Events\QuoteWasUpdated;
+use App\Events\QuoteItemsWereCreated;
+use App\Events\QuoteItemsWereUpdated;
+use App\Events\InvoiceItemsWereCreated;
+use App\Events\InvoiceItemsWereUpdated;
 use App\Jobs\SendInvoiceEmail;
 use App\Models\Account;
 use App\Models\Client;
@@ -693,11 +693,13 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_items()->save($invoiceItem);
         }
 
+        $invoice->load('invoice_items');
+
         if (Auth::check()) {
             $invoice = $this->saveInvitations($invoice);
         }
 
-        //$this->dispachEvents($invoice);
+        $this->dispatchEvents($invoice);
 
         return $invoice;
     }
@@ -707,6 +709,10 @@ class InvoiceRepository extends BaseRepository
         $client = $invoice->client;
         $client->load('contacts');
         $sendInvoiceIds = [];
+
+        if (! count($client->contacts)) {
+            return $invoice;
+        }
 
         foreach ($client->contacts as $contact) {
             if ($contact->send_invoice) {
@@ -740,19 +746,19 @@ class InvoiceRepository extends BaseRepository
         return $invoice;
     }
 
-    private function dispachEvents($invoice)
+    private function dispatchEvents($invoice)
     {
         if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
             if ($invoice->wasRecentlyCreated) {
-                event(new QuoteWasCreated($invoice));
+                event(new QuoteItemsWereCreated($invoice));
             } else {
-                event(new QuoteWasUpdated($invoice));
+                event(new QuoteItemsWereUpdated($invoice));
             }
         } else {
             if ($invoice->wasRecentlyCreated) {
-                event(new InvoiceWasCreated($invoice));
+                event(new InvoiceItemsWereCreated($invoice));
             } else {
-                event(new InvoiceWasUpdated($invoice));
+                event(new InvoiceItemsWereUpdated($invoice));
             }
         }
     }
@@ -1110,7 +1116,6 @@ class InvoiceRepository extends BaseRepository
             if ($item['invoice_item_type_id'] == INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE) {
                 unset($data['invoice_items'][$key]);
                 $this->save($data, $invoice);
-                $invoice->load('invoice_items');
                 break;
             }
         }
@@ -1147,7 +1152,6 @@ class InvoiceRepository extends BaseRepository
         $data['invoice_items'][] = $item;
 
         $this->save($data, $invoice);
-        $invoice->load('invoice_items');
     }
 
     public function findPhonetically($invoiceNumber)

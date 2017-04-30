@@ -215,7 +215,7 @@
             'g e' => 'email_settings',
             'g t r' => 'templates_and_reminders',
             'g c c' => 'bank_accounts',
-            'g d v' => 'data_visualizations',
+            'g v' => 'data_visualizations',
             'g a t' => 'api_tokens',
             'g u m' => 'user_management',
         ] as $key => $val)

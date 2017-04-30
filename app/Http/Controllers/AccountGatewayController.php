@@ -274,21 +274,21 @@ class AccountGatewayController extends BaseController
             }
 
             $plaidClientId = trim(Input::get('plaid_client_id'));
-            if ($plaidClientId = str_replace('*', '', $plaidClientId)) {
+            if (! $plaidClientId || $plaidClientId = str_replace('*', '', $plaidClientId)) {
                 $config->plaidClientId = $plaidClientId;
             } elseif ($oldConfig && property_exists($oldConfig, 'plaidClientId')) {
                 $config->plaidClientId = $oldConfig->plaidClientId;
             }
 
             $plaidSecret = trim(Input::get('plaid_secret'));
-            if ($plaidSecret = str_replace('*', '', $plaidSecret)) {
+            if (! $plaidSecret || $plaidSecret = str_replace('*', '', $plaidSecret)) {
                 $config->plaidSecret = $plaidSecret;
             } elseif ($oldConfig && property_exists($oldConfig, 'plaidSecret')) {
                 $config->plaidSecret = $oldConfig->plaidSecret;
             }
 
             $plaidPublicKey = trim(Input::get('plaid_public_key'));
-            if ($plaidPublicKey = str_replace('*', '', $plaidPublicKey)) {
+            if (! $plaidPublicKey || $plaidPublicKey = str_replace('*', '', $plaidPublicKey)) {
                 $config->plaidPublicKey = $plaidPublicKey;
             } elseif ($oldConfig && property_exists($oldConfig, 'plaidPublicKey')) {
                 $config->plaidPublicKey = $oldConfig->plaidPublicKey;

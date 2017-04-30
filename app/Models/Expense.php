@@ -47,6 +47,10 @@ class Expense extends EntityModel
         'tax_name1',
         'tax_rate2',
         'tax_name2',
+        'payment_date',
+        'payment_type_id',
+        'transaction_reference',
+        'invoice_documents',
     ];
 
     public static function getImportColumns()
@@ -130,6 +134,14 @@ class Expense extends EntityModel
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function payment_type()
+    {
+        return $this->belongsTo('App\Models\PaymentType');
+    }
+
+    /**
      * @return mixed
      */
     public function getName()
@@ -173,6 +185,14 @@ class Expense extends EntityModel
     public function isExchanged()
     {
         return $this->invoice_currency_id != $this->expense_currency_id || $this->exchange_rate != 1;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPaid()
+    {
+        return $this->payment_date || $this->payment_type_id;
     }
 
     /**
@@ -221,19 +241,23 @@ class Expense extends EntityModel
     {
         $statuses = [];
         $statuses[EXPENSE_STATUS_LOGGED] = trans('texts.logged');
+        $statuses[EXPENSE_STATUS_PENDING] = trans('texts.pending');
         $statuses[EXPENSE_STATUS_INVOICED] = trans('texts.invoiced');
+        $statuses[EXPENSE_STATUS_BILLED] = trans('texts.billed');
         $statuses[EXPENSE_STATUS_PAID] = trans('texts.paid');
+        $statuses[EXPENSE_STATUS_UNPAID] = trans('texts.unpaid');
+
 
         return $statuses;
     }
 
-    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance)
+    public static function calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate)
     {
         if ($invoiceId) {
             if (floatval($balance) > 0) {
                 $label = 'invoiced';
             } else {
-                $label = 'paid';
+                $label = 'billed';
             }
         } elseif ($shouldBeInvoiced) {
             $label = 'pending';
@@ -241,7 +265,13 @@ class Expense extends EntityModel
             $label = 'logged';
         }
 
-        return trans("texts.{$label}");
+        $label = trans("texts.{$label}");
+
+        if ($paymentDate) {
+            $label = trans('texts.paid') . ' | ' . $label;
+        }
+
+        return $label;
     }
 
     public static function calcStatusClass($shouldBeInvoiced, $invoiceId, $balance)
@@ -270,7 +300,7 @@ class Expense extends EntityModel
     {
         $balance = $this->invoice ? $this->invoice->balance : 0;
 
-        return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance);
+        return static::calcStatusLabel($this->should_be_invoiced, $this->invoice_id, $balance, $this->payment_date);
     }
 }
 

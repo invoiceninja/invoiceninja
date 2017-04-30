@@ -200,8 +200,11 @@ if (! defined('APP_NAME')) {
     define('TASK_STATUS_PAID', 4);
 
     define('EXPENSE_STATUS_LOGGED', 1);
-    define('EXPENSE_STATUS_INVOICED', 2);
-    define('EXPENSE_STATUS_PAID', 3);
+    define('EXPENSE_STATUS_PENDING', 2);
+    define('EXPENSE_STATUS_INVOICED', 3);
+    define('EXPENSE_STATUS_BILLED', 4);
+    define('EXPENSE_STATUS_PAID', 5);
+    define('EXPENSE_STATUS_UNPAID', 6);
 
     define('CUSTOM_DESIGN', 11);
 
@@ -296,7 +299,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.2.1' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.3.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -306,6 +309,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_CONTACT_URL', env('NINJA_CONTACT_URL', 'https://www.invoiceninja.com/contact/'));
     define('NINJA_FROM_EMAIL', env('NINJA_FROM_EMAIL', 'maildelivery@invoiceninja.com'));
     define('NINJA_IOS_APP_URL', 'https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8');
+    define('NINJA_ANDROID_APP_URL', 'https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja');
     define('RELEASES_URL', env('RELEASES_URL', 'https://trello.com/b/63BbiVVe/invoice-ninja'));
     define('ZAPIER_URL', env('ZAPIER_URL', 'https://zapier.com/zapbook/invoice-ninja'));
     define('OUTDATE_BROWSER_URL', env('OUTDATE_BROWSER_URL', 'http://browsehappy.com/'));
@@ -317,6 +321,7 @@ if (! defined('APP_NAME')) {
     define('OFX_HOME_URL', env('OFX_HOME_URL', 'http://www.ofxhome.com/index.php/home/directory/all'));
     define('GOOGLE_ANALYITCS_URL', env('GOOGLE_ANALYITCS_URL', 'https://www.google-analytics.com/collect'));
     define('TRANSIFEX_URL', env('TRANSIFEX_URL', 'https://www.transifex.com/invoice-ninja/invoice-ninja'));
+    define('IP_LOOKUP_URL', env('IP_LOOKUP_URL', 'http://whatismyipaddress.com/ip/'));
     define('CHROME_PDF_HELP_URL', 'https://support.google.com/chrome/answer/6213030?hl=en');
     define('FIREFOX_PDF_HELP_URL', 'https://support.mozilla.org/en-US/kb/view-pdf-files-firefox');
 
@@ -441,7 +446,7 @@ if (! defined('APP_NAME')) {
     define('CURRENCY_DECORATOR_NONE', 'none');
 
     define('RESELLER_REVENUE_SHARE', 'A');
-    define('RESELLER_LIMITED_USERS', 'B');
+    define('RESELLER_ACCOUNT_COUNT', 'B');
 
     define('AUTO_BILL_OFF', 1);
     define('AUTO_BILL_OPT_IN', 2);

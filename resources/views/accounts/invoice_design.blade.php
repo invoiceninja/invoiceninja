@@ -22,7 +22,7 @@
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-    var invoice = {!! json_encode($invoice) !!};
+    var invoice = {!! strip_tags(json_encode($invoice)) !!};
 
     function getDesignJavascript() {
       var id = $('#invoice_design_id').val();

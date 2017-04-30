@@ -135,33 +135,20 @@ class StartupCheck
                 $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
                 $data = trim(CurlUtils::get($url));
 
-                if ($productId == PRODUCT_INVOICE_DESIGNS) {
-                    if ($data = json_decode($data)) {
-                        foreach ($data as $item) {
-                            $design = new InvoiceDesign();
-                            $design->id = $item->id;
-                            $design->name = $item->name;
-                            $design->pdfmake = $item->pdfmake;
-                            $design->save();
-                        }
+                if ($data == RESULT_FAILURE) {
+                    Session::flash('error', trans('texts.invalid_white_label_license'));
+                } elseif ($data) {
+                    $company = Auth::user()->account->company;
+                    $company->plan_term = PLAN_TERM_YEARLY;
+                    $company->plan_paid = $data;
+                    $date = max(date_create($data), date_create($company->plan_expires));
+                    $company->plan_expires = $date->modify('+1 year')->format('Y-m-d');
+                    $company->plan = PLAN_WHITE_LABEL;
+                    $company->save();
 
-                        Cache::forget('invoiceDesigns');
-                        Session::flash('message', trans('texts.bought_designs'));
-                    }
-                } elseif ($productId == PRODUCT_WHITE_LABEL) {
-                    if ($data && $data != RESULT_FAILURE) {
-                        $company = Auth::user()->account->company;
-                        $company->plan_term = PLAN_TERM_YEARLY;
-                        $company->plan_paid = $data;
-                        $date = max(date_create($data), date_create($company->plan_expires));
-                        $company->plan_expires = $date->modify('+1 year')->format('Y-m-d');
-                        $company->plan = PLAN_WHITE_LABEL;
-                        $company->save();
-
-                        Session::flash('message', trans('texts.bought_white_label'));
-                    } else {
-                        Session::flash('error', trans('texts.invalid_white_label_license'));
-                    }
+                    Session::flash('message', trans('texts.bought_white_label'));
+                } else {
+                    Session::flash('error', trans('texts.white_label_license_error'));
                 }
             }
         }

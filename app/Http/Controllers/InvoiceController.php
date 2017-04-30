@@ -164,8 +164,9 @@ class InvoiceController extends BaseController
                 foreach ($invoice->invitations as $invitation) {
                     foreach ($client->contacts as $contact) {
                         if ($invitation->contact_id == $contact->id) {
+                            $hasPassword = $account->isClientPortalPasswordEnabled() && $contact->password;
                             $contact->email_error = $invitation->email_error;
-                            $contact->invitation_link = $invitation->getLink();
+                            $contact->invitation_link = $invitation->getLink('view', $hasPassword, $hasPassword);
                             $contact->invitation_viewed = $invitation->viewed_date && $invitation->viewed_date != '0000-00-00 00:00:00' ? $invitation->viewed_date : false;
                             $contact->invitation_openend = $invitation->opened_date && $invitation->opened_date != '0000-00-00 00:00:00' ? $invitation->opened_date : false;
                             $contact->invitation_status = $contact->email_error ? false : $invitation->getStatus();
@@ -313,7 +314,7 @@ class InvoiceController extends BaseController
             'recurringHelp' => $recurringHelp,
             'recurringDueDateHelp' => $recurringDueDateHelp,
             'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
-            'tasks' => Session::get('tasks') ? json_encode(Session::get('tasks')) : null,
+            'tasks' => Session::get('tasks') ? Session::get('tasks') : null,
             'expenseCurrencyId' => Session::get('expenseCurrencyId') ?: null,
             'expenses' => Session::get('expenses') ? Expense::scope(Session::get('expenses'))->with('documents', 'expense_category')->get() : [],
         ];
@@ -404,7 +405,8 @@ class InvoiceController extends BaseController
         if ($invoice->is_recurring) {
             $response = $this->emailRecurringInvoice($invoice);
         } else {
-            $this->dispatch(new SendInvoiceEmail($invoice, $reminder, $template));
+            $userId = Auth::user()->id;
+            $this->dispatch(new SendInvoiceEmail($invoice, $userId, $reminder, $template));
             $response = true;
         }
 
@@ -436,7 +438,8 @@ class InvoiceController extends BaseController
         if ($invoice->isPaid()) {
             return true;
         } else {
-            $this->dispatch(new SendInvoiceEmail($invoice));
+            $userId = Auth::user()->id;
+            $this->dispatch(new SendInvoiceEmail($invoice, $userId));
             return true;
         }
     }

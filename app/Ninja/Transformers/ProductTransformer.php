@@ -27,7 +27,7 @@ class ProductTransformer extends EntityTransformer
             'notes' => $product->notes,
             'cost' => $product->cost,
             'qty' => $product->qty,
-            'default_tax_rate_id' => $product->default_tax_rate_id,
+            'default_tax_rate_id' => $product->default_tax_rate_id ? $product->default_tax_rate->public_id : 0,
             'updated_at' => $this->getTimestamp($product->updated_at),
             'archived_at' => $this->getTimestamp($product->deleted_at),
         ]);

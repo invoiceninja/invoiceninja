@@ -746,6 +746,7 @@ NINJA.accountAddress = function(invoice) {
 NINJA.renderInvoiceField = function(invoice, field) {
 
     var account = invoice.account;
+    var client = invoice.client;
 
     if (field == 'invoice.invoice_number') {
         if (invoice.is_statement) {
@@ -802,6 +803,24 @@ NINJA.renderInvoiceField = function(invoice, field) {
             ];
         } else {
             return false;
+        }
+    } else if (field == 'invoice.invoice_total') {
+        if (invoice.is_statement || invoice.is_quote || invoice.balance_amount < 0) {
+            return false;
+        } else {
+            return [
+                {text: invoiceLabels.invoice_total, style: ['invoiceTotalLabel']},
+                {text: formatMoneyInvoice(invoice.amount, invoice), style: ['invoiceTotal']}
+            ];
+        }
+    } else if (field == 'invoice.outstanding') {
+        if (invoice.is_statement || invoice.is_quote) {
+            return false;
+        } else {
+            return [
+                {text: invoiceLabels.outstanding, style: ['invoiceOutstandingLabel']},
+                {text: formatMoneyInvoice(client.balance, invoice), style: ['outstanding']}
+            ];
         }
     } else if (field == '.blank') {
         return [{text: ' '}, {text: ' '}];
@@ -884,6 +903,10 @@ NINJA.renderClientOrAccountField = function(invoice, field) {
         return {text: account.custom_client_label1 && client.custom_value1 ? account.custom_client_label1 + ' ' + client.custom_value1 : false};
     } else if (field == 'client.custom_value2') {
         return {text: account.custom_client_label2 && client.custom_value2 ? account.custom_client_label2 + ' ' + client.custom_value2 : false};
+    } else if (field == 'contact.custom_value1') {
+        return {text:contact.custom_value1};
+    } else if (field == 'contact.custom_value2') {
+        return {text:contact.custom_value2};
     }
 
     if (field == 'account.company_name') {
@@ -948,6 +971,8 @@ NINJA.clientDetails = function(invoice) {
             'client.email',
             'client.custom_value1',
             'client.custom_value2',
+            'contact.custom_value1',
+            'contact.custom_value2',
         ];
     }
     var data = [];

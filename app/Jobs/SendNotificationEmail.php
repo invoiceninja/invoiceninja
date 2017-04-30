@@ -36,6 +36,11 @@ class SendNotificationEmail extends Job implements ShouldQueue
     protected $payment;
 
     /**
+     * @var string
+     */
+    protected $notes;
+
+    /**
      * Create a new job instance.
 
      * @param UserMailer    $userMailer
@@ -46,12 +51,13 @@ class SendNotificationEmail extends Job implements ShouldQueue
      * @param mixed         $type
      * @param mixed         $payment
      */
-    public function __construct($user, $invoice, $type, $payment)
+    public function __construct($user, $invoice, $type, $payment, $notes)
     {
         $this->user = $user;
         $this->invoice = $invoice;
         $this->type = $type;
         $this->payment = $payment;
+        $this->notes = $notes;
     }
 
     /**
@@ -61,6 +67,6 @@ class SendNotificationEmail extends Job implements ShouldQueue
      */
     public function handle(UserMailer $userMailer)
     {
-        $userMailer->sendNotification($this->user, $this->invoice, $this->type, $this->payment);
+        $userMailer->sendNotification($this->user, $this->invoice, $this->type, $this->payment, $this->notes);
     }
 }

@@ -118,7 +118,17 @@ class AuthController extends Controller
     public function getLoginWrapper()
     {
         if (! Utils::isNinja() && ! User::count()) {
-            return redirect()->to('invoice_now');
+            return redirect()->to('/setup');
+        }
+
+        if (Utils::isNinja() && ! Utils::isTravis()) {
+            // make sure the user is on SITE_URL/login to ensure OAuth works
+            $requestURL = request()->url();
+            $loginURL = SITE_URL . '/login';
+            $subdomain = Utils::getSubdomain(request()->url());
+            if ($requestURL != $loginURL && ! strstr($subdomain, 'webapp-')) {
+                return redirect()->to($loginURL);
+            }
         }
 
         return self::getLogin();

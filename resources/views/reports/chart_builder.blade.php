@@ -75,7 +75,7 @@
     </script>
 
 
-	{!! Former::open()->addClass('report-form')->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
+    {!! Former::open()->addClass('report-form')->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
 
     <div style="display:none">
     {!! Former::text('action') !!}
@@ -288,6 +288,14 @@
             }
         });
 
+		// parse 1,000.00 or 1.000,00
+		function convertStringToNumber(str) {
+			str = str + '' || '';
+			var number = Number(str.replace(/[^0-9]+/g, ''));
+			return number / 100;
+		}
+
+
 		$(function(){
   			$(".tablesorter-data").tablesorter({
 				@if (! request()->group_when_sorted)
@@ -296,6 +304,12 @@
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_when_sorted ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',
+				dateFormat: '{{ $report->convertDateFormat() }}',
+				numberSorter: function(a, b, direction) {
+					var a = convertStringToNumber(a);
+					var b = convertStringToNumber(b);
+					return direction ? a - b : b - a;
+				},
 				widgetOptions : {
 					columnSelector_container : $('#columnSelector'),
 					filter_cssFilter: 'form-control',
@@ -310,8 +324,8 @@
 						  }
 						  var subtotal = 0;
 				          $rows.each(function() {
-				            var txt = $(this).find("td").eq(i).text().replace(/[$,]/g, '');
-				            subtotal += parseFloat(txt || 0);
+				            var txt = $(this).find("td").eq(i).text();
+				            subtotal += convertStringToNumber(txt);
 				          });
 				          $cell.find(".group-count").append(' - ' + label + ': ' + roundToTwo(subtotal));
 					  }

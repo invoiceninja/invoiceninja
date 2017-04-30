@@ -447,6 +447,27 @@ if (window.ko) {
   };
 }
 
+function comboboxHighlighter(item) {
+    var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+    var result = item.replace(new RegExp('<br/>', 'g'), "\n");
+    result = result.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
+        return match ? '<strong>' + match + '</strong>' : query;
+    });
+    result = result.replace(new RegExp("\n", 'g'), '<br/>');
+    return result;
+}
+
+function comboboxMatcher(item) {
+    return ~stripHtmlTags(item).toLowerCase().indexOf(this.query.toLowerCase());
+}
+
+function stripHtmlTags(text) {
+    // http://stackoverflow.com/a/5002618/497368
+    var div = document.createElement("div");
+    div.innerHTML = text;
+    return div.textContent || div.innerText || '';
+}
+
 function getContactDisplayName(contact)
 {
     if (contact.first_name || contact.last_name) {
@@ -454,6 +475,25 @@ function getContactDisplayName(contact)
     } else {
         return contact.email;
     }
+}
+
+function getContactDisplayNameWithEmail(contact)
+{
+    var str = '';
+
+    if (contact.first_name || contact.last_name) {
+        str += $.trim((contact.first_name || '') + ' ' + (contact.last_name || ''));
+    }
+
+    if (contact.email) {
+        if (str) {
+            str += ' - ';
+        }
+
+        str += contact.email;
+    }
+
+    return $.trim(str);
 }
 
 function getClientDisplayName(client)
@@ -716,8 +756,8 @@ function calculateAmounts(invoice) {
   if (invoice.tax_rate2 && parseFloat(invoice.tax_rate2)) {
     taxRate2 = parseFloat(invoice.tax_rate2);
   }
-  taxAmount1 = roundToTwo(total * (taxRate1/100));
-  taxAmount2 = roundToTwo(total * (taxRate2/100));
+  taxAmount1 = roundToTwo(total * taxRate1 / 100);
+  taxAmount2 = roundToTwo(total * taxRate2 / 100);
   total = total + taxAmount1 + taxAmount2;
 
   for (var key in taxes) {

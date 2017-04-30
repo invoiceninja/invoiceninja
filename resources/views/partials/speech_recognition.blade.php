@@ -1,5 +1,5 @@
 <i id="microphone" class="fa fa-microphone form-control-feedback"
-  title="Say &quot;new invoice for [client]&quot; or &quot;show me [client]\'s archived payments&quot;"
+  title="Say &quot;new invoice for [client]&quot; or &quot;show me [client]'s archived payments&quot;"
   data-toggle="tooltip" data-placement="bottom"
   onclick="onMicrophoneClick()" aria-hidden="true"></i>
 
@@ -21,6 +21,7 @@
 
     // https://developers.google.com/web/updates/2013/01/Voice-Driven-Web-Apps-Introduction-to-the-Web-Speech-API
 
+    /*
     var langs =
     [['Afrikaans',       ['af-ZA']],
      ['Bahasa Indonesia',['id-ID']],
@@ -92,7 +93,7 @@
      ['日本語',           ['ja-JP']],
      ['हिन्दी',            ['hi-IN']],
      ['ภาษาไทย',         ['th-TH']]];
-
+     */
 
     var final_transcript = '';
     var recognizing = false;
@@ -163,7 +164,7 @@
     }
 
     function onMicrophoneClick() {
-      //$('#search').val("");
+      //$('#search').val("find david");
       //$('#search-form').submit();
       //return;
 

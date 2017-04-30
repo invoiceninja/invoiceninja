@@ -2,8 +2,8 @@
 
 namespace App\Http\ViewComposers;
 
-use App\Models\Contact;
 use DB;
+use App\Models\Contact;
 use Illuminate\View\View;
 
 /**
@@ -37,6 +37,7 @@ class ClientPortalHeaderComposer
         }
 
         $client = $contact->client;
+        $account = $contact->account;
 
         $hasDocuments = DB::table('invoices')
                             ->where('invoices.client_id', '=', $client->id)
@@ -44,8 +45,18 @@ class ClientPortalHeaderComposer
                             ->join('documents', 'documents.invoice_id', '=', 'invoices.id')
                             ->count();
 
+        $hasPaymentMethods = false;
+        if ($account->getTokenGatewayId() && ! $account->enable_client_portal_dashboard) {
+            $hasPaymentMethods = DB::table('payment_methods')
+                                    ->where('contacts.client_id', '=', $client->id)
+                                    ->whereNull('payment_methods.deleted_at')
+                                    ->join('contacts', 'contacts.id', '=', 'payment_methods.contact_id')
+                                    ->count();
+        }
+
         $view->with('hasQuotes', $client->publicQuotes->count());
         $view->with('hasCredits', $client->creditsWithBalance->count());
         $view->with('hasDocuments', $hasDocuments);
+        $view->with('hasPaymentMethods', $hasPaymentMethods);
     }
 }

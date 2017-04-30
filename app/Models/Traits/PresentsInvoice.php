@@ -68,6 +68,12 @@ trait PresentsInvoice
         if ($this->custom_client_label2) {
             $fields[INVOICE_FIELDS_CLIENT][] = 'client.custom_value2';
         }
+        if ($this->custom_contact_label1) {
+            $fields[INVOICE_FIELDS_CLIENT][] = 'contact.custom_value1';
+        }
+        if ($this->custom_contact_label2) {
+            $fields[INVOICE_FIELDS_CLIENT][] = 'contact.custom_value2';
+        }
         if ($this->custom_label1) {
             $fields['account_fields2'][] = 'account.custom_value1';
         }
@@ -86,8 +92,10 @@ trait PresentsInvoice
                 'invoice.po_number',
                 'invoice.invoice_date',
                 'invoice.due_date',
+                'invoice.invoice_total',
                 'invoice.balance_due',
                 'invoice.partial_due',
+                'invoice.outstanding',
                 'invoice.custom_text_value1',
                 'invoice.custom_text_value2',
                 '.blank',
@@ -108,6 +116,8 @@ trait PresentsInvoice
                 'client.phone',
                 'client.custom_value1',
                 'client.custom_value2',
+                'contact.custom_value1',
+                'contact.custom_value2',
                 '.blank',
             ],
             INVOICE_FIELDS_ACCOUNT => [
@@ -227,6 +237,8 @@ trait PresentsInvoice
             'credit_to',
             'your_credit',
             'work_phone',
+            'invoice_total',
+            'outstanding',
         ];
 
         foreach ($fields as $field) {
@@ -242,12 +254,14 @@ trait PresentsInvoice
         }
 
         foreach ([
+            'account.custom_value1' => 'custom_label1',
+            'account.custom_value2' => 'custom_label2',
             'invoice.custom_text_value1' => 'custom_invoice_text_label1',
             'invoice.custom_text_value2' => 'custom_invoice_text_label2',
             'client.custom_value1' => 'custom_client_label1',
             'client.custom_value2' => 'custom_client_label2',
-            'account.custom_value1' => 'custom_label1',
-            'account.custom_value2' => 'custom_label2',
+            'contact.custom_value1' => 'custom_contact_label1',
+            'contact.custom_value2' => 'custom_contact_label2',
         ] as $field => $property) {
             $data[$field] = $this->$property ?: trans('texts.custom_field');
         }

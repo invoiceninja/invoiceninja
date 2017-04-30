@@ -392,7 +392,9 @@ class ActivityListener
             $event->payment,
             ACTIVITY_TYPE_CREATE_PAYMENT,
             $event->payment->amount * -1,
-            $event->payment->amount
+            $event->payment->amount,
+            false,
+            \App::runningInConsole() ? 'auto_billed' : ''
         );
     }
 

@@ -48,7 +48,8 @@ class UserMailer extends Mailer
         User $user,
         Invoice $invoice,
         $notificationType,
-        Payment $payment = null
+        Payment $payment = null,
+        $notes = false
     ) {
         if (! $user->email || $user->cannot('view', $invoice)) {
             return;
@@ -80,6 +81,10 @@ class UserMailer extends Mailer
             'invoice' => $invoice->invoice_number,
             'client' => $client->getDisplayName(),
         ]);
+
+        if ($notes) {
+            $subject .= ' [' . trans('texts.notes_' . $notes) . ']';
+        }
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }

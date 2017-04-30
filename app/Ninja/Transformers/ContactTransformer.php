@@ -26,6 +26,8 @@ class ContactTransformer extends EntityTransformer
      * @SWG\Property(property="phone", type="string", example="(212) 555-1212")
      * @SWG\Property(property="last_login", type="string", format="date-time", example="2016-01-01 12:10:00")
      * @SWG\Property(property="send_invoice", type="boolean", example=false)
+     * @SWG\Property(property="custom_value1", type="string", example="Value")
+     * @SWG\Property(property="custom_value2", type="string", example="Value")
      */
     public function transform(Contact $contact)
     {
@@ -40,6 +42,8 @@ class ContactTransformer extends EntityTransformer
             'phone' => $contact->phone,
             'last_login' => $contact->last_login,
             'send_invoice' => (bool) $contact->send_invoice,
+            'custom_value1' => $contact->custom_value1,
+            'custom_value2' => $contact->custom_value2,
         ]);
     }
 }

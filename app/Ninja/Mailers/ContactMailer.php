@@ -104,9 +104,9 @@ class ContactMailer extends Mailer
 
         if ($sent === true) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
-                event(new QuoteWasEmailed($invoice));
+                event(new QuoteWasEmailed($invoice, $reminder));
             } else {
-                event(new InvoiceWasEmailed($invoice));
+                event(new InvoiceWasEmailed($invoice, $reminder));
             }
         }
 
@@ -140,7 +140,7 @@ class ContactMailer extends Mailer
         $account = $invoice->account;
         $user = $invitation->user;
 
-        if ($invitation->user->trashed()) {
+        if ($user->trashed()) {
             $user = $account->users()->orderBy('id')->first();
         }
 
@@ -166,7 +166,7 @@ class ContactMailer extends Mailer
             $variables['autobill'] = $invoice->present()->autoBillEmailMessage();
         }
 
-        if (empty($invitation->contact->password) && $account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password && $account->send_portal_password) {
+        if (empty($invitation->contact->password) && $account->isClientPortalPasswordEnabled() && $account->send_portal_password) {
             // The contact needs a password
             $variables['password'] = $password = $this->generatePassword();
             $invitation->contact->password = bcrypt($password);
@@ -254,7 +254,7 @@ class ContactMailer extends Mailer
             $invitation = $payment->invitation;
         } else {
             $user = $payment->user;
-            $contact = $client->contacts[0];
+            $contact = count($client->contacts) ? $client->contacts[0] : '';
             $invitation = $payment->invoice->invitations[0];
         }
 

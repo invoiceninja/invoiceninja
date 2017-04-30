@@ -193,7 +193,7 @@
             <div class="col-md-6">
                 {!! Former::select('country_id')
                         ->placeholder(trans('texts.country_id'))
-                        ->fromQuery(Cache::get('countries'), 'name', 'id')
+                        ->fromQuery($countries, 'name', 'id')
                         ->addGroupClass('country-select')
                         ->label('') !!}
             </div>
@@ -238,18 +238,18 @@
                                 ->id('expiration_month')
                                 ->autocomplete('cc-exp-month')
                                 ->placeholder(trans('texts.expiration_month'))
-                                  ->addOption('01 - January', '1')
-                                  ->addOption('02 - February', '2')
-                                  ->addOption('03 - March', '3')
-                                  ->addOption('04 - April', '4')
-                                  ->addOption('05 - May', '5')
-                                  ->addOption('06 - June', '6')
-                                  ->addOption('07 - July', '7')
-                                  ->addOption('08 - August', '8')
-                                  ->addOption('09 - September', '9')
-                                  ->addOption('10 - October', '10')
-                                  ->addOption('11 - November', '11')
-                                  ->addOption('12 - December', '12')->label('')
+                                  ->addOption('01 - ' . trans('texts.january'), '1')
+                                  ->addOption('02 - ' . trans('texts.february'), '2')
+                                  ->addOption('03 - ' . trans('texts.march'), '3')
+                                  ->addOption('04 - ' . trans('texts.april'), '4')
+                                  ->addOption('05 - ' . trans('texts.may'), '5')
+                                  ->addOption('06 - ' . trans('texts.june'), '6')
+                                  ->addOption('07 - ' . trans('texts.july'), '7')
+                                  ->addOption('08 - ' . trans('texts.august'), '8')
+                                  ->addOption('09 - ' . trans('texts.september'), '9')
+                                  ->addOption('10 - ' . trans('texts.october'), '10')
+                                  ->addOption('11 - ' . trans('texts.november'), '11')
+                                  ->addOption('12 - ' . trans('texts.december'), '12')->label('')
                                 !!}
                     @endif
                 </div>

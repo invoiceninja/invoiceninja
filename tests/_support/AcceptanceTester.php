@@ -46,14 +46,14 @@ class AcceptanceTester extends \Codeception\Actor
     function selectDropdown(\AcceptanceTester $I, $option, $dropdownSelector)
     {
         $I->click($dropdownSelector);
-        $I->click(sprintf('ul.typeahead li[data-value="%s"]', $option));
+        $I->click(sprintf('ul.typeahead li[data-value*="%s"]', $option));
     }
 
     function selectDropdownCreate(\AcceptanceTester $I, $entityType, $value, $entityTypeShort = false)
     {
         $entityTypeShort = $entityTypeShort ?: $entityType;
         $I->fillField("#{$entityType}_name", $value);
-        $I->click(sprintf('ul.typeahead li[data-value="%s"]', "Create {$entityTypeShort}: \$name"));
+        $I->click(sprintf('ul.typeahead li[data-value*="%s"]', "Create {$entityTypeShort}: \$name"));
     }
 
     function selectDropdownRow(\AcceptanceTester $I, $option, $dropdownSelector)
@@ -74,10 +74,9 @@ class AcceptanceTester extends \Codeception\Actor
         }
     }
 
-    function createClient(\AcceptanceTester $I, $email, $name = '')
+    function createClient(\AcceptanceTester $I, $email)
     {
         $I->amOnPage('/clients/create');
-        $I->fillField(['name' => 'name'], $name);
         $I->fillField(['name' => 'contacts[0][email]'], $email);
         $I->click('Save');
         $I->see($email);

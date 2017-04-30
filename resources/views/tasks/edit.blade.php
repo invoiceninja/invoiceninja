@@ -232,8 +232,8 @@
       }
     }
 
-    var clients = {!! $clients !!};
-    var projects = {!! $projects !!};
+    var clients = {!! strip_tags(json_encode($clients)) !!};
+    var projects = {!! strip_tags(json_encode($projects)) !!};
 
     var timeLabels = {};
     @foreach (['hour', 'minute', 'second'] as $period)

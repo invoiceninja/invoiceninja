@@ -97,7 +97,7 @@
                             {!! link_to('/client/documents', trans('texts.documents') ) !!}
                         </li>
                     @endif
-                    @if (isset($account) && $account->getTokenGatewayId() && !$account->enable_client_portal_dashboard)
+                    @if (isset($hasPaymentMethods) && $hasPaymentMethods)
                         <li {!! Request::is('*client/payment_methods') ? 'class="active"' : '' !!}>
                             {!! link_to('/client/payment_methods', trans('texts.payment_methods') ) !!}
                         </li>

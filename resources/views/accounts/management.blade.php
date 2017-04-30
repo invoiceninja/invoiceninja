@@ -199,7 +199,7 @@
 
 				{!! Former::checkbox('live_preview')
 						->text(trans('texts.enable'))
-						->help('live_preview_help')
+						->help(trans('texts.live_preview_help') . '<br/>' . trans('texts.recommend_on'))
 						->value(1) !!}
 
 				{!! Former::checkbox('force_pdfjs')
@@ -208,7 +208,7 @@
 						->help(trans('texts.force_pdfjs_help', [
 							'chrome_link' => link_to(CHROME_PDF_HELP_URL, 'Chrome', ['target' => '_blank']),
 							'firefox_link' => link_to(FIREFOX_PDF_HELP_URL, 'Firefox', ['target' => '_blank']),
-						])) !!}
+						])  . '<br/>' . trans('texts.recommend_off')) !!}
 
 				<div class="form-group">
 					<label for="modules" class="control-label col-lg-4 col-sm-4"></label>

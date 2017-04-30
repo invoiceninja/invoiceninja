@@ -16,6 +16,11 @@ If the auto-update fails you can manually run the update with the following comm
 
 .. NOTE:: If you've downloaded the code from GitHub you also need to run ``composer install``
 
+Version 3.2
+"""""""""""
+
+An import folder has been adding to storage/, you may need to run ``sudo chown -R www-data:www-data storage``
+
 Version 2.6
 """""""""""
 

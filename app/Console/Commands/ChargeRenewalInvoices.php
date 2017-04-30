@@ -8,6 +8,7 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use Illuminate\Console\Command;
+use Carbon;
 
 /**
  * Class ChargeRenewalInvoices.
@@ -80,6 +81,11 @@ class ChargeRenewalInvoices extends Command
 
             $company = $account->company;
             if (! $company->plan || $company->plan == PLAN_FREE) {
+                continue;
+            }
+
+            if (Carbon::parse($company->plan_expires)->isFuture()) {
+                $this->info('Skipping invoice ' . $invoice->invoice_number . ' [plan not expired]');
                 continue;
             }
 

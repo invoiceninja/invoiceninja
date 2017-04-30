@@ -132,77 +132,6 @@
         </div>
     </div>
 
-    <div class="modal fade" id="templateHelpModal" tabindex="-1" role="dialog" aria-labelledby="templateHelpModalLabel" aria-hidden="true">
-        <div class="modal-dialog" style="min-width:150px">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                    <h4 class="modal-title" id="templateHelpModalLabel">{{ trans('texts.template_help_title') }}</h4>
-                </div>
-
-                <div class="container" style="width: 100%; padding-bottom: 0px !important">
-                <div class="panel panel-default">
-                <div class="panel-body">
-                    <p>{{ trans('texts.template_help_1') }}</p>
-                    <ul>
-                        @foreach([
-                            'footer',
-                            'account',
-                            'dueDate',
-                            'invoiceDate',
-                            'client',
-                            'amount',
-                            'contact',
-                            'firstName',
-                            'invoice',
-                            'quote',
-                            'password',
-                            'documents',
-                            'viewLink',
-                            'viewButton',
-                            'paymentLink',
-                            'paymentButton',
-                            'autoBill',
-                            'portalLink',
-                            'portalButton',
-                        ] as $field)
-                            <li>${{ $field }}</li>
-                        @endforeach
-                        @if ($account->custom_client_label1)
-                            <li>$customClient1</li>
-                        @endif
-                        @if ($account->custom_client_label2)
-                            <li>$customClient2</li>
-                        @endif
-                        @if ($account->custom_invoice_text_label1)
-                            <li>$customInvoice1</li>
-                        @endif
-                        @if ($account->custom_invoice_text_label2)
-                            <li>$customInvoice2</li>
-                        @endif
-                        @if (count($account->account_gateways) > 0)
-                            @foreach (\App\Models\Gateway::$gatewayTypes as $type)
-                                @if ($account->getGatewayByType($type))
-                                    @if ($type != GATEWAY_TYPE_TOKEN)
-                                        <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Link</li>
-                                        <li>${{ Utils::toCamelCase(\App\Models\GatewayType::getAliasFromId($type)) }}Button</li>
-                                    @endif
-                                @endif
-                            @endforeach
-                        @endif
-                    </ul>
-                </div>
-                </div>
-                </div>
-
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
     @if (Auth::user()->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS))
         <center>
             {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
@@ -222,7 +151,7 @@
         var entityTypes = ['invoice', 'quote', 'payment', 'reminder1', 'reminder2', 'reminder3'];
         var stringTypes = ['subject', 'template'];
         var templates = {!! json_encode($defaultTemplates) !!};
-        var account = {!! Auth::user()->account !!};
+        var account = {!! strip_tags(json_encode(Auth::user()->account)) !!};
 
         function refreshPreview() {
             for (var i=0; i<entityTypes.length; i++) {

@@ -90,6 +90,8 @@ class ActivityRepository
                         'activities.balance',
                         'activities.adjustment',
                         'activities.notes',
+                        'activities.ip',
+                        'activities.is_system',
                         'users.first_name as user_first_name',
                         'users.last_name as user_last_name',
                         'users.email as user_email',

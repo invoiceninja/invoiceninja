@@ -334,12 +334,14 @@ class OnlinePaymentController extends BaseController
                 'custom_value1' => Input::get('custom_client1'),
                 'custom_value2' => Input::get('custom_client2'),
             ];
+            if (request()->currency_code) {
+                $data['currency_code'] = request()->currency_code;
+            }
             $client = $clientRepo->save($data, $client);
         }
 
         $data = [
             'client_id' => $client->id,
-            'is_public' => true,
             'is_recurring' => filter_var(Input::get('is_recurring'), FILTER_VALIDATE_BOOLEAN),
             'frequency_id' => Input::get('frequency_id'),
             'auto_bill_id' => Input::get('auto_bill_id'),

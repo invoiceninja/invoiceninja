@@ -25,7 +25,7 @@
 
 	</style>
 
-	<div class="container" id="main-container" style="min-height:800px">
+	<div class="container" id="main-container">
 
 		<p>&nbsp;</p>
 

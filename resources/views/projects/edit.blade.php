@@ -61,7 +61,7 @@
 
     <script>
 
-		var clients = {!! $clients !!};
+		var clients = {!! strip_tags(json_encode($clients)) !!};
 
         $(function() {
 			var $clientSelect = $('select#client_id');

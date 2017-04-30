@@ -32,12 +32,16 @@ class EventServiceProvider extends ServiceProvider
         // Invoices
         'App\Events\InvoiceWasCreated' => [
             'App\Listeners\ActivityListener@createdInvoice',
-            'App\Listeners\SubscriptionListener@createdInvoice',
             'App\Listeners\InvoiceListener@createdInvoice',
         ],
         'App\Events\InvoiceWasUpdated' => [
             'App\Listeners\ActivityListener@updatedInvoice',
             'App\Listeners\InvoiceListener@updatedInvoice',
+        ],
+        'App\Events\InvoiceItemsWereCreated' => [
+            'App\Listeners\SubscriptionListener@createdInvoice',
+        ],
+        'App\Events\InvoiceItemsWereUpdated' => [
             'App\Listeners\SubscriptionListener@updatedInvoice',
         ],
         'App\Events\InvoiceWasArchived' => [
@@ -66,10 +70,14 @@ class EventServiceProvider extends ServiceProvider
         // Quotes
         'App\Events\QuoteWasCreated' => [
             'App\Listeners\ActivityListener@createdQuote',
-            'App\Listeners\SubscriptionListener@createdQuote',
         ],
         'App\Events\QuoteWasUpdated' => [
             'App\Listeners\ActivityListener@updatedQuote',
+        ],
+        'App\Events\QuoteItemsWereCreated' => [
+            'App\Listeners\SubscriptionListener@createdQuote',
+        ],
+        'App\Events\QuoteItemsWereUpdated' => [
             'App\Listeners\SubscriptionListener@updatedQuote',
         ],
         'App\Events\QuoteWasArchived' => [

@@ -27,7 +27,7 @@ class ReportController extends BaseController
                             ->with(['clients.invoices.invoice_items', 'clients.contacts'])
                             ->first();
             $account = $account->hideFieldsForViz();
-            $clients = $account->clients->toJson();
+            $clients = $account->clients;
         } elseif (file_exists($fileName)) {
             $clients = file_get_contents($fileName);
             $message = trans('texts.sample_data');
@@ -129,11 +129,14 @@ class ReportController extends BaseController
         }
 
         $output = fopen('php://output', 'w') or Utils::fatalError();
-        $reportType = trans("texts.{$reportType}s");
         $date = date('Y-m-d');
 
+        $columns = array_map(function($key, $val) {
+            return is_array($val) ? $key : $val;
+        }, array_keys($columns), $columns);
+
         header('Content-Type:application/csv');
-        header("Content-Disposition:attachment;filename={$date}_Ninja_{$reportType}.csv");
+        header("Content-Disposition:attachment;filename={$date}-invoiceninja-{$reportType}-report.csv");
 
         Utils::exportData($output, $data, Utils::trans($columns));
 

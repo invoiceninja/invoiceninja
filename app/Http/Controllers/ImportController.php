@@ -34,16 +34,26 @@ class ImportController extends BaseController
             $fileName = $entityType;
             if ($request->hasFile($fileName)) {
                 $file = $request->file($fileName);
-                $destinationPath = storage_path() . '/import';
+                $destinationPath = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
                 $extension = $file->getClientOriginalExtension();
 
-                if (! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
-                    continue;
+                if ($source === IMPORT_CSV) {
+                    if ($extension != 'csv') {
+                        return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
+                    }
+                } elseif ($source === IMPORT_JSON) {
+                    if ($extension != 'json') {
+                        return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
+                    }
+                } else {
+                    if (! in_array($extension, ['csv', 'xls', 'xlsx', 'json'])) {
+                        return redirect()->to('/settings/' . ACCOUNT_IMPORT_EXPORT)->withError(trans('texts.invalid_file'));
+                    }
                 }
 
                 $newFileName = sprintf('%s_%s_%s.%s', Auth::user()->account_id, $timestamp, $fileName, $extension);
                 $file->move($destinationPath, $newFileName);
-                $files[$entityType] = $newFileName;
+                $files[$entityType] = $destinationPath . '/' . $newFileName;
             }
         }
 
@@ -102,6 +112,7 @@ class ImportController extends BaseController
             $map = Input::get('map');
             $headers = Input::get('headers');
             $timestamp = Input::get('timestamp');
+
             if (config('queue.default') === 'sync') {
                 $results = $this->importService->importCSV($map, $headers, $timestamp);
                 $message = $this->importService->presentResults($results);

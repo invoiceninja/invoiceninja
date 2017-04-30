@@ -18,7 +18,6 @@ use Utils;
  */
 class CreateTestData extends Command
 {
-    //protected $name = 'ninja:create-test-data';
     /**
      * @var string
      */
@@ -126,6 +125,7 @@ class CreateTestData extends Command
     {
         for ($i = 0; $i < $this->count; $i++) {
             $data = [
+                'is_public' => true,
                 'client_id' => $client->id,
                 'invoice_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),
                 'due_date_sql' => date_create()->modify(rand(-100, 100) . ' days')->format('Y-m-d'),

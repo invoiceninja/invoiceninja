@@ -28,6 +28,7 @@ class TemplateService
         $invitation = $data['invitation'];
 
         $invoice = $invitation->invoice;
+        $contact = $invitation->contact;
         $passwordHTML = isset($data['password']) ? '<p>'.trans('texts.password').': '.$data['password'].'<p>' : false;
         $documentsHTML = '';
 
@@ -46,12 +47,13 @@ class TemplateService
 
         $variables = [
             '$footer' => $account->getEmailFooter(),
+            '$emailSignature' => $account->getEmailFooter(),
             '$client' => $client->getDisplayName(),
             '$account' => $account->getDisplayName(),
             '$dueDate' => $account->formatDate($invoice->due_date),
             '$invoiceDate' => $account->formatDate($invoice->invoice_date),
-            '$contact' => $invitation->contact->getDisplayName(),
-            '$firstName' => $invitation->contact->first_name,
+            '$contact' => $contact->getDisplayName(),
+            '$firstName' => $contact->first_name,
             '$amount' => $account->formatMoney($data['amount'], $client),
             '$invoice' => $invoice->invoice_number,
             '$quote' => $invoice->invoice_number,
@@ -63,6 +65,8 @@ class TemplateService
             '$paymentButton' => Form::emailPaymentButton($invitation->getLink('payment')).'$password',
             '$customClient1' => $client->custom_value1,
             '$customClient2' => $client->custom_value2,
+            '$customContact1' => $contact->custom_value1,
+            '$customContact2' => $contact->custom_value2,
             '$customInvoice1' => $invoice->custom_text_value1,
             '$customInvoice2' => $invoice->custom_text_value2,
             '$documents' => $documentsHTML,

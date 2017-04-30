@@ -83,10 +83,11 @@ class AppController extends BaseController
 
         $_ENV['APP_ENV'] = 'production';
         $_ENV['APP_DEBUG'] = $app['debug'];
-        $_ENV['REQUIRE_HTTPS'] = $app['https'];
+        $_ENV['APP_LOCALE'] = 'en';
         $_ENV['APP_URL'] = $app['url'];
         $_ENV['APP_KEY'] = $app['key'];
         $_ENV['APP_CIPHER'] = env('APP_CIPHER', 'AES-256-CBC');
+        $_ENV['REQUIRE_HTTPS'] = $app['https'];
         $_ENV['DB_TYPE'] = $dbType;
         $_ENV['DB_HOST'] = $database['type']['host'];
         $_ENV['DB_DATABASE'] = $database['type']['database'];
