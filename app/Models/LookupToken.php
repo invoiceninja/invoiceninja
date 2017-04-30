@@ -7,13 +7,8 @@ use Eloquent;
 /**
  * Class ExpenseCategory.
  */
-class LookupToken extends Eloquent
+class LookupToken extends LookupModel
 {
-    /**
-     * @var bool
-     */
-    public $timestamps = false;
-
     /**
      * @var array
      */

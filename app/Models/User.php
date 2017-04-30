@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laracasts\Presenter\PresentableTrait;
 use Session;
+use App\Models\LookupUser;
 
 /**
  * Class User.
@@ -411,6 +412,17 @@ class User extends Authenticatable
         return $this->account->company->accounts->sortBy('id')->first();
     }
 }
+
+User::creating(function ($user)
+{
+    if (! $user->registered) {
+        return;
+    }
+
+    LookupUser::createNew($user->account->account_key, [
+        'email' => $user->email,
+    ]);
+});
 
 User::updating(function ($user) {
     User::onUpdatingUser($user);

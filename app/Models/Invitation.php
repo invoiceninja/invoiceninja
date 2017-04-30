@@ -5,6 +5,7 @@ namespace App\Models;
 use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Utils;
+use App\Models\LookupInvitation;
 
 /**
  * Class Invitation.
@@ -162,3 +163,10 @@ class Invitation extends EntityModel
         return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64, trans('texts.signed'), Utils::fromSqlDateTime($this->signature_date));
     }
 }
+
+Invitation::creating(function ($invitation)
+{
+    LookupInvitation::createNew($invitation->account->account_key, [
+        'invitation_key' => $invitation->invitation_key,
+    ]);
+});
