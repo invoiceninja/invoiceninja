@@ -142,7 +142,7 @@ class AuthController extends Controller
      */
     public function postLoginWrapper(Request $request)
     {
-        LookupUser::loadEmail($request->input('email'));
+        LookupUser::setServerByEmail($request->input('email'));
 
         $userId = Auth::check() ? Auth::user()->id : null;
         $user = User::where('email', '=', $request->input('email'))->first();
