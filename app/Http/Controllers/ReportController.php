@@ -27,7 +27,7 @@ class ReportController extends BaseController
                             ->with(['clients.invoices.invoice_items', 'clients.contacts'])
                             ->first();
             $account = $account->hideFieldsForViz();
-            $clients = $account->clients->toJson();
+            $clients = $account->clients;
         } elseif (file_exists($fileName)) {
             $clients = file_get_contents($fileName);
             $message = trans('texts.sample_data');
