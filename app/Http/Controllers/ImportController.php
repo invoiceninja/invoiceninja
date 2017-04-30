@@ -34,7 +34,7 @@ class ImportController extends BaseController
             $fileName = $entityType;
             if ($request->hasFile($fileName)) {
                 $file = $request->file($fileName);
-                $destinationPath = storage_path() . '/import';
+                $destinationPath = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
                 $extension = $file->getClientOriginalExtension();
 
                 if ($source === IMPORT_CSV) {
@@ -53,7 +53,7 @@ class ImportController extends BaseController
 
                 $newFileName = sprintf('%s_%s_%s.%s', Auth::user()->account_id, $timestamp, $fileName, $extension);
                 $file->move($destinationPath, $newFileName);
-                $files[$entityType] = $newFileName;
+                $files[$entityType] = $destinationPath . '/' . $newFileName;
             }
         }
 
@@ -112,6 +112,7 @@ class ImportController extends BaseController
             $map = Input::get('map');
             $headers = Input::get('headers');
             $timestamp = Input::get('timestamp');
+
             if (config('queue.default') === 'sync') {
                 $results = $this->importService->importCSV($map, $headers, $timestamp);
                 $message = $this->importService->presentResults($results);
