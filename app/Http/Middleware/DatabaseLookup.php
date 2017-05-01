@@ -37,6 +37,8 @@ class DatabaseLookup
             }
         } elseif ($guard == 'postmark') {
             LookupInvitation::setServerByField('message_id', request()->MessageID);
+        } elseif ($guard == 'license') {
+            config(['database.default' => DB_NINJA_1]);
         }
 
         return $next($request);

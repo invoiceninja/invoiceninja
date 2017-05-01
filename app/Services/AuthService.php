@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Events\UserLoggedIn;
 use App\Ninja\Repositories\AccountRepository;
+use App\Models\LookupUser;
 use Auth;
 use Input;
 use Session;
@@ -59,13 +60,13 @@ class AuthService
         $socialiteUser = Socialite::driver($provider)->user();
         $providerId = self::getProviderId($provider);
 
+        $email = $socialiteUser->email;
+        $oauthUserId = $socialiteUser->id;
+        $name = Utils::splitName($socialiteUser->name);
+
         if (Auth::check()) {
             $user = Auth::user();
             $isRegistered = $user->registered;
-
-            $email = $socialiteUser->email;
-            $oauthUserId = $socialiteUser->id;
-            $name = Utils::splitName($socialiteUser->name);
             $result = $this->accountRepo->updateUserFromOauth($user, $name[0], $name[1], $email, $providerId, $oauthUserId);
 
             if ($result === true) {
@@ -81,6 +82,8 @@ class AuthService
                 Session::flash('error', $result);
             }
         } else {
+            LookupUser::setServerByField('email', $email);
+
             if ($user = $this->accountRepo->findUserByOauth($providerId, $socialiteUser->id)) {
                 Auth::login($user, true);
                 event(new UserLoggedIn());

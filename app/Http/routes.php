@@ -62,9 +62,11 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('api/client.activity', ['as' => 'api.client.activity', 'uses' => 'ClientPortalController@activityDatatable']);
 });
 
-Route::get('license', 'NinjaController@show_license_payment');
-Route::post('license', 'NinjaController@do_license_payment');
-Route::get('claim_license', 'NinjaController@claim_license');
+Route::group(['middleware' => 'lookup:license'], function () {
+    Route::get('license', 'NinjaController@show_license_payment');
+    Route::post('license', 'NinjaController@do_license_payment');
+    Route::get('claim_license', 'NinjaController@claim_license');
+});
 
 Route::post('signup/validate', 'AccountController@checkEmail');
 Route::post('signup/submit', 'AccountController@submitSignup');
@@ -91,6 +93,7 @@ Route::get('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@getLoginWr
 Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper']);
 Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail']);
 Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset']);
+
 Route::group(['middleware' => ['lookup:user']], function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
     Route::post('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper']);
@@ -104,6 +107,7 @@ Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\AuthContro
 Route::get('/client/sessionexpired', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getSessionExpired']);
 Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail']);
 Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset']);
+
 Route::group(['middleware' => ['lookup:contact']], function () {
     Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@postLogin']);
     Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail']);
