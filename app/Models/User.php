@@ -423,6 +423,11 @@ User::creating(function ($user)
 
 User::updating(function ($user) {
     User::onUpdatingUser($user);
+
+    $dirty = $user->getDirty();
+    if (isset($dirty['email'])) {
+        LookupUser::updateUser($user->account->account_key, $user->id, $user->email);
+    }
 });
 
 User::updated(function ($user) {

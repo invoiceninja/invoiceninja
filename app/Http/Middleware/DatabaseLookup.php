@@ -16,8 +16,8 @@ class DatabaseLookup
             return $next($request);
         }
 
-        // user's value is set when logging in
         if ($guard == 'user') {
+            // user's value is set when logging in
             if (! session('SESSION_USER_DB_SERVER')) {
                 return redirect('/logout');
             }
@@ -25,7 +25,7 @@ class DatabaseLookup
             if ($token = $request->header('X-Ninja-Token')) {
                 LookupAccountToken::setServerByField('token', $token);
             }
-        } else {
+        } elseif ($guard == 'contact') {
             if (request()->invitation_key) {
                 LookupInvitation::setServerByField('invitation_key', request()->invitation_key);
             } elseif (request()->contact_key) {

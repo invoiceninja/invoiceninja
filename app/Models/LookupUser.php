@@ -19,4 +19,26 @@ class LookupUser extends LookupModel
         'user_id',
     ];
 
+    public static function updateUser($accountKey, $userId, $email)
+    {
+        if (! env('MULTI_DB_ENABLED')) {
+            return;
+        }
+
+        $current = config('database.default');
+        config(['database.default' => DB_NINJA_LOOKUP]);
+
+        $lookupAccount = LookupAccount::whereAccountKey($accountKey)
+                            ->firstOrFail();
+
+        $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)
+                            ->whereUserId($userId)
+                            ->firstOrFail();
+
+        $lookupUser->email = $email;
+        $lookupUser->save();
+
+        config(['database.default' => $current]);
+    }
+
 }
