@@ -29,12 +29,12 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
+        'lookup' => 'App\Http\Middleware\DatabaseLookup',
         'auth' => 'App\Http\Middleware\Authenticate',
         'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
         'permissions.required' => 'App\Http\Middleware\PermissionsRequired',
         'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
         'api' => 'App\Http\Middleware\ApiCheck',
         'cors' => '\Barryvdh\Cors\HandleCors',
-        'lookup' => 'App\Http\Middleware\DatabaseLookup',
     ];
 }

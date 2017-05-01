@@ -229,7 +229,8 @@ if (! defined('APP_NAME')) {
     define('SESSION_REFERRAL_CODE', 'referralCode');
     define('SESSION_LEFT_SIDEBAR', 'showLeftSidebar');
     define('SESSION_RIGHT_SIDEBAR', 'showRightSidebar');
-    define('SESSION_DB_SERVER', 'dbServer');
+    define('SESSION_USER_DB_SERVER', 'userDbServer');
+    define('SESSION_CONTACT_DB_SERVER', 'contactDbServer');
 
     define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
     define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');

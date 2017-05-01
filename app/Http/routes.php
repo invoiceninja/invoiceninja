@@ -25,7 +25,7 @@ Route::get('/keep_alive', 'HomeController@keepAlive');
 Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
-Route::group(['middleware' => ['auth:client', 'lookup']], function () {
+Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@view');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::put('sign/{invitation_key}', 'ClientPortalController@sign');
@@ -117,7 +117,7 @@ if (Utils::isTravis()) {
     Route::get('/check_data', 'AppController@checkData');
 }
 
-Route::group(['middleware' => ['auth:user', 'lookup']], function () {
+Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
     Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');
@@ -230,7 +230,7 @@ Route::group(['middleware' => ['auth:user', 'lookup']], function () {
 });
 
 Route::group([
-    'middleware' => ['auth:user', 'permissions.required', 'lookup'],
+    'middleware' => ['lookup:user', 'auth:user', 'permissions.required'],
     'permissions' => 'admin',
 ], function () {
     Route::get('api/users', 'UserController@getDatatable');
@@ -295,7 +295,7 @@ Route::group([
     Route::get('self-update/download', 'SelfUpdateController@download');
 });
 
-Route::group(['middleware' => ['auth:user', 'lookup']], function () {
+Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('settings/{section?}', 'AccountController@showSection');
 });
 
