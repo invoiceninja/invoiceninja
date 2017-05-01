@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App;
 use App\Events\UserSettingsChanged;
+use App\Models\LookupAccount;
 use App\Models\Traits\GeneratesNumbers;
 use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
@@ -1654,6 +1655,12 @@ class Account extends Eloquent
         return $this->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->enable_portal_password;
     }
 }
+
+Account::creating(function ($account)
+{
+    LookupAccount::createAccount($account->account_key, $account->company_id);
+});
+
 
 Account::updated(function ($account) {
     // prevent firing event if the invoice/quote counter was changed

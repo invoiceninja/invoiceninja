@@ -61,10 +61,11 @@ class LookupModel extends Eloquent
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         if ($lookupUser = static::where($field, '=', $value)->first()) {
+            $entity = new $className();
             $server = $lookupUser->getDbServer();
             static::setDbServer($server);
 
-            $entity = new $className();
+            // check entity is found on the server
             if (! $entity::where($field, '=', $value)->first()) {
                 abort("Looked up {$className} not found: {$field} => {$value}");
             }

@@ -413,7 +413,7 @@ class User extends Authenticatable
     }
 }
 
-User::creating(function ($user)
+User::created(function ($user)
 {
     LookupUser::createNew($user->account->account_key, [
         'email' => $user->email,
