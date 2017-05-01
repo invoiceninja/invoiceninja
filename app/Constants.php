@@ -291,7 +291,6 @@ if (! defined('APP_NAME')) {
     define('EVENT_DELETE_INVOICE', 9);
 
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
-    define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
     define('NINJA_ACCOUNT_KEY', env('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h'));
     define('NINJA_ACCOUNT_EMAIL', env('NINJA_ACCOUNT_EMAIL', 'contact@invoiceninja.com'));
     define('NINJA_LICENSE_ACCOUNT_KEY', 'AsFmBAeLXF0IKf7tmi0eiyZfmWW9hxMT');

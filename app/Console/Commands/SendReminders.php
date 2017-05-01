@@ -87,10 +87,10 @@ class SendReminders extends Command
         $this->info('Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            \Mail::raw('EOM', function ($message) use ($errorEmail) {
+            \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
-                        ->subject('SendReminders: Finished successfully');
+                        ->subject("SendReminders [{$database}]: Finished successfully");
             });
         }
     }

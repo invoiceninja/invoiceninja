@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Closure;
+use App\Models\LookupAccount;
 use App\Models\LookupContact;
 use App\Models\LookupInvitation;
 use App\Models\LookupAccountToken;
@@ -37,6 +38,10 @@ class DatabaseLookup
             }
         } elseif ($guard == 'postmark') {
             LookupInvitation::setServerByField('message_id', request()->MessageID);
+        } elseif ($guard == 'account') {
+            if ($key = request()->account_key) {
+                LookupAccount::setServerByField('account_key', $key);
+            }
         } elseif ($guard == 'license') {
             config(['database.default' => DB_NINJA_1]);
         }

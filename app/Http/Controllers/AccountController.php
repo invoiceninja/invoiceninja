@@ -100,25 +100,6 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function demo()
-    {
-        $demoAccountId = Utils::getDemoAccountId();
-
-        if (! $demoAccountId) {
-            return Redirect::to('/');
-        }
-
-        $account = Account::find($demoAccountId);
-        $user = $account->users()->first();
-
-        Auth::login($user, true);
-
-        return Redirect::to('invoices/create');
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function getStarted()
     {
         $user = false;

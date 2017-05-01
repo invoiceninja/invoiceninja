@@ -83,7 +83,10 @@ Route::group(['middleware' => 'lookup:postmark'], function () {
     Route::post('/hook/email_opened', 'AppController@emailOpened');
 });
 
-Route::post('/payment_hook/{accountKey}/{gatewayId}', 'OnlinePaymentController@handlePaymentWebhook');
+Route::group(['middleware' => 'lookup:account'], function () {
+    Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
+}
+
 //Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
 
 // Laravel auth routes
@@ -117,7 +120,6 @@ Route::group(['middleware' => ['lookup:contact']], function () {
 if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
     Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
-    Route::get('/demo', 'AccountController@demo');
 }
 
 if (Utils::isReseller()) {
