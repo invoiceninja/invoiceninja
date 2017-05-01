@@ -18,7 +18,9 @@ class DatabaseLookup
         }
 
         if ($guard == 'user') {
-            if ($email = $request->email) {
+            if ($server = session(SESSION_DB_SERVER)) {
+                config(['database.default' => $server]);
+            } elseif ($email = $request->email) {
                 LookupUser::setServerByField('email', $email);
             }
         } elseif ($guard == 'api') {

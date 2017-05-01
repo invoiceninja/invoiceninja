@@ -49,7 +49,8 @@ class AddMultipleDatabaseSupport extends Migration
         Schema::rename('lookup_tokens', 'lookup_account_tokens');
 
         DB::table('db_servers')->insert(
-            ['name' => 'db-ninja-1']
+            ['name' => 'db-ninja-1'],
+            ['name' => 'db-ninja-2'],
         );
     }
 

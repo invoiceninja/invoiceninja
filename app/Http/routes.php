@@ -93,7 +93,7 @@ Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordContr
 Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset']);
 Route::get('/user/confirm/{code}', 'UserController@confirm');
 
-Route::group(['middleware' => ['lookup:reset']], function () {
+Route::group(['middleware' => ['lookup:user']], function () {
     Route::post('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper']);
     Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail']);
     Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset']);

@@ -68,7 +68,7 @@ class LookupModel extends Eloquent
         $isUser = $className == 'App\Models\User';
 
         // check if we've cached this lookup
-        if ($server = session($key)) {
+        if (env('MULTI_DB_CACHE_ENABLED') && $server = session($key)) {
             static::setDbServer($server, $isUser);
             return;
         }
@@ -76,9 +76,10 @@ class LookupModel extends Eloquent
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        if ($value && $lookupUser = static::where($field, '=', $value)->first()) {
+        if ($value && $lookupModel = static::where($field, '=', $value)->first()) {
             $entity = new $className();
-            $server = $lookupUser->getDbServer();
+            $server = $lookupModel->getDbServer();
+
             static::setDbServer($server, $isUser);
 
             // check entity is found on the server
