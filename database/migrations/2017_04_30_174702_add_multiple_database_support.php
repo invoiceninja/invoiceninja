@@ -47,7 +47,10 @@ class AddMultipleDatabaseSupport extends Migration
         });
 
         Schema::rename('lookup_tokens', 'lookup_account_tokens');
-    }
+
+        DB::table('db_servers')->insert(
+            ['name' => 'db-server-1']
+        );
 
     /**
      * Reverse the migrations.

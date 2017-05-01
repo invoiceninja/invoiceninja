@@ -173,3 +173,10 @@ Contact::creating(function ($contact)
         'contact_key' => $contact->contact_key,
     ]);
 });
+
+Contact::deleted(function ($contact)
+{
+    LookupContact::deleteWhere([
+        'contact_key' => $contact->contact_key,
+    ]);
+});

@@ -41,6 +41,21 @@ class LookupModel extends Eloquent
         config(['database.default' => $current]);
     }
 
+    public static function deleteWhere($where)
+    {
+        if (! env('MULTI_DB_ENABLED')) {
+            return;
+        }
+
+        $current = config('database.default');
+        config(['database.default' => DB_NINJA_LOOKUP]);
+
+        static::where($where)->delete();
+
+        config(['database.default' => $current]);
+
+    }
+
     public static function setServerByField($field, $value)
     {
         if (! env('MULTI_DB_ENABLED')) {
@@ -60,7 +75,7 @@ class LookupModel extends Eloquent
         $current = config('database.default');
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        if ($lookupUser = static::where($field, '=', $value)->first()) {
+        if ($value && $lookupUser = static::where($field, '=', $value)->first()) {
             $entity = new $className();
             $server = $lookupUser->getDbServer();
             static::setDbServer($server);

@@ -169,3 +169,17 @@ class Company extends Eloquent
         return false;
     }
 }
+
+Company::deleted(function ($company)
+{
+    if (! env('MULTI_DB_ENABLED')) {
+        return;
+    }
+
+    $server = \App\Models\DbServer::whereName(config('database.default'))->firstOrFail();
+
+    LookupCompany::deleteWhere([
+        'company_id' => $company->id,
+        'db_server_id' => $server->id,
+    ]);
+});

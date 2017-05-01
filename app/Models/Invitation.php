@@ -170,3 +170,10 @@ Invitation::creating(function ($invitation)
         'invitation_key' => $invitation->invitation_key,
     ]);
 });
+
+Invitation::deleted(function ($invitation)
+{
+    LookupInvitation::deleteWhere([
+        'invitation_key' => $invitation->invitation_key,
+    ]);
+});

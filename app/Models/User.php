@@ -433,3 +433,14 @@ User::updating(function ($user) {
 User::updated(function ($user) {
     User::onUpdatedUser($user);
 });
+
+User::deleted(function ($user)
+{
+    if (! $user->email) {
+        return;
+    }
+
+    LookupUser::deleteWhere([
+        'email' => $user->email
+    ]);
+});

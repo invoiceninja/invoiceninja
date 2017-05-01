@@ -47,3 +47,10 @@ AccountToken::creating(function ($token)
         'token' => $token->token,
     ]);
 });
+
+AccountToken::deleted(function ($token)
+{
+    LookupAccountToken::deleteWhere([
+        'token' => $token->token
+    ]);
+});
