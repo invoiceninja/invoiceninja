@@ -58,6 +58,10 @@ class SendReminders extends Command
     {
         $this->info(date('Y-m-d') . ' Running SendReminders...');
 
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
         $accounts = $this->accountRepo->findWithReminders();
         $this->info(count($accounts) . ' accounts found');
 
@@ -103,6 +107,8 @@ class SendReminders extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

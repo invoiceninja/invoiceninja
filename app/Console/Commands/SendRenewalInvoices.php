@@ -51,6 +51,10 @@ class SendRenewalInvoices extends Command
     {
         $this->info(date('Y-m-d').' Running SendRenewalInvoices...');
 
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
         // get all accounts with plans expiring in 10 days
         $companies = Company::whereRaw("datediff(plan_expires, curdate()) = 10 and (plan = 'pro' or plan = 'enterprise')")
                         ->orderBy('id')
@@ -123,6 +127,8 @@ class SendRenewalInvoices extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

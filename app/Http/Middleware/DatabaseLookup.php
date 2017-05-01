@@ -18,7 +18,7 @@ class DatabaseLookup
 
         if ($guard == 'user') {
             // user's value is set when logging in
-            if (! session('SESSION_USER_DB_SERVER')) {
+            if (! session(SESSION_DB_SERVER)) {
                 return redirect('/logout');
             }
         } elseif ($guard == 'api') {
@@ -31,6 +31,8 @@ class DatabaseLookup
             } elseif (request()->contact_key) {
                 LookupContact::setServerByField('contact_key', request()->contact_key);
             }
+        } elseif ($guard == 'postmark') {
+            LookupInvitation::setServerByField('message_id', request()->MessageID);
         }
 
         return $next($request);

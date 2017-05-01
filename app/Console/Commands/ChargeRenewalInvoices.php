@@ -60,6 +60,10 @@ class ChargeRenewalInvoices extends Command
     {
         $this->info(date('Y-m-d').' ChargeRenewalInvoices...');
 
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
         $ninjaAccount = $this->accountRepo->getNinjaAccount();
         $invoices = Invoice::whereAccountId($ninjaAccount->id)
                         ->whereDueDate(date('Y-m-d'))
@@ -120,6 +124,8 @@ class ChargeRenewalInvoices extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

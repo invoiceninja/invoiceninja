@@ -14,7 +14,7 @@ class PruneData extends Command
      * @var string
      */
     protected $name = 'ninja:prune-data';
-    
+
     /**
      * @var string
      */
@@ -23,6 +23,10 @@ class PruneData extends Command
     public function fire()
     {
         $this->info(date('Y-m-d').' Running PruneData...');
+
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
 
         // delete accounts who never registered, didn't create any invoices,
         // hansn't logged in within the past 6 months and isn't linked to another account
@@ -42,14 +46,14 @@ class PruneData extends Command
                 having count(i.id) = 0';
 
         $results = DB::select($sql);
-        
+
         foreach ($results as $result) {
             $this->info("Deleting {$result->id}");
             DB::table('accounts')
                 ->where('id', '=', $result->id)
                 ->delete();
         }
-        
+
         $this->info('Done');
     }
 
@@ -66,6 +70,8 @@ class PruneData extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

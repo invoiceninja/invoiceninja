@@ -359,13 +359,12 @@ class AccountRepository
             $emailSettings = new AccountEmailSettings();
             $account->account_email_settings()->save($emailSettings);
 
-            $random = strtolower(str_random(RANDOM_KEY_LENGTH));
             $user = new User();
             $user->registered = true;
             $user->confirmed = true;
-            $user->email = 'contact@invoiceninja.com';
-            $user->password = $random;
-            $user->username = $random;
+            $user->email = NINJA_ACCOUNT_EMAIL;
+            $user->username = NINJA_ACCOUNT_EMAIL;
+            $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
             $user->first_name = 'Invoice';
             $user->last_name = 'Ninja';
             $user->notify_sent = true;

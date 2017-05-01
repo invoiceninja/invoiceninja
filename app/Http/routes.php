@@ -76,10 +76,13 @@ Route::group(['middleware' => 'cors'], function () {
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
 });
 
-Route::post('/hook/email_bounced', 'AppController@emailBounced');
-Route::post('/hook/email_opened', 'AppController@emailOpened');
-Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
+Route::group(['middleware' => 'lookup:postmark'], function () {
+    Route::post('/hook/email_bounced', 'AppController@emailBounced');
+    Route::post('/hook/email_opened', 'AppController@emailOpened');
+});
+
 Route::post('/payment_hook/{accountKey}/{gatewayId}', 'OnlinePaymentController@handlePaymentWebhook');
+//Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
 
 // Laravel auth routes
 Route::get('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@getRegister']);

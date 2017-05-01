@@ -74,6 +74,10 @@ class CreateTestData extends Command
         $this->info(date('Y-m-d').' Running CreateTestData...');
         $this->count = $this->argument('count');
 
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
         if (filter_var($this->argument('create_account'), FILTER_VALIDATE_BOOLEAN)) {
             $this->info('Creating new account...');
             $account = $this->accountRepo->create(
@@ -218,6 +222,8 @@ class CreateTestData extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

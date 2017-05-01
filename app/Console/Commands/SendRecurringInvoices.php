@@ -61,6 +61,10 @@ class SendRecurringInvoices extends Command
         $this->info(date('Y-m-d H:i:s') . ' Running SendRecurringInvoices...');
         $today = new DateTime();
 
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
         // check for counter resets
         $accounts = Account::where('reset_counter_frequency_id', '>', 0)
             ->orderBy('id', 'asc')
@@ -130,6 +134,8 @@ class SendRecurringInvoices extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

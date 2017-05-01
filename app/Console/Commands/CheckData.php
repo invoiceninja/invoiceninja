@@ -64,6 +64,10 @@ class CheckData extends Command
     {
         $this->logMessage(date('Y-m-d') . ' Running CheckData...');
 
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
         if (! $this->option('client_id')) {
             $this->checkBlankInvoiceHistory();
             $this->checkPaidToDate();
@@ -544,6 +548,7 @@ class CheckData extends Command
         return [
             ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],
             ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];
     }
 }

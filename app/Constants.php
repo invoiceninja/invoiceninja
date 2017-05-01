@@ -229,8 +229,7 @@ if (! defined('APP_NAME')) {
     define('SESSION_REFERRAL_CODE', 'referralCode');
     define('SESSION_LEFT_SIDEBAR', 'showLeftSidebar');
     define('SESSION_RIGHT_SIDEBAR', 'showRightSidebar');
-    define('SESSION_USER_DB_SERVER', 'userDbServer');
-    define('SESSION_CONTACT_DB_SERVER', 'contactDbServer');
+    define('SESSION_DB_SERVER', 'dbServer');
 
     define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
     define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
@@ -293,7 +292,8 @@ if (! defined('APP_NAME')) {
 
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
     define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
-    define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
+    define('NINJA_ACCOUNT_KEY', env('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h'));
+    define('NINJA_ACCOUNT_EMAIL', env('NINJA_ACCOUNT_EMAIL', 'contact@invoiceninja.com'));
     define('NINJA_LICENSE_ACCOUNT_KEY', 'AsFmBAeLXF0IKf7tmi0eiyZfmWW9hxMT');
     define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
