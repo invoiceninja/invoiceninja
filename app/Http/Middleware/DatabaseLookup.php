@@ -29,6 +29,8 @@ class DatabaseLookup
         } elseif ($guard == 'api') {
             if ($token = $request->header('X-Ninja-Token')) {
                 LookupAccountToken::setServerByField('token', $token);
+            } elseif ($email = $request->email) {
+                LookupUser::setServerByField('email', $email);
             }
         } elseif ($guard == 'contact') {
             if ($key = request()->invitation_key) {
