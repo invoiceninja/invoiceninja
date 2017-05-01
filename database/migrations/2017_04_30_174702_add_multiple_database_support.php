@@ -26,6 +26,7 @@ class AddMultipleDatabaseSupport extends Migration
 
         Schema::table('lookup_users', function ($table) {
             $table->string('email')->change()->nullable()->unique();
+            $table->string('confirmation_code')->nullable()->unique();
             $table->unsignedInteger('user_id')->index();
         });
 
@@ -49,8 +50,10 @@ class AddMultipleDatabaseSupport extends Migration
         Schema::rename('lookup_tokens', 'lookup_account_tokens');
 
         DB::table('db_servers')->insert(
-            ['name' => 'db-ninja-1'],
-            ['name' => 'db-ninja-2'],
+            ['name' => 'db-ninja-1']
+        );
+        DB::table('db_servers')->insert(
+            ['name' => 'db-ninja-2']
         );
     }
 
@@ -63,6 +66,10 @@ class AddMultipleDatabaseSupport extends Migration
     {
         Schema::table('lookup_companies', function ($table) {
             $table->dropColumn('company_id');
+        });
+
+        Schema::table('lookup_users', function ($table) {
+            $table->dropColumn('confirmation_code');
         });
 
         Schema::rename('lookup_account_tokens', 'lookup_tokens');

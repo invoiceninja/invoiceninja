@@ -19,7 +19,7 @@
             </div>
         @endif
 
-    <!-- if there are login errors, show them here -->
+        <!-- if there are login errors, show them here -->
         @if (Session::has('warning'))
             <div class="alert alert-warning">{{ Session::get('warning') }}</div>
         @endif
@@ -33,7 +33,6 @@
         @endif
 
         <input type="hidden" name="token" value="{{{ $token }}}">
-        <input type="hidden" name="contact_key" value="{{{ $contact_key }}}">
 
         <div>
             {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}
@@ -41,7 +40,7 @@
         </div>
 
         <p>{!! Button::success(trans('texts.save'))->large()->submit()->withAttributes(['class' => 'green'])->block() !!}</p>
-        
+
         {!! Former::close() !!}
     </div>
     <script type="text/javascript">

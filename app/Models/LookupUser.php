@@ -19,7 +19,7 @@ class LookupUser extends LookupModel
         'user_id',
     ];
 
-    public static function updateUser($accountKey, $userId, $email)
+    public static function updateUser($accountKey, $userId, $email, $confirmationCode)
     {
         if (! env('MULTI_DB_ENABLED')) {
             return;
@@ -36,6 +36,7 @@ class LookupUser extends LookupModel
                             ->firstOrFail();
 
         $lookupUser->email = $email;
+        $lookupUser->confirmation_code = $confirmationCode;
         $lookupUser->save();
 
         config(['database.default' => $current]);

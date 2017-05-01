@@ -425,8 +425,8 @@ User::updating(function ($user) {
     User::onUpdatingUser($user);
 
     $dirty = $user->getDirty();
-    if (isset($dirty['email'])) {
-        LookupUser::updateUser($user->account->account_key, $user->id, $user->email);
+    if (isset($dirty['email']) || isset($dirty['confirmation_code'])) {
+        LookupUser::updateUser($user->account->account_key, $user->id, $user->email, $user->confirmation_code);
     }
 });
 

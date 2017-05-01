@@ -22,6 +22,8 @@ class DatabaseLookup
                 config(['database.default' => $server]);
             } elseif ($email = $request->email) {
                 LookupUser::setServerByField('email', $email);
+            } elseif ($code = $request->confirmation_code) {
+                LookupUser::setServerByField('confirmation_code', $code);
             }
         } elseif ($guard == 'api') {
             if ($token = $request->header('X-Ninja-Token')) {
@@ -30,7 +32,7 @@ class DatabaseLookup
         } elseif ($guard == 'contact') {
             if ($key = request()->invitation_key) {
                 LookupInvitation::setServerByField('invitation_key', $key);
-            } elseif ($key = request()->contact_key) {
+            } elseif ($key = request()->contact_key ?: session('contact_key')) {
                 LookupContact::setServerByField('contact_key', $key);
             }
         } elseif ($guard == 'postmark') {
