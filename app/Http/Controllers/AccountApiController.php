@@ -192,7 +192,7 @@ class AccountApiController extends BaseAPIController
         $oAuth = new OAuth();
         $user = $oAuth->getProvider($provider)->getTokenResponse($token);
 
-        if($user) {
+        if ($user) {
             Auth::login($user);
             return $this->processLogin($request);
         }

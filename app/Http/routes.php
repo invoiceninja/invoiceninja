@@ -68,12 +68,6 @@ Route::group(['middleware' => 'lookup:license'], function () {
     Route::get('claim_license', 'NinjaController@claim_license');
 });
 
-Route::post('signup/validate', 'AccountController@checkEmail');
-Route::post('signup/submit', 'AccountController@submitSignup');
-
-Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
-Route::get('/auth_unlink', 'Auth\AuthController@authUnlink');
-
 Route::group(['middleware' => 'cors'], function () {
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
 });
@@ -85,7 +79,7 @@ Route::group(['middleware' => 'lookup:postmark'], function () {
 
 Route::group(['middleware' => 'lookup:account'], function () {
     Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
-}
+});
 
 //Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
 
@@ -96,6 +90,7 @@ Route::get('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@getLoginWr
 Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper']);
 Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail']);
 Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset']);
+Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
 
 Route::group(['middleware' => ['lookup:user']], function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
@@ -141,6 +136,10 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('save_sidebar_state', 'UserController@saveSidebarState');
     Route::post('contact_us', 'HomeController@contactUs');
     Route::post('handle_command', 'BotController@handleCommand');
+
+    Route::post('signup/validate', 'AccountController@checkEmail');
+    Route::post('signup/submit', 'AccountController@submitSignup');
+    Route::get('auth_unlink', 'Auth\AuthController@authUnlink');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
