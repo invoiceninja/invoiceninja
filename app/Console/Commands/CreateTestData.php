@@ -25,7 +25,7 @@ class CreateTestData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:create-test-data {count=1} {create_account=false}';
+    protected $signature = 'ninja:create-test-data {count=1} {create_account=false} {--database}';
 
     /**
      * @var
@@ -68,6 +68,7 @@ class CreateTestData extends Command
     public function fire()
     {
         if (Utils::isNinjaProd()) {
+            $this->info('Unable to run in production');
             return false;
         }
 
@@ -222,8 +223,6 @@ class CreateTestData extends Command
      */
     protected function getOptions()
     {
-        return [
-            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
-        ];
+        return [];
     }
 }
