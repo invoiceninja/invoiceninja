@@ -449,10 +449,14 @@ class AccountRepository
         if (! $user->registered) {
             $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
             $validator = Validator::make(['email' => $email], $rules);
+
             if ($validator->fails()) {
                 $messages = $validator->messages();
-
                 return $messages->first('email');
+            }
+
+            if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+                return trans('texts.email_taken');
             }
 
             $user->email = $email;

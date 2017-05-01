@@ -19,7 +19,7 @@ class InitLookup extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:init-lookup {--truncate=} {--company_id=}';
+    protected $signature = 'ninja:init-lookup {--truncate=} {--company_id=} {--page_size=100}';
 
     /**
      * The console command description.
@@ -65,7 +65,7 @@ class InitLookup extends Command
                     ->where('id', '>=', $this->option('company_id') ?: 1)
                     ->count();
 
-        for ($i=0; $i<$count; $i += 100) {
+        for ($i=0; $i<$count; $i += (int) $this->option('page_size')) {
             $this->initCompanies($dbServer->id, $i);
         }
     }
@@ -79,7 +79,7 @@ class InitLookup extends Command
 
         $companies = DB::table('companies')
                         ->offset($offset)
-                        ->limit(100)
+                        ->limit((int) $this->option('page_size'))
                         ->orderBy('id')
                         ->where('id', '>=', $this->option('company_id') ?: 1)
                         ->get(['id']);
@@ -196,7 +196,7 @@ class InitLookup extends Command
         DB::statement('truncate lookup_users');
         DB::statement('truncate lookup_contacts');
         DB::statement('truncate lookup_invitations');
-        DB::statement('truncate lookup_tokens');
+        DB::statement('truncate lookup_account_tokens');
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
     }
 
@@ -205,6 +205,7 @@ class InitLookup extends Command
         return [
             ['truncate', null, InputOption::VALUE_OPTIONAL, 'Truncate', null],
             ['company_id', null, InputOption::VALUE_OPTIONAL, 'Company Id', null],
+            ['page_size', null, InputOption::VALUE_OPTIONAL, 'Page Size', null],
         ];
     }
 

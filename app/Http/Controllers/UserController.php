@@ -170,13 +170,22 @@ class UserController extends BaseController
 
                 $rules['email'] = 'required|email|unique:users,email,'.$user->id.',id';
             } else {
+                $user = false;
                 $rules['email'] = 'required|email|unique:users';
             }
 
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
-                return Redirect::to($userPublicId ? 'users/edit' : 'users/create')->withInput()->withErrors($validator);
+                return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
+                            ->withErrors($validator)
+                            ->withInput();
+            }
+
+            if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+                return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
+                    ->withError(trans('texts.email_taken'))
+                    ->withInput();
             }
 
             if ($userPublicId) {

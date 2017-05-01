@@ -1085,6 +1085,14 @@ class AccountController extends BaseController
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
+        $email = trim(strtolower(Input::get('email')));
+
+        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+            return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
+                ->withError(trans('texts.email_taken'))
+                ->withInput();
+        }
+
         $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
         $validator = Validator::make(Input::all(), $rules);
 
@@ -1095,8 +1103,8 @@ class AccountController extends BaseController
         } else {
             $user->first_name = trim(Input::get('first_name'));
             $user->last_name = trim(Input::get('last_name'));
-            $user->username = trim(Input::get('email'));
-            $user->email = trim(strtolower(Input::get('email')));
+            $user->username = $email;
+            $user->email = $email;
             $user->phone = trim(Input::get('phone'));
 
             if (! Auth::user()->is_admin) {
@@ -1193,8 +1201,15 @@ class AccountController extends BaseController
      */
     public function checkEmail()
     {
-        $email = User::withTrashed()->where('email', '=', Input::get('email'))
-                                    ->where('id', '<>', Auth::user()->registered ? 0 : Auth::user()->id)
+        $email = trim(strtolower(Input::get('email')));
+        $user = Auth::user();
+
+        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+            return 'taken';
+        }
+
+        $email = User::withTrashed()->where('email', '=', $email)
+                                    ->where('id', '<>', $user->registered ? 0 : $user->id)
                                     ->first();
 
         if ($email) {
@@ -1233,6 +1248,10 @@ class AccountController extends BaseController
         $lastName = trim(Input::get('new_last_name'));
         $email = trim(strtolower(Input::get('new_email')));
         $password = trim(Input::get('new_password'));
+
+        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+            return '';
+        }
 
         if ($user->registered) {
             $newAccount = $this->accountRepo->create($firstName, $lastName, $email, $password, $account->company);
