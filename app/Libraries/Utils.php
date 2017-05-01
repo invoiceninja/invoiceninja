@@ -251,11 +251,6 @@ class Utils
         }
     }
 
-    public static function getDemoAccountId()
-    {
-        return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
-    }
-
     public static function getNewsFeedResponse($userType = false)
     {
         if (! $userType) {
