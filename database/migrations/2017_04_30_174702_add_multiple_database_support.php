@@ -45,6 +45,8 @@ class AddMultipleDatabaseSupport extends Migration
         Schema::table('lookup_tokens', function ($table) {
             $table->string('token')->change()->unique();
         });
+
+        Schema::rename('lookup_tokens', 'lookup_account_tokens');
     }
 
     /**
@@ -57,5 +59,7 @@ class AddMultipleDatabaseSupport extends Migration
         Schema::table('lookup_companies', function ($table) {
             $table->dropColumn('company_id');
         });
+
+        Schema::rename('lookup_account_tokens', 'lookup_tokens');
     }
 }

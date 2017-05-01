@@ -300,7 +300,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 });
 
 // Route groups for API
-Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function () {
+Route::group(['middleware' => ['lookup:api', 'api'], 'prefix' => 'api/v1'], function () {
     Route::get('ping', 'AccountApiController@ping');
     Route::post('login', 'AccountApiController@login');
     Route::post('oauth_login', 'AccountApiController@oauthLogin');

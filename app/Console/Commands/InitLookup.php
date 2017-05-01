@@ -9,7 +9,7 @@ use App\Models\LookupCompany;
 use App\Models\LookupAccount;
 use App\Models\LookupUser;
 use App\Models\LookupContact;
-use App\Models\LookupToken;
+use App\Models\LookupAccountToken;
 use App\Models\LookupInvitation;
 
 class InitLookup extends Command
@@ -123,7 +123,7 @@ class InitLookup extends Command
                     ]);
                 }
                 foreach ($account['tokens'] as $token) {
-                    LookupToken::create([
+                    LookupAccountToken::create([
                         'lookup_account_id' => $lookupAccount->id,
                         'token' => $token['token'],
                     ]);

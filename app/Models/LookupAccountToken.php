@@ -7,7 +7,7 @@ use Eloquent;
 /**
  * Class ExpenseCategory.
  */
-class LookupToken extends LookupModel
+class LookupAccountToken extends LookupModel
 {
     /**
      * @var array

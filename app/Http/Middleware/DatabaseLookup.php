@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Closure;
 use App\Models\LookupContact;
 use App\Models\LookupInvitation;
+use App\Models\LookupAccountToken;
 
 class DatabaseLookup
 {
@@ -20,7 +21,10 @@ class DatabaseLookup
             if (! session('SESSION_USER_DB_SERVER')) {
                 return redirect('/logout');
             }
-        // contacts can login with just the URL
+        } elseif ($guard == 'api') {
+            if ($token = $request->header('X-Ninja-Token')) {
+                LookupAccountToken::setServerByField('token', $token);
+            }
         } else {
             if (request()->invitation_key) {
                 LookupInvitation::setServerByField('invitation_key', request()->invitation_key);
