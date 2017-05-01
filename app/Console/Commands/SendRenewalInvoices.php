@@ -7,6 +7,7 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use Illuminate\Console\Command;
 use Utils;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class SendRenewalInvoices.

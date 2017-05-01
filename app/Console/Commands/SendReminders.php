@@ -7,6 +7,7 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class SendReminders.

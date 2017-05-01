@@ -7,6 +7,7 @@ use Closure;
 use App\Models\LookupContact;
 use App\Models\LookupInvitation;
 use App\Models\LookupAccountToken;
+use App\Models\LookupUser;
 
 class DatabaseLookup
 {
@@ -17,19 +18,18 @@ class DatabaseLookup
         }
 
         if ($guard == 'user') {
-            // user's value is set when logging in
-            if (! session(SESSION_DB_SERVER)) {
-                return redirect('/logout');
+            if ($email = $request->email) {
+                LookupUser::setServerByField('email', $email);
             }
         } elseif ($guard == 'api') {
             if ($token = $request->header('X-Ninja-Token')) {
                 LookupAccountToken::setServerByField('token', $token);
             }
         } elseif ($guard == 'contact') {
-            if (request()->invitation_key) {
-                LookupInvitation::setServerByField('invitation_key', request()->invitation_key);
-            } elseif (request()->contact_key) {
-                LookupContact::setServerByField('contact_key', request()->contact_key);
+            if ($key = request()->invitation_key) {
+                LookupInvitation::setServerByField('invitation_key', $key);
+            } elseif ($key = request()->contact_key) {
+                LookupContact::setServerByField('contact_key', $key);
             }
         } elseif ($guard == 'postmark') {
             LookupInvitation::setServerByField('message_id', request()->MessageID);

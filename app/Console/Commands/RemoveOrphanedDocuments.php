@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Document;
 use DateTime;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class RemoveOrphanedDocuments.

@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use DB;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class PruneData.

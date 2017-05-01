@@ -9,6 +9,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use Illuminate\Console\Command;
 use Carbon;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class ChargeRenewalInvoices.
