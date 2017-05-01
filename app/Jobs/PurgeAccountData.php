@@ -63,7 +63,7 @@ class PurgeAccountData extends Job
             $current = config('database.default');
             config(['database.default' => DB_NINJA_LOOKUP]);
 
-            $lookupAccount = LookupAccount::whereAccountKey($account->account_key)->first();
+            $lookupAccount = LookupAccount::whereAccountKey($account->account_key)->firstOrFail();
             DB::table('lookup_contacts')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
             DB::table('lookup_invitations')->where('lookup_account_id', '=', $lookupAccount->id)->delete();
 

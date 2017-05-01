@@ -51,6 +51,7 @@ class AddMultipleDatabaseSupport extends Migration
         DB::table('db_servers')->insert(
             ['name' => 'db-server-1']
         );
+    }
 
     /**
      * Reverse the migrations.
