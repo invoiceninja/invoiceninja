@@ -73,14 +73,16 @@ class InitLookup extends Command
 
         $this->info($this->log);
 
-        if ($this->option('validate') && $errorEmail) {
-            Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
-                $message->to($errorEmail)
-                        ->from(CONTACT_EMAIL)
-                        ->subject("Check-Lookups [{$database}]: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
-            });
-        } elseif (! $this->isValid) {
-            throw new Exception('Check data failed!!');
+        if ($this->option('validate')) {
+            if ($errorEmail = env('ERROR_EMAIL')) {
+                Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
+                    $message->to($errorEmail)
+                            ->from(CONTACT_EMAIL)
+                            ->subject("Check-Lookups [{$database}]: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
+                });
+            } elseif (! $this->isValid) {
+                throw new Exception('Check lookups failed!!');
+            }
         }
     }
 
