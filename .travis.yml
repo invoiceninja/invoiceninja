@@ -69,7 +69,7 @@ before_script:
   - curl -L http://ninja.dev:8000/update
   - php artisan ninja:create-test-data 4 true
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
-  - sed -i 's/DB_TYPE=db-ninja-1/DB_TYPE=db-ninja-2/g' .env
+  #- sed -i 's/DB_TYPE=db-ninja-1/DB_TYPE=db-ninja-2/g' .env
 
 script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
