@@ -19,7 +19,7 @@ class InitLookup extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:init-lookup {--truncate=} {--company_id=} {--page_size=100}';
+    protected $signature = 'ninja:init-lookup {--truncate=} {--validate=} {--company_id=} {--page_size=100} {--database=db-ninja-1}';
 
     /**
      * The console command description.
@@ -27,6 +27,9 @@ class InitLookup extends Command
      * @var string
      */
     protected $description = 'Initialize lookup tables';
+
+    protected $log = '';
+    protected $isValid = true;
 
     /**
      * Create a new command instance.
@@ -45,37 +48,35 @@ class InitLookup extends Command
      */
     public function handle()
     {
-        $this->info(date('Y-m-d h:i:s') . ' Running InitLookup...');
+        $this->logMessage('Running InitLookup...');
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        if (DbServer::count()) {
-            $dbServer = DbServer::first();
-        } else {
-            $dbServer = DbServer::create(['name' => DB_NINJA_1]);
-        }
+        $dbServer = DbServer::whereName($this->option('database'))->first();
 
         if ($this->option('truncate')) {
             $this->truncateTables();
+            $this->logMessage('Truncated');
+        } else {
+            config(['database.default' => $this->option('database')]);
+
+            $count = DB::table('companies')
+                        ->where('id', '>=', $this->option('company_id') ?: 1)
+                        ->count();
+
+            for ($i=0; $i<$count; $i += (int) $this->option('page_size')) {
+                $this->initCompanies($dbServer->id, $i);
+            }
         }
 
-        config(['database.default' => DB_NINJA_1]);
-
-        $count = DB::table('companies')
-                    ->where('id', '>=', $this->option('company_id') ?: 1)
-                    ->count();
-
-        for ($i=0; $i<$count; $i += (int) $this->option('page_size')) {
-            $this->initCompanies($dbServer->id, $i);
-        }
+        $this->info($this->log);
     }
 
     private function initCompanies($dbServerId, $offset = 0)
     {
-        $this->info(date('Y-m-d h:i:s') . ' initCompanies - offset: ' . $offset);
         $data = [];
 
-        config(['database.default' => DB_NINJA_1]);
+        config(['database.default' => $this->option('database')]);
 
         $companies = DB::table('companies')
                         ->offset($offset)
@@ -90,43 +91,95 @@ class InitLookup extends Command
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         foreach ($data as $companyId => $company) {
-            $this->info(date('Y-m-d h:i:s') . ' company: ' . $companyId);
+            $this->logMessage('Company Id: ' . $companyId);
 
-            $lookupCompany = LookupCompany::create([
-                'db_server_id' => $dbServerId,
-                'company_id' => $companyId,
-            ]);
+            if ($this->option('validate')) {
+                $lookupCompany = LookupCompany::whereDbServerId($dbServerId)->whereCompanyId($companyId)->first();
+                if (! $lookupCompany) {
+                    $this->logError("LookupCompany - dbServerId: {$dbServerId}, companyId: {$companyId} | Not found!");
+                    continue;
+                }
+            } else {
+                $lookupCompany = LookupCompany::create([
+                    'db_server_id' => $dbServerId,
+                    'company_id' => $companyId,
+                ]);
+            }
 
             foreach ($company as $accountKey => $account) {
-                $lookupAccount = LookupAccount::create([
-                    'lookup_company_id' => $lookupCompany->id,
-                    'account_key' => $accountKey
-                ]);
+                if ($this->option('validate')) {
+                    $lookupAccount = LookupAccount::whereLookupCompanyId($lookupCompany->id)->whereAccountKey($accountKey)->first();
+                    if (! $lookupAccount) {
+                        $this->logError("LookupAccount - lookupCompanyId: {$lookupCompany->id}, accountKey {$accountKey} | Not found!");
+                        continue;
+                    }
+                } else {
+                    $lookupAccount = LookupAccount::create([
+                        'lookup_company_id' => $lookupCompany->id,
+                        'account_key' => $accountKey
+                    ]);
+                }
+
                 foreach ($account['users'] as $user) {
-                    LookupUser::create([
-                        'lookup_account_id' => $lookupAccount->id,
-                        'email' => $user['email'],
-                        'user_id' => $user['user_id'],
-                    ]);
+                    if ($this->option('validate')) {
+                        $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)->whereUserId($user['user_id'])->first();
+                        if (! $lookupUser) {
+                            $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Not found!");
+                            continue;
+                        }
+                    } else {
+                        LookupUser::create([
+                            'lookup_account_id' => $lookupAccount->id,
+                            'email' => $user['email'],
+                            'user_id' => $user['user_id'],
+                        ]);
+                    }
                 }
+
                 foreach ($account['contacts'] as $contact) {
-                    LookupContact::create([
-                        'lookup_account_id' => $lookupAccount->id,
-                        'contact_key' => $contact['contact_key'],
-                    ]);
+                    if ($this->option('validate')) {
+                        $lookupContact = LookupContact::whereLookupAccountId($lookupAccount->id)->whereContactKey($contact['contact_key'])->first();
+                        if (! $lookupContact) {
+                            $this->logError("LookupContact - lookupAccountId: {$lookupAccount->id}, contactKey: {$contact['contact_key']} | Not found!");
+                            continue;
+                        }
+                    } else {
+                        LookupContact::create([
+                            'lookup_account_id' => $lookupAccount->id,
+                            'contact_key' => $contact['contact_key'],
+                        ]);
+                    }
                 }
+
                 foreach ($account['invitations'] as $invitation) {
-                    LookupInvitation::create([
-                        'lookup_account_id' => $lookupAccount->id,
-                        'invitation_key' => $invitation['invitation_key'],
-                        'message_id' => $invitation['message_id'] ?: null,
-                    ]);
+                    if ($this->option('validate')) {
+                        $lookupInvitation = LookupInvitation::whereLookupAccountId($lookupAccount->id)->whereInvitationKey($invitation['invitation_key'])->first();
+                        if (! $lookupInvitation) {
+                            $this->logError("LookupInvitation - lookupAccountId: {$lookupAccount->id}, invitationKey: {$invitation['invitation_key']} | Not found!");
+                            continue;
+                        }
+                    } else {
+                        LookupInvitation::create([
+                            'lookup_account_id' => $lookupAccount->id,
+                            'invitation_key' => $invitation['invitation_key'],
+                            'message_id' => $invitation['message_id'] ?: null,
+                        ]);
+                    }
                 }
+
                 foreach ($account['tokens'] as $token) {
-                    LookupAccountToken::create([
-                        'lookup_account_id' => $lookupAccount->id,
-                        'token' => $token['token'],
-                    ]);
+                    if ($this->option('validate')) {
+                        $lookupToken = LookupAccountToken::whereLookupAccountId($lookupAccount->id)->whereToken($token['token'])->first();
+                        if (! $lookupToken) {
+                            $this->logError("LookupAccountToken - lookupAccountId: {$lookupAccount->id}, token: {$token['token']} | Not found!");
+                            continue;
+                        }
+                    } else {
+                        LookupAccountToken::create([
+                            'lookup_account_id' => $lookupAccount->id,
+                            'token' => $token['token'],
+                        ]);
+                    }
                 }
             }
         }
@@ -136,7 +189,7 @@ class InitLookup extends Command
     {
         $data = [];
 
-        config(['database.default' => DB_NINJA_1]);
+        config(['database.default' => $this->option('database')]);
 
         $accounts = DB::table('accounts')->whereCompanyId($companyId)->orderBy('id')->get(['id', 'account_key']);
         foreach ($accounts as $account) {
@@ -188,6 +241,17 @@ class InitLookup extends Command
         return $data;
     }
 
+    private function logMessage($str)
+    {
+        $this->log .= date('Y-m-d h:i:s') . ' ' . $str . "\n";
+    }
+
+    private function logError($str)
+    {
+        $this->isValid = false;
+        $this->logMessage($str);
+    }
+
     private function truncateTables()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS = 0');
@@ -206,6 +270,8 @@ class InitLookup extends Command
             ['truncate', null, InputOption::VALUE_OPTIONAL, 'Truncate', null],
             ['company_id', null, InputOption::VALUE_OPTIONAL, 'Company Id', null],
             ['page_size', null, InputOption::VALUE_OPTIONAL, 'Page Size', null],
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+            ['validate', null, InputOption::VALUE_OPTIONAL, 'Validate', null],
         ];
     }
 
