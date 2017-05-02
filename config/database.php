@@ -46,12 +46,7 @@ return [
 
     'connections' => [
 
-        'sqlite' => [
-            'driver'   => 'sqlite',
-            'database' => storage_path().'/database.sqlite',
-            'prefix'   => '',
-        ],
-
+        // single database setup
         'mysql' => [
             'driver'    => 'mysql',
             'host'      => env('DB_HOST', 'localhost'),
@@ -65,6 +60,7 @@ return [
             'engine'    => 'InnoDB',
         ],
 
+        // multi-database setup
         'db-ninja-0' => [
             'driver'    => 'mysql',
             'host'      => env('DB_HOST', env('DB_HOST0', 'localhost')),
@@ -102,26 +98,6 @@ return [
             'prefix'    => '',
             'strict'    => env('DB_STRICT', false),
             'engine'    => 'InnoDB',
-        ],
-
-        'pgsql' => [
-            'driver'   => 'pgsql',
-            'host'     => env('DB_HOST', 'localhost'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'charset'  => 'utf8',
-            'prefix'   => '',
-            'schema'   => 'public',
-        ],
-
-        'sqlsrv' => [
-            'driver'   => 'sqlsrv',
-            'host'     => env('DB_HOST', 'localhost'),
-            'database' => env('DB_DATABASE', 'forge'),
-            'username' => env('DB_USERNAME', 'forge'),
-            'password' => env('DB_PASSWORD', ''),
-            'prefix'   => '',
         ],
 
     ],

@@ -93,8 +93,12 @@ class LookupModel extends Eloquent
         }
     }
 
-    public static function setDbServer($server, $isUser = false)
+    protected static function setDbServer($server, $isUser = false)
     {
+        if (! env('MULTI_DB_ENABLED')) {
+            return;
+        }
+
         config(['database.default' => $server]);
 
         if ($isUser) {
