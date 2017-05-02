@@ -11,7 +11,6 @@ class DbServerSeeder extends Seeder
         $servers = [
             ['name' => 'db-ninja-1'],
             ['name' => 'db-ninja-2'],
-            ['name' => 'db-ninja-3'],
         ];
 
         foreach ($servers as $server) {
