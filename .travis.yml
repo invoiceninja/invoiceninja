@@ -50,10 +50,10 @@ before_script:
   - sed -i '$a NINJA_DEV=true' .env
   # create the database and user
   - mysql -u root -e "create database IF NOT EXISTS ninja0;"
-  - mysql -u root -e "create database IF NOT EXISTS ninja1;"
+  - mysql -u root -e "create database IF NOT EXISTS ninja;"
   - mysql -u root -e "create database IF NOT EXISTS ninja2;"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja0.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
-  - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja1.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja2.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
   # migrate and seed the database
   - php artisan migrate --database=db-ninja-0 --seed --no-interaction
@@ -72,19 +72,19 @@ before_script:
   #- sed -i 's/DB_TYPE=db-ninja-1/DB_TYPE=db-ninja-2/g' .env
 
 script:
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance ExpenseCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance QuoteCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
-  - php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaxRatesCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CheckBalanceCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ClientCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance ExpenseCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance CreditCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance QuoteCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance InvoiceDesignCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance OnlinePaymentCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance PaymentCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance TaskCest.php
+  #- php ./vendor/codeception/codeception/codecept run --debug acceptance GatewayFeesCest.php
   - php ./vendor/codeception/codeception/codecept run --debug acceptance AllPagesCept.php
 
   #- sed -i 's/NINJA_DEV=true/NINJA_PROD=true/g' .env
@@ -97,18 +97,18 @@ after_script:
   - mysql -u root -e 'select * from lookup_accounts;' ninja0
   - mysql -u root -e 'select * from lookup_contacts;' ninja0
   - mysql -u root -e 'select * from lookup_invitations;' ninja0
-  - mysql -u root -e 'select * from accounts;' ninja1
-  - mysql -u root -e 'select * from users;' ninja1
-  - mysql -u root -e 'select * from account_gateways;' ninja1
-  - mysql -u root -e 'select * from clients;' ninja1
-  - mysql -u root -e 'select * from contacts;' ninja1
-  - mysql -u root -e 'select * from invoices;' ninja1
-  - mysql -u root -e 'select * from invoice_items;' ninja1
-  - mysql -u root -e 'select * from invitations;' ninja1
-  - mysql -u root -e 'select * from payments;' ninja1
-  - mysql -u root -e 'select * from credits;' ninja1
-  - mysql -u root -e 'select * from expenses;' ninja1
-  - mysql -u root -e 'select * from accounts;' ninja2
+  - mysql -u root -e 'select * from accounts;' ninja
+  - mysql -u root -e 'select * from users;' ninja
+  - mysql -u root -e 'select * from account_gateways;' ninja
+  - mysql -u root -e 'select * from clients;' ninja
+  - mysql -u root -e 'select * from contacts;' ninja
+  - mysql -u root -e 'select * from invoices;' ninja
+  - mysql -u root -e 'select * from invoice_items;' ninja
+  - mysql -u root -e 'select * from invitations;' ninja
+  - mysql -u root -e 'select * from payments;' ninja
+  - mysql -u root -e 'select * from credits;' ninja
+  - mysql -u root -e 'select * from expenses;' ninja
+  - mysql -u root -e 'select * from accounts;' ninja
   - cat storage/logs/laravel-error.log
   - cat storage/logs/laravel-info.log
   - FILES=$(find tests/_output -type f -name '*.png' | sort -nr)
