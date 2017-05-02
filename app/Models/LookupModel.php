@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Eloquent;
+use Cache;
 
 /**
  * Class ExpenseCategory.
@@ -68,7 +69,7 @@ class LookupModel extends Eloquent
         $isUser = $className == 'App\Models\User';
 
         // check if we've cached this lookup
-        if (env('MULTI_DB_CACHE_ENABLED') && $server = session($key)) {
+        if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {
             static::setDbServer($server, $isUser);
             return;
         }
@@ -87,7 +88,7 @@ class LookupModel extends Eloquent
                 abort("Looked up {$className} not found: {$field} => {$value}");
             }
 
-            session([$key => $server]);
+            Cache::put($key, $server, 120);
         } else {
             config(['database.default' => $current]);
         }

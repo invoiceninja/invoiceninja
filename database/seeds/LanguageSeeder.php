@@ -16,7 +16,7 @@ class LanguageSeeder extends Seeder
             ['name' => 'Italian', 'locale' => 'it'],
             ['name' => 'German', 'locale' => 'de'],
             ['name' => 'French', 'locale' => 'fr'],
-            ['name' => 'Brazilian Portuguese', 'locale' => 'pt_BR'],
+            ['name' => 'Portuguese - Brazilian', 'locale' => 'pt_BR'],
             ['name' => 'Dutch', 'locale' => 'nl'],
             ['name' => 'Spanish', 'locale' => 'es'],
             ['name' => 'Norwegian', 'locale' => 'nb_NO'],
