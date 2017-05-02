@@ -351,7 +351,7 @@ class AppController extends BaseController
     {
         try {
             Artisan::call('ninja:check-data');
-            //Artisan::call('ninja:check-data');
+            Artisan::call('ninja:init-lookup', ['--validate' => true]);
             return RESULT_SUCCESS;
         } catch (Exception $exception) {
             return RESULT_FAILURE;
