@@ -203,7 +203,7 @@ trait GeneratesNumbers
         ];
 
         $client = $invoice->client;
-        $clientCounter = ($invoice->isQuote && ! $this->share_counter) ? $client->quote_number_counter : $client->invoice_number_counter;
+        $clientCounter = ($invoice->isQuote() && ! $this->share_counter) ? $client->quote_number_counter : $client->invoice_number_counter;
 
         $replace = [
             $client->custom_value1,
