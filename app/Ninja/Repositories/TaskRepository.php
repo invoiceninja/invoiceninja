@@ -146,7 +146,7 @@ class TaskRepository extends BaseRepository
             } elseif ($data['action'] == 'stop' && $task->is_running) {
                 $timeLog[count($timeLog) - 1][1] = time();
                 $task->is_running = false;
-            } elseif ($data['action'] == 'offine'){
+            } elseif ($data['action'] == 'offline'){
                 $task->is_running = $data['is_running'];
             }
         }
