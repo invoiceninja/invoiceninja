@@ -415,6 +415,7 @@ class AccountRepository
             $contact->user_id = $ninjaUser->id;
             $contact->account_id = $ninjaAccount->id;
             $contact->public_id = $account->id;
+            $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             $contact->is_primary = true;
         }
 

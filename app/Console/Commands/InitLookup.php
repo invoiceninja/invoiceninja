@@ -144,7 +144,7 @@ class InitLookup extends Command
                     } else {
                         LookupUser::create([
                             'lookup_account_id' => $lookupAccount->id,
-                            'email' => $user['email'],
+                            'email' => $user['email'] ?: null,
                             'user_id' => $user['user_id'],
                         ]);
                     }

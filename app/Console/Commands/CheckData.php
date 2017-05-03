@@ -105,6 +105,29 @@ class CheckData extends Command
 
     private function checkContacts()
     {
+        // check for contacts with the contact_key value set
+        $contacts = DB::table('contacts')
+                        ->whereNull('contact_key')
+                        ->orderBy('id')
+                        ->get(['id']);
+        $this->logMessage(count($contacts) . ' contacts without a contact_key');
+
+        if (count($contacts) > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($contacts as $contact) {
+                DB::table('contacts')
+                    ->where('id', $contact->id)
+                    ->whereNull('contact_key')
+                    ->update([
+                        'contact_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
+                    ]);
+            }
+        }
+
+        // check for missing contacts
         $clients = DB::table('clients')
                     ->leftJoin('contacts', function($join) {
                         $join->on('contacts.client_id', '=', 'clients.id')
@@ -138,6 +161,7 @@ class CheckData extends Command
             }
         }
 
+        // check for more than one primary contact
         $clients = DB::table('clients')
                     ->leftJoin('contacts', function($join) {
                         $join->on('contacts.client_id', '=', 'clients.id')
