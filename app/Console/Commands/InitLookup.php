@@ -54,7 +54,8 @@ class InitLookup extends Command
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $dbServer = DbServer::whereName($this->option('database'))->first();
+        $database = $this->option('database');
+        $dbServer = DbServer::whereName($database)->first();
 
         if ($this->option('truncate')) {
             $this->truncateTables();
@@ -72,6 +73,7 @@ class InitLookup extends Command
         }
 
         $this->info($this->log);
+        $this->info('Valid: ' . ($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
 
         if ($this->option('validate')) {
             if ($errorEmail = env('ERROR_EMAIL')) {
@@ -105,7 +107,6 @@ class InitLookup extends Command
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         foreach ($data as $companyId => $company) {
-            $this->logMessage('Company Id: ' . $companyId);
 
             if ($this->option('validate')) {
                 $lookupCompany = LookupCompany::whereDbServerId($dbServerId)->whereCompanyId($companyId)->first();

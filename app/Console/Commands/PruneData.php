@@ -34,13 +34,13 @@ class PruneData extends Command
         $sql = 'select c.id
                 from companies c
                 left join accounts a on a.company_id = c.id
-                left join clients c on c.account_id = a.id
+                left join clients cl on cl.account_id = a.id
                 left join tasks t on t.account_id = a.id
                 left join expenses e on e.account_id = a.id
                 left join users u on u.account_id = a.id and u.registered = 1
                 where c.created_at < DATE_SUB(now(), INTERVAL 6 MONTH)
                 group by c.id
-                having count(c.id) = 0
+                having count(cl.id) = 0
                 and count(t.id) = 0
                 and count(e.id) = 0
                 and count(u.id) = 0';
