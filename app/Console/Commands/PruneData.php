@@ -39,6 +39,8 @@ class PruneData extends Command
                 left join expenses e on e.account_id = a.id
                 left join users u on u.account_id = a.id and u.registered = 1
                 where c.created_at < DATE_SUB(now(), INTERVAL 6 MONTH)
+                and c.trial_started is null
+                and c.plan is null
                 group by c.id
                 having count(cl.id) = 0
                 and count(t.id) = 0
