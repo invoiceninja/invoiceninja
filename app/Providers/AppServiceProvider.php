@@ -23,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // support selecting job database 
         Queue::before(function (JobProcessing $event) {
             $body = $event->job->getRawBody();
             preg_match('/db-ninja-[\d+]/', $body, $matches);
@@ -30,7 +31,7 @@ class AppServiceProvider extends ServiceProvider
                 config(['database.default' => $matches[0]]);
             }
         });
-        
+
         Form::macro('image_data', function ($image, $contents = false) {
             if (! $contents) {
                 $contents = file_get_contents($image);
