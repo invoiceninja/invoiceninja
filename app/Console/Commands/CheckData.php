@@ -75,6 +75,7 @@ class CheckData extends Command
 
         $this->checkBalances();
         $this->checkContacts();
+        //$this->checkUserAccounts();
 
         if (! $this->option('client_id')) {
             $this->checkInvitations();
@@ -101,6 +102,61 @@ class CheckData extends Command
     private function logMessage($str)
     {
         $this->log .= $str . "\n";
+    }
+
+    private function checkUserAccounts()
+    {
+        $userAccounts = DB::table('user_accounts')
+                        ->leftJoin('users as u1', 'u1.id', '=', 'user_accounts.user_id1')
+                        ->leftJoin('accounts as a1', 'a1.id', '=', 'u1.account_id')
+                        ->leftJoin('users as u2', 'u2.id', '=', 'user_accounts.user_id2')
+                        ->leftJoin('accounts as a2', 'a2.id', '=', 'u2.account_id')
+                        ->leftJoin('users as u3', 'u3.id', '=', 'user_accounts.user_id3')
+                        ->leftJoin('accounts as a3', 'a3.id', '=', 'u3.account_id')
+                        ->leftJoin('users as u4', 'u4.id', '=', 'user_accounts.user_id4')
+                        ->leftJoin('accounts as a4', 'a4.id', '=', 'u4.account_id')
+                        ->leftJoin('users as u5', 'u5.id', '=', 'user_accounts.user_id5')
+                        ->leftJoin('accounts as a5', 'a5.id', '=', 'u5.account_id')
+                        ->get([
+                            'user_accounts.id',
+                            'a1.company_id as a1_company_id',
+                            'a2.company_id as a2_company_id',
+                            'a3.company_id as a3_company_id',
+                            'a4.company_id as a4_company_id',
+                            'a5.company_id as a5_company_id',
+                        ]);
+
+        $countInvalid = 0;
+
+        foreach ($userAccounts as $userAccount) {
+            $ids = [];
+
+            if ($companyId1 = $userAccount->a1_company_id) {
+                $ids[$companyId1] = true;
+            }
+            if ($companyId2 = $userAccount->a2_company_id) {
+                $ids[$companyId2] = true;
+            }
+            if ($companyId3 = $userAccount->a3_company_id) {
+                $ids[$companyId3] = true;
+            }
+            if ($companyId4 = $userAccount->a4_company_id) {
+                $ids[$companyId4] = true;
+            }
+            if ($companyId5 = $userAccount->a5_company_id) {
+                $ids[$companyId5] = true;
+            }
+
+            if (count($ids) > 1) {
+                $this->info('user_account: ' . $userAccount->id);
+                $countInvalid++;
+            }
+        }
+
+        if ($countInvalid > 0) {
+            $this->logMessage($countInvalid . ' user accounts with multiple companies');
+            $this->isValid = false;
+        }
     }
 
     private function checkContacts()
