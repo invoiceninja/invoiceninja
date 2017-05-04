@@ -393,6 +393,7 @@ class Utils
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),
+            'is_console' => App::runningInConsole() ? 'yes' : 'no',
         ];
 
         if ($info) {

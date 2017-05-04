@@ -39,6 +39,11 @@ class SendInvoiceEmail extends Job implements ShouldQueue
     protected $userId;
 
     /**
+     * @var string
+     */
+    protected $server;
+
+    /**
      * Create a new job instance.
      *
      * @param Invoice $invoice
@@ -52,6 +57,7 @@ class SendInvoiceEmail extends Job implements ShouldQueue
         $this->userId = $userId;
         $this->reminder = $reminder;
         $this->template = $template;
+        $this->server = config('database.default');
     }
 
     /**

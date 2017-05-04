@@ -21,6 +21,11 @@ class SendPaymentEmail extends Job implements ShouldQueue
     protected $payment;
 
     /**
+     * @var string
+     */
+    protected $server;
+
+    /**
      * Create a new job instance.
 
      * @param Payment $payment
@@ -28,6 +33,7 @@ class SendPaymentEmail extends Job implements ShouldQueue
     public function __construct($payment)
     {
         $this->payment = $payment;
+        $this->server = config('database.default');
     }
 
     /**

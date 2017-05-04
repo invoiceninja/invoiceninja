@@ -35,6 +35,11 @@ class ImportData extends Job implements ShouldQueue
     protected $settings;
 
     /**
+     * @var string
+     */
+    protected $server;
+
+    /**
      * Create a new job instance.
      *
      * @param mixed   $files
@@ -45,6 +50,7 @@ class ImportData extends Job implements ShouldQueue
         $this->user = $user;
         $this->type = $type;
         $this->settings = $settings;
+        $this->server = config('database.default');
     }
 
     /**
