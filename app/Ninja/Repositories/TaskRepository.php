@@ -148,6 +148,7 @@ class TaskRepository extends BaseRepository
                 $task->is_running = false;
             } elseif ($data['action'] == 'offline'){
                 $task->is_running = $data['is_running'] ? 1 : 0;
+                $task->client_id = $data['client_id'];
             }
         }
 
