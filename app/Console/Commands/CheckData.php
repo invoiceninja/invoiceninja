@@ -75,6 +75,8 @@ class CheckData extends Command
 
         $this->checkBalances();
         $this->checkContacts();
+
+        // TODO Enable once user_account companies have been merged
         //$this->checkUserAccounts();
 
         if (! $this->option('client_id')) {
