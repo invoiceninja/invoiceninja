@@ -438,7 +438,7 @@ class CheckData extends Command
             $clients->where('clients.id', '=', $this->option('client_id'));
         }
 
-        $clients = $clients->groupBy('clients.id', 'clients.balance', 'clients.created_at')
+        $clients = $clients->groupBy('clients.id', 'clients.balance')
                 ->orderBy('accounts.company_id', 'DESC')
                 ->get(['accounts.company_id', 'clients.account_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
         $this->logMessage(count($clients) . ' clients with incorrect balance/activities');
