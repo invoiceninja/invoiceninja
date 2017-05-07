@@ -58,7 +58,7 @@
 
 	{!! Former::open($url)
             ->method($method)
-            ->addClass('warn-on-exit main-form')
+            ->addClass('warn-on-exit main-form search')
             ->autocomplete('off')
             ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
