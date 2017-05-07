@@ -22,22 +22,27 @@ class AddCustomContactFields extends Migration
             $table->string('custom_value2')->nullable();
         });
 
-        Schema::table('payment_methods', function ($table) {
-            $table->unsignedInteger('account_gateway_token_id')->nullable()->change();
-            $table->dropForeign('payment_methods_account_gateway_token_id_foreign');
-        });
+        // This may fail if the foreign key doesn't exist
+        try {
+            Schema::table('payment_methods', function ($table) {
+                $table->unsignedInteger('account_gateway_token_id')->nullable()->change();
+                $table->dropForeign('payment_methods_account_gateway_token_id_foreign');
+            });
 
-        Schema::table('payment_methods', function ($table) {
-            $table->foreign('account_gateway_token_id')->references('id')->on('account_gateway_tokens')->onDelete('cascade');
-        });
+            Schema::table('payment_methods', function ($table) {
+                $table->foreign('account_gateway_token_id')->references('id')->on('account_gateway_tokens')->onDelete('cascade');
+            });
 
-        Schema::table('payments', function ($table) {
-            $table->dropForeign('payments_payment_method_id_foreign');
-        });
+            Schema::table('payments', function ($table) {
+                $table->dropForeign('payments_payment_method_id_foreign');
+            });
 
-        Schema::table('payments', function ($table) {
-            $table->foreign('payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade');
-        });
+            Schema::table('payments', function ($table) {
+                $table->foreign('payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade');
+            });
+        } catch (Exception $e) {
+            // do nothing
+        }
 
         Schema::table('expenses', function($table) {
             $table->unsignedInteger('payment_type_id')->nullable();
