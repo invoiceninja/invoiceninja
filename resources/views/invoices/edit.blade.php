@@ -58,7 +58,7 @@
 
 	{!! Former::open($url)
             ->method($method)
-            ->addClass('warn-on-exit main-form search')
+            ->addClass('warn-on-exit main-form search') // 'search' prevents LastPass auto-fill http://stackoverflow.com/a/30921628/497368
             ->autocomplete('off')
             ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
