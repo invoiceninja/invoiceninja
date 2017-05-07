@@ -56,7 +56,7 @@ class PurgeAccountData extends Job
 
         $account->invoice_number_counter = 1;
         $account->quote_number_counter = 1;
-        $account->client_number_counter = 1;
+        $account->client_number_counter = $account->client_number_counter > 0 ? 1 : 0;
         $account->save();
 
         if (env('MULTI_DB_ENABLED')) {
