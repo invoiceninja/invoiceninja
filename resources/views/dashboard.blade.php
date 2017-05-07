@@ -83,7 +83,7 @@
             }
         }
 
-        var account = {!! strip_tags(json_encode($account)) !!};
+        var account = {!! HTMLUtils::encodeJSON($account) !!};
         var chartGroupBy = 'day';
         var chartCurrencyId = {{ $account->getCurrencyId() }};
 		var dateRanges = {!! $account->present()->dateRangeOptions !!};

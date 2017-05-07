@@ -256,10 +256,10 @@
     <script type="text/javascript">
         Dropzone.autoDiscover = false;
 
-        var vendors = {!! strip_tags(json_encode($vendors)) !!};
-        var clients = {!! strip_tags(json_encode($clients)) !!};
-        var categories = {!! strip_tags(json_encode($categories)) !!};
-        var taxRates = {!! strip_tags(json_encode($taxRates)) !!};
+        var vendors = {!! HTMLUtils::encodeJSON($vendors) !!};
+        var clients = {!! HTMLUtils::encodeJSON($clients) !!};
+        var categories = {!! HTMLUtils::encodeJSON($categories) !!};
+        var taxRates = {!! HTMLUtils::encodeJSON($taxRates) !!};
 
         var clientMap = {};
         var vendorMap = {};
