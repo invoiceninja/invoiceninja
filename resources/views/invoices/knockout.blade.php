@@ -918,7 +918,11 @@ ko.bindingHandlers.productTypeahead = {
             display: allBindings.key,
             limit: 50,
             templates: {
-                suggestion: function(item) { return '<div title="' + item.product_key + '">' + item.product_key + '</div>' }
+                suggestion: function(item) { return '<div title="'
+                    + item.product_key + ': '
+                    + item.cost + "\n"
+                    + item.notes.substring(0, 60) + '">'
+                    + item.product_key + '</div>' }
             },
             source: searchData(allBindings.items, allBindings.key)
         }).on('typeahead:select', function(element, datum, name) {
