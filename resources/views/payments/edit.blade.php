@@ -106,8 +106,8 @@
 
 	<script type="text/javascript">
 
-	var invoices = {!! HTMLUtils::encodeJSON($invoices) !!};
-	var clients = {!! HTMLUtils::encodeJSON($clients) !!};
+	var invoices = {!! $invoices !!};
+	var clients = {!! $clients !!};
 
 	$(function() {
 

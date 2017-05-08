@@ -200,7 +200,7 @@
   <script>
     window.onDatatableReady = actionListHandler;
 
-	var taxRates = {!! HTMLUtils::encodeJSON($taxRates) !!};
+	var taxRates = {!! $taxRates !!};
 	var taxRatesMap = {};
 	for (var i=0; i<taxRates.length; i++) {
 		var taxRate = taxRates[i];

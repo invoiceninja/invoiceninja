@@ -13,8 +13,8 @@
 
         var invoiceDesigns = {!! \App\Models\InvoiceDesign::getDesigns() !!};
         var invoiceFonts = {!! Cache::get('fonts') !!};
-        var currentInvoice = {!! HTMLUtils::encodeJSON($invoice) !!};
-        var invoice = {!! HTMLUtils::encodeJSON($invoice) !!};
+        var currentInvoice = {!! $invoice !!};
+        var invoice = {!! $invoice !!};
 
         function getPDFString(cb) {
 

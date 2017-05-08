@@ -60,7 +60,7 @@
   <script type="text/javascript">
 
     // store data as JSON
-    var data = {!! HTMLUtils::encodeJSON($clients) !!};
+    var data = {!! $clients !!};
 
     _.each(data, function(client) {
       _.each(client.invoices, function(invoice) {

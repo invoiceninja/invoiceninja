@@ -44,9 +44,4 @@ class HTMLUtils
 
         return $purifier->purify($html);
     }
-
-    public static function encodeJSON($string)
-    {
-        return htmlentities(json_encode($string), ENT_NOQUOTES);
-    }
 }

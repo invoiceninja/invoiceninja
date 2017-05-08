@@ -61,7 +61,7 @@
 
     <script>
 
-		var clients = {!! HTMLUtils::encodeJSON($clients) !!};
+		var clients = {!! $clients !!};
 
         $(function() {
 			var $clientSelect = $('select#client_id');

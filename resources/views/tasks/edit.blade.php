@@ -232,8 +232,8 @@
       }
     }
 
-    var clients = {!! HTMLUtils::encodeJSON($clients) !!};
-    var projects = {!! HTMLUtils::encodeJSON($projects) !!};
+    var clients = {!! $clients !!};
+    var projects = {!! $projects !!};
 
     var timeLabels = {};
     @foreach (['hour', 'minute', 'second'] as $period)

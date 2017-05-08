@@ -372,7 +372,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
 
 <script type="text/javascript">
 
-    var products = {!! HTMLUtils::encodeJSON($products) !!};
+    var products = {!! $products !!};
 
     $(function() {
         var $productSelect = $('select#product');

@@ -58,7 +58,7 @@
 	<script type="text/javascript">
 
 
-	var clients = {!! $clients ? HTMLUtils::encodeJSON($clients) : 'false' !!};
+	var clients = {!! $clients ?: 'false' !!};
 
 	$(function() {
 
