@@ -1268,7 +1268,7 @@
 		if (!design) return;
 		var doc = generatePDF(invoice, design, true);
         var type = invoice.is_quote ? '{{ trans('texts.'.ENTITY_QUOTE) }}' : '{{ trans('texts.'.ENTITY_INVOICE) }}';
-		doc.save(type +'-' + $('#invoice_number').val() + '.pdf');
+		doc.save(type + '-' + $('#invoice_number').val() + '.pdf');
 	}
 
     function onRecurrClick() {

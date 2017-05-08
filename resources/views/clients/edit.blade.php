@@ -166,6 +166,7 @@
 				@if (isset($planDetails))
 					{!! Former::populateField('plan', $planDetails['plan']) !!}
 					{!! Former::populateField('plan_term', $planDetails['term']) !!}
+					{!! Former::populateField('plan_price', $planDetails['plan_price']) !!}
 					@if (!empty($planDetails['paid']))
 						{!! Former::populateField('plan_paid', $planDetails['paid']->format('Y-m-d')) !!}
 					@endif
@@ -184,6 +185,7 @@
 							->addOption()
 							->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
 							->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)!!}
+				{!! Former::text('plan_price') !!}
 				{!! Former::text('plan_started')
                             ->data_date_format('yyyy-mm-dd')
                             ->addGroupClass('plan_start_date')

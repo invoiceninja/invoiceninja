@@ -24,6 +24,18 @@ class Company extends Eloquent
     /**
      * @var array
      */
+    protected $fillable = [
+        'plan',
+        'plan_term',
+        'plan_price',
+        'plan_paid',
+        'plan_started',
+        'plan_expires',
+    ];
+
+    /**
+     * @var array
+     */
     protected $dates = [
         'deleted_at',
         'promo_expires',
