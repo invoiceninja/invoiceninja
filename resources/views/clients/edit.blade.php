@@ -160,6 +160,15 @@
 			{!! Former::select('industry_id')->addOption('','')
 				->fromQuery($industries, 'name', 'id') !!}
 			{!! Former::textarea('private_notes') !!}
+		</div>
+		</div>
+
+
+		<div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.pro_plan_product') !!}</h3>
+          </div>
+            <div class="panel-body">
 
 
             @if (Auth::user()->account->isNinjaAccount())

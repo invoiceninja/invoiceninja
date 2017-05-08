@@ -392,7 +392,6 @@ class AccountRepository
         $client = Client::whereAccountId($ninjaAccount->id)
                     ->wherePublicId($account->id)
                     ->first();
-        $clientExists = $client ? true : false;
 
         if (! $client) {
             $client = new Client();
@@ -400,31 +399,21 @@ class AccountRepository
             $client->account_id = $ninjaAccount->id;
             $client->user_id = $ninjaUser->id;
             $client->currency_id = 1;
-        }
-
-        foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
-            $client->$field = $account->$field;
-        }
-
-        $client->save();
-
-        if ($clientExists) {
-            $contact = $client->getPrimaryContact();
-        } else {
+            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
+                $client->$field = $account->$field;
+            }
+            $client->save();
             $contact = new Contact();
             $contact->user_id = $ninjaUser->id;
             $contact->account_id = $ninjaAccount->id;
             $contact->public_id = $account->id;
             $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             $contact->is_primary = true;
+            foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
+                $contact->$field = $account->users()->first()->$field;
+            }
+            $client->contacts()->save($contact);
         }
-
-        $user = $account->getPrimaryUser();
-        foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
-            $contact->$field = $user->$field;
-        }
-
-        $client->contacts()->save($contact);
 
         return $client;
     }
