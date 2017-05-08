@@ -1706,6 +1706,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_Swedish' => 'Suédois',
     'lang_Albanian' => 'Albanais',
     'lang_English - United Kingdom' => 'English - United Kingdom',
+    'lang_Slovenian' => 'Slovenian',
 
     // Frequencies
     'freq_weekly' => 'Hebdomadaire',
@@ -2486,6 +2487,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'add_documents_to_invoice' => 'Add documents to invoice',
     'mark_expense_paid' => 'Mark paid',
     'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
+    'plan_price' => 'Plan Price'
 
 );
 

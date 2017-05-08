@@ -1712,6 +1712,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'lang_Swedish' => 'Szwedzki',
     'lang_Albanian' => 'Albański',
     'lang_English - United Kingdom' => 'English - United Kingdom',
+    'lang_Slovenian' => 'Slovenian',
 
     // Frequencies
     'freq_weekly' => 'Co tydzień',
@@ -2492,6 +2493,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'add_documents_to_invoice' => 'Add documents to invoice',
     'mark_expense_paid' => 'Mark paid',
     'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
+    'plan_price' => 'Plan Price'
 
 );
 

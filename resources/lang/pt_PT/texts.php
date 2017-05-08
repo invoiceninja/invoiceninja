@@ -561,7 +561,7 @@ $LANG = array(
     'end_time' => 'Final',
     'end' => 'Fim',
     'invoiced' => 'Faturado',
-    'logged' => 'Sessão Iniciado',
+    'logged' => 'Em aberto',
     'running' => 'Em execução',
     'task_error_multiple_clients' => 'Tarefas não podem pertencer a clientes diferentes',
     'task_error_running' => 'Parar as tarefas em execução',
@@ -1703,6 +1703,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'lang_Swedish' => 'Swedish',
     'lang_Albanian' => 'Albanian',
     'lang_English - United Kingdom' => 'English - United Kingdom',
+    'lang_Slovenian' => 'Slovenian',
 
     // Frequencies
     'freq_weekly' => 'Semanal',
@@ -2484,6 +2485,7 @@ Quando tiver os valores dos depósitos, volte a esta página e conclua a verific
     'add_documents_to_invoice' => 'Adicionar documento à nota de pag.',
     'mark_expense_paid' => 'Marcar Pago',
     'white_label_license_error' => 'Falhou a validar a licença, verifique storage/logs/laravel-error.log para mais detalhes.',
+    'plan_price' => 'Plan Price'
 
 );
 
