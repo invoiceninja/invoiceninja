@@ -235,7 +235,9 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('bluevine/signup', 'BlueVineController@signup');
     Route::get('bluevine/hide_message', 'BlueVineController@hideMessage');
     Route::get('bluevine/completed', 'BlueVineController@handleCompleted');
+
     Route::get('white_label/hide_message', 'NinjaController@hideWhiteLabelMessage');
+    Route::get('white_label/purchase', 'NinjaController@purchaseWhiteLabel');
 
     Route::get('reports', 'ReportController@showReports');
     Route::post('reports', 'ReportController@showReports');

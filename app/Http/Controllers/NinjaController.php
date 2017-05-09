@@ -7,6 +7,7 @@ use App\Models\Country;
 use App\Models\License;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\AccountRepository;
+use App\Libraries\CurlUtils;
 use Auth;
 use Cache;
 use CreditCard;
@@ -289,5 +290,32 @@ class NinjaController extends BaseController
         $company->save();
 
         return RESULT_SUCCESS;
+    }
+
+    public function purchaseWhiteLabel()
+    {
+        if (Utils::isNinja()) {
+            return redirect('/');
+        }
+
+        $user = Auth::user();
+        $url = NINJA_APP_URL . '/buy_now';
+        $contactKey = $user->primaryAccount()->account_key;
+
+        $data = [
+            'account_key' => NINJA_LICENSE_ACCOUNT_KEY,
+            'contact_key' => $contactKey,
+            'product_id' => PRODUCT_WHITE_LABEL,
+            'first_name' => Auth::user()->first_name,
+            'last_name' => Auth::user()->last_name,
+            'email' => Auth::user()->email,
+            'return_link' => true,
+        ];
+
+        if ($url = CurlUtils::post($url, $data)) {
+            return redirect($url);
+        } else {
+            return redirect()->back()->withError(trans('texts.error_refresh_page'));
+        }
     }
 }

@@ -93,7 +93,11 @@
     }
 
     function buyProduct(affiliateKey, productId) {
-        window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/buy_now/?account_key={{ NINJA_LICENSE_ACCOUNT_KEY }}&product_id=' + productId + '&contact_key={{ Auth::user()->primaryAccount()->account_key }}' + '&redirect_url=' + window.location.href);
+
+        location.href = "{{ url('white_label/purchase') }}";
+
+        //window.open('{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/buy_now/?account_key={{ NINJA_LICENSE_ACCOUNT_KEY }}&product_id=' + productId + '&contact_key={{ Auth::user()->primaryAccount()->account_key }}' + '&redirect_url=' + window.location.href);
+
         /*
         var url = '{{ Utils::isNinjaDev() ? '' : NINJA_APP_URL }}/buy_now/';
         $.ajax({
