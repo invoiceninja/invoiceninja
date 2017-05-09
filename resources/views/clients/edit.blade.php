@@ -164,14 +164,13 @@
 		</div>
 
 
+		@if (Auth::user()->account->isNinjaAccount())
 		<div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.pro_plan_product') !!}</h3>
           </div>
             <div class="panel-body">
 
-
-            @if (Auth::user()->account->isNinjaAccount())
 				@if (isset($planDetails))
 					{!! Former::populateField('plan', $planDetails['plan']) !!}
 					{!! Former::populateField('plan_term', $planDetails['term']) !!}
@@ -212,10 +211,11 @@
                         $('#plan_started, #plan_paid, #plan_expires').datepicker();
                     });
                 </script>
-            @endif
 
             </div>
             </div>
+			@endif
+
 
 		</div>
 	</div>
