@@ -17,9 +17,9 @@ Detailed Guides
 Automated Installers
 ^^^^^^^^^^^^^^^^^^^^
 
-- Dockerfile (Free): `github.com/invoiceninja/dockerfiles <https://github.com/invoiceninja/dockerfiles>`_
+- Dockerfile: `github.com/invoiceninja/dockerfiles <https://github.com/invoiceninja/dockerfiles>`_
 
-- Softaculous ($30): `softaculous.com <https://www.softaculous.com/apps/ecommerce/Invoice_Ninja>`_
+- Softaculous: `softaculous.com <https://www.softaculous.com/apps/ecommerce/Invoice_Ninja>`_
 
 Steps to Install
 ^^^^^^^^^^^^^^^^

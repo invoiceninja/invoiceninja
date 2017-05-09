@@ -21,9 +21,9 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 * White-label reseller (you pay us): $500 sign up fee and either 10% of revenue or $1 per user per month
 
 ### Installation Options
-* [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/) - Free
-* [Docker File](https://github.com/invoiceninja/dockerfiles) - Free
-* [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja) - $30
+* [Self-Host Zip](https://www.invoiceninja.com/knowledgebase/self-host/)
+* [Docker File](https://github.com/invoiceninja/dockerfiles)
+* [Softaculous](https://www.softaculous.com/apps/ecommerce/Invoice_Ninja)
 
 ## Requirements
 
