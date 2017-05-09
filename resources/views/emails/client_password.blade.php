@@ -8,7 +8,7 @@
     <div>
         <center>
             @include('partials.email_button', [
-                'link' => URL::to("client/password/reset/{$token}"),
+                'link' => URL::to(SITE_URL . "/client/password/reset/{$token}"),
                 'field' => 'reset',
                 'color' => '#36c157',
             ])
