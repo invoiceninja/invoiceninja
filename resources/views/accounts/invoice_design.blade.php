@@ -22,7 +22,7 @@
   <script>
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
-    var invoice = {!! strip_tags(json_encode($invoice)) !!};
+    var invoice = {!! json_encode($invoice) !!};
 
     function getDesignJavascript() {
       var id = $('#invoice_design_id').val();
@@ -215,14 +215,16 @@
 							{!! Former::text('labels_quantity')->label('quantity') !!}
 							{!! Former::text('labels_line_total')->label('line_total') !!}
 							{!! Former::text('labels_terms')->label('terms') !!}
+							{!! Former::text('labels_subtotal')->label('subtotal') !!}
 						</div>
 						<div class="col-md-6">
-							{!! Former::text('labels_subtotal')->label('subtotal') !!}
 							{!! Former::text('labels_discount')->label('discount') !!}
 							{!! Former::text('labels_paid_to_date')->label('paid_to_date') !!}
 							{!! Former::text('labels_balance_due')->label('balance_due') !!}
 							{!! Former::text('labels_partial_due')->label('partial_due') !!}
 							{!! Former::text('labels_tax')->label('tax') !!}
+							{!! Former::text('labels_po_number')->label('po_number') !!}
+							{!! Former::text('labels_due_date')->label('due_date') !!}
                         </div>
                       </div>
 

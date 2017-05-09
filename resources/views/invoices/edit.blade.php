@@ -58,7 +58,7 @@
 
 	{!! Former::open($url)
             ->method($method)
-            ->addClass('warn-on-exit main-form')
+            ->addClass('warn-on-exit main-form search') // 'search' prevents LastPass auto-fill http://stackoverflow.com/a/30921628/497368
             ->autocomplete('off')
             ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
@@ -153,7 +153,7 @@
 			<div data-bind="visible: !is_recurring()">
 				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('invoice_date') !!}
-				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_due_date"))
+				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label($account->getLabel($invoice->getDueDateLabel()))
 							->placeholder($invoice->exists || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder())
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
 				{!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onkeyup('onPartialChange()')
@@ -209,7 +209,7 @@
                     </div>
                 </div>
             </span>
-			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
+			{!! Former::text('po_number')->label($account->getLabel('po_number', 'po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
 						Former::select('is_amount_discount')->addOption(trans('texts.discount_percent'), '0')
@@ -841,8 +841,8 @@
 	<script type="text/javascript">
     Dropzone.autoDiscover = false;
 
-    var products = {!! strip_tags(json_encode($products)) !!};
-	var clients = {!! strip_tags(json_encode($clients)) !!};
+    var products = {!! $products !!};
+	var clients = {!! $clients !!};
     var account = {!! Auth::user()->account !!};
     var dropzone;
 
@@ -882,7 +882,7 @@
             // otherwise create blank model
             window.model = new ViewModel();
 
-            var invoice = {!! strip_tags(json_encode($invoice)) !!};
+            var invoice = {!! $invoice !!};
             ko.mapping.fromJS(invoice, model.invoice().mapping, model.invoice);
             model.invoice().is_recurring({{ $invoice->is_recurring ? '1' : '0' }});
             model.invoice().start_date_orig(model.invoice().start_date());
@@ -900,7 +900,7 @@
             @else
                 // set the default account tax rate
                 @if ($account->invoice_taxes && ! empty($defaultTax))
-                    var defaultTax = {!! strip_tags(json_encode($defaultTax)) !!};
+                    var defaultTax = {!! $defaultTax !!};
                     model.invoice().tax_rate1(defaultTax.rate);
                     model.invoice().tax_name1(defaultTax.name);
                 @endif
@@ -909,7 +909,7 @@
             @if (isset($tasks) && $tasks)
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var tasks = {!! strip_tags(json_encode($tasks)) !!};
+                var tasks = {!! $tasks !!};
 
                 for (var i=0; i<tasks.length; i++) {
                     var task = tasks[i];
@@ -928,7 +928,7 @@
 
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var expenses = {!! strip_tags(json_encode($expenses)) !!}
+                var expenses = {!! $expenses !!}
 
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];
@@ -1268,7 +1268,7 @@
 		if (!design) return;
 		var doc = generatePDF(invoice, design, true);
         var type = invoice.is_quote ? '{{ trans('texts.'.ENTITY_QUOTE) }}' : '{{ trans('texts.'.ENTITY_INVOICE) }}';
-		doc.save(type +'-' + $('#invoice_number').val() + '.pdf');
+		doc.save(type + '-' + $('#invoice_number').val() + '.pdf');
 	}
 
     function onRecurrClick() {

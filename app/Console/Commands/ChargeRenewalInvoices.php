@@ -9,6 +9,7 @@ use App\Ninja\Repositories\AccountRepository;
 use App\Services\PaymentService;
 use Illuminate\Console\Command;
 use Carbon;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class ChargeRenewalInvoices.
@@ -59,6 +60,10 @@ class ChargeRenewalInvoices extends Command
     public function fire()
     {
         $this->info(date('Y-m-d').' ChargeRenewalInvoices...');
+
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
 
         $ninjaAccount = $this->accountRepo->getNinjaAccount();
         $invoices = Invoice::whereAccountId($ninjaAccount->id)
@@ -120,6 +125,8 @@ class ChargeRenewalInvoices extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

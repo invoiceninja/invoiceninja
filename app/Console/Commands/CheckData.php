@@ -64,6 +64,10 @@ class CheckData extends Command
     {
         $this->logMessage(date('Y-m-d') . ' Running CheckData...');
 
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
         if (! $this->option('client_id')) {
             $this->checkBlankInvoiceHistory();
             $this->checkPaidToDate();
@@ -71,6 +75,9 @@ class CheckData extends Command
 
         $this->checkBalances();
         $this->checkContacts();
+
+        // TODO Enable once user_account companies have been merged
+        //$this->checkUserAccounts();
 
         if (! $this->option('client_id')) {
             $this->checkInvitations();
@@ -83,10 +90,10 @@ class CheckData extends Command
         $this->info($this->log);
 
         if ($errorEmail) {
-            Mail::raw($this->log, function ($message) use ($errorEmail) {
+            Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
-                        ->subject('Check-Data: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
+                        ->subject("Check-Data [{$database}]: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
             });
         } elseif (! $this->isValid) {
             throw new Exception('Check data failed!!');
@@ -98,8 +105,86 @@ class CheckData extends Command
         $this->log .= $str . "\n";
     }
 
+    private function checkUserAccounts()
+    {
+        $userAccounts = DB::table('user_accounts')
+                        ->leftJoin('users as u1', 'u1.id', '=', 'user_accounts.user_id1')
+                        ->leftJoin('accounts as a1', 'a1.id', '=', 'u1.account_id')
+                        ->leftJoin('users as u2', 'u2.id', '=', 'user_accounts.user_id2')
+                        ->leftJoin('accounts as a2', 'a2.id', '=', 'u2.account_id')
+                        ->leftJoin('users as u3', 'u3.id', '=', 'user_accounts.user_id3')
+                        ->leftJoin('accounts as a3', 'a3.id', '=', 'u3.account_id')
+                        ->leftJoin('users as u4', 'u4.id', '=', 'user_accounts.user_id4')
+                        ->leftJoin('accounts as a4', 'a4.id', '=', 'u4.account_id')
+                        ->leftJoin('users as u5', 'u5.id', '=', 'user_accounts.user_id5')
+                        ->leftJoin('accounts as a5', 'a5.id', '=', 'u5.account_id')
+                        ->get([
+                            'user_accounts.id',
+                            'a1.company_id as a1_company_id',
+                            'a2.company_id as a2_company_id',
+                            'a3.company_id as a3_company_id',
+                            'a4.company_id as a4_company_id',
+                            'a5.company_id as a5_company_id',
+                        ]);
+
+        $countInvalid = 0;
+
+        foreach ($userAccounts as $userAccount) {
+            $ids = [];
+
+            if ($companyId1 = $userAccount->a1_company_id) {
+                $ids[$companyId1] = true;
+            }
+            if ($companyId2 = $userAccount->a2_company_id) {
+                $ids[$companyId2] = true;
+            }
+            if ($companyId3 = $userAccount->a3_company_id) {
+                $ids[$companyId3] = true;
+            }
+            if ($companyId4 = $userAccount->a4_company_id) {
+                $ids[$companyId4] = true;
+            }
+            if ($companyId5 = $userAccount->a5_company_id) {
+                $ids[$companyId5] = true;
+            }
+
+            if (count($ids) > 1) {
+                $this->info('user_account: ' . $userAccount->id);
+                $countInvalid++;
+            }
+        }
+
+        if ($countInvalid > 0) {
+            $this->logMessage($countInvalid . ' user accounts with multiple companies');
+            $this->isValid = false;
+        }
+    }
+
     private function checkContacts()
     {
+        // check for contacts with the contact_key value set
+        $contacts = DB::table('contacts')
+                        ->whereNull('contact_key')
+                        ->orderBy('id')
+                        ->get(['id']);
+        $this->logMessage(count($contacts) . ' contacts without a contact_key');
+
+        if (count($contacts) > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($contacts as $contact) {
+                DB::table('contacts')
+                    ->where('id', $contact->id)
+                    ->whereNull('contact_key')
+                    ->update([
+                        'contact_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
+                    ]);
+            }
+        }
+
+        // check for missing contacts
         $clients = DB::table('clients')
                     ->leftJoin('contacts', function($join) {
                         $join->on('contacts.client_id', '=', 'clients.id')
@@ -133,6 +218,7 @@ class CheckData extends Command
             }
         }
 
+        // check for more than one primary contact
         $clients = DB::table('clients')
                     ->leftJoin('contacts', function($join) {
                         $join->on('contacts.client_id', '=', 'clients.id')
@@ -351,7 +437,7 @@ class CheckData extends Command
             $clients->where('clients.id', '=', $this->option('client_id'));
         }
 
-        $clients = $clients->groupBy('clients.id', 'clients.balance', 'clients.created_at')
+        $clients = $clients->groupBy('clients.id', 'clients.balance')
                 ->orderBy('accounts.company_id', 'DESC')
                 ->get(['accounts.company_id', 'clients.account_id', 'clients.id', 'clients.balance', 'clients.paid_to_date', DB::raw('sum(invoices.balance) actual_balance')]);
         $this->logMessage(count($clients) . ' clients with incorrect balance/activities');
@@ -543,6 +629,7 @@ class CheckData extends Command
         return [
             ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],
             ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];
     }
 }

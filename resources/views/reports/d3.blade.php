@@ -60,7 +60,7 @@
   <script type="text/javascript">
 
     // store data as JSON
-    var data = {!! strip_tags(json_encode($clients)) !!};
+    var data = {!! $clients !!};
 
     _.each(data, function(client) {
       _.each(client.invoices, function(invoice) {

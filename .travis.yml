@@ -44,21 +44,21 @@ before_script:
   # prevent MySQL went away error
   - mysql -u root -e 'SET @@GLOBAL.wait_timeout=28800;'
   # copy configuration files
-  - cp .env.example .env
+  - cp .env.travis .env
   - cp tests/_bootstrap.php.default tests/_bootstrap.php
   - php artisan key:generate --no-interaction
-  - sed -i 's/APP_ENV=production/APP_ENV=development/g' .env
-  - sed -i 's/APP_DEBUG=false/APP_DEBUG=true/g' .env
-  - sed -i 's/MAIL_DRIVER=smtp/MAIL_DRIVER=log/g' .env
-  - sed -i 's/PHANTOMJS_CLOUD_KEY/#PHANTOMJS_CLOUD_KEY/g' .env
   - sed -i '$a NINJA_DEV=true' .env
-  - sed -i '$a TRAVIS=true' .env
   # create the database and user
+  - mysql -u root -e "create database IF NOT EXISTS ninja0;"
   - mysql -u root -e "create database IF NOT EXISTS ninja;"
+  - mysql -u root -e "create database IF NOT EXISTS ninja2;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja0.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
   - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
+  - mysql -u root -e "GRANT ALL PRIVILEGES ON ninja2.* To 'ninja'@'localhost' IDENTIFIED BY 'ninja'; FLUSH PRIVILEGES;"
   # migrate and seed the database
-  - php artisan migrate --no-interaction
-  - php artisan db:seed --no-interaction # default seed
+  - php artisan migrate --database=db-ninja-0 --seed --no-interaction
+  - php artisan migrate --database=db-ninja-1 --seed --no-interaction
+  - php artisan migrate --database=db-ninja-2 --seed --no-interaction
   # Start webserver on ninja.dev:8000
   - php artisan serve --host=ninja.dev --port=8000 & # '&' allows to run in background
   # Start PhantomJS
@@ -69,6 +69,7 @@ before_script:
   - curl -L http://ninja.dev:8000/update
   - php artisan ninja:create-test-data 4 true
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
+  - sed -i 's/DB_TYPE=db-ninja-1/DB_TYPE=db-ninja-2/g' .env
 
 script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
@@ -92,6 +93,10 @@ script:
 after_script:
   - php artisan ninja:check-data --no-interaction
   - cat .env
+  - mysql -u root -e 'select * from lookup_companies;' ninja0
+  - mysql -u root -e 'select * from lookup_accounts;' ninja0
+  - mysql -u root -e 'select * from lookup_contacts;' ninja0
+  - mysql -u root -e 'select * from lookup_invitations;' ninja0
   - mysql -u root -e 'select * from accounts;' ninja
   - mysql -u root -e 'select * from users;' ninja
   - mysql -u root -e 'select * from account_gateways;' ninja
@@ -103,6 +108,7 @@ after_script:
   - mysql -u root -e 'select * from payments;' ninja
   - mysql -u root -e 'select * from credits;' ninja
   - mysql -u root -e 'select * from expenses;' ninja
+  - mysql -u root -e 'select * from accounts;' ninja
   - cat storage/logs/laravel-error.log
   - cat storage/logs/laravel-info.log
   - FILES=$(find tests/_output -type f -name '*.png' | sort -nr)

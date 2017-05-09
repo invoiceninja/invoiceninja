@@ -7,7 +7,7 @@ use HTMLPurifier_Config;
 
 class HTMLUtils
 {
-    public static function sanitize($css)
+    public static function sanitizeCSS($css)
     {
         // Allow referencing the body element
         $css = preg_replace('/(?<![a-z0-9\-\_\#\.])body(?![a-z0-9\-\_])/i', '.body', $css);
@@ -35,5 +35,13 @@ class HTMLUtils
 
         // Get the first style block
         return count($css) ? $css[0] : '';
+    }
+
+    public static function sanitizeHTML($html)
+    {
+        $config = HTMLPurifier_Config::createDefault();
+        $purifier = new HTMLPurifier($config);
+
+        return $purifier->purify($html);
     }
 }

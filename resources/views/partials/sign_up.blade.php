@@ -264,9 +264,11 @@
       </div>
       </div>
 
-      <div class="modal-footer" id="signUpFooter" style="margin-top: 0px;padding-right:0px">
-        <button type="button" class="btn btn-default" id="closeSignUpButton" data-dismiss="modal">{{ trans('texts.close') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
-        <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>{{ trans('texts.save') }} <i class="glyphicon glyphicon-floppy-disk"></i></button>
+      <div class="modal-footer" style="margin-top: 0px;padding-right:0px">
+        <span id="signUpFooter">
+            <button type="button" class="btn btn-default" id="closeSignUpButton" data-dismiss="modal">{{ trans('texts.close') }} <i class="glyphicon glyphicon-remove-circle"></i></button>
+            <button type="button" class="btn btn-primary" id="saveSignUpButton" onclick="validateServerSignUp()" disabled>{{ trans('texts.save') }} <i class="glyphicon glyphicon-floppy-disk"></i></button>
+        </span>
       </div>
     </div>
     </div>
@@ -291,7 +293,7 @@
       </div>
       </div>
 
-      <div class="modal-footer" id="signUpFooter">
+      <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
         <button type="button" class="btn btn-danger" onclick="logout(true)">{{ trans('texts.logout_and_delete') }}</button>
       </div>

@@ -1703,6 +1703,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_Swedish' => 'Suédois',
     'lang_Albanian' => 'Albanien',
     'lang_English - United Kingdom' => 'Anglais - Royaume Uni',
+    'lang_Slovenian' => 'Slovénien',
 
     // Frequencies
     'freq_weekly' => 'Hebdomadaire',
@@ -2483,7 +2484,8 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'invalid_file' => 'Type de fichier invalide',
     'add_documents_to_invoice' => 'Ajouter un document à la facture',
     'mark_expense_paid' => 'Marquer comme payé',
-    'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
+    'white_label_license_error' => 'La validation de la licence n\'a pas fonctionné. Veuillez consulter storage/logs/laravel-error.log pour plus d\'information.',
+    'plan_price' => 'Tarification'
 
 );
 

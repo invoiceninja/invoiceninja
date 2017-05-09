@@ -29,5 +29,6 @@ class DatabaseSeeder extends Seeder
         $this->call('LanguageSeeder');
         $this->call('IndustrySeeder');
         $this->call('FrequencySeeder');
+        $this->call('DbServerSeeder');
     }
 }

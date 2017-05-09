@@ -359,13 +359,12 @@ class AccountRepository
             $emailSettings = new AccountEmailSettings();
             $account->account_email_settings()->save($emailSettings);
 
-            $random = strtolower(str_random(RANDOM_KEY_LENGTH));
             $user = new User();
             $user->registered = true;
             $user->confirmed = true;
-            $user->email = 'contact@invoiceninja.com';
-            $user->password = $random;
-            $user->username = $random;
+            $user->email = NINJA_ACCOUNT_EMAIL;
+            $user->username = NINJA_ACCOUNT_EMAIL;
+            $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
             $user->first_name = 'Invoice';
             $user->last_name = 'Ninja';
             $user->notify_sent = true;
@@ -393,7 +392,6 @@ class AccountRepository
         $client = Client::whereAccountId($ninjaAccount->id)
                     ->wherePublicId($account->id)
                     ->first();
-        $clientExists = $client ? true : false;
 
         if (! $client) {
             $client = new Client();
@@ -401,30 +399,21 @@ class AccountRepository
             $client->account_id = $ninjaAccount->id;
             $client->user_id = $ninjaUser->id;
             $client->currency_id = 1;
-        }
-
-        foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
-            $client->$field = $account->$field;
-        }
-
-        $client->save();
-
-        if ($clientExists) {
-            $contact = $client->getPrimaryContact();
-        } else {
+            foreach (['name', 'address1', 'address2', 'city', 'state', 'postal_code', 'country_id', 'work_phone', 'language_id', 'vat_number'] as $field) {
+                $client->$field = $account->$field;
+            }
+            $client->save();
             $contact = new Contact();
             $contact->user_id = $ninjaUser->id;
             $contact->account_id = $ninjaAccount->id;
             $contact->public_id = $account->id;
+            $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
             $contact->is_primary = true;
+            foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
+                $contact->$field = $account->users()->first()->$field;
+            }
+            $client->contacts()->save($contact);
         }
-
-        $user = $account->getPrimaryUser();
-        foreach (['first_name', 'last_name', 'email', 'phone'] as $field) {
-            $contact->$field = $user->$field;
-        }
-
-        $client->contacts()->save($contact);
 
         return $client;
     }
@@ -450,10 +439,14 @@ class AccountRepository
         if (! $user->registered) {
             $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
             $validator = Validator::make(['email' => $email], $rules);
+
             if ($validator->fails()) {
                 $messages = $validator->messages();
-
                 return $messages->first('email');
+            }
+
+            if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+                return trans('texts.email_taken');
             }
 
             $user->email = $email;

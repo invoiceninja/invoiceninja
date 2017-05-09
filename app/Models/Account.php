@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App;
 use App\Events\UserSettingsChanged;
+use App\Models\LookupAccount;
 use App\Models\Traits\GeneratesNumbers;
 use App\Models\Traits\PresentsInvoice;
 use App\Models\Traits\SendsEmails;
@@ -1655,6 +1656,11 @@ class Account extends Eloquent
     }
 }
 
+Account::creating(function ($account)
+{
+    LookupAccount::createAccount($account->account_key, $account->company_id);
+});
+
 Account::updated(function ($account) {
     // prevent firing event if the invoice/quote counter was changed
     // TODO: remove once counters are moved to separate table
@@ -1664,4 +1670,11 @@ Account::updated(function ($account) {
     }
 
     Event::fire(new UserSettingsChanged());
+});
+
+Account::deleted(function ($account)
+{
+    LookupAccount::deleteWhere([
+        'account_key' => $account->account_key
+    ]);
 });

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Laracasts\Presenter\PresentableTrait;
 use Session;
+use App\Models\LookupUser;
 
 /**
  * Class User.
@@ -412,10 +413,34 @@ class User extends Authenticatable
     }
 }
 
+User::created(function ($user)
+{
+    LookupUser::createNew($user->account->account_key, [
+        'email' => $user->email,
+        'user_id' => $user->id,
+    ]);
+});
+
 User::updating(function ($user) {
     User::onUpdatingUser($user);
+
+    $dirty = $user->getDirty();
+    if (isset($dirty['email']) || isset($dirty['confirmation_code'])) {
+        LookupUser::updateUser($user->account->account_key, $user->id, $user->email, $user->confirmation_code);
+    }
 });
 
 User::updated(function ($user) {
     User::onUpdatedUser($user);
+});
+
+User::deleted(function ($user)
+{
+    if (! $user->email) {
+        return;
+    }
+
+    LookupUser::deleteWhere([
+        'email' => $user->email
+    ]);
 });

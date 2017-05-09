@@ -1714,6 +1714,7 @@ $LANG = array(
     'lang_Swedish' => 'Swedish',
     'lang_Albanian' => 'Albanian',
     'lang_English - United Kingdom' => 'English - United Kingdom',
+    'lang_Slovenian' => 'Slovenian',
 
     // Frequencies
     'freq_weekly' => 'Weekly',
@@ -2494,6 +2495,7 @@ $LANG = array(
     'add_documents_to_invoice' => 'Add documents to invoice',
     'mark_expense_paid' => 'Mark paid',
     'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
+    'plan_price' => 'Plan Price'
 
 );
 

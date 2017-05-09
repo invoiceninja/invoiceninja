@@ -51,8 +51,8 @@ class PasswordController extends Controller
         $data = [
         	'clientauth' => true,
 		];
-        $contactKey = session('contact_key');
-        if (!$contactKey) {
+
+        if (! session('contact_key')) {
             return \Redirect::to('/client/sessionexpired');
         }
 
@@ -104,7 +104,7 @@ class PasswordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function showResetForm(Request $request, $key = null, $token = null)
+    public function showResetForm(Request $request, $token = null)
     {
         if (is_null($token)) {
             return $this->getEmail();
@@ -115,23 +115,8 @@ class PasswordController extends Controller
 			'clientauth' => true,
 		);
 
-        if ($key) {
-            $contact = Contact::where('contact_key', '=', $key)->first();
-            if ($contact && ! $contact->is_deleted) {
-                $account = $contact->account;
-                $data['contact_key'] = $contact->contact_key;
-            } else {
-                // Maybe it's an invitation key
-                $invitation = Invitation::where('invitation_key', '=', $key)->first();
-                if ($invitation && ! $invitation->is_deleted) {
-                    $account = $invitation->account;
-                    $data['contact_key'] = $invitation->contact->contact_key;
-                }
-            }
-
-            if ( empty($account)) {
-                return \Redirect::to('/client/sessionexpired');
-            }
+        if (! session('contact_key')) {
+            return \Redirect::to('/client/sessionexpired');
         }
 
         return view('clientauth.reset')->with($data);
@@ -148,9 +133,9 @@ class PasswordController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getReset(Request $request, $key = null, $token = null)
+    public function getReset(Request $request, $token = null)
     {
-        return $this->showResetForm($request, $key, $token);
+        return $this->showResetForm($request, $token);
     }
 
     /**

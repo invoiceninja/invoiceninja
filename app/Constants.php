@@ -229,6 +229,7 @@ if (! defined('APP_NAME')) {
     define('SESSION_REFERRAL_CODE', 'referralCode');
     define('SESSION_LEFT_SIDEBAR', 'showLeftSidebar');
     define('SESSION_RIGHT_SIDEBAR', 'showRightSidebar');
+    define('SESSION_DB_SERVER', 'dbServer');
 
     define('SESSION_LAST_REQUEST_PAGE', 'SESSION_LAST_REQUEST_PAGE');
     define('SESSION_LAST_REQUEST_TIME', 'SESSION_LAST_REQUEST_TIME');
@@ -290,8 +291,8 @@ if (! defined('APP_NAME')) {
     define('EVENT_DELETE_INVOICE', 9);
 
     define('REQUESTED_PRO_PLAN', 'REQUESTED_PRO_PLAN');
-    define('DEMO_ACCOUNT_ID', 'DEMO_ACCOUNT_ID');
-    define('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h');
+    define('NINJA_ACCOUNT_KEY', env('NINJA_ACCOUNT_KEY', 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx79h'));
+    define('NINJA_ACCOUNT_EMAIL', env('NINJA_ACCOUNT_EMAIL', 'contact@invoiceninja.com'));
     define('NINJA_LICENSE_ACCOUNT_KEY', 'AsFmBAeLXF0IKf7tmi0eiyZfmWW9hxMT');
     define('NINJA_GATEWAY_ID', GATEWAY_STRIPE);
     define('NINJA_GATEWAY_CONFIG', 'NINJA_GATEWAY_CONFIG');
@@ -299,7 +300,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.3.0' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.3.1' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -334,6 +335,10 @@ if (! defined('APP_NAME')) {
     define('BOT_PLATFORM_SKYPE', 'Skype');
 
     define('BLANK_IMAGE', 'data:image/png;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
+
+    define('DB_NINJA_LOOKUP', 'db-ninja-0');
+    define('DB_NINJA_1', 'db-ninja-1');
+    define('DB_NINJA_2', 'db-ninja-2');
 
     define('COUNT_FREE_DESIGNS', 4);
     define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design

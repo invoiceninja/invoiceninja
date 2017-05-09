@@ -29,6 +29,7 @@ class Kernel extends HttpKernel
      * @var array
      */
     protected $routeMiddleware = [
+        'lookup' => 'App\Http\Middleware\DatabaseLookup',
         'auth' => 'App\Http\Middleware\Authenticate',
         'auth.basic' => 'Illuminate\Auth\Middleware\AuthenticateWithBasicAuth',
         'permissions.required' => 'App\Http\Middleware\PermissionsRequired',

@@ -58,7 +58,7 @@
 	<script type="text/javascript">
 
 
-	var clients = {!! $clients ? strip_tags(json_encode($clients)) : 'false' !!};
+	var clients = {!! $clients ?: 'false' !!};
 
 	$(function() {
 

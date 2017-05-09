@@ -26,6 +26,11 @@ class SendPushNotification extends Job implements ShouldQueue
     protected $type;
 
     /**
+     * @var string
+     */
+    protected $server;
+
+    /**
      * Create a new job instance.
 
      * @param Invoice $invoice
@@ -35,6 +40,7 @@ class SendPushNotification extends Job implements ShouldQueue
     {
         $this->invoice = $invoice;
         $this->type = $type;
+        $this->server = config('database.default');
     }
 
     /**

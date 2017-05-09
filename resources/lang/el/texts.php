@@ -1712,6 +1712,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'lang_Swedish' => 'Σουηδικά',
     'lang_Albanian' => 'Αλβανικά',
     'lang_English - United Kingdom' => 'Αγγλικά - Ηνωμένο Βασίλειο',
+    'lang_Slovenian' => 'Σλοβένικά',
 
     // Frequencies
     'freq_weekly' => 'Εβδομάδα',
@@ -2491,7 +2492,8 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'invalid_file' => 'Μη έγκυρος τύπος αρχείου',
     'add_documents_to_invoice' => 'Προσθέστε έγγραφα στο τιμολόγιο',
     'mark_expense_paid' => 'Σήμανση ως εξοφλημένο',
-    'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
+    'white_label_license_error' => 'Αδυναμία επικύρωσης της άδειας, ελέγξτε το αρχείο storage/logs/laravel-error.log για περισσότερες λεπτομέρειες.',
+    'plan_price' => 'Τιμή Πλάνου'
 
 );
 

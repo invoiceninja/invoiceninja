@@ -1704,6 +1704,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'lang_Swedish' => 'Zweeds',
     'lang_Albanian' => 'Albanees',
     'lang_English - United Kingdom' => 'Engels - Verenigd Koninkrijk',
+    'lang_Slovenian' => 'Sloveens',
 
     // Frequencies
     'freq_weekly' => 'Wekelijks',
@@ -2473,17 +2474,18 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'custom_contact_fields_help' => 'Voeg een veld toe bij het creeren van een contact en toon het label en de waarde op de PDF.',
     'datatable_info' => ':start tot :end van :totaal items worden getoond',
     'credit_total' => 'Totaal krediet',
-    'mark_billable' => 'Mark billable',
+    'mark_billable' => 'Markeer factureerbaar',
     'billed' => 'Gefactureerd',
-    'company_variables' => 'Company Variables',
-    'client_variables' => 'Client Variables',
-    'invoice_variables' => 'Invoice Variables',
-    'navigation_variables' => 'Navigation Variables',
-    'custom_variables' => 'Custom Variables',
-    'invalid_file' => 'Invalid file type',
-    'add_documents_to_invoice' => 'Add documents to invoice',
-    'mark_expense_paid' => 'Mark paid',
-    'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
+    'company_variables' => 'Bedrijfsvariabelen',
+    'client_variables' => 'Klant variabelen',
+    'invoice_variables' => 'Factuur variabelen',
+    'navigation_variables' => 'Navigatie variabelen',
+    'custom_variables' => 'Aangepaste variabelen',
+    'invalid_file' => 'Ongeldig bestandstype',
+    'add_documents_to_invoice' => 'Voeg documenten toe aan factuur',
+    'mark_expense_paid' => 'Markeer betaald',
+    'white_label_license_error' => 'Validatie van de licentie mislukt, controleer storage/logs/laravel-error.log voor meer informatie.',
+    'plan_price' => 'Plan prijs'
 
 );
 

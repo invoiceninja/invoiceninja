@@ -25,7 +25,7 @@ class CreateTestData extends Command
     /**
      * @var string
      */
-    protected $signature = 'ninja:create-test-data {count=1} {create_account=false}';
+    protected $signature = 'ninja:create-test-data {count=1} {create_account=false} {--database}';
 
     /**
      * @var
@@ -68,11 +68,16 @@ class CreateTestData extends Command
     public function fire()
     {
         if (Utils::isNinjaProd()) {
+            $this->info('Unable to run in production');
             return false;
         }
 
         $this->info(date('Y-m-d').' Running CreateTestData...');
         $this->count = $this->argument('count');
+
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
 
         if (filter_var($this->argument('create_account'), FILTER_VALIDATE_BOOLEAN)) {
             $this->info('Creating new account...');

@@ -251,11 +251,6 @@ class Utils
         }
     }
 
-    public static function getDemoAccountId()
-    {
-        return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
-    }
-
     public static function getNewsFeedResponse($userType = false)
     {
         if (! $userType) {
@@ -398,6 +393,7 @@ class Utils
             'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
             'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),
+            'is_console' => App::runningInConsole() ? 'yes' : 'no',
         ];
 
         if ($info) {

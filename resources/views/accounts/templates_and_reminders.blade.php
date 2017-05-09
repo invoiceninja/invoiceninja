@@ -151,7 +151,7 @@
         var entityTypes = ['invoice', 'quote', 'payment', 'reminder1', 'reminder2', 'reminder3'];
         var stringTypes = ['subject', 'template'];
         var templates = {!! json_encode($defaultTemplates) !!};
-        var account = {!! strip_tags(json_encode(Auth::user()->account)) !!};
+        var account = {!! Auth::user()->account !!};
 
         function refreshPreview() {
             for (var i=0; i<entityTypes.length; i++) {

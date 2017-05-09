@@ -39,6 +39,10 @@ class AccountApiController extends BaseAPIController
 
     public function register(RegisterRequest $request)
     {
+        if (! \App\Models\LookupUser::validateEmail($request->email)) {
+            return $this->errorResponse(['message' => trans('texts.email_taken')], 500);
+        }
+
         $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
         $user = $account->users()->first();
 
@@ -192,7 +196,7 @@ class AccountApiController extends BaseAPIController
         $oAuth = new OAuth();
         $user = $oAuth->getProvider($provider)->getTokenResponse($token);
 
-        if($user) {
+        if ($user) {
             Auth::login($user);
             return $this->processLogin($request);
         }

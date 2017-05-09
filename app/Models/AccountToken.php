@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\LookupAccountToken;
 
 /**
  * Class AccountToken.
@@ -39,3 +40,17 @@ class AccountToken extends EntityModel
         return $this->belongsTo('App\Models\User')->withTrashed();
     }
 }
+
+AccountToken::creating(function ($token)
+{
+    LookupAccountToken::createNew($token->account->account_key, [
+        'token' => $token->token,
+    ]);
+});
+
+AccountToken::deleted(function ($token)
+{
+    LookupAccountToken::deleteWhere([
+        'token' => $token->token
+    ]);
+});

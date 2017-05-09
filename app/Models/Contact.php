@@ -8,6 +8,7 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Models\LookupContact;
 
 /**
  * Class Contact.
@@ -165,3 +166,17 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         return "{$url}/client/dashboard/{$this->contact_key}";
     }
 }
+
+Contact::creating(function ($contact)
+{
+    LookupContact::createNew($contact->account->account_key, [
+        'contact_key' => $contact->contact_key,
+    ]);
+});
+
+Contact::deleted(function ($contact)
+{
+    LookupContact::deleteWhere([
+        'contact_key' => $contact->contact_key,
+    ]);
+});

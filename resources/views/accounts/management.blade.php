@@ -61,7 +61,7 @@
 									->value($account->company->present()->discountMessage) !!}
 						@endif
 
-						@if (Utils::isNinjaProd())
+						@if (Utils::isNinjaProd() && Auth::user()->confirmed)
 							{!! Former::actions( Button::info(trans('texts.plan_change'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('edit'))) !!}
 						@endif
 					@else
@@ -82,7 +82,9 @@
 							</div>
 						@endif
 						@if (Utils::isNinjaProd())
-						   {!! Former::actions( Button::success(trans('texts.plan_upgrade'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('plus-sign'))) !!}
+							@if (Auth::user()->confirmed)
+						   		{!! Former::actions( Button::success(trans('texts.plan_upgrade'))->large()->withAttributes(['onclick' => 'showChangePlan()'])->appendIcon(Icon::create('plus-sign'))) !!}
+							@endif
 						@elseif (!$account->hasFeature(FEATURE_WHITE_LABEL))
 						   {!! Former::actions( Button::success(trans('texts.white_label_button'))->large()->withAttributes(['onclick' => 'loadImages("#whiteLabelModal");$("#whiteLabelModal").modal("show");'])->appendIcon(Icon::create('plus-sign'))) !!}
 						@endif

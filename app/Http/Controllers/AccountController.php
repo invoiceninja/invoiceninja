@@ -100,25 +100,6 @@ class AccountController extends BaseController
     /**
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function demo()
-    {
-        $demoAccountId = Utils::getDemoAccountId();
-
-        if (! $demoAccountId) {
-            return Redirect::to('/');
-        }
-
-        $account = Account::find($demoAccountId);
-        $user = $account->users()->first();
-
-        Auth::login($user, true);
-
-        return Redirect::to('invoices/create');
-    }
-
-    /**
-     * @return \Illuminate\Http\RedirectResponse
-     */
     public function getStarted()
     {
         $user = false;
@@ -975,7 +956,22 @@ class AccountController extends BaseController
             $account->page_size = Input::get('page_size');
 
             $labels = [];
-            foreach (['item', 'description', 'unit_cost', 'quantity', 'line_total', 'terms', 'balance_due', 'partial_due', 'subtotal', 'paid_to_date', 'discount', 'tax'] as $field) {
+            foreach ([
+                'item',
+                'description',
+                'unit_cost',
+                'quantity',
+                'line_total',
+                'terms',
+                'balance_due',
+                'partial_due',
+                'subtotal',
+                'paid_to_date',
+                'discount',
+                'tax',
+                'po_number',
+                'due_date',
+            ] as $field) {
                 $labels[$field] = Input::get("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
@@ -1104,6 +1100,14 @@ class AccountController extends BaseController
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
+        $email = trim(strtolower(Input::get('email')));
+
+        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+            return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
+                ->withError(trans('texts.email_taken'))
+                ->withInput();
+        }
+
         $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
         $validator = Validator::make(Input::all(), $rules);
 
@@ -1114,8 +1118,8 @@ class AccountController extends BaseController
         } else {
             $user->first_name = trim(Input::get('first_name'));
             $user->last_name = trim(Input::get('last_name'));
-            $user->username = trim(Input::get('email'));
-            $user->email = trim(strtolower(Input::get('email')));
+            $user->username = $email;
+            $user->email = $email;
             $user->phone = trim(Input::get('phone'));
 
             if (! Auth::user()->is_admin) {
@@ -1212,8 +1216,15 @@ class AccountController extends BaseController
      */
     public function checkEmail()
     {
-        $email = User::withTrashed()->where('email', '=', Input::get('email'))
-                                    ->where('id', '<>', Auth::user()->registered ? 0 : Auth::user()->id)
+        $email = trim(strtolower(Input::get('email')));
+        $user = Auth::user();
+
+        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+            return 'taken';
+        }
+
+        $email = User::withTrashed()->where('email', '=', $email)
+                                    ->where('id', '<>', $user->registered ? 0 : $user->id)
                                     ->first();
 
         if ($email) {
@@ -1252,6 +1263,10 @@ class AccountController extends BaseController
         $lastName = trim(Input::get('new_last_name'));
         $email = trim(strtolower(Input::get('new_email')));
         $password = trim(Input::get('new_password'));
+
+        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+            return '';
+        }
 
         if ($user->registered) {
             $newAccount = $this->accountRepo->create($firstName, $lastName, $email, $password, $account->company);

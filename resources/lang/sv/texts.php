@@ -1717,6 +1717,7 @@ Nya Kaledonien',
     'lang_Swedish' => 'Svenska',
     'lang_Albanian' => 'Albanska',
     'lang_English - United Kingdom' => 'Engelska - Storbritannien',
+    'lang_Slovenian' => 'Slovenian',
 
     // Frequencies
     'freq_weekly' => 'Veckovis',
@@ -2494,17 +2495,18 @@ Den här funktionen kräver att en produkt skapas och en betalningsgateway är k
     'custom_contact_fields_help' => 'Lägg fält vid skapande av kontakt och visa stämpel och värdet på PDF',
     'datatable_info' => 'Visar :start till :end av :total poster',
     'credit_total' => 'Kredit Totalt',
-    'mark_billable' => 'Mark billable',
+    'mark_billable' => 'Markera debiterbar',
     'billed' => 'Fakturerad',
     'company_variables' => 'Företagsvariabler',
     'client_variables' => 'Klientvariabler',
     'invoice_variables' => 'Fakturavariabler',
     'navigation_variables' => 'Navigationsvariabler',
     'custom_variables' => 'Anpassade variabler',
-    'invalid_file' => 'Invalid file type',
-    'add_documents_to_invoice' => 'Add documents to invoice',
-    'mark_expense_paid' => 'Mark paid',
-    'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
+    'invalid_file' => 'Ogiltig filtyp',
+    'add_documents_to_invoice' => 'Bifoga dokument till fakturan',
+    'mark_expense_paid' => 'Markera som betald',
+    'white_label_license_error' => 'Misslyckas att validera licensen, kolla storage/logs/laravel-error.log för mer detaljer.',
+    'plan_price' => 'Plan Price'
 
 );
 

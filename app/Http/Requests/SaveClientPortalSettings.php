@@ -38,7 +38,7 @@ class SaveClientPortalSettings extends Request
         $input = $this->all();
 
         if ($this->client_view_css && Utils::isNinja()) {
-            $input['client_view_css'] = HTMLUtils::sanitize($this->client_view_css);
+            $input['client_view_css'] = HTMLUtils::sanitizeCSS($this->client_view_css);
         }
 
         if (Utils::isNinja()) {
@@ -53,7 +53,7 @@ class SaveClientPortalSettings extends Request
                 $input['subdomain'] = null;
             }
         }
-        
+
         $this->replace($input);
 
         return $this->all();

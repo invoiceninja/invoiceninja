@@ -41,6 +41,11 @@ class SendNotificationEmail extends Job implements ShouldQueue
     protected $notes;
 
     /**
+     * @var string
+     */
+    protected $server;
+
+    /**
      * Create a new job instance.
 
      * @param UserMailer    $userMailer
@@ -58,6 +63,7 @@ class SendNotificationEmail extends Job implements ShouldQueue
         $this->type = $type;
         $this->payment = $payment;
         $this->notes = $notes;
+        $this->server = config('database.default');
     }
 
     /**

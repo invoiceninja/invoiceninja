@@ -7,6 +7,7 @@ use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class SendReminders.
@@ -58,6 +59,10 @@ class SendReminders extends Command
     {
         $this->info(date('Y-m-d') . ' Running SendReminders...');
 
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
+
         $accounts = $this->accountRepo->findWithReminders();
         $this->info(count($accounts) . ' accounts found');
 
@@ -82,10 +87,10 @@ class SendReminders extends Command
         $this->info('Done');
 
         if ($errorEmail = env('ERROR_EMAIL')) {
-            \Mail::raw('EOM', function ($message) use ($errorEmail) {
+            \Mail::raw('EOM', function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
-                        ->subject('SendReminders: Finished successfully');
+                        ->subject("SendReminders [{$database}]: Finished successfully");
             });
         }
     }
@@ -103,6 +108,8 @@ class SendReminders extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

@@ -9,6 +9,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Services\PaymentService;
 use DateTime;
 use Illuminate\Console\Command;
+use Symfony\Component\Console\Input\InputOption;
 
 /**
  * Class SendRecurringInvoices.
@@ -60,6 +61,10 @@ class SendRecurringInvoices extends Command
     {
         $this->info(date('Y-m-d H:i:s') . ' Running SendRecurringInvoices...');
         $today = new DateTime();
+
+        if ($database = $this->option('database')) {
+            config(['database.default' => $database]);
+        }
 
         // check for counter resets
         $accounts = Account::where('reset_counter_frequency_id', '>', 0)
@@ -130,6 +135,8 @@ class SendRecurringInvoices extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
+        ];
     }
 }

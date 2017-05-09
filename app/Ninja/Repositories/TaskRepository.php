@@ -134,6 +134,10 @@ class TaskRepository extends BaseRepository
             $timeLog = [];
         }
 
+        if(isset($data['client_id'])) {
+            $task->client_id = Client::getPrivateId($data['client_id']);
+        }
+
         array_multisort($timeLog);
 
         if (isset($data['action'])) {
@@ -146,6 +150,8 @@ class TaskRepository extends BaseRepository
             } elseif ($data['action'] == 'stop' && $task->is_running) {
                 $timeLog[count($timeLog) - 1][1] = time();
                 $task->is_running = false;
+            } elseif ($data['action'] == 'offline'){
+                $task->is_running = $data['is_running'] ? 1 : 0;
             }
         }
 

@@ -453,8 +453,8 @@ function comboboxHighlighter(item) {
     result = result.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
         return match ? '<strong>' + match + '</strong>' : query;
     });
-    result = result.replace(new RegExp("\n", 'g'), '<br/>');
-    return result;
+    result = stripHtmlTags(result);
+    return result.replace(new RegExp("\n", 'g'), '<br/>');
 }
 
 function comboboxMatcher(item) {

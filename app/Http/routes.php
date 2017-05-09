@@ -25,7 +25,7 @@ Route::get('/keep_alive', 'HomeController@keepAlive');
 Route::post('/get_started', 'AccountController@getStarted');
 
 // Client visible pages
-Route::group(['middleware' => 'auth:client'], function () {
+Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('view/{invitation_key}', 'ClientPortalController@view');
     Route::get('download/{invitation_key}', 'ClientPortalController@download');
     Route::put('sign/{invitation_key}', 'ClientPortalController@sign');
@@ -62,51 +62,59 @@ Route::group(['middleware' => 'auth:client'], function () {
     Route::get('api/client.activity', ['as' => 'api.client.activity', 'uses' => 'ClientPortalController@activityDatatable']);
 });
 
-Route::get('license', 'NinjaController@show_license_payment');
-Route::post('license', 'NinjaController@do_license_payment');
-Route::get('claim_license', 'NinjaController@claim_license');
-
-Route::post('signup/validate', 'AccountController@checkEmail');
-Route::post('signup/submit', 'AccountController@submitSignup');
-
-Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
-Route::get('/auth_unlink', 'Auth\AuthController@authUnlink');
+Route::group(['middleware' => 'lookup:license'], function () {
+    Route::get('license', 'NinjaController@show_license_payment');
+    Route::post('license', 'NinjaController@do_license_payment');
+    Route::get('claim_license', 'NinjaController@claim_license');
+});
 
 Route::group(['middleware' => 'cors'], function () {
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
 });
 
-Route::post('/hook/email_bounced', 'AppController@emailBounced');
-Route::post('/hook/email_opened', 'AppController@emailOpened');
-Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
-Route::post('/payment_hook/{accountKey}/{gatewayId}', 'OnlinePaymentController@handlePaymentWebhook');
+Route::group(['middleware' => 'lookup:postmark'], function () {
+    Route::post('/hook/email_bounced', 'AppController@emailBounced');
+    Route::post('/hook/email_opened', 'AppController@emailOpened');
+});
+
+Route::group(['middleware' => 'lookup:account'], function () {
+    Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
+});
+
+//Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
 
 // Laravel auth routes
 Route::get('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@getRegister']);
 Route::post('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@postRegister']);
 Route::get('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper']);
-Route::post('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper']);
 Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper']);
 Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail']);
-Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail']);
 Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset']);
-Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset']);
-Route::get('/user/confirm/{code}', 'UserController@confirm');
+Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
+
+Route::group(['middleware' => ['lookup:user']], function () {
+    Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
+    Route::post('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper']);
+    Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail']);
+    Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset']);
+});
 
 // Client auth
 Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@getLogin']);
-Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@postLogin']);
 Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getLogout']);
 Route::get('/client/sessionexpired', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getSessionExpired']);
 Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail']);
-Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail']);
-Route::get('/client/password/reset/{invitation_key}/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset']);
-Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postReset']);
+Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset']);
+
+Route::group(['middleware' => ['lookup:contact']], function () {
+    Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@postLogin']);
+    Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail']);
+    Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postReset']);
+});
 
 if (Utils::isNinja()) {
     Route::post('/signup/register', 'AccountController@doRegister');
     Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
-    Route::get('/demo', 'AccountController@demo');
 }
 
 if (Utils::isReseller()) {
@@ -117,7 +125,7 @@ if (Utils::isTravis()) {
     Route::get('/check_data', 'AppController@checkData');
 }
 
-Route::group(['middleware' => 'auth:user'], function () {
+Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
     Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');
@@ -128,6 +136,10 @@ Route::group(['middleware' => 'auth:user'], function () {
     Route::post('save_sidebar_state', 'UserController@saveSidebarState');
     Route::post('contact_us', 'HomeController@contactUs');
     Route::post('handle_command', 'BotController@handleCommand');
+
+    Route::post('signup/validate', 'AccountController@checkEmail');
+    Route::post('signup/submit', 'AccountController@submitSignup');
+    Route::get('auth_unlink', 'Auth\AuthController@authUnlink');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
@@ -223,14 +235,16 @@ Route::group(['middleware' => 'auth:user'], function () {
     Route::post('bluevine/signup', 'BlueVineController@signup');
     Route::get('bluevine/hide_message', 'BlueVineController@hideMessage');
     Route::get('bluevine/completed', 'BlueVineController@handleCompleted');
+
     Route::get('white_label/hide_message', 'NinjaController@hideWhiteLabelMessage');
+    Route::get('white_label/purchase', 'NinjaController@purchaseWhiteLabel');
 
     Route::get('reports', 'ReportController@showReports');
     Route::post('reports', 'ReportController@showReports');
 });
 
 Route::group([
-    'middleware' => ['auth:user', 'permissions.required'],
+    'middleware' => ['lookup:user', 'auth:user', 'permissions.required'],
     'permissions' => 'admin',
 ], function () {
     Route::get('api/users', 'UserController@getDatatable');
@@ -295,12 +309,12 @@ Route::group([
     Route::get('self-update/download', 'SelfUpdateController@download');
 });
 
-Route::group(['middleware' => 'auth:user'], function () {
+Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('settings/{section?}', 'AccountController@showSection');
 });
 
 // Route groups for API
-Route::group(['middleware' => 'api', 'prefix' => 'api/v1'], function () {
+Route::group(['middleware' => ['lookup:api', 'api'], 'prefix' => 'api/v1'], function () {
     Route::get('ping', 'AccountApiController@ping');
     Route::post('login', 'AccountApiController@login');
     Route::post('oauth_login', 'AccountApiController@oauthLogin');

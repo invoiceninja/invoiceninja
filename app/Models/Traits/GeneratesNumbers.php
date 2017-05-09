@@ -26,6 +26,7 @@ trait GeneratesNumbers
         $prefix = $this->getNumberPrefix($entityType);
         $counterOffset = 0;
         $check = false;
+        $lastNumber = false;
 
         if ($entityType == ENTITY_CLIENT && ! $this->clientNumbersEnabled()) {
             return '';
@@ -50,6 +51,13 @@ trait GeneratesNumbers
             }
             $counter++;
             $counterOffset++;
+
+            // prevent getting stuck in a loop
+            if ($number == $lastNumber) {
+                return '';
+            }
+            $lastNumber = $number;
+
         } while ($check);
 
         // update the counter to be caught up
@@ -194,15 +202,17 @@ trait GeneratesNumbers
             '{$clientCounter}',
         ];
 
+        $client = $invoice->client;
+        $clientCounter = ($invoice->isQuote() && ! $this->share_counter) ? $client->quote_number_counter : $client->invoice_number_counter;
+
         $replace = [
-            $invoice->client->custom_value1,
-            $invoice->client->custom_value2,
-            $invoice->client->id_number,
-            $invoice->client->custom_value1, // backwards compatibility
-            $invoice->client->custom_value2,
-            $invoice->client->id_number,
-            str_pad($invoice->client->invoice_number_counter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
-            str_pad($invoice->client->quote_number_counter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
+            $client->custom_value1,
+            $client->custom_value2,
+            $client->id_number,
+            $client->custom_value1, // backwards compatibility
+            $client->custom_value2,
+            $client->id_number,
+            str_pad($clientCounter, $this->invoice_number_padding, '0', STR_PAD_LEFT),
         ];
 
         return str_replace($search, $replace, $pattern);

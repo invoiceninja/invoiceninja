@@ -25,7 +25,11 @@
                                     @if ($invoice->isQuote())
                                         {{ strtoupper(trans('texts.valid_until')) }} {{ $account->formatDate($invoice->due_date) }}
                                     @else
-                                        {{ strtoupper(trans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)])) }}
+                                        @if ($account->hasCustomLabel('due_date'))
+                                            {{ $account->getLabel('due_date') }} {{ $account->formatDate($invoice->due_date) }}
+                                        @else
+                                            {{ strtoupper(trans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)])) }}
+                                        @endif
                                     @endif
                                 </span><br />
                             @endif
