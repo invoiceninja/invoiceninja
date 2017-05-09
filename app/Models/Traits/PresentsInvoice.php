@@ -162,6 +162,28 @@ trait PresentsInvoice
         return $fields;
     }
 
+    public function hasCustomLabel($field)
+    {
+        $custom = (array) json_decode($this->invoice_labels);
+
+        return isset($custom[$field]) && $custom[$field];
+    }
+
+    public function getLabel($field, $override = false)
+    {
+        $custom = (array) json_decode($this->invoice_labels);
+
+        if (isset($custom[$field]) && $custom[$field]) {
+            return $custom[$field];
+        } else {
+            if ($override) {
+                $field = $override;
+            }
+            return $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
+        }
+
+    }
+
     /**
      * @return array
      */
@@ -239,6 +261,8 @@ trait PresentsInvoice
             'work_phone',
             'invoice_total',
             'outstanding',
+            'invoice_due_date',
+            'quote_due_date',
         ];
 
         foreach ($fields as $field) {

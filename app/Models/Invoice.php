@@ -1504,6 +1504,11 @@ class Invoice extends EntityModel implements BalanceAffecting
                 ->orderBy('id', 'desc')
                 ->get();
     }
+
+    public function getDueDateLabel()
+    {
+        return $this->isQuote() ? 'valid_until' : 'due_date';
+    }
 }
 
 Invoice::creating(function ($invoice) {
