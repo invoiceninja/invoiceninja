@@ -1712,7 +1712,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'lang_Swedish' => 'Σουηδικά',
     'lang_Albanian' => 'Αλβανικά',
     'lang_English - United Kingdom' => 'Αγγλικά - Ηνωμένο Βασίλειο',
-    'lang_Slovenian' => 'Slovenian',
+    'lang_Slovenian' => 'Σλοβένικά',
 
     // Frequencies
     'freq_weekly' => 'Εβδομάδα',
@@ -2493,7 +2493,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'add_documents_to_invoice' => 'Προσθέστε έγγραφα στο τιμολόγιο',
     'mark_expense_paid' => 'Σήμανση ως εξοφλημένο',
     'white_label_license_error' => 'Αδυναμία επικύρωσης της άδειας, ελέγξτε το αρχείο storage/logs/laravel-error.log για περισσότερες λεπτομέρειες.',
-    'plan_price' => 'Plan Price'
+    'plan_price' => 'Τιμή Πλάνου'
 
 );
 

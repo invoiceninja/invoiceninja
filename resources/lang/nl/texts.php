@@ -1704,7 +1704,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'lang_Swedish' => 'Zweeds',
     'lang_Albanian' => 'Albanees',
     'lang_English - United Kingdom' => 'Engels - Verenigd Koninkrijk',
-    'lang_Slovenian' => 'Slovenian',
+    'lang_Slovenian' => 'Sloveens',
 
     // Frequencies
     'freq_weekly' => 'Wekelijks',
@@ -2485,7 +2485,7 @@ Kom terug naar deze betalingsmethode pagina zodra u de bedragen heeft ontvangen 
     'add_documents_to_invoice' => 'Voeg documenten toe aan factuur',
     'mark_expense_paid' => 'Markeer betaald',
     'white_label_license_error' => 'Validatie van de licentie mislukt, controleer storage/logs/laravel-error.log voor meer informatie.',
-    'plan_price' => 'Plan Price'
+    'plan_price' => 'Plan prijs'
 
 );
 
