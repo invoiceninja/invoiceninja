@@ -176,7 +176,9 @@ Contact::creating(function ($contact)
 
 Contact::deleted(function ($contact)
 {
-    LookupContact::deleteWhere([
-        'contact_key' => $contact->contact_key,
-    ]);
+    if ($contact->forceDeleting) {
+        LookupContact::deleteWhere([
+            'contact_key' => $contact->contact_key,
+        ]);
+    }
 });

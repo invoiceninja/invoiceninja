@@ -50,7 +50,9 @@ AccountToken::creating(function ($token)
 
 AccountToken::deleted(function ($token)
 {
-    LookupAccountToken::deleteWhere([
-        'token' => $token->token
-    ]);
+    if ($token->forceDeleting) {
+        LookupAccountToken::deleteWhere([
+            'token' => $token->token
+        ]);
+    }
 });

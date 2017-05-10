@@ -418,6 +418,7 @@ User::created(function ($user)
     LookupUser::createNew($user->account->account_key, [
         'email' => $user->email,
         'user_id' => $user->id,
+        'confirmation_code' => $user->confirmation_code,
     ]);
 });
 
@@ -440,7 +441,9 @@ User::deleted(function ($user)
         return;
     }
 
-    LookupUser::deleteWhere([
-        'email' => $user->email
-    ]);
+    if ($user->forceDeleting) {
+        LookupUser::deleteWhere([
+            'email' => $user->email
+        ]);
+    }
 });
