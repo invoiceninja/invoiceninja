@@ -425,7 +425,7 @@ User::updating(function ($user) {
     User::onUpdatingUser($user);
 
     $dirty = $user->getDirty();
-    if (isset($dirty['email']) || isset($dirty['confirmation_code'])) {
+    if (array_key_exists('email', $dirty) || array_key_exists('confirmation_code', $dirty)) {
         LookupUser::updateUser($user->account->account_key, $user->id, $user->email, $user->confirmation_code);
     }
 });
