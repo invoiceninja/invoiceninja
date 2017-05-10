@@ -66,7 +66,7 @@ class LookupModel extends Eloquent
         $className = get_called_class();
         $className = str_replace('Lookup', '', $className);
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
-        $isUser = $className == 'App\Models\User';
+        $isUser = ($className == 'App\Models\User' && $field == 'email');
 
         // check if we've cached this lookup
         if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {

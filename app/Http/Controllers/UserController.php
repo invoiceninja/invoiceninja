@@ -261,6 +261,7 @@ class UserController extends BaseController
 
             if ($user->public_id) {
                 Auth::logout();
+                Session::flush();
                 $token = Password::getRepository()->create($user);
 
                 return Redirect::to("/password/reset/{$token}");
