@@ -173,7 +173,9 @@ Invitation::creating(function ($invitation)
 
 Invitation::deleted(function ($invitation)
 {
-    LookupInvitation::deleteWhere([
-        'invitation_key' => $invitation->invitation_key,
-    ]);
+    if ($invitation->forceDeleting) {
+        LookupInvitation::deleteWhere([
+            'invitation_key' => $invitation->invitation_key,
+        ]);
+    }
 });

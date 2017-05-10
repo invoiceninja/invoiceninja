@@ -17,6 +17,7 @@ class LookupUser extends LookupModel
         'lookup_account_id',
         'email',
         'user_id',
+        'confirmation_code',
     ];
 
     public static function updateUser($accountKey, $userId, $email, $confirmationCode)
