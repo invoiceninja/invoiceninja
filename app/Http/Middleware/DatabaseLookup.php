@@ -20,7 +20,7 @@ class DatabaseLookup
         }
 
         if ($guard == 'user') {
-            if ($server = session(SESSION_DB_SERVER)) {
+            if (Auth::check() && $server = session(SESSION_DB_SERVER)) {
                 config(['database.default' => $server]);
                 $user = Auth::user()->fresh();
                 $user->load('account');
