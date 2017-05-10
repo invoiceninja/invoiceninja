@@ -41,9 +41,6 @@ class DatabaseLookup
                 LookupInvitation::setServerByField('invitation_key', $key);
             } elseif ($key = request()->contact_key ?: session('contact_key')) {
                 LookupContact::setServerByField('contact_key', $key);
-            } else {
-                Auth::logout();
-                return redirect('/client/sessionexpired');
             }
         } elseif ($guard == 'postmark') {
             LookupInvitation::setServerByField('message_id', request()->MessageID);
