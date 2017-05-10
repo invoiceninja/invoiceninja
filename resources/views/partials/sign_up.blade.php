@@ -252,13 +252,12 @@
       </div>
 
       <div style="background-color: #fff; padding-right:20px;padding-left:20px; display:none" id="signUpSuccessDiv">
-        <br/>
         <h3>{{ trans('texts.success') }}</h3>
         <br/>
         @if (Utils::isNinja())
           {{ trans('texts.success_message') }}
         @endif
-        <br/>&nbsp;
+        <br/>
       </div>
 
       </div>
