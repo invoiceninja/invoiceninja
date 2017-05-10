@@ -66,6 +66,12 @@ class StartupCheck
             }
         }
 
+        if (env('MULTI_DB_ENABLED')) {
+            if ($server = session(SESSION_DB_SERVER)) {
+                config(['database.default' => $server]);
+            }
+        }
+
         // Check the application is up to date and for any news feed messages
         if (Auth::check()) {
             $count = Session::get(SESSION_COUNTER, 0);

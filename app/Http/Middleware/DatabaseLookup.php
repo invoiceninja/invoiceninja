@@ -22,13 +22,13 @@ class DatabaseLookup
         if ($guard == 'user') {
             if ($code = $request->confirmation_code) {
                 LookupUser::setServerByField('confirmation_code', $code);
-            } elseif ($server = session(SESSION_DB_SERVER)) {
-                config(['database.default' => $server]);
-                $user = Auth::user()->fresh();
-                $user->load('account');
-                Auth::setUser($user);
-            } elseif ($email = $request->email) {
+            } elseif (session(SESSION_DB_SERVER)) {
+                // do nothing
+            } elseif (! Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);
+            } else {
+                Auth::logout();
+                return redirect('/login');
             }
         } elseif ($guard == 'api') {
             if ($token = $request->header('X-Ninja-Token')) {
@@ -41,6 +41,9 @@ class DatabaseLookup
                 LookupInvitation::setServerByField('invitation_key', $key);
             } elseif ($key = request()->contact_key ?: session('contact_key')) {
                 LookupContact::setServerByField('contact_key', $key);
+            } else {
+                Auth::logout();
+                return redirect('/client/sessionexpired');
             }
         } elseif ($guard == 'postmark') {
             LookupInvitation::setServerByField('message_id', request()->MessageID);
