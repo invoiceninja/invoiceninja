@@ -20,15 +20,15 @@ class DatabaseLookup
         }
 
         if ($guard == 'user') {
-            if (Auth::check() && $server = session(SESSION_DB_SERVER)) {
+            if ($code = $request->confirmation_code) {
+                LookupUser::setServerByField('confirmation_code', $code);
+            } elseif ($server = session(SESSION_DB_SERVER)) {
                 config(['database.default' => $server]);
                 $user = Auth::user()->fresh();
                 $user->load('account');
                 Auth::setUser($user);
             } elseif ($email = $request->email) {
                 LookupUser::setServerByField('email', $email);
-            } elseif ($code = $request->confirmation_code) {
-                LookupUser::setServerByField('confirmation_code', $code);
             }
         } elseif ($guard == 'api') {
             if ($token = $request->header('X-Ninja-Token')) {
