@@ -66,11 +66,10 @@ class LookupModel extends Eloquent
         $className = get_called_class();
         $className = str_replace('Lookup', '', $className);
         $key = sprintf('server:%s:%s:%s', $className, $field, $value);
-        $isUser = ($className == 'App\Models\User' && $field == 'email');
 
         // check if we've cached this lookup
         if (env('MULTI_DB_CACHE_ENABLED') && $server = Cache::get($key)) {
-            static::setDbServer($server, $isUser);
+            static::setDbServer($server);
             return;
         }
 
@@ -81,7 +80,7 @@ class LookupModel extends Eloquent
             $entity = new $className();
             $server = $lookupModel->getDbServer();
 
-            static::setDbServer($server, $isUser);
+            static::setDbServer($server);
 
             // check entity is found on the server
             if (! $entity::where($field, '=', $value)->first()) {
@@ -94,17 +93,13 @@ class LookupModel extends Eloquent
         }
     }
 
-    protected static function setDbServer($server, $isUser = false)
+    protected static function setDbServer($server)
     {
         if (! env('MULTI_DB_ENABLED')) {
             return;
         }
 
         config(['database.default' => $server]);
-
-        if ($isUser) {
-            session([SESSION_DB_SERVER => $server]);
-        }
     }
 
     public function getDbServer()

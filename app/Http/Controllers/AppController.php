@@ -279,6 +279,7 @@ class AppController extends BaseController
                 Artisan::call('view:clear');
                 Artisan::call('config:clear');
                 Artisan::call('optimize', ['--force' => true]);
+                Auth::logout();
                 Cache::flush();
                 Session::flush();
                 Artisan::call('migrate', ['--force' => true]);

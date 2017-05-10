@@ -55,6 +55,7 @@ class HandleUserLoggedIn
         HistoryUtils::loadHistory($users ?: Auth::user()->id);
 
         $account->loadLocalizationSettings();
+        session([SESSION_DB_SERVER => config('database.default')]);
 
         if (strstr($_SERVER['HTTP_USER_AGENT'], 'iPhone') || strstr($_SERVER['HTTP_USER_AGENT'], 'iPad')) {
             Session::flash('warning', trans('texts.iphone_app_message', ['link' => link_to(NINJA_IOS_APP_URL, trans('texts.iphone_app'))]));
