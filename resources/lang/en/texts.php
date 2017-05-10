@@ -2493,7 +2493,8 @@ $LANG = array(
     'add_documents_to_invoice' => 'Add documents to invoice',
     'mark_expense_paid' => 'Mark paid',
     'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
-    'plan_price' => 'Plan Price'
+    'plan_price' => 'Plan Price',
+    'wrong_confirmation' => 'Incorrect confirmation code',
 
 );
 
