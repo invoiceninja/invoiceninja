@@ -55,5 +55,6 @@ class HandleUserSignedUp
         }
 
         session([SESSION_COUNTER => -1]);
+        session([SESSION_DB_SERVER => config('database.default')]);
     }
 }
