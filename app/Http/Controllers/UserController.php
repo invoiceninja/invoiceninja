@@ -256,7 +256,7 @@ class UserController extends BaseController
             $notice_msg = trans('texts.security_confirmation');
 
             $user->confirmed = true;
-            $user->confirmation_code = '';
+            $user->confirmation_code = null;
             $user->save();
 
             if ($user->public_id) {

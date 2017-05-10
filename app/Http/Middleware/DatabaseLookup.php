@@ -9,6 +9,7 @@ use App\Models\LookupContact;
 use App\Models\LookupInvitation;
 use App\Models\LookupAccountToken;
 use App\Models\LookupUser;
+use Auth;
 
 class DatabaseLookup
 {
@@ -21,6 +22,9 @@ class DatabaseLookup
         if ($guard == 'user') {
             if ($server = session(SESSION_DB_SERVER)) {
                 config(['database.default' => $server]);
+                $user = Auth::user()->fresh();
+                $user->load('account');
+                Auth::setUser($user);
             } elseif ($email = $request->email) {
                 LookupUser::setServerByField('email', $email);
             } elseif ($code = $request->confirmation_code) {
