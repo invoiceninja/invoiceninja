@@ -147,6 +147,7 @@ class InitLookup extends Command
                             'lookup_account_id' => $lookupAccount->id,
                             'email' => $user['email'] ?: null,
                             'user_id' => $user['user_id'],
+                            'oauth_user_key' => $user['oauth_user_key'],
                         ]);
                     }
                 }
@@ -223,11 +224,12 @@ class InitLookup extends Command
             'tokens' => [],
         ];
 
-        $users = DB::table('users')->whereAccountId($accountId)->orderBy('id')->get(['email', 'id']);
+        $users = DB::table('users')->whereAccountId($accountId)->orderBy('id')->get(['email', 'id', 'oauth_user_id', 'oauth_provider_id']);
         foreach ($users as $user) {
             $data['users'][] = [
                 'email' => $user->email,
                 'user_id' => $user->id,
+                'oauth_user_key' => ($user->oauth_provider_id && $user->oauth_user_id) ? ($user->oauth_provider_id . '-' . $user->oauth_user_id) : null,
             ];
         }
 

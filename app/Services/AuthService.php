@@ -82,9 +82,9 @@ class AuthService
                 Session::flash('error', $result);
             }
         } else {
-            LookupUser::setServerByField('email', $email);
+            LookupUser::setServerByField('oauth_user_key', $providerId . '-' . $oauthUserId);
 
-            if ($user = $this->accountRepo->findUserByOauth($providerId, $socialiteUser->id)) {
+            if ($user = $this->accountRepo->findUserByOauth($providerId, $oauthUserId)) {
                 Auth::login($user, true);
                 event(new UserLoggedIn());
             } else {

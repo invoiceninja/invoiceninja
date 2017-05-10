@@ -83,7 +83,14 @@ class LookupModel extends Eloquent
             static::setDbServer($server);
 
             // check entity is found on the server
-            if (! $entity::where($field, '=', $value)->first()) {
+            if ($field === 'oauth_user_key') {
+                list($providerId, $oauthId) = explode('-', $value);
+                $isFound = $entity::where('oauth_provider_id', '=', $providerId)
+                                ->where('oauth_user_id', '=', $oauthId)->first();
+            } else {
+                $isFound = $entity::where($field, '=', $value)->first();
+            }
+            if (! $isFound) {
                 abort("Looked up {$className} not found: {$field} => {$value}");
             }
 
