@@ -22,4 +22,9 @@ class LookupCompany extends LookupModel
         return $this->belongsTo('App\Models\DbServer');
     }
 
+    public function getDbServer()
+    {
+        return $this->dbServer->name;
+    }
+
 }
