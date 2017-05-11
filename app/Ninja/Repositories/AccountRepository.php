@@ -18,6 +18,7 @@ use App\Models\User;
 use App\Models\UserAccount;
 use Auth;
 use Input;
+use Image;
 use Request;
 use Schema;
 use Session;
@@ -354,6 +355,18 @@ class AccountRepository
             $account->work_phone = '(800) 763-1948';
             $account->account_key = NINJA_ACCOUNT_KEY;
             $account->company_id = $company->id;
+            
+            // logo
+            $image = Image::make(resource_path('assets/logo.jpg'));
+            $image->interlace(false);
+            $imageStr = (string) $image->encode('jpg');
+            $account->logo = "{$account->account_key}.jpg";
+            $disk = $account->getLogoDisk();
+            $disk->put($account->logo, $imageStr); 
+            $account->logo_width = $image->width();
+            $account->logo_height = $image->height();
+            $account->logo_size = $image->filesize();
+            
             $account->save();
 
             $emailSettings = new AccountEmailSettings();

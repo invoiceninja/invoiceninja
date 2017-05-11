@@ -23,7 +23,7 @@ class InvoiceDesignsSeeder extends Seeder
         
         for ($i = 0; $i < count($designs); $i++) {
             $design = $designs[$i];
-            $fileName = storage_path() . '/templates/' . strtolower($design) . '.js';
+            $fileName = resource_path('/templates/' . strtolower($design) . '.js');
             if (file_exists($fileName)) {
                 $pdfmake = file_get_contents($fileName);
                 if ($pdfmake) {
