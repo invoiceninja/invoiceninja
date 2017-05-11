@@ -83,9 +83,10 @@ class CheckData extends Command
             $this->checkInvitations();
             $this->checkFailedJobs();
             $this->checkAccountData();
+            $this->checkLookupData();
         }
 
-        $this->logMessage('Done');
+        $this->logMessage('Done: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
         $errorEmail = env('ERROR_EMAIL');
 
         $this->info($this->log);
@@ -104,6 +105,26 @@ class CheckData extends Command
     private function logMessage($str)
     {
         $this->log .= $str . "\n";
+    }
+
+    private function checkLookupData()
+    {
+        $tables = [
+            'account_tokens',
+            'accounts',
+            'companies',
+            'contacts',
+            'invitations',
+            'users',
+        ];
+
+        foreach ($tables as $table) {
+            $count = DB::table('lookup_' . $table)->count();
+            if ($count > 0) {
+                $this->logMessage("Lookup table {$table} has {$count} records");
+                $this->isValid = false;
+            }
+        }
     }
 
     private function checkUserAccounts()
