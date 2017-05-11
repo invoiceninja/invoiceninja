@@ -52,12 +52,14 @@ class LookupUser extends LookupModel
         }
 
         $current = config('database.default');
+        $accountKey = $user->account->account_key;
+
         config(['database.default' => DB_NINJA_LOOKUP]);
 
         $lookupUser = LookupUser::whereEmail($email)->first();
 
         if ($user) {
-            $lookupAccount = LookupAccount::whereAccountKey($user->account->account_key)->firstOrFail();
+            $lookupAccount = LookupAccount::whereAccountKey($accountKey)->firstOrFail();
             $isValid = ! $lookupUser || ($lookupUser->lookup_account_id == $lookupAccount->id && $lookupUser->user_id == $user->id);
         } else {
             $isValid = ! $lookupUser;
