@@ -362,7 +362,7 @@ if (! defined('APP_NAME')) {
     define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
     define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
 
-    define('TEST_USERNAME', 'user@example.com');
+    define('TEST_USERNAME', env('TEST_USERNAME', 'user@example.com'));
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
     define('DEFAULT_API_PAGE_SIZE', 15);
