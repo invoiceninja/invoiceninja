@@ -52,7 +52,7 @@ class LookupUser extends LookupModel
         }
 
         $current = config('database.default');
-        $accountKey = $user->account->account_key;
+        $accountKey = $user ? $user->account->account_key : false;
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
