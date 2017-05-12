@@ -94,6 +94,8 @@ script:
 
 after_script:
   - php artisan ninja:check-data --no-interaction
+  - php artisan ninja:init-lookup --validate=true --database='db-ninja-1'
+  - php artisan ninja:init-lookup --validate=true --database='db-ninja-2'
   - cat .env
   - mysql -u root -e 'select * from lookup_companies;' ninja0
   - mysql -u root -e 'select * from lookup_accounts;' ninja0
