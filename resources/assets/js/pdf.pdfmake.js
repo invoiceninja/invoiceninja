@@ -595,8 +595,8 @@ NINJA.invoiceDocuments = function(invoice) {
 NINJA.statementSubtotals = function(invoice)
 {
     var data = [[
-        { text: invoiceLabels.balance_due, style: ['subtotalsLabel', 'balanceDueLabel'] },
-        { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'balanceDue'] }
+        { text: invoiceLabels.balance_due, style: ['subtotalsLabel', 'subtotalsBalanceDueLabel'] },
+        { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'subtotalsBalanceDue'] }
     ]];
 
     return NINJA.prepareDataPairs(data, 'subtotals');
@@ -662,16 +662,16 @@ NINJA.subtotals = function(invoice, hideBalance)
 
     if (!hideBalance || isPartial) {
         data.push([
-            { text: invoice.is_quote || invoice.balance_amount < 0 ? invoiceLabels.total : invoiceLabels.balance_due, style: ['subtotalsLabel', isPartial ? '' : 'balanceDueLabel'] },
-            { text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['subtotals', isPartial ? '' : 'balanceDue'] }
+            { text: invoice.is_quote || invoice.balance_amount < 0 ? invoiceLabels.total : invoiceLabels.balance_due, style: ['subtotalsLabel', isPartial ? '' : 'subtotalsBalanceDueLabel'] },
+            { text: formatMoneyInvoice(invoice.total_amount, invoice), style: ['subtotals', isPartial ? '' : 'subtotalsBalanceDue'] }
         ]);
     }
 
     if (!hideBalance) {
         if (isPartial) {
             data.push([
-                { text: invoiceLabels.partial_due, style: ['subtotalsLabel', 'balanceDueLabel'] },
-                { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'balanceDue'] }
+                { text: invoiceLabels.partial_due, style: ['subtotalsLabel', 'subtotalsBalanceDueLabel'] },
+                { text: formatMoneyInvoice(invoice.balance_amount, invoice), style: ['subtotals', 'subtotalsBalanceDue'] }
             ]);
         }
     }
@@ -682,8 +682,8 @@ NINJA.subtotals = function(invoice, hideBalance)
 NINJA.subtotalsBalance = function(invoice) {
     var isPartial = NINJA.parseFloat(invoice.partial);
     return [[
-        {text: isPartial ? invoiceLabels.partial_due : (invoice.is_quote || invoice.balance_amount < 0 ? invoiceLabels.total : invoiceLabels.balance_due), style:['subtotalsLabel', 'balanceDueLabel']},
-        {text: formatMoneyInvoice(invoice.balance_amount, invoice), style:['subtotals', 'balanceDue']}
+        {text: isPartial ? invoiceLabels.partial_due : (invoice.is_quote || invoice.balance_amount < 0 ? invoiceLabels.total : invoiceLabels.balance_due), style:['subtotalsLabel', 'subtotalsBalanceDueLabel']},
+        {text: formatMoneyInvoice(invoice.balance_amount, invoice), style:['subtotals', 'subtotalsBalanceDue']}
     ]];
 }
 

@@ -140,11 +140,11 @@
         "clientName": {
             "bold": true
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest",
             "bold": true
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
             "color": "$primaryColor:#bc9f2b",
             "bold": true

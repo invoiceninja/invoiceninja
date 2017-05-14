@@ -157,10 +157,10 @@
         "invoiceDetailBalanceDue": {
             "fillColor": "#e6e6e6"
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fillColor": "#e6e6e6"
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fillColor": "#e6e6e6"
         },
         "header": {

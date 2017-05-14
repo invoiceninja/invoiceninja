@@ -201,12 +201,12 @@
         "lineTotalTableHeader": {
             "alignment": "right"
         },        
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest",
             "color":"#FFFFFF",
             "bold": true
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
             "bold": true,
             "color":"#FFFFFF",
