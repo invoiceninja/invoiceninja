@@ -40,6 +40,7 @@ class TaxRatesCest
         // enable line item taxes
         $I->amOnPage('/settings/tax_rates');
         $I->checkOption('#invoice_item_taxes');
+        $I->selectOption('#default_tax_rate_id', 1);
         $I->click('Save');
 
         // create product
