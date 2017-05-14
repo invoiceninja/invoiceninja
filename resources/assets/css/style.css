@@ -494,9 +494,12 @@ background-clip: padding-box;
 
 .in-bold {
     font-size: 26px;
-    font-weight: bold;;
+    font-weight: bold;
 }
 
+.in-large {
+    font-size: 26px;
+}
 
 .in-thin {
     font-size: 26px;
