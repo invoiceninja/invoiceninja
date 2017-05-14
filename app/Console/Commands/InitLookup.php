@@ -142,12 +142,17 @@ class InitLookup extends Command
                             $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Not found!");
                             continue;
                         }
+                        if ($user['email'] != $lookupUser->email || $user['oauth_user_key'] != $lookupUser->oauth_user_key || $user['referral_code'] != $lookupUser->referral_code) {
+                            $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Out of date!");
+                            continue;
+                        }
                     } else {
                         LookupUser::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'email' => $user['email'] ?: null,
                             'user_id' => $user['user_id'],
                             'oauth_user_key' => $user['oauth_user_key'],
+                            'referral_code' => $user['referral_code'],
                         ]);
                     }
                 }
@@ -207,7 +212,9 @@ class InitLookup extends Command
 
         config(['database.default' => $this->option('database')]);
 
-        $accounts = DB::table('accounts')->whereCompanyId($companyId)->orderBy('id')->get(['id', 'account_key']);
+        $accounts = DB::table('accounts')->whereCompanyId($companyId)->orderBy('id')->get([
+            'id', 'account_key'
+        ]);
         foreach ($accounts as $account) {
             $data[$account->account_key] = $this->parseAccount($account->id);
         }
@@ -224,23 +231,35 @@ class InitLookup extends Command
             'tokens' => [],
         ];
 
-        $users = DB::table('users')->whereAccountId($accountId)->orderBy('id')->get(['email', 'id', 'oauth_user_id', 'oauth_provider_id']);
+        $users = DB::table('users')->whereAccountId($accountId)->orderBy('id')->get([
+            'email',
+            'id',
+            'oauth_user_id',
+            'oauth_provider_id',
+            'referral_code',
+        ]);
         foreach ($users as $user) {
             $data['users'][] = [
                 'email' => $user->email,
                 'user_id' => $user->id,
                 'oauth_user_key' => ($user->oauth_provider_id && $user->oauth_user_id) ? ($user->oauth_provider_id . '-' . $user->oauth_user_id) : null,
+                'referral_code' => $user->referral_code,
             ];
         }
 
-        $contacts = DB::table('contacts')->whereAccountId($accountId)->orderBy('id')->get(['contact_key']);
+        $contacts = DB::table('contacts')->whereAccountId($accountId)->orderBy('id')->get([
+            'contact_key'
+        ]);
         foreach ($contacts as $contact) {
             $data['contacts'][] = [
                 'contact_key' => $contact->contact_key,
             ];
         }
 
-        $invitations = DB::table('invitations')->whereAccountId($accountId)->orderBy('id')->get(['invitation_key', 'message_id']);
+        $invitations = DB::table('invitations')->whereAccountId($accountId)->orderBy('id')->get([
+            'invitation_key',
+            'message_id'
+        ]);
         foreach ($invitations as $invitation) {
             $data['invitations'][] = [
                 'invitation_key' => $invitation->invitation_key,
@@ -248,7 +267,9 @@ class InitLookup extends Command
             ];
         }
 
-        $tokens = DB::table('account_tokens')->whereAccountId($accountId)->orderBy('id')->get(['token']);
+        $tokens = DB::table('account_tokens')->whereAccountId($accountId)->orderBy('id')->get([
+            'token'
+        ]);
         foreach ($tokens as $token) {
             $data['tokens'][] = [
                 'token' => $token->token,

@@ -37,6 +37,7 @@ class AccountRepository
             $company->utm_campaign = Input::get('utm_campaign');
             $company->utm_term = Input::get('utm_term');
             $company->utm_content = Input::get('utm_content');
+            $company->referral_code = Session::get(SESSION_REFERRAL_CODE);
             $company->save();
         }
 
@@ -44,13 +45,6 @@ class AccountRepository
         $account->ip = Request::getClientIp();
         $account->account_key = strtolower(str_random(RANDOM_KEY_LENGTH));
         $account->company_id = $company->id;
-
-        // Track referal code
-        if ($referralCode = Session::get(SESSION_REFERRAL_CODE)) {
-            if ($user = User::whereReferralCode($referralCode)->first()) {
-                $account->referral_user_id = $user->id;
-            }
-        }
 
         if ($locale = Session::get(SESSION_LOCALE)) {
             if ($language = Language::whereLocale($locale)->first()) {
@@ -653,18 +647,6 @@ class AccountRepository
     public function findWithReminders()
     {
         return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1')->get();
-    }
-
-    public function getReferralCode()
-    {
-        do {
-            $code = strtoupper(str_random(8));
-            $match = User::whereReferralCode($code)
-                        ->withTrashed()
-                        ->first();
-        } while ($match);
-
-        return $code;
     }
 
     public function createTokens($user, $name)

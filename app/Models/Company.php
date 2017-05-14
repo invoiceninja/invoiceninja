@@ -153,6 +153,12 @@ class Company extends Eloquent
         return false;
     }
 
+    public function getPlanDetails($includeInactive = false, $includeTrial = true)
+    {
+        $account = $this->accounts()->first();
+        return $account->getPlanDetails($includeInactive, $includeTrial);
+    }
+
     public function processRefund($user)
     {
         if (! $this->payment) {
