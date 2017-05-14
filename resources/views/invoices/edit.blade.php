@@ -909,7 +909,7 @@
             @if (isset($tasks) && $tasks)
                 // move the blank invoice line item to the end
                 var blank = model.invoice().invoice_items.pop();
-                var tasks = {!! $tasks !!};
+                var tasks = {!! json_encode($tasks) !!};
 
                 for (var i=0; i<tasks.length; i++) {
                     var task = tasks[i];
