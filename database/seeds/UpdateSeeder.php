@@ -11,6 +11,7 @@ class UpdateSeeder extends Seeder
     {
         $this->command->info('Running UpdateSeeder...');
 
+        $this->call('CountriesSeeder');
         $this->call('PaymentLibrariesSeeder');
         $this->call('FontsSeeder');
         $this->call('GatewayTypesSeeder');

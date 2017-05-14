@@ -1690,7 +1690,7 @@ $LANG = array(
     'country_Wallis and Futuna' => 'Wallis and Futuna',
     'country_Samoa' => 'Samoa',
     'country_Yemen' => 'Yemen',
-    'country_Zambi' => 'Zambi',
+    'country_Zambia' => 'Zambia',
 
     // Languages
     'lang_Brazilian Portuguese' => 'Brazilian Portuguese',
