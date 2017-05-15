@@ -256,7 +256,7 @@
         <div class="panel panel-default">
             <div class="panel-body revenue-panel">
                 <div style="overflow:hidden">
-                    <div class="in-thin">
+                    <div class="{{ $headerClass }}">
                         {{ trans('texts.total_revenue') }}
                     </div>
                     <div class="revenue-div in-bold pull-right" style="color:#337ab7">
@@ -277,7 +277,7 @@
 							&nbsp;
 						</div>
                     </div>
-					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;display:none;">
+					<div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
 						{{ trans('texts.last_30_days') }}
 					</div>
                 </div>
@@ -289,7 +289,7 @@
             <div class="panel-body expenses-panel">
                 <div style="overflow:hidden">
                     @if (count($expenses))
-                        <div class="in-thin">
+                        <div class="{{ $headerClass }}">
                             {{ trans('texts.total_expenses') }}
                         </div>
                         <div class="expenses-div in-bold pull-right" style="color:#337ab7">
@@ -305,7 +305,7 @@
 							</div>
                         </div>
                     @else
-                        <div class="in-thin">
+                        <div class="{{ $headerClass }}">
                             {{ trans('texts.average_invoice') }}
                         </div>
                         <div class="average-div in-bold pull-right" style="color:#337ab7">
@@ -327,7 +327,7 @@
 							</div>
                         </div>
                     @endif
-					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;display:none;">
+					<div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
 						{{ trans('texts.last_30_days') }}
 					</div>
                 </div>
@@ -338,7 +338,7 @@
         <div class="panel panel-default">
             <div class="panel-body outstanding-panel">
                 <div style="overflow:hidden">
-                    <div class="in-thin">
+                    <div class="{{ $headerClass }}">
                         {{ trans('texts.outstanding') }}
                     </div>
                     <div class="outstanding-div in-bold pull-right" style="color:#337ab7">
@@ -359,7 +359,7 @@
 							&nbsp;
 						</div>
                     </div>
-					<div class="range-label-div in-thin pull-right" style="color:#337ab7;font-size:16px;display:none;">
+					<div class="range-label-div {{ $footerClass }} pull-right" style="color:#337ab7;font-size:16px;display:none;">
 						{{ trans('texts.last_30_days') }}
 					</div>
                 </div>

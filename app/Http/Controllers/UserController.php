@@ -182,7 +182,7 @@ class UserController extends BaseController
                             ->withInput();
             }
 
-            if (! \App\Models\LookupUser::validateEmail(Input::get('email'), $user)) {
+            if (! \App\Models\LookupUser::validateField('email', Input::get('email'), $user)) {
                 return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
                     ->withError(trans('texts.email_taken'))
                     ->withInput();
@@ -280,7 +280,7 @@ class UserController extends BaseController
                 return Redirect::to($url)->with('message', $notice_msg);
             }
         } else {
-            $error_msg = trans('texts.security.wrong_confirmation');
+            $error_msg = trans('texts.wrong_confirmation');
 
             return Redirect::to('/login')->with('error', $error_msg);
         }

@@ -70,6 +70,8 @@ before_script:
   - php artisan ninja:create-test-data 4 true
   - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
   - sed -i 's/DB_TYPE=db-ninja-1/DB_TYPE=db-ninja-2/g' .env
+  - sed -i 's/user@example.com/user2@example.com/g' .env
+  - php artisan db:seed --no-interaction --class=UserTableSeeder # development seed
 
 script:
   - php ./vendor/codeception/codeception/codecept run --debug acceptance APICest.php
@@ -92,6 +94,8 @@ script:
 
 after_script:
   - php artisan ninja:check-data --no-interaction
+  - php artisan ninja:init-lookup --validate=true --database='db-ninja-1'
+  - php artisan ninja:init-lookup --validate=true --database='db-ninja-2'
   - cat .env
   - mysql -u root -e 'select * from lookup_companies;' ninja0
   - mysql -u root -e 'select * from lookup_accounts;' ninja0

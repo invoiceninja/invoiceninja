@@ -39,7 +39,7 @@ class AccountApiController extends BaseAPIController
 
     public function register(RegisterRequest $request)
     {
-        if (! \App\Models\LookupUser::validateEmail($request->email)) {
+        if (! \App\Models\LookupUser::validateField('email', $request->email)) {
             return $this->errorResponse(['message' => trans('texts.email_taken')], 500);
         }
 

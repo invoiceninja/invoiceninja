@@ -399,7 +399,7 @@ class AccountController extends BaseController
             'user' => Auth::user(),
             'oauthProviderName' => AuthService::getProviderName(Auth::user()->oauth_provider_id),
             'oauthLoginUrls' => $oauthLoginUrls,
-            'referralCounts' => $this->referralRepository->getCounts(Auth::user()->id),
+            'referralCounts' => $this->referralRepository->getCounts(Auth::user()->referral_code),
         ];
 
         return View::make('accounts.user_details', $data);
@@ -1102,7 +1102,7 @@ class AccountController extends BaseController
         $user = Auth::user();
         $email = trim(strtolower(Input::get('email')));
 
-        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
             return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
                 ->withError(trans('texts.email_taken'))
                 ->withInput();
@@ -1131,7 +1131,7 @@ class AccountController extends BaseController
 
             if (Utils::isNinja()) {
                 if (Input::get('referral_code') && ! $user->referral_code) {
-                    $user->referral_code = $this->accountRepo->getReferralCode();
+                    $user->referral_code = strtolower(str_random(RANDOM_KEY_LENGTH));
                 }
             }
 
@@ -1219,7 +1219,7 @@ class AccountController extends BaseController
         $email = trim(strtolower(Input::get('email')));
         $user = Auth::user();
 
-        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
             return 'taken';
         }
 
@@ -1264,7 +1264,7 @@ class AccountController extends BaseController
         $email = trim(strtolower(Input::get('new_email')));
         $password = trim(Input::get('new_password'));
 
-        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
             return '';
         }
 

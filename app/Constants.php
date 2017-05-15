@@ -300,7 +300,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.3.1' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.3.3' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -362,7 +362,7 @@ if (! defined('APP_NAME')) {
     define('USER_TYPE_CLOUD_HOST', 'CLOUD_HOST');
     define('NEW_VERSION_AVAILABLE', 'NEW_VERSION_AVAILABLE');
 
-    define('TEST_USERNAME', 'user@example.com');
+    define('TEST_USERNAME', env('TEST_USERNAME', 'user@example.com'));
     define('TEST_PASSWORD', 'password');
     define('API_SECRET', 'API_SECRET');
     define('DEFAULT_API_PAGE_SIZE', 15);

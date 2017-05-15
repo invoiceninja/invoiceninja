@@ -11,13 +11,15 @@ class CountriesSeeder extends Seeder
      */
     public function run()
     {
-        //Empty the countries table
-        DB::table('countries')->delete();
+        Eloquent::unguard();
 
-        if (DB::table('countries')->count() == 0) {
-            //Get all of the countries
-            $countries = Countries::getList();
-            foreach ($countries as $countryId => $country) {
+        $countries = Countries::getList();
+        foreach ($countries as $countryId => $country) {
+            if ($record = Country::whereCountryCode($country['country-code'])->first()) {
+                $record->name = $country['name'];
+                $record->full_name = ((isset($country['full_name'])) ? $country['full_name'] : null);
+                $record->save();
+            } else {
                 DB::table('countries')->insert([
                     'id' => $countryId,
                     'capital' => ((isset($country['capital'])) ? $country['capital'] : null),
@@ -36,7 +38,7 @@ class CountriesSeeder extends Seeder
                 ]);
             }
         }
-        
+
         // Source: http://www.bitboost.com/ref/international-address-formats.html
         // Source: https://en.wikipedia.org/wiki/Linguistic_issues_concerning_the_euro
         $countries = [

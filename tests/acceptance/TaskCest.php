@@ -50,6 +50,12 @@ class TaskCest
             'client_id' => $clientId,
         ]);
         $I->seeInDatabase('projects', ['name' => $project]);
+
+        $I->click('More Actions');
+        $I->click('Invoice Task');
+        $I->click('Mark Sent');
+        $I->see('Sent');
+        $I->see('Successfully created invoice');
     }
 
     public function createManualTask(AcceptanceTester $I)
