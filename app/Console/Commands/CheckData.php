@@ -80,6 +80,7 @@ class CheckData extends Command
         //$this->checkUserAccounts();
 
         if (! $this->option('client_id')) {
+            $this->checkOAuth();
             $this->checkInvitations();
             $this->checkFailedJobs();
             $this->checkAccountData();
@@ -105,6 +106,50 @@ class CheckData extends Command
     private function logMessage($str)
     {
         $this->log .= $str . "\n";
+    }
+
+    private function checkOAuth()
+    {
+        // check for duplicate oauth ids
+        $users = DB::table('users')
+                    ->whereNotNull('oauth_user_id')
+                    ->groupBy('users.oauth_user_id')
+                    ->havingRaw('count(users.id) > 1')
+                    ->get(['users.oauth_user_id']);
+
+        $this->logMessage(count($users) . ' users with duplicate oauth ids');
+
+        if (count($users) > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($users as $user) {
+                $first = true;
+                $this->logMessage('checking ' . $user->oauth_user_id);
+                $matches = DB::table('users')
+                            ->where('oauth_user_id', '=', $user->oauth_user_id)
+                            ->orderBy('id')
+                            ->get(['id']);
+
+                foreach ($matches as $match) {
+                    if ($first) {
+                        $this->logMessage('skipping ' . $match->id);
+                        $first = false;
+                        continue;
+                    }
+                    $this->logMessage('updating ' . $match->id);
+
+                    DB::table('users')
+                        ->where('id', '=', $match->id)
+                        ->where('oauth_user_id', '=', $user->oauth_user_id)
+                        ->update([
+                            'oauth_user_id' => null,
+                            'oauth_provider_id' => null,
+                        ]);
+                }
+            }
+        }
     }
 
     private function checkLookupData()
@@ -198,7 +243,7 @@ class CheckData extends Command
         if ($this->option('fix') == 'true') {
             foreach ($contacts as $contact) {
                 DB::table('contacts')
-                    ->where('id', $contact->id)
+                    ->where('id', '=', $contact->id)
                     ->whereNull('contact_key')
                     ->update([
                         'contact_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
