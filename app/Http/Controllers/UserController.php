@@ -182,7 +182,7 @@ class UserController extends BaseController
                             ->withInput();
             }
 
-            if (! \App\Models\LookupUser::validateEmail(Input::get('email'), $user)) {
+            if (! \App\Models\LookupUser::validateField('email', Input::get('email'), $user)) {
                 return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
                     ->withError(trans('texts.email_taken'))
                     ->withInput();

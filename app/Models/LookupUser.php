@@ -47,7 +47,7 @@ class LookupUser extends LookupModel
         config(['database.default' => $current]);
     }
 
-    public static function validateEmail($email, $user = false)
+    public static function validateField($field, $value, $user = false)
     {
         if (! env('MULTI_DB_ENABLED')) {
             return true;
@@ -58,7 +58,7 @@ class LookupUser extends LookupModel
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
-        $lookupUser = LookupUser::whereEmail($email)->first();
+        $lookupUser = LookupUser::where($field, '=', $value)->first();
 
         if ($user) {
             $lookupAccount = LookupAccount::whereAccountKey($accountKey)->firstOrFail();

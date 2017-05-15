@@ -1102,7 +1102,7 @@ class AccountController extends BaseController
         $user = Auth::user();
         $email = trim(strtolower(Input::get('email')));
 
-        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
             return Redirect::to('settings/' . ACCOUNT_USER_DETAILS)
                 ->withError(trans('texts.email_taken'))
                 ->withInput();
@@ -1219,7 +1219,7 @@ class AccountController extends BaseController
         $email = trim(strtolower(Input::get('email')));
         $user = Auth::user();
 
-        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
             return 'taken';
         }
 
@@ -1264,7 +1264,7 @@ class AccountController extends BaseController
         $email = trim(strtolower(Input::get('new_email')));
         $password = trim(Input::get('new_password'));
 
-        if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+        if (! \App\Models\LookupUser::validateField('email', $email, $user)) {
             return '';
         }
 

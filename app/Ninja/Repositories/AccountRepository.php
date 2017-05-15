@@ -16,6 +16,7 @@ use App\Models\InvoiceItem;
 use App\Models\Language;
 use App\Models\User;
 use App\Models\UserAccount;
+use App\Models\LookupUser;
 use Auth;
 use Input;
 use Request;
@@ -430,6 +431,10 @@ class AccountRepository
 
     public function updateUserFromOauth($user, $firstName, $lastName, $email, $providerId, $oauthUserId)
     {
+        if (! LookupUser::validateField('oauth_user_key', $providerId . '-' . $oauthUserId)) {
+            return trans('texts.oauth_taken');
+        }
+
         if (! $user->registered) {
             $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
             $validator = Validator::make(['email' => $email], $rules);
@@ -439,7 +444,7 @@ class AccountRepository
                 return $messages->first('email');
             }
 
-            if (! \App\Models\LookupUser::validateEmail($email, $user)) {
+            if (! LookupUser::validateField('email', $email, $user)) {
                 return trans('texts.email_taken');
             }
 
