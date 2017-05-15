@@ -435,6 +435,11 @@ class AccountRepository
             return trans('texts.oauth_taken');
         }
 
+        // TODO remove once multi-db is enabled
+        if (User::whereOauthUserId($oauthUserId)->count() > 0) {
+            return trans('texts.oauth_taken');
+        }
+
         if (! $user->registered) {
             $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
             $validator = Validator::make(['email' => $email], $rules);
