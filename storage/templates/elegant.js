@@ -13,7 +13,7 @@
         {
             "width": 120,
             "stack": [
-                {"text": "$invoiceToLabel", "style": "header", "margin": [0, 0, 0, 6]}, 
+                {"text": "$invoiceToLabel", "style": "header", "margin": [0, 0, 0, 6]},
                 "$clientDetails"
             ]
         },
@@ -33,15 +33,15 @@
         },
         {
             "stack": [
-                {"text": "$detailsLabel", "style": "header", "margin": [0, 0, 0, 6]}, 
+                {"text": "$detailsLabel", "style": "header", "margin": [0, 0, 0, 6]},
                 {
                     "width":180,
-                    "table": { 
+                    "table": {
                         "body": "$invoiceDetails"
                     },
                     "layout": "noBorders"
                 }
-            ]            
+            ]
         }],
         "margin": [0, 20, 0, 0]
     },
@@ -55,12 +55,12 @@
         "layout": {
             "hLineWidth": "$notFirst:.5",
             "vLineWidth": "$none",
-            "paddingLeft": "$amount:8", 
-            "paddingRight": "$amount:8", 
-            "paddingTop": "$amount:12", 
+            "paddingLeft": "$amount:8",
+            "paddingRight": "$amount:8",
+            "paddingTop": "$amount:12",
             "paddingBottom": "$amount:12"
         }
-    },    
+    },
     {
         "columns": [
         "$notesAndTerms",
@@ -73,10 +73,10 @@
             "layout": {
                 "hLineWidth": "$none",
                 "vLineWidth": "$none",
-                "paddingLeft": "$amount:34", 
-                "paddingRight": "$amount:8", 
-                "paddingTop": "$amount:4", 
-                "paddingBottom": "$amount:4" 
+                "paddingLeft": "$amount:34",
+                "paddingRight": "$amount:8",
+                "paddingTop": "$amount:4",
+                "paddingBottom": "$amount:4"
             }
         }
         ]
@@ -86,11 +86,11 @@
     },
     {
         "text": "$balanceDueLabel",
-        "style": "balanceDueLabel"
+        "style": "subtotalsBalanceDueLabel"
     },
     {
         "text": "$balanceDue",
-        "style": "balanceDue"
+        "style": "subtotalsBalanceDue"
     },
     {
         "canvas": [{ "type": "line", "x1": 270, "y1": 20, "x2": 515, "y2": 20, "lineWidth": 1,"dash": { "length": 2 }}]
@@ -100,7 +100,7 @@
             "$invoiceDocuments"
         ],
         "style": "invoiceDocuments"
-    }],    
+    }],
     "footer": [
     {
         "columns": [
@@ -136,22 +136,22 @@
         },
         "odd": {
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest",
             "color": "$primaryColor:#5a7b61",
             "margin": [320,20,0,0]
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
             "color": "$primaryColor:#5a7b61",
             "style": true,
             "margin":[0,-14,8,0],
             "alignment":"right"
-        },    
+        },
         "invoiceDetailBalanceDue": {
             "color": "$primaryColor:#5a7b61",
             "bold": true
-        },        
+        },
         "header": {
             "fontSize": 14,
             "bold": true
@@ -172,7 +172,7 @@
         },
         "lineTotalTableHeader": {
             "alignment": "right"
-        },        
+        },
         "invoiceLineItemsTable": {
             "margin": [0, 40, 0, 16]
         },
@@ -190,7 +190,7 @@
         },
         "subtotals": {
             "alignment": "right"
-        },            
+        },
         "termsLabel": {
             "bold": true,
             "margin": [0, 0, 0, 4]

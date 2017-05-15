@@ -142,10 +142,10 @@
             "bold": true,
             "fontSize": "$fontSizeLarger"
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest"
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
             "color": "$primaryColor:#cd5138"
         },

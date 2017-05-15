@@ -75,13 +75,13 @@
             },
             {
                 "text": "$balanceDueLabel",
-                "style": "balanceDueLabel",
+                "style": "subtotalsBalanceDueLabel",
                 "margin": [0, 16, 0, 0],
                 "width": 370
             },
             {
                 "text": "$balanceDue",
-                "style": "balanceDue",
+                "style": "subtotalsBalanceDue",
                 "margin": [0, 16, 8, 0]
             }
             ]
@@ -202,13 +202,13 @@
         "lineTotalTableHeader": {
             "alignment": "right"
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest",
             "color":"#FFFFFF",
             "alignment":"right",
             "bold": true
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
             "color":"#FFFFFF",
             "bold": true,
