@@ -55,7 +55,7 @@ class TaskCest
         $I->click('Invoice Task');
         $I->click('Mark Sent');
         $I->see('Sent');
-        $I->see('View as recipient');
+        $I->see('Successfully created invoice');
     }
 
     public function createManualTask(AcceptanceTester $I)
