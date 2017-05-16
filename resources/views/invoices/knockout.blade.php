@@ -13,9 +13,9 @@ function ViewModel(data) {
         ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
         @if (!$invoice->id)
             self.setDueDate();
+            // copy default note from the client to the invoice
+            model.invoice().public_notes(client.public_notes);
         @endif
-        // copy default note from the client to the invoice
-        model.invoice().public_notes(client.public_notes);
     }
 
     self.showMoreFields = function() {
@@ -190,6 +190,7 @@ function InvoiceModel(data) {
     self.footer_placeholder = ko.observable({{ (!$invoice->id || $invoice->is_recurring) && $account->invoice_footer ? 'account.invoice_footer' : false}});
     self.set_default_footer = ko.observable(false);
     self.public_notes = ko.observable('');
+    self.private_notes = ko.observable('');
     self.po_number = ko.observable('');
     self.invoice_date = ko.observable('');
     self.invoice_number = ko.observable('');
