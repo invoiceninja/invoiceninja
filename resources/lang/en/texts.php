@@ -2246,7 +2246,8 @@ $LANG = array(
     'plan_price' => 'Plan Price',
     'wrong_confirmation' => 'Incorrect confirmation code',
     'oauth_taken' => 'The account is already registered',
-
+    'emailed_payment' => 'Successfully emailed payment',
+    'email_payment' => 'Email Payment',
 );
 
 return $LANG;
