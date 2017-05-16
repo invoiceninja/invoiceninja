@@ -14,6 +14,7 @@
 /bootstrap/environment.php
 /vendor
 /node_modules
+/.composer.lock
 /.DS_Store
 Thumbs.db
 /.env
