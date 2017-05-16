@@ -25,6 +25,7 @@ class ClientTransformer extends EntityTransformer
      * @SWG\Property(property="country_id", type="integer", example=840)
      * @SWG\Property(property="work_phone", type="string", example="(212) 555-1212")
      * @SWG\Property(property="private_notes", type="string", example="Notes...")
+     * @SWG\Property(property="public_notes", type="string", example="Notes...")
      * @SWG\Property(property="last_login", type="string", format="date-time", example="2016-01-01 12:10:00")
      * @SWG\Property(property="website", type="string", example="http://www.example.com")
      * @SWG\Property(property="industry_id", type="integer", example=1)
@@ -119,6 +120,7 @@ class ClientTransformer extends EntityTransformer
             'country_id' => (int) $client->country_id,
             'work_phone' => $client->work_phone,
             'private_notes' => $client->private_notes,
+            'public_notes' => $client->public_notes,
             'last_login' => $client->last_login,
             'website' => $client->website,
             'industry_id' => (int) $client->industry_id,

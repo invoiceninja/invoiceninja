@@ -19,6 +19,13 @@ class Payment extends EntityModel
     use PresentableTrait;
     use SoftDeletes;
 
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'private_notes',
+    ];
+
     public static $statusClasses = [
         PAYMENT_STATUS_PENDING => 'info',
         PAYMENT_STATUS_COMPLETED => 'success',
