@@ -69,6 +69,7 @@
                         ->addGroupClass('payment_date')
                         ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 			{!! Former::text('transaction_reference') !!}
+            {!! Former::textarea('private_notes') !!}
 
             @if (!$payment)
                 {!! Former::checkbox('email_receipt')

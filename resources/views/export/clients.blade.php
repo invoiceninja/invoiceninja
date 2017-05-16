@@ -15,6 +15,8 @@
     <td>{{ trans('texts.vat_number') }}</td>
     <td>{{ trans('texts.website') }}</td>
     <td>{{ trans('texts.phone') }}</td>
+    <td>{{ trans('texts.public_notes') }}</td>
+    <td>{{ trans('texts.private_notes') }}</td>
     @if ($account->custom_client_label1)
         <td>{{ $account->custom_client_label1 }}</td>
     @endif
@@ -41,6 +43,8 @@
         <td>{{ $client->vat_number }}</td>
         <td>{{ $client->website }}</td>
         <td>{{ $client->work_phone }}</td>
+        <td>{{ $client->public_notes }}</td>
+        <td>{{ $client->private_notes }}</td>
         @if ($account->custom_client_label1)
             <td>{{ $client->custom_value1 }}</td>
         @endif
