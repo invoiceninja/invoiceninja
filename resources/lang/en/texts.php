@@ -2222,6 +2222,7 @@ $LANG = array(
     'sample_commands' => 'Sample commands',
     'voice_commands_feedback' => 'We\'re actively working to improve this feature, if there\'s a command you\'d like us to support please email us at :email.',
     'payment_type_Venmo' => 'Venmo',
+    'payment_type_Money Order' => 'Money Order',
     'archived_products' => 'Successfully archived :count products',
     'recommend_on' => 'We recommend <b>enabling</b> this setting.',
     'recommend_off' => 'We recommend <b>disabling</b> this setting.',
