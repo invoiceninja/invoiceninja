@@ -317,7 +317,7 @@ class InvoiceApiController extends BaseAPIController
         }
 
         $headers = Utils::getApiHeaders();
-        $response = json_encode(RESULT_SUCCESS, JSON_PRETTY_PRINT);
+        $response = json_encode(['message' => RESULT_SUCCESS], JSON_PRETTY_PRINT);
 
         return Response::make($response, 200, $headers);
     }
