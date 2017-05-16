@@ -57,7 +57,7 @@ You’ll need to create a new database along with a user to access it. Most host
 
    CREATE DATABASE ninja;
    CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
-   GRANT ALL PRIVILEGES ON * . * TO 'ninja'@'localhost';
+   GRANT ALL PRIVILEGES ON ninja.* TO 'ninja'@'localhost';
 
 Step 4: Configure the web server
 """"""""""""""""""""""""""""""""
