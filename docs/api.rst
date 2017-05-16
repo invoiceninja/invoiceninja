@@ -74,15 +74,15 @@ Here’s an example of creating a client. Note that email address is a property 
 
 .. code-block:: shell
 
-  curl -X POST ninja.dev/api/v1/clients -H "Content-Type:application/json"
+  curl -X POST ninja.dev/api/v1/clients -H "Content-Type:application/json" \
     -d '{"name":"Client","contact":{"email":"test@example.com"}}' -H "X-Ninja-Token: TOKEN"
 
 You can also update a client by specifying a value for ‘id’. Next, here’s an example of creating an invoice.
 
 .. code-block:: shell
 
-  curl -X POST ninja.dev/api/v1/invoices -H "Content-Type:application/json"
-    -d '{"client_id":"1", "invoice_items":[{"product_key": "ITEM", "notes":"Test", "cost":10, "qty":1}]}'
+  curl -X POST ninja.dev/api/v1/invoices -H "Content-Type:application/json" \
+    -d '{"client_id":"1", "invoice_items":[{"product_key": "ITEM", "notes":"Test", "cost":10, "qty":1}]}' \
     -H "X-Ninja-Token: TOKEN"
 
 If the product_key is set and matches an existing record the product fields will be auto-populated. If the email field is set then we’ll search for a matching client. If no matches are found a new client will be created.
@@ -103,8 +103,8 @@ Updating Data
 
 .. code-block:: shell
 
-  curl -X PUT ninja.dev/api/v1/clients/1 -H "Content-Type:application/json"
-    -d '{"name":"test", "contacts":[{"id": 1, "first_name": "test"}]}'
+  curl -X PUT ninja.dev/api/v1/clients/1 -H "Content-Type:application/json" \
+    -d '{"name":"test", "contacts":[{"id": 1, "first_name": "test"}]}' \
     -H "X-Ninja-Token: TOKEN"
 
 Emailing Invoices
@@ -114,7 +114,7 @@ To email an invoice use the email_invoice command passing the id of the invoice.
 
 .. code-block:: shell
 
-  curl -X POST ninja.dev/api/v1/email_invoice -d '{"id":1}'
+  curl -X POST ninja.dev/api/v1/email_invoice -d '{"id":1}' \
     -H "Content-Type:application/json" -H "X-Ninja-Token: TOKEN"
 
 Subscriptions
