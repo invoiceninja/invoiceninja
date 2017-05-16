@@ -30,7 +30,7 @@ class InvoiceReport extends AbstractReport
                         ->with(['invoices' => function ($query) use ($status) {
                             if ($status == 'draft') {
                                 $query->whereIsPublic(false);
-                            } elseif ($status == 'unpaid' || $status == 'paid') {
+                            } elseif (in_array($status, ['paid', 'unpaid', 'sent'])) {
                                 $query->whereIsPublic(true);
                             }
                             $query->invoices()

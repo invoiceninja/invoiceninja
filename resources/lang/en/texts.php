@@ -2248,6 +2248,8 @@ $LANG = array(
     'oauth_taken' => 'The account is already registered',
     'emailed_payment' => 'Successfully emailed payment',
     'email_payment' => 'Email Payment',
+    'sent' => 'Sent',
+    
 );
 
 return $LANG;

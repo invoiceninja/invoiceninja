@@ -122,6 +122,7 @@
 							{!! Former::select('invoice_status')->label('status')
 									->addOption(trans('texts.all'), 'all')
 									->addOption(trans('texts.draft'), 'draft')
+									->addOption(trans('texts.sent'), 'sent')
 									->addOption(trans('texts.unpaid'), 'unpaid')
 									->addOption(trans('texts.paid'), 'paid') !!}
 						</div>
