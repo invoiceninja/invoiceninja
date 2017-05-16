@@ -1355,20 +1355,18 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
 
-        $company = $account->company;
-        $refunded = $company->processRefund(Auth::user());
+        $refunded = false;
+        if (! $account->hasMultipleAccounts()) {
+            $company = $account->company;
+            $refunded = $company->processRefund(Auth::user());
+        }
 
         Document::scope()->each(function ($item, $key) {
             $item->delete();
         });
 
         $this->accountRepo->unlinkAccount($account);
-
-        if ($account->hasMultipleAccounts()) {
-            $account->forceDelete();
-        } else {
-            $account->company->forceDelete();
-        }
+        $account->forceDelete();
 
         Auth::logout();
         Session::flush();
