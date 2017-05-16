@@ -177,7 +177,8 @@ class InvoiceRepository extends BaseRepository
                         'invoices.due_date',
                         'invoices.due_date as due_date_sql',
                         'invoices.is_recurring',
-                        'invoices.quote_invoice_id'
+                        'invoices.quote_invoice_id',
+                        'invoices.private_notes'
                     );
 
         if ($clientPublicId) {

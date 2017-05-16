@@ -20,7 +20,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     $frequency = strtolower($model->frequency);
                     $frequency = preg_replace('/\s/', '_', $frequency);
 
-                    return link_to("invoices/{$model->public_id}", trans('texts.freq_'.$frequency))->toHtml();
+                    return link_to("recurring_invoices/{$model->public_id}/edit", trans('texts.freq_'.$frequency))->toHtml();
                 },
             ],
             [
@@ -42,16 +42,24 @@ class RecurringInvoiceDatatable extends EntityDatatable
                     return Utils::fromSqlDate($model->last_sent_date_sql);
                 },
             ],
+            /*
             [
                 'end_date',
                 function ($model) {
                     return Utils::fromSqlDate($model->end_date_sql);
                 },
             ],
+            */
             [
                 'amount',
                 function ($model) {
                     return Utils::formatMoney($model->amount, $model->currency_id, $model->country_id);
+                },
+            ],
+            [
+                'private_notes',
+                function ($model) {
+                    return $model->private_notes;
                 },
             ],
             [
