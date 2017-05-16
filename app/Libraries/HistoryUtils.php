@@ -183,7 +183,7 @@ class HistoryUtils
             }
 
             $icon = '<i class="fa fa-' . EntityModel::getIcon($item->entityType . 's') . '" style="width:24px"></i>';
-            $str .= sprintf('<li style="text-align:right; padding-right:18px;"><a href="%s">%s %s</a></li>', $item->url, $item->name, $icon);
+            $str .= sprintf('<li style="text-align:right; padding-right:18px;"><a href="%s">%s %s</a></li>', $item->url, e($item->name), $icon);
         }
 
         return $str;
