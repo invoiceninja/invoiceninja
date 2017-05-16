@@ -10,6 +10,7 @@ use Exception;
 class StripePaymentDriver extends BasePaymentDriver
 {
     protected $customerReferenceParam = 'customerReference';
+    public $canRefundPayments = true;
 
     public function gatewayTypes()
     {

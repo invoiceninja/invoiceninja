@@ -38,6 +38,8 @@ class BasePaymentDriver
     protected $customerReferenceParam;
     protected $transactionReferenceParam;
 
+    public $canRefundPayments = false;
+
     public function __construct($accountGateway = false, $invitation = false, $gatewayType = false)
     {
         $this->accountGateway = $accountGateway;

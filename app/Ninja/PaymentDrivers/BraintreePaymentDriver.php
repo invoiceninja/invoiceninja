@@ -11,6 +11,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
 {
     protected $customerReferenceParam = 'customerId';
     protected $sourceReferenceParam = 'paymentMethodToken';
+    public $canRefundPayments = true;
 
     public function gatewayTypes()
     {
