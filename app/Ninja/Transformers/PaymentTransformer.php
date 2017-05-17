@@ -59,7 +59,7 @@ class PaymentTransformer extends EntityTransformer
             'payment_type_id' => (int) $payment->payment_type_id,
             'invoice_id' => (int) ($this->invoice ? $this->invoice->public_id : $payment->invoice->public_id),
             'invoice_number' => $this->invoice ? $this->invoice->invoice_number : $payment->invoice->invoice_number,
-            'private_notes' => $client->private_notes,
+            'private_notes' => $payment->private_notes,
         ]);
     }
 }
