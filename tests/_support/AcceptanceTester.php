@@ -90,7 +90,7 @@ class AcceptanceTester extends \Codeception\Actor
 
         if ($taxName && $taxRate) {
             $taxOption = $taxName . ': ' . number_format($taxRate, 3) . '%';
-            $I->selectOption('#default_tax_rate_id', $taxOption);
+            $I->selectOption('#tax_select1', $taxOption);
         }
 
         $I->click('Save');

@@ -47,7 +47,7 @@ class TaxRatesCest
         $I->fillField(['name' => 'product_key'], $productKey);
         $I->fillField(['name' => 'notes'], $this->faker->text(80));
         $I->fillField(['name' => 'cost'], $itemCost);
-        $I->selectOption('select[name=default_tax_rate_id]', $itemTaxName . ': ' . $itemTaxRate . '%');
+        $I->selectOption('select[name=tax_select1]', $itemTaxName . ': ' . $itemTaxRate . '%');
         $I->click('Save');
         $I->wait(1);
         //$I->see($productKey);

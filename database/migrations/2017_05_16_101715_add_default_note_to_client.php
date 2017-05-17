@@ -49,15 +49,14 @@ class AddDefaultNoteToClient extends Migration
         if (Schema::hasColumn('accounts', 'default_tax_rate_id')) {
             Schema::table('accounts', function ($table) {
                 $table->dropColumn('default_tax_rate_id');
-            }
-        });
+            });
+        }
 
         if (Schema::hasColumn('products', 'default_tax_rate_id')) {
             Schema::table('products', function ($table) {
                 $table->dropColumn('default_tax_rate_id');
-            }
-        });
-
+            });
+        }
     }
 
     /**
