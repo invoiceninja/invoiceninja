@@ -110,7 +110,10 @@ class Account extends Eloquent
         'num_days_reminder3',
         'custom_invoice_text_label1',
         'custom_invoice_text_label2',
-        'default_tax_rate_id',
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',
         'recurring_hour',
         'invoice_number_pattern',
         'quote_number_pattern',
@@ -364,14 +367,6 @@ class Account extends Eloquent
     public function industry()
     {
         return $this->belongsTo('App\Models\Industry');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function default_tax_rate()
-    {
-        return $this->belongsTo('App\Models\TaxRate');
     }
 
     /**

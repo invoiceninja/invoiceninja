@@ -15,7 +15,6 @@ class ProductTransformer extends EntityTransformer
      * @SWG\Property(property="notes", type="string", example="Notes...")
      * @SWG\Property(property="cost", type="number", format="float", example=10.00)
      * @SWG\Property(property="qty", type="number", format="float", example=1)
-     * @SWG\Property(property="default_tax_rate_id", type="integer", example=1)
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      */
@@ -27,7 +26,10 @@ class ProductTransformer extends EntityTransformer
             'notes' => $product->notes,
             'cost' => $product->cost,
             'qty' => $product->qty,
-            'default_tax_rate_id' => $product->default_tax_rate_id ? $product->default_tax_rate->public_id : 0,
+            'tax_name1' => $product->tax_name1 ?: '',
+            'tax_rate1' => (float) $product->tax_rate1,
+            'tax_name2' => $product->tax_name2 ?: '',
+            'tax_rate2' => (float) $product->tax_rate2,
             'updated_at' => $this->getTimestamp($product->updated_at),
             'archived_at' => $this->getTimestamp($product->deleted_at),
         ]);

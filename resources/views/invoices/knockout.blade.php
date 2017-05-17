@@ -944,9 +944,13 @@ ko.bindingHandlers.productTypeahead = {
                     model.qty(1);
                 }
                 @if ($account->invoice_item_taxes)
-                    if (datum.default_tax_rate) {
+                    if (datum.tax_name1) {
                         var $select = $(this).parentsUntil('tbody').find('select').first();
-                        $select.val('0 ' + datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name).trigger('change');
+                        $select.val('0 ' + datum.tax_rate1 + ' ' + datum.tax_name1).trigger('change');
+                    }
+                    if (datum.tax_name2) {
+                        var $select = $(this).parentsUntil('tbody').find('select').last();
+                        $select.val('0 ' + datum.tax_rate2 + ' ' + datum.tax_name2).trigger('change');
                     }
                 @endif
                 @if (Auth::user()->isPro() && $account->custom_invoice_item_label1)

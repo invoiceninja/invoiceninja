@@ -83,11 +83,13 @@ class InvoiceIntent extends BaseIntent
                     $item['cost'] = $product->cost;
                     $item['notes'] = $product->notes;
 
+                    /*
                     if ($taxRate = $product->default_tax_rate) {
                         $item['tax_name1'] = $taxRate->name;
                         $item['tax_rate1'] = $taxRate->rate;
                     }
-
+                    */
+                    
                     $invoiceItems[] = $item;
                 }
             }
