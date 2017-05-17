@@ -102,7 +102,7 @@ class TaxRatesCest
 
        // enable line item taxes
        $I->amOnPage('/settings/tax_rates');
-       $I->selectOption('#default_tax_rate_id', $invoiceTaxName . ': ' . $invoiceTaxRate . '%');
+       $I->selectOption('#tax_select1', $invoiceTaxName . ': ' . $invoiceTaxRate . '%');
        $I->click('Save');
 
        // create product
@@ -143,7 +143,7 @@ class TaxRatesCest
 
        // enable line item taxes
        $I->amOnPage('/settings/tax_rates');
-       $I->selectOption('#default_tax_rate_id', '');
+       $I->selectOption('#tax_select1', '');
        $I->click('Save');
   }
 
