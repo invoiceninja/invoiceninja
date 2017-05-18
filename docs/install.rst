@@ -21,6 +21,8 @@ Automated Installers
 
 - Softaculous: `softaculous.com <https://www.softaculous.com/apps/ecommerce/Invoice_Ninja>`_
 
+.. Tip:: You can use `github.com/turbo124/Plane2Ninja <https://github.com/turbo124/Plane2Ninja>`_ to migrate your data from InvoicePlane.
+
 Steps to Install
 ^^^^^^^^^^^^^^^^
 
