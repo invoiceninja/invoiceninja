@@ -72,6 +72,7 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 
 ## Credits
 * [Hillel Coren](https://hillelcoren.com/)
+* [David Bomba](https://github.com/turbo124)
 * [All contributors](https://github.com/invoiceninja/invoiceninja/graphs/contributors)
 
 **Special thanks to:**
