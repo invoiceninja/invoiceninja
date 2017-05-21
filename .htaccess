@@ -5,6 +5,13 @@
   
   # https://coderwall.com/p/erbaig/laravel-s-htaccess-to-remove-public-from-url
   # RewriteRule ^(.*)$ public/$1 [L]
+  
+  ## Enable these two lines if you want to restrict/force access to HTTPS only:
+  # RewriteCond %{HTTPS} off
+  # RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI}
+
+  # Enable this if your installation is on a subdomain
+  # RewriteBase /
 </IfModule>
 
 # https://github.com/h5bp/server-configs-apache/blob/master/dist/.htaccess
