@@ -74,6 +74,10 @@ class BaseAPIController extends Controller
         $entity = $request->entity();
         $action = $request->action;
 
+        if (! in_array($action, ['archive', 'delete', 'restore'])) {
+            return $this->errorResponse('Action is not supported');
+        }
+
         $repo = Utils::toCamelCase($this->entityType) . 'Repo';
 
         $this->$repo->$action($entity);

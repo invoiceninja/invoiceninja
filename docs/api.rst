@@ -107,6 +107,11 @@ Updating Data
     -d '{"name":"test", "contacts":[{"id": 1, "first_name": "test"}]}' \
     -H "X-Ninja-Token: TOKEN"
 
+You can archive, delete or restore an entity by setting ``action`` in the request
+
+  curl -X PUT ninja.dev/api/v1/invoices/1?action=archive \
+    -H "X-Ninja-Token: TOKEN"
+
 Emailing Invoices
 """""""""""""""""
 
