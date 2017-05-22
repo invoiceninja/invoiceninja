@@ -2252,6 +2252,8 @@ $LANG = array(
     'invoiceplane_import' => 'Use :link to migrate your data from InvoicePlane.',
     'duplicate_expense_warning' => 'Warning: This :link may be a duplicate',
     'expense_link' => 'expense',
+    'resume_task' => 'Resume Task',
+    'resumed_task' => 'Successfully resumed task',
 
 );
 

@@ -89,6 +89,15 @@ class TaskDatatable extends EntityDatatable
                 },
             ],
             [
+                trans('texts.resume_task'),
+                function ($model) {
+                    return "javascript:submitForm_task('resume', {$model->public_id})";
+                },
+                function ($model) {
+                    return ! $model->is_running && Auth::user()->can('editByOwner', [ENTITY_TASK, $model->user_id]);
+                },
+            ],
+            [
                 trans('texts.stop_task'),
                 function ($model) {
                     return "javascript:submitForm_task('stop', {$model->public_id})";
@@ -103,7 +112,7 @@ class TaskDatatable extends EntityDatatable
                     return "javascript:submitForm_task('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_number && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                    return ! $model->is_running && ! $model->invoice_number && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
         ];
