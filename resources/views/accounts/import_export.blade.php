@@ -46,7 +46,7 @@
                     ]) !!}
         </div>
         <div id="inovicePlaneImport" style="display:none"><center>
-                {!! trans('texts.inoviceplane_import', ['link' => link_to(INVOICEPLANE_IMPORT, 'turbo124/Plane2Ninja', ['target' => '_blank'])]) !!}
+                {!! trans('texts.invoiceplane_import', ['link' => link_to(INVOICEPLANE_IMPORT, 'turbo124/Plane2Ninja', ['target' => '_blank'])]) !!}
         </center></div>
         <br/>
 

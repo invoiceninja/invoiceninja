@@ -2249,7 +2249,9 @@ $LANG = array(
     'emailed_payment' => 'Successfully emailed payment',
     'email_payment' => 'Email Payment',
     'sent' => 'Sent',
-    'inoviceplane_import' => 'Use :link to migrate your data from InvoicePlane.',
+    'invoiceplane_import' => 'Use :link to migrate your data from InvoicePlane.',
+    'duplicate_expense_warning' => 'Warning: This :link may be a duplicate',
+    'expense_link' => 'expense',
 
 );
 
