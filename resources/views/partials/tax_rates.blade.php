@@ -1,7 +1,7 @@
 @if ($account->invoice_item_taxes)
       {!! Former::select('tax_select1')
           ->addOption('','')
-          ->label(trans('texts.tax_rate'))
+          ->label(isset($taxRateLabel) ? $taxRateLabel : trans('texts.tax_rate'))
           ->onchange('taxSelectChange(event)')
           ->fromQuery($taxRates) !!}
 
@@ -13,7 +13,7 @@
       <div style="display:{{ $account->enable_second_tax_rate ? 'block' : 'none' }}">
           {!! Former::select('tax_select2')
               ->addOption('','')
-              ->label(trans('texts.tax_rate'))
+              ->label(isset($taxRateLabel) ? $taxRateLabel : trans('texts.tax_rate'))
               ->onchange('taxSelectChange(event)')
               ->fromQuery($taxRates) !!}
 
