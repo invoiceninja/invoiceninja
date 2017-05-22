@@ -90,7 +90,7 @@ Follow these steps to add a driver.
 Google Map
 """"""""""
 
-You need to create a Google Maps API key for the Javascript, Geocoding and Embed APIs and then add ``GOOGLE_MAPS_API_KEY=your_key`` to the .env file.
+You need to create a `Google Maps API <https://developers.google.com/maps/documentation/javascript/get-api-key>`_ key for the Javascript, Geocoding and Embed APIs and then add ``GOOGLE_MAPS_API_KEY=your_key`` to the .env file.
 
 You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env file.
 
