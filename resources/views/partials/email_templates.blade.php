@@ -28,7 +28,9 @@
             'password': passwordHtml,
             'documents': documentsHtml,
             'viewLink': '{{ link_to('#', url('/view/...')) }}$password',
-            'viewButton': '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
+            'viewButton': invoice && invoice.invoice_type_id == {{ INVOICE_TYPE_QUOTE }} ?
+                '{!! Form::flatButton('view_quote', '#0b4d78') !!}$password' :
+                '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
             'paymentLink': '{{ link_to('#', url('/payment/...')) }}$password',
             'paymentButton': '{!! Form::flatButton('pay_now', '#36c157') !!}$password',
             'autoBill': '{{ trans('texts.auto_bill_notification_placeholder') }}',

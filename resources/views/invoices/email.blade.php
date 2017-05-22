@@ -4,7 +4,7 @@
 
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="emailModalLabel">{{ trans('texts.email_invoice') }}</h4>
+                <h4 class="modal-title" id="emailModalLabel">{{ trans($invoice->isQuote() ? 'texts.email_quote' : 'texts.email_invoice') }}</h4>
             </div>
 
             <div class="container" style="width: 100%; padding-bottom: 0px !important">
@@ -225,7 +225,7 @@
           NINJA.formIsChanged = true;
         });
 
-      @if (Utils::isPro())
+      @if (Utils::isPro() && $invoice->isStandard())
           if (window.defaultTemplate) {
               $('#template_type').val(window.defaultTemplate);
           }
