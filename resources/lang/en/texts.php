@@ -2249,7 +2249,8 @@ $LANG = array(
     'emailed_payment' => 'Successfully emailed payment',
     'email_payment' => 'Email Payment',
     'sent' => 'Sent',
-    
+    'inoviceplane_import' => 'Use :link to migrate your data from InvoicePlane.',
+
 );
 
 return $LANG;

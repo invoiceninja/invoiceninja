@@ -162,6 +162,7 @@ if (! defined('APP_NAME')) {
     define('IMPORT_ZOHO', 'Zoho');
     define('IMPORT_NUTCACHE', 'Nutcache');
     define('IMPORT_INVOICEABLE', 'Invoiceable');
+    define('IMPORT_INVOICEPLANE', 'InvoicePlane');
     define('IMPORT_HARVEST', 'Harvest');
 
     define('MAX_NUM_CLIENTS', 100);
@@ -330,6 +331,7 @@ if (! defined('APP_NAME')) {
     define('MSBOT_LUIS_URL', 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps');
     define('SKYPE_API_URL', 'https://apis.skype.com/v3');
     define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
+    define('INVOICEPLANE_IMPORT', 'https://github.com/turbo124/Plane2Ninja');
 
     define('BOT_PLATFORM_WEB_APP', 'WebApp');
     define('BOT_PLATFORM_SKYPE', 'Skype');

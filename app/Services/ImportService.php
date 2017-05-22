@@ -99,6 +99,7 @@ class ImportService
         IMPORT_FRESHBOOKS,
         IMPORT_HIVEAGE,
         IMPORT_INVOICEABLE,
+        IMPORT_INVOICEPLANE,
         IMPORT_NUTCACHE,
         IMPORT_RONIN,
         IMPORT_WAVE,
