@@ -109,6 +109,8 @@ Updating Data
 
 You can archive, delete or restore an entity by setting ``action`` in the request
 
+.. code-block:: shell
+
   curl -X PUT ninja.dev/api/v1/invoices/1?action=archive \
     -H "X-Ninja-Token: TOKEN"
 
