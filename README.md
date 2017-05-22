@@ -60,6 +60,9 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 * [Support Forum](https://www.invoiceninja.com/forums/forum/support/)
 * [Feature Roadmap](https://trello.com/b/63BbiVVe/)
 
+## Tools
+* [InvoicePlane Import](https://github.com/turbo124/Plane2Ninja)
+
 ## Development
 * [API Documentation](https://www.invoiceninja.com/api-documentation/)
 * [PHP SDK](https://github.com/invoiceninja/sdk-php)
