@@ -185,7 +185,7 @@ class InvoiceApiController extends BaseAPIController
         $invoice = $this->invoiceService->save($data);
         $payment = false;
 
-        if ($invoice->isInvoice()) {
+        if ($invoice->isStandard()) {
             if ($isAutoBill) {
                 $payment = $this->paymentService->autoBillInvoice($invoice);
             } elseif ($isPaid) {
