@@ -57,6 +57,12 @@ class AddDefaultNoteToClient extends Migration
                 $table->dropColumn('default_tax_rate_id');
             });
         }
+
+        if (Utils::isNinja()) {
+            Schema::table('users', function ($table) {
+                $table->unique(['oauth_user_id', 'oauth_provider_id']);
+            });
+        }
     }
 
     /**
