@@ -2,8 +2,7 @@
 var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
 var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
 var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
-//var isEdge = navigator.userAgent.indexOf('Edge/') >= 0;
-var isEdge = false;
+var isEdge = navigator.userAgent.indexOf('Edge/') >= 0;
 var isChrome = !!window.chrome && !isOpera && !isEdge; // Chrome 1+
 var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 // https://code.google.com/p/chromium/issues/detail?id=574648
