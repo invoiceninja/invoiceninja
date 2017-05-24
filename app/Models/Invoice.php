@@ -47,6 +47,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         'tax_name2',
         'tax_rate2',
         'private_notes',
+        'last_sent_date',
     ];
 
     /**
