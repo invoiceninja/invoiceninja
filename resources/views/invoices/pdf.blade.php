@@ -117,15 +117,20 @@
     try {
         return getPDFString(refreshPDFCB, force);
     } catch (exception) {
-        $.get('http://ninja.dev/download/kamdswrgu9adbmojwlvmsfyzc6a3zd42?base64=true', function(result) {
-            refreshPDFCB(result);
-        })
-        return false;
+        if (location.href.indexOf('/view/')) {
+            var url = location.href.replace('/view/', '/download/') + '?base64=true&silent=true';
+            $.get(url, function(result) {
+                refreshPDFCB(result);
+            })
+        }
     }
-
     /*
     @if (true || isset($usePhantomJS) && $usePhantomJS)
-        $.get('http://ninja.dev/download/kamdswrgu9adbmojwlvmsfyzc6a3zd42?base64=true', function(result) {
+        console.log(location.href);
+        console.log(location.href.indexOf('/view/'));
+        console.log();
+        return false;
+        $.get('http://ninja.dev/download/...?base64=true', function(result) {
             refreshPDFCB(result);
         })
         return false;
