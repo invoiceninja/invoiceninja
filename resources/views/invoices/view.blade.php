@@ -237,9 +237,15 @@
 			});
 
 			function onDownloadClick() {
-				var doc = generatePDF(invoice, invoice.invoice_design.javascript, true);
-                var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
-				doc.save(fileName + '-' + invoice.invoice_number + '.pdf');
+				try {
+					var doc = generatePDF(invoice, invoice.invoice_design.javascript, true);
+	                var fileName = invoice.is_quote ? invoiceLabels.quote : invoiceLabels.invoice;
+					doc.save(fileName + '-' + invoice.invoice_number + '.pdf');
+			    } catch (exception) {
+					if (location.href.indexOf('/view/')) {
+			            location.href = location.href.replace('/view/', '/download/');
+			        }
+				}
 			}
 
             function showCustomModal() {
