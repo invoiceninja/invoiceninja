@@ -1231,7 +1231,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return bool|string
      */
-    public function getPDFString()
+    public function getPDFString($decode = true)
     {
         if (! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
             return false;
@@ -1271,11 +1271,15 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
-        if ($pdf = Utils::decodePDF($pdfString)) {
-            return $pdf;
+        if ($decode) {
+            if ($pdf = Utils::decodePDF($pdfString)) {
+                return $pdf;
+            } else {
+                Utils::logError("PhantomJS - Unable to decode: {$pdfString}");
+                return false;
+            }
         } else {
-            Utils::logError("PhantomJS - Unable to decode: {$pdfString}");
-            return false;
+            return $pdfString;
         }
     }
 

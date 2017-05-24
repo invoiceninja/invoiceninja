@@ -114,7 +114,25 @@
   var needsRefresh = false;
 
   function refreshPDF(force) {
-    return getPDFString(refreshPDFCB, force);
+    try {
+        return getPDFString(refreshPDFCB, force);
+    } catch (exception) {
+        $.get('http://ninja.dev/download/kamdswrgu9adbmojwlvmsfyzc6a3zd42?base64=true', function(result) {
+            refreshPDFCB(result);
+        })
+        return false;
+    }
+
+    /*
+    @if (true || isset($usePhantomJS) && $usePhantomJS)
+        $.get('http://ninja.dev/download/kamdswrgu9adbmojwlvmsfyzc6a3zd42?base64=true', function(result) {
+            refreshPDFCB(result);
+        })
+        return false;
+    @else
+        return getPDFString(refreshPDFCB, force);
+    @endif
+    */
   }
 
   function refreshPDFCB(string) {
