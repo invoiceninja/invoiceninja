@@ -419,7 +419,7 @@ class InvoiceRepository extends BaseRepository
         }
 
         if ($invoice->is_recurring) {
-            if (isset($data['start_date']) && $invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
+            if (! $isNew && isset($data['start_date']) && $invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
                 $invoice->last_sent_date = null;
             }
 
