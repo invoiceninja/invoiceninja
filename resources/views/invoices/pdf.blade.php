@@ -117,8 +117,9 @@
     try {
         return getPDFString(refreshPDFCB, force);
     } catch (exception) {
-        if (location.href.indexOf('/view/')) {
-            var url = location.href.replace('/view/', '/download/') + '?base64=true';
+        var href = location.href;
+        if (href.indexOf('/view/') && href.indexOf('phantomjs') == -1) {
+            var url = href.replace('/view/', '/download/') + '?base64=true';
             $.get(url, function(result) {
                 refreshPDFCB(result);
             })
