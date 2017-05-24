@@ -606,6 +606,7 @@ class BasePaymentDriver
 
     public function createPayment($ref = false, $paymentMethod = null)
     {
+        $account = $this->account();
         $invitation = $this->invitation;
         $invoice = $this->invoice();
         $invoice->markSentIfUnsent();
@@ -618,7 +619,7 @@ class BasePaymentDriver
         $payment->client_id = $invoice->client_id;
         $payment->contact_id = $invitation->contact_id;
         $payment->transaction_reference = $ref;
-        $payment->payment_date = date_create()->format('Y-m-d');
+        $payment->payment_date = $account->getDateTime()->format('Y-m-d');
         $payment->ip = Request::ip();
 
         $payment = $this->creatingPayment($payment, $paymentMethod);
