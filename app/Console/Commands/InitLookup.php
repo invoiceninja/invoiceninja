@@ -21,7 +21,7 @@ class InitLookup extends Command
      *
      * @var string
      */
-    protected $signature = 'ninja:init-lookup {--truncate=} {--validate=} {--company_id=} {--page_size=100} {--database=db-ninja-1}';
+    protected $signature = 'ninja:init-lookup {--truncate=} {--validate=} {--update=} {--company_id=} {--page_size=100} {--database=db-ninja-1}';
 
     /**
      * The console command description.
@@ -106,15 +106,20 @@ class InitLookup extends Command
 
         config(['database.default' => DB_NINJA_LOOKUP]);
 
+        $validate = $this->option('validate');
+        $update = $this->option('update');
+
         foreach ($data as $companyId => $company) {
 
-            if ($this->option('validate')) {
+            $lookupCompany = false;
+            if ($validate || $update) {
                 $lookupCompany = LookupCompany::whereDbServerId($dbServerId)->whereCompanyId($companyId)->first();
-                if (! $lookupCompany) {
-                    $this->logError("LookupCompany - dbServerId: {$dbServerId}, companyId: {$companyId} | Not found!");
-                    continue;
-                }
-            } else {
+            }
+            if ($validate && ! $lookupCompany) {
+                $this->logError("LookupCompany - dbServerId: {$dbServerId}, companyId: {$companyId} | Not found!");
+                continue;
+            }
+            if (! $lookupCompany) {
                 $lookupCompany = LookupCompany::create([
                     'db_server_id' => $dbServerId,
                     'company_id' => $companyId,
@@ -122,13 +127,16 @@ class InitLookup extends Command
             }
 
             foreach ($company as $accountKey => $account) {
-                if ($this->option('validate')) {
+
+                $lookupAccount = false;
+                if ($validate || $update) {
                     $lookupAccount = LookupAccount::whereLookupCompanyId($lookupCompany->id)->whereAccountKey($accountKey)->first();
-                    if (! $lookupAccount) {
-                        $this->logError("LookupAccount - lookupCompanyId: {$lookupCompany->id}, accountKey {$accountKey} | Not found!");
-                        continue;
-                    }
-                } else {
+                }
+                if ($validate && ! $lookupAccount) {
+                    $this->logError("LookupAccount - lookupCompanyId: {$lookupCompany->id}, accountKey {$accountKey} | Not found!");
+                    continue;
+                }
+                if (! $lookupAccount) {
                     $lookupAccount = LookupAccount::create([
                         'lookup_company_id' => $lookupCompany->id,
                         'account_key' => $accountKey
@@ -136,17 +144,27 @@ class InitLookup extends Command
                 }
 
                 foreach ($account['users'] as $user) {
-                    if ($this->option('validate')) {
+                    $lookupUser = false;
+                    if ($validate || $update) {
                         $lookupUser = LookupUser::whereLookupAccountId($lookupAccount->id)->whereUserId($user['user_id'])->first();
+                    }
+                    if ($validate) {
                         if (! $lookupUser) {
                             $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Not found!");
                             continue;
-                        }
-                        if ($user['email'] != $lookupUser->email || $user['oauth_user_key'] != $lookupUser->oauth_user_key || $user['referral_code'] != $lookupUser->referral_code) {
+                        } elseif ($user['email'] != $lookupUser->email || $user['oauth_user_key'] != $lookupUser->oauth_user_key || $user['referral_code'] != $lookupUser->referral_code) {
                             $this->logError("LookupUser - lookupAccountId: {$lookupAccount->id}, userId: {$user['user_id']} | Out of date!");
                             continue;
                         }
-                    } else {
+                    }
+                    if ($update && $lookupUser) {
+                        if ($user['email'] != $lookupUser->email || $user['oauth_user_key'] != $lookupUser->oauth_user_key || $user['referral_code'] != $lookupUser->referral_code) {
+                            $lookupUser->email = $user['email'];
+                            $lookupUser->oauth_user_key = $user['oauth_user_key'];
+                            $lookupUser->referral_code = $user['referral_code'];
+                            $lookupUser->save();
+                        }
+                    } elseif (! $lookupUser) {
                         LookupUser::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'email' => $user['email'] ?: null,
@@ -158,13 +176,15 @@ class InitLookup extends Command
                 }
 
                 foreach ($account['contacts'] as $contact) {
-                    if ($this->option('validate')) {
+                    $lookupContact = false;
+                    if ($validate || $update) {
                         $lookupContact = LookupContact::whereLookupAccountId($lookupAccount->id)->whereContactKey($contact['contact_key'])->first();
-                        if (! $lookupContact) {
-                            $this->logError("LookupContact - lookupAccountId: {$lookupAccount->id}, contactKey: {$contact['contact_key']} | Not found!");
-                            continue;
-                        }
-                    } else {
+                    }
+                    if ($validate && ! $lookupContact) {
+                        $this->logError("LookupContact - lookupAccountId: {$lookupAccount->id}, contactKey: {$contact['contact_key']} | Not found!");
+                        continue;
+                    }
+                    if (! $lookupContact) {
                         LookupContact::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'contact_key' => $contact['contact_key'],
@@ -173,13 +193,25 @@ class InitLookup extends Command
                 }
 
                 foreach ($account['invitations'] as $invitation) {
-                    if ($this->option('validate')) {
+                    $lookupInvitation = false;
+                    if ($validate || $update) {
                         $lookupInvitation = LookupInvitation::whereLookupAccountId($lookupAccount->id)->whereInvitationKey($invitation['invitation_key'])->first();
+                    }
+                    if ($validate) {
                         if (! $lookupInvitation) {
                             $this->logError("LookupInvitation - lookupAccountId: {$lookupAccount->id}, invitationKey: {$invitation['invitation_key']} | Not found!");
                             continue;
+                        } elseif ($invitation['message_id'] && $lookupInvitation->message_id != $invitation['message_id']) {
+                            $this->logError("LookupInvitation - lookupAccountId: {$lookupAccount->id}, invitationKey: {$invitation['invitation_key']} | Not the same!");
+                            continue;
                         }
-                    } else {
+                    }
+                    if ($update && $lookupInvitation) {
+                        if ($invitation['message_id'] && $lookupInvitation->message_id != $invitation['message_id']) {
+                            $lookupInvitation->message_id = $invitation['message_id'];
+                            $lookupInvitation->save();
+                        }
+                    } elseif (! $lookupInvitation) {
                         LookupInvitation::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'invitation_key' => $invitation['invitation_key'],
@@ -189,13 +221,15 @@ class InitLookup extends Command
                 }
 
                 foreach ($account['tokens'] as $token) {
-                    if ($this->option('validate')) {
+                    $lookupToken = false;
+                    if ($validate || $update) {
                         $lookupToken = LookupAccountToken::whereLookupAccountId($lookupAccount->id)->whereToken($token['token'])->first();
-                        if (! $lookupToken) {
-                            $this->logError("LookupAccountToken - lookupAccountId: {$lookupAccount->id}, token: {$token['token']} | Not found!");
-                            continue;
-                        }
-                    } else {
+                    }
+                    if ($validate && ! $lookupToken) {
+                        $this->logError("LookupAccountToken - lookupAccountId: {$lookupAccount->id}, token: {$token['token']} | Not found!");
+                        continue;
+                    }
+                    if (! $lookupToken) {
                         LookupAccountToken::create([
                             'lookup_account_id' => $lookupAccount->id,
                             'token' => $token['token'],
