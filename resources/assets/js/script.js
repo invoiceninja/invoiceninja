@@ -450,10 +450,10 @@ if (window.ko) {
 function comboboxHighlighter(item) {
     var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
     var result = item.replace(new RegExp('<br/>', 'g'), "\n");
+    result = stripHtmlTags(result);
     result = result.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
         return match ? '<strong>' + match + '</strong>' : query;
     });
-    result = stripHtmlTags(result);
     return result.replace(new RegExp("\n", 'g'), '<br/>');
 }
 
