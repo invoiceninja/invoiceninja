@@ -788,7 +788,7 @@
 		  </div>
 		  </div>
 
-	     <div class="modal-footer" style="padding-top: 0px">
+	     <div class="modal-footer">
 	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
 	     </div>
 
@@ -812,7 +812,7 @@
 		 </div>
 		 </div>
 
-	     <div class="modal-footer" style="padding-top: 0px">
+	     <div class="modal-footer">
 	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
 	     </div>
 
