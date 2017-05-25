@@ -335,7 +335,7 @@ class AccountRepository
 
     public function getNinjaAccount()
     {
-        $account = Account::whereAccountKey(NINJA_ACCOUNT_KEY)->first();
+        $account = Account::where('account_key', 'LIKE', substr(NINJA_ACCOUNT_KEY, 0, 30) . '%')->orderBy('id')->first();
 
         if ($account) {
             return $account;
