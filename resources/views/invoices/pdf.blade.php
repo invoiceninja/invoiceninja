@@ -117,8 +117,9 @@
     try {
         return getPDFString(refreshPDFCB, force);
     } catch (exception) {
+        console.warn('Failed to generate PDF');
         var href = location.href;
-        if (href.indexOf('/view/') && href.indexOf('phantomjs') == -1) {
+        if (href.indexOf('/view/') > 0 && href.indexOf('phantomjs') == -1) {
             var url = href.replace('/view/', '/download/') + '?base64=true';
             $.get(url, function(result) {
                 refreshPDFCB(result);

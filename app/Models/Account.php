@@ -938,7 +938,7 @@ class Account extends Eloquent
      */
     public function isNinjaAccount()
     {
-        return $this->account_key === NINJA_ACCOUNT_KEY;
+        return strpos($this->account_key, 'zg4ylmzDkdkPOT8yoKQw9LTWaoZJx7') === 0;
     }
 
     /**
