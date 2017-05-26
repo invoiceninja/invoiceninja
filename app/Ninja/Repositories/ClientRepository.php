@@ -116,7 +116,7 @@ class ClientRepository extends BaseRepository
         */
 
         $first = true;
-        $contacts = isset($data['contact']) ? [$data['contact']] : $data['contacts'];
+        $contacts = isset($data['contact']) ? [$data['contact']] : (isset($data['contacts']) ? $data['contacts'] : [[]]);
         $contactIds = [];
 
         // If the primary is set ensure it's listed first
