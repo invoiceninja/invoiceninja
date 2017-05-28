@@ -308,7 +308,9 @@
 				theme: 'bootstrap',
 				widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_when_sorted ? ", 'group'" : "" !!}, 'columnSelector'],
 				headerTemplate : '{content} {icon}',
-				dateFormat: '{{ $report->convertDateFormat() }}',
+				@if ($report)
+					dateFormat: '{{ $report->convertDateFormat() }}',
+				@endif
 				numberSorter: function(a, b, direction) {
 					var a = convertStringToNumber(a);
 					var b = convertStringToNumber(b);
