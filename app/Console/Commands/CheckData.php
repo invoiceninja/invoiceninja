@@ -75,9 +75,7 @@ class CheckData extends Command
 
         $this->checkBalances();
         $this->checkContacts();
-
-        // TODO Enable once user_account companies have been merged
-        //$this->checkUserAccounts();
+        $this->checkUserAccounts();
 
         if (! $this->option('client_id')) {
             $this->checkOAuth();
@@ -220,8 +218,9 @@ class CheckData extends Command
             }
         }
 
+        $this->logMessage($countInvalid . ' user accounts with multiple companies');
+
         if ($countInvalid > 0) {
-            $this->logMessage($countInvalid . ' user accounts with multiple companies');
             $this->isValid = false;
         }
     }
