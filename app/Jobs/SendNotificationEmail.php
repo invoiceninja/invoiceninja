@@ -73,6 +73,10 @@ class SendNotificationEmail extends Job implements ShouldQueue
      */
     public function handle(UserMailer $userMailer)
     {
+        if (config('queue.default') !== 'sync') {
+            $this->user->account->loadLocalizationSettings();
+        }
+
         $userMailer->sendNotification($this->user, $this->invoice, $this->type, $this->payment, $this->notes);
     }
 }

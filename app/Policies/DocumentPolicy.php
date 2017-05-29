@@ -42,6 +42,6 @@ class DocumentPolicy extends EntityPolicy
             return $user->can('view', $document->invoice);
         }
 
-        return $user->owns($item);
+        return $user->owns($document);
     }
 }
