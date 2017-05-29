@@ -33,7 +33,9 @@
 
   {!! Former::text('cost') !!}
 
-  @include('partials.tax_rates')
+  @if ($account->invoice_item_taxes)
+    @include('partials.tax_rates')
+  @endif
 
   </div>
   </div>
