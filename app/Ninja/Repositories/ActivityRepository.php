@@ -9,6 +9,7 @@ use Auth;
 use DB;
 use Request;
 use Utils;
+use App;
 
 class ActivityRepository
 {
@@ -56,9 +57,9 @@ class ActivityRepository
         } else {
             $activity->user_id = $entity->user_id;
             $activity->account_id = $entity->account_id;
-            $activity->is_system = true;
         }
 
+        $activity->is_system = App::runningInConsole();
         $activity->token_id = session('token_id');
 
         return $activity;

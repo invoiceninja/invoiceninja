@@ -10,6 +10,7 @@ use App\Services\PaymentService;
 use DateTime;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
+use Auth;
 
 /**
  * Class SendRecurringInvoices.
@@ -91,12 +92,14 @@ class SendRecurringInvoices extends Command
 
             $account = $recurInvoice->account;
             $account->loadLocalizationSettings($recurInvoice->client);
+            Auth::loginUsingId($recurInvoice->user_id);
             $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 
             if ($invoice && ! $invoice->isPaid()) {
                 $this->info('Sending Invoice');
                 $this->mailer->sendInvoice($invoice);
             }
+            Auth::logout();
         }
 
         $delayedAutoBillInvoices = Invoice::with('account.timezone', 'recurring_invoice', 'invoice_items', 'client', 'user')
@@ -115,7 +118,9 @@ class SendRecurringInvoices extends Command
 
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
                 $this->info('Processing Autobill-delayed Invoice ' . $invoice->id);
+                Auth::loginUsingId($invoice->user_id);
                 $this->paymentService->autoBillInvoice($invoice);
+                Auth::logout();
             }
         }
 
