@@ -103,6 +103,7 @@ class CheckData extends Command
 
     private function logMessage($str)
     {
+        $str = date('Y-m-d h:i:s') . ' ' . $str;
         $this->info($str);
         $this->log .= $str . "\n";
     }

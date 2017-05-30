@@ -315,7 +315,9 @@ class InitLookup extends Command
 
     private function logMessage($str)
     {
-        $this->log .= date('Y-m-d h:i:s') . ' ' . $str . "\n";
+        $str = date('Y-m-d h:i:s') . ' ' . $str;
+        $this->info($str);
+        $this->log .= $str . "\n";
     }
 
     private function logError($str)
