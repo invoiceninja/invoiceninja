@@ -4,7 +4,7 @@
 
 
 	{!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
-			'client' => 'required',
+			'client_id' => 'required',
   		'amount' => 'required',
 	)) !!}
 
@@ -22,9 +22,9 @@
             <div class="panel-body">
 
 			@if ($credit)
-				{!! Former::plaintext()->label('client')->value($client->getDisplayName()) !!}
+				{!! Former::plaintext()->label('client')->value($client->present()->link) !!}
 			@else
-				{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+				{!! Former::select('client_id')->addOption('', '')->addGroupClass('client-select') !!}
 			@endif
 
 			{!! Former::text('amount') !!}
@@ -63,7 +63,7 @@
 	$(function() {
 
 		@if ( ! $credit)
-			var $clientSelect = $('select#client');
+			var $clientSelect = $('select#client_id');
 			for (var i=0; i<clients.length; i++) {
 				var client = clients[i];
 	            var clientName = getClientDisplayName(client);

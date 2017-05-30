@@ -22,7 +22,7 @@ class UpdateCreditRequest extends CreditRequest
     public function rules()
     {
         return [
-            'amount' => 'required|positive',
+            'amount' => 'positive',
         ];
     }
 }
