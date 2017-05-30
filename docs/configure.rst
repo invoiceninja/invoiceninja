@@ -62,6 +62,7 @@ To use a local PhantomJS install add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantom
 Troubleshooting
 ---------------
 
+- Check storage/logs/laravel-error.log for relevant errors.
 - To determine the path you can run ``which phantomjs`` from the command line.
 - We suggest using PhantomJS version >= 2.1.1, users have reported seeing 'Error: 0' with older versions.
 - You can use `this script <https://raw.githubusercontent.com/invoiceninja/invoiceninja/develop/resources/test.pjs>`_ to test from the command line, change ``__YOUR_LINK_HERE__`` to a 'View as recipient' link.
