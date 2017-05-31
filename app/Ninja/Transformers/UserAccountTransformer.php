@@ -18,6 +18,7 @@ class UserAccountTransformer extends EntityTransformer
         parent::__construct($account, $serializer);
 
         $this->tokenName = $tokenName;
+        $this->account = $account;
     }
 
     public function includeUser(User $user)
