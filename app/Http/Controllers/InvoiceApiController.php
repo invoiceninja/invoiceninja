@@ -251,6 +251,10 @@ class InvoiceApiController extends BaseAPIController
             $fields['due_date_sql'] = false;
         }
 
+        if (isset($data['is_quote']) && filter_var($data['is_quote'], FILTER_VALIDATE_BOOLEAN)) {
+            $fields['invoice_design_id'] = $account->quote_design_id;
+        }
+
         foreach ($fields as $key => $val) {
             if (! isset($data[$key])) {
                 $data[$key] = $val;

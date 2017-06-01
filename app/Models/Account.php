@@ -68,6 +68,7 @@ class Account extends Eloquent
         'invoice_taxes',
         'invoice_item_taxes',
         'invoice_design_id',
+        'quote_design_id',
         'work_phone',
         'work_email',
         'language_id',
@@ -885,6 +886,7 @@ class Account extends Eloquent
         } else {
             if ($entityType == ENTITY_QUOTE) {
                 $invoice->invoice_type_id = INVOICE_TYPE_QUOTE;
+                $invoice->invoice_design_id = $this->quote_design_id;
             }
 
             if ($this->hasClientNumberPattern($invoice) && ! $clientId) {

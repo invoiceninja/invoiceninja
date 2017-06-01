@@ -175,4 +175,24 @@ class AccountPresenter extends Presenter
 
         return $data;
     }
+
+    public function customDesigns()
+    {
+        $account = $this->entity;
+        $data = [];
+
+        for ($i=1; $i<=3; $i++) {
+            $label = trans('texts.custom_design' . $i);
+            if (! $account->{'custom_design' . $i}) {
+                $label .= ' - ' . trans('texts.empty');
+            }
+
+            $data[] = [
+                'url' => url('/settings/customize_design?design_id=') . ($i + 10),
+                'label' => $label
+            ];
+        }
+
+        return $data;
+    }
 }

@@ -36,7 +36,7 @@ class UserTableSeeder extends Seeder
             'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),
             'work_phone' => $faker->phoneNumber,
             'work_email' => $faker->safeEmail,
-            'invoice_design_id' => InvoiceDesign::where('id', '<', CUSTOM_DESIGN)->get()->random()->id,
+            'invoice_design_id' => InvoiceDesign::where('id', '<', CUSTOM_DESIGN1)->get()->random()->id,
             'header_font_id' => min(Font::all()->random()->id, 17),
             'body_font_id' => min(Font::all()->random()->id, 17),
             'primary_color' => $faker->hexcolor,

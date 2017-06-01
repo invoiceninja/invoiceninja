@@ -142,7 +142,7 @@
             settingsURL = localStorage.getItem('last:settings_page') || settingsURL;
         }
         // if they're on the last viewed settings page link to main settings page
-        if ('{{ request()->url() }}' != settingsURL) {
+        if ('{{ request()->fullUrl() }}' != settingsURL) {
             $('.nav-settings .nav-link').attr("href", settingsURL);
         }
 

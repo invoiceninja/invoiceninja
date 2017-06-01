@@ -572,7 +572,11 @@ class AccountController extends BaseController
         }
 
         if ($section == ACCOUNT_CUSTOMIZE_DESIGN) {
-            $data['customDesign'] = ($account->custom_design && ! $design) ? $account->custom_design : $design;
+            if ($custom = $account->getCustomDesign(request()->design_id)) {
+                $data['customDesign'] = $custom;
+            } else {
+                $data['customDesign'] = $design;
+            }
 
             // sample invoice to help determine variables
             $invoice = Invoice::scope()
@@ -737,16 +741,21 @@ class AccountController extends BaseController
      */
     private function saveCustomizeDesign()
     {
+        $designId = intval(Input::get('design_id')) ?: CUSTOM_DESIGN1;
+        $field = 'custom_design' . ($designId - 10);
+
         if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
             $account = Auth::user()->account;
-            $account->custom_design = Input::get('custom_design');
-            $account->invoice_design_id = CUSTOM_DESIGN;
+            if (! $account->custom_design1) {
+                $account->invoice_design_id = CUSTOM_DESIGN1;
+            }
+            $account->$field = Input::get('custom_design');
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/'.ACCOUNT_CUSTOMIZE_DESIGN);
+        return Redirect::to('settings/' . ACCOUNT_CUSTOMIZE_DESIGN . '?design_id=' . $designId);
     }
 
     /**
@@ -952,6 +961,7 @@ class AccountController extends BaseController
             $account->primary_color = Input::get('primary_color');
             $account->secondary_color = Input::get('secondary_color');
             $account->invoice_design_id = Input::get('invoice_design_id');
+            $account->quote_design_id = Input::get('quote_design_id');
             $account->font_size = intval(Input::get('font_size'));
             $account->page_size = Input::get('page_size');
 

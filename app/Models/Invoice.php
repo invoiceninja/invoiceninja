@@ -48,6 +48,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         'tax_rate2',
         'private_notes',
         'last_sent_date',
+        'invoice_design_id',
     ];
 
     /**
@@ -591,6 +592,11 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function getName()
     {
         return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number;
+    }
+
+    public function getDesignId()
+    {
+        return $this->isQuote() ? $this->quote_design_id : $this->invoice_design_id;
     }
 
     /**

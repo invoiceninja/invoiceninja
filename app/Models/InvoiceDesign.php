@@ -83,11 +83,11 @@ class InvoiceDesign extends Eloquent
             $design->javascript = $design->pdfmake;
             $design->pdfmake = null;
 
-            if ($design->id == CUSTOM_DESIGN) {
-                if ($account->custom_design) {
-                    $design->javascript = $account->custom_design;
+            if (in_array($design->id, [CUSTOM_DESIGN1, CUSTOM_DESIGN2, CUSTOM_DESIGN3])) {
+                if ($javascript = $account->getCustomDesign($design->id)) {
+                    $design->javascript = $javascript;
                 } else {
-                    $designs->pop();
+                    $designs->forget($design->id - 1);
                 }
             }
         }

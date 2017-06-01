@@ -470,8 +470,6 @@ class InvoiceRepository extends BaseRepository
             $invoice->po_number = trim($data['po_number']);
         }
 
-        $invoice->invoice_design_id = isset($data['invoice_design_id']) ? $data['invoice_design_id'] : $account->invoice_design_id;
-
         // provide backwards compatibility
         if (isset($data['tax_name']) && isset($data['tax_rate'])) {
             $data['tax_name1'] = $data['tax_name'];

@@ -63,6 +63,21 @@ class AddDefaultNoteToClient extends Migration
                 $table->unique(['oauth_user_id', 'oauth_provider_id']);
             });
         }
+
+        Schema::table('accounts', function ($table) {
+            $table->unsignedInteger('quote_design_id')->default(1);
+            $table->renameColumn('custom_design', 'custom_design1');
+            $table->mediumText('custom_design2')->nullable();
+            $table->mediumText('custom_design3')->nullable();
+        });
+
+        DB::statement('update accounts
+            set quote_design_id = invoice_design_id');
+
+        DB::statement('update invoice_designs
+            set name = "Custom1"
+            where id = 11
+            and name = "Custom"');
     }
 
     /**
@@ -97,5 +112,12 @@ class AddDefaultNoteToClient extends Migration
             $table->dropColumn('tax_name2');
             $table->dropColumn('tax_rate2');
         });
+
+        Schema::table('accounts', function ($table) {
+            $table->renameColumn('custom_design1', 'custom_design');
+            $table->dropColumn('custom_design2');
+            $table->dropColumn('custom_design3');
+        });
+
     }
 }

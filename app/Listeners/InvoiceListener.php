@@ -35,8 +35,7 @@ class InvoiceListener
             $invoice = $event->invoice;
             $account = Auth::user()->account;
 
-            if ($invoice->invoice_design_id
-                    && $account->invoice_design_id != $invoice->invoice_design_id) {
+            if ($invoice->invoice_design_id && $account->invoice_design_id != $invoice->invoice_design_id) {
                 $account->invoice_design_id = $invoice->invoice_design_id;
                 $account->save();
             }

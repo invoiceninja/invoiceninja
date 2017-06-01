@@ -292,4 +292,16 @@ trait PresentsInvoice
 
         return $data;
     }
+
+    public function getCustomDesign($designId) {
+        if ($designId == CUSTOM_DESIGN1) {
+            return $this->custom_design1;
+        } elseif ($designId == CUSTOM_DESIGN2) {
+            return $this->custom_design2;
+        } elseif ($designId == CUSTOM_DESIGN3) {
+            return $this->custom_design3;
+        }
+
+        return null;
+    }
 }

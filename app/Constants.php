@@ -207,7 +207,9 @@ if (! defined('APP_NAME')) {
     define('EXPENSE_STATUS_PAID', 5);
     define('EXPENSE_STATUS_UNPAID', 6);
 
-    define('CUSTOM_DESIGN', 11);
+    define('CUSTOM_DESIGN1', 11);
+    define('CUSTOM_DESIGN2', 12);
+    define('CUSTOM_DESIGN3', 13);
 
     define('FREQUENCY_WEEKLY', 1);
     define('FREQUENCY_TWO_WEEKS', 2);
@@ -343,7 +345,6 @@ if (! defined('APP_NAME')) {
     define('DB_NINJA_2', 'db-ninja-2');
 
     define('COUNT_FREE_DESIGNS', 4);
-    define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
     define('PRODUCT_ONE_CLICK_INSTALL', 1);
     define('PRODUCT_INVOICE_DESIGNS', 2);
     define('PRODUCT_WHITE_LABEL', 3);

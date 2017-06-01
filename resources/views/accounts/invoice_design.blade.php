@@ -118,6 +118,7 @@
       {!! Former::open()->addClass('warn-on-exit')->onchange('if(!window.loadingFonts)refreshPDF()') !!}
 
       {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
+	  {!! Former::populateField('quote_design_id', $account->quote_design_id) !!}
       {!! Former::populateField('body_font_id', $account->getBodyFontId()) !!}
       {!! Former::populateField('header_font_id', $account->getHeaderFontId()) !!}
       {!! Former::populateField('font_size', $account->font_size) !!}
@@ -161,14 +162,12 @@
                       <div class="row">
                         <div class="col-md-6">
 
-                          @if (!Utils::hasFeature(FEATURE_MORE_INVOICE_DESIGNS) || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
-                            {!! Former::select('invoice_design_id')
-                                    ->fromQuery($invoiceDesigns, 'name', 'id')
-                                    ->addOption(trans('texts.more_designs') . '...', '-1') !!}
-                          @else
-                            {!! Former::select('invoice_design_id')
-                                    ->fromQuery($invoiceDesigns, 'name', 'id') !!}
-                          @endif
+						  {!! Former::select('invoice_design_id')
+						  		  ->label('default_design')
+                                  ->fromQuery($invoiceDesigns, 'name', 'id') !!}
+						  {!! Former::select('quote_design_id')
+						  		  ->label('quote_design')
+                                  ->fromQuery($invoiceDesigns, 'name', 'id') !!}
                           {!! Former::select('body_font_id')
                                   ->fromQuery($invoiceFonts, 'name', 'id') !!}
                           {!! Former::select('header_font_id')
@@ -287,10 +286,14 @@
 
     <br/>
     {!! Former::actions(
-            Button::primary(trans('texts.customize'))
-                ->appendIcon(Icon::create('edit'))
-                ->asLinkTo(URL::to('/settings/customize_design'))
-                ->large(),
+			$account->getCustomDesign(CUSTOM_DESIGN1) ?
+				DropdownButton::primary(trans('texts.customize'))
+					->withContents($account->present()->customDesigns)
+					->large()  :
+	            Button::primary(trans('texts.customize'))
+	                ->appendIcon(Icon::create('edit'))
+	                ->asLinkTo(URL::to('/settings/customize_design') . '?design_id=' . CUSTOM_DESIGN1)
+	                ->large(),
             Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ?
                 Button::success(trans('texts.save'))
                     ->submit()->large()

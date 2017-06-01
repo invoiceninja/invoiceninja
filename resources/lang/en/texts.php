@@ -2254,7 +2254,13 @@ $LANG = array(
     'expense_link' => 'expense',
     'resume_task' => 'Resume Task',
     'resumed_task' => 'Successfully resumed task',
-
+    'quote_design' => 'Quote Design',
+    'default_design' => 'Default Design',
+    'custom_design1' => 'Custom Design 1',
+    'custom_design2' => 'Custom Design 2',
+    'custom_design3' => 'Custom Design 3',
+    'empty' => 'Empty',
+    'select_design' => 'Select Design',
 );
 
 return $LANG;
