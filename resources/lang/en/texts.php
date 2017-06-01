@@ -2261,6 +2261,8 @@ $LANG = array(
     'custom_design3' => 'Custom Design 3',
     'empty' => 'Empty',
     'select_design' => 'Select Design',
+    'credit_card_logos' => 'Credit Card Logos',
+
 );
 
 return $LANG;
