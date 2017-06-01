@@ -1036,7 +1036,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                         $dueDay = $lastDayOfMonth;
                     }
 
-                    if ($currentDay > $dueDay) {
+                    if ($currentDay >= $dueDay) {
                         // Wait until next month
                         // We don't need to handle the December->January wraparaound, since PHP handles month 13 as January of next year
                         $dueMonth++;
