@@ -129,8 +129,7 @@ class AccountController extends BaseController
         Auth::login($user, true);
         event(new UserSignedUp());
 
-        $redirectTo = Input::get('redirect_to') ?: 'invoices/create';
-
+        $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'invoices/create';
         return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
     }
 
