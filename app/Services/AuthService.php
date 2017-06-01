@@ -94,7 +94,7 @@ class AuthService
             }
         }
 
-        $redirectTo = Input::get('redirect_to') ?: 'dashboard';
+        $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'dashboard';
 
         return redirect()->to($redirectTo);
     }
