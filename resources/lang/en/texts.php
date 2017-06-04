@@ -2260,7 +2260,7 @@ $LANG = array(
     'custom_design2' => 'Custom Design 2',
     'custom_design3' => 'Custom Design 3',
     'empty' => 'Empty',
-    'select_design' => 'Select Design',
+    'load_design' => 'Load Design',
     'accepted_card_logos' => 'Accepted Card Logos',
 
 );

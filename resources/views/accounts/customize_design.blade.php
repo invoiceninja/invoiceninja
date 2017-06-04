@@ -97,7 +97,10 @@
 
     function onSelectChange()
     {
-        var id = $('#invoice_design_id').val();
+		var $select = $('#invoice_design_id');
+        var id = $select.val();
+		$select.val(null);
+
         if (parseInt(id)) {
             var design = _.find(invoiceDesigns, function(design){ return design.id == id});
             customDesign = JSON.parse(design.javascript);
@@ -189,7 +192,7 @@
 
     <div>
     {!! Former::select('invoice_design_id')
-			->placeholder(trans('texts.select_design'))
+			->placeholder(trans('texts.load_design'))
 			->style('display:inline;width:180px')
 			->fromQuery($invoiceDesigns, 'name', 'id')
 			->onchange('onSelectChange()')
