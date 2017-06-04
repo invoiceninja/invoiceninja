@@ -24,7 +24,10 @@
 			@if ($credit)
 				{!! Former::plaintext()->label('client')->value($client->present()->link) !!}
 			@else
-				{!! Former::select('client_id')->addOption('', '')->addGroupClass('client-select') !!}
+				{!! Former::select('client_id')
+						->label('client')
+						->addOption('', '')
+						->addGroupClass('client-select') !!}
 			@endif
 
 			{!! Former::text('amount') !!}
