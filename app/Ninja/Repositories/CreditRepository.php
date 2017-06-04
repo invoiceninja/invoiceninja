@@ -69,7 +69,6 @@ class CreditRepository extends BaseRepository
                     ->where('credits.client_id', '=', $clientId)
                     ->where('clients.deleted_at', '=', null)
                     ->where('credits.deleted_at', '=', null)
-                    ->where('credits.balance', '>', 0)
                     ->select(
                         DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                         DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
