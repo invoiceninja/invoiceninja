@@ -67,7 +67,12 @@
                 });
                 paypalLink.click(function(e){
                     e.preventDefault();
-                    checkout.paypal.initAuthFlow();
+					@if ($account->requiresAuthorization($invoice))
+						window.pendingPaymentFunction = checkout.paypal.initAuthFlow;
+						showAuthorizationModal();
+					@else
+                    	checkout.paypal.initAuthFlow();
+					@endif
                 })
             });
         </script>
@@ -212,19 +217,11 @@
 					$('#paymentButtons a').on('click', function(e) {
 						e.preventDefault();
 						window.pendingPaymentHref = $(this).attr('href');
-						@if ($account->showSignature($invoice))
-							if (window.pendingPaymentInit) {
-								$("#signature").jSignature('reset');
-							}
-						@endif
-						@if ($account->showAcceptTerms($invoice))
-							$('#termsCheckbox').attr('checked', false);
-						@endif
-						$('#authenticationModal').modal('show');
+						showAuthorizationModal();
 					});
 
 					@if ($account->showSignature($invoice))
-						$('#authenticationModal').on('shown.bs.modal', function () {
+						$('#authorizationModal').on('shown.bs.modal', function () {
 							if ( ! window.pendingPaymentInit) {
 								window.pendingPaymentInit = true;
 								$("#signature").jSignature().bind('change', function(e) {
@@ -235,6 +232,18 @@
 					@endif
 				@endif
 			});
+
+			function showAuthorizationModal() {
+				@if ($account->showSignature($invoice))
+					if (window.pendingPaymentInit) {
+						$("#signature").jSignature('reset');
+					}
+				@endif
+				@if ($account->showAcceptTerms($invoice))
+					$('#termsCheckbox').attr('checked', false);
+				@endif
+				$('#authorizationModal').modal('show');
+			}
 
 			function onDownloadClick() {
 				try {
@@ -274,8 +283,12 @@
 			}
 
 			function redirectToPayment() {
-				$('#authenticationModal').modal('hide');
-				location.href = window.pendingPaymentHref;
+				$('#authorizationModal').modal('hide');
+				if (window.pendingPaymentFunction) {
+					window.pendingPaymentFunction();
+				} else {
+					location.href = window.pendingPaymentHref;
+				}
 			}
 
 			function setModalPayNowEnabled() {
@@ -328,7 +341,7 @@
     @endif
 
 	@if ($account->requiresAuthorization($invoice))
-		<div class="modal fade" id="authenticationModal" tabindex="-1" role="dialog" aria-labelledby="authenticationModalLabel" aria-hidden="true">
+		<div class="modal fade" id="authorizationModal" tabindex="-1" role="dialog" aria-labelledby="authorizationModalLabel" aria-hidden="true">
 		  <div class="modal-dialog">
 			<div class="modal-content">
 			  <div class="modal-header">
