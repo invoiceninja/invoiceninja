@@ -393,13 +393,13 @@
             @endif
             @include('partials.navigation_option', ['option' => 'settings'])
             <li style="width:100%;">                <div class="nav-footer">
-                    <a href="javascript:showContactUs()" target="_blank" title="{{ trans('texts.contact_us') }}">
+                    <a href="javascript:showContactUs()" title="{{ trans('texts.contact_us') }}">
                         <i class="fa fa-envelope"></i>
                     </a>
                     <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
                         <i class="fa fa-list-ul"></i>
                     </a>
-                    <a href="javascript:showKeyboardShortcuts()" target="_blank" title="{{ trans('texts.help') }}">
+                    <a href="javascript:showKeyboardShortcuts()" title="{{ trans('texts.help') }}">
                         <i class="fa fa-question-circle"></i>
                     </a>
                     <a href="{{ url(SOCIAL_LINK_FACEBOOK) }}" target="_blank" title="Facebook">
