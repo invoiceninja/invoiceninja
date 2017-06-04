@@ -381,7 +381,7 @@ class BasePaymentDriver
             'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
             'transactionId' => $invoice->invoice_number,
             'transactionType' => 'Purchase',
-            'ip' => Request::ip(),
+            'ip' => Request::getClientIp(),
         ];
 
         if ($paymentMethod) {
