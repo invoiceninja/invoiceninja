@@ -5,7 +5,7 @@
     <!-- Version: {{ NINJA_VERSION }} -->
     <meta charset="utf-8">
 
-    @if (Utils::isWhiteLabel())
+    @if (Utils::isWhiteLabel() && ! isset($title))
         <title>{{ trans('texts.client_portal') }}</title>
         <link href="{{ asset('ic_cloud_circle.png') }}" rel="shortcut icon" type="image/png">
     @else
