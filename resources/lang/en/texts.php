@@ -2262,6 +2262,7 @@ $LANG = array(
     'empty' => 'Empty',
     'load_design' => 'Load Design',
     'accepted_card_logos' => 'Accepted Card Logos',
+    'phantomjs_local_and_cloud' => 'Using local PhantomJS, falling back to phantomjscloud.com',
 
 );
 

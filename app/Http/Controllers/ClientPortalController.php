@@ -91,7 +91,7 @@ class ClientPortalController extends BaseController
         ];
         $invoice->invoice_fonts = $account->getFontsData();
 
-        if ($design = $account->getCustomDesign($invoice->getDesignId())) {
+        if ($design = $account->getCustomDesign($invoice->invoice_design_id)) {
             $invoice->invoice_design->javascript = $design;
         } else {
             $invoice->invoice_design->javascript = $invoice->invoice_design->pdfmake;

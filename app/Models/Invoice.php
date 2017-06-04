@@ -594,11 +594,6 @@ class Invoice extends EntityModel implements BalanceAffecting
         return $this->is_recurring ? trans('texts.recurring') : $this->invoice_number;
     }
 
-    public function getDesignId()
-    {
-        return $this->isQuote() ? $this->quote_design_id : $this->invoice_design_id;
-    }
-
     /**
      * @return string
      */
@@ -1258,14 +1253,12 @@ class Invoice extends EntityModel implements BalanceAffecting
                 $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
             }
 
-            if (! $pdfString && (Utils::isNinja() || ! env('PHANTOMJS_BIN_PATH'))) {
-                if ($key = env('PHANTOMJS_CLOUD_KEY')) {
-                    if (Utils::isNinjaDev()) {
-                        $link = env('TEST_LINK');
-                    }
-                    $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
-                    $pdfString = CurlUtils::get($url);
+            if (! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
+                if (Utils::isNinjaDev()) {
+                    $link = env('TEST_LINK');
                 }
+                $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+                $pdfString = CurlUtils::get($url);
             }
 
             $pdfString = strip_tags($pdfString);
