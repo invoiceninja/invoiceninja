@@ -50,7 +50,7 @@
             @if ($task && $task->invoice_id)
                 {!! Former::plaintext()
                         ->label('client')
-                        ->value($task->client->getDisplayName()) !!}
+                        ->value($task->client->present()->link) !!}
                 @if ($task->project)
                     {!! Former::plaintext()
                             ->label('project')
