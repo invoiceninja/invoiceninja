@@ -394,9 +394,11 @@
             @include('partials.navigation_option', ['option' => 'settings'])
             <li style="width:100%;">
                 <div class="nav-footer">
-                    <a href="javascript:showContactUs()" title="{{ trans('texts.contact_us') }}">
-                        <i class="fa fa-envelope"></i>
-                    </a>
+                    @if (Auth::user()->registered)
+                        <a href="javascript:showContactUs()" title="{{ trans('texts.contact_us') }}">
+                            <i class="fa fa-envelope"></i>
+                        </a>
+                    @endif
                     <a href="{{ url(NINJA_FORUM_URL) }}" target="_blank" title="{{ trans('texts.support_forum') }}">
                         <i class="fa fa-list-ul"></i>
                     </a>
