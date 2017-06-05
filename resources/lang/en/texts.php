@@ -2266,6 +2266,7 @@ $LANG = array(
     'google_analytics' => 'Google Analytics',
     'analytics_key' => 'Analytics Key',
     'analytics_key_help' => 'Track payments using :link',
+    'start_date_required' => 'The start date is required',
 
 );
 

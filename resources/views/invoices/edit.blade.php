@@ -1345,6 +1345,10 @@
 
 	function onMarkSentClick() {
 		if (model.invoice().is_recurring()) {
+			if (! model.invoice().start_date()) {
+				swal("{{ trans('texts.start_date_required') }}");
+				return false;
+			}
 			if (!isSaveValid()) {
 	            model.showClientForm();
 	            return false;
