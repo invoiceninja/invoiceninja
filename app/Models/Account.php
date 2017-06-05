@@ -170,6 +170,7 @@ class Account extends Eloquent
         'custom_contact_label1',
         'custom_contact_label2',
         'domain_id',
+        'analytics_key',
     ];
 
     /**

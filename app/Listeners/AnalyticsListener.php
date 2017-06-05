@@ -15,19 +15,26 @@ class AnalyticsListener
      */
     public function trackRevenue(PaymentWasCreated $event)
     {
-        if (! Utils::isNinja() || ! env('ANALYTICS_KEY')) {
-            return;
-        }
-
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $account = $payment->account;
 
-        if (! $account->isNinjaAccount() && $account->account_key != NINJA_LICENSE_ACCOUNT_KEY) {
+        $analyticsId = false;
+
+        if ($account->isNinjaAccount() || $account->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
+            $analyticsId = env('ANALYTICS_KEY');
+        } else {
+            if (Utils::isNinja()) {
+                $analyticsId = $account->analytics_key;
+            } else {
+                $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
+            }
+        }
+
+        if (! $analyticsId) {
             return;
         }
 
-        $analyticsId = env('ANALYTICS_KEY');
         $client = $payment->client;
         $amount = $payment->amount;
         $item = $invoice->invoice_items->last()->product_key;

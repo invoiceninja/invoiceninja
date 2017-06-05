@@ -10,6 +10,18 @@
 
 	@include('accounts.partials.notifications')
 
+	<div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">{!! trans('texts.google_analytics') !!}</h3>
+      </div>
+        <div class="panel-body">
+
+			{!! Former::text('analytics_key')
+			 		->help(trans('texts.analytics_key_help', ['link' => link_to('https://support.google.com/analytics/answer/1037249?hl=en', 'Google Analytics Ecommerce', ['target' => '_blank'])])) !!}
+
+		</div>
+    </div>
+
     <div class="panel panel-default">
       <div class="panel-heading">
         <h3 class="panel-title">{!! trans('texts.facebook_and_twitter') !!}</h3>

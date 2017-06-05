@@ -69,6 +69,7 @@ class AddDefaultNoteToClient extends Migration
             $table->renameColumn('custom_design', 'custom_design1');
             $table->mediumText('custom_design2')->nullable();
             $table->mediumText('custom_design3')->nullable();
+            $table->string('analytics_key')->nullable();
         });
 
         DB::statement('update accounts
@@ -100,6 +101,10 @@ class AddDefaultNoteToClient extends Migration
         });
 
         Schema::table('accounts', function ($table) {
+            $table->renameColumn('custom_design1', 'custom_design');
+            $table->dropColumn('custom_design2');
+            $table->dropColumn('custom_design3');
+            $table->dropColumn('analytics_key');
             $table->dropColumn('tax_name1');
             $table->dropColumn('tax_rate1');
             $table->dropColumn('tax_name2');
@@ -112,12 +117,5 @@ class AddDefaultNoteToClient extends Migration
             $table->dropColumn('tax_name2');
             $table->dropColumn('tax_rate2');
         });
-
-        Schema::table('accounts', function ($table) {
-            $table->renameColumn('custom_design1', 'custom_design');
-            $table->dropColumn('custom_design2');
-            $table->dropColumn('custom_design3');
-        });
-
     }
 }

@@ -81,7 +81,7 @@ $LANG = array(
     'guest' => 'Guest',
     'company_details' => 'Company Details',
     'online_payments' => 'Online Payments',
-    'notifications' => 'Email Notifications',
+    'notifications' => 'Notifications',
     'import_export' => 'Import | Export',
     'done' => 'Done',
     'save' => 'Save',
@@ -2263,6 +2263,9 @@ $LANG = array(
     'load_design' => 'Load Design',
     'accepted_card_logos' => 'Accepted Card Logos',
     'phantomjs_local_and_cloud' => 'Using local PhantomJS, falling back to phantomjscloud.com',
+    'google_analytics' => 'Google Analytics',
+    'analytics_key' => 'Analytics Key',
+    'analytics_key_help' => 'Track payments using :link',
 
 );
 

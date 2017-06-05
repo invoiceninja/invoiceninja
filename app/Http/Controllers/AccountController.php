@@ -1006,6 +1006,10 @@ class AccountController extends BaseController
         $user->notify_approved = Input::get('notify_approved');
         $user->save();
 
+        $account = $user->account;
+        $account->fill(request()->all());
+        $account->save();
+
         Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('settings/'.ACCOUNT_NOTIFICATIONS);
