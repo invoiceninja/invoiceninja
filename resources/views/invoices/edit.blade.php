@@ -1716,8 +1716,10 @@
         window.countUploadingDocuments--;
     }
 
-    function handleDocumentError() {
+    function handleDocumentError(file) {
+		dropzone.removeFile(file);
         window.countUploadingDocuments--;
+		swal("{!! trans('texts.error_refresh_page') !!}");
     }
 
 	</script>

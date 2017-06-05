@@ -271,7 +271,10 @@ function InvoiceModel(data) {
     }
 
     self.removeDocument = function(doc) {
-         var public_id = doc.public_id?doc.public_id():doc;
+         var public_id = doc && doc.public_id ? doc.public_id() : doc;
+         if (! public_id) {
+             return;
+         }
          self.documents.remove(function(document) {
             return document.public_id() == public_id;
         });
