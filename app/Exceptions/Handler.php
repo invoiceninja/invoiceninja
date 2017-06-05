@@ -65,7 +65,8 @@ class Handler extends ExceptionHandler
 
         if (Utils::isNinja() && ! Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
-            file_put_contents(storage(), $e->getTraceAsString(), FILE_APPEND);
+            $stacktrace = date('Y-m-d h:i:s') . ' ' . $e->getTraceAsString();
+            @file_put_contents(storage_path('logs/stacktrace.log'), $stacktrace, FILE_APPEND);
             return false;
         } else {
             return parent::report($e);
