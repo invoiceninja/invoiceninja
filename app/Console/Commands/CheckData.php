@@ -356,7 +356,10 @@ class CheckData extends Command
     private function checkInvitations()
     {
         $invoices = DB::table('invoices')
-                    ->leftJoin('invitations', 'invitations.invoice_id', '=', 'invoices.id')
+                    ->leftJoin('invitations', function ($join) {
+                        $join->on('invitations.invoice_id', '=', 'invoices.id')
+                             ->whereNull('invitations.deleted_at');
+                    })
                     ->groupBy('invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id')
                     ->havingRaw('count(invitations.id) = 0')
                     ->get(['invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id']);
