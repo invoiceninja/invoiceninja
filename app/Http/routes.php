@@ -281,6 +281,7 @@ Route::group([
 
     Route::post('/export', 'ExportController@doExport');
     Route::post('/import', 'ImportController@doImport');
+    Route::get('/cancel_import', 'ImportController@cancelImport');
     Route::post('/import_csv', 'ImportController@doImportCSV');
 
     Route::get('gateways/create/{show_wepay?}', 'AccountGatewayController@create');

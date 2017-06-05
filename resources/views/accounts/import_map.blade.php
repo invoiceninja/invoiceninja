@@ -19,7 +19,7 @@
     @endforeach
 
     {!! Former::actions(
-        Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/import_export'))->appendIcon(Icon::create('remove-circle')),
+        Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/cancel_import?timestamp=' . $timestamp))->appendIcon(Icon::create('remove-circle')),
         Button::success(trans('texts.import'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))) !!}
 
     {!! Former::close() !!}
