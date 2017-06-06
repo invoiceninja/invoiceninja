@@ -27,6 +27,7 @@ class CreditTransformer extends EntityTransformer
             'credit_number' => $credit->credit_number,
             'private_notes' => $credit->private_notes,
             'public_notes' => $credit->public_notes,
+            'client_id' => $credit->client->public_id,
         ]);
     }
 }

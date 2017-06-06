@@ -45,7 +45,7 @@ class CreditApiController extends BaseAPIController
     {
         $credits = Credit::scope()
                         ->withTrashed()
-                        ->with(['invoice'])
+                        ->with(['client'])
                         ->orderBy('created_at', 'desc');
 
         return $this->listResponse($credits);
