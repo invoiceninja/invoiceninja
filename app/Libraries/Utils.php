@@ -394,6 +394,7 @@ class Utils
             'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),
             'is_console' => App::runningInConsole() ? 'yes' : 'no',
+            'is_api' => session('token_id') ? 'yes' : 'no',
         ];
 
         if ($info) {
