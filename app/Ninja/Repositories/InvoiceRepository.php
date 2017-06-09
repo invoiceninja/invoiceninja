@@ -1072,6 +1072,8 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
+        $this->dispatchEvents($invoice);
+
         return $invoice;
     }
 
