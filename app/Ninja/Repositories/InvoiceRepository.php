@@ -723,7 +723,7 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        // if no contacts are selected auto-select the first to enusre there's an invitation
+        // if no contacts are selected auto-select the first to ensure there's an invitation
         if (! count($sendInvoiceIds)) {
             $sendInvoiceIds[] = $client->contacts[0]->id;
         }
