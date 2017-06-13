@@ -103,7 +103,7 @@
   $(function() {
     // auto-logout after 8 hours
     window.setTimeout(function() {
-        window.location = '{{ URL::to('/logout?reason=inactivity') }}';
+        window.location = '{{ URL::to('/logout?reason=inactive') }}';
     }, {{ 1000 * env('AUTO_LOGOUT_SECONDS', (60 * 60 * 8)) }});
 
     // auto-hide status alerts

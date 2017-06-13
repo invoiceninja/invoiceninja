@@ -2096,7 +2096,6 @@ $LANG = array(
     'view_statement' => 'View Statement',
     'statement' => 'Statement',
     'statement_date' => 'Statement Date',
-    'inactivity_logout' => 'Due to inactivity, you have been automatically logged out.',
     'mark_active' => 'Mark Active',
     'send_automatically' => 'Send Automatically',
     'initial_email' => 'Initial Email',
