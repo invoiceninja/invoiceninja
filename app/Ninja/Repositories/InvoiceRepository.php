@@ -279,7 +279,7 @@ class InvoiceRepository extends BaseRepository
           ->where('invoices.is_recurring', '=', false)
           ->where('invoices.is_public', '=', true)
           // Only show paid invoices for ninja accounts
-          ->whereRaw(sprintf("((accounts.account_key != '%s' and accounts.account_key not like '%s') or invoices.invoice_status_id = %d)", env('NINJA_LICENSE_ACCOUNT_KEY'), substr(NINJA_ACCOUNT_KEY, 0, 30), INVOICE_STATUS_PAID))
+          ->whereRaw(sprintf("((accounts.account_key != '%s' and accounts.account_key not like '%s%%') or invoices.invoice_status_id = %d)", env('NINJA_LICENSE_ACCOUNT_KEY'), substr(NINJA_ACCOUNT_KEY, 0, 30), INVOICE_STATUS_PAID))
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
                 DB::raw('COALESCE(clients.country_id, accounts.country_id) country_id'),
