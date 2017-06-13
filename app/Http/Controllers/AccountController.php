@@ -373,9 +373,18 @@ class AccountController extends BaseController
     private function showAccountManagement()
     {
         $account = Auth::user()->account;
+        $planDetails = $account->getPlanDetails(true);
+        $portalLink = false;
+
+        if ($planDetails && $ninjaClient = $this->accountRepo->getNinjaClient($account)) {
+            $contact = $ninjaClient->getPrimaryContact();
+            $portalLink = $contact->link;
+        }
+
         $data = [
             'account' => $account,
-            'planDetails' => $account->getPlanDetails(true),
+            'portalLink' => $portalLink,
+            'planDetails' => $planDetails,
             'title' => trans('texts.account_management'),
         ];
 
