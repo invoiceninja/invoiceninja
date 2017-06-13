@@ -44,4 +44,16 @@ class HTMLUtils
 
         return $purifier->purify($html);
     }
+
+    public static function previousUrl($fallback)
+    {
+        $previous = url()->previous();
+        $current = request()->url();
+
+        if ($previous == $current) {
+            return url($fallback);
+        } else {
+            return $previous;
+        }
+    }
 }

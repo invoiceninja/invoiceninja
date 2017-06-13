@@ -198,7 +198,7 @@
 
     <center class="buttons">
         {!! Button::normal(trans('texts.cancel'))
-                ->asLinkTo(URL::to('/expenses'))
+                ->asLinkTo(HTMLUtils::previousUrl('/expenses'))
                 ->appendIcon(Icon::create('remove-circle'))
                 ->large() !!}
 
