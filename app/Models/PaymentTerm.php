@@ -36,7 +36,7 @@ class PaymentTerm extends EntityModel
 
     public static function getSelectOptions()
     {
-        $terms = Cache::get('paymentTerms');
+        $terms = PaymentTerm::whereAccountId(0)->get();
 
         foreach (PaymentTerm::scope()->get() as $term) {
             $terms->push($term);

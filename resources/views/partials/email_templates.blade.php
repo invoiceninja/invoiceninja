@@ -42,8 +42,8 @@
             'customClient2': invoice ? invoice.client.custom_value2 : 'custom value',
             'customContact1': invoice ? invoice.client.contacts[0].custom_value1 : 'custom value',
             'customContact2': invoice ? invoice.client.contacts[0].custom_value2 : 'custom value',
-            'customInvoice1': invoice ? invoice.custom_value1 : 'custom value',
-            'customInvoice2': invoice ? invoice.custom_value2 : 'custom value',
+            'customInvoice1': invoice ? invoice.custom_text_value1 : 'custom value',
+            'customInvoice2': invoice ? invoice.custom_text_value2 : 'custom value',
         };
 
         // Add any available payment method links
