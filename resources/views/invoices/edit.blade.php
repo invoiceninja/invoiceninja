@@ -1354,7 +1354,10 @@
 	            return false;
 	        }
             // warn invoice will be emailed when saving new recurring invoice
-            var text = '\n' + getSendToEmails() + '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+            var text = '\n' + getSendToEmails();
+			if (model.invoice().start_date() == "{{ Utils::fromSqlDate(date('Y-m-d')) }}") {
+				text += '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+			}
             var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
             sweetConfirm(function() {
 				model.invoice().is_public(true);
