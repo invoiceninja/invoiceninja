@@ -374,6 +374,10 @@
                 $('#payment_date').datepicker('update', '{{ Utils::fromSqlDate($expense->payment_date) }}');
             @endif
 
+            $('.payment_date .input-group-addon').click(function() {
+                toggleDatePicker('payment_date');
+            });
+
             // Initialize document upload
             dropzone = new Dropzone('#document-upload', {
                 url:{!! json_encode(url('documents')) !!},
