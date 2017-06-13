@@ -1723,24 +1723,6 @@ $LANG = array(
     'freq_six_months' => 'Six months',
     'freq_annually' => 'Annually',
 
-    // Payment types
-    'payment_type_Apply Credit' => 'Apply Credit',
-    'payment_type_Bank Transfer' => 'Bank Transfer',
-    'payment_type_Cash' => 'Cash',
-    'payment_type_Debit' => 'Debit',
-    'payment_type_ACH' => 'ACH',
-    'payment_type_Visa Card' => 'Visa Card',
-    'payment_type_MasterCard' => 'MasterCard',
-    'payment_type_American Express' => 'American Express',
-    'payment_type_Discover Card' => 'Discover Card',
-    'payment_type_Diners Card' => 'Diners Card',
-    'payment_type_EuroCard' => 'EuroCard',
-    'payment_type_Nova' => 'Nova',
-    'payment_type_Credit Card Other' => 'Credit Card Other',
-    'payment_type_PayPal' => 'PayPal',
-    'payment_type_Google Wallet' => 'Google Wallet',
-    'payment_type_Check' => 'Check',
-
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
     'industry_Advertising' => 'Advertising',
