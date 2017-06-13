@@ -9,6 +9,7 @@ use App\Events\QuoteInvitationWasViewed;
 use App\Events\QuoteInvitationWasApproved;
 use App\Events\PaymentWasCreated;
 use App\Services\PushService;
+use App\Jobs\SendNotificationEmail;
 
 /**
  * Class NotificationListener
