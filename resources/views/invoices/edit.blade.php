@@ -1,20 +1,12 @@
 @extends('header')
 
-@section('head')
+@section('head_css')
 	@parent
 
-    @include('money_script')
-
-    @foreach ($account->getFontFolders() as $font)
-        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
-    @endforeach
-	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
-    <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
-    <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
+	<link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 	<link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
-	<script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 
-    <style type="text/css">
+	<style type="text/css">
         select.tax-select {
             width: 50%;
             float: left;
@@ -33,6 +25,19 @@
 		}
 
     </style>
+@stop
+
+@section('head')
+	@parent
+
+    @include('money_script')
+
+    @foreach ($account->getFontFolders() as $font)
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    @endforeach
+	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+    <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 @stop
 
 @section('content')

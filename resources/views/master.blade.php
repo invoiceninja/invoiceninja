@@ -45,6 +45,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}"/>
 
+    @yield('head_css')
+
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
     <script type="text/javascript">
