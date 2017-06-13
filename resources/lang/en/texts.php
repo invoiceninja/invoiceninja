@@ -2266,6 +2266,20 @@ $LANG = array(
     'analytics_key' => 'Analytics Key',
     'analytics_key_help' => 'Track payments using :link',
     'start_date_required' => 'The start date is required',
+    'application_settings' => 'Application Settings',
+    'database_connection' => 'Database Connection',
+    'driver' => 'Driver',
+    'host' => 'Host',
+    'database' => 'Database',
+    'test_connection' => 'Test connection',
+    'from_name' => 'From Name',
+    'from_address' => 'From Address',
+    'port' => 'Port',
+    'encryption' => 'Encryption',
+    'mailgun_domain' => 'Mailgun Domain',
+    'mailgun_private_key' => 'Mailgun Private Key',
+    'send_test_email' => 'Send test email',
+
 
 );
 
