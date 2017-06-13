@@ -98,6 +98,9 @@ function GetPdfMake(invoice, javascript, callback) {
         return val;
     }
 
+    // escape new lines
+    javascript = javascript.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
+
     // Add ninja logo to the footer
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
