@@ -117,6 +117,10 @@ class CheckData extends Command
 
         $this->logMessage(count($invoices) . ' draft sent invoices');
 
+        if (count($invoices) > 0) {
+            $this->isValid = false;
+        }
+
         if ($this->option('fix') == 'true') {
             foreach ($invoices as $invoice) {
                 if ($invoice->is_deleted) {
