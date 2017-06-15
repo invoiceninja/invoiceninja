@@ -55,6 +55,8 @@ class TemplateService
             '$contact' => $contact->getDisplayName(),
             '$firstName' => $contact->first_name,
             '$amount' => $account->formatMoney($data['amount'], $client),
+            '$total' => $invoice->present()->amount,
+            '$balance' => $invoice->present()->balance,
             '$invoice' => $invoice->invoice_number,
             '$quote' => $invoice->invoice_number,
             '$link' => $invitation->getLink(),

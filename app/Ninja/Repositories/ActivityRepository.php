@@ -87,7 +87,6 @@ class ActivityRepository
                         'activities.created_at',
                         'activities.contact_id',
                         'activities.activity_type_id',
-                        'activities.is_system',
                         'activities.balance',
                         'activities.adjustment',
                         'activities.notes',

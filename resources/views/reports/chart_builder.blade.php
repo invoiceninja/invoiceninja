@@ -122,6 +122,7 @@
 							{!! Former::select('invoice_status')->label('status')
 									->addOption(trans('texts.all'), 'all')
 									->addOption(trans('texts.draft'), 'draft')
+									->addOption(trans('texts.sent'), 'sent')
 									->addOption(trans('texts.unpaid'), 'unpaid')
 									->addOption(trans('texts.paid'), 'paid') !!}
 						</div>
@@ -260,7 +261,7 @@
 
 	var sumColumns = [];
 	@foreach ($columns as $column)
-		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost']) ? trans("texts.{$column}") : false }}");
+		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration']) ? trans("texts.{$column}") : false }}");
 	@endforeach
 
     $(function() {
@@ -291,10 +292,13 @@
 		// parse 1,000.00 or 1.000,00
 		function convertStringToNumber(str) {
 			str = str + '' || '';
-			var number = Number(str.replace(/[^0-9]+/g, ''));
-			return number / 100;
+			if (str.indexOf(':')) {
+				return roundToTwo(moment.duration(str).asHours());
+			} else {
+				var number = Number(str.replace(/[^0-9]+/g, ''));
+				return number / 100;
+			}
 		}
-
 
 		$(function(){
   			$(".tablesorter-data").tablesorter({

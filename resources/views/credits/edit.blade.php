@@ -4,7 +4,7 @@
 
 
 	{!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
-			'client' => 'required',
+			'client_id' => 'required',
   		'amount' => 'required',
 	)) !!}
 
@@ -22,9 +22,12 @@
             <div class="panel-body">
 
 			@if ($credit)
-				{!! Former::plaintext()->label('client')->value($client->getDisplayName()) !!}
+				{!! Former::plaintext()->label('client')->value($client->present()->link) !!}
 			@else
-				{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+				{!! Former::select('client_id')
+						->label('client')
+						->addOption('', '')
+						->addGroupClass('client-select') !!}
 			@endif
 
 			{!! Former::text('amount') !!}
@@ -49,7 +52,7 @@
 
 
 	<center class="buttons">
-        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/credits'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
 
@@ -63,7 +66,7 @@
 	$(function() {
 
 		@if ( ! $credit)
-			var $clientSelect = $('select#client');
+			var $clientSelect = $('select#client_id');
 			for (var i=0; i<clients.length; i++) {
 				var client = clients[i];
 	            var clientName = getClientDisplayName(client);

@@ -49,19 +49,24 @@ Create an application in either Google, Facebook, GitHub or LinkedIn and then se
 PhantomJS
 """""""""
 
-We use phantomjscloud.com to attach PDFs to emails sent by background processes. Check for the following line in the .env file to enable this feature or sign up to increase your daily limit.
+There are two methods to attach PDFs to emails sent by background processes: phantomjscloud.com or local PhantomJS install.
+
+To use phantomjscloud.com check for the following line in the .env file.
 
 .. code-block:: shell
 
-   PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'
+  PHANTOMJS_CLOUD_KEY='a-demo-key-with-low-quota-per-ip-address'
 
-If you require contacts to enter a password to see their invoice you'll need to set a random value for ``PHANTOMJS_SECRET``.
+To use a local PhantomJS install add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs``.
 
-You can install PhantomJS to generate the PDF locally, to enable it add ``PHANTOMJS_BIN_PATH=/usr/local/bin/phantomjs``.
+Troubleshooting
+---------------
 
-We suggest using version >= 2.1.1, users have reported seeing 'Error: 0' with older versions.
-
-.. TIP:: To determine the path you can run ``which phantomjs`` from the command line.
+- Check storage/logs/laravel-error.log for relevant errors.
+- To determine the path you can run ``which phantomjs`` from the command line.
+- We suggest using PhantomJS version >= 2.1.1, users have reported seeing 'Error: 0' with older versions.
+- You can use `this script <https://raw.githubusercontent.com/invoiceninja/invoiceninja/develop/resources/test.pjs>`_ to test from the command line, change ``__YOUR_LINK_HERE__`` to a 'View as recipient' link.
+- If you require contacts to enter a password to see their invoice you'll need to set a random value for ``PHANTOMJS_SECRET``.
 
 Custom Fonts
 """"""""""""
@@ -90,7 +95,7 @@ Follow these steps to add a driver.
 Google Map
 """"""""""
 
-You need to create a Google Maps API key for the Javascript, Geocoding and Embed APIs and then add ``GOOGLE_MAPS_API_KEY=your_key`` to the .env file.
+You need to create a `Google Maps API <https://developers.google.com/maps/documentation/javascript/get-api-key>`_ key for the Javascript, Geocoding and Embed APIs and then add ``GOOGLE_MAPS_API_KEY=your_key`` to the .env file.
 
 You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env file.
 

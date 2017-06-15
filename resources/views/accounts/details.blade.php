@@ -91,7 +91,7 @@
 
                 {!! Former::select('payment_type_id')
                         ->addOption('','')
-                        ->fromQuery(Cache::get('paymentTypes')->sortBy('name'), 'name', 'num_days')
+                        ->fromQuery($paymentTypes, 'name', 'id')
                         ->help(trans('texts.payment_type_help')) !!}
 
                 {!! Former::select('payment_terms')

@@ -123,6 +123,15 @@ class PaymentDatatable extends EntityDatatable
                 },
             ],
             [
+                trans('texts.email_payment'),
+                function ($model) {
+                    return "javascript:submitForm_payment('email', {$model->public_id})";
+                },
+                function ($model) {
+                    return Auth::user()->can('editByOwner', [ENTITY_PAYMENT, $model->user_id]);
+                },
+            ],
+            [
                 trans('texts.refund_payment'),
                 function ($model) {
                     $max_refund = number_format($model->amount - $model->refunded, 2);

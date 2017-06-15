@@ -373,9 +373,18 @@ class AccountController extends BaseController
     private function showAccountManagement()
     {
         $account = Auth::user()->account;
+        $planDetails = $account->getPlanDetails(true);
+        $portalLink = false;
+
+        if ($planDetails && $ninjaClient = $this->accountRepo->getNinjaClient($account)) {
+            $contact = $ninjaClient->getPrimaryContact();
+            $portalLink = $contact->link;
+        }
+
         $data = [
             'account' => $account,
-            'planDetails' => $account->getPlanDetails(true),
+            'portalLink' => $portalLink,
+            'planDetails' => $planDetails,
             'title' => trans('texts.account_management'),
         ];
 
@@ -486,7 +495,7 @@ class AccountController extends BaseController
         $data = [
             'account' => Auth::user()->account,
             'title' => trans('texts.tax_rates'),
-            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']),
+            'taxRates' => TaxRate::scope()->whereIsInclusive(false)->get(),
         ];
 
         return View::make('accounts.tax_rates', $data);
@@ -571,7 +580,11 @@ class AccountController extends BaseController
         }
 
         if ($section == ACCOUNT_CUSTOMIZE_DESIGN) {
-            $data['customDesign'] = ($account->custom_design && ! $design) ? $account->custom_design : $design;
+            if ($custom = $account->getCustomDesign(request()->design_id)) {
+                $data['customDesign'] = $custom;
+            } else {
+                $data['customDesign'] = $design;
+            }
 
             // sample invoice to help determine variables
             $invoice = Invoice::scope()
@@ -736,16 +749,21 @@ class AccountController extends BaseController
      */
     private function saveCustomizeDesign()
     {
+        $designId = intval(Input::get('design_id')) ?: CUSTOM_DESIGN1;
+        $field = 'custom_design' . ($designId - 10);
+
         if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
             $account = Auth::user()->account;
-            $account->custom_design = Input::get('custom_design');
-            $account->invoice_design_id = CUSTOM_DESIGN;
+            if (! $account->custom_design1) {
+                $account->invoice_design_id = CUSTOM_DESIGN1;
+            }
+            $account->$field = Input::get('custom_design');
             $account->save();
 
             Session::flash('message', trans('texts.updated_settings'));
         }
 
-        return Redirect::to('settings/'.ACCOUNT_CUSTOMIZE_DESIGN);
+        return Redirect::to('settings/' . ACCOUNT_CUSTOMIZE_DESIGN . '?design_id=' . $designId);
     }
 
     /**
@@ -951,6 +969,7 @@ class AccountController extends BaseController
             $account->primary_color = Input::get('primary_color');
             $account->secondary_color = Input::get('secondary_color');
             $account->invoice_design_id = Input::get('invoice_design_id');
+            $account->quote_design_id = Input::get('quote_design_id');
             $account->font_size = intval(Input::get('font_size'));
             $account->page_size = Input::get('page_size');
 
@@ -995,6 +1014,10 @@ class AccountController extends BaseController
         $user->notify_paid = Input::get('notify_paid');
         $user->notify_approved = Input::get('notify_approved');
         $user->save();
+
+        $account = $user->account;
+        $account->fill(request()->all());
+        $account->save();
 
         Session::flash('message', trans('texts.updated_settings'));
 
@@ -1354,20 +1377,18 @@ class AccountController extends BaseController
         $account = Auth::user()->account;
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
 
-        $company = $account->company;
-        $refunded = $company->processRefund(Auth::user());
+        $refunded = false;
+        if (! $account->hasMultipleAccounts()) {
+            $company = $account->company;
+            $refunded = $company->processRefund(Auth::user());
+        }
 
         Document::scope()->each(function ($item, $key) {
             $item->delete();
         });
 
         $this->accountRepo->unlinkAccount($account);
-
-        if ($account->hasMultipleAccounts()) {
-            $account->forceDelete();
-        } else {
-            $account->company->forceDelete();
-        }
+        $account->forceDelete();
 
         Auth::logout();
         Session::flush();

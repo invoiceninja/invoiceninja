@@ -67,7 +67,7 @@
             </div>
         </div>
 
-        <div class="panel panel-default" style="min-height: 500px">
+        <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
           </div>
@@ -139,7 +139,7 @@
             </div>
 
 
-        <div class="panel panel-default" style="min-height: 500px">
+        <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.additional_info') !!}</h3>
           </div>
@@ -159,6 +159,7 @@
 				->fromQuery($sizes, 'name', 'id') !!}
 			{!! Former::select('industry_id')->addOption('','')
 				->fromQuery($industries, 'name', 'id') !!}
+			{!! Former::textarea('public_notes') !!}
 			{!! Former::textarea('private_notes') !!}
 		</div>
 		</div>

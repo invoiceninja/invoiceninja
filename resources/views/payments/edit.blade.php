@@ -69,6 +69,7 @@
                         ->addGroupClass('payment_date')
                         ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 			{!! Former::text('transaction_reference') !!}
+            {!! Former::textarea('private_notes') !!}
 
             @if (!$payment)
                 {!! Former::checkbox('email_receipt')
@@ -86,7 +87,7 @@
 
 
 	<center class="buttons">
-        {!! Button::normal(trans('texts.cancel'))->appendIcon(Icon::create('remove-circle'))->asLinkTo(URL::to('/payments'))->large() !!}
+        {!! Button::normal(trans('texts.cancel'))->appendIcon(Icon::create('remove-circle'))->asLinkTo(HTMLUtils::previousUrl('/payments'))->large() !!}
         @if (!$payment || !$payment->is_deleted)
             {!! Button::success(trans('texts.save'))->withAttributes(['id' => 'saveButton'])->appendIcon(Icon::create('floppy-disk'))->submit()->large() !!}
         @endif

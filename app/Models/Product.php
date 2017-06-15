@@ -30,7 +30,10 @@ class Product extends EntityModel
         'notes',
         'cost',
         'qty',
-        'default_tax_rate_id',
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',
         'custom_value1',
         'custom_value2',
     ];
@@ -83,13 +86,5 @@ class Product extends EntityModel
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function default_tax_rate()
-    {
-        return $this->belongsTo('App\Models\TaxRate');
     }
 }

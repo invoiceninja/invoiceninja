@@ -253,11 +253,9 @@ class TaskController extends BaseController
         $action = Input::get('action');
         $ids = Input::get('public_id') ?: (Input::get('id') ?: Input::get('ids'));
 
-        if ($action == 'stop') {
+        if (in_array($action, ['resume', 'stop'])) {
             $this->taskRepo->save($ids, ['action' => $action]);
-            Session::flash('message', trans('texts.stopped_task'));
-
-            return Redirect::to('tasks');
+            return Redirect::to('tasks')->withMessage(trans($action == 'stop' ? 'texts.stopped_task' : 'texts.resumed_task'));
         } elseif ($action == 'invoice' || $action == 'add_to_invoice') {
             $tasks = Task::scope($ids)->with('client')->orderBy('project_id', 'id')->get();
             $clientPublicId = false;

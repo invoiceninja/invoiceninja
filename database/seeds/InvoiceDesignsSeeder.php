@@ -20,7 +20,7 @@ class InvoiceDesignsSeeder extends Seeder
             'Playful',
             'Photo',
         ];
-        
+
         for ($i = 0; $i < count($designs); $i++) {
             $design = $designs[$i];
             $fileName = storage_path() . '/templates/' . strtolower($design) . '.js';
@@ -36,6 +36,16 @@ class InvoiceDesignsSeeder extends Seeder
                     $record->pdfmake = $pdfmake;
                     $record->save();
                 }
+            }
+        }
+
+        for ($i = 1; $i <= 3; $i++) {
+            $name = 'Custom' . $i;
+            if (! InvoiceDesign::whereName($name)->first()) {
+                InvoiceDesign::create([
+                    'id' => $i + 10,
+                    'name' => $name,
+                ]);
             }
         }
     }

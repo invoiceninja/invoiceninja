@@ -5,7 +5,7 @@
     <!-- Version: {{ NINJA_VERSION }} -->
     <meta charset="utf-8">
 
-    @if (Utils::isWhiteLabel())
+    @if (Utils::isWhiteLabel() && ! isset($title))
         <title>{{ trans('texts.client_portal') }}</title>
         <link href="{{ asset('ic_cloud_circle.png') }}" rel="shortcut icon" type="image/png">
     @else
@@ -44,6 +44,8 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}"/>
+
+    @yield('head_css')
 
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 

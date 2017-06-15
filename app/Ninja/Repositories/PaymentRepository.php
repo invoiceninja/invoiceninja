@@ -189,6 +189,9 @@ class PaymentRepository extends BaseRepository
         if (isset($input['transaction_reference'])) {
             $payment->transaction_reference = trim($input['transaction_reference']);
         }
+        if (isset($input['private_notes'])) {
+            $payment->private_notes = trim($input['private_notes']);
+        }
 
         if (! $publicId) {
             $clientId = $input['client_id'];

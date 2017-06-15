@@ -34,17 +34,14 @@
   {!! Former::text('cost') !!}
 
   @if ($account->invoice_item_taxes)
-      {!! Former::select('default_tax_rate_id')
-            ->addOption('', '')
-            ->label(trans('texts.tax_rate'))
-            ->fromQuery($taxRates, function($model) { return $model->name . ': ' . $model->rate . '%'; }, 'id') !!}
+    @include('partials.tax_rates')
   @endif
 
   </div>
   </div>
 
   {!! Former::actions(
-      Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/products'))->appendIcon(Icon::create('remove-circle')),
+      Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/products'))->appendIcon(Icon::create('remove-circle')),
       Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
   ) !!}
 

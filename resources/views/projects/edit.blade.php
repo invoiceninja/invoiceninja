@@ -29,7 +29,7 @@
 
 				@if ($project)
 					{!! Former::plaintext('client_name')
-							->value($project->client ? $project->client->getDisplayName() : '') !!}
+							->value($project->client ? $project->client->present()->link : '') !!}
 				@else
 					{!! Former::select('client_id')
 							->addOption('', '')

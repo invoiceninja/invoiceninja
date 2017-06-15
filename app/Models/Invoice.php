@@ -46,7 +46,9 @@ class Invoice extends EntityModel implements BalanceAffecting
         'tax_rate1',
         'tax_name2',
         'tax_rate2',
+        'private_notes',
         'last_sent_date',
+        'invoice_design_id',
     ];
 
     /**
@@ -430,7 +432,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return bool
      */
-    public function isInvoice()
+    public function isStandard()
     {
         return $this->isType(INVOICE_TYPE_STANDARD) && ! $this->is_recurring;
     }
@@ -612,7 +614,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function canBePaid()
     {
-        return floatval($this->balance) != 0 && ! $this->is_deleted && $this->isInvoice();
+        return floatval($this->balance) != 0 && ! $this->is_deleted && $this->isStandard();
     }
 
     public static function calcStatusLabel($status, $class, $entityType, $quoteInvoiceId)
@@ -1239,7 +1241,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return bool|string
      */
-    public function getPDFString()
+    public function getPDFString($decode = true)
     {
         if (! env('PHANTOMJS_CLOUD_KEY') && ! env('PHANTOMJS_BIN_PATH')) {
             return false;
@@ -1258,14 +1260,12 @@ class Invoice extends EntityModel implements BalanceAffecting
                 $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
             }
 
-            if (! $pdfString && (Utils::isNinja() || ! env('PHANTOMJS_BIN_PATH'))) {
-                if ($key = env('PHANTOMJS_CLOUD_KEY')) {
-                    if (Utils::isNinjaDev()) {
-                        $link = env('TEST_LINK');
-                    }
-                    $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
-                    $pdfString = CurlUtils::get($url);
+            if (! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
+                if (Utils::isNinjaDev()) {
+                    $link = env('TEST_LINK');
                 }
+                $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+                $pdfString = CurlUtils::get($url);
             }
 
             $pdfString = strip_tags($pdfString);
@@ -1279,11 +1279,15 @@ class Invoice extends EntityModel implements BalanceAffecting
             return false;
         }
 
-        if ($pdf = Utils::decodePDF($pdfString)) {
-            return $pdf;
+        if ($decode) {
+            if ($pdf = Utils::decodePDF($pdfString)) {
+                return $pdf;
+            } else {
+                Utils::logError("PhantomJS - Unable to decode: {$pdfString}");
+                return false;
+            }
         } else {
-            Utils::logError("PhantomJS - Unable to decode: {$pdfString}");
-            return false;
+            return $pdfString;
         }
     }
 

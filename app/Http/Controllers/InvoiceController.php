@@ -302,9 +302,8 @@ class InvoiceController extends BaseController
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account->load('country'),
-            'products' => Product::scope()->with('default_tax_rate')->orderBy('product_key')->get(),
+            'products' => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions' => $taxRateOptions,
-            'defaultTax' => $account->default_tax_rate,
             'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),

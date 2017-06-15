@@ -10,6 +10,8 @@ use Utils;
 
 class WePayPaymentDriver extends BasePaymentDriver
 {
+    public $canRefundPayments = true;
+
     public function gatewayTypes()
     {
         $types = [

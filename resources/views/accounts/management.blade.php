@@ -32,6 +32,9 @@
 	                                @if ($planDetails['plan'] == PLAN_ENTERPRISE)
 	                                    {{ trans('texts.min_to_max_users', ['min' => Utils::getMinNumUsers($planDetails['num_users']), 'max' => $planDetails['num_users']])}}
 	                                @endif
+									@if ($portalLink)
+										- {{ link_to($portalLink, trans('texts.view_client_portal'), ['target' => '_blank']) }}
+									@endif
 								@elseif(Utils::isNinjaProd())
 									{{ trans('texts.plan_free') }}
 								@else

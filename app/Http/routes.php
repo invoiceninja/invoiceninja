@@ -281,6 +281,7 @@ Route::group([
 
     Route::post('/export', 'ExportController@doExport');
     Route::post('/import', 'ImportController@doImport');
+    Route::get('/cancel_import', 'ImportController@cancelImport');
     Route::post('/import_csv', 'ImportController@doImportCSV');
 
     Route::get('gateways/create/{show_wepay?}', 'AccountGatewayController@create');
@@ -329,6 +330,7 @@ Route::group(['middleware' => ['lookup:api', 'api'], 'prefix' => 'api/v1'], func
     Route::resource('invoices', 'InvoiceApiController');
     Route::resource('payments', 'PaymentApiController');
     Route::resource('tasks', 'TaskApiController');
+    Route::resource('credits', 'CreditApiController');
     Route::post('hooks', 'IntegrationController@subscribe');
     Route::post('email_invoice', 'InvoiceApiController@emailInvoice');
     Route::get('user_accounts', 'AccountApiController@getUserAccounts');

@@ -10,6 +10,7 @@ use Mail;
 use Symfony\Component\Console\Input\InputOption;
 use Utils;
 use App\Models\Contact;
+use App\Models\Invoice;
 use App\Models\Invitation;
 
 /*
@@ -71,6 +72,7 @@ class CheckData extends Command
         if (! $this->option('client_id')) {
             $this->checkBlankInvoiceHistory();
             $this->checkPaidToDate();
+            $this->checkDraftSentInvoices();
         }
 
         $this->checkBalances();
@@ -87,7 +89,6 @@ class CheckData extends Command
 
         $this->logMessage('Done: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
         $errorEmail = env('ERROR_EMAIL');
-        $this->info($this->log);
 
         if ($errorEmail) {
             Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
@@ -102,7 +103,32 @@ class CheckData extends Command
 
     private function logMessage($str)
     {
+        $str = date('Y-m-d h:i:s') . ' ' . $str;
+        $this->info($str);
         $this->log .= $str . "\n";
+    }
+
+    private function checkDraftSentInvoices()
+    {
+        $invoices = Invoice::whereInvoiceStatusId(INVOICE_STATUS_SENT)
+                        ->whereIsPublic(false)
+                        ->withTrashed()
+                        ->get();
+
+        $this->logMessage(count($invoices) . ' draft sent invoices');
+
+        if (count($invoices) > 0) {
+            $this->isValid = false;
+        }
+
+        if ($this->option('fix') == 'true') {
+            foreach ($invoices as $invoice) {
+                if ($invoice->is_deleted) {
+                    $invoice->unsetEventDispatcher();
+                }
+                $invoice->markSent();
+            }
+        }
     }
 
     private function checkOAuth()
@@ -334,7 +360,10 @@ class CheckData extends Command
     private function checkInvitations()
     {
         $invoices = DB::table('invoices')
-                    ->leftJoin('invitations', 'invitations.invoice_id', '=', 'invoices.id')
+                    ->leftJoin('invitations', function ($join) {
+                        $join->on('invitations.invoice_id', '=', 'invoices.id')
+                             ->whereNull('invitations.deleted_at');
+                    })
                     ->groupBy('invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id')
                     ->havingRaw('count(invitations.id) = 0')
                     ->get(['invoices.id', 'invoices.user_id', 'invoices.account_id', 'invoices.client_id']);
@@ -398,7 +427,6 @@ class CheckData extends Command
             ],
             'products' => [
                 ENTITY_USER,
-                ENTITY_TAX_RATE,
             ],
             'vendors' => [
                 ENTITY_USER,
@@ -413,25 +441,17 @@ class CheckData extends Command
                 ENTITY_USER,
                 ENTITY_CLIENT,
             ],
-            'accounts' => [
-                ENTITY_TAX_RATE,
-            ]
         ];
 
         foreach ($tables as $table => $entityTypes) {
             foreach ($entityTypes as $entityType) {
                 $tableName = Utils::pluralizeEntityType($entityType);
-                if ($entityType == ENTITY_TAX_RATE) {
-                    $field = 'default_' . $entityType;
-                } else {
-                    $field = $entityType;
-                }
+                $field = $entityType;
                 if ($table == 'accounts') {
                     $accountId = 'id';
                 } else {
                     $accountId = 'account_id';
                 }
-
                 $records = DB::table($table)
                                 ->join($tableName, "{$tableName}.id", '=', "{$table}.{$field}_id")
                                 ->where("{$table}.{$accountId}", '!=', DB::raw("{$tableName}.account_id"))

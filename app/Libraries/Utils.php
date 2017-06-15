@@ -382,7 +382,18 @@ class Utils
             return 'logged';
         }
 
-        $data = [
+        $data = static::prepareErrorData($context);
+
+        if ($info) {
+            Log::info($error."\n", $data);
+        } else {
+            Log::error($error."\n", $data);
+        }
+    }
+
+    public static function prepareErrorData($context)
+    {
+        return [
             'context' => $context,
             'user_id' => Auth::check() ? Auth::user()->id : 0,
             'account_id' => Auth::check() ? Auth::user()->account_id : 0,
@@ -394,20 +405,9 @@ class Utils
             'ip' => Request::getClientIp(),
             'count' => Session::get('error_count', 0),
             'is_console' => App::runningInConsole() ? 'yes' : 'no',
+            'is_api' => session('token_id') ? 'yes' : 'no',
+            'db_server' => config('database.default'),
         ];
-
-        if ($info) {
-            Log::info($error."\n", $data);
-        } else {
-            Log::error($error."\n", $data);
-        }
-
-        /*
-        Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
-        {
-            $message->to($email)->subject($subject);
-        });
-        */
     }
 
     public static function parseFloat($value)

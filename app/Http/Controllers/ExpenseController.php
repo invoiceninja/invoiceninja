@@ -169,6 +169,17 @@ class ExpenseController extends BaseController
         $data = $request->input();
         $data['documents'] = $request->file('documents');
 
+        // check for possible duplicate expense
+        $duplcate = Expense::scope()
+                    ->whereAmount($request->amount)
+                    ->whereExpenseDate(Utils::toSqlDate($request->expense_date))
+                    ->orderBy('created_at')
+                    ->first();
+        if ($duplcate) {
+            Session::flash('warning', trans('texts.duplicate_expense_warning',
+                ['link' => link_to($duplcate->present()->url, trans('texts.expense_link'), ['target' => '_blank'])]));
+        }
+
         $expense = $this->expenseService->save($data);
 
         Session::flash('message', trans('texts.created_expense'));

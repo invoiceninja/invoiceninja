@@ -138,7 +138,7 @@ if (! defined('APP_NAME')) {
     define('LOGGED_ERROR_LIMIT', 100);
     define('RANDOM_KEY_LENGTH', 32);
     define('MAX_NUM_USERS', 20);
-    define('MAX_IMPORT_ROWS', 1000);
+    define('MAX_IMPORT_ROWS', 5000);
     define('MAX_SUBDOMAIN_LENGTH', 30);
     define('MAX_IFRAME_URL_LENGTH', 250);
     define('MAX_LOGO_FILE_SIZE', 200); // KB
@@ -162,6 +162,7 @@ if (! defined('APP_NAME')) {
     define('IMPORT_ZOHO', 'Zoho');
     define('IMPORT_NUTCACHE', 'Nutcache');
     define('IMPORT_INVOICEABLE', 'Invoiceable');
+    define('IMPORT_INVOICEPLANE', 'InvoicePlane');
     define('IMPORT_HARVEST', 'Harvest');
 
     define('MAX_NUM_CLIENTS', 100);
@@ -206,7 +207,9 @@ if (! defined('APP_NAME')) {
     define('EXPENSE_STATUS_PAID', 5);
     define('EXPENSE_STATUS_UNPAID', 6);
 
-    define('CUSTOM_DESIGN', 11);
+    define('CUSTOM_DESIGN1', 11);
+    define('CUSTOM_DESIGN2', 12);
+    define('CUSTOM_DESIGN3', 13);
 
     define('FREQUENCY_WEEKLY', 1);
     define('FREQUENCY_TWO_WEEKS', 2);
@@ -300,7 +303,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.3.3' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.4.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -330,6 +333,7 @@ if (! defined('APP_NAME')) {
     define('MSBOT_LUIS_URL', 'https://westus.api.cognitive.microsoft.com/luis/v2.0/apps');
     define('SKYPE_API_URL', 'https://apis.skype.com/v3');
     define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
+    define('INVOICEPLANE_IMPORT', 'https://github.com/turbo124/Plane2Ninja');
 
     define('BOT_PLATFORM_WEB_APP', 'WebApp');
     define('BOT_PLATFORM_SKYPE', 'Skype');
@@ -341,7 +345,6 @@ if (! defined('APP_NAME')) {
     define('DB_NINJA_2', 'db-ninja-2');
 
     define('COUNT_FREE_DESIGNS', 4);
-    define('COUNT_FREE_DESIGNS_SELF_HOST', 5); // include the custom design
     define('PRODUCT_ONE_CLICK_INSTALL', 1);
     define('PRODUCT_INVOICE_DESIGNS', 2);
     define('PRODUCT_WHITE_LABEL', 3);

@@ -51,7 +51,7 @@ class OnlinePaymentCest
 
         // create recurring invoice and auto-bill
         $I->amOnPage('/recurring_invoices/create');
-        $I->selectDropdown($I, 'Test Test', '.client_select .dropdown-toggle');
+        $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
         $I->selectOption('#auto_bill', 3);
@@ -61,7 +61,6 @@ class OnlinePaymentCest
         $invoiceId = $I->grabFromDatabase('invoices', 'id', ['client_id' => $clientId, 'is_recurring' => true]);
         $invoiceId = $I->grabFromDatabase('invoices', 'public_id', ['recurring_invoice_id' => $invoiceId]);
 
-        $I->amOnPage("/invoices/{$invoiceId}/edit");
-        $I->see('Successfully applied payment');
+        $I->seeInDatabase('invoices', ['client_id' => $clientId, 'public_id' => $invoiceId, 'balance' => 0]);
    }
 }

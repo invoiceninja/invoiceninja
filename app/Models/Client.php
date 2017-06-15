@@ -51,6 +51,7 @@ class Client extends EntityModel
         'website',
         'invoice_number_counter',
         'quote_number_counter',
+        'public_notes',
     ];
 
     /**

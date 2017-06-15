@@ -21,6 +21,8 @@ Automated Installers
 
 - Softaculous: `softaculous.com <https://www.softaculous.com/apps/ecommerce/Invoice_Ninja>`_
 
+.. Tip:: You can use `github.com/turbo124/Plane2Ninja <https://github.com/turbo124/Plane2Ninja>`_ to migrate your data from InvoicePlane.
+
 Steps to Install
 ^^^^^^^^^^^^^^^^
 
@@ -29,7 +31,7 @@ Step 1: Download the code
 
 You can either download the zip file below or checkout the code from our GitHub repository. The zip includes all third party libraries whereas using GitHub requires you to use Composer to install the dependencies.
 
-https://download.invoiceninja.com/ninja-v3.3.1.zip
+https://download.invoiceninja.com
 
 .. Note:: All Pro and Enterprise features from our hosted app are included in both the zip file and the GitHub repository. We offer a $20 per year white-label license to remove our branding.
 
@@ -57,7 +59,7 @@ You’ll need to create a new database along with a user to access it. Most host
 
    CREATE DATABASE ninja;
    CREATE USER 'ninja'@'localhost' IDENTIFIED BY 'ninja';
-   GRANT ALL PRIVILEGES ON * . * TO 'ninja'@'localhost';
+   GRANT ALL PRIVILEGES ON ninja.* TO 'ninja'@'localhost';
 
 Step 4: Configure the web server
 """"""""""""""""""""""""""""""""

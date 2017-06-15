@@ -84,11 +84,12 @@ class SendRecurringInvoices extends Command
 
         foreach ($invoices as $recurInvoice) {
             $shouldSendToday = $recurInvoice->shouldSendToday();
-            $this->info('Processing Invoice '.$recurInvoice->id.' - Should send '.($shouldSendToday ? 'YES' : 'NO'));
 
             if (! $shouldSendToday) {
                 continue;
             }
+
+            $this->info('Processing Invoice: '. $recurInvoice->id);
 
             $account = $recurInvoice->account;
             $account->loadLocalizationSettings($recurInvoice->client);
@@ -117,7 +118,7 @@ class SendRecurringInvoices extends Command
             }
 
             if ($invoice->getAutoBillEnabled() && $invoice->client->autoBillLater()) {
-                $this->info('Processing Autobill-delayed Invoice ' . $invoice->id);
+                $this->info('Processing Autobill-delayed Invoice: ' . $invoice->id);
                 Auth::loginUsingId($invoice->user_id);
                 $this->paymentService->autoBillInvoice($invoice);
                 Auth::logout();

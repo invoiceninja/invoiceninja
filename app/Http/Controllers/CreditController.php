@@ -85,6 +85,18 @@ class CreditController extends BaseController
         return View::make('credits.edit', $data);
     }
 
+    /**
+     * @param $publicId
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return Redirect::to("credits/{$publicId}/edit");
+    }
+
     public function update(UpdateCreditRequest $request)
     {
         $credit = $request->entity();

@@ -150,6 +150,10 @@ class CountriesSeeder extends Seeder
             'SK' => [ // Slovakia
                 'swap_currency_symbol' => true,
             ],
+            'US' => [
+                'thousand_separator' => ',',
+                'decimal_separator' => '.',
+            ],
             'UY' => [
                 'swap_postal_code' => true,
             ],

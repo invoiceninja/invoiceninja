@@ -5,6 +5,8 @@ Update
 
 To update the app you just need to copy over the latest code. The app tracks the current version in a file called version.txt, if it notices a change it loads ``/update`` to run the database migrations.
 
+If you're moving servers make sure to copy over the .env file.
+
 If the auto-update fails you can manually run the update with the following commands. Once completed add ``?clear_cache=true`` to the end of the URL to clear the application cache.
 
 .. code-block:: shell
@@ -15,6 +17,8 @@ If the auto-update fails you can manually run the update with the following comm
    php artisan db:seed --class=UpdateSeeder
 
 .. NOTE:: If you've downloaded the code from GitHub you also need to run ``composer install``
+
+.. TIP:: You can see the detailed changes for each release on our `GitHub release notes <https://github.com/invoiceninja/invoiceninja/releases>`_.
 
 Version 3.2
 """""""""""

@@ -45,6 +45,9 @@
                         trans('texts.settings') => 'settings',
                     ]) !!}
         </div>
+        <div id="inovicePlaneImport" style="display:none"><center>
+                {!! trans('texts.invoiceplane_import', ['link' => link_to(INVOICEPLANE_IMPORT, 'turbo124/Plane2Ninja', ['target' => '_blank'])]) !!}
+        </center></div>
         <br/>
 
         {!! Former::actions( Button::info(trans('texts.upload'))->withAttributes(['id' => 'uploadButton'])->submit()->large()->appendIcon(Icon::create('open'))) !!}
@@ -160,6 +163,13 @@
                 $('.JSON-file').show();
             }
         @endif
+        if (val === '{{ IMPORT_INVOICEPLANE }}') {
+            $('#uploadButton').hide();
+            $('#inovicePlaneImport').show();
+        } else {
+            $('#uploadButton').show();
+            $('#inovicePlaneImport').hide();
+        }
     @endforeach
   }
 

@@ -1,20 +1,12 @@
 @extends('header')
 
-@section('head')
+@section('head_css')
 	@parent
 
-    @include('money_script')
-
-    @foreach ($account->getFontFolders() as $font)
-        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
-    @endforeach
-	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
-    <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
-    <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
+	<link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
 	<link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
-	<script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 
-    <style type="text/css">
+	<style type="text/css">
         select.tax-select {
             width: 50%;
             float: left;
@@ -33,6 +25,19 @@
 		}
 
     </style>
+@stop
+
+@section('head')
+	@parent
+
+    @include('money_script')
+
+    @foreach ($account->getFontFolders() as $font)
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    @endforeach
+	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+    <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 @stop
 
 @section('content')
@@ -340,7 +345,8 @@
                     <div role="tabpanel">
 
                       <ul class="nav nav-tabs" role="tablist" style="border: none">
-                        <li role="presentation" class="active"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.note_to_client') }}</a></li>
+                        <li role="presentation" class="active"><a href="#public_notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.public_notes') }}</a></li>
+						<li role="presentation"><a href="#private_notes" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.private_notes") }}</a></li>
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
@@ -354,33 +360,41 @@
                     </ul>
 
                     <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
-                            {!! Former::textarea('public_notes')->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
-                            ->label(null)->style('width: 500px;')->rows(4) !!}
+                        <div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px">
+                            {!! Former::textarea('public_notes')
+									->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
+                            		->label(null)->style('width: 550px')->rows(4) !!}
+                        </div>
+						<div role="tabpanel" class="tab-pane" id="private_notes" style="padding-bottom:44px">
+                            {!! Former::textarea('private_notes')
+									->data_bind("value: private_notes, valueUpdate: 'afterkeydown'")
+                            		->label(null)->style('width: 550px')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
-                            {!! Former::textarea('terms')->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('width: 500px')->rows(4)
-                            ->help('<div class="checkbox">
-                                        <label>
-                                            <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
-                                        </label>
-                                        <div class="pull-right" data-bind="visible: showResetTerms()">
-                                            <a href="#" onclick="return resetTerms()" title="'. trans('texts.reset_terms_help') .'">' . trans("texts.reset_terms") . '</a>
-                                        </div>
-                                    </div>') !!}
+                            {!! Former::textarea('terms')
+									->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
+                            		->label(false)->style('width: 550px')->rows(4)
+		                            ->help('<div class="checkbox">
+		                                        <label>
+		                                            <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
+		                                        </label>
+		                                        <div class="pull-right" data-bind="visible: showResetTerms()">
+		                                            <a href="#" onclick="return resetTerms()" title="'. trans('texts.reset_terms_help') .'">' . trans("texts.reset_terms") . '</a>
+		                                        </div>
+		                                    </div>') !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
-                            {!! Former::textarea('invoice_footer')->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('width: 500px')->rows(4)
-                            ->help('<div class="checkbox">
-                                        <label>
-                                            <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
-                                        </label>
-                                        <div class="pull-right" data-bind="visible: showResetFooter()">
-                                            <a href="#" onclick="return resetFooter()" title="'. trans('texts.reset_footer_help') .'">' . trans("texts.reset_footer") . '</a>
-                                        </div>
-                                    </div>') !!}
+                            {!! Former::textarea('invoice_footer')
+									->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
+		                            ->label(false)->style('width: 550px')->rows(4)
+		                            ->help('<div class="checkbox">
+		                                        <label>
+		                                            <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
+		                                        </label>
+		                                        <div class="pull-right" data-bind="visible: showResetFooter()">
+		                                            <a href="#" onclick="return resetFooter()" title="'. trans('texts.reset_footer_help') .'">' . trans("texts.reset_footer") . '</a>
+		                                        </div>
+		                                    </div>') !!}
                         </div>
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
@@ -543,7 +557,7 @@
             {!! Former::text('pdfupload') !!}
 		</div>
 
-		@if (!Utils::hasFeature(FEATURE_MORE_INVOICE_DESIGNS) || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
+		@if (!Utils::hasFeature(FEATURE_MORE_INVOICE_DESIGNS))
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
@@ -899,10 +913,15 @@
                 model.invoice().addItem(); // add blank item
             @else
                 // set the default account tax rate
-                @if ($account->invoice_taxes && ! empty($defaultTax))
-                    var defaultTax = {!! $defaultTax->toJson() !!};
-                    model.invoice().tax_rate1(defaultTax.rate);
-                    model.invoice().tax_name1(defaultTax.name);
+                @if ($account->invoice_taxes)
+					@if (! empty($account->tax_name1))
+						model.invoice().tax_rate1("{{ $account->tax_rate1 }}");
+						model.invoice().tax_name1("{{ $account->tax_name1 }}");
+					@endif
+					@if (! empty($account->tax_name2))
+						model.invoice().tax_rate2("{{ $account->tax_rate2 }}");
+						model.invoice().tax_name2("{{ $account->tax_name2 }}");
+					@endif
                 @endif
             @endif
 
@@ -1267,7 +1286,7 @@
         var design  = getDesignJavascript();
 		if (!design) return;
 		var doc = generatePDF(invoice, design, true);
-        var type = invoice.is_quote ? '{{ trans('texts.'.ENTITY_QUOTE) }}' : '{{ trans('texts.'.ENTITY_INVOICE) }}';
+        var type = invoice.is_quote ? '{!! trans('texts.'.ENTITY_QUOTE) !!}' : '{!! trans('texts.'.ENTITY_INVOICE) !!}';
 		doc.save(type + '-' + $('#invoice_number').val() + '.pdf');
 	}
 
@@ -1331,12 +1350,19 @@
 
 	function onMarkSentClick() {
 		if (model.invoice().is_recurring()) {
+			if (! model.invoice().start_date()) {
+				swal("{{ trans('texts.start_date_required') }}");
+				return false;
+			}
 			if (!isSaveValid()) {
 	            model.showClientForm();
 	            return false;
 	        }
             // warn invoice will be emailed when saving new recurring invoice
-            var text = '\n' + getSendToEmails() + '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+            var text = '\n' + getSendToEmails();
+			if (model.invoice().start_date() == "{{ Utils::fromSqlDate(date('Y-m-d')) }}") {
+				text += '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+			}
             var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
             sweetConfirm(function() {
 				model.invoice().is_public(true);
@@ -1702,8 +1728,10 @@
         window.countUploadingDocuments--;
     }
 
-    function handleDocumentError() {
+    function handleDocumentError(file) {
+		dropzone.removeFile(file);
         window.countUploadingDocuments--;
+		swal("{!! trans('texts.error_refresh_page') !!}");
     }
 
 	</script>

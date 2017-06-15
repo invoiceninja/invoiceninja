@@ -17,7 +17,8 @@ class InvoiceTransformer extends EntityTransformer
      * @SWG\Property(property="balance", type="number", format="float", example=10, readOnly=true)
      * @SWG\Property(property="client_id", type="integer", example=1)
      * @SWG\Property(property="invoice_number", type="string", example="0001")
-     * @SWG\Property(property="invoice_status_id", type="integer", example=1)
+     * @SWG\Property(property="private_notes", type="string", example="Notes...")
+     * @SWG\Property(property="public_notes", type="string", example="Notes...")
      */
     protected $defaultIncludes = [
         'invoice_items',
@@ -89,13 +90,14 @@ class InvoiceTransformer extends EntityTransformer
             'invoice_status_id' => (int) $invoice->invoice_status_id,
             'updated_at' => $this->getTimestamp($invoice->updated_at),
             'archived_at' => $this->getTimestamp($invoice->deleted_at),
-            'invoice_number' => $invoice->invoice_number,
+            'invoice_number' => $invoice->is_recurring ? '' : $invoice->invoice_number,
             'discount' => (float) $invoice->discount,
             'po_number' => $invoice->po_number,
             'invoice_date' => $invoice->invoice_date,
             'due_date' => $invoice->due_date,
             'terms' => $invoice->terms,
             'public_notes' => $invoice->public_notes,
+            'private_notes' => $invoice->private_notes,
             'is_deleted' => (bool) $invoice->is_deleted,
             'invoice_type_id' => (int) $invoice->invoice_type_id,
             'is_recurring' => (bool) $invoice->is_recurring,

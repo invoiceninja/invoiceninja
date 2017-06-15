@@ -50,6 +50,10 @@ class SendPushNotification extends Job implements ShouldQueue
      */
     public function handle(PushService $pushService)
     {
+        if (config('queue.default') !== 'sync') {
+            $this->invoice->account->loadLocalizationSettings();
+        }
+
         $pushService->sendNotification($this->invoice, $this->type);
     }
 }

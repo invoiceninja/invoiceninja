@@ -13,6 +13,8 @@ function ViewModel(data) {
         ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
         @if (!$invoice->id)
             self.setDueDate();
+            // copy default note from the client to the invoice
+            model.invoice().public_notes(client.public_notes);
         @endif
     }
 
@@ -188,6 +190,7 @@ function InvoiceModel(data) {
     self.footer_placeholder = ko.observable({{ (!$invoice->id || $invoice->is_recurring) && $account->invoice_footer ? 'account.invoice_footer' : false}});
     self.set_default_footer = ko.observable(false);
     self.public_notes = ko.observable('');
+    self.private_notes = ko.observable('');
     self.po_number = ko.observable('');
     self.invoice_date = ko.observable('');
     self.invoice_number = ko.observable('');
@@ -268,7 +271,10 @@ function InvoiceModel(data) {
     }
 
     self.removeDocument = function(doc) {
-         var public_id = doc.public_id?doc.public_id():doc;
+         var public_id = doc && doc.public_id ? doc.public_id() : doc;
+         if (! public_id) {
+             return;
+         }
          self.documents.remove(function(document) {
             return document.public_id() == public_id;
         });
@@ -941,9 +947,13 @@ ko.bindingHandlers.productTypeahead = {
                     model.qty(1);
                 }
                 @if ($account->invoice_item_taxes)
-                    if (datum.default_tax_rate) {
+                    if (datum.tax_name1) {
                         var $select = $(this).parentsUntil('tbody').find('select').first();
-                        $select.val('0 ' + datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name).trigger('change');
+                        $select.val('0 ' + datum.tax_rate1 + ' ' + datum.tax_name1).trigger('change');
+                    }
+                    if (datum.tax_name2) {
+                        var $select = $(this).parentsUntil('tbody').find('select').last();
+                        $select.val('0 ' + datum.tax_rate2 + ' ' + datum.tax_name2).trigger('change');
                     }
                 @endif
                 @if (Auth::user()->isPro() && $account->custom_invoice_item_label1)

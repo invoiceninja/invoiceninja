@@ -15,7 +15,7 @@ class AddCustomDesign extends Migration
             $table->mediumText('custom_design')->nullable();
         });
 
-        DB::table('invoice_designs')->insert(['id' => CUSTOM_DESIGN, 'name' => 'Custom']);
+        DB::table('invoice_designs')->insert(['id' => CUSTOM_DESIGN1, 'name' => 'Custom']);
     }
 
     /**

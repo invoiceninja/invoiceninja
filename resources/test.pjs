@@ -1,0 +1,72 @@
+/**  * Set up page and script parameters  */ var page = require('webpage').create(), system = require('system'), response = {}, debug = [], logs = [], procedure = {};
+/**  * Global variables  */   /**  * Define width & height of capture  */   /**  * Define paper size.  */
+/**  * Define viewport size.  */  var viewportWidth = 0, viewportHeight = 0;
+if (viewportWidth && viewportHeight) {
+    debug.push(new Date().toISOString().slice(0, -5) + ' [INFO] PhantomJS - Set viewport size ~ width: ' + viewportWidth + ' height: ' + viewportHeight);
+    page.viewportSize = {width: viewportWidth, height: viewportHeight};
+}
+/**  * Define custom headers.  */  page.customHeaders = {};
+/**  * Page settings  */  page.settings.resourceTimeout = 5000;
+/**  * On resource timeout  */ page.onResourceTimeout = function (error) {
+    response = error;
+    response.status = error.errorCode;
+};
+/**  * On resource requested  */ page.onResourceRequested = function (resource) {
+};
+/**  * On resource received  */ page.onResourceReceived = function (resource) {
+    if (!response.status) {
+        response = resource;
+    }
+};
+/**  * Handle page errors  */ page.onError = function (msg, trace) {
+    var error = {message: msg, trace: []};
+    trace.forEach(function (t) {
+        error.trace.push(' -> ' + (t.file || t.sourceURL) + ': ' + t.line + (t.function ? ' (in function ' + t.function + ')' : ''));
+    });
+    logs.push(error);
+};
+/**  * Handle global errors  */ phantom.onError = function (msg, trace) {
+    var stack = [];
+    trace.forEach(function (t) {
+        stack.push(' -> ' + (t.file || t.sourceURL) + ': ' + t.line + (t.function ? ' (in function ' + t.function + ')' : ''));
+    });
+    response.status = 500;
+    response.content = msg;
+    response.console = stack;
+    system.stdout.write(JSON.stringify(response, undefined, 4));
+    phantom.exit(1);
+};
+/**  * Open page  */ page.open('__YOUR_LINK_HERE__', 'GET', '', function (status) {
+    page.evaluate(function () {
+        debugger;
+        var styles = {};
+        for (var property in styles) {
+            document.body.style[property] = styles[property];
+        }
+    });
+    var delay = 0;
+    if (!delay) {
+        return procedure.execute(status);
+    }
+    debug.push(new Date().toISOString().slice(0, -5) + ' [INFO] PhantomJS - Delaying page render for ' + delay + ' second(s)');
+    window.setTimeout(function () {
+        debug.push(new Date().toISOString().slice(0, -5) + ' [INFO] PhantomJS - Rendering page after delaying for ' + delay + ' second(s)');
+        procedure.execute(status);
+    }, (delay * 1000));
+});
+/**  * Execute procedure  */ procedure.execute = function (status) {
+    if (status === 'success') {
+        try {
+            response.content = page.evaluate(function () {
+                return document.getElementsByTagName('html')[0].innerHTML
+            });
+        } catch (e) {
+            response.status = 500;
+            response.content = e.message;
+        }
+    }
+    response.console = logs;
+    system.stderr.write(debug.join('\\n') + '\\n');
+    system.stdout.write(JSON.stringify(response, undefined, 4));
+    phantom.exit();
+};

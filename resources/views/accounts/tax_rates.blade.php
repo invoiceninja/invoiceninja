@@ -47,11 +47,7 @@
 
       &nbsp;
 
-      {!! Former::select('default_tax_rate_id')
-            ->style('max-width: 250px')
-            ->addOption('', '')
-            ->fromQuery($taxRates, function($model) { return $model->name . ': ' . $model->rate . '%'; }, 'id') !!}
-
+      @include('partials.tax_rates', ['taxRateLabel' => trans('texts.default_tax_rate_id')])
 
       &nbsp;
       {!! Former::actions( Button::success(trans('texts.save'))->submit()->appendIcon(Icon::create('floppy-disk')) ) !!}

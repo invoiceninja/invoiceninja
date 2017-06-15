@@ -16,6 +16,7 @@ class PaymentTransformer extends EntityTransformer
      * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
      * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
      * @SWG\Property(property="invoice_id", type="integer", example=1)
+     * @SWG\Property(property="private_notes", type="string", example="Notes...")
      */
     protected $defaultIncludes = [];
 
@@ -58,6 +59,7 @@ class PaymentTransformer extends EntityTransformer
             'payment_type_id' => (int) $payment->payment_type_id,
             'invoice_id' => (int) ($this->invoice ? $this->invoice->public_id : $payment->invoice->public_id),
             'invoice_number' => $this->invoice ? $this->invoice->invoice_number : $payment->invoice->invoice_number,
+            'private_notes' => $payment->private_notes,
         ]);
     }
 }

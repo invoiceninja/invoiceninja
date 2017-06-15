@@ -59,13 +59,18 @@ class Handler extends ExceptionHandler
             if (Utils::isNinja() && strpos(request()->url(), '/logo/') !== false) {
                 return false;
             }
+            // Log 404s to a separate file
+            $errorStr = date('Y-m-d h:i:s') . ' ' . request()->url() . "\n" . json_encode(Utils::prepareErrorData('PHP')) . "\n\n";
+            @file_put_contents(storage_path('logs/not_found.log'), $errorStr, FILE_APPEND);
+            return false;
         } elseif ($e instanceof HttpResponseException) {
             return false;
         }
 
-        if (Utils::isNinja() && ! Utils::isTravis()) {
+        if (! Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
-
+            $stacktrace = date('Y-m-d h:i:s') . ' ' . $e->getTraceAsString() . "\n\n";
+            @file_put_contents(storage_path('logs/stacktrace.log'), $stacktrace, FILE_APPEND);
             return false;
         } else {
             return parent::report($e);

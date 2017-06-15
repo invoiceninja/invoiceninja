@@ -320,6 +320,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
 
             var value = getDescendantProp(invoice, field) || ' ';
             value = doubleDollarSign(value);
+            value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
             javascript = javascript.replace(match, '"'+value+'"');
         }
     }
@@ -502,14 +503,15 @@ NINJA.invoiceLines = function(invoice) {
 
         var lineTotal = roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
         if (account.include_item_taxes_inline == '1') {
+            var taxAmount1 = 0;
+            var taxAmount2 = 0;
             if (tax1) {
-                lineTotal += lineTotal * tax1 / 100;
-                lineTotal = roundToTwo(lineTotal);
+                taxAmount1 = roundToTwo(lineTotal * tax1 / 100);
             }
             if (tax2) {
-                lineTotal += lineTotal * tax2 / 100;
-                lineTotal = roundToTwo(lineTotal);
+                taxAmount2 = roundToTwo(lineTotal * tax2 / 100);
             }
+            lineTotal += taxAmount1 + taxAmount2;
         }
         lineTotal = formatMoneyInvoice(lineTotal, invoice);
 

@@ -69,24 +69,30 @@ class EntityModel extends Eloquent
         $entity->setRelation('user', $user);
         $entity->setRelation('account', $account);
 
-        if (method_exists($className, 'trashed')) {
-            $lastEntity = $className::whereAccountId($entity->account_id)->withTrashed();
-        } else {
-            $lastEntity = $className::whereAccountId($entity->account_id);
-        }
-
         if (static::$hasPublicId) {
-            $lastEntity = $lastEntity->orderBy('public_id', 'DESC')
-                                     ->first();
-
-            if ($lastEntity) {
-                $entity->public_id = $lastEntity->public_id + 1;
-            } else {
-                $entity->public_id = 1;
-            }
+            $entity->public_id = static::getNextPublicId($entity->account_id);
         }
 
         return $entity;
+    }
+
+    private static function getNextPublicId($accountId)
+    {
+        $className = get_called_class();
+
+        if (method_exists($className, 'trashed')) {
+            $lastEntity = $className::whereAccountId($accountId)->withTrashed();
+        } else {
+            $lastEntity = $className::whereAccountId($accountId);
+        }
+
+        $lastEntity = $lastEntity->orderBy('public_id', 'DESC')->first();
+
+        if ($lastEntity) {
+            return $lastEntity->public_id + 1;
+        } else {
+            return 1;
+        }
     }
 
     /**
@@ -378,5 +384,22 @@ class EntityModel extends Eloquent
     public function statusLabel()
     {
         return '';
+    }
+
+    public function save(array $options = [])
+    {
+        try {
+            return parent::save($options);
+        } catch (\Illuminate\Database\QueryException $exception) {
+            // check if public_id has been taken
+            if ($exception->getCode() == 23000 && static::$hasPublicId) {
+                $nextId = static::getNextPublicId($this->account_id);
+                if ($nextId != $this->public_id) {
+                    $this->public_id = $nextId;
+                    return $this->save($options);
+                }
+            }
+            throw $exception;
+        }
     }
 }

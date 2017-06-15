@@ -40,7 +40,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
         ]);
 
         $rules = [
-            'amount' => "required|numeric|between:0.01,{$invoice->balance}",
+            'amount' => 'required|numeric|not_in:0',
         ];
 
         if ($this->payment_type_id == PAYMENT_TYPE_CREDIT) {

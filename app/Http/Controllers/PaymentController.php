@@ -6,6 +6,7 @@ use App\Http\Requests\CreatePaymentRequest;
 use App\Http\Requests\PaymentRequest;
 use App\Http\Requests\UpdatePaymentRequest;
 use App\Models\Client;
+use App\Models\Payment;
 use App\Models\Credit;
 use App\Models\Invoice;
 use App\Ninja\Datatables\PaymentDatatable;
@@ -136,7 +137,10 @@ class PaymentController extends BaseController
         if ($payment->invoiceJsonBackup()) {
             $actions[] = ['url' => url("/invoices/invoice_history/{$payment->invoice->public_id}?payment_id={$payment->public_id}"), 'label' => trans('texts.view_invoice')];
         }
+
         $actions[] = ['url' => url("/invoices/{$payment->invoice->public_id}/edit"), 'label' => trans('texts.edit_invoice')];
+        $actions[] = DropdownButton::DIVIDER;
+        $actions[] = ['url' => 'javascript:submitAction("email")', 'label' => trans('texts.email_payment')];
 
         if ($payment->canBeRefunded()) {
             $actions[] = ['url' => "javascript:showRefundModal({$payment->public_id}, \"{$payment->getCompletedAmount()}\", \"{$payment->present()->completedAmount}\", \"{$payment->present()->currencySymbol}\")", 'label' => trans('texts.refund_payment')];
@@ -215,7 +219,7 @@ class PaymentController extends BaseController
      */
     public function update(UpdatePaymentRequest $request)
     {
-        if (in_array($request->action, ['archive', 'delete', 'restore', 'refund'])) {
+        if (in_array($request->action, ['archive', 'delete', 'restore', 'refund', 'email'])) {
             return self::bulk();
         }
 
@@ -234,11 +238,17 @@ class PaymentController extends BaseController
         $action = Input::get('action');
         $amount = Input::get('refund_amount');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
-        $count = $this->paymentService->bulk($ids, $action, ['refund_amount' => $amount]);
 
-        if ($count > 0) {
-            $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action.'d_payment', $count);
-            Session::flash('message', $message);
+        if ($action === 'email') {
+            $payment = Payment::scope($ids)->first();
+            $this->contactMailer->sendPaymentConfirmation($payment);
+            Session::flash('message', trans('texts.emailed_payment'));
+        } else {
+            $count = $this->paymentService->bulk($ids, $action, ['refund_amount' => $amount]);
+            if ($count > 0) {
+                $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action.'d_payment', $count);
+                Session::flash('message', $message);
+            }
         }
 
         return $this->returnBulk(ENTITY_PAYMENT, $action, $ids);

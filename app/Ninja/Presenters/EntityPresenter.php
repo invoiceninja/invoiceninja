@@ -13,7 +13,7 @@ class EntityPresenter extends Presenter
      */
     public function url()
     {
-        return url($this->path());
+        return SITE_URL . $this->path();
     }
 
     public function path()

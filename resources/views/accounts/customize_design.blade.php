@@ -97,7 +97,10 @@
 
     function onSelectChange()
     {
-        var id = $('#invoice_design_id').val();
+		var $select = $('#invoice_design_id');
+        var id = $select.val();
+		$select.val(null);
+
         if (parseInt(id)) {
             var design = _.find(invoiceDesigns, function(design){ return design.id == id});
             customDesign = JSON.parse(design.javascript);
@@ -168,7 +171,6 @@
     <div class="col-md-6">
 
       {!! Former::open()->addClass('warn-on-exit') !!}
-      {!! Former::populateField('invoice_design_id', $account->invoice_design_id) !!}
 
         <div style="display:none">
             {!! Former::text('custom_design') !!}
@@ -189,7 +191,12 @@
     <p>&nbsp;</p>
 
     <div>
-    {!! Former::select('invoice_design_id')->style('display:inline;width:120px')->fromQuery($invoiceDesigns, 'name', 'id')->onchange('onSelectChange()')->raw() !!}
+    {!! Former::select('invoice_design_id')
+			->placeholder(trans('texts.load_design'))
+			->style('display:inline;width:180px')
+			->fromQuery($invoiceDesigns, 'name', 'id')
+			->onchange('onSelectChange()')
+			->raw() !!}
     <div class="pull-right">
         {!! Button::normal(trans('texts.help'))->withAttributes(['onclick' => 'showHelp()'])->appendIcon(Icon::create('question-sign')) !!}
         {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/invoice_design'))->appendIcon(Icon::create('remove-circle')) !!}
@@ -230,7 +237,7 @@
           </div>
 	  	  </div>
   		  </div>
-		  
+
          <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
          </div>

@@ -177,7 +177,8 @@ class InvoiceRepository extends BaseRepository
                         'invoices.due_date',
                         'invoices.due_date as due_date_sql',
                         'invoices.is_recurring',
-                        'invoices.quote_invoice_id'
+                        'invoices.quote_invoice_id',
+                        'invoices.private_notes'
                     );
 
         if ($clientPublicId) {
@@ -411,12 +412,14 @@ class InvoiceRepository extends BaseRepository
             $invoice->invoice_date = Utils::toSqlDate($data['invoice_date']);
         }
 
+        /*
         if (isset($data['invoice_status_id'])) {
             if ($data['invoice_status_id'] == 0) {
                 $data['invoice_status_id'] = INVOICE_STATUS_DRAFT;
             }
             $invoice->invoice_status_id = $data['invoice_status_id'];
         }
+        */
 
         if ($invoice->is_recurring) {
             if (! $isNew && isset($data['start_date']) && $invoice->start_date && $invoice->start_date != Utils::toSqlDate($data['start_date'])) {
@@ -468,8 +471,6 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['po_number'])) {
             $invoice->po_number = trim($data['po_number']);
         }
-
-        $invoice->invoice_design_id = isset($data['invoice_design_id']) ? $data['invoice_design_id'] : $account->invoice_design_id;
 
         // provide backwards compatibility
         if (isset($data['tax_name']) && isset($data['tax_rate'])) {
@@ -654,6 +655,10 @@ class InvoiceRepository extends BaseRepository
                         if ($product && (Auth::user()->can('edit', $product))) {
                             $product->notes = ($task || $expense) ? '' : $item['notes'];
                             $product->cost = $expense ? 0 : $item['cost'];
+                            $product->tax_name1 = isset($item['tax_name1']) ? $item['tax_name1'] : null;
+                            $product->tax_rate1 = isset($item['tax_rate1']) ? $item['tax_rate1'] : 0;
+                            $product->tax_name2 = isset($item['tax_name2']) ? $item['tax_name2'] : null;
+                            $product->tax_rate2 = isset($item['tax_rate2']) ? $item['tax_rate2'] : 0;
                             $product->custom_value1 = isset($item['custom_value1']) ? $item['custom_value1'] : null;
                             $product->custom_value2 = isset($item['custom_value2']) ? $item['custom_value2'] : null;
                             $product->save();
@@ -720,7 +725,7 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
-        // if no contacts are selected auto-select the first to enusre there's an invitation
+        // if no contacts are selected auto-select the first to ensure there's an invitation
         if (! count($sendInvoiceIds)) {
             $sendInvoiceIds[] = $client->contacts[0]->id;
         }

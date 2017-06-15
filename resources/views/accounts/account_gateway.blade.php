@@ -146,7 +146,7 @@
                 ->value(1) !!}
 
         {!! Former::checkboxes('creditCardTypes[]')
-                ->label('Accepted Credit Cards')
+                ->label('accepted_card_logos')
                 ->checkboxes($creditCardTypes)
                 ->class('creditcard-types')
                 ->addGroupClass('gateway-option')

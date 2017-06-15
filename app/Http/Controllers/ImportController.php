@@ -134,4 +134,19 @@ class ImportController extends BaseController
             return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
         }
     }
+
+    public function cancelImport()
+    {
+        try {
+            $path = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
+            foreach ([ENTITY_CLIENT, ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_QUOTE, ENTITY_PRODUCT] as $entityType) {
+                $fileName = sprintf('%s/%s_%s_%s.csv', $path, Auth::user()->account_id, request()->timestamp, $entityType);
+                \File::delete($fileName);
+            }
+        } catch (Exception $exception) {
+            Utils::logError($exception);
+        }
+
+        return Redirect::to('/settings/' . ACCOUNT_IMPORT_EXPORT);
+    }
 }

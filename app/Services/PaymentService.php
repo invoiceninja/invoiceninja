@@ -178,8 +178,11 @@ class PaymentService extends BaseService
             foreach ($payments as $payment) {
                 if (Auth::user()->can('edit', $payment)) {
                     $amount = ! empty($params['refund_amount']) ? floatval($params['refund_amount']) : null;
+                    $paymentDriver = false;
                     if ($accountGateway = $payment->account_gateway) {
                         $paymentDriver = $accountGateway->paymentDriver();
+                    }
+                    if ($paymentDriver && $paymentDriver->canRefundPayments) {
                         if ($paymentDriver->refundPayment($payment, $amount)) {
                             $successful++;
                         }

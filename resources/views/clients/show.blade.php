@@ -122,6 +122,10 @@
                 <i class="fa fa-phone" style="width: 20px"></i>{{ $client->work_phone }}
             @endif
 
+            @if ($client->public_notes)
+                <p><i>{{ $client->public_notes }}</i></p>
+            @endif
+
             @if ($client->private_notes)
                 <p><i>{{ $client->private_notes }}</i></p>
             @endif

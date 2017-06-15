@@ -1,9 +1,10 @@
 @extends('master')
 
+@section('head_css')
+    <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+@stop
 
 @section('head')
-
-  <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
 <script type="text/javascript">
 
@@ -102,7 +103,7 @@
   $(function() {
     // auto-logout after 8 hours
     window.setTimeout(function() {
-        window.location = '{{ URL::to('/logout?reason=inactivity') }}';
+        window.location = '{{ URL::to('/logout?reason=inactive') }}';
     }, {{ 1000 * env('AUTO_LOGOUT_SECONDS', (60 * 60 * 8)) }});
 
     // auto-hide status alerts

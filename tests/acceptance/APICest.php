@@ -82,6 +82,12 @@ class APICest
         $this->createEntity('vendor', $data);
         $this->listEntities('vendors');
 
+        $data = new stdClass;
+        $data->client_id = $clientId;
+        $data->amount = 1;
+        $this->createEntity('credit', $data);
+        $this->listEntities('credits');
+
         $this->listEntities('accounts');
         $this->listEntities('dashboard');
 

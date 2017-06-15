@@ -202,108 +202,112 @@
         <p>&nbsp;<br/>&nbsp;</p>
     @endif
 
-    <div class="row">
-        <div class="col-lg-{{ ($accountGateway->gateway_id == GATEWAY_BRAINTREE) ? 12 : 8 }}">
+    @if ($accountGateway->isGateway(GATEWAY_WEPAY) && $account->token_billing_type_id === TOKEN_BILLING_DISABLED)
+        {{--- do nothing ---}}
+    @else
+        <div class="row">
+            <div class="col-lg-{{ ($accountGateway->gateway_id == GATEWAY_BRAINTREE) ? 12 : 8 }}">
 
-            <h3>
-                {{ trans('texts.billing_method') }}
-                @if (isset($acceptedCreditCardTypes))
-                    &nbsp;
-                    @foreach ($acceptedCreditCardTypes as $card)
-                        <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 34px; display: inline; margin-left: 7px;"/>
-                    @endforeach
-                @endif
-                <br/>
-            </h3>
+                <h3>
+                    {{ trans('texts.billing_method') }}
+                    @if (isset($acceptedCreditCardTypes))
+                        &nbsp;
+                        @foreach ($acceptedCreditCardTypes as $card)
+                            <img src="{{ $card['source'] }}" alt="{{ $card['alt'] }}" style="width: 34px; display: inline; margin-left: 7px;"/>
+                        @endforeach
+                    @endif
+                    <br/>
+                </h3>
 
-            <div class="row">
-                <div class="col-md-12">
-                    @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
-                        <div id="card_number" class="braintree-hosted form-control"></div>
-                    @else
-                        {!! Former::text(!empty($tokenize) ? '' : 'card_number')
-                                ->id('card_number')
-                                ->placeholder(trans('texts.card_number'))
-                                ->autocomplete('cc-number')
-                                ->label('') !!}
-                    @endif
+                <div class="row">
+                    <div class="col-md-12">
+                        @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
+                            <div id="card_number" class="braintree-hosted form-control"></div>
+                        @else
+                            {!! Former::text(!empty($tokenize) ? '' : 'card_number')
+                                    ->id('card_number')
+                                    ->placeholder(trans('texts.card_number'))
+                                    ->autocomplete('cc-number')
+                                    ->label('') !!}
+                        @endif
+                    </div>
                 </div>
-            </div>
-            <div class="row">
-                <div class="col-md-5">
-                    @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
-                        <div id="expiration_month" class="braintree-hosted form-control"></div>
-                    @else
-                        {!! Former::select(!empty($tokenize) ? '' : 'expiration_month')
-                                ->id('expiration_month')
-                                ->autocomplete('cc-exp-month')
-                                ->placeholder(trans('texts.expiration_month'))
-                                  ->addOption('01 - ' . trans('texts.january'), '1')
-                                  ->addOption('02 - ' . trans('texts.february'), '2')
-                                  ->addOption('03 - ' . trans('texts.march'), '3')
-                                  ->addOption('04 - ' . trans('texts.april'), '4')
-                                  ->addOption('05 - ' . trans('texts.may'), '5')
-                                  ->addOption('06 - ' . trans('texts.june'), '6')
-                                  ->addOption('07 - ' . trans('texts.july'), '7')
-                                  ->addOption('08 - ' . trans('texts.august'), '8')
-                                  ->addOption('09 - ' . trans('texts.september'), '9')
-                                  ->addOption('10 - ' . trans('texts.october'), '10')
-                                  ->addOption('11 - ' . trans('texts.november'), '11')
-                                  ->addOption('12 - ' . trans('texts.december'), '12')->label('')
-                                !!}
-                    @endif
-                </div>
-                <div class="col-md-4">
-                    @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
-                        <div id="expiration_year" class="braintree-hosted form-control"></div>
-                    @else
-                        {!! Former::select(!empty($tokenize) ? '' : 'expiration_year')
-                                ->id('expiration_year')
-                                ->autocomplete('cc-exp-year')
-                                ->placeholder(trans('texts.expiration_year'))
-                                ->options(
-                                    array_combine(
-                                        range(date('Y'), date('Y') + 10),
-                                        range(date('Y'), date('Y') + 10)
+                <div class="row">
+                    <div class="col-md-5">
+                        @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
+                            <div id="expiration_month" class="braintree-hosted form-control"></div>
+                        @else
+                            {!! Former::select(!empty($tokenize) ? '' : 'expiration_month')
+                                    ->id('expiration_month')
+                                    ->autocomplete('cc-exp-month')
+                                    ->placeholder(trans('texts.expiration_month'))
+                                      ->addOption('01 - ' . trans('texts.january'), '1')
+                                      ->addOption('02 - ' . trans('texts.february'), '2')
+                                      ->addOption('03 - ' . trans('texts.march'), '3')
+                                      ->addOption('04 - ' . trans('texts.april'), '4')
+                                      ->addOption('05 - ' . trans('texts.may'), '5')
+                                      ->addOption('06 - ' . trans('texts.june'), '6')
+                                      ->addOption('07 - ' . trans('texts.july'), '7')
+                                      ->addOption('08 - ' . trans('texts.august'), '8')
+                                      ->addOption('09 - ' . trans('texts.september'), '9')
+                                      ->addOption('10 - ' . trans('texts.october'), '10')
+                                      ->addOption('11 - ' . trans('texts.november'), '11')
+                                      ->addOption('12 - ' . trans('texts.december'), '12')->label('')
+                                    !!}
+                        @endif
+                    </div>
+                    <div class="col-md-4">
+                        @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
+                            <div id="expiration_year" class="braintree-hosted form-control"></div>
+                        @else
+                            {!! Former::select(!empty($tokenize) ? '' : 'expiration_year')
+                                    ->id('expiration_year')
+                                    ->autocomplete('cc-exp-year')
+                                    ->placeholder(trans('texts.expiration_year'))
+                                    ->options(
+                                        array_combine(
+                                            range(date('Y'), date('Y') + 10),
+                                            range(date('Y'), date('Y') + 10)
+                                        )
                                     )
-                                )
-                                ->label('') !!}
-                    @endif
+                                    ->label('') !!}
+                        @endif
+                    </div>
+                    <div class="col-md-3">
+                        @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
+                            <div id="cvv" class="braintree-hosted form-control"></div>
+                        @else
+                            {!! Former::text(!empty($tokenize) ? '' : 'cvv')
+                                    ->id('cvv')
+                                    ->placeholder(trans('texts.cvv'))
+                                    ->autocomplete('off')
+                                    ->label('') !!}
+                        @endif
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    @if ($accountGateway->gateway_id == GATEWAY_BRAINTREE)
-                        <div id="cvv" class="braintree-hosted form-control"></div>
-                    @else
-                        {!! Former::text(!empty($tokenize) ? '' : 'cvv')
-                                ->id('cvv')
-                                ->placeholder(trans('texts.cvv'))
-                                ->autocomplete('off')
-                                ->label('') !!}
-                    @endif
+
+                <div class="row" style="padding-top:18px">
+
+                    <div class="col-md-12">
+                        @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
+                            <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
+                            <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
+                            <span class="help-block" style="font-size:15px">
+                                @if ($storageGateway == GATEWAY_STRIPE)
+                                    {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
+                                @elseif ($storageGateway == GATEWAY_BRAINTREE)
+                                    {!! trans('texts.token_billing_secure', ['link' => link_to('https://www.braintreepayments.com/', 'Braintree', ['target' => '_blank'])]) !!}
+                                @endif
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </div>
-
-            <div class="row" style="padding-top:18px">
-
-                <div class="col-md-12">
-                    @if (isset($amount) && $client && $account->showTokenCheckbox($storageGateway/* will contain gateway id */))
-                        <input id="token_billing" type="checkbox" name="token_billing" {{ $account->selectTokenCheckbox() ? 'CHECKED' : '' }} value="1" style="margin-left:0px; vertical-align:top">
-                        <label for="token_billing" class="checkbox" style="display: inline;">{{ trans('texts.token_billing') }}</label>
-                        <span class="help-block" style="font-size:15px">
-                            @if ($storageGateway == GATEWAY_STRIPE)
-                                {!! trans('texts.token_billing_secure', ['link' => link_to('https://stripe.com/', 'Stripe.com', ['target' => '_blank'])]) !!}
-                            @elseif ($storageGateway == GATEWAY_BRAINTREE)
-                                {!! trans('texts.token_billing_secure', ['link' => link_to('https://www.braintreepayments.com/', 'Braintree', ['target' => '_blank'])]) !!}
-                            @endif
-                        </span>
-                    @endif
-                </div>
+            <div class="col-lg-4">
+                <div class='card-wrapper'></div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class='card-wrapper'></div>
-        </div>
-    </div>
+    @endif
 
     <div class="col-md-12">
         <div id="js-error-message" style="display:none" class="alert alert-danger"></div>
