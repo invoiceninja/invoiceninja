@@ -1713,6 +1713,11 @@ $LANG = array(
     'lang_Albanian' => 'Albanian',
     'lang_English - United Kingdom' => 'English - United Kingdom',
     'lang_Slovenian' => 'Slovenian',
+    'lang_Finnish' => 'Finnish',
+    'lang_Romanian' => 'Romanian',
+    'lang_Turkish - Turkey' => 'Turkish - Turkey',
+    'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
+    'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
 
     // Frequencies
     'freq_weekly' => 'Weekly',
@@ -2229,7 +2234,7 @@ $LANG = array(
     'oauth_taken' => 'The account is already registered',
     'emailed_payment' => 'Successfully emailed payment',
     'email_payment' => 'Email Payment',
-    'sent' => 'Sent',
+    'sent' => 'sent',
     'invoiceplane_import' => 'Use :link to migrate your data from InvoicePlane.',
     'duplicate_expense_warning' => 'Warning: This :link may be a duplicate',
     'expense_link' => 'expense',

@@ -79,8 +79,8 @@ class DashboardController extends BaseController
             'tasks' => $tasks,
             'showBlueVinePromo' => $showBlueVinePromo,
             'showWhiteLabelExpired' => $showWhiteLabelExpired,
-            'headerClass' => in_array(\App::getLocale(), ['lt', 'pl', 'cs', 'sl']) ? 'in-large' : 'in-thin',
-            'footerClass' => in_array(\App::getLocale(), ['lt', 'pl', 'cs', 'sl']) ? '' : 'in-thin',
+            'headerClass' => in_array(\App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? 'in-large' : 'in-thin',
+            'footerClass' => in_array(\App::getLocale(), ['lt', 'pl', 'cs', 'sl', 'tr_TR']) ? '' : 'in-thin',
         ];
 
         if ($showBlueVinePromo) {
