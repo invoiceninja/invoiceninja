@@ -149,6 +149,7 @@ class InvoiceApiController extends BaseAPIController
                     'country_id',
                     'private_notes',
                     'currency_code',
+                    'country_code',
                 ] as $field) {
                     if (isset($data[$field])) {
                         $clientData[$field] = $data[$field];

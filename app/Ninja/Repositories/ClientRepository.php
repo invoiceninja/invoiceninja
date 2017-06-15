@@ -106,6 +106,17 @@ class ClientRepository extends BaseRepository
             }
         }
 
+        // convert country code to id
+        if (isset($data['country_code'])) {
+            $countryCode = strtolower($data['country_code']);
+            $country = Cache::get('countries')->filter(function ($item) use ($countryCode) {
+                return strtolower($item->iso_3166_2) == $countryCode || strtolower($item->iso_3166_3) == $countryCode;
+            })->first();
+            if ($country) {
+                $data['country_id'] = $country->id;
+            }
+        }
+
         $client->fill($data);
         $client->save();
 
