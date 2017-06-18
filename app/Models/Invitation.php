@@ -171,6 +171,13 @@ Invitation::creating(function ($invitation)
     ]);
 });
 
+Invitation::updating(function ($invitation) {
+    $dirty = $invitation->getDirty();
+    if (array_key_exists('message_id', $dirty)) {
+        LookupInvitation::updateInvitation($invitation->account->account_key, $invitation);
+    }
+});
+
 Invitation::deleted(function ($invitation)
 {
     if ($invitation->forceDeleting) {
