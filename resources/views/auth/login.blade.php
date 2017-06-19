@@ -2,7 +2,7 @@
 
 @section('form')
 
-    @include('partials.warn_session', ['redirectTo' => '/logout?reason=inactivity'])
+    @include('partials.warn_session', ['redirectTo' => '/logout?reason=inactive'])
 
     <div class="container">
 
