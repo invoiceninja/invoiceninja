@@ -41,12 +41,16 @@ class InvoiceDesignsSeeder extends Seeder
 
         for ($i = 1; $i <= 3; $i++) {
             $name = 'Custom' . $i;
-            if (! InvoiceDesign::whereName($name)->first()) {
-                InvoiceDesign::create([
-                    'id' => $i + 10,
-                    'name' => $name,
-                ]);
+            $id = $i + 10;
+
+            if (InvoiceDesign::whereName($name)->orWhere('id', '=', $id)->first()) {
+                continue;
             }
+
+            InvoiceDesign::create([
+                'id' => $id,
+                'name' => $name,
+            ]);
         }
     }
 }
