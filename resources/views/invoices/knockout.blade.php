@@ -14,7 +14,9 @@ function ViewModel(data) {
         @if (!$invoice->id)
             self.setDueDate();
             // copy default note from the client to the invoice
-            model.invoice().public_notes(client.public_notes);
+            if (client.public_notes) {
+                model.invoice().public_notes(client.public_notes);
+            }
         @endif
     }
 
