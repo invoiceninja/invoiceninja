@@ -1143,6 +1143,7 @@ class AccountController extends BaseController
             $user->username = $email;
             $user->email = $email;
             $user->phone = trim(Input::get('phone'));
+            $user->dark_mode = Input::get('dark_mode');
 
             if (! Auth::user()->is_admin) {
                 $user->notify_sent = Input::get('notify_sent');

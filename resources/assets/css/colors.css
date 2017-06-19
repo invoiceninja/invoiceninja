@@ -39,38 +39,68 @@ thead th {
     border-left: 1px solid #999;
 }
 
-.sidebar-nav {
+.sidebar-nav-dark {
     background-color: #313131;
 }
 
-.sidebar-nav li {
+.sidebar-nav-dark li {
     border-bottom:solid 1px #444444;
 }
 
-.sidebar-nav i.fa {
-    color: white;
+.sidebar-nav-dark li > a {
+    color: #aaa;
 }
 
-.menu-toggle i,
-.sidebar-nav li > a {
-    color: #999999;
-}
-
-.menu-toggle:hover i,
-.sidebar-nav li:hover > a,
-.sidebar-nav li > a.active {
+.sidebar-nav-dark li:hover > a,
+.sidebar-nav-dark li > a.active {
     color: #fff;
 }
 
-.sidebar-nav li:hover,
-.sidebar-nav li.active {
+.sidebar-nav-dark li:hover,
+.sidebar-nav-dark li.active {
     background: rgba(255,255,255,0.1);
+}
+
+
+
+.sidebar-nav-light {
+    background-color: #FFFFFF;
+}
+
+.sidebar-nav-light li {
+    border-bottom:solid 1px #DDD;
+}
+
+.sidebar-nav-light li > a {
+    color: #757575;
+}
+
+.sidebar-nav-light li:hover > a,
+.sidebar-nav-light li > a.active {
+    color: #363636;
+}
+
+.sidebar-nav-light li:hover,
+.sidebar-nav-light li.active {
+    background: rgba(140,140,140,0.1);
+}
+
+
+
+.menu-toggle i {
+    color: #999999;
+}
+
+.menu-toggle:hover {
+    color: #fff;
 }
 
 .menu-toggle {
     color: #999 !important;
 }
 
+.sidebar-nav a.btn i.fa,
+.navbar-header:hover i,
 .menu-toggle:hover {
     color: #fff !important;
 }
