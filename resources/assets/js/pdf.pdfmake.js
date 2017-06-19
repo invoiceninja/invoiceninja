@@ -15,6 +15,24 @@ NINJA.TEMPLATES = {
 
 function GetPdfMake(invoice, javascript, callback) {
 
+    // check if we need to add a second table for tasks
+    var itemsTable = false;
+    if (invoice.hasSecondTable) {
+        var json = JSON.parse(javascript);
+        for (var i=0; i<json.content.length; i++) {
+            var item = json.content[i];
+            if (item.style == 'invoiceLineItemsTable') {
+                itemsTable = JSON.stringify(item);
+                itemsTable = itemsTable.replace('$invoiceLineItems', '$taskLineItems');
+                //itemsTable = itemsTable.replace('$invoiceLineItemColumns', '$taskLineItemColumns');
+                break;
+            }
+        }
+        itemsTable = JSON.parse(itemsTable);
+        json.content.splice(i+1, 0, itemsTable);
+        javascript = JSON.stringify(json);
+    }
+
     javascript = NINJA.decodeJavascript(invoice, javascript);
 
     function jsonCallBack(key, val) {
@@ -201,6 +219,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
         'invoiceLineItems': invoice.is_statement ? NINJA.statementLines(invoice) : NINJA.invoiceLines(invoice),
         'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice),
+        'taskLineItems': NINJA.invoiceLines(invoice, true),
+        //'taskLineItemColumns': NINJA.invoiceColumns(invoice),
         'invoiceDocuments' : isEdge ? [] : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
@@ -433,12 +453,13 @@ NINJA.taxWidth = function(invoice)
     return invoice.account.show_item_taxes == '1' ? '"14%", ' : '';
 }
 
-NINJA.invoiceLines = function(invoice) {
+NINJA.invoiceLines = function(invoice, isSecondTable) {
     var account = invoice.account;
     var total = 0;
     var shownItem = false;
     var hideQuantity = invoice.account.hide_quantity == '1';
     var showItemTaxes = invoice.account.show_item_taxes == '1';
+    var isTasks = isSecondTable || (invoice.hasTasks && !invoice.hasStandard);
 
     var grid = [[]];
 
@@ -456,8 +477,8 @@ NINJA.invoiceLines = function(invoice) {
     }
 
     if (!hideQuantity) {
-        grid[0].push({text: invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
-        grid[0].push({text: invoiceLabels.quantity, style: ['tableHeader', 'qtyTableHeader']});
+        grid[0].push({text: isTasks ? invoiceLabels.rate : invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
+        grid[0].push({text: isTasks ? invoiceLabels.hours : invoiceLabels.quantity, style: ['tableHeader', 'qtyTableHeader']});
     }
     if (showItemTaxes) {
         grid[0].push({text: invoiceLabels.tax, style: ['tableHeader', 'taxTableHeader']});
@@ -476,6 +497,17 @@ NINJA.invoiceLines = function(invoice) {
         var tax2 = '';
         var custom_value1 = item.custom_value1;
         var custom_value2 = item.custom_value2;
+
+        console.log('isTasks: %s', isTasks);
+        if (isTasks) {
+            if (item.invoice_item_type_id != 2) {
+                continue;
+            }
+        } else {
+            if (item.invoice_item_type_id == 2) {
+                continue;
+            }
+        }
 
         if (showItemTaxes) {
             if (item.tax_name1) {
