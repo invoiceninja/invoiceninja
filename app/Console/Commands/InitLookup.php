@@ -72,8 +72,7 @@ class InitLookup extends Command
             }
         }
 
-        $this->info($this->log);
-        $this->info('Valid: ' . ($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
+        $this->logMessage('Results: ' . ($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
 
         if ($this->option('validate')) {
             if ($errorEmail = env('ERROR_EMAIL')) {
