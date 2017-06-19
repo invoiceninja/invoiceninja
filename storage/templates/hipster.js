@@ -74,6 +74,7 @@
 	},
     {
 		"margin": [0, 26, 0, 0],
+	"style": "invoiceLineItemsTable",
         "table": {
             "headerRows": 1,
             "widths": "$invoiceLineItemColumns",
