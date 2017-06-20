@@ -16,12 +16,7 @@ class ActivityDatatable extends EntityDatatable
                 function ($model) {
                     $str = Utils::timestampToDateTimeString(strtotime($model->created_at));
 
-                    if ($model->is_system && in_array($model->activity_type_id, [
-                        ACTIVITY_TYPE_VIEW_INVOICE,
-                        ACTIVITY_TYPE_VIEW_QUOTE,
-                        ACTIVITY_TYPE_CREATE_PAYMENT,
-                        ACTIVITY_TYPE_APPROVE_QUOTE,
-                    ])) {
+                    if ($model->contact_id) {
                         $ipLookUpLink = IP_LOOKUP_URL . $model->ip;
                         $str .= sprintf(' &nbsp; <i class="fa fa-globe" style="cursor:pointer" title="%s" onclick="openUrl(\'%s\', \'IP Lookup\')"></i>', $model->ip, $ipLookUpLink);
                     }
