@@ -105,7 +105,7 @@ class ExpenseController extends BaseController
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_expense')];
 
             // check for any open invoices
-            $invoices = $expense->client_id ? $this->invoiceRepo->findOpenInvoices($expense->client_id, ENTITY_EXPENSE) : [];
+            $invoices = $expense->client_id ? $this->invoiceRepo->findOpenInvoices($expense->client_id) : [];
 
             foreach ($invoices as $invoice) {
                 $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
