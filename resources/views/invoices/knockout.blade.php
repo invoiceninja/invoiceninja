@@ -166,11 +166,16 @@ function ViewModel(data) {
         }
     });
 
+    self.hasTasksCached;
     self.hasTasks = ko.computed(function() {
+        if (self.hasTasksCached) {
+            return true;
+        }
         invoice = self.invoice();
         for (var i=0; i<invoice.invoice_items().length; ++i) {
             var item = invoice.invoice_items()[i];
             if (! item.isEmpty() && item.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }}) {
+                self.hasTasksCached = true;
                 return true;
             }
         }
