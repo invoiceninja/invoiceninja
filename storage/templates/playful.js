@@ -192,6 +192,9 @@
             "fontSize": "$fontSizeLargest",
             "color": "#FFFFFF"
         },
+        "secondTableHeader": {
+	    "color": "$primaryColor:#009d91"
+        },
         "costTableHeader": {
             "alignment": "right"
         },
