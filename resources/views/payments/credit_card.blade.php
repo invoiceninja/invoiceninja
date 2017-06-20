@@ -202,7 +202,7 @@
         <p>&nbsp;<br/>&nbsp;</p>
     @endif
 
-    @if ($accountGateway->isGateway(GATEWAY_WEPAY) && $account->token_billing_type_id === TOKEN_BILLING_DISABLED)
+    @if ($accountGateway->isGateway(GATEWAY_WEPAY) && $account->token_billing_type_id == TOKEN_BILLING_DISABLED)
         {{--- do nothing ---}}
     @else
         <div class="row">
