@@ -462,29 +462,33 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     var isTasks = isSecondTable || (invoice.hasTasks && !invoice.hasStandard);
 
     var grid = [[]];
+    var styles = ['tableHeader'];
+    if (isSecondTable) {
+        styles.push('secondTableHeader');
+    }
 
     if (invoice.has_product_key) {
-        grid[0].push({text: invoiceLabels.item, style: ['tableHeader', 'itemTableHeader']});
+        grid[0].push({text: invoiceLabels.item, style: styles.concat('itemTableHeader')});
     }
 
-    grid[0].push({text: invoiceLabels.description, style: ['tableHeader', 'descriptionTableHeader']});
+    grid[0].push({text: invoiceLabels.description, style: styles.concat('descriptionTableHeader')});
 
     if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
-        grid[0].push({text: account.custom_invoice_item_label1, style: ['tableHeader', 'custom1TableHeader']});
+        grid[0].push({text: account.custom_invoice_item_label1, style: styles.concat('custom1TableHeader')});
     }
     if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
-        grid[0].push({text: account.custom_invoice_item_label2, style: ['tableHeader', 'custom2TableHeader']});
+        grid[0].push({text: account.custom_invoice_item_label2, style: styles.concat('custom2TableHeader')});
     }
 
     if (!hideQuantity) {
-        grid[0].push({text: isTasks ? invoiceLabels.rate : invoiceLabels.unit_cost, style: ['tableHeader', 'costTableHeader']});
-        grid[0].push({text: isTasks ? invoiceLabels.hours : invoiceLabels.quantity, style: ['tableHeader', 'qtyTableHeader']});
+        grid[0].push({text: isTasks ? invoiceLabels.rate : invoiceLabels.unit_cost, style: styles.concat('costTableHeader')});
+        grid[0].push({text: isTasks ? invoiceLabels.hours : invoiceLabels.quantity, style: styles.concat('qtyTableHeader')});
     }
     if (showItemTaxes) {
-        grid[0].push({text: invoiceLabels.tax, style: ['tableHeader', 'taxTableHeader']});
+        grid[0].push({text: invoiceLabels.tax, style: styles.concat('taxTableHeader')});
     }
 
-    grid[0].push({text: invoiceLabels.line_total, style: ['tableHeader', 'lineTotalTableHeader']});
+    grid[0].push({text: invoiceLabels.line_total, style: styles.concat('lineTotalTableHeader')});
 
     for (var i = 0; i < invoice.invoice_items.length; i++) {
 
