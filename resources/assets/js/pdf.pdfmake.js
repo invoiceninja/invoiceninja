@@ -485,6 +485,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     }
 
     grid[0].push({text: invoiceLabels.line_total, style: ['tableHeader', 'lineTotalTableHeader']});
+
     for (var i = 0; i < invoice.invoice_items.length; i++) {
 
         var row = [];
@@ -498,7 +499,6 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         var custom_value1 = item.custom_value1;
         var custom_value2 = item.custom_value2;
 
-        console.log('isTasks: %s', isTasks);
         if (isTasks) {
             if (item.invoice_item_type_id != 2) {
                 continue;
@@ -545,9 +545,9 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             }
             lineTotal += taxAmount1 + taxAmount2;
         }
-        lineTotal = formatMoneyInvoice(lineTotal, invoice);
 
-        rowStyle = (i % 2 == 0) ? 'odd' : 'even';
+        lineTotal = formatMoneyInvoice(lineTotal, invoice);
+        rowStyle = (grid.length % 2 == 0) ? 'even' : 'odd';
 
         if (invoice.has_product_key) {
             row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
