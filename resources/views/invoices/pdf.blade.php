@@ -110,12 +110,14 @@
     try {
         return getPDFString(refreshPDFCB, force);
     } catch (exception) {
-        console.warn('Failed to generate PDF');
+        console.warn('Failed to generate PDF: %s', exception.message);
         var href = location.href;
         if (href.indexOf('/view/') > 0 && href.indexOf('phantomjs') == -1) {
             var url = href.replace('/view/', '/download/') + '?base64=true';
             $.get(url, function(result) {
-                refreshPDFCB(result);
+                if (result && result.indexOf('data:application/pdf') == 0) {
+                    refreshPDFCB(result);
+                }
             })
         }
     }
