@@ -1,5 +1,7 @@
-<table class="table invoice-table" {!! $isTasks ? 'style="display:none;margin-top:24px;" data-bind="visible: $root.hasTasks"' : '' !!}>
-<thead>
+<thead  {!! $isTasks ? 'style="display:none;" data-bind="visible: $root.hasTasks"' : '' !!}>
+    @if ($isTasks)
+        <tr><td style="20px"></td></tr>
+    @endif
     <tr>
         <th style="min-width:32px;" class="hide-border"></th>
         <th style="min-width:120px;width:25%">{{ $invoiceLabels['item'] }}</th>
@@ -17,7 +19,8 @@
         <th style="min-width:32px;" class="hide-border"></th>
     </tr>
 </thead>
-<tbody data-bind="sortable: { data: {{ $isTasks ? 'invoice_items_with_tasks' : 'invoice_items_without_tasks' }}, afterMove: onDragged }">
+<tbody data-bind="sortable: { data: {{ $isTasks ? 'invoice_items_with_tasks' : 'invoice_items_without_tasks' }}, afterMove: onDragged} {{ $isTasks ? ', visible: $root.hasTasks' : '' }}"
+    {!! $isTasks ? 'style="display:none;border-spacing: 100px"' : '' !!}>
     <tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
         <td class="hide-border td-icon">
             <i style="display:none" data-bind="visible: actionsVisible() &amp;&amp;
@@ -77,7 +80,7 @@
             <div class="line-total" data-bind="text: totals.total"></div>
         </td>
         <td style="cursor:pointer" class="hide-border td-icon">
-            <i style="padding-left:2px" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; !isEmpty()" 
+            <i style="padding-left:2px" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp; !isEmpty()"
             class="fa fa-minus-circle redlink" title="Remove item"/>
         </td>
     </tr>

@@ -249,10 +249,12 @@
 		</div>
 	</div>
 
-	<div class="table-responsivex" style="padding-top:4px;">
+	<div class="table-responsive" style="padding-top:4px;">
 
-		@include('invoices.edit_table', ['isTasks' => false])
-		@include('invoices.edit_table', ['isTasks' => true])
+		<table class="table invoice-table">
+
+			@include('invoices.edit_table', ['isTasks' => false])
+			@include('invoices.edit_table', ['isTasks' => true])
 
 		<tfoot>
 			<tr>
