@@ -91,7 +91,7 @@ class AccountGatewayController extends BaseController
         $accountGatewaysIds = $account->gatewayIds();
         $otherProviders = Input::get('other_providers');
 
-        if (! Utils::isNinja() || ! env('WEPAY_CLIENT_ID') || Gateway::hasStandardGateway($accountGatewaysIds)) {
+        if (! env('WEPAY_CLIENT_ID') || Gateway::hasStandardGateway($accountGatewaysIds)) {
             $otherProviders = true;
         }
 

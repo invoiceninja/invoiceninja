@@ -660,8 +660,8 @@ function calculateAmounts(invoice) {
       invoice.has_product_key = true;
   }
 
-  var hasStandard;
-  var hasTask;
+  var hasStandard = false;
+  var hasTask = false;
 
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {
