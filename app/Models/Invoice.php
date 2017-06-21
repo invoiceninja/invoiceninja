@@ -531,7 +531,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $statusId = false;
         if ($this->amount != 0 && $this->balance == 0) {
             $statusId = INVOICE_STATUS_PAID;
-        } elseif ($this->balance > 0 && $this->balance < $this->amount) {
+        } elseif ($this->isSent() && $this->balance > 0 && $this->balance < $this->amount) {
             $statusId = INVOICE_STATUS_PARTIAL;
         } elseif ($this->isPartial() && $this->balance > 0) {
             $statusId = ($this->balance == $this->amount ? INVOICE_STATUS_SENT : INVOICE_STATUS_PARTIAL);
