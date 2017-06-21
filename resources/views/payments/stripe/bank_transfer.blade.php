@@ -240,7 +240,7 @@
                         ->large() !!}
 
         @if ($accountGateway->getPlaidEnabled() && !empty($amount))
-            {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
+            {!! Button::success(request()->update ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
                         ->submit()
                         ->withAttributes(['style'=>'display:none', 'id'=>'pay_now_button'])
                         ->large() !!}

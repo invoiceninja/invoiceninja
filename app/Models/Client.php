@@ -559,6 +559,15 @@ class Client extends EntityModel
     {
         return $this->payment_terms == -1 ? 0 : $this->payment_terms;
     }
+
+    public function firstInvitationKey()
+    {
+        if ($invoice = $this->invoices->first()) {
+            if ($invitation = $invoice->invitations->first()) {
+                return $invitation->invitation_key;
+            }
+        }
+    }
 }
 
 Client::creating(function ($client) {

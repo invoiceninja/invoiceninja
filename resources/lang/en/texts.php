@@ -2269,6 +2269,9 @@ $LANG = array(
     'select_label' => 'Select Label',
     'label' => 'Label',
     'service' => 'Service',
+    'update_payment_details' => 'Update payment details',
+    'updated_payment_details' => 'Successfully updated payment details',
+    'update_credit_card' => 'Update Credit Card',
 
 );
 

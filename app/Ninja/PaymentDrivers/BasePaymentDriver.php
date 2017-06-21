@@ -157,6 +157,11 @@ class BasePaymentDriver
             return redirect()->to('view/' . $this->invitation->invitation_key);
         }
 
+        $url = 'payment/' . $this->invitation->invitation_key;
+        if (request()->update) {
+            $url .= '?update=true';
+        }
+
         $data = [
             'details' => ! empty($input['details']) ? json_decode($input['details']) : false,
             'accountGateway' => $this->accountGateway,
@@ -164,7 +169,7 @@ class BasePaymentDriver
             'gateway' => $gateway,
             'showAddress' => $this->accountGateway->show_address,
             'showBreadcrumbs' => false,
-            'url' => 'payment/' . $this->invitation->invitation_key,
+            'url' => $url,
             'amount' => $this->invoice()->getRequestedAmount(),
             'invoiceNumber' => $this->invoice()->invoice_number,
             'client' => $this->client(),
@@ -293,7 +298,7 @@ class BasePaymentDriver
             }
         }
 
-        if ($this->isTwoStep()) {
+        if ($this->isTwoStep() || request()->update) {
             return;
         }
 
