@@ -2266,7 +2266,7 @@ $LANG = array(
     'mailgun_domain' => 'Mailgun Domain',
     'mailgun_private_key' => 'Mailgun Private Key',
     'send_test_email' => 'Send test email',
-    'select_label' => 'Select label',
+    'select_label' => 'Select Label',
     'label' => 'Label',
     'service' => 'Service',
 
