@@ -21,7 +21,7 @@ function GetPdfMake(invoice, javascript, callback) {
         var json = JSON.parse(javascript);
         for (var i=0; i<json.content.length; i++) {
             var item = json.content[i];
-            if (item.style == 'invoiceLineItemsTable') {
+            if (item.table && item.table.body == '$invoiceLineItems') {
                 itemsTable = JSON.stringify(item);
                 itemsTable = itemsTable.replace('$invoiceLineItems', '$taskLineItems');
                 //itemsTable = itemsTable.replace('$invoiceLineItemColumns', '$taskLineItemColumns');
