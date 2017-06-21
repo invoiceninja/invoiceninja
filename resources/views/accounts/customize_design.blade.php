@@ -99,7 +99,7 @@
     {
 		var $select = $('#invoice_design_id');
         var id = $select.val();
-		$select.val(null);
+		$select.val(null).blur();
 
         if (parseInt(id)) {
             var design = _.find(invoiceDesigns, function(design){ return design.id == id});

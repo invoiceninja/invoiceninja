@@ -468,7 +468,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     }
 
     if (invoice.has_product_key) {
-        grid[0].push({text: invoiceLabels.item, style: styles.concat('itemTableHeader')});
+        grid[0].push({text: isTasks ? invoiceLabels.service : invoiceLabels.item, style: styles.concat('itemTableHeader')});
     }
 
     grid[0].push({text: invoiceLabels.description, style: styles.concat('descriptionTableHeader')});

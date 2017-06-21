@@ -220,20 +220,23 @@ class Account extends Eloquent
     ];
 
     public static $customLabels = [
-        'item',
-        'description',
-        'unit_cost',
-        'quantity',
-        'line_total',
-        'terms',
         'balance_due',
-        'partial_due',
-        'subtotal',
-        'paid_to_date',
+        'description',
         'discount',
-        'tax',
-        'po_number',
         'due_date',
+        'hours',
+        'item',
+        'line_total',
+        'paid_to_date',
+        'partial_due',
+        'po_number',
+        'quantity',
+        'rate',
+        'service',
+        'subtotal',
+        'tax',
+        'terms',
+        'unit_cost',
     ];
 
     /**

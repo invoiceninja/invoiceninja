@@ -263,13 +263,16 @@ trait PresentsInvoice
             'outstanding',
             'invoice_due_date',
             'quote_due_date',
+            'service',
         ];
 
         foreach ($fields as $field) {
+            $translated = $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
             if (isset($custom[$field]) && $custom[$field]) {
                 $data[$field] = $custom[$field];
+                $data[$field . '_orig'] = $translated;
             } else {
-                $data[$field] = $this->isEnglish() ? uctrans("texts.$field") : trans("texts.$field");
+                $data[$field] = $translated;
             }
         }
 

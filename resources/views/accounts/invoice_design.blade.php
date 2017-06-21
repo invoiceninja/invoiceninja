@@ -74,26 +74,14 @@
       NINJA.headerFont = $('#header_font_id option:selected').text();
       NINJA.bodyFont = $('#body_font_id option:selected').text();
 
-      var fields = [
-          'item',
-          'description',
-          'unit_cost',
-          'quantity',
-          'line_total',
-          'terms',
-          'balance_due',
-          'partial_due'
-      ];
-      invoiceLabels.old = {};
+      var fields = {!! json_encode(App\Models\Account::$customLabels) !!};
       for (var i=0; i<fields.length; i++) {
         var field = fields[i];
         var val = $('#labels_' + field).val();
-        if (invoiceLabels.old.hasOwnProperty(field)) {
-            invoiceLabels.old[field] = invoiceLabels[field];
-        }
-        if (val) {
-            invoiceLabels[field] = val;
-        }
+		if ( ! invoiceLabels[field + '_orig']) {
+			invoiceLabels[field + '_orig'] = invoiceLabels[field];
+		}
+		invoiceLabels[field] = val || invoiceLabels[field + '_orig'];
       }
 
       generatePDF(invoice, getDesignJavascript(), true, cb);
@@ -112,7 +100,7 @@
 	function onFieldChange() {
 		var $select = $('#label_field');
         var id = $select.val();
-		$select.val(null);
+		$select.val(null).blur();
 		$('.' + id + '-label-group').fadeIn();
 		console.log(id);
 	}
@@ -236,26 +224,29 @@
                       <div class="row">
                         <div class="col-md-6">
 							{!! Former::select('label_field')
-									->placeholder('select_field')
-									->label('field')
+									->placeholder('select_label')
+									->label('label')
 									->onchange('onFieldChange()')
 									->options(array_combine(App\Models\Account::$customLabels, Utils::trans(App\Models\Account::$customLabels))) !!}
 						</div>
 						<div class="col-md-6">
-							{!! Former::text('labels_item')->label('item')->addGroupClass('item-label-group label-group') !!}
-							{!! Former::text('labels_description')->label('description')->addGroupClass('description-label-group label-group') !!}
-							{!! Former::text('labels_unit_cost')->label('unit_cost')->addGroupClass('unit_cost-label-group label-group') !!}
-							{!! Former::text('labels_quantity')->label('quantity')->addGroupClass('quantity-label-group label-group') !!}
-							{!! Former::text('labels_line_total')->label('line_total')->addGroupClass('line_total-label-group label-group') !!}
-							{!! Former::text('labels_terms')->label('terms')->addGroupClass('terms-label-group label-group') !!}
-							{!! Former::text('labels_subtotal')->label('subtotal')->addGroupClass('subtotal-label-group label-group') !!}
-							{!! Former::text('labels_discount')->label('discount')->addGroupClass('discount-label-group label-group') !!}
-							{!! Former::text('labels_paid_to_date')->label('paid_to_date')->addGroupClass('paid_to_date-label-group label-group') !!}
 							{!! Former::text('labels_balance_due')->label('balance_due')->addGroupClass('balance_due-label-group label-group') !!}
-							{!! Former::text('labels_partial_due')->label('partial_due')->addGroupClass('partial_due-label-group label-group') !!}
-							{!! Former::text('labels_tax')->label('tax')->addGroupClass('tax-label-group label-group') !!}
-							{!! Former::text('labels_po_number')->label('po_number')->addGroupClass('po_number-label-group label-group') !!}
+							{!! Former::text('labels_description')->label('description')->addGroupClass('description-label-group label-group') !!}
+							{!! Former::text('labels_discount')->label('discount')->addGroupClass('discount-label-group label-group') !!}
 							{!! Former::text('labels_due_date')->label('due_date')->addGroupClass('due_date-label-group label-group') !!}
+							{!! Former::text('labels_hours')->label('hours')->addGroupClass('hours-label-group label-group') !!}
+							{!! Former::text('labels_item')->label('item')->addGroupClass('item-label-group label-group') !!}
+							{!! Former::text('labels_line_total')->label('line_total')->addGroupClass('line_total-label-group label-group') !!}
+							{!! Former::text('labels_paid_to_date')->label('paid_to_date')->addGroupClass('paid_to_date-label-group label-group') !!}
+							{!! Former::text('labels_partial_due')->label('partial_due')->addGroupClass('partial_due-label-group label-group') !!}
+							{!! Former::text('labels_po_number')->label('po_number')->addGroupClass('po_number-label-group label-group') !!}
+							{!! Former::text('labels_quantity')->label('quantity')->addGroupClass('quantity-label-group label-group') !!}
+							{!! Former::text('labels_rate')->label('rate')->addGroupClass('rate-label-group label-group') !!}
+							{!! Former::text('labels_service')->label('service')->addGroupClass('service-label-group label-group') !!}
+							{!! Former::text('labels_subtotal')->label('subtotal')->addGroupClass('subtotal-label-group label-group') !!}
+							{!! Former::text('labels_tax')->label('tax')->addGroupClass('tax-label-group label-group') !!}
+							{!! Former::text('labels_terms')->label('terms')->addGroupClass('terms-label-group label-group') !!}
+							{!! Former::text('labels_unit_cost')->label('unit_cost')->addGroupClass('unit_cost-label-group label-group') !!}
                         </div>
                       </div>
 

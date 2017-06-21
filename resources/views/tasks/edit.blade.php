@@ -237,8 +237,8 @@
 
     var timeLabels = {};
     @foreach (['hour', 'minute', 'second'] as $period)
-        timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
-        timeLabels['{{ $period }}s'] = '{{ trans("texts.{$period}s") }}';
+        timeLabels['{{ $period }}'] = '{{ strtolower(trans("texts.{$period}")) }}';
+        timeLabels['{{ $period }}s'] = '{{ strtolower(trans("texts.{$period}s")) }}';
     @endforeach
 
     function onFormSubmit(event) {
