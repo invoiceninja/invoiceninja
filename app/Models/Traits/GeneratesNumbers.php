@@ -282,7 +282,7 @@ trait GeneratesNumbers
 
     public function usesInvoiceCounter()
     {
-        return strpos($this->invoice_number_pattern, '{$counter}') !== false;
+        return ! $this->hasNumberPattern(ENTITY_INVOICE) || strpos($this->invoice_number_pattern, '{$counter}') !== false;
     }
 
     public function usesClientInvoiceCounter()
