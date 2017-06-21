@@ -508,13 +508,17 @@ class InvoiceRepository extends BaseRepository
                 }
             }
 
-            $taxRate1 = Utils::parseFloat($item['tax_rate1']);
-            if ($taxRate1 != 0) {
-                $itemTax += round($lineTotal * $taxRate1 / 100, 2);
+            if (isset($item['tax_rate1'])) {
+                $taxRate1 = Utils::parseFloat($item['tax_rate1']);
+                if ($taxRate1 != 0) {
+                    $itemTax += round($lineTotal * $taxRate1 / 100, 2);
+                }
             }
-            $taxRate2 = Utils::parseFloat($item['tax_rate2']);
-            if ($taxRate2 != 0) {
-                $itemTax += round($lineTotal * $taxRate2 / 100, 2);
+            if (isset($item['tax_rate2'])) {
+                $taxRate2 = Utils::parseFloat($item['tax_rate2']);
+                if ($taxRate2 != 0) {
+                    $itemTax += round($lineTotal * $taxRate2 / 100, 2);
+                }
             }
         }
 
