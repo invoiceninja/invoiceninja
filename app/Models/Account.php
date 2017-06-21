@@ -219,6 +219,23 @@ class Account extends Eloquent
         'outstanding' => 4,
     ];
 
+    public static $customLabels = [
+        'item',
+        'description',
+        'unit_cost',
+        'quantity',
+        'line_total',
+        'terms',
+        'balance_due',
+        'partial_due',
+        'subtotal',
+        'paid_to_date',
+        'discount',
+        'tax',
+        'po_number',
+        'due_date',
+    ];
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */

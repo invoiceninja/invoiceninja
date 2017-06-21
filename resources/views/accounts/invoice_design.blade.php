@@ -10,8 +10,16 @@
     <script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
+@stop
 
+@section('head_css')
+	@parent
 
+	<style type="text/css">
+		.label-group {
+			display: none;
+		}
+	</style>
 @stop
 
 @section('content')
@@ -91,6 +99,24 @@
       generatePDF(invoice, getDesignJavascript(), true, cb);
     }
 
+	function updateFieldLabels() {
+		@foreach (App\Models\Account::$customLabels as $field)
+			if ($('#labels_{{ $field }}').val()) {
+				$('.{{ $field }}-label-group').show();
+			} else {
+				$('.{{ $field }}-label-group').hide();
+			}
+		@endforeach
+	}
+
+	function onFieldChange() {
+		var $select = $('#label_field');
+        var id = $select.val();
+		$select.val(null);
+		$('.' + id + '-label-group').fadeIn();
+		console.log(id);
+	}
+
     $(function() {
       var options = {
         preferredFormat: 'hex',
@@ -106,6 +132,7 @@
       $('#header_font_id').change(function(){loadFont($('#header_font_id').val())});
       $('#body_font_id').change(function(){loadFont($('#body_font_id').val())});
 
+	  updateFieldLabels();
       refreshPDF();
     });
 
@@ -208,22 +235,27 @@
 
                       <div class="row">
                         <div class="col-md-6">
-							{!! Former::text('labels_item')->label('item') !!}
-							{!! Former::text('labels_description')->label('description') !!}
-							{!! Former::text('labels_unit_cost')->label('unit_cost') !!}
-							{!! Former::text('labels_quantity')->label('quantity') !!}
-							{!! Former::text('labels_line_total')->label('line_total') !!}
-							{!! Former::text('labels_terms')->label('terms') !!}
-							{!! Former::text('labels_subtotal')->label('subtotal') !!}
+							{!! Former::select('label_field')
+									->placeholder('select_field')
+									->label('field')
+									->onchange('onFieldChange()')
+									->options(array_combine(App\Models\Account::$customLabels, Utils::trans(App\Models\Account::$customLabels))) !!}
 						</div>
 						<div class="col-md-6">
-							{!! Former::text('labels_discount')->label('discount') !!}
-							{!! Former::text('labels_paid_to_date')->label('paid_to_date') !!}
-							{!! Former::text('labels_balance_due')->label('balance_due') !!}
-							{!! Former::text('labels_partial_due')->label('partial_due') !!}
-							{!! Former::text('labels_tax')->label('tax') !!}
-							{!! Former::text('labels_po_number')->label('po_number') !!}
-							{!! Former::text('labels_due_date')->label('due_date') !!}
+							{!! Former::text('labels_item')->label('item')->addGroupClass('item-label-group label-group') !!}
+							{!! Former::text('labels_description')->label('description')->addGroupClass('description-label-group label-group') !!}
+							{!! Former::text('labels_unit_cost')->label('unit_cost')->addGroupClass('unit_cost-label-group label-group') !!}
+							{!! Former::text('labels_quantity')->label('quantity')->addGroupClass('quantity-label-group label-group') !!}
+							{!! Former::text('labels_line_total')->label('line_total')->addGroupClass('line_total-label-group label-group') !!}
+							{!! Former::text('labels_terms')->label('terms')->addGroupClass('terms-label-group label-group') !!}
+							{!! Former::text('labels_subtotal')->label('subtotal')->addGroupClass('subtotal-label-group label-group') !!}
+							{!! Former::text('labels_discount')->label('discount')->addGroupClass('discount-label-group label-group') !!}
+							{!! Former::text('labels_paid_to_date')->label('paid_to_date')->addGroupClass('paid_to_date-label-group label-group') !!}
+							{!! Former::text('labels_balance_due')->label('balance_due')->addGroupClass('balance_due-label-group label-group') !!}
+							{!! Former::text('labels_partial_due')->label('partial_due')->addGroupClass('partial_due-label-group label-group') !!}
+							{!! Former::text('labels_tax')->label('tax')->addGroupClass('tax-label-group label-group') !!}
+							{!! Former::text('labels_po_number')->label('po_number')->addGroupClass('po_number-label-group label-group') !!}
+							{!! Former::text('labels_due_date')->label('due_date')->addGroupClass('due_date-label-group label-group') !!}
                         </div>
                       </div>
 
