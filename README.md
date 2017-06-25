@@ -62,6 +62,7 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 
 ## Tools
 * [InvoicePlane Import](https://github.com/turbo124/Plane2Ninja)
+* [Toggl Sync](https://github.com/Matth--/toggl-invoiceninja-sync)
 
 ## Development
 * [API Documentation](https://www.invoiceninja.com/api-documentation/)
@@ -86,6 +87,7 @@ For information on how contribute to Invoice Ninja, please see our [contributing
 * [Holger Lösken](https://github.com/codedge) - [codedge](http://codedge.de)
 * [Samuel Laulhau](https://github.com/lalop) - [Lalop](http://lalop.co/)
 * [Alexander Zamponi](https://github.com/alexz707)
+* [Matthieu Calie](https://github.com/Matth--)
 
 ## License
 Invoice Ninja is released under the Attribution Assurance License.  
