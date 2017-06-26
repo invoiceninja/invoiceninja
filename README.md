@@ -72,7 +72,7 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 
 ## Third Party Developers
 * [theDevelopers](https://www.thedevelopers.ro/customisation-request-invoiceninja)
-* Email us to be added to the list
+Email us to be added to the list
 
 ## Contributing
 All contributors are welcome!  
