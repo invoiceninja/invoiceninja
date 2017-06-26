@@ -30,12 +30,12 @@
 		},
 		{
             "canvas": [{ "type": "rect", "x": 20, "y": 0, "w": 174, "h": "$invoiceDetailsHeight","r":10, "lineWidth": 1,"color":"$primaryColor:#eb792d"}],
-            "width":36,
+            "width":30,
             "margin":[200,25,0,0]
         },
 		{
             "table": {
-                "widths": [64, 70],
+                "widths": [70, 76],
                 "body": "$invoiceDetails"
             },
             "layout": "noBorders",
