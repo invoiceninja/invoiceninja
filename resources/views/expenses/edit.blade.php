@@ -376,11 +376,20 @@
             @if ($isRecurring)
                 $('#start_date, #end_date').datepicker();
                 @if ($expense && $expense->start_date)
-                    $('#start_date').datepicker('update', '{{ Utils::fromSqlDate($expense->start_date) }}');
+                    $('#start_date').datepicker('update', '{{ $expense && $expense->start_date ? Utils::fromSqlDate($expense->start_date) : 'new Date()' }}');
+                @elseif (! $expense)
+                    $('#start_date').datepicker('update', new Date());
                 @endif
                 @if ($expense && $expense->end_date)
                     $('#end_date').datepicker('update', '{{ Utils::fromSqlDate($expense->end_date) }}');
                 @endif
+
+                $('.start_date .input-group-addon').click(function() {
+                    toggleDatePicker('start_date');
+                });
+                $('.end_date .input-group-addon').click(function() {
+                    toggleDatePicker('end_date');
+                });
             @elseif (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
                 $('.main-form').submit(function(){
                     if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')

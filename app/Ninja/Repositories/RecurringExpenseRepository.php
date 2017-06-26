@@ -114,6 +114,9 @@ class RecurringExpenseRepository extends BaseRepository
         $expense->fill($input);
 
         if (isset($input['start_date'])) {
+            if ($expense->exists && $expense->start_date && $expense->start_date != Utils::toSqlDate($input['start_date'])) {
+                $expense->last_sent_date = null;
+            }
             $expense->start_date = Utils::toSqlDate($input['start_date']);
         }
         if (isset($input['end_date'])) {
