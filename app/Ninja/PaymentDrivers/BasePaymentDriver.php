@@ -10,6 +10,7 @@ use App\Models\GatewayType;
 use App\Models\License;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use Omnipay\Common\Item;
 use CreditCard;
 use DateTime;
 use Exception;
@@ -304,7 +305,10 @@ class BasePaymentDriver
 
         // prepare and process payment
         $data = $this->paymentDetails($paymentMethod);
-        $response = $gateway->purchase($data)->send();
+        $items = $this->paymentItems();
+        $response = $gateway->purchase($data)
+                        ->setItems($items)
+                        ->send();
         $this->purchaseResponse = (array) $response->getData();
 
         // parse the transaction reference
@@ -335,6 +339,38 @@ class BasePaymentDriver
         } else {
             throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
         }
+    }
+
+    private function paymentItems()
+    {
+        $invoice = $this->invoice();
+        $items = [];
+        $total = 0;
+
+        foreach ($invoice->invoice_items as $invoiceItem) {
+            $item = new Item([
+                'name' => $invoiceItem->product_key,
+                'description' => $invoiceItem->notes,
+                'price' => $invoiceItem->cost,
+                'quantity' => $invoiceItem->qty,
+            ]);
+
+            $items[] = $item;
+            $total += $invoiceItem->cost * $invoiceItem->qty;
+        }
+
+        if ($total != $invoice->getRequestedAmount()) {
+            $item = new Item([
+                'name' => trans('texts.other'),
+                'description' => '',
+                'price' => $invoice->getRequestedAmount() - $total,
+                'quantity' => 1,
+            ]);
+
+            $items[] = $item;
+        }
+
+        return $items;
     }
 
     private function updateClient()
