@@ -2287,6 +2287,7 @@ $LANG = array(
     'delete_recurring_expense' => 'Delete Recurring Expense',
     'deleted_recurring_expense' => 'Successfully deleted project',
     'deleted_recurring_expense' => 'Successfully deleted :count projects',
+    'view_recurring_expense' => 'View Recurring Expense',
 
 
 );

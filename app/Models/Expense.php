@@ -143,6 +143,15 @@ class Expense extends EntityModel
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function recurring_expense()
+    {
+        return $this->belongsTo('App\Models\RecurringExpense');
+    }
+
+
+    /**
      * @return mixed
      */
     public function getName()

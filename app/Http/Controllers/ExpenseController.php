@@ -112,6 +112,10 @@ class ExpenseController extends BaseController
             }
         }
 
+        if ($expense->recurring_expense_id) {
+            $actions[] = ['url' => URL::to("recurring_expenses/{$expense->recurring_expense->public_id}/edit"), 'label' => trans('texts.view_recurring_expense')];
+        }
+
         $actions[] = \DropdownButton::DIVIDER;
         if (! $expense->trashed()) {
             $actions[] = ['url' => 'javascript:submitAction("archive")', 'label' => trans('texts.archive_expense')];

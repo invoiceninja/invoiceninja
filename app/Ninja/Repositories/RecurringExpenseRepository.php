@@ -183,6 +183,7 @@ class RecurringExpenseRepository extends BaseRepository
         $expense->expense_date = $account->getDateTime()->format('Y-m-d');
         $expense->exchange_rate = 1;
         $expense->invoice_currency_id = $recurringExpense->expense_currency_id;
+        $expense->recurring_expense_id = $recurringExpense->id;
         $expense->save();
 
         $recurringExpense->last_sent_date = $account->getDateTime()->format('Y-m-d');
