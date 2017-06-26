@@ -70,6 +70,10 @@ The [self-host zip](https://www.invoiceninja.com/self-host/) includes all third 
 * [Zend Framework](https://github.com/alexz707/InvoiceNinjaModule)
 * [Custom Module](http://docs.invoiceninja.com/en/latest/custom_modules.html) | [Watch Video](https://www.youtube.com/watch?v=8jJ-PYuq85k)
 
+## Third Party Developers
+* [theDevelopers](https://www.thedevelopers.ro/customisation-request-invoiceninja)
+* Email us to be added to the list
+
 ## Contributing
 All contributors are welcome!  
 For information on how contribute to Invoice Ninja, please see our [contributing guide](CONTRIBUTING.md).
