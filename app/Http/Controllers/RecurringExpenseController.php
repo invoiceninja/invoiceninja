@@ -144,6 +144,10 @@ class RecurringExpenseController extends BaseController
 
         Session::flash('message', trans('texts.updated_recurring_expense'));
 
+        if (in_array(Input::get('action'), ['archive', 'delete', 'restore'])) {
+            return self::bulk();
+        }
+
         return redirect()->to($recurringExpense->getRoute());
     }
 
@@ -159,6 +163,6 @@ class RecurringExpenseController extends BaseController
             Session::flash('message', $message);
         }
 
-        return redirect()->to('/recurring_expenses');
+        return $this->returnBulk($this->entityType, $action, $ids);
     }
 }

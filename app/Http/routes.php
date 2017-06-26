@@ -185,6 +185,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('recurring_expenses', 'RecurringExpenseController@store');
     Route::put('recurring_expenses/{recurring_expenses}', 'RecurringExpenseController@update');
     Route::get('recurring_expenses/{recurring_expenses}/edit', 'RecurringExpenseController@edit');
+    Route::get('recurring_expenses/{recurring_expenses}', 'RecurringExpenseController@edit');
     Route::post('recurring_expenses/bulk', 'RecurringExpenseController@bulk');
 
     Route::get('documents/{documents}/{filename?}', 'DocumentController@get');

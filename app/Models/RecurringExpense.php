@@ -4,6 +4,7 @@ namespace App\Models;
 
 //use App\Events\ExpenseWasCreated;
 //use App\Events\ExpenseWasUpdated;
+use App\Models\Traits\HasRecurrence;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
@@ -16,6 +17,7 @@ class RecurringExpense extends EntityModel
     // Expenses
     use SoftDeletes;
     use PresentableTrait;
+    use HasRecurrence;
 
     /**
      * @var array

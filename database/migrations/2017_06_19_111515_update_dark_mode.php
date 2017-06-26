@@ -50,7 +50,7 @@ class UpdateDarkMode extends Migration
             $table->unsignedInteger('frequency_id');
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
-            $table->timestamp('last_created_date')->nullable();
+            $table->timestamp('last_sent_date')->nullable();
 
             // Relations
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
