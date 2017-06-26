@@ -385,6 +385,10 @@ class InvoiceRepository extends BaseRepository
 
         $invoice->fill($data);
 
+        if (! $invoice->invoice_design_id) {
+            $invoice->invoice_design_id = 1;
+        }
+
         if ((isset($data['set_default_terms']) && $data['set_default_terms'])
             || (isset($data['set_default_footer']) && $data['set_default_footer'])) {
             if (isset($data['set_default_terms']) && $data['set_default_terms']) {
