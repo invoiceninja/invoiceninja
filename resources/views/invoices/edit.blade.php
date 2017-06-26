@@ -875,7 +875,7 @@
 	                continue;
 	            }
             @endif
-			var clientName = client.name;
+			var clientName = client.name || '';
 			for (var j=0; j<client.contacts.length; j++) {
                 var contact = client.contacts[j];
                 var contactName = getContactDisplayNameWithEmail(contact);
