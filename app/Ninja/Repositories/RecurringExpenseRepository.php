@@ -3,6 +3,7 @@
 namespace App\Ninja\Repositories;
 
 use App\Models\RecurringExpense;
+use App\Models\Expense;
 use App\Models\Vendor;
 use Auth;
 use DB;
@@ -135,6 +136,54 @@ class RecurringExpenseRepository extends BaseRepository
         */
 
         $expense->save();
+
+        return $expense;
+    }
+
+    public function createRecurringExpense(RecurringExpense $recurringExpense)
+    {
+        if ($recurringExpense->client && $recurringExpense->client->deleted_at) {
+            return false;
+        }
+
+        if (! $recurringExpense->user->confirmed) {
+            return false;
+        }
+
+        if (! $recurringExpense->shouldSendToday()) {
+            return false;
+        }
+
+        $account = $recurringExpense->account;
+        $expense = Expense::createNew($recurringExpense);
+
+        $fields = [
+            'vendor_id',
+            'client_id',
+            'amount',
+            'public_notes',
+            'private_notes',
+            'invoice_currency_id',
+            'expense_currency_id',
+            'should_be_invoiced',
+            'expense_category_id',
+            'tax_name1',
+            'tax_rate1',
+            'tax_name2',
+            'tax_rate2',
+        ];
+
+        foreach ($fields as $field) {
+            $expense->$field = $recurringExpense->$field;
+        }
+
+        $expense->expense_date = $account->getDateTime()->format('Y-m-d');
+        $expense->exchange_rate = 1;
+        $expense->invoice_currency_id = $recurringExpense->expense_currency_id;
+        $expense->save();
+
+        $recurringExpense->last_sent_date = $account->getDateTime()->format('Y-m-d');
+        $recurringExpense->save();
 
         return $expense;
     }

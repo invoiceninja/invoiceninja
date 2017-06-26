@@ -4,8 +4,10 @@ namespace App\Console\Commands;
 
 use App\Models\Account;
 use App\Models\Invoice;
+use App\Models\RecurringExpense;
 use App\Ninja\Mailers\ContactMailer as Mailer;
 use App\Ninja\Repositories\InvoiceRepository;
+use App\Ninja\Repositories\RecurringExpenseRepository;
 use App\Services\PaymentService;
 use DateTime;
 use Illuminate\Console\Command;
@@ -49,13 +51,14 @@ class SendRecurringInvoices extends Command
      * @param InvoiceRepository $invoiceRepo
      * @param PaymentService    $paymentService
      */
-    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, PaymentService $paymentService)
+    public function __construct(Mailer $mailer, InvoiceRepository $invoiceRepo, PaymentService $paymentService, RecurringExpenseRepository $recurringExpenseRepo)
     {
         parent::__construct();
 
         $this->mailer = $mailer;
         $this->invoiceRepo = $invoiceRepo;
         $this->paymentService = $paymentService;
+        $this->recurringExpenseRepo = $recurringExpenseRepo;
     }
 
     public function fire()
@@ -148,7 +151,7 @@ class SendRecurringInvoices extends Command
     {
         $today = new DateTime();
 
-        $expenses = Expense::with('client')
+        $expenses = RecurringExpense::with('client')
                         ->whereRaw('is_deleted IS FALSE AND deleted_at IS NULL AND start_date <= ? AND (end_date IS NULL OR end_date >= ?)', [$today, $today])
                         ->orderBy('id', 'asc')
                         ->get();
@@ -162,21 +165,7 @@ class SendRecurringInvoices extends Command
             }
 
             $this->info('Processing Expense: '. $expense->id);
-
             $this->recurringExpenseRepo->createRecurringExpense($expense);
-
-            /*
-            $account = $expense->account;
-            //$account->loadLocalizationSettings($recurInvoice->client);
-            //Auth::loginUsingId($recurInvoice->user_id);
-            $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
-
-            if ($invoice && ! $invoice->isPaid()) {
-                $this->info('Sending Invoice');
-                $this->mailer->sendInvoice($invoice);
-            }
-            Auth::logout();
-            */
         }
     }
 
