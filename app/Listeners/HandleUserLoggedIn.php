@@ -43,7 +43,7 @@ class HandleUserLoggedIn
     {
         $account = Auth::user()->account;
 
-        if (empty($account->last_login)) {
+        if (! Utils::isNinja() && empty($account->last_login)) {
             event(new UserSignedUp());
         }
 

@@ -2289,7 +2289,7 @@ $LANG = array(
     'deleted_recurring_expense' => 'Successfully deleted :count projects',
     'view_recurring_expense' => 'View Recurring Expense',
     'other' => 'Other',
-
+    'import_failed' => 'Import Failed',
 
 );
 
