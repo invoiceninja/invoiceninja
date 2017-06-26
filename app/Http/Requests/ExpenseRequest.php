@@ -14,7 +14,7 @@ class ExpenseRequest extends EntityRequest
         $expense = parent::entity();
 
         // eager load the documents
-        if ($expense && ! $expense->relationLoaded('documents')) {
+        if ($expense && method_exists($expense, 'documents') && ! $expense->relationLoaded('documents')) {
             $expense->load('documents');
         }
 

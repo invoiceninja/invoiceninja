@@ -76,74 +76,6 @@
                                 ->addGroupClass('client-select') !!}
                     @endif
 
-                    @if (!$expense || ($expense && !$expense->invoice_id))
-                        {!! Former::checkbox('should_be_invoiced')
-                                ->text(trans('texts.mark_billable'))
-                                ->data_bind('checked: should_be_invoiced()')
-                                ->label(' ')
-                                ->value(1) !!}
-                    @endif
-
-                    @if (! $expense || ! $expense->transaction_id)
-
-                        @if (! $expense || ! $expense->isPaid())
-                            {!! Former::checkbox('mark_paid')
-                                    ->data_bind('checked: mark_paid')
-                                    ->text(trans('texts.mark_expense_paid'))
-                                    ->label(' ')
-                                    ->value(1) !!}
-                        @endif
-
-                        <div style="display:none" data-bind="visible: mark_paid">
-                            {!! Former::select('payment_type_id')
-                                    ->addOption('','')
-                                    ->fromQuery($paymentTypes, 'name', 'id')
-                                    ->addGroupClass('payment-type-select') !!}
-
-                            {!! Former::text('payment_date')
-                                    ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
-                                    ->addGroupClass('payment_date')
-                                    ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
-
-                            {!! Former::text('transaction_reference') !!}
-                        </div>
-                    @endif
-
-                    @if (!$expense || ($expense && ! $expense->isExchanged()))
-                        {!! Former::checkbox('convert_currency')
-                                ->text(trans('texts.convert_currency'))
-                                ->data_bind('checked: convert_currency')
-                                ->label(' ')
-                                ->value(1) !!}
-                    @endif
-
-
-                    <div style="display:none" data-bind="visible: enableExchangeRate">
-                        <br/>
-                        <span style="display:none" data-bind="visible: !client_id()">
-                            {!! Former::select('invoice_currency_id')->addOption('','')
-                                    ->label(trans('texts.invoice_currency'))
-                                    ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
-                                    ->data_bind('combobox: invoice_currency_id, disable: true')
-                                    ->fromQuery($currencies, 'name', 'id') !!}
-                        </span>
-                        <span style="display:none;" data-bind="visible: client_id">
-                            {!! Former::plaintext('')
-                                    ->value('<span data-bind="html: invoiceCurrencyName"></span>')
-                                    ->style('min-height:46px')
-                                    ->label(trans('texts.invoice_currency')) !!}
-                        </span>
-
-                        {!! Former::text('exchange_rate')
-                                ->data_bind("value: exchange_rate, enable: enableExchangeRate, valueUpdate: 'afterkeydown'") !!}
-
-                        {!! Former::text('invoice_amount')
-                                ->addGroupClass('converted-amount')
-                                ->data_bind("value: convertedAmount, enable: enableExchangeRate")
-                                ->append('<span data-bind="html: invoiceCurrencyCode"></span>') !!}
-                    </div>
-
-
                     @if (count($taxRates))
                         @if (!$expense || ($expense && (!$expense->tax_name1 && !$expense->tax_name2)))
                             {!! Former::checkbox('apply_taxes')
@@ -159,14 +91,102 @@
                         @include('partials.tax_rates')
                     </div>
 
-                    @if ($account->hasFeature(FEATURE_DOCUMENTS))
-                        {!! Former::checkbox('invoice_documents')
-                                ->text(trans('texts.add_documents_to_invoice'))
-                                ->onchange('onInvoiceDocumentsChange()')
-                                ->data_bind('checked: invoice_documents')
+                    @if (!$expense || ($expense && !$expense->invoice_id))
+                        {!! Former::checkbox('should_be_invoiced')
+                                ->text(trans('texts.mark_billable'))
+                                ->data_bind('checked: should_be_invoiced()')
                                 ->label(' ')
                                 ->value(1) !!}
                     @endif
+
+                    @if ($isRecurring)
+
+                        {!! Former::select('frequency_id')
+                                ->label('frequency')
+                                ->options(\App\Models\Frequency::selectOptions())
+                                ->data_bind("value: frequency_id") !!}
+                        {!! Former::text('start_date')
+                                ->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
+    							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                                ->appendIcon('calendar')
+                                ->addGroupClass('start_date') !!}
+                        {!! Former::text('end_date')
+                                ->data_bind("datePicker: end_date, valueUpdate: 'afterkeydown'")
+    							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                                ->appendIcon('calendar')
+                                ->addGroupClass('end_date') !!}
+
+                    @else
+                        @if ((! $expense || ! $expense->transaction_id))
+
+                            @if (! $expense || ! $expense->isPaid())
+                                {!! Former::checkbox('mark_paid')
+                                        ->data_bind('checked: mark_paid')
+                                        ->text(trans('texts.mark_expense_paid'))
+                                        ->label(' ')
+                                        ->value(1) !!}
+                            @endif
+
+                            <div style="display:none" data-bind="visible: mark_paid">
+                                {!! Former::select('payment_type_id')
+                                        ->addOption('','')
+                                        ->fromQuery($paymentTypes, 'name', 'id')
+                                        ->addGroupClass('payment-type-select') !!}
+
+                                {!! Former::text('payment_date')
+                                        ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT))
+                                        ->addGroupClass('payment_date')
+                                        ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+
+                                {!! Former::text('transaction_reference') !!}
+                            </div>
+                        @endif
+
+                        @if (!$expense || ($expense && ! $expense->isExchanged()))
+                            {!! Former::checkbox('convert_currency')
+                                    ->text(trans('texts.convert_currency'))
+                                    ->data_bind('checked: convert_currency')
+                                    ->label(' ')
+                                    ->value(1) !!}
+                        @endif
+
+
+                        <div style="display:none" data-bind="visible: enableExchangeRate">
+                            <br/>
+                            <span style="display:none" data-bind="visible: !client_id()">
+                                {!! Former::select('invoice_currency_id')->addOption('','')
+                                        ->label(trans('texts.invoice_currency'))
+                                        ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
+                                        ->data_bind('combobox: invoice_currency_id, disable: true')
+                                        ->fromQuery($currencies, 'name', 'id') !!}
+                            </span>
+                            <span style="display:none;" data-bind="visible: client_id">
+                                {!! Former::plaintext('')
+                                        ->value('<span data-bind="html: invoiceCurrencyName"></span>')
+                                        ->style('min-height:46px')
+                                        ->label(trans('texts.invoice_currency')) !!}
+                            </span>
+
+                            {!! Former::text('exchange_rate')
+                                    ->data_bind("value: exchange_rate, enable: enableExchangeRate, valueUpdate: 'afterkeydown'") !!}
+
+                            {!! Former::text('invoice_amount')
+                                    ->addGroupClass('converted-amount')
+                                    ->data_bind("value: convertedAmount, enable: enableExchangeRate")
+                                    ->append('<span data-bind="html: invoiceCurrencyCode"></span>') !!}
+                        </div>
+
+                        @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                            {!! Former::checkbox('invoice_documents')
+                                    ->text(trans('texts.add_documents_to_invoice'))
+                                    ->onchange('onInvoiceDocumentsChange()')
+                                    ->data_bind('checked: invoice_documents')
+                                    ->label(' ')
+                                    ->value(1) !!}
+                        @endif
+
+                    @endif
+
 
 	            </div>
                 <div class="col-md-6">
@@ -174,7 +194,7 @@
                     {!! Former::textarea('public_notes')->rows(6) !!}
                     {!! Former::textarea('private_notes')->rows(6) !!}
 
-                    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                    @if (! $isRecurring && $account->hasFeature(FEATURE_DOCUMENTS))
                         <div class="form-group">
                             <label for="public_notes" class="control-label col-lg-4 col-sm-4">
                                 {{trans('texts.documents')}}
@@ -351,78 +371,78 @@
                 $('#amount').focus();
             @endif
 
-            @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
-            $('.main-form').submit(function(){
-                if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
-                else $(this).removeAttr('enctype')
-            })
+            @if (! $isRecurring && Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
+                $('.main-form').submit(function(){
+                    if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
+                    else $(this).removeAttr('enctype')
+                })
 
-            $('#payment_type_id').combobox();
-            $('#mark_paid').click(function(event) {
-                if ($('#mark_paid').is(':checked')) {
-                    $('#payment_date').datepicker('update', new Date());
-                    @if ($account->payment_type_id)
-                        setComboboxValue($('.payment-type-select'), {{ $account->payment_type_id }}, "{{ trans('texts.payment_type_' . $account->payment_type->name) }}");
-                    @endif
-                } else {
-                    $('#payment_date').datepicker('update', false);
-                    setComboboxValue($('.payment-type-select'), '', '');
-                }
-            })
-
-            @if ($expense && $expense->payment_date)
-                $('#payment_date').datepicker('update', '{{ Utils::fromSqlDate($expense->payment_date) }}');
-            @endif
-
-            $('.payment_date .input-group-addon').click(function() {
-                toggleDatePicker('payment_date');
-            });
-
-            // Initialize document upload
-            dropzone = new Dropzone('#document-upload', {
-                url:{!! json_encode(url('documents')) !!},
-                params:{
-                    _token:"{{ Session::getToken() }}"
-                },
-                acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
-                addRemoveLinks:true,
-                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
-                @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-                    "dict{{strval($key)}}":"{{trans('texts.dropzone_'.Utils::toClassCase($key))}}",
-                @endforeach
-                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
-            });
-            if(dropzone instanceof Dropzone){
-                dropzone.on("addedfile",handleDocumentAdded);
-                dropzone.on("removedfile",handleDocumentRemoved);
-                dropzone.on("success",handleDocumentUploaded);
-                dropzone.on("canceled",handleDocumentCanceled);
-                dropzone.on("error",handleDocumentError);
-                for (var i=0; i<model.documents().length; i++) {
-                    var document = model.documents()[i];
-                    var mockFile = {
-                        name:document.name(),
-                        size:document.size(),
-                        type:document.type(),
-                        public_id:document.public_id(),
-                        status:Dropzone.SUCCESS,
-                        accepted:true,
-                        url:document.url(),
-                        mock:true,
-                        index:i
-                    };
-
-                    dropzone.emit('addedfile', mockFile);
-                    dropzone.emit('complete', mockFile);
-                    if(document.preview_url()){
-                        dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
+                $('#payment_type_id').combobox();
+                $('#mark_paid').click(function(event) {
+                    if ($('#mark_paid').is(':checked')) {
+                        $('#payment_date').datepicker('update', new Date());
+                        @if ($account->payment_type_id)
+                            setComboboxValue($('.payment-type-select'), {{ $account->payment_type_id }}, "{{ trans('texts.payment_type_' . $account->payment_type->name) }}");
+                        @endif
+                    } else {
+                        $('#payment_date').datepicker('update', false);
+                        setComboboxValue($('.payment-type-select'), '', '');
                     }
-                    else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
-                        dropzone.emit('thumbnail', mockFile, document.url());
+                })
+
+                @if ($expense && $expense->payment_date)
+                    $('#payment_date').datepicker('update', '{{ Utils::fromSqlDate($expense->payment_date) }}');
+                @endif
+
+                $('.payment_date .input-group-addon').click(function() {
+                    toggleDatePicker('payment_date');
+                });
+
+                // Initialize document upload
+                dropzone = new Dropzone('#document-upload', {
+                    url:{!! json_encode(url('documents')) !!},
+                    params:{
+                        _token:"{{ Session::getToken() }}"
+                    },
+                    acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
+                    addRemoveLinks:true,
+                    dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
+                    @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
+                        "dict{{strval($key)}}":"{{trans('texts.dropzone_'.Utils::toClassCase($key))}}",
+                    @endforeach
+                    maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
+                });
+                if(dropzone instanceof Dropzone){
+                    dropzone.on("addedfile",handleDocumentAdded);
+                    dropzone.on("removedfile",handleDocumentRemoved);
+                    dropzone.on("success",handleDocumentUploaded);
+                    dropzone.on("canceled",handleDocumentCanceled);
+                    dropzone.on("error",handleDocumentError);
+                    for (var i=0; i<model.documents().length; i++) {
+                        var document = model.documents()[i];
+                        var mockFile = {
+                            name:document.name(),
+                            size:document.size(),
+                            type:document.type(),
+                            public_id:document.public_id(),
+                            status:Dropzone.SUCCESS,
+                            accepted:true,
+                            url:document.url(),
+                            mock:true,
+                            index:i
+                        };
+
+                        dropzone.emit('addedfile', mockFile);
+                        dropzone.emit('complete', mockFile);
+                        if(document.preview_url()){
+                            dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
+                        }
+                        else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
+                            dropzone.emit('thumbnail', mockFile, document.url());
+                        }
+                        dropzone.files.push(mockFile);
                     }
-                    dropzone.files.push(mockFile);
                 }
-            }
             @endif
         });
 
@@ -435,9 +455,12 @@
             self.amount = ko.observable();
             self.exchange_rate = ko.observable(1);
             self.should_be_invoiced = ko.observable();
-            self.mark_paid = ko.observable({{ $expense && $expense->isPaid() ? 'true' : 'false' }});
-            self.convert_currency = ko.observable({{ ($expense && $expense->isExchanged()) ? 'true' : 'false' }});
             self.apply_taxes = ko.observable({{ ($expense && ($expense->tax_name1 || $expense->tax_name2)) ? 'true' : 'false' }});
+
+            @if (! $isRecurring)
+                self.convert_currency = ko.observable({{ ($expense && $expense->isExchanged()) ? 'true' : 'false' }});
+                self.mark_paid = ko.observable({{ $expense && $expense->isPaid() ? 'true' : 'false' }});
+            @endif
 
             var invoiceDocuments = false;
             if (isStorageSupported()) {
@@ -489,7 +512,7 @@
             });
 
             self.enableExchangeRate = ko.computed(function() {
-                if (self.convert_currency()) {
+                if (self.convert_currency && self.convert_currency()) {
                     return true;
                 }
                 var expenseCurrencyId = self.expense_currency_id() || self.account_currency_id();

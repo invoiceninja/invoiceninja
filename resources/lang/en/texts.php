@@ -2272,6 +2272,22 @@ $LANG = array(
     'update_payment_details' => 'Update payment details',
     'updated_payment_details' => 'Successfully updated payment details',
     'update_credit_card' => 'Update Credit Card',
+    'recurring_expenses' => 'Recurring Expenses',
+    'recurring_expense' => 'Recurring Expense',
+    'new_recurring_expense' => 'New Recurring Expense',
+    'edit_recurring_expense' => 'Edit Recurring Expense',
+    'archive_recurring_expense' => 'Archive Recurring Expense',
+    'list_recurring_expense' => 'List Recurring Expenses',
+    'updated_recurring_expense' => 'Successfully updated recurring expense',
+    'created_recurring_expense' => 'Successfully created recurring expense',
+    'archived_recurring_expense' => 'Successfully archived recurring expense',
+    'archived_recurring_expense' => 'Successfully archived :count recurring expenses',
+    'restore_recurring_expense' => 'Restore Recurring Expense',
+    'restored_recurring_expense' => 'Successfully restored recurring expense',
+    'delete_recurring_expense' => 'Delete Recurring Expense',
+    'deleted_recurring_expense' => 'Successfully deleted project',
+    'deleted_recurring_expense' => 'Successfully deleted :count projects',
+
 
 );
 

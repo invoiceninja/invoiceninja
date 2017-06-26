@@ -37,6 +37,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_BANK_SUBACCOUNT', 'bank_subaccount');
     define('ENTITY_EXPENSE_CATEGORY', 'expense_category');
     define('ENTITY_PROJECT', 'project');
+    define('ENTITY_RECURRING_EXPENSE', 'recurring_expense');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);

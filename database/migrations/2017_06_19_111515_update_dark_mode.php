@@ -38,7 +38,7 @@ class UpdateDarkMode extends Migration
             $table->decimal('amount', 13, 2);
             $table->text('private_notes');
             $table->text('public_notes');
-            $table->unsignedInteger('invoice_currency_id')->nullable(false);
+            $table->unsignedInteger('invoice_currency_id')->nullable()->index();
             $table->unsignedInteger('expense_currency_id')->nullable()->index();
             $table->boolean('should_be_invoiced')->default(true);
             $table->unsignedInteger('expense_category_id')->nullable()->index();
@@ -46,6 +46,11 @@ class UpdateDarkMode extends Migration
             $table->decimal('tax_rate1', 13, 3);
             $table->string('tax_name2')->nullable();
             $table->decimal('tax_rate2', 13, 3);
+
+            $table->unsignedInteger('frequency_id');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->timestamp('last_created_date')->nullable();
 
             // Relations
             $table->foreign('account_id')->references('id')->on('accounts')->onDelete('cascade');
@@ -59,6 +64,10 @@ class UpdateDarkMode extends Migration
             $table->unique(['account_id', 'public_id']);
         });
 
+        Schema::table('expenses', function ($table) {
+            $table->unsignedInteger('recurring_expense_id')->nullable();
+        });
+
     }
 
     /**
@@ -69,5 +78,9 @@ class UpdateDarkMode extends Migration
     public function down()
     {
         Schema::drop('recurring_expenses');
+
+        Schema::table('expenses', function ($table) {
+            $table->dropColumn('recurring_expense_id');
+        });
     }
 }

@@ -179,6 +179,14 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('invoices/bulk', 'InvoiceController@bulk');
     Route::post('recurring_invoices/bulk', 'InvoiceController@bulk');
 
+    Route::get('recurring_expenses', 'RecurringExpenseController@index');
+    Route::get('api/recurring_expenses', 'RecurringExpenseController@getDatatable');
+    Route::get('recurring_expenses/create/{vendor_id?}/{client_id?}/{category_id?}', 'RecurringExpenseController@create');
+    Route::post('recurring_expenses', 'RecurringExpenseController@store');
+    Route::put('recurring_expenses/{recurring_expenses}', 'RecurringExpenseController@update');
+    Route::get('recurring_expenses/{recurring_expenses}/edit', 'RecurringExpenseController@edit');
+    Route::post('recurring_expenses/bulk', 'RecurringExpenseController@bulk');
+
     Route::get('documents/{documents}/{filename?}', 'DocumentController@get');
     Route::get('documents/js/{documents}/{filename}', 'DocumentController@getVFSJS');
     Route::get('documents/preview/{documents}/{filename?}', 'DocumentController@getPreview');
