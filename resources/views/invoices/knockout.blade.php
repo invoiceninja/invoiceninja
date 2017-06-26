@@ -198,7 +198,7 @@ function InvoiceModel(data) {
     self.id = ko.observable('');
     self.discount = ko.observable('');
     self.is_amount_discount = ko.observable(0);
-    self.frequency_id = ko.observable(4); // default to monthly
+    self.frequency_id = ko.observable({{ FREQUENCY_MONTHLY }});
     self.terms = ko.observable('');
     self.default_terms = ko.observable(account.{{ $entityType }}_terms);
     self.terms_placeholder = ko.observable({{ (!$invoice->id || $invoice->is_recurring) && $account->{"{$entityType}_terms"} ? "account.{$entityType}_terms" : false}});

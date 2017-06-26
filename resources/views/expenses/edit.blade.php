@@ -477,7 +477,7 @@
             self.apply_taxes = ko.observable({{ ($expense && ($expense->tax_name1 || $expense->tax_name2)) ? 'true' : 'false' }});
 
             @if ($isRecurring)
-                self.frequency_id = ko.observable();
+                self.frequency_id = ko.observable({{ FREQUENCY_MONTHLY }});
                 self.start_date = ko.observable();
                 self.end_date = ko.observable();
             @else
