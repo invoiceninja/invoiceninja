@@ -58,11 +58,13 @@
                             ->data_placeholder(Utils::getFromCache($account->getCurrencyId(), 'currencies')->name)
                             ->fromQuery($currencies, 'name', 'id') !!}
 
-                    {!! Former::text('expense_date')
-                            ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
-                            ->addGroupClass('expense_date')
-                            ->label(trans('texts.date'))
-                            ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                    @if (! $isRecurring)
+                        {!! Former::text('expense_date')
+                                ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                                ->addGroupClass('expense_date')
+                                ->label(trans('texts.date'))
+                                ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
+                    @endif
 
                     @if ($expense && $expense->invoice_id)
                         {!! Former::plaintext()
@@ -191,8 +193,8 @@
 	            </div>
                 <div class="col-md-6">
 
-                    {!! Former::textarea('public_notes')->rows(6) !!}
-                    {!! Former::textarea('private_notes')->rows(6) !!}
+                    {!! Former::textarea('public_notes')->rows($isRecurring ? 10 : 6) !!}
+                    {!! Former::textarea('private_notes')->rows($isRecurring ? 10 : 6) !!}
 
                     @if (! $isRecurring && $account->hasFeature(FEATURE_DOCUMENTS))
                         <div class="form-group">
@@ -371,7 +373,15 @@
                 $('#amount').focus();
             @endif
 
-            @if (! $isRecurring && Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
+            @if ($isRecurring)
+                $('#start_date, #end_date').datepicker();
+                @if ($expense && $expense->start_date)
+                    $('#start_date').datepicker('update', '{{ Utils::fromSqlDate($expense->start_date) }}');
+                @endif
+                @if ($expense && $expense->end_date)
+                    $('#end_date').datepicker('update', '{{ Utils::fromSqlDate($expense->end_date) }}');
+                @endif
+            @elseif (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
                 $('.main-form').submit(function(){
                     if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
                     else $(this).removeAttr('enctype')
@@ -457,7 +467,11 @@
             self.should_be_invoiced = ko.observable();
             self.apply_taxes = ko.observable({{ ($expense && ($expense->tax_name1 || $expense->tax_name2)) ? 'true' : 'false' }});
 
-            @if (! $isRecurring)
+            @if ($isRecurring)
+                self.frequency_id = ko.observable();
+                self.start_date = ko.observable();
+                self.end_date = ko.observable();
+            @else
                 self.convert_currency = ko.observable({{ ($expense && $expense->isExchanged()) ? 'true' : 'false' }});
                 self.mark_paid = ko.observable({{ $expense && $expense->isPaid() ? 'true' : 'false' }});
             @endif

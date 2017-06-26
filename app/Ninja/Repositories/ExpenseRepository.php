@@ -176,8 +176,6 @@ class ExpenseRepository extends BaseRepository
             $expense->payment_date = Utils::toSqlDate($input['payment_date']);
         }
 
-        $expense->should_be_invoiced = isset($input['should_be_invoiced']) && floatval($input['should_be_invoiced']) || $expense->client_id ? true : false;
-
         if (! $expense->expense_currency_id) {
             $expense->expense_currency_id = \Auth::user()->account->getCurrencyId();
         }
@@ -195,7 +193,7 @@ class ExpenseRepository extends BaseRepository
 
         // Documents
         $document_ids = ! empty($input['document_ids']) ? array_map('intval', $input['document_ids']) : [];
-        ;
+
         foreach ($document_ids as $document_id) {
             // check document completed upload before user submitted form
             if ($document_id) {

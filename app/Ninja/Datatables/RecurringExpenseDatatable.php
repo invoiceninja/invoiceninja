@@ -91,6 +91,15 @@ class RecurringExpenseDatatable extends EntityDatatable
                     return $model->public_notes != null ? substr($model->public_notes, 0, 100) : '';
                 },
             ],
+            [
+                'frequency',
+                function ($model) {
+                    $frequency = strtolower($model->frequency);
+                    $frequency = preg_replace('/\s/', '_', $frequency);
+
+                    return link_to("recurring_expenses/{$model->public_id}/edit", trans('texts.freq_'.$frequency))->toHtml();
+                },
+            ],
         ];
     }
 

@@ -51,6 +51,7 @@ class Expense extends EntityModel
         'payment_type_id',
         'transaction_reference',
         'invoice_documents',
+        'should_be_invoiced',
     ];
 
     public static function getImportColumns()

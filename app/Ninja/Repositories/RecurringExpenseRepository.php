@@ -33,6 +33,7 @@ class RecurringExpenseRepository extends BaseRepository
                     ->leftjoin('clients', 'clients.id', '=', 'recurring_expenses.client_id')
                     ->leftJoin('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->leftjoin('vendors', 'vendors.id', '=', 'recurring_expenses.vendor_id')
+                    ->join('frequencies', 'frequencies.id', '=', 'recurring_expenses.frequency_id')
                     ->leftJoin('expense_categories', 'recurring_expenses.expense_category_id', '=', 'expense_categories.id')
                     ->where('recurring_expenses.account_id', '=', $accountid)
                     ->where('contacts.deleted_at', '=', null)
@@ -58,6 +59,7 @@ class RecurringExpenseRepository extends BaseRepository
                         'recurring_expenses.user_id',
                         'recurring_expenses.tax_rate1',
                         'recurring_expenses.tax_rate2',
+                        'frequencies.name as frequency',
                         'expense_categories.name as category',
                         'expense_categories.user_id as category_user_id',
                         'expense_categories.public_id as category_public_id',
@@ -110,23 +112,21 @@ class RecurringExpenseRepository extends BaseRepository
         // First auto fill
         $expense->fill($input);
 
-        /*
-        if (isset($input['expense_date'])) {
-            $expense->expense_date = Utils::toSqlDate($input['expense_date']);
+        if (isset($input['start_date'])) {
+            $expense->start_date = Utils::toSqlDate($input['start_date']);
         }
-        if (isset($input['payment_date'])) {
-            $expense->payment_date = Utils::toSqlDate($input['payment_date']);
+        if (isset($input['end_date'])) {
+            $expense->end_date = Utils::toSqlDate($input['end_date']);
         }
-
-        $expense->should_be_invoiced = isset($input['should_be_invoiced']) && floatval($input['should_be_invoiced']) || $expense->client_id ? true : false;
 
         if (! $expense->expense_currency_id) {
             $expense->expense_currency_id = \Auth::user()->account->getCurrencyId();
         }
+
+        /*
         if (! $expense->invoice_currency_id) {
             $expense->invoice_currency_id = \Auth::user()->account->getCurrencyId();
         }
-
         $rate = isset($input['exchange_rate']) ? Utils::parseFloat($input['exchange_rate']) : 1;
         $expense->exchange_rate = round($rate, 4);
         if (isset($input['amount'])) {

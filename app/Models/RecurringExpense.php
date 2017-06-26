@@ -43,6 +43,10 @@ class RecurringExpense extends EntityModel
         'tax_name1',
         'tax_rate2',
         'tax_name2',
+        'should_be_invoiced',
+        'start_date',
+        'end_date',
+        'frequency_id',
     ];
 
     /**
