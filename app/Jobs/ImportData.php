@@ -11,6 +11,7 @@ use App\Ninja\Mailers\UserMailer;
 use App\Models\User;
 use Auth;
 use App;
+use Utils;
 
 /**
  * Class SendInvoiceEmail.
@@ -89,6 +90,7 @@ class ImportData extends Job implements ShouldQueue
         } catch (Exception $exception) {
             $subject = trans('texts.import_failed');
             $message = $exception->getMessage();
+            Utils::logError($subject . ':' . $message);
         }
 
         $userMailer->sendMessage($this->user, $subject, $message);
