@@ -915,6 +915,9 @@ class AccountController extends BaseController
                 $account->client_number_prefix = trim(Input::get('client_number_prefix'));
                 $account->client_number_pattern = trim(Input::get('client_number_pattern'));
                 $account->client_number_counter = Input::get('client_number_counter');
+                $account->credit_number_counter = Input::get('credit_number_counter');
+                $account->credit_number_prefix = trim(Input::get('credit_number_prefix'));
+                $account->credit_number_pattern = trim(Input::get('credit_number_pattern'));
                 $account->reset_counter_frequency_id = Input::get('reset_counter_frequency_id');
                 $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Input::get('reset_counter_date')) : null;
 

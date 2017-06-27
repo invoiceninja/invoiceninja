@@ -16,6 +16,12 @@ class UpdateDarkMode extends Migration
             $table->boolean('dark_mode')->default(true)->change();
         });
 
+        Schema::table('accounts', function ($table) {
+            $table->integer('credit_number_counter')->default(0)->nullable();
+            $table->text('credit_number_prefix')->nullable();
+            $table->text('credit_number_pattern')->nullable();
+        });
+
         DB::statement('update users set dark_mode = 1;');
 
         // update invoice_item_type_id for task invoice items
@@ -81,6 +87,12 @@ class UpdateDarkMode extends Migration
 
         Schema::table('expenses', function ($table) {
             $table->dropColumn('recurring_expense_id');
+        });
+
+        Schema::table('accounts', function ($table) {
+            $table->dropColumn('credit_number_counter');
+            $table->dropColumn('credit_number_prefix');
+            $table->dropColumn('credit_number_pattern');
         });
     }
 }

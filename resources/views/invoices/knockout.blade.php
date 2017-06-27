@@ -35,7 +35,7 @@ function ViewModel(data) {
                 dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
                 $('#due_date').attr('placeholder', dueDate);
             } else {
-                $('#due_date').attr('placeholder', "{{ $invoice->exists || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder() }}");
+                $('#due_date').attr('placeholder', "{{ $invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder() }}");
             }
         @endif
     }
@@ -1007,7 +1007,7 @@ ko.bindingHandlers.productTypeahead = {
 };
 
 function checkInvoiceNumber() {
-    var url = '{{ url('check_invoice_number') }}/{{ $invoice->exists ? $invoice->public_id : '' }}?invoice_number=' + encodeURIComponent($('#invoice_number').val());
+    var url = '{{ url('check_invoice_number') }}/{{ $invoice->id ? $invoice->public_id : '' }}?invoice_number=' + encodeURIComponent($('#invoice_number').val());
     $.get(url, function(data) {
         var isValid = data == '{{ RESULT_SUCCESS }}' ? true : false;
         if (isValid) {

@@ -10,6 +10,7 @@ use App\Events\InvoiceInvitationWasEmailed;
 use App\Events\QuoteInvitationWasEmailed;
 use App\Libraries\CurlUtils;
 use App\Models\Activity;
+use App\Models\Credit;
 use App\Models\Traits\ChargesFees;
 use App\Models\Traits\HasRecurrence;
 use DateTime;
@@ -1405,8 +1406,13 @@ class Invoice extends EntityModel implements BalanceAffecting
 }
 
 Invoice::creating(function ($invoice) {
-    if (! $invoice->is_recurring && $invoice->amount >= 0) {
-        $invoice->account->incrementCounter($invoice);
+    if (! $invoice->is_recurring) {
+        $account = $invoice->account;
+        if ($invoice->amount >= 0) {
+            $account->incrementCounter($invoice);
+        } elseif ($account->credit_number_counter > 0) {
+            $account->incrementCounter(new Credit());
+        }
     }
 });
 

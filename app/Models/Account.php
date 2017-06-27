@@ -171,6 +171,9 @@ class Account extends Eloquent
         'custom_contact_label2',
         'domain_id',
         'analytics_key',
+        'credit_number_counter',
+        'credit_number_prefix',
+        'credit_number_pattern',
     ];
 
     /**

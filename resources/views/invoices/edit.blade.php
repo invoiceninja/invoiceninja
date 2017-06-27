@@ -159,7 +159,7 @@
 				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('invoice_date') !!}
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label($account->getLabel($invoice->getDueDateLabel()))
-							->placeholder($invoice->exists || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder())
+							->placeholder($invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder())
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
 				{!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onkeyup('onPartialChange()')
 							->addGroupClass('partial')!!}
@@ -482,7 +482,7 @@
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-        @if ( $invoice->exists && $invoice->id && ! $invoice->is_recurring)
+        @if ( $invoice->id && ! $invoice->is_recurring)
 		    {!! Button::primary(trans('texts.download_pdf'))
                     ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
                     ->appendIcon(Icon::create('download-alt')) !!}
@@ -1155,7 +1155,20 @@
         return invoice;
 	}
 
+	var origInvoiceNumber = false;
 	function getPDFString(cb, force) {
+		@if (! $invoice->id && $account->credit_number_counter > 0)
+			var total = model.invoice().totals.rawTotal();
+			var invoiceNumber = model.invoice().invoice_number();
+			var creditNumber = "{{ $account->getNextNumber(new \App\Models\Credit()) }}";
+			if (total < 0 && invoiceNumber != creditNumber) {
+				origInvoiceNumber = invoiceNumber;
+				model.invoice().invoice_number(creditNumber);
+			} else if (total >= 0 && invoiceNumber == creditNumber && origInvoiceNumber) {
+				model.invoice().invoice_number(origInvoiceNumber);
+			}
+		@endif
+
 		@if ( ! $account->live_preview)
 			return;
 		@endif
