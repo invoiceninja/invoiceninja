@@ -221,7 +221,10 @@
 
 		@for ($i = 1; $i <= 10; $i++)
 			Mousetrap.bind('g {{ $i }}', function(e) {
-				location.href = $('#DataTables_Table_0').find('tr:nth-child({{ $i }})').find('a').attr('href');
+				var link = $('.data-table').find('tr:nth-child({{ $i }})').find('a').attr('href');
+				if (link) {
+					location.href = link;
+				}
 			});
 		@endfor
 	});
