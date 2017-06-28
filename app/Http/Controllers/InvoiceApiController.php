@@ -202,7 +202,10 @@ class InvoiceApiController extends BaseAPIController
             if ($payment) {
                 app('App\Ninja\Mailers\ContactMailer')->sendPaymentConfirmation($payment);
                 //$this->dispatch(new SendPaymentEmail($payment));
-            } elseif (! $invoice->is_recurring) {
+            } else {
+                if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
+                    $invoice = $recurringInvoice;
+                }
                 app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
                 //$this->dispatch(new SendInvoiceEmail($invoice));
             }
@@ -238,6 +241,10 @@ class InvoiceApiController extends BaseAPIController
             'custom_value2' => 0,
             'custom_taxes1' => false,
             'custom_taxes2' => false,
+            'tax_name1' => '',
+            'tax_rate1' => 0,
+            'tax_name2' => '',
+            'tax_rate2' => 0,
             'partial' => 0,
         ];
 
@@ -313,6 +320,10 @@ class InvoiceApiController extends BaseAPIController
     public function emailInvoice(InvoiceRequest $request)
     {
         $invoice = $request->entity();
+
+        if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
+            $invoice = $recurringInvoice;
+        }
 
         //$this->dispatch(new SendInvoiceEmail($invoice));
         $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);

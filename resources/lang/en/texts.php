@@ -1373,6 +1373,7 @@ $LANG = array(
     'start_of_week' => 'First Day of the Week',
 
     // Frequencies
+    'freq_inactive' => 'Inactive',
     'freq_weekly' => 'Weekly',
     'freq_two_weeks' => 'Two weeks',
     'freq_four_weeks' => 'Four weeks',

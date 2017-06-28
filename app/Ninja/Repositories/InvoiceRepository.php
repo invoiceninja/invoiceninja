@@ -144,7 +144,7 @@ class InvoiceRepository extends BaseRepository
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
                     ->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
-                    ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
+                    ->leftJoin('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
                     ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
@@ -430,7 +430,7 @@ class InvoiceRepository extends BaseRepository
                 $invoice->last_sent_date = null;
             }
 
-            $invoice->frequency_id = array_get($data, 'frequency_id', 0);
+            $invoice->frequency_id = array_get($data, 'frequency_id', FREQUENCY_MONTHLY);
             $invoice->start_date = Utils::toSqlDate(array_get($data, 'start_date'));
             $invoice->end_date = Utils::toSqlDate(array_get($data, 'end_date'));
             $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
