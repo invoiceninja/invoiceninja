@@ -361,7 +361,7 @@ class BasePaymentDriver
 
         if ($total != $invoice->getRequestedAmount()) {
             $item = new Item([
-                'name' => trans('texts.other'),
+                'name' => trans('texts.taxes_and_fees'),
                 'description' => '',
                 'price' => $invoice->getRequestedAmount() - $total,
                 'quantity' => 1,
