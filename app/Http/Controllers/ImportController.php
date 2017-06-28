@@ -35,7 +35,7 @@ class ImportController extends BaseController
             if ($request->hasFile($fileName)) {
                 $file = $request->file($fileName);
                 $destinationPath = env('FILE_IMPORT_PATH') ?: storage_path() . '/import';
-                $extension = $file->getClientOriginalExtension();
+                $extension = strtolower($file->getClientOriginalExtension());
 
                 if ($source === IMPORT_CSV) {
                     if ($extension != 'csv') {
