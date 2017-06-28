@@ -192,7 +192,16 @@
             'r' => ENTITY_RECURRING_INVOICE,
         ] as $key => $value)
             Mousetrap.bind('n {{ $key }}', function(e) {
-                location.href = "{{ url($value . 's/create') }}";
+                var link = "{{ url($value . 's/create') }}";
+                @if (in_array($value, [ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_TASK, ENTITY_VENDOR, ENTITY_RECURRING_INVOICE]))
+                    if (location.pathname.indexOf('/clients/') >= 0) {
+                        var matches = location.pathname.match(/\d+/g);
+                        if (matches.length) {
+                            link += '/' + matches[0];
+                        }
+                    }
+                @endif
+                location.href = link;
             });
             Mousetrap.bind('l {{ $key }}', function(e) {
                 location.href = "{{ url($value . 's') }}";
