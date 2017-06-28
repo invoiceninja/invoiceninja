@@ -2295,7 +2295,6 @@ $LANG = array(
     'credit_number_help' => 'Specify a prefix or use a custom pattern to dynamically set the credit number for negative invoices.',
     'next_credit_number' => 'The next credit number is :number.',
     'padding_help' => 'The number of zero\'s to pad the number.',
-    'client_number_help'
 
 );
 
