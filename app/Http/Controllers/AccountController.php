@@ -455,7 +455,7 @@ class AccountController extends BaseController
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
             if (! $accountGateway->getPublishableStripeKey()) {
-                Session::flash('warning', trans('texts.missing_publishable_key'));
+                Session::now('warning', trans('texts.missing_publishable_key'));
             }
         }
 

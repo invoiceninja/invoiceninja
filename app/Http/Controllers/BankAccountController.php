@@ -131,7 +131,7 @@ class BankAccountController extends BaseController
         try {
             $data = $this->bankAccountService->parseOFX($file);
         } catch (\Exception $e) {
-            Session::flash('error', trans('texts.ofx_parse_failed'));
+            Session::now('error', trans('texts.ofx_parse_failed'));
             Utils::logError($e);
 
             return view('accounts.import_ofx');

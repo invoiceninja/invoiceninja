@@ -314,7 +314,7 @@ class TaskController extends BaseController
     {
         if (! Auth::user()->account->timezone) {
             $link = link_to('/settings/localization?focus=timezone_id', trans('texts.click_here'), ['target' => '_blank']);
-            Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
+            Session::now('warning', trans('texts.timezone_unset', ['link' => $link]));
         }
     }
 }

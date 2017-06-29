@@ -84,7 +84,7 @@ class AccountGatewayController extends BaseController
     public function create()
     {
         if (! \Request::secure() && ! Utils::isNinjaDev()) {
-            Session::flash('warning', trans('texts.enable_https'));
+            Session::now('warning', trans('texts.enable_https'));
         }
 
         $account = Auth::user()->account;
