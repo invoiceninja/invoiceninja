@@ -1593,6 +1593,7 @@ class Account extends Eloquent
             return true;
         }
 
+        // note: single & checks bitmask match
         return $this->enabled_modules & static::$modules[$entityType];
     }
 

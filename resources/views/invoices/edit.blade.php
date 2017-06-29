@@ -254,7 +254,10 @@
 		<table class="table invoice-table">
 
 			@include('invoices.edit_table', ['isTasks' => false])
-			@include('invoices.edit_table', ['isTasks' => true])
+
+			@if ($account->isModuleEnabled(ENTITY_TASK))
+				@include('invoices.edit_table', ['isTasks' => true])
+			@endif
 
 		<tfoot>
 			<tr>
