@@ -38,7 +38,7 @@ class $CLASS$ extends BaseController
 
     public function datatable(DatatableService $datatableService)
     {
-        $search = request()->input('test');
+        $search = request()->input('sSearch');
         $userId = Auth::user()->filterId();
 
         $datatable = new $STUDLY_NAME$Datatable();
