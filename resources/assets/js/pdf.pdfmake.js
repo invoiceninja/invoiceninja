@@ -1159,7 +1159,7 @@ NINJA.parseRegExp = function(val, regExpStr, formatter, groupText)
 NINJA.parseRegExpLine = function(line, regExp, formatter, groupText)
 {
     var parts = [];
-    var lastIndex = 0;
+    var lastIndex = -1;
 
     while (match = regExp.exec(line)) {
         if (match.index > lastIndex) {
