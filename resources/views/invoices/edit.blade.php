@@ -1441,7 +1441,8 @@
 		var isValid = model.invoice().client().name() ? true : false;
 		for (var i=0; i<model.invoice().client().contacts().length; i++) {
 			var contact = model.invoice().client().contacts()[i];
-			if (isValidEmailAddress(contact.email()) || contact.first_name() || contact.last_name()) {
+			var email = contact.email() ? contact.email().trim() : '';
+			if (isValidEmailAddress(email) || contact.first_name() || contact.last_name()) {
 				isValid = true;
 				break;
 			}
@@ -1469,7 +1470,8 @@
             if ( ! contact.send_invoice()) {
                 continue;
             }
-			if (isValidEmailAddress(contact.email())) {
+			var email = contact.email() ? contact.email().trim() : '';
+			if (isValidEmailAddress(email)) {
 				isValid = true;
 			} else {
 				isValid = false;

@@ -305,6 +305,7 @@ class Client extends EntityModel
 
         $contact->fill($data);
         $contact->is_primary = $isPrimary;
+        $contact->email = trim($contact->email);
 
         return $this->contacts()->save($contact);
     }
