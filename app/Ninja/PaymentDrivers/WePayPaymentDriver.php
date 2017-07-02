@@ -128,6 +128,16 @@ class WePayPaymentDriver extends BasePaymentDriver
     }
     */
 
+    public function createPayment($ref = false, $paymentMethod = null)
+    {
+        parent::createPayment($ref, $paymentMethod);
+
+        if ($paymentMethod->payment_type_id = PAYMENT_TYPE_ACH) {
+            $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
+            $paymentMethod->save();
+        }
+    }
+
     protected function creatingPaymentMethod($paymentMethod)
     {
         $source = $this->tokenResponse;
@@ -141,10 +151,10 @@ class WePayPaymentDriver extends BasePaymentDriver
             switch ($source->state) {
                 case 'new':
                 case 'pending':
-                    $paymentMethod->status = 'new';
+                    $paymentMethod->status = PAYMENT_METHOD_STATUS_NEW;
                     break;
                 case 'authorized':
-                    $paymentMethod->status = 'verified';
+                    $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
                     break;
             }
         } else {
