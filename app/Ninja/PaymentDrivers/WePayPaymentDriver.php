@@ -132,7 +132,7 @@ class WePayPaymentDriver extends BasePaymentDriver
     {
         parent::createPayment($ref, $paymentMethod);
 
-        if ($paymentMethod->payment_type_id = PAYMENT_TYPE_ACH) {
+        if ($paymentMethod && $paymentMethod->payment_type_id == PAYMENT_TYPE_ACH) {
             $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
             $paymentMethod->save();
         }
