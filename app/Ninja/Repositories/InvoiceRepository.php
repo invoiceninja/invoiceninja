@@ -172,6 +172,7 @@ class InvoiceRepository extends BaseRepository
                         'invoices.is_deleted',
                         'invoices.user_id',
                         'invoice_statuses.name as invoice_status_name',
+                        'invoice_statuses.name as status',
                         'invoices.invoice_status_id',
                         'invoices.balance',
                         'invoices.due_date',
