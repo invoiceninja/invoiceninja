@@ -30,6 +30,7 @@ use parsecsv;
 use Session;
 use stdClass;
 use Utils;
+use Carbon;
 
 /**
  * Class ImportService.
@@ -183,7 +184,7 @@ class ImportService
                 if ($transformer->hasProduct($jsonProduct['product_key'])) {
                     continue;
                 }
-                
+
                 $productValidate = EntityModel::validate($jsonProduct, ENTITY_PRODUCT);
                 if ($productValidate === true) {
                     $product = $this->productRepo->save($jsonProduct);
@@ -594,7 +595,23 @@ class ImportService
             'hasHeaders' => $hasHeaders,
             'columns' => $columns,
             'mapped' => $mapped,
+            'warning' => false,
         ];
+
+        // check that dates are valid
+        if (count($data['data']) > 1) {
+            $row = $data['data'][1];
+            foreach ($mapped as $index => $field) {
+                if (! strstr($field, 'date')) {
+                    continue;
+                }
+                try {
+                    $date = new Carbon($row[$index]);
+                } catch(Exception $e) {
+                    $data['warning'] = 'invalid_date';
+                }
+            }
+        }
 
         return $data;
     }

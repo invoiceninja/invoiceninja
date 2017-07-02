@@ -5,6 +5,7 @@ namespace App\Ninja\Import;
 use Carbon;
 use League\Fractal\TransformerAbstract;
 use Utils;
+use Exception;
 
 /**
  * Class BaseTransformer.
@@ -158,6 +159,7 @@ class BaseTransformer extends TransformerAbstract
                 $date = new Carbon($date);
             } catch (Exception $e) {
                 // if we fail to parse return blank
+                $date = false;
             }
         }
 

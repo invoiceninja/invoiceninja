@@ -10,14 +10,18 @@
 
     <p>&nbsp;</p>
 
+    @if (! empty($warning))
+        <div class="alert alert-warning">{{ trans('texts.import_warning_' . $warning) }}</div>
+    @endif
+
     <table class="table invoice-table">
         <thead>
             <tr>
                 <th>{{ trans('texts.column') }}</th>
                 <th class="col_sample">{{ trans('texts.sample') }}</th>
                 <th>{{ trans('texts.import_to') }}</th>
-            </tr>   
-        </thead>        
+            </tr>
+        </thead>
     @for ($i=0; $i<count($headers); $i++)
         <tr>
             <td>{{ $headers[$i] }}</td>
