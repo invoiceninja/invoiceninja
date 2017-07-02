@@ -968,6 +968,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return bool
+     */
+    public function isNinjaOrLicenseAccount()
+    {
+        return $this->isNinjaAccount() || $this->account_key == NINJA_LICENSE_ACCOUNT_KEY;
+    }
+
+    /**
      * @param $plan
      */
     public function startTrial($plan)
