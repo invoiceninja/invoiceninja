@@ -8,10 +8,6 @@
             line-height: 1.5em;
         }
 
-        div.main-container {
-            min-height: 700px;
-        }
-
         #main-row {
             background: #fff;
             line-height: 1.5;
@@ -39,8 +35,8 @@
             }
 
             #main-row {
-                margin-top: 100px;
-                margin-bottom: 100px;
+                margin-top: 80px;
+                margin-bottom: 80px;
             }
         }
 
@@ -352,20 +348,6 @@
                 </div>
         </div>
         @endif
-
-        <div style="min-height: 550px" class="hide">
-            {!! Datatable::table()
-                ->addColumn(
-                    trans('texts.date'),
-                    trans('texts.message'),
-                    trans('texts.balance'),
-                    trans('texts.adjustment'))
-                ->setUrl(route('api.client.activity'))
-                ->setOptions('bFilter', false)
-                ->setOptions('aaSorting', [['0', 'desc']])
-                ->setOptions('sPaginationType', 'bootstrap')
-                ->render('datatable') !!}
-        </div>
 
         <div class="row" id="account-row">
             <div class="col-md-2 invoices-from">

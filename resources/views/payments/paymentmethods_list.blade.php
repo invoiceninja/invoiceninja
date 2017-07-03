@@ -84,7 +84,7 @@
             && $account->getGatewayByType(GATEWAY_TYPE_TOKEN)
             && $account->token_billing_type_id != TOKEN_BILLING_DISABLED)
             &nbsp;&nbsp;
-            {!! Button::success(strtoupper(trans('texts.update_credit_card')))->asLinkTo(URL::to("/payment/$invitationKey/credit_card?update=true")) !!}
+            {!! Button::success(strtoupper(trans(!empty($paymentMethods) && count($paymentMethods) ? 'texts.update_credit_card' : 'texts.add_credit_card')))->asLinkTo(URL::to("/payment/$invitationKey/credit_card?update=true")) !!}
         @endif
     </h3>
 
@@ -132,6 +132,8 @@
         </div>
         @endforeach
     @endif
+
+    <br/>&nbsp;<br/>
 @endif
 
 <center>
