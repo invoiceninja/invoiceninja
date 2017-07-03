@@ -76,7 +76,7 @@ class CheckData extends Command
             $this->checkDraftSentInvoices();
         }
 
-        $this->checkInvoices();
+        //$this->checkInvoices();
         $this->checkBalances();
         $this->checkContacts();
         $this->checkUserAccounts();
@@ -142,8 +142,7 @@ class CheckData extends Command
         $date = new Carbon();
         $date = $date->subDays(1)->format('Y-m-d');
 
-        $invoices = Invoice::withTrashed()
-            ->with('invitations')
+        $invoices = Invoice::with('invitations')
             ->where('created_at', '>',  $date)
             ->orderBy('id')
             ->get(['id', 'balance']);
@@ -155,7 +154,7 @@ class CheckData extends Command
             $result = floatval(strip_tags($result));
             $this->logMessage('Result: ' . $result);
 
-            if ($result != $invoice->balance) {
+            if ($result && $result != $invoice->balance) {
                 $this->logMessage("Amounts do not match - PHP: {$invoice->balance}, JS: {$result}");
                 $this->isValid = false;
             }
