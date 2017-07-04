@@ -77,6 +77,10 @@ class InvoiceTransformer extends EntityTransformer
     {
         $transformer = new DocumentTransformer($this->account, $this->serializer);
 
+        $invoice->documents->each(function ($document) use ($invoice) {
+            $document->setRelation('invoice', $invoice);
+        });
+
         return $this->includeCollection($invoice->documents, $transformer, ENTITY_DOCUMENT);
     }
 

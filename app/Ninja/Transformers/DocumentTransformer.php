@@ -25,8 +25,8 @@ class DocumentTransformer extends EntityTransformer
             'name' => $document->name,
             'type' => $document->type,
             'path' => $document->path,
-            'invoice_id' => isset($document->invoice->public_id) ? (int) $document->invoice->public_id : null,
-            'expense_id' => isset($document->expense->public_id) ? (int) $document->expense->public_id : null,
+            'invoice_id' => $document->invoice_id && $document->invoice ? (int) $document->invoice->public_id : null,
+            'expense_id' => $document->expense_id && $document->expense ? (int) $document->expense->public_id : null,
             'updated_at' => $this->getTimestamp($document->updated_at),
         ]);
     }

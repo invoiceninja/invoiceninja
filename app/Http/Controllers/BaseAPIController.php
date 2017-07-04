@@ -206,6 +206,8 @@ class BaseAPIController extends Controller
                 $data[] = 'clients.contacts';
             } elseif ($include == 'vendors') {
                 $data[] = 'vendors.vendor_contacts';
+            } elseif ($include == 'documents' && $this->entityType == ENTITY_INVOICE) {
+                $data[] = 'documents.expense';
             } elseif ($include) {
                 $data[] = $include;
             }
