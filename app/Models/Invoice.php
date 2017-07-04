@@ -448,6 +448,10 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function markSent()
     {
+        if ($this->is_deleted) {
+            return;
+        }
+
         if (! $this->isSent()) {
             $this->invoice_status_id = INVOICE_STATUS_SENT;
         }
@@ -464,6 +468,10 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function markInvitationsSent($notify = false, $reminder = false)
     {
+        if ($this->is_deleted) {
+            return;
+        }
+
         if (! $this->relationLoaded('invitations')) {
             $this->load('invitations');
         }
@@ -496,6 +504,10 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function markInvitationSent($invitation, $messageId = false, $notify = true, $notes = false)
     {
+        if ($this->is_deleted) {
+            return;
+        }
+
         if (! $this->isSent()) {
             $this->is_public = true;
             $this->invoice_status_id = INVOICE_STATUS_SENT;
