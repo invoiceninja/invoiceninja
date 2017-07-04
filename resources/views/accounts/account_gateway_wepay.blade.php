@@ -25,10 +25,7 @@
     {!! Former::populateField('email', $user->email) !!}
     {!! Former::populateField('show_address', 1) !!}
     {!! Former::populateField('update_address', 1) !!}
-
-    @if (WEPAY_ENABLE_CANADA)
-        {!! Former::populateField('country', 'US') !!}
-    @endif
+    {!! Former::populateField('country', 'US') !!}
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -40,21 +37,20 @@
             {!! Former::text('email') !!}
             {!! Former::text('company_name')->help('wepay_company_name_help')->maxlength(255) !!}
 
-            @if (WEPAY_ENABLE_CANADA)
-                <div id="wepay-country">
-                    {!! Former::radios('country')
-                            ->radios([
-                                trans('texts.united_states') => ['value' => 'US'],
-                                trans('texts.canada') => ['value' => 'CA'],
-                            ]) !!}
-                </div>
-                <div id="wepay-accept-debit">
-                    {!! Former::checkbox('debit_cards')
-                            ->text(trans('texts.accept_debit_cards'))
-                            ->value(1) !!}
+            <div id="wepay-country">
+                {!! Former::radios('country')
+                        ->radios([
+                            trans('texts.country_United States') => ['value' => 'US'],
+                            trans('texts.country_Canada') => ['value' => 'CA'],
+                            trans('texts.country_United Kingdom') => ['value' => 'GB'],
+                        ]) !!}
+            </div>
+            <div id="wepay-accept-debit" style="display:none">
+                {!! Former::checkbox('debit_cards')
+                        ->text(trans('texts.accept_debit_cards'))
+                        ->value(1) !!}
 
-                </div>
-            @endif
+            </div>
 
             {!! Former::checkbox('show_address')
                 ->label(trans('texts.billing_address'))
