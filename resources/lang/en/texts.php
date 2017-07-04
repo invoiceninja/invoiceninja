@@ -1435,6 +1435,7 @@ $LANG = array(
     'industry_Pharmaceuticals' => 'Pharmaceuticals',
     'industry_Professional Services & Consulting' => 'Professional Services & Consulting',
     'industry_Real Estate' => 'Real Estate',
+    'industry_Restaurant & Catering' => 'Restaurant & Catering',
     'industry_Retail & Wholesale' => 'Retail & Wholesale',
     'industry_Sports' => 'Sports',
     'industry_Transportation' => 'Transportation',
