@@ -427,7 +427,7 @@
                     addRemoveLinks:true,
                     dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
                     @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-                        "dict{{strval($key)}}":"{{trans('texts.dropzone_'.Utils::toClassCase($key))}}",
+                        "dict{{ Utils::toClassCase($key) }}" : "{!! strip_tags(addslashes(trans('texts.dropzone_'.$key))) !!}",
                     @endforeach
                     maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
                 });
