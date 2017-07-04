@@ -284,7 +284,7 @@
 					{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
 					{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
 
-                    <div class="tab-content" style="padding-right:12px;max-width:650px;">
+                    <div class="tab-content" style="padding-right:12px;max-width:600px;">
                         <div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px;">
                             {!! Former::textarea('public_notes')
 									->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
