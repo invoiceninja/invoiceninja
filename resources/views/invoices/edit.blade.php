@@ -281,21 +281,24 @@
                         @endif
                     </ul>
 
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px">
+					{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
+					{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
+
+                    <div class="tab-content" style="padding-right:12px;max-width:650px;">
+                        <div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px;">
                             {!! Former::textarea('public_notes')
 									->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
-                            		->label(null)->style('width: 550px')->rows(4) !!}
+                            		->label(null)->style('width: 100%')->rows(4)->label(null) !!}
                         </div>
 						<div role="tabpanel" class="tab-pane" id="private_notes" style="padding-bottom:44px">
                             {!! Former::textarea('private_notes')
 									->data_bind("value: private_notes, valueUpdate: 'afterkeydown'")
-                            		->label(null)->style('width: 550px')->rows(4) !!}
+                            		->label(null)->style('width: 100%')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
                             {!! Former::textarea('terms')
 									->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
-                            		->label(false)->style('width: 550px')->rows(4)
+                            		->label(false)->style('width: 100%')->rows(4)
 		                            ->help('<div class="checkbox">
 		                                        <label>
 		                                            <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
@@ -308,7 +311,7 @@
                         <div role="tabpanel" class="tab-pane" id="footer">
                             {!! Former::textarea('invoice_footer')
 									->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
-		                            ->label(false)->style('width: 550px')->rows(4)
+		                            ->label(false)->style('width: 100%')->rows(4)
 		                            ->help('<div class="checkbox">
 		                                        <label>
 		                                            <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
@@ -341,6 +344,9 @@
                         @endif
                     </div>
                 </div>
+
+				{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
+				{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
 
 				</td>
 				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>

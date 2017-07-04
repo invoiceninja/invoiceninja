@@ -1098,7 +1098,7 @@ div.panel-body div.panel-body {
 }
 
 .invoice-table #document-upload{
-    width:550px;
+    width: 100%;
 }
 
 #document-upload .dropzone{
