@@ -2,7 +2,7 @@
   ->addOption('','')
   ->label(isset($taxRateLabel) ? $taxRateLabel : trans('texts.tax_rate'))
   ->onchange('taxSelectChange(event)')
-  ->fromQuery($taxRates) !!}
+  ->fromQuery($taxRates, null, 'public_id') !!}
 
 <div style="display:none">
   {!! Former::input('tax_rate1') !!}
@@ -14,7 +14,7 @@
       ->addOption('','')
       ->label(isset($taxRateLabel) ? $taxRateLabel : trans('texts.tax_rate'))
       ->onchange('taxSelectChange(event)')
-      ->fromQuery($taxRates) !!}
+      ->fromQuery($taxRates, null, 'public_id') !!}
 
   <div style="display:none">
       {!! Former::input('tax_rate2') !!}
