@@ -90,16 +90,6 @@
 
             @if ($gateway->id == GATEWAY_STRIPE)
                 {!! Former::text('publishable_key') !!}
-
-                <div class="form-group">
-                    <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
-                    <div class="col-lg-8 col-sm-8 help-block">
-                        <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
-                        <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
-                        'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
-                    ]) !!}</strong></div>
-                    </div>
-                </div>
             @elseif ($gateway->id == GATEWAY_BRAINTREE)
                 @if ($account->hasGatewayId(GATEWAY_PAYPAL_EXPRESS))
                     {!! Former::checkbox('enable_paypal')
@@ -161,7 +151,17 @@
                 ->text(trans('texts.enable_ach'))
                 ->help(trans('texts.stripe_ach_help'))
                 ->value(1) !!}
+
             <div class="stripe-ach-options">
+                <div class="form-group">
+                    <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
+                    <div class="col-lg-8 col-sm-8 help-block">
+                        <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
+                        <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
+                        'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
+                    ]) !!}</strong></div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-4">
                         <h4>{{trans('texts.plaid')}}</h4>
