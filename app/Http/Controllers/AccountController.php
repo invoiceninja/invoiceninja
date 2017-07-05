@@ -876,7 +876,10 @@ class AccountController extends BaseController
                     $rules["{$entityType}_number_pattern"] = 'has_counter';
                 }
             }
-
+            if (Input::get('credit_number_enabled')) {
+                $rules['credit_number_prefix'] = 'required_without:credit_number_pattern';
+                $rules['credit_number_pattern'] = 'required_without:credit_number_prefix';
+            }
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
