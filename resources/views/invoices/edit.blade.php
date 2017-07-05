@@ -53,8 +53,12 @@
 			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
 			<li class="active">{{ $invoice->invoice_number }}</li>
 		@endif
-		@if ($invoice->is_recurring && $invoice->isSent() && (! $invoice->last_sent_date || $invoice->last_sent_date == '0000-00-00'))
-			{!! $invoice->present()->statusLabel(trans('texts.pending')) !!}
+		@if ($invoice->is_recurring && $invoice->isSent())
+			@if (! $invoice->last_sent_date || $invoice->last_sent_date == '0000-00-00')
+				{!! $invoice->present()->statusLabel(trans('texts.pending')) !!}
+			@else
+				{!! $invoice->present()->statusLabel(trans('texts.active')) !!}
+			@endif
 		@else
 			{!! $invoice->present()->statusLabel !!}
 		@endif
