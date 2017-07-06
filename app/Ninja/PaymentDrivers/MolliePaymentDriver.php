@@ -3,6 +3,7 @@
 namespace App\Ninja\PaymentDrivers;
 
 use Exception;
+use App\Models\Invitation;
 
 class MolliePaymentDriver extends BasePaymentDriver
 {
@@ -10,9 +11,8 @@ class MolliePaymentDriver extends BasePaymentDriver
     {
         $data = parent::paymentDetails($paymentMethod);
 
-        // Enable the webhooks
-        //$data['notifyUrl'] = $data['returnUrl'];
-        $data['notifyUrl'] = url('/payment_hook/'. $this->account->account_key . '/' . GATEWAY_MOLLIE);
+        // Enable webhooks
+        $data['notifyUrl'] = url('/payment_hook/'. $this->account()->account_key . '/' . GATEWAY_MOLLIE);
 
         return $data;
     }
@@ -20,18 +20,12 @@ class MolliePaymentDriver extends BasePaymentDriver
     public function completeOffsitePurchase($input)
     {
         $details = $this->paymentDetails();
-
         $details['transactionReference'] = $this->invitation->transaction_reference;
 
         $response = $this->gateway()->fetchTransaction($details)->send();
 
-        \Log::info('completeOffsitePurchase');
-        \Log::info($response);
-
-        if ($response->isCancelled()) {
+        if ($response->isCancelled() || ! $response->isSuccessful()) {
             return false;
-        } elseif (! $response->isSuccessful()) {
-            throw new Exception($response->getMessage());
         }
 
         return $this->createPayment($response->getTransactionReference());
@@ -39,12 +33,29 @@ class MolliePaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input)
     {
-        //$paymentId = array_get($input, 'id');
-        $response = $this->gateway()->fetchTransaction($input)->send();
+        $ref = array_get($input, 'id');
+        $invitation = Invitation::whereAccountId($this->accountGateway->account_id)
+                        ->whereTransactionReference($ref)
+                        ->first();
 
-        \Log::info('handleWebHook');
-        \Log::info($response);
-        return 'Processed successfully';
+        if ($invitation) {
+          $this->invitation = $invitation;
+        } else {
+          return false;
+        }
+
+        $data = [
+          'transactionReference' => $ref
+        ];
+        $response = $this->gateway()->fetchTransaction($data)->send();
+
+        if ($response->isCancelled() || ! $response->isSuccessful()) {
+            return false;
+        }
+
+        $this->createPayment($ref);
+
+        return RESULT_SUCCESS;
     }
 
 }
