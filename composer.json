@@ -30,7 +30,7 @@
         "cerdic/css-tidy": "~v1.5",
         "chumper/datatable": "dev-develop#04ef2bf",
         "codedge/laravel-selfupdater": "5.x-dev",
-        "collizo4sky/omnipay-wepay": "^1.3",
+        "collizo4sky/omnipay-wepay": "dev-address-fix",
         "delatbabel/omnipay-fatzebra": "dev-master",
         "dercoder/omnipay-ecopayz": "~1.0",
         "dercoder/omnipay-paysafecard": "dev-master",
@@ -152,6 +152,10 @@
                     "reference": "origin/master"
                 }
             }
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-wepay"
         }
     ]
 }
