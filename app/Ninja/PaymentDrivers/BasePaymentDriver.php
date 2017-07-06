@@ -618,6 +618,9 @@ class BasePaymentDriver
         $account = $this->account();
         $invitation = $this->invitation;
         $invoice = $this->invoice();
+        if (! $invoice->canBePaid()) {
+            return false;
+        }
         $invoice->markSentIfUnsent();
 
         $payment = Payment::createNew($invitation);
