@@ -42,7 +42,7 @@
                         ->radios([
                             trans('texts.country_United States') => ['value' => 'US'],
                             trans('texts.country_Canada') => ['value' => 'CA'],
-                            //trans('texts.country_United Kingdom') => ['value' => 'GB'],
+                            trans('texts.country_United Kingdom') => ['value' => 'GB'],
                         ]) !!}
             </div>
             <div id="wepay-accept-debit" style="display:none">

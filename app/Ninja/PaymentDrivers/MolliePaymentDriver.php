@@ -6,6 +6,16 @@ use Exception;
 
 class MolliePaymentDriver extends BasePaymentDriver
 {
+    protected function paymentDetails($paymentMethod = false)
+    {
+        $data = parent::paymentDetails($paymentMethod);
+
+        // Enable the webhooks
+        $data['notifyUrl'] = $data['returnUrl'];
+
+        return $data;
+    }
+
     public function completeOffsitePurchase($input)
     {
         $details = $this->paymentDetails();
