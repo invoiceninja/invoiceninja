@@ -22,7 +22,7 @@ class UpdateDarkMode extends Migration
             $table->text('credit_number_pattern')->nullable();
         });
 
-        DB::statement('update users set dark_mode = 1;');
+        DB::statement('update users set dark_mode = 1');
 
         // update invoice_item_type_id for task invoice items
         DB::statement('update invoice_items
