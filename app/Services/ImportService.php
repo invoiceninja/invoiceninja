@@ -534,7 +534,18 @@ class ImportService
             // Lookup field translations
             foreach ($columns as $key => $value) {
                 unset($columns[$key]);
-                $columns[$value] = trans("texts.{$value}");
+                $label = $value;
+                // disambiguate some of the labels
+                if ($entityType == ENTITY_INVOICE) {
+                    if ($label == 'name') {
+                        $label = 'client_name';
+                    } elseif ($label == 'notes') {
+                        $label = 'product_notes';
+                    } elseif ($label == 'terms') {
+                        $label = 'invoice_terms';
+                    }
+                }
+                $columns[$value] = trans("texts.{$label}");
             }
             array_unshift($columns, ' ');
 

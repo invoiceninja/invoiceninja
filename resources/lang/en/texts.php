@@ -511,7 +511,7 @@ $LANG = array(
     'partial_remaining' => ':partial of :balance',
     'more_fields' => 'More Fields',
     'less_fields' => 'Less Fields',
-    'client_name' => 'Client',
+    'client_name' => 'Client Name',
     'pdf_settings' => 'PDF Settings',
     'product_settings' => 'Product Settings',
     'auto_wrap' => 'Auto Line Wrap',
@@ -2298,6 +2298,7 @@ $LANG = array(
     'next_credit_number' => 'The next credit number is :number.',
     'padding_help' => 'The number of zero\'s to pad the number.',
     'import_warning_invalid_date' => 'Warning: The date format appears to be invalid.',
+    'product_notes' => 'Product Notes',
 
 );
 
