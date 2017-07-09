@@ -1,6 +1,6 @@
 <script type="text/javascript">
 
-    function renderEmailTemplate(str, invoice) {
+    function renderEmailTemplate(str, invoice, isQuote) {
         if (!str) {
             return '';
         }
@@ -30,7 +30,7 @@
             'password': passwordHtml,
             'documents': documentsHtml,
             'viewLink': '{{ link_to('#', url('/view/...')) }}$password',
-            'viewButton': invoice && invoice.invoice_type_id == {{ INVOICE_TYPE_QUOTE }} ?
+            'viewButton': isQuote || (invoice && invoice.invoice_type_id == {{ INVOICE_TYPE_QUOTE }}) ?
                 '{!! Form::flatButton('view_quote', '#0b4d78') !!}$password' :
                 '{!! Form::flatButton('view_invoice', '#0b4d78') !!}$password',
             'paymentLink': '{{ link_to('#', url('/payment/...')) }}$password',
