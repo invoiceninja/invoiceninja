@@ -259,7 +259,7 @@
 
 			@include('invoices.edit_table', ['isTasks' => false])
 
-			@if ($account->isModuleEnabled(ENTITY_TASK))
+			@if ($account->isModuleEnabled(ENTITY_TASK) && ($invoice->has_tasks || ! empty($tasks)))
 				@include('invoices.edit_table', ['isTasks' => true])
 			@endif
 
