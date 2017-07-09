@@ -46,7 +46,7 @@ class HandleUserSignedUp
     {
         $user = Auth::user();
 
-        if (Utils::isNinjaProd()) {
+        if (Utils::isNinjaProd() && ! $user->confirmed) {
             $this->userMailer->sendConfirmation($user);
         } elseif (Utils::isNinjaDev()) {
             // do nothing
