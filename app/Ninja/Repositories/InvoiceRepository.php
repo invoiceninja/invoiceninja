@@ -448,7 +448,7 @@ class InvoiceRepository extends BaseRepository
                 $invoice->due_date = $data['due_date'];
             }
         } else {
-            if ($isNew && empty($data['due_date']) && empty($data['due_date_sql']) && $invoice->due_date) {
+            if ($isNew && empty($data['due_date']) && empty($data['due_date_sql'])) {
                 // do nothing
             } elseif (isset($data['due_date']) || isset($data['due_date_sql'])) {
                 $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
