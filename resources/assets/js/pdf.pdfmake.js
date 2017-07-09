@@ -830,8 +830,14 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         value = (contact.first_name || contact.last_name) ? contact.first_name + ' ' + contact.last_name : false;
     } else if (field == 'client.id_number') {
         value = client.id_number;
+        if (invoiceLabels.id_number_orig) {
+            label = invoiceLabels.id_number;
+        }
     } else if (field == 'client.vat_number') {
         value = client.vat_number;
+        if (invoiceLabels.vat_number_orig) {
+            label = invoiceLabels.vat_number;
+        }
     } else if (field == 'client.address1') {
         value = client.address1;
     } else if (field == 'client.address2') {
@@ -879,8 +885,14 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         value = account.name;
     } else if (field == 'account.id_number') {
         value = account.id_number;
+        if (invoiceLabels.id_number_orig) {
+            label = invoiceLabels.id_number;
+        }
     } else if (field == 'account.vat_number') {
         value = account.vat_number;
+        if (invoiceLabels.vat_number_orig) {
+            label = invoiceLabels.vat_number;
+        }
     } else if (field == 'account.website') {
         value = account.website;
     } else if (field == 'account.email') {

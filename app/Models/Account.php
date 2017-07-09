@@ -228,6 +228,7 @@ class Account extends Eloquent
         'discount',
         'due_date',
         'hours',
+        'id_number',
         'item',
         'line_total',
         'paid_to_date',
@@ -240,6 +241,7 @@ class Account extends Eloquent
         'tax',
         'terms',
         'unit_cost',
+        'vat_number',
     ];
 
     /**

@@ -230,23 +230,11 @@
 									->options(array_combine(App\Models\Account::$customLabels, Utils::trans(App\Models\Account::$customLabels))) !!}
 						</div>
 						<div class="col-md-6">
-							{!! Former::text('labels_balance_due')->label('balance_due')->addGroupClass('balance_due-label-group label-group') !!}
-							{!! Former::text('labels_description')->label('description')->addGroupClass('description-label-group label-group') !!}
-							{!! Former::text('labels_discount')->label('discount')->addGroupClass('discount-label-group label-group') !!}
-							{!! Former::text('labels_due_date')->label('due_date')->addGroupClass('due_date-label-group label-group') !!}
-							{!! Former::text('labels_hours')->label('hours')->addGroupClass('hours-label-group label-group') !!}
-							{!! Former::text('labels_item')->label('item')->addGroupClass('item-label-group label-group') !!}
-							{!! Former::text('labels_line_total')->label('line_total')->addGroupClass('line_total-label-group label-group') !!}
-							{!! Former::text('labels_paid_to_date')->label('paid_to_date')->addGroupClass('paid_to_date-label-group label-group') !!}
-							{!! Former::text('labels_partial_due')->label('partial_due')->addGroupClass('partial_due-label-group label-group') !!}
-							{!! Former::text('labels_po_number')->label('po_number')->addGroupClass('po_number-label-group label-group') !!}
-							{!! Former::text('labels_quantity')->label('quantity')->addGroupClass('quantity-label-group label-group') !!}
-							{!! Former::text('labels_rate')->label('rate')->addGroupClass('rate-label-group label-group') !!}
-							{!! Former::text('labels_service')->label('service')->addGroupClass('service-label-group label-group') !!}
-							{!! Former::text('labels_subtotal')->label('subtotal')->addGroupClass('subtotal-label-group label-group') !!}
-							{!! Former::text('labels_tax')->label('tax')->addGroupClass('tax-label-group label-group') !!}
-							{!! Former::text('labels_terms')->label('terms')->addGroupClass('terms-label-group label-group') !!}
-							{!! Former::text('labels_unit_cost')->label('unit_cost')->addGroupClass('unit_cost-label-group label-group') !!}
+							@foreach (App\Models\Account::$customLabels as $field)
+								{!! Former::text('labels_' . $field)
+										->label($field)
+										->addGroupClass($field . '-label-group label-group') !!}
+							@endforeach
                         </div>
                       </div>
 
