@@ -8,6 +8,10 @@ use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\VendorRepository;
+use App\Models\Client;
+use App\Models\TaxRate;
+use App\Models\Project;
+use App\Models\ExpenseCategory;
 use Auth;
 use Faker\Factory;
 use Illuminate\Console\Command;
@@ -94,6 +98,7 @@ class CreateTestData extends Command
 
         $this->createClients();
         $this->createVendors();
+        $this->createOtherObjects();
 
         $this->info('Done');
     }
@@ -208,6 +213,50 @@ class CreateTestData extends Command
             $expense = $this->expenseRepo->save($data);
             $this->info('Expense: ' . $expense->amount);
         }
+    }
+
+    private function createOtherObjects()
+    {
+        $this->createTaxRate('Tax 1', 10, 1);
+        $this->createTaxRate('Tax 2', 20, 2);
+
+        $this->createCategory('Category 1', 1);
+        $this->createCategory('Category 1', 2);
+
+        $this->createProject('Project 1', 1);
+        $this->createProject('Project 2', 2);
+    }
+
+    private function createTaxRate($name, $rate, $publicId)
+    {
+        $taxRate = new TaxRate();
+        $taxRate->name = $name;
+        $taxRate->rate = $rate;
+        $taxRate->account_id = 1;
+        $taxRate->user_id = 1;
+        $taxRate->public_id = $publicId;
+        $taxRate->save();
+    }
+
+    private function createCategory($name, $publicId)
+    {
+        $category = new ExpenseCategory();
+        $category->name = $name;
+        $category->account_id = 1;
+        $category->user_id = 1;
+        $category->public_id = $publicId;
+        $category->save();
+    }
+
+    private function createProject($name, $publicId)
+    {
+        $project = new Project();
+        $project->name = $name;
+        $project->account_id = 1;
+        $project->client_id = 1;
+        $project->user_id = 1;
+        $project->public_id = $publicId;
+        $project->save();
     }
 
     /**
