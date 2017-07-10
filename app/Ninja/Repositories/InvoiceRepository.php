@@ -996,8 +996,9 @@ class InvoiceRepository extends BaseRepository
     public function createRecurringInvoice(Invoice $recurInvoice)
     {
         $recurInvoice->load('account.timezone', 'invoice_items', 'client', 'user');
+        $client = $recurInvoice->client;
 
-        if ($recurInvoice->client->deleted_at) {
+        if ($client->deleted_at) {
             return false;
         }
 
@@ -1020,9 +1021,9 @@ class InvoiceRepository extends BaseRepository
         $invoice->invoice_date = date_create()->format('Y-m-d');
         $invoice->discount = $recurInvoice->discount;
         $invoice->po_number = $recurInvoice->po_number;
-        $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes);
-        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $recurInvoice->account->invoice_terms);
-        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer ?: $recurInvoice->account->invoice_footer);
+        $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes, $client);
+        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $recurInvoice->account->invoice_terms, $client);
+        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer ?: $recurInvoice->account->invoice_footer, $client);
         $invoice->tax_name1 = $recurInvoice->tax_name1;
         $invoice->tax_rate1 = $recurInvoice->tax_rate1;
         $invoice->tax_name2 = $recurInvoice->tax_name2;
@@ -1032,8 +1033,8 @@ class InvoiceRepository extends BaseRepository
         $invoice->custom_value2 = $recurInvoice->custom_value2 ?: 0;
         $invoice->custom_taxes1 = $recurInvoice->custom_taxes1 ?: 0;
         $invoice->custom_taxes2 = $recurInvoice->custom_taxes2 ?: 0;
-        $invoice->custom_text_value1 = Utils::processVariables($recurInvoice->custom_text_value1);
-        $invoice->custom_text_value2 = Utils::processVariables($recurInvoice->custom_text_value2);
+        $invoice->custom_text_value1 = Utils::processVariables($recurInvoice->custom_text_value1, $client);
+        $invoice->custom_text_value2 = Utils::processVariables($recurInvoice->custom_text_value2, $client);
         $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
         $invoice->due_date = $recurInvoice->getDueDate();
         $invoice->save();
@@ -1043,14 +1044,14 @@ class InvoiceRepository extends BaseRepository
             $item->product_id = $recurItem->product_id;
             $item->qty = $recurItem->qty;
             $item->cost = $recurItem->cost;
-            $item->notes = Utils::processVariables($recurItem->notes);
-            $item->product_key = Utils::processVariables($recurItem->product_key);
+            $item->notes = Utils::processVariables($recurItem->notes, $client);
+            $item->product_key = Utils::processVariables($recurItem->product_key, $client);
             $item->tax_name1 = $recurItem->tax_name1;
             $item->tax_rate1 = $recurItem->tax_rate1;
             $item->tax_name2 = $recurItem->tax_name2;
             $item->tax_rate2 = $recurItem->tax_rate2;
-            $item->custom_value1 = Utils::processVariables($recurItem->custom_value1);
-            $item->custom_value2 = Utils::processVariables($recurItem->custom_value2);
+            $item->custom_value1 = Utils::processVariables($recurItem->custom_value1, $client);
+            $item->custom_value2 = Utils::processVariables($recurItem->custom_value2, $client);
             $invoice->invoice_items()->save($item);
         }
 
