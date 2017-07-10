@@ -66,10 +66,6 @@ Route::group(['middleware' => 'lookup:license'], function () {
     Route::get('claim_license', 'NinjaController@claim_license');
 });
 
-Route::group(['middleware' => 'cors'], function () {
-    Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
-});
-
 Route::group(['middleware' => 'lookup:postmark'], function () {
     Route::post('/hook/email_bounced', 'AppController@emailBounced');
     Route::post('/hook/email_opened', 'AppController@emailOpened');
@@ -77,6 +73,7 @@ Route::group(['middleware' => 'lookup:postmark'], function () {
 
 Route::group(['middleware' => 'lookup:account'], function () {
     Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
+    Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
 });
 
 //Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
