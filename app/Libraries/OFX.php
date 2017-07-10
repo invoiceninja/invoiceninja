@@ -35,7 +35,7 @@ class OFX
         $this->response = curl_exec($c);
 
         if (Utils::isNinjaDev()) {
-            Log::info(print_r($this->response, true));
+            //Log::info(print_r($this->response, true));
         }
 
         curl_close($c);

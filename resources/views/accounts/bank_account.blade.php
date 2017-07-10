@@ -7,7 +7,7 @@
 
     <style type="text/css">
         table.accounts-table > thead > tr > th.header {
-            background-color: #e37329 !important;
+            background-color: #777 !important;
             color:#fff !important;
             padding-top:8px;
         }
@@ -80,8 +80,8 @@
 
 
         <div class="col-lg-12 col-sm-12" data-bind="visible: page() == 'import'" style="display:none">
-            <div class="row panel">
-                <div class="col-md-8" style="height:60px;padding-top:10px;">
+            <div class="row panel" style="padding-top:10px;padding-bottom:12px;">
+                <div class="col-md-8" style="padding-top:10px;">
                     <span data-bind="text: statusLabel"></span>
                 </div>
                 <div class="col-md-4">
@@ -195,7 +195,7 @@
                 ->large()
                 ->appendIcon(Icon::create('floppy-disk'))) !!}
     @endif
-    
+
     {!! Former::close() !!}
 
     <script type="text/javascript">
