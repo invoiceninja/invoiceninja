@@ -22,7 +22,7 @@ class ProfitAndLossReport extends AbstractReport
 
         $payments = Payment::scope()
                         ->orderBy('payment_date', 'desc')
-                        ->with('client.contacts')
+                        ->with('client.contacts', 'invoice')
                         ->withArchived()
                         ->excludeFailed()
                         ->where('payment_date', '>=', $this->startDate)
@@ -30,6 +30,10 @@ class ProfitAndLossReport extends AbstractReport
 
         foreach ($payments->get() as $payment) {
             $client = $payment->client;
+            $invoice = $payment->invoice;
+            if ($client->is_deleted || $invoice->is_deleted) {
+                continue;
+            }
             $this->data[] = [
                 trans('texts.payment'),
                 $client ? ($this->isExport ? $client->getDisplayName() : $client->present()->link) : '',
