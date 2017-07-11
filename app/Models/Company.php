@@ -131,17 +131,16 @@ class Company extends Eloquent
             return false;
         }
 
-        // after 52 weeks, offer a 50% discount for 3 days
         $discounts = [
-            52 => [.5, 3],
-            16 => [.5, 3],
+            52 => [.6, 3],
+            16 => [.4, 3],
             10 => [.25, 5],
         ];
 
         foreach ($discounts as $weeks => $promo) {
             list($discount, $validFor) = $promo;
             $difference = $this->created_at->diffInWeeks();
-            if ($difference >= $weeks) {
+            if ($difference >= $weeks && $discount > $this->discount) {
                 $this->discount = $discount;
                 $this->promo_expires = date_create()->modify($validFor . ' days')->format('Y-m-d');
                 $this->save();
