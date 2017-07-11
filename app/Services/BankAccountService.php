@@ -128,6 +128,7 @@ class BankAccountService extends BaseService
 
             return $data;
         } catch (\Exception $e) {
+            Utils::logError($e);
             return false;
         }
     }
@@ -183,11 +184,12 @@ class BankAccountService extends BaseService
         $ofxParser = new \OfxParser\Parser();
         $ofx = $ofxParser->loadFromString($data);
 
-        $account->start_date = $ofx->BankAccount->Statement->startDate;
-        $account->end_date = $ofx->BankAccount->Statement->endDate;
+        $bankAccount = reset($ofx->bankAccounts);
+        $account->start_date = $bankAccount->statement->startDate;
+        $account->end_date = $bankAccount->statement->endDate;
         $account->transactions = [];
 
-        foreach ($ofx->BankAccount->Statement->transactions as $transaction) {
+        foreach ($bankAccount->statement->transactions as $transaction) {
             // ensure transactions aren't imported as expenses twice
             if (isset($expenses[$transaction->uniqueId])) {
                 continue;
