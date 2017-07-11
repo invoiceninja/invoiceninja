@@ -74,6 +74,10 @@ class UpdateDarkMode extends Migration
             $table->unsignedInteger('recurring_expense_id')->nullable();
         });
 
+        Schema::table('bank_accounts', function ($table) {
+            $table->mediumInteger('app_version')->default(DEFAULT_BANK_APP_VERSION);
+            $table->mediumInteger('ofx_version')->default(DEFAULT_BANK_OFX_VERSION);
+        });
     }
 
     /**
@@ -93,6 +97,11 @@ class UpdateDarkMode extends Migration
             $table->dropColumn('credit_number_counter');
             $table->dropColumn('credit_number_prefix');
             $table->dropColumn('credit_number_pattern');
+        });
+
+        Schema::table('bank_accounts', function ($table) {
+            $table->dropColumn('app_version');
+            $table->dropColumn('ofx_version');
         });
     }
 }

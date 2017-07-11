@@ -154,6 +154,9 @@ if (! defined('APP_NAME')) {
     define('DEFAULT_BODY_FONT', 1); // Roboto
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
 
+    define('DEFAULT_BANK_OFX_VERSION', 102);
+    define('DEFAULT_BANK_APP_VERSION', 2500);
+
     define('IMPORT_CSV', 'CSV');
     define('IMPORT_JSON', 'JSON');
     define('IMPORT_FRESHBOOKS', 'FreshBooks');

@@ -2299,6 +2299,8 @@ $LANG = array(
     'padding_help' => 'The number of zero\'s to pad the number.',
     'import_warning_invalid_date' => 'Warning: The date format appears to be invalid.',
     'product_notes' => 'Product Notes',
+    'app_version' => 'App Version',
+    'ofx_version' => 'OFX Version',
 
 );
 

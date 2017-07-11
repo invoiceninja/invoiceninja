@@ -10,10 +10,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class BankAccount extends EntityModel
 {
     use SoftDeletes;
+
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'bank_id',
+        'app_version',
+        'ofx_version',
+    ];
 
     /**
      * @return mixed

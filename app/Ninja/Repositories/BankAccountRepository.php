@@ -31,8 +31,8 @@ class BankAccountRepository extends BaseRepository
     public function save($input)
     {
         $bankAccount = BankAccount::createNew();
-        $bankAccount->bank_id = $input['bank_id'];
         $bankAccount->username = Crypt::encrypt(trim($input['bank_username']));
+        $bankAccount->fill($input);
 
         $account = \Auth::user()->account;
         $account->bank_accounts()->save($bankAccount);
