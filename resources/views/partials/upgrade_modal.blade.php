@@ -110,6 +110,12 @@
         proPrice = proPrice - (proPrice * {{ Auth::user()->account->company->discount }});
         enterprisePrice = enterprisePrice - (enterprisePrice * {{ Auth::user()->account->company->discount }});
     @endif
+    if (proPrice % 1) {
+        proPrice = proPrice.toFixed(2);
+    }
+    if (enterprisePrice % 1) {
+        enterprisePrice = enterprisePrice.toFixed(2);
+    }
     $('#upgrade_pro_price').text(proPrice);
     $('#upgrade_enterprise_price').text(enterprisePrice);
     $('span.upgrade_frequency').text(label);
