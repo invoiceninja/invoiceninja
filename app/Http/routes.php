@@ -64,6 +64,10 @@ Route::group(['middleware' => 'lookup:license'], function () {
     Route::get('license', 'NinjaController@show_license_payment');
     Route::post('license', 'NinjaController@do_license_payment');
     Route::get('claim_license', 'NinjaController@claim_license');
+    if (Utils::isNinja()) {
+        Route::post('/signup/register', 'AccountController@doRegister');
+        Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
+    }
 });
 
 Route::group(['middleware' => 'lookup:postmark'], function () {
@@ -106,11 +110,6 @@ Route::group(['middleware' => ['lookup:contact']], function () {
     Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail']);
     Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postReset']);
 });
-
-if (Utils::isNinja()) {
-    Route::post('/signup/register', 'AccountController@doRegister');
-    Route::get('/news_feed/{user_type}/{version}/', 'HomeController@newsFeed');
-}
 
 if (Utils::isReseller()) {
     Route::post('/reseller_stats', 'AppController@stats');
