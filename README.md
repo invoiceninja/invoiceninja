@@ -61,6 +61,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 ## Tools
 * [InvoicePlane Import](https://github.com/turbo124/Plane2Ninja)
 * [Toggl Sync](https://github.com/Matth--/toggl-invoiceninja-sync)
+* [Shopping Cart](https://github.com/Scifabric/invoiceninjashoppingcart)
 
 ## Development
 * [API Documentation](https://www.invoiceninja.com/api-documentation/)
