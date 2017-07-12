@@ -11,7 +11,7 @@ class UpdateTaskRequest extends TaskRequest
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**

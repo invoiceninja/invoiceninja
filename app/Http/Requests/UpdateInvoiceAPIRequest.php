@@ -13,7 +13,7 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
@@ -23,6 +23,10 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
      */
     public function rules()
     {
+        if (! $this->entity()) {
+            return [];
+        }
+
         if ($this->action == ACTION_ARCHIVE) {
             return [];
         }

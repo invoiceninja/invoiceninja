@@ -11,7 +11,7 @@ class UpdateVendorRequest extends VendorRequest
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**

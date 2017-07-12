@@ -121,6 +121,10 @@ class BaseAPIController extends Controller
 
     protected function itemResponse($item)
     {
+        if (! $item) {
+            return $this->errorResponse('Record not found', 404);
+        }
+
         $transformerClass = EntityModel::getTransformerName($this->entityType);
         $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
 
