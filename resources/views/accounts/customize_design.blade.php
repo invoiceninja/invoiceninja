@@ -77,6 +77,12 @@
 
     function loadEditor(section)
     {
+		if (section == 'defaults') {
+			section = 'defaultStyle';
+		} else if (section == 'margins') {
+			section = 'pageMargins';
+		}
+
         editorSection = section;
         editor.set(customDesign[section]);
 
@@ -181,8 +187,8 @@
         <ul class="nav nav-tabs" role="tablist" style="border: none">
             <li role="presentation" class="active"><a href="#content" aria-controls="content" role="tab" data-toggle="tab">{{ trans('texts.content') }}</a></li>
             <li role="presentation"><a href="#styles" aria-controls="styles" role="tab" data-toggle="tab">{{ trans('texts.styles') }}</a></li>
-            <li role="presentation"><a href="#defaultStyle" aria-controls="defaultStyle" role="tab" data-toggle="tab">{{ trans('texts.defaults') }}</a></li>
-            <li role="presentation"><a href="#pageMargins" aria-controls="margins" role="tab" data-toggle="tab">{{ trans('texts.margins') }}</a></li>
+            <li role="presentation"><a href="#defaults" aria-controls="defaults" role="tab" data-toggle="tab">{{ trans('texts.defaults') }}</a></li>
+            <li role="presentation"><a href="#margins" aria-controls="margins" role="tab" data-toggle="tab">{{ trans('texts.margins') }}</a></li>
             <li role="presentation"><a href="#header" aria-controls="header" role="tab" data-toggle="tab">{{ trans('texts.header') }}</a></li>
             <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.footer') }}</a></li>
         </ul>
