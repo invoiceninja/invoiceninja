@@ -175,7 +175,7 @@ class ImportService
             $account->save();
 
             $emailSettings = $account->account_email_settings;
-            $emailSettings->fill($settings['account_email_settings']);
+            $emailSettings->fill(isset($settings['account_email_settings']) ? $settings['account_email_settings'] : $settings);
             $emailSettings->save();
         }
 
