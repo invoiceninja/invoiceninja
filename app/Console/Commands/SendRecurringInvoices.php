@@ -13,6 +13,8 @@ use DateTime;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Input\InputOption;
 use Auth;
+use Exception;
+use Utils;
 
 /**
  * Class SendRecurringInvoices.
@@ -110,12 +112,18 @@ class SendRecurringInvoices extends Command
             $account = $recurInvoice->account;
             $account->loadLocalizationSettings($recurInvoice->client);
             Auth::loginUsingId($recurInvoice->user_id);
-            $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
 
-            if ($invoice && ! $invoice->isPaid()) {
-                $this->info('Sending Invoice');
-                $this->mailer->sendInvoice($invoice);
+            try {
+                $invoice = $this->invoiceRepo->createRecurringInvoice($recurInvoice);
+                if ($invoice && ! $invoice->isPaid()) {
+                    $this->info('Sending Invoice');
+                    $this->mailer->sendInvoice($invoice);
+                }
+            } catch (Exception $exception) {
+                $this->info('Error: ' . $exception->getMessage());
+                Utils::logError($exception);
             }
+
             Auth::logout();
         }
     }
