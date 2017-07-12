@@ -11,7 +11,7 @@ class CompanyPresenter extends EntityPresenter
         }
 
         return trans('texts.promo_message', [
-            'expires' => $this->entity->promo_expires->format('M dS, Y'),
+            'expires' => $this->entity->promo_expires->format('M jS, Y'),
             'amount' => (int) ($this->discount * 100) . '%',
         ]);
     }
