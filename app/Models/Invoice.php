@@ -699,13 +699,13 @@ class Invoice extends EntityModel implements BalanceAffecting
         return self::calcLink($this);
     }
 
-    public function getInvitationLink($type = 'view', $forceOnsite = false)
+    public function getInvitationLink($type = 'view', $forceOnsite = false, $forcePlain = false)
     {
         if (! $this->relationLoaded('invitations')) {
             $this->load('invitations');
         }
 
-        return $this->invitations[0]->getLink($type, $forceOnsite);
+        return $this->invitations[0]->getLink($type, $forceOnsite, $forcePlain);
     }
 
     /**

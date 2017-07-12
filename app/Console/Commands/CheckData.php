@@ -76,7 +76,7 @@ class CheckData extends Command
             $this->checkDraftSentInvoices();
         }
 
-        //$this->checkInvoices();
+        $this->checkInvoices();
         $this->checkBalances();
         $this->checkContacts();
         $this->checkUserAccounts();
@@ -148,14 +148,14 @@ class CheckData extends Command
             ->get(['id', 'balance']);
 
         foreach ($invoices as $invoice) {
-            $link = $invoice->getInvitationLink();
+            $link = $invoice->getInvitationLink('view', true, true);
             $this->logMessage('Checking invoice: ' . $invoice->id . ' - ' . $invoice->balance);
             $result = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_balances=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
             $result = floatval(strip_tags($result));
             $this->logMessage('Result: ' . $result);
 
             if ($result && $result != $invoice->balance) {
-                $this->logMessage("Amounts do not match - PHP: {$invoice->balance}, JS: {$result}");
+                $this->logMessage("Amounts do not match {$link} - PHP: {$invoice->balance}, JS: {$result}");
                 $this->isValid = false;
             }
         }
