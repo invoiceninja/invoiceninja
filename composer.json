@@ -88,7 +88,7 @@
     },
     "require-dev": {
         "codeception/c3": "~2.0",
-        "codeception/codeception": "*",
+        "codeception/codeception": "2.3.3",
         "phpspec/phpspec": "~2.1",
         "phpunit/phpunit": "~4.0",
         "symfony/dom-crawler": "~3.0"
