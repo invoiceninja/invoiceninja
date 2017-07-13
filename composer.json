@@ -45,7 +45,7 @@
         "fruitcakestudio/omnipay-sisow": "~2.0",
         "fzaninotto/faker": "^1.5",
         "gatepay/FedACHdir": "dev-master@dev",
-        "google/apiclient": "^1.0",
+        "google/apiclient": "^2.0",
         "guzzlehttp/guzzle": "~6.0",
         "incube8/omnipay-multicards": "dev-master",
         "intervention/image": "dev-master",
@@ -82,7 +82,7 @@
         "turbo124/laravel-push-notification": "2.*",
         "vink/omnipay-komoju": "~1.0",
         "webpatser/laravel-countries": "dev-master",
-        "websight/l5-google-cloud-storage": "^1.0",
+        "websight/l5-google-cloud-storage": "dev-master",
         "wepay/php-sdk": "^0.2",
         "wildbit/laravel-postmark-provider": "3.0"
     },
@@ -156,6 +156,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/omnipay-wepay"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/l5-google-cloud-storage"
         }
     ]
 }
