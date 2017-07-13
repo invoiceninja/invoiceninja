@@ -3,6 +3,10 @@
 <head>
     <!-- Source: https://github.com/invoiceninja/invoiceninja -->
     <!-- Version: {{ NINJA_VERSION }} -->
+    @if (env('MULTI_DB_ENABLED'))
+    <!-- Authenticated: {{ Auth::check() ? 'Yes' : 'No' }} -->
+    <!-- Server: {{ session(SESSION_DB_SERVER, 'Unset') }} -->
+    @endif
     <meta charset="utf-8">
 
     @if (Utils::isWhiteLabel() && ! isset($title))
