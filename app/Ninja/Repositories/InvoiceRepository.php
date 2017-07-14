@@ -983,7 +983,7 @@ class InvoiceRepository extends BaseRepository
                     ->whereDeletedAt(null)
                     ->where('balance', '>', 0);
 
-        return $query->where('invoice_status_id', '<', 5)
+        return $query->where('invoice_status_id', '<', INVOICE_STATUS_PAID)
                 ->select(['public_id', 'invoice_number'])
                 ->get();
     }
