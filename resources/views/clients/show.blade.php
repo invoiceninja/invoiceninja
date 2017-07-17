@@ -317,7 +317,7 @@
           if (isStorageSupported()) {
               localStorage.setItem('client_tab', target);
           }
-          if (!loadedTabs.hasOwnProperty(target)) {
+          if (!loadedTabs.hasOwnProperty(target) && window['load_' + target]) {
             loadedTabs[target] = true;
             window['load_' + target]();
           }
