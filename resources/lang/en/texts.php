@@ -2301,6 +2301,7 @@ $LANG = array(
     'product_notes' => 'Product Notes',
     'app_version' => 'App Version',
     'ofx_version' => 'OFX Version',
+    'gateway_help_23' => ':link to get your Stripe API keys.',
 
 );
 
