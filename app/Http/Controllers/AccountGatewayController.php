@@ -254,7 +254,7 @@ class AccountGatewayController extends BaseController
                     if ($oldConfig && $value && $value === str_repeat('*', strlen($value))) {
                         $value = $oldConfig->$field;
                     }
-                    if (! $value && ($field == 'testMode' || $field == 'developerMode')) {
+                    if (! $value && in_array($field, ['testMode', 'developerMode', 'sandbox'])) {
                         // do nothing
                     } elseif ($gatewayId == GATEWAY_CUSTOM) {
                         $config->$field = strip_tags($value);
