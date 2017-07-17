@@ -2302,6 +2302,8 @@ $LANG = array(
     'app_version' => 'App Version',
     'ofx_version' => 'OFX Version',
     'gateway_help_23' => ':link to get your Stripe API keys.',
+    'error_app_key_not_set' => 'Error: the APP_KEY value is not set in the .env file.',
+    'error_app_key_set_to_default' => 'Error: the APP_KEY value is set to the default in the .env file.'
 
 );
 
