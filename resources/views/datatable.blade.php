@@ -42,12 +42,12 @@
         });
     @endif
 
-    function refreshDatatable() {
-        window.dataTable.api().ajax.reload();
+    function refreshDatatable{{ isset($values['entityType']) ? '_' . $values['entityType'] : '' }}() {
+        window['dataTable{{ isset($values['entityType']) ? '_' . $values['entityType'] : '' }}'].api().ajax.reload();
     }
 
     function load_{{ $class }}() {
-        window.dataTable = jQuery('.{{ $class }}').dataTable({
+        window['dataTable{{ isset($values['entityType']) ? '_' . $values['entityType'] : '' }}'] = jQuery('.{{ $class }}').dataTable({
             "stateSave": true,
             "stateDuration": 0,
             "fnRowCallback": function(row, data) {
