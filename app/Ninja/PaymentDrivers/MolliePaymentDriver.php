@@ -4,6 +4,7 @@ namespace App\Ninja\PaymentDrivers;
 
 use Exception;
 use App\Models\Invitation;
+use App\Models\Payment;
 
 class MolliePaymentDriver extends BasePaymentDriver
 {
@@ -19,41 +20,37 @@ class MolliePaymentDriver extends BasePaymentDriver
 
     public function completeOffsitePurchase($input)
     {
-        $details = $this->paymentDetails();
-        $details['transactionReference'] = $this->invitation->transaction_reference;
-
-        $response = $this->gateway()->fetchTransaction($details)->send();
-
-        if ($response->isCancelled() || ! $response->isSuccessful()) {
-            return false;
-        }
-
-        return $this->createPayment($response->getTransactionReference());
+        // payment is created by the webhook
+        return false;
     }
 
     public function handleWebHook($input)
     {
         $ref = array_get($input, 'id');
-        $invitation = Invitation::whereAccountId($this->accountGateway->account_id)
-                        ->whereTransactionReference($ref)
-                        ->first();
-
-        if ($invitation) {
-          $this->invitation = $invitation;
-        } else {
-          return false;
-        }
-
         $data = [
           'transactionReference' => $ref
         ];
+
         $response = $this->gateway()->fetchTransaction($data)->send();
 
-        if ($response->isCancelled() || ! $response->isSuccessful()) {
+        if ($response->isPaid() || $response->isPaidOut()) {
+            $invitation = Invitation::whereAccountId($this->accountGateway->account_id)
+                            ->whereTransactionReference($ref)
+                            ->first();
+            if ($invitation) {
+              $this->invitation = $invitation;
+              $this->createPayment($ref);
+            }
+        } else {
+            // check if payment has failed
+            $payment = Payment::whereAccountId($this->accountGateway->account_id)
+                            ->whereTransactionReference($ref)
+                            ->first();
+            if ($payment) {
+                $payment->markFailed($response->getStatus());
+            }
             return false;
         }
-
-        $this->createPayment($ref);
 
         return RESULT_SUCCESS;
     }

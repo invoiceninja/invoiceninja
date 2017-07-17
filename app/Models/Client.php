@@ -305,6 +305,7 @@ class Client extends EntityModel
 
         $contact->fill($data);
         $contact->is_primary = $isPrimary;
+        $contact->email = trim($contact->email);
 
         return $this->contacts()->save($contact);
     }
@@ -558,6 +559,15 @@ class Client extends EntityModel
     public function defaultDaysDue()
     {
         return $this->payment_terms == -1 ? 0 : $this->payment_terms;
+    }
+
+    public function firstInvitationKey()
+    {
+        if ($invoice = $this->invoices->first()) {
+            if ($invitation = $invoice->invitations->first()) {
+                return $invitation->invitation_key;
+            }
+        }
     }
 }
 

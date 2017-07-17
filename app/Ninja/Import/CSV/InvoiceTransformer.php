@@ -38,8 +38,8 @@ class InvoiceTransformer extends BaseTransformer
                 'invoice_items' => [
                     [
                         'product_key' => $this->getString($data, 'product'),
-                        'notes' => $this->getString($data, 'notes'),
-                        'cost' => $this->getFloat($data, 'amount'),
+                        'notes' => $this->getString($data, 'notes') ?: $this->getProductNotes($this->getString($data, 'product')),
+                        'cost' => $this->getFloat($data, 'amount') ?: $this->getProductCost($this->getString($data, 'product')),
                         'qty' => $this->getFloat($data, 'quantity') ?: 1,
                     ],
                 ],

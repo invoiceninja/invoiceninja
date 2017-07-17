@@ -317,7 +317,7 @@
           if (isStorageSupported()) {
               localStorage.setItem('client_tab', target);
           }
-          if (!loadedTabs.hasOwnProperty(target)) {
+          if (!loadedTabs.hasOwnProperty(target) && window['load_' + target]) {
             loadedTabs[target] = true;
             window['load_' + target]();
           }
@@ -326,7 +326,8 @@
         var tab = window.location.hash || (localStorage.getItem('client_tab') || '');
         tab = tab.replace('#', '');
         var selector = '.nav-tabs a[href="#' + tab + '"]';
-        if (tab && tab != 'activity' && $(selector).length) {
+
+        if (tab && tab != 'activity' && $(selector).length && window['load_' + tab]) {
             $(selector).tab('show');
         } else {
             window['load_activity']();

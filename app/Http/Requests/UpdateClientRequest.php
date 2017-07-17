@@ -11,7 +11,7 @@ class UpdateClientRequest extends ClientRequest
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
@@ -21,6 +21,10 @@ class UpdateClientRequest extends ClientRequest
      */
     public function rules()
     {
+        if (! $this->entity()) {
+            return [];
+        }
+
         $rules = [];
 
         if ($this->user()->account->client_number_counter) {

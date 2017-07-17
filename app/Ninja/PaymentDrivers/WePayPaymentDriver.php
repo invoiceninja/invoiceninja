@@ -151,10 +151,10 @@ class WePayPaymentDriver extends BasePaymentDriver
             switch ($source->state) {
                 case 'new':
                 case 'pending':
-                    $paymentMethod->status = 'new';
+                    $paymentMethod->status = PAYMENT_METHOD_STATUS_NEW;
                     break;
                 case 'authorized':
-                    $paymentMethod->status = 'verified';
+                    $paymentMethod->status = PAYMENT_METHOD_STATUS_VERIFIED;
                     break;
             }
         } else {

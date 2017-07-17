@@ -84,14 +84,14 @@ class AccountGatewayController extends BaseController
     public function create()
     {
         if (! \Request::secure() && ! Utils::isNinjaDev()) {
-            Session::flash('warning', trans('texts.enable_https'));
+            Session::now('warning', trans('texts.enable_https'));
         }
 
         $account = Auth::user()->account;
         $accountGatewaysIds = $account->gatewayIds();
         $otherProviders = Input::get('other_providers');
 
-        if (! Utils::isNinja() || ! env('WEPAY_CLIENT_ID') || Gateway::hasStandardGateway($accountGatewaysIds)) {
+        if (! env('WEPAY_CLIENT_ID') || Gateway::hasStandardGateway($accountGatewaysIds)) {
             $otherProviders = true;
         }
 
@@ -254,7 +254,7 @@ class AccountGatewayController extends BaseController
                     if ($oldConfig && $value && $value === str_repeat('*', strlen($value))) {
                         $value = $oldConfig->$field;
                     }
-                    if (! $value && ($field == 'testMode' || $field == 'developerMode')) {
+                    if (! $value && in_array($field, ['testMode', 'developerMode', 'sandbox'])) {
                         // do nothing
                     } elseif ($gatewayId == GATEWAY_CUSTOM) {
                         $config->$field = strip_tags($value);
@@ -378,11 +378,8 @@ class AccountGatewayController extends BaseController
             'first_name' => 'required',
             'last_name' => 'required',
             'email' => 'required|email',
+            'country' => 'required|in:US,CA,GB',
         ];
-
-        if (WEPAY_ENABLE_CANADA) {
-            $rules['country'] = 'required|in:US,CA';
-        }
 
         $validator = Validator::make(Input::all(), $rules);
 
@@ -428,15 +425,14 @@ class AccountGatewayController extends BaseController
                 'theme_object' => json_decode(WEPAY_THEME),
                 'callback_uri' => $accountGateway->getWebhookUrl(),
                 'rbits' => $account->present()->rBits,
+                'country' => Input::get('country'),
             ];
 
-            if (WEPAY_ENABLE_CANADA) {
-                $accountDetails['country'] = Input::get('country');
-
-                if (Input::get('country') == 'CA') {
-                    $accountDetails['currencies'] = ['CAD'];
-                    $accountDetails['country_options'] = ['debit_opt_in' => boolval(Input::get('debit_cards'))];
-                }
+            if (Input::get('country') == 'CA') {
+                $accountDetails['currencies'] = ['CAD'];
+                $accountDetails['country_options'] = ['debit_opt_in' => boolval(Input::get('debit_cards'))];
+            } elseif (Input::get('country') == 'GB') {
+                $accountDetails['currencies'] = ['GBP'];
             }
 
             $wepayAccount = $wepay->request('account/create/', $accountDetails);
@@ -461,7 +457,7 @@ class AccountGatewayController extends BaseController
                 'accountId' => $wepayAccount->account_id,
                 'state' => $wepayAccount->state,
                 'testMode' => WEPAY_ENVIRONMENT == WEPAY_STAGE,
-                'country' => WEPAY_ENABLE_CANADA ? Input::get('country') : 'US',
+                'country' => Input::get('country'),
             ]);
 
             if ($confirmationRequired) {

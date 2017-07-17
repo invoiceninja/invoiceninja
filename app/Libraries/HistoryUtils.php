@@ -80,6 +80,7 @@ class HistoryUtils
             ENTITY_QUOTE,
             ENTITY_TASK,
             ENTITY_EXPENSE,
+            //ENTITY_RECURRING_EXPENSE,
         ];
 
         if (! in_array($entityType, $trackedTypes)) {

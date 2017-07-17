@@ -54,7 +54,7 @@ class SimplifyTasks extends Migration
             $table->integer('break_duration')->nullable();
         });
 
-        if (Schema::hasColumn('accounts', 'dark_mode')) {
+        if (Schema::hasColumn('users', 'dark_mode')) {
             Schema::table('users', function ($table) {
                 $table->dropColumn('dark_mode');
             });

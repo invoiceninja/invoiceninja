@@ -43,7 +43,7 @@ class HandleUserLoggedIn
     {
         $account = Auth::user()->account;
 
-        if (empty($account->last_login)) {
+        if (! Utils::isNinja() && empty($account->last_login)) {
             event(new UserSignedUp());
         }
 
@@ -77,6 +77,13 @@ class HandleUserLoggedIn
             if (! $gateway || $gateway->name !== 'Custom') {
                 Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
             }
+            /*
+            if (! env('APP_KEY')) {
+                Session::flash('error', trans('texts.error_app_key_not_set'));
+            } elseif (strstr(env('APP_KEY'), 'SomeRandomString')) {
+                Session::flash('error', trans('texts.error_app_key_set_to_default'));
+            }
+            */
         }
     }
 }

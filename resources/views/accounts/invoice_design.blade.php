@@ -10,8 +10,16 @@
     <script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
     <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
     <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
+@stop
 
+@section('head_css')
+	@parent
 
+	<style type="text/css">
+		.label-group {
+			display: none;
+		}
+	</style>
 @stop
 
 @section('content')
@@ -66,30 +74,36 @@
       NINJA.headerFont = $('#header_font_id option:selected').text();
       NINJA.bodyFont = $('#body_font_id option:selected').text();
 
-      var fields = [
-          'item',
-          'description',
-          'unit_cost',
-          'quantity',
-          'line_total',
-          'terms',
-          'balance_due',
-          'partial_due'
-      ];
-      invoiceLabels.old = {};
+      var fields = {!! json_encode(App\Models\Account::$customLabels) !!};
       for (var i=0; i<fields.length; i++) {
         var field = fields[i];
         var val = $('#labels_' + field).val();
-        if (invoiceLabels.old.hasOwnProperty(field)) {
-            invoiceLabels.old[field] = invoiceLabels[field];
-        }
-        if (val) {
-            invoiceLabels[field] = val;
-        }
+		if ( ! invoiceLabels[field + '_orig']) {
+			invoiceLabels[field + '_orig'] = invoiceLabels[field];
+		}
+		invoiceLabels[field] = val || invoiceLabels[field + '_orig'];
       }
 
       generatePDF(invoice, getDesignJavascript(), true, cb);
     }
+
+	function updateFieldLabels() {
+		@foreach (App\Models\Account::$customLabels as $field)
+			if ($('#labels_{{ $field }}').val()) {
+				$('.{{ $field }}-label-group').show();
+			} else {
+				$('.{{ $field }}-label-group').hide();
+			}
+		@endforeach
+	}
+
+	function onFieldChange() {
+		var $select = $('#label_field');
+        var id = $select.val();
+		$select.val(null).blur();
+		$('.' + id + '-label-group').fadeIn();
+		console.log(id);
+	}
 
     $(function() {
       var options = {
@@ -106,6 +120,7 @@
       $('#header_font_id').change(function(){loadFont($('#header_font_id').val())});
       $('#body_font_id').change(function(){loadFont($('#body_font_id').val())});
 
+	  updateFieldLabels();
       refreshPDF();
     });
 
@@ -208,22 +223,18 @@
 
                       <div class="row">
                         <div class="col-md-6">
-							{!! Former::text('labels_item')->label('item') !!}
-							{!! Former::text('labels_description')->label('description') !!}
-							{!! Former::text('labels_unit_cost')->label('unit_cost') !!}
-							{!! Former::text('labels_quantity')->label('quantity') !!}
-							{!! Former::text('labels_line_total')->label('line_total') !!}
-							{!! Former::text('labels_terms')->label('terms') !!}
-							{!! Former::text('labels_subtotal')->label('subtotal') !!}
+							{!! Former::select('label_field')
+									->placeholder('select_label')
+									->label('label')
+									->onchange('onFieldChange()')
+									->options(array_combine(App\Models\Account::$customLabels, Utils::trans(App\Models\Account::$customLabels))) !!}
 						</div>
 						<div class="col-md-6">
-							{!! Former::text('labels_discount')->label('discount') !!}
-							{!! Former::text('labels_paid_to_date')->label('paid_to_date') !!}
-							{!! Former::text('labels_balance_due')->label('balance_due') !!}
-							{!! Former::text('labels_partial_due')->label('partial_due') !!}
-							{!! Former::text('labels_tax')->label('tax') !!}
-							{!! Former::text('labels_po_number')->label('po_number') !!}
-							{!! Former::text('labels_due_date')->label('due_date') !!}
+							@foreach (App\Models\Account::$customLabels as $field)
+								{!! Former::text('labels_' . $field)
+										->label($field)
+										->addGroupClass($field . '-label-group label-group') !!}
+							@endforeach
                         </div>
                       </div>
 

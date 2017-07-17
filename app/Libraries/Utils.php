@@ -690,7 +690,7 @@ class Utils
         }
     }
 
-    public static function processVariables($str)
+    public static function processVariables($str, $client = false)
     {
         if (! $str) {
             return '';
@@ -718,7 +718,8 @@ class Utils
                     $offset = intval($minArray[1]) * -1;
                 }
 
-                $val = self::getDatePart($variable, $offset);
+                $locale = $client && $client->language_id ? $client->language->locale : null;
+                $val = self::getDatePart($variable, $offset, $locale);
                 $str = str_replace($match, $val, $str);
             }
         }
@@ -726,11 +727,11 @@ class Utils
         return $str;
     }
 
-    private static function getDatePart($part, $offset)
+    private static function getDatePart($part, $offset, $locale)
     {
         $offset = intval($offset);
         if ($part == 'MONTH') {
-            return self::getMonth($offset);
+            return self::getMonth($offset, $locale);
         } elseif ($part == 'QUARTER') {
             return self::getQuarter($offset);
         } elseif ($part == 'YEAR') {
@@ -751,7 +752,7 @@ class Utils
         return $months;
     }
 
-    private static function getMonth($offset)
+    private static function getMonth($offset, $locale)
     {
         $months = static::$months;
         $month = intval(date('n')) - 1;
@@ -763,7 +764,7 @@ class Utils
             $month += 12;
         }
 
-        return trans('texts.' . $months[$month]);
+        return trans('texts.' . $months[$month], [], null, $locale);
     }
 
     private static function getQuarter($offset)

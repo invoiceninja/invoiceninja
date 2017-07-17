@@ -11,6 +11,7 @@ use App\Ninja\Mailers\UserMailer;
 use App\Models\User;
 use Auth;
 use App;
+use Utils;
 
 /**
  * Class SendInvoiceEmail.
@@ -67,24 +68,31 @@ class ImportData extends Job implements ShouldQueue
             $this->user->account->loadLocalizationSettings();
         }
 
-        if ($this->type === IMPORT_JSON) {
-            $includeData = $this->settings['include_data'];
-            $includeSettings = $this->settings['include_settings'];
-            $files = $this->settings['files'];
-            $results = $importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
-        } elseif ($this->type === IMPORT_CSV) {
-            $map = $this->settings['map'];
-            $headers = $this->settings['headers'];
-            $timestamp = $this->settings['timestamp'];
-            $results = $importService->importCSV($map, $headers, $timestamp);
-        } else {
-            $source = $this->settings['source'];
-            $files = $this->settings['files'];
-            $results = $importService->importFiles($source, $files);
+        try {
+            if ($this->type === IMPORT_JSON) {
+                $includeData = $this->settings['include_data'];
+                $includeSettings = $this->settings['include_settings'];
+                $files = $this->settings['files'];
+                $results = $importService->importJSON($files[IMPORT_JSON], $includeData, $includeSettings);
+            } elseif ($this->type === IMPORT_CSV) {
+                $map = $this->settings['map'];
+                $headers = $this->settings['headers'];
+                $timestamp = $this->settings['timestamp'];
+                $results = $importService->importCSV($map, $headers, $timestamp);
+            } else {
+                $source = $this->settings['source'];
+                $files = $this->settings['files'];
+                $results = $importService->importFiles($source, $files);
+            }
+
+            $subject = trans('texts.import_complete');
+            $message = $importService->presentResults($results, $includeSettings);
+        } catch (Exception $exception) {
+            $subject = trans('texts.import_failed');
+            $message = $exception->getMessage();
+            Utils::logError($subject . ':' . $message);
         }
 
-        $subject = trans('texts.import_complete');
-        $message = $importService->presentResults($results, $includeSettings);
         $userMailer->sendMessage($this->user, $subject, $message);
 
         if (App::runningInConsole()) {

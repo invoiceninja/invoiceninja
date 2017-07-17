@@ -35,6 +35,7 @@ class ActivityTransformer extends EntityTransformer
             'expense_id' => $activity->expense_id ? $activity->expense->public_id : null,
             'is_system' => $activity->is_system ? (bool) $activity->is_system : null,
             'contact_id' => $activity->contact_id ? $activity->contact->public_id : null,
+            'task_id' => $activity->task_id ? $activity->task->public_id : null,
         ];
     }
 }

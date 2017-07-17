@@ -35,7 +35,7 @@ class OFX
         $this->response = curl_exec($c);
 
         if (Utils::isNinjaDev()) {
-            Log::info(print_r($this->response, true));
+            //Log::info(print_r($this->response, true));
         }
 
         curl_close($c);
@@ -90,6 +90,8 @@ class Login
     public $bank;
     public $id;
     public $pass;
+    public $ofxVersion;
+    public $appVersion;
 
     public function __construct($bank, $id, $pass)
     {
@@ -103,7 +105,7 @@ class Login
         $ofxRequest =
         "OFXHEADER:100\n".
         "DATA:OFXSGML\n".
-        "VERSION:102\n".
+        "VERSION:" . $this->ofxVersion . "\n".
         "SECURITY:NONE\n".
         "ENCODING:USASCII\n".
         "CHARSET:1252\n".
@@ -124,7 +126,7 @@ class Login
                         '<FID>'.$this->bank->fid."\n".
                     "</FI>\n".
                     "<APPID>QWIN\n".
-                    "<APPVER>2500\n".
+                    "<APPVER>" . $this->appVersion . "\n".
                 "</SONRQ>\n".
             "</SIGNONMSGSRQV1>\n".
             "<SIGNUPMSGSRQV1>\n".
@@ -173,7 +175,7 @@ class Account
         $ofxRequest =
             "OFXHEADER:100\n".
             "DATA:OFXSGML\n".
-            "VERSION:102\n".
+            "VERSION:" . $this->login->ofxVersion . "\n".
             "SECURITY:NONE\n".
             "ENCODING:USASCII\n".
             "CHARSET:1252\n".
@@ -193,7 +195,7 @@ class Account
                             '<FID>'.$this->login->bank->fid."\n".
                         "</FI>\n".
                         "<APPID>QWIN\n".
-                        "<APPVER>2500\n".
+                        "<APPVER>" . $this->login->appVersion . "\n".
                     "</SONRQ>\n".
                 "</SIGNONMSGSRQV1>\n";
         if ($this->type == 'BANK') {

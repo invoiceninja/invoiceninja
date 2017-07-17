@@ -30,6 +30,7 @@ use parsecsv;
 use Session;
 use stdClass;
 use Utils;
+use Carbon;
 
 /**
  * Class ImportService.
@@ -183,45 +184,58 @@ class ImportService
                 if ($transformer->hasProduct($jsonProduct['product_key'])) {
                     continue;
                 }
-                if (EntityModel::validate($jsonProduct, ENTITY_PRODUCT) === true) {
+
+                $productValidate = EntityModel::validate($jsonProduct, ENTITY_PRODUCT);
+                if ($productValidate === true) {
                     $product = $this->productRepo->save($jsonProduct);
                     $this->addProductToMaps($product);
                     $this->addSuccess($product);
                 } else {
+                    $jsonProduct['type'] = ENTITY_PRODUCT;
+                    $jsonProduct['error'] = $productValidate;
                     $this->addFailure(ENTITY_PRODUCT, $jsonProduct);
                     continue;
                 }
             }
 
             foreach ($json['clients'] as $jsonClient) {
-                if (EntityModel::validate($jsonClient, ENTITY_CLIENT) === true) {
+                $clientValidate = EntityModel::validate($jsonClient, ENTITY_CLIENT);
+                if ($clientValidate === true) {
                     $client = $this->clientRepo->save($jsonClient);
                     $this->addClientToMaps($client);
                     $this->addSuccess($client);
                 } else {
+                    $jsonClient['type'] = ENTITY_CLIENT;
+                    $jsonClient['error'] = $clientValidate;
                     $this->addFailure(ENTITY_CLIENT, $jsonClient);
                     continue;
                 }
 
                 foreach ($jsonClient['invoices'] as $jsonInvoice) {
                     $jsonInvoice['client_id'] = $client->id;
-                    if (EntityModel::validate($jsonInvoice, ENTITY_INVOICE) === true) {
+                    $invoiceValidate = EntityModel::validate($jsonInvoice, ENTITY_INVOICE);
+                    if ($invoiceValidate === true) {
                         $invoice = $this->invoiceRepo->save($jsonInvoice);
                         $this->addInvoiceToMaps($invoice);
                         $this->addSuccess($invoice);
                     } else {
+                        $jsonInvoice['type'] = ENTITY_INVOICE;
+                        $jsonInvoice['error'] = $invoiceValidate;
                         $this->addFailure(ENTITY_INVOICE, $jsonInvoice);
                         continue;
                     }
 
                     foreach ($jsonInvoice['payments'] as $jsonPayment) {
                         $jsonPayment['invoice_id'] = $invoice->public_id;
-                        if (EntityModel::validate($jsonPayment, ENTITY_PAYMENT) === true) {
+                        $paymentValidate = EntityModel::validate($jsonPayment, ENTITY_PAYMENT);
+                        if ($paymentValidate === true) {
                             $jsonPayment['client_id'] = $client->id;
                             $jsonPayment['invoice_id'] = $invoice->id;
                             $payment = $this->paymentRepo->save($jsonPayment);
                             $this->addSuccess($payment);
                         } else {
+                            $jsonPayment['type'] = ENTITY_PAYMENT;
+                            $jsonPayment['error'] = $paymentValidate;
                             $this->addFailure(ENTITY_PAYMENT, $jsonPayment);
                             continue;
                         }
@@ -520,7 +534,18 @@ class ImportService
             // Lookup field translations
             foreach ($columns as $key => $value) {
                 unset($columns[$key]);
-                $columns[$value] = trans("texts.{$value}");
+                $label = $value;
+                // disambiguate some of the labels
+                if ($entityType == ENTITY_INVOICE) {
+                    if ($label == 'name') {
+                        $label = 'client_name';
+                    } elseif ($label == 'notes') {
+                        $label = 'product_notes';
+                    } elseif ($label == 'terms') {
+                        $label = 'invoice_terms';
+                    }
+                }
+                $columns[$value] = trans("texts.{$label}");
             }
             array_unshift($columns, ' ');
 
@@ -581,7 +606,23 @@ class ImportService
             'hasHeaders' => $hasHeaders,
             'columns' => $columns,
             'mapped' => $mapped,
+            'warning' => false,
         ];
+
+        // check that dates are valid
+        if (count($data['data']) > 1) {
+            $row = $data['data'][1];
+            foreach ($mapped as $index => $field) {
+                if (! strstr($field, 'date')) {
+                    continue;
+                }
+                try {
+                    $date = new Carbon($row[$index]);
+                } catch(Exception $e) {
+                    $data['warning'] = 'invalid_date';
+                }
+            }
+        }
 
         return $data;
     }
@@ -881,6 +922,8 @@ class ImportService
     {
         if ($key = strtolower(trim($product->product_key))) {
             $this->maps['product'][$key] = $product->id;
+            $this->maps['product_notes'][$key] = $product->notes;
+            $this->maps['product_cost'][$key] = $product->cost;
         }
     }
 

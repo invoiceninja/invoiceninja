@@ -7,7 +7,7 @@
 
     <style type="text/css">
         table.accounts-table > thead > tr > th.header {
-            background-color: #e37329 !important;
+            background-color: #777 !important;
             color:#fff !important;
             padding-top:8px;
         }
@@ -30,15 +30,19 @@
         <div data-bind="visible: page() == 'login'">
             <div class="form-padding-right">
                 @if ($bankAccount)
-                    {!! Former::populateField('public_id', $bankAccount->public_id) !!}
+                    {!! Former::populate($bankAccount) !!}
                     {!! Former::hidden('public_id') !!}
                 @else
+                    {!! Former::populateField('app_version', DEFAULT_BANK_APP_VERSION) !!}
+                    {!! Former::populateField('ofx_version', DEFAULT_BANK_OFX_VERSION) !!}
                     {!! Former::select('bank_id')
                             ->data_bind('combobox: bank_id')
                             ->addOption('', '')
                             ->fromQuery($banks, 'name', 'id')
                             ->blockHelp(trans('texts.bank_accounts_help', ['link' => OFX_HOME_URL]))  !!}
                 @endif
+
+                <br/>
 
                 {!! Former::password('bank_username')
                         ->data_bind("value: bank_username, valueUpdate: 'afterkeydown'")
@@ -48,6 +52,30 @@
                         ->label(trans('texts.password'))
                         ->data_bind("value: bank_password, valueUpdate: 'afterkeydown'")
                         ->blockHelp(trans(Request::secure() ? 'texts.bank_password_help' : 'texts.bank_password_warning')) !!}
+
+                <br/>
+
+                {!! Former::select('app_version')
+                        ->addOption('Quicken 2005', 1400)
+                        ->addOption('Quicken 2006', 1500)
+                        ->addOption('Quicken 2007', 1600)
+                        ->addOption('Quicken 2008', 1700)
+                        ->addOption('Quicken 2009', 1800)
+                        ->addOption('Quicken 2010', 1900)
+                        ->addOption('Quicken 2011', 2000)
+                        ->addOption('Quicken 2012', 2100)
+                        ->addOption('Quicken 2013', 2200)
+                        ->addOption('Quicken 2014', 2300)
+                        ->addOption('Quicken 2015', 2400)
+                        ->addOption('Quicken 2016', 2500)
+                        ->addOption('Quicken 2017', 2600) !!}
+
+                {!! Former::select('ofx_version')
+                        ->addOption('100', 100)
+                        ->addOption('101', 101)
+                        ->addOption('102', 102)
+                        ->addOption('103', 103) !!}
+
             </div>
         </div>
 
@@ -80,8 +108,8 @@
 
 
         <div class="col-lg-12 col-sm-12" data-bind="visible: page() == 'import'" style="display:none">
-            <div class="row panel">
-                <div class="col-md-8" style="height:60px;padding-top:10px;">
+            <div class="row panel" style="padding-top:10px;padding-bottom:12px;">
+                <div class="col-md-8" style="padding-top:10px;">
                     <span data-bind="text: statusLabel"></span>
                 </div>
                 <div class="col-md-4">
@@ -195,7 +223,7 @@
                 ->large()
                 ->appendIcon(Icon::create('floppy-disk'))) !!}
     @endif
-    
+
     {!! Former::close() !!}
 
     <script type="text/javascript">

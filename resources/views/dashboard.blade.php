@@ -42,11 +42,11 @@
                                 },
                                 label: function(item, data) {
                                     if (item.datasetIndex == 0) {
-                                        var label = " {{ trans('texts.invoices') }}: ";
+                                        var label = " {!! trans('texts.invoices') !!}: ";
                                     } else if (item.datasetIndex == 1) {
-                                        var label = " {{ trans('texts.payments') }}: ";
+                                        var label = " {!! trans('texts.payments') !!}: ";
                                     } else if (item.datasetIndex == 2) {
-                                        var label = " {{ trans('texts.expenses') }}: ";
+                                        var label = " {!! trans('texts.expenses') !!}: ";
                                     }
 
                                     return label + formatMoney(item.yLabel, chartCurrencyId, account.country_id);

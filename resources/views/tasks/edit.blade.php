@@ -168,8 +168,8 @@
                           ->large()
                           ->dropup() !!}
                 @else
-                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
                     {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
+                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button', 'style' => 'display:none']) !!}
                 @endif
             @endif
         @else
@@ -237,8 +237,8 @@
 
     var timeLabels = {};
     @foreach (['hour', 'minute', 'second'] as $period)
-        timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
-        timeLabels['{{ $period }}s'] = '{{ trans("texts.{$period}s") }}';
+        timeLabels['{{ $period }}'] = '{{ strtolower(trans("texts.{$period}")) }}';
+        timeLabels['{{ $period }}s'] = '{{ strtolower(trans("texts.{$period}s")) }}';
     @endforeach
 
     function onFormSubmit(event) {

@@ -51,6 +51,7 @@ class Expense extends EntityModel
         'payment_type_id',
         'transaction_reference',
         'invoice_documents',
+        'should_be_invoiced',
     ];
 
     public static function getImportColumns()
@@ -140,6 +141,15 @@ class Expense extends EntityModel
     {
         return $this->belongsTo('App\Models\PaymentType');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function recurring_expense()
+    {
+        return $this->belongsTo('App\Models\RecurringExpense');
+    }
+
 
     /**
      * @return mixed

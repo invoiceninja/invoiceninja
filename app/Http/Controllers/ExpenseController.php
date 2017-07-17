@@ -105,11 +105,15 @@ class ExpenseController extends BaseController
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_expense')];
 
             // check for any open invoices
-            $invoices = $expense->client_id ? $this->invoiceRepo->findOpenInvoices($expense->client_id, ENTITY_EXPENSE) : [];
+            $invoices = $expense->client_id ? $this->invoiceRepo->findOpenInvoices($expense->client_id) : [];
 
             foreach ($invoices as $invoice) {
                 $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
             }
+        }
+
+        if ($expense->recurring_expense_id) {
+            $actions[] = ['url' => URL::to("recurring_expenses/{$expense->recurring_expense->public_id}/edit"), 'label' => trans('texts.view_recurring_expense')];
         }
 
         $actions[] = \DropdownButton::DIVIDER;
@@ -266,6 +270,7 @@ class ExpenseController extends BaseController
             'customLabel2' => Auth::user()->account->custom_vendor_label2,
             'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
+            'isRecurring' => false,
         ];
     }
 

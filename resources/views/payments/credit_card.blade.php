@@ -316,11 +316,12 @@
     <p>&nbsp;</p>
     <center>
         @if (isset($invitation))
-            {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+            {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo(HTMLUtils::previousUrl('/credits')) !!}
             &nbsp;&nbsp;
         @endif
-        @if(isset($amount))
-            {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
+
+        @if (isset($amount))
+            {!! Button::success(request()->update ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
                             ->submit()
                             ->large() !!}
         @else

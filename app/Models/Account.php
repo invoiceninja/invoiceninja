@@ -171,6 +171,9 @@ class Account extends Eloquent
         'custom_contact_label2',
         'domain_id',
         'analytics_key',
+        'credit_number_counter',
+        'credit_number_prefix',
+        'credit_number_pattern',
     ];
 
     /**
@@ -217,6 +220,28 @@ class Account extends Eloquent
         'total_revenue' => 1,
         'average_invoice' => 2,
         'outstanding' => 4,
+    ];
+
+    public static $customLabels = [
+        'balance_due',
+        'description',
+        'discount',
+        'due_date',
+        'hours',
+        'id_number',
+        'item',
+        'line_total',
+        'paid_to_date',
+        'partial_due',
+        'po_number',
+        'quantity',
+        'rate',
+        'service',
+        'subtotal',
+        'tax',
+        'terms',
+        'unit_cost',
+        'vat_number',
     ];
 
     /**
@@ -945,6 +970,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return bool
+     */
+    public function isNinjaOrLicenseAccount()
+    {
+        return $this->isNinjaAccount() || $this->account_key == NINJA_LICENSE_ACCOUNT_KEY;
+    }
+
+    /**
      * @param $plan
      */
     public function startTrial($plan)
@@ -1570,6 +1603,7 @@ class Account extends Eloquent
             return true;
         }
 
+        // note: single & checks bitmask match
         return $this->enabled_modules & static::$modules[$entityType];
     }
 

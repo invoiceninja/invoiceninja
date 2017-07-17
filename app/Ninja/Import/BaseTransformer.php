@@ -5,6 +5,7 @@ namespace App\Ninja\Import;
 use Carbon;
 use League\Fractal\TransformerAbstract;
 use Utils;
+use Exception;
 
 /**
  * Class BaseTransformer.
@@ -112,6 +113,30 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return null
      */
+    public function getProductNotes($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps['product_notes'][$name]) ? $this->maps['product_notes'][$name] : null;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null
+     */
+    public function getProductCost($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps['product_cost'][$name]) ? $this->maps['product_cost'][$name] : null;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null
+     */
     public function getCountryId($name)
     {
         $name = strtolower(trim($name));
@@ -158,6 +183,7 @@ class BaseTransformer extends TransformerAbstract
                 $date = new Carbon($date);
             } catch (Exception $e) {
                 // if we fail to parse return blank
+                $date = false;
             }
         }
 

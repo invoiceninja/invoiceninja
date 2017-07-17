@@ -14,6 +14,7 @@ use App\Ninja\Repositories\VendorRepository;
 use Hash;
 use stdClass;
 use Utils;
+use Carbon;
 
 /**
  * Class BankAccountService.
@@ -74,6 +75,7 @@ class BankAccountService extends BaseService
         $expenses = Expense::scope()
                         ->bankId($bankId)
                         ->where('transaction_id', '!=', '')
+                        ->where('expense_date', '>=', Carbon::now()->subYear()->format('Y-m-d'))
                         ->withTrashed()
                         ->get(['transaction_id'])
                         ->toArray();
@@ -92,12 +94,13 @@ class BankAccountService extends BaseService
      *
      * @return array|bool
      */
-    public function loadBankAccounts($bankId, $username, $password, $includeTransactions = true)
+    public function loadBankAccounts($bankAccount, $username, $password, $includeTransactions = true)
     {
-        if (! $bankId || ! $username || ! $password) {
+        if (! $bankAccount || ! $username || ! $password) {
             return false;
         }
 
+        $bankId = $bankAccount->bank_id;
         $expenses = $this->getExpenses();
         $vendorMap = $this->createVendorMap();
         $bankAccounts = BankSubaccount::scope()
@@ -112,11 +115,18 @@ class BankAccountService extends BaseService
         try {
             $finance = new Finance();
             $finance->banks[$bankId] = $bank->getOFXBank($finance);
-            $finance->banks[$bankId]->logins[] = new Login($finance->banks[$bankId], $username, $password);
+
+            $login = new Login($finance->banks[$bankId], $username, $password);
+            $login->appVersion = $bankAccount->app_version;
+            $login->ofxVersion = $bankAccount->ofx_version;
+            $finance->banks[$bankId]->logins[] = $login;
 
             foreach ($finance->banks as $bank) {
                 foreach ($bank->logins as $login) {
                     $login->setup();
+                    if (! is_array($login->accounts)) {
+                        return false;
+                    }
                     foreach ($login->accounts as $account) {
                         $account->setup($includeTransactions);
                         if ($account = $this->parseBankAccount($account, $bankAccounts, $expenses, $includeTransactions, $vendorMap)) {

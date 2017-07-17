@@ -412,7 +412,12 @@ background-color: #9b9b9b;
     xbackground-color: #337ab7;
 }
 
-.navbar,
+.navbar {
+    x-moz-box-shadow: 0 0 8px 2px rgba(0,0,0,.6);
+    x-webkit-box-shadow: 0 0 8px 2px rgba(0,0,0,.6);
+    box-shadow: 0 0 8px 2px rgba(0,0,0,.6);
+}
+
 ul.dropdown-menu,
 .twitter-typeahead .tt-menu {
     x-moz-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
@@ -1093,7 +1098,7 @@ div.panel-body div.panel-body {
 }
 
 .invoice-table #document-upload{
-    width:550px;
+    width: 100%;
 }
 
 #document-upload .dropzone{

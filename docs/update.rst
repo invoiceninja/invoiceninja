@@ -5,6 +5,8 @@ Update
 
 To update the app you just need to copy over the latest code. The app tracks the current version in a file called version.txt, if it notices a change it loads ``/update`` to run the database migrations.
 
+.. TIP:: You can use this `shell script <https://pastebin.com/j657uv9A>`_ to automate the update process, consider running it as a daily cron to automatically keep your app up to date.
+
 If you're moving servers make sure to copy over the .env file.
 
 If the auto-update fails you can manually run the update with the following commands. Once completed add ``?clear_cache=true`` to the end of the URL to clear the application cache.

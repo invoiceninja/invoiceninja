@@ -11,7 +11,7 @@ class UpdateProjectRequest extends ProjectRequest
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
@@ -21,6 +21,10 @@ class UpdateProjectRequest extends ProjectRequest
      */
     public function rules()
     {
+        if (! $this->entity()) {
+            return [];
+        }
+
         return [
             'name' => sprintf('required|unique:projects,name,%s,id,account_id,%s', $this->entity()->id, $this->user()->account_id),
         ];

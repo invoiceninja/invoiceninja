@@ -144,7 +144,7 @@ class InvoiceRepository extends BaseRepository
                     ->join('accounts', 'accounts.id', '=', 'invoices.account_id')
                     ->join('clients', 'clients.id', '=', 'invoices.client_id')
                     ->join('invoice_statuses', 'invoice_statuses.id', '=', 'invoices.invoice_status_id')
-                    ->join('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
+                    ->leftJoin('frequencies', 'frequencies.id', '=', 'invoices.frequency_id')
                     ->join('contacts', 'contacts.client_id', '=', 'clients.id')
                     ->where('invoices.account_id', '=', $accountId)
                     ->where('invoices.invoice_type_id', '=', INVOICE_TYPE_STANDARD)
@@ -217,6 +217,7 @@ class InvoiceRepository extends BaseRepository
           ->where('clients.deleted_at', '=', null)
           ->where('invoices.is_recurring', '=', true)
           ->where('invoices.is_public', '=', true)
+          ->where('invoices.deleted_at', '=', null)
           //->where('invoices.start_date', '>=', date('Y-m-d H:i:s'))
           ->select(
                 DB::raw('COALESCE(clients.currency_id, accounts.currency_id) currency_id'),
@@ -431,7 +432,7 @@ class InvoiceRepository extends BaseRepository
                 $invoice->last_sent_date = null;
             }
 
-            $invoice->frequency_id = array_get($data, 'frequency_id', 0);
+            $invoice->frequency_id = array_get($data, 'frequency_id', FREQUENCY_MONTHLY);
             $invoice->start_date = Utils::toSqlDate(array_get($data, 'start_date'));
             $invoice->end_date = Utils::toSqlDate(array_get($data, 'end_date'));
             $invoice->client_enable_auto_bill = isset($data['client_enable_auto_bill']) && $data['client_enable_auto_bill'] ? true : false;
@@ -447,7 +448,9 @@ class InvoiceRepository extends BaseRepository
                 $invoice->due_date = $data['due_date'];
             }
         } else {
-            if (! empty($data['due_date']) || ! empty($data['due_date_sql'])) {
+            if ($isNew && empty($data['due_date']) && empty($data['due_date_sql'])) {
+                // do nothing
+            } elseif (isset($data['due_date']) || isset($data['due_date_sql'])) {
                 $invoice->due_date = isset($data['due_date_sql']) ? $data['due_date_sql'] : Utils::toSqlDate($data['due_date']);
             }
             $invoice->frequency_id = 0;
@@ -976,7 +979,7 @@ class InvoiceRepository extends BaseRepository
      *
      * @return mixed
      */
-    public function findOpenInvoices($clientId, $entityType = false)
+    public function findOpenInvoices($clientId)
     {
         $query = Invoice::scope()
                     ->invoiceType(INVOICE_TYPE_STANDARD)
@@ -984,12 +987,6 @@ class InvoiceRepository extends BaseRepository
                     ->whereIsRecurring(false)
                     ->whereDeletedAt(null)
                     ->where('balance', '>', 0);
-
-        if ($entityType == ENTITY_TASK) {
-            $query->whereHasTasks(true);
-        } elseif ($entityType == ENTITY_EXPENSE) {
-            $query->whereHasTasks(false);
-        }
 
         return $query->where('invoice_status_id', '<', INVOICE_STATUS_PAID)
                 ->select(['public_id', 'invoice_number'])
@@ -1004,8 +1001,9 @@ class InvoiceRepository extends BaseRepository
     public function createRecurringInvoice(Invoice $recurInvoice)
     {
         $recurInvoice->load('account.timezone', 'invoice_items', 'client', 'user');
+        $client = $recurInvoice->client;
 
-        if ($recurInvoice->client->deleted_at) {
+        if ($client->deleted_at) {
             return false;
         }
 
@@ -1028,9 +1026,9 @@ class InvoiceRepository extends BaseRepository
         $invoice->invoice_date = date_create()->format('Y-m-d');
         $invoice->discount = $recurInvoice->discount;
         $invoice->po_number = $recurInvoice->po_number;
-        $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes);
-        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $recurInvoice->account->invoice_terms);
-        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer ?: $recurInvoice->account->invoice_footer);
+        $invoice->public_notes = Utils::processVariables($recurInvoice->public_notes, $client);
+        $invoice->terms = Utils::processVariables($recurInvoice->terms ?: $recurInvoice->account->invoice_terms, $client);
+        $invoice->invoice_footer = Utils::processVariables($recurInvoice->invoice_footer ?: $recurInvoice->account->invoice_footer, $client);
         $invoice->tax_name1 = $recurInvoice->tax_name1;
         $invoice->tax_rate1 = $recurInvoice->tax_rate1;
         $invoice->tax_name2 = $recurInvoice->tax_name2;
@@ -1040,8 +1038,8 @@ class InvoiceRepository extends BaseRepository
         $invoice->custom_value2 = $recurInvoice->custom_value2 ?: 0;
         $invoice->custom_taxes1 = $recurInvoice->custom_taxes1 ?: 0;
         $invoice->custom_taxes2 = $recurInvoice->custom_taxes2 ?: 0;
-        $invoice->custom_text_value1 = Utils::processVariables($recurInvoice->custom_text_value1);
-        $invoice->custom_text_value2 = Utils::processVariables($recurInvoice->custom_text_value2);
+        $invoice->custom_text_value1 = Utils::processVariables($recurInvoice->custom_text_value1, $client);
+        $invoice->custom_text_value2 = Utils::processVariables($recurInvoice->custom_text_value2, $client);
         $invoice->is_amount_discount = $recurInvoice->is_amount_discount;
         $invoice->due_date = $recurInvoice->getDueDate();
         $invoice->save();
@@ -1051,14 +1049,14 @@ class InvoiceRepository extends BaseRepository
             $item->product_id = $recurItem->product_id;
             $item->qty = $recurItem->qty;
             $item->cost = $recurItem->cost;
-            $item->notes = Utils::processVariables($recurItem->notes);
-            $item->product_key = Utils::processVariables($recurItem->product_key);
+            $item->notes = Utils::processVariables($recurItem->notes, $client);
+            $item->product_key = Utils::processVariables($recurItem->product_key, $client);
             $item->tax_name1 = $recurItem->tax_name1;
             $item->tax_rate1 = $recurItem->tax_rate1;
             $item->tax_name2 = $recurItem->tax_name2;
             $item->tax_rate2 = $recurItem->tax_rate2;
-            $item->custom_value1 = Utils::processVariables($recurItem->custom_value1);
-            $item->custom_value2 = Utils::processVariables($recurItem->custom_value2);
+            $item->custom_value1 = Utils::processVariables($recurItem->custom_value1, $client);
+            $item->custom_value2 = Utils::processVariables($recurItem->custom_value2, $client);
             $invoice->invoice_items()->save($item);
         }
 

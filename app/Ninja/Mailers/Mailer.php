@@ -29,6 +29,7 @@ class Mailer
             return true;
         }
 
+        /*
         if (isset($_ENV['POSTMARK_API_TOKEN'])) {
             $views = 'emails.'.$view.'_html';
         } else {
@@ -37,6 +38,12 @@ class Mailer
                 'emails.'.$view.'_text',
             ];
         }
+        */
+
+        $views = [
+            'emails.'.$view.'_html',
+            'emails.'.$view.'_text',
+        ];
 
         try {
             $response = Mail::send($views, $data, function ($message) use ($toEmail, $fromEmail, $fromName, $subject, $data) {

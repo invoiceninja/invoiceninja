@@ -18,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
         \App\Models\Credit::class => \App\Policies\CreditPolicy::class,
         \App\Models\Document::class => \App\Policies\DocumentPolicy::class,
         \App\Models\Expense::class => \App\Policies\ExpensePolicy::class,
+        \App\Models\RecurringExpense::class => \App\Policies\RecurringExpensePolicy::class,
         \App\Models\ExpenseCategory::class => \App\Policies\ExpenseCategoryPolicy::class,
         \App\Models\Invoice::class => \App\Policies\InvoicePolicy::class,
         \App\Models\Payment::class => \App\Policies\PaymentPolicy::class,

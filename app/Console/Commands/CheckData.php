@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Carbon;
+use App\Libraries\CurlUtils;
 use DB;
 use Exception;
 use Illuminate\Console\Command;
@@ -75,6 +76,7 @@ class CheckData extends Command
             $this->checkDraftSentInvoices();
         }
 
+        $this->checkInvoices();
         $this->checkBalances();
         $this->checkContacts();
         $this->checkUserAccounts();
@@ -128,6 +130,38 @@ class CheckData extends Command
                 }
                 $invoice->markSent();
             }
+        }
+    }
+
+    private function checkInvoices()
+    {
+        if (! env('PHANTOMJS_BIN_PATH')) {
+            return;
+        }
+
+        $date = new Carbon();
+        $date = $date->subDays(1)->format('Y-m-d');
+
+        $invoices = Invoice::with('invitations')
+            ->where('created_at', '>',  $date)
+            ->orderBy('id')
+            ->get(['id', 'balance']);
+
+        foreach ($invoices as $invoice) {
+            $link = $invoice->getInvitationLink('view', true, true);
+            $this->logMessage('Checking invoice: ' . $invoice->id . ' - ' . $invoice->balance);
+            $result = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_balances=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
+            $result = floatval(strip_tags($result));
+            $this->logMessage('Result: ' . $result);
+
+            if ($result && $result != $invoice->balance) {
+                $this->logMessage("Amounts do not match {$link} - PHP: {$invoice->balance}, JS: {$result}");
+                $this->isValid = false;
+            }
+        }
+
+        if ($this->isValid) {
+            $this->logMessage('0 invoices with mismatched PHP/JS balances');
         }
     }
 

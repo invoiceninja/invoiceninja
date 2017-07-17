@@ -41,6 +41,7 @@ class IndustrySeeder extends Seeder
             ['name' => 'Other'],
             ['name' => 'Photography'],
             ['name' => 'Construction'],
+            ['name' => 'Restaurant & Catering'],
         ];
 
         foreach ($industries as $industry) {

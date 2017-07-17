@@ -158,7 +158,7 @@ class TaskController extends BaseController
             $actions[] = ['url' => 'javascript:submitAction("invoice")', 'label' => trans('texts.invoice_task')];
 
             // check for any open invoices
-            $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id, ENTITY_TASK) : [];
+            $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id) : [];
 
             foreach ($invoices as $invoice) {
                 $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
@@ -314,7 +314,7 @@ class TaskController extends BaseController
     {
         if (! Auth::user()->account->timezone) {
             $link = link_to('/settings/localization?focus=timezone_id', trans('texts.click_here'), ['target' => '_blank']);
-            Session::flash('warning', trans('texts.timezone_unset', ['link' => $link]));
+            Session::now('warning', trans('texts.timezone_unset', ['link' => $link]));
         }
     }
 }

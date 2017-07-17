@@ -32,10 +32,11 @@ html {
     margin-right: 16px !important;
 }
 
+#footer,
 .navbar {
-    x-moz-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
-    x-webkit-box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
-    box-shadow: 0 0 10px 2px rgba(0,0,0,.05);
+    x-moz-box-shadow: 0 0 8px 2px rgba(0,0,0,.6);
+    x-webkit-box-shadow: 0 0 8px 2px rgba(0,0,0,.6);
+    box-shadow: 0 0 8px 2px rgba(0,0,0,.6);
     border-width: 0;
     border-radius: 0;
 }

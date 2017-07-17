@@ -121,6 +121,10 @@ class BaseAPIController extends Controller
 
     protected function itemResponse($item)
     {
+        if (! $item) {
+            return $this->errorResponse('Record not found', 404);
+        }
+
         $transformerClass = EntityModel::getTransformerName($this->entityType);
         $transformer = new $transformerClass(Auth::user()->account, Input::get('serializer'));
 
@@ -206,6 +210,8 @@ class BaseAPIController extends Controller
                 $data[] = 'clients.contacts';
             } elseif ($include == 'vendors') {
                 $data[] = 'vendors.vendor_contacts';
+            } elseif ($include == 'documents' && $this->entityType == ENTITY_INVOICE) {
+                $data[] = 'documents.expense';
             } elseif ($include) {
                 $data[] = $include;
             }

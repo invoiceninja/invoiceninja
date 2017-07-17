@@ -53,8 +53,12 @@
 			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
 			<li class="active">{{ $invoice->invoice_number }}</li>
 		@endif
-		@if ($invoice->is_recurring && $invoice->isSent() && (! $invoice->last_sent_date || $invoice->last_sent_date == '0000-00-00'))
-			{!! $invoice->present()->statusLabel(trans('texts.pending')) !!}
+		@if ($invoice->is_recurring && $invoice->isSent())
+			@if (! $invoice->last_sent_date || $invoice->last_sent_date == '0000-00-00')
+				{!! $invoice->present()->statusLabel(trans('texts.pending')) !!}
+			@else
+				{!! $invoice->present()->statusLabel(trans('texts.active')) !!}
+			@endif
 		@else
 			{!! $invoice->present()->statusLabel !!}
 		@endif
@@ -159,7 +163,7 @@
 				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('invoice_date') !!}
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label($account->getLabel($invoice->getDueDateLabel()))
-							->placeholder($invoice->exists || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder())
+							->placeholder($invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder())
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
 				{!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onkeyup('onPartialChange()')
 							->addGroupClass('partial')!!}
@@ -249,93 +253,15 @@
 		</div>
 	</div>
 
-	<div class="table-responsive" style="padding-top:4px">
-	<table class="table invoice-table">
-		<thead>
-			<tr>
-				<th style="min-width:32px;" class="hide-border"></th>
-				<th style="min-width:120px;width:25%">{{ $invoiceLabels['item'] }}</th>
-				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
-                @if ($account->showCustomField('custom_invoice_item_label1'))
-                    <th style="min-width:120px">{{ $account->custom_invoice_item_label1 }}</th>
-                @endif
-                @if ($account->showCustomField('custom_invoice_item_label2'))
-                    <th style="min-width:120px">{{ $account->custom_invoice_item_label2 }}</th>
-                @endif
-				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
-				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
-				<th style="min-width:{{ $account->enable_second_tax_rate ? 180 : 120 }}px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
-				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
-				<th style="min-width:32px;" class="hide-border"></th>
-			</tr>
-		</thead>
-		<tbody data-bind="sortable: { data: invoice_items, afterMove: onDragged }">
-			<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
-				<td class="hide-border td-icon">
-					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp;
-                        $parent.invoice_items().length > 1" class="fa fa-sort"></i>
-				</td>
-				<td>
-                    <div id="scrollable-dropdown-menu">
-                        <input id="product_key" type="text" data-bind="productTypeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
-                    </div>
-				</td>
-				<td>
-					<textarea data-bind="value: notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
-                        rows="1" cols="60" style="resize: vertical;height:42px" class="form-control word-wrap"></textarea>
-                        <input type="text" data-bind="value: task_public_id, attr: {name: 'invoice_items[' + $index() + '][task_public_id]'}" style="display: none"/>
-						<input type="text" data-bind="value: expense_public_id, attr: {name: 'invoice_items[' + $index() + '][expense_public_id]'}" style="display: none"/>
-						<input type="text" data-bind="value: invoice_item_type_id, attr: {name: 'invoice_items[' + $index() + '][invoice_item_type_id]'}" style="display: none"/>
-				</td>
-                @if ($account->showCustomField('custom_invoice_item_label1'))
-                    <td>
-                        <input data-bind="value: custom_value1, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][custom_value1]'}" class="form-control invoice-item"/>
-                    </td>
-                @endif
-                @if ($account->showCustomField('custom_invoice_item_label2'))
-                    <td>
-                        <input data-bind="value: custom_value2, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][custom_value2]'}" class="form-control invoice-item"/>
-                    </td>
-                @endif
-				<td>
-					<input data-bind="value: prettyCost, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][cost]'}"
-                        style="text-align: right" class="form-control invoice-item"/>
-				</td>
-				<td style="{{ $account->hide_quantity ? 'display:none' : '' }}">
-					<input data-bind="value: prettyQty, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][qty]'}"
-                        style="text-align: right" class="form-control invoice-item" name="quantity"/>
-				</td>
-				<td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
-	                    {!! Former::select('')
-	                            ->addOption('', '')
-	                            ->options($taxRateOptions)
-	                            ->data_bind('value: tax1, event:{change:onTax1Change}')
-	                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
-	                            ->raw() !!}
-                    <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
-                    <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
-                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
-                        {!! Former::select('')
-                                ->addOption('', '')
-                                ->options($taxRateOptions)
-                                ->data_bind('value: tax2, event:{change:onTax2Change}')
-                                ->addClass('tax-select')
-                                ->raw() !!}
-                    </div>
-                    <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
-                    <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
-				</td>
-				<td style="text-align:right;padding-top:9px !important" nowrap>
-					<div class="line-total" data-bind="text: totals.total"></div>
-				</td>
-				<td style="cursor:pointer" class="hide-border td-icon">
-                    <i style="padding-left:2px" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp;
-                    $index() < ($parent.invoice_items().length - 1) &amp;&amp;
-                    $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
-				</td>
-			</tr>
-		</tbody>
+	<div class="table-responsive" style="padding-top:4px;">
 
+		<table class="table invoice-table">
+
+			@include('invoices.edit_table', ['isTasks' => false])
+
+			@if ($account->isModuleEnabled(ENTITY_TASK) && ($invoice->has_tasks || ! empty($tasks)))
+				@include('invoices.edit_table', ['isTasks' => true])
+			@endif
 
 		<tfoot>
 			<tr>
@@ -359,21 +285,24 @@
                         @endif
                     </ul>
 
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px">
+					{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
+					{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
+
+                    <div class="tab-content" style="padding-right:12px;max-width:600px;">
+                        <div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px;">
                             {!! Former::textarea('public_notes')
 									->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
-                            		->label(null)->style('width: 550px')->rows(4) !!}
+                            		->label(null)->style('width: 100%')->rows(4)->label(null) !!}
                         </div>
 						<div role="tabpanel" class="tab-pane" id="private_notes" style="padding-bottom:44px">
                             {!! Former::textarea('private_notes')
 									->data_bind("value: private_notes, valueUpdate: 'afterkeydown'")
-                            		->label(null)->style('width: 550px')->rows(4) !!}
+                            		->label(null)->style('width: 100%')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
                             {!! Former::textarea('terms')
 									->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
-                            		->label(false)->style('width: 550px')->rows(4)
+                            		->label(false)->style('width: 100%')->rows(4)
 		                            ->help('<div class="checkbox">
 		                                        <label>
 		                                            <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
@@ -386,7 +315,7 @@
                         <div role="tabpanel" class="tab-pane" id="footer">
                             {!! Former::textarea('invoice_footer')
 									->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
-		                            ->label(false)->style('width: 550px')->rows(4)
+		                            ->label(false)->style('width: 100%')->rows(4)
 		                            ->help('<div class="checkbox">
 		                                        <label>
 		                                            <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
@@ -419,6 +348,9 @@
                         @endif
                     </div>
                 </div>
+
+				{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
+				{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
 
 				</td>
 				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -563,7 +495,7 @@
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-        @if ( $invoice->exists && $invoice->id && ! $invoice->is_recurring)
+        @if ( $invoice->id && ! $invoice->is_recurring)
 		    {!! Button::primary(trans('texts.download_pdf'))
                     ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
                     ->appendIcon(Icon::create('download-alt')) !!}
@@ -1233,14 +1165,23 @@
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
 
-        //invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
-        invoiceLabels.quantity = invoice.has_tasks ? invoiceLabels.hours : invoiceLabels.quantity_orig;
-        invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;
-
         return invoice;
 	}
 
+	var origInvoiceNumber = false;
 	function getPDFString(cb, force) {
+		@if (! $invoice->id && $account->credit_number_counter > 0)
+			var total = model.invoice().totals.rawTotal();
+			var invoiceNumber = model.invoice().invoice_number();
+			var creditNumber = "{{ $account->getNextNumber(new \App\Models\Credit()) }}";
+			if (total < 0 && invoiceNumber != creditNumber) {
+				origInvoiceNumber = invoiceNumber;
+				model.invoice().invoice_number(creditNumber);
+			} else if (total >= 0 && invoiceNumber == creditNumber && origInvoiceNumber) {
+				model.invoice().invoice_number(origInvoiceNumber);
+			}
+		@endif
+
 		@if ( ! $account->live_preview)
 			return;
 		@endif
@@ -1510,7 +1451,8 @@
 		var isValid = model.invoice().client().name() ? true : false;
 		for (var i=0; i<model.invoice().client().contacts().length; i++) {
 			var contact = model.invoice().client().contacts()[i];
-			if (isValidEmailAddress(contact.email()) || contact.first_name() || contact.last_name()) {
+			var email = contact.email() ? contact.email().trim() : '';
+			if (isValidEmailAddress(email) || contact.first_name() || contact.last_name()) {
 				isValid = true;
 				break;
 			}
@@ -1538,7 +1480,8 @@
             if ( ! contact.send_invoice()) {
                 continue;
             }
-			if (isValidEmailAddress(contact.email())) {
+			var email = contact.email() ? contact.email().trim() : '';
+			if (isValidEmailAddress(email)) {
 				isValid = true;
 			} else {
 				isValid = false;
@@ -1607,16 +1550,25 @@
 
 	function onItemChange(silent)
 	{
-		var hasEmpty = false;
+		var hasEmptyStandard = false;
+		var hasEmptyTask = false;
 		for(var i=0; i<model.invoice().invoice_items().length; i++) {
 			var item = model.invoice().invoice_items()[i];
 			if (item.isEmpty()) {
-				hasEmpty = true;
+				if (item.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }}) {
+					hasEmptyTask = true;
+				} else {
+					hasEmptyStandard = true;
+				}
 			}
 		}
 
-		if (!hasEmpty) {
+		if (!hasEmptyStandard) {
 			model.invoice().addItem();
+		}
+		if (!hasEmptyTask) {
+			item = model.invoice().addItem();
+			item.invoice_item_type_id({{ INVOICE_ITEM_TYPE_TASK }});
 		}
 
 		if (!silent) {

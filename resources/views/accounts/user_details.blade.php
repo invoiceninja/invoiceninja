@@ -14,6 +14,7 @@
     {{ Former::populateField('last_name', $user->last_name) }}
     {{ Former::populateField('email', $user->email) }}
     {{ Former::populateField('phone', $user->phone) }}
+    {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
 
     @if (Input::has('affiliate'))
         {{ Former::populateField('referral_code', true) }}
@@ -46,6 +47,11 @@
                         )->help('oneclick_login_help')
                      !!}
                 @endif
+
+                {!! Former::checkbox('dark_mode')
+                        ->help(trans('texts.dark_mode_help'))
+                        ->text(trans('texts.enable'))
+                        ->value(1)  !!}
 
                 @if (Utils::isNinja())
                     @if ($user->referral_code)

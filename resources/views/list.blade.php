@@ -50,7 +50,8 @@
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
     @if ($entityType == ENTITY_EXPENSE)
-        {!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
+		{!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_expenses'))->appendIcon(Icon::create('list')) !!}
+		{!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
 	@elseif ($entityType == ENTITY_TASK)
 		{!! Button::normal(trans('texts.projects'))->asLinkTo(URL::to('/projects'))->appendIcon(Icon::create('list')) !!}
     @endif
@@ -211,12 +212,21 @@
 			}
 			var url = '{{ URL::to('set_entity_filter/' . $entityType) }}' + '/' + filter;
 	        $.get(url, function(data) {
-	            refreshDatatable();
+	            refreshDatatable_{{ Utils::pluralizeEntityType($entityType) }}();
 	        })
 		}).maximizeSelect2Height();
 
 		$('#statusWrapper_{{ $entityType }}').show();
 
+
+		@for ($i = 1; $i <= 10; $i++)
+			Mousetrap.bind('g {{ $i }}', function(e) {
+				var link = $('.data-table').find('tr:nth-child({{ $i }})').find('a').attr('href');
+				if (link) {
+					location.href = link;
+				}
+			});
+		@endfor
 	});
 
 </script>

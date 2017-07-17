@@ -34,11 +34,27 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="vendor_id", type="integer", example=1)
      */
 
+    protected $availableIncludes = [
+        'documents',
+    ];
+
     public function __construct($account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);
 
         $this->client = $client;
+    }
+
+    public function includeDocuments(Expense $expense)
+    {
+        $transformer = new DocumentTransformer($this->account, $this->serializer);
+
+        $expense->documents->each(function ($document) use ($expense) {
+            $document->setRelation('expense', $expense);
+            $document->setRelation('invoice', $expense->invoice);
+        });
+
+        return $this->includeCollection($expense->documents, $transformer, ENTITY_DOCUMENT);
     }
 
     public function transform(Expense $expense)

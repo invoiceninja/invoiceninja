@@ -75,7 +75,7 @@ class OnlinePaymentController extends BaseController
             ]);
         }
 
-        if (! $invitation->invoice->canBePaid()) {
+        if (! $invitation->invoice->canBePaid() && ! request()->update) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
@@ -120,14 +120,16 @@ class OnlinePaymentController extends BaseController
         $gatewayTypeId = Session::get($invitation->id . 'gateway_type');
         $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
 
-        if (! $invitation->invoice->canBePaid()) {
+        if (! $invitation->invoice->canBePaid() && ! request()->update) {
             return redirect()->to('view/' . $invitation->invitation_key);
         }
 
         try {
             $paymentDriver->completeOnsitePurchase($request->all());
 
-            if ($paymentDriver->isTwoStep()) {
+            if (request()->update) {
+                return redirect('/client/dashboard')->withMessage(trans('texts.updated_payment_details'));
+            } elseif ($paymentDriver->isTwoStep()) {
                 Session::flash('warning', trans('texts.bank_account_verification_next_steps'));
             } else {
                 Session::flash('message', trans('texts.applied_payment'));

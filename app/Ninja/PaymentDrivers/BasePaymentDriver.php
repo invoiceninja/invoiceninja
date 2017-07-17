@@ -10,6 +10,7 @@ use App\Models\GatewayType;
 use App\Models\License;
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use Omnipay\Common\Item;
 use CreditCard;
 use DateTime;
 use Exception;
@@ -157,6 +158,11 @@ class BasePaymentDriver
             return redirect()->to('view/' . $this->invitation->invitation_key);
         }
 
+        $url = 'payment/' . $this->invitation->invitation_key;
+        if (request()->update) {
+            $url .= '?update=true';
+        }
+
         $data = [
             'details' => ! empty($input['details']) ? json_decode($input['details']) : false,
             'accountGateway' => $this->accountGateway,
@@ -164,7 +170,7 @@ class BasePaymentDriver
             'gateway' => $gateway,
             'showAddress' => $this->accountGateway->show_address,
             'showBreadcrumbs' => false,
-            'url' => 'payment/' . $this->invitation->invitation_key,
+            'url' => $url,
             'amount' => $this->invoice()->getRequestedAmount(),
             'invoiceNumber' => $this->invoice()->invoice_number,
             'client' => $this->client(),
@@ -293,13 +299,16 @@ class BasePaymentDriver
             }
         }
 
-        if ($this->isTwoStep()) {
+        if ($this->isTwoStep() || request()->update) {
             return;
         }
 
         // prepare and process payment
         $data = $this->paymentDetails($paymentMethod);
-        $response = $gateway->purchase($data)->send();
+        $items = $this->paymentItems();
+        $response = $gateway->purchase($data)
+                        ->setItems($items)
+                        ->send();
         $this->purchaseResponse = (array) $response->getData();
 
         // parse the transaction reference
@@ -330,6 +339,38 @@ class BasePaymentDriver
         } else {
             throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
         }
+    }
+
+    private function paymentItems()
+    {
+        $invoice = $this->invoice();
+        $items = [];
+        $total = 0;
+
+        foreach ($invoice->invoice_items as $invoiceItem) {
+            $item = new Item([
+                'name' => $invoiceItem->product_key,
+                'description' => $invoiceItem->notes,
+                'price' => $invoiceItem->cost,
+                'quantity' => $invoiceItem->qty,
+            ]);
+
+            $items[] = $item;
+            $total += $invoiceItem->cost * $invoiceItem->qty;
+        }
+
+        if ($total != $invoice->getRequestedAmount()) {
+            $item = new Item([
+                'name' => trans('texts.taxes_and_fees'),
+                'description' => '',
+                'price' => $invoice->getRequestedAmount() - $total,
+                'quantity' => 1,
+            ]);
+
+            $items[] = $item;
+        }
+
+        return $items;
     }
 
     private function updateClient()
@@ -381,7 +422,7 @@ class BasePaymentDriver
             'description' => trans('texts.' . $invoice->getEntityType()) . " {$invoice->invoice_number}",
             'transactionId' => $invoice->invoice_number,
             'transactionType' => 'Purchase',
-            'ip' => Request::getClientIp(),
+            'clientIp' => Request::getClientIp(),
         ];
 
         if ($paymentMethod) {

@@ -455,7 +455,7 @@ class AccountController extends BaseController
 
         if ($accountGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
             if (! $accountGateway->getPublishableStripeKey()) {
-                Session::flash('warning', trans('texts.missing_publishable_key'));
+                Session::now('warning', trans('texts.missing_publishable_key'));
             }
         }
 
@@ -876,7 +876,10 @@ class AccountController extends BaseController
                     $rules["{$entityType}_number_pattern"] = 'has_counter';
                 }
             }
-
+            if (Input::get('credit_number_enabled')) {
+                $rules['credit_number_prefix'] = 'required_without:credit_number_pattern';
+                $rules['credit_number_pattern'] = 'required_without:credit_number_prefix';
+            }
             $validator = Validator::make(Input::all(), $rules);
 
             if ($validator->fails()) {
@@ -915,6 +918,9 @@ class AccountController extends BaseController
                 $account->client_number_prefix = trim(Input::get('client_number_prefix'));
                 $account->client_number_pattern = trim(Input::get('client_number_pattern'));
                 $account->client_number_counter = Input::get('client_number_counter');
+                $account->credit_number_counter = Input::get('credit_number_counter');
+                $account->credit_number_prefix = trim(Input::get('credit_number_prefix'));
+                $account->credit_number_pattern = trim(Input::get('credit_number_pattern'));
                 $account->reset_counter_frequency_id = Input::get('reset_counter_frequency_id');
                 $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Input::get('reset_counter_date')) : null;
 
@@ -974,22 +980,7 @@ class AccountController extends BaseController
             $account->page_size = Input::get('page_size');
 
             $labels = [];
-            foreach ([
-                'item',
-                'description',
-                'unit_cost',
-                'quantity',
-                'line_total',
-                'terms',
-                'balance_due',
-                'partial_due',
-                'subtotal',
-                'paid_to_date',
-                'discount',
-                'tax',
-                'po_number',
-                'due_date',
-            ] as $field) {
+            foreach (Account::$customLabels as $field) {
                 $labels[$field] = Input::get("labels_{$field}");
             }
             $account->invoice_labels = json_encode($labels);
@@ -1143,6 +1134,7 @@ class AccountController extends BaseController
             $user->username = $email;
             $user->email = $email;
             $user->phone = trim(Input::get('phone'));
+            $user->dark_mode = Input::get('dark_mode');
 
             if (! Auth::user()->is_admin) {
                 $user->notify_sent = Input::get('notify_sent');

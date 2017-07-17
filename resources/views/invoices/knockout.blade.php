@@ -35,7 +35,7 @@ function ViewModel(data) {
                 dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
                 $('#due_date').attr('placeholder', dueDate);
             } else {
-                $('#due_date').attr('placeholder', "{{ $invoice->exists || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder() }}");
+                $('#due_date').attr('placeholder', "{{ $invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder() }}");
             }
         @endif
     }
@@ -165,6 +165,22 @@ function ViewModel(data) {
             }
         }
     });
+
+    self.hasTasksCached;
+    self.hasTasks = ko.computed(function() {
+        if (self.hasTasksCached) {
+            return true;
+        }
+        invoice = self.invoice();
+        for (var i=0; i<invoice.invoice_items().length; ++i) {
+            var item = invoice.invoice_items()[i];
+            if (! item.isEmpty() && item.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }}) {
+                self.hasTasksCached = true;
+                return true;
+            }
+        }
+        return false;
+    });
 }
 
 function InvoiceModel(data) {
@@ -182,7 +198,7 @@ function InvoiceModel(data) {
     self.id = ko.observable('');
     self.discount = ko.observable('');
     self.is_amount_discount = ko.observable(0);
-    self.frequency_id = ko.observable(4); // default to monthly
+    self.frequency_id = ko.observable({{ FREQUENCY_MONTHLY }});
     self.terms = ko.observable('');
     self.default_terms = ko.observable(account.{{ $entityType }}_terms);
     self.terms_placeholder = ko.observable({{ (!$invoice->id || $invoice->is_recurring) && $account->{"{$entityType}_terms"} ? "account.{$entityType}_terms" : false}});
@@ -287,14 +303,6 @@ function InvoiceModel(data) {
     } else {
         self.addItem();
     }
-
-    self.qtyLabel = ko.computed(function() {
-        return self.has_tasks() ? invoiceLabels['hours'] : invoiceLabels['quantity'];
-    }, this);
-
-    self.costLabel = ko.computed(function() {
-        return self.has_tasks() ? invoiceLabels['rate'] : invoiceLabels['unit_cost'];
-    }, this);
 
     this.tax1 = ko.computed({
         read: function () {
@@ -560,6 +568,18 @@ function InvoiceModel(data) {
         }
         self.applyInclusivTax(taxRate);
     }
+
+    self.invoice_items_with_tasks = ko.computed(function() {
+        return ko.utils.arrayFilter(self.invoice_items(), function(item) {
+            return item.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }};
+        });
+    });
+
+    self.invoice_items_without_tasks = ko.computed(function() {
+        return ko.utils.arrayFilter(self.invoice_items(), function(item) {
+            return item.invoice_item_type_id() != {{ INVOICE_ITEM_TYPE_TASK }};
+        });
+    });
 }
 
 function ClientModel(data) {
@@ -987,7 +1007,7 @@ ko.bindingHandlers.productTypeahead = {
 };
 
 function checkInvoiceNumber() {
-    var url = '{{ url('check_invoice_number') }}/{{ $invoice->exists ? $invoice->public_id : '' }}?invoice_number=' + encodeURIComponent($('#invoice_number').val());
+    var url = '{{ url('check_invoice_number') }}/{{ $invoice->id ? $invoice->public_id : '' }}?invoice_number=' + encodeURIComponent($('#invoice_number').val());
     $.get(url, function(data) {
         var isValid = data == '{{ RESULT_SUCCESS }}' ? true : false;
         if (isValid) {

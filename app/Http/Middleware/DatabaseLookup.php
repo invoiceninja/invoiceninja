@@ -28,7 +28,6 @@ class DatabaseLookup
                 LookupUser::setServerByField('email', $email);
             } else {
                 Auth::logout();
-                return redirect('/login');
             }
         } elseif ($guard == 'api') {
             if ($token = $request->header('X-Ninja-Token')) {

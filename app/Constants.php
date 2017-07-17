@@ -37,6 +37,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_BANK_SUBACCOUNT', 'bank_subaccount');
     define('ENTITY_EXPENSE_CATEGORY', 'expense_category');
     define('ENTITY_PROJECT', 'project');
+    define('ENTITY_RECURRING_EXPENSE', 'recurring_expense');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
@@ -152,6 +153,9 @@ if (! defined('APP_NAME')) {
     define('DEFAULT_HEADER_FONT', 1); // Roboto
     define('DEFAULT_BODY_FONT', 1); // Roboto
     define('DEFAULT_SEND_RECURRING_HOUR', 8);
+
+    define('DEFAULT_BANK_OFX_VERSION', 102);
+    define('DEFAULT_BANK_APP_VERSION', 2500);
 
     define('IMPORT_CSV', 'CSV');
     define('IMPORT_JSON', 'JSON');
@@ -303,7 +307,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.4.2' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.5.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -510,7 +514,6 @@ if (! defined('APP_NAME')) {
     define('WEPAY_CLIENT_SECRET', env('WEPAY_CLIENT_SECRET'));
     define('WEPAY_AUTO_UPDATE', env('WEPAY_AUTO_UPDATE', false));
     define('WEPAY_ENVIRONMENT', env('WEPAY_ENVIRONMENT', WEPAY_PRODUCTION));
-    define('WEPAY_ENABLE_CANADA', env('WEPAY_ENABLE_CANADA', false));
     define('WEPAY_THEME', env('WEPAY_THEME', '{"name":"Invoice Ninja","primary_color":"0b4d78","secondary_color":"0b4d78","background_color":"f8f8f8","button_color":"33b753"}'));
 
     define('SKYPE_CARD_RECEIPT', 'message/card.receipt');

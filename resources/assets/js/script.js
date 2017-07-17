@@ -660,6 +660,9 @@ function calculateAmounts(invoice) {
       invoice.has_product_key = true;
   }
 
+  var hasStandard = false;
+  var hasTask = false;
+
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
@@ -668,7 +671,19 @@ function calculateAmounts(invoice) {
     if (lineTotal) {
       total += lineTotal;
     }
+    if (!item.notes && !item.product_key) {
+        continue;
+    }
+    if (item.invoice_item_type_id == 2) {
+        hasTask = true;
+    } else {
+        hasStandard = true;
+    }
   }
+
+  invoice.hasTasks = hasTask;
+  invoice.hasStandard = hasStandard;
+  invoice.hasSecondTable = hasTask && hasStandard;
 
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];

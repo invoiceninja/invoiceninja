@@ -76,12 +76,14 @@ return [
 			'url_type'  => env('RACKSPACE_URL_TYPE', 'publicURL')
 		],
 
-        'gcs' => [
-           'driver'                               => 'gcs',
-           'service_account'                      => env('GCS_USERNAME', ''),
-           'service_account_certificate'          => storage_path() . '/credentials.p12',
-           'service_account_certificate_password' => env('GCS_PASSWORD', ''),
-           'bucket'                               => env('GCS_BUCKET', 'cloud-storage-bucket'),
+		'gcs' => [
+			'driver'      => 'gcs',
+			'bucket'      => env('GCS_BUCKET', 'cloud-storage-bucket'),
+			//'service_account'                      => env('GCS_USERNAME', ''),
+			//'service_account_certificate'          => storage_path() . '/credentials.p12',
+			//'service_account_certificate_password' => env('GCS_PASSWORD', ''),
+			'project_id'  => env('GCS_PROJECT_ID'),
+			'credentials' => storage_path() . '/gcs-credentials.json',
         ],
 	],
 

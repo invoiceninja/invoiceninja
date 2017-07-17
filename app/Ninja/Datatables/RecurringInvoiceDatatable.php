@@ -17,10 +17,15 @@ class RecurringInvoiceDatatable extends EntityDatatable
             [
                 'frequency',
                 function ($model) {
-                    $frequency = strtolower($model->frequency);
-                    $frequency = preg_replace('/\s/', '_', $frequency);
+                    if ($model->frequency) {
+                        $frequency = strtolower($model->frequency);
+                        $frequency = preg_replace('/\s/', '_', $frequency);
+                        $label = trans('texts.freq_' . $frequency);
+                    } else {
+                        $label = trans('texts.freq_inactive');
+                    }
 
-                    return link_to("recurring_invoices/{$model->public_id}/edit", trans('texts.freq_'.$frequency))->toHtml();
+                    return link_to("recurring_invoices/{$model->public_id}/edit", $label)->toHtml();
                 },
             ],
             [
@@ -76,8 +81,12 @@ class RecurringInvoiceDatatable extends EntityDatatable
         $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date_sql, $model->is_recurring);
         $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
 
-        if ($model->invoice_status_id == INVOICE_STATUS_SENT && (! $model->last_sent_date_sql || $model->last_sent_date_sql == '0000-00-00')) {
-            $label = trans('texts.pending');
+        if ($model->invoice_status_id == INVOICE_STATUS_SENT) {
+            if (! $model->last_sent_date_sql || $model->last_sent_date_sql == '0000-00-00') {
+                $label = trans('texts.pending');
+            } else {
+                $label = trans('texts.active');
+            }
         }
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";

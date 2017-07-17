@@ -61,7 +61,7 @@ class Handler extends ExceptionHandler
             }
             // Log 404s to a separate file
             $errorStr = date('Y-m-d h:i:s') . ' ' . request()->url() . "\n" . json_encode(Utils::prepareErrorData('PHP')) . "\n\n";
-            @file_put_contents(storage_path('logs/not_found.log'), $errorStr, FILE_APPEND);
+            @file_put_contents(storage_path('logs/not-found.log'), $errorStr, FILE_APPEND);
             return false;
         } elseif ($e instanceof HttpResponseException) {
             return false;

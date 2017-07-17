@@ -67,6 +67,11 @@ trait GeneratesNumbers
                     $this->client_number_counter += $counterOffset - 1;
                     $this->save();
                 }
+            } elseif ($entity->isEntityType(ENTITY_CREDIT)) {
+                if ($this->creditNumbersEnabled()) {
+                    $this->credit_number_counter += $counterOffset - 1;
+                    $this->save();
+                }
             } elseif ($entity->isType(INVOICE_TYPE_QUOTE)) {
                 if (! $this->share_counter) {
                     $this->quote_number_counter += $counterOffset - 1;
@@ -227,6 +232,8 @@ trait GeneratesNumbers
     {
         if ($entityType == ENTITY_CLIENT) {
             return $this->client_number_counter;
+        } elseif ($entityType == ENTITY_CREDIT) {
+            return $this->credit_number_counter;
         } elseif ($entityType == ENTITY_QUOTE && ! $this->share_counter) {
             return $this->quote_number_counter;
         } else {
@@ -254,8 +261,14 @@ trait GeneratesNumbers
     public function incrementCounter($entity)
     {
         if ($entity->isEntityType(ENTITY_CLIENT)) {
-            if ($this->client_number_counter) {
+            if ($this->client_number_counter > 0) {
                 $this->client_number_counter += 1;
+            }
+            $this->save();
+            return;
+        } elseif ($entity->isEntityType(ENTITY_CREDIT)) {
+            if ($this->credit_number_counter > 0) {
+                $this->credit_number_counter += 1;
             }
             $this->save();
             return;
@@ -293,6 +306,11 @@ trait GeneratesNumbers
     public function clientNumbersEnabled()
     {
         return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->client_number_counter > 0;
+    }
+
+    public function creditNumbersEnabled()
+    {
+        return $this->hasFeature(FEATURE_INVOICE_SETTINGS) && $this->credit_number_counter > 0;
     }
 
     public function checkCounterReset()
@@ -338,6 +356,7 @@ trait GeneratesNumbers
         $this->reset_counter_date = $resetDate->format('Y-m-d');
         $this->invoice_number_counter = 1;
         $this->quote_number_counter = 1;
+        $this->credit_number_counter = 1;
         $this->save();
     }
 }

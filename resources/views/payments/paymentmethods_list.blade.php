@@ -77,53 +77,64 @@
     </script>
 @endif
 
-@if(!empty($paymentMethods) && count($paymentMethods))
-    <h3>{{ trans('texts.payment_methods') }}</h3>
-
-    @foreach ($paymentMethods as $paymentMethod)
-    <div class="payment_method">
-                <span class="payment_method_img_container">
-                    <img height="22" src="{{ $paymentMethod->imageUrl() }}"
-                        alt="{{ trans("texts.card_" . str_replace(' ', '', strtolower($paymentMethod->payment_type->name))) }}">
-                </span>
-
-        @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
-            @if($paymentMethod->bank_name)
-                {{ $paymentMethod->bank_name }}
-            @else
-                {{ trans('texts.bank_account') }}
-            @endif
-        @elseif($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL)
-            {{ trans('texts.paypal') . ': ' . $paymentMethod->email }}
-        @else
-            {{ trans('texts.credit_card') }}
+@if ($invitationKey = $client->firstInvitationKey())
+    <h3>
+        {{ trans('texts.payment_methods') }}
+        @if ($account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD)
+            && $account->getGatewayByType(GATEWAY_TYPE_TOKEN)
+            && $account->token_billing_type_id != TOKEN_BILLING_DISABLED)
+            &nbsp;&nbsp;
+            {!! Button::success(strtoupper(trans(!empty($paymentMethods) && count($paymentMethods) ? 'texts.update_credit_card' : 'texts.add_credit_card')))->asLinkTo(URL::to("/payment/$invitationKey/credit_card?update=true")) !!}
         @endif
+    </h3>
 
-        - {{ trans('texts.added_on', ['date' => Utils::dateToString($paymentMethod->created_at)]) }}
+    @if(!empty($paymentMethods) && count($paymentMethods))
+        @foreach ($paymentMethods as $paymentMethod)
+        <div class="payment_method">
+                    <span class="payment_method_img_container">
+                        <img height="22" src="{{ $paymentMethod->imageUrl() }}"
+                            alt="{{ trans("texts.card_" . str_replace(' ', '', strtolower($paymentMethod->payment_type->name))) }}">
+                    </span>
 
-        @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
-            @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
-                @if($gateway->gateway_id == GATEWAY_STRIPE)
-                    <a href="#" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
+            @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
+                @if($paymentMethod->bank_name)
+                    {{ $paymentMethod->bank_name }}
                 @else
-                    [{{  trans('texts.verification_pending') }}]
+                    {{ trans('texts.bank_account') }}
                 @endif
-            @elseif($paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFICATION_FAILED)
-                [{{trans('texts.verification_failed')}}]
+            @elseif($paymentMethod->payment_type_id == PAYMENT_TYPE_PAYPAL)
+                {{ trans('texts.paypal') . ': ' . $paymentMethod->email }}
+            @else
+                {{ trans('texts.credit_card') }}
             @endif
-        @endif
-        |
-        @if($paymentMethod->id == $paymentMethod->account_gateway_token->default_payment_method_id)
-            {{trans('texts.used_for_auto_bill')}}
-        @elseif($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED)
-            <a href="#" onclick="setDefault('{{$paymentMethod->public_id}}')">{{trans('texts.use_for_auto_bill')}}</a>
-        @endif
-        | <a href="#" title="{{ trans('texts.remove') }}" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">{{ trans('texts.remove') }}</a>
 
-    </div>
-    @endforeach
+            - {{ trans('texts.added_on', ['date' => Utils::dateToString($paymentMethod->created_at)]) }}
+
+            @if($paymentMethod->payment_type_id == PAYMENT_TYPE_ACH)
+                @if($paymentMethod->status == PAYMENT_METHOD_STATUS_NEW)
+                    @if($gateway->gateway_id == GATEWAY_STRIPE)
+                        <a href="#" onclick="completeVerification('{{$paymentMethod->public_id}}','{{$paymentMethod->currency->symbol}}')">({{trans('texts.complete_verification')}})</a>
+                    @else
+                        [{{  trans('texts.verification_pending') }}]
+                    @endif
+                @elseif($paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFICATION_FAILED)
+                    [{{trans('texts.verification_failed')}}]
+                @endif
+            @endif
+            |
+            @if($paymentMethod->id == $paymentMethod->account_gateway_token->default_payment_method_id)
+                {{trans('texts.used_for_auto_bill')}}
+            @elseif($paymentMethod->payment_type_id != PAYMENT_TYPE_ACH || $paymentMethod->status == PAYMENT_METHOD_STATUS_VERIFIED)
+                <a href="#" onclick="setDefault('{{$paymentMethod->public_id}}')">{{trans('texts.use_for_auto_bill')}}</a>
+            @endif
+            | <a href="#" title="{{ trans('texts.remove') }}" class="payment_method_remove" onclick="removePaymentMethod('{{$paymentMethod->public_id}}')">{{ trans('texts.remove') }}</a>
+
+        </div>
+        @endforeach
+    @endif
+
+    <br/>&nbsp;<br/>
 @endif
-
 
 <center>
     @if (false && $account->getGatewayByType(GATEWAY_TYPE_CREDIT_CARD) && $account->getGatewayByType(GATEWAY_TYPE_TOKEN))

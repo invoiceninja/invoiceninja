@@ -38,6 +38,7 @@ class PurgeAccountData extends Job
             'credits',
             'expense_categories',
             'expenses',
+            'recurring_expenses',
             'invoice_items',
             'payments',
             'invoices',
@@ -56,6 +57,7 @@ class PurgeAccountData extends Job
 
         $account->invoice_number_counter = 1;
         $account->quote_number_counter = 1;
+        $account->credit_number_counter = $account->credit_number_counter > 0 ? 1 : 0;
         $account->client_number_counter = $account->client_number_counter > 0 ? 1 : 0;
         $account->save();
 

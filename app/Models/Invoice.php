@@ -10,12 +10,13 @@ use App\Events\InvoiceInvitationWasEmailed;
 use App\Events\QuoteInvitationWasEmailed;
 use App\Libraries\CurlUtils;
 use App\Models\Activity;
+use App\Models\Credit;
 use App\Models\Traits\ChargesFees;
+use App\Models\Traits\HasRecurrence;
 use DateTime;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 use Utils;
-use Carbon;
 
 /**
  * Class Invoice.
@@ -25,6 +26,7 @@ class Invoice extends EntityModel implements BalanceAffecting
     use PresentableTrait;
     use OwnedByClientTrait;
     use ChargesFees;
+    use HasRecurrence;
     use SoftDeletes {
         SoftDeletes::trashed as parentTrashed;
     }
@@ -446,6 +448,10 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function markSent()
     {
+        if ($this->is_deleted) {
+            return;
+        }
+
         if (! $this->isSent()) {
             $this->invoice_status_id = INVOICE_STATUS_SENT;
         }
@@ -462,6 +468,10 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function markInvitationsSent($notify = false, $reminder = false)
     {
+        if ($this->is_deleted) {
+            return;
+        }
+
         if (! $this->relationLoaded('invitations')) {
             $this->load('invitations');
         }
@@ -494,6 +504,10 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function markInvitationSent($invitation, $messageId = false, $notify = true, $notes = false)
     {
+        if ($this->is_deleted) {
+            return;
+        }
+
         if (! $this->isSent()) {
             $this->is_public = true;
             $this->invoice_status_id = INVOICE_STATUS_SENT;
@@ -531,7 +545,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         $statusId = false;
         if ($this->amount != 0 && $this->balance == 0) {
             $statusId = INVOICE_STATUS_PAID;
-        } elseif ($this->balance > 0 && $this->balance < $this->amount) {
+        } elseif ($this->isSent() && $this->balance > 0 && $this->balance < $this->amount) {
             $statusId = INVOICE_STATUS_PARTIAL;
         } elseif ($this->isPartial() && $this->balance > 0) {
             $statusId = ($this->balance == $this->amount ? INVOICE_STATUS_SENT : INVOICE_STATUS_PARTIAL);
@@ -685,13 +699,13 @@ class Invoice extends EntityModel implements BalanceAffecting
         return self::calcLink($this);
     }
 
-    public function getInvitationLink($type = 'view', $forceOnsite = false)
+    public function getInvitationLink($type = 'view', $forceOnsite = false, $forcePlain = false)
     {
         if (! $this->relationLoaded('invitations')) {
             $this->load('invitations');
         }
 
-        return $this->invitations[0]->getLink($type, $forceOnsite);
+        return $this->invitations[0]->getLink($type, $forceOnsite, $forcePlain);
     }
 
     /**
@@ -897,6 +911,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'tax_rate1',
                 'tax_name2',
                 'tax_rate2',
+                'invoice_item_type_id',
             ]);
         }
 
@@ -1124,122 +1139,6 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
-     * @return string
-     */
-    private function getRecurrenceRule()
-    {
-        $rule = '';
-
-        switch ($this->frequency_id) {
-            case FREQUENCY_WEEKLY:
-                $rule = 'FREQ=WEEKLY;';
-                break;
-            case FREQUENCY_TWO_WEEKS:
-                $rule = 'FREQ=WEEKLY;INTERVAL=2;';
-                break;
-            case FREQUENCY_FOUR_WEEKS:
-                $rule = 'FREQ=WEEKLY;INTERVAL=4;';
-                break;
-            case FREQUENCY_MONTHLY:
-                $rule = 'FREQ=MONTHLY;';
-                break;
-            case FREQUENCY_TWO_MONTHS:
-                $rule = 'FREQ=MONTHLY;INTERVAL=2;';
-                break;
-            case FREQUENCY_THREE_MONTHS:
-                $rule = 'FREQ=MONTHLY;INTERVAL=3;';
-                break;
-            case FREQUENCY_SIX_MONTHS:
-                $rule = 'FREQ=MONTHLY;INTERVAL=6;';
-                break;
-            case FREQUENCY_ANNUALLY:
-                $rule = 'FREQ=YEARLY;';
-                break;
-        }
-
-        if ($this->end_date) {
-            $rule .= 'UNTIL=' . $this->getOriginal('end_date');
-        }
-
-        return $rule;
-    }
-
-    /*
-    public function shouldSendToday()
-    {
-        if (!$nextSendDate = $this->getNextSendDate()) {
-            return false;
-        }
-
-        return $this->account->getDateTime() >= $nextSendDate;
-    }
-    */
-
-    /**
-     * @return bool
-     */
-    public function shouldSendToday()
-    {
-        if (! $this->user->confirmed) {
-            return false;
-        }
-
-        $account = $this->account;
-        $timezone = $account->getTimezone();
-
-        if (! $this->start_date || Carbon::parse($this->start_date, $timezone)->isFuture()) {
-            return false;
-        }
-
-        if ($this->end_date && Carbon::parse($this->end_date, $timezone)->isPast()) {
-            return false;
-        }
-
-        if (! $this->last_sent_date) {
-            return true;
-        } else {
-            $date1 = new DateTime($this->last_sent_date);
-            $date2 = new DateTime();
-            $diff = $date2->diff($date1);
-            $daysSinceLastSent = $diff->format('%a');
-            $monthsSinceLastSent = ($diff->format('%y') * 12) + $diff->format('%m');
-
-            // check we don't send a few hours early due to timezone difference
-            if (Carbon::now()->format('Y-m-d') != Carbon::now($timezone)->format('Y-m-d')) {
-                return false;
-            }
-
-            // check we never send twice on one day
-            if ($daysSinceLastSent == 0) {
-                return false;
-            }
-        }
-
-        switch ($this->frequency_id) {
-            case FREQUENCY_WEEKLY:
-                return $daysSinceLastSent >= 7;
-            case FREQUENCY_TWO_WEEKS:
-                return $daysSinceLastSent >= 14;
-            case FREQUENCY_FOUR_WEEKS:
-                return $daysSinceLastSent >= 28;
-            case FREQUENCY_MONTHLY:
-                return $monthsSinceLastSent >= 1;
-            case FREQUENCY_TWO_MONTHS:
-                return $monthsSinceLastSent >= 2;
-            case FREQUENCY_THREE_MONTHS:
-                return $monthsSinceLastSent >= 3;
-            case FREQUENCY_SIX_MONTHS:
-                return $monthsSinceLastSent >= 6;
-            case FREQUENCY_ANNUALLY:
-                return $monthsSinceLastSent >= 12;
-            default:
-                return false;
-        }
-
-        return false;
-    }
-
-    /**
      * @return bool|string
      */
     public function getPDFString($decode = true)
@@ -1255,17 +1154,18 @@ class Invoice extends EntityModel implements BalanceAffecting
         $invitation = $this->invitations[0];
         $link = $invitation->getLink('view', true);
         $pdfString = false;
+        $phantomjsSecret = env('PHANTOMJS_SECRET');
 
         try {
             if (env('PHANTOMJS_BIN_PATH')) {
-                $pdfString = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
+                $pdfString = CurlUtils::phantom('GET', $link . "?phantomjs=true&phantomjs_secret={$phantomjsSecret}");
             }
 
             if (! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
                 if (Utils::isNinjaDev()) {
                     $link = env('TEST_LINK');
                 }
-                $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%22,renderType:%22html%22%7D";
+                $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true&phantomjs_secret={$phantomjsSecret}%22,renderType:%22html%22%7D";
                 $pdfString = CurlUtils::get($url);
             }
 
@@ -1526,8 +1426,13 @@ class Invoice extends EntityModel implements BalanceAffecting
 }
 
 Invoice::creating(function ($invoice) {
-    if (! $invoice->is_recurring && $invoice->amount >= 0) {
-        $invoice->account->incrementCounter($invoice);
+    if (! $invoice->is_recurring) {
+        $account = $invoice->account;
+        if ($invoice->amount >= 0) {
+            $account->incrementCounter($invoice);
+        } elseif ($account->credit_number_counter > 0) {
+            $account->incrementCounter(new Credit());
+        }
     }
 });
 
