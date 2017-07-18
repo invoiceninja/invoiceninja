@@ -510,7 +510,9 @@ class InvoiceRepository extends BaseRepository
 
             if ($invoice->discount > 0) {
                 if ($invoice->is_amount_discount) {
-                    $lineTotal -= round(($lineTotal / $total) * $invoice->discount, 2);
+                    if ($total != 0) {
+                        $lineTotal -= round(($lineTotal / $total) * $invoice->discount, 2);
+                    }
                 } else {
                     $lineTotal -= round($lineTotal * ($invoice->discount / 100), 2);
                 }
