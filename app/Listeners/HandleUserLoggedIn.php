@@ -80,7 +80,7 @@ class HandleUserLoggedIn
             /*
             if (! env('APP_KEY')) {
                 Session::flash('error', trans('texts.error_app_key_not_set'));
-            } elseif (strstr(env('APP_KEY'), 'SomeRandomString')) {
+            } elseif (in_array(, ['SomeRandomString', 'SomeRandomStringSomeRandomString', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'])) {
                 Session::flash('error', trans('texts.error_app_key_set_to_default'));
             }
             */
