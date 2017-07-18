@@ -656,6 +656,18 @@ class AccountRepository
         return Account::whereRaw('enable_reminder1 = 1 OR enable_reminder2 = 1 OR enable_reminder3 = 1')->get();
     }
 
+    public function findWithFees()
+    {
+        return Account::whereHas('account_email_settings', function($query) {
+            $query->where('late_fee1_amount', '>', 0)
+                    ->orWhere('late_fee1_percent', '>', 0)
+                    ->orWhere('late_fee2_amount', '>', 0)
+                    ->orWhere('late_fee2_percent', '>', 0)
+                    ->orWhere('late_fee3_amount', '>', 0)
+                    ->orWhere('late_fee3_percent', '>', 0);
+        })->get();
+    }
+
     public function createTokens($user, $name)
     {
         $name = trim($name) ?: 'TOKEN';

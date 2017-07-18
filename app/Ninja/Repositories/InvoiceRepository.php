@@ -1091,19 +1091,24 @@ class InvoiceRepository extends BaseRepository
      *
      * @return mixed
      */
-    public function findNeedingReminding(Account $account)
+    public function findNeedingReminding(Account $account, $filterEnabled = true)
     {
         $dates = [];
 
         for ($i = 1; $i <= 3; $i++) {
-            if ($date = $account->getReminderDate($i)) {
+            if ($date = $account->getReminderDate($i, $filterEnabled)) {
                 $field = $account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
                 $dates[] = "$field = '$date'";
             }
         }
 
+        if (! count($dates)) {
+            return [];
+        }
+
         $sql = implode(' OR ', $dates);
         $invoices = Invoice::invoiceType(INVOICE_TYPE_STANDARD)
+                    ->with('invoice_items')
                     ->whereAccountId($account->id)
                     ->where('balance', '>', 0)
                     ->where('is_recurring', '=', false)
@@ -1130,6 +1135,32 @@ class InvoiceRepository extends BaseRepository
                 break;
             }
         }
+    }
+
+    public function setLateFee($invoice, $amount, $percent)
+    {
+        if ($amount <= 0 && $percent <= 0) {
+            return false;
+        }
+
+        $account = $invoice->account;
+
+        $data = $invoice->toArray();
+        $fee = $amount;
+
+        if ($invoice->amount > 0) {
+            $fee += round($invoice->amount * $percent / 100, 2);
+        }
+
+        $item = [];
+        $item['product_key'] = trans('texts.fee');
+        $item['notes'] = trans('texts.late_fee_added', ['date' => $account->formatDate('now')]);
+        $item['qty'] = 1;
+        $item['cost'] = $fee;
+        $item['invoice_item_type_id'] = INVOICE_ITEM_TYPE_LATE_FEE;
+        $data['invoice_items'][] = $item;
+
+        $this->save($data, $invoice);
     }
 
     public function setGatewayFee($invoice, $gatewayTypeId)

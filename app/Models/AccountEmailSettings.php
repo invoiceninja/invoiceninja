@@ -27,6 +27,12 @@ class AccountEmailSettings extends Eloquent
         'email_template_reminder1',
         'email_template_reminder2',
         'email_template_reminder3',
+        'late_fee1_amount',
+        'late_fee1_percent',
+        'late_fee2_amount',
+        'late_fee2_percent',
+        'late_fee3_amount',
+        'late_fee3_percent',
     ];
 
 }

@@ -63,8 +63,30 @@ class SendReminders extends Command
             config(['database.default' => $database]);
         }
 
+        $accounts = $this->accountRepo->findWithFees();
+        $this->info(count($accounts) . ' accounts found with fees');
+
+        foreach ($accounts as $account) {
+            if (! $account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
+                continue;
+            }
+
+            $invoices = $this->invoiceRepo->findNeedingReminding($account, false);
+            $this->info($account->name . ': ' . count($invoices) . ' invoices found');
+
+            foreach ($invoices as $invoice) {
+                if ($reminder = $account->getInvoiceReminder($invoice, false)) {
+                    $this->info('Charge fee: ' . $invoice->id);
+                    $number = preg_replace('/[^0-9]/', '', $reminder);
+                    $amount = $account->account_email_settings->{"late_fee{$number}_amount"};
+                    $percent = $account->account_email_settings->{"late_fee{$number}_percent"};
+                    $this->invoiceRepo->setLateFee($invoice, $amount, $percent);
+                }
+            }
+        }
+
         $accounts = $this->accountRepo->findWithReminders();
-        $this->info(count($accounts) . ' accounts found');
+        $this->info(count($accounts) . ' accounts found with reminders');
 
         /** @var \App\Models\Account $account */
         foreach ($accounts as $account) {
@@ -78,7 +100,7 @@ class SendReminders extends Command
             /** @var Invoice $invoice */
             foreach ($invoices as $invoice) {
                 if ($reminder = $account->getInvoiceReminder($invoice)) {
-                    $this->info('Send to ' . $invoice->id);
+                    $this->info('Send email: ' . $invoice->id);
                     $this->mailer->sendInvoice($invoice, $reminder);
                 }
             }
