@@ -12,6 +12,7 @@ use App\Models\User;
 use Auth;
 use App;
 use Utils;
+use Exception;
 
 /**
  * Class SendInvoiceEmail.
