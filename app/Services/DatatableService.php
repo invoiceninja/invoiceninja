@@ -78,7 +78,8 @@ class DatatableService
             $dropdown_contents = '';
 
             $lastIsDivider = false;
-            if (! $model->deleted_at || $model->deleted_at == '0000-00-00') {
+            //if (! $model->deleted_at || $model->deleted_at == '0000-00-00') {
+            if (! $model->is_deleted) {
                 foreach ($datatable->actions() as $action) {
                     if (count($action)) {
                         // if show function isn't set default to true

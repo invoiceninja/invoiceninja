@@ -66,6 +66,7 @@ class InvoiceService extends BaseService
         if ($action == 'download') {
             $invoices = $this->getRepo()->findByPublicIdsWithTrashed($ids);
             dispatch(new DownloadInvoices(Auth::user(), $invoices));
+            return count($invoices);
         } else {
             return parent::bulk($ids, $action);
         }

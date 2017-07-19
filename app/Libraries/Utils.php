@@ -916,7 +916,7 @@ class Utils
         $str = '';
 
         if (property_exists($model, 'is_deleted')) {
-            $str = $model->is_deleted || ($model->deleted_at && $model->deleted_at != '0000-00-00') ? 'DISABLED ' : '';
+            $str = $model->is_deleted ? 'DISABLED ' : '';
 
             if ($model->is_deleted) {
                 $str .= 'ENTITY_DELETED ';

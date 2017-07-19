@@ -133,7 +133,13 @@ class QuoteController extends BaseController
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {
-            $key = $action == 'markSent' ? 'updated_quote' : "{$action}d_quote";
+            if ($action == 'markSent') {
+                $key = 'updated_quote';
+            } elseif ($action == 'download') {
+                $key = 'downloaded_quote';
+            } else {
+                $key = "{$action}d_quote";
+            }
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }

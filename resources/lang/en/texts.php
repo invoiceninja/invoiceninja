@@ -2311,6 +2311,10 @@ $LANG = array(
     'download_invoice' => 'Download Invoice',
     'download_quote' => 'Download Quote',
     'invoices_are_attached' => 'Your invoice PDFs are attached.',
+    'downloaded_invoice' => 'An email will be sent with the invoice PDF',
+    'downloaded_quote' => 'An email will be sent with the quote PDF',
+    'downloaded_invoices' => 'An email will be sent with the invoice PDFs',
+    'downloaded_quotes' => 'An email will be sent with the quote PDFs',
 
 );
 

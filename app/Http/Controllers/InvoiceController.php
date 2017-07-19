@@ -480,6 +480,8 @@ class InvoiceController extends BaseController
                 $key = 'emailed_' . $entityType;
             } elseif ($action == 'markPaid') {
                 $key = 'created_payment';
+            } elseif ($action == 'download') {
+                $key = 'downloaded_invoice';
             } else {
                 $key = "{$action}d_{$entityType}";
             }
