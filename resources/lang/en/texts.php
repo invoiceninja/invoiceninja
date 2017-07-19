@@ -2308,6 +2308,9 @@ $LANG = array(
     'late_fee_amount' => 'Late Fee Amount',
     'late_fee_percent' => 'Late Fee Percent',
     'late_fee_added' => 'Late fee added on :date',
+    'download_invoice' => 'Download Invoice',
+    'download_quote' => 'Download Quote',
+    'invoices_are_attached' => 'Your invoice PDFs are attached.',
 
 );
 

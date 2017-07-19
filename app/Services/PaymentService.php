@@ -140,7 +140,9 @@ class PaymentService extends BaseService
                 $subject = trans('texts.auto_bill_failed', ['invoice_number' => $invoice->invoice_number]);
                 $message = sprintf('%s: %s', ucwords($paymentDriver->providerName()), $exception->getMessage());
                 $mailer = app('App\Ninja\Mailers\UserMailer');
-                $mailer->sendMessage($invoice->user, $subject, $message, $invoice);
+                $mailer->sendMessage($invoice->user, $subject, $message, [
+                    'invoice' => $invoice
+                ]);
             }
 
             return false;
