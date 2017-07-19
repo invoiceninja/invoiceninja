@@ -1052,20 +1052,15 @@ class Utils
         }
     }
 
-    public static function formatWebsite($website)
+    public static function formatWebsite($link)
     {
-        if (! $website) {
+        if (! $link) {
             return '';
         }
 
-        $link = $website;
-        $title = $website;
-        $prefix = 'http://';
-
-        if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
-            $title = substr($title, 7);
-        } else {
-            $link = $prefix.$link;
+        $title = $link;
+        if (substr($link, 0, 4) != 'http') {
+            $link = 'http://' . $link;
         }
 
         return link_to($link, $title, ['target' => '_blank']);
