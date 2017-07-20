@@ -376,7 +376,7 @@ class AccountController extends BaseController
         $planDetails = $account->getPlanDetails(true);
         $portalLink = false;
 
-        if ($planDetails && $ninjaClient = $this->accountRepo->getNinjaClient($account)) {
+        if (Utils::isNinja() && $planDetails && $ninjaClient = $this->accountRepo->getNinjaClient($account)) {
             $contact = $ninjaClient->getPrimaryContact();
             $portalLink = $contact->link;
         }
