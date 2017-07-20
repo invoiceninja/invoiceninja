@@ -109,6 +109,15 @@ class ExpenseDatatable extends EntityDatatable
                 },
             ],
             [
+                trans("texts.clone_expense"),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                },
+            ],
+            [
                 trans('texts.view_invoice'),
                 function ($model) {
                     return URL::to("/invoices/{$model->invoice_public_id}/edit");

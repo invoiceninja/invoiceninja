@@ -2315,6 +2315,7 @@ $LANG = array(
     'downloaded_quote' => 'An email will be sent with the quote PDF',
     'downloaded_invoices' => 'An email will be sent with the invoice PDFs',
     'downloaded_quotes' => 'An email will be sent with the quote PDFs',
+    'clone_expense' => 'Clone Expense',
 
 );
 
