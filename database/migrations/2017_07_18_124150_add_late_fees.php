@@ -20,6 +20,10 @@ class AddLateFees extends Migration
             $table->decimal('late_fee3_amount', 13, 2)->nullable();
             $table->decimal('late_fee3_percent', 13, 3)->nullable();
         });
+
+        Schema::table('documents', function ($table) {
+            $table->boolean('is_default')->default(false)->nullable();
+        });
     }
 
     /**
@@ -36,6 +40,10 @@ class AddLateFees extends Migration
             $table->dropColumn('late_fee2_percent');
             $table->dropColumn('late_fee3_amount');
             $table->dropColumn('late_fee3_percent');
+        });
+
+        Schema::table('documents', function ($table) {
+            $table->dropColumn('is_default');
         });
     }
 }

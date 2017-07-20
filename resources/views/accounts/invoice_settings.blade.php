@@ -328,7 +328,7 @@
 
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.default_messages') !!}</h3>
+        <h3 class="panel-title">{!! trans('texts.defaults') !!}</h3>
       </div>
         <div class="panel-body form-padding-right">
 
@@ -337,6 +337,9 @@
                     <li role="presentation" class="active"><a href="#invoice_terms" aria-controls="invoice_terms" role="tab" data-toggle="tab">{{ trans('texts.invoice_terms') }}</a></li>
                     <li role="presentation"><a href="#invoice_footer" aria-controls="invoice_footer" role="tab" data-toggle="tab">{{ trans('texts.invoice_footer') }}</a></li>
                     <li role="presentation"><a href="#quote_terms" aria-controls="quote_terms" role="tab" data-toggle="tab">{{ trans('texts.quote_terms') }}</a></li>
+                    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                        <li role="presentation"><a href="#documents" aria-controls="documents" role="tab" data-toggle="tab">{{ trans('texts.documents') }}</a></li>
+                    @endif
                 </ul>
             </div>
             <div class="tab-content">
@@ -362,6 +365,30 @@
                                 ->rows(4) !!}
                     </div>
                 </div>
+                @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                    <div role="tabpanel" class="tab-pane" id="documents">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label for="public_notes" class="control-label col-lg-4 col-sm-4">
+                                    {{trans('texts.default_documents')}}
+                                </label>
+                                <div class="col-lg-8 col-sm-8">
+                                    <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
+                                        <div id="document-upload">
+                                            <div class="dropzone">
+                                                <!--
+                                                <div data-bind="foreach: documents">
+                                                    <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                                </div>
+                                                -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -484,6 +511,8 @@
     });
 
 
+    var defaultDocuments = {!! $account->defaultDocuments()->get() !!};
+
     $(function() {
     	setQuoteNumberEnabled();
         onNumberTypeChange('invoice');
@@ -499,6 +528,9 @@
             toggleDatePicker('reset_counter_date');
         });
 
+        @if ($account->hasFeature(FEATURE_DOCUMENTS))
+            @include('partials.dropzone', ['documentSource' => 'defaultDocuments', 'isDefault' => true])
+        @endif
     });
 
 	</script>

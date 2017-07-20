@@ -1041,51 +1041,8 @@
                 return;
             }
 
-            window.dropzone = new Dropzone('#document-upload .dropzone', {
-                url:{!! json_encode(url('documents')) !!},
-                params:{
-                    _token:"{{ Session::getToken() }}"
-                },
-                acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
-                addRemoveLinks:true,
-                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
-                @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-                    "dict{{ Utils::toClassCase($key) }}" : "{!! strip_tags(addslashes(trans('texts.dropzone_'.$key))) !!}",
-                @endforeach
-                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
-				parallelUploads:1,
-            });
-            if(dropzone instanceof Dropzone){
-                dropzone.on("addedfile",handleDocumentAdded);
-                dropzone.on("removedfile",handleDocumentRemoved);
-                dropzone.on("success",handleDocumentUploaded);
-                dropzone.on("canceled",handleDocumentCanceled);
-                dropzone.on("error",handleDocumentError);
-                for (var i=0; i<model.invoice().documents().length; i++) {
-                    var document = model.invoice().documents()[i];
-                    var mockFile = {
-                        name:document.name(),
-                        size:document.size(),
-                        type:document.type(),
-                        public_id:document.public_id(),
-                        status:Dropzone.SUCCESS,
-                        accepted:true,
-                        url:document.url(),
-                        mock:true,
-                        index:i
-                    };
+			@include('partials.dropzone', ['documentSource' => 'model.invoice().documents()'])
 
-                    dropzone.emit('addedfile', mockFile);
-                    dropzone.emit('complete', mockFile);
-                    if(document.preview_url()){
-                        dropzone.emit('thumbnail', mockFile, document.preview_url());
-                    }
-                    else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
-                        dropzone.emit('thumbnail', mockFile, document.url());
-                    }
-                    dropzone.files.push(mockFile);
-                }
-            }
         });
         @endif
 	});
@@ -1637,54 +1594,22 @@
         model.invoice().invoice_number(number);
     }
 
-    window.countUploadingDocuments = 0;
+	function addDocument(file) {
+		file.index = model.invoice().documents().length;
+	    model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
+	}
 
-    function handleDocumentAdded(file){
-        // open document when clicked
-        if (file.url) {
-            file.previewElement.addEventListener("click", function() {
-                window.open(file.url, '_blank');
-            });
-        }
-        if(file.mock)return;
-        file.index = model.invoice().documents().length;
-        model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
-        window.countUploadingDocuments++;
-    }
+	function addedDocument(file, response) {
+		model.invoice().documents()[file.index].update(response.document);
+	    @if ($account->invoice_embed_documents)
+	        refreshPDF(true);
+	    @endif
+	}
 
-    function handleDocumentRemoved(file){
-        model.invoice().removeDocument(file.public_id);
-        refreshPDF(true);
-        $.ajax({
-            url: '{{ '/documents/' }}' + file.public_id,
-            type: 'DELETE',
-            success: function(result) {
-                // Do something with the result
-            }
-        });
-    }
-
-    function handleDocumentUploaded(file, response){
-        window.countUploadingDocuments--;
-        file.public_id = response.document.public_id
-        model.invoice().documents()[file.index].update(response.document);
-        @if ($account->invoice_embed_documents)
-            refreshPDF(true);
-        @endif
-        if(response.document.preview_url){
-            dropzone.emit('thumbnail', file, response.document.preview_url);
-        }
-    }
-
-    function handleDocumentCanceled() {
-        window.countUploadingDocuments--;
-    }
-
-    function handleDocumentError(file) {
-		dropzone.removeFile(file);
-        window.countUploadingDocuments--;
-		swal("{!! trans('texts.error_refresh_page') !!}");
-    }
+	function deleteDocument(file) {
+		model.invoice().removeDocument(file.public_id);
+		refreshPDF(true);
+	}
 
 	</script>
     @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)

@@ -333,6 +333,14 @@ class Account extends Eloquent
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function defaultDocuments()
+    {
+        return $this->hasMany('App\Models\Document')->whereIsDefault(true);
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function country()
