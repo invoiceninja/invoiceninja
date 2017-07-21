@@ -745,7 +745,9 @@ class ClientPortalController extends BaseController
         $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
 
         $authorized = false;
-        if ($document->expense && $document->expense->invoice_documents && $document->expense->client_id == $invitation->invoice->client_id) {
+        if ($document->is_default) {
+            $authorized = true;
+        } elseif ($document->expense && $document->expense->invoice_documents && $document->expense->client_id == $invitation->invoice->client_id) {
             $authorized = true;
         } elseif ($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id) {
             $authorized = true;

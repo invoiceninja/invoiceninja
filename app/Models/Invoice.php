@@ -306,6 +306,23 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return mixed
+     */
+    public function allDocuments()
+    {
+        $documents = $this->documents;
+        $documents = $documents->merge($this->account->defaultDocuments);
+
+        foreach ($this->expenses as $expense) {
+            if ($expense->invoice_documents) {
+                $documents = $documents->merge($expense->documents);
+            }
+        }
+
+        return $documents;
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function invoice_status()
