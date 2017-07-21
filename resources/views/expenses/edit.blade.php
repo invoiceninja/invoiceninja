@@ -193,8 +193,8 @@
 	            </div>
                 <div class="col-md-6">
 
-                    {!! Former::textarea('public_notes')->rows($isRecurring ? 10 : 6) !!}
-                    {!! Former::textarea('private_notes')->rows($isRecurring ? 10 : 6) !!}
+                    {!! Former::textarea('private_notes')->rows(! $isRecurring && $account->hasFeature(FEATURE_DOCUMENTS) ? 6 : 10) !!}
+                    {!! Former::textarea('public_notes')->rows(! $isRecurring && $account->hasFeature(FEATURE_DOCUMENTS) ? 6 : 10) !!}
 
                     @if (! $isRecurring && $account->hasFeature(FEATURE_DOCUMENTS))
                         <div class="form-group">
@@ -390,12 +390,7 @@
                 $('.end_date .input-group-addon').click(function() {
                     toggleDatePicker('end_date');
                 });
-            @elseif (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
-                $('.main-form').submit(function(){
-                    if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
-                    else $(this).removeAttr('enctype')
-                })
-
+            @else
                 $('#payment_type_id').combobox();
                 $('#mark_paid').click(function(event) {
                     if ($('#mark_paid').is(':checked')) {
@@ -417,6 +412,11 @@
                     toggleDatePicker('payment_date');
                 });
 
+                @if (Auth::user()->account->hasFeature(FEATURE_DOCUMENTS))
+                    $('.main-form').submit(function(){
+                        if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
+                        else $(this).removeAttr('enctype')
+                    })
                 // Initialize document upload
                 dropzone = new Dropzone('#document-upload', {
                     url:{!! json_encode(url('documents')) !!},
@@ -462,6 +462,7 @@
                         dropzone.files.push(mockFile);
                     }
                 }
+                @endif
             @endif
         });
 
