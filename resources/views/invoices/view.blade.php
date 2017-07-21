@@ -155,11 +155,11 @@
                 <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
             @endforeach
             @foreach ($invoice->expenses as $expense)
-                @foreach ($expense->documents as $document)
-					@if ($expense->invoice_documents)
+				@if ($expense->invoice_documents)
+                	@foreach ($expense->documents as $document)
                     	<li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
-					@endif
-                @endforeach
+                	@endforeach
+				@endif
             @endforeach
             </ul>
             </div>
