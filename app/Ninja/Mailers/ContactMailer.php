@@ -71,7 +71,9 @@ class ContactMailer extends Mailer
             $documents = $invoice->documents;
 
             foreach ($invoice->expenses as $expense) {
-                $documents = $documents->merge($expense->documents);
+                if ($expense->invoice_documents) {
+                    $documents = $documents->merge($expense->documents);
+                }
             }
 
             $documents = $documents->sortBy('size');

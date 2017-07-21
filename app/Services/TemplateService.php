@@ -38,8 +38,10 @@ class TemplateService
                 $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
             }
             foreach ($invoice->expenses as $expense) {
-                foreach ($expense->documents as $document) {
-                    $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+                if ($expense->invoice_documents) {
+                    foreach ($expense->documents as $document) {
+                        $documentsHTML .= '<li><a href="'.HTML::entities($document->getClientUrl($invitation)).'">'.HTML::entities($document->name).'</a></li>';
+                    }
                 }
             }
             $documentsHTML .= '</ul>';
