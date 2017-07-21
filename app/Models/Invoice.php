@@ -1330,7 +1330,11 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function hasDocuments()
     {
-        if (count($this->documents)) {
+        if ($this->documents->count()) {
+            return true;
+        }
+
+        if ($this->account->defaultDocuments->count()) {
             return true;
         }
 
