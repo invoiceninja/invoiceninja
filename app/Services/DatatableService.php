@@ -119,13 +119,19 @@ class DatatableService
                     $dropdown_contents .= '<li class="divider"></li>';
                 }
 
-                if (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit) {
-                    $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('archive', {$model->public_id})\">"
-                            . mtrans($datatable->entityType, "archive_{$datatable->entityType}") . '</a></li>';
+                if (! $model->deleted_at || $model->deleted_at == '0000-00-00') {
+                    if (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit) {
+                        $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('archive', {$model->public_id})\">"
+                                . mtrans($datatable->entityType, "archive_{$datatable->entityType}") . '</a></li>';
+                    }
                 }
-            } elseif ($can_edit) {
-                $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('restore', {$model->public_id})\">"
-                    . mtrans($datatable->entityType, "restore_{$datatable->entityType}") . '</a></li>';
+            }
+
+            if ($model->deleted_at && $model->deleted_at != '0000-00-00') {
+                if ($can_edit) {
+                    $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('restore', {$model->public_id})\">"
+                        . mtrans($datatable->entityType, "restore_{$datatable->entityType}") . '</a></li>';
+                }
             }
 
             if (property_exists($model, 'is_deleted') && ! $model->is_deleted && $can_edit) {
