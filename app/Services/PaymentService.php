@@ -180,17 +180,28 @@ class PaymentService extends BaseService
             foreach ($payments as $payment) {
                 if (Auth::user()->can('edit', $payment)) {
                     $amount = ! empty($params['refund_amount']) ? floatval($params['refund_amount']) : null;
+                    $sendEmail = ! empty($params['refund_email']) ? boolval($params['refund_email']) : false;
                     $paymentDriver = false;
+                    $refunded = false;
+
                     if ($accountGateway = $payment->account_gateway) {
                         $paymentDriver = $accountGateway->paymentDriver();
                     }
+
                     if ($paymentDriver && $paymentDriver->canRefundPayments) {
                         if ($paymentDriver->refundPayment($payment, $amount)) {
                             $successful++;
+                            $refunded = true;
                         }
                     } else {
                         $payment->recordRefund($amount);
                         $successful++;
+                        $refunded = true;
+                    }
+
+                    if ($refunded && $sendEmail) {
+                        $mailer = app('App\Ninja\Mailers\ContactMailer');
+                        $mailer->sendPaymentConfirmation($payment, $amount);
                     }
                 }
             }

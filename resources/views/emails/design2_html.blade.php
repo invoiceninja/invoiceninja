@@ -40,12 +40,14 @@
                     </td>
                     <td style="border-collapse: collapse; vertical-align: middle;" valign="middle">
                         <p class="right" style="line-height: 14px; margin: 0; padding: 0;">
-                            <span style="font-size: 15px; color: #231F20;">
-                                {{ trans('texts.' . $invoice->present()->balanceDueLabel) }}:
-                            </span><br />
-                            <span class="total" style="font-size: 26px; display: block;margin-top: 5px;">
-                                {{ $account->formatMoney($invoice->getRequestedAmount(), $client) }}
-                            </span>
+                            @if (! isset($isRefund) || ! $isRefund)
+                                <span style="font-size: 15px; color: #231F20;">
+                                    {{ trans('texts.' . $invoice->present()->balanceDueLabel) }}:
+                                </span><br />
+                                <span class="total" style="font-size: 26px; display: block;margin-top: 5px;">
+                                    {{ $account->formatMoney($invoice->getRequestedAmount(), $client) }}
+                                </span>
+                            @endif
                         </p>
                     </td>
                 </tr>

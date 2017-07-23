@@ -20,6 +20,17 @@
                     <div class="help-block">{{ trans('texts.refund_max') }} <span id="refundMax"></span></div>
                 </div>
               </div>
+              <div class="form-group">
+                <label class="col-sm-offset-2 col-sm-2 control-label"></label>
+                <div class="col-sm-6">
+                    <div class="input-group">
+                        {!! Former::checkbox('refund_email')
+                                ->text('send_email_to_client')
+                                ->raw() !!}
+                    </div>
+                </div>
+              </div>
+
             </div>
     </div>
     </div>
@@ -45,12 +56,28 @@
         $('#paymentRefundModal').modal('show');
     }
 
-    function handleRefundClicked(){
+    function onRefundClicked(){
+        $('#completeRefundButton').prop('disabled', true);
         submitForm_payment('refund', paymentId);
     }
 
+    function onRefundEmailChange() {
+        if (! isStorageSupported()) {
+            return;
+        }
+        var checked = $('#refund_email').is(':checked');
+        localStorage.setItem('last:send_refund_email', checked ? true : '');
+    }
+
     $(function() {
-        $('#completeRefundButton').click(handleRefundClicked);
+        $('#completeRefundButton').click(onRefundClicked);
+        $('#refund_email').click(onRefundEmailChange);
+
+        if (isStorageSupported()) {
+            if (localStorage.getItem('last:send_refund_email')) {
+                $('#refund_email').prop('checked', true);
+            }
+        }
     })
 
 </script>

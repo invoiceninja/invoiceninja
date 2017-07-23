@@ -2317,6 +2317,9 @@ $LANG = array(
     'downloaded_quotes' => 'An email will be sent with the quote PDFs',
     'clone_expense' => 'Clone Expense',
     'default_documents' => 'Default Documents',
+    'send_email_to_client' => 'Send email to the client',
+    'refund_subject' => 'Refund Processed',
+    'refund_body' => 'You have been processed a refund of :amount for invoice :invoice_number.',
 
 );
 
