@@ -1190,8 +1190,8 @@ $LANG = array(
     'status_refunded' => 'Refunded',
     'status_voided' => 'Cancelled',
     'refunded_payment' => 'Refunded Payment',
-    'activity_39' => ':user cancelled a :payment_amount payment (:payment)',
-    'activity_40' => ':user refunded :adjustment of a :payment_amount payment (:payment)',
+    'activity_39' => ':user cancelled a :payment_amount payment :payment',
+    'activity_40' => ':user refunded :adjustment of a :payment_amount payment :payment',
     'card_expiration' => 'Exp:&nbsp:expires',
 
     'card_creditcardother' => 'Unknown',
