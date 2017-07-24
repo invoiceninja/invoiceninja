@@ -423,7 +423,6 @@ class AccountController extends BaseController
             'timezones' => Cache::get('timezones'),
             'dateFormats' => Cache::get('dateFormats'),
             'datetimeFormats' => Cache::get('datetimeFormats'),
-            'currencies' => Cache::get('currencies'),
             'title' => trans('texts.localization'),
             'weekdays' => Utils::getTranslatedWeekdayNames(),
             'months' => Utils::getMonthOptions(),

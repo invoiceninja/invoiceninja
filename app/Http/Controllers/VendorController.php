@@ -151,7 +151,6 @@ class VendorController extends BaseController
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account,
-            'currencies' => Cache::get('currencies'),
         ];
     }
 

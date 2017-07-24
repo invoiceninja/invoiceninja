@@ -305,7 +305,6 @@ class InvoiceController extends BaseController
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions' => $taxRateOptions,
-            'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
             'invoiceFonts' => Cache::get('fonts'),

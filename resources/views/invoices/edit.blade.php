@@ -622,7 +622,7 @@
                     {!! Former::select('client[country_id]')
                             ->label(trans('texts.country_id'))
                             ->addOption('','')->addGroupClass('country_select')
-                            ->fromQuery(Cache::get('countries'), 'name', 'id')->data_bind("dropdown: country_id") !!}
+                            ->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
                 </span>
 
             </div>
