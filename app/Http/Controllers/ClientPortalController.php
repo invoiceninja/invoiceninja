@@ -584,6 +584,10 @@ class ClientPortalController extends BaseController
 
     private function returnError($error = false)
     {
+        if (request()->phantomjs) {
+            abort(404);
+        }
+
         return response()->view('error', [
             'error' => $error ?: trans('texts.invoice_not_found'),
             'hideHeader' => true,
