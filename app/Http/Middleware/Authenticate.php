@@ -68,7 +68,7 @@ class Authenticate
             }
             $account = $contact->account;
 
-            if (Auth::guard('user')->check() && Auth::user('user')->account_id === $account->id) {
+            if (Auth::guard('user')->check() && Auth::user('user')->account_id == $account->id) {
                 // This is an admin; let them pretend to be a client
                 $authenticated = true;
             }
