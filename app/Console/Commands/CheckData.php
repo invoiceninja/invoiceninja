@@ -64,7 +64,7 @@ class CheckData extends Command
 
     public function fire()
     {
-        $this->logMessage(date('Y-m-d') . ' Running CheckData...');
+        $this->logMessage(date('Y-m-d h:i:s') . ' Running CheckData...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);

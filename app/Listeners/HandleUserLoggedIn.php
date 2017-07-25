@@ -71,19 +71,24 @@ class HandleUserLoggedIn
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 
-        // check custom gateway id is correct
         if (! Utils::isNinja()) {
+            // check custom gateway id is correct
             $gateway = Gateway::find(GATEWAY_CUSTOM);
             if (! $gateway || $gateway->name !== 'Custom') {
                 Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
             }
-            /*
+
+            // if APP_KEY isn't set use the default
             if (! env('APP_KEY')) {
-                Session::flash('error', trans('texts.error_app_key_not_set'));
-            } elseif (in_array(, ['SomeRandomString', 'SomeRandomStringSomeRandomString', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'])) {
+                $fp = fopen(base_path().'/.env', 'a');
+                fwrite($fp, "\nAPP_KEY=" . config('app.key'));
+                fclose($fp);
+            }
+
+            // warn if using the default app key
+            if (in_array(config('app.key'), ['SomeRandomString', 'SomeRandomStringSomeRandomString', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'])) {
                 Session::flash('error', trans('texts.error_app_key_set_to_default'));
             }
-            */
         }
     }
 }
