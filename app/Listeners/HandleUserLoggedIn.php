@@ -78,10 +78,17 @@ class HandleUserLoggedIn
                 Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
             }
 
-            // if APP_KEY isn't set use the default
-            if (! env('APP_KEY')) {
+            // make sure APP_KEY and APP_CIPHER are in the .env file
+            $appKey = env('APP_KEY');
+            $appCipher = env('APP_CIPHER');
+            if (! $appKey || ! $appCipher) {
                 $fp = fopen(base_path().'/.env', 'a');
-                fwrite($fp, "\nAPP_KEY=" . config('app.key'));
+                if (! $appKey) {
+                    fwrite($fp, "\nAPP_KEY=" . config('app.key'));
+                }
+                if (! $appCipher) {
+                    fwrite($fp, "\nAPP_CIPHER=" . config('app.cipher'));
+                }
                 fclose($fp);
             }
 
