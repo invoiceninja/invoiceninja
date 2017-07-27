@@ -290,6 +290,9 @@ class InvoiceRepository extends BaseRepository
                 'invoices.invoice_date',
                 'invoices.balance as balance',
                 'invoices.due_date',
+                'invoices.invoice_status_id',
+                'invoices.due_date',
+                'invoices.quote_invoice_id',
                 'clients.public_id as client_public_id',
                 DB::raw("COALESCE(NULLIF(clients.name,''), NULLIF(CONCAT(contacts.first_name, ' ', contacts.last_name),''), NULLIF(contacts.email,'')) client_name"),
                 'invoices.public_id',
@@ -324,7 +327,35 @@ class InvoiceRepository extends BaseRepository
         return $table->addColumn('due_date', function ($model) {
             return Utils::fromSqlDate($model->due_date);
         })
-            ->make();
+        ->addColumn('status', function ($model) use ($entityType) {
+            if ($model->invoice_status_id == INVOICE_STATUS_PAID) {
+                $label = trans('texts.status_paid');
+                $class = 'success';
+            } elseif ($model->invoice_status_id == INVOICE_STATUS_PARTIAL) {
+                $label = trans('texts.status_partial');
+                $class = 'info';
+            } elseif (Invoice::calcIsOverdue($model->balance, $model->due_date)) {
+                $class = 'danger';
+                if ($entityType == ENTITY_INVOICE) {
+                    $label = trans('texts.overdue');
+                } else {
+                    $label = trans('texts.expired');
+                }
+            } elseif ($entityType == ENTITY_QUOTE && ($model->invoice_status_id >= INVOICE_STATUS_APPROVED || $model->quote_invoice_id)) {
+                $label = trans('texts.status_approved');
+                $class = 'success';
+            } else {
+                $class = 'default';
+                if ($entityType == ENTITY_INVOICE) {
+                    $label = trans('texts.unpaid');
+                } else {
+                    $label = trans('texts.pending');
+                }
+            }
+
+            return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
+        })
+        ->make();
     }
 
     /**

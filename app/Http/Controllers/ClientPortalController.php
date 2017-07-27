@@ -369,7 +369,7 @@ class ClientPortalController extends BaseController
             'client' => $contact->client,
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
-            'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date']),
+            'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status']),
         ];
 
         return response()->view('public_list', $data);
@@ -497,7 +497,7 @@ class ClientPortalController extends BaseController
           'account' => $account,
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
-          'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
+          'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date', 'status']),
         ];
 
         return response()->view('public_list', $data);
