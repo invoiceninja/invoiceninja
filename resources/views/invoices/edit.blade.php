@@ -858,19 +858,14 @@
             @endif
 
             @if (isset($tasks) && $tasks)
-                // move the blank invoice line item to the end
-                var blank = model.invoice().invoice_items.pop();
                 var tasks = {!! json_encode($tasks) !!};
-
                 for (var i=0; i<tasks.length; i++) {
                     var task = tasks[i];
-                    var item = model.invoice().addItem();
+                    var item = model.invoice().addItem(true);
                     item.notes(task.description);
                     item.qty(task.duration);
                     item.task_public_id(task.publicId);
-                    item.invoice_item_type_id({{ INVOICE_ITEM_TYPE_TASK }});
                 }
-                model.invoice().invoice_items.push(blank);
                 model.invoice().has_tasks(true);
             @endif
 
@@ -878,7 +873,7 @@
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
-                var blank = model.invoice().invoice_items.pop();
+                var blank = model.invoice().invoice_items_without_tasks.pop();
                 var expenses = {!! $expenses !!}
 
                 for (var i=0; i<expenses.length; i++) {
@@ -894,7 +889,7 @@
                     item.tax_rate2(expense.tax_rate2);
                     item.tax_name2(expense.tax_name2);
                 }
-                model.invoice().invoice_items.push(blank);
+                model.invoice().invoice_items_without_tasks.push(blank);
                 model.invoice().has_expenses(true);
             @endif
 
@@ -1509,23 +1504,25 @@
 	{
 		var hasEmptyStandard = false;
 		var hasEmptyTask = false;
-		for(var i=0; i<model.invoice().invoice_items().length; i++) {
-			var item = model.invoice().invoice_items()[i];
+
+		for (var i=0; i<model.invoice().invoice_items_without_tasks().length; i++) {
+			var item = model.invoice().invoice_items_without_tasks()[i];
 			if (item.isEmpty()) {
-				if (item.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }}) {
-					hasEmptyTask = true;
-				} else {
-					hasEmptyStandard = true;
-				}
+				hasEmptyStandard = true;
 			}
 		}
-
 		if (!hasEmptyStandard) {
 			model.invoice().addItem();
 		}
+
+		for (var i=0; i<model.invoice().invoice_items_with_tasks().length; i++) {
+			var item = model.invoice().invoice_items_with_tasks()[i];
+			if (item.isEmpty()) {
+				hasEmptyTask = true;
+			}
+		}
 		if (!hasEmptyTask) {
-			item = model.invoice().addItem();
-			item.invoice_item_type_id({{ INVOICE_ITEM_TYPE_TASK }});
+			model.invoice().addItem(true);
 		}
 
 		if (!silent) {

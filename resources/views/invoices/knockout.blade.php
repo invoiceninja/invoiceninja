@@ -166,15 +166,15 @@ function ViewModel(data) {
         }
     });
 
-    self.hasTasksCached;
+    self.hasTasksCached = false;
     self.hasTasks = ko.computed(function() {
         if (self.hasTasksCached) {
             return true;
         }
         invoice = self.invoice();
-        for (var i=0; i<invoice.invoice_items().length; ++i) {
+        for (var i=0; i<invoice.invoice_items_with_tasks().length; ++i) {
             var item = invoice.invoice_items()[i];
-            if (! item.isEmpty() && item.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }}) {
+            if (! item.isEmpty()) {
                 self.hasTasksCached = true;
                 return true;
             }
@@ -229,7 +229,6 @@ function InvoiceModel(data) {
     self.auto_bill = ko.observable(0);
     self.client_enable_auto_bill = ko.observable(false);
     self.invoice_status_id = ko.observable(0);
-    self.invoice_items = ko.observableArray();
     self.documents = ko.observableArray();
     self.expenses = ko.observableArray();
     self.amount = ko.observable(0);
@@ -246,15 +245,31 @@ function InvoiceModel(data) {
     self.custom_text_value1 = ko.observable();
     self.custom_text_value2 = ko.observable();
 
+    self.invoice_items_with_tasks = ko.observableArray();
+    self.invoice_items_without_tasks = ko.observableArray();
+    self.invoice_items = ko.computed({
+        read: function () {
+            return self.invoice_items_with_tasks().concat(self.invoice_items_without_tasks());
+        },
+        write: function(data) {
+            self.invoice_items_with_tasks.removeAll();
+            self.invoice_items_without_tasks.removeAll();
+            for (var i=0; i<data.length; i++) {
+                var item = new ItemModel(data[i]);
+                if (item.isTask()) {
+                    self.invoice_items_with_tasks.push(item);
+                } else {
+                    self.invoice_items_without_tasks.push(item);
+                }
+            }
+        },
+        owner: this
+    })
+
     self.mapping = {
         'client': {
             create: function(options) {
                 return new ClientModel(options.data);
-            }
-        },
-        'invoice_items': {
-            create: function(options) {
-                return new ItemModel(options.data);
             }
         },
         'documents': {
@@ -269,7 +284,7 @@ function InvoiceModel(data) {
         },
     }
 
-    self.addItem = function() {
+    self.addItem = function(isTask) {
         if (self.invoice_items().length >= {{ MAX_INVOICE_ITEMS }}) {
             return false;
         }
@@ -277,7 +292,12 @@ function InvoiceModel(data) {
         @if ($account->hide_quantity)
             itemModel.qty(1);
         @endif
-        self.invoice_items.push(itemModel);
+        if (isTask) {
+            itemModel.invoice_item_type_id({{ INVOICE_ITEM_TYPE_TASK }});
+            self.invoice_items_with_tasks.push(itemModel);
+        } else {
+            self.invoice_items_without_tasks.push(itemModel);
+        }
         applyComboboxListeners();
         return itemModel;
     }
@@ -329,7 +349,11 @@ function InvoiceModel(data) {
     })
 
     self.removeItem = function(item) {
-        self.invoice_items.remove(item);
+        if (item.isTask()) {
+            self.invoice_items_with_tasks.remove(item);
+        } else {
+            self.invoice_items_without_tasks.remove(item);
+        }
         refreshPDF(true);
     }
 
@@ -568,18 +592,6 @@ function InvoiceModel(data) {
         }
         self.applyInclusivTax(taxRate);
     }
-
-    self.invoice_items_with_tasks = ko.computed(function() {
-        return ko.utils.arrayFilter(self.invoice_items(), function(item) {
-            return item.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }};
-        });
-    });
-
-    self.invoice_items_without_tasks = ko.computed(function() {
-        return ko.utils.arrayFilter(self.invoice_items(), function(item) {
-            return item.invoice_item_type_id() != {{ INVOICE_ITEM_TYPE_TASK }};
-        });
-    });
 }
 
 function ClientModel(data) {
@@ -768,6 +780,10 @@ function ItemModel(data) {
     self.expense_public_id = ko.observable('');
     self.invoice_item_type_id = ko.observable({{ INVOICE_ITEM_TYPE_STANDARD }});
     self.actionsVisible = ko.observable(false);
+
+    self.isTask = ko.computed(function() {
+        return self.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }};
+    });
 
     this.tax1 = ko.computed({
         read: function () {

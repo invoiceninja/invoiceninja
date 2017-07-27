@@ -19,12 +19,12 @@
         <th style="min-width:32px;" class="hide-border"></th>
     </tr>
 </thead>
-<tbody data-bind="sortable: { data: {{ $isTasks ? 'invoice_items_with_tasks' : 'invoice_items_without_tasks' }}, afterMove: onDragged} {{ $isTasks ? ', visible: $root.hasTasks' : '' }}"
+<tbody data-bind="sortable: { data: invoice_items_{{ $isTasks ? 'with_tasks' : 'without_tasks' }}, allowDrop: false, afterMove: onDragged} {{ $isTasks ? ', visible: $root.hasTasks' : '' }}"
     {!! $isTasks ? 'style="display:none;border-spacing: 100px"' : '' !!}>
     <tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
         <td class="hide-border td-icon">
             <i style="display:none" data-bind="visible: actionsVisible() &amp;&amp;
-                $parent.invoice_items().length > 1" class="fa fa-sort"></i>
+                $parent.invoice_items_{{ $isTasks ? 'with_tasks' : 'without_tasks' }}().length > 1" class="fa fa-sort"></i>
         </td>
         <td>
             <div id="scrollable-dropdown-menu">
