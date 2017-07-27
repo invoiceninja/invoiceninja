@@ -62,8 +62,8 @@ class TaskPresenter extends EntityPresenter
                 $end = $part[1];
             }
 
-            $start = $account->formatDateTime("@{$start}");
-            $end = $account->formatTime("@{$end}");
+            $start = $account->formatDateTime('@' . intval($start));
+            $end = $account->formatTime('@' . intval($end));
 
             $times[] = "### {$start} - {$end}";
         }
