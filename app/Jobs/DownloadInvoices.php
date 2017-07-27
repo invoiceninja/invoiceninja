@@ -46,7 +46,7 @@ class DownloadInvoices extends Job implements ShouldQueue
     public function handle(UserMailer $userMailer)
     {
         // if queues are disabled download a zip file
-        if (config('queue.default') === 'sync') {
+        if (config('queue.default') === 'sync' || count($this->invoices) <= 10) {
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '-Invoice_PDFs');
             foreach ($this->invoices as $invoice) {
                 $zip->add_file($invoice->getFileName(), $invoice->getPDFString());
