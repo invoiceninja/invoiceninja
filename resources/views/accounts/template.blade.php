@@ -3,8 +3,12 @@
         @if (isset($isReminder) && $isReminder)
 
             {!! Former::populateField('enable_' . $field, intval($account->{'enable_' . $field})) !!}
-            {!! Former::populateField('late_fee' . $number . '_amount', $account->account_email_settings->{"late_fee{$number}_amount"}) !!}
-            {!! Former::populateField('late_fee' . $number . '_percent', $account->account_email_settings->{"late_fee{$number}_percent"}) !!}
+            @if (floatval($fee = $account->account_email_settings->{"late_fee{$number}_amount"}))
+                {!! Former::populateField('late_fee' . $number . '_amount', $fee) !!}
+            @endif
+            @if (floatval($fee = $account->account_email_settings->{"late_fee{$number}_percent"}))
+                {!! Former::populateField('late_fee' . $number . '_percent', $fee) !!}
+            @endif
 
             <div class="well" style="padding-bottom:20px">
                 <div class="row">
