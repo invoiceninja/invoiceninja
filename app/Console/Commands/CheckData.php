@@ -139,6 +139,10 @@ class CheckData extends Command
             return;
         }
 
+        if ($this->option('fix') == 'true') {
+            return;
+        }
+
         $date = new Carbon();
         $date = $date->subDays(1)->format('Y-m-d');
 
