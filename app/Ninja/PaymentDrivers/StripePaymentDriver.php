@@ -119,16 +119,23 @@ class StripePaymentDriver extends BasePaymentDriver
         $data = $this->paymentDetails();
         $data['description'] = $client->getDisplayName();
 
+        // if a customer already exists link the token to it
+        if ($customer = $this->customer()) {
+            $data['customerReference'] = $customer->token;
+        // otherwise create a new customer
+        } else {
+            $response = $this->gateway()->createCustomer([
+                'description' => $client->getDisplayName(),
+                'email' => $this->contact()->email,
+            ])->send();
+            $data['customerReference'] = $response->getCustomerReference();
+        }
+
         if (! empty($data['plaidPublicToken'])) {
             $plaidResult = $this->getPlaidToken($data['plaidPublicToken'], $data['plaidAccountId']);
             unset($data['plaidPublicToken']);
             unset($data['plaidAccountId']);
             $data['token'] = $plaidResult['stripe_bank_account_token'];
-        }
-
-        // if a customer already exists link the token to it
-        if ($customer = $this->customer()) {
-            $data['customerReference'] = $customer->token;
         }
 
         $tokenResponse = $this->gateway()
@@ -146,7 +153,11 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function creatingCustomer($customer)
     {
-        $customer->token = $this->tokenResponse['id'];
+        if (isset($this->tokenResponse['customer'])) {
+            $customer->token = $this->tokenResponse['customer'];
+        } else {
+            $customer->token = $this->tokenResponse['id'];
+        }
 
         return $customer;
     }
