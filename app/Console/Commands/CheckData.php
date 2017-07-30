@@ -371,6 +371,9 @@ class CheckData extends Command
 
     private function checkFailedJobs()
     {
+        $current = config('database.default');
+        config(['database.default' => env('QUEUE_DATABASE')]);
+
         $count = DB::table('failed_jobs')->count();
 
         if ($count > 0) {
@@ -378,6 +381,8 @@ class CheckData extends Command
         }
 
         $this->logMessage($count . ' failed jobs');
+
+        config(['database.default' => $current]);
     }
 
     private function checkBlankInvoiceHistory()
