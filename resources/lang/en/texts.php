@@ -2389,6 +2389,7 @@ $LANG = array(
     'currency_peruvian_sol' => 'Peruvian Sol',
 
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
+	'download_pdf' => 'Download PDF'
 
 );
 

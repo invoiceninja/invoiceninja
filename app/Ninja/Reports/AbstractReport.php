@@ -14,6 +14,7 @@ class AbstractReport
     public $totals = [];
     public $columns = [];
     public $data = [];
+    public $columns_labeled = [];
 
     public function __construct($startDate, $endDate, $isExport, $options = false)
     {
@@ -52,9 +53,7 @@ class AbstractReport
         $this->totals[$currencyId][$dimension][$field] += $value;
     }
 
-    public function tableHeader()
-    {
-        $str = '';
+    public function tableHeaderArray() {
 
         foreach ($this->columns as $key => $val) {
             if (is_array($val)) {
@@ -75,8 +74,18 @@ class AbstractReport
 
             $class = count($class) ? implode(' ', $class) : 'group-false';
             $label = trans("texts.{$field}");
-            $str .= "<th class=\"{$class}\">{$label}</th>";
+
+            $this->columns_labeled[] = ['label' => $label, 'class' => $class, 'key' => $field];
         }
+    }
+
+    public function tableHeader()
+    {
+        $this->tableHeaderArray();
+        $str = '';
+
+        foreach ($this->columns_labeled as $field => $attr)
+            $str .= "<th class=\"{$attr['class']}\">{$attr['label']}</th>";
 
         return $str;
     }
