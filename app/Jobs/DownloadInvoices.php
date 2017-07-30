@@ -12,9 +12,10 @@ use Barracuda\ArchiveStream\Archive;
 /**
  * Class SendInvoiceEmail.
  */
-class DownloadInvoices extends Job implements ShouldQueue
+//class DownloadInvoices extends Job implements ShouldQueue
+class DownloadInvoices extends Job
 {
-    use InteractsWithQueue, SerializesModels;
+    //use InteractsWithQueue, SerializesModels;
 
     /**
      * @var User
@@ -45,6 +46,16 @@ class DownloadInvoices extends Job implements ShouldQueue
      */
     public function handle(UserMailer $userMailer)
     {
+        $zip = Archive::instance_by_useragent(date('Y-m-d') . '-Invoice_PDFs');
+
+        foreach ($this->invoices as $invoice) {
+            $zip->add_file($invoice->getFileName(), $invoice->getPDFString());
+        }
+
+        $zip->finish();
+        exit;
+
+        /*
         // if queues are disabled download a zip file
         if (config('queue.default') === 'sync' || count($this->invoices) <= 10) {
             $zip = Archive::instance_by_useragent(date('Y-m-d') . '-Invoice_PDFs');
@@ -71,5 +82,6 @@ class DownloadInvoices extends Job implements ShouldQueue
 
             $userMailer->sendMessage($this->user, $subject, false, $data);
         }
+        */
     }
 }
