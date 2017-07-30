@@ -104,7 +104,7 @@ class ReportController extends BaseController
             $params['report'] = $report;
             $params = array_merge($params, $report->results());
             if ($isExport) {
-                self::export($reportType, $params['displayData'], $params['columns'], $params['reportTotals']);
+                return self::export($reportType, $params['displayData'], $params['columns'], $params['reportTotals']);
             }
         } else {
             $params['columns'] = [];
@@ -122,23 +122,23 @@ class ReportController extends BaseController
      * @param $columns
      * @param $totals
      */
-    private function export($reportType, $data, $columns, $totals)
-    {
+     private function export($reportType, $data, $columns, $totals)
+     {
         if (! Auth::user()->hasPermission('view_all')) {
             exit;
         }
 
-        $output = fopen('php://output', 'w') or Utils::fatalError();
         $date = date('Y-m-d');
 
-        $columns = array_map(function($key, $val) {
-            return is_array($val) ? $key : $val;
-        }, array_keys($columns), $columns);
+        $callback = function() use ($data, $columns) {
+            $output = fopen('php://output', 'w') or Utils::fatalError();
 
-        header('Content-Type:application/csv');
-        header("Content-Disposition:attachment;filename={$date}-invoiceninja-{$reportType}-report.csv");
+            $columns = array_map(function($key, $val) {
+                return is_array($val) ? $key : $val;
+            }, array_keys($columns), $columns);
 
-        Utils::exportData($output, $data, Utils::trans($columns));
+            Utils::exportData($output, $data, Utils::trans($columns));
+        };
 
         /*
         fwrite($output, trans('texts.totals'));
@@ -159,7 +159,14 @@ class ReportController extends BaseController
         }
         */
 
-        fclose($output);
-        exit;
+        $headers = [
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Content-type'        => 'text/csv',
+            'Content-Disposition' => "attachment; filename={$date}-invoiceninja-{$reportType}-report.csv",
+            'Expires'             => '0',
+            'Pragma'              => 'public'
+        ];
+
+        return response()->stream($callback, 200, $headers);
     }
 }
