@@ -292,7 +292,7 @@
 		// parse 1,000.00 or 1.000,00
 		function convertStringToNumber(str) {
 			str = str + '' || '';
-			if (str.indexOf(':')) {
+			if (str.indexOf(':') >= 0) {
 				return roundToTwo(moment.duration(str).asHours());
 			} else {
 				var number = Number(str.replace(/[^0-9]+/g, ''));
