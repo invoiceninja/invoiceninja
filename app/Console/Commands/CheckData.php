@@ -371,6 +371,10 @@ class CheckData extends Command
 
     private function checkFailedJobs()
     {
+        if (Utils::isTravis()) {
+            return;
+        }
+
         $current = config('database.default');
         config(['database.default' => env('QUEUE_DATABASE')]);
 
