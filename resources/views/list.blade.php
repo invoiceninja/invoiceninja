@@ -50,10 +50,43 @@
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
     @if ($entityType == ENTITY_EXPENSE)
-		{!! Button::normal(trans('texts.recurring'))->asLinkTo(URL::to('/recurring_expenses'))->appendIcon(Icon::create('list')) !!}
-		{!! Button::normal(trans('texts.categories'))->asLinkTo(URL::to('/expense_categories'))->appendIcon(Icon::create('list')) !!}
+		{!! DropdownButton::normal(trans('texts.recurring'))
+			->withAttributes(['class'=>'recurringDropdown'])
+			->withContents([
+			  ['label' => trans('texts.new_recurring_expense'), 'url' => url('/recurring_expenses/create')],
+			]
+		  )->split() !!}
+	    {!! DropdownButton::normal(trans('texts.categories'))
+			->withAttributes(['class'=>'categoriesDropdown'])
+			->withContents([
+			  ['label' => trans('texts.new_expense_category'), 'url' => url('/expense_categories/create')],
+			]
+		  )->split() !!}
+	  	<script type="text/javascript">
+		  	$(function() {
+				$('.recurringDropdown:not(.dropdown-toggle)').click(function() {
+		  			window.location = '{{ url('/recurring_expenses') }}';
+		  		});
+				$('.categoriesDropdown:not(.dropdown-toggle)').click(function() {
+		  			window.location = '{{ url('/expense_categories') }}';
+		  		});
+			});
+		</script>
+
 	@elseif ($entityType == ENTITY_TASK)
-		{!! Button::normal(trans('texts.projects'))->asLinkTo(URL::to('/projects'))->appendIcon(Icon::create('list')) !!}
+		{!! DropdownButton::normal(trans('texts.projects'))
+			->withAttributes(['class'=>'projectsDropdown'])
+			->withContents([
+			  ['label' => trans('texts.new_project'), 'url' => url('/projects/create')],
+			]
+		  )->split() !!}
+	  	<script type="text/javascript">
+		  	$(function() {
+		  		$('.projectsDropdown:not(.dropdown-toggle)').click(function() {
+		  			window.location = '{{ url('projects') }}';
+		  		});
+			});
+		</script>
     @endif
 
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))
