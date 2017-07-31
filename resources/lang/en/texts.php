@@ -2391,6 +2391,7 @@ $LANG = array(
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
+    'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
 
 );
 

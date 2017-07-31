@@ -287,3 +287,7 @@ fieldset[disabled] .btn-success.active {
 .btn-success .badge {
     color: #5cb85c;
 }
+
+.tooltip-inner  {
+    white-space: normal;
+}

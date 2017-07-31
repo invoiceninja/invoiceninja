@@ -285,7 +285,11 @@ class InvoicePresenter extends EntityPresenter
             $label = trans('texts.fee');
         }
 
-        return ' - ' . $fee . ' ' . $label;
+        $label = ' - ' . $fee . ' ' . $label;
+
+        $label .= '&nbsp;&nbsp; <i class="fa fa-info-circle" data-toggle="tooltip" data-placement="bottom" title="' . trans('texts.fee_help') . '"></i>';
+
+        return $label;
     }
 
     public function multiAccountLink()
