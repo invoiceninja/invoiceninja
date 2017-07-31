@@ -115,6 +115,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'terms',
             'product',
             'quantity',
+            'tax1',
+            'tax2',
         ];
     }
 
@@ -135,6 +137,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'notes' => 'notes',
             'product|item' => 'product',
             'quantity|qty' => 'quantity',
+            'tax' => 'tax1',
         ];
     }
 
