@@ -368,13 +368,15 @@
                 <?php
 
                 $summary = [];
-                $summary[] = array_merge([
-                        trans("texts.totals")
-                    ], array_map(function ($key) {
-                        return ['text' => trans("texts.{$key}"),
-                                'style' => 'tableHeader'
-                        ];
-                    }, array_keys(array_values(array_values($reportTotals)[0])[0])));
+                if(count(array_values($reportTotals))) {
+                    $summary[] = array_merge([
+                            trans("texts.totals")
+                        ], array_map(function ($key) {
+                            return ['text' => trans("texts.{$key}"),
+                                    'style' => 'tableHeader'
+                            ];
+                        }, array_keys(array_values(array_values($reportTotals)[0])[0])));
+                }
 
                 foreach ($reportTotals as $currencyId => $each) {
                     foreach ($each as $dimension => $val) {
