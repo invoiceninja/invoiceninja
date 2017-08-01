@@ -84,9 +84,9 @@ class CheckData extends Command
         if (! $this->option('client_id')) {
             $this->checkOAuth();
             $this->checkInvitations();
-            $this->checkFailedJobs();
             $this->checkAccountData();
             $this->checkLookupData();
+            $this->checkFailedJobs();
         }
 
         $this->logMessage('Done: ' . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
@@ -371,6 +371,10 @@ class CheckData extends Command
 
     private function checkFailedJobs()
     {
+        if (Utils::isTravis()) {
+            return;
+        }
+
         $current = config('database.default');
         config(['database.default' => env('QUEUE_DATABASE')]);
 

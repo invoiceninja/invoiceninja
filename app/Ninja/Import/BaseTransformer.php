@@ -159,6 +159,30 @@ class BaseTransformer extends TransformerAbstract
     /**
      * @param $name
      *
+     * @return null
+     */
+    public function getTaxRate($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps['tax_rates'][$name]) ? $this->maps['tax_rates'][$name] : 0;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null
+     */
+    public function getTaxName($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps['tax_names'][$name]) ? $this->maps['tax_names'][$name] : '';
+    }
+
+    /**
+     * @param $name
+     *
      * @return mixed
      */
     public function getFirstName($name)

@@ -190,8 +190,6 @@
         }
     });
 
-    $('[data-toggle="tooltip"]').tooltip();
-
     // set timeout onDomReady
     setTimeout(delayedFragmentTargetOffset, 500);
 

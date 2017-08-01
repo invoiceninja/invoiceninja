@@ -19,6 +19,7 @@ use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\ProductRepository;
 use App\Ninja\Repositories\VendorRepository;
+use App\Ninja\Repositories\TaxRateRepository;
 use App\Ninja\Serializers\ArraySerializer;
 use Auth;
 use Cache;
@@ -126,7 +127,8 @@ class ImportService
         ProductRepository $productRepo,
         ExpenseRepository $expenseRepo,
         VendorRepository $vendorRepo,
-        ExpenseCategoryRepository $expenseCategoryRepo
+        ExpenseCategoryRepository $expenseCategoryRepo,
+        TaxRateRepository $taxRateRepository
     ) {
         $this->fractal = $manager;
         $this->fractal->setSerializer(new ArraySerializer());
@@ -139,6 +141,7 @@ class ImportService
         $this->expenseRepo = $expenseRepo;
         $this->vendorRepo = $vendorRepo;
         $this->expenseCategoryRepo = $expenseCategoryRepo;
+        $this->taxRateRepository = $taxRateRepository;
     }
 
     /**
@@ -849,6 +852,8 @@ class ImportService
             'invoice_ids' => [],
             'vendors' => [],
             'expense_categories' => [],
+            'tax_rates' => [],
+            'tax_names' => [],
         ];
 
         $clients = $this->clientRepo->all();
@@ -885,6 +890,13 @@ class ImportService
         $expenseCaegories = $this->expenseCategoryRepo->all();
         foreach ($expenseCaegories as $category) {
             $this->addExpenseCategoryToMaps($category);
+        }
+
+        $taxRates = $this->taxRateRepository->all();
+        foreach ($taxRates as $taxRate) {
+            $name = trim(strtolower($taxRate->name));
+            $this->maps['tax_rates'][$name] = $taxRate->rate;
+            $this->maps['tax_names'][$name] = $taxRate->name;
         }
     }
 

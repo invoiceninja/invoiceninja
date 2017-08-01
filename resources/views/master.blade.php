@@ -268,6 +268,8 @@
             @endif
         @endif
 
+        $('[data-toggle="tooltip"]').tooltip();
+
         @if (Session::has('onReady'))
         {{ Session::get('onReady') }}
         @endif
