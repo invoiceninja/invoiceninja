@@ -16,11 +16,6 @@
         }
 
     </style>
-
-    @foreach ($account->getFontFolders() as $font)
-        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
-    @endforeach
-    <script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 @stop
 
 @section('content')
@@ -38,7 +33,6 @@
         var chartStartDate = moment("{{ $startDate }}");
         var chartEndDate = moment("{{ $endDate }}");
         var dateRanges = {!! $account->present()->dateRangeOptions !!};
-        window.invoiceFonts = {!!  json_encode(Cache::get('fonts')) !!};
 
         $(function () {
 
@@ -164,12 +158,9 @@
 
 
             <center>
-                @if(request()->report_type)
-                    {!! Button::warning(trans('texts.download_pdf'))
-                            ->withAttributes(array('onclick' => 'exportPDF()'))
-                            ->appendIcon(Icon::create('save'))
-                            ->large() !!}
-                @endif
+                {!! Former::select('format')
+                            ->label(trans('texts.format_export'))
+                            ->options(['csv' => 'CSV', 'pdf' => 'PDF', 'xlsx' => 'Excel']) !!}
                 {!! Button::primary(trans('texts.export'))
                         ->withAttributes(array('onclick' => 'onExportClick()'))
                         ->appendIcon(Icon::create('export'))
@@ -364,131 +355,6 @@
                     }
                 });
             })
-
-                <?php
-
-                $summary = [];
-                if(count(array_values($reportTotals))) {
-                    $summary[] = array_merge([
-                            trans("texts.totals")
-                        ], array_map(function ($key) {
-                            return ['text' => trans("texts.{$key}"),
-                                    'style' => 'tableHeader'
-                            ];
-                        }, array_keys(array_values(array_values($reportTotals)[0])[0])));
-                }
-
-                foreach ($reportTotals as $currencyId => $each) {
-                    foreach ($each as $dimension => $val) {
-                        $tmp   = [];
-                        $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
-
-                        foreach ($val as $id => $field) $tmp[] = Utils::formatMoney($field, $currencyId);
-
-                        $summary[] = $tmp;
-                    }
-                }
-
-                ?>
-
-            function addFont(font){
-                if(window.ninjaFontVfs[font.folder]){
-                    folder = 'fonts/'+font.folder;
-                    pdfMake.fonts[font.name] = {
-                        normal: folder+'/'+font.normal,
-                        italics: folder+'/'+font.italics,
-                        bold: folder+'/'+font.bold,
-                        bolditalics: folder+'/'+font.bolditalics
-                    }
-                }
-            }
-
-            pdfMake.fonts = {}
-            fonts = window.invoiceFonts || invoice.invoice_fonts;
-
-            // Add only the loaded fonts
-            $.each(fonts, function(i,font){
-                addFont(font);
-            });
-            var dd = {!! html_entity_decode(json_encode( [
-                                        'pageOrientation' => 'landscape',
-                                        'content' => [
-                                            [
-                                                'text'  => $reportTypes[$reportType],
-                                                'style' => 'header'
-                                            ],
-                                            [
-                                                'style'  => 'reportTable',
-                                                'table' => [
-                                                    'headerRows' => 1,
-                                                    'widths'     => '*',
-                                                    'body'       => $summary
-                                                 ],
-                                                'layout' => 'lightHorizontalLines'
-                                            ],
-                                            [
-                                                'style'  => 'reportTable',
-                                                'table'  => [
-                                                    'headerRows' => 1,
-                                                    'widths'     => '*',
-                                                    'body'       =>
-                                                        array_merge(
-                                                            [array_map(function($array) {
-                                                                return [
-                                                                    'text' =>  $array['label'],
-                                                                    'style' => 'tableHeader'
-                                                                ];
-                                                            }, $report->columns_labeled)]
-                                                        , array_map(function($row) {
-                                                            return array_map(function($col) {
-                                                                if(strpos($col, "<a href") !== FALSE) {
-                                                                    $hrefs = [];
-                                                                    preg_match('#<a.*href=[\'"](.*)["\'].*>(.*)<.*#', $col, $hrefs);
-                                                                    return [
-                                                                        'text' => $hrefs[2],
-                                                                        'link' => $hrefs[1]
-                                                                    ];
-                                                                }
-                                                                return $col;
-                                                            }, $row);
-                                                        }, $displayData))
-
-                                                ],
-                                                'layout' => 'lightHorizontalLines'
-                                            ]
-                                        ],
-                                        'styles'  => [
-                                            'header'       => [
-                                                'fontSize' => 18,
-                                                'bold'     => true,
-                                                'margin'   => [
-                                                    0,
-                                                    0,
-                                                    0,
-                                                    10
-                                                ]
-                                            ],
-                                            'reportTable' => [
-                                                'margin' => [
-                                                    0,
-                                                    5,
-                                                    0,
-                                                    50
-                                                ]
-                                            ],
-                                            'tableHeader'  => [
-                                                'bold'     => true,
-                                                'fontSize' => 13,
-                                                'color'    => 'black'
-                                            ]
-                                        ],
-                                        'defaultStyle' => [
-                                            'font' => Cache::get('fonts')[0]['name']
-                                        ]
-                                    ] , JSON_PRETTY_PRINT)) !!}
-                    function exportPDF() {
-                    pdfMake.createPdf(dd).download($('#reportrange').data('daterangepicker').startDate.format('YYYY-MM-DD') + '-' + $('#reportrange').data('daterangepicker').endDate.format('YYYY-MM-DD')+'_'+'{{'-invoiceninja-'.$reportTypes[$reportType].'-report'}}');
-                }
         </script>
         @stop
 

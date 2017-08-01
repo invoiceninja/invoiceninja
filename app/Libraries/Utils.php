@@ -1241,4 +1241,12 @@ class Utils
        fclose($handle);
        return( ord($contents[28]) != 0 );
     }
+
+    //Source: https://stackoverflow.com/questions/3302857/algorithm-to-get-the-excel-like-column-name-of-a-number
+    public static function num2alpha($n)
+    {
+        for($r = ""; $n >= 0; $n = intval($n / 26) - 1)
+            $r = chr($n%26 + 0x41) . $r;
+        return $r;
+    }
 }

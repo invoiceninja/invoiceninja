@@ -2392,7 +2392,7 @@ $LANG = array(
     'tax1' => 'First Tax',
     'tax2' => 'Second Tax',
     'fee_help' => 'Gateway fees are the costs charged for access to the financial networks that handle the processing of online payments.',
-	'download_pdf' => 'Download PDF'
+	'format_export' => 'Exporting format'
 
 );
 
