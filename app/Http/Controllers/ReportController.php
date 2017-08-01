@@ -145,7 +145,7 @@ class ReportController extends BaseController
         }
 
         //Get labeled header
-        $report->tableHeaderArray();
+        $columns_labeled = $report->tableHeaderArray();
 
         /*$summary = [];
         if(count(array_values($totals))) {
@@ -167,8 +167,8 @@ class ReportController extends BaseController
 
         dd($summary);*/
 
-        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format) {
-            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format) {
+        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format, $columns_labeled) {
+            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format, $columns_labeled) {
 
                 $sheet->setOrientation('landscape');
                 $sheet->freezeFirstRow();
@@ -178,12 +178,12 @@ class ReportController extends BaseController
                     $sheet->setAllBorders('thin');
 
                 $sheet->rows(array_merge(
-                    [array_map(function($col) {return $col['label'];}, $report->columns_labeled)],
+                    [array_map(function($col) {return $col['label'];}, $columns_labeled)],
                     $data
                 ));
 
                 //Styling header
-                $sheet->cells('A1:'.Utils::num2alpha(count($report->columns_labeled)-1).'1', function($cells) {
+                $sheet->cells('A1:'.Utils::num2alpha(count($columns_labeled)-1).'1', function($cells) {
                     $cells->setBackground('#777777');
                     $cells->setFontColor('#FFFFFF');
                     $cells->setFontSize(14);
