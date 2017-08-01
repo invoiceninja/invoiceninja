@@ -136,8 +136,7 @@ class ReportController extends BaseController
         $totals  = $params['reportTotals'];
         $report  = $params['report'];
 
-        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-".strtolower(trans("texts.$reportType"))."-report";
-
+        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-".strtolower(Utils::normalizeChars(trans("texts.$reportType")))."-report";
 
         $formats = ['csv', 'pdf', 'xlsx'];
         if(!in_array($format, $formats)) {
