@@ -16,6 +16,7 @@
         }
 
     </style>
+
 @stop
 
 @section('content')
@@ -34,7 +35,7 @@
         var chartEndDate = moment("{{ $endDate }}");
         var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
-        $(function () {
+        $(function() {
 
             if (isStorageSupported()) {
                 var lastRange = localStorage.getItem('last:report_range');
@@ -105,8 +106,7 @@
                                     {{ trans('texts.date_range') }}
                                 </label>
                                 <div class="col-lg-8 col-sm-8">
-                                    <div id="reportrange"
-                                         style="background: #f9f9f9; cursor: pointer; padding: 9px 14px; border: 1px solid #dfe0e1; margin-top: 0px;">
+                                    <div id="reportrange" style="background: #f9f9f9; cursor: pointer; padding: 9px 14px; border: 1px solid #dfe0e1; margin-top: 0px;">
                                         <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
                                         <span></span> <b class="caret"></b>
                                     </div>
@@ -118,8 +118,7 @@
                                 </div>
                             </div>
 
-                            <div id="statusField"
-                                 style="display:{{ in_array($reportType, [ENTITY_INVOICE, ENTITY_PRODUCT]) ? 'block' : 'none' }}">
+                            <div id="statusField" style="display:{{ in_array($reportType, [ENTITY_INVOICE, ENTITY_PRODUCT]) ? 'block' : 'none' }}">
                                 {!! Former::select('invoice_status')->label('status')
                                         ->addOption(trans('texts.all'), 'all')
                                         ->addOption(trans('texts.draft'), 'draft')
@@ -150,7 +149,7 @@
 
             @if (!Auth::user()->hasFeature(FEATURE_REPORTS))
                 <script>
-                    $(function () {
+                    $(function() {
                         $('form.report-form').find('input, button').prop('disabled', true);
                     });
                 </script>
@@ -159,8 +158,8 @@
 
             <center>
                 {!! Former::select('format')
-                            ->label(trans('texts.format_export'))
-                            ->options(['csv' => 'CSV', 'pdf' => 'PDF', 'xlsx' => 'Excel']) !!}
+                     ->label(trans('texts.format_export'))
+                     ->options(['csv' => 'CSV', 'pdf' => 'PDF', 'xlsx' => 'Excel']) !!}
                 {!! Button::primary(trans('texts.export'))
                         ->withAttributes(array('onclick' => 'onExportClick()'))
                         ->appendIcon(Icon::create('export'))
@@ -170,8 +169,7 @@
                         ->submit()
                         ->appendIcon(Icon::create('play'))
                         ->large() !!}
-            </center>
-            <br/>
+            </center><br/>
 
 
             {!! Former::close() !!}
@@ -269,15 +267,15 @@
                 sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration']) ? trans("texts.{$column}") : false }}");
             @endforeach
 
-            $(function () {
-                $('.start_date .input-group-addon').click(function () {
+            $(function() {
+                $('.start_date .input-group-addon').click(function() {
                     toggleDatePicker('start_date');
                 });
-                $('.end_date .input-group-addon').click(function () {
+                $('.end_date .input-group-addon').click(function() {
                     toggleDatePicker('end_date');
                 });
 
-                $('#report_type').change(function () {
+                $('#report_type').change(function() {
                     var val = $('#report_type').val();
                     if (val == '{{ ENTITY_TAX_RATE }}') {
                         $('#dateField').fadeIn();
@@ -305,36 +303,36 @@
                     }
                 }
 
-                $(function () {
+                $(function(){
                     $(".tablesorter-data").tablesorter({
                         @if (! request()->group_when_sorted)
-                        sortList: [[0, 0]],
+                        sortList: [[0,0]],
                         @endif
                         theme: 'bootstrap',
                         widgets: ['zebra', 'uitheme', 'filter'{!! request()->group_when_sorted ? ", 'group'" : "" !!}, 'columnSelector'],
-                        headerTemplate: '{content} {icon}',
+                        headerTemplate : '{content} {icon}',
                         @if ($report)
                         dateFormat: '{{ $report->convertDateFormat() }}',
                         @endif
-                        numberSorter: function (a, b, direction) {
+                        numberSorter: function(a, b, direction) {
                             var a = convertStringToNumber(a);
                             var b = convertStringToNumber(b);
                             return direction ? a - b : b - a;
                         },
-                        widgetOptions: {
-                            columnSelector_container: $('#columnSelector'),
+                        widgetOptions : {
+                            columnSelector_container : $('#columnSelector'),
                             filter_cssFilter: 'form-control',
                             group_collapsed: true,
                             group_saveGroups: false,
                             //group_formatter   : function(txt, col, table, c, wo, data) {},
                             group_callback: function ($cell, $rows, column, table) {
-                                for (var i = 0; i < sumColumns.length; i++) {
+                                for (var i=0; i<sumColumns.length; i++) {
                                     var label = sumColumns[i];
                                     if (!label) {
                                         continue;
                                     }
                                     var subtotal = 0;
-                                    $rows.each(function () {
+                                    $rows.each(function() {
                                         var txt = $(this).find("td").eq(i).text();
                                         subtotal += convertStringToNumber(txt);
                                     });
@@ -355,7 +353,10 @@
                     }
                 });
             })
+
+
         </script>
+
         @stop
 
 
