@@ -125,10 +125,14 @@ class CheckData extends Command
 
         if ($this->option('fix') == 'true') {
             foreach ($invoices as $invoice) {
+                $dispatcher = $invoice->getEventDispatcher();
                 if ($invoice->is_deleted) {
                     $invoice->unsetEventDispatcher();
                 }
-                $invoice->markSent();
+                $invoice->is_public = true;
+                $invoice->save();
+                $invoice->markInvitationsSent();
+                $invoice->setEventDispatcher($dispatcher);
             }
         }
     }
