@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "2d3dd60225cc67588bbab64398253148",
-    "content-hash": "deed4ab682dc6d6cb5bdc56a7d60a872",
+    "content-hash": "9d0ce024f2c50440bf896ecc2a37350f",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -61,7 +60,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2015-03-21 20:06:25"
+            "time": "2015-03-21T20:06:25+00:00"
         },
         {
             "name": "alfaproject/omnipay-skrill",
@@ -115,7 +114,7 @@
                 "payment",
                 "skrill"
             ],
-            "time": "2016-01-13 16:33:07"
+            "time": "2016-01-13T16:33:07+00:00"
         },
         {
             "name": "anahkiasen/former",
@@ -174,7 +173,7 @@
                 "foundation",
                 "laravel"
             ],
-            "time": "2017-02-09 23:05:49"
+            "time": "2017-02-09T23:05:49+00:00"
         },
         {
             "name": "anahkiasen/html-object",
@@ -216,7 +215,7 @@
                 }
             ],
             "description": "A set of classes to create and manipulate HTML objects abstractions",
-            "time": "2017-05-31 07:52:45"
+            "time": "2017-05-31T07:52:45+00:00"
         },
         {
             "name": "andreas22/omnipay-fasapay",
@@ -270,7 +269,7 @@
                 "payment",
                 "transfer"
             ],
-            "time": "2015-03-19 21:32:19"
+            "time": "2015-03-19T21:32:19+00:00"
         },
         {
             "name": "asgrim/ofxparser",
@@ -326,7 +325,7 @@
                 "open financial exchange",
                 "parser"
             ],
-            "time": "2016-09-26 11:36:23"
+            "time": "2016-09-26T11:36:23+00:00"
         },
         {
             "name": "aws/aws-sdk-php",
@@ -406,7 +405,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2017-07-12 18:22:23"
+            "time": "2017-07-12T18:22:23+00:00"
         },
         {
             "name": "barracudanetworks/archivestream-php",
@@ -446,7 +445,7 @@
                 "tar",
                 "zip"
             ],
-            "time": "2017-01-13 14:52:38"
+            "time": "2017-01-13T14:52:38+00:00"
         },
         {
             "name": "barryvdh/laravel-cors",
@@ -504,7 +503,7 @@
                 "crossdomain",
                 "laravel"
             ],
-            "time": "2017-03-22 08:40:10"
+            "time": "2017-03-22T08:40:10+00:00"
         },
         {
             "name": "barryvdh/laravel-debugbar",
@@ -566,7 +565,7 @@
                 "profiler",
                 "webprofiler"
             ],
-            "time": "2017-06-14 07:44:44"
+            "time": "2017-06-14T07:44:44+00:00"
         },
         {
             "name": "barryvdh/laravel-ide-helper",
@@ -639,7 +638,7 @@
                 "phpstorm",
                 "sublime"
             ],
-            "time": "2017-06-16 14:08:59"
+            "time": "2017-06-16T14:08:59+00:00"
         },
         {
             "name": "barryvdh/reflection-docblock",
@@ -688,7 +687,7 @@
                     "email": "mike.vanriel@naenius.com"
                 }
             ],
-            "time": "2016-06-13 19:28:20"
+            "time": "2016-06-13T19:28:20+00:00"
         },
         {
             "name": "braintree/braintree_php",
@@ -735,7 +734,7 @@
                 }
             ],
             "description": "Braintree PHP Client Library",
-            "time": "2017-05-05 21:51:18"
+            "time": "2017-05-05T21:51:18+00:00"
         },
         {
             "name": "cardgate/omnipay-cardgate",
@@ -791,7 +790,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2015-06-05 14:50:44"
+            "time": "2015-06-05T14:50:44+00:00"
         },
         {
             "name": "cedricziel/flysystem-gcs",
@@ -839,7 +838,7 @@
                 "google",
                 "google cloud storage"
             ],
-            "time": "2017-01-04 10:17:20"
+            "time": "2017-01-04T10:17:20+00:00"
         },
         {
             "name": "cerdic/css-tidy",
@@ -872,7 +871,7 @@
                 }
             ],
             "description": "CSSTidy is a CSS minifier",
-            "time": "2015-11-28 21:47:43"
+            "time": "2015-11-28T21:47:43+00:00"
         },
         {
             "name": "chumper/datatable",
@@ -926,7 +925,7 @@
                 "laravel"
             ],
             "abandoned": "OpenSkill/Datatable",
-            "time": "2015-04-29 07:00:36"
+            "time": "2015-04-29T07:00:36+00:00"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -980,7 +979,7 @@
                 "class",
                 "preload"
             ],
-            "time": "2016-09-16 12:50:15"
+            "time": "2016-09-16T12:50:15+00:00"
         },
         {
             "name": "codedge/laravel-selfupdater",
@@ -1036,7 +1035,7 @@
                 "self-update",
                 "update"
             ],
-            "time": "2017-04-09 12:12:08"
+            "time": "2017-04-09T12:12:08+00:00"
         },
         {
             "name": "collizo4sky/omnipay-wepay",
@@ -1081,7 +1080,7 @@
             "support": {
                 "source": "https://github.com/hillelcoren/omnipay-wepay/tree/address-fix"
             },
-            "time": "2016-12-12 18:28:29"
+            "time": "2016-12-12T18:28:29+00:00"
         },
         {
             "name": "container-interop/container-interop",
@@ -1112,7 +1111,7 @@
             ],
             "description": "Promoting the interoperability of container objects (DIC, SL, etc.)",
             "homepage": "https://github.com/container-interop/container-interop",
-            "time": "2017-02-14 19:40:03"
+            "time": "2017-02-14T19:40:03+00:00"
         },
         {
             "name": "delatbabel/omnipay-fatzebra",
@@ -1171,7 +1170,7 @@
                 "payment",
                 "paystream"
             ],
-            "time": "2017-06-09 10:33:34"
+            "time": "2017-06-09T10:33:34+00:00"
         },
         {
             "name": "dercoder/omnipay-ecopayz",
@@ -1219,7 +1218,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-09-15 16:18:21"
+            "time": "2016-09-15T16:18:21+00:00"
         },
         {
             "name": "dercoder/omnipay-paysafecard",
@@ -1274,7 +1273,7 @@
                 "payment",
                 "paysafecard"
             ],
-            "time": "2016-06-21 10:42:41"
+            "time": "2016-06-21T10:42:41+00:00"
         },
         {
             "name": "descubraomundo/omnipay-pagarme",
@@ -1324,7 +1323,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-03-18 19:37:37"
+            "time": "2016-03-18T19:37:37+00:00"
         },
         {
             "name": "digitickets/omnipay-barclays-epdq",
@@ -1381,7 +1380,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-11-17 14:04:17"
+            "time": "2016-11-17T14:04:17+00:00"
         },
         {
             "name": "digitickets/omnipay-datacash",
@@ -1438,7 +1437,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-11-17 13:32:25"
+            "time": "2016-11-17T13:32:25+00:00"
         },
         {
             "name": "digitickets/omnipay-realex",
@@ -1487,7 +1486,7 @@
                 "purchase",
                 "realex"
             ],
-            "time": "2016-11-17 13:44:19"
+            "time": "2016-11-17T13:44:19+00:00"
         },
         {
             "name": "dioscouri/omnipay-cybersource",
@@ -1536,7 +1535,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2015-06-03 18:31:31"
+            "time": "2015-06-03T18:31:31+00:00"
         },
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1569,7 +1568,7 @@
                 "MIT"
             ],
             "description": "implementation of xdg base directory specification for php",
-            "time": "2014-10-24 07:27:01"
+            "time": "2014-10-24T07:27:01+00:00"
         },
         {
             "name": "doctrine/annotations",
@@ -1637,7 +1636,7 @@
                 "docblock",
                 "parser"
             ],
-            "time": "2017-02-24 16:22:25"
+            "time": "2017-02-24T16:22:25+00:00"
         },
         {
             "name": "doctrine/cache",
@@ -1707,7 +1706,7 @@
                 "cache",
                 "caching"
             ],
-            "time": "2016-10-29 11:16:17"
+            "time": "2016-10-29T11:16:17+00:00"
         },
         {
             "name": "doctrine/collections",
@@ -1774,7 +1773,7 @@
                 "collections",
                 "iterator"
             ],
-            "time": "2017-01-03 10:49:41"
+            "time": "2017-01-03T10:49:41+00:00"
         },
         {
             "name": "doctrine/common",
@@ -1847,7 +1846,7 @@
                 "persistence",
                 "spl"
             ],
-            "time": "2017-01-13 14:02:13"
+            "time": "2017-01-13T14:02:13+00:00"
         },
         {
             "name": "doctrine/dbal",
@@ -1918,7 +1917,7 @@
                 "persistence",
                 "queryobject"
             ],
-            "time": "2017-02-08 12:53:47"
+            "time": "2017-02-08T12:53:47+00:00"
         },
         {
             "name": "doctrine/inflector",
@@ -1985,7 +1984,7 @@
                 "singularize",
                 "string"
             ],
-            "time": "2015-11-06 14:35:42"
+            "time": "2015-11-06T14:35:42+00:00"
         },
         {
             "name": "doctrine/lexer",
@@ -2039,69 +2038,7 @@
                 "lexer",
                 "parser"
             ],
-            "time": "2014-09-09 13:34:57"
-        },
-        {
-            "name": "dompdf/dompdf",
-            "version": "v0.8.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/dompdf/dompdf.git",
-                "reference": "0f418c6b58fdeafc2a0e80eb1fa5e644e185089c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/dompdf/dompdf/zipball/0f418c6b58fdeafc2a0e80eb1fa5e644e185089c",
-                "reference": "0f418c6b58fdeafc2a0e80eb1fa5e644e185089c",
-                "shasum": ""
-            },
-            "require": {
-                "ext-dom": "*",
-                "ext-gd": "*",
-                "ext-mbstring": "*",
-                "phenx/php-font-lib": "0.5.*",
-                "phenx/php-svg-lib": "0.2.*",
-                "php": ">=5.3.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "4.8.*",
-                "squizlabs/php_codesniffer": "2.*"
-            },
-            "type": "library",
-            "extra": {
-                "branch-alias": {
-                    "dev-develop": "0.7-dev"
-                }
-            },
-            "autoload": {
-                "psr-4": {
-                    "Dompdf\\": "src/"
-                },
-                "classmap": [
-                    "lib/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-2.1"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Ménager",
-                    "email": "fabien.menager@gmail.com"
-                },
-                {
-                    "name": "Brian Sweeney",
-                    "email": "eclecticgeek@gmail.com"
-                },
-                {
-                    "name": "Gabriel Bull",
-                    "email": "me@gabrielbull.com"
-                }
-            ],
-            "description": "DOMPDF is a CSS 2.1 compliant HTML to PDF converter",
-            "homepage": "https://github.com/dompdf/dompdf",
-            "time": "2017-02-16 02:40:40"
+            "time": "2014-09-09T13:34:57+00:00"
         },
         {
             "name": "dwolla/omnipay-dwolla",
@@ -2158,7 +2095,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2015-06-05 13:57:26"
+            "time": "2015-06-05T13:57:26+00:00"
         },
         {
             "name": "ezyang/htmlpurifier",
@@ -2205,7 +2142,7 @@
             "keywords": [
                 "html"
             ],
-            "time": "2017-06-03 02:28:16"
+            "time": "2017-06-03T02:28:16+00:00"
         },
         {
             "name": "firebase/php-jwt",
@@ -2248,7 +2185,7 @@
             ],
             "description": "A simple library to encode and decode JSON Web Tokens (JWT) in PHP. Should conform to the current spec.",
             "homepage": "https://github.com/firebase/php-jwt",
-            "time": "2016-07-18 04:51:16"
+            "time": "2016-07-18T04:51:16+00:00"
         },
         {
             "name": "fotografde/omnipay-checkoutcom",
@@ -2301,7 +2238,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2015-08-06 09:26:34"
+            "time": "2015-08-06T09:26:34+00:00"
         },
         {
             "name": "fruitcakestudio/omnipay-sisow",
@@ -2357,7 +2294,7 @@
                 "payment",
                 "sisow"
             ],
-            "time": "2017-07-12 13:28:11"
+            "time": "2017-07-12T13:28:11+00:00"
         },
         {
             "name": "fzaninotto/faker",
@@ -2405,7 +2342,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2016-04-29 12:21:54"
+            "time": "2016-04-29T12:21:54+00:00"
         },
         {
             "name": "gatepay/FedACHdir",
@@ -2422,7 +2359,7 @@
                 "shasum": null
             },
             "type": "library",
-            "time": "2016-10-12 12:00:38"
+            "time": "2017-07-31 12:01:01"
         },
         {
             "name": "google/apiclient",
@@ -2481,7 +2418,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2017-07-10 15:34:54"
+            "time": "2017-07-10T15:34:54+00:00"
         },
         {
             "name": "google/apiclient-services",
@@ -2518,7 +2455,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2017-07-10 00:18:15"
+            "time": "2017-07-10T00:18:15+00:00"
         },
         {
             "name": "google/auth",
@@ -2566,7 +2503,7 @@
                 "google",
                 "oauth2"
             ],
-            "time": "2017-06-13 18:00:07"
+            "time": "2017-06-13T18:00:07+00:00"
         },
         {
             "name": "google/cloud",
@@ -2686,7 +2623,7 @@
                 "translation",
                 "vision"
             ],
-            "time": "2017-07-12 18:33:11"
+            "time": "2017-07-12T18:33:11+00:00"
         },
         {
             "name": "guzzle/guzzle",
@@ -2782,7 +2719,7 @@
                 "web service"
             ],
             "abandoned": "guzzlehttp/guzzle",
-            "time": "2015-03-18 18:23:50"
+            "time": "2015-03-18T18:23:50+00:00"
         },
         {
             "name": "guzzlehttp/guzzle",
@@ -2847,7 +2784,7 @@
                 "rest",
                 "web service"
             ],
-            "time": "2017-06-22 18:50:49"
+            "time": "2017-06-22T18:50:49+00:00"
         },
         {
             "name": "guzzlehttp/promises",
@@ -2898,7 +2835,7 @@
             "keywords": [
                 "promise"
             ],
-            "time": "2016-12-20 10:07:11"
+            "time": "2016-12-20T10:07:11+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
@@ -2963,7 +2900,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2017-03-20 17:10:46"
+            "time": "2017-03-20T17:10:46+00:00"
         },
         {
             "name": "illuminate/html",
@@ -3010,7 +2947,7 @@
                 }
             ],
             "abandoned": "laravelcollective/html",
-            "time": "2015-01-01 16:31:18"
+            "time": "2015-01-01T16:31:18+00:00"
         },
         {
             "name": "incube8/omnipay-multicards",
@@ -3065,7 +3002,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2017-01-12 06:17:38"
+            "time": "2017-01-12T06:17:38+00:00"
         },
         {
             "name": "intervention/image",
@@ -3135,7 +3072,7 @@
                 "thumbnail",
                 "watermark"
             ],
-            "time": "2017-07-04 16:10:28"
+            "time": "2017-07-04T16:10:28+00:00"
         },
         {
             "name": "ircmaxell/password-compat",
@@ -3177,7 +3114,7 @@
                 "hashing",
                 "password"
             ],
-            "time": "2014-11-20 16:49:30"
+            "time": "2014-11-20T16:49:30+00:00"
         },
         {
             "name": "jakoch/phantomjs-installer",
@@ -3218,7 +3155,7 @@
                 "headless",
                 "phantomjs"
             ],
-            "time": "2016-01-25 16:30:30"
+            "time": "2016-01-25T16:30:30+00:00"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -3261,7 +3198,7 @@
                     "homepage": "http://www.acci.cz"
                 }
             ],
-            "time": "2014-04-08 15:00:19"
+            "time": "2014-04-08T15:00:19+00:00"
         },
         {
             "name": "jakub-onderka/php-console-highlighter",
@@ -3305,7 +3242,7 @@
                     "homepage": "http://www.acci.cz/"
                 }
             ],
-            "time": "2015-04-20 18:58:01"
+            "time": "2015-04-20T18:58:01+00:00"
         },
         {
             "name": "jaybizzle/crawler-detect",
@@ -3354,7 +3291,7 @@
                 "crawlerdetect",
                 "php crawler detect"
             ],
-            "time": "2017-07-03 20:56:40"
+            "time": "2017-07-03T20:56:40+00:00"
         },
         {
             "name": "jaybizzle/laravel-crawler-detect",
@@ -3418,7 +3355,7 @@
                 "spider",
                 "user-agent"
             ],
-            "time": "2017-06-01 20:29:30"
+            "time": "2017-06-01T20:29:30+00:00"
         },
         {
             "name": "jeremeamia/SuperClosure",
@@ -3476,7 +3413,7 @@
                 "serialize",
                 "tokenizer"
             ],
-            "time": "2016-12-07 09:37:55"
+            "time": "2016-12-07T09:37:55+00:00"
         },
         {
             "name": "jlapp/swaggervel",
@@ -3521,7 +3458,7 @@
                 "laravel",
                 "swagger"
             ],
-            "time": "2016-01-25 15:38:17"
+            "time": "2016-01-25T15:38:17+00:00"
         },
         {
             "name": "jonnyw/php-phantomjs",
@@ -3577,7 +3514,7 @@
                 "phantomjs",
                 "testing"
             ],
-            "time": "2016-06-28 16:00:15"
+            "time": "2016-06-28T16:00:15+00:00"
         },
         {
             "name": "justinbusschau/omnipay-secpay",
@@ -3632,7 +3569,7 @@
                 "paypoint.net",
                 "secpay"
             ],
-            "time": "2015-06-05 12:03:08"
+            "time": "2015-06-05T12:03:08+00:00"
         },
         {
             "name": "laracasts/presenter",
@@ -3678,7 +3615,7 @@
                 "presenter",
                 "view"
             ],
-            "time": "2014-09-13 13:18:07"
+            "time": "2014-09-13T13:18:07+00:00"
         },
         {
             "name": "laravel/framework",
@@ -3808,7 +3745,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2016-08-26 11:44:52"
+            "time": "2016-08-26T11:44:52+00:00"
         },
         {
             "name": "laravel/socialite",
@@ -3862,7 +3799,7 @@
                 "laravel",
                 "oauth"
             ],
-            "time": "2017-03-27 21:32:28"
+            "time": "2017-03-27T21:32:28+00:00"
         },
         {
             "name": "laravelcollective/bus",
@@ -3907,7 +3844,7 @@
             ],
             "description": "The Laravel Bus (5.1) package for use in Laravel 5.2.",
             "homepage": "http://laravelcollective.com",
-            "time": "2015-12-23 07:43:33"
+            "time": "2015-12-23T07:43:33+00:00"
         },
         {
             "name": "laravelcollective/html",
@@ -3961,7 +3898,7 @@
             ],
             "description": "HTML and Form Builders for the Laravel Framework",
             "homepage": "http://laravelcollective.com",
-            "time": "2017-05-21 18:02:21"
+            "time": "2017-05-21T18:02:21+00:00"
         },
         {
             "name": "league/flysystem",
@@ -4044,7 +3981,7 @@
                 "sftp",
                 "storage"
             ],
-            "time": "2017-04-28 10:15:08"
+            "time": "2017-04-28T10:15:08+00:00"
         },
         {
             "name": "league/flysystem-aws-s3-v3",
@@ -4091,7 +4028,7 @@
                 }
             ],
             "description": "Flysystem adapter for the AWS S3 SDK v3.x",
-            "time": "2017-06-30 06:29:25"
+            "time": "2017-06-30T06:29:25+00:00"
         },
         {
             "name": "league/flysystem-rackspace",
@@ -4138,7 +4075,7 @@
                 }
             ],
             "description": "Flysystem adapter for Rackspace",
-            "time": "2016-03-11 12:13:42"
+            "time": "2016-03-11T12:13:42+00:00"
         },
         {
             "name": "league/fractal",
@@ -4201,7 +4138,7 @@
                 "league",
                 "rest"
             ],
-            "time": "2015-10-07 14:48:58"
+            "time": "2015-10-07T14:48:58+00:00"
         },
         {
             "name": "league/oauth1-client",
@@ -4264,7 +4201,7 @@
                 "tumblr",
                 "twitter"
             ],
-            "time": "2016-08-17 00:36:58"
+            "time": "2016-08-17T00:36:58+00:00"
         },
         {
             "name": "league/url",
@@ -4319,7 +4256,7 @@
                 "url"
             ],
             "abandoned": "league/uri",
-            "time": "2015-07-15 08:24:12"
+            "time": "2015-07-15T08:24:12+00:00"
         },
         {
             "name": "lokielse/omnipay-alipay",
@@ -4368,7 +4305,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2016-09-22 10:40:06"
+            "time": "2016-09-22T10:40:06+00:00"
         },
         {
             "name": "maatwebsite/excel",
@@ -4446,7 +4383,7 @@
                 "import",
                 "laravel"
             ],
-            "time": "2017-07-02 07:00:56"
+            "time": "2017-07-02T07:00:56+00:00"
         },
         {
             "name": "maximebf/debugbar",
@@ -4507,7 +4444,7 @@
                 "debug",
                 "debugbar"
             ],
-            "time": "2017-01-05 08:46:19"
+            "time": "2017-01-05T08:46:19+00:00"
         },
         {
             "name": "meebio/omnipay-creditcall",
@@ -4565,7 +4502,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2015-09-19 11:29:31"
+            "time": "2015-09-19T11:29:31+00:00"
         },
         {
             "name": "meebio/omnipay-secure-trading",
@@ -4623,7 +4560,7 @@
                 "secure trading",
                 "securetrading"
             ],
-            "time": "2016-12-14 14:58:56"
+            "time": "2016-12-14T14:58:56+00:00"
         },
         {
             "name": "mfauveau/omnipay-pacnet",
@@ -4678,7 +4615,7 @@
                 "purchase",
                 "raven"
             ],
-            "time": "2015-07-14 19:53:54"
+            "time": "2015-07-14T19:53:54+00:00"
         },
         {
             "name": "mikemccabe/json-patch-php",
@@ -4705,7 +4642,7 @@
                 "LGPL-3.0"
             ],
             "description": "Produce and apply json-patch objects",
-            "time": "2015-01-05 21:19:54"
+            "time": "2015-01-05T21:19:54+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -4783,7 +4720,58 @@
                 "logging",
                 "psr-3"
             ],
-            "time": "2017-06-19 01:22:40"
+            "time": "2017-06-19T01:22:40+00:00"
+        },
+        {
+            "name": "mpdf/mpdf",
+            "version": "v6.1.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/mpdf/mpdf.git",
+                "reference": "7f138bf7508eac895ac2c13d2509b056ac7e7e97"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/mpdf/mpdf/zipball/7f138bf7508eac895ac2c13d2509b056ac7e7e97",
+                "reference": "7f138bf7508eac895ac2c13d2509b056ac7e7e97",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.4.0",
+                "setasign/fpdi": "1.6.*"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.7"
+            },
+            "suggest": {
+                "ext-zlib": "Needed for compression of embedded resources, such as fonts"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "mpdf.php",
+                    "classes"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "GPL-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Ian Back",
+                    "role": "Developer"
+                }
+            ],
+            "description": "A PHP class to generate PDF files from HTML with Unicode/UTF-8 and CJK support",
+            "homepage": "http://mpdf.github.io",
+            "keywords": [
+                "pdf",
+                "php",
+                "utf-8"
+            ],
+            "time": "2016-12-12T10:42:18+00:00"
         },
         {
             "name": "mtdowling/cron-expression",
@@ -4827,7 +4815,7 @@
                 "cron",
                 "schedule"
             ],
-            "time": "2017-01-23 04:29:33"
+            "time": "2017-01-23T04:29:33+00:00"
         },
         {
             "name": "mtdowling/jmespath.php",
@@ -4882,7 +4870,7 @@
                 "json",
                 "jsonpath"
             ],
-            "time": "2016-12-03 22:08:25"
+            "time": "2016-12-03T22:08:25+00:00"
         },
         {
             "name": "nesbot/carbon",
@@ -4935,7 +4923,7 @@
                 "datetime",
                 "time"
             ],
-            "time": "2017-01-16 07:55:07"
+            "time": "2017-01-16T07:55:07+00:00"
         },
         {
             "name": "nikic/php-parser",
@@ -4986,7 +4974,7 @@
                 "parser",
                 "php"
             ],
-            "time": "2016-09-16 12:04:44"
+            "time": "2016-09-16T12:04:44+00:00"
         },
         {
             "name": "nwidart/laravel-modules",
@@ -5052,7 +5040,7 @@
                 "nwidart",
                 "rad"
             ],
-            "time": "2017-07-06 19:33:38"
+            "time": "2017-07-06T19:33:38+00:00"
         },
         {
             "name": "omnipay/2checkout",
@@ -5111,7 +5099,7 @@
                 "payment",
                 "twocheckout"
             ],
-            "time": "2014-09-17 00:35:37"
+            "time": "2014-09-17T00:35:37+00:00"
         },
         {
             "name": "omnipay/authorizenet",
@@ -5170,7 +5158,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2017-03-07 14:00:14"
+            "time": "2017-03-07T14:00:14+00:00"
         },
         {
             "name": "omnipay/bitpay",
@@ -5228,7 +5216,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-04-07 02:53:36"
+            "time": "2016-04-07T02:53:36+00:00"
         },
         {
             "name": "omnipay/braintree",
@@ -5291,7 +5279,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2016-06-22 07:44:48"
+            "time": "2016-06-22T07:44:48+00:00"
         },
         {
             "name": "omnipay/buckaroo",
@@ -5348,7 +5336,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2017-05-30 09:43:42"
+            "time": "2017-05-30T09:43:42+00:00"
         },
         {
             "name": "omnipay/cardsave",
@@ -5406,7 +5394,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2014-09-21 02:27:16"
+            "time": "2014-09-21T02:27:16+00:00"
         },
         {
             "name": "omnipay/coinbase",
@@ -5463,7 +5451,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2015-03-06 05:35:39"
+            "time": "2015-03-06T05:35:39+00:00"
         },
         {
             "name": "omnipay/common",
@@ -5579,7 +5567,7 @@
                 "payment",
                 "purchase"
             ],
-            "time": "2015-03-30 14:34:46"
+            "time": "2015-03-30T14:34:46+00:00"
         },
         {
             "name": "omnipay/dummy",
@@ -5636,7 +5624,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-07-30 04:18:49"
+            "time": "2016-07-30T04:18:49+00:00"
         },
         {
             "name": "omnipay/eway",
@@ -5693,7 +5681,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-03-22 01:11:02"
+            "time": "2016-03-22T01:11:02+00:00"
         },
         {
             "name": "omnipay/firstdata",
@@ -5751,7 +5739,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-01-14 06:24:28"
+            "time": "2016-01-14T06:24:28+00:00"
         },
         {
             "name": "omnipay/gocardless",
@@ -5809,7 +5797,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-01-16 03:19:31"
+            "time": "2016-01-16T03:19:31+00:00"
         },
         {
             "name": "omnipay/manual",
@@ -5866,7 +5854,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-12-28 03:02:15"
+            "time": "2016-12-28T03:02:15+00:00"
         },
         {
             "name": "omnipay/migs",
@@ -5924,7 +5912,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2017-06-07 07:52:47"
+            "time": "2017-06-07T07:52:47+00:00"
         },
         {
             "name": "omnipay/mollie",
@@ -5981,7 +5969,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-10-11 09:44:09"
+            "time": "2016-10-11T09:44:09+00:00"
         },
         {
             "name": "omnipay/multisafepay",
@@ -6039,7 +6027,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2017-05-28 06:28:10"
+            "time": "2017-05-28T06:28:10+00:00"
         },
         {
             "name": "omnipay/netaxept",
@@ -6096,7 +6084,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2015-05-08 15:13:17"
+            "time": "2015-05-08T15:13:17+00:00"
         },
         {
             "name": "omnipay/netbanx",
@@ -6153,7 +6141,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2016-09-21 10:52:03"
+            "time": "2016-09-21T10:52:03+00:00"
         },
         {
             "name": "omnipay/omnipay",
@@ -6265,7 +6253,7 @@
                 "twocheckout",
                 "worldpay"
             ],
-            "time": "2014-12-10 13:55:00"
+            "time": "2014-12-10T13:55:00+00:00"
         },
         {
             "name": "omnipay/payfast",
@@ -6322,7 +6310,7 @@
                 "payfast",
                 "payment"
             ],
-            "time": "2014-09-29 01:07:03"
+            "time": "2014-09-29T01:07:03+00:00"
         },
         {
             "name": "omnipay/payflow",
@@ -6379,7 +6367,7 @@
                 "payflow",
                 "payment"
             ],
-            "time": "2017-05-12 08:10:23"
+            "time": "2017-05-12T08:10:23+00:00"
         },
         {
             "name": "omnipay/paymentexpress",
@@ -6442,7 +6430,7 @@
                 "pxpay",
                 "pxpost"
             ],
-            "time": "2017-05-12 08:22:36"
+            "time": "2017-05-12T08:22:36+00:00"
         },
         {
             "name": "omnipay/paypal",
@@ -6500,7 +6488,7 @@
                 "paypal",
                 "purchase"
             ],
-            "time": "2016-12-22 12:35:25"
+            "time": "2016-12-22T12:35:25+00:00"
         },
         {
             "name": "omnipay/pin",
@@ -6557,7 +6545,7 @@
                 "payment",
                 "pin"
             ],
-            "time": "2016-03-25 18:06:33"
+            "time": "2016-03-25T18:06:33+00:00"
         },
         {
             "name": "omnipay/sagepay",
@@ -6616,7 +6604,7 @@
                 "sage pay",
                 "sagepay"
             ],
-            "time": "2017-01-12 23:36:01"
+            "time": "2017-01-12T23:36:01+00:00"
         },
         {
             "name": "omnipay/securepay",
@@ -6673,7 +6661,7 @@
                 "payment",
                 "securepay"
             ],
-            "time": "2016-11-09 04:52:42"
+            "time": "2016-11-09T04:52:42+00:00"
         },
         {
             "name": "omnipay/stripe",
@@ -6730,7 +6718,7 @@
                 "payment",
                 "stripe"
             ],
-            "time": "2017-07-01 03:24:42"
+            "time": "2017-07-01T03:24:42+00:00"
         },
         {
             "name": "omnipay/targetpay",
@@ -6787,7 +6775,7 @@
                 "payment",
                 "targetpay"
             ],
-            "time": "2014-09-17 00:38:39"
+            "time": "2014-09-17T00:38:39+00:00"
         },
         {
             "name": "omnipay/worldpay",
@@ -6844,7 +6832,7 @@
                 "payment",
                 "worldpay"
             ],
-            "time": "2017-06-15 07:04:25"
+            "time": "2017-06-15T07:04:25+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -6892,7 +6880,7 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2017-03-13 16:22:52"
+            "time": "2017-03-13T16:22:52+00:00"
         },
         {
             "name": "patricktalmadge/bootstrapper",
@@ -6951,81 +6939,7 @@
                 "bootstrap",
                 "laravel"
             ],
-            "time": "2015-02-28 17:09:35"
-        },
-        {
-            "name": "phenx/php-font-lib",
-            "version": "0.5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PhenX/php-font-lib.git",
-                "reference": "19ad2bebc35be028fcc0221025fcbf3d436a3962"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PhenX/php-font-lib/zipball/19ad2bebc35be028fcc0221025fcbf3d436a3962",
-                "reference": "19ad2bebc35be028fcc0221025fcbf3d436a3962",
-                "shasum": ""
-            },
-            "require-dev": {
-                "phpunit/phpunit": "^4.8"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "FontLib\\": "src/FontLib"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Ménager",
-                    "email": "fabien.menager@gmail.com"
-                }
-            ],
-            "description": "A library to read, parse, export and make subsets of different types of font files.",
-            "homepage": "https://github.com/PhenX/php-font-lib",
-            "time": "2017-02-11 10:58:43"
-        },
-        {
-            "name": "phenx/php-svg-lib",
-            "version": "v0.2",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PhenX/php-svg-lib.git",
-                "reference": "de291bec8449b89acfe85691b5c71434797959dc"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PhenX/php-svg-lib/zipball/de291bec8449b89acfe85691b5c71434797959dc",
-                "reference": "de291bec8449b89acfe85691b5c71434797959dc",
-                "shasum": ""
-            },
-            "require": {
-                "sabberworm/php-css-parser": "6.0.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Svg\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "LGPL-3.0"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Ménager",
-                    "email": "fabien.menager@gmail.com"
-                }
-            ],
-            "description": "A library to read, parse and export to PDF SVG files.",
-            "homepage": "https://github.com/PhenX/php-svg-lib",
-            "time": "2016-12-13 20:25:45"
+            "time": "2015-02-28T17:09:35+00:00"
         },
         {
             "name": "phpoffice/phpexcel",
@@ -7082,7 +6996,7 @@
                 "xls",
                 "xlsx"
             ],
-            "time": "2015-05-01 07:00:55"
+            "time": "2015-05-01T07:00:55+00:00"
         },
         {
             "name": "phpseclib/phpseclib",
@@ -7174,7 +7088,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2017-06-05 06:31:10"
+            "time": "2017-06-05T06:31:10+00:00"
         },
         {
             "name": "predis/predis",
@@ -7224,7 +7138,7 @@
                 "predis",
                 "redis"
             ],
-            "time": "2016-06-16 16:22:20"
+            "time": "2016-06-16T16:22:20+00:00"
         },
         {
             "name": "psr/cache",
@@ -7270,7 +7184,7 @@
                 "psr",
                 "psr-6"
             ],
-            "time": "2016-08-06 20:24:11"
+            "time": "2016-08-06T20:24:11+00:00"
         },
         {
             "name": "psr/container",
@@ -7319,7 +7233,7 @@
                 "container-interop",
                 "psr"
             ],
-            "time": "2017-02-14 16:28:37"
+            "time": "2017-02-14T16:28:37+00:00"
         },
         {
             "name": "psr/http-message",
@@ -7369,7 +7283,7 @@
                 "request",
                 "response"
             ],
-            "time": "2016-08-06 14:39:51"
+            "time": "2016-08-06T14:39:51+00:00"
         },
         {
             "name": "psr/log",
@@ -7416,7 +7330,7 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2016-10-10 12:19:37"
+            "time": "2016-10-10T12:19:37+00:00"
         },
         {
             "name": "psy/psysh",
@@ -7488,7 +7402,7 @@
                 "interactive",
                 "shell"
             ],
-            "time": "2016-03-09 05:03:14"
+            "time": "2016-03-09T05:03:14+00:00"
         },
         {
             "name": "rackspace/php-opencloud",
@@ -7545,7 +7459,7 @@
                 "rackspace",
                 "swift"
             ],
-            "time": "2016-01-29 10:34:57"
+            "time": "2016-01-29T10:34:57+00:00"
         },
         {
             "name": "ramsey/uuid",
@@ -7627,7 +7541,7 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2017-03-26 20:37:53"
+            "time": "2017-03-26T20:37:53+00:00"
         },
         {
             "name": "rize/uri-template",
@@ -7671,30 +7585,36 @@
                 "template",
                 "uri"
             ],
-            "time": "2017-06-14 03:57:53"
+            "time": "2017-06-14T03:57:53+00:00"
         },
         {
-            "name": "sabberworm/php-css-parser",
-            "version": "6.0.1",
+            "name": "setasign/fpdi",
+            "version": "1.6.2",
             "source": {
                 "type": "git",
-                "url": "https://github.com/sabberworm/PHP-CSS-Parser.git",
-                "reference": "9ea4b00c569b19f731d0c2e0e802055877ff40c2"
+                "url": "https://github.com/Setasign/FPDI.git",
+                "reference": "a6ad58897a6d97cc2d2cd2adaeda343b25a368ea"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sabberworm/PHP-CSS-Parser/zipball/9ea4b00c569b19f731d0c2e0e802055877ff40c2",
-                "reference": "9ea4b00c569b19f731d0c2e0e802055877ff40c2",
+                "url": "https://api.github.com/repos/Setasign/FPDI/zipball/a6ad58897a6d97cc2d2cd2adaeda343b25a368ea",
+                "reference": "a6ad58897a6d97cc2d2cd2adaeda343b25a368ea",
                 "shasum": ""
             },
-            "require": {
-                "php": ">=5.3.2"
+            "suggest": {
+                "setasign/fpdf": "FPDI will extend this class but as it is also possible to use \"tecnickcom/tcpdf\" as an alternative there's no fixed dependency configured.",
+                "setasign/fpdi-fpdf": "Use this package to automatically evaluate dependencies to FPDF.",
+                "setasign/fpdi-tcpdf": "Use this package to automatically evaluate dependencies to TCPDF."
             },
             "type": "library",
             "autoload": {
-                "psr-0": {
-                    "Sabberworm\\CSS": "lib/"
-                }
+                "classmap": [
+                    "filters/",
+                    "fpdi.php",
+                    "fpdf_tpl.php",
+                    "fpdi_pdf_parser.php",
+                    "pdf_context.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -7702,17 +7622,19 @@
             ],
             "authors": [
                 {
-                    "name": "Raphael Schweikert"
+                    "name": "Jan Slabon",
+                    "email": "jan.slabon@setasign.com",
+                    "homepage": "https://www.setasign.com"
                 }
             ],
-            "description": "Parser for CSS Files written in PHP",
-            "homepage": "http://www.sabberworm.com/blog/2010/6/10/php-css-parser",
+            "description": "FPDI is a collection of PHP classes facilitating developers to read pages from existing PDF documents and use them as templates in FPDF. Because it is also possible to use FPDI with TCPDF, there are no fixed dependencies defined. Please see suggestions for packages which evaluates the dependencies automatically.",
+            "homepage": "https://www.setasign.com/fpdi",
             "keywords": [
-                "css",
-                "parser",
-                "stylesheet"
+                "fpdf",
+                "fpdi",
+                "pdf"
             ],
-            "time": "2015-08-24 08:48:52"
+            "time": "2017-05-11T14:25:49+00:00"
         },
         {
             "name": "simshaun/recurr",
@@ -7766,7 +7688,7 @@
                 "recurring",
                 "rrule"
             ],
-            "time": "2017-05-05 22:06:58"
+            "time": "2017-05-05T22:06:58+00:00"
         },
         {
             "name": "softcommerce/omnipay-paytrace",
@@ -7818,7 +7740,7 @@
                 "payment",
                 "paytrace"
             ],
-            "time": "2017-05-27 14:16:31"
+            "time": "2017-05-27T14:16:31+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -7872,7 +7794,7 @@
                 "mail",
                 "mailer"
             ],
-            "time": "2017-05-01 15:54:03"
+            "time": "2017-05-01T15:54:03+00:00"
         },
         {
             "name": "symfony/class-loader",
@@ -7928,7 +7850,7 @@
             ],
             "description": "Symfony ClassLoader Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-02 09:51:43"
+            "time": "2017-06-02T09:51:43+00:00"
         },
         {
             "name": "symfony/config",
@@ -7984,7 +7906,7 @@
             ],
             "description": "Symfony Config Component",
             "homepage": "https://symfony.com",
-            "time": "2017-04-12 14:13:17"
+            "time": "2017-04-12T14:13:17+00:00"
         },
         {
             "name": "symfony/console",
@@ -8044,7 +7966,7 @@
             ],
             "description": "Symfony Console Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-30 07:22:48"
+            "time": "2016-07-30T07:22:48+00:00"
         },
         {
             "name": "symfony/css-selector",
@@ -8097,7 +8019,7 @@
             ],
             "description": "Symfony CssSelector Component",
             "homepage": "https://symfony.com",
-            "time": "2017-05-01 15:01:29"
+            "time": "2017-05-01T15:01:29+00:00"
         },
         {
             "name": "symfony/debug",
@@ -8154,7 +8076,7 @@
             ],
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-30 07:22:48"
+            "time": "2016-07-30T07:22:48+00:00"
         },
         {
             "name": "symfony/dependency-injection",
@@ -8217,7 +8139,7 @@
             ],
             "description": "Symfony DependencyInjection Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-03 15:50:21"
+            "time": "2017-06-03T15:50:21+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -8277,7 +8199,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-02 07:47:27"
+            "time": "2017-06-02T07:47:27+00:00"
         },
         {
             "name": "symfony/filesystem",
@@ -8326,7 +8248,7 @@
             ],
             "description": "Symfony Filesystem Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-24 09:29:48"
+            "time": "2017-06-24T09:29:48+00:00"
         },
         {
             "name": "symfony/finder",
@@ -8375,7 +8297,7 @@
             ],
             "description": "Symfony Finder Component",
             "homepage": "https://symfony.com",
-            "time": "2016-06-29 05:40:00"
+            "time": "2016-06-29T05:40:00+00:00"
         },
         {
             "name": "symfony/http-foundation",
@@ -8430,7 +8352,7 @@
             ],
             "description": "Symfony HttpFoundation Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-20 23:27:56"
+            "time": "2017-06-20T23:27:56+00:00"
         },
         {
             "name": "symfony/http-kernel",
@@ -8512,7 +8434,7 @@
             ],
             "description": "Symfony HttpKernel Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-30 09:10:37"
+            "time": "2016-07-30T09:10:37+00:00"
         },
         {
             "name": "symfony/options-resolver",
@@ -8566,7 +8488,7 @@
                 "configuration",
                 "options"
             ],
-            "time": "2017-04-12 14:14:56"
+            "time": "2017-04-12T14:14:56+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
@@ -8625,7 +8547,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2017-06-09 14:24:12"
+            "time": "2017-06-09T14:24:12+00:00"
         },
         {
             "name": "symfony/polyfill-php54",
@@ -8683,7 +8605,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2017-06-09 08:25:21"
+            "time": "2017-06-09T08:25:21+00:00"
         },
         {
             "name": "symfony/polyfill-php55",
@@ -8739,7 +8661,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2017-06-09 08:25:21"
+            "time": "2017-06-09T08:25:21+00:00"
         },
         {
             "name": "symfony/polyfill-php56",
@@ -8795,7 +8717,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2017-06-09 08:25:21"
+            "time": "2017-06-09T08:25:21+00:00"
         },
         {
             "name": "symfony/polyfill-util",
@@ -8847,7 +8769,7 @@
                 "polyfill",
                 "shim"
             ],
-            "time": "2017-06-09 08:25:21"
+            "time": "2017-06-09T08:25:21+00:00"
         },
         {
             "name": "symfony/process",
@@ -8896,7 +8818,7 @@
             ],
             "description": "Symfony Process Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-28 11:13:34"
+            "time": "2016-07-28T11:13:34+00:00"
         },
         {
             "name": "symfony/routing",
@@ -8971,7 +8893,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2016-06-29 05:40:00"
+            "time": "2016-06-29T05:40:00+00:00"
         },
         {
             "name": "symfony/translation",
@@ -9035,7 +8957,7 @@
             ],
             "description": "Symfony Translation Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-30 07:22:48"
+            "time": "2016-07-30T07:22:48+00:00"
         },
         {
             "name": "symfony/var-dumper",
@@ -9098,7 +9020,7 @@
                 "debug",
                 "dump"
             ],
-            "time": "2016-07-26 08:03:56"
+            "time": "2016-07-26T08:03:56+00:00"
         },
         {
             "name": "symfony/yaml",
@@ -9153,7 +9075,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-15 12:58:50"
+            "time": "2017-06-15T12:58:50+00:00"
         },
         {
             "name": "tijsverkoyen/css-to-inline-styles",
@@ -9200,7 +9122,7 @@
             ],
             "description": "CssToInlineStyles is a class that enables you to convert HTML-pages/files into HTML-pages/files with inline styles. This is very useful when you're sending emails.",
             "homepage": "https://github.com/tijsverkoyen/CssToInlineStyles",
-            "time": "2016-09-20 12:50:39"
+            "time": "2016-09-20T12:50:39+00:00"
         },
         {
             "name": "true/punycode",
@@ -9246,7 +9168,7 @@
                 "idna",
                 "punycode"
             ],
-            "time": "2016-11-16 10:37:54"
+            "time": "2016-11-16T10:37:54+00:00"
         },
         {
             "name": "turbo124/laravel-push-notification",
@@ -9288,7 +9210,7 @@
                 "notification",
                 "push"
             ],
-            "time": "2017-01-09 08:49:59"
+            "time": "2017-01-09T08:49:59+00:00"
         },
         {
             "name": "turbo124/notification-pusher",
@@ -9352,7 +9274,7 @@
                 "push",
                 "pusher"
             ],
-            "time": "2017-01-10 02:17:34"
+            "time": "2017-01-10T02:17:34+00:00"
         },
         {
             "name": "twbs/bootstrap",
@@ -9403,7 +9325,7 @@
                 "responsive",
                 "web"
             ],
-            "time": "2016-07-25 15:51:55"
+            "time": "2016-07-25T15:51:55+00:00"
         },
         {
             "name": "twig/twig",
@@ -9468,7 +9390,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-07-04 13:19:31"
+            "time": "2017-07-04T13:19:31+00:00"
         },
         {
             "name": "vink/omnipay-komoju",
@@ -9516,7 +9438,7 @@
                 "pay",
                 "payment"
             ],
-            "time": "2015-09-11 09:40:10"
+            "time": "2015-09-11T09:40:10+00:00"
         },
         {
             "name": "vlucas/phpdotenv",
@@ -9566,7 +9488,7 @@
                 "env",
                 "environment"
             ],
-            "time": "2016-09-01 10:05:43"
+            "time": "2016-09-01T10:05:43+00:00"
         },
         {
             "name": "webpatser/laravel-countries",
@@ -9618,7 +9540,7 @@
                 "iso_3166_3",
                 "laravel"
             ],
-            "time": "2017-01-25 20:26:35"
+            "time": "2017-01-25T20:26:35+00:00"
         },
         {
             "name": "websight/l5-google-cloud-storage",
@@ -9669,7 +9591,7 @@
             "support": {
                 "source": "https://github.com/hillelcoren/l5-google-cloud-storage/tree/master"
             },
-            "time": "2017-07-13 08:04:13"
+            "time": "2017-07-13T08:04:13+00:00"
         },
         {
             "name": "wepay/php-sdk",
@@ -9716,7 +9638,7 @@
                 "sdk",
                 "wepay"
             ],
-            "time": "2015-08-14 19:42:37"
+            "time": "2015-08-14T19:42:37+00:00"
         },
         {
             "name": "wildbit/laravel-postmark-provider",
@@ -9747,7 +9669,7 @@
                 "MIT"
             ],
             "description": "An officially supported mail provider to send mail from Laravel through Postmark, see instructions for integrating it here: https://github.com/wildbit/laravel-postmark-provider/blob/master/README.md",
-            "time": "2016-02-10 14:15:58"
+            "time": "2016-02-10T14:15:58+00:00"
         },
         {
             "name": "wildbit/swiftmailer-postmark",
@@ -9790,7 +9712,7 @@
                 }
             ],
             "description": "A Swiftmailer Transport for Postmark.",
-            "time": "2017-04-18 14:24:10"
+            "time": "2017-04-18T14:24:10+00:00"
         },
         {
             "name": "zendframework/zend-escaper",
@@ -9834,7 +9756,7 @@
                 "escaper",
                 "zf2"
             ],
-            "time": "2016-06-30 19:48:38"
+            "time": "2016-06-30T19:48:38+00:00"
         },
         {
             "name": "zendframework/zend-http",
@@ -9884,7 +9806,7 @@
                 "http",
                 "zf2"
             ],
-            "time": "2017-01-31 14:41:02"
+            "time": "2017-01-31T14:41:02+00:00"
         },
         {
             "name": "zendframework/zend-json",
@@ -9939,7 +9861,7 @@
                 "json",
                 "zf2"
             ],
-            "time": "2016-02-04 21:20:26"
+            "time": "2016-02-04T21:20:26+00:00"
         },
         {
             "name": "zendframework/zend-loader",
@@ -9983,7 +9905,7 @@
                 "loader",
                 "zf2"
             ],
-            "time": "2015-06-03 14:05:47"
+            "time": "2015-06-03T14:05:47+00:00"
         },
         {
             "name": "zendframework/zend-stdlib",
@@ -10028,7 +9950,7 @@
                 "stdlib",
                 "zf2"
             ],
-            "time": "2016-09-13 14:38:50"
+            "time": "2016-09-13T14:38:50+00:00"
         },
         {
             "name": "zendframework/zend-uri",
@@ -10075,7 +9997,7 @@
                 "uri",
                 "zf2"
             ],
-            "time": "2016-02-17 22:38:51"
+            "time": "2016-02-17T22:38:51+00:00"
         },
         {
             "name": "zendframework/zend-validator",
@@ -10146,7 +10068,7 @@
                 "validator",
                 "zf2"
             ],
-            "time": "2017-05-17 22:06:13"
+            "time": "2017-05-17T22:06:13+00:00"
         },
         {
             "name": "zendframework/zendservice-apple-apns",
@@ -10189,7 +10111,7 @@
                 "push",
                 "zf2"
             ],
-            "time": "2015-12-09 22:55:07"
+            "time": "2015-12-09T22:55:07+00:00"
         },
         {
             "name": "zendframework/zendservice-google-gcm",
@@ -10233,7 +10155,7 @@
                 "push",
                 "zf2"
             ],
-            "time": "2015-10-14 03:18:56"
+            "time": "2015-10-14T03:18:56+00:00"
         },
         {
             "name": "zircote/swagger-php",
@@ -10295,7 +10217,7 @@
                 "rest",
                 "service discovery"
             ],
-            "time": "2017-05-12 22:02:20"
+            "time": "2017-05-12T22:02:20+00:00"
         }
     ],
     "packages-dev": [
@@ -10356,7 +10278,7 @@
                 "gherkin",
                 "parser"
             ],
-            "time": "2016-10-30 11:50:56"
+            "time": "2016-10-30T11:50:56+00:00"
         },
         {
             "name": "codeception/c3",
@@ -10406,7 +10328,7 @@
                 "code coverage",
                 "codecoverage"
             ],
-            "time": "2017-04-06 00:08:55"
+            "time": "2017-04-06T00:08:55+00:00"
         },
         {
             "name": "codeception/codeception",
@@ -10500,7 +10422,7 @@
                 "functional testing",
                 "unit testing"
             ],
-            "time": "2017-06-02 00:22:30"
+            "time": "2017-06-02T00:22:30+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -10554,7 +10476,7 @@
                 "constructor",
                 "instantiate"
             ],
-            "time": "2015-06-14 21:17:01"
+            "time": "2015-06-14T21:17:01+00:00"
         },
         {
             "name": "facebook/webdriver",
@@ -10601,7 +10523,7 @@
                 "selenium",
                 "webdriver"
             ],
-            "time": "2016-10-14 15:16:51"
+            "time": "2016-10-14T15:16:51+00:00"
         },
         {
             "name": "phpdocumentor/reflection-common",
@@ -10655,7 +10577,7 @@
                 "reflection",
                 "static analysis"
             ],
-            "time": "2015-12-27 11:43:31"
+            "time": "2015-12-27T11:43:31+00:00"
         },
         {
             "name": "phpdocumentor/reflection-docblock",
@@ -10700,7 +10622,7 @@
                 }
             ],
             "description": "With this component, a library can provide support for annotations via DocBlocks or otherwise retrieve information that is embedded in a DocBlock.",
-            "time": "2016-09-30 07:12:33"
+            "time": "2016-09-30T07:12:33+00:00"
         },
         {
             "name": "phpdocumentor/type-resolver",
@@ -10747,7 +10669,7 @@
                     "email": "me@mikevanriel.com"
                 }
             ],
-            "time": "2016-11-25 06:54:22"
+            "time": "2016-11-25T06:54:22+00:00"
         },
         {
             "name": "phpspec/php-diff",
@@ -10781,7 +10703,7 @@
                 }
             ],
             "description": "A comprehensive library for generating differences between two hashable objects (strings or arrays).",
-            "time": "2013-11-01 13:02:21"
+            "time": "2013-11-01T13:02:21+00:00"
         },
         {
             "name": "phpspec/phpspec",
@@ -10859,7 +10781,7 @@
                 "testing",
                 "tests"
             ],
-            "time": "2017-05-12 06:09:08"
+            "time": "2017-05-12T06:09:08+00:00"
         },
         {
             "name": "phpspec/prophecy",
@@ -10922,7 +10844,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2017-03-02 20:05:34"
+            "time": "2017-03-02T20:05:34+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -10984,7 +10906,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2015-10-06 15:47:00"
+            "time": "2015-10-06T15:47:00+00:00"
         },
         {
             "name": "phpunit/php-file-iterator",
@@ -11031,7 +10953,7 @@
                 "filesystem",
                 "iterator"
             ],
-            "time": "2016-10-03 07:40:28"
+            "time": "2016-10-03T07:40:28+00:00"
         },
         {
             "name": "phpunit/php-text-template",
@@ -11072,7 +10994,7 @@
             "keywords": [
                 "template"
             ],
-            "time": "2015-06-21 13:50:34"
+            "time": "2015-06-21T13:50:34+00:00"
         },
         {
             "name": "phpunit/php-timer",
@@ -11121,7 +11043,7 @@
             "keywords": [
                 "timer"
             ],
-            "time": "2017-02-26 11:10:40"
+            "time": "2017-02-26T11:10:40+00:00"
         },
         {
             "name": "phpunit/php-token-stream",
@@ -11170,7 +11092,7 @@
             "keywords": [
                 "tokenizer"
             ],
-            "time": "2017-02-27 10:12:30"
+            "time": "2017-02-27T10:12:30+00:00"
         },
         {
             "name": "phpunit/phpunit",
@@ -11242,7 +11164,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2017-06-21 08:07:12"
+            "time": "2017-06-21T08:07:12+00:00"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -11298,7 +11220,7 @@
                 "mock",
                 "xunit"
             ],
-            "time": "2015-10-02 06:51:40"
+            "time": "2015-10-02T06:51:40+00:00"
         },
         {
             "name": "sebastian/comparator",
@@ -11362,7 +11284,7 @@
                 "compare",
                 "equality"
             ],
-            "time": "2017-01-29 09:50:25"
+            "time": "2017-01-29T09:50:25+00:00"
         },
         {
             "name": "sebastian/diff",
@@ -11414,7 +11336,7 @@
             "keywords": [
                 "diff"
             ],
-            "time": "2017-05-22 07:24:03"
+            "time": "2017-05-22T07:24:03+00:00"
         },
         {
             "name": "sebastian/environment",
@@ -11464,7 +11386,7 @@
                 "environment",
                 "hhvm"
             ],
-            "time": "2016-08-18 05:49:44"
+            "time": "2016-08-18T05:49:44+00:00"
         },
         {
             "name": "sebastian/exporter",
@@ -11531,7 +11453,7 @@
                 "export",
                 "exporter"
             ],
-            "time": "2016-06-17 09:04:28"
+            "time": "2016-06-17T09:04:28+00:00"
         },
         {
             "name": "sebastian/global-state",
@@ -11582,7 +11504,7 @@
             "keywords": [
                 "global state"
             ],
-            "time": "2015-10-12 03:26:01"
+            "time": "2015-10-12T03:26:01+00:00"
         },
         {
             "name": "sebastian/recursion-context",
@@ -11635,7 +11557,7 @@
             ],
             "description": "Provides functionality to recursively process PHP variables",
             "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
-            "time": "2016-10-03 07:41:43"
+            "time": "2016-10-03T07:41:43+00:00"
         },
         {
             "name": "sebastian/version",
@@ -11670,7 +11592,7 @@
             ],
             "description": "Library that helps with managing the version number of Git-hosted PHP projects",
             "homepage": "https://github.com/sebastianbergmann/version",
-            "time": "2015-06-21 13:59:46"
+            "time": "2015-06-21T13:59:46+00:00"
         },
         {
             "name": "stecman/symfony-console-completion",
@@ -11715,7 +11637,7 @@
                 }
             ],
             "description": "Automatic BASH completion for Symfony Console Component based applications.",
-            "time": "2016-02-24 05:08:54"
+            "time": "2016-02-24T05:08:54+00:00"
         },
         {
             "name": "symfony/browser-kit",
@@ -11772,7 +11694,7 @@
             ],
             "description": "Symfony BrowserKit Component",
             "homepage": "https://symfony.com",
-            "time": "2017-06-24 09:29:48"
+            "time": "2017-06-24T09:29:48+00:00"
         },
         {
             "name": "symfony/dom-crawler",
@@ -11828,7 +11750,7 @@
             ],
             "description": "Symfony DomCrawler Component",
             "homepage": "https://symfony.com",
-            "time": "2017-05-25 23:10:31"
+            "time": "2017-05-25T23:10:31+00:00"
         },
         {
             "name": "webmozart/assert",
@@ -11878,7 +11800,7 @@
                 "check",
                 "validate"
             ],
-            "time": "2016-11-23 20:04:58"
+            "time": "2016-11-23T20:04:58+00:00"
         }
     ],
     "aliases": [],

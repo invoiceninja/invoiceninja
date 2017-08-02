@@ -157,6 +157,9 @@
 
 
 	<center>
+		{!! Former::select('format')
+				 ->label(trans('texts.format_export'))
+				 ->options(['csv' => 'CSV', 'pdf' => 'PDF', 'xlsx' => 'Excel']) !!}
 		{!! Button::primary(trans('texts.export'))
 				->withAttributes(array('onclick' => 'onExportClick()'))
 				->appendIcon(Icon::create('export'))
