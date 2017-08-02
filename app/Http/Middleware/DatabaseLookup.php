@@ -23,7 +23,11 @@ class DatabaseLookup
             if ($code = $request->confirmation_code) {
                 LookupUser::setServerByField('confirmation_code', $code);
             } elseif (session(SESSION_DB_SERVER)) {
-                // do nothing
+                if (Auth::viaRemember()) {
+                    Auth::logout();
+                } else {
+                    // do nothing
+                }
             } elseif (! Auth::check() && $email = $request->email) {
                 LookupUser::setServerByField('email', $email);
             } else {
