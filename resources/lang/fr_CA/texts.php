@@ -2210,7 +2210,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'surcharge_label' => 'Intitulé de surcharge',
     'contact_fields' => 'Champs de contact',
     'custom_contact_fields_help' => 'Ajoute un champ lors de la création d\'un contact et affiche l\'intitulé et sa valeur dans le fichier PDF.',
-    'datatable_info' => ':start entrées sur :end',
+    'datatable_info' => 'Affichage :start sur :end de :total entrées',
     'credit_total' => 'Total du crédit',
     'mark_billable' => 'Marquer comme facturable',
     'billed' => 'Facturé',
