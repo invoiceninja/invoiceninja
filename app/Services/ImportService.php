@@ -933,9 +933,7 @@ class ImportService
     private function addProductToMaps(Product $product)
     {
         if ($key = strtolower(trim($product->product_key))) {
-            $this->maps['product'][$key] = $product->id;
-            $this->maps['product_notes'][$key] = $product->notes;
-            $this->maps['product_cost'][$key] = $product->cost;
+            $this->maps['product'][$key] = $product;
         }
     }
 

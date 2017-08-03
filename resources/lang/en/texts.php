@@ -1330,7 +1330,7 @@ $LANG = array(
     'import_products' => 'Import Products',
     'products_will_create' => 'products will be created',
     'product_key' => 'Product',
-    'created_products' => 'Successfully created :count product(s)',
+    'created_products' => 'Successfully created/updated :count product(s)',
     'export_help' => 'Use JSON if you plan to import the data into Invoice Ninja.<br/>The file includes clients, products, invoices, quotes and payments.',
     'JSON_file' => 'JSON File',
 
