@@ -55,6 +55,7 @@ class TaskCest
         $I->click('Invoice Task');
         $I->click('Mark Sent');
         $I->see('Sent');
+        $I->wait(1);
         $I->see('Successfully created invoice');
     }
 
