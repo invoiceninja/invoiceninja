@@ -10,8 +10,6 @@
 
 ## [Hosted](https://www.invoiceninja.com) | [Self-Hosted](https://www.invoiceninja.org) | [iPhone](https://itunes.apple.com/WebObjects/MZStore.woa/wa/viewSoftware?id=1220337560&mt=8) | [Android](https://play.google.com/store/apps/details?id=com.invoiceninja.invoiceninja)
 
-Watch this [YouTube video](https://www.youtube.com/watch?v=xHGKvadapbA) for an overview of the app's features.
-
 All Pro and Enterprise features from the hosted app are included in the open-source code. We offer a $20 per year white-label license to remove our branding for personal use.
 
 The self-host zip includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
@@ -34,6 +32,11 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [WePay](https://www.invoiceninja.com/wepay-accept-online-payments-instantly/)
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
+
+## Videos
+* [Feature Overview](https://www.youtube.com/watch?v=xHGKvadapbA)
+* [Getting Started](https://www.youtube.com/watch?v=PMgZv8HMATs)
+* [Voice Commands](https://www.youtube.com/watch?v=MVoMcjlsY4w)
 
 ## Features
 * Built using Laravel 5.2
