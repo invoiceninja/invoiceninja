@@ -1,4 +1,5 @@
 <?php
+
 //https://github.com/PHPOffice/PHPExcel/issues/556#issuecomment-216722159
 switch (PHP_OS) {
     case 'WINNT':
@@ -323,7 +324,7 @@ return array(
                 |--------------------------------------------------------------------------
                 */
                 'DomPDF' => array(
-                    'path' => base_path('vendor/dompdf/dompdf/')
+                    'path' => base_path('vendor/dompdf/dompdf/'),
                 ),
 
                 /*

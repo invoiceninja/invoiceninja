@@ -570,6 +570,9 @@ if (! defined('APP_NAME')) {
     ];
     define('CACHED_TABLES', serialize($cachedTables));
 
+    // Fix for mPDF: https://github.com/kartik-v/yii2-mpdf/issues/9
+    define('_MPDF_TTFONTDATAPATH', storage_path('framework/cache/'));
+
     // TODO remove these translation functions
     function uctrans($text)
     {

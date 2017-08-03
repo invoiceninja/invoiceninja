@@ -185,7 +185,7 @@ class ReportController extends BaseController
                 $sheet->cells('A1:'.Utils::num2alpha(count($columns_labeled)-1).'1', function($cells) {
                     $cells->setBackground('#777777');
                     $cells->setFontColor('#FFFFFF');
-                    $cells->setFontSize(14);
+                    $cells->setFontSize(13);
                     $cells->setFontFamily('Calibri');
                     $cells->setFontWeight('bold');
                 });
