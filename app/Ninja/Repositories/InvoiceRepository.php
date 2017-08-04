@@ -842,9 +842,6 @@ class InvoiceRepository extends BaseRepository
                 $invoiceNumber = false;
             }
         }
-        $clone->invoice_number = $invoiceNumber ?: $account->getNextNumber($clone);
-        $clone->invoice_date = date_create()->format('Y-m-d');
-        $clone->due_date = $account->defaultDueDate($invoice->client);
 
         foreach ([
           'client_id',
@@ -888,6 +885,9 @@ class InvoiceRepository extends BaseRepository
             }
         }
 
+        $clone->invoice_number = $invoiceNumber ?: $account->getNextNumber($clone);
+        $clone->invoice_date = date_create()->format('Y-m-d');
+        $clone->due_date = $account->defaultDueDate($invoice->client);
         $clone->save();
 
         if ($quotePublicId) {
