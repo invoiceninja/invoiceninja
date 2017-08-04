@@ -135,7 +135,14 @@
 						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}, visible: email.display" onclick="refreshPDF(true)">
                             <input type="hidden" value="0" data-bind="attr: {name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<input type="checkbox" value="1" data-bind="visible: email() || first_name() || last_name(), checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
-							<span data-bind="html: email.display"></span>
+							<span data-bind="visible: first_name || last_name">
+								<span data-bind="text: first_name() + ' ' + last_name()"></span>
+								<br/>
+							</span>
+							<span data-bind="visible: email">
+								<span data-bind="text: email"></span>
+								<br/>
+							</span>
                         </label>
                         @if ( ! $invoice->is_deleted && ! $invoice->client->is_deleted)
                         <span data-bind="visible: !$root.invoice().is_recurring()">
@@ -181,7 +188,7 @@
             @endif
 
             @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
-                {!! Former::text('custom_text_value1')->label($account->custom_invoice_text_label1 ?: ' ')->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
+                {!! Former::text('custom_text_value1')->label(e($account->custom_invoice_text_label1) ?: ' ')->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
             @endif
 		</div>
 
@@ -226,7 +233,7 @@
 			) !!}
 
             @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
-                {!! Former::text('custom_text_value2')->label($account->custom_invoice_text_label2 ?: ' ')->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
+                {!! Former::text('custom_text_value2')->label(e($account->custom_invoice_text_label2) ?: ' ')->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
             @endif
 
             @if ($entityType == ENTITY_INVOICE)
@@ -591,12 +598,12 @@
                 @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
                     @if ($account->custom_client_label1)
                         {!! Former::text('client[custom_value1]')
-                            ->label($account->custom_client_label1)
+                            ->label(e($account->custom_client_label1))
                             ->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
                     @endif
                     @if ($account->custom_client_label2)
                         {!! Former::text('client[custom_value2]')
-                            ->label($account->custom_client_label2)
+                            ->label(e($account->custom_client_label2))
                             ->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
                     @endif
                 @endif
@@ -651,12 +658,12 @@
 	                    @if ($account->custom_contact_label1)
 	                        {!! Former::text('custom_contact1')->data_bind("value: custom_value1, valueUpdate: 'afterkeydown',
 		                            attr: {name: 'client[contacts][' + \$index() + '][custom_value1]'}")
-	                            ->label($account->custom_contact_label1) !!}
+	                            ->label(e($account->custom_contact_label1)) !!}
 	                    @endif
 	                    @if ($account->custom_contact_label2)
 							{!! Former::text('custom_contact2')->data_bind("value: custom_value2, valueUpdate: 'afterkeydown',
 									attr: {name: 'client[contacts][' + \$index() + '][custom_value2]'}")
-								->label($account->custom_contact_label2) !!}
+								->label(e($account->custom_contact_label2)) !!}
 	                    @endif
 	                @endif
                     <div class="form-group">

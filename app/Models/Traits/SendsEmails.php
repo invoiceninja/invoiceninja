@@ -4,6 +4,7 @@ namespace App\Models\Traits;
 
 use App\Constants\Domain;
 use Utils;
+use HTMLUtils;
 
 /**
  * Class SendsEmails.
@@ -36,7 +37,8 @@ trait SendsEmails
             $value = $this->account_email_settings->$field;
 
             if ($value) {
-                return preg_replace("/\r\n|\r|\n/", ' ', $value);
+                $value = preg_replace("/\r\n|\r|\n/", ' ', $value);
+                return HTMLUtils::sanitizeHTML($value);
             }
         }
 
@@ -94,7 +96,9 @@ trait SendsEmails
         $template = preg_replace("/\r\n|\r|\n/", ' ', $template);
 
         // <br/> is causing page breaks with the email designs
-        return str_replace('/>', ' />', $template);
+        $template = str_replace('/>', ' />', $template);
+
+        return HTMLUtils::sanitizeHTML($template);
     }
 
     /**

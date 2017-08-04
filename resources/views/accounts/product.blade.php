@@ -24,10 +24,10 @@
 
   @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
       @if ($account->custom_invoice_item_label1)
-          {!! Former::text('custom_value1')->label($account->custom_invoice_item_label1) !!}
+          {!! Former::text('custom_value1')->label(e($account->custom_invoice_item_label1)) !!}
       @endif
       @if ($account->custom_invoice_item_label2)
-          {!! Former::text('custom_value2')->label($account->custom_invoice_item_label2) !!}
+          {!! Former::text('custom_value2')->label(e($account->custom_invoice_item_label2)) !!}
       @endif
   @endif
 

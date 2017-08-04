@@ -64,7 +64,7 @@ class RecurringInvoiceDatatable extends EntityDatatable
             [
                 'private_notes',
                 function ($model) {
-                    return $model->private_notes;
+                    return e($model->private_notes);
                 },
             ],
             [

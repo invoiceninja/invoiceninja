@@ -161,7 +161,7 @@ class TaskController extends BaseController
             $invoices = $task->client_id ? $this->invoiceRepo->findOpenInvoices($task->client_id) : [];
 
             foreach ($invoices as $invoice) {
-                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => $invoice->invoice_number])];
+                $actions[] = ['url' => 'javascript:submitAction("add_to_invoice", '.$invoice->public_id.')', 'label' => trans('texts.add_to_invoice', ['invoice' => e($invoice->invoice_number)])];
             }
         }
 

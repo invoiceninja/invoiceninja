@@ -431,7 +431,7 @@ class ClientPortalController extends BaseController
                     return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number;
                 })
                 ->addColumn('transaction_reference', function ($model) {
-                    return $model->transaction_reference ? $model->transaction_reference : '<i>'.trans('texts.manual_entry').'</i>';
+                    return $model->transaction_reference ? e($model->transaction_reference) : '<i>'.trans('texts.manual_entry').'</i>';
                 })
                 ->addColumn('payment_type', function ($model) {
                     return ($model->payment_type && ! $model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : '');

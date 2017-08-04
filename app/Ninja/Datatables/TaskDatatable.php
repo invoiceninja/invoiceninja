@@ -55,7 +55,7 @@ class TaskDatatable extends EntityDatatable
             [
                 'description',
                 function ($model) {
-                    return $model->description;
+                    return e($model->description);
                 },
             ],
             [

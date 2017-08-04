@@ -24,7 +24,7 @@ class ProductDatatable extends EntityDatatable
             [
                 'notes',
                 function ($model) {
-                    return nl2br(Str::limit($model->notes, 100));
+                    return e(nl2br(Str::limit($model->notes, 100)));
                 },
             ],
             [

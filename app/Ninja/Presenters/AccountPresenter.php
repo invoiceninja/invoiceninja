@@ -166,7 +166,7 @@ class AccountPresenter extends Presenter
             if ($rate->is_inclusive) {
                 $name .= ' - ' . trans('texts.inclusive');
             }
-            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
+            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = e($name);
         }
 
         return $options;
