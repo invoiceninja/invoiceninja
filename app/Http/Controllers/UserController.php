@@ -156,78 +156,80 @@ class UserController extends BaseController
      */
     public function save($userPublicId = false)
     {
-        if (Auth::user()->hasFeature(FEATURE_USERS)) {
-            $rules = [
-                'first_name' => 'required',
-                'last_name' => 'required',
-            ];
-
-            if ($userPublicId) {
-                $user = User::where('account_id', '=', Auth::user()->account_id)
-                            ->where('public_id', '=', $userPublicId)
-                            ->withTrashed()
-                            ->firstOrFail();
-
-                $rules['email'] = 'required|email|unique:users,email,'.$user->id.',id';
-            } else {
-                $user = false;
-                $rules['email'] = 'required|email|unique:users';
-            }
-
-            $validator = Validator::make(Input::all(), $rules);
-
-            if ($validator->fails()) {
-                return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
-                            ->withErrors($validator)
-                            ->withInput();
-            }
-
-            if (! \App\Models\LookupUser::validateField('email', Input::get('email'), $user)) {
-                return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
-                    ->withError(trans('texts.email_taken'))
-                    ->withInput();
-            }
-
-            if ($userPublicId) {
-                $user->first_name = trim(Input::get('first_name'));
-                $user->last_name = trim(Input::get('last_name'));
-                $user->username = trim(Input::get('email'));
-                $user->email = trim(Input::get('email'));
-                if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                    $user->is_admin = boolval(Input::get('is_admin'));
-                    $user->permissions = Input::get('permissions');
-                }
-            } else {
-                $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
-                            ->orderBy('public_id', 'DESC')->first();
-
-                $user = new User();
-                $user->account_id = Auth::user()->account_id;
-                $user->first_name = trim(Input::get('first_name'));
-                $user->last_name = trim(Input::get('last_name'));
-                $user->username = trim(Input::get('email'));
-                $user->email = trim(Input::get('email'));
-                $user->registered = true;
-                $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
-                $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
-                $user->public_id = $lastUser->public_id + 1;
-                if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
-                    $user->is_admin = boolval(Input::get('is_admin'));
-                    $user->permissions = Input::get('permissions');
-                }
-            }
-
-            $user->save();
-
-            if (! $user->confirmed && Input::get('action') === 'email') {
-                $this->userMailer->sendConfirmation($user, Auth::user());
-                $message = trans('texts.sent_invite');
-            } else {
-                $message = trans('texts.updated_user');
-            }
-
-            Session::flash('message', $message);
+        if (! Auth::user()->hasFeature(FEATURE_USERS)) {
+            return Redirect::to('settings/' . ACCOUNT_USER_MANAGEMENT);
         }
+
+        $rules = [
+            'first_name' => 'required',
+            'last_name' => 'required',
+        ];
+
+        if ($userPublicId) {
+            $user = User::where('account_id', '=', Auth::user()->account_id)
+                        ->where('public_id', '=', $userPublicId)
+                        ->withTrashed()
+                        ->firstOrFail();
+
+            $rules['email'] = 'required|email|unique:users,email,'.$user->id.',id';
+        } else {
+            $user = false;
+            $rules['email'] = 'required|email|unique:users';
+        }
+
+        $validator = Validator::make(Input::all(), $rules);
+
+        if ($validator->fails()) {
+            return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        if (! \App\Models\LookupUser::validateField('email', Input::get('email'), $user)) {
+            return Redirect::to($userPublicId ? 'users/edit' : 'users/create')
+                ->withError(trans('texts.email_taken'))
+                ->withInput();
+        }
+
+        if ($userPublicId) {
+            $user->first_name = trim(Input::get('first_name'));
+            $user->last_name = trim(Input::get('last_name'));
+            $user->username = trim(Input::get('email'));
+            $user->email = trim(Input::get('email'));
+            if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
+                $user->is_admin = boolval(Input::get('is_admin'));
+                $user->permissions = Input::get('permissions');
+            }
+        } else {
+            $lastUser = User::withTrashed()->where('account_id', '=', Auth::user()->account_id)
+                        ->orderBy('public_id', 'DESC')->first();
+
+            $user = new User();
+            $user->account_id = Auth::user()->account_id;
+            $user->first_name = trim(Input::get('first_name'));
+            $user->last_name = trim(Input::get('last_name'));
+            $user->username = trim(Input::get('email'));
+            $user->email = trim(Input::get('email'));
+            $user->registered = true;
+            $user->password = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
+            $user->public_id = $lastUser->public_id + 1;
+            if (Auth::user()->hasFeature(FEATURE_USER_PERMISSIONS)) {
+                $user->is_admin = boolval(Input::get('is_admin'));
+                $user->permissions = Input::get('permissions');
+            }
+        }
+
+        $user->save();
+
+        if (! $user->confirmed && Input::get('action') === 'email') {
+            $this->userMailer->sendConfirmation($user, Auth::user());
+            $message = trans('texts.sent_invite');
+        } else {
+            $message = trans('texts.updated_user');
+        }
+
+        Session::flash('message', $message);
 
         return Redirect::to('users/' . $user->public_id . '/edit');
     }
