@@ -285,7 +285,7 @@
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
                             <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
                                 {{ trans("texts.invoice_documents") }}
-                                @if ($count = $invoice->countDocuments())
+                                @if ($count = ($invoice->countDocuments($expenses)))
                                     ({{ $count }})
                                 @endif
                             </a></li>
@@ -340,9 +340,16 @@
                                         <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                                     </div>
                                 </div>
-                                @if ($invoice->hasExpenseDocuments())
+                                @if ($invoice->hasExpenseDocuments() || count($expenses))
                                     <h4>{{trans('texts.documents_from_expenses')}}</h4>
-                                    @foreach($invoice->expenses as $expense)
+									@foreach($invoice->expenses as $expense)
+										@if ($expense->invoice_documents)
+	                                        @foreach($expense->documents as $document)
+	                                            <div>{{$document->name}}</div>
+	                                        @endforeach
+										@endif
+                                    @endforeach
+									@foreach($expenses as $expense)
 										@if ($expense->invoice_documents)
 	                                        @foreach($expense->documents as $document)
 	                                            <div>{{$document->name}}</div>
