@@ -147,6 +147,7 @@ class CheckData extends Command
             return;
         }
 
+        $isValid = true;
         $date = new Carbon();
         $date = $date->subDays(1)->format('Y-m-d');
 
@@ -163,12 +164,12 @@ class CheckData extends Command
             //$this->logMessage('Result: ' . $result);
 
             if ($result && $result != $invoice->balance) {
-                $this->logMessage("Amounts do not match {$link} - PHP: {$invoice->balance}, JS: {$result}");
-                $this->isValid = false;
+                $this->logMessage("PHP/JS amounts do not match {$link} - PHP: {$invoice->balance}, JS: {$result}");
+                $this->isValid = $isValid = false;
             }
         }
 
-        if ($this->isValid) {
+        if ($isValid) {
             $this->logMessage('0 invoices with mismatched PHP/JS balances');
         }
     }
