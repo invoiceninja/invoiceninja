@@ -91,7 +91,7 @@ class DocumentRepository extends BaseRepository
         if (! $disk->exists($filename)) {// Have we already stored the same file
             $stream = fopen($filePath, 'r');
             $disk->getDriver()->putStream($filename, $stream, ['mimetype' => $documentTypeData['mime']]);
-            fclose($stream);
+            //fclose($stream);
         }
 
         // This is an image; check if we need to create a preview
