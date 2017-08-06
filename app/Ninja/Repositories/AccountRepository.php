@@ -39,6 +39,12 @@ class AccountRepository
             $company->utm_term = Input::get('utm_term');
             $company->utm_content = Input::get('utm_content');
             $company->referral_code = Session::get(SESSION_REFERRAL_CODE);
+
+            if (env('PROMO_CAMPAIGN') && Input::get('utm_campaign') == env('PROMO_CAMPAIGN')) {
+                $company->discount = .75;
+                $company->promo_expires = date_create()->modify('14 days')->format('Y-m-d');
+            }
+
             $company->save();
         }
 
