@@ -25,6 +25,7 @@ class CreatePaymentRequest extends PaymentRequest
     {
         $input = $this->input();
         $this->invoice = $invoice = Invoice::scope($input['invoice'])
+            ->withArchived()
             ->invoices()
             ->firstOrFail();
 
