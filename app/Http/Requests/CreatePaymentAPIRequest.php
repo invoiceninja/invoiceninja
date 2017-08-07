@@ -33,7 +33,11 @@ class CreatePaymentAPIRequest extends PaymentRequest
         $this->invoice = $invoice = Invoice::scope($this->invoice_id)
             ->withArchived()
             ->invoices()
-            ->firstOrFail();
+            ->first();
+
+        if (! $this->invoice) {
+            abort(404, 'Invoice was not found');
+        }
 
         $this->merge([
             'invoice_id' => $invoice->id,
