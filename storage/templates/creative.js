@@ -24,7 +24,7 @@
             {"text":
                 [
                     {"text": "$entityTypeUC", "style": "header1"},
-                    {"text": "#", "style": "header2"},
+		    {"text": " #", "style": "header2"},
                     {"text": "$invoiceNumber", "style":"header2"}
                 ],
                 "width": "*"
@@ -175,11 +175,11 @@
         "header1": {
             "bold": true,
             "margin": [0, 30, 0, 16],
-            "fontSize": 46
+            "fontSize": 42
         },
         "header2": {
             "margin": [0, 30, 0, 16],
-            "fontSize": 46,
+            "fontSize": 42,
             "italics": true,
             "color": "$primaryColor:#AE1E54"
         },
