@@ -115,6 +115,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             'terms',
             'product',
             'quantity',
+            'tax1',
+            'tax2',
         ];
     }
 
@@ -135,6 +137,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'notes' => 'notes',
             'product|item' => 'product',
             'quantity|qty' => 'quantity',
+            'tax' => 'tax1',
         ];
     }
 
@@ -303,6 +306,23 @@ class Invoice extends EntityModel implements BalanceAffecting
     public function documents()
     {
         return $this->hasMany('App\Models\Document')->orderBy('id');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function allDocuments()
+    {
+        $documents = $this->documents;
+        $documents = $documents->merge($this->account->defaultDocuments);
+
+        foreach ($this->expenses as $expense) {
+            if ($expense->invoice_documents) {
+                $documents = $documents->merge($expense->documents);
+            }
+        }
+
+        return $documents;
     }
 
     /**
@@ -1319,13 +1339,21 @@ class Invoice extends EntityModel implements BalanceAffecting
     /**
      * @return int
      */
-    public function countDocuments()
+    public function countDocuments($expenses = false)
     {
         $count = count($this->documents);
 
         foreach ($this->expenses as $expense) {
             if ($expense->invoice_documents) {
                 $count += count($expense->documents);
+            }
+        }
+
+        if ($expenses) {
+            foreach ($expenses as $expense) {
+                if ($expense->invoice_documents) {
+                    $count += count($expense->documents);
+                }
             }
         }
 
@@ -1337,7 +1365,11 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function hasDocuments()
     {
-        if (count($this->documents)) {
+        if ($this->documents->count()) {
+            return true;
+        }
+
+        if ($this->account->defaultDocuments->count()) {
             return true;
         }
 

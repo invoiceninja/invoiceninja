@@ -9,6 +9,7 @@ use App\Models\Invoice;
 use App\Ninja\Datatables\InvoiceDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\InvoiceRepository;
+use App\Jobs\DownloadInvoices;
 use Auth;
 use Utils;
 
@@ -52,6 +53,23 @@ class InvoiceService extends BaseService
     protected function getRepo()
     {
         return $this->invoiceRepo;
+    }
+
+    /**
+     * @param $ids
+     * @param $action
+     *
+     * @return int
+     */
+    public function bulk($ids, $action)
+    {
+        if ($action == 'download') {
+            $invoices = $this->getRepo()->findByPublicIdsWithTrashed($ids);
+            dispatch(new DownloadInvoices(Auth::user(), $invoices));
+            return count($invoices);
+        } else {
+            return parent::bulk($ids, $action);
+        }
     }
 
     /**

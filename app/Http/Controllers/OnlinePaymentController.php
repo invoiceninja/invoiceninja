@@ -339,6 +339,9 @@ class OnlinePaymentController extends BaseController
             if (request()->currency_code) {
                 $data['currency_code'] = request()->currency_code;
             }
+            if (request()->country_code) {
+                $data['country_code'] = request()->country_code;
+            }
             $client = $clientRepo->save($data, $client);
         }
 

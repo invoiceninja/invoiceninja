@@ -24,6 +24,7 @@ class Document extends EntityModel
     protected $fillable = [
         'invoice_id',
         'expense_id',
+        'is_default',
     ];
 
     /**

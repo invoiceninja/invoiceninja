@@ -128,7 +128,7 @@
                 @if (count($paymentTypes) > 1)
                     {!! DropdownButton::success(trans('texts.pay_now'))->withContents($paymentTypes)->large() !!}
                 @elseif (count($paymentTypes) == 1)
-                    <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }} {{ $invoice->present()->gatewayFee($gatewayTypeId) }}</a>
+                    <a href='{!! $paymentURL !!}' class="btn btn-success btn-lg">{{ trans('texts.pay_now') }} {!! $invoice->present()->gatewayFee($gatewayTypeId) !!}</a>
                 @endif
     		@else
     			{!! Button::normal(trans('texts.download_pdf'))->withAttributes(['onclick' => 'onDownloadClick()'])->large() !!}
@@ -151,15 +151,8 @@
             <div class="invoice-documents">
             <h3>{{ trans('texts.documents_header') }}</h3>
             <ul>
-            @foreach ($invoice->documents as $document)
+            @foreach ($invoice->allDocuments() as $document)
                 <li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
-            @endforeach
-			@foreach ($invoice->expenses as $expense)
-				@if ($expense->invoice_documents)
-                	@foreach ($expense->documents as $document)
-                    	<li><a target="_blank" href="{{ $document->getClientUrl($invitation) }}">{{$document->name}} ({{Form::human_filesize($document->size)}})</a></li>
-                	@endforeach
-				@endif
             @endforeach
             </ul>
             </div>

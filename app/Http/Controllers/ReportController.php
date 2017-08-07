@@ -8,6 +8,7 @@ use Input;
 use Str;
 use Utils;
 use View;
+use Excel;
 
 /**
  * Class ReportController.
@@ -53,6 +54,7 @@ class ReportController extends BaseController
         }
 
         $action = Input::get('action');
+        $format = Input::get('format');
 
         if (Input::get('report_type')) {
             $reportType = Input::get('report_type');
@@ -104,7 +106,7 @@ class ReportController extends BaseController
             $params['report'] = $report;
             $params = array_merge($params, $report->results());
             if ($isExport) {
-                self::export($reportType, $params['displayData'], $params['columns'], $params['reportTotals']);
+                return self::export($format, $reportType, $params);
             }
         } else {
             $params['columns'] = [];
@@ -117,49 +119,80 @@ class ReportController extends BaseController
     }
 
     /**
+     * @param $format
      * @param $reportType
-     * @param $data
-     * @param $columns
-     * @param $totals
+     * @param $params
+     * @todo: Add summary to export
      */
-    private function export($reportType, $data, $columns, $totals)
+    private function export($format, $reportType, $params)
     {
         if (! Auth::user()->hasPermission('view_all')) {
             exit;
         }
 
-        $output = fopen('php://output', 'w') or Utils::fatalError();
-        $date = date('Y-m-d');
+        $format  = strtolower($format);
+        $data    = $params['displayData'];
+        $columns = $params['columns'];
+        $totals  = $params['reportTotals'];
+        $report  = $params['report'];
 
-        $columns = array_map(function($key, $val) {
-            return is_array($val) ? $key : $val;
-        }, array_keys($columns), $columns);
+        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-".strtolower(Utils::normalizeChars(trans("texts.$reportType")))."-report";
 
-        header('Content-Type:application/csv');
-        header("Content-Disposition:attachment;filename={$date}-invoiceninja-{$reportType}-report.csv");
-
-        Utils::exportData($output, $data, Utils::trans($columns));
-
-        /*
-        fwrite($output, trans('texts.totals'));
-        foreach ($totals as $currencyId => $fields) {
-            foreach ($fields as $key => $value) {
-                fwrite($output, ',' . trans("texts.{$key}"));
-            }
-            fwrite($output, "\n");
-            break;
+        $formats = ['csv', 'pdf', 'xlsx'];
+        if(!in_array($format, $formats)) {
+            throw new \Exception("Invalid format request to export report");
         }
 
-        foreach ($totals as $currencyId => $fields) {
-            $csv = Utils::getFromCache($currencyId, 'currencies')->name . ',';
-            foreach ($fields as $key => $value) {
-                $csv .= '"' . Utils::formatMoney($value, $currencyId).'",';
-            }
-            fwrite($output, $csv."\n");
-        }
-        */
+        //Get labeled header
+        $columns_labeled = $report->tableHeaderArray();
 
-        fclose($output);
-        exit;
+        /*$summary = [];
+        if(count(array_values($totals))) {
+            $summary[] = array_merge([
+                trans("texts.totals")
+            ], array_map(function ($key) {return trans("texts.{$key}");}, array_keys(array_values(array_values($totals)[0])[0])));
+        }
+
+        foreach ($totals as $currencyId => $each) {
+            foreach ($each as $dimension => $val) {
+                $tmp   = [];
+                $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
+
+                foreach ($val as $id => $field) $tmp[] = Utils::formatMoney($field, $currencyId);
+
+                $summary[] = $tmp;
+            }
+        }
+
+        dd($summary);*/
+
+        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format, $columns_labeled) {
+            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format, $columns_labeled) {
+
+                $sheet->setOrientation('landscape');
+                $sheet->freezeFirstRow();
+
+                //Add border on PDF
+                if($format == 'pdf')
+                    $sheet->setAllBorders('thin');
+
+                $sheet->rows(array_merge(
+                    [array_map(function($col) {return $col['label'];}, $columns_labeled)],
+                    $data
+                ));
+
+                //Styling header
+                $sheet->cells('A1:'.Utils::num2alpha(count($columns_labeled)-1).'1', function($cells) {
+                    $cells->setBackground('#777777');
+                    $cells->setFontColor('#FFFFFF');
+                    $cells->setFontSize(13);
+                    $cells->setFontFamily('Calibri');
+                    $cells->setFontWeight('bold');
+                });
+
+
+                $sheet->setAutoSize(true);
+            });
+        })->export($format);
     }
 }

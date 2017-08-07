@@ -144,7 +144,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::get('api/clients', 'ClientController@getDatatable');
     Route::get('api/activities/{client_id?}', 'ActivityController@getDatatable');
     Route::post('clients/bulk', 'ClientController@bulk');
-    Route::get('clients/statement/{client_id}', 'ClientController@statement');
+    Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
 
     Route::resource('tasks', 'TaskController');
     Route::get('api/tasks/{client_id?}', 'TaskController@getDatatable');
@@ -224,6 +224,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     // Expense
     Route::resource('expenses', 'ExpenseController');
     Route::get('expenses/create/{vendor_id?}/{client_id?}/{category_id?}', 'ExpenseController@create');
+    Route::get('expenses/{expenses}/clone', 'ExpenseController@clone');
     Route::get('api/expenses', 'ExpenseController@getDatatable');
     Route::get('api/expenses/{id}', 'ExpenseController@getDatatableVendor');
     Route::post('expenses/bulk', 'ExpenseController@bulk');

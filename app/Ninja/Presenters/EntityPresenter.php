@@ -33,7 +33,9 @@ class EntityPresenter extends Presenter
     {
         $class = $text = '';
 
-        if ($this->entity->is_deleted) {
+        if (! $this->entity->id) {
+            return '';
+        } elseif ($this->entity->is_deleted) {
             $class = 'danger';
             $label = trans('texts.deleted');
         } elseif ($this->entity->trashed()) {

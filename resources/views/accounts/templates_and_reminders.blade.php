@@ -75,9 +75,9 @@
                         <li role="presentation"><a href="#reminder3" aria-controls="footer" role="tab" data-toggle="tab">{{ trans('texts.third_reminder') }}</a></li>
                     </ul>
                     <div class="tab-content">
-                        @include('accounts.template', ['field' => 'reminder1', 'isReminder' => true, 'active' => true])
-                        @include('accounts.template', ['field' => 'reminder2', 'isReminder' => true])
-                        @include('accounts.template', ['field' => 'reminder3', 'isReminder' => true])
+                        @include('accounts.template', ['field' => 'reminder1', 'number' => 1, 'isReminder' => true, 'active' => true])
+                        @include('accounts.template', ['field' => 'reminder2', 'number' => 2, 'isReminder' => true])
+                        @include('accounts.template', ['field' => 'reminder3', 'number' => 3, 'isReminder' => true])
                     </div>
                 </div>
             </div>
@@ -192,22 +192,10 @@
                 }
             }
 
-            for (var i=1; i<=3; i++) {
-                $('#enable_reminder' + i).bind('click', {id: i}, function(event) {
-                    enableReminder(event.data.id)
-                });
-                enableReminder(i);
-            }
-
             $('.show-when-ready').show();
 
             refreshPreview();
         });
-
-        function enableReminder(id) {
-            var checked = $('#enable_reminder' + id).is(':checked');
-            $('.enable-reminder' + id).attr('disabled', !checked)
-        }
 
         function setDirectionShown(field) {
             var val = $('#field_' + field).val();

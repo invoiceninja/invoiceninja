@@ -305,7 +305,6 @@ class InvoiceController extends BaseController
             'account' => Auth::user()->account->load('country'),
             'products' => Product::scope()->orderBy('product_key')->get(),
             'taxRateOptions' => $taxRateOptions,
-            'currencies' => Cache::get('currencies'),
             'sizes' => Cache::get('sizes'),
             'invoiceDesigns' => InvoiceDesign::getDesigns(),
             'invoiceFonts' => Cache::get('fonts'),
@@ -480,6 +479,8 @@ class InvoiceController extends BaseController
                 $key = 'emailed_' . $entityType;
             } elseif ($action == 'markPaid') {
                 $key = 'created_payment';
+            } elseif ($action == 'download') {
+                $key = 'downloaded_invoice';
             } else {
                 $key = "{$action}d_{$entityType}";
             }

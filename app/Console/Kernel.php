@@ -29,6 +29,7 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\MakeClass',
         'App\Console\Commands\InitLookup',
         'App\Console\Commands\CalculatePayouts',
+        'App\Console\Commands\UpdateKey',
     ];
 
     /**

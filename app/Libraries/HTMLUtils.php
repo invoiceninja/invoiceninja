@@ -39,6 +39,8 @@ class HTMLUtils
 
     public static function sanitizeHTML($html)
     {
+        $html = html_entity_decode($html);
+
         $config = HTMLPurifier_Config::createDefault();
         $purifier = new HTMLPurifier($config);
 

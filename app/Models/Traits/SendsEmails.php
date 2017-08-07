@@ -4,6 +4,7 @@ namespace App\Models\Traits;
 
 use App\Constants\Domain;
 use Utils;
+use HTMLUtils;
 
 /**
  * Class SendsEmails.
@@ -36,7 +37,8 @@ trait SendsEmails
             $value = $this->account_email_settings->$field;
 
             if ($value) {
-                return preg_replace("/\r\n|\r|\n/", ' ', $value);
+                $value = preg_replace("/\r\n|\r|\n/", ' ', $value);
+                return HTMLUtils::sanitizeHTML($value);
             }
         }
 
@@ -94,7 +96,9 @@ trait SendsEmails
         $template = preg_replace("/\r\n|\r|\n/", ' ', $template);
 
         // <br/> is causing page breaks with the email designs
-        return str_replace('/>', ' />', $template);
+        $template = str_replace('/>', ' />', $template);
+
+        return HTMLUtils::sanitizeHTML($template);
     }
 
     /**
@@ -125,9 +129,9 @@ trait SendsEmails
      *
      * @return bool
      */
-    public function getReminderDate($reminder)
+    public function getReminderDate($reminder, $filterEnabled = true)
     {
-        if (! $this->{"enable_reminder{$reminder}"}) {
+        if ($filterEnabled && ! $this->{"enable_reminder{$reminder}"}) {
             return false;
         }
 
@@ -142,10 +146,10 @@ trait SendsEmails
      *
      * @return bool|string
      */
-    public function getInvoiceReminder($invoice)
+    public function getInvoiceReminder($invoice, $filterEnabled = true)
     {
         for ($i = 1; $i <= 3; $i++) {
-            if ($date = $this->getReminderDate($i)) {
+            if ($date = $this->getReminderDate($i, $filterEnabled)) {
                 $field = $this->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
                 if ($invoice->$field == $date) {
                     return "reminder{$i}";

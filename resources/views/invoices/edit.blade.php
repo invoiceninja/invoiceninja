@@ -135,7 +135,14 @@
 						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}, visible: email.display" onclick="refreshPDF(true)">
                             <input type="hidden" value="0" data-bind="attr: {name: 'client[contacts][' + $index() + '][send_invoice]'}">
 							<input type="checkbox" value="1" data-bind="visible: email() || first_name() || last_name(), checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
-							<span data-bind="html: email.display"></span>
+							<span data-bind="visible: first_name || last_name">
+								<span data-bind="text: first_name() + ' ' + last_name()"></span>
+								<br/>
+							</span>
+							<span data-bind="visible: email">
+								<span data-bind="text: email"></span>
+								<br/>
+							</span>
                         </label>
                         @if ( ! $invoice->is_deleted && ! $invoice->client->is_deleted)
                         <span data-bind="visible: !$root.invoice().is_recurring()">
@@ -181,7 +188,7 @@
             @endif
 
             @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
-                {!! Former::text('custom_text_value1')->label($account->custom_invoice_text_label1 ?: ' ')->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
+                {!! Former::text('custom_text_value1')->label(e($account->custom_invoice_text_label1) ?: ' ')->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
             @endif
 		</div>
 
@@ -226,7 +233,7 @@
 			) !!}
 
             @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
-                {!! Former::text('custom_text_value2')->label($account->custom_invoice_text_label2 ?: ' ')->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
+                {!! Former::text('custom_text_value2')->label(e($account->custom_invoice_text_label2) ?: ' ')->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
             @endif
 
             @if ($entityType == ENTITY_INVOICE)
@@ -278,7 +285,7 @@
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
                             <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
                                 {{ trans("texts.invoice_documents") }}
-                                @if ($count = $invoice->countDocuments())
+                                @if ($count = ($invoice->countDocuments($expenses)))
                                     ({{ $count }})
                                 @endif
                             </a></li>
@@ -333,9 +340,16 @@
                                         <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                                     </div>
                                 </div>
-                                @if ($invoice->hasExpenseDocuments())
+                                @if ($invoice->hasExpenseDocuments() || count($expenses))
                                     <h4>{{trans('texts.documents_from_expenses')}}</h4>
-                                    @foreach($invoice->expenses as $expense)
+									@foreach($invoice->expenses as $expense)
+										@if ($expense->invoice_documents)
+	                                        @foreach($expense->documents as $document)
+	                                            <div>{{$document->name}}</div>
+	                                        @endforeach
+										@endif
+                                    @endforeach
+									@foreach($expenses as $expense)
 										@if ($expense->invoice_documents)
 	                                        @foreach($expense->documents as $document)
 	                                            <div>{{$document->name}}</div>
@@ -591,12 +605,12 @@
                 @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
                     @if ($account->custom_client_label1)
                         {!! Former::text('client[custom_value1]')
-                            ->label($account->custom_client_label1)
+                            ->label(e($account->custom_client_label1))
                             ->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
                     @endif
                     @if ($account->custom_client_label2)
                         {!! Former::text('client[custom_value2]')
-                            ->label($account->custom_client_label2)
+                            ->label(e($account->custom_client_label2))
                             ->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
                     @endif
                 @endif
@@ -622,7 +636,7 @@
                     {!! Former::select('client[country_id]')
                             ->label(trans('texts.country_id'))
                             ->addOption('','')->addGroupClass('country_select')
-                            ->fromQuery(Cache::get('countries'), 'name', 'id')->data_bind("dropdown: country_id") !!}
+                            ->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
                 </span>
 
             </div>
@@ -651,12 +665,12 @@
 	                    @if ($account->custom_contact_label1)
 	                        {!! Former::text('custom_contact1')->data_bind("value: custom_value1, valueUpdate: 'afterkeydown',
 		                            attr: {name: 'client[contacts][' + \$index() + '][custom_value1]'}")
-	                            ->label($account->custom_contact_label1) !!}
+	                            ->label(e($account->custom_contact_label1)) !!}
 	                    @endif
 	                    @if ($account->custom_contact_label2)
 							{!! Former::text('custom_contact2')->data_bind("value: custom_value2, valueUpdate: 'afterkeydown',
 									attr: {name: 'client[contacts][' + \$index() + '][custom_value2]'}")
-								->label($account->custom_contact_label2) !!}
+								->label(e($account->custom_contact_label2)) !!}
 	                    @endif
 	                @endif
                     <div class="form-group">
@@ -1036,51 +1050,8 @@
                 return;
             }
 
-            window.dropzone = new Dropzone('#document-upload .dropzone', {
-                url:{!! json_encode(url('documents')) !!},
-                params:{
-                    _token:"{{ Session::getToken() }}"
-                },
-                acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
-                addRemoveLinks:true,
-                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
-                @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-                    "dict{{ Utils::toClassCase($key) }}" : "{!! strip_tags(addslashes(trans('texts.dropzone_'.$key))) !!}",
-                @endforeach
-                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
-				parallelUploads:1,
-            });
-            if(dropzone instanceof Dropzone){
-                dropzone.on("addedfile",handleDocumentAdded);
-                dropzone.on("removedfile",handleDocumentRemoved);
-                dropzone.on("success",handleDocumentUploaded);
-                dropzone.on("canceled",handleDocumentCanceled);
-                dropzone.on("error",handleDocumentError);
-                for (var i=0; i<model.invoice().documents().length; i++) {
-                    var document = model.invoice().documents()[i];
-                    var mockFile = {
-                        name:document.name(),
-                        size:document.size(),
-                        type:document.type(),
-                        public_id:document.public_id(),
-                        status:Dropzone.SUCCESS,
-                        accepted:true,
-                        url:document.url(),
-                        mock:true,
-                        index:i
-                    };
+			@include('partials.dropzone', ['documentSource' => 'model.invoice().documents()'])
 
-                    dropzone.emit('addedfile', mockFile);
-                    dropzone.emit('complete', mockFile);
-                    if(document.preview_url()){
-                        dropzone.emit('thumbnail', mockFile, document.preview_url());
-                    }
-                    else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
-                        dropzone.emit('thumbnail', mockFile, document.url());
-                    }
-                    dropzone.files.push(mockFile);
-                }
-            }
         });
         @endif
 	});
@@ -1139,7 +1110,7 @@
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
         if (invoice.is_recurring) {
-            invoice.invoice_number = "{{ trans('texts.assigned_when_sent') }}";
+            invoice.invoice_number = "{!! trans('texts.assigned_when_sent') !!}";
             if (invoice.start_date) {
                 invoice.invoice_date = invoice.start_date;
             }
@@ -1634,54 +1605,22 @@
         model.invoice().invoice_number(number);
     }
 
-    window.countUploadingDocuments = 0;
+	function addDocument(file) {
+		file.index = model.invoice().documents().length;
+	    model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
+	}
 
-    function handleDocumentAdded(file){
-        // open document when clicked
-        if (file.url) {
-            file.previewElement.addEventListener("click", function() {
-                window.open(file.url, '_blank');
-            });
-        }
-        if(file.mock)return;
-        file.index = model.invoice().documents().length;
-        model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
-        window.countUploadingDocuments++;
-    }
+	function addedDocument(file, response) {
+		model.invoice().documents()[file.index].update(response.document);
+	    @if ($account->invoice_embed_documents)
+	        refreshPDF(true);
+	    @endif
+	}
 
-    function handleDocumentRemoved(file){
-        model.invoice().removeDocument(file.public_id);
-        refreshPDF(true);
-        $.ajax({
-            url: '{{ '/documents/' }}' + file.public_id,
-            type: 'DELETE',
-            success: function(result) {
-                // Do something with the result
-            }
-        });
-    }
-
-    function handleDocumentUploaded(file, response){
-        window.countUploadingDocuments--;
-        file.public_id = response.document.public_id
-        model.invoice().documents()[file.index].update(response.document);
-        @if ($account->invoice_embed_documents)
-            refreshPDF(true);
-        @endif
-        if(response.document.preview_url){
-            dropzone.emit('thumbnail', file, response.document.preview_url);
-        }
-    }
-
-    function handleDocumentCanceled() {
-        window.countUploadingDocuments--;
-    }
-
-    function handleDocumentError(file) {
-		dropzone.removeFile(file);
-        window.countUploadingDocuments--;
-		swal("{!! trans('texts.error_refresh_page') !!}");
-    }
+	function deleteDocument(file) {
+		model.invoice().removeDocument(file.public_id);
+		refreshPDF(true);
+	}
 
 	</script>
     @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)

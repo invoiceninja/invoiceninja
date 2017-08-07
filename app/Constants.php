@@ -46,6 +46,7 @@ if (! defined('APP_NAME')) {
     define('INVOICE_ITEM_TYPE_TASK', 2);
     define('INVOICE_ITEM_TYPE_PENDING_GATEWAY_FEE', 3);
     define('INVOICE_ITEM_TYPE_PAID_GATEWAY_FEE', 4);
+    define('INVOICE_ITEM_TYPE_LATE_FEE', 5);
 
     define('PERSON_CONTACT', 'contact');
     define('PERSON_USER', 'user');
@@ -307,7 +308,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.5.1' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.6.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -568,6 +569,9 @@ if (! defined('APP_NAME')) {
         'banks' => 'App\Models\Bank',
     ];
     define('CACHED_TABLES', serialize($cachedTables));
+
+    // Fix for mPDF: https://github.com/kartik-v/yii2-mpdf/issues/9
+    define('_MPDF_TTFONTDATAPATH', storage_path('framework/cache/'));
 
     // TODO remove these translation functions
     function uctrans($text)

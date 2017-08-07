@@ -328,15 +328,23 @@
 
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.default_messages') !!}</h3>
+        <h3 class="panel-title">{!! trans('texts.defaults') !!}</h3>
       </div>
-        <div class="panel-body form-padding-right">
+        <div class="panel-body" style="min-height:350px">
 
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active"><a href="#invoice_terms" aria-controls="invoice_terms" role="tab" data-toggle="tab">{{ trans('texts.invoice_terms') }}</a></li>
                     <li role="presentation"><a href="#invoice_footer" aria-controls="invoice_footer" role="tab" data-toggle="tab">{{ trans('texts.invoice_footer') }}</a></li>
                     <li role="presentation"><a href="#quote_terms" aria-controls="quote_terms" role="tab" data-toggle="tab">{{ trans('texts.quote_terms') }}</a></li>
+                    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                        <li role="presentation"><a href="#documents" aria-controls="documents" role="tab" data-toggle="tab">
+                            {{ trans('texts.documents') }}
+                            @if ($count = $account->defaultDocuments->count())
+                                ({{ $count }})
+                            @endif
+                        </a></li>
+                    @endif
                 </ul>
             </div>
             <div class="tab-content">
@@ -344,24 +352,52 @@
                     <div class="panel-body">
                         {!! Former::textarea('invoice_terms')
                                 ->label(trans('texts.default_invoice_terms'))
-                                ->rows(4) !!}
+                                ->rows(8)
+                                ->raw() !!}
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="invoice_footer">
                     <div class="panel-body">
                         {!! Former::textarea('invoice_footer')
                                 ->label(trans('texts.default_invoice_footer'))
-                                ->help($account->hasFeature(FEATURE_REMOVE_CREATED_BY) && ! $account->isTrial() ? 'invoice_footer_help' : '')
-                                ->rows(4) !!}
+                                ->rows(8)
+                                ->raw() !!}
+                        @if ($account->hasFeature(FEATURE_REMOVE_CREATED_BY) && ! $account->isTrial())
+                            <div class="help-block">
+                                {{ trans('texts.invoice_footer_help')}}
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <div role="tabpanel" class="tab-pane" id="quote_terms">
                     <div class="panel-body">
                         {!! Former::textarea('quote_terms')
                                 ->label(trans('texts.default_quote_terms'))
-                                ->rows(4) !!}
+                                ->rows(8)
+                                ->raw() !!}
                     </div>
                 </div>
+                @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                    <div role="tabpanel" class="tab-pane" id="documents">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
+                                        <div id="document-upload">
+                                            <div class="dropzone">
+                                                <!--
+                                                <div data-bind="foreach: documents">
+                                                    <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                                </div>
+                                                -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
@@ -484,6 +520,8 @@
     });
 
 
+    var defaultDocuments = {!! $account->defaultDocuments()->get() !!};
+
     $(function() {
     	setQuoteNumberEnabled();
         onNumberTypeChange('invoice');
@@ -499,6 +537,9 @@
             toggleDatePicker('reset_counter_date');
         });
 
+        @if ($account->hasFeature(FEATURE_DOCUMENTS))
+            @include('partials.dropzone', ['documentSource' => 'defaultDocuments', 'isDefault' => true])
+        @endif
     });
 
 	</script>

@@ -40,12 +40,14 @@
                     </td>
                     <td style="border-collapse: collapse; vertical-align: middle; line-height: 16px;" valign="middle">
                         <p style="margin: 0; padding: 0;">
-                            <span style="font-size: 12px; color: #8f8d8e;">
-                                {{ strtoupper(trans('texts.' . $invoice->present()->balanceDueLabel)) }}:
-                            </span><br />
-                            <span class="total" style="font-size: 27px; color: #FFFFFF; margin-top: 5px;display: block;">
-                                {{ $account->formatMoney($invoice->getRequestedAmount(), $client) }}
-                            </span>
+                            @if (! isset($isRefund) || ! $isRefund)
+                                <span style="font-size: 12px; color: #8f8d8e;">
+                                    {{ strtoupper(trans('texts.' . $invoice->present()->balanceDueLabel)) }}:
+                                </span><br />
+                                <span class="total" style="font-size: 27px; color: #FFFFFF; margin-top: 5px;display: block;">
+                                    {{ $account->formatMoney($invoice->getRequestedAmount(), $client) }}
+                                </span>
+                            @endif
                         </p>
                     </td>
                 </tr>
@@ -61,15 +63,8 @@
 
 @section('footer')
     <p style="color: #A7A6A6; font-size: 13px; line-height: 18px; margin: 0 0 7px; padding: 0;">
-        {{ $account->address1 }}
-        @if ($account->address1 && $account->getCityState())
-            -
-        @endif
-        {{ $account->getCityState() }}
-        @if ($account->address1 || $account->getCityState())
-            <br />
-        @endif
-
+        {{ $account->present()->address }}
+        <br />
         @if ($account->website)
             <strong><a href="{{ $account->present()->website }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
         @endif

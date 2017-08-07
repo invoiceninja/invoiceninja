@@ -68,14 +68,7 @@ class ContactMailer extends Mailer
 
         $documentStrings = [];
         if ($account->document_email_attachment && $invoice->hasDocuments()) {
-            $documents = $invoice->documents;
-
-            foreach ($invoice->expenses as $expense) {
-                if ($expense->invoice_documents) {
-                    $documents = $documents->merge($expense->documents);
-                }
-            }
-
+            $documents = $invoice->allDocuments();
             $documents = $documents->sortBy('size');
 
             $size = 0;
@@ -238,17 +231,25 @@ class ContactMailer extends Mailer
     /**
      * @param Payment $payment
      */
-    public function sendPaymentConfirmation(Payment $payment)
+    public function sendPaymentConfirmation(Payment $payment, $refunded = 0)
     {
         $account = $payment->account;
         $client = $payment->client;
 
         $account->loadLocalizationSettings($client);
-
         $invoice = $payment->invoice;
         $accountName = $account->getDisplayName();
-        $emailTemplate = $account->getEmailTemplate(ENTITY_PAYMENT);
-        $emailSubject = $invoice->account->getEmailSubject(ENTITY_PAYMENT);
+
+        if ($refunded > 0) {
+            $emailSubject = trans('texts.refund_subject');
+            $emailTemplate = trans('texts.refund_body', [
+                'amount' => $account->formatMoney($refunded, $client),
+                'invoice_number' => $invoice->invoice_number,
+            ]);
+        } else {
+            $emailSubject = $invoice->account->getEmailSubject(ENTITY_PAYMENT);
+            $emailTemplate = $account->getEmailTemplate(ENTITY_PAYMENT);
+        }
 
         if ($payment->invitation) {
             $user = $payment->invitation->user;
@@ -277,9 +278,10 @@ class ContactMailer extends Mailer
             'entityType' => ENTITY_INVOICE,
             'bccEmail' => $account->getBccEmail(),
             'fromEmail' => $account->getFromEmail(),
+            'isRefund' => $refunded > 0,
         ];
 
-        if ($account->attachPDF()) {
+        if (! $refunded && $account->attachPDF()) {
             $data['pdfString'] = $invoice->getPDFString();
             $data['pdfFileName'] = $invoice->getFileName();
         }

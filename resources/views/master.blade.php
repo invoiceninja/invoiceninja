@@ -189,7 +189,12 @@
 
 <body class="body">
 
-@if (Utils::isNinjaProd() && isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
+@if (request()->phantomjs)
+    <script>
+        function trackEvent(category, action) {
+        }
+    </script>
+@elseif (Utils::isNinjaProd() && isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
     <!-- Google Tag Manager -->
     <noscript>
         <iframe src="//www.googletagmanager.com/ns.html?id={{ $_ENV['TAG_MANAGER_KEY'] }}"
@@ -262,6 +267,8 @@
                 fbq('track', 'Purchase', {value: '{{ session('trackEventAmount') }}', currency: 'USD'});
             @endif
         @endif
+
+        $('[data-toggle="tooltip"]').tooltip();
 
         @if (Session::has('onReady'))
         {{ Session::get('onReady') }}

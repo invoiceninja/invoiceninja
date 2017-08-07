@@ -25,6 +25,28 @@ class AccountPresenter extends Presenter
     /**
      * @return string
      */
+    public function address()
+    {
+        $account = $this->entity;
+
+        $str = $account->address1 ?: '';
+
+        if ($account->address2 && $str) {
+            $str .= ', ';
+        }
+
+        $str .= $account->address2;
+
+        if ($account->getCityState() && $str) {
+            $str .= ' - ';
+        }
+
+        return $str . $account->getCityState();
+    }
+
+    /**
+     * @return string
+     */
     public function website()
     {
         return Utils::addHttp($this->entity->website);
@@ -144,7 +166,7 @@ class AccountPresenter extends Presenter
             if ($rate->is_inclusive) {
                 $name .= ' - ' . trans('texts.inclusive');
             }
-            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = $name;
+            $options[($rate->is_inclusive ? '1 ' : '0 ') . $rate->rate . ' ' . $rate->name] = e($name);
         }
 
         return $options;

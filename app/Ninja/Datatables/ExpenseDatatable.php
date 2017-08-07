@@ -84,7 +84,7 @@ class ExpenseDatatable extends EntityDatatable
             [
                 'public_notes',
                 function ($model) {
-                    return $model->public_notes != null ? substr($model->public_notes, 0, 100) : '';
+                    return $model->public_notes != null ? e(substr($model->public_notes, 0, 100)) : '';
                 },
             ],
             [
@@ -106,6 +106,15 @@ class ExpenseDatatable extends EntityDatatable
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id]);
+                },
+            ],
+            [
+                trans("texts.clone_expense"),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
                 },
             ],
             [

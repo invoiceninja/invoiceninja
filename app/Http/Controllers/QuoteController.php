@@ -100,18 +100,15 @@ class QuoteController extends BaseController
           'account' => $account,
           'products' => Product::scope()->orderBy('product_key')->get(),
           'taxRateOptions' => $account->present()->taxRateOptions,
-          'countries' => Cache::get('countries'),
           'clients' => Client::scope()->with('contacts', 'country')->orderBy('name')->get(),
           'taxRates' => TaxRate::scope()->orderBy('name')->get(),
-          'currencies' => Cache::get('currencies'),
           'sizes' => Cache::get('sizes'),
           'paymentTerms' => Cache::get('paymentTerms'),
-          'languages' => Cache::get('languages'),
-          'industries' => Cache::get('industries'),
           'invoiceDesigns' => InvoiceDesign::getDesigns(),
           'invoiceFonts' => Cache::get('fonts'),
           'invoiceLabels' => Auth::user()->account->getInvoiceLabels(),
           'isRecurring' => false,
+          'expenses' => [],
         ];
     }
 
@@ -133,7 +130,13 @@ class QuoteController extends BaseController
         $count = $this->invoiceService->bulk($ids, $action);
 
         if ($count > 0) {
-            $key = $action == 'markSent' ? 'updated_quote' : "{$action}d_quote";
+            if ($action == 'markSent') {
+                $key = 'updated_quote';
+            } elseif ($action == 'download') {
+                $key = 'downloaded_quote';
+            } else {
+                $key = "{$action}d_quote";
+            }
             $message = Utils::pluralize($key, $count);
             Session::flash('message', $message);
         }

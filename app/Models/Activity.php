@@ -123,11 +123,11 @@ class Activity extends Eloquent
 
         $data = [
             'client' => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
-            'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : $user->getDisplayName(),
+            'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : e($user->getDisplayName()),
             'invoice' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
             'quote' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
-            'contact' => $contactId ? $client->getDisplayName() : $user->getDisplayName(),
-            'payment' => $payment ? $payment->transaction_reference : null,
+            'contact' => $contactId ? e($client->getDisplayName()) : e($user->getDisplayName()),
+            'payment' => $payment ? e($payment->transaction_reference) : null,
             'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
             'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
             'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,

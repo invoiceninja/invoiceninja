@@ -3,6 +3,9 @@
 @section('head')
     @parent
 
+    <script src="{{ asset('js/daterangepicker.min.js') }}" type="text/javascript"></script>
+    <link href="{{ asset('css/daterangepicker.css') }}" rel="stylesheet" type="text/css"/>
+
     @include('money_script')
     @foreach (Auth::user()->account->getFontFolders() as $font)
         <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
@@ -13,8 +16,10 @@
 
         var invoiceDesigns = {!! \App\Models\InvoiceDesign::getDesigns() !!};
         var invoiceFonts = {!! Cache::get('fonts') !!};
-        var currentInvoice = {!! $invoice !!};
-        var invoice = {!! $invoice !!};
+
+        var statementStartDate = moment("{{ $startDate }}");
+		var statementEndDate = moment("{{ $endDate }}");
+        var dateRanges = {!! $account->present()->dateRangeOptions !!};
 
         function getPDFString(cb) {
 
@@ -40,8 +45,72 @@
         }
 
         $(function() {
-          refreshPDF();
+            if (isStorageSupported()) {
+				var lastRange = localStorage.getItem('last:statement_range');
+                var lastStatusId = localStorage.getItem('last:statement_status_id');
+				lastRange = dateRanges[lastRange];
+				if (lastRange) {
+					statementStartDate = lastRange[0];
+					statementEndDate = lastRange[1];
+				}
+                if (lastStatusId) {
+                    $('#status_id').val(lastStatusId);
+                }
+			}
+
+            // Initialize date range selector
+            function cb(start, end, label) {
+                statementStartDate = start;
+                statementEndDate = end;
+                $('#reportrange span').html(start.format('{{ $account->getMomentDateFormat() }}') + ' - ' + end.format('{{ $account->getMomentDateFormat() }}'));
+                $('#start_date').val(start.format('YYYY-MM-DD'));
+                $('#end_date').val(end.format('YYYY-MM-DD'));
+
+				if (isStorageSupported() && label && label != "{{ trans('texts.custom_range') }}") {
+					localStorage.setItem('last:statement_range', label);
+				}
+
+                refreshData();
+            }
+
+            $('#reportrange').daterangepicker({
+                locale: {
+					format: "{{ $account->getMomentDateFormat() }}",
+					customRangeLabel: "{{ trans('texts.custom_range') }}",
+                },
+                startDate: statementStartDate,
+                endDate: statementEndDate,
+                linkedCalendars: false,
+				ranges: dateRanges,
+            }, cb);
+
+            cb(statementStartDate, statementEndDate);
         });
+
+        function refreshData() {
+            var statusId = $('#status_id').val();
+            if (statusId == {{ INVOICE_STATUS_UNPAID }}) {
+                $('#reportrange').css('color', '#AAA');
+                $('#reportrange').css('pointer-events', 'none');
+            } else {
+                $('#reportrange').css('color', '#000');
+                $('#reportrange').css('pointer-events', 'auto');
+            }
+            var url = "{!! url('/clients/statement/' . $client->public_id) !!}/" + statusId + '/' +
+                statementStartDate.format('YYYY-MM-DD') + '/' + statementEndDate.format('YYYY-MM-DD') + '?json=true';
+            $.get(url, function(response) {
+                invoice = currentInvoice = JSON.parse(response);
+                refreshPDF();
+            });
+        }
+
+        function onStatusChange() {
+            if (isStorageSupported()) {
+                localStorage.setItem('last:statement_status_id', $('#status_id').val());
+            }
+
+            refreshData();
+        }
 
         function onDownloadClick() {
             var doc = generatePDF(invoice, invoiceDesigns[0].javascript, true);
@@ -69,6 +138,39 @@
 
     <p>&nbsp;</p>
     <p>&nbsp;</p>
+
+    <div class="well" style="background: #eeeeee">
+        {!! Former::inline_open() !!}
+
+        {{ trans('texts.status') }}
+
+        &nbsp;&nbsp;
+
+        {!! Former::select('status_id')
+                ->onchange('onStatusChange()')
+                ->label('status')
+                ->addOption(trans('texts.unpaid'), INVOICE_STATUS_UNPAID)
+                ->addOption(trans('texts.paid'), INVOICE_STATUS_PAID)
+                ->addOption(trans('texts.all'), 'false') !!}
+
+        &nbsp;&nbsp;&nbsp;&nbsp;
+
+        {{ trans('texts.date_range') }}
+
+        &nbsp;&nbsp;
+
+        <span id="reportrange" style="background: #f9f9f9; cursor: pointer; padding: 9px 14px; border: 1px solid #dfe0e1; margin-top: 0px;">
+            <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+            <span></span> <b class="caret"></b>
+        </span>
+
+        <div style="display:none">
+            {!! Former::text('start_date') !!}
+            {!! Former::text('end_date') !!}
+        </div>
+
+        {!! Former::close() !!}
+    </div>
 
     @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
 

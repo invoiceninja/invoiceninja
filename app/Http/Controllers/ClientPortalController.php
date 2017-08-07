@@ -130,7 +130,7 @@ class ClientPortalController extends BaseController
 
         $showApprove = $invoice->quote_invoice_id ? false : true;
         if ($invoice->due_date) {
-            $showApprove = time() < strtotime($invoice->due_date);
+            $showApprove = time() < strtotime($invoice->getOriginal('due_date'));
         }
         if ($invoice->invoice_status_id >= INVOICE_STATUS_APPROVED) {
             $showApprove = false;
@@ -369,7 +369,7 @@ class ClientPortalController extends BaseController
             'client' => $contact->client,
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
-            'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date']),
+            'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status']),
         ];
 
         return response()->view('public_list', $data);
@@ -431,7 +431,7 @@ class ClientPortalController extends BaseController
                     return $model->invitation_key ? link_to('/view/'.$model->invitation_key, $model->invoice_number)->toHtml() : $model->invoice_number;
                 })
                 ->addColumn('transaction_reference', function ($model) {
-                    return $model->transaction_reference ? $model->transaction_reference : '<i>'.trans('texts.manual_entry').'</i>';
+                    return $model->transaction_reference ? e($model->transaction_reference) : '<i>'.trans('texts.manual_entry').'</i>';
                 })
                 ->addColumn('payment_type', function ($model) {
                     return ($model->payment_type && ! $model->last4) ? $model->payment_type : ($model->account_gateway_id ? '<i>Online payment</i>' : '');
@@ -497,7 +497,7 @@ class ClientPortalController extends BaseController
           'account' => $account,
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
-          'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date']),
+          'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date', 'status']),
         ];
 
         return response()->view('public_list', $data);
@@ -584,6 +584,10 @@ class ClientPortalController extends BaseController
 
     private function returnError($error = false)
     {
+        if (request()->phantomjs) {
+            abort(404);
+        }
+
         return response()->view('error', [
             'error' => $error ?: trans('texts.invoice_not_found'),
             'hideHeader' => true,
@@ -745,7 +749,9 @@ class ClientPortalController extends BaseController
         $document = Document::scope($publicId, $invitation->account_id)->firstOrFail();
 
         $authorized = false;
-        if ($document->expense && $document->expense->invoice_documents && $document->expense->client_id == $invitation->invoice->client_id) {
+        if ($document->is_default) {
+            $authorized = true;
+        } elseif ($document->expense && $document->expense->invoice_documents && $document->expense->client_id == $invitation->invoice->client_id) {
             $authorized = true;
         } elseif ($document->invoice && $document->invoice->client_id == $invitation->invoice->client_id) {
             $authorized = true;

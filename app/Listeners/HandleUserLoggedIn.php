@@ -71,19 +71,31 @@ class HandleUserLoggedIn
             Session::flash('warning', trans('texts.logo_too_large', ['size' => $account->getLogoSize() . 'KB']));
         }
 
-        // check custom gateway id is correct
         if (! Utils::isNinja()) {
+            // check custom gateway id is correct
             $gateway = Gateway::find(GATEWAY_CUSTOM);
             if (! $gateway || $gateway->name !== 'Custom') {
                 Session::flash('error', trans('texts.error_incorrect_gateway_ids'));
             }
-            /*
-            if (! env('APP_KEY')) {
-                Session::flash('error', trans('texts.error_app_key_not_set'));
-            } elseif (strstr(env('APP_KEY'), 'SomeRandomString')) {
+
+            // make sure APP_KEY and APP_CIPHER are in the .env file
+            $appKey = env('APP_KEY');
+            $appCipher = env('APP_CIPHER');
+            if (! $appKey || ! $appCipher) {
+                $fp = fopen(base_path().'/.env', 'a');
+                if (! $appKey) {
+                    fwrite($fp, "\nAPP_KEY=" . config('app.key'));
+                }
+                if (! $appCipher) {
+                    fwrite($fp, "\nAPP_CIPHER=" . config('app.cipher'));
+                }
+                fclose($fp);
+            }
+
+            // warn if using the default app key
+            if (in_array(config('app.key'), ['SomeRandomString', 'SomeRandomStringSomeRandomString', 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'])) {
                 Session::flash('error', trans('texts.error_app_key_set_to_default'));
             }
-            */
         }
     }
 }

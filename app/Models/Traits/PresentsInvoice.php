@@ -290,7 +290,7 @@ trait PresentsInvoice
             'contact.custom_value1' => 'custom_contact_label1',
             'contact.custom_value2' => 'custom_contact_label2',
         ] as $field => $property) {
-            $data[$field] = $this->$property ?: trans('texts.custom_field');
+            $data[$field] = e($this->$property) ?: trans('texts.custom_field');
         }
 
         return $data;

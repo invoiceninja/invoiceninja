@@ -1,6 +1,6 @@
 <thead  {!! $isTasks ? 'style="display:none;" data-bind="visible: $root.hasTasks"' : '' !!}>
     @if ($isTasks)
-        <tr><td style="20px"></td></tr>
+        <tr><td style="20px" colspan="20"></td></tr>
     @endif
     <tr>
         <th style="min-width:32px;" class="hide-border"></th>

@@ -50,13 +50,13 @@ class CreditDatatable extends EntityDatatable
             [
                 'public_notes',
                 function ($model) {
-                    return $model->public_notes;
+                    return e($model->public_notes);
                 },
             ],
             [
                 'private_notes',
                 function ($model) {
-                    return $model->private_notes;
+                    return e($model->private_notes);
                 },
             ],
         ];

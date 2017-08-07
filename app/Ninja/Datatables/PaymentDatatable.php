@@ -46,7 +46,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'transaction_reference',
                 function ($model) {
-                    return $model->transaction_reference ? $model->transaction_reference : '<i>'.trans('texts.manual_entry').'</i>';
+                    return $model->transaction_reference ? e($model->transaction_reference) : '<i>'.trans('texts.manual_entry').'</i>';
                 },
             ],
             [

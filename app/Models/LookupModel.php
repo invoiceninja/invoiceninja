@@ -34,7 +34,7 @@ class LookupModel extends Eloquent
         if ($lookupAccount) {
             $data['lookup_account_id'] = $lookupAccount->id;
         } else {
-            abort('Lookup account not found for ' . $accountKey);
+            abort(500, 'Lookup account not found for ' . $accountKey);
         }
 
         static::create($data);
@@ -96,7 +96,7 @@ class LookupModel extends Eloquent
                                 ->first();
             }
             if (! $isFound) {
-                abort("Looked up {$className} not found: {$field} => {$value}");
+                abort(500, "Looked up {$className} not found: {$field} => {$value}");
             }
 
             Cache::put($key, $server, 120);

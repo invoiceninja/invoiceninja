@@ -78,7 +78,8 @@
     {!! Former::open()->addClass('report-form')->rules(['start_date' => 'required', 'end_date' => 'required']) !!}
 
     <div style="display:none">
-    {!! Former::text('action') !!}
+    	{!! Former::text('action') !!}
+		{!! Former::text('format') !!}
     </div>
 
     {!! Former::populateField('start_date', $startDate) !!}
@@ -157,10 +158,13 @@
 
 
 	<center>
-		{!! Button::primary(trans('texts.export'))
-				->withAttributes(array('onclick' => 'onExportClick()'))
-				->appendIcon(Icon::create('export'))
-				->large() !!}
+		{!! DropdownButton::primary(trans('texts.export'))
+			  ->large()
+              ->withContents([
+				  ['url' => 'javascript:onExportClick("csv")', 'label' => 'CSV'],
+				  ['url' => 'javascript:onExportClick("xlsx")', 'label' => 'XLSX'],
+				  ['url' => 'javascript:onExportClick("pdf")', 'label' => 'PDF'],
+              ]) !!}
 		{!! Button::success(trans('texts.run'))
 				->withAttributes(array('id' => 'submitButton'))
 				->submit()
@@ -253,8 +257,9 @@
 
 	<script type="text/javascript">
 
-    function onExportClick() {
+    function onExportClick(format) {
         $('#action').val('export');
+		$('#format').val(format);
         $('#submitButton').click();
         $('#action').val('');
     }

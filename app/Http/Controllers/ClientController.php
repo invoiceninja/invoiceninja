@@ -191,7 +191,6 @@ class ClientController extends BaseController
             'data' => Input::old('data'),
             'account' => Auth::user()->account,
             'sizes' => Cache::get('sizes'),
-            'currencies' => Cache::get('currencies'),
             'customLabel1' => Auth::user()->account->custom_client_label1,
             'customLabel2' => Auth::user()->account->custom_client_label2,
         ];
@@ -225,25 +224,51 @@ class ClientController extends BaseController
         return $this->returnBulk(ENTITY_CLIENT, $action, $ids);
     }
 
-    public function statement()
+    public function statement($clientPublicId, $statusId = false, $startDate = false, $endDate = false)
     {
         $account = Auth::user()->account;
+        $statusId = intval($statusId);
         $client = Client::scope(request()->client_id)->with('contacts')->firstOrFail();
+
+        if (! $startDate) {
+            $startDate = Utils::today(false)->modify('-6 month')->format('Y-m-d');
+            $endDate = Utils::today(false)->format('Y-m-d');
+        }
+
         $invoice = $account->createInvoice(ENTITY_INVOICE);
         $invoice->client = $client;
         $invoice->date_format = $account->date_format ? $account->date_format->format_moment : 'MMM D, YYYY';
-        $invoice->invoice_items = Invoice::scope()
+
+        $invoices = Invoice::scope()
             ->with(['client'])
-            ->whereClientId($client->id)
             ->invoices()
+            ->whereClientId($client->id)
             ->whereIsPublic(true)
-            ->where('balance', '>', 0)
-            ->get();
+            ->orderBy('invoice_date', 'asc');
+
+        if ($statusId == INVOICE_STATUS_PAID) {
+            $invoices->where('invoice_status_id', '=', INVOICE_STATUS_PAID);
+        } elseif ($statusId == INVOICE_STATUS_UNPAID) {
+            $invoices->where('invoice_status_id', '!=', INVOICE_STATUS_PAID);
+        }
+
+        if ($statusId == INVOICE_STATUS_PAID || ! $statusId) {
+            $invoices->where('invoice_date', '>=', $startDate)
+                    ->where('invoice_date', '<=', $endDate);
+        }
+
+        $invoice->invoice_items = $invoices->get();
+
+        if (request()->json) {
+            return json_encode($invoice);
+        }
 
         $data = [
             'showBreadcrumbs' => false,
             'client' => $client,
-            'invoice' => $invoice,
+            'account' => $account,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
         ];
 
         return view('clients.statement', $data);

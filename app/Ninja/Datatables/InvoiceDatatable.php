@@ -181,14 +181,18 @@ class InvoiceDatatable extends EntityDatatable
 
     public function bulkActions()
     {
-        $actions = parent::bulkActions();
+        $actions = [];
 
         if ($this->entityType == ENTITY_INVOICE || $this->entityType == ENTITY_QUOTE) {
-            $actions[] = \DropdownButton::DIVIDER;
+            $actions[] = [
+                'label' => mtrans($this->entityType, 'download_' . $this->entityType),
+                'url' => 'javascript:submitForm_'.$this->entityType.'("download")',
+            ];
             $actions[] = [
                 'label' => mtrans($this->entityType, 'email_' . $this->entityType),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("emailInvoice")',
             ];
+            $actions[] = \DropdownButton::DIVIDER;
             $actions[] = [
                 'label' => mtrans($this->entityType, 'mark_sent'),
                 'url' => 'javascript:submitForm_'.$this->entityType.'("markSent")',
@@ -201,6 +205,9 @@ class InvoiceDatatable extends EntityDatatable
                 'url' => 'javascript:submitForm_'.$this->entityType.'("markPaid")',
             ];
         }
+
+        $actions[] = \DropdownButton::DIVIDER;
+        $actions = array_merge($actions, parent::bulkActions());
 
         return $actions;
     }

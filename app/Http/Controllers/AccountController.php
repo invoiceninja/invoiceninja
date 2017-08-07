@@ -423,7 +423,6 @@ class AccountController extends BaseController
             'timezones' => Cache::get('timezones'),
             'dateFormats' => Cache::get('dateFormats'),
             'datetimeFormats' => Cache::get('datetimeFormats'),
-            'currencies' => Cache::get('currencies'),
             'title' => trans('texts.localization'),
             'weekdays' => Utils::getTranslatedWeekdayNames(),
             'months' => Utils::getMonthOptions(),
@@ -823,6 +822,10 @@ class AccountController extends BaseController
                 $account->{"num_days_{$type}"} = Input::get("num_days_{$type}");
                 $account->{"field_{$type}"} = Input::get("field_{$type}");
                 $account->{"direction_{$type}"} = Input::get("field_{$type}") == REMINDER_FIELD_INVOICE_DATE ? REMINDER_DIRECTION_AFTER : Input::get("direction_{$type}");
+
+                $number = preg_replace('/[^0-9]/', '', $type);
+                $account->account_email_settings->{"late_fee{$number}_amount"} = Input::get("late_fee{$number}_amount");
+                $account->account_email_settings->{"late_fee{$number}_percent"} = Input::get("late_fee{$number}_percent");
             }
 
             $account->save();

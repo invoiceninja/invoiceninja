@@ -61,6 +61,8 @@ class PurgeAccountData extends Job
         $account->client_number_counter = $account->client_number_counter > 0 ? 1 : 0;
         $account->save();
 
+        session([RECENTLY_VIEWED => false]);
+
         if (env('MULTI_DB_ENABLED')) {
             $current = config('database.default');
             config(['database.default' => DB_NINJA_LOOKUP]);

@@ -94,11 +94,20 @@ class ExpenseController extends BaseController
         return View::make('expenses.edit', $data);
     }
 
-    public function edit(ExpenseRequest $request)
+    public function clone(ExpenseRequest $request, $publicId)
+    {
+        return self::edit($request, $publicId, true);
+    }
+
+    public function edit(ExpenseRequest $request, $publicId = false, $clone = false)
     {
         $expense = $request->entity();
 
         $actions = [];
+
+        if (! $clone) {
+            $actions[] = ['url' => 'javascript:submitAction("clone")', 'label' => trans("texts.clone_expense")];
+        }
         if ($expense->invoice) {
             $actions[] = ['url' => URL::to("invoices/{$expense->invoice->public_id}/edit"), 'label' => trans('texts.view_invoice')];
         } else {
@@ -124,12 +133,28 @@ class ExpenseController extends BaseController
             $actions[] = ['url' => 'javascript:submitAction("restore")', 'label' => trans('texts.restore_expense')];
         }
 
+        if ($clone) {
+            $expense->id = null;
+            $expense->public_id = null;
+            $expense->expense_date = date_create()->format('Y-m-d');
+            $expense->deleted_at = null;
+            $expense->invoice_id = null;
+            $expense->payment_date = null;
+            $expense->payment_type_id = null;
+            $expense->transaction_reference = null;
+            $method = 'POST';
+            $url = 'expenses';
+        } else {
+            $method = 'PUT';
+            $url = 'expenses/' . $expense->public_id;
+        }
+
         $data = [
             'vendor' => null,
             'expense' => $expense,
             'entity' => $expense,
-            'method' => 'PUT',
-            'url' => 'expenses/'.$expense->public_id,
+            'method' => $method,
+            'url' => $url,
             'title' => 'Edit Expense',
             'actions' => $actions,
             'vendors' => Vendor::scope()->with('vendor_contacts')->orderBy('name')->get(),
@@ -165,7 +190,11 @@ class ExpenseController extends BaseController
             return self::bulk();
         }
 
-        return redirect()->to("expenses/{$expense->public_id}/edit");
+        if ($action == 'clone') {
+            return redirect()->to(sprintf('expenses/%s/clone', $expense->public_id));
+        } else {
+            return redirect()->to("expenses/{$expense->public_id}/edit");
+        }
     }
 
     public function store(CreateExpenseRequest $request)
@@ -260,14 +289,6 @@ class ExpenseController extends BaseController
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account,
-            'sizes' => Cache::get('sizes'),
-            'paymentTerms' => Cache::get('paymentTerms'),
-            'industries' => Cache::get('industries'),
-            'currencies' => Cache::get('currencies'),
-            'languages' => Cache::get('languages'),
-            'countries' => Cache::get('countries'),
-            'customLabel1' => Auth::user()->account->custom_vendor_label1,
-            'customLabel2' => Auth::user()->account->custom_vendor_label2,
             'categories' => ExpenseCategory::whereAccountId(Auth::user()->account_id)->withArchived()->orderBy('name')->get(),
             'taxRates' => TaxRate::scope()->whereIsInclusive(false)->orderBy('name')->get(),
             'isRecurring' => false,

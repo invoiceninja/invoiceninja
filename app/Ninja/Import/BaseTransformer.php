@@ -101,35 +101,17 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return null
      */
-    public function getProductId($name)
+    public function getProduct($data, $key, $field, $default = false)
     {
-        $name = strtolower(trim($name));
+        $productKey = trim(strtolower($data->$key));
 
-        return isset($this->maps[ENTITY_PRODUCT][$name]) ? $this->maps[ENTITY_PRODUCT][$name] : null;
-    }
+        if (! isset($this->maps['product'][$productKey])) {
+            return $default;
+        }
 
-    /**
-     * @param $name
-     *
-     * @return null
-     */
-    public function getProductNotes($name)
-    {
-        $name = strtolower(trim($name));
+        $product = $this->maps['product'][$productKey];
 
-        return isset($this->maps['product_notes'][$name]) ? $this->maps['product_notes'][$name] : null;
-    }
-
-    /**
-     * @param $name
-     *
-     * @return null
-     */
-    public function getProductCost($name)
-    {
-        $name = strtolower(trim($name));
-
-        return isset($this->maps['product_cost'][$name]) ? $this->maps['product_cost'][$name] : null;
+        return $product->$field ?: $default;
     }
 
     /**
@@ -154,6 +136,30 @@ class BaseTransformer extends TransformerAbstract
         $name = strtolower(trim($name));
 
         return isset($this->maps['countries2'][$name]) ? $this->maps['countries2'][$name] : null;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null
+     */
+    public function getTaxRate($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps['tax_rates'][$name]) ? $this->maps['tax_rates'][$name] : 0;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null
+     */
+    public function getTaxName($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps['tax_names'][$name]) ? $this->maps['tax_names'][$name] : '';
     }
 
     /**

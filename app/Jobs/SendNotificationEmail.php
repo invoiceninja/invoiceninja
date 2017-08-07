@@ -7,13 +7,16 @@ use App\Ninja\Mailers\UserMailer;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use App\Models\Traits\SerialisesDeletedModels;
 
 /**
  * Class SendInvoiceEmail.
  */
 class SendNotificationEmail extends Job implements ShouldQueue
 {
-    use InteractsWithQueue, SerializesModels;
+    use InteractsWithQueue, SerializesModels, SerialisesDeletedModels {
+        SerialisesDeletedModels::getRestoredPropertyValue insteadof SerializesModels;
+    }
 
     /**
      * @var User

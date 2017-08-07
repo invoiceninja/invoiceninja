@@ -3,36 +3,60 @@
         @if (isset($isReminder) && $isReminder)
 
             {!! Former::populateField('enable_' . $field, intval($account->{'enable_' . $field})) !!}
+            @if (floatval($fee = $account->account_email_settings->{"late_fee{$number}_amount"}))
+                {!! Former::populateField('late_fee' . $number . '_amount', $fee) !!}
+            @endif
+            @if (floatval($fee = $account->account_email_settings->{"late_fee{$number}_percent"}))
+                {!! Former::populateField('late_fee' . $number . '_percent', $fee) !!}
+            @endif
 
-            <div class="row well" style="padding-bottom:20px">
-                <div class="col-md-4" style="padding-top:10px">
-                    {!! Former::checkbox('enable_' . $field)
-                            ->text(trans('texts.send_automatically'))->label('')
-                            ->value(1) !!}
+            <div class="well" style="padding-bottom:20px">
+                <div class="row">
+                    <div class="col-md-6">
+                        {!! Former::plaintext('schedule')
+                                ->value(
+                                    Former::input('num_days_' . $field)
+                                        ->style('float:left;width:20%')
+                                        ->raw() .
+                                    Former::select('direction_' . $field)
+                                        ->addOption(trans('texts.days_before'), REMINDER_DIRECTION_BEFORE)
+                                        ->addOption(trans('texts.days_after'), REMINDER_DIRECTION_AFTER)
+                                        ->style('float:left;width:40%')
+                                        ->raw() .
+                                    '<div id="days_after_'. $field .'" style="float:left;width:40%;display:none;padding-top:8px;padding-left:16px;font-size:16px;">' . trans('texts.days_after') . '</div>' .
+                                    Former::select('field_' . $field)
+                                        ->addOption(trans('texts.field_due_date'), REMINDER_FIELD_DUE_DATE)
+                                        ->addOption(trans('texts.field_invoice_date'), REMINDER_FIELD_INVOICE_DATE)
+                                        ->style('float:left;width:40%')
+                                        ->raw()
+                                ) !!}
+                    </div>
+                    <div class="col-md-6">
+
+                        {!! Former::checkbox('enable_' . $field)
+                                ->text('enable')
+                                ->label('send_email')
+                                ->value(1) !!}
+
+                    </div>
                 </div>
-                <div class="col-md-8">
-                    {!! Former::plaintext('')
-                            ->value(
-                                Former::input('num_days_' . $field)
-                                    ->addClass('enable-' . $field)
-                                    ->style('float:left;width:20%')
-                                    ->raw() .
-                                Former::select('direction_' . $field)
-                                    ->addOption(trans('texts.days_before'), REMINDER_DIRECTION_BEFORE)
-                                    ->addOption(trans('texts.days_after'), REMINDER_DIRECTION_AFTER)
-                                    ->addClass('enable-' . $field)
-                                    ->style('float:left;width:40%')
-                                    ->raw() .
-                                '<div id="days_after_'. $field .'" style="float:left;width:40%;display:none;padding-top:8px;padding-left:16px;font-size:16px;">' . trans('texts.days_after') . '</div>' .
-                                Former::select('field_' . $field)
-                                    ->addOption(trans('texts.field_due_date'), REMINDER_FIELD_DUE_DATE)
-                                    ->addOption(trans('texts.field_invoice_date'), REMINDER_FIELD_INVOICE_DATE)
-                                    ->addClass('enable-' . $field)
-                                    ->style('float:left;width:40%')
-                                    ->raw()
-                            ) !!}
+                <div class="row" style="padding-top:30px">
+                    <div class="col-md-6">
+                        {!! Former::text('late_fee' . $number . '_amount')
+                                        ->label('late_fee_amount')
+                                        ->type('number')
+                                        ->step('any') !!}
+                    </div>
+                    <div class="col-md-6">
+                        {!! Former::text('late_fee' . $number . '_percent')
+                                        ->label('late_fee_percent')
+                                        ->type('number')
+                                        ->step('any')
+                                        ->append('%') !!}
+                    </div>
                 </div>
             </div>
+
             <br/>
         @endif
         <div class="row">

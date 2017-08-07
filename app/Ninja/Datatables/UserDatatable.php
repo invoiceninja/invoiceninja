@@ -14,7 +14,7 @@ class UserDatatable extends EntityDatatable
             [
                 'first_name',
                 function ($model) {
-                    return $model->public_id ? link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name)->toHtml() : ($model->first_name.' '.$model->last_name);
+                    return $model->public_id ? link_to('users/'.$model->public_id.'/edit', $model->first_name.' '.$model->last_name)->toHtml() : e($model->first_name.' '.$model->last_name);
                 },
             ],
             [

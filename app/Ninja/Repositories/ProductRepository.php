@@ -17,6 +17,7 @@ class ProductRepository extends BaseRepository
     {
         return Product::scope()
                 ->withTrashed()
+                ->where('is_deleted', '=', false)
                 ->get();
     }
 
@@ -54,7 +55,7 @@ class ProductRepository extends BaseRepository
         if ($product) {
             // do nothing
         } elseif ($publicId) {
-            $product = Product::scope($publicId)->firstOrFail();
+            $product = Product::scope($publicId)->withArchived()->firstOrFail();
             \Log::warning('Entity not set in product repo save');
         } else {
             $product = Product::createNew();

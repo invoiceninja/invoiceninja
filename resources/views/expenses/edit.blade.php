@@ -203,9 +203,11 @@
                             </label>
                             <div class="col-lg-8 col-sm-8">
                                 <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
-                                    <div id="document-upload" class="dropzone">
-                                        <div data-bind="foreach: documents">
-                                            <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                    <div id="document-upload">
+                                        <div class="dropzone">
+                                            <div data-bind="foreach: documents">
+                                                <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -254,8 +256,6 @@
 	{!! Former::close() !!}
 
     <script type="text/javascript">
-        Dropzone.autoDiscover = false;
-
         var vendors = {!! $vendors !!};
         var clients = {!! $clients !!};
         var categories = {!! $categories !!};
@@ -417,51 +417,8 @@
                         if($('#document-upload .fallback input').val())$(this).attr('enctype', 'multipart/form-data')
                         else $(this).removeAttr('enctype')
                     })
-                // Initialize document upload
-                dropzone = new Dropzone('#document-upload', {
-                    url:{!! json_encode(url('documents')) !!},
-                    params:{
-                        _token:"{{ Session::getToken() }}"
-                    },
-                    acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
-                    addRemoveLinks:true,
-                    dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
-                    @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-                        "dict{{ Utils::toClassCase($key) }}" : "{!! strip_tags(addslashes(trans('texts.dropzone_'.$key))) !!}",
-                    @endforeach
-                    maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
-                });
-                if(dropzone instanceof Dropzone){
-                    dropzone.on("addedfile",handleDocumentAdded);
-                    dropzone.on("removedfile",handleDocumentRemoved);
-                    dropzone.on("success",handleDocumentUploaded);
-                    dropzone.on("canceled",handleDocumentCanceled);
-                    dropzone.on("error",handleDocumentError);
-                    for (var i=0; i<model.documents().length; i++) {
-                        var document = model.documents()[i];
-                        var mockFile = {
-                            name:document.name(),
-                            size:document.size(),
-                            type:document.type(),
-                            public_id:document.public_id(),
-                            status:Dropzone.SUCCESS,
-                            accepted:true,
-                            url:document.url(),
-                            mock:true,
-                            index:i
-                        };
 
-                        dropzone.emit('addedfile', mockFile);
-                        dropzone.emit('complete', mockFile);
-                        if(document.preview_url()){
-                            dropzone.emit('thumbnail', mockFile, document.preview_url()||document.url());
-                        }
-                        else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
-                            dropzone.emit('thumbnail', mockFile, document.url());
-                        }
-                        dropzone.files.push(mockFile);
-                    }
-                }
+                    @include('partials.dropzone', ['documentSource' => 'model.documents()'])
                 @endif
             @endif
         });
@@ -576,51 +533,20 @@
             }
         }
 
-        window.countUploadingDocuments = 0;
-
-        function handleDocumentAdded(file){
-            // open document when clicked
-            if (file.url) {
-                file.previewElement.addEventListener("click", function() {
-                    window.open(file.url, '_blank');
-                });
-            }
-            if(file.mock)return;
+        function addDocument(file) {
             file.index = model.documents().length;
             model.addDocument({name:file.name, size:file.size, type:file.type});
-            window.countUploadingDocuments++;
-        }
+    	}
 
-        function handleDocumentRemoved(file){
-            model.removeDocument(file.public_id);
-            $.ajax({
-                url: '{{ '/documents/' }}' + file.public_id,
-                type: 'DELETE',
-                success: function(result) {
-                    // Do something with the result
-                }
-            });
-        }
-
-        function handleDocumentUploaded(file, response){
-            window.countUploadingDocuments--;
-            file.public_id = response.document.public_id
+    	function addedDocument(file, response) {
             model.documents()[file.index].update(response.document);
-            if(response.document.preview_url){
-                dropzone.emit('thumbnail', file, response.document.preview_url);
-            }
-        }
+    	}
 
-        function handleDocumentCanceled() {
-            window.countUploadingDocuments--;
-        }
+    	function deleteDocument(file) {
+            model.removeDocument(file.public_id);
+    	}
 
-        function handleDocumentError() {
-            window.countUploadingDocuments--;
-        }
-
-        function onInvoiceDocumentsChange()
-        {
+        function onInvoiceDocumentsChange() {
             if (isStorageSupported()) {
                 var checked = $('#invoice_documents').is(':checked');
                 localStorage.setItem('last:invoice_documents', checked || '');

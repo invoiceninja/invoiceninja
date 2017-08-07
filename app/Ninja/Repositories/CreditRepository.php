@@ -89,7 +89,7 @@ class CreditRepository extends BaseRepository
                 return Utils::formatMoney($model->balance, $model->currency_id, $model->country_id);
             })
             ->addColumn('public_notes', function ($model) {
-                return $model->public_notes;
+                return e($model->public_notes);
             })
             ->make();
 

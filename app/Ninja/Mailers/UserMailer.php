@@ -119,14 +119,17 @@ class UserMailer extends Mailer
     /**
      * @param Invitation $invitation
      */
-    public function sendMessage($user, $subject, $message, $invoice = false)
+    public function sendMessage($user, $subject, $message, $data = false)
     {
         if (! $user->email) {
             return;
         }
 
+        $invoice = $data && isset($data['invoice']) ? $data['invoice'] : false;
         $view = 'user_message';
-        $data = [
+
+        $data = $data ?: [];
+        $data += [
             'userName' => $user->getDisplayName(),
             'primaryMessage' => $subject,
             'secondaryMessage' => $message,

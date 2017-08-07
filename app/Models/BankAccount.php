@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Crypt;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -31,6 +32,22 @@ class BankAccount extends EntityModel
     public function getEntityType()
     {
         return ENTITY_BANK_ACCOUNT;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUsername()
+    {
+        return Crypt::decrypt($this->username);
+    }
+
+    /**
+     * @param $config
+     */
+    public function setUsername($value)
+    {
+        $this->username = Crypt::encrypt($value);
     }
 
     /**

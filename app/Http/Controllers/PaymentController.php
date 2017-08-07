@@ -236,7 +236,6 @@ class PaymentController extends BaseController
     public function bulk()
     {
         $action = Input::get('action');
-        $amount = Input::get('refund_amount');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
 
         if ($action === 'email') {
@@ -244,7 +243,10 @@ class PaymentController extends BaseController
             $this->contactMailer->sendPaymentConfirmation($payment);
             Session::flash('message', trans('texts.emailed_payment'));
         } else {
-            $count = $this->paymentService->bulk($ids, $action, ['refund_amount' => $amount]);
+            $count = $this->paymentService->bulk($ids, $action, [
+                'refund_amount' => Input::get('refund_amount'),
+                'refund_email' => Input::get('refund_email'),
+            ]);
             if ($count > 0) {
                 $message = Utils::pluralize($action == 'refund' ? 'refunded_payment' : $action.'d_payment', $count);
                 Session::flash('message', $message);

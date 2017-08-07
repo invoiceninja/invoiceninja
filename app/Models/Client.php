@@ -54,54 +54,7 @@ class Client extends EntityModel
         'public_notes',
     ];
 
-    /**
-     * @var string
-     */
-    public static $fieldName = 'name';
-    /**
-     * @var string
-     */
-    public static $fieldPhone = 'work_phone';
-    /**
-     * @var string
-     */
-    public static $fieldAddress1 = 'address1';
-    /**
-     * @var string
-     */
-    public static $fieldAddress2 = 'address2';
-    /**
-     * @var string
-     */
-    public static $fieldCity = 'city';
-    /**
-     * @var string
-     */
-    public static $fieldState = 'state';
-    /**
-     * @var string
-     */
-    public static $fieldPostalCode = 'postal_code';
-    /**
-     * @var string
-     */
-    public static $fieldNotes = 'notes';
-    /**
-     * @var string
-     */
-    public static $fieldCountry = 'country';
-    /**
-     * @var string
-     */
-    public static $fieldWebsite = 'website';
-    /**
-     * @var string
-     */
-    public static $fieldVatNumber = 'vat_number';
-    /**
-     * @var string
-     */
-    public static $fieldIdNumber = 'id_number';
+
 
     /**
      * @return array
@@ -109,22 +62,28 @@ class Client extends EntityModel
     public static function getImportColumns()
     {
         return [
-            self::$fieldName,
-            self::$fieldPhone,
-            self::$fieldAddress1,
-            self::$fieldAddress2,
-            self::$fieldCity,
-            self::$fieldState,
-            self::$fieldPostalCode,
-            self::$fieldCountry,
-            self::$fieldNotes,
-            self::$fieldWebsite,
-            self::$fieldVatNumber,
-            self::$fieldIdNumber,
-            Contact::$fieldFirstName,
-            Contact::$fieldLastName,
-            Contact::$fieldPhone,
-            Contact::$fieldEmail,
+            'name',
+            'work_phone',
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'postal_code',
+            'public_notes',
+            'private_notes',
+            'country',
+            'website',
+            'currency',
+            'vat_number',
+            'id_number',
+            'custom1',
+            'custom2',
+            'contact_first_name',
+            'contact_last_name',
+            'contact_phone',
+            'contact_email',
+            'contact_custom1',
+            'contact_custom2',
         ];
     }
 
@@ -134,10 +93,11 @@ class Client extends EntityModel
     public static function getImportMap()
     {
         return [
-            'first' => 'first_name',
-            'last' => 'last_name',
-            'email' => 'email',
-            'mobile|phone' => 'phone',
+            'first' => 'contact_first_name',
+            'last' => 'contact_last_name',
+            'email' => 'contact_email',
+            'work|office' => 'work_phone',
+            'mobile|phone' => 'contact_phone',
             'name|organization' => 'name',
             'apt|street2|address2' => 'address2',
             'street|address|address1' => 'address1',
@@ -145,8 +105,10 @@ class Client extends EntityModel
             'state|province' => 'state',
             'zip|postal|code' => 'postal_code',
             'country' => 'country',
-            'note' => 'notes',
+            'public' => 'public_notes',
+            'private|note' => 'private_notes',
             'site|website' => 'website',
+            'currency' => 'currency',
             'vat' => 'vat_number',
             'number' => 'id_number',
         ];
@@ -282,7 +244,9 @@ class Client extends EntityModel
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
 
-        if ($publicId && $publicId != '-1') {
+        // check if this client wasRecentlyCreated to ensure a new contact is
+        // always created even if the request includes a contact id
+        if (! $this->wasRecentlyCreated && $publicId && $publicId != '-1') {
             $contact = Contact::scope($publicId)->firstOrFail();
         } else {
             $contact = Contact::createNew();

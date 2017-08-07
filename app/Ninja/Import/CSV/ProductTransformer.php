@@ -23,6 +23,7 @@ class ProductTransformer extends BaseTransformer
 
         return new Item($data, function ($data) {
             return [
+                'public_id' => $this->getProduct($data, 'product_key', 'public_id'),
                 'product_key' => $this->getString($data, 'product_key'),
                 'notes' => $this->getString($data, 'notes'),
                 'cost' => $this->getFloat($data, 'cost'),

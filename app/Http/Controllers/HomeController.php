@@ -132,9 +132,11 @@ class HomeController extends BaseController
     public function contactUs()
     {
         Mail::raw(request()->contact_us_message, function ($message) {
-            $subject = 'Customer Message';
-            if (! Utils::isNinja()) {
-                $subject .= ': v' . NINJA_VERSION;
+            $subject = 'Customer Message: ';
+            if (Utils::isNinja()) {
+                $subject .= config('database.default');
+            } else {
+                $subject .= 'v' . NINJA_VERSION;
             }
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
                     ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
