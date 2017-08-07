@@ -193,8 +193,8 @@
 	            </div>
                 <div class="col-md-6">
 
-                    {!! Former::textarea('public_notes')->rows($account->hasFeature(FEATURE_DOCUMENTS) ? 6 : 10) !!}
-                    {!! Former::textarea('private_notes')->rows($account->hasFeature(FEATURE_DOCUMENTS) ? 6 : 10) !!}
+                    {!! Former::textarea('private_notes')->rows(! $isRecurring && $account->hasFeature(FEATURE_DOCUMENTS) ? 6 : 10) !!}
+                    {!! Former::textarea('public_notes')->rows(! $isRecurring && $account->hasFeature(FEATURE_DOCUMENTS) ? 6 : 10) !!}
 
                     @if (! $isRecurring && $account->hasFeature(FEATURE_DOCUMENTS))
                         <div class="form-group">
