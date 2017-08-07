@@ -244,7 +244,9 @@ class Client extends EntityModel
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
 
-        if ($publicId && $publicId != '-1') {
+        // check if this client wasRecentlyCreated to ensure a new contact is
+        // always created even if the request includes a contact id
+        if (! $this->wasRecentlyCreated && $publicId && $publicId != '-1') {
             $contact = Contact::scope($publicId)->firstOrFail();
         } else {
             $contact = Contact::createNew();
