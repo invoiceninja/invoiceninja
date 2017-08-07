@@ -348,6 +348,11 @@ class BasePaymentDriver
         $total = 0;
 
         foreach ($invoice->invoice_items as $invoiceItem) {
+            // Some gateways require quantity is an integer
+            if (floatval($invoiceItem->qty) != intval($invoiceItem->qty)) {
+                return null;
+            }
+
             $item = new Item([
                 'name' => $invoiceItem->product_key,
                 'description' => $invoiceItem->notes,
