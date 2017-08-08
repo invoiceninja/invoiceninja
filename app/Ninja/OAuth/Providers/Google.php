@@ -17,7 +17,6 @@ class Google implements ProviderInterface
 
     public function harvestSubField($payload)
     {
-        $data = $payload->getAttributes();
-        return $data['payload']['sub']; // user ID
+        return $payload['sub']; // user ID
     }
 }
