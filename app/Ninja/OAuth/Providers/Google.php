@@ -9,7 +9,7 @@ class Google implements ProviderInterface
         $client = new \Google_Client(['client_id' => env('GOOGLE_CLIENT_ID','')]);
         $payload = $client->verifyIdToken($token);
         if ($payload)
-            return $this->harvestEmail($payload);
+            return $this->harvestSubField($payload);
         else
             return null;
     }
@@ -19,5 +19,9 @@ class Google implements ProviderInterface
         return $payload['email'];
     }
 
-
+    private function harvestSubField($payload)
+    {
+        $data = $payload->getAttributes();
+        return $data['payload']['sub']; // user ID
+    }
 }
