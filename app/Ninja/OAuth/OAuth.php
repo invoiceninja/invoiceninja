@@ -30,7 +30,7 @@ class OAuth {
         $user = null;
 
         if($this->providerInstance)
-            $user = User::where('email', $this->providerInstance->getTokenResponse($token))->first();
+            $user = User::where('oauth_user_id', $this->providerInstance->getTokenResponse($token))->first();
 
         if ($user)
             return $user;
