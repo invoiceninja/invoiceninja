@@ -42,7 +42,8 @@ class OAuth {
         LookupUser::setServerByField('oauth_user_key', $this->providerId . '-' . $oauthUserId);
 
         if($this->providerInstance)
-            $user = User::where('oauth_user_id', $oauthUserId)->where('oauth_provider_id', $this->providerId)->first();
+          $user = User::where('oauth_user_id', $oauthUserId)->where('oauth_provider_id', $this->providerId)->first();
+
 
         if ($user)
             return $user;

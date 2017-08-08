@@ -8,7 +8,6 @@ class Google implements ProviderInterface
 
         $client = new \Google_Client(['client_id' => env('GOOGLE_CLIENT_ID','')]);
         return $client->verifyIdToken($token);
-
     }
 
     public function harvestEmail($payload)

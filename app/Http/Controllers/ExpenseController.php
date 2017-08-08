@@ -94,7 +94,7 @@ class ExpenseController extends BaseController
         return View::make('expenses.edit', $data);
     }
 
-    public function clone(ExpenseRequest $request, $publicId)
+    public function cloneExpense(ExpenseRequest $request, $publicId)
     {
         return self::edit($request, $publicId, true);
     }
