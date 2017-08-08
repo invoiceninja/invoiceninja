@@ -210,7 +210,7 @@
 
 @section('body')
 
-@if ( ! Request::is('settings/account_management'))
+@if (Utils::isNinjaProd() && ! Request::is('settings/account_management'))
   @include('partials.upgrade_modal')
 @endif
 
