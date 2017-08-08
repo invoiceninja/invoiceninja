@@ -1043,14 +1043,28 @@ function toggleDatePicker(field) {
   $('#'+field).datepicker('show');
 }
 
-function roundToTwo(num, toString) {
-  var val = +(Math.round(num + "e+2")  + "e-2");
+function roundToTwo(number, toString) {
+  var val = roundToPrecision(number, 2);
   return toString ? val.toFixed(2) : (val || 0);
 }
 
-function roundToFour(num, toString) {
-  var val = +(Math.round(num + "e+4")  + "e-4");
+function roundToFour(number, toString) {
+  var val = roundToPrecision(number, 4);
   return toString ? val.toFixed(4) : (val || 0);
+}
+
+// https://stackoverflow.com/a/18358056/497368
+function roundToPrecision(number, precision) {
+  // prevent negative numbers from rounding to 0
+  var isNegative = number < 0;
+  if (isNegative) {
+      number = number * -1;
+  }
+  number = +(Math.round(number + "e+"+ precision) + "e-" + precision);
+  if (isNegative) {
+      number = number * -1;
+  }
+  return number;
 }
 
 function truncate(str, length) {

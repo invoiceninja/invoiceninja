@@ -139,7 +139,7 @@ class CheckData extends Command
 
     private function checkInvoices()
     {
-        if (! env('PHANTOMJS_BIN_PATH')) {
+        if (! env('PHANTOMJS_BIN_PATH') || ! Utils::isNinjaProd()) {
             return;
         }
 
