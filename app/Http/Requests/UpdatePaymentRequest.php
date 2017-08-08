@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 class UpdatePaymentRequest extends PaymentRequest
 {
@@ -9,7 +11,7 @@ class UpdatePaymentRequest extends PaymentRequest
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
@@ -20,6 +22,5 @@ class UpdatePaymentRequest extends PaymentRequest
     public function rules()
     {
         return [];
-
     }
 }

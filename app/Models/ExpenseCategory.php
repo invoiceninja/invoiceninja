@@ -1,14 +1,18 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class ExpenseCategory
+ * Class ExpenseCategory.
  */
 class ExpenseCategory extends EntityModel
 {
     // Expense Categories
     use SoftDeletes;
+    use PresentableTrait;
 
     /**
      * @var array
@@ -16,6 +20,11 @@ class ExpenseCategory extends EntityModel
     protected $fillable = [
         'name',
     ];
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\EntityPresenter';
 
     /**
      * @return mixed
@@ -40,5 +49,4 @@ class ExpenseCategory extends EntityModel
     {
         return "/expense_categories/{$this->public_id}/edit";
     }
-
 }

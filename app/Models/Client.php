@@ -1,13 +1,15 @@
-<?php namespace App\Models;
+<?php
 
-use Utils;
-use DB;
+namespace App\Models;
+
 use Carbon;
-use Laracasts\Presenter\PresentableTrait;
+use DB;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
+use Utils;
 
 /**
- * Class Client
+ * Class Client.
  */
 class Client extends EntityModel
 {
@@ -47,48 +49,12 @@ class Client extends EntityModel
         'language_id',
         'payment_terms',
         'website',
+        'invoice_number_counter',
+        'quote_number_counter',
+        'public_notes',
     ];
 
-    /**
-     * @var string
-     */
-    public static $fieldName = 'name';
-    /**
-     * @var string
-     */
-    public static $fieldPhone = 'work_phone';
-    /**
-     * @var string
-     */
-    public static $fieldAddress1 = 'address1';
-    /**
-     * @var string
-     */
-    public static $fieldAddress2 = 'address2';
-    /**
-     * @var string
-     */
-    public static $fieldCity = 'city';
-    /**
-     * @var string
-     */
-    public static $fieldState = 'state';
-    /**
-     * @var string
-     */
-    public static $fieldPostalCode = 'postal_code';
-    /**
-     * @var string
-     */
-    public static $fieldNotes = 'notes';
-    /**
-     * @var string
-     */
-    public static $fieldCountry = 'country';
-    /**
-     * @var string
-     */
-    public static $fieldWebsite = 'website';
+
 
     /**
      * @return array
@@ -96,20 +62,28 @@ class Client extends EntityModel
     public static function getImportColumns()
     {
         return [
-            Client::$fieldName,
-            Client::$fieldPhone,
-            Client::$fieldAddress1,
-            Client::$fieldAddress2,
-            Client::$fieldCity,
-            Client::$fieldState,
-            Client::$fieldPostalCode,
-            Client::$fieldCountry,
-            Client::$fieldNotes,
-            Client::$fieldWebsite,
-            Contact::$fieldFirstName,
-            Contact::$fieldLastName,
-            Contact::$fieldPhone,
-            Contact::$fieldEmail,
+            'name',
+            'work_phone',
+            'address1',
+            'address2',
+            'city',
+            'state',
+            'postal_code',
+            'public_notes',
+            'private_notes',
+            'country',
+            'website',
+            'currency',
+            'vat_number',
+            'id_number',
+            'custom1',
+            'custom2',
+            'contact_first_name',
+            'contact_last_name',
+            'contact_phone',
+            'contact_email',
+            'contact_custom1',
+            'contact_custom2',
         ];
     }
 
@@ -119,19 +93,24 @@ class Client extends EntityModel
     public static function getImportMap()
     {
         return [
-            'first' => 'first_name',
-            'last' => 'last_name',
-            'email' => 'email',
-            'mobile|phone' => 'phone',
+            'first' => 'contact_first_name',
+            'last' => 'contact_last_name',
+            'email' => 'contact_email',
+            'work|office' => 'work_phone',
+            'mobile|phone' => 'contact_phone',
             'name|organization' => 'name',
-            'street2|address2' => 'address2',
+            'apt|street2|address2' => 'address2',
             'street|address|address1' => 'address1',
             'city' => 'city',
             'state|province' => 'state',
             'zip|postal|code' => 'postal_code',
             'country' => 'country',
-            'note' => 'notes',
+            'public' => 'public_notes',
+            'private|note' => 'private_notes',
             'site|website' => 'website',
+            'currency' => 'currency',
+            'vat' => 'vat_number',
+            'number' => 'id_number',
         ];
     }
 
@@ -157,6 +136,22 @@ class Client extends EntityModel
     public function invoices()
     {
         return $this->hasMany('App\Models\Invoice');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function quotes()
+    {
+        return $this->hasMany('App\Models\Invoice')->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function publicQuotes()
+    {
+        return $this->hasMany('App\Models\Invoice')->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)->whereIsPublic(true);
     }
 
     /**
@@ -224,39 +219,57 @@ class Client extends EntityModel
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function creditsWithBalance()
+    {
+        return $this->hasMany('App\Models\Credit')->where('balance', '>', 0);
+    }
+
+    /**
      * @return mixed
      */
     public function expenses()
     {
-        return $this->hasMany('App\Models\Expense','client_id','id')->withTrashed();
+        return $this->hasMany('App\Models\Expense', 'client_id', 'id')->withTrashed();
     }
 
     /**
      * @param $data
      * @param bool $isPrimary
+     *
      * @return \Illuminate\Database\Eloquent\Model
      */
     public function addContact($data, $isPrimary = false)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : (isset($data['id']) ? $data['id'] : false);
 
-        if ($publicId && $publicId != '-1') {
+        // check if this client wasRecentlyCreated to ensure a new contact is
+        // always created even if the request includes a contact id
+        if (! $this->wasRecentlyCreated && $publicId && $publicId != '-1') {
             $contact = Contact::scope($publicId)->firstOrFail();
         } else {
             $contact = Contact::createNew();
             $contact->send_invoice = true;
+
+            if (isset($data['contact_key']) && $this->account->account_key == env('NINJA_LICENSE_ACCOUNT_KEY')) {
+                $contact->contact_key = $data['contact_key'];
+            } else {
+                $contact->contact_key = strtolower(str_random(RANDOM_KEY_LENGTH));
+            }
         }
 
-        if (Utils::hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $this->account->enable_portal_password){
-            if(!empty($data['password']) && $data['password']!='-%unchanged%-'){
+        if ($this->account->isClientPortalPasswordEnabled()) {
+            if (! empty($data['password']) && $data['password'] != '-%unchanged%-') {
                 $contact->password = bcrypt($data['password']);
-            } else if(empty($data['password'])){
+            } elseif (empty($data['password'])) {
                 $contact->password = null;
             }
         }
 
         $contact->fill($data);
         $contact->is_primary = $isPrimary;
+        $contact->email = trim($contact->email);
 
         return $this->contacts()->save($contact);
     }
@@ -267,7 +280,7 @@ class Client extends EntityModel
      */
     public function updateBalances($balanceAdjustment, $paidToDateAdjustment)
     {
-        if ($balanceAdjustment === 0 && $paidToDateAdjustment === 0) {
+        if ($balanceAdjustment == 0 && $paidToDateAdjustment == 0) {
             return;
         }
 
@@ -323,11 +336,12 @@ class Client extends EntityModel
             return $this->name;
         }
 
-        if ( ! count($this->contacts)) {
+        if (! count($this->contacts)) {
             return '';
         }
 
         $contact = $this->contacts[0];
+
         return $contact->getDisplayName();
     }
 
@@ -337,6 +351,7 @@ class Client extends EntityModel
     public function getCityState()
     {
         $swap = $this->country && $this->country->swap_postal_code;
+
         return Utils::cityStateZip($this->city, $this->state, $this->postal_code, $swap);
     }
 
@@ -346,6 +361,14 @@ class Client extends EntityModel
     public function getEntityType()
     {
         return ENTITY_CLIENT;
+    }
+
+    /**
+     * @return bool
+     */
+    public function showMap()
+    {
+        return $this->hasAddress() && env('GOOGLE_MAPS_ENABLED') !== false;
     }
 
     /**
@@ -390,7 +413,7 @@ class Client extends EntityModel
     {
         $accountGateway = $this->account->getGatewayByType(GATEWAY_TYPE_TOKEN);
 
-        if ( ! $accountGateway) {
+        if (! $accountGateway) {
             return false;
         }
 
@@ -442,7 +465,7 @@ class Client extends EntityModel
             return $this->currency_id;
         }
 
-        if (!$this->account) {
+        if (! $this->account) {
             $this->load('account');
         }
 
@@ -458,7 +481,7 @@ class Client extends EntityModel
             return $this->currency->code;
         }
 
-        if (!$this->account) {
+        if (! $this->account) {
             $this->load('account');
         }
 
@@ -467,6 +490,7 @@ class Client extends EntityModel
 
     /**
      * @param $isQuote
+     *
      * @return mixed
      */
     public function getCounter($isQuote)
@@ -483,13 +507,37 @@ class Client extends EntityModel
     /**
      * @return bool
      */
-    public function hasAutoBillConfigurableInvoices(){
-        return $this->invoices()->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
+    public function hasAutoBillConfigurableInvoices()
+    {
+        return $this->invoices()->whereIsPublic(true)->whereIn('auto_bill', [AUTO_BILL_OPT_IN, AUTO_BILL_OPT_OUT])->count() > 0;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasRecurringInvoices()
+    {
+        return $this->invoices()->whereIsPublic(true)->whereIsRecurring(true)->count() > 0;
+    }
+
+    public function defaultDaysDue()
+    {
+        return $this->payment_terms == -1 ? 0 : $this->payment_terms;
+    }
+
+    public function firstInvitationKey()
+    {
+        if ($invoice = $this->invoices->first()) {
+            if ($invitation = $invoice->invitations->first()) {
+                return $invitation->invitation_key;
+            }
+        }
     }
 }
 
 Client::creating(function ($client) {
     $client->setNullValues();
+    $client->account->incrementCounter($client);
 });
 
 Client::updating(function ($client) {

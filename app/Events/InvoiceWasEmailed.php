@@ -1,10 +1,12 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class InvoiceWasEmailed
+ * Class InvoiceWasEmailed.
  */
 class InvoiceWasEmailed extends Event
 {
@@ -16,12 +18,18 @@ class InvoiceWasEmailed extends Event
     public $invoice;
 
     /**
+     * @var string
+     */
+    public $notes;
+
+    /**
      * Create a new event instance.
      *
      * @param Invoice $invoice
      */
-    public function __construct(Invoice $invoice)
+    public function __construct(Invoice $invoice, $notes)
     {
         $this->invoice = $invoice;
+        $this->notes = $notes;
     }
 }

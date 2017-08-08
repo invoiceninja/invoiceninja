@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 class UpdateExpenseCategoryRequest extends ExpenseCategoryRequest
 {
@@ -9,7 +11,7 @@ class UpdateExpenseCategoryRequest extends ExpenseCategoryRequest
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
@@ -19,7 +21,11 @@ class UpdateExpenseCategoryRequest extends ExpenseCategoryRequest
      */
     public function rules()
     {
-          return [
+        if (! $this->entity()) {
+            return [];
+        }
+
+        return [
             'name' => 'required',
             'name' => sprintf('required|unique:expense_categories,name,%s,id,account_id,%s', $this->entity()->id, $this->user()->account_id),
         ];

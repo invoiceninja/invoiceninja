@@ -42,6 +42,7 @@ body {
 }
 
 div.col-md-3,
+div.col-md-4,
 div.col-md-5,
 div.col-md-6,
 div.col-md-7,
@@ -125,7 +126,7 @@ header h3 em {
     }
 
 .secure h3 {
-    color: #36b855;
+    color: #5cb85c;
     font-size: 30px;
     margin-bottom: 8px;
     margin-top: 0px;

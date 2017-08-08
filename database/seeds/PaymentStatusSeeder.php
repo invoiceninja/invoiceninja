@@ -33,5 +33,5 @@ class PaymentStatusSeeder extends Seeder
                 PaymentStatus::create($status);
             }
         }
-    }   
+    }
 }

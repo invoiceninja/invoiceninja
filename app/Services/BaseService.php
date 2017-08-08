@@ -1,10 +1,12 @@
-<?php namespace App\Services;
+<?php
+
+namespace App\Services;
 
 use Auth;
 use Illuminate\Foundation\Bus\DispatchesJobs;
 
 /**
- * Class BaseService
+ * Class BaseService.
  */
 class BaseService
 {
@@ -21,18 +23,19 @@ class BaseService
     /**
      * @param $ids
      * @param $action
+     *
      * @return int
      */
     public function bulk($ids, $action)
     {
-        if ( ! $ids ) {
+        if (! $ids) {
             return 0;
         }
 
         $entities = $this->getRepo()->findByPublicIdsWithTrashed($ids);
 
         foreach ($entities as $entity) {
-            if(Auth::user()->can('edit', $entity)){
+            if (Auth::user()->can('edit', $entity)) {
                 $this->getRepo()->$action($entity);
             }
         }

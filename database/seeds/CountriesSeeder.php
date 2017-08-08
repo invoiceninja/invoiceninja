@@ -1,9 +1,9 @@
 <?php
-use Illuminate\Database\Eloquent\Model as Eloquent;
+
 use App\Models\Country;
 
-class CountriesSeeder extends Seeder {
-
+class CountriesSeeder extends Seeder
+{
     /**
      * Run the database seeds.
      *
@@ -11,14 +11,16 @@ class CountriesSeeder extends Seeder {
      */
     public function run()
     {
-        //Empty the countries table
-        DB::table('countries')->delete();
+        Eloquent::unguard();
 
-        if (DB::table('countries')->count() == 0) {
-            //Get all of the countries
-            $countries = Countries::getList();
-            foreach ($countries as $countryId => $country){
-                DB::table('countries')->insert(array(
+        $countries = Countries::getList();
+        foreach ($countries as $countryId => $country) {
+            if ($record = Country::whereCountryCode($country['country-code'])->first()) {
+                $record->name = $country['name'];
+                $record->full_name = ((isset($country['full_name'])) ? $country['full_name'] : null);
+                $record->save();
+            } else {
+                DB::table('countries')->insert([
                     'id' => $countryId,
                     'capital' => ((isset($country['capital'])) ? $country['capital'] : null),
                     'citizenship' => ((isset($country['citizenship'])) ? $country['citizenship'] : null),
@@ -32,11 +34,11 @@ class CountriesSeeder extends Seeder {
                     'name' => $country['name'],
                     'region_code' => $country['region-code'],
                     'sub_region_code' => $country['sub-region-code'],
-                    'eea' => (bool)$country['eea']
-                ));
+                    'eea' => (bool) $country['eea'],
+                ]);
             }
         }
-        
+
         // Source: http://www.bitboost.com/ref/international-address-formats.html
         // Source: https://en.wikipedia.org/wiki/Linguistic_issues_concerning_the_euro
         $countries = [
@@ -147,6 +149,10 @@ class CountriesSeeder extends Seeder {
             ],
             'SK' => [ // Slovakia
                 'swap_currency_symbol' => true,
+            ],
+            'US' => [
+                'thousand_separator' => ',',
+                'decimal_separator' => '.',
             ],
             'UY' => [
                 'swap_postal_code' => true,

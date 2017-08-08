@@ -1,4 +1,6 @@
-<?php namespace App\Ninja\Transformers;
+<?php
+
+namespace App\Ninja\Transformers;
 
 use App\Models\InvoiceItem;
 
@@ -11,7 +13,6 @@ class InvoiceItemTransformer extends EntityTransformer
             'product_key' => $item->product_key,
             'updated_at' => $this->getTimestamp($item->updated_at),
             'archived_at' => $this->getTimestamp($item->deleted_at),
-            'product_key' => $item->product_key,
             'notes' => $item->notes,
             'cost' => (float) $item->cost,
             'qty' => (float) $item->qty,
@@ -19,6 +20,7 @@ class InvoiceItemTransformer extends EntityTransformer
             'tax_rate1' => (float) $item->tax_rate1,
             'tax_name2' => $item->tax_name2 ? $item->tax_name2 : '',
             'tax_rate2' => (float) $item->tax_rate2,
+            'invoice_item_type_id' => (int) $item->invoice_item_type_id,
         ]);
     }
 }

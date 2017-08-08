@@ -1,17 +1,23 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Utils;
-use Response;
-use Cache;
-use App\Models\Account;
-use App\Ninja\Repositories\AccountRepository;
-use Illuminate\Http\Request;
-use App\Ninja\Transformers\AccountTransformer;
-use App\Ninja\Transformers\UserAccountTransformer;
+namespace App\Http\Controllers;
+
 use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
+use App\Models\Account;
+use App\Ninja\OAuth\OAuth;
+use App\Ninja\Repositories\AccountRepository;
+use App\Ninja\Transformers\AccountTransformer;
+use App\Ninja\Transformers\UserAccountTransformer;
+use App\Services\AuthService;
+use Auth;
+use Cache;
+use Exception;
+use Illuminate\Http\Request;
+use Response;
+use Socialite;
+use Utils;
 
 class AccountApiController extends BaseAPIController
 {
@@ -24,7 +30,7 @@ class AccountApiController extends BaseAPIController
         $this->accountRepo = $accountRepo;
     }
 
-    public function ping()
+    public function ping(Request $request)
     {
         $headers = Utils::getApiHeaders();
 
@@ -33,6 +39,9 @@ class AccountApiController extends BaseAPIController
 
     public function register(RegisterRequest $request)
     {
+        if (! \App\Models\LookupUser::validateField('email', $request->email)) {
+            return $this->errorResponse(['message' => trans('texts.email_taken')], 500);
+        }
 
         $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
         $user = $account->users()->first();
@@ -49,7 +58,8 @@ class AccountApiController extends BaseAPIController
             return $this->processLogin($request);
         } else {
             sleep(ERROR_DELAY);
-            return $this->errorResponse(['message'=>'Invalid credentials'],401);
+
+            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
     }
 
@@ -72,7 +82,7 @@ class AccountApiController extends BaseAPIController
         $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
         $transformer = new AccountTransformer(null, $request->serializer);
-        $account->load($transformer->getDefaultIncludes());
+        $account->load(array_merge($transformer->getDefaultIncludes(), ['projects.client']));
         $account = $this->createItem($account, $transformer, 'account');
 
         return $this->response($account);
@@ -111,20 +121,19 @@ class AccountApiController extends BaseAPIController
         $account = Auth::user()->account;
 
         //scan if this user has a token already registered (tokens can change, so we need to use the users email as key)
-        $devices = json_decode($account->devices,TRUE);
+        $devices = json_decode($account->devices, true);
 
-
-            for($x=0; $x<count($devices); $x++)
-            {
-                if ($devices[$x]['email'] == Auth::user()->username) {
-                    $devices[$x]['token'] = $request->token; //update
+        for ($x = 0; $x < count($devices); $x++) {
+            if ($devices[$x]['email'] == Auth::user()->username) {
+                $devices[$x]['token'] = $request->token; //update
+                $devices[$x]['device'] = $request->device;
                     $account->devices = json_encode($devices);
-                    $account->save();
-                    $devices[$x]['account_key'] = $account->account_key;
+                $account->save();
+                $devices[$x]['account_key'] = $account->account_key;
 
-                    return $this->response($devices[$x]);
-                }
+                return $this->response($devices[$x]);
             }
+        }
 
         //User does not have a device, create new record
 
@@ -133,10 +142,10 @@ class AccountApiController extends BaseAPIController
             'email' => $request->email,
             'device' => $request->device,
             'account_key' => $account->account_key,
-            'notify_sent' => TRUE,
-            'notify_viewed' => TRUE,
-            'notify_approved' => TRUE,
-            'notify_paid' => TRUE,
+            'notify_sent' => true,
+            'notify_viewed' => true,
+            'notify_approved' => true,
+            'notify_paid' => true,
         ];
 
         $devices[] = $newDevice;
@@ -144,23 +153,20 @@ class AccountApiController extends BaseAPIController
         $account->save();
 
         return $this->response($newDevice);
-
     }
 
     public function updatePushNotifications(Request $request)
     {
         $account = Auth::user()->account;
 
-        $devices = json_decode($account->devices, TRUE);
+        $devices = json_decode($account->devices, true);
 
-        if(count($devices) < 1)
-            return $this->errorResponse(['message'=>'No registered devices.'], 400);
+        if (count($devices) < 1) {
+            return $this->errorResponse(['message' => 'No registered devices.'], 400);
+        }
 
-        for($x=0; $x<count($devices); $x++)
-        {
-            if($devices[$x]['email'] == Auth::user()->username)
-            {
-
+        for ($x = 0; $x < count($devices); $x++) {
+            if ($devices[$x]['email'] == Auth::user()->username) {
                 $newDevice = [
                     'token' => $devices[$x]['token'],
                     'email' => $devices[$x]['email'],
@@ -179,6 +185,23 @@ class AccountApiController extends BaseAPIController
                 return $this->response($newDevice);
             }
         }
+    }
+
+    public function oauthLogin(Request $request)
+    {
+        $user = false;
+        $token = $request->input('token');
+        $provider = $request->input('provider');
+
+        $oAuth = new OAuth();
+        $user = $oAuth->getProvider($provider)->getTokenResponse($token);
+
+        if ($user) {
+            Auth::login($user);
+            return $this->processLogin($request);
+        }
+        else
+            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
 
     }
 }

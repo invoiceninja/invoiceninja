@@ -1,0 +1,10 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use App\Policies\EntityPolicy;
+
+class $STUDLY_NAME$Policy extends EntityPolicy
+{
+
+}

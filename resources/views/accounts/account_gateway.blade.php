@@ -18,8 +18,8 @@
         {!! Former::populateField('show_address', intval($accountGateway->show_address)) !!}
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
-        {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? '1' : null) !!}
-        {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? '1' : null) !!}
+        {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
+        {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? 1 : 0) !!}
         {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
         {!! Former::populateField('plaid_secret', $accountGateway->getPlaidSecret() ? str_repeat('*', strlen($accountGateway->getPlaidSecret())) : '') !!}
         {!! Former::populateField('plaid_public_key', $accountGateway->getPlaidPublicKey() ? str_repeat('*', strlen($accountGateway->getPlaidPublicKey())) : '') !!}
@@ -50,7 +50,8 @@
         {!! Former::select('primary_gateway_id')
             ->fromQuery($primaryGateways, 'name', 'id')
             ->label(trans('texts.gateway_id'))
-            ->onchange('setFieldsShown()') !!}
+            ->onchange('setFieldsShown()')
+            ->help(count($secondaryGateways) ? false : 'limited_gateways') !!}
 
         @if (count($secondaryGateways))
             {!! Former::select('secondary_gateway_id')
@@ -76,9 +77,11 @@
                     && isset($_ENV['DWOLLA_KEY']) && isset($_ENV['DWOLLA_SECRET']))
                     {{-- do nothing --}}
                 @elseif ($field == 'testMode' || $field == 'developerMode' || $field == 'sandbox')
-                    {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('Enable')->value('true') !!}
+                    {!! Former::checkbox($gateway->id.'_'.$field)->label(ucwords(Utils::toSpaceCase($field)))->text('enable')->value(1) !!}
                 @elseif ($field == 'username' || $field == 'password')
                     {!! Former::text($gateway->id.'_'.$field)->label('API '. ucfirst(Utils::toSpaceCase($field))) !!}
+                @elseif ($gateway->isCustom() && $field == 'text')
+                    {!! Former::textarea($gateway->id.'_'.$field)->label(trans('texts.text'))->rows(6) !!}
                 @else
                     {!! Former::text($gateway->id.'_'.$field)->label($gateway->id == GATEWAY_STRIPE ? trans('texts.secret_key') : ucwords(Utils::toSpaceCase($field))) !!}
                 @endif
@@ -87,16 +90,6 @@
 
             @if ($gateway->id == GATEWAY_STRIPE)
                 {!! Former::text('publishable_key') !!}
-
-                <div class="form-group">
-                    <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
-                    <div class="col-lg-8 col-sm-8 help-block">
-                        <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
-                        <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
-                        'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
-                    ]) !!}</strong></div>
-                    </div>
-                </div>
             @elseif ($gateway->id == GATEWAY_BRAINTREE)
                 @if ($account->hasGatewayId(GATEWAY_PAYPAL_EXPRESS))
                     {!! Former::checkbox('enable_paypal')
@@ -112,7 +105,8 @@
                                 'link'=>'<a href="https://articles.braintreepayments.com/guides/paypal/setup-guide" target="_blank">'.
                                     trans('texts.braintree_paypal_help_link_text').'</a>'
                             ]))
-                           ->text(trans('texts.braintree_enable_paypal')) !!}
+                           ->text(trans('texts.braintree_enable_paypal'))
+                           ->value(1) !!}
                 @endif
             @endif
 
@@ -132,17 +126,21 @@
         {!! Former::checkbox('show_address')
                 ->label(trans('texts.billing_address'))
                 ->text(trans('texts.show_address_help'))
-                ->addGroupClass('gateway-option') !!}
+                ->addGroupClass('gateway-option')
+                ->value(1) !!}
+
         {!! Former::checkbox('update_address')
                 ->label(' ')
                 ->text(trans('texts.update_address_help'))
-                ->addGroupClass('gateway-option') !!}
+                ->addGroupClass('gateway-option')
+                ->value(1) !!}
 
         {!! Former::checkboxes('creditCardTypes[]')
-                ->label('Accepted Credit Cards')
+                ->label('accepted_card_logos')
                 ->checkboxes($creditCardTypes)
                 ->class('creditcard-types')
                 ->addGroupClass('gateway-option')
+                ->value(1)
         !!}
     </div>
 
@@ -151,8 +149,19 @@
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
                 ->text(trans('texts.enable_ach'))
-                ->help(trans('texts.stripe_ach_help')) !!}
+                ->help(trans('texts.stripe_ach_help'))
+                ->value(1) !!}
+
             <div class="stripe-ach-options">
+                <div class="form-group">
+                    <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
+                    <div class="col-lg-8 col-sm-8 help-block">
+                        <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_STRIPE) }}">
+                        <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
+                        'link'=>'<a href="https://dashboard.stripe.com/account/webhooks" target="_blank">'.trans('texts.stripe_webhook_help_link_text').'</a>'
+                    ]) !!}</strong></div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-4">
                         <h4>{{trans('texts.plaid')}}</h4>
@@ -165,6 +174,11 @@
                     ->help(trans('texts.plaid_environment_help')) !!}
             </div>
         </div>
+    @elseif ($accountGateway && $accountGateway->gateway_id == GATEWAY_WEPAY)
+            {!! Former::checkbox('enable_ach')
+                        ->label(trans('texts.ach'))
+                        ->text(trans('texts.enable_ach'))
+                        ->value(1) !!}
     @endif
 
     </div>

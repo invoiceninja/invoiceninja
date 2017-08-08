@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class UserAccount
+ * Class UserAccount.
  */
 class UserAccount extends Eloquent
 {
@@ -14,20 +16,22 @@ class UserAccount extends Eloquent
 
     /**
      * @param $userId
+     *
      * @return bool
      */
     public function hasUserId($userId)
     {
-        if (!$userId) {
+        if (! $userId) {
             return false;
         }
 
-        for ($i=1; $i<=5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
             if ($this->$field && $this->$field == $userId) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -40,9 +44,9 @@ class UserAccount extends Eloquent
             return;
         }
 
-        for ($i=1; $i<=5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
-            if (!$this->$field) {
+            if (! $this->$field) {
                 $this->$field = $userId;
                 break;
             }
@@ -54,11 +58,11 @@ class UserAccount extends Eloquent
      */
     public function removeUserId($userId)
     {
-        if (!$userId || !self::hasUserId($userId)) {
+        if (! $userId || ! self::hasUserId($userId)) {
             return;
         }
 
-        for ($i=1; $i<=5; $i++) {
+        for ($i = 1; $i <= 5; $i++) {
             $field = "user_id{$i}";
             if ($this->$field && $this->$field == $userId) {
                 $this->$field = null;

@@ -1,11 +1,12 @@
-<?php namespace App\Events;
+<?php
 
+namespace App\Events;
 
 use App\Models\Expense;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class ExpenseWasRestored
+ * Class ExpenseWasRestored.
  */
 class ExpenseWasRestored extends Event
 {
@@ -25,5 +26,4 @@ class ExpenseWasRestored extends Event
     {
         $this->expense = $expense;
     }
-
 }

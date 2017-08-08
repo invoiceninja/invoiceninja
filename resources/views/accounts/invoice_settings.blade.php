@@ -16,7 +16,7 @@
         </style>
 @stop
 
-@section('content')	
+@section('content')
 	@parent
     @include('accounts.nav', ['selected' => ACCOUNT_INVOICE_SETTINGS, 'advanced' => true])
 
@@ -29,28 +29,34 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">{!! trans('texts.invoice_quote_number') !!}</h3>
+            <h3 class="panel-title">{!! trans('texts.generated_numbers') !!}</h3>
         </div>
         <div class="panel-body form-padding-right">
 
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active">
-                        <a href="#invoiceNumber" aria-controls="invoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.invoice_number') }}</a>
+                        <a href="#invoice_number" aria-controls="invoice_number" role="tab" data-toggle="tab">{{ trans('texts.invoice_number') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#quoteNumber" aria-controls="quoteNumber" role="tab" data-toggle="tab">{{ trans('texts.quote_number') }}</a>
+                        <a href="#quote_number" aria-controls="quote_number" role="tab" data-toggle="tab">{{ trans('texts.quote_number') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#recurringInvoiceNumber" aria-controls="recurringInvoiceNumber" role="tab" data-toggle="tab">{{ trans('texts.recurring_invoice_number') }}</a>
+                        <a href="#client_number" aria-controls="client_number" role="tab" data-toggle="tab">{{ trans('texts.client_number') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#credit_number" aria-controls="credit_number" role="tab" data-toggle="tab">{{ trans('texts.credit_number') }}</a>
+                    </li>
+                    <li role="presentation">
+                        <a href="#options" aria-controls="options" role="tab" data-toggle="tab">{{ trans('texts.options') }}</a>
                     </li>
                 </ul>
             </div>
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="invoiceNumber">
+                <div role="tabpanel" class="tab-pane active" id="invoice_number">
                     <div class="panel-body">
                         {!! Former::inline_radios('invoice_number_type')
-                                ->onchange('onInvoiceNumberTypeChange()')
+                                ->onchange("onNumberTypeChange('invoice')")
                                 ->label(trans('texts.type'))
                                 ->radios([
                                     trans('texts.prefix') => ['value' => 'prefix', 'name' => 'invoice_number_type'],
@@ -65,18 +71,16 @@
                                 ->addGroupClass('invoice-pattern')
                                 ->label(trans('texts.pattern'))
                                 ->addGroupClass('number-pattern') !!}
-                        {!! Former::text('invoice_number_padding') !!}
                         {!! Former::text('invoice_number_counter')
                                 ->label(trans('texts.counter'))
-                                ->help(trans('texts.invoice_number_help') . ' ' . 
+                                ->help(trans('texts.invoice_number_help') . ' ' .
                                     trans('texts.next_invoice_number', ['number' => $account->previewNextInvoiceNumber()])) !!}
-
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="quoteNumber">
+                <div role="tabpanel" class="tab-pane" id="quote_number">
                     <div class="panel-body">
                         {!! Former::inline_radios('quote_number_type')
-                                ->onchange('onQuoteNumberTypeChange()')
+                                ->onchange("onNumberTypeChange('quote')")
                                 ->label(trans('texts.type'))
                                 ->radios([
                                     trans('texts.prefix') => ['value' => 'prefix', 'name' => 'quote_number_type'],
@@ -94,20 +98,108 @@
                         {!! Former::text('quote_number_counter')
                                 ->label(trans('texts.counter'))
                                 ->addGroupClass('pad-checkbox')
-                                ->append(Former::checkbox('share_counter')->raw()
+                                ->append(Former::checkbox('share_counter')->raw()->value(1)
                                 ->onclick('setQuoteNumberEnabled()') . ' ' . trans('texts.share_invoice_counter'))
-                                ->help(trans('texts.quote_number_help') . ' ' . 
+                                ->help(trans('texts.quote_number_help') . ' ' .
                                     trans('texts.next_quote_number', ['number' => $account->previewNextInvoiceNumber(ENTITY_QUOTE)])) !!}
 
 
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="recurringInvoiceNumber">
+                <div role="tabpanel" class="tab-pane" id="client_number">
+                    <div class="panel-body">
+                        {!! Former::checkbox('client_number_enabled')
+                                ->label('client_number')
+                                ->onchange('onClientNumberEnabled()')
+                                ->text('enable')
+                                ->value(1)
+                                ->check($account->client_number_counter > 0) !!}
+
+                        <div id="clientNumberDiv" style="display:none">
+
+                            {!! Former::inline_radios('client_number_type')
+                                    ->onchange("onNumberTypeChange('client')")
+                                    ->label(trans('texts.type'))
+                                    ->radios([
+                                        trans('texts.prefix') => ['value' => 'prefix', 'name' => 'client_number_type'],
+                                        trans('texts.pattern') => ['value' => 'pattern', 'name' => 'client_number_type'],
+                                    ])->check($account->client_number_pattern ? 'pattern' : 'prefix') !!}
+
+                            {!! Former::text('client_number_prefix')
+                                    ->addGroupClass('client-prefix')
+                                    ->label(trans('texts.prefix')) !!}
+                            {!! Former::text('client_number_pattern')
+                                    ->appendIcon('question-sign')
+                                    ->addGroupClass('client-pattern')
+                                    ->addGroupClass('client-number-pattern')
+                                    ->label(trans('texts.pattern')) !!}
+                            {!! Former::text('client_number_counter')
+                                    ->label(trans('texts.counter'))
+                                    ->addGroupClass('pad-checkbox')
+                                    ->help(trans('texts.client_number_help') . ' ' .
+                                        trans('texts.next_client_number', ['number' => $account->getNextNumber() ?: '0001'])) !!}
+
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="credit_number">
                     <div class="panel-body">
 
+                        {!! Former::checkbox('credit_number_enabled')
+                                ->label('credit_number')
+                                ->onchange('onCreditNumberEnabled()')
+                                ->text('enable')
+                                ->value(1)
+                                ->check($account->credit_number_counter > 0) !!}
+
+                        <div id="creditNumberDiv" style="display:none">
+
+                            {!! Former::inline_radios('credit_number_type')
+                                    ->onchange("onNumberTypeChange('credit')")
+                                    ->label(trans('texts.type'))
+                                    ->radios([
+                                        trans('texts.prefix') => ['value' => 'prefix', 'name' => 'credit_number_type'],
+                                        trans('texts.pattern') => ['value' => 'pattern', 'name' => 'credit_number_type'],
+                                    ])->check($account->credit_number_pattern ? 'pattern' : 'prefix') !!}
+
+                            {!! Former::text('credit_number_prefix')
+                                    ->addGroupClass('credit-prefix')
+                                    ->label(trans('texts.prefix')) !!}
+                            {!! Former::text('credit_number_pattern')
+                                    ->appendIcon('question-sign')
+                                    ->addGroupClass('credit-pattern')
+                                    ->addGroupClass('credit-number-pattern')
+                                    ->label(trans('texts.pattern')) !!}
+                            {!! Former::text('credit_number_counter')
+                                    ->label(trans('texts.counter'))
+                                    ->addGroupClass('pad-checkbox')
+                                    ->help(trans('texts.credit_number_help') . ' ' .
+                                        trans('texts.next_credit_number', ['number' => $account->getNextNumber(new \App\Models\Credit()) ?: '0001'])) !!}
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="options">
+                    <div class="panel-body">
+
+                        {!! Former::text('invoice_number_padding')
+                                ->help('padding_help') !!}
+
                         {!! Former::text('recurring_invoice_number_prefix')
-                                ->label(trans('texts.prefix'))
+                                ->label(trans('texts.recurring_prefix'))
                                 ->help(trans('texts.recurring_invoice_number_prefix_help')) !!}
+
+                        {!! Former::select('reset_counter_frequency_id')
+                                ->onchange('onResetFrequencyChange()')
+                                ->label('reset_counter')
+                                ->addOption(trans('texts.never'), '')
+                                ->options(\App\Models\Frequency::selectOptions())
+                                ->help('reset_counter_help') !!}
+
+                        {!! Former::text('reset_counter_date')
+                                    ->label('next_reset')
+                                    ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+                                    ->addGroupClass('reset_counter_date_group')
+                                    ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
 
                     </div>
                 </div>
@@ -115,7 +207,7 @@
 
         </div>
     </div>
-    
+
 
     <div class="panel panel-default">
         <div class="panel-heading">
@@ -126,24 +218,24 @@
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
                     <li role="presentation" class="active">
-                        <a href="#clientFields" aria-controls="clientFields" role="tab" data-toggle="tab">{{ trans('texts.client_fields') }}</a>
+                        <a href="#client_fields" aria-controls="client_fields" role="tab" data-toggle="tab">{{ trans('texts.client_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#companyFields" aria-controls="companyFields" role="tab" data-toggle="tab">{{ trans('texts.company_fields') }}</a>
+                        <a href="#contact_fields" aria-controls="contact_fields" role="tab" data-toggle="tab">{{ trans('texts.contact_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoiceFields" aria-controls="invoiceFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
+                        <a href="#company_fields" aria-controls="company_fields" role="tab" data-toggle="tab">{{ trans('texts.company_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoiceItemFields" aria-controls="invoiceItemFields" role="tab" data-toggle="tab">{{ trans('texts.invoice_item_fields') }}</a>
+                        <a href="#product_fields" aria-controls="product_fields" role="tab" data-toggle="tab">{{ trans('texts.product_fields') }}</a>
                     </li>
                     <li role="presentation">
-                        <a href="#invoiceCharges" aria-controls="invoiceCharges" role="tab" data-toggle="tab">{{ trans('texts.invoice_charges') }}</a>
+                        <a href="#invoice_fields" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a>
                     </li>
                 </ul>
             </div>
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="clientFields">
+                <div role="tabpanel" class="tab-pane active" id="client_fields">
                     <div class="panel-body">
 
                         {!! Former::text('custom_client_label1')
@@ -154,7 +246,18 @@
 
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="companyFields">
+                <div role="tabpanel" class="tab-pane" id="contact_fields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_contact_label1')
+                                ->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_contact_label2')
+                                ->label(trans('texts.field_label'))
+                                ->help(trans('texts.custom_contact_fields_help')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="company_fields">
                     <div class="panel-body">
 
                         {!! Former::text('custom_label1')
@@ -170,7 +273,18 @@
 
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="invoiceFields">
+                <div role="tabpanel" class="tab-pane" id="product_fields">
+                    <div class="panel-body">
+
+                        {!! Former::text('custom_invoice_item_label1')
+                                ->label(trans('texts.field_label')) !!}
+                        {!! Former::text('custom_invoice_item_label2')
+                                ->label(trans('texts.field_label'))
+                                ->help(trans('texts.custom_product_fields_help')) !!}
+
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="invoice_fields">
                     <div class="panel-body">
 
                         {!! Former::text('custom_invoice_text_label1')
@@ -179,33 +293,20 @@
                                 ->label(trans('texts.field_label'))
                                 ->help(trans('texts.custom_invoice_fields_helps')) !!}
 
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="invoiceItemFields">
-                    <div class="panel-body">
-
-                        {!! Former::text('custom_invoice_item_label1')
-                                ->label(trans('texts.field_label')) !!}
-                        {!! Former::text('custom_invoice_item_label2')
-                                ->label(trans('texts.field_label'))
-                                ->help(trans('texts.custom_invoice_item_fields_help')) !!}
-
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="invoiceCharges">
-                    <div class="panel-body">
-
                         {!! Former::text('custom_invoice_label1')
-                                ->label(trans('texts.field_label'))
+                                ->label(trans('texts.surcharge_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes1')
-                                ->raw() . trans('texts.charge_taxes')) !!}
+                                            ->value(1)
+                                            ->raw() . trans('texts.charge_taxes')) !!}
+
                         {!! Former::text('custom_invoice_label2')
-                                ->label(trans('texts.field_label'))
+                                ->label(trans('texts.surcharge_label'))
                                 ->addGroupClass('pad-checkbox')
                                 ->append(Former::checkbox('custom_invoice_taxes2')
-                                ->raw() . trans('texts.charge_taxes'))
-                                ->help(trans('texts.custom_invoice_charges_helps')) !!}
+                                            ->value(1)
+                                            ->raw() . trans('texts.charge_taxes'))
+                                            ->help(trans('texts.custom_invoice_charges_helps')) !!}
 
                     </div>
                 </div>
@@ -220,51 +321,89 @@
         <div class="panel-body form-padding-right">
             {!! Former::checkbox('auto_convert_quote')
                     ->text(trans('texts.enable'))
-                    ->blockHelp(trans('texts.auto_convert_quote_help')) !!}
+                    ->blockHelp(trans('texts.auto_convert_quote_help'))
+                    ->value(1) !!}
         </div>
     </div>
 
     <div class="panel panel-default">
       <div class="panel-heading">
-        <h3 class="panel-title">{!! trans('texts.default_messages') !!}</h3>
+        <h3 class="panel-title">{!! trans('texts.defaults') !!}</h3>
       </div>
-        <div class="panel-body form-padding-right">
+        <div class="panel-body" style="min-height:350px">
 
             <div role="tabpanel">
                 <ul class="nav nav-tabs" role="tablist" style="border: none">
-                    <li role="presentation" class="active"><a href="#invoiceTerms" aria-controls="invoiceTerms" role="tab" data-toggle="tab">{{ trans('texts.invoice_terms') }}</a></li>
-                    <li role="presentation"><a href="#invoiceFooter" aria-controls="invoiceFooter" role="tab" data-toggle="tab">{{ trans('texts.invoice_footer') }}</a></li>
-                    <li role="presentation"><a href="#quoteTerms" aria-controls="quoteTerms" role="tab" data-toggle="tab">{{ trans('texts.quote_terms') }}</a></li>
+                    <li role="presentation" class="active"><a href="#invoice_terms" aria-controls="invoice_terms" role="tab" data-toggle="tab">{{ trans('texts.invoice_terms') }}</a></li>
+                    <li role="presentation"><a href="#invoice_footer" aria-controls="invoice_footer" role="tab" data-toggle="tab">{{ trans('texts.invoice_footer') }}</a></li>
+                    <li role="presentation"><a href="#quote_terms" aria-controls="quote_terms" role="tab" data-toggle="tab">{{ trans('texts.quote_terms') }}</a></li>
+                    @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                        <li role="presentation"><a href="#documents" aria-controls="documents" role="tab" data-toggle="tab">
+                            {{ trans('texts.documents') }}
+                            @if ($count = $account->defaultDocuments->count())
+                                ({{ $count }})
+                            @endif
+                        </a></li>
+                    @endif
                 </ul>
             </div>
             <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="invoiceTerms">
+                <div role="tabpanel" class="tab-pane active" id="invoice_terms">
                     <div class="panel-body">
                         {!! Former::textarea('invoice_terms')
                                 ->label(trans('texts.default_invoice_terms'))
-                                ->rows(4) !!}
+                                ->rows(8)
+                                ->raw() !!}
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="invoiceFooter">
+                <div role="tabpanel" class="tab-pane" id="invoice_footer">
                     <div class="panel-body">
                         {!! Former::textarea('invoice_footer')
                                 ->label(trans('texts.default_invoice_footer'))
-                                ->rows(4) !!}
+                                ->rows(8)
+                                ->raw() !!}
+                        @if ($account->hasFeature(FEATURE_REMOVE_CREATED_BY) && ! $account->isTrial())
+                            <div class="help-block">
+                                {{ trans('texts.invoice_footer_help')}}
+                            </div>
+                        @endif
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="quoteTerms">
+                <div role="tabpanel" class="tab-pane" id="quote_terms">
                     <div class="panel-body">
                         {!! Former::textarea('quote_terms')
                                 ->label(trans('texts.default_quote_terms'))
-                                ->rows(4) !!}
+                                ->rows(8)
+                                ->raw() !!}
                     </div>
                 </div>
+                @if ($account->hasFeature(FEATURE_DOCUMENTS))
+                    <div role="tabpanel" class="tab-pane" id="documents">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
+                                        <div id="document-upload">
+                                            <div class="dropzone">
+                                                <!--
+                                                <div data-bind="foreach: documents">
+                                                    <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
+                                                </div>
+                                                -->
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 
 
-    
+
     @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
         <center>
             {!! Button::success(trans('texts.save'))->large()->submit()->appendIcon(Icon::create('floppy-disk')) !!}
@@ -279,25 +418,31 @@
                     <h4 class="modal-title" id="patternHelpModalLabel">{{ trans('texts.pattern_help_title') }}</h4>
                 </div>
 
-                <div class="modal-body">
+                <div class="container" style="width: 100%; padding-bottom: 0px !important">
+                <div class="panel panel-default">
+                <div class="panel-body">
                     <p>{{ trans('texts.pattern_help_1') }}</p>
                     <p>{{ trans('texts.pattern_help_2') }}</p>
                     <ul>
                         @foreach (\App\Models\Invoice::$patternFields as $field)
                             @if ($field == 'date:')
                                 <li>{$date:format} - {!! link_to(PHP_DATE_FORMATS, trans('texts.see_options'), ['target' => '_blank']) !!}</li>
+                            @elseif (strpos($field, 'client') !== false)
+                                <li class="hide-client">{${{ $field }}}</li>
                             @else
                                 <li>{${{ $field }}}</li>
                             @endif
                         @endforeach
                     </ul>
-                    <p>{{ trans('texts.pattern_help_3', [
+                    <p class="hide-client">{{ trans('texts.pattern_help_3', [
                             'example' => '{$year}-{$counter}',
                             'value' => date('Y') . '-0001'
                         ]) }}</p>
                 </div>
+                </div>
+                </div>
 
-                <div class="modal-footer" style="margin-top: 0px">
+                <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
                 </div>
 
@@ -314,39 +459,87 @@
   	function setQuoteNumberEnabled() {
 			var disabled = $('#share_counter').prop('checked');
 			$('#quote_number_counter').prop('disabled', disabled);
-			$('#quote_number_counter').val(disabled ? '' : '{!! $account->quote_number_counter !!}');			
+			$('#quote_number_counter').val(disabled ? '' : '{!! $account->quote_number_counter !!}');
 		}
 
-    function onInvoiceNumberTypeChange() {
-        var val = $('input[name=invoice_number_type]:checked').val()
+    function onNumberTypeChange(entityType) {
+        var val = $('input[name=' + entityType + '_number_type]:checked').val();
         if (val == 'prefix') {
-            $('.invoice-prefix').show();
-            $('.invoice-pattern').hide();
+            $('.' + entityType + '-prefix').show();
+            $('.' + entityType + '-pattern').hide();
         } else {
-            $('.invoice-prefix').hide();
-            $('.invoice-pattern').show();
+            $('.' + entityType + '-prefix').hide();
+            $('.' + entityType + '-pattern').show();
         }
     }
 
-    function onQuoteNumberTypeChange() {
-        var val = $('input[name=quote_number_type]:checked').val()
-        if (val == 'prefix') {
-            $('.quote-prefix').show();
-            $('.quote-pattern').hide();
+    function onClientNumberEnabled() {
+        var enabled = $('#client_number_enabled').is(':checked');
+        if (enabled) {
+            $('#clientNumberDiv').show();
+            $('#client_number_counter').val({{ $account->client_number_counter ?: 1 }});
         } else {
-            $('.quote-prefix').hide();
-            $('.quote-pattern').show();
+            $('#clientNumberDiv').hide();
+            $('#client_number_counter').val(0);
+        }
+    }
+
+    function onCreditNumberEnabled() {
+        var enabled = $('#credit_number_enabled').is(':checked');
+        if (enabled) {
+            $('#creditNumberDiv').show();
+            $('#credit_number_counter').val({{ $account->credit_number_counter ?: 1 }});
+        } else {
+            $('#creditNumberDiv').hide();
+            $('#credit_number_counter').val(0);
+        }
+    }
+
+    function onResetFrequencyChange() {
+        var val = $('#reset_counter_frequency_id').val();
+        if (val) {
+            $('.reset_counter_date_group').show();
+        } else {
+            $('.reset_counter_date_group').hide();
         }
     }
 
     $('.number-pattern .input-group-addon').click(function() {
+        $('.hide-client').show();
         $('#patternHelpModal').modal('show');
     });
 
-    $(function() {       	
+    $('.client-number-pattern .input-group-addon').click(function() {
+        $('.hide-client').hide();
+        $('#patternHelpModal').modal('show');
+    });
+
+    $('.credit-number-pattern .input-group-addon').click(function() {
+        $('.hide-client').hide();
+        $('#patternHelpModal').modal('show');
+    });
+
+
+    var defaultDocuments = {!! $account->defaultDocuments()->get() !!};
+
+    $(function() {
     	setQuoteNumberEnabled();
-        onInvoiceNumberTypeChange();
-        onQuoteNumberTypeChange();
+        onNumberTypeChange('invoice');
+        onNumberTypeChange('quote');
+        onNumberTypeChange('client');
+        onNumberTypeChange('credit');
+        onClientNumberEnabled();
+        onCreditNumberEnabled();
+        onResetFrequencyChange();
+
+        $('#reset_counter_date').datepicker('update', '{{ Utils::fromSqlDate($account->reset_counter_date) ?: 'new Date()' }}');
+        $('.reset_counter_date_group .input-group-addon').click(function() {
+            toggleDatePicker('reset_counter_date');
+        });
+
+        @if ($account->hasFeature(FEATURE_DOCUMENTS))
+            @include('partials.dropzone', ['documentSource' => 'defaultDocuments', 'isDefault' => true])
+        @endif
     });
 
 	</script>

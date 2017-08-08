@@ -34,7 +34,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'AbrilFatface-Regular.ttf',
                 'italics' => 'AbrilFatface-Regular.ttf',
                 'bolditalics' => 'AbrilFatface-Regular.ttf',
-                'sort_order' => 200
+                'sort_order' => 200,
             ],
             [
                 'folder' => 'arvo',
@@ -45,7 +45,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'Arvo-Bold.ttf',
                 'italics' => 'Arvo-Italic.ttf',
                 'bolditalics' => 'Arvo-Italic.ttf',
-                'sort_order' => 300
+                'sort_order' => 300,
             ],
             [
                 'folder' => 'josefin_sans',
@@ -56,7 +56,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'JosefinSans-Bold.ttf',
                 'italics' => 'JosefinSans-Italic.ttf',
                 'bolditalics' => 'JosefinSans-Italic.ttf',
-                'sort_order' => 400
+                'sort_order' => 400,
 
             ],
             [
@@ -69,7 +69,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'JosefinSans-SemiBold.ttf',
                 'italics' => 'JosefinSans-LightItalic.ttf',
                 'bolditalics' => 'JosefinSans-LightItalic.ttf',
-                'sort_order' => 600
+                'sort_order' => 600,
             ],
             [
                 'folder' => 'josefin_slab',
@@ -80,7 +80,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'JosefinSlab-Bold.ttf',
                 'italics' => 'JosefinSlab-Italic.ttf',
                 'bolditalics' => 'JosefinSlab-Italic.ttf',
-                'sort_order' => 700
+                'sort_order' => 700,
             ],
             [
                 'folder' => 'josefin_slab_light',
@@ -92,7 +92,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'JosefinSlab-SemiBold.ttf',
                 'italics' => 'JosefinSlab-LightItalic.ttf',
                 'bolditalics' => 'JosefinSlab-LightItalic.ttf',
-                'sort_order' => 800
+                'sort_order' => 800,
             ],
             [
                 'folder' => 'open_sans',
@@ -103,7 +103,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'OpenSans-Semibold.ttf',
                 'italics' => 'OpenSans-Italic.ttf',
                 'bolditalics' => 'OpenSans-Italic.ttf',
-                'sort_order' => 900
+                'sort_order' => 900,
 
             ],
             [
@@ -138,7 +138,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'PTSerif-Bold.ttf',
                 'italics' => 'PTSerif-Italic.ttf',
                 'bolditalics' => 'PTSerif-Italic.ttf',
-                'sort_order' => 1200
+                'sort_order' => 1200,
             ],
             [
                 'folder' => 'raleway',
@@ -149,7 +149,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'Raleway-Medium.ttf',
                 'italics' => 'Raleway-Italic.ttf',
                 'bolditalics' => 'Raleway-Italic.ttf',
-                'sort_order' => 1300
+                'sort_order' => 1300,
             ],
             [
                 'folder' => 'raleway_light',
@@ -161,7 +161,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'Raleway-Medium.ttf',
                 'italics' => 'Raleway-LightItalic.ttf',
                 'bolditalics' => 'Raleway-LightItalic.ttf',
-                'sort_order' => 1400
+                'sort_order' => 1400,
             ],
             [
                 'folder' => 'titillium',
@@ -172,7 +172,7 @@ class FontsSeeder extends Seeder
                 'bold' => 'TitilliumWeb-Bold.ttf',
                 'italics' => 'TitilliumWeb-Italic.ttf',
                 'bolditalics' => 'TitilliumWeb-Italic.ttf',
-                'sort_order' => 1500
+                'sort_order' => 1500,
             ],
             [
                 'folder' => 'titillium_light',
@@ -245,7 +245,7 @@ class FontsSeeder extends Seeder
         ];
 
         foreach ($fonts as $font) {
-            if (!DB::table('fonts')->where('name', '=', $font['name'])->get()) {
+            if (! DB::table('fonts')->where('name', '=', $font['name'])->get()) {
                 Font::create($font);
             }
         }

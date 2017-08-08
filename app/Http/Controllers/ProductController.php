@@ -1,17 +1,22 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use URL;
-use View;
-use Input;
-use Session;
-use Redirect;
+namespace App\Http\Controllers;
+
 use App\Models\Product;
 use App\Models\TaxRate;
+use App\Ninja\Datatables\ProductDatatable;
+use App\Ninja\Repositories\ProductRepository;
 use App\Services\ProductService;
+use Auth;
+use Input;
+use Redirect;
+use Session;
+use URL;
+use Utils;
+use View;
 
 /**
- * Class ProductController
+ * Class ProductController.
  */
 class ProductController extends BaseController
 {
@@ -21,15 +26,21 @@ class ProductController extends BaseController
     protected $productService;
 
     /**
+     * @var ProductRepository
+     */
+    protected $productRepo;
+
+    /**
      * ProductController constructor.
-     * 
+     *
      * @param ProductService $productService
      */
-    public function __construct(ProductService $productService)
+    public function __construct(ProductService $productService, ProductRepository $productRepo)
     {
         //parent::__construct();
 
         $this->productService = $productService;
+        $this->productRepo = $productRepo;
     }
 
     /**
@@ -37,7 +48,19 @@ class ProductController extends BaseController
      */
     public function index()
     {
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return View::make('list_wrapper', [
+            'entityType' => ENTITY_PRODUCT,
+            'datatable' => new ProductDatatable(),
+            'title' => trans('texts.products'),
+            'statuses' => Product::getStatuses(),
+        ]);
+    }
+
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return Redirect::to("products/$publicId/edit");
     }
 
     /**
@@ -45,21 +68,24 @@ class ProductController extends BaseController
      */
     public function getDatatable()
     {
-        return $this->productService->getDatatable(Auth::user()->account_id);
+        return $this->productService->getDatatable(Auth::user()->account_id, Input::get('sSearch'));
     }
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Contracts\View\View
      */
     public function edit($publicId)
     {
         $account = Auth::user()->account;
+        $product = Product::scope($publicId)->withTrashed()->firstOrFail();
 
         $data = [
           'account' => $account,
-          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
-          'product' => Product::scope($publicId)->firstOrFail(),
+          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->whereIsInclusive(false)->get() : null,
+          'product' => $product,
+          'entity' => $product,
           'method' => 'PUT',
           'url' => 'products/'.$publicId,
           'title' => trans('texts.edit_product'),
@@ -77,7 +103,7 @@ class ProductController extends BaseController
 
         $data = [
           'account' => $account,
-          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->get(['id', 'name', 'rate']) : null,
+          'taxRates' => $account->invoice_item_taxes ? TaxRate::scope()->whereIsInclusive(false)->get(['id', 'name', 'rate']) : null,
           'product' => null,
           'method' => 'POST',
           'url' => 'products',
@@ -97,6 +123,7 @@ class ProductController extends BaseController
 
     /**
      * @param $publicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update($publicId)
@@ -106,27 +133,23 @@ class ProductController extends BaseController
 
     /**
      * @param bool $productPublicId
+     *
      * @return \Illuminate\Http\RedirectResponse
      */
     private function save($productPublicId = false)
     {
         if ($productPublicId) {
-            $product = Product::scope($productPublicId)->firstOrFail();
+            $product = Product::scope($productPublicId)->withTrashed()->firstOrFail();
         } else {
             $product = Product::createNew();
         }
 
-        $product->product_key = trim(Input::get('product_key'));
-        $product->notes = trim(Input::get('notes'));
-        $product->cost = trim(Input::get('cost'));
-        $product->default_tax_rate_id = Input::get('default_tax_rate_id');
-
-        $product->save();
+        $this->productRepo->save(Input::all(), $product);
 
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
 
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return Redirect::to("products/{$product->public_id}/edit");
     }
 
     /**
@@ -134,12 +157,13 @@ class ProductController extends BaseController
      */
     public function bulk()
     {
-        $action = Input::get('bulk_action');
-        $ids = Input::get('bulk_public_id');
+        $action = Input::get('action');
+        $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
         $count = $this->productService->bulk($ids, $action);
 
-        Session::flash('message', trans('texts.archived_product'));
+        $message = Utils::pluralize($action.'d_product', $count);
+        Session::flash('message', $message);
 
-        return Redirect::to('settings/' . ACCOUNT_PRODUCTS);
+        return $this->returnBulk(ENTITY_PRODUCT, $action, $ids);
     }
 }

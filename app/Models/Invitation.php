@@ -1,11 +1,14 @@
-<?php namespace App\Models;
+<?php
 
-use Utils;
+namespace App\Models;
+
 use Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Utils;
+use App\Models\LookupInvitation;
 
 /**
- * Class Invitation
+ * Class Invitation.
  */
 class Invitation extends EntityModel
 {
@@ -14,6 +17,14 @@ class Invitation extends EntityModel
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_INVITATION;
+    }
 
     /**
      * @return mixed
@@ -49,25 +60,36 @@ class Invitation extends EntityModel
 
     // If we're getting the link for PhantomJS to generate the PDF
     // we need to make sure it's served from our site
+
     /**
      * @param string $type
-     * @param bool $forceOnsite
+     * @param bool   $forceOnsite
+     *
      * @return string
      */
-    public function getLink($type = 'view', $forceOnsite = false)
+    public function getLink($type = 'view', $forceOnsite = false, $forcePlain = false)
     {
-        if ( ! $this->account) {
+        if (! $this->account) {
             $this->load('account');
         }
 
+        $account = $this->account;
+        $iframe_url = $account->iframe_url;
         $url = trim(SITE_URL, '/');
-        $iframe_url = $this->account->iframe_url;
 
-        if ($this->account->hasFeature(FEATURE_CUSTOM_URL)) {
-            if ($iframe_url && !$forceOnsite) {
+        if (env('REQUIRE_HTTPS')) {
+            $url = str_replace('http://', 'https://', $url);
+        }
+
+        if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
+            if (Utils::isNinjaProd()) {
+                $url = $account->present()->clientPortalLink();
+            }
+
+            if ($iframe_url && ! $forceOnsite) {
                 return "{$iframe_url}?{$this->invitation_key}";
-            } elseif ($this->account->subdomain) {
-                $url = Utils::replaceSubdomain($url, $this->account->subdomain);
+            } elseif ($this->account->subdomain && ! $forcePlain) {
+                $url = Utils::replaceSubdomain($url, $account->subdomain);
             }
         }
 
@@ -89,8 +111,8 @@ class Invitation extends EntityModel
             if ($this->$field && $this->field != '0000-00-00 00:00:00') {
                 $date = Utils::dateToString($this->$field);
                 $hasValue = true;
+                $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
             }
-            $parts[] = trans('texts.invitation_status_' . $status) . ': ' . $date;
         }
 
         return $hasValue ? implode($parts, '<br/>') : false;
@@ -115,6 +137,11 @@ class Invitation extends EntityModel
         $this->save();
     }
 
+    public function isSent()
+    {
+        return $this->sent_date && $this->sent_date != '0000-00-00 00:00:00';
+    }
+
     public function markViewed()
     {
         $invoice = $this->invoice;
@@ -126,4 +153,36 @@ class Invitation extends EntityModel
         $invoice->markViewed();
         $client->markLoggedIn();
     }
+
+    public function signatureDiv()
+    {
+        if (! $this->signature_base64) {
+            return false;
+        }
+
+        return sprintf('<img src="data:image/svg+xml;base64,%s"></img><p/>%s: %s', $this->signature_base64, trans('texts.signed'), Utils::fromSqlDateTime($this->signature_date));
+    }
 }
+
+Invitation::creating(function ($invitation)
+{
+    LookupInvitation::createNew($invitation->account->account_key, [
+        'invitation_key' => $invitation->invitation_key,
+    ]);
+});
+
+Invitation::updating(function ($invitation) {
+    $dirty = $invitation->getDirty();
+    if (array_key_exists('message_id', $dirty)) {
+        LookupInvitation::updateInvitation($invitation->account->account_key, $invitation);
+    }
+});
+
+Invitation::deleted(function ($invitation)
+{
+    if ($invitation->forceDeleting) {
+        LookupInvitation::deleteWhere([
+            'invitation_key' => $invitation->invitation_key,
+        ]);
+    }
+});

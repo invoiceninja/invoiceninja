@@ -1,7 +1,7 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
 
 class AddSourceCurrencyToExpenses extends Migration
 {
@@ -13,7 +13,6 @@ class AddSourceCurrencyToExpenses extends Migration
     public function up()
     {
         Schema::table('expenses', function (Blueprint $table) {
-
             $table->dropColumn('foreign_amount');
 
             if (Schema::hasColumn('expenses', 'currency_id')) {
@@ -21,7 +20,7 @@ class AddSourceCurrencyToExpenses extends Migration
                 $table->renameColumn('currency_id', 'invoice_currency_id');
             }
 
-            $table->unsignedInteger('expense_currency_id');
+            $table->unsignedInteger('expense_currency_id')->nullable()->index();
         });
 
         Schema::table('expenses', function (Blueprint $table) {
@@ -43,8 +42,7 @@ class AddSourceCurrencyToExpenses extends Migration
      */
     public function down()
     {
-        Schema::table('expenses', function($table) {
-
+        Schema::table('expenses', function ($table) {
         });
     }
 }

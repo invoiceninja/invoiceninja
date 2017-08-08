@@ -1,5 +1,6 @@
-<?php namespace App\Ninja\Mailers;
+<?php
 
+namespace App\Ninja\Mailers;
 
 use App\Models\Invitation;
 use App\Models\Invoice;
@@ -9,12 +10,12 @@ use App\Models\User;
 class UserMailer extends Mailer
 {
     /**
-     * @param User $user
+     * @param User      $user
      * @param User|null $invitor
      */
     public function sendConfirmation(User $user, User $invitor = null)
     {
-        if (!$user->email) {
+        if (! $user->email) {
             return;
         }
 
@@ -38,7 +39,7 @@ class UserMailer extends Mailer
     }
 
     /**
-     * @param User $user
+     * @param User    $user
      * @param Invoice $invoice
      * @param $notificationType
      * @param Payment|null $payment
@@ -47,9 +48,9 @@ class UserMailer extends Mailer
         User $user,
         Invoice $invoice,
         $notificationType,
-        Payment $payment = null
-    )
-    {
+        Payment $payment = null,
+        $notes = false
+    ) {
         if (! $user->email || $user->cannot('view', $invoice)) {
             return;
         }
@@ -58,6 +59,7 @@ class UserMailer extends Mailer
         $view = ($notificationType == 'approved' ? ENTITY_QUOTE : ENTITY_INVOICE) . "_{$notificationType}";
         $account = $user->account;
         $client = $invoice->client;
+        $link = $invoice->present()->multiAccountLink;
 
         $data = [
             'entityType' => $entityType,
@@ -66,7 +68,7 @@ class UserMailer extends Mailer
             'userName' => $user->getDisplayName(),
             'invoiceAmount' => $account->formatMoney($invoice->getRequestedAmount(), $client),
             'invoiceNumber' => $invoice->invoice_number,
-            'invoiceLink' => SITE_URL."/{$entityType}s/{$invoice->public_id}",
+            'invoiceLink' => $link,
             'account' => $account,
         ];
 
@@ -77,8 +79,12 @@ class UserMailer extends Mailer
 
         $subject = trans("texts.notification_{$entityType}_{$notificationType}_subject", [
             'invoice' => $invoice->invoice_number,
-            'client' => $client->getDisplayName()
+            'client' => $client->getDisplayName(),
         ]);
+
+        if ($notes) {
+            $subject .= ' [' . trans('texts.notes_' . $notes) . ']';
+        }
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
@@ -93,7 +99,7 @@ class UserMailer extends Mailer
         $invoice = $invitation->invoice;
         $entityType = $invoice->getEntityType();
 
-        if (!$user->email) {
+        if (! $user->email) {
             return;
         }
 
@@ -105,6 +111,45 @@ class UserMailer extends Mailer
             'entityType' => $entityType,
             'contactName' => $invitation->contact->getDisplayName(),
             'invoiceNumber' => $invoice->invoice_number,
+        ];
+
+        $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    /**
+     * @param Invitation $invitation
+     */
+    public function sendMessage($user, $subject, $message, $data = false)
+    {
+        if (! $user->email) {
+            return;
+        }
+
+        $invoice = $data && isset($data['invoice']) ? $data['invoice'] : false;
+        $view = 'user_message';
+
+        $data = $data ?: [];
+        $data += [
+            'userName' => $user->getDisplayName(),
+            'primaryMessage' => $subject,
+            'secondaryMessage' => $message,
+            'invoiceLink' => $invoice ? $invoice->present()->multiAccountLink : false,
+        ];
+
+        $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
+
+    public function sendSecurityCode($user, $code)
+    {
+        if (! $user->email) {
+            return;
+        }
+
+        $subject = trans('texts.security_code_email_subject');
+        $view = 'security_code';
+        $data = [
+            'userName' => $user->getDisplayName(),
+            'code' => $code,
         ];
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);

@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class PaymentType
+ * Class PaymentType.
  */
 class PaymentType extends Eloquent
 {
@@ -11,4 +13,12 @@ class PaymentType extends Eloquent
      * @var bool
      */
     public $timestamps = false;
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function gatewayType()
+    {
+        return $this->belongsTo('App\Models\GatewayType');
+    }
 }

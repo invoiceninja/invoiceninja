@@ -1,27 +1,32 @@
-<?php namespace App\Libraries;
+<?php
 
+namespace App\Libraries;
+
+use App;
 use Auth;
 use Cache;
-use App;
-use Schema;
-use Session;
-use Request;
-use Exception;
-use View;
+use Carbon;
+use DateTime;
 use DateTimeZone;
+use Exception;
 use Input;
 use Log;
-use DateTime;
+use Request;
+use Schema;
+use Session;
 use stdClass;
-use Carbon;
+use View;
 use WePay;
 
 class Utils
 {
     private static $weekdayNames = [
-        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
+        'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
     ];
 
+    public static $months = [
+        'january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december',
+    ];
 
     public static function isRegistered()
     {
@@ -64,9 +69,14 @@ class Utils
         return self::isNinjaProd() || self::isNinjaDev();
     }
 
+    public static function isSelfHost()
+    {
+        return ! static::isNinjaProd();
+    }
+
     public static function isNinjaProd()
     {
-        if (Utils::isReseller()) {
+        if (self::isReseller()) {
             return true;
         }
 
@@ -84,17 +94,81 @@ class Utils
             return false;
         }
 
-        return Utils::isNinjaProd() || (isset($_ENV['REQUIRE_HTTPS']) && $_ENV['REQUIRE_HTTPS'] == 'true');
+        return self::isNinjaProd() || (isset($_ENV['REQUIRE_HTTPS']) && $_ENV['REQUIRE_HTTPS'] == 'true');
     }
 
     public static function isReseller()
     {
-        return Utils::getResllerType() ? true : false;
+        return self::getResllerType() ? true : false;
+    }
+
+	public static function clientViewCSS()
+	{
+		$account = false;
+
+		if (Auth::check()) {
+			$account = Auth::user()->account;
+		} elseif ($contactKey = session('contact_key')) {
+			if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+				$account = $contact->account;
+			}
+		}
+
+		if ( !$account && ! self::isNinja()) {
+			// For self-hosted accounts, pick the first account
+			$account = \App\Models\Account::first();
+		}
+
+		return $account ? $account->clientViewCSS() : '';
+	}
+
+	public static function getAccountFontsUrl($protocol = '')
+	{
+		$account = false;
+
+		if (Auth::check()) {
+			$account = Auth::user()->account;
+		} elseif ($contactKey = session('contact_key')) {
+			if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+				$account = $contact->account;
+			}
+		}
+
+		if ( !$account && ! self::isNinja()) {
+			// For self-hosted accounts, pick the first account
+			$account = \App\Models\Account::first();
+		}
+
+		return $account ? $account->getFontsUrl($protocol) : false;
+	}
+
+    public static function isWhiteLabel()
+    {
+        $account = false;
+
+        if (self::isNinja()) {
+            if (Auth::check()) {
+                $account = Auth::user()->account;
+            } elseif ($contactKey = session('contact_key')) {
+                if ($contact = \App\Models\Contact::whereContactKey($contactKey)->first()) {
+                    $account = $contact->account;
+                }
+            }
+        } else {
+            $account = \App\Models\Account::first();
+        }
+
+        return $account ? $account->hasFeature(FEATURE_WHITE_LABEL) : false;
     }
 
     public static function getResllerType()
     {
         return isset($_ENV['RESELLER_TYPE']) ? $_ENV['RESELLER_TYPE'] : false;
+    }
+
+    public static function getTermsLink()
+    {
+        return static::isNinja() ? NINJA_WEB_URL.'/terms' : NINJA_WEB_URL.'/self-hosting-the-invoice-ninja-platform';
     }
 
     public static function isOAuthEnabled()
@@ -103,7 +177,7 @@ class Utils
             SOCIAL_GOOGLE,
             SOCIAL_FACEBOOK,
             SOCIAL_GITHUB,
-            SOCIAL_LINKEDIN
+            SOCIAL_LINKEDIN,
         ];
 
         foreach ($providers as $provider) {
@@ -118,7 +192,7 @@ class Utils
 
     public static function allowNewAccounts()
     {
-        return Utils::isNinja() || Auth::check();
+        return self::isNinja() || Auth::check();
     }
 
     public static function isPro()
@@ -151,6 +225,11 @@ class Utils
         return Auth::check() && Auth::user()->isTrial();
     }
 
+    public static function isPaidPro()
+    {
+        return static::isPro() && ! static::isTrial();
+    }
+
     public static function isEnglish()
     {
         return App::getLocale() == 'en';
@@ -165,49 +244,31 @@ class Utils
 
     public static function getUserType()
     {
-        if (Utils::isNinja()) {
+        if (self::isNinja()) {
             return USER_TYPE_CLOUD_HOST;
         } else {
             return USER_TYPE_SELF_HOST;
         }
     }
 
-    public static function getDemoAccountId()
-    {
-        return isset($_ENV[DEMO_ACCOUNT_ID]) ? $_ENV[DEMO_ACCOUNT_ID] : false;
-    }
-
     public static function getNewsFeedResponse($userType = false)
     {
-        if (!$userType) {
-            $userType = Utils::getUserType();
+        if (! $userType) {
+            $userType = self::getUserType();
         }
 
         $response = new stdClass();
         $response->message = isset($_ENV["{$userType}_MESSAGE"]) ? $_ENV["{$userType}_MESSAGE"] : '';
         $response->id = isset($_ENV["{$userType}_ID"]) ? $_ENV["{$userType}_ID"] : '';
-        $response->version = env('NINJA_SELF_HOST_VERSION', NINJA_VERSION);
+        $response->version = NINJA_VERSION;
 
         return $response;
-    }
-
-    public static function getLastURL()
-    {
-        if (!count(Session::get(RECENTLY_VIEWED))) {
-            return '#';
-        }
-
-        $history = Session::get(RECENTLY_VIEWED);
-        $last = $history[0];
-        $penultimate = count($history) > 1 ? $history[1] : $last;
-
-        return Request::url() == $last->url ? $penultimate->url : $last->url;
     }
 
     public static function getProLabel($feature)
     {
         if (Auth::check()
-                && !Auth::user()->isPro()
+                && ! Auth::user()->isPro()
                 && $feature == ACCOUNT_ADVANCED_SETTINGS) {
             return '&nbsp;<sup class="pro-label">PRO</sup>';
         } else {
@@ -232,6 +293,8 @@ class Utils
                 $price = PLAN_PRICE_ENTERPRISE_MONTHLY_5;
             } elseif ($numUsers <= 10) {
                 $price = PLAN_PRICE_ENTERPRISE_MONTHLY_10;
+            } elseif ($numUsers <= 20) {
+                $price = PLAN_PRICE_ENTERPRISE_MONTHLY_20;
             } else {
                 static::fatalError('Invalid number of users: ' . $numUsers);
             }
@@ -250,8 +313,10 @@ class Utils
             return 1;
         } elseif ($max <= 5) {
             return 3;
-        } else {
+        } elseif ($max <= 10) {
             return 6;
+        } else {
+            return 11;
         }
     }
 
@@ -260,7 +325,7 @@ class Utils
         return substr($_SERVER['SCRIPT_NAME'], 0, strrpos($_SERVER['SCRIPT_NAME'], '/') + 1);
     }
 
-    public static function trans($input)
+    public static function trans($input, $module = false)
     {
         $data = [];
 
@@ -268,7 +333,11 @@ class Utils
             if ($field == 'checkbox') {
                 $data[] = $field;
             } elseif ($field) {
-                $data[] = trans("texts.$field");
+                if ($module) {
+                    $data[] = mtrans($module, $field);
+                } else {
+                    $data[] = trans("texts.$field");
+                }
             } else {
                 $data[] = '';
             }
@@ -279,7 +348,7 @@ class Utils
 
     public static function fatalError($message = false, $exception = false)
     {
-        if (!$message) {
+        if (! $message) {
             $message = 'An error occurred, please try again later.';
         }
 
@@ -297,6 +366,7 @@ class Utils
     {
         $class = get_class($exception);
         $code = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : $exception->getCode();
+
         return  "***{$class}*** [{$code}] : {$exception->getFile()} [Line {$exception->getLine()}] => {$exception->getMessage()}";
     }
 
@@ -312,30 +382,32 @@ class Utils
             return 'logged';
         }
 
-        $data = [
-            'context' => $context,
-            'user_id' => Auth::check() ? Auth::user()->id : 0,
-            'account_id' => Auth::check() ? Auth::user()->account_id : 0,
-            'user_name' => Auth::check() ? Auth::user()->getDisplayName() : '',
-            'method' => Request::method(),
-            'url' => Input::get('url', Request::url()),
-            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
-            'ip' => Request::getClientIp(),
-            'count' => Session::get('error_count', 0),
-        ];
+        $data = static::prepareErrorData($context);
 
         if ($info) {
             Log::info($error."\n", $data);
         } else {
             Log::error($error."\n", $data);
         }
+    }
 
-        /*
-        Mail::queue('emails.error', ['message'=>$error.' '.json_encode($data)], function($message)
-        {
-            $message->to($email)->subject($subject);
-        });
-        */
+    public static function prepareErrorData($context)
+    {
+        return [
+            'context' => $context,
+            'user_id' => Auth::check() ? Auth::user()->id : 0,
+            'account_id' => Auth::check() ? Auth::user()->account_id : 0,
+            'user_name' => Auth::check() ? Auth::user()->getDisplayName() : '',
+            'method' => Request::method(),
+            'url' => Input::get('url', Request::url()),
+            'previous' => url()->previous(),
+            'user_agent' => isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '',
+            'ip' => Request::getClientIp(),
+            'count' => Session::get('error_count', 0),
+            'is_console' => App::runningInConsole() ? 'yes' : 'no',
+            'is_api' => session('token_id') ? 'yes' : 'no',
+            'db_server' => config('database.default'),
+        ];
     }
 
     public static function parseFloat($value)
@@ -352,32 +424,36 @@ class Utils
         return intval($value);
     }
 
-    public static function getFromCache($id, $type) {
+    public static function getFromCache($id, $type)
+    {
         $cache = Cache::get($type);
 
-        if ( ! $cache) {
+        if (! $cache) {
             static::logError("Cache for {$type} is not set");
+
             return null;
         }
 
-        $data = $cache->filter(function($item) use ($id) {
+        $data = $cache->filter(function ($item) use ($id) {
             return $item->id == $id;
         });
 
         return $data->first();
     }
 
-    public static function formatMoney($value, $currencyId = false, $countryId = false, $showCode = false)
+    public static function formatMoney($value, $currencyId = false, $countryId = false, $decorator = false)
     {
-        if (!$value) {
-            $value = 0;
-        }
+        $value = floatval($value);
 
-        if (!$currencyId) {
+        if (! $currencyId) {
             $currencyId = Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY);
         }
 
-        if (!$countryId && Auth::check()) {
+        if (! $decorator) {
+            $decorator = Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL);
+        }
+
+        if (! $countryId && Auth::check()) {
             $countryId = Auth::user()->account->country_id;
         }
 
@@ -402,7 +478,9 @@ class Utils
         $value = number_format($value, $precision, $decimal, $thousand);
         $symbol = $currency->symbol;
 
-        if ($showCode || !$symbol) {
+        if ($decorator == CURRENCY_DECORATOR_NONE) {
+            return $value;
+        } elseif ($decorator == CURRENCY_DECORATOR_CODE || ! $symbol) {
             return "{$value} {$code}";
         } elseif ($swapSymbol) {
             return "{$value} " . trim($symbol);
@@ -421,6 +499,12 @@ class Utils
 
     public static function pluralizeEntityType($type)
     {
+        if (! self::isNinjaProd()) {
+            if ($module = \Module::find($type)) {
+                return $module->get('plural', $type);
+            }
+        }
+
         if ($type === ENTITY_EXPENSE_CATEGORY) {
             return 'expense_categories';
         } else {
@@ -436,6 +520,7 @@ class Utils
         }
 
         $lastDigits = substr($value, -4);
+
         return str_repeat('*', $length - 4) . $lastDigits;
     }
 
@@ -491,7 +576,7 @@ class Utils
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATETIME_FORMAT, DEFAULT_DATETIME_FORMAT);
 
-        return Utils::timestampToString($timestamp, $timezone, $format);
+        return self::timestampToString($timestamp, $timezone, $format);
     }
 
     public static function timestampToDateString($timestamp)
@@ -499,12 +584,12 @@ class Utils
         $timezone = Session::get(SESSION_TIMEZONE, DEFAULT_TIMEZONE);
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        return Utils::timestampToString($timestamp, $timezone, $format);
+        return self::timestampToString($timestamp, $timezone, $format);
     }
 
     public static function dateToString($date)
     {
-        if (!$date) {
+        if (! $date) {
             return false;
         }
 
@@ -517,12 +602,12 @@ class Utils
         $timestamp = $dateTime->getTimestamp();
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
 
-        return Utils::timestampToString($timestamp, false, $format);
+        return self::timestampToString($timestamp, false, $format);
     }
 
-    public static function timestampToString($timestamp, $timezone = false, $format)
+    public static function timestampToString($timestamp, $timezone, $format)
     {
-        if (!$timestamp) {
+        if (! $timestamp) {
             return '';
         }
         $date = Carbon::createFromTimeStamp($timestamp);
@@ -538,37 +623,39 @@ class Utils
 
     public static function toSqlDate($date, $formatResult = true)
     {
-        if (!$date) {
+        if (! $date) {
             return;
         }
 
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat($format, $date);
 
-        if(!$dateTime)
+        if (! $dateTime) {
             return $date;
-        else
+        } else {
             return $formatResult ? $dateTime->format('Y-m-d') : $dateTime;
+        }
     }
 
     public static function fromSqlDate($date, $formatResult = true)
     {
-        if (!$date || $date == '0000-00-00') {
+        if (! $date || $date == '0000-00-00') {
             return '';
         }
 
         $format = Session::get(SESSION_DATE_FORMAT, DEFAULT_DATE_FORMAT);
         $dateTime = DateTime::createFromFormat('Y-m-d', $date);
 
-        if(!$dateTime)
+        if (! $dateTime) {
             return $date;
-        else
+        } else {
             return $formatResult ? $dateTime->format($format) : $dateTime;
+        }
     }
 
     public static function fromSqlDateTime($date, $formatResult = true)
     {
-        if (!$date || $date == '0000-00-00 00:00:00') {
+        if (! $date || $date == '0000-00-00 00:00:00') {
             return '';
         }
 
@@ -585,7 +672,8 @@ class Utils
     {
         // http://stackoverflow.com/a/3172665
         $f = ':';
-        return sprintf('%02d%s%02d%s%02d', floor($t/3600), $f, ($t/60)%60, $f, $t%60);
+
+        return sprintf('%02d%s%02d%s%02d', floor($t / 3600), $f, ($t / 60) % 60, $f, $t % 60);
     }
 
     public static function today($formatResult = true)
@@ -602,59 +690,14 @@ class Utils
         }
     }
 
-    public static function trackViewed($name, $type, $url = false)
+    public static function processVariables($str, $client = false)
     {
-        if (!$url) {
-            $url = Request::url();
-        }
-
-        $viewed = Session::get(RECENTLY_VIEWED);
-
-        if (!$viewed) {
-            $viewed = [];
-        }
-
-        $object = new stdClass();
-        $object->accountId = Auth::user()->account_id;
-        $object->url = $url;
-        $object->name = ucwords($type).': '.$name;
-
-        $data = [];
-        $counts = [];
-
-        for ($i = 0; $i<count($viewed); $i++) {
-            $item = $viewed[$i];
-
-            if ($object->url == $item->url || $object->name == $item->name) {
-                continue;
-            }
-
-            array_push($data, $item);
-
-            if (isset($counts[$item->accountId])) {
-                $counts[$item->accountId]++;
-            } else {
-                $counts[$item->accountId] = 1;
-            }
-        }
-
-        array_unshift($data, $object);
-
-        if (isset($counts[Auth::user()->account_id]) && $counts[Auth::user()->account_id] > RECENTLY_VIEWED_LIMIT) {
-            array_pop($data);
-        }
-
-        Session::put(RECENTLY_VIEWED, $data);
-    }
-
-    public static function processVariables($str)
-    {
-        if (!$str) {
+        if (! $str) {
             return '';
         }
 
         $variables = ['MONTH', 'QUARTER', 'YEAR'];
-        for ($i = 0; $i<count($variables); $i++) {
+        for ($i = 0; $i < count($variables); $i++) {
             $variable = $variables[$i];
             $regExp = '/:'.$variable.'[+-]?[\d]*/';
             preg_match_all($regExp, $str, $matches);
@@ -662,7 +705,7 @@ class Utils
             if (count($matches) == 0) {
                 continue;
             }
-            usort($matches, function($a, $b) {
+            usort($matches, function ($a, $b) {
                 return strlen($b) - strlen($a);
             });
             foreach ($matches as $match) {
@@ -675,7 +718,8 @@ class Utils
                     $offset = intval($minArray[1]) * -1;
                 }
 
-                $val = Utils::getDatePart($variable, $offset);
+                $locale = $client && $client->language_id ? $client->language->locale : null;
+                $val = self::getDatePart($variable, $offset, $locale);
                 $str = str_replace($match, $val, $str);
             }
         }
@@ -683,23 +727,34 @@ class Utils
         return $str;
     }
 
-    private static function getDatePart($part, $offset)
+    private static function getDatePart($part, $offset, $locale)
     {
         $offset = intval($offset);
         if ($part == 'MONTH') {
-            return Utils::getMonth($offset);
+            return self::getMonth($offset, $locale);
         } elseif ($part == 'QUARTER') {
-            return Utils::getQuarter($offset);
+            return self::getQuarter($offset);
         } elseif ($part == 'YEAR') {
-            return Utils::getYear($offset);
+            return self::getYear($offset);
         }
     }
 
-    private static function getMonth($offset)
+    public static function getMonthOptions()
     {
-        $months = ['january', 'february', 'march', 'april', 'may', 'june',
-            'july', 'august', 'september', 'october', 'november', 'december', ];
+        $months = [];
 
+        for ($i = 1; $i <= count(static::$months); $i++) {
+            $month = static::$months[$i - 1];
+            $number = $i < 10 ? '0' . $i : $i;
+            $months["2000-{$number}-01"] = trans("texts.{$month}");
+        }
+
+        return $months;
+    }
+
+    private static function getMonth($offset, $locale)
+    {
+        $months = static::$months;
         $month = intval(date('n')) - 1;
 
         $month += $offset;
@@ -709,7 +764,7 @@ class Utils
             $month += 12;
         }
 
-        return trans('texts.' . $months[$month]);
+        return trans('texts.' . $months[$month], [], null, $locale);
     }
 
     private static function getQuarter($offset)
@@ -732,14 +787,9 @@ class Utils
         return $year + $offset;
     }
 
-    public static function getEntityClass($entityType)
-    {
-        return 'App\\Models\\' . static::getEntityName($entityType);
-    }
-
     public static function getEntityName($entityType)
     {
-        return ucwords(Utils::toCamelCase($entityType));
+        return ucwords(self::toCamelCase($entityType));
     }
 
     public static function getClientDisplayName($model)
@@ -749,17 +799,19 @@ class Utils
         } elseif ($model->first_name || $model->last_name) {
             return $model->first_name.' '.$model->last_name;
         } else {
-            return $model->email;
+            return $model->email ?: '';
         }
     }
 
     public static function getVendorDisplayName($model)
     {
-        if(is_null($model))
+        if (is_null($model)) {
             return '';
+        }
 
-        if($model->vendor_name)
+        if ($model->vendor_name) {
             return $model->vendor_name;
+        }
 
         return 'No vendor name';
     }
@@ -778,7 +830,7 @@ class Utils
     public static function generateLicense()
     {
         $parts = [];
-        for ($i = 0; $i<5; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $parts[] = strtoupper(str_random(4));
         }
 
@@ -813,7 +865,7 @@ class Utils
             CURLOPT_CUSTOMREQUEST => 'POST',
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => $jsonEncodedData,
-            CURLOPT_HTTPHEADER  => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
+            CURLOPT_HTTPHEADER => ['Content-Type: application/json', 'Content-Length: '.strlen($jsonEncodedData)],
         ];
 
         curl_setopt_array($curl, $opts);
@@ -846,7 +898,7 @@ class Utils
 
     public static function isEmpty($value)
     {
-        return !$value || $value == '0' || $value == '0.00' || $value == '0,00';
+        return ! $value || $value == '0' || $value == '0.00' || $value == '0,00';
     }
 
     public static function startsWith($haystack, $needle)
@@ -864,7 +916,7 @@ class Utils
         $str = '';
 
         if (property_exists($model, 'is_deleted')) {
-            $str = $model->is_deleted || ($model->deleted_at && $model->deleted_at != '0000-00-00') ? 'DISABLED ' : '';
+            $str = $model->is_deleted ? 'DISABLED ' : '';
 
             if ($model->is_deleted) {
                 $str .= 'ENTITY_DELETED ';
@@ -907,23 +959,31 @@ class Utils
     public static function transFlowText($key)
     {
         $str = trans("texts.$key");
-        if (!in_array(App::getLocale(), ['de', 'fr'])) {
+        if (! in_array(App::getLocale(), ['de', 'fr'])) {
             $str = strtolower($str);
         }
+
         return $str;
     }
 
-    public static function getSubdomainPlaceholder()
+    public static function getSubdomain($url)
     {
-        $parts = parse_url(SITE_URL);
+        $parts = parse_url($url);
         $subdomain = '';
+
         if (isset($parts['host'])) {
             $host = explode('.', $parts['host']);
             if (count($host) > 2) {
                 $subdomain = $host[0];
             }
         }
+
         return $subdomain;
+    }
+
+    public static function getSubdomainPlaceholder()
+    {
+        return static::getSubdomain(SITE_URL);
     }
 
     public static function getDomainPlaceholder()
@@ -942,6 +1002,7 @@ class Utils
         if (isset($parts['path'])) {
             $domain .= $parts['path'];
         }
+
         return $domain;
     }
 
@@ -953,6 +1014,7 @@ class Utils
             $oldSubdomain = $host[0];
             $domain = str_replace("://{$oldSubdomain}.", "://{$subdomain}.", $domain);
         }
+
         return $domain;
     }
 
@@ -961,12 +1023,14 @@ class Utils
         $name = trim($name);
         $lastName = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
         $firstName = trim(preg_replace('#'.$lastName.'#', '', $name));
+
         return [$firstName, $lastName];
     }
 
     public static function decodePDF($string)
     {
         $string = str_replace('data:application/pdf;base64,', '', $string);
+
         return base64_decode($string);
     }
 
@@ -988,20 +1052,15 @@ class Utils
         }
     }
 
-    public static function formatWebsite($website)
+    public static function formatWebsite($link)
     {
-        if (!$website) {
+        if (! $link) {
             return '';
         }
 
-        $link = $website;
-        $title = $website;
-        $prefix = 'http://';
-
-        if (strlen($link) > 7 && substr($link, 0, 7) === $prefix) {
-            $title = substr($title, 7);
-        } else {
-            $link = $prefix.$link;
+        $title = $link;
+        if (substr($link, 0, 4) != 'http') {
+            $link = 'http://' . $link;
         }
 
         return link_to($link, $title, ['target' => '_blank']);
@@ -1010,13 +1069,14 @@ class Utils
     public static function wrapAdjustment($adjustment, $currencyId, $countryId)
     {
         $class = $adjustment <= 0 ? 'success' : 'default';
-        $adjustment = Utils::formatMoney($adjustment, $currencyId, $countryId);
+        $adjustment = self::formatMoney($adjustment, $currencyId, $countryId);
+
         return "<h4><div class=\"label label-{$class}\">$adjustment</div></h4>";
     }
 
     public static function copyContext($entity1, $entity2)
     {
-        if (!$entity2) {
+        if (! $entity2) {
             return $entity1;
         }
 
@@ -1025,7 +1085,7 @@ class Utils
             'payment_id',
             'invoice_id',
             'credit_id',
-            'invitation_id'
+            'invitation_id',
         ];
 
         $fields1 = $entity1->getAttributes();
@@ -1042,7 +1102,7 @@ class Utils
 
     public static function addHttp($url)
     {
-        if (!preg_match('~^(?:f|ht)tps?://~i', $url)) {
+        if (! preg_match('~^(?:f|ht)tps?://~i', $url)) {
             $url = 'http://' . $url;
         }
 
@@ -1067,7 +1127,7 @@ class Utils
     }
 
     /**
-     * Gets an array of weekday names (in English)
+     * Gets an array of weekday names (in English).
      *
      * @see getTranslatedWeekdayNames()
      *
@@ -1079,14 +1139,166 @@ class Utils
     }
 
     /**
-     * Gets an array of translated weekday names
+     * Gets an array of translated weekday names.
      *
      * @return \Illuminate\Support\Collection
      */
     public static function getTranslatedWeekdayNames()
     {
         return collect(static::$weekdayNames)->transform(function ($day) {
-             return trans('texts.'.strtolower($day));
+            return trans('texts.'.strtolower($day));
         });
+    }
+
+    public static function getReadableUrl($path)
+    {
+        $url = static::getDocsUrl($path);
+
+        $parts = explode('/', $url);
+        $part = $parts[count($parts) - 1];
+        $part = str_replace('#', '> ', $part);
+        $part = str_replace(['.html', '-', '_'], ' ', $part);
+
+        if ($part) {
+            return trans('texts.user_guide') . ': ' . ucwords($part);
+        } else {
+            return trans('texts.user_guide');
+        }
+    }
+
+    public static function getDocsUrl($path)
+    {
+        $page = '';
+        $parts = explode('/', $path);
+        $first = count($parts) ? $parts[0] : false;
+        $second = count($parts) > 1 ? $parts[1] : false;
+
+        $entityTypes = [
+            'clients',
+            'invoices',
+            'payments',
+            'recurring_invoices',
+            'credits',
+            'quotes',
+            'tasks',
+            'expenses',
+            'vendors',
+        ];
+
+        if ($path == 'dashboard') {
+            $page = '/introduction.html#dashboard';
+        } elseif (in_array($path, $entityTypes)) {
+            $page = "/{$path}.html#list-" . str_replace('_', '-', $path);
+        } elseif (in_array($first, $entityTypes)) {
+            $action = ($first == 'payments' || $first == 'credits') ? 'enter' : 'create';
+            $page = "/{$first}.html#{$action}-" . substr(str_replace('_', '-', $first), 0, -1);
+        } elseif ($first == 'expense_categories') {
+            $page = '/expenses.html#expense-categories';
+        } elseif ($first == 'settings') {
+            if ($second == 'bank_accounts') {
+                $page = ''; // TODO write docs
+            } elseif (in_array($second, \App\Models\Account::$basicSettings)) {
+                if ($second == 'products') {
+                    $second = 'product_library';
+                } elseif ($second == 'notifications') {
+                    $second = 'email_notifications';
+                }
+                $page = '/settings.html#' . str_replace('_', '-', $second);
+            } elseif (in_array($second, \App\Models\Account::$advancedSettings)) {
+                $page = "/{$second}.html";
+            } elseif ($second == 'customize_design') {
+                $page = '/invoice_design.html#customize';
+            }
+        } elseif ($first == 'tax_rates') {
+            $page = '/settings.html#tax-rates';
+        } elseif ($first == 'products') {
+            $page = '/settings.html#product-library';
+        } elseif ($first == 'users') {
+            $page = '/user_management.html#create-user';
+        }
+
+        return url(NINJA_DOCS_URL . $page);
+    }
+
+    public static function calculateTaxes($amount, $taxRate1, $taxRate2)
+    {
+        $tax1 = round($amount * $taxRate1 / 100, 2);
+        $tax2 = round($amount * $taxRate2 / 100, 2);
+
+        return round($amount + $tax1 + $tax2, 2);
+    }
+
+    public static function truncateString($string, $length)
+    {
+        return strlen($string) > $length ? rtrim(substr($string, 0, $length)) . '...' : $string;
+    }
+
+    // http://stackoverflow.com/a/14238078/497368
+    public static function isInterlaced($filename)
+    {
+       $handle = fopen($filename, 'r');
+       $contents = fread($handle, 32);
+       fclose($handle);
+       return( ord($contents[28]) != 0 );
+    }
+
+    //Source: https://stackoverflow.com/questions/3302857/algorithm-to-get-the-excel-like-column-name-of-a-number
+    public static function num2alpha($n)
+    {
+        for($r = ""; $n >= 0; $n = intval($n / 26) - 1)
+            $r = chr($n%26 + 0x41) . $r;
+        return $r;
+    }
+
+    /**
+     * Replace language-specific characters by ASCII-equivalents.
+     * @param string $s
+     * @return string
+     * Source: https://stackoverflow.com/questions/3371697/replacing-accented-characters-php/16427125#16427125
+     */
+    public static function normalizeChars($s) {
+        $replace = array(
+            'ъ'=>'-', 'Ь'=>'-', 'Ъ'=>'-', 'ь'=>'-',
+            'Ă'=>'A', 'Ą'=>'A', 'À'=>'A', 'Ã'=>'A', 'Á'=>'A', 'Æ'=>'A', 'Â'=>'A', 'Å'=>'A', 'Ä'=>'Ae',
+            'Þ'=>'B',
+            'Ć'=>'C', 'ץ'=>'C', 'Ç'=>'C',
+            'È'=>'E', 'Ę'=>'E', 'É'=>'E', 'Ë'=>'E', 'Ê'=>'E',
+            'Ğ'=>'G',
+            'İ'=>'I', 'Ï'=>'I', 'Î'=>'I', 'Í'=>'I', 'Ì'=>'I',
+            'Ł'=>'L',
+            'Ñ'=>'N', 'Ń'=>'N',
+            'Ø'=>'O', 'Ó'=>'O', 'Ò'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'Oe',
+            'Ş'=>'S', 'Ś'=>'S', 'Ș'=>'S', 'Š'=>'S',
+            'Ț'=>'T',
+            'Ù'=>'U', 'Û'=>'U', 'Ú'=>'U', 'Ü'=>'Ue',
+            'Ý'=>'Y',
+            'Ź'=>'Z', 'Ž'=>'Z', 'Ż'=>'Z',
+            'â'=>'a', 'ǎ'=>'a', 'ą'=>'a', 'á'=>'a', 'ă'=>'a', 'ã'=>'a', 'Ǎ'=>'a', 'а'=>'a', 'А'=>'a', 'å'=>'a', 'à'=>'a', 'א'=>'a', 'Ǻ'=>'a', 'Ā'=>'a', 'ǻ'=>'a', 'ā'=>'a', 'ä'=>'ae', 'æ'=>'ae', 'Ǽ'=>'ae', 'ǽ'=>'ae',
+            'б'=>'b', 'ב'=>'b', 'Б'=>'b', 'þ'=>'b',
+            'ĉ'=>'c', 'Ĉ'=>'c', 'Ċ'=>'c', 'ć'=>'c', 'ç'=>'c', 'ц'=>'c', 'צ'=>'c', 'ċ'=>'c', 'Ц'=>'c', 'Č'=>'c', 'č'=>'c', 'Ч'=>'ch', 'ч'=>'ch',
+            'ד'=>'d', 'ď'=>'d', 'Đ'=>'d', 'Ď'=>'d', 'đ'=>'d', 'д'=>'d', 'Д'=>'D', 'ð'=>'d',
+            'є'=>'e', 'ע'=>'e', 'е'=>'e', 'Е'=>'e', 'Ə'=>'e', 'ę'=>'e', 'ĕ'=>'e', 'ē'=>'e', 'Ē'=>'e', 'Ė'=>'e', 'ė'=>'e', 'ě'=>'e', 'Ě'=>'e', 'Є'=>'e', 'Ĕ'=>'e', 'ê'=>'e', 'ə'=>'e', 'è'=>'e', 'ë'=>'e', 'é'=>'e',
+            'ф'=>'f', 'ƒ'=>'f', 'Ф'=>'f',
+            'ġ'=>'g', 'Ģ'=>'g', 'Ġ'=>'g', 'Ĝ'=>'g', 'Г'=>'g', 'г'=>'g', 'ĝ'=>'g', 'ğ'=>'g', 'ג'=>'g', 'Ґ'=>'g', 'ґ'=>'g', 'ģ'=>'g',
+            'ח'=>'h', 'ħ'=>'h', 'Х'=>'h', 'Ħ'=>'h', 'Ĥ'=>'h', 'ĥ'=>'h', 'х'=>'h', 'ה'=>'h',
+            'î'=>'i', 'ï'=>'i', 'í'=>'i', 'ì'=>'i', 'į'=>'i', 'ĭ'=>'i', 'ı'=>'i', 'Ĭ'=>'i', 'И'=>'i', 'ĩ'=>'i', 'ǐ'=>'i', 'Ĩ'=>'i', 'Ǐ'=>'i', 'и'=>'i', 'Į'=>'i', 'י'=>'i', 'Ї'=>'i', 'Ī'=>'i', 'І'=>'i', 'ї'=>'i', 'і'=>'i', 'ī'=>'i', 'ĳ'=>'ij', 'Ĳ'=>'ij',
+            'й'=>'j', 'Й'=>'j', 'Ĵ'=>'j', 'ĵ'=>'j', 'я'=>'ja', 'Я'=>'ja', 'Э'=>'je', 'э'=>'je', 'ё'=>'jo', 'Ё'=>'jo', 'ю'=>'ju', 'Ю'=>'ju',
+            'ĸ'=>'k', 'כ'=>'k', 'Ķ'=>'k', 'К'=>'k', 'к'=>'k', 'ķ'=>'k', 'ך'=>'k',
+            'Ŀ'=>'l', 'ŀ'=>'l', 'Л'=>'l', 'ł'=>'l', 'ļ'=>'l', 'ĺ'=>'l', 'Ĺ'=>'l', 'Ļ'=>'l', 'л'=>'l', 'Ľ'=>'l', 'ľ'=>'l', 'ל'=>'l',
+            'מ'=>'m', 'М'=>'m', 'ם'=>'m', 'м'=>'m',
+            'ñ'=>'n', 'н'=>'n', 'Ņ'=>'n', 'ן'=>'n', 'ŋ'=>'n', 'נ'=>'n', 'Н'=>'n', 'ń'=>'n', 'Ŋ'=>'n', 'ņ'=>'n', 'ŉ'=>'n', 'Ň'=>'n', 'ň'=>'n',
+            'о'=>'o', 'О'=>'o', 'ő'=>'o', 'õ'=>'o', 'ô'=>'o', 'Ő'=>'o', 'ŏ'=>'o', 'Ŏ'=>'o', 'Ō'=>'o', 'ō'=>'o', 'ø'=>'o', 'ǿ'=>'o', 'ǒ'=>'o', 'ò'=>'o', 'Ǿ'=>'o', 'Ǒ'=>'o', 'ơ'=>'o', 'ó'=>'o', 'Ơ'=>'o', 'œ'=>'oe', 'Œ'=>'oe', 'ö'=>'oe',
+            'פ'=>'p', 'ף'=>'p', 'п'=>'p', 'П'=>'p',
+            'ק'=>'q',
+            'ŕ'=>'r', 'ř'=>'r', 'Ř'=>'r', 'ŗ'=>'r', 'Ŗ'=>'r', 'ר'=>'r', 'Ŕ'=>'r', 'Р'=>'r', 'р'=>'r',
+            'ș'=>'s', 'с'=>'s', 'Ŝ'=>'s', 'š'=>'s', 'ś'=>'s', 'ס'=>'s', 'ş'=>'s', 'С'=>'s', 'ŝ'=>'s', 'Щ'=>'sch', 'щ'=>'sch', 'ш'=>'sh', 'Ш'=>'sh', 'ß'=>'ss',
+            'т'=>'t', 'ט'=>'t', 'ŧ'=>'t', 'ת'=>'t', 'ť'=>'t', 'ţ'=>'t', 'Ţ'=>'t', 'Т'=>'t', 'ț'=>'t', 'Ŧ'=>'t', 'Ť'=>'t', '™'=>'tm',
+            'ū'=>'u', 'у'=>'u', 'Ũ'=>'u', 'ũ'=>'u', 'Ư'=>'u', 'ư'=>'u', 'Ū'=>'u', 'Ǔ'=>'u', 'ų'=>'u', 'Ų'=>'u', 'ŭ'=>'u', 'Ŭ'=>'u', 'Ů'=>'u', 'ů'=>'u', 'ű'=>'u', 'Ű'=>'u', 'Ǖ'=>'u', 'ǔ'=>'u', 'Ǜ'=>'u', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'У'=>'u', 'ǚ'=>'u', 'ǜ'=>'u', 'Ǚ'=>'u', 'Ǘ'=>'u', 'ǖ'=>'u', 'ǘ'=>'u', 'ü'=>'ue',
+            'в'=>'v', 'ו'=>'v', 'В'=>'v',
+            'ש'=>'w', 'ŵ'=>'w', 'Ŵ'=>'w',
+            'ы'=>'y', 'ŷ'=>'y', 'ý'=>'y', 'ÿ'=>'y', 'Ÿ'=>'y', 'Ŷ'=>'y',
+            'Ы'=>'y', 'ž'=>'z', 'З'=>'z', 'з'=>'z', 'ź'=>'z', 'ז'=>'z', 'ż'=>'z', 'ſ'=>'z', 'Ж'=>'zh', 'ж'=>'zh'
+        );
+        return strtr($s, $replace);
     }
 }

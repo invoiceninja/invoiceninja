@@ -45,7 +45,8 @@ return array(
         base_path()."/tests",
         base_path()."/resources/views",
         base_path()."/config",
-        base_path()."/vendor"
+        base_path()."/vendor",
+        base_path()."/app/Console/Commands/stubs"
     ),
 
     /*

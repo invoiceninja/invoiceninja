@@ -1,21 +1,17 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Config;
-use Input;
-use Utils;
-use DB;
-use DateInterval;
-use DatePeriod;
-use Session;
-use View;
+namespace App\Http\Controllers;
+
 use App\Models\Account;
-use App\Models\Client;
-use App\Models\Payment;
-use App\Models\Expense;
+use Auth;
+use Input;
+use Str;
+use Utils;
+use View;
+use Excel;
 
 /**
- * Class ReportController
+ * Class ReportController.
  */
 class ReportController extends BaseController
 {
@@ -32,7 +28,7 @@ class ReportController extends BaseController
                             ->with(['clients.invoices.invoice_items', 'clients.contacts'])
                             ->first();
             $account = $account->hideFieldsForViz();
-            $clients = $account->clients->toJson();
+            $clients = $account->clients;
         } elseif (file_exists($fileName)) {
             $clients = file_get_contents($fileName);
             $message = trans('texts.sample_data');
@@ -53,562 +49,150 @@ class ReportController extends BaseController
      */
     public function showReports()
     {
-        $action = Input::get('action');
+        if (! Auth::user()->hasPermission('view_all')) {
+            return redirect('/');
+        }
 
-        if (Input::all()) {
-            $groupBy = Input::get('group_by');
-            $chartType = Input::get('chart_type');
+        $action = Input::get('action');
+        $format = Input::get('format');
+
+        if (Input::get('report_type')) {
             $reportType = Input::get('report_type');
             $dateField = Input::get('date_field');
-            $startDate = Utils::toSqlDate(Input::get('start_date'), false);
-            $endDate = Utils::toSqlDate(Input::get('end_date'), false);
-            $enableReport = Input::get('enable_report') ? true : false;
-            $enableChart = Input::get('enable_chart') ? true : false;
+            $startDate = date_create(Input::get('start_date'));
+            $endDate = date_create(Input::get('end_date'));
         } else {
-            $groupBy = 'MONTH';
-            $chartType = 'Bar';
             $reportType = ENTITY_INVOICE;
             $dateField = FILTER_INVOICE_DATE;
             $startDate = Utils::today(false)->modify('-3 month');
             $endDate = Utils::today(false);
-            $enableReport = true;
-            $enableChart = true;
         }
 
-        $dateTypes = [
-            'DAYOFYEAR' => 'Daily',
-            'WEEK' => 'Weekly',
-            'MONTH' => 'Monthly',
-        ];
-
-        $chartTypes = [
-            'Bar' => 'Bar',
-            'Line' => 'Line',
-        ];
-
         $reportTypes = [
-            ENTITY_CLIENT => trans('texts.client'),
-            ENTITY_INVOICE => trans('texts.invoice'),
-            ENTITY_PAYMENT => trans('texts.payment'),
-            ENTITY_EXPENSE => trans('texts.expenses'),
-            ENTITY_TAX_RATE => trans('texts.taxes'),
+            'activity',
+            'aging',
+            'client',
+            'expense',
+            'invoice',
+            'payment',
+            'product',
+            'profit_and_loss',
+            'task',
+            'tax_rate',
+            'quote',
         ];
 
         $params = [
-            'dateTypes' => $dateTypes,
-            'chartTypes' => $chartTypes,
-            'chartType' => $chartType,
-            'startDate' => $startDate->format(Session::get(SESSION_DATE_FORMAT)),
-            'endDate' => $endDate->format(Session::get(SESSION_DATE_FORMAT)),
-            'groupBy' => $groupBy,
-            'reportTypes' => $reportTypes,
+            'startDate' => $startDate->format('Y-m-d'),
+            'endDate' => $endDate->format('Y-m-d'),
+            'reportTypes' => array_combine($reportTypes, Utils::trans($reportTypes)),
             'reportType' => $reportType,
-            'enableChart' => $enableChart,
-            'enableReport' => $enableReport,
             'title' => trans('texts.charts_and_reports'),
+            'account' => Auth::user()->account,
         ];
 
         if (Auth::user()->account->hasFeature(FEATURE_REPORTS)) {
-            if ($enableReport) {
-                $isExport = $action == 'export';
-                $params = array_merge($params, self::generateReport($reportType, $startDate, $endDate, $dateField, $isExport));
-
-                if ($isExport) {
-                    self::export($reportType, $params['displayData'], $params['columns'], $params['reportTotals']);
-                }
+            $isExport = $action == 'export';
+            $reportClass = '\\App\\Ninja\\Reports\\' . Str::studly($reportType) . 'Report';
+            $options = [
+                'date_field' => $dateField,
+                'invoice_status' => request()->invoice_status,
+                'group_dates_by' => request()->group_dates_by,
+            ];
+            $report = new $reportClass($startDate, $endDate, $isExport, $options);
+            if (Input::get('report_type')) {
+                $report->run();
             }
-            if ($enableChart) {
-                $params = array_merge($params, self::generateChart($groupBy, $startDate, $endDate));
+            $params['report'] = $report;
+            $params = array_merge($params, $report->results());
+            if ($isExport) {
+                return self::export($format, $reportType, $params);
             }
         } else {
             $params['columns'] = [];
             $params['displayData'] = [];
             $params['reportTotals'] = [];
-            $params['labels'] = [];
-            $params['datasets'] = [];
-            $params['scaleStepWidth'] = 100;
+            $params['report'] = false;
         }
 
         return View::make('reports.chart_builder', $params);
     }
 
     /**
-     * @param $groupBy
-     * @param $startDate
-     * @param $endDate
-     * @return array
-     */
-    private function generateChart($groupBy, $startDate, $endDate)
-    {
-        $width = 10;
-        $datasets = [];
-        $labels = [];
-        $maxTotals = 0;
-
-        foreach ([ENTITY_INVOICE, ENTITY_PAYMENT, ENTITY_CREDIT] as $entityType) {
-            // SQLite does not support the YEAR(), MONTH(), WEEK() and similar functions.
-            // Let's see if SQLite is being used.
-            if (Config::get('database.connections.'.Config::get('database.default').'.driver') == 'sqlite') {
-                // Replace the unsupported function with it's date format counterpart
-                switch ($groupBy) {
-                    case 'MONTH':
-                        $dateFormat = '%m';     // returns 01-12
-                        break;
-                    case 'WEEK':
-                        $dateFormat = '%W';     // returns 00-53
-                        break;
-                    case 'DAYOFYEAR':
-                        $dateFormat = '%j';     // returns 001-366
-                        break;
-                    default:
-                        $dateFormat = '%m';     // MONTH by default
-                        break;
-                }
-
-                // Concatenate the year and the chosen timeframe (Month, Week or Day)
-                $timeframe = 'strftime("%Y", '.$entityType.'_date) || strftime("'.$dateFormat.'", '.$entityType.'_date)';
-            } else {
-                // Supported by Laravel's other DBMS drivers (MySQL, MSSQL and PostgreSQL)
-                $timeframe = 'concat(YEAR('.$entityType.'_date), '.$groupBy.'('.$entityType.'_date))';
-            }
-
-            $records = DB::table($entityType.'s')
-                ->select(DB::raw('sum('.$entityType.'s.amount) as total, '.$timeframe.' as '.$groupBy))
-                ->join('clients', 'clients.id', '=', $entityType.'s.client_id')
-                ->where('clients.is_deleted', '=', false)
-                ->where($entityType.'s.account_id', '=', Auth::user()->account_id)
-                ->where($entityType.'s.is_deleted', '=', false)
-                ->where($entityType.'s.'.$entityType.'_date', '>=', $startDate->format('Y-m-d'))
-                ->where($entityType.'s.'.$entityType.'_date', '<=', $endDate->format('Y-m-d'))
-                ->groupBy($groupBy);
-
-            if ($entityType == ENTITY_INVOICE) {
-                $records->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                        ->where('is_recurring', '=', false);
-            } elseif ($entityType == ENTITY_PAYMENT) {
-                $records->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-                        ->where('invoices.is_deleted', '=', false);
-            }
-
-            $totals = $records->lists('total');
-            $dates  = $records->lists($groupBy);
-            $data   = array_combine($dates, $totals);
-
-            $padding = $groupBy == 'DAYOFYEAR' ? 'day' : ($groupBy == 'WEEK' ? 'week' : 'month');
-            $endDate->modify('+1 '.$padding);
-            $interval = new DateInterval('P1'.substr($groupBy, 0, 1));
-            $period   = new DatePeriod($startDate, $interval, $endDate);
-            $endDate->modify('-1 '.$padding);
-
-            $totals = [];
-
-            foreach ($period as $d) {
-                $dateFormat = $groupBy == 'DAYOFYEAR' ? 'z' : ($groupBy == 'WEEK' ? 'W' : 'n');
-                // MySQL returns 1-366 for DAYOFYEAR, whereas PHP returns 0-365
-                $date = $groupBy == 'DAYOFYEAR' ? $d->format('Y').($d->format($dateFormat) + 1) : $d->format('Y'.$dateFormat);
-                $totals[] = isset($data[$date]) ? $data[$date] : 0;
-
-                if ($entityType == ENTITY_INVOICE) {
-                    $labelFormat = $groupBy == 'DAYOFYEAR' ? 'j' : ($groupBy == 'WEEK' ? 'W' : 'F');
-                    $label = $d->format($labelFormat);
-                    $labels[] = $label;
-                }
-            }
-
-            $max = max($totals);
-
-            if ($max > 0) {
-                $datasets[] = [
-                    'totals' => $totals,
-                    'colors' => $entityType == ENTITY_INVOICE ? '78,205,196' : ($entityType == ENTITY_CREDIT ? '199,244,100' : '255,107,107'),
-                ];
-                $maxTotals = max($max, $maxTotals);
-            }
-        }
-
-        $width = (ceil($maxTotals / 100) * 100) / 10;
-        $width = max($width, 10);
-
-        return [
-            'datasets' => $datasets,
-            'scaleStepWidth' => $width,
-            'labels' => $labels,
-        ];
-    }
-
-    /**
+     * @param $format
      * @param $reportType
-     * @param $startDate
-     * @param $endDate
-     * @param $dateField
-     * @param $isExport
-     * @return array
+     * @param $params
+     * @todo: Add summary to export
      */
-    private function generateReport($reportType, $startDate, $endDate, $dateField, $isExport)
+    private function export($format, $reportType, $params)
     {
-        if ($reportType == ENTITY_CLIENT) {
-            return $this->generateClientReport($startDate, $endDate, $isExport);
-        } elseif ($reportType == ENTITY_INVOICE) {
-            return $this->generateInvoiceReport($startDate, $endDate, $isExport);
-        } elseif ($reportType == ENTITY_PAYMENT) {
-            return $this->generatePaymentReport($startDate, $endDate, $isExport);
-        } elseif ($reportType == ENTITY_TAX_RATE) {
-            return $this->generateTaxRateReport($startDate, $endDate, $dateField, $isExport);
-        } elseif ($reportType == ENTITY_EXPENSE) {
-            return $this->generateExpenseReport($startDate, $endDate, $isExport);
+        if (! Auth::user()->hasPermission('view_all')) {
+            exit;
         }
-    }
 
-    /**
-     * @param $startDate
-     * @param $endDate
-     * @param $dateField
-     * @param $isExport
-     * @return array
-     */
-    private function generateTaxRateReport($startDate, $endDate, $dateField, $isExport)
-    {
-        $columns = ['tax_name', 'tax_rate', 'amount', 'paid'];
+        $format  = strtolower($format);
+        $data    = $params['displayData'];
+        $columns = $params['columns'];
+        $totals  = $params['reportTotals'];
+        $report  = $params['report'];
 
-        $account = Auth::user()->account;
-        $displayData = [];
-        $reportTotals = [];
+        $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-".strtolower(Utils::normalizeChars(trans("texts.$reportType")))."-report";
 
-        $clients = Client::scope()
-                        ->withArchived()
-                        ->with('contacts')
-                        ->with(['invoices' => function($query) use ($startDate, $endDate, $dateField) {
-                            $query->with('invoice_items')->withArchived();
-                            if ($dateField == FILTER_INVOICE_DATE) {
-                                $query->where('invoice_date', '>=', $startDate)
-                                      ->where('invoice_date', '<=', $endDate)
-                                      ->with('payments');
-                            } else {
-                                $query->whereHas('payments', function($query) use ($startDate, $endDate) {
-                                            $query->where('payment_date', '>=', $startDate)
-                                                  ->where('payment_date', '<=', $endDate)
-                                                  ->withArchived();
-                                        })
-                                        ->with(['payments' => function($query) use ($startDate, $endDate) {
-                                            $query->where('payment_date', '>=', $startDate)
-                                                  ->where('payment_date', '<=', $endDate)
-                                                  ->withArchived();
-                                        }]);
-                            }
-                        }]);
+        $formats = ['csv', 'pdf', 'xlsx'];
+        if(!in_array($format, $formats)) {
+            throw new \Exception("Invalid format request to export report");
+        }
 
-        foreach ($clients->get() as $client) {
-            $currencyId = $client->currency_id ?: Auth::user()->account->getCurrencyId();
-            $amount = 0;
-            $paid = 0;
-            $taxTotals = [];
+        //Get labeled header
+        $columns_labeled = $report->tableHeaderArray();
 
-            foreach ($client->invoices as $invoice) {
-                foreach ($invoice->getTaxes(true) as $key => $tax) {
-                    if ( ! isset($taxTotals[$currencyId])) {
-                        $taxTotals[$currencyId] = [];
-                    }
-                    if (isset($taxTotals[$currencyId][$key])) {
-                        $taxTotals[$currencyId][$key]['amount'] += $tax['amount'];
-                        $taxTotals[$currencyId][$key]['paid'] += $tax['paid'];
-                    } else {
-                        $taxTotals[$currencyId][$key] = $tax;
-                    }
-                }
+        /*$summary = [];
+        if(count(array_values($totals))) {
+            $summary[] = array_merge([
+                trans("texts.totals")
+            ], array_map(function ($key) {return trans("texts.{$key}");}, array_keys(array_values(array_values($totals)[0])[0])));
+        }
 
-                $amount += $invoice->amount;
-                $paid += $invoice->getAmountPaid();
-            }
+        foreach ($totals as $currencyId => $each) {
+            foreach ($each as $dimension => $val) {
+                $tmp   = [];
+                $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
 
-            foreach ($taxTotals as $currencyId => $taxes) {
-                foreach ($taxes as $tax) {
-                    $displayData[] = [
-                        $tax['name'],
-                        $tax['rate'] . '%',
-                        $account->formatMoney($tax['amount'], $client),
-                        $account->formatMoney($tax['paid'], $client)
-                    ];
-                }
+                foreach ($val as $id => $field) $tmp[] = Utils::formatMoney($field, $currencyId);
 
-                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $tax['amount']);
-                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $tax['paid']);
+                $summary[] = $tmp;
             }
         }
 
-        return [
-            'columns' => $columns,
-            'displayData' => $displayData,
-            'reportTotals' => $reportTotals,
-        ];
+        dd($summary);*/
 
-    }
+        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format, $columns_labeled) {
+            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format, $columns_labeled) {
 
-    /**
-     * @param $startDate
-     * @param $endDate
-     * @param $isExport
-     * @return array
-     */
-    private function generatePaymentReport($startDate, $endDate, $isExport)
-    {
-        $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'payment_date', 'paid', 'method'];
+                $sheet->setOrientation('landscape');
+                $sheet->freezeFirstRow();
 
-        $account = Auth::user()->account;
-        $displayData = [];
-        $reportTotals = [];
+                //Add border on PDF
+                if($format == 'pdf')
+                    $sheet->setAllBorders('thin');
 
-        $payments = Payment::scope()
-                        ->withTrashed()
-                        ->where('is_deleted', '=', false)
-                        ->whereHas('client', function($query) {
-                            $query->where('is_deleted', '=', false);
-                        })
-                        ->whereHas('invoice', function($query) {
-                            $query->where('is_deleted', '=', false);
-                        })
-                        ->with('client.contacts', 'invoice', 'payment_type', 'account_gateway.gateway')
-                        ->where('payment_date', '>=', $startDate)
-                        ->where('payment_date', '<=', $endDate);
+                $sheet->rows(array_merge(
+                    [array_map(function($col) {return $col['label'];}, $columns_labeled)],
+                    $data
+                ));
 
-        foreach ($payments->get() as $payment) {
-            $invoice = $payment->invoice;
-            $client = $payment->client;
-            $displayData[] = [
-                $isExport ? $client->getDisplayName() : $client->present()->link,
-                $isExport ? $invoice->invoice_number : $invoice->present()->link,
-                $invoice->present()->invoice_date,
-                $account->formatMoney($invoice->amount, $client),
-                $payment->present()->payment_date,
-                $account->formatMoney($payment->amount, $client),
-                $payment->present()->method,
-            ];
-
-            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
-            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment->amount);
-        }
-
-        return [
-            'columns' => $columns,
-            'displayData' => $displayData,
-            'reportTotals' => $reportTotals,
-        ];
-    }
-
-    /**
-     * @param $startDate
-     * @param $endDate
-     * @param $isExport
-     * @return array
-     */
-    private function generateInvoiceReport($startDate, $endDate, $isExport)
-    {
-        $columns = ['client', 'invoice_number', 'invoice_date', 'amount', 'payment_date', 'paid', 'method'];
-
-        $account = Auth::user()->account;
-        $displayData = [];
-        $reportTotals = [];
-
-        $clients = Client::scope()
-                        ->withTrashed()
-                        ->with('contacts')
-                        ->where('is_deleted', '=', false)
-                        ->with(['invoices' => function($query) use ($startDate, $endDate) {
-                            $query->where('invoice_date', '>=', $startDate)
-                                  ->where('invoice_date', '<=', $endDate)
-                                  ->where('is_deleted', '=', false)
-                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                                  ->where('is_recurring', '=', false)
-                                  ->with(['payments' => function($query) {
-                                        $query->withTrashed()
-                                              ->with('payment_type', 'account_gateway.gateway')
-                                              ->where('is_deleted', '=', false);
-                                  }, 'invoice_items'])
-                                  ->withTrashed();
-                        }]);
-
-        foreach ($clients->get() as $client) {
-            foreach ($client->invoices as $invoice) {
-
-                $payments = count($invoice->payments) ? $invoice->payments : [false];
-                foreach ($payments as $payment) {
-                    $displayData[] = [
-                        $isExport ? $client->getDisplayName() : $client->present()->link,
-                        $isExport ? $invoice->invoice_number : $invoice->present()->link,
-                        $invoice->present()->invoice_date,
-                        $account->formatMoney($invoice->amount, $client),
-                        $payment ? $payment->present()->payment_date : '',
-                        $payment ? $account->formatMoney($payment->amount, $client) : '',
-                        $payment ? $payment->present()->method : '',
-                    ];
-                    $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $payment ? $payment->amount : 0);
-                }
-
-                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $invoice->amount);
-                $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'balance', $invoice->balance);
-            }
-        }
-
-        return [
-            'columns' => $columns,
-            'displayData' => $displayData,
-            'reportTotals' => $reportTotals,
-        ];
-    }
-
-    /**
-     * @param $startDate
-     * @param $endDate
-     * @param $isExport
-     * @return array
-     */
-    private function generateClientReport($startDate, $endDate, $isExport)
-    {
-        $columns = ['client', 'amount', 'paid', 'balance'];
-
-        $account = Auth::user()->account;
-        $displayData = [];
-        $reportTotals = [];
-
-        $clients = Client::scope()
-                        ->withArchived()
-                        ->with('contacts')
-                        ->with(['invoices' => function($query) use ($startDate, $endDate) {
-                            $query->where('invoice_date', '>=', $startDate)
-                                  ->where('invoice_date', '<=', $endDate)
-                                  ->where('invoice_type_id', '=', INVOICE_TYPE_STANDARD)
-                                  ->where('is_recurring', '=', false)
-                                  ->withArchived();
-                        }]);
-
-        foreach ($clients->get() as $client) {
-            $amount = 0;
-            $paid = 0;
-
-            foreach ($client->invoices as $invoice) {
-                $amount += $invoice->amount;
-                $paid += $invoice->getAmountPaid();
-            }
-
-            $displayData[] = [
-                $isExport ? $client->getDisplayName() : $client->present()->link,
-                $account->formatMoney($amount, $client),
-                $account->formatMoney($paid, $client),
-                $account->formatMoney($amount - $paid, $client)
-            ];
-
-            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'amount', $amount);
-            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'paid', $paid);
-            $reportTotals = $this->addToTotals($reportTotals, $client->currency_id, 'balance', $amount - $paid);
-        }
-
-        return [
-            'columns' => $columns,
-            'displayData' => $displayData,
-            'reportTotals' => $reportTotals,
-        ];
-    }
-
-    /**
-     * @param $startDate
-     * @param $endDate
-     * @param $isExport
-     * @return array
-     */
-    private function generateExpenseReport($startDate, $endDate, $isExport)
-    {
-        $columns = ['vendor', 'client', 'date', 'expense_amount', 'invoiced_amount'];
-
-        $account = Auth::user()->account;
-        $displayData = [];
-        $reportTotals = [];
-
-        $expenses = Expense::scope()
-                        ->withTrashed()
-                        ->with('client.contacts', 'vendor')
-                        ->where('expense_date', '>=', $startDate)
-                        ->where('expense_date', '<=', $endDate);
+                //Styling header
+                $sheet->cells('A1:'.Utils::num2alpha(count($columns_labeled)-1).'1', function($cells) {
+                    $cells->setBackground('#777777');
+                    $cells->setFontColor('#FFFFFF');
+                    $cells->setFontSize(13);
+                    $cells->setFontFamily('Calibri');
+                    $cells->setFontWeight('bold');
+                });
 
 
-        foreach ($expenses->get() as $expense) {
-            $amount = $expense->amount;
-            $invoiced = $expense->present()->invoiced_amount;
-
-            $displayData[] = [
-                $expense->vendor ? ($isExport ? $expense->vendor->name : $expense->vendor->present()->link) : '',
-                $expense->client ? ($isExport ? $expense->client->getDisplayName() : $expense->client->present()->link) : '',
-                $expense->present()->expense_date,
-                Utils::formatMoney($amount, $expense->currency_id),
-                Utils::formatMoney($invoiced, $expense->invoice_currency_id),
-            ];
-
-            $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'amount', $amount);
-            $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'amount', 0);
-
-            $reportTotals = $this->addToTotals($reportTotals, $expense->invoice_currency_id, 'invoiced', $invoiced);
-            $reportTotals = $this->addToTotals($reportTotals, $expense->expense_currency_id, 'invoiced', 0);
-        }
-
-        return [
-            'columns' => $columns,
-            'displayData' => $displayData,
-            'reportTotals' => $reportTotals,
-        ];
-    }
-
-    /**
-     * @param $data
-     * @param $currencyId
-     * @param $field
-     * @param $value
-     * @return mixed
-     */
-    private function addToTotals($data, $currencyId, $field, $value) {
-        $currencyId = $currencyId ?: Auth::user()->account->getCurrencyId();
-
-        if (!isset($data[$currencyId][$field])) {
-            $data[$currencyId][$field] = 0;
-        }
-
-        $data[$currencyId][$field] += $value;
-
-        return $data;
-    }
-
-    /**
-     * @param $reportType
-     * @param $data
-     * @param $columns
-     * @param $totals
-     */
-    private function export($reportType, $data, $columns, $totals)
-    {
-        $output = fopen('php://output', 'w') or Utils::fatalError();
-        $reportType = trans("texts.{$reportType}s");
-        $date = date('Y-m-d');
-
-        header('Content-Type:application/csv');
-        header("Content-Disposition:attachment;filename={$date}_Ninja_{$reportType}.csv");
-
-        Utils::exportData($output, $data, Utils::trans($columns));
-
-        fwrite($output, trans('texts.totals'));
-        foreach ($totals as $currencyId => $fields) {
-            foreach ($fields as $key => $value) {
-                fwrite($output, ',' . trans("texts.{$key}"));
-            }
-            fwrite($output, "\n");
-            break;
-        }
-
-        foreach ($totals as $currencyId => $fields) {
-            $csv = Utils::getFromCache($currencyId, 'currencies')->name . ',';
-            foreach ($fields as $key => $value) {
-                $csv .= '"' . Utils::formatMoney($value, $currencyId).'",';
-            }
-            fwrite($output, $csv."\n");
-        }
-
-        fclose($output);
-        exit;
+                $sheet->setAutoSize(true);
+            });
+        })->export($format);
     }
 }

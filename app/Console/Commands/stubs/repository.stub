@@ -1,0 +1,71 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use DB;
+use Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$;
+use App\Ninja\Repositories\BaseRepository;
+//use App\Events\$STUDLY_NAME$WasCreated;
+//use App\Events\$STUDLY_NAME$WasUpdated;
+
+class $STUDLY_NAME$Repository extends BaseRepository
+{
+    public function getClassName()
+    {
+        return 'Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$';
+    }
+
+    public function all()
+    {
+        return $STUDLY_NAME$::scope()
+                ->orderBy('created_at', 'desc')
+                ->withTrashed();
+    }
+
+    public function find($filter = null, $userId = false)
+    {
+        $query = DB::table('$LOWER_NAME$')
+                    ->where('$LOWER_NAME$.account_id', '=', \Auth::user()->account_id)
+                    ->select(
+                        $DATABASE_FIELDS$
+                        '$LOWER_NAME$.public_id',
+                        '$LOWER_NAME$.deleted_at',
+                        '$LOWER_NAME$.created_at',
+                        '$LOWER_NAME$.is_deleted',
+                        '$LOWER_NAME$.user_id'
+                    );
+
+        $this->applyFilters($query, '$LOWER_NAME$');
+
+        if ($userId) {
+            $query->where('clients.user_id', '=', $userId);
+        }
+
+        /*
+        if ($filter) {
+            $query->where();
+        }
+        */
+
+        return $query;
+    }
+
+    public function save($data, $$LOWER_NAME$ = null)
+    {
+        $entity = $$LOWER_NAME$ ?: $STUDLY_NAME$::createNew();
+
+        $entity->fill($data);
+        $entity->save();
+
+        /*
+        if (!$publicId || $publicId == '-1') {
+            event(new ClientWasCreated($client));
+        } else {
+            event(new ClientWasUpdated($client));
+        }
+        */
+
+        return $entity;
+    }
+
+}

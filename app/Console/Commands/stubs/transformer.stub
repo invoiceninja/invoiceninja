@@ -1,0 +1,35 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$;
+use App\Ninja\Transformers\EntityTransformer;
+
+/**
+ * @SWG\Definition(definition="$STUDLY_NAME$", @SWG\Xml(name="$STUDLY_NAME$"))
+ */
+
+class $STUDLY_NAME$Transformer extends EntityTransformer
+{
+    /**
+    * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+    * @SWG\Property(property="user_id", type="integer", example=1)
+    * @SWG\Property(property="account_key", type="string", example="123456")
+    * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
+    * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
+    */
+
+    /**
+     * @param $STUDLY_NAME$ $$LOWER_NAME$
+     * @return array
+     */
+    public function transform($STUDLY_NAME$ $$LOWER_NAME$)
+    {
+        return array_merge($this->getDefaults($$LOWER_NAME$), [
+            $TRANSFORMER_FIELDS$
+            'id' => (int) $$LOWER_NAME$->public_id,
+            'updated_at' => $this->getTimestamp($$LOWER_NAME$->updated_at),
+            'archived_at' => $this->getTimestamp($$LOWER_NAME$->deleted_at),
+        ]);
+    }
+}

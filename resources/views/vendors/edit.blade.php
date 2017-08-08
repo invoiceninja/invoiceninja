@@ -32,7 +32,7 @@
 		<div class="col-md-6">
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.organization') !!}</h3>
           </div>
@@ -67,7 +67,7 @@
 		<div class="col-md-6">
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.contacts') !!}</h3>
           </div>

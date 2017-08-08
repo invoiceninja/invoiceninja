@@ -1,13 +1,11 @@
 @extends('header')
 
-@section('content') 
+@section('content')
   @parent
-
-  @include('accounts.nav', ['selected' => ACCOUNT_PRODUCTS])
 
   {!! Former::open($url)->method($method)
       ->rules(['product_key' => 'required|max:255'])
-      ->addClass('warn-on-exit') !!}
+      ->addClass('col-md-10 col-md-offset-1 warn-on-exit') !!}
 
 
   <div class="panel panel-default">
@@ -22,21 +20,28 @@
   @endif
 
   {!! Former::text('product_key')->label('texts.product') !!}
-  {!! Former::textarea('notes') !!}
+  {!! Former::textarea('notes')->rows(6) !!}
+
+  @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
+      @if ($account->custom_invoice_item_label1)
+          {!! Former::text('custom_value1')->label(e($account->custom_invoice_item_label1)) !!}
+      @endif
+      @if ($account->custom_invoice_item_label2)
+          {!! Former::text('custom_value2')->label(e($account->custom_invoice_item_label2)) !!}
+      @endif
+  @endif
+
   {!! Former::text('cost') !!}
 
   @if ($account->invoice_item_taxes)
-      {!! Former::select('default_tax_rate_id')
-            ->addOption('', '')
-            ->label(trans('texts.tax_rate'))
-            ->fromQuery($taxRates, function($model) { return $model->name . ' ' . $model->rate . '%'; }, 'id') !!}
+    @include('partials.tax_rates')
   @endif
 
   </div>
   </div>
 
-  {!! Former::actions( 
-      Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/settings/products'))->appendIcon(Icon::create('remove-circle')),
+  {!! Former::actions(
+      Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/products'))->appendIcon(Icon::create('remove-circle')),
       Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
   ) !!}
 

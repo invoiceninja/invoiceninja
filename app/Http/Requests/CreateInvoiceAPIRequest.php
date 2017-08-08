@@ -1,4 +1,8 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\Client;
 
 class CreateInvoiceAPIRequest extends InvoiceRequest
 {
@@ -25,6 +29,10 @@ class CreateInvoiceAPIRequest extends InvoiceRequest
             'invoice_items' => 'valid_invoice_items',
             'invoice_number' => 'unique:invoices,invoice_number,,id,account_id,' . $this->user()->account_id,
             'discount' => 'positive',
+            //'invoice_date' => 'date',
+            //'due_date' => 'date',
+            //'start_date' => 'date',
+            //'end_date' => 'date',
         ];
 
         return $rules;

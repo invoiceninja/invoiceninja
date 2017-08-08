@@ -1,22 +1,22 @@
 <?php
 
-use App\Models\User;
-use App\Models\Font;
 use App\Models\Account;
-use App\Models\Company;
+use App\Models\AccountEmailSettings;
 use App\Models\Affiliate;
-use App\Models\Country;
-use App\Models\InvoiceDesign;
 use App\Models\Client;
+use App\Models\Company;
 use App\Models\Contact;
+use App\Models\Country;
+use App\Models\DateFormat;
+use App\Models\Font;
+use App\Models\InvoiceDesign;
 use App\Models\Product;
-use Faker\Factory;
+use App\Models\User;
 
 class UserTableSeeder extends Seeder
 {
-
-	public function run()
-	{
+    public function run()
+    {
         $this->command->info('Running UserTableSeeder');
 
         Eloquent::unguard();
@@ -32,16 +32,21 @@ class UserTableSeeder extends Seeder
             'state' => $faker->state,
             'postal_code' => $faker->postcode,
             'country_id' => Country::all()->random()->id,
-            'account_key' => str_random(RANDOM_KEY_LENGTH),
+            'account_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
             'invoice_terms' => $faker->text($faker->numberBetween(50, 300)),
             'work_phone' => $faker->phoneNumber,
             'work_email' => $faker->safeEmail,
-            'invoice_design_id' => InvoiceDesign::where('id', '<', CUSTOM_DESIGN)->get()->random()->id,
-            'header_font_id' => min(Font::all()->random()->id, 17),
-            'body_font_id' => min(Font::all()->random()->id, 17),
+            //'invoice_design_id' => InvoiceDesign::where('id', '<', CUSTOM_DESIGN1)->get()->random()->id,
+            //'header_font_id' => min(Font::all()->random()->id, 17),
+            //'body_font_id' => min(Font::all()->random()->id, 17),
             'primary_color' => $faker->hexcolor,
-            'timezone_id' => 1,
+            'timezone_id' => 58,
             'company_id' => $company->id,
+            'pdf_email_attachment' => true,
+        ]);
+
+        $emailSettings = AccountEmailSettings::create([
+            'account_id' => $account->id
         ]);
 
         $user = User::create([
@@ -79,6 +84,8 @@ class UserTableSeeder extends Seeder
             'public_id' => 1,
             'email' => env('TEST_EMAIL', TEST_USERNAME),
             'is_primary' => true,
+            'send_invoice' => true,
+            'contact_key' => strtolower(str_random(RANDOM_KEY_LENGTH)),
         ]);
 
         Product::create([
@@ -91,9 +98,7 @@ class UserTableSeeder extends Seeder
         ]);
 
         Affiliate::create([
-            'affiliate_key' => SELF_HOST_AFFILIATE_KEY
+            'affiliate_key' => SELF_HOST_AFFILIATE_KEY,
         ]);
-
-	}
-
+    }
 }

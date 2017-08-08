@@ -1,4 +1,6 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use Illuminate\Queue\SerializesModels;
 
@@ -16,5 +18,4 @@ class QuoteWasArchived extends Event
     {
         $this->quote = $quote;
     }
-
 }

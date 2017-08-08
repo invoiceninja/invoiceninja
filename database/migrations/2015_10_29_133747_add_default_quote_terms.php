@@ -1,19 +1,17 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddDefaultQuoteTerms extends Migration {
-
-	/**
-	 * Run the migrations.
-	 *
-	 * @return void
-	 */
-	public function up()
-	{
-        Schema::table('accounts', function($table)
-        {
+class AddDefaultQuoteTerms extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::table('accounts', function ($table) {
             $table->text('quote_terms')->nullable();
         });
 
@@ -26,19 +24,17 @@ class AddDefaultQuoteTerms extends Migration {
                 ->where('id', $account->id)
                 ->update(['quote_terms' => $account->invoice_terms]);
         }
-	}
+    }
 
-	/**
-	 * Reverse the migrations.
-	 *
-	 * @return void
-	 */
-	public function down()
-	{
-        Schema::table('accounts', function($table)
-        {
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('accounts', function ($table) {
             $table->dropColumn('quote_terms');
         });
-	}
-
+    }
 }

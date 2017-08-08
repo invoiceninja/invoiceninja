@@ -1,7 +1,8 @@
-<?php namespace App\Http\Requests;
+<?php
 
-class CreditRequest extends EntityRequest {
+namespace App\Http\Requests;
 
+class CreditRequest extends EntityRequest
+{
     protected $entityType = ENTITY_CREDIT;
-
 }

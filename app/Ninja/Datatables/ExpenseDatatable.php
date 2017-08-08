@@ -1,22 +1,25 @@
-<?php namespace App\Ninja\Datatables;
+<?php
 
-use Utils;
-use URL;
+namespace App\Ninja\Datatables;
+
+use App\Models\Expense;
 use Auth;
+use URL;
+use Utils;
 
 class ExpenseDatatable extends EntityDatatable
 {
     public $entityType = ENTITY_EXPENSE;
+    public $sortCol = 3;
 
     public function columns()
     {
         return [
             [
                 'vendor_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->vendor_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])){
+                        if (! Auth::user()->can('viewByOwner', [ENTITY_VENDOR, $model->vendor_user_id])) {
                             return $model->vendor_name;
                         }
 
@@ -25,14 +28,13 @@ class ExpenseDatatable extends EntityDatatable
                         return '';
                     }
                 },
-                ! $this->hideClient
+                ! $this->hideClient,
             ],
             [
                 'client_name',
-                function ($model)
-                {
+                function ($model) {
                     if ($model->client_public_id) {
-                        if(!Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])){
+                        if (! Auth::user()->can('viewByOwner', [ENTITY_CLIENT, $model->client_user_id])) {
                             return Utils::getClientDisplayName($model);
                         }
 
@@ -41,48 +43,55 @@ class ExpenseDatatable extends EntityDatatable
                         return '';
                     }
                 },
-                ! $this->hideClient
+                ! $this->hideClient,
             ],
             [
                 'expense_date',
                 function ($model) {
-                    if(!Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id])){
-                        return Utils::fromSqlDate($model->expense_date);
+                    if (! Auth::user()->can('viewByOwner', [ENTITY_EXPENSE, $model->user_id])) {
+                        return Utils::fromSqlDate($model->expense_date_sql);
                     }
 
-                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date))->toHtml();
-                }
+                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml();
+                },
             ],
             [
                 'amount',
                 function ($model) {
+                    $amount = Utils::calculateTaxes($model->amount, $model->tax_rate1, $model->tax_rate2);
+                    $str = Utils::formatMoney($amount, $model->expense_currency_id);
+
                     // show both the amount and the converted amount
                     if ($model->exchange_rate != 1) {
-                        $converted = round($model->amount * $model->exchange_rate, 2);
-                        return Utils::formatMoney($model->amount, $model->expense_currency_id) . ' | ' .
-                            Utils::formatMoney($converted, $model->invoice_currency_id);
-                    } else {
-                        return Utils::formatMoney($model->amount, $model->expense_currency_id);
+                        $converted = round($amount * $model->exchange_rate, 2);
+                        $str .= ' | ' . Utils::formatMoney($converted, $model->invoice_currency_id);
                     }
-                }
+
+                    return $str;
+                },
             ],
             [
                 'category',
                 function ($model) {
-                    return $model->category != null ? substr($model->category, 0, 100) : '';
-                }
+                    $category = $model->category != null ? substr($model->category, 0, 100) : '';
+                    if (! Auth::user()->can('editByOwner', [ENTITY_EXPENSE_CATEGORY, $model->category_user_id])) {
+                        return $category;
+                    }
+
+                    return $model->category_public_id ? link_to("expense_categories/{$model->category_public_id}/edit", $category)->toHtml() : '';
+                },
             ],
             [
                 'public_notes',
                 function ($model) {
-                    return $model->public_notes != null ? substr($model->public_notes, 0, 100) : '';
-                }
+                    return $model->public_notes != null ? e(substr($model->public_notes, 0, 100)) : '';
+                },
             ],
             [
-                'expense_status_id',
+                'status',
                 function ($model) {
-                    return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance);
-                }
+                    return self::getStatusLabel($model->invoice_id, $model->should_be_invoiced, $model->balance, $model->payment_date);
+                },
             ],
         ];
     }
@@ -93,11 +102,20 @@ class ExpenseDatatable extends EntityDatatable
             [
                 trans('texts.edit_expense'),
                 function ($model) {
-                    return URL::to("expenses/{$model->public_id}/edit") ;
+                    return URL::to("expenses/{$model->public_id}/edit");
                 },
                 function ($model) {
                     return Auth::user()->can('editByOwner', [ENTITY_EXPENSE, $model->user_id]);
-                }
+                },
+            ],
+            [
+                trans("texts.clone_expense"),
+                function ($model) {
+                    return URL::to("expenses/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_EXPENSE);
+                },
             ],
             [
                 trans('texts.view_invoice'),
@@ -106,40 +124,25 @@ class ExpenseDatatable extends EntityDatatable
                 },
                 function ($model) {
                     return $model->invoice_public_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->invoice_user_id]);
-                }
+                },
             ],
             [
                 trans('texts.invoice_expense'),
                 function ($model) {
-                    return "javascript:invoiceEntity({$model->public_id})";
+                    return "javascript:submitForm_expense('invoice', {$model->public_id})";
                 },
                 function ($model) {
-                    return ! $model->invoice_id && (!$model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
-                }
+                    return ! $model->invoice_id && (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
+                },
             ],
         ];
     }
 
-
-    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance)
+    private function getStatusLabel($invoiceId, $shouldBeInvoiced, $balance, $paymentDate)
     {
-        if ($invoiceId) {
-            if (floatval($balance)) {
-                $label = trans('texts.invoiced');
-                $class = 'default';
-            } else {
-                $label = trans('texts.paid');
-                $class = 'success';
-            }
-        } elseif ($shouldBeInvoiced) {
-            $label = trans('texts.pending');
-            $class = 'warning';
-        } else {
-            $label = trans('texts.logged');
-            $class = 'primary';
-        }
+        $label = Expense::calcStatusLabel($shouldBeInvoiced, $invoiceId, $balance, $paymentDate);
+        $class = Expense::calcStatusClass($shouldBeInvoiced, $invoiceId, $balance);
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";
     }
-
 }

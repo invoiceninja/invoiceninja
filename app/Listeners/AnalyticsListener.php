@@ -1,10 +1,12 @@
-<?php namespace App\Listeners;
+<?php
 
-use Utils;
+namespace App\Listeners;
+
 use App\Events\PaymentWasCreated;
+use Utils;
 
 /**
- * Class AnalyticsListener
+ * Class AnalyticsListener.
  */
 class AnalyticsListener
 {
@@ -13,28 +15,36 @@ class AnalyticsListener
      */
     public function trackRevenue(PaymentWasCreated $event)
     {
-        if ( ! Utils::isNinja() || ! env('ANALYTICS_KEY')) {
-            return;
-        }
-
         $payment = $event->payment;
         $invoice = $payment->invoice;
         $account = $payment->account;
 
-        if ($account->account_key != NINJA_ACCOUNT_KEY) {
+        $analyticsId = false;
+
+        if ($account->isNinjaAccount() || $account->account_key == NINJA_LICENSE_ACCOUNT_KEY) {
+            $analyticsId = env('ANALYTICS_KEY');
+        } else {
+            if (Utils::isNinja()) {
+                $analyticsId = $account->analytics_key;
+            } else {
+                $analyticsId = $account->analytics_key ?: env('ANALYTICS_KEY');
+            }
+        }
+
+        if (! $analyticsId) {
             return;
         }
 
-        $analyticsId = env('ANALYTICS_KEY');
         $client = $payment->client;
         $amount = $payment->amount;
+        $item = $invoice->invoice_items->last()->product_key;
 
         $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu=USD&ti={$invoice->invoice_number}";
 
         $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
 
-        $url = $base . "&t=item&in=plan&ip={$amount}&iq=1";
+        $url = $base . "&t=item&in={$item}&ip={$amount}&iq=1";
         $this->sendAnalytics($url);
     }
 
@@ -43,7 +53,7 @@ class AnalyticsListener
      */
     private function sendAnalytics($data)
     {
-        $data = json_encode($data);
+        $data = utf8_encode($data);
         $curl = curl_init();
 
         $opts = [
@@ -54,6 +64,7 @@ class AnalyticsListener
         ];
 
         curl_setopt_array($curl, $opts);
+        curl_exec($curl);
         curl_close($curl);
     }
 }

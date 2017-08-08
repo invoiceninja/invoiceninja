@@ -1,6 +1,5 @@
 @extends('header')
 
-
 @section('onReady')
 	$('input#name').focus();
 @stop
@@ -19,47 +18,61 @@
                 ['email' => 'email']
             )->addClass('col-md-12 warn-on-exit')
             ->method($method) !!}
-            
+
     @include('partials.autocomplete_fix')
 
 	@if ($client)
 		{!! Former::populate($client) !!}
         {!! Former::hidden('public_id') !!}
+	@else
+		{!! Former::populateField('invoice_number_counter', 1) !!}
+		{!! Former::populateField('quote_number_counter', 1) !!}
+		@if ($account->client_number_counter)
+			{!! Former::populateField('id_number', $account->getNextNumber()) !!}
+		@endif
 	@endif
 
 	<div class="row">
 		<div class="col-md-6">
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.organization') !!}</h3>
           </div>
             <div class="panel-body">
-			
+
 			{!! Former::text('name')->data_bind("attr { placeholder: placeholderName }") !!}
-			{!! Former::text('id_number') !!}
-                        {!! Former::text('vat_number') !!}
-                        {!! Former::text('website') !!}
+			{!! Former::text('id_number')->placeholder($account->clientNumbersEnabled() ? $account->getNextNumber() : ' ') !!}
+            {!! Former::text('vat_number') !!}
+            {!! Former::text('website') !!}
 			{!! Former::text('work_phone') !!}
-			
+
 			@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
 				@if ($customLabel1)
-					{!! Former::text('custom_value1')->label($customLabel1) !!}
+					{!! Former::text('custom_value1')->label(e($customLabel1)) !!}
 				@endif
 				@if ($customLabel2)
-					{!! Former::text('custom_value2')->label($customLabel2) !!}
+					{!! Former::text('custom_value2')->label(e($customLabel2)) !!}
+				@endif
+			@endif
+
+			@if ($account->usesClientInvoiceCounter())
+				{!! Former::text('invoice_number_counter')->label('invoice_counter') !!}
+
+				@if (! $account->share_counter)
+					{!! Former::text('quote_number_counter')->label('quote_counter') !!}
 				@endif
 			@endif
             </div>
-            </div>
+        </div>
 
         <div class="panel panel-default">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.address') !!}</h3>
           </div>
             <div class="panel-body">
-        			
+
 			{!! Former::text('address1') !!}
 			{!! Former::text('address2') !!}
 			{!! Former::text('city') !!}
@@ -74,7 +87,7 @@
 		<div class="col-md-6">
 
 
-        <div class="panel panel-default">
+        <div class="panel panel-default" style="min-height: 380px">
           <div class="panel-heading">
             <h3 class="panel-title">{!! trans('texts.contacts') !!}</h3>
           </div>
@@ -85,23 +98,37 @@
 		                            afterAdd: showContact }'>
 				{!! Former::hidden('public_id')->data_bind("value: public_id, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][public_id]'}") !!}
-				{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown', 
+				{!! Former::text('first_name')->data_bind("value: first_name, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][first_name]'}") !!}
 				{!! Former::text('last_name')->data_bind("value: last_name, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][last_name]'}") !!}
-				{!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown', 
+				{!! Former::text('email')->data_bind("value: email, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][email]', id:'email'+\$index()}") !!}
 				{!! Former::text('phone')->data_bind("value: phone, valueUpdate: 'afterkeydown',
                         attr: {name: 'contacts[' + \$index() + '][phone]'}") !!}
 				@if ($account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password)
 					{!! Former::password('password')->data_bind("value: password()?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
-						attr: {name: 'contacts[' + \$index() + '][password]'}") !!}
+						attr: {name: 'contacts[' + \$index() + '][password]'}")->autocomplete('new-password') !!}
 			    @endif
+
+				@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
+					@if ($account->custom_contact_label1)
+						{!! Former::text('custom_contact1')->data_bind("value: custom_value1, valueUpdate: 'afterkeydown',
+								attr: {name: 'contacts[' + \$index() + '][custom_value1]'}")
+							->label(e($account->custom_contact_label1)) !!}
+					@endif
+					@if ($account->custom_contact_label2)
+						{!! Former::text('custom_contact2')->data_bind("value: custom_value2, valueUpdate: 'afterkeydown',
+								attr: {name: 'contacts[' + \$index() + '][custom_value2]'}")
+							->label(e($account->custom_contact_label2)) !!}
+					@endif
+				@endif
+
 				<div class="form-group">
 					<div class="col-lg-8 col-lg-offset-4 bold">
 						<span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
 							{!! link_to('#', trans('texts.remove_contact').' -', array('data-bind'=>'click: $parent.removeContact')) !!}
-						</span>					
+						</span>
 						<span data-bind="visible: $index() === ($parent.contacts().length - 1)" class="pull-right greenlink bold">
 							{!! link_to('#', trans('texts.add_contact').' +', array('onclick'=>'return addContact()')) !!}
 						</span>
@@ -117,7 +144,7 @@
             <h3 class="panel-title">{!! trans('texts.additional_info') !!}</h3>
           </div>
             <div class="panel-body">
-			
+
             {!! Former::select('currency_id')->addOption('','')
                 ->placeholder($account->currency ? $account->currency->name : '')
                 ->fromQuery($currencies, 'name', 'id') !!}
@@ -125,19 +152,30 @@
                 ->placeholder($account->language ? trans('texts.lang_'.$account->language->name) : '')
                 ->fromQuery($languages, 'name', 'id') !!}
 			{!! Former::select('payment_terms')->addOption('','')
-				->fromQuery($paymentTerms, 'name', 'num_days')
+				->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
+				->placeholder($account->present()->paymentTerms)
                 ->help(trans('texts.payment_terms_help')) !!}
 			{!! Former::select('size_id')->addOption('','')
 				->fromQuery($sizes, 'name', 'id') !!}
 			{!! Former::select('industry_id')->addOption('','')
 				->fromQuery($industries, 'name', 'id') !!}
+			{!! Former::textarea('public_notes') !!}
 			{!! Former::textarea('private_notes') !!}
+		</div>
+		</div>
 
 
-            @if (Auth::user()->account->isNinjaAccount())
+		@if (Auth::user()->account->isNinjaAccount())
+		<div class="panel panel-default">
+          <div class="panel-heading">
+            <h3 class="panel-title">{!! trans('texts.pro_plan_product') !!}</h3>
+          </div>
+            <div class="panel-body">
+
 				@if (isset($planDetails))
 					{!! Former::populateField('plan', $planDetails['plan']) !!}
 					{!! Former::populateField('plan_term', $planDetails['term']) !!}
+					{!! Former::populateField('plan_price', $planDetails['plan_price']) !!}
 					@if (!empty($planDetails['paid']))
 						{!! Former::populateField('plan_paid', $planDetails['paid']->format('Y-m-d')) !!}
 					@endif
@@ -156,6 +194,7 @@
 							->addOption()
 							->addOption(trans('texts.plan_term_yearly'), PLAN_TERM_YEARLY)
 							->addOption(trans('texts.plan_term_monthly'), PLAN_TERM_MONTHLY)!!}
+				{!! Former::text('plan_price') !!}
 				{!! Former::text('plan_started')
                             ->data_date_format('yyyy-mm-dd')
                             ->addGroupClass('plan_start_date')
@@ -173,10 +212,11 @@
                         $('#plan_started, #plan_paid, #plan_expires').datepicker();
                     });
                 </script>
-            @endif
 
             </div>
             </div>
+			@endif
+
 
 		</div>
 	</div>
@@ -198,6 +238,8 @@
 		self.email = ko.observable('');
 		self.phone = ko.observable('');
 		self.password = ko.observable('');
+		self.custom_value1 = ko.observable('');
+		self.custom_value2 = ko.observable('');
 
 		if (data) {
 			ko.mapping.fromJS(data, {}, this);
@@ -231,7 +273,7 @@
 			} else {
 				return contact.email();
 			}
-		});	
+		});
 	}
 
     @if ($data)

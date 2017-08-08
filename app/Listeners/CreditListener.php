@@ -1,13 +1,14 @@
-<?php namespace App\Listeners;
+<?php
 
-use Carbon;
-use App\Models\Credit;
+namespace App\Listeners;
+
 use App\Events\PaymentWasDeleted;
-use App\Events\PaymentWasRefunded;
+use App\Models\Credit;
 use App\Ninja\Repositories\CreditRepository;
+use Carbon;
 
 /**
- * Class CreditListener
+ * Class CreditListener.
  */
 class CreditListener
 {
@@ -18,6 +19,7 @@ class CreditListener
 
     /**
      * CreditListener constructor.
+     *
      * @param CreditRepository $creditRepo
      */
     public function __construct(CreditRepository $creditRepo)
@@ -41,27 +43,7 @@ class CreditListener
         $credit->client_id = $payment->client_id;
         $credit->credit_date = Carbon::now()->toDateTimeString();
         $credit->balance = $credit->amount = $payment->getCompletedAmount();
-        $credit->private_notes = $payment->transaction_reference;
-        $credit->save();
-    }
-
-    /**
-     * @param PaymentWasRefunded $event
-     */
-    public function refundedPayment(PaymentWasRefunded $event)
-    {
-        $payment = $event->payment;
-
-        // if the payment was from a credit we need to refund the credit
-        if ($payment->payment_type_id != PAYMENT_TYPE_CREDIT) {
-            return;
-        }
-
-        $credit = Credit::createNew();
-        $credit->client_id = $payment->client_id;
-        $credit->credit_date = Carbon::now()->toDateTimeString();
-        $credit->balance = $credit->amount = $event->refundAmount;
-        $credit->private_notes = $payment->transaction_reference;
+        $credit->private_notes = trans('texts.refunded_credit_payment');
         $credit->save();
     }
 }

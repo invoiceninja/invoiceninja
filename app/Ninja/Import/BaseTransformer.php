@@ -1,11 +1,14 @@
-<?php namespace App\Ninja\Import;
+<?php
 
-use Utils;
-use DateTime;
+namespace App\Ninja\Import;
+
+use Carbon;
 use League\Fractal\TransformerAbstract;
+use Utils;
+use Exception;
 
 /**
- * Class BaseTransformer
+ * Class BaseTransformer.
  */
 class BaseTransformer extends TransformerAbstract
 {
@@ -16,6 +19,7 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * BaseTransformer constructor.
+     *
      * @param $maps
      */
     public function __construct($maps)
@@ -25,30 +29,35 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
      * @return bool
      */
-    protected function hasClient($name)
+    public function hasClient($name)
     {
         $name = trim(strtolower($name));
+
         return isset($this->maps[ENTITY_CLIENT][$name]);
     }
 
     /**
      * @param $key
+     *
      * @return bool
      */
-    protected function hasProduct($key)
+    public function hasProduct($key)
     {
         $key = trim(strtolower($key));
+
         return isset($this->maps[ENTITY_PRODUCT][$key]);
     }
 
     /**
      * @param $data
      * @param $field
+     *
      * @return string
      */
-    protected function getString($data, $field)
+    public function getString($data, $field)
     {
         return (isset($data->$field) && $data->$field) ? $data->$field : '';
     }
@@ -56,72 +65,132 @@ class BaseTransformer extends TransformerAbstract
     /**
      * @param $data
      * @param $field
+     *
      * @return int
      */
-    protected function getNumber($data, $field)
+    public function getNumber($data, $field)
     {
         return (isset($data->$field) && $data->$field) ? $data->$field : 0;
     }
 
     /**
+     * @param $data
+     * @param $field
+     *
+     * @return float
+     */
+    public function getFloat($data, $field)
+    {
+        return (isset($data->$field) && $data->$field) ? Utils::parseFloat($data->$field) : 0;
+    }
+
+    /**
      * @param $name
+     *
      * @return null
      */
-    protected function getClientId($name)
+    public function getClientId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
+
         return isset($this->maps[ENTITY_CLIENT][$name]) ? $this->maps[ENTITY_CLIENT][$name] : null;
     }
 
     /**
      * @param $name
+     *
      * @return null
      */
-    protected function getProductId($name)
+    public function getProduct($data, $key, $field, $default = false)
     {
-        $name = strtolower($name);
-        return isset($this->maps[ENTITY_PRODUCT][$name]) ? $this->maps[ENTITY_PRODUCT][$name] : null;
+        $productKey = trim(strtolower($data->$key));
+
+        if (! isset($this->maps['product'][$productKey])) {
+            return $default;
+        }
+
+        $product = $this->maps['product'][$productKey];
+
+        return $product->$field ?: $default;
     }
 
     /**
      * @param $name
+     *
      * @return null
      */
-    protected function getCountryId($name)
+    public function getCountryId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
+
         return isset($this->maps['countries'][$name]) ? $this->maps['countries'][$name] : null;
     }
 
     /**
      * @param $name
+     *
      * @return null
      */
-    protected function getCountryIdBy2($name)
+    public function getCountryIdBy2($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
+
         return isset($this->maps['countries2'][$name]) ? $this->maps['countries2'][$name] : null;
     }
 
     /**
      * @param $name
+     *
+     * @return null
+     */
+    public function getTaxRate($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps['tax_rates'][$name]) ? $this->maps['tax_rates'][$name] : 0;
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null
+     */
+    public function getTaxName($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps['tax_names'][$name]) ? $this->maps['tax_names'][$name] : '';
+    }
+
+    /**
+     * @param $name
+     *
      * @return mixed
      */
-    protected function getFirstName($name)
+    public function getFirstName($name)
     {
         $name = Utils::splitName($name);
+
         return $name[0];
     }
 
     /**
      * @param $date
      * @param string $format
+     * @param mixed  $data
+     * @param mixed  $field
+     *
      * @return null
      */
-    protected function getDate($date, $format = 'Y-m-d')
+    public function getDate($data, $field)
     {
-        if ( ! $date instanceof DateTime) {
-            $date = DateTime::createFromFormat($format, $date);
+        if ($date = data_get($data, $field)) {
+            try {
+                $date = new Carbon($date);
+            } catch (Exception $e) {
+                // if we fail to parse return blank
+                $date = false;
+            }
         }
 
         return $date ? $date->format('Y-m-d') : null;
@@ -129,63 +198,86 @@ class BaseTransformer extends TransformerAbstract
 
     /**
      * @param $name
+     *
      * @return mixed
      */
-    protected function getLastName($name)
+    public function getLastName($name)
     {
         $name = Utils::splitName($name);
+
         return $name[1];
     }
 
     /**
      * @param $number
+     *
      * @return string
      */
-    protected function getInvoiceNumber($number)
+    public function getInvoiceNumber($number)
     {
-        $number = strtolower($number);
-        return str_pad($number, 4, '0', STR_PAD_LEFT);
+        return str_pad(trim($number), 4, '0', STR_PAD_LEFT);
     }
 
     /**
      * @param $invoiceNumber
+     *
      * @return null
      */
-    protected function getInvoiceId($invoiceNumber)
+    public function getInvoiceId($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
+        $invoiceNumber = strtolower($invoiceNumber);
+
         return isset($this->maps[ENTITY_INVOICE][$invoiceNumber]) ? $this->maps[ENTITY_INVOICE][$invoiceNumber] : null;
     }
 
     /**
      * @param $invoiceNumber
+     *
      * @return bool
      */
-    protected function hasInvoice($invoiceNumber)
+    public function hasInvoice($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
+        $invoiceNumber = strtolower($invoiceNumber);
+
         return isset($this->maps[ENTITY_INVOICE][$invoiceNumber]);
     }
 
     /**
      * @param $invoiceNumber
+     *
      * @return null
      */
-    protected function getInvoiceClientId($invoiceNumber)
+    public function getInvoiceClientId($invoiceNumber)
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
-        return isset($this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber])? $this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber] : null;
-    }
+        $invoiceNumber = strtolower($invoiceNumber);
 
+        return isset($this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber]) ? $this->maps[ENTITY_INVOICE.'_'.ENTITY_CLIENT][$invoiceNumber] : null;
+    }
 
     /**
      * @param $name
+     *
      * @return null
      */
-    protected function getVendorId($name)
+    public function getVendorId($name)
     {
-        $name = strtolower($name);
+        $name = strtolower(trim($name));
+
         return isset($this->maps[ENTITY_VENDOR][$name]) ? $this->maps[ENTITY_VENDOR][$name] : null;
     }
 
+    /**
+     * @param $name
+     *
+     * @return null
+     */
+    public function getExpenseCategoryId($name)
+    {
+        $name = strtolower(trim($name));
+
+        return isset($this->maps[ENTITY_EXPENSE_CATEGORY][$name]) ? $this->maps[ENTITY_EXPENSE_CATEGORY][$name] : null;
+    }
 }

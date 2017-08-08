@@ -4,12 +4,12 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     dump_dir: (function() {
       var out = {};
-      
+
       grunt.file.expand({ filter: 'isDirectory'}, 'public/fonts/invoice-fonts/*').forEach(function(path) {
         var fontName = /[^/]*$/.exec(path)[0],
             files = {},
             license='';
-        
+
         // Add license text
         grunt.file.expand({ filter: 'isFile'}, path+'/*.txt').forEach(function(path) {
             var licenseText = grunt.file.read(path);
@@ -19,10 +19,10 @@ module.exports = function(grunt) {
 
             license += "/*\n"+licenseText+"\n*/";
         });
-          
+
         // Create files list
         files['public/js/vfs_fonts/'+fontName+'.js'] = [path+'/*.ttf'];
-          
+
         out[fontName] = {
           options: {
             pre: license+'window.ninjaFontVfs=window.ninjaFontVfs||{};window.ninjaFontVfs.'+fontName+'=',
@@ -30,8 +30,8 @@ module.exports = function(grunt) {
           },
           files: files
         };
-      });      
-         
+      });
+
       // Return the computed object
       return out;
     }()),
@@ -104,8 +104,8 @@ module.exports = function(grunt) {
           'public/vendor/moment-timezone/builds/moment-timezone-with-data.min.js',
           'public/vendor/stacktrace-js/dist/stacktrace-with-polyfills.min.js',
           'public/vendor/fuse.js/src/fuse.min.js',
+          'public/vendor/sweetalert/dist/sweetalert.min.js',
           //'public/vendor/moment-duration-format/lib/moment-duration-format.js',
-          //'public/vendor/handsontable/dist/jquery.handsontable.full.min.js',
           //'public/vendor/pdfmake/build/pdfmake.min.js',
           //'public/vendor/pdfmake/build/vfs_fonts.js',
           //'public/js/vfs_fonts.js',
@@ -116,14 +116,12 @@ module.exports = function(grunt) {
         dest: 'public/built.js',
         nonull: true
       },
-      js_public: {
+      /*js_public: {
         src: [
-        /*
           'public/js/simpleexpand.js',
           'public/js/valign.js',
           'public/js/bootstrap.min.js',
           'public/js/simpleexpand.js',
-        */
           'public/vendor/bootstrap/dist/js/bootstrap.min.js',
           'public/js/bootstrap-combobox.js',
 
@@ -142,7 +140,7 @@ module.exports = function(grunt) {
           'public/vendor/spectrum/spectrum.css',
           'public/css/bootstrap-combobox.css',
           'public/css/typeahead.js-bootstrap.css',
-          //'public/vendor/handsontable/dist/jquery.handsontable.full.css',
+          'public/vendor/sweetalert/dist/sweetalert.css',
           'public/css/style.css',
         ],
         dest: 'public/css/built.css',
@@ -150,8 +148,8 @@ module.exports = function(grunt) {
         options: {
             process: false
         }
-      },
-      css_public: {
+      },*/
+      /*css_public: {
         src: [
           'public/vendor/bootstrap/dist/css/bootstrap.min.css',
           'public/vendor/font-awesome/css/font-awesome.min.css',
@@ -165,8 +163,8 @@ module.exports = function(grunt) {
         options: {
             process: false
         }
-      },
-      js_pdf: {
+      },*/
+      /*js_pdf: {
         src: [
           'public/js/pdf_viewer.js',
           'public/js/compatibility.js',
@@ -175,7 +173,7 @@ module.exports = function(grunt) {
         ],
         dest: 'public/pdf.built.js',
         nonull: true
-      }
+      }*/
     }
   });
 

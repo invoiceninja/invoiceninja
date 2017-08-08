@@ -1,7 +1,9 @@
-<?php namespace App\Ninja\Presenters;
+<?php
+
+namespace App\Ninja\Presenters;
 
 /**
- * Class TaskPresenter
+ * Class TaskPresenter.
  */
 class TaskPresenter extends EntityPresenter
 {
@@ -21,50 +23,51 @@ class TaskPresenter extends EntityPresenter
         return $this->entity->user->getDisplayName();
     }
 
+    public function description()
+    {
+        return substr($this->entity->description, 0, 40) . (strlen($this->entity->description) > 40 ? '...' : '');
+    }
+
+    public function project()
+    {
+        return $this->entity->project ? $this->entity->project->name : '';
+    }
+
     /**
      * @param $account
+     * @param mixed $showProject
+     *
      * @return mixed
      */
-    public function times($account)
+    public function invoiceDescription($account, $showProject)
     {
+        $str = '';
+
+        if ($showProject && $project = $this->project()) {
+            $str .= "## {$project}\n\n";
+        }
+
+        if ($description = trim($this->entity->description)) {
+            $str .= $description . "\n\n";
+        }
+
         $parts = json_decode($this->entity->time_log) ?: [];
         $times = [];
 
         foreach ($parts as $part) {
             $start = $part[0];
-            if (count($part) == 1 || !$part[1]) {
+            if (count($part) == 1 || ! $part[1]) {
                 $end = time();
             } else {
                 $end = $part[1];
             }
 
-            $start = $account->formatDateTime("@{$start}");
-            $end = $account->formatTime("@{$end}");
+            $start = $account->formatDateTime('@' . intval($start));
+            $end = $account->formatTime('@' . intval($end));
 
             $times[] = "### {$start} - {$end}";
         }
 
-        return implode("\n", $times);
-    }
-
-    /**
-     * @return string
-     */
-    public function status()
-    {
-        $class = $text = '';
-
-        if ($this->entity->is_deleted) {
-            $class = 'danger';
-            $text = trans('texts.deleted');
-        } elseif ($this->entity->trashed()) {
-            $class = 'warning';
-            $text = trans('texts.archived');
-        } else {
-            $class = 'success';
-            $text = trans('texts.active');
-        }
-
-        return "<span class=\"label label-{$class}\">{$text}</span>";
+        return $str . implode("\n", $times);
     }
 }

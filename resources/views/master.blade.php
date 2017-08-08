@@ -1,23 +1,39 @@
 <!DOCTYPE html>
 <html lang="{{App::getLocale()}}">
 <head>
-    @if (isset($account) && $account instanceof \App\Models\Account && $account->hasFeature(FEATURE_WHITE_LABEL))
+    <!-- Source: https://github.com/invoiceninja/invoiceninja -->
+    <!-- Version: {{ NINJA_VERSION }} -->
+    @if (env('MULTI_DB_ENABLED'))
+    <!-- Authenticated: {{ Auth::check() ? 'Yes' : 'No' }} -->
+    <!-- Server: {{ session(SESSION_DB_SERVER, 'Unset') }} -->
+    @endif
+    <meta charset="utf-8">
+
+    @if (Utils::isWhiteLabel() && ! isset($title))
         <title>{{ trans('texts.client_portal') }}</title>
+        <link href="{{ asset('ic_cloud_circle.png') }}" rel="shortcut icon" type="image/png">
     @else
         <title>{{ isset($title) ? ($title . ' | Invoice Ninja') : ('Invoice Ninja | ' . trans('texts.app_title')) }}</title>
         <meta name="description" content="{{ isset($description) ? $description : trans('texts.app_description') }}"/>
         <link href="{{ asset('favicon-v2.png') }}" rel="shortcut icon" type="image/png">
+
+        <meta property="og:site_name" content="Invoice Ninja"/>
+        <meta property="og:url" content="{{ SITE_URL }}"/>
+        <meta property="og:title" content="Invoice Ninja"/>
+        <meta property="og:image" content="{{ SITE_URL }}/images/round_logo.png"/>
+        <meta property="og:description" content="Simple, Intuitive Invoicing."/>
+
+        <!-- http://realfavicongenerator.net -->
+        <link rel="apple-touch-icon" sizes="180x180" href="{{ url('apple-touch-icon.png') }}">
+        <link rel="icon" type="image/png" href="{{ url('favicon-32x32.png') }}" sizes="32x32">
+        <link rel="icon" type="image/png" href="{{ url('favicon-16x16.png') }}" sizes="16x16">
+        <link rel="manifest" href="{{ url('manifest.json') }}">
+        <link rel="mask-icon" href="{{ url('safari-pinned-tab.svg') }}" color="#3bc65c">
+        <link rel="shortcut icon" href="{{ url('favicon.ico') }}">
+        <meta name="apple-mobile-web-app-title" content="Invoice Ninja">
+        <meta name="application-name" content="Invoice Ninja">
+        <meta name="theme-color" content="#ffffff">
     @endif
-
-<!-- Source: https://github.com/invoiceninja/invoiceninja -->
-<!-- Version: {{ NINJA_VERSION }} -->
-
-    <meta charset="utf-8">
-    <meta property="og:site_name" content="Invoice Ninja"/>
-    <meta property="og:url" content="{{ SITE_URL }}"/>
-    <meta property="og:title" content="Invoice Ninja"/>
-    <meta property="og:image" content="{{ SITE_URL }}/images/round_logo.png"/>
-    <meta property="og:description" content="Simple, Intuitive Invoicing."/>
 
     <!-- http://stackoverflow.com/questions/19012698/browser-cache-issues-in-laravel-4-application -->
     <meta http-equiv="cache-control" content="max-age=0"/>
@@ -31,9 +47,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="msapplication-config" content="none"/>
-
     <link rel="canonical" href="{{ NINJA_APP_URL }}/{{ Request::path() }}"/>
+
+    @yield('head_css')
 
     <script src="{{ asset('built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
@@ -45,10 +61,6 @@
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
             if (errorMsg.indexOf('Script error.') > -1) {
                 return;
-            }
-
-            if (errorMsg.indexOf('No unicode cmap for font') > -1) {
-                alert("{{ trans('texts.update_font_cache') }}\n\n - Windows: Ctrl + F5\n - Mac/Apple: Apple + R or Command + R\n - Linux: F5");
             }
 
             try {
@@ -80,15 +92,35 @@
             });
         }
 
+        // http://t4t5.github.io/sweetalert/
+        function sweetConfirm(success, text, title) {
+            title = title || "{!! trans("texts.are_you_sure") !!}";
+            swal({
+                //type: "warning",
+                //confirmButtonColor: "#DD6B55",
+                title: title,
+                text: text,
+                cancelButtonText: "{!! trans("texts.no") !!}",
+                confirmButtonText: "{!! trans("texts.yes") !!}",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                allowOutsideClick: true,
+            }).then(function() {
+                success();
+                swal.close();
+            });
+        }
+
         /* Set the defaults for DataTables initialisation */
         $.extend(true, $.fn.dataTable.defaults, {
             "bSortClasses": false,
-            "sDom": "t<'row-fluid'<'span6'i><'span6'p>>l",
+            "sDom": "t<'row-fluid'<'span6 dt-left'i><'span6 dt-right'p>>l",
             "sPaginationType": "bootstrap",
             "bInfo": true,
             "oLanguage": {
                 'sEmptyTable': "{{ trans('texts.empty_table') }}",
                 'sLengthMenu': '_MENU_ {{ trans('texts.rows') }}',
+                'sInfo': "{{ trans('texts.datatable_info', ['start' => '_START_', 'end' => '_END_', 'total' => '_TOTAL_']) }}",
                 'sSearch': ''
             }
         });
@@ -157,7 +189,12 @@
 
 <body class="body">
 
-@if (isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
+@if (request()->phantomjs)
+    <script>
+        function trackEvent(category, action) {
+        }
+    </script>
+@elseif (Utils::isNinjaProd() && isset($_ENV['TAG_MANAGER_KEY']) && $_ENV['TAG_MANAGER_KEY'])
     <!-- Google Tag Manager -->
     <noscript>
         <iframe src="//www.googletagmanager.com/ns.html?id={{ $_ENV['TAG_MANAGER_KEY'] }}"
@@ -181,7 +218,7 @@
         function trackEvent(category, action) {
         }
     </script>
-@elseif (isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
+@elseif (Utils::isNinjaProd() && isset($_ENV['ANALYTICS_KEY']) && $_ENV['ANALYTICS_KEY'])
     <script>
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -219,14 +256,19 @@
             NINJA.formIsChanged = true;
         });
 
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         @if (Session::has('trackEventCategory') && Session::has('trackEventAction'))
             @if (Session::get('trackEventAction') === '/buy_pro_plan')
-                window._fbq.push(['track', '{{ env('FACEBOOK_PIXEL_BUY_PRO') }}', {
-            'value': '{{ session('trackEventAmount') }}',
-            'currency': 'USD'
-        }]);
+                fbq('track', 'Purchase', {value: '{{ session('trackEventAmount') }}', currency: 'USD'});
+            @endif
         @endif
-        @endif
+
+        $('[data-toggle="tooltip"]').tooltip();
 
         @if (Session::has('onReady'))
         {{ Session::get('onReady') }}

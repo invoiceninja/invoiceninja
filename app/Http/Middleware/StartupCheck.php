@@ -1,30 +1,34 @@
-<?php namespace App\Http\Middleware;
+<?php
 
-use Closure;
-use Illuminate\Http\Request;
-use Utils;
+namespace App\Http\Middleware;
+
 use App;
+use App\Events\UserLoggedIn;
+use App\Libraries\CurlUtils;
+use App\Models\InvoiceDesign;
+use App\Models\Language;
 use Auth;
+use Cache;
+use Closure;
+use Event;
+use Illuminate\Http\Request;
 use Input;
 use Redirect;
-use Cache;
-use Session;
-use Event;
 use Schema;
-use App\Models\Language;
-use App\Models\InvoiceDesign;
-use App\Events\UserSettingsChanged;
+use Session;
+use Utils;
 
 /**
- * Class StartupCheck
+ * Class StartupCheck.
  */
 class StartupCheck
 {
     /**
      * Handle an incoming request.
      *
-     * @param  Request $request
-     * @param  Closure $next
+     * @param Request $request
+     * @param Closure $next
+     *
      * @return mixed
      */
     public function handle(Request $request, Closure $next)
@@ -37,17 +41,17 @@ class StartupCheck
         }
 
         // Ensure all request are over HTTPS in production
-        if (Utils::requireHTTPS() && !$request->secure()) {
+        if (Utils::requireHTTPS() && ! $request->secure()) {
             return Redirect::secure($request->path());
         }
 
         // If the database doens't yet exist we'll skip the rest
-        if (!Utils::isNinja() && !Utils::isDatabaseSetup()) {
+        if (! Utils::isNinja() && ! Utils::isDatabaseSetup()) {
             return $next($request);
         }
 
         // Check if a new version was installed
-        if (!Utils::isNinja()) {
+        if (! Utils::isNinja()) {
             $file = storage_path() . '/version.txt';
             $version = @file_get_contents($file);
             if ($version != NINJA_VERSION) {
@@ -57,7 +61,14 @@ class StartupCheck
                 $handle = fopen($file, 'w');
                 fwrite($handle, NINJA_VERSION);
                 fclose($handle);
+
                 return Redirect::to('/update');
+            }
+        }
+
+        if (env('MULTI_DB_ENABLED')) {
+            if ($server = session(SESSION_DB_SERVER)) {
+                config(['database.default' => $server]);
             }
         }
 
@@ -66,12 +77,12 @@ class StartupCheck
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
-            if (isset($_SERVER['REQUEST_URI']) && !Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && !Session::has('news_feed_id')) {
+            if (isset($_SERVER['REQUEST_URI']) && ! Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && ! Session::has('news_feed_id')) {
                 $data = false;
                 if (Utils::isNinja()) {
                     $data = Utils::getNewsFeedResponse();
                 } else {
-                    $file = @file_get_contents(NINJA_APP_URL.'/news_feed/'.Utils::getUserType().'/'.NINJA_VERSION);
+                    $file = @CurlUtils::get(NINJA_APP_URL.'/news_feed/'.Utils::getUserType().'/'.NINJA_VERSION);
                     $data = @json_decode($file);
                 }
                 if ($data) {
@@ -116,44 +127,34 @@ class StartupCheck
         }
 
         // Make sure the account/user localization settings are in the session
-        if (Auth::check() && !Session::has(SESSION_TIMEZONE)) {
-            Event::fire(new UserSettingsChanged());
+        if (Auth::check() && ! Session::has(SESSION_TIMEZONE)) {
+            Event::fire(new UserLoggedIn());
         }
 
         // Check if the user is claiming a license (ie, additional invoices, white label, etc.)
-        if (isset($_SERVER['REQUEST_URI'])) {
+        if (! Utils::isNinjaProd() && isset($_SERVER['REQUEST_URI'])) {
             $claimingLicense = Utils::startsWith($_SERVER['REQUEST_URI'], '/claim_license');
-            if (!$claimingLicense && Input::has('license_key') && Input::has('product_id')) {
+            if (! $claimingLicense && Input::has('license_key') && Input::has('product_id')) {
                 $licenseKey = Input::get('license_key');
                 $productId = Input::get('product_id');
 
                 $url = (Utils::isNinjaDev() ? SITE_URL : NINJA_APP_URL) . "/claim_license?license_key={$licenseKey}&product_id={$productId}&get_date=true";
-                $data = trim(file_get_contents($url));
+                $data = trim(CurlUtils::get($url));
 
-                if ($productId == PRODUCT_INVOICE_DESIGNS) {
-                    if ($data = json_decode($data)) {
-                        foreach ($data as $item) {
-                            $design = new InvoiceDesign();
-                            $design->id = $item->id;
-                            $design->name = $item->name;
-                            $design->pdfmake = $item->pdfmake;
-                            $design->save();
-                        }
+                if ($data == RESULT_FAILURE) {
+                    Session::flash('error', trans('texts.invalid_white_label_license'));
+                } elseif ($data) {
+                    $company = Auth::user()->account->company;
+                    $company->plan_term = PLAN_TERM_YEARLY;
+                    $company->plan_paid = $data;
+                    $date = max(date_create($data), date_create($company->plan_expires));
+                    $company->plan_expires = $date->modify('+1 year')->format('Y-m-d');
+                    $company->plan = PLAN_WHITE_LABEL;
+                    $company->save();
 
-                        Cache::forget('invoiceDesigns');
-                        Session::flash('message', trans('texts.bought_designs'));
-                    }
-                } elseif ($productId == PRODUCT_WHITE_LABEL) {
-                    if ($data && $data != RESULT_FAILURE) {
-                        $company = Auth::user()->account->company;
-                        $company->plan_term = PLAN_TERM_YEARLY;
-                        $company->plan_paid = $data;
-                        $company->plan_expires = date_create($data)->modify('+1 year')->format('Y-m-d');
-                        $company->plan = PLAN_WHITE_LABEL;
-                        $company->save();
-
-                        Session::flash('message', trans('texts.bought_white_label'));
-                    }
+                    Session::flash('message', trans('texts.bought_white_label'));
+                } else {
+                    Session::flash('error', trans('texts.white_label_license_error'));
                 }
             }
         }
@@ -164,9 +165,9 @@ class StartupCheck
             Session::flash('message', 'Cache cleared');
         }
         foreach ($cachedTables as $name => $class) {
-            if (Input::has('clear_cache') || !Cache::has($name)) {
+            if (Input::has('clear_cache') || ! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
-                if ( ! Schema::hasTable((new $class)->getTable())) {
+                if (! Schema::hasTable((new $class())->getTable())) {
                     continue;
                 }
                 if ($name == 'paymentTerms') {

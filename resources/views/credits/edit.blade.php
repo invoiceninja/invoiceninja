@@ -4,9 +4,16 @@
 
 
 	{!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit')->method($method)->rules(array(
-			'client' => 'required',
+			'client_id' => 'required',
   		'amount' => 'required',
 	)) !!}
+
+	@if ($credit)
+      {!! Former::populate($credit) !!}
+      <div style="display:none">
+          {!! Former::text('public_id') !!}
+      </div>
+	@endif
 
 	<div class="row">
         <div class="col-md-10 col-md-offset-1">
@@ -14,13 +21,28 @@
             <div class="panel panel-default">
             <div class="panel-body">
 
-			{!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+			@if ($credit)
+				{!! Former::plaintext()->label('client')->value($client->present()->link) !!}
+			@else
+				{!! Former::select('client_id')
+						->label('client')
+						->addOption('', '')
+						->addGroupClass('client-select') !!}
+			@endif
+
 			{!! Former::text('amount') !!}
+
+			@if ($credit)
+				{!! Former::text('balance') !!}
+			@endif
+
 			{!! Former::text('credit_date')
                         ->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
                         ->addGroupClass('credit_date')
                         ->append('<i class="glyphicon glyphicon-calendar"></i>') !!}
-			{!! Former::textarea('private_notes') !!}
+
+			{!! Former::textarea('public_notes')->rows(4) !!}
+			{!! Former::textarea('private_notes')->rows(4) !!}
 
             </div>
             </div>
@@ -30,7 +52,7 @@
 
 
 	<center class="buttons">
-        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/credits'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/credits'))->appendIcon(Icon::create('remove-circle')) !!}
         {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
 	</center>
 
@@ -39,28 +61,30 @@
 	<script type="text/javascript">
 
 
-	var clients = {!! $clients !!};
+	var clients = {!! $clients ?: 'false' !!};
 
 	$(function() {
 
-		var $clientSelect = $('select#client');
-		for (var i=0; i<clients.length; i++) {
-			var client = clients[i];
-            var clientName = getClientDisplayName(client);
-            if (!clientName) {
-                continue;
-            }
-			$clientSelect.append(new Option(clientName, client.public_id));
-		}
+		@if ( ! $credit)
+			var $clientSelect = $('select#client_id');
+			for (var i=0; i<clients.length; i++) {
+				var client = clients[i];
+	            var clientName = getClientDisplayName(client);
+	            if (!clientName) {
+	                continue;
+	            }
+				$clientSelect.append(new Option(clientName, client.public_id));
+			}
 
-		if ({{ $clientPublicId ? 'true' : 'false' }}) {
-			$clientSelect.val({{ $clientPublicId }});
-		}
+			if ({{ $clientPublicId ? 'true' : 'false' }}) {
+				$clientSelect.val({{ $clientPublicId }});
+			}
 
-		$clientSelect.combobox();
+			$clientSelect.combobox();
+		@endif
 
 		$('#currency_id').combobox();
-		$('#credit_date').datepicker('update', new Date());
+		$('#credit_date').datepicker('update', '{{ $credit ? $credit->credit_date : 'new Date()' }}');
 
         @if (!$clientPublicId)
             $('.client-select input.form-control').focus();

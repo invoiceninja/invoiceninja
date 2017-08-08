@@ -2,12 +2,17 @@
 
 namespace App\Policies;
 
-class TokenPolicy extends EntityPolicy {
-    public static function edit($user, $item) {
+use App\Models\User;
+
+class TokenPolicy extends EntityPolicy
+{
+    public static function edit(User $user, $item)
+    {
         return $user->hasPermission('admin');
     }
 
-    public static function create($user) {
+    public static function create(User $user, $item)
+    {
         return $user->hasPermission('admin');
     }
 }

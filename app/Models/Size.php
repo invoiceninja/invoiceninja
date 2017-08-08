@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class Size
+ * Class Size.
  */
 class Size extends Eloquent
 {
@@ -15,8 +17,8 @@ class Size extends Eloquent
     /**
      * @return mixed
      */
-    public function getName() 
+    public function getName()
     {
         return $this->name;
-    }    
+    }
 }

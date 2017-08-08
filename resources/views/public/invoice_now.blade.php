@@ -2,7 +2,7 @@
 
 @section('body')
 
-{!! Form::open(array('url' => 'get_started', 'id' => 'startForm')) !!}
+{!! Form::open(array('url' => 'get_started?' . request()->getQueryString(), 'id' => 'startForm')) !!}
 {!! Form::hidden('guest_key') !!}
 {!! Form::hidden('sign_up', Input::get('sign_up')) !!}
 {!! Form::hidden('redirect_to', Input::get('redirect_to')) !!}

@@ -1,4 +1,8 @@
-<?php namespace App\Ninja\PaymentDrivers;
+<?php
+
+namespace App\Ninja\PaymentDrivers;
+
+use Request;
 
 class PayFastPaymentDriver extends BasePaymentDriver
 {
@@ -6,8 +10,8 @@ class PayFastPaymentDriver extends BasePaymentDriver
 
     public function completeOffsitePurchase($input)
     {
-        if ($accountGateway->isGateway(GATEWAY_PAYFAST) && Request::has('pt')) {
-            $token = Request::query('pt');
-        }
+        parent::completeOffsitePurchase([
+            'token' => Request::query('pt'),
+        ]);
     }
 }

@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class TaxRate
+ * Class TaxRate.
  */
 class TaxRate extends EntityModel
 {
@@ -18,7 +20,8 @@ class TaxRate extends EntityModel
      */
     protected $fillable = [
         'name',
-        'rate'
+        'rate',
+        'is_inclusive',
     ];
 
     /**
@@ -44,5 +47,4 @@ class TaxRate extends EntityModel
     {
         return sprintf('%s: %s%%', $this->name, $this->rate);
     }
-
 }

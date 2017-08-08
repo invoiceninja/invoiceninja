@@ -1,11 +1,14 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Response;
-use Input;
-use App\Models\Client;
-use App\Ninja\Repositories\ClientRepository;
+namespace App\Http\Controllers;
+
+use App\Http\Requests\ClientRequest;
 use App\Http\Requests\CreateClientRequest;
 use App\Http\Requests\UpdateClientRequest;
+use App\Models\Client;
+use App\Ninja\Repositories\ClientRepository;
+use Input;
+use Response;
 
 class ClientApiController extends BaseAPIController
 {
@@ -23,11 +26,12 @@ class ClientApiController extends BaseAPIController
     /**
      * @SWG\Get(
      *   path="/clients",
-     *   summary="List of clients",
+     *   summary="List clients",
+     *   operationId="listClients",
      *   tags={"client"},
      *   @SWG\Response(
      *     response=200,
-     *     description="A list with clients",
+     *     description="A list of clients",
      *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Client"))
      *   ),
      *   @SWG\Response(
@@ -42,24 +46,54 @@ class ClientApiController extends BaseAPIController
             ->orderBy('created_at', 'desc')
             ->withTrashed();
 
-        // Filter by email
         if ($email = Input::get('email')) {
             $clients = $clients->whereHas('contacts', function ($query) use ($email) {
                 $query->where('email', $email);
             });
+        } elseif ($idNumber = Input::get('id_number')) {
+            $clients = $clients->whereIdNumber($idNumber);
         }
 
         return $this->listResponse($clients);
     }
 
     /**
+     * @SWG\Get(
+     *   path="/clients/{client_id}",
+     *   summary="Retrieve a client",
+     *   operationId="getClient",
+     *   tags={"client"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="client_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single client",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function show(ClientRequest $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+    /**
      * @SWG\Post(
      *   path="/clients",
-     *   tags={"client"},
      *   summary="Create a client",
+     *   operationId="createClient",
+     *   tags={"client"},
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="client",
      *     @SWG\Schema(ref="#/definitions/Client")
      *   ),
      *   @SWG\Response(
@@ -83,16 +117,23 @@ class ClientApiController extends BaseAPIController
     /**
      * @SWG\Put(
      *   path="/clients/{client_id}",
-     *   tags={"client"},
      *   summary="Update a client",
+     *   operationId="updateClient",
+     *   tags={"client"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="client_id",
+     *     type="integer",
+     *     required=true
+     *   ),
      *   @SWG\Parameter(
      *     in="body",
-     *     name="body",
+     *     name="client",
      *     @SWG\Schema(ref="#/definitions/Client")
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Update client",
+     *     description="Updated client",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
      *   ),
      *   @SWG\Response(
@@ -100,8 +141,9 @@ class ClientApiController extends BaseAPIController
      *     description="an ""unexpected"" error"
      *   )
      * )
+     *
+     * @param mixed $publicId
      */
-
     public function update(UpdateClientRequest $request, $publicId)
     {
         if ($request->action) {
@@ -117,20 +159,21 @@ class ClientApiController extends BaseAPIController
         return $this->itemResponse($client);
     }
 
-
     /**
      * @SWG\Delete(
      *   path="/clients/{client_id}",
-     *   tags={"client"},
      *   summary="Delete a client",
+     *   operationId="deleteClient",
+     *   tags={"client"},
      *   @SWG\Parameter(
-     *     in="body",
-     *     name="body",
-     *     @SWG\Schema(ref="#/definitions/Client")
+     *     in="path",
+     *     name="client_id",
+     *     type="integer",
+     *     required=true
      *   ),
      *   @SWG\Response(
      *     response=200,
-     *     description="Delete client",
+     *     description="Deleted client",
      *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Client"))
      *   ),
      *   @SWG\Response(
@@ -139,7 +182,6 @@ class ClientApiController extends BaseAPIController
      *   )
      * )
      */
-
     public function destroy(UpdateClientRequest $request)
     {
         $client = $request->entity();
@@ -148,5 +190,4 @@ class ClientApiController extends BaseAPIController
 
         return $this->itemResponse($client);
     }
-
 }

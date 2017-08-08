@@ -1,17 +1,26 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class Product
+ * Class Product.
  */
 class Product extends EntityModel
 {
+    use PresentableTrait;
     use SoftDeletes;
     /**
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\ProductPresenter';
 
     /**
      * @var array
@@ -21,7 +30,12 @@ class Product extends EntityModel
         'notes',
         'cost',
         'qty',
-        'default_tax_rate_id',
+        'tax_name1',
+        'tax_rate1',
+        'tax_name2',
+        'tax_rate2',
+        'custom_value1',
+        'custom_value2',
     ];
 
     /**
@@ -58,11 +72,12 @@ class Product extends EntityModel
 
     /**
      * @param $key
+     *
      * @return mixed
      */
     public static function findProductByKey($key)
     {
-        return Product::scope()->where('product_key', '=', $key)->first();
+        return self::scope()->where('product_key', '=', $key)->first();
     }
 
     /**
@@ -71,13 +86,5 @@ class Product extends EntityModel
     public function user()
     {
         return $this->belongsTo('App\Models\User')->withTrashed();
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function default_tax_rate()
-    {
-        return $this->belongsTo('App\Models\TaxRate');
     }
 }

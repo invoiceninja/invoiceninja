@@ -171,11 +171,11 @@
             "productKey": {
                 "color": "$primaryColor:#36a498"
             },
-            "balanceDueLabel": {
+            "subtotalsBalanceDueLabel": {
                 "fontSize": "$fontSizeLargest",
                 "bold": true
             },
-            "balanceDue": {
+            "subtotalsBalanceDue": {
                 "fontSize": "$fontSizeLargest",
                 "color": "$primaryColor:#36a498",
                 "bold": true

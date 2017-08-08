@@ -1,0 +1,179 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use App\Http\Controllers\BaseAPIController;
+use Modules\$STUDLY_NAME$\Repositories\$STUDLY_NAME$Repository;
+use Modules\$STUDLY_NAME$\Http\Requests\$STUDLY_NAME$Request;
+use Modules\$STUDLY_NAME$\Http\Requests\Create$STUDLY_NAME$Request;
+use Modules\$STUDLY_NAME$\Http\Requests\Update$STUDLY_NAME$Request;
+
+class $STUDLY_NAME$ApiController extends BaseAPIController
+{
+    protected $$STUDLY_NAME$Repo;
+    protected $entityType = '$LOWER_NAME$';
+
+    public function __construct($STUDLY_NAME$Repository $$LOWER_NAME$Repo)
+    {
+        parent::__construct();
+
+        $this->$LOWER_NAME$Repo = $$LOWER_NAME$Repo;
+    }
+
+    /**
+     * @SWG\Get(
+     *   path="/$LOWER_NAME$",
+     *   summary="List $LOWER_NAME$",
+     *   operationId="list$STUDLY_NAME$s",
+     *   tags={"$LOWER_NAME$"},
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A list of $LOWER_NAME$",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/$STUDLY_NAME$"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function index()
+    {
+        $data = $this->$LOWER_NAME$Repo->all();
+
+        return $this->listResponse($data);
+    }
+
+    /**
+     * @SWG\Get(
+     *   path="/$LOWER_NAME$/{$LOWER_NAME$_id}",
+     *   summary="Individual $STUDLY_NAME$",
+     *   operationId="get$STUDLY_NAME$",
+     *   tags={"$LOWER_NAME$"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="$LOWER_NAME$_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="A single $LOWER_NAME$",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/$STUDLY_NAME$"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function show($STUDLY_NAME$Request $request)
+    {
+        return $this->itemResponse($request->entity());
+    }
+
+
+
+
+    /**
+     * @SWG\Post(
+     *   path="/$LOWER_NAME$",
+     *   summary="Create a $LOWER_NAME$",
+     *   operationId="create$STUDLY_NAME$",
+     *   tags={"$LOWER_NAME$"},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="$LOWER_NAME$",
+     *     @SWG\Schema(ref="#/definitions/$STUDLY_NAME$")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="New $LOWER_NAME$",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/$STUDLY_NAME$"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function store(Create$STUDLY_NAME$Request $request)
+    {
+        $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input());
+
+        return $this->itemResponse($$LOWER_NAME$);
+    }
+
+    /**
+     * @SWG\Put(
+     *   path="/$LOWER_NAME$/{$LOWER_NAME$_id}",
+     *   summary="Update a $LOWER_NAME$",
+     *   operationId="update$STUDLY_NAME$",
+     *   tags={"$LOWER_NAME$"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="$LOWER_NAME$_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="$LOWER_NAME$",
+     *     @SWG\Schema(ref="#/definitions/$STUDLY_NAME$")
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Updated $LOWER_NAME$",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/$STUDLY_NAME$"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function update(Update$STUDLY_NAME$Request $request, $publicId)
+    {
+        if ($request->action) {
+            return $this->handleAction($request);
+        }
+
+        $$LOWER_NAME$ = $this->$LOWER_NAME$Repo->save($request->input(), $request->entity());
+
+        return $this->itemResponse($$LOWER_NAME$);
+    }
+
+
+    /**
+     * @SWG\Delete(
+     *   path="/$LOWER_NAME$/{$LOWER_NAME$_id}",
+     *   summary="Delete a $LOWER_NAME$",
+     *   operationId="delete$STUDLY_NAME$",
+     *   tags={"$LOWER_NAME$"},
+     *   @SWG\Parameter(
+     *     in="path",
+     *     name="$LOWER_NAME$_id",
+     *     type="integer",
+     *     required=true
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Deleted $LOWER_NAME$",
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/$STUDLY_NAME$"))
+     *   ),
+     *   @SWG\Response(
+     *     response="default",
+     *     description="an ""unexpected"" error"
+     *   )
+     * )
+     */
+    public function destroy(Update$STUDLY_NAME$Request $request)
+    {
+        $$LOWER_NAME$ = $request->entity();
+
+        $this->$LOWER_NAME$Repo->delete($$LOWER_NAME$);
+
+        return $this->itemResponse($$LOWER_NAME$);
+    }
+
+}

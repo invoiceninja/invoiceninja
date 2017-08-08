@@ -1,4 +1,8 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\Client;
 
 class UpdateInvoiceAPIRequest extends InvoiceRequest
 {
@@ -9,7 +13,7 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
      */
     public function authorize()
     {
-        return $this->user()->can('edit', $this->entity());
+        return $this->entity() && $this->user()->can('edit', $this->entity());
     }
 
     /**
@@ -19,6 +23,10 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
      */
     public function rules()
     {
+        if (! $this->entity()) {
+            return [];
+        }
+
         if ($this->action == ACTION_ARCHIVE) {
             return [];
         }
@@ -29,6 +37,10 @@ class UpdateInvoiceAPIRequest extends InvoiceRequest
             'invoice_items' => 'valid_invoice_items',
             'invoice_number' => 'unique:invoices,invoice_number,' . $invoiceId . ',id,account_id,' . $this->user()->account_id,
             'discount' => 'positive',
+            //'invoice_date' => 'date',
+            //'due_date' => 'date',
+            //'start_date' => 'date',
+            //'end_date' => 'date',
         ];
 
         return $rules;

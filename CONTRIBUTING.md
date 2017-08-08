@@ -4,6 +4,8 @@ Thanks for your contributions!
 
 ## Submit bug reports or feature requests
 
+Please discuss the changes with us ahead of time to ensure they will be merged.
+
 ### Submit pull requests
  * [Fork](https://github.com/invoiceninja/invoiceninja#fork-destination-box) the [Invoice Ninja repository](https://github.com/invoiceninja/invoiceninja)
  * Create a new branch with the name `#issue_number-Short-description`

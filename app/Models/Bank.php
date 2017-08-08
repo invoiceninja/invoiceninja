@@ -1,9 +1,11 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Eloquent;
 
 /**
- * Class Bank
+ * Class Bank.
  */
 class Bank extends Eloquent
 {
@@ -14,6 +16,7 @@ class Bank extends Eloquent
 
     /**
      * @param $finance
+     *
      * @return \App\Libraries\Bank
      */
     public function getOFXBank($finance)

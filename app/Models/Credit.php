@@ -1,11 +1,13 @@
-<?php namespace App\Models;
+<?php
 
-use Illuminate\Database\Eloquent\SoftDeletes;
+namespace App\Models;
+
 use App\Events\CreditWasCreated;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class Credit
+ * Class Credit.
  */
 class Credit extends EntityModel
 {
@@ -20,6 +22,14 @@ class Credit extends EntityModel
      * @var string
      */
     protected $presenter = 'App\Ninja\Presenters\CreditPresenter';
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'public_notes',
+        'private_notes',
+    ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -62,6 +72,14 @@ class Credit extends EntityModel
     }
 
     /**
+     * @return string
+     */
+    public function getRoute()
+    {
+        return "/credits/{$this->public_id}";
+    }
+
+    /**
      * @return mixed
      */
     public function getEntityType()
@@ -71,6 +89,7 @@ class Credit extends EntityModel
 
     /**
      * @param $amount
+     *
      * @return mixed
      */
     public function apply($amount)
@@ -90,7 +109,6 @@ class Credit extends EntityModel
 }
 
 Credit::creating(function ($credit) {
-
 });
 
 Credit::created(function ($credit) {

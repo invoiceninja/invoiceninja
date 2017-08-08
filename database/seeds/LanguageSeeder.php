@@ -8,12 +8,15 @@ class LanguageSeeder extends Seeder
     {
         Eloquent::unguard();
 
+        // https://github.com/caouecs/Laravel-lang
+        // https://www.loc.gov/standards/iso639-2/php/code_list.php
+
         $languages = [
             ['name' => 'English', 'locale' => 'en'],
             ['name' => 'Italian', 'locale' => 'it'],
             ['name' => 'German', 'locale' => 'de'],
             ['name' => 'French', 'locale' => 'fr'],
-            ['name' => 'Brazilian Portuguese', 'locale' => 'pt_BR'],
+            ['name' => 'Portuguese - Brazilian', 'locale' => 'pt_BR'],
             ['name' => 'Dutch', 'locale' => 'nl'],
             ['name' => 'Spanish', 'locale' => 'es'],
             ['name' => 'Norwegian', 'locale' => 'nb_NO'],
@@ -26,6 +29,14 @@ class LanguageSeeder extends Seeder
             ['name' => 'Polish', 'locale' => 'pl'],
             ['name' => 'Czech', 'locale' => 'cs'],
             ['name' => 'Croatian', 'locale' => 'hr'],
+            ['name' => 'Albanian', 'locale' => 'sq'],
+            ['name' => 'Greek', 'locale' => 'el'],
+            ['name' => 'English - United Kingdom', 'locale' => 'en_UK'],
+            ['name' => 'Portuguese - Portugal', 'locale' => 'pt_PT'],
+            ['name' => 'Slovenian', 'locale' => 'sl'],
+            ['name' => 'Finnish', 'locale' => 'fi'],
+            ['name' => 'Romanian', 'locale' => 'ro'],
+            ['name' => 'Turkish - Turkey', 'locale' => 'tr_TR'],
         ];
 
         foreach ($languages as $language) {

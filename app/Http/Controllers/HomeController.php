@@ -1,17 +1,21 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Response;
-use Redirect;
-use Auth;
-use View;
-use Input;
-use Session;
-use App\Models\Account;
+namespace App\Http\Controllers;
+
 use App\Libraries\Utils;
+use App\Models\Account;
 use App\Ninja\Mailers\Mailer;
+use Auth;
+use Input;
+use Mail;
+use Redirect;
+use Request;
+use Response;
+use Session;
+use View;
 
 /**
- * Class HomeController
+ * Class HomeController.
  */
 class HomeController extends BaseController
 {
@@ -38,22 +42,14 @@ class HomeController extends BaseController
     public function showIndex()
     {
         Session::reflash();
-        
-        if (!Utils::isNinja() && (!Utils::isDatabaseSetup() || Account::count() == 0)) {
+
+        if (! Utils::isNinja() && (! Utils::isDatabaseSetup() || Account::count() == 0)) {
             return Redirect::to('/setup');
         } elseif (Auth::check()) {
             return Redirect::to('/dashboard');
         } else {
             return Redirect::to('/login');
         }
-    }
-
-    /**
-     * @return \Illuminate\Contracts\View\View
-     */
-    public function showTerms()
-    {
-        return View::make('public.terms', ['hideHeader' => true]);
     }
 
     /**
@@ -69,21 +65,13 @@ class HomeController extends BaseController
      */
     public function invoiceNow()
     {
-        if (Auth::check() && Input::get('new_company')) {
-            Session::put(PREV_USER_ID, Auth::user()->id);
-            Auth::user()->clearSession();
-            Auth::logout();
-        }
-
         // Track the referral/campaign code
-        foreach (['rc', 'utm_campaign'] as $code) {
-            if (Input::has($code)) {
-                Session::set(SESSION_REFERRAL_CODE, Input::get($code));
-            }
+        if (Input::has('rc')) {
+            Session::set(SESSION_REFERRAL_CODE, Input::get('rc'));
         }
 
         if (Auth::check()) {
-            $redirectTo = Input::get('redirect_to', 'invoices/create');
+            $redirectTo = Input::get('redirect_to') ? SITE_URL . '/' . ltrim(Input::get('redirect_to'), '/') : 'invoices/create';
             return Redirect::to($redirectTo)->with('sign_up', Input::get('sign_up'));
         } else {
             return View::make('public.invoice_now');
@@ -93,6 +81,7 @@ class HomeController extends BaseController
     /**
      * @param $userType
      * @param $version
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function newsFeed($userType, $version)
@@ -115,7 +104,7 @@ class HomeController extends BaseController
                 $user->save();
             }
         }
-        
+
         Session::forget('news_feed_message');
 
         return 'success';
@@ -134,6 +123,27 @@ class HomeController extends BaseController
      */
     public function keepAlive()
     {
+        return RESULT_SUCCESS;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function contactUs()
+    {
+        Mail::raw(request()->contact_us_message, function ($message) {
+            $subject = 'Customer Message: ';
+            if (Utils::isNinja()) {
+                $subject .= config('database.default');
+            } else {
+                $subject .= 'v' . NINJA_VERSION;
+            }
+            $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
+                    ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
+                    ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
+                    ->subject($subject);
+        });
+
         return RESULT_SUCCESS;
     }
 }

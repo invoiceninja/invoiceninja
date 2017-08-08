@@ -1,15 +1,21 @@
-<?php namespace App\Ninja\Repositories;
+<?php
 
-use DB;
-use Utils;
-use Auth;
+namespace App\Ninja\Repositories;
+
 use App\Models\ExpenseCategory;
+use Auth;
+use DB;
 
 class ExpenseCategoryRepository extends BaseRepository
 {
     public function getClassName()
     {
         return 'App\Models\ExpenseCategory';
+    }
+
+    public function all()
+    {
+        return ExpenseCategory::scope()->get();
     }
 
     public function find($filter = null)
@@ -20,12 +26,11 @@ class ExpenseCategoryRepository extends BaseRepository
                     'expense_categories.name as category',
                     'expense_categories.public_id',
                     'expense_categories.user_id',
-                    'expense_categories.deleted_at'
+                    'expense_categories.deleted_at',
+                    'expense_categories.is_deleted'
                 );
 
-        if (!\Session::get('show_trash:expense_category')) {
-            $query->where('expense_categories.deleted_at', '=', null);
-        }
+        $this->applyFilters($query, ENTITY_EXPENSE_CATEGORY);
 
         if ($filter) {
             $query->where(function ($query) use ($filter) {
@@ -40,7 +45,7 @@ class ExpenseCategoryRepository extends BaseRepository
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;
 
-        if ( ! $category) {
+        if (! $category) {
             $category = ExpenseCategory::createNew();
         }
 

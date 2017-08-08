@@ -1,42 +1,52 @@
-<?php namespace App\Listeners;
+<?php
 
-use App\Events\TaskWasCreated;
-use App\Events\TaskWasUpdated;
-use App\Models\Invoice;
+namespace App\Listeners;
+
+use App\Events\ClientWasArchived;
 use App\Events\ClientWasCreated;
 use App\Events\ClientWasDeleted;
-use App\Events\ClientWasArchived;
 use App\Events\ClientWasRestored;
-use App\Events\InvoiceWasCreated;
-use App\Events\InvoiceWasUpdated;
-use App\Events\InvoiceWasDeleted;
-use App\Events\InvoiceWasArchived;
-use App\Events\InvoiceWasRestored;
+use App\Events\CreditWasArchived;
+use App\Events\CreditWasCreated;
+use App\Events\CreditWasDeleted;
+use App\Events\CreditWasRestored;
+use App\Events\ExpenseWasArchived;
+use App\Events\ExpenseWasCreated;
+use App\Events\ExpenseWasDeleted;
+use App\Events\ExpenseWasRestored;
+use App\Events\ExpenseWasUpdated;
 use App\Events\InvoiceInvitationWasEmailed;
 use App\Events\InvoiceInvitationWasViewed;
-use App\Events\QuoteWasCreated;
-use App\Events\QuoteWasUpdated;
-use App\Events\QuoteWasDeleted;
-use App\Events\QuoteWasArchived;
-use App\Events\QuoteWasRestored;
-use App\Events\QuoteInvitationWasEmailed;
-use App\Events\QuoteInvitationWasViewed;
-use App\Events\QuoteInvitationWasApproved;
+use App\Events\InvoiceWasArchived;
+use App\Events\InvoiceWasCreated;
+use App\Events\InvoiceWasDeleted;
+use App\Events\InvoiceWasRestored;
+use App\Events\InvoiceWasUpdated;
+use App\Events\PaymentFailed;
+use App\Events\PaymentWasArchived;
 use App\Events\PaymentWasCreated;
 use App\Events\PaymentWasDeleted;
 use App\Events\PaymentWasRefunded;
-use App\Events\PaymentWasVoided;
-use App\Events\PaymentWasArchived;
 use App\Events\PaymentWasRestored;
-use App\Events\PaymentFailed;
-use App\Events\CreditWasCreated;
-use App\Events\CreditWasDeleted;
-use App\Events\CreditWasArchived;
-use App\Events\CreditWasRestored;
+use App\Events\PaymentWasVoided;
+use App\Events\QuoteInvitationWasApproved;
+use App\Events\QuoteInvitationWasEmailed;
+use App\Events\QuoteInvitationWasViewed;
+use App\Events\QuoteWasArchived;
+use App\Events\QuoteWasCreated;
+use App\Events\QuoteWasDeleted;
+use App\Events\QuoteWasRestored;
+use App\Events\QuoteWasUpdated;
+use App\Events\TaskWasArchived;
+use App\Events\TaskWasCreated;
+use App\Events\TaskWasDeleted;
+use App\Events\TaskWasRestored;
+use App\Events\TaskWasUpdated;
+use App\Models\Invoice;
 use App\Ninja\Repositories\ActivityRepository;
 
 /**
- * Class ActivityListener
+ * Class ActivityListener.
  */
 class ActivityListener
 {
@@ -47,6 +57,7 @@ class ActivityListener
 
     /**
      * ActivityListener constructor.
+     *
      * @param ActivityRepository $activityRepo
      */
     public function __construct(ActivityRepository $activityRepo)
@@ -123,7 +134,9 @@ class ActivityListener
             return;
         }
 
-        $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($event->invoice->id);
+        $backupInvoice = Invoice::with('invoice_items', 'client.account', 'client.contacts')
+                            ->withTrashed()
+                            ->find($event->invoice->id);
 
         $activity = $this->activityRepo->create(
             $event->invoice,
@@ -190,7 +203,8 @@ class ActivityListener
             ACTIVITY_TYPE_EMAIL_INVOICE,
             false,
             false,
-            $event->invitation
+            $event->invitation,
+            $event->notes
         );
     }
 
@@ -228,7 +242,9 @@ class ActivityListener
             return;
         }
 
-        $backupQuote = Invoice::with('invoice_items', 'client.account', 'client.contacts')->find($event->quote->id);
+        $backupQuote = Invoice::with('invoice_items', 'client.account', 'client.contacts')
+                            ->withTrashed()
+                            ->find($event->quote->id);
 
         $activity = $this->activityRepo->create(
             $event->quote,
@@ -286,7 +302,8 @@ class ActivityListener
             ACTIVITY_TYPE_EMAIL_QUOTE,
             false,
             false,
-            $event->invitation
+            $event->invitation,
+            $event->notes
         );
     }
 
@@ -375,7 +392,9 @@ class ActivityListener
             $event->payment,
             ACTIVITY_TYPE_CREATE_PAYMENT,
             $event->payment->amount * -1,
-            $event->payment->amount
+            $event->payment->amount,
+            false,
+            \App::runningInConsole() ? 'auto_billed' : ''
         );
     }
 
@@ -389,8 +408,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_DELETE_PAYMENT,
-            $payment->getCompletedAmount(),
-            $payment->getCompletedAmount() * -1
+            $payment->isFailedOrVoided() ? 0 : $payment->getCompletedAmount(),
+            $payment->isFailedOrVoided() ? 0 : $payment->getCompletedAmount() * -1
         );
     }
 
@@ -419,8 +438,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_VOIDED_PAYMENT,
-            $payment->amount,
-            $payment->amount * -1
+            $payment->is_deleted ? 0 : $payment->getCompletedAmount(),
+            $payment->is_deleted ? 0 : $payment->getCompletedAmount() * -1
         );
     }
 
@@ -434,8 +453,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_FAILED_PAYMENT,
-            $payment->getCompletedAmount(),
-            $payment->getCompletedAmount() * -1
+            $payment->is_deleted ? 0 : $payment->getCompletedAmount(),
+            $payment->is_deleted ? 0 : $payment->getCompletedAmount() * -1
         );
     }
 
@@ -470,7 +489,7 @@ class ActivityListener
     }
 
     /**
-     * Creates an activity when a task was created
+     * Creates an activity when a task was created.
      *
      * @param TaskWasCreated $event
      */
@@ -483,15 +502,95 @@ class ActivityListener
     }
 
     /**
-     * Creates an activity when a task was updated
+     * Creates an activity when a task was updated.
      *
      * @param TaskWasUpdated $event
      */
     public function updatedTask(TaskWasUpdated $event)
     {
+        if (! $event->task->isChanged()) {
+            return;
+        }
+
         $this->activityRepo->create(
             $event->task,
             ACTIVITY_TYPE_UPDATE_TASK
+        );
+    }
+
+    public function archivedTask(TaskWasArchived $event)
+    {
+        if ($event->task->is_deleted) {
+            return;
+        }
+
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_ARCHIVE_TASK
+        );
+    }
+
+    public function deletedTask(TaskWasDeleted $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_DELETE_TASK
+        );
+    }
+
+    public function restoredTask(TaskWasRestored $event)
+    {
+        $this->activityRepo->create(
+            $event->task,
+            ACTIVITY_TYPE_RESTORE_TASK
+        );
+    }
+
+    public function createdExpense(ExpenseWasCreated $event)
+    {
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_CREATE_EXPENSE
+        );
+    }
+
+    public function updatedExpense(ExpenseWasUpdated $event)
+    {
+        if (! $event->expense->isChanged()) {
+            return;
+        }
+
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_UPDATE_EXPENSE
+        );
+    }
+
+    public function archivedExpense(ExpenseWasArchived $event)
+    {
+        if ($event->expense->is_deleted) {
+            return;
+        }
+
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_ARCHIVE_EXPENSE
+        );
+    }
+
+    public function deletedExpense(ExpenseWasDeleted $event)
+    {
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_DELETE_EXPENSE
+        );
+    }
+
+    public function restoredExpense(ExpenseWasRestored $event)
+    {
+        $this->activityRepo->create(
+            $event->expense,
+            ACTIVITY_TYPE_RESTORE_EXPENSE
         );
     }
 }

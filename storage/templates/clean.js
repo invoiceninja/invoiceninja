@@ -7,7 +7,7 @@
             },
             {
                 "stack": "$accountDetails",
-                "margin": [40, 0, 0, 0]
+                "margin": [7, 0, 0, 0]
             },
             {
                 "stack": "$accountAddress"
@@ -144,10 +144,10 @@
             "color": "$primaryColor:#37a3c6",
             "bold": true
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLarger"
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLarger",
             "color": "$primaryColor:#37a3c6"
         },  

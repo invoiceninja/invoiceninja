@@ -1,13 +1,23 @@
-<?php namespace App\Models;
+<?php
+
+namespace App\Models;
 
 use Auth;
 use Eloquent;
+use Laracasts\Presenter\PresentableTrait;
 
 /**
- * Class Activity
+ * Class Activity.
  */
 class Activity extends Eloquent
 {
+    use PresentableTrait;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\ActivityPresenter';
+
     /**
      * @var bool
      */
@@ -15,6 +25,7 @@ class Activity extends Eloquent
 
     /**
      * @param $query
+     *
      * @return mixed
      */
     public function scopeScope($query)
@@ -83,6 +94,16 @@ class Activity extends Eloquent
         return $this->belongsTo('App\Models\Task')->withTrashed();
     }
 
+    public function expense()
+    {
+        return $this->belongsTo('App\Models\Expense')->withTrashed();
+    }
+
+    public function key()
+    {
+        return sprintf('%s-%s-%s', $this->activity_type_id, $this->client_id, $this->created_at->timestamp);
+    }
+
     /**
      * @return mixed
      */
@@ -96,22 +117,22 @@ class Activity extends Eloquent
         $contactId = $this->contact_id;
         $payment = $this->payment;
         $credit = $this->credit;
+        $expense = $this->expense;
         $isSystem = $this->is_system;
-
-        /** @var Task $task */
         $task = $this->task;
 
         $data = [
             'client' => $client ? link_to($client->getRoute(), $client->getDisplayName()) : null,
-            'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : $user->getDisplayName(),
+            'user' => $isSystem ? '<i>' . trans('texts.system') . '</i>' : e($user->getDisplayName()),
             'invoice' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
             'quote' => $invoice ? link_to($invoice->getRoute(), $invoice->getDisplayName()) : null,
-            'contact' => $contactId ? $client->getDisplayName() : $user->getDisplayName(),
-            'payment' => $payment ? $payment->transaction_reference : null,
+            'contact' => $contactId ? e($client->getDisplayName()) : e($user->getDisplayName()),
+            'payment' => $payment ? e($payment->transaction_reference) : null,
             'payment_amount' => $payment ? $account->formatMoney($payment->amount, $payment) : null,
             'adjustment' => $this->adjustment ? $account->formatMoney($this->adjustment, $this) : null,
             'credit' => $credit ? $account->formatMoney($credit->amount, $client) : null,
             'task' => $task ? link_to($task->getRoute(), substr($task->description, 0, 30).'...') : null,
+            'expense' => $expense ? link_to($expense->getRoute(), substr($expense->public_notes, 0, 30).'...') : null,
         ];
 
         return trans("texts.activity_{$activityTypeId}", $data);

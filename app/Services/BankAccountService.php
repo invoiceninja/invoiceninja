@@ -1,20 +1,23 @@
-<?php namespace App\Services;
+<?php
 
-use stdClass;
-use Utils;
-use Hash;
+namespace App\Services;
+
+use App\Libraries\Finance;
+use App\Libraries\Login;
 use App\Models\BankSubaccount;
-use App\Models\Vendor;
 use App\Models\Expense;
+use App\Models\Vendor;
+use App\Ninja\Datatables\BankAccountDatatable;
 use App\Ninja\Repositories\BankAccountRepository;
 use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\VendorRepository;
-use App\Ninja\Datatables\BankAccountDatatable;
-use App\Libraries\Finance;
-use App\Libraries\Login;
+use Hash;
+use stdClass;
+use Utils;
+use Carbon;
 
 /**
- * Class BankAccountService
+ * Class BankAccountService.
  */
 class BankAccountService extends BaseService
 {
@@ -42,9 +45,9 @@ class BankAccountService extends BaseService
      * BankAccountService constructor.
      *
      * @param BankAccountRepository $bankAccountRepo
-     * @param ExpenseRepository $expenseRepo
-     * @param VendorRepository $vendorRepo
-     * @param DatatableService $datatableService
+     * @param ExpenseRepository     $expenseRepo
+     * @param VendorRepository      $vendorRepo
+     * @param DatatableService      $datatableService
      */
     public function __construct(BankAccountRepository $bankAccountRepo, ExpenseRepository $expenseRepo, VendorRepository $vendorRepo, DatatableService $datatableService)
     {
@@ -64,6 +67,7 @@ class BankAccountService extends BaseService
 
     /**
      * @param null $bankId
+     *
      * @return array
      */
     private function getExpenses($bankId = null)
@@ -71,6 +75,7 @@ class BankAccountService extends BaseService
         $expenses = Expense::scope()
                         ->bankId($bankId)
                         ->where('transaction_id', '!=', '')
+                        ->where('expense_date', '>=', Carbon::now()->subYear()->format('Y-m-d'))
                         ->withTrashed()
                         ->get(['transaction_id'])
                         ->toArray();
@@ -86,14 +91,16 @@ class BankAccountService extends BaseService
      * @param $username
      * @param $password
      * @param bool $includeTransactions
+     *
      * @return array|bool
      */
-    public function loadBankAccounts($bankId, $username, $password, $includeTransactions = true)
+    public function loadBankAccounts($bankAccount, $username, $password, $includeTransactions = true)
     {
-        if (! $bankId || ! $username || ! $password) {
+        if (! $bankAccount || ! $username || ! $password) {
             return false;
         }
 
+        $bankId = $bankAccount->bank_id;
         $expenses = $this->getExpenses();
         $vendorMap = $this->createVendorMap();
         $bankAccounts = BankSubaccount::scope()
@@ -108,11 +115,18 @@ class BankAccountService extends BaseService
         try {
             $finance = new Finance();
             $finance->banks[$bankId] = $bank->getOFXBank($finance);
-            $finance->banks[$bankId]->logins[] = new Login($finance->banks[$bankId], $username, $password);
+
+            $login = new Login($finance->banks[$bankId], $username, $password);
+            $login->appVersion = $bankAccount->app_version;
+            $login->ofxVersion = $bankAccount->ofx_version;
+            $finance->banks[$bankId]->logins[] = $login;
 
             foreach ($finance->banks as $bank) {
                 foreach ($bank->logins as $login) {
                     $login->setup();
+                    if (! is_array($login->accounts)) {
+                        return false;
+                    }
                     foreach ($login->accounts as $account) {
                         $account->setup($includeTransactions);
                         if ($account = $this->parseBankAccount($account, $bankAccounts, $expenses, $includeTransactions, $vendorMap)) {
@@ -124,6 +138,7 @@ class BankAccountService extends BaseService
 
             return $data;
         } catch (\Exception $e) {
+            Utils::logError($e);
             return false;
         }
     }
@@ -134,6 +149,7 @@ class BankAccountService extends BaseService
      * @param $expenses
      * @param $includeTransactions
      * @param $vendorMap
+     *
      * @return bool|stdClass
      */
     private function parseBankAccount($account, $bankAccounts, $expenses, $includeTransactions, $vendorMap)
@@ -170,6 +186,7 @@ class BankAccountService extends BaseService
      * @param $data
      * @param $expenses
      * @param $vendorMap
+     *
      * @return mixed
      */
     private function parseTransactions($account, $data, $expenses, $vendorMap)
@@ -177,11 +194,12 @@ class BankAccountService extends BaseService
         $ofxParser = new \OfxParser\Parser();
         $ofx = $ofxParser->loadFromString($data);
 
-        $account->start_date = $ofx->BankAccount->Statement->startDate;
-        $account->end_date = $ofx->BankAccount->Statement->endDate;
+        $bankAccount = reset($ofx->bankAccounts);
+        $account->start_date = $bankAccount->statement->startDate;
+        $account->end_date = $bankAccount->statement->endDate;
         $account->transactions = [];
 
-        foreach ($ofx->BankAccount->Statement->transactions as $transaction) {
+        foreach ($bankAccount->statement->transactions as $transaction) {
             // ensure transactions aren't imported as expenses twice
             if (isset($expenses[$transaction->uniqueId])) {
                 continue;
@@ -208,6 +226,7 @@ class BankAccountService extends BaseService
 
     /**
      * @param $value
+     *
      * @return string
      */
     private function prepareValue($value)
@@ -217,11 +236,12 @@ class BankAccountService extends BaseService
 
     /**
      * @param $data
+     *
      * @return mixed
      */
     public function parseOFX($data)
     {
-        $account = new stdClass;
+        $account = new stdClass();
         $expenses = $this->getExpenses();
         $vendorMap = $this->createVendorMap();
 
@@ -245,7 +265,7 @@ class BankAccountService extends BaseService
         return $vendorMap;
     }
 
-    public function importExpenses($bankId = 0, $input)
+    public function importExpenses($bankId, $input)
     {
         $vendorMap = $this->createVendorMap();
         $countVendors = 0;
@@ -287,7 +307,7 @@ class BankAccountService extends BaseService
 
         return trans('texts.imported_expenses', [
             'count_vendors' => $countVendors,
-            'count_expenses' => $countExpenses
+            'count_expenses' => $countExpenses,
         ]);
     }
 

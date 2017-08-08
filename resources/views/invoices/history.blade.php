@@ -14,18 +14,22 @@
     var invoiceDesigns = {!! $invoiceDesigns !!};
     var invoiceFonts = {!! $invoiceFonts !!};
     var currentInvoice = {!! $invoice !!};
-    var versionsJson = {!! $versionsJson !!};
+    var versionsJson = {!! strip_tags($versionsJson) !!};
 
     function getPDFString(cb) {
 
         var version = $('#version').val();
         var invoice;
 
-        if (parseInt(version)) {
-            invoice = versionsJson[version];
-        } else {
-            invoice = currentInvoice;
-        }
+        @if ($paymentId)
+            invoice = versionsJson[0];
+        @else
+            if (parseInt(version)) {
+                invoice = versionsJson[version];
+            } else {
+                invoice = currentInvoice;
+            }
+        @endif
 
         invoice.image = window.accountLogo;
 
@@ -49,11 +53,22 @@
 @section('content')
 
     {!! Former::open()->addClass('form-inline')->onchange('refreshPDF()') !!}
-    {!! Former::select('version')->options($versionsSelect)->label(trans('select_version'))->style('background-color: white !important') !!}
+
+    @if (count($versionsSelect) > 1)
+        {!! Former::select('version')
+                ->options($versionsSelect)
+                ->label(trans('select_version'))
+                ->style('background-color: white !important') !!}
+    @endif
+
     {!! Button::primary(trans('texts.edit_' . $invoice->getEntityType()))->asLinkTo(URL::to('/' . $invoice->getEntityType() . 's/' . $invoice->public_id . '/edit'))->withAttributes(array('class' => 'pull-right')) !!}
     {!! Former::close() !!}
 
     <br/>&nbsp;<br/>
+
+    @if (count($versionsSelect) <= 1)
+        <br/>&nbsp;<br/>
+    @endif
 
     @include('invoices.pdf', ['account' => Auth::user()->account, 'pdfHeight' => 800])
 

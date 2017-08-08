@@ -38,15 +38,15 @@ class CheckBalanceCest
         $I->fillField(['name' => 'cost'], $productPrice);
         $I->click('Save');
         $I->wait(1);
-        $I->see($productKey);
+        //$I->see($productKey);
 
         // create invoice
         $I->amOnPage('/invoices/create');
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
-        $I->click('Save');
-        $I->wait(2);
+        $I->click('Mark Sent');
+        $I->wait(5);
         $I->see($clientEmail);
         $invoiceId = $I->grabFromCurrentUrl('~invoices/(\d+)~');
         $I->amOnPage("/clients/{$clientId}");
@@ -55,7 +55,7 @@ class CheckBalanceCest
         // update the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
         $I->fillField(['name' => 'invoice_items[0][qty]'], 2);
-        $I->click('Save');
+        $I->click('Save Invoice');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");
         $I->see('Balance $' . ($productPrice * 2));
@@ -77,6 +77,8 @@ class CheckBalanceCest
 
         // delete the invoice
         $I->amOnPage('/invoices/' . $invoiceId);
+        $I->executeJS('submitBulkAction("restore")');
+        $I->wait(2);
         $I->executeJS('submitBulkAction("delete")');
         $I->wait(1);
         $I->amOnPage("/clients/{$clientId}");

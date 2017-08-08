@@ -1,7 +1,7 @@
 {
     "content": [
     {
-        "columns": 
+        "columns":
         [
             {
         		"image": "$accountLogo",
@@ -16,7 +16,7 @@
                 "width": 150,
                 "stack": "$accountAddress"
         	}
-        ] 
+        ]
     },
     {
     	"columns": [
@@ -29,13 +29,13 @@
 			"margin": [0, 20, 0, 0]
 		},
 		{
-            "canvas": [{ "type": "rect", "x": 20, "y": 0, "w": 174, "h": "$invoiceDetailsHeight","r":10, "lineWidth": 1,"color":"$primaryColor:#eb792d"}],  
-            "width":36,
+            "canvas": [{ "type": "rect", "x": 20, "y": 0, "w": 174, "h": "$invoiceDetailsHeight","r":10, "lineWidth": 1,"color":"$primaryColor:#eb792d"}],
+            "width":30,
             "margin":[200,25,0,0]
         },
 		{
-            "table": { 
-                "widths": [64, 70],
+            "table": {
+                "widths": [70, 76],
                 "body": "$invoiceDetails"
             },
             "layout": "noBorders",
@@ -56,12 +56,12 @@
             "vLineWidth": "$notFirst:.5",
             "hLineColor": "#FFFFFF",
             "vLineColor": "#FFFFFF",
-            "paddingLeft": "$amount:8", 
-            "paddingRight": "$amount:8", 
-            "paddingTop": "$amount:12", 
-            "paddingBottom": "$amount:12" 
+            "paddingLeft": "$amount:8",
+            "paddingRight": "$amount:8",
+            "paddingTop": "$amount:12",
+            "paddingBottom": "$amount:12"
         }
-    },    
+    },
     {
     "columns": [
       "$notesAndTerms",
@@ -130,7 +130,7 @@
             }
         ],
         "margin": [40, -20, 40, 0]
-    },    
+    },
     "defaultStyle": {
         "fontSize": "$fontSize",
         "margin": [8, 4, 8, 4]
@@ -159,12 +159,12 @@
         "productKey": {
             "bold": true
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest",
-            "color": "#ffffff",            
+            "color": "#ffffff",
             "bold": true
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
             "bold": true,
             "color":"#ffffff",
@@ -178,6 +178,9 @@
             "fontSize": "$fontSizeLargest",
             "bold": true
         },
+	"secondTableHeader": {
+	    "color": "$secondaryColor:#374e6b"
+	},
         "costTableHeader": {
             "alignment": "right"
         },
@@ -189,7 +192,7 @@
         },
         "lineTotalTableHeader": {
             "alignment": "right"
-        },        
+        },
         "issuedTo": {
             "margin": [0,2,0,1],
             "bold": true,
@@ -221,11 +224,11 @@
         },
         "subtotals": {
             "alignment": "right"
-        },            
+        },
         "subtotalsBalance": {
             "alignment": "right",
             "margin": [0, -25, 0, 0]
-        },            
+        },
          "termsLabel": {
             "bold": true,
             "margin": [0, 0, 0, 4]

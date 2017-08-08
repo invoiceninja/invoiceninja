@@ -1,4 +1,6 @@
-<?php namespace App\Http\Requests;
+<?php
+
+namespace App\Http\Requests;
 
 class CreateCreditRequest extends CreditRequest
 {
@@ -20,7 +22,7 @@ class CreateCreditRequest extends CreditRequest
     public function rules()
     {
         return [
-            'client' => 'required',
+            'client_id' => 'required',
             'amount' => 'required|positive',
         ];
     }

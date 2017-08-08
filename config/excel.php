@@ -1,5 +1,23 @@
 <?php
 
+//https://github.com/PHPOffice/PHPExcel/issues/556#issuecomment-216722159
+switch (PHP_OS) {
+    case 'WINNT':
+        PHPExcel_Shared_Font::setTrueTypeFontPath('C:/Windows/Fonts/');
+        PHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);
+        break;
+
+    case 'Darwin':
+        PHPExcel_Shared_Font::setTrueTypeFontPath('/Library/Fonts/');
+        PHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);
+        break;
+
+    case 'Linux':
+        PHPExcel_Shared_Font::setTrueTypeFontPath('/usr/share/fonts/truetype/');
+        PHPExcel_Shared_Font::setAutoSizeMethod(PHPExcel_Shared_Font::AUTOSIZE_METHOD_EXACT);
+        break;
+}
+
 return array(
 
     'cache'      => array(
@@ -148,7 +166,7 @@ return array(
         | an array of columns ( array('A', 'B') )
         |
         */
-        'autosize'                    => true,
+        'autosize'                    => false,
 
         /*
         |--------------------------------------------------------------------------
@@ -171,7 +189,7 @@ return array(
         | having the appropriate fonts installed.
         |
         */
-        'autosize-method'             => PHPExcel_Shared_Font::AUTOSIZE_METHOD_APPROX,
+        'autosize-method'             => constant('\PHPExcel_Shared_Font::AUTOSIZE_METHOD_' . env('EXCEL_AUTOSIZE_MODE', 'APPROX')),
 
         /*
         |--------------------------------------------------------------------------
@@ -291,7 +309,7 @@ return array(
             |--------------------------------------------------------------------------
             | Supported: DomPDF, tcPDF, mPDF
             */
-            'driver'  => 'DomPDF',
+            'driver'  => 'mPDF',
 
             /*
             |--------------------------------------------------------------------------
@@ -306,7 +324,7 @@ return array(
                 |--------------------------------------------------------------------------
                 */
                 'DomPDF' => array(
-                    'path' => base_path('vendor/dompdf/dompdf/')
+                    'path' => base_path('vendor/dompdf/dompdf/'),
                 ),
 
                 /*

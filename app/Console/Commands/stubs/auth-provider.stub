@@ -1,0 +1,17 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use App\Providers\AuthServiceProvider;
+
+class $STUDLY_NAME$AuthProvider extends AuthServiceProvider
+{
+    /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [
+        \Modules\$STUDLY_NAME$\Models\$STUDLY_NAME$::class => \Modules\$STUDLY_NAME$\Policies\$STUDLY_NAME$Policy::class,
+    ];
+}

@@ -4,20 +4,20 @@ return [
 
     'devNinjaIOS'     => [
         'environment' =>'development',
-        'certificate'=>app_path().'/certs/ninjaIOS.pem',
+        'certificate' =>storage_path().'/ninjaIOS.pem',
         'passPhrase'  =>'',
         'service'     =>'apns'
     ],
     'ninjaIOS'     => [
         'environment' =>'production',
-        'certificate'=>app_path().'/certs/productionNinjaIOS.pem',
+        'certificate' =>storage_path().'/productionNinjaIOS.pem',
         'passPhrase'  =>'',
         'service'     =>'apns'
     ],
     'ninjaAndroid' => [
         'environment' =>'production',
-        'apiKey'      =>'yourAPIKey',
-        'service'     =>'gcm'
+        'apiKey'      =>env('FCM_API_TOKEN'),
+        'service'     =>'fcm'
     ]
 
 ];

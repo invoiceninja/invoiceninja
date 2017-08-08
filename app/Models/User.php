@@ -1,23 +1,30 @@
-<?php namespace App\Models;
+<?php
 
-use Session;
-use Event;
-use App\Libraries\Utils;
+namespace App\Models;
+
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
-use Illuminate\Auth\Authenticatable;
-use Illuminate\Foundation\Auth\Access\Authorizable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use App\Libraries\Utils;
+use Event;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laracasts\Presenter\PresentableTrait;
+use Session;
+use App\Models\LookupUser;
 
 /**
- * Class User
+ * Class User.
  */
-class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
+class User extends Authenticatable
+{
+    use PresentableTrait;
+    use SoftDeletes;
+
+    /**
+     * @var string
+     */
+    protected $presenter = 'App\Ninja\Presenters\UserPresenter';
+
     /**
      * @var array
      */
@@ -26,8 +33,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         'view_all' => 0b0010,
         'edit_all' => 0b0100,
     ];
-
-    use Authenticatable, Authorizable, CanResetPassword;
 
     /**
      * The database table used by the model.
@@ -56,7 +61,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     protected $hidden = ['password', 'remember_token', 'confirmation_code'];
 
-    use SoftDeletes;
     /**
      * @var array
      */
@@ -103,26 +107,6 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * Get the unique identifier for the user.
-     *
-     * @return mixed
-     */
-    public function getAuthIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    /**
-     * Get the password for the user.
-     *
-     * @return string
-     */
-    public function getAuthPassword()
-    {
-        return $this->password;
-    }
-
-    /**
      * Get the e-mail address where password reminders are sent.
      *
      * @return string
@@ -142,6 +126,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     /**
      * @param $feature
+     *
      * @return mixed
      */
     public function hasFeature($feature)
@@ -158,20 +143,11 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * @param null $plan
-     * @return mixed
-     */
-    public function isEligibleForTrial($plan = null)
-    {
-        return $this->account->isEligibleForTrial($plan);
-    }
-
-    /**
      * @return int
      */
     public function maxInvoiceDesignId()
     {
-        return $this->hasFeature(FEATURE_MORE_INVOICE_DESIGNS) ? 11 : (Utils::isNinja() ? COUNT_FREE_DESIGNS : COUNT_FREE_DESIGNS_SELF_HOST);
+        return $this->hasFeature(FEATURE_MORE_INVOICE_DESIGNS) ? 13 : COUNT_FREE_DESIGNS;
     }
 
     /**
@@ -205,7 +181,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public function showGreyBackground()
     {
-        return !$this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
+        return ! $this->theme_id || in_array($this->theme_id, [2, 3, 5, 6, 7, 8, 10, 11, 12]);
     }
 
     /**
@@ -219,6 +195,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     /**
      * @param bool $success
      * @param bool $forced
+     *
      * @return bool
      */
     public function afterSave($success = true, $forced = false)
@@ -258,35 +235,9 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         return MAX_NUM_VENDORS;
     }
 
-
-    /**
-     * @return mixed
-     */
-    public function getRememberToken()
-    {
-        return $this->remember_token;
-    }
-
-    /**
-     * @param string $value
-     */
-    public function setRememberToken($value)
-    {
-        $this->remember_token = $value;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRememberTokenName()
-    {
-        return 'remember_token';
-    }
-
     public function clearSession()
     {
         $keys = [
-            RECENTLY_VIEWED,
             SESSION_USER_ACCOUNTS,
             SESSION_TIMEZONE,
             SESSION_DATE_FORMAT,
@@ -313,7 +264,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         // if the user changes their email then they need to reconfirm it
         if ($user->isEmailBeingChanged()) {
             $user->confirmed = 0;
-            $user->confirmation_code = str_random(RANDOM_KEY_LENGTH);
+            $user->confirmation_code = strtolower(str_random(RANDOM_KEY_LENGTH));
         }
     }
 
@@ -322,7 +273,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      */
     public static function onUpdatedUser($user)
     {
-        if (!$user->getOriginal('email')
+        if (! $user->getOriginal('email')
             || $user->getOriginal('email') == TEST_USERNAME
             || $user->getOriginal('username') == TEST_USERNAME
             || $user->getOriginal('email') == 'tests@bitrock.com') {
@@ -342,42 +293,44 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
                 && $this->getOriginal('confirmed');
     }
 
-
-
-    /**
-     * Set the permissions attribute on the model.
-     *
-     * @param  mixed  $value
-     * @return $this
-     */
-     protected function setPermissionsAttribute($value){
-         if(empty($value)) {
+     /**
+      * Set the permissions attribute on the model.
+      *
+      * @param  mixed  $value
+      *
+      * @return $this
+      */
+     protected function setPermissionsAttribute($value)
+     {
+         if (empty($value)) {
              $this->attributes['permissions'] = 0;
          } else {
              $bitmask = 0;
-             foreach($value as $permission){
-                if ( ! $permission) {
-                    continue;
-                }
-                $bitmask = $bitmask | static::$all_permissions[$permission];
+             foreach ($value as $permission) {
+                 if (! $permission) {
+                     continue;
+                 }
+                 $bitmask = $bitmask | static::$all_permissions[$permission];
              }
 
              $this->attributes['permissions'] = $bitmask;
          }
 
          return $this;
-    }
+     }
 
     /**
-     * Expands the value of the permissions attribute
+     * Expands the value of the permissions attribute.
      *
-     * @param  mixed  $value
+     * @param mixed $value
+     *
      * @return mixed
      */
-    protected function getPermissionsAttribute($value){
+    protected function getPermissionsAttribute($value)
+    {
         $permissions = [];
-        foreach(static::$all_permissions as $permission => $bitmask){
-            if(($value & $bitmask) == $bitmask) {
+        foreach (static::$all_permissions as $permission => $bitmask) {
+            if (($value & $bitmask) == $bitmask) {
                 $permissions[$permission] = $permission;
             }
         }
@@ -386,19 +339,22 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     }
 
     /**
-     * Checks to see if the user has the required permission
+     * Checks to see if the user has the required permission.
      *
-     * @param  mixed  $permission Either a single permission or an array of possible permissions
-     * @param boolean True to require all permissions, false to require only one
-     * @return boolean
+     * @param mixed $permission Either a single permission or an array of possible permissions
+     * @param bool True to require all permissions, false to require only one
+     * @param mixed $requireAll
+     *
+     * @return bool
      */
-    public function hasPermission($permission, $requireAll = false){
+    public function hasPermission($permission, $requireAll = false)
+    {
         if ($this->is_admin) {
             return true;
-        } else if(is_string($permission)){
-            return !empty($this->permissions[$permission]);
-        } else if(is_array($permission)) {
-            if($requireAll){
+        } elseif (is_string($permission)) {
+            return ! empty($this->permissions[$permission]);
+        } elseif (is_array($permission)) {
+            if ($requireAll) {
                 return count(array_diff($permission, $this->permissions)) == 0;
             } else {
                 return count(array_intersect($permission, $this->permissions)) > 0;
@@ -410,25 +366,27 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
     /**
      * @param $entity
+     *
      * @return bool
      */
-    public function owns($entity) {
-        return !empty($entity->user_id) && $entity->user_id == $this->id;
+    public function owns($entity)
+    {
+        return ! empty($entity->user_id) && $entity->user_id == $this->id;
     }
 
     /**
      * @return bool|mixed
      */
-    public function filterId() {
+    public function filterId()
+    {
         return $this->hasPermission('view_all') ? false : $this->id;
     }
 
-
     public function caddAddUsers()
     {
-        if ( ! Utils::isNinja()) {
+        if (! Utils::isNinjaProd()) {
             return true;
-        } elseif ( ! $this->hasFeature(FEATURE_USERS)) {
+        } elseif (! $this->hasFeature(FEATURE_USERS)) {
             return false;
         }
 
@@ -442,12 +400,54 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
 
         return $numUsers < $company->num_users;
     }
+
+    public function canCreateOrEdit($entityType, $entity = false)
+    {
+        return ($entity && $this->can('edit', $entity))
+            || (! $entity && $this->can('create', $entityType));
+    }
+
+    public function primaryAccount()
+    {
+        return $this->account->company->accounts->sortBy('id')->first();
+    }
 }
+
+User::created(function ($user)
+{
+    LookupUser::createNew($user->account->account_key, [
+        'email' => $user->email,
+        'user_id' => $user->id,
+        'confirmation_code' => $user->confirmation_code,
+    ]);
+});
 
 User::updating(function ($user) {
     User::onUpdatingUser($user);
+
+    $dirty = $user->getDirty();
+    if (array_key_exists('email', $dirty)
+        || array_key_exists('confirmation_code', $dirty)
+        || array_key_exists('oauth_user_id', $dirty)
+        || array_key_exists('oauth_provider_id', $dirty)
+        || array_key_exists('referral_code', $dirty)) {
+        LookupUser::updateUser($user->account->account_key, $user);
+    }
 });
 
 User::updated(function ($user) {
     User::onUpdatedUser($user);
+});
+
+User::deleted(function ($user)
+{
+    if (! $user->email) {
+        return;
+    }
+
+    if ($user->forceDeleting) {
+        LookupUser::deleteWhere([
+            'email' => $user->email
+        ]);
+    }
 });

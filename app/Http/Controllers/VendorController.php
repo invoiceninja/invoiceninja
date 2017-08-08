@@ -1,20 +1,23 @@
-<?php namespace App\Http\Controllers;
+<?php
 
-use Auth;
-use Utils;
-use View;
-use URL;
-use Input;
-use Session;
-use Redirect;
-use Cache;
-use App\Models\Vendor;
-use App\Models\Account;
-use App\Ninja\Repositories\VendorRepository;
-use App\Services\VendorService;
-use App\Http\Requests\VendorRequest;
+namespace App\Http\Controllers;
+
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
+use App\Http\Requests\VendorRequest;
+use App\Models\Account;
+use App\Models\Vendor;
+use App\Ninja\Datatables\VendorDatatable;
+use App\Ninja\Repositories\VendorRepository;
+use App\Services\VendorService;
+use Auth;
+use Cache;
+use Input;
+use Redirect;
+use Session;
+use URL;
+use Utils;
+use View;
 
 class VendorController extends BaseController
 {
@@ -37,19 +40,10 @@ class VendorController extends BaseController
      */
     public function index()
     {
-        return View::make('list', [
+        return View::make('list_wrapper', [
             'entityType' => 'vendor',
+            'datatable' => new VendorDatatable(),
             'title' => trans('texts.vendors'),
-            'sortCol' => '4',
-            'columns' => Utils::trans([
-              'checkbox',
-              'vendor',
-              'city',
-              'phone',
-              'email',
-              'date_created',
-              ''
-            ]),
         ]);
     }
 
@@ -75,28 +69,26 @@ class VendorController extends BaseController
     /**
      * Display the specified resource.
      *
-     * @param  int      $id
+     * @param int $id
+     *
      * @return Response
      */
     public function show(VendorRequest $request)
     {
         $vendor = $request->entity();
-                
-        Utils::trackViewed($vendor->getDisplayName(), 'vendor');
 
         $actionLinks = [
-            ['label' => trans('texts.new_vendor'), 'url' => URL::to('/vendors/create/' . $vendor->public_id)]
+            ['label' => trans('texts.new_vendor'), 'url' => URL::to('/vendors/create/' . $vendor->public_id)],
         ];
 
         $data = [
-            'actionLinks'           => $actionLinks,
-            'showBreadcrumbs'       => false,
-            'vendor'                => $vendor,
-            'totalexpense'          => $vendor->getTotalExpense(),
-            'title'                 => trans('texts.view_vendor'),
-            'hasRecurringInvoices'  => false,
-            'hasQuotes'             => false,
-            'hasTasks'          => false,
+            'actionLinks' => $actionLinks,
+            'showBreadcrumbs' => false,
+            'vendor' => $vendor,
+            'title' => trans('texts.view_vendor'),
+            'hasRecurringInvoices' => false,
+            'hasQuotes' => false,
+            'hasTasks' => false,
         ];
 
         return View::make('vendors.show', $data);
@@ -128,13 +120,14 @@ class VendorController extends BaseController
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int      $id
+     * @param int $id
+     *
      * @return Response
      */
     public function edit(VendorRequest $request)
     {
         $vendor = $request->entity();
-        
+
         $data = [
             'vendor' => $vendor,
             'method' => 'PUT',
@@ -158,15 +151,14 @@ class VendorController extends BaseController
         return [
             'data' => Input::old('data'),
             'account' => Auth::user()->account,
-            'currencies' => Cache::get('currencies'),
-            'countries' => Cache::get('countries'),
         ];
     }
 
     /**
      * Update the specified resource in storage.
      *
-     * @param  int      $id
+     * @param int $id
+     *
      * @return Response
      */
     public function update(UpdateVendorRequest $request)
@@ -187,10 +179,6 @@ class VendorController extends BaseController
         $message = Utils::pluralize($action.'d_vendor', $count);
         Session::flash('message', $message);
 
-        if ($action == 'restore' && $count == 1) {
-            return Redirect::to('vendors/' . Utils::getFirst($ids));
-        } else {
-            return Redirect::to('vendors');
-        }
+        return $this->returnBulk($this->entityType, $action, $ids);
     }
 }

@@ -1,8 +1,10 @@
-<?php namespace App\Console;
+<?php
 
-use Utils;
+namespace App\Console;
+
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Utils;
 
 class Kernel extends ConsoleKernel
 {
@@ -18,17 +20,23 @@ class Kernel extends ConsoleKernel
         'App\Console\Commands\CheckData',
         'App\Console\Commands\PruneData',
         'App\Console\Commands\CreateTestData',
+        'App\Console\Commands\CreateLuisData',
         'App\Console\Commands\SendRenewalInvoices',
         'App\Console\Commands\ChargeRenewalInvoices',
         'App\Console\Commands\SendReminders',
         'App\Console\Commands\TestOFX',
-        'App\Console\Commands\GenerateResources',
+        'App\Console\Commands\MakeModule',
+        'App\Console\Commands\MakeClass',
+        'App\Console\Commands\InitLookup',
+        'App\Console\Commands\CalculatePayouts',
+        'App\Console\Commands\UpdateKey',
     ];
 
     /**
      * Define the application's command schedule.
      *
-     * @param  \Illuminate\Console\Scheduling\Schedule $schedule
+     * @param \Illuminate\Console\Scheduling\Schedule $schedule
+     *
      * @return void
      */
     protected function schedule(Schedule $schedule)
@@ -52,5 +60,10 @@ class Kernel extends ConsoleKernel
                 ->sendOutputTo($logFile)
                 ->daily();
         }
+
+        $schedule
+            ->command('updater:check-for-update --prefixVersionWith=v')
+            ->sendOutputTo($logFile)
+            ->daily();
     }
 }

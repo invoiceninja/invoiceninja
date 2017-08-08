@@ -82,7 +82,7 @@ return [
     |
     */
 
-    'key' => env('APP_KEY', 'SomeRandomString'),
+    'key' => env('APP_KEY', 'SomeRandomStringSomeRandomString'),
 
     'cipher' => env('APP_CIPHER', 'AES-256-CBC'),
 
@@ -119,7 +119,7 @@ return [
          */
         'Illuminate\Auth\AuthServiceProvider',
         'Collective\Html\HtmlServiceProvider',
-        'Collective\Bus\BusServiceProvider',
+        'Illuminate\Bus\BusServiceProvider',
         'Illuminate\Cache\CacheServiceProvider',
         'Illuminate\Foundation\Providers\ConsoleSupportServiceProvider',
         'Illuminate\Cookie\CookieServiceProvider',
@@ -154,6 +154,10 @@ return [
         'Jlapp\Swaggervel\SwaggervelServiceProvider',
         'Maatwebsite\Excel\ExcelServiceProvider',
         Websight\GcsProvider\CloudStorageServiceProvider::class,
+        'Jaybizzle\LaravelCrawlerDetect\LaravelCrawlerDetectServiceProvider',
+        Codedge\Updater\UpdaterServiceProvider::class,
+        Nwidart\Modules\LaravelModulesServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
 
         /*
          * Application Service Providers...
@@ -219,7 +223,6 @@ return [
         'View'            => 'Illuminate\Support\Facades\View',
 
         // Added Class Aliases
-        'Utils'              => 'App\Libraries\Utils',
         'Form'              => 'Collective\Html\FormFacade',
         'HTML'              => 'Collective\Html\HtmlFacade',
         'SSH'              => 'Illuminate\Support\Facades\SSH',
@@ -255,7 +258,14 @@ return [
         'Socialite'       => 'Laravel\Socialite\Facades\Socialite',
         'Excel'           => 'Maatwebsite\Excel\Facades\Excel',
         'PushNotification' => 'Davibennun\LaravelPushNotification\Facades\PushNotification',
+        'Crawler'   => 'Jaybizzle\LaravelCrawlerDetect\Facades\LaravelCrawlerDetect',
+        'Updater' => Codedge\Updater\UpdaterFacade::class,
+        'Module' => Nwidart\Modules\Facades\Module::class,
 
+        'Utils' => App\Libraries\Utils::class,
+        'DateUtils' => App\Libraries\DateUtils::class,
+        'HTMLUtils' => App\Libraries\HTMLUtils::class,
+        'Domain' => App\Constants\Domain::class,
     ],
 
 ];

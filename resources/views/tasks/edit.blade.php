@@ -12,19 +12,21 @@
     <style type="text/css">
 
     input.time-input {
-        width: 110px;
+        width: 100%;
         font-size: 14px !important;
     }
 
     </style>
 
-
     @if ($errors->first('time_log'))
         <div class="alert alert-danger"><li>{{ trans('texts.task_errors') }}  </li></div>
     @endif
 
+    {!! Former::open($url)
+            ->addClass('col-md-10 col-md-offset-1 warn-on-exit task-form')
+            ->onsubmit('return onFormSubmit(event)')
+            ->method($method) !!}
 
-    {!! Former::open($url)->addClass('col-md-10 col-md-offset-1 warn-on-exit task-form')->method($method)->rules(array()) !!}
     @if ($task)
         {!! Former::populate($task) !!}
         {!! Former::populateField('id', $task->public_id) !!}
@@ -45,8 +47,24 @@
             <div class="panel panel-default">
             <div class="panel-body">
 
-            {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
-            {!! Former::textarea('description')->rows(3) !!}
+            @if ($task && $task->invoice_id)
+                {!! Former::plaintext()
+                        ->label('client')
+                        ->value($task->client->present()->link) !!}
+                @if ($task->project)
+                    {!! Former::plaintext()
+                            ->label('project')
+                            ->value($task->present()->project) !!}
+                @endif
+            @else
+                {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+                {!! Former::select('project_id')
+                        ->addOption('', '')
+                        ->addGroupClass('project-select')
+                        ->label(trans('texts.project')) !!}
+            @endif
+
+            {!! Former::textarea('description')->rows(4) !!}
 
             @if ($task)
 
@@ -97,17 +115,17 @@
                             <td style="padding: 0px 12px 12px 0 !important">
                                 <div data-bind="css: { 'has-error': !isStartValid() }">
                                     <input type="text" data-bind="dateTimePicker: startTime.pretty, event:{ change: $root.refresh }"
-                                        class="form-control time-input" placeholder="{{ trans('texts.start_time') }}"/>
+                                        class="form-control time-input time-input-start" placeholder="{{ trans('texts.start_time') }}"/>
                                 </div>
                             </td>
                             <td style="padding: 0px 12px 12px 0 !important">
                                 <div data-bind="css: { 'has-error': !isEndValid() }">
                                     <input type="text" data-bind="dateTimePicker: endTime.pretty, event:{ change: $root.refresh }"
-                                        class="form-control time-input" placeholder="{{ trans('texts.end_time') }}"/>
+                                        class="form-control time-input time-input-end" placeholder="{{ trans('texts.end_time') }}"/>
                                 </div>
                             </td>
-                            <td style="width:100px">
-                                <div data-bind="text: duration.pretty, visible: !isEmpty()"></div>
+                            <td style="padding: 0px 12px 12px 0 !important; width:100px">
+                                <input type="text" data-bind="value: duration.pretty, visible: !isEmpty()" class="form-control"></div>
                                 <a href="#" data-bind="click: function() { setNow(), $root.refresh() }, visible: isEmpty()">{{ trans('texts.set_now') }}</a>
                             </td>
                             <td style="width:30px" class="td-icon">
@@ -127,15 +145,21 @@
 
 
     <center class="buttons">
+
+    @if (Auth::user()->canCreateOrEdit(ENTITY_TASK, $task))
         @if (Auth::user()->hasFeature(FEATURE_TASKS))
             @if ($task && $task->is_running)
                 {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
                 {!! Button::primary(trans('texts.stop'))->large()->appendIcon(Icon::create('stop'))->withAttributes(['id' => 'stop-button']) !!}
+            @elseif ($task && $task->is_deleted)
+                {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+                {!! Button::primary(trans('texts.restore'))->large()->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
             @elseif ($task && $task->trashed())
-                {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
-                {!! Button::success(trans('texts.restore'))->large()->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+                {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+                {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
+                {!! Button::primary(trans('texts.restore'))->large()->withAttributes(['onclick' => 'submitAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
             @else
-                {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+                {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
                 @if ($task)
                     {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
                     {!! Button::primary(trans('texts.resume'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'resume-button']) !!}
@@ -144,14 +168,16 @@
                           ->large()
                           ->dropup() !!}
                 @else
-                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button']) !!}
                     {!! Button::success(trans('texts.start'))->large()->appendIcon(Icon::create('play'))->withAttributes(['id' => 'start-button']) !!}
+                    {!! Button::success(trans('texts.save'))->large()->appendIcon(Icon::create('floppy-disk'))->withAttributes(['id' => 'save-button', 'style' => 'display:none']) !!}
                 @endif
             @endif
         @else
-            {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(URL::to('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
+            {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/tasks'))->appendIcon(Icon::create('remove-circle')) !!}
         @endif
-    </center>
+    @endif
+
+</center>
 
     {!! Former::close() !!}
 
@@ -170,10 +196,10 @@
          var value = ko.utils.unwrapObservable(valueAccessor());
          // http://xdsoft.net/jqplugins/datetimepicker/
          $(element).datetimepicker({
-            lang: '{{ Utils::getLocaleRegion() }}',
+            lang: '{{ $appLanguage }}',
             lazyInit: true,
             validateOnBlur: false,
-            step: 30,
+            step: {{ env('TASK_TIME_STEP', 15) }},
             format: '{{ $datetimeFormat }}',
             formatDate: '{{ $account->getMomentDateFormat() }}',
             formatTime: '{{ $account->military_time ? 'H:mm' : 'h:mm A' }}',
@@ -182,6 +208,13 @@
                 $(element).datetimepicker({
                     value: current_time
                 });
+                // set end to an hour after the start time
+                if ($(element).hasClass('time-input-start')) {
+                    var timeModel = ko.dataFor(element);
+                    if (!timeModel.endTime()) {
+                        timeModel.endTime((current_time.getTime() / 1000));
+                    }
+                }
             },
             dayOfWeekStart: {{ Session::get('start_of_week') }}
          });
@@ -193,23 +226,37 @@
       },
       update: function (element, valueAccessor) {
         var value = ko.utils.unwrapObservable(valueAccessor());
-        if (value) $(element).val(value);
+        if (value) {
+            $(element).val(value);
+        }
       }
     }
 
     var clients = {!! $clients !!};
+    var projects = {!! $projects !!};
+
     var timeLabels = {};
     @foreach (['hour', 'minute', 'second'] as $period)
-        timeLabels['{{ $period }}'] = '{{ trans("texts.{$period}") }}';
-        timeLabels['{{ $period }}s'] = '{{ trans("texts.{$period}s") }}';
+        timeLabels['{{ $period }}'] = '{{ strtolower(trans("texts.{$period}")) }}';
+        timeLabels['{{ $period }}s'] = '{{ strtolower(trans("texts.{$period}s")) }}';
     @endforeach
 
-    function tock(duration) {
+    function onFormSubmit(event) {
+        @if (Auth::user()->canCreateOrEdit(ENTITY_TASK, $task))
+            return true;
+        @else
+            return false
+        @endif
+    }
+
+    function tock(startTime) {
+        var duration = new Date().getTime() - startTime;
+        duration = Math.floor(duration / 100) / 10;
         var str = convertDurationToString(duration);
         $('#duration-text').html(str);
 
         setTimeout(function() {
-            tock(duration+1);
+            tock(startTime);
         }, 1000);
     }
 
@@ -303,23 +350,27 @@
             self.endTime(moment.tz(timezone).unix());
         }
 
-        self.duration.pretty = ko.computed(function() {
-            var duration = false;
-            var start = self.startTime();
-            var end = self.endTime();
+        self.duration.pretty = ko.computed({
+            read: function() {
+                var duration = false;
+                var start = self.startTime();
+                var end = self.endTime();
 
-            if (start && end) {
-                var duration = end - start;
+                if (start && end) {
+                    var duration = end - start;
+                }
+
+                var duration = moment.duration(duration * 1000);
+                return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
+            },
+            write: function(data) {
+                self.endTime(self.startTime() + convertToSeconds(data));
             }
-
-            var duration = moment.duration(duration * 1000);
-            return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
-        }, self);
+        });
 
         /*
-        self.isEmpty = function() {
-            return false;
-        };
+        self.duration.pretty = ko.computed(function() {
+        }, self);
         */
 
         self.hideActions = function() {
@@ -329,6 +380,17 @@
         self.showActions = function() {
             self.actionsVisible(true);
         };
+    }
+
+    function convertToSeconds(str) {
+        if (!str) {
+            return 0;
+        }
+        if (str.indexOf(':') >= 0) {
+            return moment.duration(str).asSeconds();
+        } else {
+            return parseFloat(str) * 60 * 60;
+        }
     }
 
     function loadTimeLog(data) {
@@ -404,50 +466,35 @@
     window.model = new ViewModel({!! $task !!});
     ko.applyBindings(model);
 
+    function onTaskTypeChange() {
+        var val = $('input[name=task_type]:checked').val();
+        if (val == 'timer') {
+            $('#datetime-details').hide();
+        } else {
+            $('#datetime-details').fadeIn();
+        }
+        setButtonsVisible();
+        if (isStorageSupported()) {
+            localStorage.setItem('last:task_type', val);
+        }
+    }
+
+    function setButtonsVisible() {
+        var val = $('input[name=task_type]:checked').val();
+        if (val == 'timer') {
+            $('#start-button').show();
+            $('#save-button').hide();
+        } else {
+            $('#start-button').hide();
+            $('#save-button').show();
+        }
+    }
+
     $(function() {
-        var $clientSelect = $('select#client');
-        for (var i=0; i<clients.length; i++) {
-            var client = clients[i];
-            var clientName = getClientDisplayName(client);
-            if (!clientName) {
-                continue;
-            }
-            $clientSelect.append(new Option(clientName, client.public_id));
-        }
-
-        if ({{ $clientPublicId ? 'true' : 'false' }}) {
-            $clientSelect.val({{ $clientPublicId }});
-        }
-
-        $clientSelect.combobox();
-
-        @if (!$task && !$clientPublicId)
-            $('.client-select input.form-control').focus();
-        @else
-            $('#amount').focus();
-        @endif
-
-        $('input[type=radio]').change(function(event) {
-            var val = $(event.target).val();
-            if (val == 'timer') {
-                $('#datetime-details').hide();
-            } else {
-                $('#datetime-details').fadeIn();
-            }
-            setButtonsVisible();
+        $('input[type=radio]').change(function() {
+            onTaskTypeChange();
         })
 
-        function setButtonsVisible() {
-            //model.removeItems();
-            var val = $('input[name=task_type]:checked').val();
-            if (val == 'timer') {
-                $('#start-button').show();
-                $('#save-button').hide();
-            } else {
-                $('#start-button').hide();
-                $('#save-button').show();
-            }
-        }
         setButtonsVisible();
 
         $('#start-button').click(function() {
@@ -465,7 +512,7 @@
 
         @if ($task)
             @if ($task->is_running)
-                tock({{ $duration }});
+                tock({{ $task->getLastStartTime() * 1000 }});
             @endif
         @endif
 
@@ -474,8 +521,122 @@
             model.showTimeOverlaps();
             showTimeDetails();
         @endif
+
+        // setup clients and project comboboxes
+        var clientId = {{ $clientPublicId }};
+        var projectId = {{ $projectPublicId }};
+
+        var clientMap = {};
+        var projectMap = {};
+        var projectsForClientMap = {};
+        var projectsForAllClients = [];
+        var $clientSelect = $('select#client');
+
+        for (var i=0; i<projects.length; i++) {
+          var project = projects[i];
+          projectMap[project.public_id] = project;
+
+          var client = project.client;
+          if (!client) {
+              projectsForAllClients.push(project);
+          } else {
+              if (!projectsForClientMap.hasOwnProperty(client.public_id)) {
+                projectsForClientMap[client.public_id] = [];
+              }
+              projectsForClientMap[client.public_id].push(project);
+          }
+        }
+
+        for (var i=0; i<clients.length; i++) {
+          var client = clients[i];
+          clientMap[client.public_id] = client;
+        }
+
+        $clientSelect.append(new Option('', ''));
+        for (var i=0; i<clients.length; i++) {
+          var client = clients[i];
+          var clientName = getClientDisplayName(client);
+          if (!clientName) {
+              continue;
+          }
+          $clientSelect.append(new Option(clientName, client.public_id));
+        }
+
+        if (clientId) {
+          $clientSelect.val(clientId);
+        }
+
+        $clientSelect.combobox();
+        $clientSelect.on('change', function(e) {
+          var clientId = $('input[name=client]').val();
+          var projectId = $('input[name=project_id]').val();
+          var project = projectMap[projectId];
+          if (project && ((project.client && project.client.public_id == clientId) || !project.client)) {
+            e.preventDefault();return;
+          }
+          setComboboxValue($('.project-select'), '', '');
+          $projectCombobox = $('select#project_id');
+          $projectCombobox.find('option').remove().end().combobox('refresh');
+          $projectCombobox.append(new Option('', ''));
+          @if (Auth::user()->can('create', ENTITY_PROJECT))
+            if (clientId) {
+                $projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
+            }
+          @endif
+          var list = clientId ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []).concat(projectsForAllClients) : projects;
+          for (var i=0; i<list.length; i++) {
+            var project = list[i];
+            $projectCombobox.append(new Option(project.name,  project.public_id));
+          }
+          $('select#project_id').combobox('refresh');
+        });
+
+        var $projectSelect = $('select#project_id').on('change', function(e) {
+            $clientCombobox = $('select#client');
+            var projectId = $('input[name=project_id]').val();
+            if (projectId == '-1') {
+                $('input[name=project_name]').val(projectName);
+            } else if (projectId) {
+                // when selecting a project make sure the client is loaded
+                var project = projectMap[projectId];
+                if (project && project.client) {
+                    var client = clientMap[project.client.public_id];
+                    if (client) {
+                        project.client = client;
+                        setComboboxValue($('.client-select'), client.public_id, getClientDisplayName(client));
+                    }
+                }
+            } else {
+                $clientSelect.trigger('change');
+            }
+        });
+
+        @include('partials/entity_combobox', ['entityType' => ENTITY_PROJECT])
+
+        if (projectId) {
+           var project = projectMap[projectId];
+           setComboboxValue($('.project-select'), project.public_id, project.name);
+           $projectSelect.trigger('change');
+        } else {
+           $clientSelect.trigger('change');
+        }
+
+        @if (!$task)
+            var taskType = localStorage.getItem('last:task_type');
+            if (taskType) {
+                $('input[name=task_type][value='+taskType+']').prop('checked', true);
+                onTaskTypeChange();
+            }
+        @endif
+
+        @if (!$task && !$clientPublicId)
+            $('.client-select input.form-control').focus();
+        @else
+            $('#description').focus();
+        @endif
     });
 
     </script>
+
 
 @stop

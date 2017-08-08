@@ -1,23 +1,12 @@
 @extends('header')
 
-@section('head')
+@section('head_css')
 	@parent
 
-    @include('money_script')
+	<link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
+	<link href="{{ asset('css/quill.snow.css') }}" rel="stylesheet" type="text/css"/>
 
-    @foreach ($account->getFontFolders() as $font)
-        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
-    @endforeach
-	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
-    <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
-    <link href="{{ asset('css/lightbox.css') }}" rel="stylesheet" type="text/css"/>
-
-    <style type="text/css">
-        /* the value is auto set so we're removing the bold formatting */
-        label.control-label[for=invoice_number] {
-            font-weight: normal !important;
-        }
-
+	<style type="text/css">
         select.tax-select {
             width: 50%;
             float: left;
@@ -28,7 +17,27 @@
             overflow-y: auto;
             overflow-x: hidden;
         }
+
+		.signature-wrapper .tooltip-inner {
+			width: 600px;
+			max-width: 600px;
+			padding: 20px;
+		}
+
     </style>
+@stop
+
+@section('head')
+	@parent
+
+    @include('money_script')
+
+    @foreach ($account->getFontFolders() as $font)
+        <script src="{{ asset('js/vfs_fonts/'.$font.'.js') }}" type="text/javascript"></script>
+    @endforeach
+	<script src="{{ asset('pdf.built.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
+    <script src="{{ asset('js/lightbox.min.js') }}" type="text/javascript"></script>
+	<script src="{{ asset('js/quill.min.js') }}" type="text/javascript"></script>
 @stop
 
 @section('content')
@@ -36,25 +45,35 @@
         <div class="alert alert-danger">{{ trans($errors->first('invoice_items')) }}</div>
     @endif
 
-    @if ($invoice->id)
+	@if ($invoice->id)
 		<ol class="breadcrumb">
-            @if ($invoice->is_recurring)
-             <li>{!! link_to('invoices', trans('texts.recurring_invoice')) !!}</li>
-            @else
-			 <li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
-			 <li class="active">{{ $invoice->invoice_number }}</li>
-            @endif
+		@if ($invoice->is_recurring)
+			<li>{!! link_to('invoices', trans('texts.recurring_invoice')) !!}</li>
+		@else
+			<li>{!! link_to(($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'), trans('texts.' . ($entityType == ENTITY_QUOTE ? 'quotes' : 'invoices'))) !!}</li>
+			<li class="active">{{ $invoice->invoice_number }}</li>
+		@endif
+		@if ($invoice->is_recurring && $invoice->isSent())
+			@if (! $invoice->last_sent_date || $invoice->last_sent_date == '0000-00-00')
+				{!! $invoice->present()->statusLabel(trans('texts.pending')) !!}
+			@else
+				{!! $invoice->present()->statusLabel(trans('texts.active')) !!}
+			@endif
+		@else
+			{!! $invoice->present()->statusLabel !!}
+		@endif
 		</ol>
 	@endif
 
 	{!! Former::open($url)
             ->method($method)
-            ->addClass('warn-on-exit main-form')
+            ->addClass('warn-on-exit main-form search') // 'search' prevents LastPass auto-fill http://stackoverflow.com/a/30921628/497368
             ->autocomplete('off')
             ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
         		'client' => 'required',
                 'invoice_number' => 'required',
+                'invoice_date' => 'required',
         		'product_key' => 'max:255'
         	)) !!}
 
@@ -71,7 +90,7 @@
 
     		@if ($invoice->id || $data)
 				<div class="form-group">
-					<label for="client" class="control-label col-lg-4 col-sm-4">{{ trans('texts.client') }}</label>
+					<label for="client" class="control-label col-lg-4 col-sm-4"><b>{{ trans('texts.client') }}</b></label>
 					<div class="col-lg-8 col-sm-8">
                         <h4>
                             <span data-bind="text: getClientDisplayName(ko.toJS(client()))"></span>
@@ -91,7 +110,11 @@
 				<div style="display:none">
     		@endif
 
-            {!! Former::select('client')->addOption('', '')->data_bind("dropdown: client")->addClass('client-input')->addGroupClass('client_select closer-row') !!}
+            {!! Former::select('client')
+					->addOption('', '')
+					->data_bind("dropdown: client, dropdownOptions: {highlighter: comboboxHighlighter, matcher: comboboxMatcher}")
+					->addClass('client-input')
+					->addGroupClass('client_select closer-row') !!}
 
 			<div class="form-group" style="margin-bottom: 8px">
 				<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
@@ -107,22 +130,33 @@
 			@endif
 
 			<div data-bind="with: client" class="invoice-contact">
-				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0 &amp;&amp; (contacts()[0].email() || contacts()[0].first_name()), foreach: contacts">
+				<div style="display:none" class="form-group" data-bind="visible: contacts().length > 0, foreach: contacts">
 					<div class="col-lg-8 col-lg-offset-4 col-sm-offset-4">
-						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}" onclick="refreshPDF(true)">
+						<label class="checkbox" data-bind="attr: {for: $index() + '_check'}, visible: email.display" onclick="refreshPDF(true)">
                             <input type="hidden" value="0" data-bind="attr: {name: 'client[contacts][' + $index() + '][send_invoice]'}">
-							<input type="checkbox" value="1" data-bind="checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
-							<span data-bind="html: email.display"></span>
+							<input type="checkbox" value="1" data-bind="visible: email() || first_name() || last_name(), checked: send_invoice, attr: {id: $index() + '_check', name: 'client[contacts][' + $index() + '][send_invoice]'}">
+							<span data-bind="visible: first_name || last_name">
+								<span data-bind="text: first_name() + ' ' + last_name()"></span>
+								<br/>
+							</span>
+							<span data-bind="visible: email">
+								<span data-bind="text: email"></span>
+								<br/>
+							</span>
                         </label>
                         @if ( ! $invoice->is_deleted && ! $invoice->client->is_deleted)
                         <span data-bind="visible: !$root.invoice().is_recurring()">
                             <span data-bind="html: $data.view_as_recipient"></span>&nbsp;&nbsp;
                             @if (Utils::isConfirmed())
-                            <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
-                                    data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
-                            <span style="vertical-align:text-top" class="glyphicon glyphicon-info-sign"
-                                    data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
-                                    style: {color: $data.info_color}"></span>
+	                            <span style="vertical-align:text-top;color:red" class="fa fa-exclamation-triangle"
+	                                    data-bind="visible: $data.email_error, tooltip: {title: $data.email_error}"></span>
+	                            <span style="vertical-align:text-top;padding-top:2px" class="fa fa-info-circle"
+	                                    data-bind="visible: $data.invitation_status, tooltip: {title: $data.invitation_status, html: true},
+	                                    style: {color: $data.info_color}"></span>
+								<span class="signature-wrapper">&nbsp;
+								<span style="vertical-align:text-top;color:#888" class="fa fa-user"
+	                                    data-bind="visible: $data.invitation_signature_svg, tooltip: {title: $data.invitation_signature_svg, html: true}"></span>
+								</span>
                             @endif
                         </span>
                         @endif
@@ -135,15 +169,15 @@
 			<div data-bind="visible: !is_recurring()">
 				{!! Former::text('invoice_date')->data_bind("datePicker: invoice_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_date"))
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('invoice_date') !!}
-				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label(trans("texts.{$entityType}_due_date"))
+				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label($account->getLabel($invoice->getDueDateLabel()))
+							->placeholder($invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder())
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
-
-                {!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onchange('onPartialChange()')
-                            ->rel('tooltip')->data_toggle('tooltip')->data_placement('bottom')->title(trans('texts.partial_value')) !!}
+				{!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onkeyup('onPartialChange()')
+							->addGroupClass('partial')!!}
 			</div>
             @if ($entityType == ENTITY_INVOICE)
 			<div data-bind="visible: is_recurring" style="display: none">
-				{!! Former::select('frequency_id')->options($frequencies)->data_bind("value: frequency_id")
+				{!! Former::select('frequency_id')->label('frequency')->options($frequencies)->data_bind("value: frequency_id")
                         ->appendIcon('question-sign')->addGroupClass('frequency_id')->onchange('onFrequencyChange()') !!}
 				{!! Former::text('start_date')->data_bind("datePicker: start_date, valueUpdate: 'afterkeydown'")
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('start_date') !!}
@@ -154,7 +188,7 @@
             @endif
 
             @if ($account->showCustomField('custom_invoice_text_label1', $invoice))
-                {!! Former::text('custom_text_value1')->label($account->custom_invoice_text_label1)->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
+                {!! Former::text('custom_text_value1')->label(e($account->custom_invoice_text_label1) ?: ' ')->data_bind("value: custom_text_value1, valueUpdate: 'afterkeydown'") !!}
             @endif
 		</div>
 
@@ -162,9 +196,10 @@
             <span data-bind="visible: !is_recurring()">
             {!! Former::text('invoice_number')
                         ->label(trans("texts.{$entityType}_number_short"))
+                        ->onchange('checkInvoiceNumber()')
+                        ->addGroupClass('invoice-number')
                         ->data_bind("value: invoice_number, valueUpdate: 'afterkeydown'") !!}
             </span>
-            @if($account->getTokenGatewayId())
             <span data-bind="visible: is_recurring()" style="display: none">
                 <div data-bind="visible: !(auto_bill() == {{AUTO_BILL_OPT_IN}} &amp;&amp; client_enable_auto_bill()) &amp;&amp; !(auto_bill() == {{AUTO_BILL_OPT_OUT}} &amp;&amp; !client_enable_auto_bill())" style="display: none">
                 {!! Former::select('auto_bill')
@@ -190,8 +225,7 @@
                     </div>
                 </div>
             </span>
-            @endif
-			{!! Former::text('po_number')->label(trans('texts.po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
+			{!! Former::text('po_number')->label($account->getLabel('po_number', 'po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
 						Former::select('is_amount_discount')->addOption(trans('texts.discount_percent'), '0')
@@ -199,16 +233,15 @@
 			) !!}
 
             @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
-                {!! Former::text('custom_text_value2')->label($account->custom_invoice_text_label2)->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
+                {!! Former::text('custom_text_value2')->label(e($account->custom_invoice_text_label2) ?: ' ')->data_bind("value: custom_text_value2, valueUpdate: 'afterkeydown'") !!}
             @endif
 
             @if ($entityType == ENTITY_INVOICE)
             <div class="form-group" style="margin-bottom: 8px">
-                <div class="col-lg-8 col-sm-8 col-sm-offset-4" style="padding-top: 10px">
+                <div class="col-lg-8 col-sm-8 col-sm-offset-4 smaller" style="padding-top: 10px">
                 	@if ($invoice->recurring_invoice)
                         {!! trans('texts.created_by_invoice', ['invoice' => link_to('/invoices/'.$invoice->recurring_invoice->public_id, trans('texts.recurring_invoice'))]) !!}
     				@elseif ($invoice->id)
-                        <span class="smaller">
                         @if (isset($lastSent) && $lastSent)
                             {!! trans('texts.last_sent_on', ['date' => link_to('/invoices/'.$lastSent->public_id, $invoice->last_sent_date, ['id' => 'lastSent'])]) !!} <br/>
                         @endif
@@ -220,7 +253,6 @@
                                 {!! trans('texts.next_due_on', ['date' => '<span>'.$account->formatDate($invoice->getDueDate($invoice->getNextSendDate())).'</span>']) !!}
                             @endif
                         @endif
-                        </span>
                     @endif
                 </div>
             </div>
@@ -228,92 +260,15 @@
 		</div>
 	</div>
 
-	<div class="table-responsive" style="padding-top:4px">
-	<table class="table invoice-table">
-		<thead>
-			<tr>
-				<th style="min-width:32px;" class="hide-border"></th>
-				<th style="min-width:160px">{{ $invoiceLabels['item'] }}</th>
-				<th style="width:100%">{{ $invoiceLabels['description'] }}</th>
-                @if ($account->showCustomField('custom_invoice_item_label1'))
-                    <th style="min-width:120px">{{ $account->custom_invoice_item_label1 }}</th>
-                @endif
-                @if ($account->showCustomField('custom_invoice_item_label2'))
-                    <th style="min-width:120px">{{ $account->custom_invoice_item_label2 }}</th>
-                @endif
-				<th style="min-width:120px" data-bind="text: costLabel">{{ $invoiceLabels['unit_cost'] }}</th>
-				<th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}" data-bind="text: qtyLabel">{{ $invoiceLabels['quantity'] }}</th>
-				<th style="min-width:{{ $account->enable_second_tax_rate ? 180 : 120 }}px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
-				<th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
-				<th style="min-width:32px;" class="hide-border"></th>
-			</tr>
-		</thead>
-		<tbody data-bind="sortable: { data: invoice_items, afterMove: onDragged }">
-			<tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
-				<td class="hide-border td-icon">
-					<i style="display:none" data-bind="visible: actionsVisible() &amp;&amp;
-                        $parent.invoice_items().length > 1" class="fa fa-sort"></i>
-				</td>
-				<td>
-                    <div id="scrollable-dropdown-menu">
-                        <input id="product_key" type="text" data-bind="productTypeahead: product_key, items: $root.products, key: 'product_key', valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][product_key]'}" class="form-control invoice-item handled"/>
-                    </div>
-				</td>
-				<td>
-					<textarea data-bind="value: wrapped_notes, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][notes]'}"
-                        rows="1" cols="60" style="resize: vertical" class="form-control word-wrap"></textarea>
-                        <input type="text" data-bind="value: task_public_id, attr: {name: 'invoice_items[' + $index() + '][task_public_id]'}" style="display: none"/>
-						<input type="text" data-bind="value: expense_public_id, attr: {name: 'invoice_items[' + $index() + '][expense_public_id]'}" style="display: none"/>
-				</td>
-                @if ($account->showCustomField('custom_invoice_item_label1'))
-                    <td>
-                        <input data-bind="value: custom_value1, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][custom_value1]'}" class="form-control invoice-item"/>
-                    </td>
-                @endif
-                @if ($account->showCustomField('custom_invoice_item_label2'))
-                    <td>
-                        <input data-bind="value: custom_value2, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][custom_value2]'}" class="form-control invoice-item"/>
-                    </td>
-                @endif
-				<td>
-					<input data-bind="value: prettyCost, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][cost]'}"
-                        style="text-align: right" class="form-control invoice-item"/>
-				</td>
-				<td style="{{ $account->hide_quantity ? 'display:none' : '' }}">
-					<input data-bind="value: prettyQty, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[' + $index() + '][qty]'}"
-                        style="text-align: right" class="form-control invoice-item" name="quantity"/>
-				</td>
-				<td style="display:none;" data-bind="visible: $root.invoice_item_taxes.show">
-                    {!! Former::select('')
-                            ->addOption('', '')
-                            ->options($taxRateOptions)
-                            ->data_bind('value: tax1')
-                            ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
-                            ->raw() !!}
-                    <input type="text" data-bind="value: tax_name1, attr: {name: 'invoice_items[' + $index() + '][tax_name1]'}" style="display:none">
-                    <input type="text" data-bind="value: tax_rate1, attr: {name: 'invoice_items[' + $index() + '][tax_rate1]'}" style="display:none">
-                    <div data-bind="visible: $root.invoice().account.enable_second_tax_rate == '1'">
-                        {!! Former::select('')
-                                ->addOption('', '')
-                                ->options($taxRateOptions)
-                                ->data_bind('value: tax2')
-                                ->addClass('tax-select')
-                                ->raw() !!}
-                    </div>
-                    <input type="text" data-bind="value: tax_name2, attr: {name: 'invoice_items[' + $index() + '][tax_name2]'}" style="display:none">
-                    <input type="text" data-bind="value: tax_rate2, attr: {name: 'invoice_items[' + $index() + '][tax_rate2]'}" style="display:none">
-				</td>
-				<td style="text-align:right;padding-top:9px !important" nowrap>
-					<div class="line-total" data-bind="text: totals.total"></div>
-				</td>
-				<td style="cursor:pointer" class="hide-border td-icon">
-                    <i style="padding-left:2px" data-bind="click: $parent.removeItem, visible: actionsVisible() &amp;&amp;
-                    $index() < ($parent.invoice_items().length - 1) &amp;&amp;
-                    $parent.invoice_items().length > 1" class="fa fa-minus-circle redlink" title="Remove item"/>
-				</td>
-			</tr>
-		</tbody>
+	<div class="table-responsive" style="padding-top:4px;">
 
+		<table class="table invoice-table">
+
+			@include('invoices.edit_table', ['isTasks' => false])
+
+			@if ($account->isModuleEnabled(ENTITY_TASK) && ($invoice->has_tasks || ! empty($tasks)))
+				@include('invoices.edit_table', ['isTasks' => true])
+			@endif
 
 		<tfoot>
 			<tr>
@@ -323,47 +278,59 @@
                     <div role="tabpanel">
 
                       <ul class="nav nav-tabs" role="tablist" style="border: none">
-                        <li role="presentation" class="active"><a href="#notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.note_to_client') }}</a></li>
+                        <li role="presentation" class="active"><a href="#public_notes" aria-controls="notes" role="tab" data-toggle="tab">{{ trans('texts.public_notes') }}</a></li>
+						<li role="presentation"><a href="#private_notes" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.private_notes") }}</a></li>
                         <li role="presentation"><a href="#terms" aria-controls="terms" role="tab" data-toggle="tab">{{ trans("texts.terms") }}</a></li>
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
                             <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
                                 {{ trans("texts.invoice_documents") }}
-                                @if (count($invoice->documents))
-                                    ({{ count($invoice->documents) }})
+                                @if ($count = ($invoice->countDocuments($expenses)))
+                                    ({{ $count }})
                                 @endif
                             </a></li>
                         @endif
                     </ul>
 
-                    <div class="tab-content">
-                        <div role="tabpanel" class="tab-pane active" id="notes" style="padding-bottom:44px">
-                            {!! Former::textarea('public_notes')->data_bind("value: wrapped_notes, valueUpdate: 'afterkeydown'")
-                            ->label(null)->style('resize: none; width: 500px;')->rows(4) !!}
+					{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 0) }}
+					{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 0) }}
+
+                    <div class="tab-content" style="padding-right:12px;max-width:600px;">
+                        <div role="tabpanel" class="tab-pane active" id="public_notes" style="padding-bottom:44px;">
+                            {!! Former::textarea('public_notes')
+									->data_bind("value: public_notes, valueUpdate: 'afterkeydown'")
+                            		->label(null)->style('width: 100%')->rows(4)->label(null) !!}
+                        </div>
+						<div role="tabpanel" class="tab-pane" id="private_notes" style="padding-bottom:44px">
+                            {!! Former::textarea('private_notes')
+									->data_bind("value: private_notes, valueUpdate: 'afterkeydown'")
+                            		->label(null)->style('width: 100%')->rows(4) !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="terms">
-                            {!! Former::textarea('terms')->data_bind("value:wrapped_terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; width: 500px')->rows(4)
-                            ->help('<div class="checkbox">
-                                        <label>
-                                            <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
-                                        </label>
-                                        <div class="pull-right" data-bind="visible: showResetTerms()">
-                                            <a href="#" onclick="return resetTerms()" title="'. trans('texts.reset_terms_help') .'">' . trans("texts.reset_terms") . '</a>
-                                        </div>
-                                    </div>') !!}
+                            {!! Former::textarea('terms')
+									->data_bind("value:terms, placeholder: terms_placeholder, valueUpdate: 'afterkeydown'")
+                            		->label(false)->style('width: 100%')->rows(4)
+		                            ->help('<div class="checkbox">
+		                                        <label>
+		                                            <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
+		                                        </label>
+		                                        <div class="pull-right" data-bind="visible: showResetTerms()">
+		                                            <a href="#" onclick="return resetTerms()" title="'. trans('texts.reset_terms_help') .'">' . trans("texts.reset_terms") . '</a>
+		                                        </div>
+		                                    </div>') !!}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="footer">
-                            {!! Former::textarea('invoice_footer')->data_bind("value:wrapped_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
-                            ->label(false)->style('resize: none; width: 500px')->rows(4)
-                            ->help('<div class="checkbox">
-                                        <label>
-                                            <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
-                                        </label>
-                                        <div class="pull-right" data-bind="visible: showResetFooter()">
-                                            <a href="#" onclick="return resetFooter()" title="'. trans('texts.reset_footer_help') .'">' . trans("texts.reset_footer") . '</a>
-                                        </div>
-                                    </div>') !!}
+                            {!! Former::textarea('invoice_footer')
+									->data_bind("value:invoice_footer, placeholder: footer_placeholder, valueUpdate: 'afterkeydown'")
+		                            ->label(false)->style('width: 100%')->rows(4)
+		                            ->help('<div class="checkbox">
+		                                        <label>
+		                                            <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
+		                                        </label>
+		                                        <div class="pull-right" data-bind="visible: showResetFooter()">
+		                                            <a href="#" onclick="return resetFooter()" title="'. trans('texts.reset_footer_help') .'">' . trans("texts.reset_footer") . '</a>
+		                                        </div>
+		                                    </div>') !!}
                         </div>
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
                         <div role="tabpanel" class="tab-pane" id="attached-documents" style="position:relative;z-index:9">
@@ -373,12 +340,21 @@
                                         <input type="hidden" name="document_ids[]" data-bind="value: public_id"/>
                                     </div>
                                 </div>
-                                @if ($invoice->hasExpenseDocuments())
+                                @if ($invoice->hasExpenseDocuments() || count($expenses))
                                     <h4>{{trans('texts.documents_from_expenses')}}</h4>
-                                    @foreach($invoice->expenses as $expense)
-                                        @foreach($expense->documents as $document)
-                                            <div>{{$document->name}}</div>
-                                        @endforeach
+									@foreach($invoice->expenses as $expense)
+										@if ($expense->invoice_documents)
+	                                        @foreach($expense->documents as $document)
+	                                            <div>{{$document->name}}</div>
+	                                        @endforeach
+										@endif
+                                    @endforeach
+									@foreach($expenses as $expense)
+										@if ($expense->invoice_documents)
+	                                        @foreach($expense->documents as $document)
+	                                            <div>{{$document->name}}</div>
+	                                        @endforeach
+										@endif
                                     @endforeach
                                 @endif
                             </div>
@@ -386,6 +362,9 @@
                         @endif
                     </div>
                 </div>
+
+				{{ Former::setOption('TwitterBootstrap3.labelWidths.large', 4) }}
+				{{ Former::setOption('TwitterBootstrap3.labelWidths.small', 4) }}
 
 				</td>
 				<td class="hide-border" style="display:none" data-bind="visible: $root.invoice_item_taxes.show"/>
@@ -400,20 +379,20 @@
 				<td style="text-align: right"><span data-bind="text: totals.discounted"/></td>
 			</tr>
 
-            @if ($account->showCustomField('custom_invoice_label1', $invoice) && $account->custom_invoice_taxes1)
+            @if ($account->showCustomField('custom_invoice_label1', $invoice) && $invoice->custom_taxes1)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
-					<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $account->custom_invoice_label1 }}</td>
+					<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $account->custom_invoice_label1 ?: trans('texts.surcharge') }}</td>
 					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
 
-            @if ($account->showCustomField('custom_invoice_label2', $invoice) && $account->custom_invoice_taxes2)
+            @if ($account->showCustomField('custom_invoice_label2', $invoice) && $invoice->custom_taxes2)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
-					<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $account->custom_invoice_label2 }}</td>
+					<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $account->custom_invoice_label2 ?: trans('texts.surcharge') }}</td>
 					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value2" class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
@@ -439,7 +418,7 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass($account->enable_second_tax_rate ? 'tax-select' : '')
-                            ->data_bind('value: tax1')
+                            ->data_bind('value: tax1, event:{change:onTax1Change}')
                             ->raw() !!}
                     <input type="text" name="tax_name1" data-bind="value: tax_name1" style="display:none">
                     <input type="text" name="tax_rate1" data-bind="value: tax_rate1" style="display:none">
@@ -448,7 +427,7 @@
                             ->addOption('', '')
                             ->options($taxRateOptions)
                             ->addClass('tax-select')
-                            ->data_bind('value: tax2')
+                            ->data_bind('value: tax2, event:{change:onTax2Change}')
                             ->raw() !!}
                     </div>
                     <input type="text" name="tax_name2" data-bind="value: tax_name2" style="display:none">
@@ -457,20 +436,20 @@
 				<td style="text-align: right"><span data-bind="text: totals.taxAmount"/></td>
 			</tr>
 
-            @if ($account->showCustomField('custom_invoice_label1', $invoice) && !$account->custom_invoice_taxes1)
+            @if ($account->showCustomField('custom_invoice_label1', $invoice) && !$invoice->custom_taxes1)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
-					<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $account->custom_invoice_label1 }}</td>
+					<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $account->custom_invoice_label1 ?: trans('texts.surcharge') }}</td>
 					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
 
-            @if ($account->showCustomField('custom_invoice_label2', $invoice) && !$account->custom_invoice_taxes2)
+            @if ($account->showCustomField('custom_invoice_label2', $invoice) && !$invoice->custom_taxes2)
 				<tr>
 					<td class="hide-border" colspan="3"/>
 					<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
-					<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $account->custom_invoice_label2 }}</td>
+					<td colspan="{{ $account->hide_quantity ? 1 : 2 }}">{{ $account->custom_invoice_label2 ?: trans('texts.surcharge') }}</td>
 					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value2" class="form-control" data-bind="value: custom_value2, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
@@ -514,7 +493,8 @@
 
 			{!! Former::text('entityType') !!}
 			{!! Former::text('action') !!}
-            {!! Former::text('public_id')->data_bind('value: public_id') !!}
+			{!! Former::text('public_id')->data_bind('value: public_id') !!}
+			{!! Former::text('is_public')->data_bind('value: is_public') !!}
             {!! Former::text('is_recurring')->data_bind('value: is_recurring') !!}
             {!! Former::text('is_quote')->data_bind('value: is_quote') !!}
             {!! Former::text('has_tasks')->data_bind('value: has_tasks') !!}
@@ -523,40 +503,54 @@
             {!! Former::text('pdfupload') !!}
 		</div>
 
-		@if (!Utils::hasFeature(FEATURE_MORE_INVOICE_DESIGNS) || \App\Models\InvoiceDesign::count() == COUNT_FREE_DESIGNS_SELF_HOST)
+		@if (!Utils::hasFeature(FEATURE_MORE_INVOICE_DESIGNS))
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id")->addOption(trans('texts.more_designs') . '...', '-1') !!}
 		@else
 			{!! Former::select('invoice_design_id')->style('display:inline;width:150px;background-color:white !important')->raw()->fromQuery($invoiceDesigns, 'name', 'id')->data_bind("value: invoice_design_id") !!}
 		@endif
 
-        @if ( $invoice->exists && $invoice->id && ! $invoice->is_recurring)
+        @if ( $invoice->id && ! $invoice->is_recurring)
 		    {!! Button::primary(trans('texts.download_pdf'))
                     ->withAttributes(['onclick' => 'onDownloadClick()', 'id' => 'downloadPdfButton'])
                     ->appendIcon(Icon::create('download-alt')) !!}
         @endif
 
-        @if ($invoice->isClientTrashed())
-            <!-- do nothing -->
-        @elseif ($invoice->trashed())
-            {!! Button::success(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
-		@elseif (!$invoice->trashed())
-			{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
-		    {!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
-            @if ($invoice->id)
-                {!! DropdownButton::normal(trans('texts.more_actions'))
-                      ->withContents($actions)
-                      ->dropup() !!}
-            @endif
-		@endif
+        @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
+            @if ($invoice->isClientTrashed())
+                <!-- do nothing -->
+            @else
+                @if (!$invoice->is_deleted)
+					@if ($invoice->isSent())
+						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+					@else
+						{!! Button::normal(trans("texts.save_draft"))->withAttributes(array('id' => 'draftButton', 'onclick' => 'onSaveDraftClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
+						@if (! $invoice->trashed())
+							{!! Button::success(trans($invoice->is_recurring ? "texts.mark_ready" : "texts.mark_sent"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onMarkSentClick()'))->appendIcon(Icon::create('globe')) !!}
+						@endif
+					@endif
+					@if (! $invoice->trashed())
+						{!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+					@endif
+                    @if ($invoice->id)
+                        {!! DropdownButton::normal(trans('texts.more_actions'))->withContents($invoice->present()->moreActions())->dropup() !!}
+                    @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
+                        {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
+                    @endif
+        	    @endif
+                @if ($invoice->trashed())
+                    {!! Button::primary(trans('texts.restore'))->withAttributes(['onclick' => 'submitBulkAction("restore")'])->appendIcon(Icon::create('cloud-download')) !!}
+                @endif
+    		@endif
+        @endif
 
 	</div>
 	<p>&nbsp;</p>
 
-	@include('invoices.pdf', ['account' => Auth::user()->account])
+	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview])
 
 	@if (!Auth::user()->account->isPro())
 		<div style="font-size:larger">
-			{!! trans('texts.pro_plan_remove_logo', ['link'=>link_to('/settings/account_management?upgrade=true', trans('texts.pro_plan_remove_logo_link'))]) !!}
+			{!! trans('texts.pro_plan_remove_logo', ['link'=>'<a href="javascript:showUpgradeModal()">' . trans('texts.pro_plan_remove_logo_link') . '</a>']) !!}
 		</div>
 	@endif
 
@@ -581,11 +575,20 @@
                     ->data_bind("value: name, valueUpdate: 'afterkeydown', attr { placeholder: name.placeholder }")
                     ->label('client_name') !!}
 
+				@if ( ! $account->client_number_counter)
                 <span data-bind="visible: $root.showMore">
+				@endif
 
-                    {!! Former::text('client[id_number]')
+            	{!! Former::text('client[id_number]')
                             ->label('id_number')
+							->placeholder($account->clientNumbersEnabled() ? $account->getNextNumber() : ' ')
                             ->data_bind("value: id_number, valueUpdate: 'afterkeydown'") !!}
+
+				@if ( ! $account->client_number_counter)
+				</span>
+				@endif
+
+				<span data-bind="visible: $root.showMore">
                     {!! Former::text('client[vat_number]')
                             ->label('vat_number')
                             ->data_bind("value: vat_number, valueUpdate: 'afterkeydown'") !!}
@@ -602,12 +605,12 @@
                 @if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
                     @if ($account->custom_client_label1)
                         {!! Former::text('client[custom_value1]')
-                            ->label($account->custom_client_label1)
+                            ->label(e($account->custom_client_label1))
                             ->data_bind("value: custom_value1, valueUpdate: 'afterkeydown'") !!}
                     @endif
                     @if ($account->custom_client_label2)
                         {!! Former::text('client[custom_value2]')
-                            ->label($account->custom_client_label2)
+                            ->label(e($account->custom_client_label2))
                             ->data_bind("value: custom_value2, valueUpdate: 'afterkeydown'") !!}
                     @endif
                 @endif
@@ -633,7 +636,7 @@
                     {!! Former::select('client[country_id]')
                             ->label(trans('texts.country_id'))
                             ->addOption('','')->addGroupClass('country_select')
-                            ->fromQuery(Cache::get('countries'), 'name', 'id')->data_bind("dropdown: country_id") !!}
+                            ->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
                 </span>
 
             </div>
@@ -656,8 +659,20 @@
                             attr: {name: 'client[contacts][' + \$index() + '][phone]'}") !!}
                     @if ($account->hasFeature(FEATURE_CLIENT_PORTAL_PASSWORD) && $account->enable_portal_password)
                         {!! Former::password('password')->data_bind("value: (typeof password=='function'?password():null)?'-%unchanged%-':'', valueUpdate: 'afterkeydown',
-                            attr: {name: 'client[contacts][' + \$index() + '][password]'}") !!}
+                            attr: {name: 'client[contacts][' + \$index() + '][password]'}")->autocomplete('new-password') !!}
                     @endif
+					@if (Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS))
+	                    @if ($account->custom_contact_label1)
+	                        {!! Former::text('custom_contact1')->data_bind("value: custom_value1, valueUpdate: 'afterkeydown',
+		                            attr: {name: 'client[contacts][' + \$index() + '][custom_value1]'}")
+	                            ->label(e($account->custom_contact_label1)) !!}
+	                    @endif
+	                    @if ($account->custom_contact_label2)
+							{!! Former::text('custom_contact2')->data_bind("value: custom_value2, valueUpdate: 'afterkeydown',
+									attr: {name: 'client[contacts][' + \$index() + '][custom_value2]'}")
+								->label(e($account->custom_contact_label2)) !!}
+	                    @endif
+	                @endif
                     <div class="form-group">
                         <div class="col-lg-8 col-lg-offset-4">
                             <span class="redlink bold" data-bind="visible: $parent.contacts().length > 1">
@@ -687,7 +702,7 @@
                         ->data_bind('value: language_id')
                         ->fromQuery($languages, 'name', 'id') !!}
                 {!! Former::select('client[payment_terms]')->addOption('','')->data_bind('value: payment_terms')
-                        ->fromQuery($paymentTerms, 'name', 'num_days')
+                        ->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
                         ->label(trans('texts.payment_terms'))
                         ->help(trans('texts.payment_terms_help')) !!}
                 {!! Former::select('client[size_id]')->addOption('','')->data_bind('value: size_id')
@@ -706,7 +721,7 @@
         </div>
         </div>
 
-         <div class="modal-footer" style="margin-top: 0px; padding-top:0px;">
+         <div class="modal-footer">
             <span class="error-block" id="emailError" style="display:none;float:left;font-weight:bold">{{ trans('texts.provide_name_or_email') }}</span><span>&nbsp;</span>
             <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.cancel') }}</button>
             <button type="button" class="btn btn-default" data-bind="click: $root.showMoreFields, text: $root.showMore() ? '{{ trans('texts.less_fields') }}' : '{{ trans('texts.more_fields') }}'"></button>
@@ -725,11 +740,15 @@
 	        <h4 class="modal-title" id="recurringModalLabel">{{ trans('texts.recurring_invoices') }}</h4>
 	      </div>
 
-	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-	    	&nbsp; {!! isset($recurringHelp) ? $recurringHelp : '' !!} &nbsp;
-		</div>
+		  <div class="container" style="width: 100%; padding-bottom: 0px !important">
+          <div class="panel panel-default">
+			 <div class="panel-body">
+				 {!! isset($recurringHelp) ? $recurringHelp : '' !!}
+			 </div>
+		  </div>
+		  </div>
 
-	     <div class="modal-footer" style="margin-top: 0px">
+	     <div class="modal-footer">
 	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
 	     </div>
 
@@ -745,11 +764,15 @@
 	        <h4 class="modal-title" id="recurringDueDateModalLabel">{{ trans('texts.recurring_due_dates') }}</h4>
 	      </div>
 
-	    <div style="background-color: #fff; padding-left: 16px; padding-right: 16px">
-	    	&nbsp; {!! isset($recurringDueDateHelp) ? $recurringDueDateHelp : '' !!} &nbsp;
-		</div>
+		  <div class="container" style="width: 100%; padding-bottom: 0px !important">
+          <div class="panel panel-default">
+			 <div class="panel-body">
+				 {!! isset($recurringDueDateHelp) ? $recurringDueDateHelp : '' !!}
+			</div>
+		 </div>
+		 </div>
 
-	     <div class="modal-footer" style="margin-top: 0px">
+	     <div class="modal-footer">
 	      	<button type="button" class="btn btn-primary" data-dismiss="modal">{{ trans('texts.close') }}</button>
 	     </div>
 
@@ -757,7 +780,11 @@
 	  </div>
 	</div>
 
-	{!! Former::close() !!}
+	@include('partials.email_templates')
+	@include('invoices.email')
+
+    {!! Former::close() !!}
+    </form>
 
     {!! Former::open("{$entityType}s/bulk")->addClass('bulkForm') !!}
     {!! Former::populateField('bulk_public_id', $invoice->public_id) !!}
@@ -775,7 +802,7 @@
     Dropzone.autoDiscover = false;
 
     var products = {!! $products !!};
-    var clients = {!! $clients !!};
+	var clients = {!! $clients !!};
     var account = {!! Auth::user()->account !!};
     var dropzone;
 
@@ -788,21 +815,23 @@
         // create client dictionary
         for (var i=0; i<clients.length; i++) {
             var client = clients[i];
-            var clientName = getClientDisplayName(client);
-            if (!clientName) {
-                continue;
-            }
-            for (var j=0; j<client.contacts.length; j++) {
-                var contact = client.contacts[j];
-                var contactName = getContactDisplayName(contact);
-                if (contact.is_primary === '1') {
-                    contact.send_invoice = true;
-                }
-                if (clientName != contactName) {
-                    $clientSelect.append(new Option(contactName, client.public_id));
-                }
-            }
             clientMap[client.public_id] = client;
+            @if (! $invoice->id)
+	            if (!getClientDisplayName(client)) {
+	                continue;
+	            }
+            @endif
+			var clientName = client.name || '';
+			for (var j=0; j<client.contacts.length; j++) {
+                var contact = client.contacts[j];
+                var contactName = getContactDisplayNameWithEmail(contact);
+				if (clientName && contactName) {
+					clientName += '<br/>  • ';
+				}
+				if (contactName) {
+					clientName += contactName;
+				}
+            }
             $clientSelect.append(new Option(clientName, client.public_id));
         }
 
@@ -829,55 +858,54 @@
                 }
                 model.invoice().addItem(); // add blank item
             @else
-                model.invoice().custom_taxes1({{ $account->custom_invoice_taxes1 ? 'true' : 'false' }});
-                model.invoice().custom_taxes2({{ $account->custom_invoice_taxes2 ? 'true' : 'false' }});
                 // set the default account tax rate
-                @if ($account->invoice_taxes && ! empty($defaultTax))
-                    var defaultTax = {!! $defaultTax->toJson() !!};
-                    model.invoice().tax_rate1(defaultTax.rate);
-                    model.invoice().tax_name1(defaultTax.name);
+                @if ($account->invoice_taxes)
+					@if (! empty($account->tax_name1))
+						model.invoice().tax_rate1("{{ $account->tax_rate1 }}");
+						model.invoice().tax_name1("{{ $account->tax_name1 }}");
+					@endif
+					@if (! empty($account->tax_name2))
+						model.invoice().tax_rate2("{{ $account->tax_rate2 }}");
+						model.invoice().tax_name2("{{ $account->tax_name2 }}");
+					@endif
                 @endif
             @endif
 
             @if (isset($tasks) && $tasks)
-                // move the blank invoice line item to the end
-                var blank = model.invoice().invoice_items.pop();
-                var tasks = {!! $tasks !!};
-
+                var tasks = {!! json_encode($tasks) !!};
                 for (var i=0; i<tasks.length; i++) {
                     var task = tasks[i];
-                    var item = model.invoice().addItem();
+                    var item = model.invoice().addItem(true);
                     item.notes(task.description);
                     item.qty(task.duration);
                     item.task_public_id(task.publicId);
                 }
-                model.invoice().invoice_items.push(blank);
                 model.invoice().has_tasks(true);
             @endif
 
-            if(model.invoice().expenses().length && !model.invoice().public_id()){
+            @if (isset($expenses) && $expenses)
                 model.expense_currency_id({{ isset($expenseCurrencyId) ? $expenseCurrencyId : 0 }});
 
                 // move the blank invoice line item to the end
-                var blank = model.invoice().invoice_items.pop();
-                var expenses = model.invoice().expenses();
+                var blank = model.invoice().invoice_items_without_tasks.pop();
+                var expenses = {!! $expenses !!}
 
                 for (var i=0; i<expenses.length; i++) {
                     var expense = expenses[i];
                     var item = model.invoice().addItem();
-                    item.product_key(expense.expense_category ? expense.expense_category.name() : '');
-                    item.notes(expense.public_notes());
+                    item.product_key(expense.expense_category ? expense.expense_category.name : '');
+                    item.notes(expense.public_notes);
                     item.qty(1);
-                    item.expense_public_id(expense.public_id());
-					item.cost(expense.converted_amount());
-                    item.tax_rate1(expense.tax_rate1());
-                    item.tax_name1(expense.tax_name1());
-                    item.tax_rate2(expense.tax_rate2());
-                    item.tax_name2(expense.tax_name2());
+                    item.expense_public_id(expense.public_id);
+					item.cost(expense.converted_amount);
+                    item.tax_rate1(expense.tax_rate1);
+                    item.tax_name1(expense.tax_name1);
+                    item.tax_rate2(expense.tax_rate2);
+                    item.tax_name2(expense.tax_name2);
                 }
-                model.invoice().invoice_items.push(blank);
+                model.invoice().invoice_items_without_tasks.push(blank);
                 model.invoice().has_expenses(true);
-            }
+            @endif
 
         @endif
 
@@ -888,7 +916,7 @@
         if (!model.invoice().custom_value2()) model.invoice().custom_value2('');
 
         ko.applyBindings(model);
-        onItemChange();
+        onItemChange(true);
 
 
 		$('#country_id').combobox().on('change', function(e) {
@@ -963,7 +991,7 @@
         }
 
         if (model.invoice().client().public_id() || {{ $invoice->id || count($clients) == 0 ? '1' : '0' }}) {
-            $('#invoice_number').focus();
+            // do nothing
         } else {
             $('.client_select input.form-control').focus();
         }
@@ -1022,50 +1050,8 @@
                 return;
             }
 
-            window.dropzone = new Dropzone('#document-upload .dropzone', {
-                url:{!! json_encode(url('documents')) !!},
-                params:{
-                    _token:"{{ Session::getToken() }}"
-                },
-                acceptedFiles:{!! json_encode(implode(',',\App\Models\Document::$allowedMimes)) !!},
-                addRemoveLinks:true,
-                dictRemoveFileConfirmation:"{{trans('texts.are_you_sure')}}",
-                @foreach(['default_message', 'fallback_message', 'fallback_text', 'file_too_big', 'invalid_file_type', 'response_error', 'cancel_upload', 'cancel_upload_confirmation', 'remove_file'] as $key)
-                    "dict{{Utils::toClassCase($key)}}":"{{trans('texts.dropzone_'.$key)}}",
-                @endforeach
-                maxFilesize:{{floatval(MAX_DOCUMENT_SIZE/1000)}},
-            });
-            if(dropzone instanceof Dropzone){
-                dropzone.on("addedfile",handleDocumentAdded);
-                dropzone.on("removedfile",handleDocumentRemoved);
-                dropzone.on("success",handleDocumentUploaded);
-                dropzone.on("canceled",handleDocumentCanceled);
-                dropzone.on("error",handleDocumentError);
-                for (var i=0; i<model.invoice().documents().length; i++) {
-                    var document = model.invoice().documents()[i];
-                    var mockFile = {
-                        name:document.name(),
-                        size:document.size(),
-                        type:document.type(),
-                        public_id:document.public_id(),
-                        status:Dropzone.SUCCESS,
-                        accepted:true,
-                        url:document.url(),
-                        mock:true,
-                        index:i
-                    };
+			@include('partials.dropzone', ['documentSource' => 'model.invoice().documents()'])
 
-                    dropzone.emit('addedfile', mockFile);
-                    dropzone.emit('complete', mockFile);
-                    if(document.preview_url()){
-                        dropzone.emit('thumbnail', mockFile, document.preview_url());
-                    }
-                    else if(document.type()=='jpeg' || document.type()=='png' || document.type()=='svg'){
-                        dropzone.emit('thumbnail', mockFile, document.url());
-                    }
-                    dropzone.files.push(mockFile);
-                }
-            }
         });
         @endif
 	});
@@ -1105,11 +1091,10 @@
             refreshPDF(true);
         });
 
-        $('textarea').on('keyup focus', function(e) {
-            while($(this).outerHeight() < this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))) {
-                $(this).height($(this).height()+1);
-            };
+        $('textarea.word-wrap').on('keyup focus', function(e) {
+            $(this).height(0).height(this.scrollHeight-18);
         });
+
 	}
 
 	function createInvoiceModel() {
@@ -1125,13 +1110,13 @@
 		invoice.contact = _.findWhere(invoice.client.contacts, {send_invoice: true});
 
         if (invoice.is_recurring) {
-            invoice.invoice_number = "{{ trans('texts.assigned_when_sent') }}";
+            invoice.invoice_number = "{!! trans('texts.assigned_when_sent') !!}";
             if (invoice.start_date) {
                 invoice.invoice_date = invoice.start_date;
             }
         }
 
-        @if (!$invoice->id)
+        @if (!$invoice->id || $invoice->is_recurring)
             if (!invoice.terms) {
                 invoice.terms = account['{{ $entityType }}_terms'];
             }
@@ -1146,25 +1131,30 @@
 			invoice.imageHeight = {{ $account->getLogoHeight() }};
 		@endif
 
-        //invoiceLabels.item = invoice.has_tasks ? invoiceLabels.date : invoiceLabels.item_orig;
-        invoiceLabels.quantity = invoice.has_tasks ? invoiceLabels.hours : invoiceLabels.quantity_orig;
-        invoiceLabels.unit_cost = invoice.has_tasks ? invoiceLabels.rate : invoiceLabels.unit_cost_orig;
-
         return invoice;
 	}
 
-    window.generatedPDF = false;
+	var origInvoiceNumber = false;
 	function getPDFString(cb, force) {
-        @if (!$account->live_preview)
-            if (window.generatedPDF) {
-                return;
-            }
-        @endif
+		@if (! $invoice->id && $account->credit_number_counter > 0)
+			var total = model.invoice().totals.rawTotal();
+			var invoiceNumber = model.invoice().invoice_number();
+			var creditNumber = "{{ $account->getNextNumber(new \App\Models\Credit()) }}";
+			if (total < 0 && invoiceNumber != creditNumber) {
+				origInvoiceNumber = invoiceNumber;
+				model.invoice().invoice_number(creditNumber);
+			} else if (total >= 0 && invoiceNumber == creditNumber && origInvoiceNumber) {
+				model.invoice().invoice_number(origInvoiceNumber);
+			}
+		@endif
+
+		@if ( ! $account->live_preview)
+			return;
+		@endif
         var invoice = createInvoiceModel();
 		var design  = getDesignJavascript();
 		if (!design) return;
         generatePDF(invoice, design, force, cb);
-        window.generatedPDF = true;
 	}
 
 	function getDesignJavascript() {
@@ -1180,18 +1170,20 @@
 	}
 
     function resetTerms() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+        sweetConfirm(function() {
             model.invoice().terms(model.invoice().default_terms());
             refreshPDF();
-        }
+        });
+
         return false;
     }
 
     function resetFooter() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
+        sweetConfirm(function() {
             model.invoice().invoice_footer(model.invoice().default_footer());
             refreshPDF();
-        }
+        });
+
         return false;
     }
 
@@ -1201,60 +1193,117 @@
         var design  = getDesignJavascript();
 		if (!design) return;
 		var doc = generatePDF(invoice, design, true);
-        var type = invoice.is_quote ? '{{ trans('texts.'.ENTITY_QUOTE) }}' : '{{ trans('texts.'.ENTITY_INVOICE) }}';
-		doc.save(type +'-' + $('#invoice_number').val() + '.pdf');
+        var type = invoice.is_quote ? '{!! trans('texts.'.ENTITY_QUOTE) !!}' : '{!! trans('texts.'.ENTITY_INVOICE) !!}';
+		doc.save(type + '-' + $('#invoice_number').val() + '.pdf');
 	}
+
+    function onRecurrClick() {
+        var invoice = model.invoice();
+        if (invoice.is_recurring()) {
+            var recurring = false;
+            var enableLabel = "{{ trans('texts.enable_recurring')}}";
+			var actionLabel = "{{ trans('texts.mark_sent') }}";
+        } else {
+            var recurring = true;
+            var enableLabel = "{{ trans('texts.disable_recurring')}}";
+			var actionLabel = "{{ trans('texts.mark_active') }}";
+        }
+        invoice.is_recurring(recurring);
+        $('#recurrButton').html(enableLabel + "<span class='glyphicon glyphicon-repeat'></span>");
+		$('#saveButton').html(actionLabel + "<span class='glyphicon glyphicon-globe'></span>");
+    }
 
 	function onEmailClick() {
         if (!NINJA.isRegistered) {
-            alert("{!! trans('texts.registration_required') !!}");
+            swal("{!! trans('texts.registration_required') !!}");
+            return;
+        }
+
+        var clientId = parseInt($('input[name=client]').val(), 10) || 0;
+        if (clientId == 0 ) {
+            swal("{!! trans('texts.no_client_selected') !!}");
+            return;
+        }
+
+        if (!isContactSelected()) {
+            swal("{!! trans('texts.no_contact_selected') !!}");
             return;
         }
 
         if (!isEmailValid()) {
-            alert("{!! trans('texts.provide_email') !!}");
+            swal("{!! trans('texts.provide_email') !!}");
             return;
-8        }
+        }
 
-		if (confirm('{!! trans("texts.confirm_email_$entityType") !!}' + '\n\n' + getSendToEmails())) {
-            var accountLanguageId = parseInt({{ $account->language_id ?: '0' }});
-            var clientLanguageId = parseInt(model.invoice().client().language_id()) || 0;
-            var attachPDF = {{ $account->attachPDF() ? 'true' : 'false' }};
+		if (model.invoice().is_recurring()) {
+			sweetConfirm(function() {
+				onConfirmEmailClick();
+			}, getSendToEmails());
+		} else {
+			showEmailModal();
+		}
+	}
 
-            // if they aren't attaching the pdf no need to generate it
-            if ( ! attachPDF) {
-                submitAction('email');
-            // if the client's language is different then we can't use the browser version of the PDF
-            } else if (clientLanguageId && clientLanguageId != accountLanguageId) {
-                submitAction('email');
-            } else {
-                preparePdfData('email');
-            }
+	function onConfirmEmailClick() {
+		$('#emailModal div.modal-footer button').attr('disabled', true);
+		model.invoice().is_public(true);
+		submitAction('email');
+	}
+
+	function onSaveDraftClick() {
+		model.invoice().is_public(false);
+		onSaveClick();
+	}
+
+	function onMarkSentClick() {
+		if (model.invoice().is_recurring()) {
+			if (! model.invoice().start_date()) {
+				swal("{{ trans('texts.start_date_required') }}");
+				return false;
+			}
+			if (!isSaveValid()) {
+	            model.showClientForm();
+	            return false;
+	        }
+            // warn invoice will be emailed when saving new recurring invoice
+            var text = '\n' + getSendToEmails();
+			if (model.invoice().start_date() == "{{ Utils::fromSqlDate(date('Y-m-d')) }}") {
+				text += '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+			}
+            var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
+            sweetConfirm(function() {
+				model.invoice().is_public(true);
+                submitAction('');
+            }, text, title);
+            return;
+        } else {
+			model.invoice().is_public(true);
+			onSaveClick();
 		}
 	}
 
 	function onSaveClick() {
-        @if(!empty($autoBillChangeWarning))
-        if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
-        @endif
+		@if ($invoice->id)
+			if (model.invoice().is_recurring()) {
+	            if (model.invoice().start_date() != model.invoice().start_date_orig()) {
+	                var text = "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
+	                            + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date();
+	                var title = "{!! trans("texts.warn_start_date_changed") !!}";
+	                sweetConfirm(function() {
+	                    submitAction('');
+	                }, text, title);
+	                return;
+	            }
+	        }
+		@endif
 
-		if (model.invoice().is_recurring()) {
-            // warn invoice will be emailed when saving new recurring invoice
-            if ({{ $invoice->exists ? 'false' : 'true' }}) {
-                if (confirm("{!! trans("texts.confirm_recurring_email_$entityType") !!}" + '\n\n' + getSendToEmails() + '\n' + "{!! trans("texts.confirm_recurring_timing") !!}")) {
-                    submitAction('');
-                }
-                return;
-            // warn invoice will be emailed again if start date is changed
-            } else if (model.invoice().start_date() != model.invoice().start_date_orig()) {
-                if (confirm("{!! trans("texts.warn_start_date_changed") !!}" + '\n\n'
-                    + "{!! trans("texts.original_start_date") !!}: " + model.invoice().start_date_orig() + '\n'
-                    + "{!! trans("texts.new_start_date") !!}: " + model.invoice().start_date())) {
-                        submitAction('');
-                }
-                return;
-            }
-        }
+        @if (!empty($autoBillChangeWarning))
+            var text = "{!! trans('texts.warn_change_auto_bill') !!}";
+            sweetConfirm(function() {
+                submitAction('');
+            }, text);
+            return;
+        @endif
 
         submitAction('');
     }
@@ -1286,13 +1335,31 @@
     }
 
 	function submitAction(value) {
+		if (!isSaveValid()) {
+            model.showClientForm();
+            return false;
+        }
+
 		$('#action').val(value);
 		$('#submitButton').click();
 	}
 
     function onFormSubmit(event) {
         if (window.countUploadingDocuments > 0) {
-            alert("{!! trans('texts.wait_for_upload') !!}");
+            swal("{!! trans('texts.wait_for_upload') !!}");
+            return false;
+        }
+
+        @if ($invoice->is_deleted)
+            if ($('#bulk_action').val() != 'restore') {
+                return false;
+            }
+        @endif
+
+        // check invoice number is unique
+        if ($('.invoice-number').hasClass('has-error')) {
+            return false;
+        } else if ($('.partial').hasClass('has-error')) {
             return false;
         }
 
@@ -1305,25 +1372,82 @@
         var expenseCurrencyId = model.expense_currency_id();
         var clientCurrencyId = model.invoice().client().currency_id() || {{ $account->getCurrencyId() }};
         if (expenseCurrencyId && expenseCurrencyId != clientCurrencyId) {
-            alert("{!! trans('texts.expense_error_mismatch_currencies') !!}");
+            swal("{!! trans('texts.expense_error_mismatch_currencies') !!}");
             return false;
         }
 
-        onPartialChange(true);
-
-        return true;
+        @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
+            if ($('#saveButton').is(':disabled')) {
+                return false;
+            }
+            $('#saveButton, #emailButton, #draftButton').attr('disabled', true);
+            // if save fails ensure user can try again
+            $.post('{{ url($url) }}', $('.main-form').serialize(), function(data) {
+				if (data && data.indexOf('http') === 0) {
+					NINJA.formIsChanged = false;
+					location.href = data;
+				} else {
+					handleSaveFailed();
+				}
+            }).fail(function(data) {
+				handleSaveFailed(data);
+            });
+            return false;
+        @else
+            return false;
+        @endif
     }
+
+	function handleSaveFailed(data) {
+		$('#saveButton, #emailButton, #draftButton').attr('disabled', false);
+		$('#emailModal div.modal-footer button').attr('disabled', false);
+		var error = '';
+		if (data) {
+			var error = firstJSONError(data.responseJSON) || data.statusText;
+		}
+		swal("{!! trans('texts.invoice_save_error') !!}", error);
+	}
 
     function submitBulkAction(value) {
         $('#bulk_action').val(value);
-        $('.bulkForm').submit();
+        $('.bulkForm')[0].submit();
     }
 
 	function isSaveValid() {
-		var isValid = false;
+		var isValid = model.invoice().client().name() ? true : false;
 		for (var i=0; i<model.invoice().client().contacts().length; i++) {
 			var contact = model.invoice().client().contacts()[i];
-			if (isValidEmailAddress(contact.email()) || contact.first_name()) {
+			var email = contact.email() ? contact.email().trim() : '';
+			if (isValidEmailAddress(email) || contact.first_name() || contact.last_name()) {
+				isValid = true;
+				break;
+			}
+		}
+		return isValid;
+	}
+
+    function isContactSelected() {
+		var sendTo = false;
+		var client = model.invoice().client();
+		for (var i=0; i<client.contacts().length; i++) {
+			var contact = client.contacts()[i];
+            if (contact.send_invoice()) {
+                return true;
+            }
+		}
+		return false;
+    }
+
+	function isEmailValid() {
+		var isValid = true;
+		var client = model.invoice().client();
+		for (var i=0; i<client.contacts().length; i++) {
+			var contact = client.contacts()[i];
+            if ( ! contact.send_invoice()) {
+                continue;
+            }
+			var email = contact.email() ? contact.email().trim() : '';
+			if (isValidEmailAddress(email)) {
 				isValid = true;
 			} else {
 				isValid = false;
@@ -1331,30 +1455,6 @@
 			}
 		}
 		return isValid;
-	}
-
-	function isEmailValid() {
-		var isValid = true;
-		var sendTo = false;
-		var client = model.invoice().client();
-		for (var i=0; i<client.contacts().length; i++) {
-			var contact = client.contacts()[i];
-            if ( ! contact.send_invoice()) {
-                continue;
-            }
-			if (isValidEmailAddress(contact.email())) {
-				isValid = true;
-				sendTo = true;
-			} else {
-				isValid = false;
-				break;
-			}
-		}
-		return (isValid && sendTo)
-	}
-
-	function onMarkClick() {
-		submitBulkAction('markSent');
 	}
 
 	function onCloneClick() {
@@ -1367,11 +1467,13 @@
 
     @if ($invoice->id)
     	function onPaymentClick() {
-            @if(!empty($autoBillChangeWarning))
-            if(!confirm("{!! trans('texts.warn_change_auto_bill') !!}"))return;
+            @if (!empty($autoBillChangeWarning))
+                sweetConfirm(function() {
+                    window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
+                }, "{!! trans('texts.warn_change_auto_bill') !!}");
+            @else
+                window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
             @endif
-
-    		window.location = '{{ URL::to('payments/create/' . $invoice->client->public_id . '/' . $invoice->public_id ) }}';
     	}
 
     	function onCreditClick() {
@@ -1384,9 +1486,9 @@
 	}
 
 	function onDeleteClick() {
-        if (confirm('{!! trans("texts.are_you_sure") !!}')) {
-			submitBulkAction('delete');
-		}
+        sweetConfirm(function() {
+            submitBulkAction('delete');
+        });
 	}
 
 	function formEnterClick(event) {
@@ -1412,34 +1514,57 @@
         }
 	}
 
-	function onItemChange()
+	function onItemChange(silent)
 	{
-		var hasEmpty = false;
-		for(var i=0; i<model.invoice().invoice_items().length; i++) {
-			var item = model.invoice().invoice_items()[i];
+		var hasEmptyStandard = false;
+		var hasEmptyTask = false;
+
+		for (var i=0; i<model.invoice().invoice_items_without_tasks().length; i++) {
+			var item = model.invoice().invoice_items_without_tasks()[i];
 			if (item.isEmpty()) {
-				hasEmpty = true;
+				hasEmptyStandard = true;
 			}
 		}
-
-		if (!hasEmpty) {
+		if (!hasEmptyStandard) {
 			model.invoice().addItem();
+		}
+
+		for (var i=0; i<model.invoice().invoice_items_with_tasks().length; i++) {
+			var item = model.invoice().invoice_items_with_tasks()[i];
+			if (item.isEmpty()) {
+				hasEmptyTask = true;
+			}
+		}
+		if (!hasEmptyTask) {
+			model.invoice().addItem(true);
+		}
+
+		if (!silent) {
+        	NINJA.formIsChanged = true;
 		}
 	}
 
-    function onPartialChange(silent)
+    function onPartialChange()
     {
         var val = NINJA.parseFloat($('#partial').val());
         var oldVal = val;
         val = Math.max(Math.min(val, model.invoice().totals.rawTotal()), 0);
-        model.invoice().partial(val || '');
 
-        if (!silent && val != oldVal) {
-            $('#partial').tooltip('show');
-            setTimeout(function() {
-                $('#partial').tooltip('hide');
-            }, 5000);
+        if (val != oldVal) {
+            if ($('.partial').hasClass('has-error')) {
+                return;
+            }
+            $('.partial')
+                .addClass('has-error')
+                .find('div')
+                .append('<span class="help-block">{{ trans('texts.partial_value') }}</span>');
+        } else {
+            $('.partial')
+                .removeClass('has-error')
+                .find('span')
+                .hide();
         }
+
     }
 
     function onRecurringEnabled()
@@ -1461,61 +1586,41 @@
     }
 
     function setInvoiceNumber(client) {
-        @if ($invoice->id || !$account->hasClientNumberPattern($invoice))
+		@if ($invoice->id || !$account->hasClientNumberPattern($invoice))
             return;
         @endif
-        var number = '{{ $account->getNumberPattern($invoice) }}';
-        number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
+        var number = '{{ $account->applyNumberPattern($invoice) }}';
+        number = number.replace('{$clientCustom1}', client.custom_value1 ? client.custom_value1 : '');
+        number = number.replace('{$clientCustom2}', client.custom_value2 ? client.custom_value1 : '');
+        number = number.replace('{$clientIdNumber}', client.id_number ? client.id_number : '');
+		@if ($invoice->isQuote() && ! $account->share_counter)
+			number = number.replace('{$clientCounter}', pad(client.quote_number_counter, {{ $account->invoice_number_padding }}));
+		@else
+        	number = number.replace('{$clientCounter}', pad(client.invoice_number_counter, {{ $account->invoice_number_padding }}));
+		@endif
+		// backwards compatibility
+		number = number.replace('{$custom1}', client.custom_value1 ? client.custom_value1 : '');
         number = number.replace('{$custom2}', client.custom_value2 ? client.custom_value1 : '');
+        number = number.replace('{$idNumber}', client.id_number ? client.id_number : '');
         model.invoice().invoice_number(number);
     }
 
-    window.countUploadingDocuments = 0;
+	function addDocument(file) {
+		file.index = model.invoice().documents().length;
+	    model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
+	}
 
-    function handleDocumentAdded(file){
-        // open document when clicked
-        if (file.url) {
-            file.previewElement.addEventListener("click", function() {
-                window.open(file.url, '_blank');
-            });
-        }
-        if(file.mock)return;
-        file.index = model.invoice().documents().length;
-        model.invoice().addDocument({name:file.name, size:file.size, type:file.type});
-        window.countUploadingDocuments++;
-    }
+	function addedDocument(file, response) {
+		model.invoice().documents()[file.index].update(response.document);
+	    @if ($account->invoice_embed_documents)
+	        refreshPDF(true);
+	    @endif
+	}
 
-    function handleDocumentRemoved(file){
-        model.invoice().removeDocument(file.public_id);
-        refreshPDF(true);
-        $.ajax({
-            url: '{{ '/documents/' }}' + file.public_id,
-            type: 'DELETE',
-            success: function(result) {
-                // Do something with the result
-            }
-        });
-    }
-
-    function handleDocumentUploaded(file, response){
-        window.countUploadingDocuments--;
-        file.public_id = response.document.public_id
-        model.invoice().documents()[file.index].update(response.document);
-        @if ($account->invoice_embed_documents)
-            refreshPDF(true);
-        @endif
-        if(response.document.preview_url){
-            dropzone.emit('thumbnail', file, response.document.preview_url);
-        }
-    }
-
-    function handleDocumentCanceled() {
-        window.countUploadingDocuments--;
-    }
-
-    function handleDocumentError() {
-        window.countUploadingDocuments--;
-    }
+	function deleteDocument(file) {
+		model.invoice().removeDocument(file.public_id);
+		refreshPDF(true);
+	}
 
 	</script>
     @if ($account->hasFeature(FEATURE_DOCUMENTS) && $account->invoice_embed_documents)

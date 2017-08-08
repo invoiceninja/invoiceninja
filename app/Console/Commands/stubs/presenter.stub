@@ -1,0 +1,10 @@
+<?php
+
+namespace $NAMESPACE$;
+
+use App\Ninja\Presenters\EntityPresenter;
+
+class $STUDLY_NAME$Presenter extends EntityPresenter
+{
+
+}

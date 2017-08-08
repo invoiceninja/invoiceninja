@@ -13,7 +13,8 @@
 
     {!! Former::checkbox('authorize_ach')
             ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName(), 'email' => $account->work_email]))
-            ->label(' ') !!}
+            ->label(' ')
+            ->value(1) !!}
 
     {!! Former::checkbox('tos_agree')
             ->text(trans('texts.wepay_payment_tos_agree', [
@@ -21,15 +22,18 @@
             'privacy_policy' => '<a href="https://go.wepay.com/privacy-policy-us" target="_blank">'.trans('texts.privacy_policy').'</a>',
             ]))
             ->help(trans('texts.payment_processed_through_wepay'))
-            ->label(' ') !!}
+            ->label(' ')
+            ->value(1) !!}
 
     <input type="hidden" name="sourceToken" value="{{$sourceId}}">
 
     <p>&nbsp;</p>
 
     <center>
-        @if(isset($amount) && empty($paymentMethodPending))
-            {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
+        {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+        &nbsp;&nbsp;
+        @if (isset($amount))
+            {!! Button::success(request()->update ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
                             ->submit()
                             ->large() !!}
         @else

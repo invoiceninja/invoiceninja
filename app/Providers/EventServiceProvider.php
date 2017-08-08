@@ -1,16 +1,19 @@
-<?php namespace App\Providers;
+<?php
+
+namespace App\Providers;
 
 use Illuminate\Contracts\Events\Dispatcher as DispatcherContract;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
-class EventServiceProvider extends ServiceProvider {
+class EventServiceProvider extends ServiceProvider
+{
+    /**
+     * The event handler mappings for the application.
+     *
+     * @var array
+     */
+    protected $listen = [
 
-	/**
-	 * The event handler mappings for the application.
-	 *
-	 * @var array
-	 */
-	protected $listen = [
         // Clients
         'App\Events\ClientWasCreated' => [
             'App\Listeners\ActivityListener@createdClient',
@@ -29,12 +32,17 @@ class EventServiceProvider extends ServiceProvider {
         // Invoices
         'App\Events\InvoiceWasCreated' => [
             'App\Listeners\ActivityListener@createdInvoice',
-            'App\Listeners\SubscriptionListener@createdInvoice',
             'App\Listeners\InvoiceListener@createdInvoice',
         ],
         'App\Events\InvoiceWasUpdated' => [
             'App\Listeners\ActivityListener@updatedInvoice',
             'App\Listeners\InvoiceListener@updatedInvoice',
+        ],
+        'App\Events\InvoiceItemsWereCreated' => [
+            'App\Listeners\SubscriptionListener@createdInvoice',
+        ],
+        'App\Events\InvoiceItemsWereUpdated' => [
+            'App\Listeners\SubscriptionListener@updatedInvoice',
         ],
         'App\Events\InvoiceWasArchived' => [
             'App\Listeners\ActivityListener@archivedInvoice',
@@ -62,10 +70,15 @@ class EventServiceProvider extends ServiceProvider {
         // Quotes
         'App\Events\QuoteWasCreated' => [
             'App\Listeners\ActivityListener@createdQuote',
-            'App\Listeners\SubscriptionListener@createdQuote',
         ],
         'App\Events\QuoteWasUpdated' => [
             'App\Listeners\ActivityListener@updatedQuote',
+        ],
+        'App\Events\QuoteItemsWereCreated' => [
+            'App\Listeners\SubscriptionListener@createdQuote',
+        ],
+        'App\Events\QuoteItemsWereUpdated' => [
+            'App\Listeners\SubscriptionListener@updatedQuote',
         ],
         'App\Events\QuoteWasArchived' => [
             'App\Listeners\ActivityListener@archivedQuote',
@@ -111,7 +124,6 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\PaymentWasRefunded' => [
             'App\Listeners\ActivityListener@refundedPayment',
             'App\Listeners\InvoiceListener@refundedPayment',
-            'App\Listeners\CreditListener@refundedPayment',
         ],
         'App\Events\PaymentWasVoided' => [
             'App\Listeners\ActivityListener@voidedPayment',
@@ -159,19 +171,56 @@ class EventServiceProvider extends ServiceProvider {
         'App\Events\TaskWasUpdated' => [
             'App\Listeners\ActivityListener@updatedTask',
         ],
-	];
+        'App\Events\TaskWasRestored' => [
+            'App\Listeners\ActivityListener@restoredTask',
+        ],
+        'App\Events\TaskWasArchived' => [
+            'App\Listeners\ActivityListener@archivedTask',
+        ],
+        'App\Events\TaskWasDeleted' => [
+            'App\Listeners\ActivityListener@deletedTask',
+        ],
 
-	/**
-	 * Register any other events for your application.
-	 *
-	 * @param  \Illuminate\Contracts\Events\Dispatcher  $events
-	 * @return void
-	 */
-	public function boot(DispatcherContract $events)
-	{
-		parent::boot($events);
+        // Expense events
+        'App\Events\ExpenseWasCreated' => [
+            'App\Listeners\ActivityListener@createdExpense',
+        ],
+        'App\Events\ExpenseWasUpdated' => [
+            'App\Listeners\ActivityListener@updatedExpense',
+        ],
+        'App\Events\ExpenseWasRestored' => [
+            'App\Listeners\ActivityListener@restoredExpense',
+        ],
+        'App\Events\ExpenseWasArchived' => [
+            'App\Listeners\ActivityListener@archivedExpense',
+        ],
+        'App\Events\ExpenseWasDeleted' => [
+            'App\Listeners\ActivityListener@deletedExpense',
+        ],
 
-		//
-	}
+        'Illuminate\Queue\Events\JobExceptionOccurred' => [
+            'App\Listeners\InvoiceListener@jobFailed'
+        ]
 
+        /*
+        // Update events
+        \Codedge\Updater\Events\UpdateAvailable::class => [
+            \Codedge\Updater\Listeners\SendUpdateAvailableNotification::class,
+        ],
+        */
+    ];
+
+    /**
+     * Register any other events for your application.
+     *
+     * @param \Illuminate\Contracts\Events\Dispatcher $events
+     *
+     * @return void
+     */
+    public function boot(DispatcherContract $events)
+    {
+        parent::boot($events);
+
+        //
+    }
 }

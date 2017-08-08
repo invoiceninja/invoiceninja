@@ -5,6 +5,7 @@
     for (var i=0; i<currencies.length; i++) {
         var currency = currencies[i];
         currencyMap[currency.id] = currency;
+        currencyMap[currency.code] = currency;
     }
 
     var countries = {!! \Cache::get('countries') !!};
@@ -28,18 +29,18 @@
     NINJA.parseFloat = function(str) {
         if (!str) return '';
         str = (str+'').replace(/[^0-9\.\-]/g, '');
-        
+
         return window.parseFloat(str);
     }
 
-    function formatMoneyInvoice(value, invoice, hideSymbol) {
+    function formatMoneyInvoice(value, invoice, decorator) {
         var account = invoice.account;
         var client = invoice.client;
 
-        return formatMoneyAccount(value, account, client, hideSymbol);
+        return formatMoneyAccount(value, account, client, decorator);
     }
 
-    function formatMoneyAccount(value, account, client, hideSymbol) {
+    function formatMoneyAccount(value, account, client, decorator) {
         var currencyId = false;
         var countryId = false;
 
@@ -55,14 +56,40 @@
             countryId = account.country_id;
         }
 
-        return formatMoney(value, currencyId, countryId, hideSymbol)
+        if (account && ! decorator) {
+            decorator = parseInt(account.show_currency_code) ? 'code' : 'symbol';
+        }
+
+        return formatMoney(value, currencyId, countryId, decorator)
     }
 
-    function formatMoney(value, currencyId, countryId, hideSymbol) {
+    function formatAmount(value, currencyId) {
+
+        if (!currencyId) {
+            currencyId = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
+        }
+
+        var currency = currencyMap[currencyId];
+        var decimal = currency.decimal_separator;
+
+        value = NINJA.parseFloat(value) + '';
+
+        if (decimal == '.') {
+            return value;
+        } else {
+            return value.replace('.', decimal);
+        }
+    }
+
+    function formatMoney(value, currencyId, countryId, decorator) {
         value = NINJA.parseFloat(value);
 
         if (!currencyId) {
             currencyId = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
+        }
+
+        if (!decorator) {
+            decorator = '{{ Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL) }}';
         }
 
         var currency = currencyMap[currencyId];
@@ -86,9 +113,9 @@
         value = accounting.formatMoney(value, '', precision, thousand, decimal);
         var symbol = currency.symbol;
 
-        if (hideSymbol) {
+        if (decorator == 'none') {
             return value;
-        } else if (!symbol) {
+        } else if (decorator == '{{ CURRENCY_DECORATOR_CODE }}' || ! symbol) {
             return value + ' ' + code;
         } else if (swapSymbol) {
             return value + ' ' + symbol.trim();

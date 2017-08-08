@@ -1,10 +1,14 @@
-<?php namespace App\Http\Requests;
+<?php
 
+namespace App\Http\Requests;
+
+use App\Libraries\HistoryUtils;
+use App\Models\EntityModel;
 use Input;
 use Utils;
 
-class EntityRequest extends Request {
-
+class EntityRequest extends Request
+{
     protected $entityType;
     private $entity;
 
@@ -17,23 +21,23 @@ class EntityRequest extends Request {
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
         $field = $this->entityType . '_id';
-        if ( ! empty($this->$field)) {
+        if (! empty($this->$field)) {
             $publicId = $this->$field;
         }
-        if ( ! $publicId) {
+        if (! $publicId) {
             $field = Utils::pluralizeEntityType($this->entityType);
-            if ( ! empty($this->$field)) {
+            if (! empty($this->$field)) {
                 $publicId = $this->$field;
             }
         }
-        if ( ! $publicId) {
+        if (! $publicId) {
             $publicId = Input::get('public_id') ?: Input::get('id');
         }
-        if ( ! $publicId) {
+        if (! $publicId) {
             return null;
         }
 
-        $class = Utils::getEntityClass($this->entityType);
+        $class = EntityModel::getClassName($this->entityType);
 
         if (method_exists($class, 'trashed')) {
             $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
@@ -44,10 +48,19 @@ class EntityRequest extends Request {
         return $this->entity;
     }
 
+    public function setEntity($entity)
+    {
+        $this->entity = $entity;
+    }
+
     public function authorize()
     {
         if ($this->entity()) {
-            return $this->user()->can('view', $this->entity());
+            if ($this->user()->can('view', $this->entity())) {
+                HistoryUtils::trackViewed($this->entity());
+
+                return true;
+            }
         } else {
             return $this->user()->can('create', $this->entityType);
         }

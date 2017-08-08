@@ -36,6 +36,7 @@ return [
 		],
 
 		'database' => [
+			'connection' => env('QUEUE_DATABASE', 'mysql'),
 			'driver' => 'database',
 			'table' => 'jobs',
 			'queue' => 'default',
@@ -86,7 +87,8 @@ return [
 	*/
 
 	'failed' => [
-		'database' => 'mysql', 'table' => 'failed_jobs',
+		'database' => env('QUEUE_DATABASE', 'mysql'),
+		'table' => 'failed_jobs',
 	],
 
 ];

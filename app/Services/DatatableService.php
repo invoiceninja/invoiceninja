@@ -1,21 +1,25 @@
-<?php namespace App\Services;
+<?php
 
-use Utils;
-use Datatable;
-use Auth;
+namespace App\Services;
+
 use App\Ninja\Datatables\EntityDatatable;
+use Auth;
 use Chumper\Datatable\Table;
+use Datatable;
+use Utils;
 
 /**
- * Class DatatableService
+ * Class DatatableService.
  */
 class DatatableService
 {
     /**
      * @param EntityDatatable $datatable
      * @param $query
-     * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Exception
+     *
+     * @return \Illuminate\Http\JsonResponse
      */
     public function createDatatable(EntityDatatable $datatable, $query)
     {
@@ -25,7 +29,7 @@ class DatatableService
             $table->addColumn('checkbox', function ($model) {
                 $can_edit = Auth::user()->hasPermission('edit_all') || (isset($model->user_id) && Auth::user()->id == $model->user_id);
 
-                return !$can_edit?'':'<input type="checkbox" name="ids[]" value="' . $model->public_id
+                return ! $can_edit ? '' : '<input type="checkbox" name="ids[]" value="' . $model->public_id
                         . '" ' . Utils::getEntityRowClass($model) . '>';
             });
         }
@@ -53,7 +57,7 @@ class DatatableService
 
     /**
      * @param EntityDatatable $datatable
-     * @param Table $table
+     * @param Table           $table
      */
     private function createDropdown(EntityDatatable $datatable, $table)
     {
@@ -74,25 +78,25 @@ class DatatableService
             $dropdown_contents = '';
 
             $lastIsDivider = false;
-            if (!$model->deleted_at || $model->deleted_at == '0000-00-00') {
+            if (! property_exists($model, 'is_deleted') || ! $model->is_deleted) {
                 foreach ($datatable->actions() as $action) {
                     if (count($action)) {
+                        // if show function isn't set default to true
                         if (count($action) == 2) {
-                            $action[] = function() {
+                            $action[] = function () {
                                 return true;
                             };
                         }
                         list($value, $url, $visible) = $action;
                         if ($visible($model)) {
-                            if($value == '--divider--'){
+                            if ($value == '--divider--') {
                                 $dropdown_contents .= '<li class="divider"></li>';
                                 $lastIsDivider = true;
-                            }
-                            else {
+                            } else {
                                 $urlVal = $url($model);
                                 $urlStr = is_string($urlVal) ? $urlVal : $urlVal['url'];
                                 $attributes = '';
-                                if (!empty($urlVal['attributes'])) {
+                                if (! empty($urlVal['attributes'])) {
                                     $attributes = ' '.$urlVal['attributes'];
                                 }
 
@@ -101,35 +105,39 @@ class DatatableService
                                 $lastIsDivider = false;
                             }
                         }
-                    } elseif ( ! $lastIsDivider) {
+                    } elseif (! $lastIsDivider) {
                         $dropdown_contents .= '<li class="divider"></li>';
                         $lastIsDivider = true;
                     }
                 }
 
-                if ( ! $hasAction) {
+                if (! $hasAction) {
                     return '';
                 }
 
-                if ( $can_edit && ! $lastIsDivider) {
+                if ($can_edit && ! $lastIsDivider) {
                     $dropdown_contents .= '<li class="divider"></li>';
                 }
 
-                if (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit) {
-                    $dropdown_contents .= "<li><a href=\"javascript:archiveEntity({$model->public_id})\">"
-                            . trans("texts.archive_{$datatable->entityType}") . '</a></li>';
+                if (! $model->deleted_at || $model->deleted_at == '0000-00-00') {
+                    if (($datatable->entityType != ENTITY_USER || $model->public_id) && $can_edit) {
+                        $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('archive', {$model->public_id})\">"
+                                . mtrans($datatable->entityType, "archive_{$datatable->entityType}") . '</a></li>';
+                    }
                 }
-            } else if($can_edit) {
-                $dropdown_contents .= "<li><a href=\"javascript:restoreEntity({$model->public_id})\">"
-                    . trans("texts.restore_{$datatable->entityType}") . '</a></li>';
             }
 
-            if (property_exists($model, 'is_deleted') && !$model->is_deleted && $can_edit) {
-                $dropdown_contents .= "<li><a href=\"javascript:deleteEntity({$model->public_id})\">"
-                        . trans("texts.delete_{$datatable->entityType}") . '</a></li>';
+            if ($model->deleted_at && $model->deleted_at != '0000-00-00' && $can_edit) {
+                $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('restore', {$model->public_id})\">"
+                    . mtrans($datatable->entityType, "restore_{$datatable->entityType}") . '</a></li>';
             }
 
-            if (!empty($dropdown_contents)) {
+            if (property_exists($model, 'is_deleted') && ! $model->is_deleted && $can_edit) {
+                $dropdown_contents .= "<li><a href=\"javascript:submitForm_{$datatable->entityType}('delete', {$model->public_id})\">"
+                        . mtrans($datatable->entityType, "delete_{$datatable->entityType}") . '</a></li>';
+            }
+
+            if (! empty($dropdown_contents)) {
                 $str .= '<div class="btn-group tr-action" style="height:auto;display:none">
                     <button type="button" class="btn btn-xs btn-default dropdown-toggle" data-toggle="dropdown" style="width:100px">
                         '.trans('texts.select').' <span class="caret"></span>

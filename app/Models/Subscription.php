@@ -1,10 +1,12 @@
-<?php namespace App\Models;
+<?php
 
-use Illuminate\Database\Eloquent\SoftDeletes;
+namespace App\Models;
+
 use Eloquent;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class Subscription
+ * Class Subscription.
  */
 class Subscription extends Eloquent
 {

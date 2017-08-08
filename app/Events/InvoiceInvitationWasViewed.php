@@ -1,15 +1,17 @@
-<?php namespace App\Events;
+<?php
+
+namespace App\Events;
 
 use App\Models\Invitation;
 use App\Models\Invoice;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * Class InvoiceInvitationWasViewed
+ * Class InvoiceInvitationWasViewed.
  */
-class InvoiceInvitationWasViewed extends Event {
-
-	use SerializesModels;
+class InvoiceInvitationWasViewed extends Event
+{
+    use SerializesModels;
 
     /**
      * @var Invoice
@@ -24,7 +26,7 @@ class InvoiceInvitationWasViewed extends Event {
     /**
      * Create a new event instance.
      *
-     * @param Invoice $invoice
+     * @param Invoice    $invoice
      * @param Invitation $invitation
      */
     public function __construct(Invoice $invoice, Invitation $invitation)

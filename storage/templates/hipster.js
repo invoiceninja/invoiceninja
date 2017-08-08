@@ -74,6 +74,7 @@
 	},
     {
 		"margin": [0, 26, 0, 0],
+	"style": "invoiceLineItemsTable",
         "table": {
             "headerRows": 1,
             "widths": "$invoiceLineItemColumns",
@@ -140,11 +141,11 @@
         "clientName": {
             "bold": true
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest",
             "bold": true
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
             "color": "$primaryColor:#bc9f2b",
             "bold": true

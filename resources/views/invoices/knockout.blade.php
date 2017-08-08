@@ -13,6 +13,10 @@ function ViewModel(data) {
         ko.mapping.fromJS(client, model.invoice().client().mapping, model.invoice().client);
         @if (!$invoice->id)
             self.setDueDate();
+            // copy default note from the client to the invoice
+            if (client.public_notes) {
+                model.invoice().public_notes(client.public_notes);
+            }
         @endif
     }
 
@@ -28,11 +32,22 @@ function ViewModel(data) {
                 if (paymentTerms == -1) paymentTerms = 0;
                 var dueDate = $('#invoice_date').datepicker('getDate');
                 dueDate.setDate(dueDate.getDate() + paymentTerms);
-                self.invoice().due_date(dueDate);
-                // We're using the datepicker to handle the date formatting
-                self.invoice().due_date($('#due_date').val());
+                dueDate = moment(dueDate).format("{{ $account->getMomentDateFormat() }}");
+                $('#due_date').attr('placeholder', dueDate);
+            } else {
+                $('#due_date').attr('placeholder', "{{ $invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder() }}");
             }
         @endif
+    }
+
+    self.clearBlankContacts = function() {
+        var client = self.invoice().client();
+        var contacts = client.contacts();
+        $(contacts).each(function(index, contact) {
+            if (index > 0 && contact.isBlank()) {
+                client.contacts.remove(contact);
+            }
+        });
     }
 
     self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
@@ -60,7 +75,7 @@ function ViewModel(data) {
     });
 
     self.invoice_item_taxes.show = ko.computed(function() {
-        if (self.invoice_item_taxes()) {
+        if (self.invoice_item_taxes() && {{ count($taxRateOptions) ? 'true' : 'false' }}) {
             return true;
         }
         for (var i=0; i<self.invoice().invoice_items().length; i++) {
@@ -96,20 +111,13 @@ function ViewModel(data) {
             name = email;
         }
 
-        var isValid = true;
-        $('input.client-email').each(function(item, value) {
-            var $email = $(value);
-            var email = $(value).val();
-
-            // Trim whitespace
-            email = (email || '').trim();
-            $email.val(email);
-
-            if (!firstName && (!email || !isValidEmailAddress(email))) {
-                isValid = false;
+        var isValid = name ? true : false;
+        var contacts = self.invoice().client().contacts();
+        $(contacts).each(function(item, value) {
+            if (value.isValid()) {
+                isValid = true;
             }
         });
-
         if (!isValid) {
             $('#emailError').css( "display", "inline" );
             return;
@@ -122,6 +130,8 @@ function ViewModel(data) {
         }
 
         model.setDueDate();
+        model.clearBlankContacts();
+
         setComboboxValue($('.client_select'), -1, name);
 
         var client = $.parseJSON(ko.toJSON(self.invoice().client()));
@@ -155,25 +165,50 @@ function ViewModel(data) {
             }
         }
     });
+
+    self.hasTasksCached = false;
+    self.hasTasks = ko.computed(function() {
+        if (self.hasTasksCached) {
+            return true;
+        }
+        invoice = self.invoice();
+        for (var i=0; i<invoice.invoice_items_with_tasks().length; ++i) {
+            var item = invoice.invoice_items()[i];
+            if (! item.isEmpty()) {
+                self.hasTasksCached = true;
+                return true;
+            }
+        }
+        return false;
+    });
 }
 
 function InvoiceModel(data) {
+    if (data) {
+        var clientModel = false;
+    } else {
+        var clientModel = new ClientModel();
+        clientModel.id_number("{{ $account->getNextNumber() }}");
+    }
+
     var self = this;
-    this.client = ko.observable(data ? false : new ClientModel());
+    this.client = ko.observable(clientModel);
+    this.is_public = ko.observable(0);
     self.account = {!! $account !!};
     self.id = ko.observable('');
     self.discount = ko.observable('');
     self.is_amount_discount = ko.observable(0);
-    self.frequency_id = ko.observable(4); // default to monthly
+    self.frequency_id = ko.observable({{ FREQUENCY_MONTHLY }});
     self.terms = ko.observable('');
     self.default_terms = ko.observable(account.{{ $entityType }}_terms);
-    self.terms_placeholder = ko.observable({{ !$invoice->id && $account->{"{$entityType}_terms"} ? "account.{$entityType}_terms" : false}});
+    self.terms_placeholder = ko.observable({{ (!$invoice->id || $invoice->is_recurring) && $account->{"{$entityType}_terms"} ? "account.{$entityType}_terms" : false}});
     self.set_default_terms = ko.observable(false);
     self.invoice_footer = ko.observable('');
     self.default_footer = ko.observable(account.invoice_footer);
-    self.footer_placeholder = ko.observable({{ !$invoice->id && $account->invoice_footer ? 'account.invoice_footer' : false}});
+    self.footer_placeholder = ko.observable({{ (!$invoice->id || $invoice->is_recurring) && $account->invoice_footer ? 'account.invoice_footer' : false}});
     self.set_default_footer = ko.observable(false);
     self.public_notes = ko.observable('');
+    self.private_notes = ko.observable('');
     self.po_number = ko.observable('');
     self.invoice_date = ko.observable('');
     self.invoice_number = ko.observable('');
@@ -185,14 +220,15 @@ function InvoiceModel(data) {
     self.last_sent_date = ko.observable('');
     self.tax_name1 = ko.observable();
     self.tax_rate1 = ko.observable();
+    self.tax_rate1IsInclusive = ko.observable(0);
     self.tax_name2 = ko.observable();
     self.tax_rate2 = ko.observable();
+    self.tax_rate2IsInclusive = ko.observable(0);
     self.is_recurring = ko.observable(0);
     self.is_quote = ko.observable({{ $entityType == ENTITY_QUOTE ? '1' : '0' }});
     self.auto_bill = ko.observable(0);
     self.client_enable_auto_bill = ko.observable(false);
     self.invoice_status_id = ko.observable(0);
-    self.invoice_items = ko.observableArray();
     self.documents = ko.observableArray();
     self.expenses = ko.observableArray();
     self.amount = ko.observable(0);
@@ -209,15 +245,31 @@ function InvoiceModel(data) {
     self.custom_text_value1 = ko.observable();
     self.custom_text_value2 = ko.observable();
 
+    self.invoice_items_with_tasks = ko.observableArray();
+    self.invoice_items_without_tasks = ko.observableArray();
+    self.invoice_items = ko.computed({
+        read: function () {
+            return self.invoice_items_with_tasks().concat(self.invoice_items_without_tasks());
+        },
+        write: function(data) {
+            self.invoice_items_with_tasks.removeAll();
+            self.invoice_items_without_tasks.removeAll();
+            for (var i=0; i<data.length; i++) {
+                var item = new ItemModel(data[i]);
+                if (item.isTask()) {
+                    self.invoice_items_with_tasks.push(item);
+                } else {
+                    self.invoice_items_without_tasks.push(item);
+                }
+            }
+        },
+        owner: this
+    })
+
     self.mapping = {
         'client': {
             create: function(options) {
                 return new ClientModel(options.data);
-            }
-        },
-        'invoice_items': {
-            create: function(options) {
-                return new ItemModel(options.data);
             }
         },
         'documents': {
@@ -232,12 +284,20 @@ function InvoiceModel(data) {
         },
     }
 
-    self.addItem = function() {
+    self.addItem = function(isTask) {
+        if (self.invoice_items().length >= {{ MAX_INVOICE_ITEMS }}) {
+            return false;
+        }
         var itemModel = new ItemModel();
         @if ($account->hide_quantity)
             itemModel.qty(1);
         @endif
-        self.invoice_items.push(itemModel);
+        if (isTask) {
+            itemModel.invoice_item_type_id({{ INVOICE_ITEM_TYPE_TASK }});
+            self.invoice_items_with_tasks.push(itemModel);
+        } else {
+            self.invoice_items_without_tasks.push(itemModel);
+        }
         applyComboboxListeners();
         return itemModel;
     }
@@ -249,7 +309,10 @@ function InvoiceModel(data) {
     }
 
     self.removeDocument = function(doc) {
-         var public_id = doc.public_id?doc.public_id():doc;
+         var public_id = doc && doc.public_id ? doc.public_id() : doc;
+         if (! public_id) {
+             return;
+         }
          self.documents.remove(function(document) {
             return document.public_id() == public_id;
         });
@@ -261,74 +324,36 @@ function InvoiceModel(data) {
         self.addItem();
     }
 
-    self.qtyLabel = ko.computed(function() {
-        return self.has_tasks() ? invoiceLabels['hours'] : invoiceLabels['quantity'];
-    }, this);
-
-    self.costLabel = ko.computed(function() {
-        return self.has_tasks() ? invoiceLabels['rate'] : invoiceLabels['unit_cost'];
-    }, this);
-
     this.tax1 = ko.computed({
         read: function () {
-            return self.tax_rate1() + ' ' + self.tax_name1();
+            return self.tax_rate1IsInclusive() + ' ' + self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
-            var rate = value.substr(0, value.indexOf(' '));
-            var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name1(name);
-            self.tax_rate1(rate);
+            var parts = value.split(' ');
+            self.tax_rate1IsInclusive(parts.shift());
+            self.tax_rate1(parts.shift());
+            self.tax_name1(parts.join(' '));
         }
     })
 
     this.tax2 = ko.computed({
         read: function () {
-            return self.tax_rate2() + ' ' + self.tax_name2();
+            return self.tax_rate2IsInclusive() + ' ' + self.tax_rate2() + ' ' + self.tax_name2();
         },
         write: function(value) {
-            var rate = value.substr(0, value.indexOf(' '));
-            var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name2(name);
-            self.tax_rate2(rate);
+            var parts = value.split(' ');
+            self.tax_rate2IsInclusive(parts.shift());
+            self.tax_rate2(parts.shift());
+            self.tax_name2(parts.join(' '));
         }
     })
 
-    self.wrapped_terms = ko.computed({
-        read: function() {
-            return this.terms();
-        },
-        write: function(value) {
-            value = wordWrapText(value, 300);
-            self.terms(value);
-        },
-        owner: this
-    });
-
-
-    self.wrapped_notes = ko.computed({
-        read: function() {
-            return this.public_notes();
-        },
-        write: function(value) {
-            value = wordWrapText(value, 300);
-            self.public_notes(value);
-        },
-        owner: this
-    });
-
-    self.wrapped_footer = ko.computed({
-        read: function() {
-            return this.invoice_footer();
-        },
-        write: function(value) {
-            value = wordWrapText(value, 600);
-            self.invoice_footer(value);
-        },
-        owner: this
-    });
-
     self.removeItem = function(item) {
-        self.invoice_items.remove(item);
+        if (item.isTask()) {
+            self.invoice_items_with_tasks.remove(item);
+        } else {
+            self.invoice_items_without_tasks.remove(item);
+        }
         refreshPDF(true);
     }
 
@@ -344,6 +369,7 @@ function InvoiceModel(data) {
         for(var p=0; p < self.invoice_items().length; ++p) {
             var item = self.invoice_items()[p];
             total += item.totals.rawTotal();
+            total = roundToTwo(total);
         }
         return total;
     });
@@ -487,8 +513,9 @@ function InvoiceModel(data) {
             total = NINJA.parseFloat(total) + customValue2;
         }
 
-        var taxAmount1 = roundToTwo(total * (parseFloat(self.tax_rate1())/100));
-        var taxAmount2 = roundToTwo(total * (parseFloat(self.tax_rate2())/100));
+        var taxAmount1 = roundToTwo(total * parseFloat(self.tax_rate1()) / 100);
+        var taxAmount2 = roundToTwo(total * parseFloat(self.tax_rate2()) / 100);
+
         total = NINJA.parseFloat(total) + taxAmount1 + taxAmount2;
         total = roundToTwo(total);
 
@@ -533,6 +560,37 @@ function InvoiceModel(data) {
 
     self.showResetFooter = function() {
         return self.default_footer() && self.invoice_footer() != self.default_footer();
+    }
+
+    self.applyInclusivTax = function(taxRate) {
+        for (var i=0; i<self.invoice_items().length; i++) {
+            var item = self.invoice_items()[i];
+            item.applyInclusivTax(taxRate);
+        }
+    }
+
+    self.onTax1Change = function(obj, event) {
+        if ( ! event.originalEvent) {
+            return;
+        }
+        var taxKey = $(event.currentTarget).val();
+        var taxRate = parseFloat(self.tax_rate1());
+        if (taxKey.substr(0, 1) != 1) {
+            return;
+        }
+        self.applyInclusivTax(taxRate);
+    }
+
+    self.onTax2Change = function(obj, event) {
+        if ( ! event.originalEvent) {
+            return;
+        }
+        var taxKey = $(event.currentTarget).val();
+        var taxRate = parseFloat(self.tax_rate2());
+        if (taxKey.substr(0, 1) != 1) {
+            return;
+        }
+        self.applyInclusivTax(taxRate);
     }
 }
 
@@ -627,21 +685,33 @@ function ContactModel(data) {
     self.invitation_openend = ko.observable(false);
     self.invitation_viewed = ko.observable(false);
     self.email_error = ko.observable('');
+    self.invitation_signature_svg = ko.observable('');
+    self.invitation_signature_date = ko.observable('');
+    self.custom_value1 = ko.observable('');
+    self.custom_value2 = ko.observable('');
 
     if (data) {
         ko.mapping.fromJS(data, {}, this);
     }
 
+    self.isBlank = ko.computed(function() {
+        return ! self.first_name() && ! self.last_name() && ! self.email() && ! self.phone();
+    });
+
     self.displayName = ko.computed(function() {
         var str = '';
         if (self.first_name() || self.last_name()) {
-            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + '\n';
+            str += (self.first_name() || '') + ' ' + (self.last_name() || '') + ' ';
         }
         if (self.email()) {
-            str += self.email() + '\n';
+            if (str) {
+                str += '&lt;' + self.email() + '&gt;';
+            } else {
+                str += self.email();
+            }
         }
 
-        return str;
+        return str + '<br/>';
     });
 
     self.email.display = ko.computed(function() {
@@ -660,7 +730,9 @@ function ContactModel(data) {
         var str = '';
         @if (Utils::isConfirmed())
         if (self.invitation_link()) {
-            str += '<a href="' + self.invitation_link() + '" target="_blank">{{ trans('texts.view_as_recipient') }}</a>';
+            // clicking adds 'silent=true' however it's removed when copying the link
+            str += '<a href="' + self.invitation_link() + '" onclick="window.open(\'' + self.invitation_link()
+                    + '?silent=true\', \'_blank\');return false;">{{ trans('texts.view_as_recipient') }}</a>';
         }
         @endif
 
@@ -676,6 +748,18 @@ function ContactModel(data) {
             return '#B1B5BA';
         }
     });
+
+    self.isValid = function() {
+        var email = (self.email() || '').trim();
+        var emailValid = isValidEmailAddress(email);
+
+        // if the email is set it must be valid
+        if (email && ! emailValid) {
+            return false;
+        } else {
+            return self.first_name() || email;
+        }
+    }
 }
 
 function ItemModel(data) {
@@ -688,33 +772,40 @@ function ItemModel(data) {
     self.custom_value2 = ko.observable('');
     self.tax_name1 = ko.observable('');
     self.tax_rate1 = ko.observable(0);
+    self.tax_rate1IsInclusive = ko.observable(0);
     self.tax_name2 = ko.observable('');
     self.tax_rate2 = ko.observable(0);
+    self.tax_rate2IsInclusive = ko.observable(0);
     self.task_public_id = ko.observable('');
     self.expense_public_id = ko.observable('');
+    self.invoice_item_type_id = ko.observable({{ INVOICE_ITEM_TYPE_STANDARD }});
     self.actionsVisible = ko.observable(false);
+
+    self.isTask = ko.computed(function() {
+        return self.invoice_item_type_id() == {{ INVOICE_ITEM_TYPE_TASK }};
+    });
 
     this.tax1 = ko.computed({
         read: function () {
-            return self.tax_rate1() + ' ' + self.tax_name1();
+            return self.tax_rate1IsInclusive() + ' ' + self.tax_rate1() + ' ' + self.tax_name1();
         },
         write: function(value) {
-            var rate = value.substr(0, value.indexOf(' '));
-            var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name1(name);
-            self.tax_rate1(rate);
+            var parts = value.split(' ');
+            self.tax_rate1IsInclusive(parts.shift());
+            self.tax_rate1(parts.shift());
+            self.tax_name1(parts.join(' '));
         }
     })
 
     this.tax2 = ko.computed({
         read: function () {
-            return self.tax_rate2() + ' ' + self.tax_name2();
+            return self.tax_rate2IsInclusive() + ' ' + self.tax_rate2() + ' ' + self.tax_name2();
         },
         write: function(value) {
-            var rate = value.substr(0, value.indexOf(' '));
-            var name = value.substr(value.indexOf(' ') + 1);
-            self.tax_name2(name);
-            self.tax_rate2(rate);
+            var parts = value.split(' ');
+            self.tax_rate2IsInclusive(parts.shift());
+            self.tax_rate2(parts.shift());
+            self.tax_name2(parts.join(' '));
         }
     })
 
@@ -741,18 +832,6 @@ function ItemModel(data) {
     if (data) {
         ko.mapping.fromJS(data, {}, this);
     }
-
-    self.wrapped_notes = ko.computed({
-        read: function() {
-            return this.notes();
-        },
-        write: function(value) {
-            value = wordWrapText(value, 235);
-            self.notes(value);
-            onItemChange();
-        },
-        owner: this
-    });
 
     this.totals = ko.observable();
 
@@ -781,6 +860,34 @@ function ItemModel(data) {
     }
 
     this.onSelect = function() {}
+
+    self.applyInclusivTax = function(taxRate) {
+        if ( ! taxRate) {
+            return;
+        }
+        var cost = self.cost() / (100 + taxRate) * 100;
+        self.cost(roundToTwo(cost));
+    }
+
+    self.onTax1Change = function (obj, event) {
+        if (event.originalEvent) {
+            var taxKey = $(event.currentTarget).val();
+            var taxRate = parseFloat(self.tax_rate1());
+            if (taxKey.substr(0, 1) == 1) {
+                self.applyInclusivTax(taxRate);
+            }
+        }
+    }
+
+    self.onTax2Change = function (obj, event) {
+        if (event.originalEvent) {
+            var taxKey = $(event.currentTarget).val();
+            var taxRate = parseFloat(self.tax_rate2());
+            if (taxKey.substr(0, 1) == 1) {
+                self.applyInclusivTax(taxRate);
+            }
+        }
+    }
 }
 
 function DocumentModel(data) {
@@ -854,6 +961,13 @@ ko.bindingHandlers.productTypeahead = {
             name: 'data',
             display: allBindings.key,
             limit: 50,
+            templates: {
+                suggestion: function(item) { return '<div title="'
+                    + item.product_key + ': '
+                    + item.cost + "\n"
+                    + item.notes.substring(0, 60) + '">'
+                    + item.product_key + '</div>' }
+            },
             source: searchData(allBindings.items, allBindings.key)
         }).on('typeahead:select', function(element, datum, name) {
             @if (Auth::user()->account->fill_products)
@@ -861,7 +975,7 @@ ko.bindingHandlers.productTypeahead = {
                 if (model.expense_public_id()) {
                     return;
                 }
-                if (datum.notes) {
+                if (datum.notes && (!model.notes() || !model.task_public_id())) {
                     model.notes(datum.notes);
                 }
                 if (datum.cost) {
@@ -871,10 +985,23 @@ ko.bindingHandlers.productTypeahead = {
                     model.qty(1);
                 }
                 @if ($account->invoice_item_taxes)
-                    if (datum.default_tax_rate) {
-                        model.tax_rate1(datum.default_tax_rate.rate);
-                        model.tax_name1(datum.default_tax_rate.name);
-                        model.tax1(datum.default_tax_rate.rate + ' ' + datum.default_tax_rate.name);
+                    if (datum.tax_name1) {
+                        var $select = $(this).parentsUntil('tbody').find('select').first();
+                        $select.val('0 ' + datum.tax_rate1 + ' ' + datum.tax_name1).trigger('change');
+                    }
+                    if (datum.tax_name2) {
+                        var $select = $(this).parentsUntil('tbody').find('select').last();
+                        $select.val('0 ' + datum.tax_rate2 + ' ' + datum.tax_name2).trigger('change');
+                    }
+                @endif
+                @if (Auth::user()->isPro() && $account->custom_invoice_item_label1)
+                    if (datum.custom_value1) {
+                        model.custom_value1(datum.custom_value1);
+                    }
+                @endif
+                @if (Auth::user()->isPro() && $account->custom_invoice_item_label2)
+                    if (datum.custom_value2) {
+                        model.custom_value2(datum.custom_value2);
                     }
                 @endif
             @endif
@@ -894,5 +1021,26 @@ ko.bindingHandlers.productTypeahead = {
         }
     }
 };
+
+function checkInvoiceNumber() {
+    var url = '{{ url('check_invoice_number') }}/{{ $invoice->id ? $invoice->public_id : '' }}?invoice_number=' + encodeURIComponent($('#invoice_number').val());
+    $.get(url, function(data) {
+        var isValid = data == '{{ RESULT_SUCCESS }}' ? true : false;
+        if (isValid) {
+            $('.invoice-number')
+                .removeClass('has-error')
+                .find('span')
+                .hide();
+        } else {
+            if ($('.invoice-number').hasClass('has-error')) {
+                return;
+            }
+            $('.invoice-number')
+                .addClass('has-error')
+                .find('div')
+                .append('<span class="help-block">{{ trans('validation.unique', ['attribute' => trans('texts.invoice_number')]) }}</span>');
+        }
+    });
+}
 
 </script>

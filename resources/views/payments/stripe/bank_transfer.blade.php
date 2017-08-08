@@ -220,7 +220,8 @@
 
     {!! Former::checkbox('authorize_ach')
             ->text(trans('texts.ach_authorization', ['company'=>$account->getDisplayName(), 'email' => $account->work_email]))
-            ->label(' ') !!}
+            ->label(' ')
+            ->value(1) !!}
 
 
     <div class="col-md-12">
@@ -231,13 +232,15 @@
 
     <div class="col-md-8 col-md-offset-4">
 
+        {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+        &nbsp;&nbsp;
         {!! Button::success(strtoupper(trans('texts.add_account')))
                         ->submit()
                         ->withAttributes(['id'=>'add_account_button'])
                         ->large() !!}
 
         @if ($accountGateway->getPlaidEnabled() && !empty($amount))
-            {!! Button::success(strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, true)  ))
+            {!! Button::success(request()->update ? strtoupper(trans('texts.submit')) : strtoupper(trans('texts.pay_now') . ' - ' . $account->formatMoney($amount, $client, CURRENCY_DECORATOR_CODE)  ))
                         ->submit()
                         ->withAttributes(['style'=>'display:none', 'id'=>'pay_now_button'])
                         ->large() !!}

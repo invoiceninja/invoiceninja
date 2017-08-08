@@ -36,14 +36,14 @@ class QuoteCest
         $I->fillField(['name' => 'cost'], $this->faker->numberBetween(1, 20));
         $I->click('Save');
         $I->wait(1);
-        $I->see($productKey);
+        //$I->see($productKey);
 
         // create quote
         $I->amOnPage('/quotes/create');
         $I->selectDropdown($I, $clientEmail, '.client_select .dropdown-toggle');
         $I->fillField('table.invoice-table tbody tr:nth-child(1) #product_key', $productKey);
         $I->click('table.invoice-table tbody tr:nth-child(1) .tt-selectable');
-        $I->click('Save');
+        $I->click('Mark Sent');
         $I->see($clientEmail);
 
         // enter payment
@@ -55,8 +55,8 @@ class QuoteCest
         $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
             $I->amOnPage('/view/' . $invitationKey);
             $I->click('Approve');
-            $I->see('This quote is approved');
+            $I->see('The quote has been approved');
         });
-        
+
     }
 }

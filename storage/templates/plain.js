@@ -148,16 +148,19 @@
             "bold": true,
             "margin": [0, 0, 0, 4]
         },
+        "terms": {
+            "margin": [0, 0, 20, 0]
+        },
         "invoiceDetailBalanceDueLabel": {
             "fillColor": "#e6e6e6"
         },
         "invoiceDetailBalanceDue": {
             "fillColor": "#e6e6e6"
         },
-        "balanceDueLabel": {
+        "subtotalsBalanceDueLabel": {
             "fillColor": "#e6e6e6"
         },
-        "balanceDue": {
+        "subtotalsBalanceDue": {
             "fillColor": "#e6e6e6"
         },
         "header": {

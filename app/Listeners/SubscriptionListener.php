@@ -1,23 +1,29 @@
-<?php namespace App\Listeners;
+<?php
 
-use Utils;
-use App\Models\EntityModel;
+namespace App\Listeners;
+
 use App\Events\ClientWasCreated;
-use App\Events\QuoteWasCreated;
-use App\Events\InvoiceWasCreated;
 use App\Events\CreditWasCreated;
-use App\Events\PaymentWasCreated;
-use App\Events\VendorWasCreated;
 use App\Events\ExpenseWasCreated;
-use App\Ninja\Transformers\InvoiceTransformer;
+use App\Events\QuoteItemsWereCreated;
+use App\Events\QuoteItemsWereUpdated;
+use App\Events\InvoiceWasDeleted;
+use App\Events\PaymentWasCreated;
+use App\Events\InvoiceItemsWereCreated;
+use App\Events\InvoiceItemsWereUpdated;
+use App\Events\QuoteWasDeleted;
+use App\Events\VendorWasCreated;
+use App\Models\EntityModel;
+use App\Ninja\Serializers\ArraySerializer;
 use App\Ninja\Transformers\ClientTransformer;
+use App\Ninja\Transformers\InvoiceTransformer;
 use App\Ninja\Transformers\PaymentTransformer;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Item;
-use App\Ninja\Serializers\ArraySerializer;
+use Utils;
 
 /**
- * Class SubscriptionListener
+ * Class SubscriptionListener.
  */
 class SubscriptionListener
 {
@@ -31,15 +37,6 @@ class SubscriptionListener
     }
 
     /**
-     * @param QuoteWasCreated $event
-     */
-    public function createdQuote(QuoteWasCreated $event)
-    {
-        $transformer = new InvoiceTransformer($event->quote->account);
-        $this->checkSubscriptions(EVENT_CREATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
-    }
-
-    /**
      * @param PaymentWasCreated $event
      */
     public function createdPayment(PaymentWasCreated $event)
@@ -49,20 +46,10 @@ class SubscriptionListener
     }
 
     /**
-     * @param InvoiceWasCreated $event
-     */
-    public function createdInvoice(InvoiceWasCreated $event)
-    {
-        $transformer = new InvoiceTransformer($event->invoice->account);
-        $this->checkSubscriptions(EVENT_CREATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
-    }
-
-    /**
      * @param CreditWasCreated $event
      */
     public function createdCredit(CreditWasCreated $event)
     {
-
     }
 
     /**
@@ -70,7 +57,6 @@ class SubscriptionListener
      */
     public function createdVendor(VendorWasCreated $event)
     {
-
     }
 
     /**
@@ -78,7 +64,60 @@ class SubscriptionListener
      */
     public function createdExpense(ExpenseWasCreated $event)
     {
+    }
 
+    /**
+     * @param InvoiceWasCreated $event
+     */
+    public function createdInvoice(InvoiceItemsWereCreated $event)
+    {
+        $transformer = new InvoiceTransformer($event->invoice->account);
+        $this->checkSubscriptions(EVENT_CREATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param InvoiceWasUpdated $event
+     */
+    public function updatedInvoice(InvoiceItemsWereUpdated $event)
+    {
+        $transformer = new InvoiceTransformer($event->invoice->account);
+        $this->checkSubscriptions(EVENT_UPDATE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param QuoteWasCreated $event
+     */
+    public function createdQuote(QuoteItemsWereCreated $event)
+    {
+        $transformer = new InvoiceTransformer($event->quote->account);
+        $this->checkSubscriptions(EVENT_CREATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param QuoteWasUpdated $event
+     */
+    public function updatedQuote(QuoteItemsWereUpdated $event)
+    {
+        $transformer = new InvoiceTransformer($event->quote->account);
+        $this->checkSubscriptions(EVENT_UPDATE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param InvoiceWasDeleted $event
+     */
+    public function deletedInvoice(InvoiceWasDeleted $event)
+    {
+        $transformer = new InvoiceTransformer($event->invoice->account);
+        $this->checkSubscriptions(EVENT_DELETE_INVOICE, $event->invoice, $transformer, ENTITY_CLIENT);
+    }
+
+    /**
+     * @param InvoiceWasDeleted $event
+     */
+    public function deletedQuote(QuoteWasDeleted $event)
+    {
+        $transformer = new InvoiceTransformer($event->quote->account);
+        $this->checkSubscriptions(EVENT_DELETE_QUOTE, $event->quote, $transformer, ENTITY_CLIENT);
     }
 
     /**
@@ -89,7 +128,7 @@ class SubscriptionListener
      */
     private function checkSubscriptions($eventId, $entity, $transformer, $include = '')
     {
-        if ( ! EntityModel::$notifySubscriptions) {
+        if (! EntityModel::$notifySubscriptions) {
             return;
         }
 

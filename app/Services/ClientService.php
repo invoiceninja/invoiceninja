@@ -1,12 +1,14 @@
-<?php namespace App\Services;
+<?php
 
-use Auth;
+namespace App\Services;
+
+use App\Ninja\Datatables\ClientDatatable;
 use App\Ninja\Repositories\ClientRepository;
 use App\Ninja\Repositories\NinjaRepository;
-use App\Ninja\Datatables\ClientDatatable;
+use Auth;
 
 /**
- * Class ClientService
+ * Class ClientService.
  */
 class ClientService extends BaseService
 {
@@ -22,9 +24,10 @@ class ClientService extends BaseService
 
     /**
      * ClientService constructor.
+     *
      * @param ClientRepository $clientRepo
      * @param DatatableService $datatableService
-     * @param NinjaRepository $ninjaRepo
+     * @param NinjaRepository  $ninjaRepo
      */
     public function __construct(ClientRepository $clientRepo, DatatableService $datatableService, NinjaRepository $ninjaRepo)
     {
@@ -44,6 +47,7 @@ class ClientService extends BaseService
     /**
      * @param $data
      * @param null $client
+     *
      * @return mixed|null
      */
     public function save($data, $client = null)
@@ -58,6 +62,7 @@ class ClientService extends BaseService
     /**
      * @param $search
      * @param $userId
+     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function getDatatable($search, $userId)
