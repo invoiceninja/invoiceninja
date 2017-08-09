@@ -233,7 +233,7 @@ class InvoicePresenter extends EntityPresenter
                 $actions[] = ['url' => url("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (!$invoice->deleted_at && ! $invoice->is_recurring && $invoice->balance != 0) {
+            if ($invoice->canBePaid()) {
                 $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }
