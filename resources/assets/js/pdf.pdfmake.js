@@ -514,10 +514,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         }
 
         if (showItemTaxes) {
-            if (item.tax_name1) {
+            if (parseFloat(item.tax_rate1) != 0) {
                 tax1 = parseFloat(item.tax_rate1);
             }
-            if (item.tax_name2) {
+            if (parseFloat(item.tax_rate2) != 0) {
                 tax2 = parseFloat(item.tax_rate2);
             }
         }
@@ -675,11 +675,11 @@ NINJA.subtotals = function(invoice, hideBalance)
         }
     }
 
-    if (invoice.tax_name1) {
+    if (parseFloat(invoice.tax_rate1) != 0) {
         var taxStr = invoice.tax_name1 + ' ' + (invoice.tax_rate1*1).toString() + '%';
         data.push([{text: taxStr, style: ['subtotalsLabel', 'tax1Label']}, {text: formatMoneyInvoice(invoice.tax_amount1, invoice), style: ['subtotals', 'tax1']}]);
     }
-    if (invoice.tax_name2) {
+    if (parseFloat(invoice.tax_rate2) != 0) {
         var taxStr = invoice.tax_name2 + ' ' + (invoice.tax_rate2*1).toString() + '%';
         data.push([{text: taxStr, style: ['subtotalsLabel', 'tax2Label']}, {text: formatMoneyInvoice(invoice.tax_amount2, invoice), style: ['subtotals', 'tax2']}]);
     }
