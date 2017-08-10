@@ -54,8 +54,18 @@ class InvoiceCest
         $I->see($invoiceNumber);
         $I->see('199.01');
 
+        for ($i=1; $i<=10; $i++) {
+            $this->updateDesign($I, $i);
+        }
+
         $I->amOnPage("/clients/{$clientId}#invoices");
         $I->see('199.01');
+    }
+
+    private function updateDesign($I, $designId)
+    {
+        $I->selectOption('#invoice_design_id', $designId);
+        $I->click('#saveButton');
     }
 
     /*

@@ -166,7 +166,7 @@ class CheckData extends Command
             //$this->logMessage('Result: ' . $result);
 
             if ($result && $result != $invoice->balance) {
-                $this->logMessage("PHP/JS amounts do not match {$link} - PHP: {$invoice->balance}, JS: {$result}");
+                $this->logMessage("PHP/JS amounts do not match {$link}?silent=true | PHP: {$invoice->balance}, JS: {$result}");
                 $this->isValid = $isValid = false;
             }
         }
