@@ -764,10 +764,10 @@ function calculateAmounts(invoice) {
 
   taxRate1 = 0;
   taxRate2 = 0;
-  if (parseFloat(invoice.tax_rate1) != 0) {
+  if (parseFloat(invoice.tax_rate1 || 0) != 0) {
     taxRate1 = parseFloat(invoice.tax_rate1);
   }
-  if (parseFloat(invoice.tax_rate2) != 0) {
+  if (parseFloat(invoice.tax_rate2 || 0) != 0) {
     taxRate2 = parseFloat(invoice.tax_rate2);
   }
   taxAmount1 = roundToTwo(total * taxRate1 / 100);
