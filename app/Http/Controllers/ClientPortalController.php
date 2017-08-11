@@ -68,7 +68,10 @@ class ClientPortalController extends BaseController
         }
 
         $account->loadLocalizationSettings($client);
-        $this->invoiceRepo->clearGatewayFee($invoice);
+
+        if (! Input::has('phantomjs')) {
+            $this->invoiceRepo->clearGatewayFee($invoice);
+        }
 
         if (! Input::has('phantomjs') && ! session('silent:' . $client->id) && ! Session::has($invitation->invitation_key)
             && (! Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
