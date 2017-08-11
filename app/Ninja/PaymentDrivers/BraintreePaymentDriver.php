@@ -5,6 +5,7 @@ namespace App\Ninja\PaymentDrivers;
 use Braintree\Customer;
 use Exception;
 use Session;
+use Utils;
 use App\Models\GatewayType;
 
 class BraintreePaymentDriver extends BasePaymentDriver
@@ -98,14 +99,16 @@ class BraintreePaymentDriver extends BasePaymentDriver
 
     public function createToken()
     {
+        $data = $this->paymentDetails();
+
         if ($customer = $this->customer()) {
             $customerReference = $customer->token;
         } else {
-            $data = $this->paymentDetails();
             $tokenResponse = $this->gateway()->createCustomer(['customerData' => $this->customerData()])->send();
             if ($tokenResponse->isSuccessful()) {
                 $customerReference = $tokenResponse->getCustomerData()->id;
             } else {
+                Utils::logError($tokenResponse->getMessage());
                 return false;
             }
         }
@@ -121,6 +124,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             if ($tokenResponse->isSuccessful()) {
                 $this->tokenResponse = $tokenResponse->getData()->paymentMethod;
             } else {
+                Utils::logError($tokenResponse->getMessage());
                 return false;
             }
         }
