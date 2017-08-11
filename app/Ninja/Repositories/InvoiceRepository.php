@@ -327,7 +327,7 @@ class InvoiceRepository extends BaseRepository
         return $table->addColumn('due_date', function ($model) {
             return Utils::fromSqlDate($model->due_date);
         })
-        ->addColumn('status', function ($model) use ($entityType) {
+        ->addColumn('invoice_status_id', function ($model) use ($entityType) {
             if ($model->invoice_status_id == INVOICE_STATUS_PAID) {
                 $label = trans('texts.status_paid');
                 $class = 'success';
