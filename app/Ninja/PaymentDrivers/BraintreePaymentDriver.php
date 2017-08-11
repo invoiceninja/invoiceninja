@@ -108,7 +108,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             if ($tokenResponse->isSuccessful()) {
                 $customerReference = $tokenResponse->getCustomerData()->id;
             } else {
-                Utils::logError($tokenResponse->getMessage());
+                Utils::logError('Failed to create Braintree customer: ' . $tokenResponse->getMessage());
                 return false;
             }
         }
@@ -124,7 +124,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             if ($tokenResponse->isSuccessful()) {
                 $this->tokenResponse = $tokenResponse->getData()->paymentMethod;
             } else {
-                Utils::logError($tokenResponse->getMessage());
+                Utils::logError('Failed to create Braintree token: ' . $tokenResponse->getMessage());
                 return false;
             }
         }
