@@ -164,9 +164,7 @@ class AccountController extends BaseController
             Session::flash('warning', trans('texts.plan_refunded'));
         }
 
-        $hasPaid = false;
         if (! empty($planDetails['paid']) && $plan != PLAN_FREE) {
-            $hasPaid = true;
             $time_used = $planDetails['paid']->diff(date_create());
             $days_used = $time_used->days;
 
@@ -182,11 +180,7 @@ class AccountController extends BaseController
 
         if ($newPlan['price'] > $credit) {
             $invitation = $this->accountRepo->enablePlan($newPlan, $credit);
-            if ($hasPaid) {
-                return Redirect::to('view/' . $invitation->invitation_key);
-            } else {
-                return Redirect::to('payment/' . $invitation->invitation_key);
-            }
+            return Redirect::to('view/' . $invitation->invitation_key);
         } else {
             if ($plan == PLAN_FREE) {
                 $company->discount = 0;
