@@ -121,11 +121,11 @@
 
 						<div id="statusField" style="display:{{ in_array($reportType, [ENTITY_INVOICE, ENTITY_PRODUCT]) ? 'block' : 'none' }}">
 							{!! Former::select('invoice_status')->label('status')
-									->addOption(trans('texts.all'), 'all')
-									->addOption(trans('texts.draft'), 'draft')
-									->addOption(trans('texts.sent'), 'sent')
-									->addOption(trans('texts.unpaid'), 'unpaid')
-									->addOption(trans('texts.paid'), 'paid') !!}
+									->addOption(trans('texts.status_all'), 'all')
+									->addOption(trans('texts.status_draft'), 'draft')
+									->addOption(trans('texts.status_sent'), 'sent')
+									->addOption(trans('texts.status_unpaid'), 'unpaid')
+									->addOption(trans('texts.status_paid'), 'paid') !!}
 						</div>
 
 						<div id="dateField" style="display:{{ $reportType == ENTITY_TAX_RATE ? 'block' : 'none' }}">

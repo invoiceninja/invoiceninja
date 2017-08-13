@@ -670,6 +670,8 @@ $LANG = array(
     'status_viewed' => 'Viewed',
     'status_partial' => 'Partial',
     'status_paid' => 'Paid',
+    'status_unpaid' => 'Unpaid',
+    'status_all' => 'All',
     'show_line_item_tax' => 'Display <b>line item taxes inline</b>',
     'iframe_url' => 'Website',
     'iframe_url_help1' => 'Copy the following code to a page on your site.',
@@ -1013,7 +1015,7 @@ $LANG = array(
 
     'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
     'pro_plan_remove_logo_link' => 'Click here',
-    'invitation_status_sent' => 'Sent',
+    'invitation_status_sent' => 'sent',
     'invitation_status_opened' => 'Openend',
     'invitation_status_viewed' => 'Viewed',
     'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
