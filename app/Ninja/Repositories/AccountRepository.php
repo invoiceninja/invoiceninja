@@ -40,9 +40,18 @@ class AccountRepository
             $company->utm_content = Input::get('utm_content');
             $company->referral_code = Session::get(SESSION_REFERRAL_CODE);
 
-            if (env('PROMO_CAMPAIGN') && Input::get('utm_campaign') == env('PROMO_CAMPAIGN')) {
+            if (env('PROMO_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PROMO_CAMPAIGN'))) {
                 $company->discount = .75;
                 $company->promo_expires = date_create()->modify('14 days')->format('Y-m-d');
+            }
+
+            if (env('PARTNER_CAMPAIGN') && hash_equals(Input::get('utm_campaign'), env('PARTNER_CAMPAIGN'))) {
+                $company->plan = PLAN_PRO;
+                $company->plan_term = PLAN_TERM_YEARLY;
+                $company->plan_price = PLAN_PRICE_PRO_MONTHLY;
+                $company->plan_started = date_create()->format('Y-m-d');
+                $company->plan_paid = date_create()->format('Y-m-d');
+                $company->plan_expires = date_create()->modify('1 year')->format('Y-m-d');
             }
 
             $company->save();
