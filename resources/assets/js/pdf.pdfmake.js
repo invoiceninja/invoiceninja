@@ -495,7 +495,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         var row = [];
         var item = invoice.invoice_items[i];
         var cost = formatMoneyInvoice(item.cost, invoice, 'none', getPrecision(item.cost));
-        var qty = NINJA.parseFloat(item.qty) ? roundToTwo(NINJA.parseFloat(item.qty)) + '' : '';
+        var qty = NINJA.parseFloat(item.qty) ? roundSignificant(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;
         var tax1 = '';
@@ -565,7 +565,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         }
         if (!hideQuantity) {
             row.push({style:["cost", rowStyle], text:cost});
-            row.push({style:["quantity", rowStyle], text:formatAmount(qty, invoice.client.currency_id) || ' '});
+            row.push({style:["quantity", rowStyle], text:formatAmount(qty, invoice.client.currency_id, getPrecision(qty)) || ' '});
         }
         if (showItemTaxes) {
             var str = ' ';

@@ -63,16 +63,23 @@
         return formatMoney(value, currencyId, countryId, decorator, precision)
     }
 
-    function formatAmount(value, currencyId) {
+    function formatAmount(value, currencyId, precision) {
+        if (!value) {
+            return '';
+        }
 
         if (!currencyId) {
             currencyId = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
         }
 
+        if (!precision) {
+            precision = 2;
+        }
+
         var currency = currencyMap[currencyId];
         var decimal = currency.decimal_separator;
 
-        value = NINJA.parseFloat(value) + '';
+        value = roundToPrecision(NINJA.parseFloat(value), precision) + '';
 
         if (decimal == '.') {
             return value;
