@@ -811,7 +811,7 @@ function ItemModel(data) {
 
     this.prettyQty = ko.computed({
         read: function () {
-            return NINJA.parseFloat(this.qty()) ? NINJA.parseFloat(this.qty()) : '';
+            return NINJA.parseFloat(this.qty()) ? roundSignificant(NINJA.parseFloat(this.qty())) : '';
         },
         write: function (value) {
             this.qty(value);
@@ -821,7 +821,7 @@ function ItemModel(data) {
 
     this.prettyCost = ko.computed({
         read: function () {
-            return this.cost() ? this.cost() : '';
+            return this.cost() ? roundSignificant(this.cost()) : '';
         },
         write: function (value) {
             this.cost(value);
@@ -836,8 +836,8 @@ function ItemModel(data) {
     this.totals = ko.observable();
 
     this.totals.rawTotal = ko.computed(function() {
-        var cost = roundToTwo(NINJA.parseFloat(self.cost()));
-        var qty = roundToTwo(NINJA.parseFloat(self.qty()));
+        var cost = roundSignificant(NINJA.parseFloat(self.cost()));
+        var qty = roundSignificant(NINJA.parseFloat(self.qty()));
         var value = cost * qty;
         return value ? roundToTwo(value) : 0;
     });
@@ -979,7 +979,7 @@ ko.bindingHandlers.productTypeahead = {
                     model.notes(datum.notes);
                 }
                 if (datum.cost) {
-                    model.cost(accounting.toFixed(datum.cost, 2));
+                    model.cost(roundSignificant(datum.cost, 2));
                 }
                 if (!model.qty()) {
                     model.qty(1);

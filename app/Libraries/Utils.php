@@ -1228,6 +1228,18 @@ class Utils
         return round($amount + $tax1 + $tax2, 2);
     }
 
+    public static function roundSignificant($value, $precision = 2) {
+        if (round($value, 3) != $value) {
+            $precision = 4;
+        } elseif (round($value, 2) != $value) {
+            $precision = 3;
+        } elseif (round($value, 1) != $value) {
+            $precision = 2;
+        }
+
+        return number_format($value, $precision, '.', '');
+    }
+
     public static function truncateString($string, $length)
     {
         return strlen($string) > $length ? rtrim(substr($string, 0, $length)) . '...' : $string;

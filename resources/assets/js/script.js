@@ -666,7 +666,7 @@ function calculateAmounts(invoice) {
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
-    var lineTotal = invoice.is_statement ? roundToTwo(NINJA.parseFloat(item.balance)) : roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
+    var lineTotal = invoice.is_statement ? roundToTwo(NINJA.parseFloat(item.balance)) : roundSignificant(NINJA.parseFloat(item.cost)) * roundSignificant(NINJA.parseFloat(item.qty));
     lineTotal = roundToTwo(lineTotal);
     if (lineTotal) {
       total += lineTotal;
@@ -1040,6 +1040,22 @@ function setDocHexDraw(doc, hex) {
 
 function toggleDatePicker(field) {
   $('#'+field).datepicker('show');
+}
+
+function getPrecision(number) {
+  if (roundToPrecision(number, 3) != number) {
+    return 4;
+  } else if (roundToPrecision(number, 2) != number) {
+    return 3;
+  } else {
+    return 2;
+  }
+}
+
+function roundSignificant(number) {
+  var precision = getPrecision(number);
+  var value = roundToPrecision(number, precision);
+  return isNaN(value) ? 0 : value;
 }
 
 function roundToTwo(number, toString) {

@@ -526,8 +526,8 @@ class InvoiceRepository extends BaseRepository
                 continue;
             }
 
-            $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
-            $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
+            $invoiceItemCost = Utils::roundSignificant(Utils::parseFloat($item['cost']));
+            $invoiceItemQty = Utils::roundSignificant(Utils::parseFloat($item['qty']));
 
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
             $total += round($lineTotal, 2);
@@ -535,8 +535,8 @@ class InvoiceRepository extends BaseRepository
 
         foreach ($data['invoice_items'] as $item) {
             $item = (array) $item;
-            $invoiceItemCost = round(Utils::parseFloat($item['cost']), 2);
-            $invoiceItemQty = round(Utils::parseFloat($item['qty']), 2);
+            $invoiceItemCost = Utils::roundSignificant(Utils::parseFloat($item['cost']));
+            $invoiceItemQty = Utils::roundSignificant(Utils::parseFloat($item['qty']));
             $lineTotal = $invoiceItemCost * $invoiceItemQty;
 
             if ($invoice->discount > 0) {
