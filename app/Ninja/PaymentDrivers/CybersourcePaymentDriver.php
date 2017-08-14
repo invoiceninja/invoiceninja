@@ -2,6 +2,8 @@
 
 namespace App\Ninja\PaymentDrivers;
 
+use Exception;
+
 class CybersourcePaymentDriver extends BasePaymentDriver
 {
     protected $transactionReferenceParam = 'transaction_uuid';
