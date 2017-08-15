@@ -228,8 +228,11 @@
 			{!! Former::text('po_number')->label($account->getLabel('po_number', 'po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
-						Former::select('is_amount_discount')->addOption(trans('texts.discount_percent'), '0')
-						->addOption(trans('texts.discount_amount'), '1')->data_bind("value: is_amount_discount")->raw()
+						Former::select('is_amount_discount')
+							->addOption(trans('texts.discount_percent'), '0')
+							->addOption(trans('texts.discount_amount'), '1')
+							->data_bind("value: is_amount_discount, event:{ change: isAmountDiscountChanged}")
+							->raw()
 			) !!}
 
             @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
@@ -869,6 +872,15 @@
 						model.invoice().tax_name2("{{ $account->tax_name2 }}");
 					@endif
                 @endif
+
+				// load previous isAmountDiscount setting
+				if (isStorageSupported()) {
+					var lastIsAmountDiscount = parseInt(localStorage.getItem('last:is_amount_discount'));
+					console.log('lastIsAmountDiscount: ' + lastIsAmountDiscount);
+		            if (lastIsAmountDiscount) {
+						model.invoice().is_amount_discount(lastIsAmountDiscount);
+		            }
+		        }
             @endif
 
             @if (isset($tasks) && $tasks)

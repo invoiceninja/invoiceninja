@@ -592,6 +592,18 @@ function InvoiceModel(data) {
         }
         self.applyInclusivTax(taxRate);
     }
+
+    self.isAmountDiscountChanged = function(obj, event) {
+        console.log('onIsAmountDiscountChange... ' + event.originalEvent);
+        if (event.originalEvent) {
+            return;
+        }
+        if (! isStorageSupported()) {
+            return;
+        }
+        var isAmountDiscount = $('#is_amount_discount').val();
+        localStorage.setItem('last:is_amount_discount', isAmountDiscount);
+    }
 }
 
 function ClientModel(data) {
