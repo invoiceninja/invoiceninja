@@ -821,7 +821,7 @@ function ItemModel(data) {
 
     this.prettyCost = ko.computed({
         read: function () {
-            return this.cost() ? roundSignificant(this.cost()) : '';
+            return this.cost() ? roundSignificant(this.cost()).toFixed(2) : '';
         },
         write: function (value) {
             this.cost(value);
