@@ -876,7 +876,6 @@
 				// load previous isAmountDiscount setting
 				if (isStorageSupported()) {
 					var lastIsAmountDiscount = parseInt(localStorage.getItem('last:is_amount_discount'));
-					console.log('lastIsAmountDiscount: ' + lastIsAmountDiscount);
 		            if (lastIsAmountDiscount) {
 						model.invoice().is_amount_discount(lastIsAmountDiscount);
 		            }

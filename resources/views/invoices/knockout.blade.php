@@ -594,8 +594,7 @@ function InvoiceModel(data) {
     }
 
     self.isAmountDiscountChanged = function(obj, event) {
-        console.log('onIsAmountDiscountChange... ' + event.originalEvent);
-        if (event.originalEvent) {
+        if (! event.originalEvent) {
             return;
         }
         if (! isStorageSupported()) {
