@@ -2402,6 +2402,7 @@ $LANG = array(
     'contact_custom1' => 'Contact First Custom',
     'contact_custom2' => 'Contact Second Custom',
     'currency' => 'Currency',
+    'ofx_help' => 'In most cases the default values should work, if you\'re unable to connect it may help to adjust the settings.',
 
 );
 
