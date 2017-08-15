@@ -30,7 +30,7 @@ The second field is the API_SECRET, enter in the API_SECRET you used in your .en
 
 Click SAVE.
 
-You should now be able to login!
+You should now be able to login with your username and password!
 
 
 FAQ:
