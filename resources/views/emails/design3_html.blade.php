@@ -28,7 +28,7 @@
                                         @if ($account->hasCustomLabel('due_date'))
                                             {{ $account->getLabel('due_date') }} {{ $account->formatDate($invoice->due_date) }}
                                         @else
-                                            {{ strtoupper(trans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)])) }}
+                                            {{ utrans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)]) }}
                                         @endif
                                     @endif
                                 </span><br />

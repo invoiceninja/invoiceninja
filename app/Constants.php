@@ -573,10 +573,20 @@ if (! defined('APP_NAME')) {
     // Fix for mPDF: https://github.com/kartik-v/yii2-mpdf/issues/9
     define('_MPDF_TTFONTDATAPATH', storage_path('framework/cache/'));
 
-    // TODO remove these translation functions
-    function uctrans($text)
+    function uctrans($text, $data = [])
     {
-        return ucwords(trans($text));
+        $locale = Session::get(SESSION_LOCALE);
+        $text = trans($text, $data);
+
+        return $locale == 'en' ? ucwords($text) : $text;
+    }
+
+    function utrans($text, $data = [])
+    {
+        $locale = Session::get(SESSION_LOCALE);
+        $text = trans($text, $data);
+
+        return $locale == 'en' ? strtoupper($text) : $text;
     }
 
     // optional trans: only return the string if it's translated
