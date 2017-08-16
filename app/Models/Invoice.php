@@ -1168,10 +1168,17 @@ class Invoice extends EntityModel implements BalanceAffecting
         $link = $invitation->getLink('view', true);
         $pdfString = false;
         $phantomjsSecret = env('PHANTOMJS_SECRET');
+        $phantomjsLink = $link . "?phantomjs=true&phantomjs_secret={$phantomjsSecret}";
 
         try {
             if (env('PHANTOMJS_BIN_PATH')) {
-                $pdfString = CurlUtils::phantom('GET', $link . "?phantomjs=true&phantomjs_secret={$phantomjsSecret}");
+                // we see occasional 408 errors
+                for ($i=1; $i<=5; $i++) {
+                    $pdfString = CurlUtils::phantom('GET', $phantomjsLink);
+                    if ($pdfString) {
+                        break;
+                    }
+                }
             }
 
             if (! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
@@ -1181,12 +1188,12 @@ class Invoice extends EntityModel implements BalanceAffecting
 
             $pdfString = strip_tags($pdfString);
         } catch (\Exception $exception) {
-            Utils::logError("PhantomJS - Failed to load: {$exception->getMessage()}");
+            Utils::logError("PhantomJS - Failed to load {$phantomjsLink}: {$exception->getMessage()}");
             return false;
         }
 
         if (! $pdfString || strlen($pdfString) < 200) {
-            Utils::logError("PhantomJS - Invalid response: {$pdfString}");
+            Utils::logError("PhantomJS - Invalid response {$phantomjsLink}: {$pdfString}");
             return false;
         }
 
@@ -1194,7 +1201,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             if ($pdf = Utils::decodePDF($pdfString)) {
                 return $pdf;
             } else {
-                Utils::logError("PhantomJS - Unable to decode: {$pdfString}");
+                Utils::logError("PhantomJS - Unable to decode {$phantomjsLink}: {$pdfString}");
                 return false;
             }
         } else {
