@@ -65,6 +65,21 @@ class UserController extends BaseController
         return Redirect::to('/dashboard');
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param int   $id
+     * @param mixed $publicId
+     *
+     * @return Response
+     */
+    public function show($publicId)
+    {
+        Session::reflash();
+
+        return redirect("users/$publicId/edit");
+    }
+
     public function edit($publicId)
     {
         $user = User::where('account_id', '=', Auth::user()->account_id)
