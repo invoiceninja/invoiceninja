@@ -639,7 +639,8 @@
                     {!! Former::select('client[country_id]')
                             ->label(trans('texts.country_id'))
                             ->addOption('','')->addGroupClass('country_select')
-                            ->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
+                            ->fromQuery($countries, 'name', 'id')
+							->data_bind("dropdown: country_id") !!}
                 </span>
 
             </div>
@@ -933,6 +934,7 @@
 		$('#country_id').combobox().on('change', function(e) {
 			var countryId = $('input[name=country_id]').val();
             var country = _.findWhere(countries, {id: countryId});
+			console.log(countryId + ' - ' + country);
 			if (country) {
                 model.invoice().client().country = country;
                 model.invoice().client().country_id(countryId);
