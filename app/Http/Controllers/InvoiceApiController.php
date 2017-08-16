@@ -423,6 +423,11 @@ class InvoiceApiController extends BaseAPIController
     public function download(InvoiceRequest $request)
     {
         $invoice = $request->entity();
+
+        if ($invoice->is_deleted) {
+            abort(404);
+        }
+
         $pdfString = $invoice->getPDFString();
 
         if ($pdfString) {
