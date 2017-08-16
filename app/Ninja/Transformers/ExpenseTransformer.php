@@ -1,9 +1,6 @@
 <?php
-
 namespace App\Ninja\Transformers;
-
 use App\Models\Expense;
-
 /**
  * @SWG\Definition(definition="Expense", @SWG\Xml(name="Expense"))
  */
@@ -17,6 +14,7 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="transaction_id", type="integer", example=1)
+     * @SWG\Property(property="transaction_reference", type="string", example=1)
      * @SWG\Property(property="bank_id", type="integer", example=1)
      * @SWG\Property(property="expense_currency_id", type="integer", example=1)
      * @SWG\Property(property="expense_category_id", type="integer", example=1)
@@ -33,30 +31,23 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="invoice_id", type="integer", example=1)
      * @SWG\Property(property="vendor_id", type="integer", example=1)
      */
-
     protected $availableIncludes = [
         'documents',
     ];
-
     public function __construct($account = null, $serializer = null, $client = null)
     {
         parent::__construct($account, $serializer);
-
         $this->client = $client;
     }
-
     public function includeDocuments(Expense $expense)
     {
         $transformer = new DocumentTransformer($this->account, $this->serializer);
-
         $expense->documents->each(function ($document) use ($expense) {
             $document->setRelation('expense', $expense);
             $document->setRelation('invoice', $expense->invoice);
         });
-
         return $this->includeCollection($expense->documents, $transformer, ENTITY_DOCUMENT);
     }
-
     public function transform(Expense $expense)
     {
         return array_merge($this->getDefaults($expense), [
@@ -67,6 +58,7 @@ class ExpenseTransformer extends EntityTransformer
             'updated_at' => $this->getTimestamp($expense->updated_at),
             'archived_at' => $this->getTimestamp($expense->deleted_at),
             'transaction_id' => $expense->transaction_id,
+            'transaction_reference' => $expense->transaction_reference,
             'bank_id' => $expense->bank_id,
             'expense_currency_id' => (int) $expense->expense_currency_id,
             'expense_category_id' => $expense->expense_category ? (int) $expense->expense_category->public_id : null,
