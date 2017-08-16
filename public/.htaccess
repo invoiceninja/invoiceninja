@@ -5,6 +5,9 @@
 
     RewriteEngine On
 
+    # Blocks Search Engine Indexing
+    Header set X-Robots-Tag "noindex, nofollow"
+
     # Redirect Trailing Slashes...
     RewriteRule ^(.*)/$ /$1 [L,R=301]
 
