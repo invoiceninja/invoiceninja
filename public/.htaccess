@@ -5,9 +5,6 @@
 
     RewriteEngine On
 
-    # Blocks Search Engine Indexing
-    Header set X-Robots-Tag "noindex, nofollow"
-
     # Redirect Trailing Slashes...
     RewriteRule ^(.*)/$ /$1 [L,R=301]
 
@@ -23,4 +20,9 @@
     # In case of running InvoiceNinja in a Subdomain like invoiceninja.example.com,
     # you have to enable the following line:
     # RewriteBase /
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Blocks Search Engine Indexing
+    Header set X-Robots-Tag "noindex, nofollow"
 </IfModule>
