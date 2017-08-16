@@ -224,6 +224,7 @@ class Account extends Eloquent
 
     public static $customLabels = [
         'balance_due',
+        'credit_card',
         'description',
         'discount',
         'due_date',

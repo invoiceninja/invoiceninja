@@ -938,7 +938,11 @@ class BasePaymentDriver
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);
-                $label = trans("texts.{$gatewayTypeAlias}");
+                if ($custom = $this->account()->getLabel($gatewayTypeAlias)) {
+                    $label = $custom;
+                } else {
+                    $label = trans("texts.{$gatewayTypeAlias}");
+                }
             }
 
             $label .= $this->invoice()->present()->gatewayFee($gatewayTypeId);
