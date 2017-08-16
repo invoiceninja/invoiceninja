@@ -17,6 +17,7 @@ class ExpenseTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="transaction_id", type="integer", example=1)
+     * @SWG\Property(property="transaction_reference", type="string", example="")
      * @SWG\Property(property="bank_id", type="integer", example=1)
      * @SWG\Property(property="expense_currency_id", type="integer", example=1)
      * @SWG\Property(property="expense_category_id", type="integer", example=1)
@@ -67,6 +68,7 @@ class ExpenseTransformer extends EntityTransformer
             'updated_at' => $this->getTimestamp($expense->updated_at),
             'archived_at' => $this->getTimestamp($expense->deleted_at),
             'transaction_id' => $expense->transaction_id,
+            'transaction_reference' => $expense->transaction_reference,
             'bank_id' => $expense->bank_id,
             'expense_currency_id' => (int) $expense->expense_currency_id,
             'expense_category_id' => $expense->expense_category ? (int) $expense->expense_category->public_id : null,
