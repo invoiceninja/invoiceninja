@@ -930,11 +930,9 @@
         ko.applyBindings(model);
         onItemChange(true);
 
-
-		$('#country_id').combobox().on('change', function(e) {
-			var countryId = $('input[name=country_id]').val();
-            var country = _.findWhere(countries, {id: countryId});
-			console.log(countryId + ' - ' + country);
+        $('#client\\[country_id\\]').on('change', function(e) {
+			var countryId = $(e.currentTarget).val();
+			var country = _.findWhere(countries, {id: parseInt(countryId)});
 			if (country) {
                 model.invoice().client().country = country;
                 model.invoice().client().country_id(countryId);
