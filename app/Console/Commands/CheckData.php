@@ -139,7 +139,7 @@ class CheckData extends Command
 
     private function checkInvoices()
     {
-        if (! env('PHANTOMJS_BIN_PATH')) {
+        if (! env('PHANTOMJS_BIN_PATH') || ! Utils::isNinjaProd()) {
             return;
         }
 
@@ -154,17 +154,19 @@ class CheckData extends Command
         $invoices = Invoice::with('invitations')
             ->where('created_at', '>',  $date)
             ->orderBy('id')
-            ->get(['id', 'balance']);
+            ->get();
 
         foreach ($invoices as $invoice) {
             $link = $invoice->getInvitationLink('view', true, true);
-            //$this->logMessage('Checking invoice: ' . $invoice->id . ' - ' . $invoice->balance);
             $result = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_balances=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
             $result = floatval(strip_tags($result));
+            $invoice = $invoice->fresh();
+
+            //$this->logMessage('Checking invoice: ' . $invoice->id . ' - ' . $invoice->balance);
             //$this->logMessage('Result: ' . $result);
 
             if ($result && $result != $invoice->balance) {
-                $this->logMessage("PHP/JS amounts do not match {$link} - PHP: {$invoice->balance}, JS: {$result}");
+                $this->logMessage("PHP/JS amounts do not match {$link}?silent=true | PHP: {$invoice->balance}, JS: {$result}");
                 $this->isValid = $isValid = false;
             }
         }
