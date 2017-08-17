@@ -265,25 +265,15 @@ class CheckData extends Command
         $countInvalid = 0;
 
         foreach ($userAccounts as $userAccount) {
-            $ids = [];
+            $countCompanies = 0;
 
-            if ($companyId1 = $userAccount->a1_company_id) {
-                $ids[$companyId1] = true;
-            }
-            if ($companyId2 = $userAccount->a2_company_id) {
-                $ids[$companyId2] = true;
-            }
-            if ($companyId3 = $userAccount->a3_company_id) {
-                $ids[$companyId3] = true;
-            }
-            if ($companyId4 = $userAccount->a4_company_id) {
-                $ids[$companyId4] = true;
-            }
-            if ($companyId5 = $userAccount->a5_company_id) {
-                $ids[$companyId5] = true;
+            for (range(1, 5) as $index) {
+                if ($userAccount->{"a{$index}_company_id"}) {
+                    $countCompanies++;
+                }
             }
 
-            if (count($ids) > 1) {
+            if ($countCompanies > 1) {
                 $this->info('user_account: ' . $userAccount->id);
                 $countInvalid++;
             }
