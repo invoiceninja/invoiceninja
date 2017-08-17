@@ -160,7 +160,7 @@ class CheckData extends Command
             $link = $invoice->getInvitationLink('view', true, true);
             $result = CurlUtils::phantom('GET', $link . '?phantomjs=true&phantomjs_balances=true&phantomjs_secret=' . env('PHANTOMJS_SECRET'));
             $result = floatval(strip_tags($result));
-            $invoice->fresh();
+            $invoice = $invoice->fresh();
 
             //$this->logMessage('Checking invoice: ' . $invoice->id . ' - ' . $invoice->balance);
             //$this->logMessage('Result: ' . $result);
