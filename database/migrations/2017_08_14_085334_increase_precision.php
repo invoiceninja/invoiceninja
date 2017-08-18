@@ -21,6 +21,11 @@ class IncreasePrecision extends Migration
             $table->decimal('cost', 15, 4)->change();
             $table->decimal('qty', 15, 4)->change();
         });
+
+        Schema::table('clients', function ($table) {
+            $table->integer('credit_number_counter')->default(1)->nullable();
+        });
+
     }
 
     /**
@@ -30,6 +35,8 @@ class IncreasePrecision extends Migration
      */
     public function down()
     {
-        //
+        Schema::table('clients', function ($table) {
+            $table->dropColumn('credit_number_counter');
+        });
     }
 }
