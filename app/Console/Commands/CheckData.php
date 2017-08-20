@@ -76,7 +76,7 @@ class CheckData extends Command
             $this->checkDraftSentInvoices();
         }
 
-        $this->checkInvoices();
+        //$this->checkInvoices();
         $this->checkBalances();
         $this->checkContacts();
         $this->checkUserAccounts();
