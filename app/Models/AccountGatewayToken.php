@@ -96,8 +96,10 @@ class AccountGatewayToken extends Eloquent
         } elseif ($accountGateway->gateway_id == GATEWAY_BRAINTREE) {
             $merchantId = $accountGateway->getConfigField('merchantId');
             $testMode = $accountGateway->getConfigField('testMode');
-
             return $testMode ? "https://sandbox.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}" : "https://www.braintreegateway.com/merchants/{$merchantId}/customers/{$this->token}";
+        } elseif ($accountGateway->gateway_id == GATEWAY_GOCARDLESS) {
+            $testMode = $accountGateway->getConfigField('testMode');
+            return $testMode ? "https://manage-sandbox.gocardless.com/customers/{$this->token}" : "https://manage.gocardless.com/customers/{$this->token}";
         } else {
             return false;
         }

@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "21e71e6ce0568744f92aca427b7f103b",
-    "content-hash": "a052186eb2c4093936e61fe22d93255f",
+    "hash": "a39a505121abab0985f7c0cb1734920c",
+    "content-hash": "4067bb1f3c6d2b3397e3a005b642ddb6",
     "packages": [
         {
             "name": "agmscode/omnipay-agms",
@@ -1429,16 +1429,16 @@
         },
         {
             "name": "digitickets/omnipay-gocardlessv2",
-            "version": "dev-master",
+            "version": "dev-payment-fix",
             "source": {
                 "type": "git",
                 "url": "https://github.com/hillelcoren/omnipay-gocardlessv2.git",
-                "reference": "007c29256a4df6e2d149d8a239474f80028e8601"
+                "reference": "a264ac71dcdb7c03f42f17cb52c650d87e42f8e0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hillelcoren/omnipay-gocardlessv2/zipball/007c29256a4df6e2d149d8a239474f80028e8601",
-                "reference": "007c29256a4df6e2d149d8a239474f80028e8601",
+                "url": "https://api.github.com/repos/hillelcoren/omnipay-gocardlessv2/zipball/a264ac71dcdb7c03f42f17cb52c650d87e42f8e0",
+                "reference": "a264ac71dcdb7c03f42f17cb52c650d87e42f8e0",
                 "shasum": ""
             },
             "require": {
@@ -1511,7 +1511,7 @@
             "support": {
                 "source": "https://github.com/hillelcoren/omnipay-gocardlessv2/tree/master"
             },
-            "time": "2017-08-21 09:54:55"
+            "time": "2017-08-21 18:05:05"
         },
         {
             "name": "digitickets/omnipay-realex",

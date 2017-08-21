@@ -67,7 +67,7 @@
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
             @foreach ($gateway->fields as $field => $details)
 
-                @if ($details && !$accountGateway && !is_array($details))
+                @if ($details && !$accountGateway && !is_array($details) && !is_bool($details))
                     {!! Former::populateField($gateway->id.'_'.$field, $details) !!}
                 @endif
 
