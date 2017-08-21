@@ -47,6 +47,7 @@ class Gateway extends Eloquent
         GATEWAY_BRAINTREE,
         GATEWAY_AUTHORIZE_NET,
         GATEWAY_MOLLIE,
+        GATEWAY_GOCARDLESS,
         GATEWAY_CUSTOM,
     ];
 

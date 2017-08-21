@@ -37,6 +37,7 @@
         "descubraomundo/omnipay-pagarme": "dev-master",
         "digitickets/omnipay-barclays-epdq": "~3.0",
         "digitickets/omnipay-datacash": "~3.0",
+        "digitickets/omnipay-gocardlessv2": "dev-master",
         "digitickets/omnipay-realex": "~5.0",
         "dioscouri/omnipay-cybersource": "dev-master",
         "doctrine/dbal": "2.5.x",
@@ -161,6 +162,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/l5-google-cloud-storage"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-gocardlessv2"
         }
     ]
 }

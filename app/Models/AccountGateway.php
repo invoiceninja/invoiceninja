@@ -64,9 +64,10 @@ class AccountGateway extends EntityModel
     public static function paymentDriverClass($provider)
     {
         $folder = 'App\\Ninja\\PaymentDrivers\\';
+        $provider = str_replace('\\', '', $provider);
         $class = $folder . $provider . 'PaymentDriver';
         $class = str_replace('_', '', $class);
-
+        
         if (class_exists($class)) {
             return $class;
         } else {

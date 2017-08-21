@@ -45,3 +45,7 @@
 {!! Former::populateField(GATEWAY_BRAINTREE . '_merchantId', env('BRAINTREE_TEST_MERCHANT_ID')) !!}
 {!! Former::populateField(GATEWAY_BRAINTREE . '_testMode', 1) !!}
 {!! Former::populateField('enable_paypal', 1) !!}
+
+
+{!! Former::populateField(GATEWAY_GOCARDLESS . '_accessToken', env('GOCARDLESS_TEST_TOKEN')) !!}
+{!! Former::populateField(GATEWAY_GOCARDLESS . '_testMode', 1) !!}

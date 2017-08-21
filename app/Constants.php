@@ -271,11 +271,9 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_SAGE_PAY_DIRECT', 20);
     define('GATEWAY_SAGE_PAY_SERVER', 21);
     define('GATEWAY_STRIPE', 23);
-    define('GATEWAY_GOCARDLESS', 6);
     define('GATEWAY_TWO_CHECKOUT', 27);
     define('GATEWAY_BEANSTREAM', 29);
     define('GATEWAY_PSIGATE', 30);
-    define('GATEWAY_MOOLAH', 31);
     define('GATEWAY_BITPAY', 42);
     define('GATEWAY_DWOLLA', 43);
     define('GATEWAY_CHECKOUT_COM', 47);
@@ -283,6 +281,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_WEPAY', 60);
     define('GATEWAY_BRAINTREE', 61);
     define('GATEWAY_CUSTOM', 62);
+    define('GATEWAY_GOCARDLESS', 64);
 
     // The customer exists, but only as a local concept
     // The remote gateway doesn't understand the concept of customers
