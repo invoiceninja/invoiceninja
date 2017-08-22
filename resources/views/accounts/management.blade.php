@@ -93,6 +93,10 @@
 						@endif
 					@endif
 				@endif
+
+				@if (Auth::user()->created_at->diffInMonths() >= 3)
+					{!! Former::plaintext(' ')->help('review_app_help') !!}
+				@endif
 			</div>
 		</div>
 		@if (Utils::isNinjaProd())
