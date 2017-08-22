@@ -8,6 +8,7 @@ use Carbon;
 use DropdownButton;
 use stdClass;
 use Utils;
+use Auth;
 
 class InvoicePresenter extends EntityPresenter
 {
@@ -217,10 +218,15 @@ class InvoicePresenter extends EntityPresenter
         $entityType = $invoice->getEntityType();
 
         $actions = [
-            ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
-            ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')],
-            DropdownButton::DIVIDER,
+            ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans("texts.clone_invoice")]
         ];
+
+        if (Auth::user()->can('create', ENTITY_QUOTE)) {
+            $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans("texts.clone_quote")];
+        }
+
+        $actions[] = ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')];
+        $actions[] = DropdownButton::DIVIDER;
 
         if ($entityType == ENTITY_QUOTE) {
             if ($invoice->quote_invoice_id) {

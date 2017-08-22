@@ -83,21 +83,21 @@ class InvoiceDatatable extends EntityDatatable
 
         return [
             [
-                trans("texts.edit_{$entityType}"),
-                function ($model) use ($entityType) {
-                    return URL::to("{$entityType}s/{$model->public_id}/edit");
-                },
+                trans("texts.clone_invoice"),
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
-                },
-            ],
-            [
-                trans("texts.clone_{$entityType}"),
-                function ($model) use ($entityType) {
-                    return URL::to("{$entityType}s/{$model->public_id}/clone");
+                    return URL::to("invoices/{$model->public_id}/clone");
                 },
                 function ($model) {
                     return Auth::user()->can('create', ENTITY_INVOICE);
+                },
+            ],
+            [
+                trans("texts.clone_quote"),
+                function ($model) {
+                    return URL::to("quotes/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
             [

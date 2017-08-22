@@ -190,7 +190,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::delete('documents/{documents}', 'DocumentController@delete');
 
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
-    Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneInvoice');
+    Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneQuote');
     Route::get('quotes/{invoices}/edit', 'InvoiceController@edit');
     Route::put('quotes/{invoices}', 'InvoiceController@update');
     Route::get('quotes/{invoices}', 'InvoiceController@edit');

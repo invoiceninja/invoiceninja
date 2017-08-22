@@ -1468,8 +1468,12 @@
 		return isValid;
 	}
 
-	function onCloneClick() {
-		submitAction('clone');
+	function onCloneInvoiceClick() {
+		submitAction('clone_invoice');
+	}
+
+	function onCloneQuoteClick() {
+		submitAction('clone_quote');
 	}
 
 	function onConvertClick() {
