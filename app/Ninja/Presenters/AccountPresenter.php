@@ -63,9 +63,16 @@ class AccountPresenter extends Presenter
         return $currency->code;
     }
 
-    public function clientPortalLink()
+    public function clientPortalLink($subdomain = false)
     {
-        return Domain::getLinkFromId($this->entity->domain_id);
+        $account = $this->entity;
+        $url = Domain::getLinkFromId($account->domain_id);
+
+        if ($subdomain && $account->subdomain) {
+            $url = Utils::replaceSubdomain($url, $account->subdomain);
+        }
+
+        return $url;
     }
 
     public function industry()
