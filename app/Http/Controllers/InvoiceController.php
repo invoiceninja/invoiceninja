@@ -101,6 +101,7 @@ class InvoiceController extends BaseController
             $entityType = $clone == INVOICE_TYPE_STANDARD ? ENTITY_INVOICE : ENTITY_QUOTE;
             $invoice->id = $invoice->public_id = null;
             $invoice->is_public = false;
+            $invoice->is_recurring = $invoice->is_recurring && $clone == INVOICE_TYPE_STANDARD;
             $invoice->invoice_type_id = $clone;
             $invoice->invoice_number = $account->getNextNumber($invoice);
             $invoice->due_date = null;
