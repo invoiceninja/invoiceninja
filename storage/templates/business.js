@@ -162,7 +162,8 @@
         "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest",
             "color": "#ffffff",
-            "bold": true
+            "bold": true,
+            "noWrap": true
         },
         "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
