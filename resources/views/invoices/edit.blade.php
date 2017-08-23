@@ -276,7 +276,7 @@
 		<tfoot>
 			<tr>
 				<td class="hide-border"/>
-				<td class="hide-border" colspan="{{ 2 + ($account->showCustomField('custom_invoice_item_label1') ? 1 : 0) + ($account->showCustomField('custom_invoice_item_label2') ? 1 : 0) }}" rowspan="6" style="vertical-align:top">
+				<td class="hide-border" colspan="{{ 2 + ($account->showCustomField('custom_invoice_item_label1') ? 1 : 0) + ($account->showCustomField('custom_invoice_item_label2') ? 1 : 0) }}" rowspan="10" style="vertical-align:top">
 					<br/>
                     <div role="tabpanel">
 
@@ -390,7 +390,6 @@
 					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
-
             @if ($account->showCustomField('custom_invoice_label2', $invoice) && $invoice->custom_taxes2)
 				<tr>
 					<td class="hide-border" colspan="3"/>
@@ -401,7 +400,8 @@
 			@endif
 
             <tr style="display:none" data-bind="visible: $root.invoice_item_taxes.show &amp;&amp; totals.hasItemTaxes">
-                <td class="hide-border" colspan="4"/>
+				<td class="hide-border" colspan="3"/>
+				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
                 @if (!$account->hide_quantity)
                     <td>{{ trans('texts.tax') }}</td>
                 @endif
