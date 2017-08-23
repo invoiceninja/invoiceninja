@@ -215,7 +215,7 @@ class BaseTransformer extends TransformerAbstract
      */
     public function getInvoiceNumber($number)
     {
-        return str_pad(trim($number), 4, '0', STR_PAD_LEFT);
+        return $number ? str_pad(trim($number), 4, '0', STR_PAD_LEFT) : null;
     }
 
     /**
