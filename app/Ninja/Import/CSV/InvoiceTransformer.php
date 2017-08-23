@@ -37,14 +37,14 @@ class InvoiceTransformer extends BaseTransformer
                 'due_date_sql' => $this->getDate($data, 'due_date'),
                 'invoice_items' => [
                     [
-                        'product_key' => $this->getString($data, 'product'),
-                        'notes' => $this->getString($data, 'notes') ?: $this->getProduct($data, 'product', 'notes', ''),
-                        'cost' => $this->getFloat($data, 'amount') ?: $this->getProduct($data, 'product', 'cost', 0),
-                        'qty' => $this->getFloat($data, 'quantity') ?: 1,
-                        'tax_name1' => $this->getTaxName($this->getString($data, 'tax1')),
-                        'tax_rate1' => $this->getTaxRate($this->getString($data, 'tax1')),
-                        'tax_name2' => $this->getTaxName($this->getString($data, 'tax2')),
-                        'tax_rate2' => $this->getTaxRate($this->getString($data, 'tax2')),
+                        'product_key' => $this->getString($data, 'item_product'),
+                        'notes' => $this->getString($data, 'item_notes') ?: $this->getProduct($data, 'item_product', 'notes', ''),
+                        'cost' => $this->getFloat($data, 'item_notes') ?: $this->getProduct($data, 'item_product', 'cost', 0),
+                        'qty' => $this->getFloat($data, 'item_quantity') ?: 1,
+                        'tax_name1' => $this->getTaxName($this->getString($data, 'item_tax1')),
+                        'tax_rate1' => $this->getTaxRate($this->getString($data, 'item_tax1')),
+                        'tax_name2' => $this->getTaxName($this->getString($data, 'item_tax2')),
+                        'tax_rate2' => $this->getTaxRate($this->getString($data, 'item_tax2')),
                     ],
                 ],
             ];

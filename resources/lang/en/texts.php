@@ -2405,6 +2405,13 @@ $LANG = array(
     'currency' => 'Currency',
     'ofx_help' => 'In most cases the default values should work, if you\'re unable to connect it may help to adjust the settings.',
 
+    'item_product' => 'Item Product',
+    'item_notes' => 'Item Notes',
+    'item_cost' => 'Item Cost',
+    'item_quantity' => 'Item Quantity',
+    'item_tax_rate' => 'Item Tax Rate',
+    'item_tax_name' => 'Item Tax Name',
+
 );
 
 return $LANG;
