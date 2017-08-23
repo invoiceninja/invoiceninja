@@ -234,7 +234,7 @@
             <div class="col-md-12">
                 @if (Auth::user()->registered)
                     <div style="padding-top:20px;padding-bottom:10px;">{!! trans('texts.email_alias_message') !!}</div>
-                @elseif (Utils::isNinja())
+                @elseif (Utils::isNinja() && ! Utils::isPro())
                     <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
                 @endif
             </div>
