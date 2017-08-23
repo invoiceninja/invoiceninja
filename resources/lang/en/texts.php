@@ -2411,8 +2411,8 @@ $LANG = array(
     'item_quantity' => 'Item Quantity',
     'item_tax_rate' => 'Item Tax Rate',
     'item_tax_name' => 'Item Tax Name',
-    'item_tax1' => 'Item Tax',
-    'item_tax2' => 'Item Tax',
+    'item_tax1' => 'Item Tax1',
+    'item_tax2' => 'Item Tax2',
 
 );
 
