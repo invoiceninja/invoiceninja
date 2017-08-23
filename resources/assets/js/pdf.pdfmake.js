@@ -145,6 +145,9 @@ function GetPdfMake(invoice, javascript, callback) {
         }
     }
 
+    // support setting noWrap as a style
+    dd.styles.noWrap = {'noWrap': true};
+
     // set page size
     dd.pageSize = invoice.account.page_size;
 
@@ -1101,11 +1104,17 @@ NINJA.prepareDataPairs = function(oldData, section) {
 }
 
 NINJA.processItem = function(item, section) {
-    if (item.style && item.style instanceof Array) {
-        item.style.push(section);
-    } else {
-        item.style = [section];
+    if (! item.style) {
+        item.style = [];
     }
+
+    item.style.push(section);
+
+    // make sure numbers aren't wrapped
+    if (item.text && item.text.match && item.text.match(/\d\.\d\d|\d,\d\d/)) {
+        item.style.push('noWrap');
+    }
+
     return item;
 }
 
