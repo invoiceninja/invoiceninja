@@ -162,14 +162,14 @@
         "subtotalsBalanceDueLabel": {
             "fontSize": "$fontSizeLargest",
             "color": "#ffffff",
-            "bold": true,
-            "noWrap": true
+            "bold": true
         },
         "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLargest",
             "bold": true,
             "color":"#ffffff",
-            "alignment":"right"
+            "alignment":"right",
+            "noWrap":true
         },
         "invoiceDetails": {
             "color": "#ffffff"
