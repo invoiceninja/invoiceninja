@@ -164,7 +164,7 @@ class AccountController extends BaseController
             Session::flash('warning', trans('texts.plan_refunded'));
         }
 
-        if (! empty($planDetails['paid']) && $plan != PLAN_FREE) {
+        if ($company->payment && ! empty($planDetails['paid']) && $plan != PLAN_FREE) {
             $time_used = $planDetails['paid']->diff(date_create());
             $days_used = $time_used->days;
 
