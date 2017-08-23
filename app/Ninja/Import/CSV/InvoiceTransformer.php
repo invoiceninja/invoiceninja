@@ -33,6 +33,7 @@ class InvoiceTransformer extends BaseTransformer
                 'po_number' => $this->getString($data, 'po_number'),
                 'terms' => $this->getString($data, 'terms'),
                 'public_notes' => $this->getString($data, 'public_notes'),
+                'private_notes' => $this->getString($data, 'private_notes'),
                 'invoice_date_sql' => $this->getDate($data, 'invoice_date'),
                 'due_date_sql' => $this->getDate($data, 'due_date'),
                 'invoice_items' => [
