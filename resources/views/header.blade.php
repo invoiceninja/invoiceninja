@@ -298,9 +298,7 @@
             @endif
             <li class="divider"></li>
             @if (Utils::isAdmin() && Auth::user()->confirmed && Utils::getResllerType() != RESELLER_ACCOUNT_COUNT)
-              @if (count(session(SESSION_USER_ACCOUNTS)) > 1)
-                  <li>{!! link_to('/manage_companies', trans('texts.manage_companies')) !!}</li>
-              @elseif (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
+              @if (!session(SESSION_USER_ACCOUNTS) || count(session(SESSION_USER_ACCOUNTS)) < 5)
                   <li>{!! link_to('#', trans('texts.add_company'), ['onclick' => 'showSignUp()']) !!}</li>
               @endif
             @endif

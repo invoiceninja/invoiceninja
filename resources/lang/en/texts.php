@@ -2414,6 +2414,10 @@ $LANG = array(
     'item_tax1' => 'Item Tax1',
     'item_tax2' => 'Item Tax2',
 
+    'delete_company' => 'Delete Company',
+    'delete_company_help' => 'Permanently delete the company along with all data and setting.',
+    'delete_company_message' => 'Warning: This will permanently delete your company, there is no undo.',
+
 );
 
 return $LANG;
