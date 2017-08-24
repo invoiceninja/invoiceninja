@@ -81,7 +81,6 @@
                 startDate: statementStartDate,
                 endDate: statementEndDate,
                 linkedCalendars: false,
-                autoApply: true,
 				ranges: dateRanges,
             }, cb);
 
