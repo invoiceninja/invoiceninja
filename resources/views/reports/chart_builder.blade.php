@@ -65,6 +65,7 @@
                 startDate: chartStartDate,
                 endDate: chartEndDate,
                 linkedCalendars: false,
+                autoApply: true,
 				ranges: dateRanges,
             }, cb);
 
