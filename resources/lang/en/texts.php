@@ -2418,6 +2418,10 @@ $LANG = array(
     'delete_company_help' => 'Permanently delete the company along with all data and setting.',
     'delete_company_message' => 'Warning: This will permanently delete your company, there is no undo.',
 
+    'applied_discount' => 'The coupon has been applied, the plan price has been reduced by :discount%.',
+    'applied_free_year' => 'The coupon has been applied, your account has been upgraded to pro for one year.',
+
+
 );
 
 return $LANG;
