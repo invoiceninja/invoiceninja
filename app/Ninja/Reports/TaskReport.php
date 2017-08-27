@@ -26,7 +26,7 @@ class TaskReport extends AbstractReport
         foreach ($tasks->get() as $task) {
             $this->data[] = [
                 $task->client ? ($this->isExport ? $task->client->getDisplayName() : $task->client->present()->link) : trans('texts.unassigned'),
-                link_to($task->present()->url, $task->getStartTime()),
+                $this->isExport ? $task->getStartTime() : link_to($task->present()->url, $task->getStartTime()),
                 $task->present()->project,
                 $task->description,
                 Utils::formatTime($task->getDuration()),
