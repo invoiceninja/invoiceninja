@@ -50,8 +50,6 @@ class StartupCheck
             return $next($request);
         }
 
-        $company = Auth::user()->account->company;
-
         // Check if a new version was installed
         if (! Utils::isNinja()) {
             $file = storage_path() . '/version.txt';
@@ -75,6 +73,7 @@ class StartupCheck
         }
 
         if (Auth::check()) {
+            $company = Auth::user()->account->company;
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
