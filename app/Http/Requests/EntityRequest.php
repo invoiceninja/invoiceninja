@@ -40,13 +40,9 @@ class EntityRequest extends Request
         }
 
         if (method_exists($class, 'trashed')) {
-            $this->entity = $class::scope($publicId)->withTrashed()->first();
+            $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();
         } else {
-            $this->entity = $class::scope($publicId)->first();
-        }
-
-        if (! $this->entity) {
-            abort(404, "Entity: {$class} Id: {$publicId} not found");
+            $this->entity = $class::scope($publicId)->firstOrFail();
         }
 
         return $this->entity;
