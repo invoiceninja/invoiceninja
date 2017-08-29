@@ -863,6 +863,13 @@
                     }
                 }
                 model.invoice().addItem(); // add blank item
+
+                // check amounts are correct
+                var phpBalance = invoice.balance;
+                var jsBalance = model.invoice().totals.rawTotal();
+                if (phpBalance != jsBalance) {
+                    window.onerror('Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance);
+                }
             @else
                 // set the default account tax rate
                 @if ($account->invoice_taxes)
