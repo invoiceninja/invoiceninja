@@ -235,8 +235,8 @@ class InvoicePresenter extends EntityPresenter
                 $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans('texts.convert_to_invoice')];
             }
         } elseif ($entityType == ENTITY_INVOICE) {
-            if ($invoice->quote_id) {
-                $actions[] = ['url' => url("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
+            if ($invoice->quote) {
+                $actions[] = ['url' => url("quotes/{$invoice->quote->public_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
             if ($invoice->canBePaid()) {

@@ -362,6 +362,14 @@ class Invoice extends EntityModel implements BalanceAffecting
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function quote()
+    {
+        return $this->belongsTo('App\Models\Invoice');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function recurring_invoices()

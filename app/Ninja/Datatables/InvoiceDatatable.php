@@ -142,15 +142,6 @@ class InvoiceDatatable extends EntityDatatable
                 },
             ],
             [
-                trans('texts.view_quote'),
-                function ($model) {
-                    return URL::to("quotes/{$model->quote_id}/edit");
-                },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->quote_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
-                },
-            ],
-            [
                 trans('texts.view_invoice'),
                 function ($model) {
                     return URL::to("invoices/{$model->quote_invoice_id}/edit");

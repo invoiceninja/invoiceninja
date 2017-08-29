@@ -815,11 +815,11 @@ class InvoiceRepository extends BaseRepository
 
     /**
      * @param Invoice $invoice
-     * @param null    $quotePublicId
+     * @param null    $quoteId
      *
      * @return mixed
      */
-    public function cloneInvoice(Invoice $invoice, $quotePublicId = null)
+    public function cloneInvoice(Invoice $invoice, $quoteId = null)
     {
         $invoice->load('invitations', 'invoice_items');
         $account = $invoice->account;
@@ -873,9 +873,9 @@ class InvoiceRepository extends BaseRepository
             $clone->$field = $invoice->$field;
         }
 
-        if ($quotePublicId) {
+        if ($quoteId) {
             $clone->invoice_type_id = INVOICE_TYPE_STANDARD;
-            $clone->quote_id = $quotePublicId;
+            $clone->quote_id = $quoteId;
             if ($account->invoice_terms) {
                 $clone->terms = $account->invoice_terms;
             }
@@ -890,7 +890,7 @@ class InvoiceRepository extends BaseRepository
         $clone->due_date = $account->defaultDueDate($invoice->client);
         $clone->save();
 
-        if ($quotePublicId) {
+        if ($quoteId) {
             $invoice->quote_invoice_id = $clone->public_id;
             $invoice->save();
         }
