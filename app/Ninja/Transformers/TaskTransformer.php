@@ -18,6 +18,7 @@ class TaskTransformer extends EntityTransformer
      */
     protected $availableIncludes = [
         'client',
+        'project',
     ];
 
     public function __construct(Account $account)
@@ -31,6 +32,17 @@ class TaskTransformer extends EntityTransformer
             $transformer = new ClientTransformer($this->account, $this->serializer);
 
             return $this->includeItem($task->client, $transformer, 'client');
+        } else {
+            return null;
+        }
+    }
+
+    public function includeProject(Task $task)
+    {
+        if ($task->project) {
+            $transformer = new ProjectTransformer($this->account, $this->serializer);
+
+            return $this->includeItem($task->project, $transformer, 'project');
         } else {
             return null;
         }
