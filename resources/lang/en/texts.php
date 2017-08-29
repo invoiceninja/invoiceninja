@@ -2425,6 +2425,7 @@ $LANG = array(
     'include_errors' => 'Include Errors',
     'include_errors_help' => 'Include :link from storage/logs/laravel-error.log',
     'recent_errors' => 'recent errors',
+    'add_item' => 'Add Item',
 
 );
 

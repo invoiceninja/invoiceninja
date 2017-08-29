@@ -536,8 +536,10 @@
 					@endif
                     @if ($invoice->id)
                         {!! DropdownButton::normal(trans('texts.more_actions'))->withContents($invoice->present()->moreActions())->dropup() !!}
-                    @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
+                    @elseif (! $invoice->isQuote() && Request::is('*/clone'))
                         {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
+					@elseif (! empty($tasks))
+						{!! Button::normal(trans('texts.add_item'))->withAttributes(['id' => 'addItemButton', 'onclick' => 'onAddItemClick()'])->appendIcon(Icon::create('plus-sign')) !!}
                     @endif
         	    @endif
                 @if ($invoice->trashed())
@@ -1223,6 +1225,11 @@
         $('#recurrButton').html(enableLabel + "<span class='glyphicon glyphicon-repeat'></span>");
 		$('#saveButton').html(actionLabel + "<span class='glyphicon glyphicon-globe'></span>");
     }
+
+	function onAddItemClick() {
+		model.forceShowItems(true);
+		$('#addItemButton').hide();
+	}
 
 	function onEmailClick() {
         if (!NINJA.isRegistered) {
