@@ -260,6 +260,7 @@ Route::group([
     Route::get('/account/{account_key}', 'UserController@viewAccountByKey');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
+    Route::get('/errors', 'AppController@errors');
 
     Route::get('api/tokens', 'TokenController@getDatatable');
     Route::resource('tokens', 'TokenController');

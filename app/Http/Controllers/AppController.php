@@ -366,6 +366,17 @@ class AppController extends BaseController
         }
     }
 
+    public function errors()
+    {
+        if (Utils::isNinjaProd()) {
+            return redirect('/');
+        }
+
+        $errors = Utils::getErrors();
+
+        return view('errors.list', compact('errors'));
+    }
+
     public function stats()
     {
         if (! hash_equals(Input::get('password'), env('RESELLER_PASSWORD'))) {

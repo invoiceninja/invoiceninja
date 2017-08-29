@@ -2421,6 +2421,10 @@ $LANG = array(
     'applied_discount' => 'The coupon has been applied, the plan price has been reduced by :discount%.',
     'applied_free_year' => 'The coupon has been applied, your account has been upgraded to pro for one year.',
 
+    'contact_us_help' => 'If you\'re reporting an error please include any relevant logs from storage/logs/laravel-error.log',
+    'include_errors' => 'Include Errors',
+    'include_errors_help' => 'Include :link from storage/logs/laravel-error.log',
+    'recent_errors' => 'recent errors',
 
 );
 
