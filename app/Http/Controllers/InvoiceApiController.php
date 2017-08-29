@@ -206,7 +206,8 @@ class InvoiceApiController extends BaseAPIController
                 if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
                     $invoice = $recurringInvoice;
                 }
-                app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+                $reminder = isset($data['email_type']) ? $data['email_type'] : false;
+                app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder);
                 //$this->dispatch(new SendInvoiceEmail($invoice));
             }
         }

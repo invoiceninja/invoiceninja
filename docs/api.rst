@@ -93,6 +93,7 @@ Options
 The following options are available when creating an invoice.
 
 - ``email_invoice``: Email the invoice to the client.
+- ``email_type``: Set to reminder1, reminder2 or reminder3 to use the reminder template.
 - ``auto_bill``: Attempt to auto-bill the invoice using stored payment methods or credits.
 - ``paid``: Create a payment for the defined amount.
 
