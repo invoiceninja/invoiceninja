@@ -1464,6 +1464,17 @@ class Invoice extends EntityModel implements BalanceAffecting
     {
         return $this->isQuote() ? 'valid_until' : 'due_date';
     }
+
+    public function onlyHasTasks()
+    {
+        foreach ($this->invoice_items as $item) {
+            if ($item->invoice_item_type_id != INVOICE_ITEM_TYPE_TASK) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
 
 Invoice::creating(function ($invoice) {
