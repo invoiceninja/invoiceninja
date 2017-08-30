@@ -383,7 +383,8 @@ class CheckData extends Command
         }
 
         $current = config('database.default');
-        config(['database.default' => env('QUEUE_DATABASE')]);
+        $queueDB = config('queue.connections.database.connection');
+        config(['database.default' => $queueDB]);
 
         $count = DB::table('failed_jobs')->count();
 
