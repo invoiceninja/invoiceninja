@@ -117,6 +117,11 @@ class ClientRepository extends BaseRepository
             }
         }
 
+        // set default payment terms
+        if (auth()->check() && ! isset($data['payment_terms'])) {
+            $data['payment_terms'] = auth()->user()->account->payment_terms;
+        }
+
         $client->fill($data);
         $client->save();
 
