@@ -49,7 +49,21 @@
 	<input id="tableFilter_{{ $entityType }}" type="text" style="width:180px;margin-right:17px;background-color: white !important"
         class="form-control pull-left" placeholder="{{ trans('texts.filter') }}" value="{{ Input::get('filter') }}"/>
 
-    @if ($entityType == ENTITY_EXPENSE)
+	@if ($entityType == ENTITY_INVOICE && auth()->user()->account->isModuleEnabled(ENTITY_RECURRING_INVOICE))
+		{!! DropdownButton::normal(trans('texts.recurring'))
+			->withAttributes(['class'=>'recurringDropdown'])
+			->withContents([
+			  ['label' => trans('texts.new_recurring_invoice'), 'url' => url('/recurring_invoices/create')],
+			]
+		  )->split() !!}
+		<script type="text/javascript">
+			$(function() {
+				$('.recurringDropdown:not(.dropdown-toggle)').click(function() {
+					window.location = '{{ url('/recurring_invoices') }}';
+				});
+			});
+		</script>
+    @elseif ($entityType == ENTITY_EXPENSE)
 		{!! DropdownButton::normal(trans('texts.recurring'))
 			->withAttributes(['class'=>'recurringDropdown'])
 			->withContents([
@@ -72,7 +86,6 @@
 		  		});
 			});
 		</script>
-
 	@elseif ($entityType == ENTITY_TASK)
 		{!! DropdownButton::normal(trans('texts.projects'))
 			->withAttributes(['class'=>'projectsDropdown'])
