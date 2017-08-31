@@ -34,7 +34,8 @@
         <br/>
         @foreach (\App\Services\ImportService::$entityTypes as $entityType)
             {!! Former::file($entityType)
-                    ->addGroupClass("import-file {$entityType}-file") !!}
+                    ->addGroupClass("import-file {$entityType}-file")
+                    ->label(Utils::pluralizeEntityType($entityType)) !!}
         @endforeach
 
         <div id="jsonIncludes" style="display:none">

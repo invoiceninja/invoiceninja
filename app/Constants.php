@@ -38,6 +38,7 @@ if (! defined('APP_NAME')) {
     define('ENTITY_EXPENSE_CATEGORY', 'expense_category');
     define('ENTITY_PROJECT', 'project');
     define('ENTITY_RECURRING_EXPENSE', 'recurring_expense');
+    define('ENTITY_CUSTOMER', 'customer');
 
     define('INVOICE_TYPE_STANDARD', 1);
     define('INVOICE_TYPE_QUOTE', 2);
@@ -169,6 +170,7 @@ if (! defined('APP_NAME')) {
     define('IMPORT_INVOICEABLE', 'Invoiceable');
     define('IMPORT_INVOICEPLANE', 'InvoicePlane');
     define('IMPORT_HARVEST', 'Harvest');
+    define('IMPORT_STRIPE', 'Stripe');
 
     define('MAX_NUM_CLIENTS', 100);
     define('MAX_NUM_CLIENTS_PRO', 20000);

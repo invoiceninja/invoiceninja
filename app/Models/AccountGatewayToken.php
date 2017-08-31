@@ -26,6 +26,16 @@ class AccountGatewayToken extends Eloquent
     protected $casts = [];
 
     /**
+     * @var array
+     */
+    protected $fillable = [
+        'contact_id',
+        'account_gateway_id',
+        'client_id',
+        'token',
+    ];
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function payment_methods()
@@ -42,11 +52,27 @@ class AccountGatewayToken extends Eloquent
     }
 
     /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function contact()
+    {
+        return $this->belongsTo('App\Models\Contact');
+    }
+
+    /**
      * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
     public function default_payment_method()
     {
         return $this->hasOne('App\Models\PaymentMethod', 'id', 'default_payment_method_id');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getEntityType()
+    {
+        return ENTITY_CUSTOMER;
     }
 
     /**

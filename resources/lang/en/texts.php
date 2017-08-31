@@ -2426,6 +2426,10 @@ $LANG = array(
     'include_errors_help' => 'Include :link from storage/logs/laravel-error.log',
     'recent_errors' => 'recent errors',
     'add_item' => 'Add Item',
+    'customer' => 'Customer',
+    'customers' => 'Customers',
+    'created_customer' => 'Successfully created customer',
+    'created_customers' => 'Successfully created :count customers',
 
 );
 

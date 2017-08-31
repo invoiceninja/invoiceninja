@@ -6,6 +6,7 @@ use App\Models\Payment;
 use App\Models\PaymentMethod;
 use Cache;
 use Exception;
+use App\Models\PaymentType;
 
 class StripePaymentDriver extends BasePaymentDriver
 {
@@ -189,7 +190,7 @@ class StripePaymentDriver extends BasePaymentDriver
         // In that case we'd use GATEWAY_TYPE_TOKEN even though we're creating the credit card
         if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD) || $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
             $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
-            $paymentMethod->payment_type_id = $this->parseCardType($source['brand']);
+            $paymentMethod->payment_type_id = PaymentType::parseCardType($source['brand']);
         } elseif ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
             $paymentMethod->routing_number = $source['routing_number'];
             $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;

@@ -7,6 +7,7 @@ use Exception;
 use Session;
 use Utils;
 use App\Models\GatewayType;
+use App\Models\PaymentType;
 
 class BraintreePaymentDriver extends BasePaymentDriver
 {
@@ -158,7 +159,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         $paymentMethod->source_reference = $response->token;
 
         if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
-            $paymentMethod->payment_type_id = $this->parseCardType($response->cardType);
+            $paymentMethod->payment_type_id = PaymentType::parseCardType($response->cardType);
             $paymentMethod->last4 = $response->last4;
             $paymentMethod->expiration = $response->expirationYear . '-' . $response->expirationMonth . '-01';
         } elseif ($this->isGatewayType(GATEWAY_TYPE_PAYPAL)) {

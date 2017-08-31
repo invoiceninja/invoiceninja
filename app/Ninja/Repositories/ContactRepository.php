@@ -6,6 +6,13 @@ use App\Models\Contact;
 
 class ContactRepository extends BaseRepository
 {
+    public function all()
+    {
+        return Contact::scope()
+                ->withTrashed()
+                ->get();
+    }
+
     public function save($data, $contact = false)
     {
         $publicId = isset($data['public_id']) ? $data['public_id'] : false;

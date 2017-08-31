@@ -7,6 +7,7 @@ use App\Models\PaymentMethod;
 use Exception;
 use Session;
 use Utils;
+use App\Models\PaymentType;
 
 class WePayPaymentDriver extends BasePaymentDriver
 {
@@ -159,7 +160,7 @@ class WePayPaymentDriver extends BasePaymentDriver
             }
         } else {
             $paymentMethod->last4 = $source->last_four;
-            $paymentMethod->payment_type_id = $this->parseCardType($source->credit_card_name);
+            $paymentMethod->payment_type_id = PaymentType::parseCardType($source->credit_card_name);
             $paymentMethod->expiration = $source->expiration_year . '-' . $source->expiration_month . '-01';
             $paymentMethod->source_reference = $source->credit_card_id;
         }
