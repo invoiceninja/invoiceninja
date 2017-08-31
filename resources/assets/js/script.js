@@ -465,6 +465,15 @@ function comboboxHighlighter(item) {
     return result.replace(new RegExp("\n", 'g'), '<br/>');
 }
 
+// https://stackoverflow.com/a/326076/497368
+function inIframe () {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
 function comboboxMatcher(item) {
     return ~stripHtmlTags(item).toLowerCase().indexOf(this.query.toLowerCase());
 }
