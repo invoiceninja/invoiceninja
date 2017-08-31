@@ -22,7 +22,7 @@ class PaymentType extends Eloquent
         return $this->belongsTo('App\Models\GatewayType');
     }
 
-    public static function resolveAlias($cardName)
+    public static function parseCardType($cardName)
     {
         $cardTypes = [
             'visa' => PAYMENT_TYPE_VISA,

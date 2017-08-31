@@ -41,7 +41,7 @@ class CustomerTransformer extends BaseTransformer
                 'token' => $data->id,
                 'payment_method' => [
                     'contact_id' => $contact->id,
-                    'payment_type_id' => PaymentType::resolveAlias($data->card_brand),
+                    'payment_type_id' => PaymentType::parseCardType($data->card_brand),
                     'source_reference' => $data->card_id,
                     'last4' => $data->card_last4,
                     'expiration' => $data->card_exp_year . '-' . $data->card_exp_month . '-01',
