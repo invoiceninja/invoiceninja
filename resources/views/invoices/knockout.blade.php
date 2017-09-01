@@ -554,10 +554,7 @@ function InvoiceModel(data) {
             total = NINJA.parseFloat(total) + customValue2;
         }
 
-        var paid = self.totals.rawPaidToDate();
-        if (paid > 0) {
-            total -= paid;
-        }
+        total -= self.totals.rawPaidToDate();
 
         return total;
     });

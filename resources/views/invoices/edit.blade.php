@@ -866,9 +866,13 @@
 
                 // check amounts are correct
                 var phpBalance = invoice.balance;
-                var jsBalance = model.invoice().totals.rawTotal();
-                if (phpBalance != jsBalance) {
-                    window.onerror('Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance);
+                var koBalance = model.invoice().totals.rawTotal();
+                var jsBalance = calculateAmounts(createInvoiceModel()).total_amount;
+                if (phpBalance == koBalance && koBalance == jsBalance) {
+                    // do nothing
+                } else {
+                    var invitationKey = invoice.invitations[0].invitation_key;
+                    window.onerror(invitationKey + ': Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance + ', KO: ' + koBalance);
                 }
             @else
                 // set the default account tax rate
