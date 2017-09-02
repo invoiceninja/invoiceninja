@@ -35,4 +35,14 @@ class AccountEmailSettings extends Eloquent
         'late_fee3_percent',
     ];
 
+    public static $templates = [
+        TEMPLATE_INVOICE,
+        TEMPLATE_QUOTE,
+        //TEMPLATE_PARTIAL,
+        TEMPLATE_PAYMENT,
+        TEMPLATE_REMINDER1,
+        TEMPLATE_REMINDER2,
+        TEMPLATE_REMINDER3,
+    ];
+
 }
