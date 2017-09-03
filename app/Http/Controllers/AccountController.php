@@ -1365,7 +1365,12 @@ class AccountController extends BaseController
 
         $user = Auth::user();
         $account = Auth::user()->account;
+
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
+        $type = $account->hasMultipleAccounts() ? 'company' : 'account';
+        $subject = trans("texts.deleted_{$type}");
+        $message = trans("texts.deleted_{$type}_details", ['account' => $account->getDisplayName()]);
+        $this->userMailer->sendMessage($user, $subject, $message);
 
         $refunded = false;
         if (! $account->hasMultipleAccounts()) {

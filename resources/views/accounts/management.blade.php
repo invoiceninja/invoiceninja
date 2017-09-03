@@ -266,7 +266,7 @@
 								</div>
 								<div class="modal-footer" style="margin-top: 2px">
 									<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-									<button type="button" class="btn btn-danger" onclick="confirmPurge()">{{ trans('texts.purge_data') }}</button>
+									<button type="button" class="btn btn-danger" id="purgeButton" onclick="confirmPurge()">{{ trans('texts.purge_data') }}</button>
 								</div>
 							</div>
 						</div>
@@ -301,7 +301,7 @@
 								</div>
 								<div class="modal-footer" style="margin-top: 2px">
 									<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-									<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account') }}</button>
+									<button type="button" class="btn btn-danger" id="deleteButton" onclick="confirmCancel()">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account') }}</button>
 								</div>
 							</div>
 						</div>
@@ -338,10 +338,12 @@
 	}
 
 	function confirmCancel() {
+		$('#deleteButton').prop('disabled', true);
 		$('form.cancel-account').submit();
 	}
 
 	function confirmPurge() {
+		$('#purgeButton').prop('disabled', true);
 		$('form.purge-data').submit();
 	}
 

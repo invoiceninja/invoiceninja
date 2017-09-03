@@ -2193,9 +2193,9 @@ $LANG = array(
     'error_incorrect_gateway_ids' => 'Error: The gateways table has incorrect ids.',
     'purge_data' => 'Purge Data',
     'delete_data' => 'Delete Data',
-    'purge_data_help' => 'Permanently delete all data in the account, keeping the account and settings.',
+    'purge_data_help' => 'Permanently delete all data but keep the account and settings.',
     'cancel_account_help' => 'Permanently delete the account along with all data and setting.',
-    'purge_successful' => 'Successfully purged account data',
+    'purge_successful' => 'Successfully purged company data',
     'forbidden' => 'Forbidden',
     'purge_data_message' => 'Warning: This will permanently erase your data, there is no undo.',
     'contact_phone' => 'Contact Phone',
@@ -2430,6 +2430,14 @@ $LANG = array(
     'customers' => 'Customers',
     'created_customer' => 'Successfully created customer',
     'created_customers' => 'Successfully created :count customers',
+
+    'purge_details' => 'The data in your company (:account) has been successfully purged.',
+    'deleted_company' => 'Successfully canceled account',
+    'deleted_account' => 'Successfully deleted company',
+    'deleted_company_details' => 'Your company (:account) has been successfully deleted.',
+    'deleted_account_details' => 'Your account (:account) has been successfully deleted.',
+
+
 
 );
 
