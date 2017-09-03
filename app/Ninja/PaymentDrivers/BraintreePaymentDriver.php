@@ -212,4 +212,15 @@ class BraintreePaymentDriver extends BasePaymentDriver
                 ->send()
                 ->getToken();
     }
+
+    public function isValid()
+    {
+        try {
+            $this->createTransactionToken();
+            return true;
+        } catch (Exception $exception) {
+            return get_class($exception);
+        }
+    }
+
 }
