@@ -173,7 +173,7 @@ function ViewModel(data) {
         }
         invoice = self.invoice();
         for (var i=0; i<invoice.invoice_items_with_tasks().length; ++i) {
-            var item = invoice.invoice_items()[i];
+            var item = invoice.invoice_items_with_tasks()[i];
             if (! item.isEmpty()) {
                 self.hasTasksCached = true;
                 return true;
