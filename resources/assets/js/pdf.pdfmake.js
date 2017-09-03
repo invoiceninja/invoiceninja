@@ -119,7 +119,7 @@ function GetPdfMake(invoice, javascript, callback) {
     // Add ninja logo to the footer
     var dd = JSON.parse(javascript, jsonCallBack);
     var designId = invoice.invoice_design_id;
-    if (!invoice.features.remove_created_by && ! isEdge) {
+    if (!invoice.features.remove_created_by) {
         var footer = (typeof dd.footer === 'function') ? dd.footer() : dd.footer;
         if (footer) {
             if (footer.hasOwnProperty('columns')) {
@@ -215,7 +215,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
     // search/replace variables
     var json = {
         'accountName': account.name || ' ',
-        'accountLogo': ( ! isEdge && window.accountLogo) ? window.accountLogo : blankImage,
+        'accountLogo': window.accountLogo ? window.accountLogo : blankImage,
         'accountDetails': NINJA.accountDetails(invoice),
         'accountAddress': NINJA.accountAddress(invoice),
         'invoiceDetails': NINJA.invoiceDetails(invoice),
@@ -224,7 +224,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice),
         'taskLineItems': NINJA.invoiceLines(invoice, true),
         //'taskLineItemColumns': NINJA.invoiceColumns(invoice),
-        'invoiceDocuments' : isEdge ? [] : NINJA.invoiceDocuments(invoice),
+        'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
