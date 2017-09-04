@@ -3,6 +3,7 @@
 namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Payment;
+use App\Models\Invitation;
 use App\Models\PaymentMethod;
 use App\Models\GatewayType;
 use Cache;
@@ -213,7 +214,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected function creatingPayment($payment, $paymentMethod)
     {
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
+        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod) || $this->isGatewayType(GATEWAY_TYPE_ALIPAY, $paymentMethod)) {
             $payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
         }
 
@@ -369,10 +370,6 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input)
     {
-        if (\Utils::isNinjaDev()) {
-            \Log::info("WEB HOOK: {$eventType} {$eventId}");
-        }
-
         $eventId = array_get($input, 'id');
         $eventType = array_get($input, 'type');
 
@@ -416,11 +413,11 @@ class StripePaymentDriver extends BasePaymentDriver
             return false;
         }
 
-        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded' || $eventType == 'charge.refunded') {
-            $charge = $eventDetails['data']['object'];
-            $transactionRef = $charge['id'];
+        $source = $eventDetails['data']['object'];
+        $sourceRef = $source['id'];
 
-            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $transactionRef)->first();
+        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded' || $eventType == 'charge.refunded') {
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
 
             if (! $payment) {
                 return false;
@@ -428,7 +425,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
             if ($eventType == 'charge.failed') {
                 if (! $payment->isFailed()) {
-                    $payment->markFailed($charge['failure_message']);
+                    $payment->markFailed($source['failure_message']);
 
                     $userMailer = app('App\Ninja\Mailers\UserMailer');
                     $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
@@ -436,12 +433,9 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($eventType == 'charge.succeeded') {
                 $payment->markComplete();
             } elseif ($eventType == 'charge.refunded') {
-                $payment->recordRefund($charge['amount_refunded'] / 100 - $payment->refunded);
+                $payment->recordRefund($source['amount_refunded'] / 100 - $payment->refunded);
             }
         } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
-            $source = $eventDetails['data']['object'];
-            $sourceRef = $source['id'];
-
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
 
             if (! $paymentMethod) {
@@ -454,10 +448,13 @@ class StripePaymentDriver extends BasePaymentDriver
                 //$this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
             }
         } elseif ($eventType == 'source.chargeable') {
-            $source = $eventDetails['data']['object'];
-            $data = sprintf('amount=%d&currency=%s&source=%s', $sorce['amount'], $source['currency'], $source['id']);
-            $response = $this->makeStripeCall('POST', 'charges', $data);
-            \Log::info('post charge reponse: ' . print_r($response, true));
+            $this->invitation = Invitation::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
+            if (! $this->invitation) {
+                return false;
+            }
+            $data = sprintf('amount=%d&currency=%s&source=%s', $source['amount'], $source['currency'], $source['id']);
+            $this->purchaseResponse = $this->makeStripeCall('POST', 'charges', $data);
+            $this->createPayment($this->purchaseResponse['id']);
         }
 
         return 'Processed successfully';
