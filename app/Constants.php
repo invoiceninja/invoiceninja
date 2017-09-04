@@ -414,6 +414,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_BITCOIN', 4);
     define('GATEWAY_TYPE_DWOLLA', 5);
     define('GATEWAY_TYPE_CUSTOM', 6);
+    define('GATEWAY_TYPE_ALIPAY', 7);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('TEMPLATE_INVOICE', 'invoice');

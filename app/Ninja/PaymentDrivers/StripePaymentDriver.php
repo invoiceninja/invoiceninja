@@ -4,6 +4,7 @@ namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Payment;
 use App\Models\PaymentMethod;
+use App\Models\GatewayType;
 use Cache;
 use Exception;
 use App\Models\PaymentType;
@@ -22,6 +23,10 @@ class StripePaymentDriver extends BasePaymentDriver
 
         if ($this->accountGateway && $this->accountGateway->getAchEnabled()) {
             $types[] = GATEWAY_TYPE_BANK_TRANSFER;
+        }
+
+        if ($this->accountGateway && $this->accountGateway->getAlipayEnabled()) {
+            $types[] = GATEWAY_TYPE_ALIPAY;
         }
 
         return $types;
@@ -308,6 +313,23 @@ class StripePaymentDriver extends BasePaymentDriver
         return true;
     }
 
+    public function createSource()
+    {
+        $amount = intval($this->invoice()->getRequestedAmount() * 100);
+        $currency = $this->client()->getCurrencyCode();
+        $gatewayType = GatewayType::getAliasFromId($this->gatewayType);
+        $redirect = url("/complete_source/{$this->invitation->invitation_key}/{$gatewayType}");
+        $email = $this->contact()->email;
+
+        $data = "type=alipay&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}&owner[email]={$email}";
+        $response = $this->makeStripeCall('POST', 'sources', $data);
+
+        $this->invitation->transaction_reference = $response['id'];
+        $this->invitation->save();
+
+        return redirect($response['redirect']['url']);
+    }
+
     public function makeStripeCall($method, $url, $body = null)
     {
         $apiKey = $this->accountGateway->getConfig()->apiKey;
@@ -347,6 +369,10 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function handleWebHook($input)
     {
+        if (\Utils::isNinjaDev()) {
+            \Log::info("WEB HOOK: {$eventType} {$eventId}");
+        }
+
         $eventId = array_get($input, 'id');
         $eventType = array_get($input, 'type');
 

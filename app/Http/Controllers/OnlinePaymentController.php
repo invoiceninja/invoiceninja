@@ -198,6 +198,33 @@ class OnlinePaymentController extends BaseController
         }
     }
 
+    public function createSource($invitationKey, $gatewayType)
+    {
+        if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
+        }
+
+        $gatewayTypeId = GatewayType::getIdFromAlias($gatewayType);
+        $paymentDriver = $invitation->account->paymentDriver($invitation, $gatewayTypeId);
+
+        return $paymentDriver->createSource();
+    }
+
+    public function completeSource($invitationKey, $gatewayType)
+    {
+        if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
+        }
+
+        return redirect()->to('view/' . $invitation->invitation_key);
+    }
+
     /**
      * @param $paymentDriver
      * @param $exception
