@@ -1410,6 +1410,7 @@ $LANG = array(
     'payment_type_Switch' => 'Switch',
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
+    'payment_type_Alipay' => 'Alipay',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',

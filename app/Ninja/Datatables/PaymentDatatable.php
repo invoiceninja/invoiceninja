@@ -67,6 +67,8 @@ class PaymentDatatable extends EntityDatatable
                             return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
                         } elseif ($model->email) {
                             return $model->email;
+                        } else {
+                            return trans('texts.payment_type_' . $model->payment_type);
                         }
                     } elseif ($model->last4) {
                         if ($model->bank_name) {

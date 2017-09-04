@@ -214,8 +214,14 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected function creatingPayment($payment, $paymentMethod)
     {
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod) || $this->isGatewayType(GATEWAY_TYPE_ALIPAY, $paymentMethod)) {
+        $isBank = $this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod);
+        $isAlipay = $this->isGatewayType(GATEWAY_TYPE_ALIPAY, $paymentMethod);
+
+        if ($isBank || $isAlipay) {
             $payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
+            if ($isAlipay) {
+                $payment->payment_type_id = PAYMENT_TYPE_ALIPAY;
+            }
         }
 
         return $payment;
