@@ -19,6 +19,7 @@
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
         {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
+        {!! Former::populateField('enable_alipay', $accountGateway->getAlipayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? 1 : 0) !!}
         {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
         {!! Former::populateField('plaid_secret', $accountGateway->getPlaidSecret() ? str_repeat('*', strlen($accountGateway->getPlaidSecret())) : '') !!}
@@ -149,7 +150,12 @@
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
                 ->text(trans('texts.enable_ach'))
-                ->help(trans('texts.stripe_ach_help'))
+                ->value(1) !!}
+
+            {!! Former::checkbox('enable_alipay')
+                ->label(trans('texts.alipay'))
+                ->text(trans('texts.enable_alipay'))
+                ->help(trans('texts.stripe_alipay_help', ['link' => link_to('https://dashboard.stripe.com/account/payments/settings', 'Stripe', ['target' => '_blank'])]))
                 ->value(1) !!}
 
             <div class="stripe-ach-options">

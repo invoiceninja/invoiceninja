@@ -294,6 +294,10 @@ class AccountGatewayController extends BaseController
                 $config->plaidPublicKey = $oldConfig->plaidPublicKey;
             }
 
+            if ($gatewayId == GATEWAY_STRIPE) {
+                $config->enableAlipay = boolval(Input::get('enable_alipay'));
+            }
+
             if ($gatewayId == GATEWAY_STRIPE || $gatewayId == GATEWAY_WEPAY) {
                 $config->enableAch = boolval(Input::get('enable_ach'));
             }

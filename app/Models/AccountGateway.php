@@ -149,10 +149,6 @@ class AccountGateway extends EntityModel
      */
     public function getAlipayEnabled()
     {
-        if (\Utils::isNinjaDev()) {
-            return true;
-        }
-
         return ! empty($this->getConfigField('enableAlipay'));
     }
 

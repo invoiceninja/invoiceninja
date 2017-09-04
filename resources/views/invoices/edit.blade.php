@@ -1164,19 +1164,22 @@
 		@endif
 
 		var invoice = createInvoiceModel();
-		if (! checkedInvoiceBalances) {
-			// check amounts are correct
-			checkedInvoiceBalances = true;
-			var phpBalance = invoice.balance;
-			var koBalance = model.invoice().totals.rawTotal();
-			var jsBalance = calculateAmounts(invoice).total_amount;
-			if (phpBalance == koBalance && koBalance == jsBalance) {
-				// do nothing
-			} else {
-				var invitationKey = invoice.invitations[0].invitation_key;
-				window.onerror(invitationKey + ': Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance + ', KO: ' + koBalance);
+
+		@if ($invoice->exists)
+			if (! checkedInvoiceBalances) {
+				// check amounts are correct
+				checkedInvoiceBalances = true;
+				var phpBalance = invoice.balance;
+				var koBalance = model.invoice().totals.rawTotal();
+				var jsBalance = calculateAmounts(invoice).total_amount;
+				if (phpBalance == koBalance && koBalance == jsBalance) {
+					// do nothing
+				} else {
+					var invitationKey = invoice.invitations[0].invitation_key;
+					window.onerror(invitationKey + ': Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance + ', KO: ' + koBalance);
+				}
 			}
-		}
+		@endif
 
 		@if ( ! $account->live_preview)
 			return;

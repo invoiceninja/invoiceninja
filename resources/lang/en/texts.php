@@ -1214,7 +1214,7 @@ $LANG = array(
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
     'enable_ach' => 'Enable ACH',
-    'stripe_ach_help' => 'ACH support must also be enabled at Stripe.',
+    'stripe_ach_help' => 'ACH support must also be enabled in :link.',
     'ach_disabled' => 'Another gateway is already configured for direct debit.',
 
     'plaid' => 'Plaid',
@@ -2438,7 +2438,9 @@ $LANG = array(
     'deleted_company_details' => 'Your company (:account) has been successfully deleted.',
     'deleted_account_details' => 'Your account (:account) has been successfully deleted.',
 
-
+    'alipay' => 'Alipay',
+    'enable_alipay' => 'Enable Alipay',
+    'stripe_alipay_help' => 'ACH/Alipay support must also be enabled in :link.',
 
 );
 
