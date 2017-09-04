@@ -158,7 +158,7 @@
                 ->help(trans('texts.stripe_alipay_help', ['link' => link_to('https://dashboard.stripe.com/account/payments/settings', 'Stripe', ['target' => '_blank'])]))
                 ->value(1) !!}
 
-            <div class="stripe-ach-options">
+            <div class="stripe-webhook-options">
                 <div class="form-group">
                     <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
                     <div class="col-lg-8 col-sm-8 help-block">
@@ -168,6 +168,9 @@
                     ]) !!}</strong></div>
                     </div>
                 </div>
+            </div>
+
+            <div class="stripe-ach-options">
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-4">
                         <h4>{{trans('texts.plaid')}}</h4>
@@ -247,9 +250,22 @@
         }
     }
 
-    function enablePlaidSettings() {
+    function onEnableAchChanged() {
         var visible = $('#enable_ach').is(':checked');
+        $('.stripe-webhook-options').toggle(visible);
         $('.stripe-ach-options').toggle(visible);
+    }
+
+    function onEnableAlipayChanged() {
+        var visible = $('#enable_alipay').is(':checked');
+        $('.stripe-webhook-options').toggle(visible);
+    }
+
+    function updateWebhookShown() {
+        var enableAch = $('#enable_ach').is(':checked');
+        var enableAlipay = $('#enable_alipay').is(':checked');
+        $('.stripe-webhook-options').toggle(enableAch || enableAlipay);
+        $('.stripe-ach-options').toggle(enableAch);
     }
 
     var gateways = {!! Cache::get('gateways') !!};
@@ -257,12 +273,13 @@
     $(function() {
 
         setFieldsShown();
-        enablePlaidSettings();
+        updateWebhookShown();
 
         $('#show_address').change(enableUpdateAddress);
         enableUpdateAddress();
 
-        $('#enable_ach').change(enablePlaidSettings)
+        $('#enable_ach').change(updateWebhookShown);
+        $('#enable_alipay').change(updateWebhookShown);
 
         @if (!$accountGateway && count($secondaryGateways))
             $('#primary_gateway_id').append($('<option>', {

@@ -937,7 +937,11 @@ class BasePaymentDriver
                 $url = 'javascript:showCustomModal();';
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
-                $url = $this->paymentUrl($gatewayTypeAlias);
+                if ($gatewayTypeId == GATEWAY_TYPE_ALIPAY) {
+                    $url = url("/create_source/{$this->invitation->invitation_key}/alipay");
+                } else {
+                    $url = $this->paymentUrl($gatewayTypeAlias);
+                }
                 if ($custom = $this->account()->getLabel($gatewayTypeAlias)) {
                     $label = $custom;
                 } else {
