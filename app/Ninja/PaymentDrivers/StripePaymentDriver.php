@@ -23,8 +23,11 @@ class StripePaymentDriver extends BasePaymentDriver
         ];
 
         if ($gateway = $this->accountGateway) {
-            if ($gateway->getAchEnabled() || $gateway->getSofortEnabled()) {
+            if ($gateway->getAchEnabled()) {
                 $types[] = GATEWAY_TYPE_BANK_TRANSFER;
+            }
+            if ($gateway->getSofortEnabled()) {
+                $types[] = GATEWAY_TYPE_SOFORT;
             }
             if ($gateway->getAlipayEnabled()) {
                 $types[] = GATEWAY_TYPE_ALIPAY;
@@ -67,10 +70,9 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function shouldUseSource()
     {
-        if (in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY])) {
-            return true;
-        }
+        return in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY, GATEWAY_TYPE_SOFORT]);
 
+        /*
         if ($this->gatewayType == GATEWAY_TYPE_BANK_TRANSFER) {
             $achEnabled = $this->accountGateway->getAchEnabled();
             $sofortEnabled = $this->accountGateway->getSofortEnabled();
@@ -91,6 +93,7 @@ class StripePaymentDriver extends BasePaymentDriver
         }
 
         return false;
+        */
     }
 
     protected function checkCustomerExists($customer)
@@ -245,12 +248,13 @@ class StripePaymentDriver extends BasePaymentDriver
     {
         $isBank = $this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod);
         $isAlipay = $this->isGatewayType(GATEWAY_TYPE_ALIPAY, $paymentMethod);
+        $isSofort = $this->isGatewayType(GATEWAY_TYPE_SOFORT, $paymentMethod);
 
-        if ($isBank || $isAlipay) {
+        if ($isBank || $isAlipay || $isSofort) {
             $payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
             if ($isAlipay) {
                 $payment->payment_type_id = PAYMENT_TYPE_ALIPAY;
-            } elseif ($this->shouldUseSource()) {
+            } elseif ($isSofort) {
                 $payment->payment_type_id = PAYMENT_TYPE_SOFORT;
             }
         }
