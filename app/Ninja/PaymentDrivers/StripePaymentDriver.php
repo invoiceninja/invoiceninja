@@ -352,12 +352,27 @@ class StripePaymentDriver extends BasePaymentDriver
     public function createSource()
     {
         $amount = intval($this->invoice()->getRequestedAmount() * 100);
+        $invoiceNumber = $this->invoice()->invoice_number;
         $currency = $this->client()->getCurrencyCode();
         $gatewayType = GatewayType::getAliasFromId($this->gatewayType);
         $redirect = url("/complete_source/{$this->invitation->invitation_key}/{$gatewayType}");
-        $email = $this->contact()->email;
+        $country = $this->client()->country ? $this->client()->country->iso_3166_2 : ($this->account()->country ? $this->account()->country->iso_3166_2 : '');
+        $extra = '';
 
-        $data = "type=alipay&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}";
+        if ($this->gatewayType == GATEWAY_TYPE_ALIPAY) {
+            if (! $this->accountGateway->getAlipayEnabled()) {
+                throw new Exception('Alipay is not enabled');
+            }
+            $type = 'alipay';
+        } else {
+            if (! $this->accountGateway->getSofortEnabled()) {
+                throw new Exception('Sofort is not enabled');
+            }
+            $type = 'sofort';
+            $extra = "&sofort[country]={$country}&statement_descriptor={$invoiceNumber}";
+        }
+
+        $data = "type={$type}&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}{$extra}";
         $response = $this->makeStripeCall('POST', 'sources', $data);
 
         if (is_array($response) && isset($response['id'])) {
