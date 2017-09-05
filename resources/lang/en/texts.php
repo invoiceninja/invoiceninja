@@ -2440,7 +2440,7 @@ $LANG = array(
 
     'alipay' => 'Alipay',
     'enable_alipay' => 'Enable Alipay',
-    'stripe_alipay_help' => 'ACH/Alipay support must also be enabled in :link.',
+    'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
 
 );
 
