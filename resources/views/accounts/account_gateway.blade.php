@@ -66,6 +66,10 @@
     @foreach ($gateways as $gateway)
 
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
+            @if ($gateway->id == GATEWAY_STRIPE)
+                {!! Former::text('publishable_key') !!}
+            @endif
+
             @foreach ($gateway->fields as $field => $details)
 
                 @if ($details && !$accountGateway && !is_array($details) && !is_bool($details))
@@ -89,9 +93,7 @@
 
             @endforeach
 
-            @if ($gateway->id == GATEWAY_STRIPE)
-                {!! Former::text('publishable_key') !!}
-            @elseif ($gateway->id == GATEWAY_BRAINTREE)
+            @if ($gateway->id == GATEWAY_BRAINTREE)
                 @if ($account->hasGatewayId(GATEWAY_PAYPAL_EXPRESS))
                     {!! Former::checkbox('enable_paypal')
                         ->label(trans('texts.paypal'))

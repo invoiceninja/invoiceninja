@@ -331,10 +331,14 @@ class StripePaymentDriver extends BasePaymentDriver
         $data = "type=alipay&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}";
         $response = $this->makeStripeCall('POST', 'sources', $data);
 
-        $this->invitation->transaction_reference = $response['id'];
-        $this->invitation->save();
+        if (is_array($response) && isset($response['id'])) {
+            $this->invitation->transaction_reference = $response['id'];
+            $this->invitation->save();
 
-        return redirect($response['redirect']['url']);
+            return redirect($response['redirect']['url']);
+        } else {
+            throw new Exception($response);
+        }
     }
 
     public function makeStripeCall($method, $url, $body = null)
@@ -459,8 +463,10 @@ class StripePaymentDriver extends BasePaymentDriver
                 return false;
             }
             $data = sprintf('amount=%d&currency=%s&source=%s', $source['amount'], $source['currency'], $source['id']);
-            $this->purchaseResponse = $this->makeStripeCall('POST', 'charges', $data);
-            $this->createPayment($this->purchaseResponse['id']);
+            $this->purchaseResponse = $response = $this->makeStripeCall('POST', 'charges', $data);
+            if (is_array($response) && isset($response['id'])) {
+                $this->createPayment($response['id']);
+            }
         }
 
         return 'Processed successfully';

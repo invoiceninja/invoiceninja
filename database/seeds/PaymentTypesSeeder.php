@@ -37,6 +37,7 @@ class PaymentTypesSeeder extends Seeder
             ['name' => 'Venmo'],
             ['name' => 'Money Order'],
             ['name' => 'Alipay', 'gateway_type_id' => GATEWAY_TYPE_ALIPAY],
+            ['name' => 'Sofort', 'gateway_type_id' => GATEWAY_TYPE_BANK_TRANSFER],
         ];
 
         foreach ($paymentTypes as $paymentType) {
