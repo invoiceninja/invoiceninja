@@ -167,7 +167,7 @@ class GatewayFeesCest
         $I->amOnPage('/view/' . $invitationKey);
         $I->seeInDatabase('invoices', [
             'id' => $invoiceId,
-            'amount' => ($amount),
+            'amount' => ($amount + $fee * 2),
         ]);
 
         $I->createOnlinePayment($I, $invitationKey);
