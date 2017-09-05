@@ -250,6 +250,8 @@ class StripePaymentDriver extends BasePaymentDriver
             $payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
             if ($isAlipay) {
                 $payment->payment_type_id = PAYMENT_TYPE_ALIPAY;
+            } elseif ($this->shouldUseSource()) {
+                $payment->payment_type_id = PAYMENT_TYPE_SOFORT;
             }
         }
 

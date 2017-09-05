@@ -403,7 +403,8 @@ if (! defined('APP_NAME')) {
     define('PAYMENT_TYPE_MAESTRO', 21);
     define('PAYMENT_TYPE_SOLO', 22);
     define('PAYMENT_TYPE_SWITCH', 23);
-    define('PAYMENT_TYPE_ALIPAY', 24);
+    define('PAYMENT_TYPE_ALIPAY', 28);
+    define('PAYMENT_TYPE_SOFORT', 29);
 
     define('PAYMENT_METHOD_STATUS_NEW', 'new');
     define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
