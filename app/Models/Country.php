@@ -24,6 +24,7 @@ class Country extends Eloquent
         'swap_currency_symbol',
         'thousand_separator',
         'decimal_separator',
+        'iso_3166_3',
     ];
 
     /**

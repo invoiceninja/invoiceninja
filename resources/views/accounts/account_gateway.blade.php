@@ -19,6 +19,7 @@
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
         {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
+        {!! Former::populateField('enable_sofort', $accountGateway->getSofortEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_alipay', $accountGateway->getAlipayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? 1 : 0) !!}
         {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
@@ -154,6 +155,11 @@
                 ->text(trans('texts.enable_ach'))
                 ->value(1) !!}
 
+            {!! Former::checkbox('enable_sofort')
+                ->label(trans('texts.sofort'))
+                ->text(trans('texts.enable_sofort'))
+                ->value(1) !!}
+
             {!! Former::checkbox('enable_alipay')
                 ->label(trans('texts.alipay'))
                 ->text(trans('texts.enable_alipay'))
@@ -252,21 +258,11 @@
         }
     }
 
-    function onEnableAchChanged() {
-        var visible = $('#enable_ach').is(':checked');
-        $('.stripe-webhook-options').toggle(visible);
-        $('.stripe-ach-options').toggle(visible);
-    }
-
-    function onEnableAlipayChanged() {
-        var visible = $('#enable_alipay').is(':checked');
-        $('.stripe-webhook-options').toggle(visible);
-    }
-
     function updateWebhookShown() {
         var enableAch = $('#enable_ach').is(':checked');
         var enableAlipay = $('#enable_alipay').is(':checked');
-        $('.stripe-webhook-options').toggle(enableAch || enableAlipay);
+        var enableSofort = $('#enable_sofort').is(':checked');
+        $('.stripe-webhook-options').toggle(enableAch || enableAlipay || enableSofort);
         $('.stripe-ach-options').toggle(enableAch);
     }
 
@@ -282,6 +278,7 @@
 
         $('#enable_ach').change(updateWebhookShown);
         $('#enable_alipay').change(updateWebhookShown);
+        $('#enable_sofort').change(updateWebhookShown);
 
         @if (!$accountGateway && count($secondaryGateways))
             $('#primary_gateway_id').append($('<option>', {

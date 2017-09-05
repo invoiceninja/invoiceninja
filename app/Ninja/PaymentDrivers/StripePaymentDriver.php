@@ -22,12 +22,13 @@ class StripePaymentDriver extends BasePaymentDriver
             GATEWAY_TYPE_TOKEN,
         ];
 
-        if ($this->accountGateway && $this->accountGateway->getAchEnabled()) {
-            $types[] = GATEWAY_TYPE_BANK_TRANSFER;
-        }
-
-        if ($this->accountGateway && $this->accountGateway->getAlipayEnabled()) {
-            $types[] = GATEWAY_TYPE_ALIPAY;
+        if ($gateway = $this->accountGateway) {
+            if ($gateway->getAchEnabled() || $gateway->getSofortEnabled()) {
+                $types[] = GATEWAY_TYPE_BANK_TRANSFER;
+            }
+            if ($gateway->getAlipayEnabled()) {
+                $types[] = GATEWAY_TYPE_ALIPAY;
+            }
         }
 
         return $types;
@@ -62,6 +63,34 @@ class StripePaymentDriver extends BasePaymentDriver
         } else {
             return $result;
         }
+    }
+
+    public function shouldUseSource()
+    {
+        if (in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY])) {
+            return true;
+        }
+
+        if ($this->gatewayType == GATEWAY_TYPE_BANK_TRANSFER) {
+            $achEnabled = $this->accountGateway->getAchEnabled();
+            $sofortEnabled = $this->accountGateway->getSofortEnabled();
+            if ($sofortEnabled) {
+                if (! $achEnabled) {
+                    return true;
+                }
+                if ($country = $this->client()->country) {
+                    $country = $country->iso_3166_3;
+                } elseif ($country = $this->account()->country) {
+                    $country = $country->iso_3166_3;
+                }
+                // https://stripe.com/docs/sources/sofort
+                if ($country && in_array($country, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     protected function checkCustomerExists($customer)

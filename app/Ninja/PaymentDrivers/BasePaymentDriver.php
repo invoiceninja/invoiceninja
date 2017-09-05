@@ -142,7 +142,7 @@ class BasePaymentDriver
         }
 
         // For these gateway types we use the API directrly rather than Omnipay
-        if (in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY])) {
+        if ($this->shouldUseSource()) {
             return $this->createSource();
         }
 
@@ -518,6 +518,12 @@ class BasePaymentDriver
             'shippingCountry' => $client->country ? $client->country->iso_3166_2 : '',
             'shippingPhone' => $contact->phone,
         ];
+    }
+
+    public function shouldUseSource()
+    {
+        // Use Omnipay by default
+        return false;
     }
 
     protected function shouldCreateToken()

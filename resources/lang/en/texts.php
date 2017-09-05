@@ -1213,7 +1213,7 @@ $LANG = array(
 
     'payment_type_stripe' => 'Stripe',
     'ach' => 'ACH',
-    'enable_ach' => 'Enable ACH',
+    'enable_ach' => 'Accept US bank transfers',
     'stripe_ach_help' => 'ACH support must also be enabled in :link.',
     'ach_disabled' => 'Another gateway is already configured for direct debit.',
 
@@ -2439,8 +2439,11 @@ $LANG = array(
     'deleted_account_details' => 'Your account (:account) has been successfully deleted.',
 
     'alipay' => 'Alipay',
-    'enable_alipay' => 'Enable Alipay',
+    'sofort' => 'Sofort',
+    'enable_alipay' => 'Accept Alipay',
+    'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
+
 
 );
 

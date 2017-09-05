@@ -155,6 +155,14 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
+    public function getSofortEnabled()
+    {
+        return ! empty($this->getConfigField('enableSofort'));
+    }
+
+    /**
+     * @return bool
+     */
     public function getPayPalEnabled()
     {
         return ! empty($this->getConfigField('enablePayPal'));
