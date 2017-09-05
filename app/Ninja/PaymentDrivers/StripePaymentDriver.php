@@ -328,7 +328,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $redirect = url("/complete_source/{$this->invitation->invitation_key}/{$gatewayType}");
         $email = $this->contact()->email;
 
-        $data = "type=alipay&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}&owner[email]={$email}";
+        $data = "type=alipay&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}";
         $response = $this->makeStripeCall('POST', 'sources', $data);
 
         $this->invitation->transaction_reference = $response['id'];

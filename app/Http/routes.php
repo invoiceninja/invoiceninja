@@ -33,7 +33,6 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
     Route::post('payment/{invitation_key}', 'OnlinePaymentController@doPayment');
-    Route::get('create_source/{invitation_key}/{gateway_type}', 'OnlinePaymentController@createSource');
     Route::get('complete_source/{invitation_key}/{gateway_type}', 'OnlinePaymentController@completeSource');
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');

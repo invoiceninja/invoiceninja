@@ -141,6 +141,11 @@ class BasePaymentDriver
             $invoicRepo->setGatewayFee($this->invoice(), $this->gatewayType);
         }
 
+        // For these gateway types we use the API directrly rather than Omnipay
+        if (in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY])) {
+            return $this->createSource();
+        }
+
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
             if (Session::has('error')) {
                 Session::reflash();
@@ -937,11 +942,7 @@ class BasePaymentDriver
                 $url = 'javascript:showCustomModal();';
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
-                if ($gatewayTypeId == GATEWAY_TYPE_ALIPAY) {
-                    $url = url("/create_source/{$this->invitation->invitation_key}/alipay");
-                } else {
-                    $url = $this->paymentUrl($gatewayTypeAlias);
-                }
+                $url = $this->paymentUrl($gatewayTypeAlias);
                 if ($custom = $this->account()->getLabel($gatewayTypeAlias)) {
                     $label = $custom;
                 } else {
