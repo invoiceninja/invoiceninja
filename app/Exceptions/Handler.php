@@ -49,11 +49,12 @@ class Handler extends ExceptionHandler
             return false;
         }
 
+        if (Crawler::isCrawler()) {
+            return false;
+        }
+
         // don't show these errors in the logs
         if ($e instanceof NotFoundHttpException) {
-            if (Crawler::isCrawler()) {
-                return false;
-            }
             // The logo can take a few seconds to get synced between servers
             // TODO: remove once we're using cloud storage for logos
             if (Utils::isNinja() && strpos(request()->url(), '/logo/') !== false) {
