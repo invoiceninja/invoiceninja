@@ -126,9 +126,9 @@
 		                </div>
 						<div role="tabpanel" class="tab-pane" id="fees">
 							<div id="feesDisabled" class="panel-body" style="display:none">
-								<div class="help-block">
-									{{ trans('texts.fees_disabled_for_gateway') }}
-								</div>
+								<center style="font-size:16px;color:#888888;">
+									{{ trans('texts.fees_disabled') }}
+								</center>
 							</div>
 		                    <div id="feesEnabled" class="panel-body">
 
@@ -255,7 +255,7 @@
 
 		updateFeeSample();
 
-		if (gateway_type_id == {{ GATEWAY_TYPE_CUSTOM }}) {
+		if (gateway_type_id == {{ GATEWAY_TYPE_CUSTOM }} || {{ $account->gateway_fee_enabled ? '0' : '1' }}) {
 			$('#feesEnabled').hide();
 			$('#feesDisabled').show();
 		} else {
