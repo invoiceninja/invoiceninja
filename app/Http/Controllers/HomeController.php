@@ -140,7 +140,7 @@ class HomeController extends BaseController
         Mail::raw($message, function ($message) {
             $subject = 'Customer Message: ';
             if (Utils::isNinjaProd()) {
-                $subject .= config('database.default');
+                $subject .= str_replace('db-', '', config('database.default'));
             } else {
                 $subject .= 'Self-Host';
             }
