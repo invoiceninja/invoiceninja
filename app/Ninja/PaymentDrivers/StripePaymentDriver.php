@@ -505,6 +505,7 @@ class StripePaymentDriver extends BasePaymentDriver
             }
             $data = sprintf('amount=%d&currency=%s&source=%s', $source['amount'], $source['currency'], $source['id']);
             $this->purchaseResponse = $response = $this->makeStripeCall('POST', 'charges', $data);
+            $this->gatewayType = GatewayType::getIdFromAlias($source['type']);
             if (is_array($response) && isset($response['id'])) {
                 $this->createPayment($response['id']);
             }

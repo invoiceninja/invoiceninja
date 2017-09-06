@@ -1411,6 +1411,7 @@ $LANG = array(
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
+    'payment_type_Sofort' => 'Sofort',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
