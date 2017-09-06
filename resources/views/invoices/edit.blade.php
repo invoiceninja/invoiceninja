@@ -1389,7 +1389,7 @@
             return false;
         }
 
-        @if ($invoice->is_deleted)
+        @if ($invoice->is_deleted || $invoice->isClientTrashed())
             if ($('#bulk_action').val() != 'restore') {
                 return false;
             }
