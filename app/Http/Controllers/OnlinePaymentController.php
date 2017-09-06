@@ -299,7 +299,9 @@ class OnlinePaymentController extends BaseController
 
             return response()->json(['message' => $result]);
         } catch (Exception $exception) {
-            //Utils::logError($exception->getMessage(), 'PHP');
+            if (! Uitls::isNinjaProd()) {
+                Utils::logError($exception->getMessage(), 'HOOK');
+            }
 
             return response()->json(['message' => $exception->getMessage()], 500);
         }

@@ -69,5 +69,26 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         return $paymentMethod;
     }
 
+    protected function creatingPayment($payment, $paymentMethod)
+    {
+        \Log::info(json_encode($this->purchaseResponse));
+        //$payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
+
+        return $payment;
+    }
+
+    public function handleWebHook($input)
+    {
+        \Log::info('handleWebHook... ' . $_SERVER['HTTP_WEBHOOK_SIGNATURE']);
+        \Log::info(json_encode($input));
+
+        $event = $this->gateway()->parseNotification(
+                                        file_get_contents('php://input'),
+                                        $_SERVER['HTTP_WEBHOOK_SIGNATURE']
+                                    );
+
+        \Log::info('event:');
+        \Log::info(json_encode($event));
+    }
 
 }
