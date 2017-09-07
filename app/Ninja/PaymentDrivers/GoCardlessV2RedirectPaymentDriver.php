@@ -82,7 +82,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         $accountGateway = $this->accountGateway;
         $accountId = $accountGateway->account_id;
 
-        $token = env('GC_WEBHOOK_SECRET');
+        $token = $accountGateway->getConfigField('webhookSecret');
         $rawPayload = file_get_contents('php://input');
         $providedSignature = $_SERVER['HTTP_WEBHOOK_SIGNATURE'];
         $calculatedSignature = hash_hmac('sha256', $rawPayload, $token);
