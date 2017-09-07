@@ -3,6 +3,7 @@
 namespace App\Ninja\PaymentDrivers;
 
 use Session;
+use App\Models\Payment;
 
 class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
 {
@@ -71,45 +72,56 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
 
     protected function creatingPayment($payment, $paymentMethod)
     {
-        \Log::info(json_encode($this->purchaseResponse));
-        //$payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
+        $payment->payment_status_id = PAYMENT_STATUS_PENDING;
 
         return $payment;
     }
 
     public function handleWebHook($input)
     {
-        \Log::info('handleWebHook... ' . $_SERVER['HTTP_WEBHOOK_SIGNATURE']);
-        \Log::info(json_encode($input));
+        $accountGateway = $this->accountGateway;
+        $accountId = $accountGateway->account_id;
 
-        /*
-        // We recommend storing your webhook endpoint secret in an environment variable
-        // for security, but you could include it as a string directly in your code
-        $token = getenv("GC_WEBHOOK_SECRET");
+        $token = env('GC_WEBHOOK_SECRET');
+        $rawPayload = file_get_contents('php://input');
+        $providedSignature = $_SERVER['HTTP_WEBHOOK_SIGNATURE'];
+        $calculatedSignature = hash_hmac('sha256', $rawPayload, $token);
 
-        $raw_payload = file_get_contents('php://input');
-
-        $headers = getallheaders();
-        $provided_signature = $headers["Webhook-Signature"];
-
-        $calculated_signature = hash_hmac("sha256", $raw_payload, $token);
-
-        if ($provided_signature == $calculated_signature) {
-            // Process the events...
-
-            header("HTTP/1.1 200 OK");
-        } else {
-            header("HTTP/1.1 498 Invalid Token");
+        if (! hash_equals($providedSignature, $calculatedSignature)) {
+            throw new Exception('Signature does not match');
         }
-        */
-        
-        $event = $this->gateway()->parseNotification(
-                                        file_get_contents('php://input'),
-                                        $_SERVER['HTTP_WEBHOOK_SIGNATURE']
-                                    );
 
-        \Log::info('event:');
-        \Log::info(json_encode($event));
+        foreach ($input['events'] as $event) {
+            $type = $event['resource_type'];
+            $action = $event['action'];
+
+            $supported = [
+                'paid_out',
+                'failed',
+                'charged_back',
+            ];
+
+            if ($type != 'payments' || ! in_array($action, $supported)) {
+                continue;
+            }
+
+            $sourceRef = isset($event['links']['payment']) ? $event['links']['payment'] : false;
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
+
+            if (! $payment) {
+                continue;
+            }
+
+            if ($action == 'failed' || $action == 'charged_back') {
+                if (! $payment->isFailed()) {
+                    $payment->markFailed($event['details']['description']);
+
+                    $userMailer = app('App\Ninja\Mailers\UserMailer');
+                    $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
+                }
+            } elseif ($action == 'paid_out') {
+                $payment->markComplete();
+            }
+        }
     }
-
 }
