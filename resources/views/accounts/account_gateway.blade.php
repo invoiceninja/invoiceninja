@@ -191,6 +191,16 @@
                     ->help(trans('texts.plaid_environment_help')) !!}
             </div>
         </div>
+    @elseif (! $accountGateway || $accountGateway->gateway_id == GATEWAY_GOCARDLESS)
+        <div class="form-group">
+            <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
+            <div class="col-lg-8 col-sm-8 help-block">
+                <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_GOCARDLESS) }}">
+                <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
+                'link'=>'<a href="https://manage.gocardless.com/developers" target="_blank">'.trans('texts.gocardless_webhook_help_link_text').'</a>'
+            ]) !!}</strong></div>
+            </div>
+        </div>
     @elseif ($accountGateway && $accountGateway->gateway_id == GATEWAY_WEPAY)
             {!! Former::checkbox('enable_ach')
                         ->label(trans('texts.ach'))

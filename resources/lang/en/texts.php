@@ -2444,7 +2444,7 @@ $LANG = array(
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
-
+    'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
 
 );
 
