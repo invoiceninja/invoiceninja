@@ -82,6 +82,27 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
         \Log::info('handleWebHook... ' . $_SERVER['HTTP_WEBHOOK_SIGNATURE']);
         \Log::info(json_encode($input));
 
+        /*
+        // We recommend storing your webhook endpoint secret in an environment variable
+        // for security, but you could include it as a string directly in your code
+        $token = getenv("GC_WEBHOOK_SECRET");
+
+        $raw_payload = file_get_contents('php://input');
+
+        $headers = getallheaders();
+        $provided_signature = $headers["Webhook-Signature"];
+
+        $calculated_signature = hash_hmac("sha256", $raw_payload, $token);
+
+        if ($provided_signature == $calculated_signature) {
+            // Process the events...
+
+            header("HTTP/1.1 200 OK");
+        } else {
+            header("HTTP/1.1 498 Invalid Token");
+        }
+        */
+        
         $event = $this->gateway()->parseNotification(
                                         file_get_contents('php://input'),
                                         $_SERVER['HTTP_WEBHOOK_SIGNATURE']
