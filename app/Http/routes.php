@@ -88,7 +88,7 @@ Route::get('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@getRegis
 Route::post('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@postRegister']);
 Route::get('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper']);
 Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper']);
-Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail']);
+Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmailWrapper']);
 Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset']);
 Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
 
