@@ -356,7 +356,7 @@ trait GeneratesNumbers
         $this->reset_counter_date = $resetDate->format('Y-m-d');
         $this->invoice_number_counter = 1;
         $this->quote_number_counter = 1;
-        $this->credit_number_counter = 1;
+        $this->credit_number_counter = $this->credit_number_counter > 0 ? 1 : 0;
         $this->save();
     }
 }
