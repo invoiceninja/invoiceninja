@@ -49,18 +49,19 @@ class Handler extends ExceptionHandler
             return false;
         }
 
+        if (Crawler::isCrawler()) {
+            return false;
+        }
+
         // don't show these errors in the logs
         if ($e instanceof NotFoundHttpException) {
-            if (Crawler::isCrawler()) {
-                return false;
-            }
             // The logo can take a few seconds to get synced between servers
             // TODO: remove once we're using cloud storage for logos
             if (Utils::isNinja() && strpos(request()->url(), '/logo/') !== false) {
                 return false;
             }
             // Log 404s to a separate file
-            $errorStr = date('Y-m-d h:i:s') . ' ' . request()->url() . "\n" . json_encode(Utils::prepareErrorData('PHP')) . "\n\n";
+            $errorStr = date('Y-m-d h:i:s') . ' ' . $e->getMessage() . ' URL:' . request()->url() . "\n" . json_encode(Utils::prepareErrorData('PHP')) . "\n\n";
             @file_put_contents(storage_path('logs/not-found.log'), $errorStr, FILE_APPEND);
             return false;
         } elseif ($e instanceof HttpResponseException) {
@@ -69,7 +70,7 @@ class Handler extends ExceptionHandler
 
         if (! Utils::isTravis()) {
             Utils::logError(Utils::getErrorString($e));
-            $stacktrace = date('Y-m-d h:i:s') . ' ' . $e->getTraceAsString() . "\n\n";
+            $stacktrace = date('Y-m-d h:i:s') . ' ' . $e->getMessage() . ': ' . $e->getTraceAsString() . "\n\n";
             @file_put_contents(storage_path('logs/stacktrace.log'), $stacktrace, FILE_APPEND);
             return false;
         } else {

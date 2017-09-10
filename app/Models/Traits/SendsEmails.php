@@ -22,7 +22,12 @@ trait SendsEmails
             $entityType = 'reminder';
         }
 
-        return trans("texts.{$entityType}_subject", ['invoice' => '$invoice', 'account' => '$account', 'quote' => '$quote']);
+        return trans("texts.{$entityType}_subject", [
+            'invoice' => '$invoice',
+            'account' => '$account',
+            'quote' => '$quote',
+            'number' => '$number',
+        ]);
     }
 
     /**

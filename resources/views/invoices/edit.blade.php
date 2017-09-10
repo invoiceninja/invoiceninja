@@ -67,8 +67,9 @@
 
 	{!! Former::open($url)
             ->method($method)
-            ->addClass('warn-on-exit main-form search') // 'search' prevents LastPass auto-fill http://stackoverflow.com/a/30921628/497368
+            ->addClass('warn-on-exit main-form search')
             ->autocomplete('off')
+            ->name('lastpass-disable-search') // 'search' prevents LastPass auto-fill http://stackoverflow.com/a/30921628/497368
             ->onsubmit('return onFormSubmit(event)')
             ->rules(array(
         		'client' => 'required',
@@ -228,8 +229,11 @@
 			{!! Former::text('po_number')->label($account->getLabel('po_number', 'po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
 					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
-						Former::select('is_amount_discount')->addOption(trans('texts.discount_percent'), '0')
-						->addOption(trans('texts.discount_amount'), '1')->data_bind("value: is_amount_discount")->raw()
+						Former::select('is_amount_discount')
+							->addOption(trans('texts.discount_percent'), '0')
+							->addOption(trans('texts.discount_amount'), '1')
+							->data_bind("value: is_amount_discount, event:{ change: isAmountDiscountChanged}")
+							->raw()
 			) !!}
 
             @if ($account->showCustomField('custom_invoice_text_label2', $invoice))
@@ -273,7 +277,7 @@
 		<tfoot>
 			<tr>
 				<td class="hide-border"/>
-				<td class="hide-border" colspan="{{ 2 + ($account->showCustomField('custom_invoice_item_label1') ? 1 : 0) + ($account->showCustomField('custom_invoice_item_label2') ? 1 : 0) }}" rowspan="6" style="vertical-align:top">
+				<td class="hide-border" colspan="{{ 2 + ($account->showCustomField('custom_invoice_item_label1') ? 1 : 0) + ($account->showCustomField('custom_invoice_item_label2') ? 1 : 0) }}" rowspan="10" style="vertical-align:top">
 					<br/>
                     <div role="tabpanel">
 
@@ -387,7 +391,6 @@
 					<td style="text-align: right;padding-right: 28px" colspan="2"><input name="custom_value1" class="form-control" data-bind="value: custom_value1, valueUpdate: 'afterkeydown'"/></td>
 				</tr>
 			@endif
-
             @if ($account->showCustomField('custom_invoice_label2', $invoice) && $invoice->custom_taxes2)
 				<tr>
 					<td class="hide-border" colspan="3"/>
@@ -398,7 +401,8 @@
 			@endif
 
             <tr style="display:none" data-bind="visible: $root.invoice_item_taxes.show &amp;&amp; totals.hasItemTaxes">
-                <td class="hide-border" colspan="4"/>
+				<td class="hide-border" colspan="3"/>
+				<td style="display:none" class="hide-border" data-bind="visible: $root.invoice_item_taxes.show"/>
                 @if (!$account->hide_quantity)
                     <td>{{ trans('texts.tax') }}</td>
                 @endif
@@ -533,8 +537,10 @@
 					@endif
                     @if ($invoice->id)
                         {!! DropdownButton::normal(trans('texts.more_actions'))->withContents($invoice->present()->moreActions())->dropup() !!}
-                    @elseif ( ! $invoice->isQuote() && Request::is('*/clone'))
+                    @elseif (! $invoice->isQuote() && Request::is('*/clone'))
                         {!! Button::normal(trans($invoice->is_recurring ? 'texts.disable_recurring' : 'texts.enable_recurring'))->withAttributes(['id' => 'recurrButton', 'onclick' => 'onRecurrClick()'])->appendIcon(Icon::create('repeat')) !!}
+					@elseif (! empty($tasks))
+						{!! Button::normal(trans('texts.add_item'))->withAttributes(['id' => 'addItemButton', 'onclick' => 'onAddItemClick()'])->appendIcon(Icon::create('plus-sign')) !!}
                     @endif
         	    @endif
                 @if ($invoice->trashed())
@@ -636,7 +642,8 @@
                     {!! Former::select('client[country_id]')
                             ->label(trans('texts.country_id'))
                             ->addOption('','')->addGroupClass('country_select')
-                            ->fromQuery($countries, 'name', 'id')->data_bind("dropdown: country_id") !!}
+                            ->fromQuery($countries, 'name', 'id')
+							->data_bind("dropdown: country_id") !!}
                 </span>
 
             </div>
@@ -869,6 +876,14 @@
 						model.invoice().tax_name2("{{ $account->tax_name2 }}");
 					@endif
                 @endif
+
+				// load previous isAmountDiscount setting
+				if (isStorageSupported()) {
+					var lastIsAmountDiscount = parseInt(localStorage.getItem('last:is_amount_discount'));
+		            if (lastIsAmountDiscount) {
+						model.invoice().is_amount_discount(lastIsAmountDiscount);
+		            }
+		        }
             @endif
 
             @if (isset($tasks) && $tasks)
@@ -918,10 +933,9 @@
         ko.applyBindings(model);
         onItemChange(true);
 
-
-		$('#country_id').combobox().on('change', function(e) {
-			var countryId = $('input[name=country_id]').val();
-            var country = _.findWhere(countries, {id: countryId});
+        $('#client\\[country_id\\]').on('change', function(e) {
+			var countryId = $(e.currentTarget).val();
+			var country = _.findWhere(countries, {id: parseInt(countryId)});
 			if (country) {
                 model.invoice().client().country = country;
                 model.invoice().client().country_id(countryId);
@@ -1135,6 +1149,7 @@
 	}
 
 	var origInvoiceNumber = false;
+	var checkedInvoiceBalances = false;
 	function getPDFString(cb, force) {
 		@if (! $invoice->id && $account->credit_number_counter > 0)
 			var total = model.invoice().totals.rawTotal();
@@ -1148,12 +1163,31 @@
 			}
 		@endif
 
+		var invoice = createInvoiceModel();
+
+		@if ($invoice->exists)
+			if (! checkedInvoiceBalances) {
+				// check amounts are correct
+				checkedInvoiceBalances = true;
+				var phpBalance = invoice.balance;
+				var koBalance = model.invoice().totals.rawTotal();
+				var jsBalance = calculateAmounts(invoice).total_amount;
+				if (phpBalance == koBalance && koBalance == jsBalance) {
+					// do nothing
+				} else {
+					var invitationKey = invoice.invitations[0].invitation_key;
+					window.onerror(invitationKey + ': Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance + ', KO: ' + koBalance);
+				}
+			}
+		@endif
+
 		@if ( ! $account->live_preview)
 			return;
 		@endif
-        var invoice = createInvoiceModel();
+
 		var design  = getDesignJavascript();
 		if (!design) return;
+
         generatePDF(invoice, design, force, cb);
 	}
 
@@ -1212,6 +1246,11 @@
         $('#recurrButton').html(enableLabel + "<span class='glyphicon glyphicon-repeat'></span>");
 		$('#saveButton').html(actionLabel + "<span class='glyphicon glyphicon-globe'></span>");
     }
+
+	function onAddItemClick() {
+		model.forceShowItems(true);
+		$('#addItemButton').hide();
+	}
 
 	function onEmailClick() {
         if (!NINJA.isRegistered) {
@@ -1350,7 +1389,7 @@
             return false;
         }
 
-        @if ($invoice->is_deleted)
+        @if ($invoice->is_deleted || $invoice->isClientTrashed())
             if ($('#bulk_action').val() != 'restore') {
                 return false;
             }
@@ -1457,8 +1496,12 @@
 		return isValid;
 	}
 
-	function onCloneClick() {
-		submitAction('clone');
+	function onCloneInvoiceClick() {
+		submitAction('clone_invoice');
+	}
+
+	function onCloneQuoteClick() {
+		submitAction('clone_quote');
 	}
 
 	function onConvertClick() {

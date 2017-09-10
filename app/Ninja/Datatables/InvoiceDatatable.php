@@ -83,21 +83,21 @@ class InvoiceDatatable extends EntityDatatable
 
         return [
             [
-                trans("texts.edit_{$entityType}"),
-                function ($model) use ($entityType) {
-                    return URL::to("{$entityType}s/{$model->public_id}/edit");
-                },
+                trans("texts.clone_invoice"),
                 function ($model) {
-                    return Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
-                },
-            ],
-            [
-                trans("texts.clone_{$entityType}"),
-                function ($model) use ($entityType) {
-                    return URL::to("{$entityType}s/{$model->public_id}/clone");
+                    return URL::to("invoices/{$model->public_id}/clone");
                 },
                 function ($model) {
                     return Auth::user()->can('create', ENTITY_INVOICE);
+                },
+            ],
+            [
+                trans("texts.clone_quote"),
+                function ($model) {
+                    return URL::to("quotes/{$model->public_id}/clone");
+                },
+                function ($model) {
+                    return Auth::user()->can('create', ENTITY_QUOTE);
                 },
             ],
             [
@@ -129,7 +129,7 @@ class InvoiceDatatable extends EntityDatatable
                     return "javascript:submitForm_{$entityType}('markPaid', {$model->public_id})";
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->balance != 0 && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
                 },
             ],
             [
@@ -138,16 +138,7 @@ class InvoiceDatatable extends EntityDatatable
                     return URL::to("payments/create/{$model->client_public_id}/{$model->public_id}");
                 },
                 function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->balance > 0 && Auth::user()->can('create', ENTITY_PAYMENT);
-                },
-            ],
-            [
-                trans('texts.view_quote'),
-                function ($model) {
-                    return URL::to("quotes/{$model->quote_id}/edit");
-                },
-                function ($model) use ($entityType) {
-                    return $entityType == ENTITY_INVOICE && $model->quote_id && Auth::user()->can('editByOwner', [ENTITY_INVOICE, $model->user_id]);
+                    return $entityType == ENTITY_INVOICE && $model->invoice_status_id != INVOICE_STATUS_PAID && Auth::user()->can('create', ENTITY_PAYMENT);
                 },
             ],
             [

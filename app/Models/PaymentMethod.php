@@ -21,10 +21,25 @@ class PaymentMethod extends EntityModel
      * @var array
      */
     protected $dates = ['deleted_at'];
+
     /**
      * @var array
      */
     protected $hidden = ['id'];
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'contact_id',
+        'payment_type_id',
+        'source_reference',
+        'last4',
+        'expiration',
+        'email',
+        'currency_id',
+    ];
+
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

@@ -353,10 +353,28 @@ class AppController extends BaseController
         try {
             Artisan::call('ninja:check-data');
             Artisan::call('ninja:init-lookup', ['--validate' => true]);
+
+            // check error log is empty
+            $errorLog = storage_path('logs/laravel-error.log');
+            if (file_exists($errorLog)) {
+                return 'Failure: error log exists';
+            }
+
             return RESULT_SUCCESS;
         } catch (Exception $exception) {
             return $exception->getMessage() ?: RESULT_FAILURE;
         }
+    }
+
+    public function errors()
+    {
+        if (Utils::isNinjaProd()) {
+            return redirect('/');
+        }
+
+        $errors = Utils::getErrors();
+
+        return view('errors.list', compact('errors'));
     }
 
     public function stats()

@@ -131,8 +131,8 @@ class UserMailer extends Mailer
         $data = $data ?: [];
         $data += [
             'userName' => $user->getDisplayName(),
-            'primaryMessage' => $subject,
-            'secondaryMessage' => $message,
+            'primaryMessage' => $message,
+            //'secondaryMessage' => $message,
             'invoiceLink' => $invoice ? $invoice->present()->multiAccountLink : false,
         ];
 

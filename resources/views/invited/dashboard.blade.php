@@ -300,7 +300,7 @@
                     {!! HTML::mailto($contact->email, $contact->email) !!}<br>
                 @endif
                 @if ($client->website)
-                    {!! HTML::link($client->website, $client->website) !!}<br>
+                    {{ $client->present()->websiteLink }}<br>
                 @endif
                 @if ($contact->phone)
                     {{ $contact->phone }}<br>

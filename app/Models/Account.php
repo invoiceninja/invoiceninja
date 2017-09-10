@@ -226,6 +226,7 @@ class Account extends Eloquent
 
     public static $customLabels = [
         'balance_due',
+        'credit_card',
         'description',
         'discount',
         'due_date',
@@ -233,6 +234,7 @@ class Account extends Eloquent
         'id_number',
         'item',
         'line_total',
+        'outstanding',
         'paid_to_date',
         'partial_due',
         'po_number',

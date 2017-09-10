@@ -59,14 +59,17 @@
         NINJA.isRegistered = {{ \Utils::isRegistered() ? 'true' : 'false' }};
 
         window.onerror = function (errorMsg, url, lineNumber, column, error) {
+            // Error in hosted third party library
             if (errorMsg.indexOf('Script error.') > -1) {
                 return;
             }
-
+            // Error due to incognito mode
+            if (errorMsg.indexOf('DOM Exception 22') > -1) {
+                return;
+            }
             try {
                 // Use StackTraceJS to parse the error context
                 if (error) {
-                    var message = error.message ? error.message : error;
                     StackTrace.fromError(error).then(function (result) {
                         var gps = new StackTraceGPS();
                         gps.findFunctionName(result[0]).then(function (result) {
@@ -78,8 +81,7 @@
                 }
 
                 trackEvent('/error', errorMsg);
-            } catch (err) {
-            }
+            } catch (err) {}
 
             return false;
         }

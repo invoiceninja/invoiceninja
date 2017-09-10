@@ -154,7 +154,7 @@ class Contact extends EntityModel implements AuthenticatableContract, CanResetPa
         $url = trim(SITE_URL, '/');
 
         if ($account->hasFeature(FEATURE_CUSTOM_URL)) {
-            if (Utils::isNinjaProd()) {
+            if (Utils::isNinjaProd() && ! Utils::isReseller()) {
                 $url = $account->present()->clientPortalLink();
             }
 

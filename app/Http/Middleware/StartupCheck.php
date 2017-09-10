@@ -72,11 +72,38 @@ class StartupCheck
             }
         }
 
-        // Check the application is up to date and for any news feed messages
         if (Auth::check()) {
+            $company = Auth::user()->account->company;
             $count = Session::get(SESSION_COUNTER, 0);
             Session::put(SESSION_COUNTER, ++$count);
 
+            if (Utils::isNinja()) {
+                if ($coupon = request()->coupon) {
+                    if ($code = config('ninja.coupon_50_off')) {
+                        if (hash_equals($coupon, $code)) {
+                            $company->applyDiscount(.5);
+                            $company->save();
+                            Session::flash('message', trans('texts.applied_discount', ['discount' => 50]));
+                        }
+                    }
+                    if ($code = config('ninja.coupon_75_off')) {
+                        if (hash_equals($coupon, $code)) {
+                            $company->applyDiscount(.75);
+                            $company->save();
+                            Session::flash('message', trans('texts.applied_discount', ['discount' => 75]));
+                        }
+                    }
+                    if ($code = config('ninja.coupon_free_year')) {
+                        if (hash_equals($coupon, $code)) {
+                            $company->applyFreeYear();
+                            $company->save();
+                            Session::flash('message', trans('texts.applied_free_year'));
+                        }
+                    }
+                }
+            }
+
+            // Check the application is up to date and for any news feed messages
             if (isset($_SERVER['REQUEST_URI']) && ! Utils::startsWith($_SERVER['REQUEST_URI'], '/news_feed') && ! Session::has('news_feed_id')) {
                 $data = false;
                 if (Utils::isNinja()) {
@@ -144,7 +171,6 @@ class StartupCheck
                 if ($data == RESULT_FAILURE) {
                     Session::flash('error', trans('texts.invalid_white_label_license'));
                 } elseif ($data) {
-                    $company = Auth::user()->account->company;
                     $company->plan_term = PLAN_TERM_YEARLY;
                     $company->plan_paid = $data;
                     $date = max(date_create($data), date_create($company->plan_expires));

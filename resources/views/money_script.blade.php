@@ -33,14 +33,14 @@
         return window.parseFloat(str);
     }
 
-    function formatMoneyInvoice(value, invoice, decorator) {
+    function formatMoneyInvoice(value, invoice, decorator, precision) {
         var account = invoice.account;
         var client = invoice.client;
 
-        return formatMoneyAccount(value, account, client, decorator);
+        return formatMoneyAccount(value, account, client, decorator, precision);
     }
 
-    function formatMoneyAccount(value, account, client, decorator) {
+    function formatMoneyAccount(value, account, client, decorator, precision) {
         var currencyId = false;
         var countryId = false;
 
@@ -60,19 +60,26 @@
             decorator = parseInt(account.show_currency_code) ? 'code' : 'symbol';
         }
 
-        return formatMoney(value, currencyId, countryId, decorator)
+        return formatMoney(value, currencyId, countryId, decorator, precision)
     }
 
-    function formatAmount(value, currencyId) {
+    function formatAmount(value, currencyId, precision) {
+        if (!value) {
+            return '';
+        }
 
         if (!currencyId) {
             currencyId = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
         }
 
+        if (!precision) {
+            precision = 2;
+        }
+
         var currency = currencyMap[currencyId];
         var decimal = currency.decimal_separator;
 
-        value = NINJA.parseFloat(value) + '';
+        value = roundToPrecision(NINJA.parseFloat(value), precision) + '';
 
         if (decimal == '.') {
             return value;
@@ -81,19 +88,25 @@
         }
     }
 
-    function formatMoney(value, currencyId, countryId, decorator) {
+    function formatMoney(value, currencyId, countryId, decorator, precision) {
         value = NINJA.parseFloat(value);
 
         if (!currencyId) {
             currencyId = {{ Session::get(SESSION_CURRENCY, DEFAULT_CURRENCY) }};
         }
 
+        var currency = currencyMap[currencyId];
+
         if (!decorator) {
             decorator = '{{ Session::get(SESSION_CURRENCY_DECORATOR, CURRENCY_DECORATOR_SYMBOL) }}';
         }
 
-        var currency = currencyMap[currencyId];
-        var precision = currency.precision;
+        if (!precision) {
+            precision = currency.precision;
+        } else if (currency.precision == 0) {
+            precision = 0;
+        }
+
         var thousand = currency.thousand_separator;
         var decimal = currency.decimal_separator;
         var code = currency.code;

@@ -37,7 +37,7 @@ class CreatePaymentRequest extends PaymentRequest
         $rules = [
             'client' => 'required', // TODO: change to client_id once views are updated
             'invoice' => 'required', // TODO: change to invoice_id once views are updated
-            'amount' => 'required|numeric|not_in:0',
+            'amount' => 'required|numeric',
             'payment_date' => 'required',
         ];
 

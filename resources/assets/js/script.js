@@ -113,6 +113,14 @@ function getQuarter(offset) {
     return 'Q' + quarter;
 }
 
+// https://gist.github.com/beiyuu/2029907
+$.fn.selectRange = function(start, end) {
+    var e = document.getElementById($(this).attr('id')); // I don't know why... but $(this) don't want to work today :-/
+    if (!e) return;
+    else if (e.setSelectionRange) { e.focus(); e.setSelectionRange(start, end); } /* WebKit */
+    else if (e.createTextRange) { var range = e.createTextRange(); range.collapse(true); range.moveEnd('character', end); range.moveStart('character', start); range.select(); } /* IE */
+    else if (e.selectionStart) { e.selectionStart = start; e.selectionEnd = end; }
+};
 
 /* Default class modification */
 if ($.fn.dataTableExt) {
@@ -457,6 +465,15 @@ function comboboxHighlighter(item) {
     return result.replace(new RegExp("\n", 'g'), '<br/>');
 }
 
+// https://stackoverflow.com/a/326076/497368
+function inIframe () {
+    try {
+        return window.self !== window.top;
+    } catch (e) {
+        return true;
+    }
+}
+
 function comboboxMatcher(item) {
     return ~stripHtmlTags(item).toLowerCase().indexOf(this.query.toLowerCase());
 }
@@ -666,7 +683,7 @@ function calculateAmounts(invoice) {
   // sum line item
   for (var i=0; i<invoice.invoice_items.length; i++) {
     var item = invoice.invoice_items[i];
-    var lineTotal = invoice.is_statement ? roundToTwo(NINJA.parseFloat(item.balance)) : roundToTwo(NINJA.parseFloat(item.cost)) * roundToTwo(NINJA.parseFloat(item.qty));
+    var lineTotal = invoice.is_statement ? roundToTwo(NINJA.parseFloat(item.balance)) : roundSignificant(NINJA.parseFloat(item.cost)) * roundSignificant(NINJA.parseFloat(item.qty));
     lineTotal = roundToTwo(lineTotal);
     if (lineTotal) {
       total += lineTotal;
@@ -698,12 +715,12 @@ function calculateAmounts(invoice) {
         invoice.has_product_key = true;
     }
 
-    if (item.tax_name1) {
+    if (parseFloat(item.tax_rate1) != 0) {
       taxRate1 = parseFloat(item.tax_rate1);
       taxName1 = item.tax_name1;
     }
 
-    if (item.tax_name2) {
+    if (parseFloat(item.tax_rate2) != 0) {
       taxRate2 = parseFloat(item.tax_rate2);
       taxName2 = item.tax_name2;
     }
@@ -714,12 +731,12 @@ function calculateAmounts(invoice) {
         if (parseInt(invoice.is_amount_discount)) {
             lineTotal -= roundToTwo((lineTotal/total) * invoice.discount);
         } else {
-            lineTotal -= roundToTwo(lineTotal * (invoice.discount/100));
+            lineTotal -= roundToTwo(lineTotal * invoice.discount / 100);
         }
     }
 
     var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
-    if (taxName1) {
+    if (taxAmount1 != 0) {
       var key = taxName1 + taxRate1;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount1;
@@ -729,7 +746,7 @@ function calculateAmounts(invoice) {
     }
 
     var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
-    if (taxName2) {
+    if (taxAmount2 != 0) {
       var key = taxName2 + taxRate2;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount2;
@@ -742,7 +759,6 @@ function calculateAmounts(invoice) {
       hasTaxes = true;
     }
   }
-
   invoice.subtotal_amount = total;
 
   var discount = 0;
@@ -750,7 +766,7 @@ function calculateAmounts(invoice) {
     if (parseInt(invoice.is_amount_discount)) {
       discount = roundToTwo(invoice.discount);
     } else {
-      discount = roundToTwo(total * (invoice.discount/100));
+      discount = roundToTwo(total * invoice.discount / 100);
     }
     total -= discount;
   }
@@ -765,10 +781,10 @@ function calculateAmounts(invoice) {
 
   taxRate1 = 0;
   taxRate2 = 0;
-  if (invoice.tax_rate1 && parseFloat(invoice.tax_rate1)) {
+  if (parseFloat(invoice.tax_rate1 || 0) != 0) {
     taxRate1 = parseFloat(invoice.tax_rate1);
   }
-  if (invoice.tax_rate2 && parseFloat(invoice.tax_rate2)) {
+  if (parseFloat(invoice.tax_rate2 || 0) != 0) {
     taxRate2 = parseFloat(invoice.tax_rate2);
   }
   taxAmount1 = roundToTwo(total * taxRate1 / 100);
@@ -1043,14 +1059,44 @@ function toggleDatePicker(field) {
   $('#'+field).datepicker('show');
 }
 
-function roundToTwo(num, toString) {
-  var val = +(Math.round(num + "e+2")  + "e-2");
+function getPrecision(number) {
+  if (roundToPrecision(number, 3) != number) {
+    return 4;
+  } else if (roundToPrecision(number, 2) != number) {
+    return 3;
+  } else {
+    return 2;
+  }
+}
+
+function roundSignificant(number) {
+  var precision = getPrecision(number);
+  var value = roundToPrecision(number, precision);
+  return isNaN(value) ? 0 : value;
+}
+
+function roundToTwo(number, toString) {
+  var val = roundToPrecision(number, 2);
   return toString ? val.toFixed(2) : (val || 0);
 }
 
-function roundToFour(num, toString) {
-  var val = +(Math.round(num + "e+4")  + "e-4");
+function roundToFour(number, toString) {
+  var val = roundToPrecision(number, 4);
   return toString ? val.toFixed(4) : (val || 0);
+}
+
+// https://stackoverflow.com/a/18358056/497368
+function roundToPrecision(number, precision) {
+  // prevent negative numbers from rounding to 0
+  var isNegative = number < 0;
+  if (isNegative) {
+      number = number * -1;
+  }
+  number = +(Math.round(number + "e+"+ precision) + "e-" + precision);
+  if (isNegative) {
+      number = number * -1;
+  }
+  return number;
 }
 
 function truncate(str, length) {

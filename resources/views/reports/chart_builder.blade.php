@@ -119,16 +119,16 @@
                             </div>
                         </div>
 
-						<div id="statusField" style="display:{{ in_array($reportType, [ENTITY_INVOICE, ENTITY_PRODUCT]) ? 'block' : 'none' }}">
+						<div id="statusField" style="display:none">
 							{!! Former::select('invoice_status')->label('status')
-									->addOption(trans('texts.all'), 'all')
-									->addOption(trans('texts.draft'), 'draft')
-									->addOption(trans('texts.sent'), 'sent')
-									->addOption(trans('texts.unpaid'), 'unpaid')
-									->addOption(trans('texts.paid'), 'paid') !!}
+									->addOption(trans('texts.status_all'), 'all')
+									->addOption(trans('texts.status_draft'), 'draft')
+									->addOption(trans('texts.status_sent'), 'sent')
+									->addOption(trans('texts.status_unpaid'), 'unpaid')
+									->addOption(trans('texts.status_paid'), 'paid') !!}
 						</div>
 
-						<div id="dateField" style="display:{{ $reportType == ENTITY_TAX_RATE ? 'block' : 'none' }}">
+						<div id="dateField" style="display:none">
                             {!! Former::select('date_field')->label(trans('texts.filter'))
                                     ->addOption(trans('texts.invoice_date'), FILTER_INVOICE_DATE)
                                     ->addOption(trans('texts.payment_date'), FILTER_PAYMENT_DATE) !!}
@@ -264,6 +264,20 @@
         $('#action').val('');
     }
 
+	function setFiltersShown() {
+		var val = $('#report_type').val();
+		if (val == '{{ ENTITY_TAX_RATE }}') {
+			$('#dateField').fadeIn();
+		} else {
+			$('#dateField').fadeOut();
+		}
+		if (val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}') {
+			$('#statusField').fadeIn();
+		} else {
+			$('#statusField').fadeOut();
+		}
+	}
+
 	var sumColumns = [];
 	@foreach ($columns as $column)
 		sumColumns.push("{{ in_array($column, ['amount', 'paid', 'balance', 'cost', 'duration']) ? trans("texts.{$column}") : false }}");
@@ -278,17 +292,8 @@
         });
 
         $('#report_type').change(function() {
-            var val = $('#report_type').val();
-			if (val == '{{ ENTITY_TAX_RATE }}') {
-                $('#dateField').fadeIn();
-            } else {
-                $('#dateField').fadeOut();
-            }
-			if (val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}') {
-                $('#statusField').fadeIn();
-            } else {
-                $('#statusField').fadeOut();
-            }
+			var val = $('#report_type').val();
+			setFiltersShown();
             if (isStorageSupported()) {
                 localStorage.setItem('last:report_type', val);
             }
@@ -353,6 +358,7 @@
 			if (lastReportType) {
 				$('#report_type').val(lastReportType);
 			}
+			setFiltersShown();
 		});
     })
 

@@ -131,12 +131,18 @@ class HomeController extends BaseController
      */
     public function contactUs()
     {
-        Mail::raw(request()->contact_us_message, function ($message) {
+        $message = request()->contact_us_message;
+
+        if (request()->include_errors) {
+            $message .= "\n\n" . join("\n", Utils::getErrors());
+        }
+
+        Mail::raw($message, function ($message) {
             $subject = 'Customer Message: ';
-            if (Utils::isNinja()) {
-                $subject .= config('database.default');
+            if (Utils::isNinjaProd()) {
+                $subject .= str_replace('db-', '', config('database.default'));
             } else {
-                $subject .= 'v' . NINJA_VERSION;
+                $subject .= 'Self-Host';
             }
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
                     ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)

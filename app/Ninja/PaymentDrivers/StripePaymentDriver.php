@@ -3,9 +3,12 @@
 namespace App\Ninja\PaymentDrivers;
 
 use App\Models\Payment;
+use App\Models\Invitation;
 use App\Models\PaymentMethod;
+use App\Models\GatewayType;
 use Cache;
 use Exception;
+use App\Models\PaymentType;
 
 class StripePaymentDriver extends BasePaymentDriver
 {
@@ -19,8 +22,30 @@ class StripePaymentDriver extends BasePaymentDriver
             GATEWAY_TYPE_TOKEN,
         ];
 
-        if ($this->accountGateway && $this->accountGateway->getAchEnabled()) {
-            $types[] = GATEWAY_TYPE_BANK_TRANSFER;
+        if ($gateway = $this->accountGateway) {
+            $achEnabled = $gateway->getAchEnabled();
+            $sofortEnabled = $gateway->getSofortEnabled();
+            if ($achEnabled && $sofortEnabled) {
+                if ($this->invitation) {
+                    $country = ($this->client() && $this->client()->country) ? $this->client()->country->iso_3166_3 : ($this->account()->country ? $this->account()->country->iso_3166_3 : false);
+                    // https://stripe.com/docs/sources/sofort
+                    if ($country && in_array($country, ['AUT', 'BEL', 'DEU', 'ITA', 'NLD', 'ESP'])) {
+                        $types[] = GATEWAY_TYPE_SOFORT;
+                    } else {
+                        $types[] = GATEWAY_TYPE_BANK_TRANSFER;
+                    }
+                } else {
+                    $types[] = GATEWAY_TYPE_BANK_TRANSFER;
+                    $types[] = GATEWAY_TYPE_SOFORT;
+                }
+            } elseif ($achEnabled) {
+                $types[] = GATEWAY_TYPE_BANK_TRANSFER;
+            } elseif ($sofortEnabled) {
+                $types[] = GATEWAY_TYPE_SOFORT;
+            }
+            if ($gateway->getAlipayEnabled()) {
+                $types[] = GATEWAY_TYPE_ALIPAY;
+            }
         }
 
         return $types;
@@ -55,6 +80,11 @@ class StripePaymentDriver extends BasePaymentDriver
         } else {
             return $result;
         }
+    }
+
+    public function shouldUseSource()
+    {
+        return in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY, GATEWAY_TYPE_SOFORT]);
     }
 
     protected function checkCustomerExists($customer)
@@ -189,7 +219,7 @@ class StripePaymentDriver extends BasePaymentDriver
         // In that case we'd use GATEWAY_TYPE_TOKEN even though we're creating the credit card
         if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD) || $this->isGatewayType(GATEWAY_TYPE_TOKEN)) {
             $paymentMethod->expiration = $source['exp_year'] . '-' . $source['exp_month'] . '-01';
-            $paymentMethod->payment_type_id = $this->parseCardType($source['brand']);
+            $paymentMethod->payment_type_id = PaymentType::parseCardType($source['brand']);
         } elseif ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER)) {
             $paymentMethod->routing_number = $source['routing_number'];
             $paymentMethod->payment_type_id = PAYMENT_TYPE_ACH;
@@ -207,8 +237,17 @@ class StripePaymentDriver extends BasePaymentDriver
 
     protected function creatingPayment($payment, $paymentMethod)
     {
-        if ($this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod)) {
+        $isBank = $this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod);
+        $isAlipay = $this->isGatewayType(GATEWAY_TYPE_ALIPAY, $paymentMethod);
+        $isSofort = $this->isGatewayType(GATEWAY_TYPE_SOFORT, $paymentMethod);
+
+        if ($isBank || $isAlipay || $isSofort) {
             $payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
+            if ($isAlipay) {
+                $payment->payment_type_id = PAYMENT_TYPE_ALIPAY;
+            } elseif ($isSofort) {
+                $payment->payment_type_id = PAYMENT_TYPE_SOFORT;
+            }
         }
 
         return $payment;
@@ -307,6 +346,42 @@ class StripePaymentDriver extends BasePaymentDriver
         return true;
     }
 
+    public function createSource()
+    {
+        $amount = intval($this->invoice()->getRequestedAmount() * 100);
+        $invoiceNumber = $this->invoice()->invoice_number;
+        $currency = $this->client()->getCurrencyCode();
+        $gatewayType = GatewayType::getAliasFromId($this->gatewayType);
+        $redirect = url("/complete_source/{$this->invitation->invitation_key}/{$gatewayType}");
+        $country = $this->client()->country ? $this->client()->country->iso_3166_2 : ($this->account()->country ? $this->account()->country->iso_3166_2 : '');
+        $extra = '';
+
+        if ($this->gatewayType == GATEWAY_TYPE_ALIPAY) {
+            if (! $this->accountGateway->getAlipayEnabled()) {
+                throw new Exception('Alipay is not enabled');
+            }
+            $type = 'alipay';
+        } else {
+            if (! $this->accountGateway->getSofortEnabled()) {
+                throw new Exception('Sofort is not enabled');
+            }
+            $type = 'sofort';
+            $extra = "&sofort[country]={$country}&statement_descriptor={$invoiceNumber}";
+        }
+
+        $data = "type={$type}&amount={$amount}&currency={$currency}&redirect[return_url]={$redirect}{$extra}";
+        $response = $this->makeStripeCall('POST', 'sources', $data);
+
+        if (is_array($response) && isset($response['id'])) {
+            $this->invitation->transaction_reference = $response['id'];
+            $this->invitation->save();
+
+            return redirect($response['redirect']['url']);
+        } else {
+            throw new Exception($response);
+        }
+    }
+
     public function makeStripeCall($method, $url, $body = null)
     {
         $apiKey = $this->accountGateway->getConfig()->apiKey;
@@ -367,6 +442,7 @@ class StripePaymentDriver extends BasePaymentDriver
             'customer.source.updated',
             'customer.source.deleted',
             'customer.bank_account.deleted',
+            'source.chargeable',
         ];
 
         if (! in_array($eventType, $supportedEvents)) {
@@ -388,11 +464,11 @@ class StripePaymentDriver extends BasePaymentDriver
             return false;
         }
 
-        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded' || $eventType == 'charge.refunded') {
-            $charge = $eventDetails['data']['object'];
-            $transactionRef = $charge['id'];
+        $source = $eventDetails['data']['object'];
+        $sourceRef = $source['id'];
 
-            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $transactionRef)->first();
+        if ($eventType == 'charge.failed' || $eventType == 'charge.succeeded' || $eventType == 'charge.refunded') {
+            $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
 
             if (! $payment) {
                 return false;
@@ -400,7 +476,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
             if ($eventType == 'charge.failed') {
                 if (! $payment->isFailed()) {
-                    $payment->markFailed($charge['failure_message']);
+                    $payment->markFailed($source['failure_message']);
 
                     $userMailer = app('App\Ninja\Mailers\UserMailer');
                     $userMailer->sendNotification($payment->user, $payment->invoice, 'payment_failed', $payment);
@@ -408,12 +484,9 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($eventType == 'charge.succeeded') {
                 $payment->markComplete();
             } elseif ($eventType == 'charge.refunded') {
-                $payment->recordRefund($charge['amount_refunded'] / 100 - $payment->refunded);
+                $payment->recordRefund($source['amount_refunded'] / 100 - $payment->refunded);
             }
         } elseif ($eventType == 'customer.source.updated' || $eventType == 'customer.source.deleted' || $eventType == 'customer.bank_account.deleted') {
-            $source = $eventDetails['data']['object'];
-            $sourceRef = $source['id'];
-
             $paymentMethod = PaymentMethod::scope(false, $accountId)->where('source_reference', '=', $sourceRef)->first();
 
             if (! $paymentMethod) {
@@ -424,6 +497,17 @@ class StripePaymentDriver extends BasePaymentDriver
                 $paymentMethod->delete();
             } elseif ($eventType == 'customer.source.updated') {
                 //$this->paymentService->convertPaymentMethodFromStripe($source, null, $paymentMethod)->save();
+            }
+        } elseif ($eventType == 'source.chargeable') {
+            $this->invitation = Invitation::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
+            if (! $this->invitation) {
+                return false;
+            }
+            $data = sprintf('amount=%d&currency=%s&source=%s', $source['amount'], $source['currency'], $source['id']);
+            $this->purchaseResponse = $response = $this->makeStripeCall('POST', 'charges', $data);
+            $this->gatewayType = GatewayType::getIdFromAlias($source['type']);
+            if (is_array($response) && isset($response['id'])) {
+                $this->createPayment($response['id']);
             }
         }
 

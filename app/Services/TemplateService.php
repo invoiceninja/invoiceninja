@@ -54,6 +54,8 @@ class TemplateService
             '$balance' => $invoice->present()->balance,
             '$invoice' => $invoice->invoice_number,
             '$quote' => $invoice->invoice_number,
+            '$number' => $invoice->invoice_number,
+            '$partial' => $invoice->present()->partial,
             '$link' => $invitation->getLink(),
             '$password' => $passwordHTML,
             '$viewLink' => $invitation->getLink().'$password',

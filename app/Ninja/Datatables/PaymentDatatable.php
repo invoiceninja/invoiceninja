@@ -52,7 +52,7 @@ class PaymentDatatable extends EntityDatatable
             [
                 'method',
                 function ($model) {
-                    return ($model->payment_type && ! $model->last4) ? trans('texts.payment_type_' . $model->payment_type) : ($model->account_gateway_id ? $model->gateway_name : '');
+                    return $model->account_gateway_id ? $model->gateway_name : ($model->payment_type ? trans('texts.payment_type_' . $model->payment_type) : '');
                 },
             ],
             [
@@ -67,6 +67,8 @@ class PaymentDatatable extends EntityDatatable
                             return '<img height="22" src="' . URL::to('/images/credit_cards/' . $code . '.png') . '" alt="' . htmlentities($card_type) . '">&nbsp; &bull;&bull;&bull;' . $model->last4 . ' ' . $expiration;
                         } elseif ($model->email) {
                             return $model->email;
+                        } elseif ($model->payment_type) {
+                            return trans('texts.payment_type_' . $model->payment_type);
                         }
                     } elseif ($model->last4) {
                         if ($model->bank_name) {

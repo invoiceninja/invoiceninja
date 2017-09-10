@@ -63,7 +63,6 @@ class CurlUtils
         if ($response->getStatus() === 200) {
             return $response->getContent();
         } else {
-            Utils::logError('Local PhantomJS Error: ' . $response->getStatus() . ' - ' . $url);
             return false;
         }
     }

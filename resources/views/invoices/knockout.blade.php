@@ -181,6 +181,26 @@ function ViewModel(data) {
         }
         return false;
     });
+
+    self.hasItemsCached = false;
+    self.forceShowItems = ko.observable(false);
+    self.hasItems = ko.computed(function() {
+        if (self.forceShowItems()) {
+            return true;
+        }
+        if (self.hasItemsCached) {
+            return true;
+        }
+        invoice = self.invoice();
+        for (var i=0; i<invoice.invoice_items_without_tasks().length; ++i) {
+            var item = invoice.invoice_items_without_tasks()[i];
+            if (! item.isEmpty()) {
+                self.hasItemsCached = true;
+                return true;
+            }
+        }
+        return false;
+    });
 }
 
 function InvoiceModel(data) {
@@ -383,7 +403,7 @@ function InvoiceModel(data) {
         if (parseInt(self.is_amount_discount())) {
             return roundToTwo(self.discount());
         } else {
-            return roundToTwo(self.totals.rawSubtotal() * (self.discount()/100));
+            return roundToTwo(self.totals.rawSubtotal() * self.discount() / 100);
         }
     });
 
@@ -427,7 +447,7 @@ function InvoiceModel(data) {
                 if (parseInt(self.is_amount_discount())) {
                     lineTotal -= roundToTwo((lineTotal/total) * self.discount());
                 } else {
-                    lineTotal -= roundToTwo(lineTotal * (self.discount()/100));
+                    lineTotal -= roundToTwo(lineTotal * self.discount() / 100);
                 }
             }
 
@@ -534,10 +554,7 @@ function InvoiceModel(data) {
             total = NINJA.parseFloat(total) + customValue2;
         }
 
-        var paid = self.totals.rawPaidToDate();
-        if (paid > 0) {
-            total -= paid;
-        }
+        total -= self.totals.rawPaidToDate();
 
         return total;
     });
@@ -562,10 +579,10 @@ function InvoiceModel(data) {
         return self.default_footer() && self.invoice_footer() != self.default_footer();
     }
 
-    self.applyInclusivTax = function(taxRate) {
+    self.applyInclusiveTax = function(taxRate) {
         for (var i=0; i<self.invoice_items().length; i++) {
             var item = self.invoice_items()[i];
-            item.applyInclusivTax(taxRate);
+            item.applyInclusiveTax(taxRate);
         }
     }
 
@@ -578,7 +595,7 @@ function InvoiceModel(data) {
         if (taxKey.substr(0, 1) != 1) {
             return;
         }
-        self.applyInclusivTax(taxRate);
+        self.applyInclusiveTax(taxRate);
     }
 
     self.onTax2Change = function(obj, event) {
@@ -590,7 +607,18 @@ function InvoiceModel(data) {
         if (taxKey.substr(0, 1) != 1) {
             return;
         }
-        self.applyInclusivTax(taxRate);
+        self.applyInclusiveTax(taxRate);
+    }
+
+    self.isAmountDiscountChanged = function(obj, event) {
+        if (! event.originalEvent) {
+            return;
+        }
+        if (! isStorageSupported()) {
+            return;
+        }
+        var isAmountDiscount = $('#is_amount_discount').val();
+        localStorage.setItem('last:is_amount_discount', isAmountDiscount);
     }
 }
 
@@ -831,13 +859,19 @@ function ItemModel(data) {
 
     if (data) {
         ko.mapping.fromJS(data, {}, this);
+        var precision = getPrecision(this.cost());
+        var cost = parseFloat(this.cost());
+        if (cost) {
+            this.cost(cost.toFixed(Math.max(2, precision)));
+        }
+        this.qty(roundSignificant(this.qty()));
     }
 
     this.totals = ko.observable();
 
     this.totals.rawTotal = ko.computed(function() {
-        var cost = roundToTwo(NINJA.parseFloat(self.cost()));
-        var qty = roundToTwo(NINJA.parseFloat(self.qty()));
+        var cost = roundSignificant(NINJA.parseFloat(self.cost()));
+        var qty = roundSignificant(NINJA.parseFloat(self.qty()));
         var value = cost * qty;
         return value ? roundToTwo(value) : 0;
     });
@@ -861,7 +895,7 @@ function ItemModel(data) {
 
     this.onSelect = function() {}
 
-    self.applyInclusivTax = function(taxRate) {
+    self.applyInclusiveTax = function(taxRate) {
         if ( ! taxRate) {
             return;
         }
@@ -874,7 +908,7 @@ function ItemModel(data) {
             var taxKey = $(event.currentTarget).val();
             var taxRate = parseFloat(self.tax_rate1());
             if (taxKey.substr(0, 1) == 1) {
-                self.applyInclusivTax(taxRate);
+                self.applyInclusiveTax(taxRate);
             }
         }
     }
@@ -884,7 +918,7 @@ function ItemModel(data) {
             var taxKey = $(event.currentTarget).val();
             var taxRate = parseFloat(self.tax_rate2());
             if (taxKey.substr(0, 1) == 1) {
-                self.applyInclusivTax(taxRate);
+                self.applyInclusiveTax(taxRate);
             }
         }
     }
@@ -979,7 +1013,7 @@ ko.bindingHandlers.productTypeahead = {
                     model.notes(datum.notes);
                 }
                 if (datum.cost) {
-                    model.cost(accounting.toFixed(datum.cost, 2));
+                    model.cost(roundSignificant(datum.cost, 2));
                 }
                 if (!model.qty()) {
                     model.qty(1);

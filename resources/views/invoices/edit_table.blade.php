@@ -1,6 +1,8 @@
-<thead  {!! $isTasks ? 'style="display:none;" data-bind="visible: $root.hasTasks"' : '' !!}>
+<thead  {!! $isTasks ? 'style="display:none;" data-bind="visible: $root.hasTasks"' : ($invoice->has_tasks || ! empty($tasks) ? 'data-bind="visible: $root.hasItems"' : '') !!}>
     @if ($isTasks)
-        <tr><td style="20px" colspan="20"></td></tr>
+        <tr data-bind="visible: $root.hasItems">
+            <td style="20px" colspan="20"></td>
+        </tr>
     @endif
     <tr>
         <th style="min-width:32px;" class="hide-border"></th>
@@ -19,7 +21,7 @@
         <th style="min-width:32px;" class="hide-border"></th>
     </tr>
 </thead>
-<tbody data-bind="sortable: { data: invoice_items_{{ $isTasks ? 'with_tasks' : 'without_tasks' }}, allowDrop: false, afterMove: onDragged} {{ $isTasks ? ', visible: $root.hasTasks' : '' }}"
+<tbody data-bind="sortable: { data: invoice_items_{{ $isTasks ? 'with_tasks' : 'without_tasks' }}, allowDrop: false, afterMove: onDragged} {{ $isTasks ? ', visible: $root.hasTasks' : ($invoice->has_tasks || ! empty($tasks) ? ', visible: $root.hasItems' : '') }}"
     {!! $isTasks ? 'style="display:none;border-spacing: 100px"' : '' !!}>
     <tr data-bind="event: { mouseover: showActions, mouseout: hideActions }" class="sortable-row">
         <td class="hide-border td-icon">

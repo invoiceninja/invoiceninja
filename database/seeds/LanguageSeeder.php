@@ -37,6 +37,7 @@ class LanguageSeeder extends Seeder
             ['name' => 'Finnish', 'locale' => 'fi'],
             ['name' => 'Romanian', 'locale' => 'ro'],
             ['name' => 'Turkish - Turkey', 'locale' => 'tr_TR'],
+            ['name' => 'Thai', 'locale' => 'th'],
         ];
 
         foreach ($languages as $language) {

@@ -51,8 +51,12 @@
           }
       }
 
-      positionFooter();
-      $(window).resize(positionFooter);
+      if (inIframe()) {
+          $('#footer').hide();
+      } else {
+          positionFooter();
+          $(window).resize(positionFooter);
+      }
   })
 
 </script>

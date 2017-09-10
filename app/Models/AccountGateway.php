@@ -64,6 +64,7 @@ class AccountGateway extends EntityModel
     public static function paymentDriverClass($provider)
     {
         $folder = 'App\\Ninja\\PaymentDrivers\\';
+        $provider = str_replace('\\', '', $provider);
         $class = $folder . $provider . 'PaymentDriver';
         $class = str_replace('_', '', $class);
 
@@ -141,6 +142,22 @@ class AccountGateway extends EntityModel
     public function getAchEnabled()
     {
         return ! empty($this->getConfigField('enableAch'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAlipayEnabled()
+    {
+        return ! empty($this->getConfigField('enableAlipay'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getSofortEnabled()
+    {
+        return ! empty($this->getConfigField('enableSofort'));
     }
 
     /**

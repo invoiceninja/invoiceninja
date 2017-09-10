@@ -198,7 +198,7 @@ class ExportController extends BaseController
         if ($request->input('include') === 'all' || $request->input('invoices')) {
             $data['invoices'] = Invoice::scope()
                 ->invoiceType(INVOICE_TYPE_STANDARD)
-                ->with('user', 'client.contacts', 'invoice_status')
+                ->with('user', 'client.contacts', 'invoice_status', 'invoice_items')
                 ->withArchived()
                 ->where('is_recurring', '=', false)
                 ->get();
@@ -207,7 +207,7 @@ class ExportController extends BaseController
         if ($request->input('include') === 'all' || $request->input('quotes')) {
             $data['quotes'] = Invoice::scope()
                 ->invoiceType(INVOICE_TYPE_QUOTE)
-                ->with('user', 'client.contacts', 'invoice_status')
+                ->with('user', 'client.contacts', 'invoice_status', 'invoice_items')
                 ->withArchived()
                 ->where('is_recurring', '=', false)
                 ->get();
@@ -216,7 +216,7 @@ class ExportController extends BaseController
         if ($request->input('include') === 'all' || $request->input('recurring')) {
             $data['recurringInvoices'] = Invoice::scope()
                 ->invoiceType(INVOICE_TYPE_STANDARD)
-                ->with('user', 'client.contacts', 'invoice_status', 'frequency')
+                ->with('user', 'client.contacts', 'invoice_status', 'frequency', 'invoice_items')
                 ->withArchived()
                 ->where('is_recurring', '=', true)
                 ->get();

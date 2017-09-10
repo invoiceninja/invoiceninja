@@ -149,6 +149,10 @@ class OnlinePaymentController extends BaseController
      */
     public function offsitePayment($invitationKey = false, $gatewayTypeAlias = false)
     {
+        if (Crawler::isCrawler()) {
+            return redirect()->to(NINJA_WEB_URL, 301);
+        }
+
         $invitationKey = $invitationKey ?: Session::get('invitation_key');
         $invitation = Invitation::with('invoice.invoice_items', 'invoice.client.currency', 'invoice.client.account.account_gateways.gateway')
                         ->where('invitation_key', '=', $invitationKey)->firstOrFail();
@@ -192,6 +196,18 @@ class OnlinePaymentController extends BaseController
                 return redirect()->to('view/' . $invitation->invitation_key);
             }
         }
+    }
+
+    public function completeSource($invitationKey, $gatewayType)
+    {
+        if (! $invitation = $this->invoiceRepo->findInvoiceByInvitation($invitationKey)) {
+            return response()->view('error', [
+                'error' => trans('texts.invoice_not_found'),
+                'hideHeader' => true,
+            ]);
+        }
+
+        return redirect()->to('view/' . $invitation->invitation_key);
     }
 
     /**
@@ -283,7 +299,9 @@ class OnlinePaymentController extends BaseController
 
             return response()->json(['message' => $result]);
         } catch (Exception $exception) {
-            //Utils::logError($exception->getMessage(), 'PHP');
+            if (! Utils::isNinjaProd()) {
+                Utils::logError($exception->getMessage(), 'HOOK');
+            }
 
             return response()->json(['message' => $exception->getMessage()], 500);
         }

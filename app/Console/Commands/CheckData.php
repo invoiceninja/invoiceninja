@@ -382,18 +382,14 @@ class CheckData extends Command
             return;
         }
 
-        $current = config('database.default');
-        config(['database.default' => env('QUEUE_DATABASE')]);
-
-        $count = DB::table('failed_jobs')->count();
+        $queueDB = config('queue.connections.database.connection');
+        $count = DB::connection($queueDB)->table('failed_jobs')->count();
 
         if ($count > 0) {
             $this->isValid = false;
         }
 
         $this->logMessage($count . ' failed jobs');
-
-        config(['database.default' => $current]);
     }
 
     private function checkBlankInvoiceHistory()

@@ -23,10 +23,12 @@
             'amount': invoice ? formatMoneyInvoice(parseFloat(invoice.partial) || parseFloat(invoice.balance_amount), invoice) : formatMoneyAccount(100, account),
             'balance': invoice ? formatMoneyInvoice(parseFloat(invoice.balance), invoice) : formatMoneyAccount(100, account),
             'total': invoice ? formatMoneyInvoice(parseFloat(invoice.amount), invoice) : formatMoneyAccount(100, account),
+            'partial': invoice ? formatMoneyInvoice(parseFloat(invoice.partial), invoice) : formatMoneyAccount(10, account),
             'contact': invoice ? getContactDisplayName(invoice.client.contacts[0]) : 'Contact Name',
             'firstName': invoice ? invoice.client.contacts[0].first_name : 'First Name',
             'invoice': invoice ? invoice.invoice_number : '0001',
             'quote': invoice ? invoice.invoice_number : '0001',
+            'number': invoice ? invoice.invoice_number : '0001',
             'password': passwordHtml,
             'documents': documentsHtml,
             'viewLink': '{{ link_to('#', url('/view/...')) }}$password',
@@ -95,6 +97,23 @@
                                 <li>${{ $field }}</li>
                             @endforeach
                         </ul>
+                        <p>{{ trans('texts.invoice_variables') }}</p>
+                        <ul>
+                            @foreach([
+                                'number',
+                                'amount',
+                                'total',
+                                'balance',
+                                'partial',
+                                'invoiceDate',
+                                'dueDate',
+                                'documents',
+                            ] as $field)
+                                <li>${{ $field }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
                         <p>{{ trans('texts.client_variables') }}</p>
                         <ul>
                             @foreach([
@@ -107,23 +126,6 @@
                                 <li>${{ $field }}</li>
                             @endforeach
                         </ul>
-                        <p>{{ trans('texts.invoice_variables') }}</p>
-                        <ul>
-                            @foreach([
-                                'invoice',
-                                'quote',
-                                'amount',
-                                'total',
-                                'balance',
-                                'invoiceDate',
-                                'dueDate',
-                                'documents',
-                            ] as $field)
-                                <li>${{ $field }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                    <div class="col-md-6">
                         <p>{{ trans('texts.navigation_variables') }}</p>
                         <ul>
                             @foreach([

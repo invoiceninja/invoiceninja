@@ -56,15 +56,6 @@
                 <br/>
 
                 {!! Former::select('app_version')
-                        ->addOption('Quicken 2005', 1400)
-                        ->addOption('Quicken 2006', 1500)
-                        ->addOption('Quicken 2007', 1600)
-                        ->addOption('Quicken 2008', 1700)
-                        ->addOption('Quicken 2009', 1800)
-                        ->addOption('Quicken 2010', 1900)
-                        ->addOption('Quicken 2011', 2000)
-                        ->addOption('Quicken 2012', 2100)
-                        ->addOption('Quicken 2013', 2200)
                         ->addOption('Quicken 2014', 2300)
                         ->addOption('Quicken 2015', 2400)
                         ->addOption('Quicken 2016', 2500)
@@ -74,7 +65,8 @@
                         ->addOption('100', 100)
                         ->addOption('101', 101)
                         ->addOption('102', 102)
-                        ->addOption('103', 103) !!}
+                        ->addOption('103', 103)
+                        ->help('ofx_help') !!}
 
             </div>
         </div>

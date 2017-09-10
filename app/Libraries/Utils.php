@@ -2,6 +2,7 @@
 
 namespace App\Libraries;
 
+use DB;
 use App;
 use Auth;
 use Cache;
@@ -235,6 +236,26 @@ class Utils
         return App::getLocale() == 'en';
     }
 
+    public static function getDebugInfo()
+    {
+        if ($info = session('DEBUG_INFO')) {
+            return $info;
+        }
+
+        $mysqlVersion = DB::select( DB::raw("select version() as version") )[0]->version;
+        $accountKey = Auth::check() ? Auth::user()->account->account_key : '';
+
+        $info = "App Version: v" . NINJA_VERSION . "\\n" .
+                "White Label: " . (Utils::isWhiteLabel() ? 'Yes' : 'No') . " - {$accountKey}\\n" .
+                "Server OS: " . php_uname('s') . ' ' . php_uname('r') . "\\n" .
+                "PHP Version: " . phpversion() . "\\n" .
+                "MySQL Version: " . $mysqlVersion;
+
+        session(['DEBUG_INFO' => $info]);
+
+        return $info;
+    }
+
     public static function getLocaleRegion()
     {
         $parts = explode('_', App::getLocale());
@@ -408,6 +429,27 @@ class Utils
             'is_api' => session('token_id') ? 'yes' : 'no',
             'db_server' => config('database.default'),
         ];
+    }
+
+    public static function getErrors()
+    {
+        $data = [];
+        $filename = storage_path('logs/laravel-error.log');
+
+        if (! file_exists($filename)) {
+            return $data;
+        }
+
+        $errors = file($filename);
+
+        for ($i=count($errors)-1; $i>=0; $i--) {
+            $data[] = $errors[$i];
+            if (count($data) >= 10) {
+                break;
+            }
+        }
+
+        return $data;
     }
 
     public static function parseFloat($value)
@@ -1226,6 +1268,18 @@ class Utils
         $tax2 = round($amount * $taxRate2 / 100, 2);
 
         return round($amount + $tax1 + $tax2, 2);
+    }
+
+    public static function roundSignificant($value, $precision = 2) {
+        if (round($value, 3) != $value) {
+            $precision = 4;
+        } elseif (round($value, 2) != $value) {
+            $precision = 3;
+        } elseif (round($value, 1) != $value) {
+            $precision = 2;
+        }
+
+        return number_format($value, $precision, '.', '');
     }
 
     public static function truncateString($string, $length)

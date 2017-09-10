@@ -19,6 +19,8 @@
         {!! Former::populateField('update_address', intval($accountGateway->update_address)) !!}
         {!! Former::populateField('publishable_key', $accountGateway->getPublishableStripeKey() ? str_repeat('*', strlen($accountGateway->getPublishableStripeKey())) : '') !!}
         {!! Former::populateField('enable_ach', $accountGateway->getAchEnabled() ? 1 : 0) !!}
+        {!! Former::populateField('enable_sofort', $accountGateway->getSofortEnabled() ? 1 : 0) !!}
+        {!! Former::populateField('enable_alipay', $accountGateway->getAlipayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? 1 : 0) !!}
         {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
         {!! Former::populateField('plaid_secret', $accountGateway->getPlaidSecret() ? str_repeat('*', strlen($accountGateway->getPlaidSecret())) : '') !!}
@@ -65,9 +67,13 @@
     @foreach ($gateways as $gateway)
 
         <div id="gateway_{{ $gateway->id }}_div" class='gateway-fields' style="display: none">
+            @if ($gateway->id == GATEWAY_STRIPE)
+                {!! Former::text('publishable_key') !!}
+            @endif
+
             @foreach ($gateway->fields as $field => $details)
 
-                @if ($details && !$accountGateway && !is_array($details))
+                @if ($details && !$accountGateway && !is_array($details) && !is_bool($details))
                     {!! Former::populateField($gateway->id.'_'.$field, $details) !!}
                 @endif
 
@@ -88,9 +94,7 @@
 
             @endforeach
 
-            @if ($gateway->id == GATEWAY_STRIPE)
-                {!! Former::text('publishable_key') !!}
-            @elseif ($gateway->id == GATEWAY_BRAINTREE)
+            @if ($gateway->id == GATEWAY_BRAINTREE)
                 @if ($account->hasGatewayId(GATEWAY_PAYPAL_EXPRESS))
                     {!! Former::checkbox('enable_paypal')
                         ->label(trans('texts.paypal'))
@@ -149,10 +153,20 @@
             {!! Former::checkbox('enable_ach')
                 ->label(trans('texts.ach'))
                 ->text(trans('texts.enable_ach'))
-                ->help(trans('texts.stripe_ach_help'))
                 ->value(1) !!}
 
-            <div class="stripe-ach-options">
+            {!! Former::checkbox('enable_sofort')
+                ->label(trans('texts.sofort'))
+                ->text(trans('texts.enable_sofort'))
+                ->value(1) !!}
+
+            {!! Former::checkbox('enable_alipay')
+                ->label(trans('texts.alipay'))
+                ->text(trans('texts.enable_alipay'))
+                ->help(trans('texts.stripe_alipay_help', ['link' => link_to('https://dashboard.stripe.com/account/payments/settings', 'Stripe', ['target' => '_blank'])]))
+                ->value(1) !!}
+
+            <div class="stripe-webhook-options">
                 <div class="form-group">
                     <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
                     <div class="col-lg-8 col-sm-8 help-block">
@@ -162,6 +176,9 @@
                     ]) !!}</strong></div>
                     </div>
                 </div>
+            </div>
+
+            <div class="stripe-ach-options">
                 <div class="form-group">
                     <div class="col-sm-8 col-sm-offset-4">
                         <h4>{{trans('texts.plaid')}}</h4>
@@ -172,6 +189,16 @@
                 {!! Former::text('plaid_secret')->label(trans('texts.secret')) !!}
                 {!! Former::text('plaid_public_key')->label(trans('texts.public_key'))
                     ->help(trans('texts.plaid_environment_help')) !!}
+            </div>
+        </div>
+    @elseif (! $accountGateway || $accountGateway->gateway_id == GATEWAY_GOCARDLESS)
+        <div class="form-group">
+            <label class="control-label col-lg-4 col-sm-4">{{ trans('texts.webhook_url') }}</label>
+            <div class="col-lg-8 col-sm-8 help-block">
+                <input type="text"  class="form-control" onfocus="$(this).select()" readonly value="{{ URL::to(env('WEBHOOK_PREFIX','').'payment_hook/'.$account->account_key.'/'.GATEWAY_GOCARDLESS) }}">
+                <div class="help-block"><strong>{!! trans('texts.stripe_webhook_help', [
+                'link'=>'<a href="https://manage.gocardless.com/developers" target="_blank">'.trans('texts.gocardless_webhook_help_link_text').'</a>'
+            ]) !!}</strong></div>
             </div>
         </div>
     @elseif ($accountGateway && $accountGateway->gateway_id == GATEWAY_WEPAY)
@@ -241,9 +268,12 @@
         }
     }
 
-    function enablePlaidSettings() {
-        var visible = $('#enable_ach').is(':checked');
-        $('.stripe-ach-options').toggle(visible);
+    function updateWebhookShown() {
+        var enableAch = $('#enable_ach').is(':checked');
+        var enableAlipay = $('#enable_alipay').is(':checked');
+        var enableSofort = $('#enable_sofort').is(':checked');
+        $('.stripe-webhook-options').toggle(enableAch || enableAlipay || enableSofort);
+        $('.stripe-ach-options').toggle(enableAch);
     }
 
     var gateways = {!! Cache::get('gateways') !!};
@@ -251,12 +281,14 @@
     $(function() {
 
         setFieldsShown();
-        enablePlaidSettings();
+        updateWebhookShown();
 
         $('#show_address').change(enableUpdateAddress);
         enableUpdateAddress();
 
-        $('#enable_ach').change(enablePlaidSettings)
+        $('#enable_ach').change(updateWebhookShown);
+        $('#enable_alipay').change(updateWebhookShown);
+        $('#enable_sofort').change(updateWebhookShown);
 
         @if (!$accountGateway && count($secondaryGateways))
             $('#primary_gateway_id').append($('<option>', {

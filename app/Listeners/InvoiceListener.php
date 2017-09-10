@@ -48,7 +48,7 @@ class InvoiceListener
     public function updatedInvoice(InvoiceWasUpdated $event)
     {
         $invoice = $event->invoice;
-        $invoice->updatePaidStatus(false);
+        $invoice->updatePaidStatus(false, false);
     }
 
     /**
@@ -71,7 +71,7 @@ class InvoiceListener
         $partial = max(0, $invoice->partial - $payment->amount);
 
         $invoice->updateBalances($adjustment, $partial);
-        $invoice->updatePaidStatus();
+        $invoice->updatePaidStatus(true);
 
         // store a backup of the invoice
         $activity = Activity::wherePaymentId($payment->id)

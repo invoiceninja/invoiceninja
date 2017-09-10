@@ -266,7 +266,7 @@
 								</div>
 								<div class="modal-footer" style="margin-top: 2px">
 									<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-									<button type="button" class="btn btn-danger" onclick="confirmPurge()">{{ trans('texts.purge_data') }}</button>
+									<button type="button" class="btn btn-danger" id="purgeButton" onclick="confirmPurge()">{{ trans('texts.purge_data') }}</button>
 								</div>
 							</div>
 						</div>
@@ -274,10 +274,10 @@
 					{!! Former::close() !!}
 
 					{!! Former::open('settings/cancel_account')->addClass('cancel-account') !!}
-					{!! Former::actions( Button::danger(trans('texts.cancel_account'))->large()->withAttributes(['onclick' => 'showCancelConfirm()'])->appendIcon(Icon::create('trash'))) !!}
+					{!! Former::actions( Button::danger($account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account'))->large()->withAttributes(['onclick' => 'showCancelConfirm()'])->appendIcon(Icon::create('trash'))) !!}
 					<div class="form-group">
 						<div class="col-lg-8 col-sm-8 col-lg-offset-4 col-sm-offset-4">
-							<span class="help-block">{{ trans('texts.cancel_account_help')}}</span>
+							<span class="help-block">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company_help') : trans('texts.cancel_account_help') }}</span>
 						</div>
 					</div>
 					<div class="modal fade" id="confirmCancelModal" tabindex="-1" role="dialog" aria-labelledby="confirmCancelModalLabel" aria-hidden="true">
@@ -285,12 +285,12 @@
 							<div class="modal-content">
 								<div class="modal-header">
 									<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-									<h4 class="modal-title" id="confirmCancelModalLabel">{!! trans('texts.cancel_account') !!}</h4>
+									<h4 class="modal-title" id="confirmCancelModalLabel">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account') }}</h4>
 								</div>
 								<div class="container" style="width: 100%; padding-bottom: 0px !important">
 				                <div class="panel panel-default">
 				                <div class="panel-body">
-									<p><b>{{ trans('texts.cancel_account_message') }}</b></p><br/>
+									<p><b>{{ $account->hasMultipleAccounts() ? trans('texts.delete_company_message') : trans('texts.cancel_account_message') }}</b></p><br/>
 									<p>{!! Former::textarea('reason')
 												->placeholder(trans('texts.reason_for_canceling'))
 												->raw()
@@ -301,7 +301,7 @@
 								</div>
 								<div class="modal-footer" style="margin-top: 2px">
 									<button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.go_back') }}</button>
-									<button type="button" class="btn btn-danger" onclick="confirmCancel()">{{ trans('texts.cancel_account') }}</button>
+									<button type="button" class="btn btn-danger" id="deleteButton" onclick="confirmCancel()">{{ $account->hasMultipleAccounts() ? trans('texts.delete_company') : trans('texts.cancel_account') }}</button>
 								</div>
 							</div>
 						</div>
@@ -338,10 +338,12 @@
 	}
 
 	function confirmCancel() {
+		$('#deleteButton').prop('disabled', true);
 		$('form.cancel-account').submit();
 	}
 
 	function confirmPurge() {
+		$('#purgeButton').prop('disabled', true);
 		$('form.purge-data').submit();
 	}
 

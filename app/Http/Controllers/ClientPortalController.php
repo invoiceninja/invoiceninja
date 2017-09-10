@@ -69,10 +69,6 @@ class ClientPortalController extends BaseController
 
         $account->loadLocalizationSettings($client);
 
-        if (! Input::has('phantomjs')) {
-            $this->invoiceRepo->clearGatewayFee($invoice);
-        }
-
         if (! Input::has('phantomjs') && ! session('silent:' . $client->id) && ! Session::has($invitation->invitation_key)
             && (! Auth::check() || Auth::user()->account_id != $invoice->account_id)) {
             if ($invoice->isType(INVOICE_TYPE_QUOTE)) {
@@ -129,6 +125,10 @@ class ClientPortalController extends BaseController
 
         if ($wepayGateway = $account->getGatewayConfig(GATEWAY_WEPAY)) {
             $data['enableWePayACH'] = $wepayGateway->getAchEnabled();
+        }
+        if ($stripeGateway = $account->getGatewayConfig(GATEWAY_STRIPE)) {
+            //$data['enableStripeSources'] = $stripeGateway->getAlipayEnabled();
+            $data['enableStripeSources'] = true;
         }
 
         $showApprove = $invoice->quote_invoice_id ? false : true;

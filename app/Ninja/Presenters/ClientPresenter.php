@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Presenters;
 
+use Utils;
+
 class ClientPresenter extends EntityPresenter
 {
     public function country()
@@ -15,6 +17,19 @@ class ClientPresenter extends EntityPresenter
         $account = $client->account;
 
         return $account->formatMoney($client->balance, $client);
+    }
+
+    public function websiteLink()
+    {
+        $client = $this->entity;
+
+        if (! $client->website) {
+            return '';
+        }
+
+        $link = Utils::addHttp($client->website);
+
+        return link_to($link, $client->website, ['target' => '_blank']);
     }
 
     public function paid_to_date()

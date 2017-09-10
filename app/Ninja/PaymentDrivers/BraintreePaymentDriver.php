@@ -7,6 +7,7 @@ use Exception;
 use Session;
 use Utils;
 use App\Models\GatewayType;
+use App\Models\PaymentType;
 
 class BraintreePaymentDriver extends BasePaymentDriver
 {
@@ -108,7 +109,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             if ($tokenResponse->isSuccessful()) {
                 $customerReference = $tokenResponse->getCustomerData()->id;
             } else {
-                Utils::logError($tokenResponse->getMessage());
+                Utils::logError('Failed to create Braintree customer: ' . $tokenResponse->getMessage());
                 return false;
             }
         }
@@ -124,7 +125,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
             if ($tokenResponse->isSuccessful()) {
                 $this->tokenResponse = $tokenResponse->getData()->paymentMethod;
             } else {
-                Utils::logError($tokenResponse->getMessage());
+                Utils::logError('Failed to create Braintree token: ' . $tokenResponse->getMessage());
                 return false;
             }
         }
@@ -158,7 +159,7 @@ class BraintreePaymentDriver extends BasePaymentDriver
         $paymentMethod->source_reference = $response->token;
 
         if ($this->isGatewayType(GATEWAY_TYPE_CREDIT_CARD)) {
-            $paymentMethod->payment_type_id = $this->parseCardType($response->cardType);
+            $paymentMethod->payment_type_id = PaymentType::parseCardType($response->cardType);
             $paymentMethod->last4 = $response->last4;
             $paymentMethod->expiration = $response->expirationYear . '-' . $response->expirationMonth . '-01';
         } elseif ($this->isGatewayType(GATEWAY_TYPE_PAYPAL)) {
@@ -211,4 +212,15 @@ class BraintreePaymentDriver extends BasePaymentDriver
                 ->send()
                 ->getToken();
     }
+
+    public function isValid()
+    {
+        try {
+            $this->createTransactionToken();
+            return true;
+        } catch (Exception $exception) {
+            return get_class($exception);
+        }
+    }
+
 }

@@ -14,7 +14,7 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'CardSave', 'provider' => 'CardSave'],
             ['name' => 'Eway Rapid', 'provider' => 'Eway_RapidShared', 'is_offsite' => true],
             ['name' => 'FirstData Connect', 'provider' => 'FirstData_Connect'],
-            ['name' => 'GoCardless', 'provider' => 'GoCardless', 'is_offsite' => true],
+            ['name' => 'GoCardless', 'provider' => 'GoCardless', 'is_offsite' => true, 'payment_library_id' => 2],
             ['name' => 'Migs ThreeParty', 'provider' => 'Migs_ThreeParty'],
             ['name' => 'Migs TwoParty', 'provider' => 'Migs_TwoParty'],
             ['name' => 'Mollie', 'provider' => 'Mollie', 'is_offsite' => true, 'sort_order' => 7],
@@ -70,12 +70,15 @@ class PaymentLibrariesSeeder extends Seeder
             ['name' => 'WeChat Express', 'provider' => 'WeChat_Express', 'payment_library_id' => 2],
             ['name' => 'WePay', 'provider' => 'WePay', 'is_offsite' => false],
             ['name' => 'Braintree', 'provider' => 'Braintree', 'sort_order' => 2],
-            ['name' => 'Custom', 'provider' => 'Custom', 'is_offsite' => true, 'sort_order' => 8],
+            ['name' => 'Custom', 'provider' => 'Custom', 'is_offsite' => true, 'sort_order' => 9],
             ['name' => 'FirstData Payeezy', 'provider' => 'FirstData_Payeezy'],
+            ['name' => 'GoCardless', 'provider' => 'GoCardlessV2\Redirect', 'sort_order' => 8, 'is_offsite' => true],
         ];
 
         foreach ($gateways as $gateway) {
-            $record = Gateway::where('name', '=', $gateway['name'])->first();
+            $record = Gateway::whereName($gateway['name'])
+                        ->whereProvider($gateway['provider'])
+                        ->first();
             if ($record) {
                 $record->fill($gateway);
                 $record->save();

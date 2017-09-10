@@ -37,6 +37,7 @@
         "descubraomundo/omnipay-pagarme": "dev-master",
         "digitickets/omnipay-barclays-epdq": "~3.0",
         "digitickets/omnipay-datacash": "~3.0",
+        "digitickets/omnipay-gocardlessv2": "dev-payment-fix",
         "digitickets/omnipay-realex": "~5.0",
         "dioscouri/omnipay-cybersource": "dev-master",
         "doctrine/dbal": "2.5.x",
@@ -66,7 +67,7 @@
         "meebio/omnipay-creditcall": "dev-master",
         "meebio/omnipay-secure-trading": "dev-master",
         "mfauveau/omnipay-pacnet": "~2.0",
-        "mpdf/mpdf": "^6.1",
+        "mpdf/mpdf": "6.1.3",
         "nwidart/laravel-modules": "^1.14",
         "omnipay/2checkout": "dev-master#e9c079c2dde0d7ba461903b3b7bd5caf6dee1248",
         "omnipay/bitpay": "dev-master",
@@ -161,6 +162,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/l5-google-cloud-storage"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-gocardlessv2"
         }
     ]
 }

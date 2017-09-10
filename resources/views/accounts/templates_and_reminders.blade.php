@@ -26,13 +26,13 @@
 
     {!! Former::vertical_open()->addClass('warn-on-exit') !!}
 
-    @foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type)
+    @foreach (App\Models\AccountEmailSettings::$templates as $type)
         @foreach (['subject', 'template'] as $field)
             {{ Former::populateField("email_{$field}_{$type}", $templates[$type][$field]) }}
         @endforeach
     @endforeach
 
-    @foreach ([REMINDER1, REMINDER2, REMINDER3] as $type)
+    @foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type)
         @foreach (['enable', 'num_days', 'direction', 'field'] as $field)
             {{ Former::populateField("{$field}_{$type}", $account->{"{$field}_{$type}"}) }}
         @endforeach
@@ -148,7 +148,7 @@
 
     <script type="text/javascript">
 
-        var entityTypes = ['invoice', 'quote', 'payment', 'reminder1', 'reminder2', 'reminder3'];
+        var entityTypes = {!! json_encode(App\Models\AccountEmailSettings::$templates) !!};
         var stringTypes = ['subject', 'template'];
         var templates = {!! json_encode($defaultTemplates) !!};
         var account = {!! Auth::user()->account !!};

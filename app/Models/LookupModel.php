@@ -96,7 +96,7 @@ class LookupModel extends Eloquent
                                 ->first();
             }
             if (! $isFound) {
-                abort(500, "Looked up {$className} not found: {$field} => {$value}");
+                abort(404, "Looked up {$className} not found: {$field} => {$value}");
             }
 
             Cache::put($key, $server, 120);

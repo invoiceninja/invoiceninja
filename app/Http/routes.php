@@ -33,6 +33,7 @@ Route::group(['middleware' => ['lookup:contact', 'auth:client']], function () {
     Route::get('approve/{invitation_key}', 'QuoteController@approve');
     Route::get('payment/{invitation_key}/{gateway_type?}/{source_id?}', 'OnlinePaymentController@showPayment');
     Route::post('payment/{invitation_key}', 'OnlinePaymentController@doPayment');
+    Route::get('complete_source/{invitation_key}/{gateway_type}', 'OnlinePaymentController@completeSource');
     Route::match(['GET', 'POST'], 'complete/{invitation_key?}/{gateway_type?}', 'OnlinePaymentController@offsitePayment');
     Route::get('bank/{routing_number}', 'OnlinePaymentController@getBankInfo');
     Route::get('client/payment_methods', 'ClientPortalController@paymentMethods');
@@ -87,7 +88,7 @@ Route::get('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@getRegis
 Route::post('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@postRegister']);
 Route::get('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper']);
 Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper']);
-Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmail']);
+Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmailWrapper']);
 Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset']);
 Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
 
@@ -156,6 +157,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('projects', 'ProjectController@store');
     Route::put('projects/{projects}', 'ProjectController@update');
     Route::get('projects/{projects}/edit', 'ProjectController@edit');
+    Route::get('projects/{projects}', 'ProjectController@edit');
     Route::post('projects/bulk', 'ProjectController@bulk');
 
     Route::get('api/recurring_invoices/{client_id?}', 'InvoiceController@getRecurringDatatable');
@@ -190,7 +192,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::delete('documents/{documents}', 'DocumentController@delete');
 
     Route::get('quotes/create/{client_id?}', 'QuoteController@create');
-    Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneInvoice');
+    Route::get('quotes/{invoices}/clone', 'InvoiceController@cloneQuote');
     Route::get('quotes/{invoices}/edit', 'InvoiceController@edit');
     Route::put('quotes/{invoices}', 'InvoiceController@update');
     Route::get('quotes/{invoices}', 'InvoiceController@edit');
@@ -260,6 +262,7 @@ Route::group([
     Route::get('/account/{account_key}', 'UserController@viewAccountByKey');
     Route::get('/unlink_account/{user_account_id}/{user_id}', 'UserController@unlinkAccount');
     Route::get('/manage_companies', 'UserController@manageCompanies');
+    Route::get('/errors', 'AppController@errors');
 
     Route::get('api/tokens', 'TokenController@getDatatable');
     Route::resource('tokens', 'TokenController');

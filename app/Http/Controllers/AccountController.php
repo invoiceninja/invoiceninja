@@ -20,6 +20,7 @@ use App\Models\PaymentTerm;
 use App\Models\Product;
 use App\Models\TaxRate;
 use App\Models\User;
+use App\Models\AccountEmailSettings;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Mailers\UserMailer;
 use App\Ninja\Repositories\AccountRepository;
@@ -653,7 +654,7 @@ class AccountController extends BaseController
         $data['account'] = $account;
         $data['templates'] = [];
         $data['defaultTemplates'] = [];
-        foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
+        foreach (AccountEmailSettings::$templates as $type) {
             $data['templates'][$type] = [
                 'subject' => $account->getEmailSubject($type),
                 'template' => $account->getEmailTemplate($type),
@@ -800,7 +801,7 @@ class AccountController extends BaseController
         if (Auth::user()->account->hasFeature(FEATURE_EMAIL_TEMPLATES_REMINDERS)) {
             $account = Auth::user()->account;
 
-            foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, REMINDER1, REMINDER2, REMINDER3] as $type) {
+            foreach (AccountEmailSettings::$templates as $type) {
                 $subjectField = "email_subject_{$type}";
                 $subject = Input::get($subjectField, $account->getEmailSubject($type));
                 $account->account_email_settings->$subjectField = ($subject == $account->getDefaultEmailSubject($type) ? null : $subject);
@@ -810,7 +811,7 @@ class AccountController extends BaseController
                 $account->account_email_settings->$bodyField = ($body == $account->getDefaultEmailTemplate($type) ? null : $body);
             }
 
-            foreach ([REMINDER1, REMINDER2, REMINDER3] as $type) {
+            foreach ([TEMPLATE_REMINDER1, TEMPLATE_REMINDER2, TEMPLATE_REMINDER3] as $type) {
                 $enableField = "enable_{$type}";
                 $account->$enableField = Input::get($enableField) ? true : false;
                 $account->{"num_days_{$type}"} = Input::get("num_days_{$type}");
@@ -1364,7 +1365,12 @@ class AccountController extends BaseController
 
         $user = Auth::user();
         $account = Auth::user()->account;
+
         \Log::info("Canceled Account: {$account->name} - {$user->email}");
+        $type = $account->hasMultipleAccounts() ? 'company' : 'account';
+        $subject = trans("texts.deleted_{$type}");
+        $message = trans("texts.deleted_{$type}_details", ['account' => $account->getDisplayName()]);
+        $this->userMailer->sendMessage($user, $subject, $message);
 
         $refunded = false;
         if (! $account->hasMultipleAccounts()) {

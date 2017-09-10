@@ -206,7 +206,8 @@ class InvoiceApiController extends BaseAPIController
                 if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
                     $invoice = $recurringInvoice;
                 }
-                app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+                $reminder = isset($data['email_type']) ? $data['email_type'] : false;
+                app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder);
                 //$this->dispatch(new SendInvoiceEmail($invoice));
             }
         }
@@ -423,6 +424,11 @@ class InvoiceApiController extends BaseAPIController
     public function download(InvoiceRequest $request)
     {
         $invoice = $request->entity();
+
+        if ($invoice->is_deleted) {
+            abort(404);
+        }
+
         $pdfString = $invoice->getPDFString();
 
         if ($pdfString) {

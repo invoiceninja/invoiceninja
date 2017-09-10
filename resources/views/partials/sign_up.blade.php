@@ -123,7 +123,7 @@
           @if (Auth::user()->registered)
               hideSignUp();
               NINJA.formIsChanged = false;
-              location.reload();
+              location.href = "{{ url('/dashboard') }}";
           @else
               handleSignedUp();
               NINJA.isRegistered = true;

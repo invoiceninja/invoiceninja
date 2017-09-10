@@ -8,6 +8,7 @@ use Carbon;
 use DropdownButton;
 use stdClass;
 use Utils;
+use Auth;
 
 class InvoicePresenter extends EntityPresenter
 {
@@ -35,6 +36,14 @@ class InvoicePresenter extends EntityPresenter
         $account = $invoice->account;
 
         return $account->formatMoney($invoice->balance, $invoice->client);
+    }
+
+    public function partial()
+    {
+        $invoice = $this->entity;
+        $account = $invoice->account;
+
+        return $account->formatMoney($invoice->partial, $invoice->client);
     }
 
     public function requestedAmount()
@@ -217,10 +226,15 @@ class InvoicePresenter extends EntityPresenter
         $entityType = $invoice->getEntityType();
 
         $actions = [
-            ['url' => 'javascript:onCloneClick()', 'label' => trans("texts.clone_{$entityType}")],
-            ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')],
-            DropdownButton::DIVIDER,
+            ['url' => 'javascript:onCloneInvoiceClick()', 'label' => trans("texts.clone_invoice")]
         ];
+
+        if (Auth::user()->can('create', ENTITY_QUOTE)) {
+            $actions[] = ['url' => 'javascript:onCloneQuoteClick()', 'label' => trans("texts.clone_quote")];
+        }
+
+        $actions[] = ['url' => url("{$entityType}s/{$entityType}_history/{$invoice->public_id}"), 'label' => trans('texts.view_history')];
+        $actions[] = DropdownButton::DIVIDER;
 
         if ($entityType == ENTITY_QUOTE) {
             if ($invoice->quote_invoice_id) {
@@ -229,11 +243,15 @@ class InvoicePresenter extends EntityPresenter
                 $actions[] = ['url' => 'javascript:onConvertClick()', 'label' => trans('texts.convert_to_invoice')];
             }
         } elseif ($entityType == ENTITY_INVOICE) {
-            if ($invoice->quote_id) {
-                $actions[] = ['url' => url("quotes/{$invoice->quote_id}/edit"), 'label' => trans('texts.view_quote')];
+            if ($invoice->quote_id && $invoice->quote) {
+                $actions[] = ['url' => url("quotes/{$invoice->quote->public_id}/edit"), 'label' => trans('texts.view_quote')];
             }
 
-            if (!$invoice->deleted_at && ! $invoice->is_recurring && $invoice->balance != 0) {
+            if ($invoice->onlyHasTasks()) {
+                $actions[] = ['url' => 'javascript:onAddItemClick()', 'label' => trans('texts.add_item')];
+            }
+
+            if ($invoice->canBePaid()) {
                 $actions[] = ['url' => 'javascript:submitBulkAction("markPaid")', 'label' => trans('texts.mark_paid')];
                 $actions[] = ['url' => 'javascript:onPaymentClick()', 'label' => trans('texts.enter_payment')];
             }

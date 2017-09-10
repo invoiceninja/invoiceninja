@@ -141,6 +141,11 @@ class BasePaymentDriver
             $invoicRepo->setGatewayFee($this->invoice(), $this->gatewayType);
         }
 
+        // For these gateway types we use the API directrly rather than Omnipay
+        if ($this->shouldUseSource()) {
+            return $this->createSource();
+        }
+
         if ($this->isGatewayType(GATEWAY_TYPE_TOKEN) || $gateway->is_offsite) {
             if (Session::has('error')) {
                 Session::reflash();
@@ -513,6 +518,12 @@ class BasePaymentDriver
             'shippingCountry' => $client->country ? $client->country->iso_3166_2 : '',
             'shippingPhone' => $contact->phone,
         ];
+    }
+
+    public function shouldUseSource()
+    {
+        // Use Omnipay by default
+        return false;
     }
 
     protected function shouldCreateToken()
@@ -947,7 +958,11 @@ class BasePaymentDriver
                 $label = e($this->accountGateway->getConfigField('name'));
             } else {
                 $url = $this->paymentUrl($gatewayTypeAlias);
-                $label = trans("texts.{$gatewayTypeAlias}");
+                if ($custom = $this->account()->getLabel($gatewayTypeAlias)) {
+                    $label = $custom;
+                } else {
+                    $label = trans("texts.{$gatewayTypeAlias}");
+                }
             }
 
             $label .= $this->invoice()->present()->gatewayFee($gatewayTypeId);
@@ -997,39 +1012,6 @@ class BasePaymentDriver
         $url = URL::to("/payment/{$this->invitation->invitation_key}/{$gatewayTypeAlias}");
 
         return $url;
-    }
-
-    protected function parseCardType($cardName)
-    {
-        $cardTypes = [
-            'visa' => PAYMENT_TYPE_VISA,
-            'americanexpress' => PAYMENT_TYPE_AMERICAN_EXPRESS,
-            'amex' => PAYMENT_TYPE_AMERICAN_EXPRESS,
-            'mastercard' => PAYMENT_TYPE_MASTERCARD,
-            'discover' => PAYMENT_TYPE_DISCOVER,
-            'jcb' => PAYMENT_TYPE_JCB,
-            'dinersclub' => PAYMENT_TYPE_DINERS,
-            'carteblanche' => PAYMENT_TYPE_CARTE_BLANCHE,
-            'chinaunionpay' => PAYMENT_TYPE_UNIONPAY,
-            'unionpay' => PAYMENT_TYPE_UNIONPAY,
-            'laser' => PAYMENT_TYPE_LASER,
-            'maestro' => PAYMENT_TYPE_MAESTRO,
-            'solo' => PAYMENT_TYPE_SOLO,
-            'switch' => PAYMENT_TYPE_SWITCH,
-        ];
-
-        $cardName = strtolower(str_replace([' ', '-', '_'], '', $cardName));
-
-        if (empty($cardTypes[$cardName]) && 1 == preg_match('/^('.implode('|', array_keys($cardTypes)).')/', $cardName, $matches)) {
-            // Some gateways return extra stuff after the card name
-            $cardName = $matches[1];
-        }
-
-        if (! empty($cardTypes[$cardName])) {
-            return $cardTypes[$cardName];
-        } else {
-            return PAYMENT_TYPE_CREDIT_CARD_OTHER;
-        }
     }
 
     public function handleWebHook($input)

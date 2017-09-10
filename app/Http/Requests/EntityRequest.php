@@ -18,6 +18,8 @@ class EntityRequest extends Request
             return $this->entity;
         }
 
+        $class = EntityModel::getClassName($this->entityType);
+
         // The entity id can appear as invoices, invoice_id, public_id or id
         $publicId = false;
         $field = $this->entityType . '_id';
@@ -36,8 +38,6 @@ class EntityRequest extends Request
         if (! $publicId) {
             return null;
         }
-
-        $class = EntityModel::getClassName($this->entityType);
 
         if (method_exists($class, 'trashed')) {
             $this->entity = $class::scope($publicId)->withTrashed()->firstOrFail();

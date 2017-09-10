@@ -119,6 +119,38 @@ class BaseTransformer extends TransformerAbstract
      *
      * @return null
      */
+    public function getContact($email)
+    {
+        $email = trim(strtolower($email));
+
+        if (! isset($this->maps['contact'][$email])) {
+            return false;
+        }
+
+        return $this->maps['contact'][$email];
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null
+     */
+    public function getCustomer($key)
+    {
+        $key = trim($key);
+
+        if (! isset($this->maps['customer'][$key])) {
+            return false;
+        }
+
+        return $this->maps['customer'][$key];
+    }
+
+    /**
+     * @param $name
+     *
+     * @return null
+     */
     public function getCountryId($name)
     {
         $name = strtolower(trim($name));
@@ -215,7 +247,7 @@ class BaseTransformer extends TransformerAbstract
      */
     public function getInvoiceNumber($number)
     {
-        return str_pad(trim($number), 4, '0', STR_PAD_LEFT);
+        return $number ? str_pad(trim($number), 4, '0', STR_PAD_LEFT) : null;
     }
 
     /**

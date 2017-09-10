@@ -29,6 +29,11 @@ class UpdateKey extends Command
     {
         $this->info(date('Y-m-d h:i:s') . ' Running UpdateKey...');
 
+        if (! env('APP_KEY') || ! env('APP_CIPHER')) {
+            $this->info(date('Y-m-d h:i:s') . ' Error: app key and cipher are not set');
+            exit;
+        }
+
         // load the current values
         $gatewayConfigs = [];
         $bankUsernames = [];
@@ -41,9 +46,17 @@ class UpdateKey extends Command
             $bankUsernames[$bank->id] = $bank->getUsername();
         }
 
-        // set the new key and create a new encrypter
-        Artisan::call('key:generate');
-        $key = base64_decode(str_replace('base64:', '', config('app.key')));
+        // check if we can write to the .env file
+        $envPath = base_path() . '/.env';
+        $envWriteable = file_exists($envPath) && @fopen($envPath, 'a');
+
+        if ($envWriteable) {
+            Artisan::call('key:generate');
+            $key = base64_decode(str_replace('base64:', '', config('app.key')));
+        } else {
+            $key = str_random(32);
+        }
+
         $crypt = new Encrypter($key, config('app.cipher'));
 
         // update values using the new key/encrypter
@@ -59,7 +72,11 @@ class UpdateKey extends Command
             $bank->save();
         }
 
-        $this->info(date('Y-m-d h:i:s') . ' Successfully updated the application key');
+        if ($envWriteable) {
+            $this->info(date('Y-m-d h:i:s') . ' Successfully update the key');
+        } else {
+            $this->info(date('Y-m-d h:i:s') . ' Successfully update data, make sure to set the new app key: ' . $key);
+        }
     }
 
     /**

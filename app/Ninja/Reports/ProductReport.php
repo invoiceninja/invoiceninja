@@ -4,6 +4,7 @@ namespace App\Ninja\Reports;
 
 use App\Models\Client;
 use Auth;
+use Utils;
 
 class ProductReport extends AbstractReport
 {
@@ -48,8 +49,8 @@ class ProductReport extends AbstractReport
                         $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                         $invoice->present()->invoice_date,
                         $item->product_key,
-                        $item->qty,
-                        $account->formatMoney($item->cost, $client),
+                        Utils::roundSignificant($item->qty, 0),
+                        Utils::roundSignificant($item->cost, 2),
                     ];
                 }
 

@@ -1,9 +1,9 @@
 API
 ===
 
-Invoice Ninja provides a REST based API, `click here <https://app.invoiceninja.com/api-docs#/>`_ to see the full list of methods available.
+Invoice Ninja provides a RESTful API, `click here <https://app.invoiceninja.com/api-docs#/>`_ to see the full list of methods available.
 
-To access the API you first need to create a token using the "Tokens” page under "Advanced Settings”.
+To access the API you first need to create a token using the "API Tokens” page under "Advanced Settings”.
 
 - **Zapier** [hosted or self-host]: https://zapier.com/zapbook/invoice-ninja/
 - **Integromat**: https://www.integromat.com/en/integrations/invoiceninja
@@ -93,6 +93,7 @@ Options
 The following options are available when creating an invoice.
 
 - ``email_invoice``: Email the invoice to the client.
+- ``email_type``: Set to reminder1, reminder2 or reminder3 to use the reminder template.
 - ``auto_bill``: Attempt to auto-bill the invoice using stored payment methods or credits.
 - ``paid``: Create a payment for the defined amount.
 
