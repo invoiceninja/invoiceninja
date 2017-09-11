@@ -946,10 +946,10 @@ class AccountController extends BaseController
                 Session::flash('error', trans('texts.invalid_counter'));
 
                 return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)->withInput();
-            } else {
-                $account->save();
-                Session::flash('message', trans('texts.updated_settings'));
             }
+            $account->save();
+            Session::flash('message', trans('texts.updated_settings'));
+
 
         }
 
