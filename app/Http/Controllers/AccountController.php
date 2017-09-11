@@ -1141,11 +1141,11 @@ class AccountController extends BaseController
             $user->notify_approved = Input::get('notify_approved');
         }
 
-        if (Utils::isNinja()) {
-            if (Input::get('referral_code') && ! $user->referral_code) {
-                $user->referral_code = strtolower(str_random(RANDOM_KEY_LENGTH));
-            }
+        
+        if (Utils::isNinja() && Input::get('referral_code') && ! $user->referral_code) {
+            $user->referral_code = strtolower(str_random(RANDOM_KEY_LENGTH));
         }
+
 
         $user->save();
 
