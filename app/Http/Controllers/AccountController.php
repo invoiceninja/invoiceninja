@@ -182,24 +182,24 @@ class AccountController extends BaseController
         if ($newPlan['price'] > $credit) {
             $invitation = $this->accountRepo->enablePlan($newPlan, $credit);
             return Redirect::to('view/' . $invitation->invitation_key);
-        } else {
-            if ($plan == PLAN_FREE) {
-                $company->discount = 0;
-            } else {
-                $company->plan_term = $term;
-                $company->plan_price = $newPlan['price'];
-                $company->num_users = $numUsers;
-                $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
-            }
-
-            $company->trial_plan = null;
-            $company->plan = $plan;
-            $company->save();
-
-            Session::flash('message', trans('texts.updated_plan'));
-
-            return Redirect::to('settings/account_management');
         }
+        if ($plan == PLAN_FREE) {
+            $company->discount = 0;
+        } else {
+            $company->plan_term = $term;
+            $company->plan_price = $newPlan['price'];
+            $company->num_users = $numUsers;
+            $company->plan_expires = date_create()->modify($term == PLAN_TERM_MONTHLY ? '+1 month' : '+1 year')->format('Y-m-d');
+        }
+
+        $company->trial_plan = null;
+        $company->plan = $plan;
+        $company->save();
+
+        Session::flash('message', trans('texts.updated_plan'));
+
+        return Redirect::to('settings/account_management');
+
     }
 
     /**
