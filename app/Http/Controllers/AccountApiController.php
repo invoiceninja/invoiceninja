@@ -201,8 +201,8 @@ class AccountApiController extends BaseAPIController
             Auth::login($user);
             return $this->processLogin($request);
         }
-        else
-            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+
+        return $this->errorResponse(['message' => 'Invalid credentials'], 401);
 
     }
 }
