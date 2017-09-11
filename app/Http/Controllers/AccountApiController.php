@@ -56,11 +56,11 @@ class AccountApiController extends BaseAPIController
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             return $this->processLogin($request);
-        } else {
-            sleep(ERROR_DELAY);
-
-            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
+        sleep(ERROR_DELAY);
+
+        return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+
     }
 
     private function processLogin(Request $request)
@@ -79,7 +79,7 @@ class AccountApiController extends BaseAPIController
     public function show(Request $request)
     {
         $account = Auth::user()->account;
-        $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
+        //$updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
 
         $transformer = new AccountTransformer(null, $request->serializer);
         $account->load(array_merge($transformer->getDefaultIncludes(), ['projects.client']));
@@ -124,15 +124,16 @@ class AccountApiController extends BaseAPIController
         $devices = json_decode($account->devices, true);
 
         for ($x = 0; $x < count($devices); $x++) {
-            if ($devices[$x]['email'] == Auth::user()->username) {
-                $devices[$x]['token'] = $request->token; //update
-                $devices[$x]['device'] = $request->device;
-                    $account->devices = json_encode($devices);
-                $account->save();
-                $devices[$x]['account_key'] = $account->account_key;
-
-                return $this->response($devices[$x]);
+            if ($devices[$x]['email'] !== Auth::user()->username) {
+                continue;
             }
+            $devices[$x]['token'] = $request->token; //update
+            $devices[$x]['device'] = $request->device;
+                $account->devices = json_encode($devices);
+            $account->save();
+            $devices[$x]['account_key'] = $account->account_key;
+
+            return $this->response($devices[$x]);
         }
 
         //User does not have a device, create new record
@@ -166,30 +167,30 @@ class AccountApiController extends BaseAPIController
         }
 
         for ($x = 0; $x < count($devices); $x++) {
-            if ($devices[$x]['email'] == Auth::user()->username) {
-                $newDevice = [
-                    'token' => $devices[$x]['token'],
-                    'email' => $devices[$x]['email'],
-                    'device' => $devices[$x]['device'],
-                    'account_key' => $account->account_key,
-                    'notify_sent' => $request->notify_sent,
-                    'notify_viewed' => $request->notify_viewed,
-                    'notify_approved' => $request->notify_approved,
-                    'notify_paid' => $request->notify_paid,
-                ];
-
-                $devices[$x] = $newDevice;
-                $account->devices = json_encode($devices);
-                $account->save();
-
-                return $this->response($newDevice);
+            if ($devices[$x]['email'] !== Auth::user()->username) {
+                continue;
             }
+            $newDevice = [
+                'token' => $devices[$x]['token'],
+                'email' => $devices[$x]['email'],
+                'device' => $devices[$x]['device'],
+                'account_key' => $account->account_key,
+                'notify_sent' => $request->notify_sent,
+                'notify_viewed' => $request->notify_viewed,
+                'notify_approved' => $request->notify_approved,
+                'notify_paid' => $request->notify_paid,
+            ];
+
+            $devices[$x] = $newDevice;
+            $account->devices = json_encode($devices);
+            $account->save();
+
+            return $this->response($newDevice);
         }
     }
 
     public function oauthLogin(Request $request)
     {
-        $user = false;
         $token = $request->input('token');
         $provider = $request->input('provider');
 
@@ -200,8 +201,8 @@ class AccountApiController extends BaseAPIController
             Auth::login($user);
             return $this->processLogin($request);
         }
-        else
-            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+
+        return $this->errorResponse(['message' => 'Invalid credentials'], 401);
 
     }
 }
