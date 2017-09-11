@@ -961,33 +961,34 @@ class AccountController extends BaseController
      */
     private function saveInvoiceDesign()
     {
-        if (Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
-            $account = Auth::user()->account;
-            $account->hide_quantity = Input::get('hide_quantity') ? true : false;
-            $account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
-            $account->all_pages_header = Input::get('all_pages_header') ? true : false;
-            $account->all_pages_footer = Input::get('all_pages_footer') ? true : false;
-            $account->invoice_embed_documents = Input::get('invoice_embed_documents') ? true : false;
-            $account->header_font_id = Input::get('header_font_id');
-            $account->body_font_id = Input::get('body_font_id');
-            $account->primary_color = Input::get('primary_color');
-            $account->secondary_color = Input::get('secondary_color');
-            $account->invoice_design_id = Input::get('invoice_design_id');
-            $account->quote_design_id = Input::get('quote_design_id');
-            $account->font_size = intval(Input::get('font_size'));
-            $account->page_size = Input::get('page_size');
-
-            $labels = [];
-            foreach (Account::$customLabels as $field) {
-                $labels[$field] = Input::get("labels_{$field}");
-            }
-            $account->invoice_labels = json_encode($labels);
-            $account->invoice_fields = Input::get('invoice_fields_json');
-
-            $account->save();
-
-            Session::flash('message', trans('texts.updated_settings'));
+        if (!Auth::user()->account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN)) {
+            return Redirect::to('settings/'.ACCOUNT_INVOICE_DESIGN);
         }
+        $account = Auth::user()->account;
+        $account->hide_quantity = Input::get('hide_quantity') ? true : false;
+        $account->hide_paid_to_date = Input::get('hide_paid_to_date') ? true : false;
+        $account->all_pages_header = Input::get('all_pages_header') ? true : false;
+        $account->all_pages_footer = Input::get('all_pages_footer') ? true : false;
+        $account->invoice_embed_documents = Input::get('invoice_embed_documents') ? true : false;
+        $account->header_font_id = Input::get('header_font_id');
+        $account->body_font_id = Input::get('body_font_id');
+        $account->primary_color = Input::get('primary_color');
+        $account->secondary_color = Input::get('secondary_color');
+        $account->invoice_design_id = Input::get('invoice_design_id');
+        $account->quote_design_id = Input::get('quote_design_id');
+        $account->font_size = intval(Input::get('font_size'));
+        $account->page_size = Input::get('page_size');
+
+        $labels = [];
+        foreach (Account::$customLabels as $field) {
+            $labels[$field] = Input::get("labels_{$field}");
+        }
+        $account->invoice_labels = json_encode($labels);
+        $account->invoice_fields = Input::get('invoice_fields_json');
+
+        $account->save();
+
+        Session::flash('message', trans('texts.updated_settings'));
 
         return Redirect::to('settings/'.ACCOUNT_INVOICE_DESIGN);
     }
