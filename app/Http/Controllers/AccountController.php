@@ -1126,34 +1126,34 @@ class AccountController extends BaseController
             return Redirect::to('settings/'.ACCOUNT_USER_DETAILS)
                 ->withErrors($validator)
                 ->withInput();
-        } else {
-            $user->first_name = trim(Input::get('first_name'));
-            $user->last_name = trim(Input::get('last_name'));
-            $user->username = $email;
-            $user->email = $email;
-            $user->phone = trim(Input::get('phone'));
-            $user->dark_mode = Input::get('dark_mode');
-
-            if (! Auth::user()->is_admin) {
-                $user->notify_sent = Input::get('notify_sent');
-                $user->notify_viewed = Input::get('notify_viewed');
-                $user->notify_paid = Input::get('notify_paid');
-                $user->notify_approved = Input::get('notify_approved');
-            }
-
-            if (Utils::isNinja()) {
-                if (Input::get('referral_code') && ! $user->referral_code) {
-                    $user->referral_code = strtolower(str_random(RANDOM_KEY_LENGTH));
-                }
-            }
-
-            $user->save();
-
-            event(new UserSettingsChanged());
-            Session::flash('message', trans('texts.updated_settings'));
-
-            return Redirect::to('settings/'.ACCOUNT_USER_DETAILS);
         }
+        $user->first_name = trim(Input::get('first_name'));
+        $user->last_name = trim(Input::get('last_name'));
+        $user->username = $email;
+        $user->email = $email;
+        $user->phone = trim(Input::get('phone'));
+        $user->dark_mode = Input::get('dark_mode');
+
+        if (! Auth::user()->is_admin) {
+            $user->notify_sent = Input::get('notify_sent');
+            $user->notify_viewed = Input::get('notify_viewed');
+            $user->notify_paid = Input::get('notify_paid');
+            $user->notify_approved = Input::get('notify_approved');
+        }
+
+        if (Utils::isNinja()) {
+            if (Input::get('referral_code') && ! $user->referral_code) {
+                $user->referral_code = strtolower(str_random(RANDOM_KEY_LENGTH));
+            }
+        }
+
+        $user->save();
+
+        event(new UserSettingsChanged());
+        Session::flash('message', trans('texts.updated_settings'));
+
+        return Redirect::to('settings/'.ACCOUNT_USER_DETAILS);
+
     }
 
     /**
