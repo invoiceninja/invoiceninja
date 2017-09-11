@@ -884,73 +884,73 @@ class AccountController extends BaseController
                 return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)
                     ->withErrors($validator)
                     ->withInput();
-            } else {
-                $account = Auth::user()->account;
-                $account->custom_label1 = trim(Input::get('custom_label1'));
-                $account->custom_value1 = trim(Input::get('custom_value1'));
-                $account->custom_label2 = trim(Input::get('custom_label2'));
-                $account->custom_value2 = trim(Input::get('custom_value2'));
-                $account->custom_client_label1 = trim(Input::get('custom_client_label1'));
-                $account->custom_client_label2 = trim(Input::get('custom_client_label2'));
-                $account->custom_contact_label1 = trim(Input::get('custom_contact_label1'));
-                $account->custom_contact_label2 = trim(Input::get('custom_contact_label2'));
-                $account->custom_invoice_label1 = trim(Input::get('custom_invoice_label1'));
-                $account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
-                $account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
-                $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
-                $account->custom_invoice_text_label1 = trim(Input::get('custom_invoice_text_label1'));
-                $account->custom_invoice_text_label2 = trim(Input::get('custom_invoice_text_label2'));
-                $account->custom_invoice_item_label1 = trim(Input::get('custom_invoice_item_label1'));
-                $account->custom_invoice_item_label2 = trim(Input::get('custom_invoice_item_label2'));
+            }
+            $account = Auth::user()->account;
+            $account->custom_label1 = trim(Input::get('custom_label1'));
+            $account->custom_value1 = trim(Input::get('custom_value1'));
+            $account->custom_label2 = trim(Input::get('custom_label2'));
+            $account->custom_value2 = trim(Input::get('custom_value2'));
+            $account->custom_client_label1 = trim(Input::get('custom_client_label1'));
+            $account->custom_client_label2 = trim(Input::get('custom_client_label2'));
+            $account->custom_contact_label1 = trim(Input::get('custom_contact_label1'));
+            $account->custom_contact_label2 = trim(Input::get('custom_contact_label2'));
+            $account->custom_invoice_label1 = trim(Input::get('custom_invoice_label1'));
+            $account->custom_invoice_label2 = trim(Input::get('custom_invoice_label2'));
+            $account->custom_invoice_taxes1 = Input::get('custom_invoice_taxes1') ? true : false;
+            $account->custom_invoice_taxes2 = Input::get('custom_invoice_taxes2') ? true : false;
+            $account->custom_invoice_text_label1 = trim(Input::get('custom_invoice_text_label1'));
+            $account->custom_invoice_text_label2 = trim(Input::get('custom_invoice_text_label2'));
+            $account->custom_invoice_item_label1 = trim(Input::get('custom_invoice_item_label1'));
+            $account->custom_invoice_item_label2 = trim(Input::get('custom_invoice_item_label2'));
 
-                $account->invoice_number_padding = Input::get('invoice_number_padding');
-                $account->invoice_number_counter = Input::get('invoice_number_counter');
-                $account->quote_number_prefix = Input::get('quote_number_prefix');
-                $account->share_counter = Input::get('share_counter') ? true : false;
-                $account->invoice_terms = Input::get('invoice_terms');
-                $account->invoice_footer = Input::get('invoice_footer');
-                $account->quote_terms = Input::get('quote_terms');
-                $account->auto_convert_quote = Input::get('auto_convert_quote');
-                $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
+            $account->invoice_number_padding = Input::get('invoice_number_padding');
+            $account->invoice_number_counter = Input::get('invoice_number_counter');
+            $account->quote_number_prefix = Input::get('quote_number_prefix');
+            $account->share_counter = Input::get('share_counter') ? true : false;
+            $account->invoice_terms = Input::get('invoice_terms');
+            $account->invoice_footer = Input::get('invoice_footer');
+            $account->quote_terms = Input::get('quote_terms');
+            $account->auto_convert_quote = Input::get('auto_convert_quote');
+            $account->recurring_invoice_number_prefix = Input::get('recurring_invoice_number_prefix');
 
-                $account->client_number_prefix = trim(Input::get('client_number_prefix'));
-                $account->client_number_pattern = trim(Input::get('client_number_pattern'));
-                $account->client_number_counter = Input::get('client_number_counter');
-                $account->credit_number_counter = Input::get('credit_number_counter');
-                $account->credit_number_prefix = trim(Input::get('credit_number_prefix'));
-                $account->credit_number_pattern = trim(Input::get('credit_number_pattern'));
-                $account->reset_counter_frequency_id = Input::get('reset_counter_frequency_id');
-                $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Input::get('reset_counter_date')) : null;
+            $account->client_number_prefix = trim(Input::get('client_number_prefix'));
+            $account->client_number_pattern = trim(Input::get('client_number_pattern'));
+            $account->client_number_counter = Input::get('client_number_counter');
+            $account->credit_number_counter = Input::get('credit_number_counter');
+            $account->credit_number_prefix = trim(Input::get('credit_number_prefix'));
+            $account->credit_number_pattern = trim(Input::get('credit_number_pattern'));
+            $account->reset_counter_frequency_id = Input::get('reset_counter_frequency_id');
+            $account->reset_counter_date = $account->reset_counter_frequency_id ? Utils::toSqlDate(Input::get('reset_counter_date')) : null;
 
-                if (Input::has('recurring_hour')) {
-                    $account->recurring_hour = Input::get('recurring_hour');
-                }
+            if (Input::has('recurring_hour')) {
+                $account->recurring_hour = Input::get('recurring_hour');
+            }
 
-                if (! $account->share_counter) {
-                    $account->quote_number_counter = Input::get('quote_number_counter');
-                }
+            if (! $account->share_counter) {
+                $account->quote_number_counter = Input::get('quote_number_counter');
+            }
 
-                foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
-                    if (Input::get("{$entityType}_number_type") == 'prefix') {
-                        $account->{"{$entityType}_number_prefix"} = trim(Input::get("{$entityType}_number_prefix"));
-                        $account->{"{$entityType}_number_pattern"} = null;
-                    } else {
-                        $account->{"{$entityType}_number_pattern"} = trim(Input::get("{$entityType}_number_pattern"));
-                        $account->{"{$entityType}_number_prefix"} = null;
-                    }
-                }
-
-                if (! $account->share_counter
-                        && $account->invoice_number_prefix == $account->quote_number_prefix
-                        && $account->invoice_number_pattern == $account->quote_number_pattern) {
-                    Session::flash('error', trans('texts.invalid_counter'));
-
-                    return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)->withInput();
+            foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_CLIENT] as $entityType) {
+                if (Input::get("{$entityType}_number_type") == 'prefix') {
+                    $account->{"{$entityType}_number_prefix"} = trim(Input::get("{$entityType}_number_prefix"));
+                    $account->{"{$entityType}_number_pattern"} = null;
                 } else {
-                    $account->save();
-                    Session::flash('message', trans('texts.updated_settings'));
+                    $account->{"{$entityType}_number_pattern"} = trim(Input::get("{$entityType}_number_pattern"));
+                    $account->{"{$entityType}_number_prefix"} = null;
                 }
             }
+
+            if (! $account->share_counter
+                    && $account->invoice_number_prefix == $account->quote_number_prefix
+                    && $account->invoice_number_pattern == $account->quote_number_pattern) {
+                Session::flash('error', trans('texts.invalid_counter'));
+
+                return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS)->withInput();
+            } else {
+                $account->save();
+                Session::flash('message', trans('texts.updated_settings'));
+            }
+
         }
 
         return Redirect::to('settings/'.ACCOUNT_INVOICE_SETTINGS);
