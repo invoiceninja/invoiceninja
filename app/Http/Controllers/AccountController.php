@@ -1290,23 +1290,23 @@ class AccountController extends BaseController
             Auth::loginUsingId($newUser->id);
 
             return RESULT_SUCCESS;
-        } else {
-            $user->first_name = $firstName;
-            $user->last_name = $lastName;
-            $user->email = $email;
-            $user->username = $user->email;
-            $user->password = bcrypt($password);
-            $user->registered = true;
-            $user->save();
-
-            $user->account->startTrial(PLAN_PRO);
-
-            if (Input::get('go_pro') == 'true') {
-                Session::set(REQUESTED_PRO_PLAN, true);
-            }
-
-            return "{$user->first_name} {$user->last_name}";
         }
+        $user->first_name = $firstName;
+        $user->last_name = $lastName;
+        $user->email = $email;
+        $user->username = $user->email;
+        $user->password = bcrypt($password);
+        $user->registered = true;
+        $user->save();
+
+        $user->account->startTrial(PLAN_PRO);
+
+        if (Input::get('go_pro') == 'true') {
+            Session::set(REQUESTED_PRO_PLAN, true);
+        }
+
+        return "{$user->first_name} {$user->last_name}";
+
     }
 
     /**
