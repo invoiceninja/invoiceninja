@@ -100,16 +100,15 @@ class AccountGatewayController extends BaseController
         $data['method'] = 'POST';
         $data['title'] = trans('texts.add_gateway');
 
-        if ($otherProviders) {
-            $availableGatewaysIds = $account->availableGatewaysIds();
-            $data['primaryGateways'] = Gateway::primary($availableGatewaysIds)->orderBy('sort_order')->get();
-            $data['secondaryGateways'] = Gateway::secondary($availableGatewaysIds)->orderBy('name')->get();
-            $data['hiddenFields'] = Gateway::$hiddenFields;
-
-            return View::make('accounts.account_gateway', $data);
-        } else {
+        if (!$otherProviders) {
             return View::make('accounts.account_gateway_wepay', $data);
         }
+        $availableGatewaysIds = $account->availableGatewaysIds();
+        $data['primaryGateways'] = Gateway::primary($availableGatewaysIds)->orderBy('sort_order')->get();
+        $data['secondaryGateways'] = Gateway::secondary($availableGatewaysIds)->orderBy('name')->get();
+        $data['hiddenFields'] = Gateway::$hiddenFields;
+
+        return View::make('accounts.account_gateway', $data);
     }
 
     private function getViewModel($accountGateway = false)
