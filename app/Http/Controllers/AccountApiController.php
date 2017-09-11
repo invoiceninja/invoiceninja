@@ -56,11 +56,11 @@ class AccountApiController extends BaseAPIController
     {
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             return $this->processLogin($request);
-        } else {
-            sleep(ERROR_DELAY);
-
-            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
+        sleep(ERROR_DELAY);
+
+        return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+
     }
 
     private function processLogin(Request $request)
