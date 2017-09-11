@@ -166,7 +166,9 @@ class AccountApiController extends BaseAPIController
         }
 
         for ($x = 0; $x < count($devices); $x++) {
-            if ($devices[$x]['email'] == Auth::user()->username) {
+            if ($devices[$x]['email'] !== Auth::user()->username) {
+                continue;
+            }
                 $newDevice = [
                     'token' => $devices[$x]['token'],
                     'email' => $devices[$x]['email'],
@@ -183,7 +185,6 @@ class AccountApiController extends BaseAPIController
                 $account->save();
 
                 return $this->response($newDevice);
-            }
         }
     }
 
