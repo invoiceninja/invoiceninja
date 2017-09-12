@@ -448,6 +448,10 @@
               <div class="alert alert-danger">{!! Session::get('error') !!}</div>
           @endif
 
+          <div class="pull-right">
+              @yield('top-right')
+          </div>
+
           @if (!isset($showBreadcrumbs) || $showBreadcrumbs)
             {!! Form::breadcrumbs((isset($entity) && $entity->exists) ? $entity->present()->statusLabel : false) !!}
           @endif

@@ -45,4 +45,17 @@ class PaymentPresenter extends EntityPresenter
             return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
     }
+
+    public function calendarEvent()
+    {
+        $data = parent::calendarEvent();
+        $payment = $this->entity;
+        $invoice = $payment->invoice;
+
+        $data->title = trans('texts.payment') . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
+        $data->start = $payment->payment_date;
+        $data->borderColor = $data->backgroundColor = 'green';
+
+        return $data;
+    }
 }

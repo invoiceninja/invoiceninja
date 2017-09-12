@@ -323,4 +323,17 @@ class InvoicePresenter extends EntityPresenter
 
         return $link;
     }
+
+    public function calendarEvent()
+    {
+        $data = parent::calendarEvent();
+        $invoice = $this->entity;
+        $entityType = $invoice->getEntityType();
+
+        $data->title = trans("texts.{$entityType}") . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
+        $data->start = $invoice->invoice_date;
+        $data->borderColor = $data->backgroundColor = $invoice->isQuote() ? 'orange' : 'blue';
+
+        return $data;
+    }
 }

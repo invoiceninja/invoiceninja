@@ -70,4 +70,32 @@ class TaskPresenter extends EntityPresenter
 
         return $str . implode("\n", $times);
     }
+
+    public function calendarEvent()
+    {
+        $data = parent::calendarEvent();
+        $task = $this->entity;
+
+        $data->title = trans('texts.task');
+        if ($project = $this->project()) {
+            $data->title .= ' | ' . $project;
+        }
+        $data->title .= ' | ' . $this->description();
+
+        $data->allDay = false;
+        $data->borderColor = $data->backgroundColor = 'purple';
+
+        $parts = json_decode($task->time_log) ?: [];
+        if (count($parts)) {
+            $first = $parts[0];
+            $start = $first[0];
+            $data->start = date('Y-m-d H:i:m', $start);
+
+            $last = $parts[count($parts) - 1];
+            $end = count($last) == 2 ? $last[1] : $last[0];
+            $data->end = date('Y-m-d H:i:m', $end);
+        }
+
+        return $data;
+    }
 }

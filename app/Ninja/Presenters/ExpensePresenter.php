@@ -48,4 +48,26 @@ class ExpensePresenter extends EntityPresenter
     {
         return $this->entity->expense_category ? $this->entity->expense_category->name : '';
     }
+
+    public function calendarEvent()
+    {
+        $data = parent::calendarEvent();
+        $expense = $this->entity;
+
+        $data->title = trans('texts.expense')  . ' ' . $this->amount() . ' | ' . $this->category();
+
+        $data->title = trans('texts.expense') . ' ' . $this->amount();
+        if ($category = $this->category()) {
+            $data->title .= ' | ' . $category;
+        }
+        if ($this->public_notes) {
+            $data->title .= ' | ' . $this->public_notes;
+        }
+
+
+        $data->start = $expense->expense_date;
+        $data->borderColor = $data->backgroundColor = 'gray';
+
+        return $data;
+    }
 }

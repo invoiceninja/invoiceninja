@@ -248,6 +248,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('reports', 'ReportController@showReports');
     Route::post('reports', 'ReportController@showReports');
+    Route::get('calendar', 'CalendarController@showCalendar');
+    Route::get('calendar_events', 'CalendarController@loadEvents');
 });
 
 Route::group([

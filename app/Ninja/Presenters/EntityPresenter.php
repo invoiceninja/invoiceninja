@@ -5,6 +5,7 @@ namespace App\Ninja\Presenters;
 use Laracasts\Presenter\Presenter;
 use URL;
 use Utils;
+use stdClass;
 
 class EntityPresenter extends Presenter
 {
@@ -67,4 +68,17 @@ class EntityPresenter extends Presenter
 
         return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
     }
+
+    public function calendarEvent()
+    {
+        $entity = $this->entity;
+
+        $data = new stdClass();
+        $data->id = $entity->getEntityType() . ':' . $entity->public_id;
+        $data->allDay = true;
+        $data->url = $this->url();
+
+        return $data;
+    }
+
 }
