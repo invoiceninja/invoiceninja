@@ -31,7 +31,8 @@ class GenerateCalendarEvents extends Job
         foreach ($data as $type => $source) {
             if (! count($filter) || in_array($type, $filter)) {
                 foreach ($source->get() as $entity) {
-                    $events[] = $entity->present()->calendarEvent;
+                    $subColors = count($filter) == 1;
+                    $events[] = $entity->present()->calendarEvent($subColors);
                 }
             }
         }

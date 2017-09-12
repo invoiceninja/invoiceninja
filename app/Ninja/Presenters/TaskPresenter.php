@@ -2,6 +2,8 @@
 
 namespace App\Ninja\Presenters;
 
+use Utils;
+
 /**
  * Class TaskPresenter.
  */
@@ -71,7 +73,7 @@ class TaskPresenter extends EntityPresenter
         return $str . implode("\n", $times);
     }
 
-    public function calendarEvent()
+    public function calendarEvent($subColors = false)
     {
         $data = parent::calendarEvent();
         $task = $this->entity;
@@ -82,10 +84,16 @@ class TaskPresenter extends EntityPresenter
         if ($project = $this->project()) {
             $data->title .= ' | ' . $project;
         }
-        $data->title .= ' | ' . $this->description();
-
+        if ($description = $this->description()) {
+            $data->title .= ' | ' . $description;
+        }        
         $data->allDay = false;
-        $data->borderColor = $data->backgroundColor = '#EEB902';
+
+        if ($subColors && $task->project_id) {
+            $data->borderColor = $data->backgroundColor = Utils::brewerColor($task->project->public_id);
+        } else {
+            $data->borderColor = $data->backgroundColor = '#ff7f00';
+        }
 
         $parts = json_decode($task->time_log) ?: [];
         if (count($parts)) {

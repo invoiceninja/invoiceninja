@@ -46,7 +46,7 @@ class PaymentPresenter extends EntityPresenter
         }
     }
 
-    public function calendarEvent()
+    public function calendarEvent($subColors = false)
     {
         $data = parent::calendarEvent();
         $payment = $this->entity;
@@ -54,7 +54,7 @@ class PaymentPresenter extends EntityPresenter
 
         $data->title = trans('texts.payment') . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
         $data->start = $payment->payment_date;
-        $data->borderColor = $data->backgroundColor = '#7FB800';
+        $data->borderColor = $data->backgroundColor = '#4daf4a';
 
         return $data;
     }

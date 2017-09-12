@@ -49,7 +49,7 @@ class ExpensePresenter extends EntityPresenter
         return $this->entity->expense_category ? $this->entity->expense_category->name : '';
     }
 
-    public function calendarEvent()
+    public function calendarEvent($subColors = false)
     {
         $data = parent::calendarEvent();
         $expense = $this->entity;
@@ -66,7 +66,12 @@ class ExpensePresenter extends EntityPresenter
 
 
         $data->start = $expense->expense_date;
-        $data->borderColor = $data->backgroundColor = '#F45D01';
+
+        if ($subColors && $expense->expense_category_id) {
+            $data->borderColor = $data->backgroundColor = Utils::brewerColor($expense->expense_category->public_id);
+        } else {
+            $data->borderColor = $data->backgroundColor = '#e41a1c';
+        }
 
         return $data;
     }

@@ -1304,6 +1304,21 @@ class Utils
         return $r;
     }
 
+    public static function brewerColor($number) {
+        $colors = [
+            '#377eb8',
+            '#4daf4a',
+            '#984ea3',
+            '#ff7f00',
+            '#a65628',
+            '#f781bf',
+            '#e41a1c',
+        ];
+        $number = ($number-1) % count($colors);
+
+        return $colors[$number];
+    }
+
     /**
      * Replace language-specific characters by ASCII-equivalents.
      * @param string $s
