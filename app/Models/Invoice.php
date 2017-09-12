@@ -1126,6 +1126,13 @@ class Invoice extends EntityModel implements BalanceAffecting
                 $days = $this->account->defaultDaysDue();
 
                 return date('Y-m-d', strtotime('+'.$days.' day', $now));
+            } elseif ($this->account->payment_terms != 0) {
+                // No custom due date set for this invoice; use the client's payment terms
+                $days = $this->account->payment_terms;
+                if ($days == -1) {
+                    $days = 0;
+                }
+                return date('Y-m-d', strtotime('+'.$days.' day', $now));
             }
         }
 
