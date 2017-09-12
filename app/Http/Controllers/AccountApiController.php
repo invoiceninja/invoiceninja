@@ -79,7 +79,7 @@ class AccountApiController extends BaseAPIController
     public function show(Request $request)
     {
         $account = Auth::user()->account;
-        //$updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false;
+        $updatedAt = $request->updated_at ? date('Y-m-d H:i:s', $request->updated_at) : false; // Is it used ?
 
         $transformer = new AccountTransformer(null, $request->serializer);
         $account->load(array_merge($transformer->getDefaultIncludes(), ['projects.client']));
@@ -191,6 +191,7 @@ class AccountApiController extends BaseAPIController
 
     public function oauthLogin(Request $request)
     {
+        $user = false; // is it used ?
         $token = $request->input('token');
         $provider = $request->input('provider');
 
