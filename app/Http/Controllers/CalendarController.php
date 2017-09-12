@@ -30,7 +30,7 @@ class CalendarController extends BaseController
         $events = dispatch(new GenerateCalendarEvents());
         //dd($events);
         \Log::info(print_r(request()->input(), true));
-        \Log::info(print_r($events, true));
+        //\Log::info(print_r($events, true));
         //echo '[{"title": "Test Event", "start": "2017-09-14T16:00:00", "color": "green"}]';
         //exit;
 

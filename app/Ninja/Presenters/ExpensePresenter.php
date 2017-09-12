@@ -66,7 +66,7 @@ class ExpensePresenter extends EntityPresenter
 
 
         $data->start = $expense->expense_date;
-        $data->borderColor = $data->backgroundColor = 'gray';
+        $data->borderColor = $data->backgroundColor = '#F45D01';
 
         return $data;
     }

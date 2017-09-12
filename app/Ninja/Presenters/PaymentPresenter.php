@@ -54,7 +54,7 @@ class PaymentPresenter extends EntityPresenter
 
         $data->title = trans('texts.payment') . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
         $data->start = $payment->payment_date;
-        $data->borderColor = $data->backgroundColor = 'green';
+        $data->borderColor = $data->backgroundColor = '#7FB800';
 
         return $data;
     }

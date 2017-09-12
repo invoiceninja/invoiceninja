@@ -11,6 +11,18 @@
 
 @stop
 
+@section('head_css')
+	@parent
+
+	<style type="text/css">
+		.fc-day,
+		.fc-list-item {
+			background-color: white;
+		}
+	</style>
+@stop
+
+
 @section('top-right')
     <select class="form-control" style="width: 220px" id="entityTypeFilter" multiple="true">
         @foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, ENTITY_TASK, ENTITY_EXPENSE] as $value)
@@ -41,34 +53,27 @@
     			}
                 */
     		}).on('change', function() {
-                /*
-    			var filter = $('#statuses').val();
-    			if (filter) {
-    				filter = filter.join(',');
-    			} else {
-    				filter = '';
-    			}
-                */
+				$('#calendar').fullCalendar('refetchEvents');
     		}).maximizeSelect2Height();
 
 
             $('#calendar').fullCalendar({
+				locale: '{{ App::getLocale() }}',
                 header: {
     				left: 'prev,next today',
     				center: 'title',
     				right: 'month,basicWeek,basicDay,listWeek'
     			},
                 defaultDate: '{{ date('Y-m-d') }}',
-    			//navLinks: true,
-    			//editable: true,
     			eventLimit: true,
                 events: {
                     url: '{{ url('/calendar_events') }}',
                     type: 'GET',
-                    data: {
-                        custom_param1: 'something',
-                        custom_param2: 'somethingelse'
-                    },
+					data: function() {
+			            return {
+			                filter: $('#entityTypeFilter').val()
+			            };
+			        },
                     error: function() {
                         alert('there was an error while fetching events!');
                     },

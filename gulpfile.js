@@ -99,7 +99,8 @@ elixir(function(mix) {
     ], 'public/js/daterangepicker.min.js');
 
     mix.scripts([
-        bowerDir + '/fullcalendar/dist/fullcalendar.js'
+        bowerDir + '/fullcalendar/dist/fullcalendar.js',
+        bowerDir + '/fullcalendar/dist/locale-all.js',
     ], 'public/js/fullcalendar.min.js');
 
     mix.scripts([

@@ -17,33 +17,25 @@ class GenerateCalendarEvents extends Job
      */
     public function handle()
     {
-        $data = [];
+        $events = [];
+        $filter = request()->filter ?: [];
 
-        $invoices = Invoice::scope()
-            ->where('is_recurring', '=', false)
-            ->get();
-        foreach ($invoices as $invoice) {
-            $data[] = $invoice->present()->calendarEvent;
+        $data = [
+            ENTITY_INVOICE => Invoice::scope()->invoices(),
+            ENTITY_QUOTE => Invoice::scope()->quotes(),
+            ENTITY_TASK => Task::scope(),
+            ENTITY_PAYMENT => Payment::scope(),
+            ENTITY_EXPENSE => Expense::scope(),
+        ];
+
+        foreach ($data as $type => $source) {
+            if (! count($filter) || in_array($type, $filter)) {
+                foreach ($source->get() as $entity) {
+                    $events[] = $entity->present()->calendarEvent;
+                }
+            }
         }
 
-        $tasks = Task::scope()
-            ->get();
-        foreach ($tasks as $task) {
-            $data[] = $task->present()->calendarEvent;
-        }
-
-        $payments = Payment::scope()
-            ->get();
-        foreach ($payments as $payment) {
-            $data[] = $payment->present()->calendarEvent;
-        }
-
-        $expenses = Expense::scope()
-            ->get();
-        foreach ($expenses as $expense) {
-            $data[] = $expense->present()->calendarEvent;
-        }
-
-        return $data;
+        return $events;
     }
 }

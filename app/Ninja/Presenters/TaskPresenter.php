@@ -83,7 +83,7 @@ class TaskPresenter extends EntityPresenter
         $data->title .= ' | ' . $this->description();
 
         $data->allDay = false;
-        $data->borderColor = $data->backgroundColor = 'purple';
+        $data->borderColor = $data->backgroundColor = '#EEB902';
 
         $parts = json_decode($task->time_log) ?: [];
         if (count($parts)) {
