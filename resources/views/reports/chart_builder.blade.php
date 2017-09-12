@@ -19,6 +19,13 @@
 
 @stop
 
+@section('top-right')
+	{!! Button::normal(trans('texts.calendar'))
+			->asLinkTo(url('/calendar'))
+			->appendIcon(Icon::create('calendar')) !!}
+@stop
+
+
 @section('content')
 
 	@if (!Utils::isPro())

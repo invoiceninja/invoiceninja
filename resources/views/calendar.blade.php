@@ -39,26 +39,25 @@
 
         $(function() {
 
+			var lastFilter = false;
+			if (isStorageSupported()) {
+				lastFilter = JSON.parse(localStorage.getItem('last:calendar_filter'));
+			}
+
             // Setup state/status filter
     		$('#entityTypeFilter').select2({
     			placeholder: "{{ trans('texts.filter') }}",
-                /*
-    			templateSelection: function(data, container) {
-    				if (data.id == 'archived') {
-    					$(container).css('color', '#fff');
-    					$(container).css('background-color', '#f0ad4e');
-    					$(container).css('border-color', '#eea236');
-    				}
-    				return data.text;
-    			}
-                */
-    		}).on('change', function() {
+    		}).val(lastFilter).trigger('change').on('change', function() {
 				$('#calendar').fullCalendar('refetchEvents');
+				if (isStorageSupported()) {
+					var filter = JSON.stringify($('#entityTypeFilter').val());
+					localStorage.setItem('last:calendar_filter', filter);
+				}
     		}).maximizeSelect2Height();
-
 
             $('#calendar').fullCalendar({
 				locale: '{{ App::getLocale() }}',
+				//timezone: 'America/Chicago',
                 header: {
     				left: 'prev,next today',
     				center: 'title',
