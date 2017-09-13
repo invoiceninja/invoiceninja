@@ -24,11 +24,13 @@
 
 
 @section('top-right')
-    <select class="form-control" style="width: 220px" id="entityTypeFilter" multiple="true">
-        @foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, ENTITY_TASK, ENTITY_EXPENSE] as $value)
-            <option value="{{ $value }}">{{ trans("texts.{$value}") }}</option>
-        @endforeach
-    </select>
+	<div id="entityTypeFilterWrapper" style="display:none">
+	    <select class="form-control" style="width: 220px;" id="entityTypeFilter" multiple="true">
+	        @foreach ([ENTITY_INVOICE, ENTITY_QUOTE, ENTITY_PAYMENT, ENTITY_TASK, ENTITY_EXPENSE] as $value)
+	            <option value="{{ $value }}">{{ trans("texts.{$value}") }}</option>
+	        @endforeach
+	    </select>
+	</div>
 @stop
 
 @section('content')
@@ -62,6 +64,7 @@
 					localStorage.setItem('last:calendar_filter', filter);
 				}
     		}).maximizeSelect2Height();
+			$('#entityTypeFilterWrapper').show();
 
             $('#calendar').fullCalendar({
 				locale: '{{ App::getLocale() }}',

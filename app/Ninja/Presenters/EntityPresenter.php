@@ -50,6 +50,24 @@ class EntityPresenter extends Presenter
         return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
     }
 
+    public function statusColor()
+    {
+        $class = $this->entity->statusClass();
+
+        switch ($class) {
+            case 'success':
+                return '#5cb85c';
+            case 'warning':
+                return '#f0ad4e';
+            case 'primary':
+                return '#337ab7';
+            case 'info':
+                return '#5bc0de';
+            default:
+                return '#777';
+        }
+    }
+
     /**
      * @return mixed
      */

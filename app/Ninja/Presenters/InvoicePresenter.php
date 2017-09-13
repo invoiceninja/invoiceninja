@@ -331,8 +331,13 @@ class InvoicePresenter extends EntityPresenter
         $entityType = $invoice->getEntityType();
 
         $data->title = trans("texts.{$entityType}") . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
-        $data->start = $invoice->invoice_date;
-        $data->borderColor = $data->backgroundColor = $invoice->isQuote() ? '#984ea3' : '#377eb8';
+        $data->start = $invoice->due_date ?: $invoice->invoice_date;
+
+        if ($subColors) {
+            $data->borderColor = $data->backgroundColor = $invoice->present()->statusColor();
+        } else {
+            $data->borderColor = $data->backgroundColor = $invoice->isQuote() ? '#984ea3' : '#377eb8';
+        }
 
         return $data;
     }

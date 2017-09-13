@@ -52,9 +52,14 @@ class PaymentPresenter extends EntityPresenter
         $payment = $this->entity;
         $invoice = $payment->invoice;
 
-        $data->title = trans('texts.payment') . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
+        $data->title = trans('texts.payment') . ' ' . $invoice->invoice_number . ' | ' . $this->completedAmount() . ' | ' . $this->client();
         $data->start = $payment->payment_date;
-        $data->borderColor = $data->backgroundColor = '#4daf4a';
+
+        if ($subColors) {
+            $data->borderColor = $data->backgroundColor = Utils::brewerColor($payment->payment_status_id);
+        } else {
+            $data->borderColor = $data->backgroundColor = '#4daf4a';
+        }
 
         return $data;
     }
