@@ -93,7 +93,8 @@ script:
   #- php ./vendor/codeception/codeception/codecept run acceptance GoProCest.php
 
 after_script:
-  - php artisan ninja:check-data --no-interaction
+  - php artisan ninja:check-data --no-interaction --database='db-ninja-1'
+  - php artisan ninja:check-data --no-interaction --database='db-ninja-2'
   - php artisan ninja:init-lookup --validate=true --database='db-ninja-1'
   - php artisan ninja:init-lookup --validate=true --database='db-ninja-2'
   - cat .env
