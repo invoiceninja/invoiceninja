@@ -23,14 +23,18 @@ class GenerateCalendarEvents extends Job
         $data = [
             ENTITY_INVOICE => Invoice::scope()->invoices(),
             ENTITY_QUOTE => Invoice::scope()->quotes(),
-            ENTITY_TASK => Task::scope(),
-            ENTITY_PAYMENT => Payment::scope(),
-            ENTITY_EXPENSE => Expense::scope(),
+            ENTITY_TASK => Task::scope()->with(['project']),
+            ENTITY_PAYMENT => Payment::scope()->with(['invoice']),
+            ENTITY_EXPENSE => Expense::scope()->with(['expense_category']),
         ];
 
         foreach ($data as $type => $source) {
             if (! count($filter) || in_array($type, $filter)) {
-                foreach ($source->get() as $entity) {
+                foreach ($source->with(['account', 'client.contacts'])->get() as $entity) {
+                    if ($entity->client && $entity->client->trashed()) {
+                        continue;
+                    }
+
                     $subColors = count($filter) == 1;
                     $events[] = $entity->present()->calendarEvent($subColors);
                 }

@@ -14,12 +14,8 @@ class CalendarController extends BaseController
      */
     public function showCalendar()
     {
-        if (! auth()->user()->hasPermission('view_all')) {
-            return redirect('/');
-        }
-
         $data = [
-            //'showBreadcrumbs' => false,
+            'account' => auth()->user()->account,
         ];
 
         return view('calendar', $data);
@@ -27,12 +23,11 @@ class CalendarController extends BaseController
 
     public function loadEvents()
     {
-        $events = dispatch(new GenerateCalendarEvents());
-        //dd($events);
-        \Log::info(print_r(request()->input(), true));
-        //\Log::info(print_r($events, true));
-        //echo '[{"title": "Test Event", "start": "2017-09-14T16:00:00", "color": "green"}]';
-        //exit;
+        if (auth()->user()->account->hasFeature(FEATURE_REPORTS)) {
+            $events = dispatch(new GenerateCalendarEvents());
+        } else {
+            $events = [];
+        }
 
         return response()->json($events);
     }

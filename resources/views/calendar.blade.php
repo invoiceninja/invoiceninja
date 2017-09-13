@@ -33,6 +33,14 @@
 
 @section('content')
 
+	@if (!Utils::isPro())
+		<div class="alert alert-warning" style="font-size:larger">
+			<center>
+				{!! trans('texts.pro_plan_calendar', ['link'=>'<a href="javascript:showUpgradeModal()">' . trans('texts.pro_plan_remove_logo_link') . '</a>']) !!}
+			</center>
+		</div>
+	@endif
+
     <div id='calendar'></div>
 
     <script type="text/javascript">
@@ -57,7 +65,7 @@
 
             $('#calendar').fullCalendar({
 				locale: '{{ App::getLocale() }}',
-				//timezone: 'America/Chicago',
+				firstDay: {{ $account->start_of_week ?: '0' }},
                 header: {
     				left: 'prev,next today',
     				center: 'title',
@@ -74,10 +82,8 @@
 			            };
 			        },
                     error: function() {
-                        alert('there was an error while fetching events!');
+                        alert("{{ trans('texts.error_refresh_page') }}");
                     },
-                    color: 'red',   // a non-ajax option
-                    textColor: 'white' // a non-ajax option
                 }
             });
         });
