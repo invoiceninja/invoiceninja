@@ -30,6 +30,12 @@ class GenerateCalendarEvents extends Job
 
         foreach ($data as $type => $source) {
             if (! count($filter) || in_array($type, $filter)) {
+                $source->where(function($query) use ($type) {
+                    $start = date_create(request()->start);
+                    $end = date_create(request()->end);
+                    return $query->dateRange($start, $end);
+                });
+
                 foreach ($source->with(['account', 'client.contacts'])->get() as $entity) {
                     if ($entity->client && $entity->client->trashed()) {
                         continue;
