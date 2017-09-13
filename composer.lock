@@ -1031,12 +1031,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/hillelcoren/omnipay-wepay.git",
-                "reference": "f8bb3e4010c236018e4bd936f1b930b87f17e063"
+                "reference": "b4a30ccfbc392b14b83017c827a3b603c2c7bf92"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/f8bb3e4010c236018e4bd936f1b930b87f17e063",
-                "reference": "f8bb3e4010c236018e4bd936f1b930b87f17e063",
+                "url": "https://api.github.com/repos/hillelcoren/omnipay-wepay/zipball/b4a30ccfbc392b14b83017c827a3b603c2c7bf92",
+                "reference": "b4a30ccfbc392b14b83017c827a3b603c2c7bf92",
                 "shasum": ""
             },
             "require": {
@@ -1068,7 +1068,7 @@
             "support": {
                 "source": "https://github.com/hillelcoren/omnipay-wepay/tree/address-fix"
             },
-            "time": "2016-12-12 18:28:29"
+            "time": "2017-09-13 16:09:30"
         },
         {
             "name": "container-interop/container-interop",
