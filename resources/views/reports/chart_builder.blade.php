@@ -274,14 +274,14 @@
 	function setFiltersShown() {
 		var val = $('#report_type').val();
 		if (val == '{{ ENTITY_TAX_RATE }}') {
-			$('#dateField').fadeIn();
+			$('#dateField').show();
 		} else {
-			$('#dateField').fadeOut();
+			$('#dateField').hide();
 		}
 		if (val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}') {
-			$('#statusField').fadeIn();
+			$('#statusField').show();
 		} else {
-			$('#statusField').fadeOut();
+			$('#statusField').hide();
 		}
 	}
 

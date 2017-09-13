@@ -210,6 +210,7 @@ class AccountRepository
         $features = array_merge($features, [
             ['dashboard', '/dashboard'],
             ['reports', '/reports'],
+            ['calendar', '/calendar'],
             ['customize_design', '/settings/customize_design'],
             ['new_tax_rate', '/tax_rates/create'],
             ['new_product', '/products/create'],

@@ -50,8 +50,11 @@
         $(function() {
 
 			var lastFilter = false;
+			var lastView = 'month';
+
 			if (isStorageSupported()) {
 				lastFilter = JSON.parse(localStorage.getItem('last:calendar_filter'));
+				lastView = localStorage.getItem('last:calendar_view');
 			}
 
             // Setup state/status filter
@@ -69,6 +72,12 @@
             $('#calendar').fullCalendar({
 				locale: '{{ App::getLocale() }}',
 				firstDay: {{ $account->start_of_week ?: '0' }},
+				defaultView: lastView,
+				viewRender: function(view, element) {
+					if (isStorageSupported()) {
+						localStorage.setItem('last:calendar_view', view.name);
+					}
+				},
                 header: {
     				left: 'prev,next today',
     				center: 'title',
