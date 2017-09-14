@@ -47,29 +47,29 @@
 
     <script type="text/javascript">
 
-        $(function() {
+		$(function() {
 
 			var lastFilter = false;
 			var lastView = 'month';
 
 			if (isStorageSupported()) {
 				lastFilter = JSON.parse(localStorage.getItem('last:calendar_filter'));
-				lastView = localStorage.getItem('last:calendar_view');
+				lastView = localStorage.getItem('last:calendar_view') || lastView;
 			}
 
-            // Setup state/status filter
-    		$('#entityTypeFilter').select2({
-    			placeholder: "{{ trans('texts.filter') }}",
-    		}).val(lastFilter).trigger('change').on('change', function() {
+			// Setup state/status filter
+			$('#entityTypeFilter').select2({
+				placeholder: "{{ trans('texts.filter') }}",
+			}).val(lastFilter).trigger('change').on('change', function() {
 				$('#calendar').fullCalendar('refetchEvents');
 				if (isStorageSupported()) {
 					var filter = JSON.stringify($('#entityTypeFilter').val());
 					localStorage.setItem('last:calendar_filter', filter);
 				}
-    		}).maximizeSelect2Height();
+			}).maximizeSelect2Height();
 			$('#entityTypeFilterWrapper').show();
 
-            $('#calendar').fullCalendar({
+			$('#calendar').fullCalendar({
 				locale: '{{ App::getLocale() }}',
 				firstDay: {{ $account->start_of_week ?: '0' }},
 				defaultView: lastView,
@@ -78,27 +78,27 @@
 						localStorage.setItem('last:calendar_view', view.name);
 					}
 				},
-                header: {
-    				left: 'prev,next today',
-    				center: 'title',
-    				right: 'month,basicWeek,basicDay,listWeek'
-    			},
-                defaultDate: '{{ date('Y-m-d') }}',
-    			eventLimit: true,
-                events: {
-                    url: '{{ url('/calendar_events') }}',
-                    type: 'GET',
+				header: {
+					left: 'prev,next today',
+					center: 'title',
+					right: 'month,basicWeek,basicDay,listWeek'
+				},
+				defaultDate: '{{ date('Y-m-d') }}',
+				eventLimit: true,
+				events: {
+					url: '{{ url('/calendar_events') }}',
+					type: 'GET',
 					data: function() {
-			            return {
-			                filter: $('#entityTypeFilter').val()
-			            };
-			        },
-                    error: function() {
-                        alert("{{ trans('texts.error_refresh_page') }}");
-                    },
-                }
-            });
-        });
+						return {
+							filter: $('#entityTypeFilter').val()
+						};
+					},
+					error: function() {
+						alert("{{ trans('texts.error_refresh_page') }}");
+					},
+				}
+			});
+		});
 
     </script>
 
