@@ -497,7 +497,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
         var row = [];
         var item = invoice.invoice_items[i];
-        var cost = formatMoneyInvoice(item.cost, invoice, 'none', getPrecision(item.cost));
+        var cost = formatMoneyInvoice(item.cost, invoice, null, getPrecision(item.cost));
         var qty = NINJA.parseFloat(item.qty) ? roundSignificant(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;
@@ -526,7 +526,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         }
 
         // show at most one blank line
-        if (shownItem && !notes && !productKey && (!cost || cost == '0' || cost == '0.00' || cost == '0,00')) {
+        if (shownItem && !notes && !productKey && !item.cost) {
             continue;
         }
 
