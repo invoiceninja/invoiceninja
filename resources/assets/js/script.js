@@ -671,6 +671,8 @@ function calculateAmounts(invoice) {
   var hasTaxes = false;
   var taxes = {};
   invoice.has_product_key = false;
+  invoice.has_custom_item_value1 = false;
+  invoice.has_custom_item_value2 = false;
 
   // Bold designs currently breaks w/o the product column
   if (invoice.invoice_design_id == 2) {
@@ -713,6 +715,16 @@ function calculateAmounts(invoice) {
         invoice.has_product_key = true;
     } else if (invoice.invoice_items.length == 1 && !item.qty) {
         invoice.has_product_key = true;
+    }
+
+    if (invoice.features.invoice_settings) {
+        if (item.custom_value1) {
+            invoice.has_custom_item_value1 = true;
+        }
+
+        if (item.custom_value2) {
+            invoice.has_custom_item_value2 = true;
+        }
     }
 
     if (parseFloat(item.tax_rate1) != 0) {
