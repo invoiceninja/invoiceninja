@@ -929,6 +929,8 @@ class InvoiceRepository extends BaseRepository
             $clone->invitations()->save($cloneInvitation);
         }
 
+        $this->dispatchEvents($clone);
+
         return $clone;
     }
 
