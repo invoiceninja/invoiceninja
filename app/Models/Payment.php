@@ -295,6 +295,10 @@ class Payment extends EntityModel
      */
     public function getCompletedAmount()
     {
+        if ($this->isFailed() || $this->isVoided()) {
+            return 0;
+        }
+
         return $this->amount - $this->refunded;
     }
 
