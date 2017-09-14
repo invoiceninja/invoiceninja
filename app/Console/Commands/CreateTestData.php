@@ -152,7 +152,9 @@ class CreateTestData extends Command
             $invoice = $this->invoiceRepo->save($data);
             $this->info('Invoice: ' . $invoice->invoice_number);
 
-            $this->createPayment($client, $invoice);
+            if (! $isQuote) {
+                $this->createPayment($client, $invoice);
+            }
         }
     }
 
