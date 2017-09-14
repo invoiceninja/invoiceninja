@@ -410,10 +410,10 @@ NINJA.invoiceColumns = function(invoice)
 
     columns.push("*")
 
-    if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
+    if (invoice.has_custom_item_value1) {
         columns.push("10%");
     }
-    if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
+    if (invoice.has_custom_item_value2) {
         columns.push("10%");
     }
 
@@ -476,10 +476,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
     grid[0].push({text: invoiceLabels.description, style: styles.concat('descriptionTableHeader')});
 
-    if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
+    if (invoice.has_custom_item_value1) {
         grid[0].push({text: account.custom_invoice_item_label1, style: styles.concat('custom1TableHeader')});
     }
-    if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
+    if (invoice.has_custom_item_value2) {
         grid[0].push({text: account.custom_invoice_item_label2, style: styles.concat('custom2TableHeader')});
     }
 
@@ -560,10 +560,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
         }
         row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]});
-        if (invoice.features.invoice_settings && account.custom_invoice_item_label1) {
+        if (invoice.has_custom_item_value1) {
             row.push({style:["customValue1", rowStyle], text:custom_value1 || ' '});
         }
-        if (invoice.features.invoice_settings && account.custom_invoice_item_label2) {
+        if (invoice.has_custom_item_value2) {
             row.push({style:["customValue2", rowStyle], text:custom_value2 || ' '});
         }
         if (!hideQuantity) {
