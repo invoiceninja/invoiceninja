@@ -115,8 +115,11 @@
                     console.log('start w/selected...');
                 } else {
                     console.log('start w/o selected...');
+                    var time = new TimeModel();
+                    time.startTime(moment().unix());
                     var task = new TaskModel();
                     task.description(self.filter());
+                    task.addTime(time);
                     self.addTask(task);
                     self.selectedTask(task);
                     self.filter('');
@@ -210,7 +213,11 @@
                 for (var i=0; i<data.length; i++) {
                     self.time_log.push(new TimeModel(data[i]));
                 }
-                console.log('self.time_log.length: ' + self.time_log().length);
+            }
+
+            self.addTime = function(time) {
+                console.log(time);
+                self.time_log.push(time);
             }
 
             self.isRunning = ko.computed(function() {
@@ -225,7 +232,7 @@
             self.duration = ko.computed(function() {
                 model.clock(); // bind to the clock
                 if (! self.time_log().length) {
-                    return '00:00:00';
+                    return '0:00:00';
                 }
                 var time = self.time_log()[0];
                 var now = new Date().getTime();
@@ -237,7 +244,6 @@
                     self.time_log().forEach(function(time){
                         duration += time.duration();
                     });
-                    console.log('duration: ' + duration);
                 }
 
                 var duration = moment.duration(duration * 1000);
