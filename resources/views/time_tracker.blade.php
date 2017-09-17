@@ -30,10 +30,10 @@
 @section('body')
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
-            <div class="navbar-collapse" style="padding-top:12px;padding-bottom:12px;">
-                <ul class="nav navbar-right" style="padding-right:12px; padding-left:10px;float:right;">
-                    <span data-bind="text: selectedTask().duration, visible: selectedTask"
-                        style="font-size:28px;color:white;padding-right:8px;vertical-align:middle;display:none;"></span>
+            <div class="navbar-collapse" style="padding-top:12px; padding-bottom:12px;">
+                <ul class="nav navbar-right" style="margin-right:0px; padding-left:10px; float:right;">
+                    <span data-bind="text: selectedTask().duration, visible: selectedTask" class="hidden-xs"
+                        style="font-size:28px; color:white; padding-right:8px; vertical-align:middle; display:none;"></span>
                     <button type='button' data-bind="click: onStartClick, css: startClass" class="btn btn-lg">
                         <span data-bind="text: startLabel"></span>
                         <span data-bind="css: startIcon"></span>
