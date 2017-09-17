@@ -5,6 +5,10 @@
 
     <style type="text/css">
 
+        a:focus {
+            outline: none;
+        }
+
         .no-gutter > [class*='col-'] {
             padding-right:0;
             padding-left:0;
@@ -78,7 +82,8 @@
 
             <!-- Task List -->
             <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
-                <a href="#" data-bind="click: $parent.selectTask, css: { activex: $data == $parent.selectedTask() }" class="list-group-item list-group-item-type1">
+                <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask()"
+                    class="list-group-item list-group-item-type1">
                     <span class="pull-right">
                         <span data-bind="text: duration"></span>
                     </span>
