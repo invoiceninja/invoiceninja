@@ -5,6 +5,11 @@
 
     <style type="text/css">
 
+        .no-gutter > [class*='col-'] {
+            padding-right:0;
+            padding-left:0;
+        }
+
         .list-group-item:before {
             position: absolute;
             top: 0;
@@ -28,10 +33,7 @@
             <div class="navbar-header" style="padding-top:12px;padding-bottom:12px;">
                 <ul class="nav navbar-nav navbar-right" style="padding-right:12px; padding-left:10px">
                     <span data-bind="text: selectedTask().duration, visible: selectedTask"
-                        style="font-size:28px;color:white;padding-right:8px;vertical-align:middle;display:none;">test</span>
-                    <button type='button' class='btn btn-normal btn-lg' data-bind="visible: selectedTask" style="display:none;">
-                        {{ trans('texts.details') }}
-                    </button> &nbsp;
+                        style="font-size:28px;color:white;padding-right:8px;vertical-align:middle;display:none;"></span>
                     <button type='button' data-bind="click: onStartClick, css: startClass" class="btn btn-lg">
                         <span data-bind="text: startLabel"></span>
                         <span data-bind="css: startIcon"></span>
@@ -48,30 +50,34 @@
 
     <div style="height:74px"></div>
 
-    <div class="well" style="padding-bottom:0px;margin-bottom:0px;" data-bind="visible: selectedTask">
-        <div class="panel panel-default">
-            <div class="panel-body">
-                {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
-                {!! Former::select('project_id')
-                        ->addOption('', '')
-                        ->addGroupClass('project-select')
-                        ->label(trans('texts.project')) !!}
-                {!! Former::textarea('description')->data_bind('value: selectedTask().description')->rows(4) !!}
+    <div class="container" style="margin: 0 auto;width: 100%;">
+        <div class="row no-gutter">
+            <div class="col-md-7 col-md-push-5">
+                <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px;margin-bottom:0px;">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+                            {!! Former::select('project_id')
+                                    ->addOption('', '')
+                                    ->addGroupClass('project-select')
+                                    ->label(trans('texts.project')) !!}
+                            {!! Former::textarea('description')->data_bind('value: selectedTask().description')->rows(4) !!}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="list-group col-md-5 col-md-pull-7" data-bind="foreach: filteredTasks">
+                <a href="#" data-bind="click: $parent.selectTask" class="list-group-item list-group-item-type1">
+                    <span class="pull-right">
+                        <span data-bind="text: duration"></span>
+                    </span>
+                    <h5 class="list-group-item-heading" data-bind="text: description"></h5>
+                    <p class="list-group-item-text">
+
+                    </p>
+                </a>
             </div>
         </div>
-    </div>
-
-
-    <div class="list-group" data-bind="foreach: filteredTasks">
-        <a href="#" data-bind="click: $parent.selectTask" class="list-group-item list-group-item-type1">
-            <span class="pull-right">
-                <span data-bind="text: duration"></span>
-            </span>
-            <h5 class="list-group-item-heading" data-bind="text: description"></h5>
-            <p class="list-group-item-text">
-
-            </p>
-        </a>
     </div>
 
     <script type="text/javascript">
@@ -222,8 +228,7 @@
                     duration = 0;
                 }
 
-                duration = secondsToTime(duration);
-                return duration.h + ':' + duration.m + ':' + duration.s;
+                return moment.unix(duration).format("hh:mm:ss")
             });
         }
 
