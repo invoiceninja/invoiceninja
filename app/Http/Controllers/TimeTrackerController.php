@@ -16,7 +16,7 @@ class TimeTrackerController extends Controller
 
         $data = [
             'title' => trans('texts.time_tracker'),
-            'tasks' => Task::scope()->get(),
+            'tasks' => Task::scope()->with('project', 'client.contacts')->get(),
             'account' => $account,
         ];
 

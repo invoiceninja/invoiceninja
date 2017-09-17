@@ -9,6 +9,16 @@
             outline: none;
         }
 
+        span.link {
+            cursor:pointer;
+            color:#0000EE;
+            text-decoration:none;
+        }
+
+        span.link:hover {
+            text-decoration:underline;
+        }
+
         .no-gutter > [class*='col-'] {
             padding-right:0;
             padding-left:0;
@@ -87,9 +97,10 @@
                     <span class="pull-right">
                         <span data-bind="text: duration"></span>
                     </span>
-                    <h5 class="list-group-item-heading" data-bind="text: description"></h5>
+                    <h4 class="list-group-item-heading" data-bind="text: description"></h4>
                     <p class="list-group-item-text">
-                        ...
+                        <span class="link" data-bind="text: project.name, click: $parent.viewProject, clickBubble: false"></span>
+                        <span class="link" data-bind="text: client.name, click: $parent.viewClient, clickBubble: false"></span>
                     </p>
                 </a>
             </div>
@@ -123,6 +134,12 @@
                     self.onStartClick();
                 }
                 return true;
+            }
+
+            self.viewProject = function(task) {
+                console.log('view project');
+                self.filter(task.project.name());
+                return false;
             }
 
             self.onStartClick = function() {
@@ -198,15 +215,13 @@
                     return self.tasks();
                 } else {
                     var filtered = ko.utils.arrayFilter(self.tasks(), function(task) {
-                        var description = task.description().toLowerCase();
-                        return description.indexOf(self.filter().toLowerCase()) >= 0;
+                        return task.matchesFilter(self.filter());
                     });
                     return filtered.length == 0 ? self.tasks() : filtered;
                 }
             });
 
             self.addTask = function(task) {
-                console.log(task);
                 self.tasks.push(task);
             }
 
@@ -221,8 +236,17 @@
             self.description = ko.observable('test');
             self.time_log = ko.observableArray();
 
+            self.mapping = {
+                'project': {
+                    create: function(data) {
+                        console.log(data.data);
+                        return new ProjectModel(data.data);
+                    }
+                },
+            }
+
             if (data) {
-                ko.mapping.fromJS(data, {}, this);
+                ko.mapping.fromJS(data, self.mapping, this);
                 self.time_log = ko.observableArray();
                 data = JSON.parse(data.time_log);
                 for (var i=0; i<data.length; i++) {
@@ -231,8 +255,18 @@
             }
 
             self.addTime = function(time) {
-                console.log(time);
                 self.time_log.push(time);
+            }
+
+            self.matchesFilter = function(filter) {
+                filter = filter.toLowerCase();
+                if (self.description().toLowerCase().indexOf(filter) >= 0) {
+                    return true;
+                }
+                if (self.project && self.project.name().toLowerCase().indexOf(filter) >= 0) {
+                    return true;
+                }
+                return false;
             }
 
             self.isRunning = ko.computed(function() {
@@ -266,9 +300,17 @@
             });
         }
 
+        function ProjectModel(data) {
+            var self = this;
+            self.name = ko.observable('');
+
+            if (data) {
+                ko.mapping.fromJS(data, {}, this);
+            }
+        }
+
         function TimeModel(data) {
             var self = this;
-
             self.startTime = ko.observable(0);
             self.endTime = ko.observable(0);
             self.duration = ko.observable(0);
