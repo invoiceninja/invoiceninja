@@ -99,8 +99,9 @@
                     </span>
                     <h4 class="list-group-item-heading" data-bind="text: description"></h4>
                     <p class="list-group-item-text">
+                        <span class="link" data-bind="text: client.displayName, click: $parent.viewClient, clickBubble: false"></span>
+                        <span data-bind="visible: client.displayName &amp;&amp; project.name"> | </span>
                         <span class="link" data-bind="text: project.name, click: $parent.viewProject, clickBubble: false"></span>
-                        <span class="link" data-bind="text: client.name, click: $parent.viewClient, clickBubble: false"></span>
                     </p>
                 </a>
             </div>
@@ -136,8 +137,12 @@
                 return true;
             }
 
+            self.viewClient = function(task) {
+                self.filter(task.client.displayName());
+                return false;
+            }
+
             self.viewProject = function(task) {
-                console.log('view project');
                 self.filter(task.project.name());
                 return false;
             }
@@ -237,9 +242,14 @@
             self.time_log = ko.observableArray();
 
             self.mapping = {
-                'project': {
+                'client': {
                     create: function(data) {
                         console.log(data.data);
+                        return new ClientModel(data.data);
+                    }
+                },
+                'project': {
+                    create: function(data) {
                         return new ProjectModel(data.data);
                     }
                 },
@@ -264,6 +274,9 @@
                     return true;
                 }
                 if (self.project && self.project.name().toLowerCase().indexOf(filter) >= 0) {
+                    return true;
+                }
+                if (self.client && self.client.displayName().toLowerCase().indexOf(filter) >= 0) {
                     return true;
                 }
                 return false;
@@ -307,6 +320,61 @@
             if (data) {
                 ko.mapping.fromJS(data, {}, this);
             }
+        }
+
+        function ClientModel(data) {
+            var self = this;
+            self.public_id = ko.observable(0);
+            self.name = ko.observable('');
+            self.contacts = ko.observableArray();
+
+            self.mapping = {
+                'contacts': {
+                    create: function(options) {
+                        return new ContactModel(options.data);
+                    }
+                }
+            }
+
+            self.displayName = ko.computed(function() {
+                if (self.name()) {
+                    return self.name();
+                }
+                if (self.contacts().length == 0) return;
+                var contact = self.contacts()[0];
+                if (contact.first_name() || contact.last_name()) {
+                    return contact.first_name() + ' ' + contact.last_name();
+                } else {
+                    return contact.email();
+                }
+            });
+
+            if (data) {
+                ko.mapping.fromJS(data, self.mapping, this);
+            } else {
+                self.addContact();
+            }
+        }
+
+        function ContactModel(data) {
+            var self = this;
+            self.first_name = ko.observable('');
+            self.last_name = ko.observable('');
+            self.email = ko.observable('');
+
+            if (data) {
+                ko.mapping.fromJS(data, {}, this);
+            }
+
+            self.displayName = ko.computed(function() {
+                if (self.first_name() || self.last_name()) {
+                    return (self.first_name() || '') + ' ' + (self.last_name() || '') + ' ';
+                } else if (self.email()) {
+                    return self.email();
+                } else {
+                    return '';
+                }
+            });
         }
 
         function TimeModel(data) {
