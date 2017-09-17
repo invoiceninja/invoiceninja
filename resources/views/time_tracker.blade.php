@@ -31,6 +31,8 @@
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-collapse" style="padding-top:12px; padding-bottom:12px;">
+
+                <!-- Navbar Buttons -->
                 <ul class="nav navbar-right" style="margin-right:0px; padding-left:12px; float:right;">
                     <span data-bind="text: selectedTask().duration, visible: selectedTask" class="hidden-xs"
                         style="font-size:28px; color:white; padding-right:12px; vertical-align:middle; display:none;"></span>
@@ -39,11 +41,14 @@
                         <span data-bind="css: startIcon"></span>
                     </button>
                 </ul>
+
+                <!-- Navbar Filter -->
                 <div class="input-group input-group-lg">
                     <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-time"></span></span>
                     <input type="text" class="form-control search" autocomplete="off" autofocus="autofocus"
                         data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder}">
                 </div>
+
             </div>
         </div>
     </nav>
@@ -52,6 +57,8 @@
 
     <div class="container" style="margin: 0 auto;width: 100%;">
         <div class="row no-gutter">
+
+            <!-- Task Form -->
             <div class="col-sm-7 col-sm-push-5">
                 <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px;margin-bottom:0px;">
                     <div class="panel panel-default">
@@ -68,8 +75,10 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Task List -->
             <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
-                <a href="#" data-bind="click: $parent.selectTask" class="list-group-item list-group-item-type1">
+                <a href="#" data-bind="click: $parent.selectTask, css: { activex: $data == $parent.selectedTask() }" class="list-group-item list-group-item-type1">
                     <span class="pull-right">
                         <span data-bind="text: duration"></span>
                     </span>
@@ -79,6 +88,7 @@
                     </p>
                 </a>
             </div>
+
         </div>
     </div>
 
