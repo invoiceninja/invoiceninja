@@ -31,9 +31,9 @@
     <nav class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid">
             <div class="navbar-collapse" style="padding-top:12px; padding-bottom:12px;">
-                <ul class="nav navbar-right" style="margin-right:0px; padding-left:10px; float:right;">
+                <ul class="nav navbar-right" style="margin-right:0px; padding-left:12px; float:right;">
                     <span data-bind="text: selectedTask().duration, visible: selectedTask" class="hidden-xs"
-                        style="font-size:28px; color:white; padding-right:8px; vertical-align:middle; display:none;"></span>
+                        style="font-size:28px; color:white; padding-right:12px; vertical-align:middle; display:none;"></span>
                     <button type='button' data-bind="click: onStartClick, css: startClass" class="btn btn-lg">
                         <span data-bind="text: startLabel"></span>
                         <span data-bind="css: startIcon"></span>
@@ -42,7 +42,7 @@
                 <div class="input-group input-group-lg">
                     <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-time"></span></span>
                     <input type="text" class="form-control search" autocomplete="off" autofocus="autofocus"
-                        data-bind="event: { input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder}">
+                        data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder}">
                 </div>
             </div>
         </div>
@@ -52,7 +52,7 @@
 
     <div class="container" style="margin: 0 auto;width: 100%;">
         <div class="row no-gutter">
-            <div class="col-md-7 col-md-push-5">
+            <div class="col-sm-7 col-sm-push-5">
                 <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px;margin-bottom:0px;">
                     <div class="panel panel-default">
                         <div class="panel-body">
@@ -61,19 +61,21 @@
                                     ->addOption('', '')
                                     ->addGroupClass('project-select')
                                     ->label(trans('texts.project')) !!}
-                            {!! Former::textarea('description')->data_bind('value: selectedTask().description')->rows(4) !!}
+                            {!! Former::textarea('description')
+                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
+                                    ->rows(4) !!}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="list-group col-md-5 col-md-pull-7" data-bind="foreach: filteredTasks">
+            <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
                 <a href="#" data-bind="click: $parent.selectTask" class="list-group-item list-group-item-type1">
                     <span class="pull-right">
                         <span data-bind="text: duration"></span>
                     </span>
                     <h5 class="list-group-item-heading" data-bind="text: description"></h5>
                     <p class="list-group-item-text">
-
+                        ...
                     </p>
                 </a>
             </div>
@@ -83,6 +85,8 @@
     <script type="text/javascript">
 
         var tasks = {!! $tasks !!};
+        var dateTimeFormat = '{{ $account->getMomentDateTimeFormat() }}';
+        var timezone = '{{ $account->getTimezone() }}';
 
         function ViewModel() {
             var self = this;
@@ -90,6 +94,10 @@
             self.filter = ko.observable('');
             self.selectedTask = ko.observable(false);
             self.clock = ko.observable(0);
+
+            self.onFilterFocus = function(data) {
+                self.selectedTask(false);
+            }
 
             self.onFilterChanged = function(data) {
                 self.selectedTask(false);
@@ -216,27 +224,29 @@
 
             self.duration = ko.computed(function() {
                 model.clock(); // bind to the clock
-
                 if (! self.time_log().length) {
                     return '00:00:00';
                 }
                 var time = self.time_log()[0];
+                var now = new Date().getTime();
+                var duration = 0;
                 if (time.isRunning()) {
-                    var duration = new Date().getTime() - (time.startTime() * 1000);
+                    var duration = now - (time.startTime() * 1000);
                     duration = Math.floor(duration / 100) / 10;
                 } else {
-                    duration = 0;
+                    self.time_log().forEach(function(time){
+                        duration += time.duration();
+                    });
+                    console.log('duration: ' + duration);
                 }
 
-                return moment.unix(duration).format("hh:mm:ss")
+                var duration = moment.duration(duration * 1000);
+                return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
             });
         }
 
         function TimeModel(data) {
             var self = this;
-
-            var dateTimeFormat = '{{ $account->getMomentDateTimeFormat() }}';
-            var timezone = '{{ $account->getTimezone() }}';
 
             self.startTime = ko.observable(0);
             self.endTime = ko.observable(0);
@@ -281,6 +291,10 @@
                 self.endTime(moment.tz(timezone).unix());
             }
 
+            self.duration = ko.computed(function() {
+                return self.endTime() - self.startTime();
+            });
+
             self.duration.pretty = ko.computed({
                 read: function() {
                     var duration = false;
@@ -292,7 +306,7 @@
                     }
 
                     var duration = moment.duration(duration * 1000);
-                    return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
+                    return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
                 },
                 write: function(data) {
                     self.endTime(self.startTime() + convertToSeconds(data));
