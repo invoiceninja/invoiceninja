@@ -12,6 +12,7 @@ class TimeTrackerController extends Controller
     public function index()
     {
         $data = [
+            'title' => trans('texts.time_tracker'),
             'tasks' => Task::scope()->get(),
         ];
 

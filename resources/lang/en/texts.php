@@ -2449,6 +2449,7 @@ $LANG = array(
     'pro_plan_calendar' => ':link to enable the calendar by joining the Pro Plan',
 
     'what_are_you_working_on' => 'What are you working on?',
+    'time_tracker' => 'Time Tracker',
 
 );
 

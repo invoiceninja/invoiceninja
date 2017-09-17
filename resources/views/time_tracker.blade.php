@@ -33,8 +33,8 @@
                 <form>
                     <div class="input-group input-group-lg">
                         <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-time"></span></span>
-                        <input type="text" class="form-control"
-                            placeholder="{{ trans('texts.what_are_you_working_on') }}" autocomplete="off" autofocus="autofocus">
+                        <input type="text" class="form-control search" data-bind="value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder}"
+                            autocomplete="off" autofocus="autofocus">
                     </div>
                 </form>
             </div>
@@ -43,8 +43,13 @@
 
     <div style="height:74px"></div>
 
-    <div class="list-group" data-bind="foreach: tasks">
-        <a href="#" class="list-group-item list-group-item-type1">
+    <div class="well">
+        <div data-bind="text: selectedTask().description"></div>
+    </div>
+
+
+    <div class="list-group" data-bind="foreach: filteredTasks">
+        <a href="#" data-bind="click: $parent.selectTask" class="list-group-item list-group-item-type1">
             <span class="pull-right">
                 14
             </span>
@@ -62,9 +67,37 @@
         function ViewModel() {
             var self = this;
             self.tasks = ko.observableArray();
+            self.filter = ko.observable('');
+            self.selectedTask = ko.observable(new TaskModel());
+
+            self.placeholder = ko.computed(function() {
+                if (self.selectedTask() && self.selectedTask().description) {
+                    return self.selectedTask().description();
+                } else {
+                    return "{{ trans('texts.what_are_you_working_on') }}";
+                }
+            });
+
+            self.filteredTasks = ko.computed(function() {
+                if(! self.filter()) {
+                    return self.tasks();
+                } else {
+                    var filtered = ko.utils.arrayFilter(self.tasks(), function(task) {
+                        var description = task.description().toLowerCase();
+                        return description.indexOf(self.filter().toLowerCase()) >= 0;
+                    });
+                    return filtered.length == 0 ? self.tasks() : filtered;
+                }
+            });
 
             self.addTask = function(task) {
+                console.log(task);
                 self.tasks.push(task);
+            }
+
+            self.selectTask = function(task) {
+                self.filter('');
+                self.selectedTask(task);
             }
         }
 
@@ -81,7 +114,6 @@
             window.model = new ViewModel();
             for (var i=0; i<tasks.length; i++) {
                 var task = tasks[i];
-                console.log(task);
                 var taskModel = new TaskModel(task);
                 model.addTask(taskModel);
             }
