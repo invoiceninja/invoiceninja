@@ -96,6 +96,7 @@
                     class="list-group-item list-group-item-type1">
                     <span class="pull-right">
                         <span data-bind="text: duration"></span>
+                        <span class="glyphicon glyphicon-play"></span>
                     </span>
                     <h4 class="list-group-item-heading" data-bind="text: description"></h4>
                     <p class="list-group-item-text">
@@ -240,11 +241,12 @@
             var self = this;
             self.description = ko.observable('test');
             self.time_log = ko.observableArray();
+            self.client = false;
+            self.project = false;
 
             self.mapping = {
                 'client': {
                     create: function(data) {
-                        console.log(data.data);
                         return new ClientModel(data.data);
                     }
                 },
