@@ -73,7 +73,7 @@
 
             @foreach ($gateway->fields as $field => $details)
 
-                @if ($details && !$accountGateway && !is_array($details) && !is_bool($details))
+                @if ($details && (!$accountGateway || !$accountGateway->getConfigField($field)) && !is_array($details) && !is_bool($details))
                     {!! Former::populateField($gateway->id.'_'.$field, $details) !!}
                 @endif
 
