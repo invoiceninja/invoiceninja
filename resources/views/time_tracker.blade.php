@@ -27,24 +27,36 @@
         <div class="container-fluid">
             <div class="navbar-header" style="padding-top:12px;padding-bottom:12px;">
                 <ul class="nav navbar-nav navbar-right" style="padding-right:12px; padding-left:10px">
-                    <input class="btn btn-normal btn-lg" type="button" value="{{ trans('texts.details') }}"> &nbsp;
-                    <input class="btn btn-success btn-lg" type="button" value="{{ trans('texts.start') }}">
+                    <button type='button' class='btn btn-normal btn-lg'>
+                        {{ trans('texts.details') }}
+                    </button> &nbsp;
+                    <button type='button' class='btn btn-success btn-lg' data-bind="click: onStartClick">
+                        <span data-bind="text: startLabel"></span>
+                        <span class='glyphicon glyphicon-play'></span>
+                    </button>
                 </ul>
-                <form>
-                    <div class="input-group input-group-lg">
-                        <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-time"></span></span>
-                        <input type="text" class="form-control search" data-bind="value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder}"
-                            autocomplete="off" autofocus="autofocus">
-                    </div>
-                </form>
+                <div class="input-group input-group-lg">
+                    <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-time"></span></span>
+                    <input type="text" class="form-control search" data-bind="event: { input: onFilterChanged }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder}"
+                        autocomplete="off" autofocus="autofocus">
+                </div>
             </div>
         </div>
     </nav>
 
     <div style="height:74px"></div>
 
-    <div class="well">
-        <div data-bind="text: selectedTask().description"></div>
+    <div class="well" style="padding-bottom:0px;margin-bottom:0px;">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+                {!! Former::select('project_id')
+                        ->addOption('', '')
+                        ->addGroupClass('project-select')
+                        ->label(trans('texts.project')) !!}
+                {!! Former::textarea('description')->data_bind('value: selectedTask().description')->rows(4) !!}
+            </div>
+        </div>
     </div>
 
 
@@ -68,7 +80,31 @@
             var self = this;
             self.tasks = ko.observableArray();
             self.filter = ko.observable('');
-            self.selectedTask = ko.observable(new TaskModel());
+            self.selectedTask = ko.observable(false);
+
+            self.onFilterChanged = function(data) {
+                self.selectedTask(false);
+            }
+
+            self.onStartClick = function() {
+                if (self.selectedTask()) {
+
+                } else {
+                    var task = new TaskModel();
+                    task.description(self.filter());
+                    self.addTask(task);
+                    self.selectedTask(task);
+                    self.filter('');
+                }
+            }
+
+            self.startLabel = ko.computed(function() {
+                if (self.selectedTask()) {
+                    return "{{ trans('texts.resume') }}";
+                } else {
+                    return "{{ trans('texts.start') }}";
+                }
+            });
 
             self.placeholder = ko.computed(function() {
                 if (self.selectedTask() && self.selectedTask().description) {
