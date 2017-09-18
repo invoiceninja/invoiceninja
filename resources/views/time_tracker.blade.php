@@ -98,8 +98,8 @@
                         <div data-bind="visible: actionButtonVisible()"
                             data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
                             &nbsp;&nbsp;
-                            <button type="button" data-bind="css: startClass"
-                                class="btn btn-sm" style="padding-left:0px; margin-top:5px;">
+                            <button type="button" data-bind="css: startClass, click: onStartClick"
+                                class="btn btn-sm" style="padding-left:0px; padding-right: 12px; margin-top:5px;">
                                 <span data-bind="css: startIcon"></span>
                             </button>
                         </div>
@@ -160,9 +160,8 @@
 
             self.onStartClick = function() {
                 if (self.selectedTask()) {
-                    console.log('start w/selected...');
+                    self.selectedTask().onStartClick();
                 } else {
-                    console.log('start w/o selected...');
                     var time = new TimeModel();
                     time.startTime(moment().unix());
                     var task = new TaskModel();
@@ -293,6 +292,18 @@
                     return true;
                 }
                 return false;
+            }
+
+            self.onStartClick = function() {
+                if (self.isRunning()) {
+                    var times = self.time_log();
+                    var time = times[times.length-1];
+                    time.endTime(moment().unix());
+                } else {
+                    var time = new TimeModel();
+                    time.startTime(moment().unix());
+                    self.addTime(time);
+                }
             }
 
             self.isRunning = ko.computed(function() {
