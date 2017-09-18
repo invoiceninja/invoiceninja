@@ -12,8 +12,8 @@
 
     <style type="text/css">
 
-        .form-control {
-            margin-bottom: 20px;
+        .panel-body .form-control {
+            margin-bottom: 20px !important;
         }
 
         a:focus {
@@ -85,6 +85,13 @@
 
     <div style="height:74px"></div>
 
+	<!--
+	<div data-bind="text: ko.toJSON(model.selectedTask().client_id)"></div>
+	<div data-bind="text: ko.toJSON(model.selectedTask().client)"></div>
+	<div data-bind="text: ko.toJSON(model.selectedTask().project_id)"></div>
+	<div data-bind="text: ko.toJSON(model.selectedTask().project)"></div>
+	-->
+
     <div class="container" style="margin: 0 auto;width: 100%;">
         <div class="row no-gutter">
 
@@ -93,10 +100,15 @@
                 <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px; margin-bottom:0px; display:none;">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
+                            {!! Former::select('client_id')
+									->addOption('', '')
+									->label('client')
+									->data_bind("dropdown: selectedTask().client_id")
+									->addGroupClass('client-select') !!}
                             {!! Former::select('project_id')
                                     ->addOption('', '')
                                     ->addGroupClass('project-select')
+									->data_bind("dropdown: selectedTask().project_id")
                                     ->label(trans('texts.project')) !!}
                             {!! Former::textarea('description')
                                     ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
@@ -126,9 +138,9 @@
                     </div>
                     <h4 class="list-group-item-heading" data-bind="text: description"></h4>
                     <p class="list-group-item-text">
-                        <span class="link" data-bind="text: client.displayName, click: $parent.viewClient, clickBubble: false"></span>
-                        <span data-bind="visible: client.displayName &amp;&amp; project &amp;&amp; project.name"> | </span>
-                        <span class="link" data-bind="text: project ? project.name : '&nbsp;', click: $parent.viewProject, clickBubble: false"></span>
+                        <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
+                        <span data-bind="visible: clientName &amp;&amp; projectName &amp;&amp; project.name"> | </span>
+                        <span class="link" data-bind="text: projectName, click: $parent.viewProject, clickBubble: false"></span>
                     </p>
                 </a>
             </div>
@@ -139,6 +151,8 @@
     <script type="text/javascript">
 
         var tasks = {!! $tasks !!};
+		var clients = {!! $clients !!};
+	    var projects = {!! $projects !!};
         var dateTimeFormat = '{{ $account->getMomentDateTimeFormat() }}';
         var timezone = '{{ $account->getTimezone() }}';
 
@@ -190,7 +204,6 @@
             }
 
             self.tock = function(startTime) {
-                console.log('tock..');
                 self.clock(self.clock() + 1);
                 setTimeout(function() {
                     model.tock();
@@ -249,7 +262,7 @@
             }
 
             self.selectTask = function(task) {
-                self.filter('');
+                //self.filter('');
                 self.selectedTask(task);
             }
         }
@@ -258,6 +271,8 @@
             var self = this;
             self.description = ko.observable('test');
             self.time_log = ko.observableArray();
+			self.client_id = ko.observable();
+			self.project_id = ko.observable();
             self.client = false;
             self.project = false;
             self.actionButtonVisible = ko.observable(false);
@@ -265,11 +280,13 @@
             self.mapping = {
                 'client': {
                     create: function(data) {
+						self.client_id(data.data.public_id);
                         return new ClientModel(data.data);
                     }
                 },
                 'project': {
                     create: function(data) {
+						self.project_id(data.data.public_id);
                         return data.data ? new ProjectModel(data.data) : null;
                     }
                 },
@@ -348,6 +365,14 @@
                 return time.isRunning();
             });
 
+			self.clientName = ko.computed(function() {
+				return self.client_id() && self.client ? self.client.displayName() : '';
+			});
+
+			self.projectName = ko.computed(function() {
+				return self.project_id() && self.project ? self.project.name() : '';
+			});
+
             self.startClass = ko.computed(function() {
                 return self.isRunning() ? 'btn-danger' : 'btn-success';
             });
@@ -425,8 +450,6 @@
 
             if (data) {
                 ko.mapping.fromJS(data, self.mapping, this);
-            } else {
-                self.addContact();
             }
         }
 
@@ -474,7 +497,6 @@
             });
 
             self.age = ko.computed(function() {
-                console.log(moment.unix(self.startTime()).toString());
                 return moment.unix(self.startTime()).fromNow();
             });
 
@@ -528,14 +550,110 @@
         }
 
         $(function() {
-            window.model = new ViewModel();
-            for (var i=0; i<tasks.length; i++) {
-                var task = tasks[i];
-                var taskModel = new TaskModel(task);
-                model.addTask(taskModel);
-            }
-            ko.applyBindings(model);
-            model.tock();
+
+			// setup clients and project comboboxes
+			var clientMap = {};
+			var projectMap = {};
+			var projectsForClientMap = {};
+			var projectsForAllClients = [];
+			var $clientSelect = $('select#client_id');
+
+			for (var i=0; i<projects.length; i++) {
+				var project = projects[i];
+				projectMap[project.public_id] = project;
+
+				var client = project.client;
+				if (!client) {
+					projectsForAllClients.push(project);
+				} else {
+					if (!projectsForClientMap.hasOwnProperty(client.public_id)) {
+						projectsForClientMap[client.public_id] = [];
+					}
+					projectsForClientMap[client.public_id].push(project);
+				}
+			}
+
+			for (var i=0; i<clients.length; i++) {
+				var client = clients[i];
+				clientMap[client.public_id] = client;
+			}
+
+			$clientSelect.append(new Option('', ''));
+			for (var i=0; i<clients.length; i++) {
+				var client = clients[i];
+				var clientName = getClientDisplayName(client);
+				if (!clientName) {
+					continue;
+				}
+				$clientSelect.append(new Option(clientName, client.public_id));
+			}
+
+			$clientSelect.combobox();
+			$clientSelect.on('change', function(e) {
+				var clientId = $('input[name=client_id]').val();
+				var projectId = $('input[name=project_id]').val();
+				var client = clientMap[clientId];
+				var project = projectMap[projectId];
+				if (project && ((project.client && project.client.public_id == clientId) || !project.client)) {
+					e.preventDefault();return;
+				}
+				if (window.model && model.selectedTask()) {
+					model.selectedTask().client = new ClientModel(client);
+					model.selectedTask().client_id(clientId);
+					model.selectedTask().project = false;
+					model.selectedTask().project_id(0);
+				}
+				$projectCombobox = $('select#project_id');
+				$projectCombobox.find('option').remove().end().combobox('refresh');
+				$projectCombobox.append(new Option('', ''));
+				@if (Auth::user()->can('create', ENTITY_PROJECT))
+					if (clientId) {
+						$projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
+					}
+				@endif
+				var list = clientId ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []).concat(projectsForAllClients) : projects;
+				for (var i=0; i<list.length; i++) {
+					var project = list[i];
+					$projectCombobox.append(new Option(project.name,  project.public_id));
+				}
+				$('select#project_id').combobox('refresh');
+			});
+
+			var $projectSelect = $('select#project_id').on('change', function(e) {
+				$clientCombobox = $('select#client_id');
+				var projectId = $('input[name=project_id]').val();
+				if (projectId == '-1') {
+					$('input[name=project_name]').val(projectName);
+				} else if (projectId) {
+					var project = projectMap[projectId];
+					model.selectedTask().project_id(projectId);
+					model.selectedTask().project = new ProjectModel(project);
+					// when selecting a project make sure the client is loaded
+					if (project && project.client) {
+						var client = clientMap[project.client.public_id];
+						if (client) {
+							project.client = client;
+							model.selectedTask().client = new ClientModel(client);
+							model.selectedTask().client_id(client.public_id);
+						}
+					}
+				} else {
+					$clientSelect.trigger('change');
+				}
+			});
+
+			@include('partials/entity_combobox', ['entityType' => ENTITY_PROJECT])
+
+			$clientSelect.trigger('change');
+
+			window.model = new ViewModel();
+			for (var i=0; i<tasks.length; i++) {
+				var task = tasks[i];
+				var taskModel = new TaskModel(task);
+				model.addTask(taskModel);
+			}
+			ko.applyBindings(model);
+			model.tock();
         });
 
     </script>
