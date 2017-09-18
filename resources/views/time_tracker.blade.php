@@ -136,7 +136,9 @@
                         <div data-bind="text: duration"></div>
                         <div data-bind="text: age" style="padding-top: 2px"></div>
                     </div>
-                    <h4 class="list-group-item-heading" data-bind="text: description"></h4>
+                    <h4 class="list-group-item-heading">
+						<span data-bind="text: description"></span>&nbsp;
+					</h4>
                     <p class="list-group-item-text">
                         <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
                         <span data-bind="visible: clientName &amp;&amp; projectName"> | </span>
@@ -595,6 +597,9 @@
 				var projectId = $('input[name=project_id]').val();
 				var client = clientMap[clientId];
 				var project = projectMap[projectId];
+				if (!clientId && (window.model && !model.selectedTask().client)) {
+					e.preventDefault();return;
+				}
 				if (project && ((project.client && project.client.public_id == clientId) || !project.client)) {
 					e.preventDefault();return;
 				}
