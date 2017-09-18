@@ -137,7 +137,7 @@
                         <div data-bind="text: age" style="padding-top: 2px"></div>
                     </div>
                     <h4 class="list-group-item-heading">
-						<span data-bind="text: description"></span>&nbsp;
+						<span data-bind="text: description.truncated"></span>&nbsp;
 					</h4>
                     <p class="list-group-item-text">
                         <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
@@ -243,7 +243,7 @@
 
             self.placeholder = ko.computed(function() {
                 if (self.selectedTask() && self.selectedTask().description) {
-                    return self.selectedTask().description();
+                    return self.selectedTask().description.truncated();
                 } else {
                     return "{{ trans('texts.what_are_you_working_on') }}";
                 }
@@ -382,6 +382,10 @@
 
             self.startIcon = ko.computed(function() {
                 return self.isRunning() ? 'glyphicon glyphicon-stop' : 'glyphicon glyphicon-play';
+            });
+
+			self.description.truncated = ko.computed(function() {
+				return truncate(self.description(), 80);
             });
 
             self.age = ko.computed(function() {
