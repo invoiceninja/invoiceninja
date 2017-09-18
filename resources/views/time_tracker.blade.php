@@ -12,9 +12,9 @@
 
     <style type="text/css">
 
-        .panel-body .form-control {
-            margin-bottom: 20px !important;
-        }
+        .panel-body label:not(:first-child) {
+    		margin-top: 20px !important;
+		}
 
         a:focus {
             outline: none;
@@ -182,12 +182,12 @@
             }
 
             self.viewClient = function(task) {
-                self.filter(task.client.displayName());
+                self.filter(task.client().displayName());
                 return false;
             }
 
             self.viewProject = function(task) {
-                self.filter(task.project.name());
+                self.filter(task.project().name());
                 return false;
             }
 
@@ -276,8 +276,8 @@
             self.time_log = ko.observableArray();
 			self.client_id = ko.observable();
 			self.project_id = ko.observable();
-            self.client = false;
-            self.project = false;
+            self.client = ko.observable();
+            self.project = ko.observable();
             self.actionButtonVisible = ko.observable(false);
 
             self.mapping = {
@@ -325,10 +325,10 @@
 	                if (self.description().toLowerCase().indexOf(part) >= 0) {
 	                    isMatch = true;
 	                }
-	                if (self.project && self.project.name().toLowerCase().indexOf(part) >= 0) {
+	                if (self.project() && self.project().name().toLowerCase().indexOf(part) >= 0) {
 	                    isMatch = true;
 	                }
-	                if (self.client && self.client.displayName().toLowerCase().indexOf(part) >= 0) {
+	                if (self.client() && self.client().displayName().toLowerCase().indexOf(part) >= 0) {
 	                    isMatch = true;
 	                }
 					if (! isMatch) {
@@ -351,10 +351,10 @@
             }
 
             self.projectColor = ko.computed(function() {
-                if (! self.project) {
+                if (! self.project()) {
                     return '';
                 }
-                var projectId = self.project.public_id();
+                var projectId = self.project().public_id();
                 var colorNum = (projectId-1) % 8;
                 return 'list-group-item-type' + (colorNum+1);
             });
@@ -369,11 +369,11 @@
             });
 
 			self.clientName = ko.computed(function() {
-				return self.client_id() && self.client ? self.client.displayName() : '';
+				return self.client() ? self.client().displayName() : '';
 			});
 
 			self.projectName = ko.computed(function() {
-				return self.project_id() && self.project ? self.project.name() : '';
+				return self.project() ? self.project().name() : '';
 			});
 
             self.startClass = ko.computed(function() {
@@ -604,10 +604,10 @@
 					e.preventDefault();return;
 				}
 				if (window.model && model.selectedTask()) {
-					model.selectedTask().client = new ClientModel(client);
+					model.selectedTask().client(new ClientModel(client));
 					model.selectedTask().client_id(clientId);
-					model.selectedTask().project = false;
 					model.selectedTask().project_id(0);
+					model.selectedTask().project(false);
 				}
 				$projectCombobox = $('select#project_id');
 				$projectCombobox.find('option').remove().end().combobox('refresh');
@@ -630,16 +630,19 @@
 				var projectId = $('input[name=project_id]').val();
 				if (projectId == '-1') {
 					$('input[name=project_name]').val(projectName);
+					//var project = new ProjectModel();
+					//model.selectedTask().project = project;
+					//model.selectedTask().project_id(projectId);
 				} else if (projectId) {
 					var project = projectMap[projectId];
-					model.selectedTask().project = new ProjectModel(project);
+					model.selectedTask().project(new ProjectModel(project));
 					model.selectedTask().project_id(projectId);
 					// when selecting a project make sure the client is loaded
 					if (project && project.client) {
 						var client = clientMap[project.client.public_id];
 						if (client) {
 							project.client = client;
-							model.selectedTask().client = new ClientModel(client);
+							model.selectedTask().client(new ClientModel(client));
 							model.selectedTask().client_id(client.public_id);
 						}
 					}
