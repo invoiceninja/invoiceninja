@@ -92,11 +92,16 @@
 
             <!-- Task List -->
             <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
-                <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask()"
+                <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask(), event: { mouseover: showActionButton, mouseout: hideActionButton }"
                     class="list-group-item list-group-item-type1">
                     <span class="pull-right">
                         <span data-bind="text: duration"></span>
-                        <span class="glyphicon glyphicon-play"></span>
+                        <span data-bind="visible: actionButtonVisible()" data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
+                            &nbsp;&nbsp;
+                            <button type='button' class="btn btn-sm btn-success" style="padding-left:0px">
+                                <span class="glyphicon glyphicon-play"></span>
+                            </button>
+                        </span>
                     </span>
                     <h4 class="list-group-item-heading" data-bind="text: description"></h4>
                     <p class="list-group-item-text">
@@ -243,6 +248,7 @@
             self.time_log = ko.observableArray();
             self.client = false;
             self.project = false;
+            self.actionButtonVisible = ko.observable(false);
 
             self.mapping = {
                 'client': {
@@ -264,6 +270,14 @@
                 for (var i=0; i<data.length; i++) {
                     self.time_log.push(new TimeModel(data[i]));
                 }
+            }
+
+            self.showActionButton = function() {
+                self.actionButtonVisible(true);
+            }
+
+            self.hideActionButton = function() {
+                self.actionButtonVisible(false);
             }
 
             self.addTime = function(time) {
