@@ -95,7 +95,10 @@
                 <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask(), event: { mouseover: showActionButton, mouseout: hideActionButton }"
                     class="list-group-item list-group-item-type1">
                     <span class="pull-right">
-                        <span data-bind="text: duration"></span>
+                        <span>
+                            <span data-bind="text: duration"></span><br/>
+                            <span data-bind="text: age"></span>
+                        </span>
                         <span data-bind="visible: actionButtonVisible()" data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
                             &nbsp;&nbsp;
                             <button type='button' class="btn btn-sm btn-success" style="padding-left:0px">
@@ -307,12 +310,21 @@
                 return time.isRunning();
             });
 
+            self.age = ko.computed(function() {
+                if (! self.time_log().length) {
+                    return '';
+                }
+                var time = self.time_log()[0];
+                return time.age();
+            });
+
             self.duration = ko.computed(function() {
                 model.clock(); // bind to the clock
                 if (! self.time_log().length) {
                     return '0:00:00';
                 }
-                var time = self.time_log()[0];
+                var times = self.time_log();
+                var time = times[times.length - 1];
                 var now = new Date().getTime();
                 var duration = 0;
                 if (time.isRunning()) {
@@ -415,6 +427,17 @@
                 return self.startTime() && !self.endTime();
             });
 
+            self.age = ko.computed(function() {
+                console.log(moment.unix(self.startTime()).toString());
+                return moment.unix(self.startTime()).fromNow();
+            });
+
+            self.duration = ko.computed(function() {
+                return self.endTime() - self.startTime();
+            });
+
+
+            /*
             self.startTime.pretty = ko.computed({
                 read: function() {
                     return self.startTime() ? moment.unix(self.startTime()).tz(timezone).format(dateTimeFormat) : '';
@@ -438,10 +461,6 @@
                 self.endTime(moment.tz(timezone).unix());
             }
 
-            self.duration = ko.computed(function() {
-                return self.endTime() - self.startTime();
-            });
-
             self.duration.pretty = ko.computed({
                 read: function() {
                     var duration = false;
@@ -459,6 +478,7 @@
                     self.endTime(self.startTime() + convertToSeconds(data));
                 }
             });
+            */
         }
 
         $(function() {
