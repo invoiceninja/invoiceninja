@@ -133,11 +133,11 @@
                         </div>
                     </div>
                     <div class="pull-right" style="text-align:right">
-                        <div data-bind="text: duration"></div>
-                        <div data-bind="text: age" style="padding-top: 2px"></div>
+                        <div data-bind="text: duration, style: { fontWeight: isRunning() ? 'bold' : '' }"></div>
+                        <div data-bind="text: age, style: { fontWeight: isRunning() ? 'bold' : '' }" style="padding-top: 2px"></div>
                     </div>
                     <h4 class="list-group-item-heading">
-						<span data-bind="text: description.truncated"></span>&nbsp;
+						<span data-bind="text: description.truncated, style: { fontWeight: isRunning() ? 'bold' : '' }"></span>&nbsp;
 					</h4>
                     <p class="list-group-item-text">
                         <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
