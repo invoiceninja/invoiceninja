@@ -83,7 +83,7 @@
 
             <!-- Task Form -->
             <div class="col-sm-7 col-sm-push-5">
-                <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px;margin-bottom:0px;">
+                <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px; margin-bottom:0px; display:none;">
                     <div class="panel panel-default">
                         <div class="panel-body">
                             {!! Former::select('client')->addOption('', '')->addGroupClass('client-select') !!}
