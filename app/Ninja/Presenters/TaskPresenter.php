@@ -86,13 +86,13 @@ class TaskPresenter extends EntityPresenter
         }
         if ($description = $this->description()) {
             $data->title .= ' | ' . $description;
-        }        
+        }
         $data->allDay = false;
 
         if ($subColors && $task->project_id) {
             $data->borderColor = $data->backgroundColor = Utils::brewerColor($task->project->public_id);
         } else {
-            $data->borderColor = $data->backgroundColor = '#ff7f00';
+            $data->borderColor = $data->backgroundColor = '#a87821';
         }
 
         $parts = json_decode($task->time_log) ?: [];

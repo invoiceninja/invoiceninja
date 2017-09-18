@@ -1306,13 +1306,14 @@ class Utils
 
     public static function brewerColor($number) {
         $colors = [
-            '#377eb8',
-            '#4daf4a',
-            '#984ea3',
-            '#ff7f00',
-            '#a65628',
-            '#f781bf',
-            '#e41a1c',
+            '#1c9f77',
+            '#d95d02',
+            '#716cb1',
+            '#e62a8b',
+            '#5fa213',
+            '#e6aa04',
+            '#a87821',
+            '#676767',
         ];
         $number = ($number-1) % count($colors);
 

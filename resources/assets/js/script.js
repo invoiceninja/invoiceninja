@@ -1271,3 +1271,19 @@ function pad(n, width, z) {
     n = n + '';
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
+
+function brewerColor(number) {
+    var colors = [
+        '#1c9f77',
+        '#d95d02',
+        '#716cb1',
+        '#e62a8b',
+        '#5fa213',
+        '#e6aa04',
+        '#a87821',
+        '#676767',
+    ];
+    var number = (number-1) % colors.length;
+
+    return colors[number];
+}

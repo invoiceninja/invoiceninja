@@ -5,6 +5,10 @@
 
     <style type="text/css">
 
+        .form-control {
+            margin-bottom: 20px;
+        }
+
         a:focus {
             outline: none;
         }
@@ -33,9 +37,14 @@
             content: "";
         }
 
-        .list-group-item-type1:before {
-            background-color: purple;
-        }
+        .list-group-item-type1:before { background-color: #1c9f77; }
+        .list-group-item-type2:before { background-color: #d95d02; }
+        .list-group-item-type3:before { background-color: #716cb1; }
+        .list-group-item-type4:before { background-color: #e62a8b; }
+        .list-group-item-type5:before { background-color: #5fa213; }
+        .list-group-item-type6:before { background-color: #e6aa04; }
+        .list-group-item-type7:before { background-color: #a87821; }
+        .list-group-item-type8:before { background-color: #676767; }
 
     </style>
 
@@ -92,8 +101,8 @@
 
             <!-- Task List -->
             <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
-                <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask(), event: { mouseover: showActionButton, mouseout: hideActionButton }"
-                    class="list-group-item list-group-item-type1">
+                <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask(), event: { mouseover: showActionButton, mouseout: hideActionButton }, css: projectColor"
+                    class="list-group-item">
                     <div class="pull-right" style="text-align:right;">
                         <div data-bind="visible: actionButtonVisible()"
                             data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
@@ -305,6 +314,15 @@
                     self.addTime(time);
                 }
             }
+
+            self.projectColor = ko.computed(function() {
+                if (! self.project) {
+                    return '';
+                }
+                var projectId = self.project.public_id();
+                var colorNum = (projectId-1) % 8;
+                return 'list-group-item-type' + (colorNum+1);
+            });
 
             self.isRunning = ko.computed(function() {
                 if (! self.time_log().length) {

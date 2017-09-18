@@ -70,7 +70,7 @@ class ExpensePresenter extends EntityPresenter
         if ($subColors && $expense->expense_category_id) {
             $data->borderColor = $data->backgroundColor = Utils::brewerColor($expense->expense_category->public_id);
         } else {
-            $data->borderColor = $data->backgroundColor = '#e41a1c';
+            $data->borderColor = $data->backgroundColor = '#d95d02';
         }
 
         return $data;

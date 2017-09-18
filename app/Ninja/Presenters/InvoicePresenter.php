@@ -336,7 +336,7 @@ class InvoicePresenter extends EntityPresenter
         if ($subColors) {
             $data->borderColor = $data->backgroundColor = $invoice->present()->statusColor();
         } else {
-            $data->borderColor = $data->backgroundColor = $invoice->isQuote() ? '#984ea3' : '#377eb8';
+            $data->borderColor = $data->backgroundColor = $invoice->isQuote() ? '#716cb1' : '#377eb8';
         }
 
         return $data;

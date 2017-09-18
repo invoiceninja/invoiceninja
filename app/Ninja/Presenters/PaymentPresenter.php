@@ -58,7 +58,7 @@ class PaymentPresenter extends EntityPresenter
         if ($subColors) {
             $data->borderColor = $data->backgroundColor = Utils::brewerColor($payment->payment_status_id);
         } else {
-            $data->borderColor = $data->backgroundColor = '#4daf4a';
+            $data->borderColor = $data->backgroundColor = '#5fa213';
         }
 
         return $data;
