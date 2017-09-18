@@ -9,7 +9,7 @@
 
 @section('head_css')
     @parent
-    
+
     <style type="text/css">
 
         .form-control {
@@ -298,16 +298,24 @@
 
             self.matchesFilter = function(filter) {
                 filter = filter.toLowerCase();
-                if (self.description().toLowerCase().indexOf(filter) >= 0) {
-                    return true;
-                }
-                if (self.project && self.project.name().toLowerCase().indexOf(filter) >= 0) {
-                    return true;
-                }
-                if (self.client && self.client.displayName().toLowerCase().indexOf(filter) >= 0) {
-                    return true;
-                }
-                return false;
+				var parts = filter.split(' ');
+				for (var i=0; i<parts.length; i++) {
+					var part = parts[i];
+					var isMatch = false;
+	                if (self.description().toLowerCase().indexOf(part) >= 0) {
+	                    isMatch = true;
+	                }
+	                if (self.project && self.project.name().toLowerCase().indexOf(part) >= 0) {
+	                    isMatch = true;
+	                }
+	                if (self.client && self.client.displayName().toLowerCase().indexOf(part) >= 0) {
+	                    isMatch = true;
+	                }
+					if (! isMatch) {
+						return false;
+					}
+				}
+                return true;
             }
 
             self.onStartClick = function() {
