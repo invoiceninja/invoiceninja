@@ -94,18 +94,20 @@
             <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
                 <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask(), event: { mouseover: showActionButton, mouseout: hideActionButton }"
                     class="list-group-item list-group-item-type1">
-                    <span class="pull-right">
-                        <span>
-                            <span data-bind="text: duration"></span><br/>
-                            <span data-bind="text: age"></span>
-                        </span>
-                        <span data-bind="visible: actionButtonVisible()" data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
+                    <div class="pull-right" style="text-align:right;">
+                        <div data-bind="visible: actionButtonVisible()"
+                            data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
                             &nbsp;&nbsp;
-                            <button type='button' class="btn btn-sm btn-success" style="padding-left:0px">
-                                <span class="glyphicon glyphicon-play"></span>
+                            <button type="button" data-bind="css: startClass"
+                                class="btn btn-sm" style="padding-left:0px; margin-top:5px;">
+                                <span data-bind="css: startIcon"></span>
                             </button>
-                        </span>
-                    </span>
+                        </div>
+                    </div>
+                    <div class="pull-right" style="text-align:right">
+                        <div data-bind="text: duration"></div>
+                        <div data-bind="text: age" style="padding-top: 2px"></div>
+                    </div>
                     <h4 class="list-group-item-heading" data-bind="text: description"></h4>
                     <p class="list-group-item-text">
                         <span class="link" data-bind="text: client.displayName, click: $parent.viewClient, clickBubble: false"></span>
@@ -182,11 +184,7 @@
 
             self.startIcon = ko.computed(function() {
                 if (self.selectedTask()) {
-                    if (self.selectedTask().isRunning()) {
-                        return 'glyphicon glyphicon-stop';
-                    } else {
-                        return 'glyphicon glyphicon-play';
-                    }
+                    return self.selectedTask().startIcon();
                 } else {
                     return 'glyphicon glyphicon-play';
                 }
@@ -206,11 +204,7 @@
 
             self.startClass = ko.computed(function() {
                 if (self.selectedTask()) {
-                    if (self.selectedTask().isRunning()) {
-                        return 'btn-danger';
-                    } else {
-                        return 'btn-success';
-                    }
+                    return self.selectedTask().startClass();
                 } else {
                     return 'btn-success';
                 }
@@ -308,6 +302,14 @@
                 var timeLog = self.time_log();
                 var time = timeLog[timeLog.length-1];
                 return time.isRunning();
+            });
+
+            self.startClass = ko.computed(function() {
+                return self.isRunning() ? 'btn-danger' : 'btn-success';
+            });
+
+            self.startIcon = ko.computed(function() {
+                return self.isRunning() ? 'glyphicon glyphicon-stop' : 'glyphicon glyphicon-play';
             });
 
             self.age = ko.computed(function() {
