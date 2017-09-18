@@ -250,14 +250,23 @@
             });
 
             self.filteredTasks = ko.computed(function() {
+
+				// filter the data
                 if(! self.filter()) {
-                    return self.tasks();
+                    var tasks = self.tasks();
                 } else {
                     var filtered = ko.utils.arrayFilter(self.tasks(), function(task) {
                         return task.matchesFilter(self.filter());
                     });
-                    return filtered.length == 0 ? self.tasks() : filtered;
+                    var tasks = filtered.length == 0 ? self.tasks() : filtered;
                 }
+
+				// sort the data
+				tasks.sort(function (left, right) {
+					return right.firstTime().order() - left.firstTime().order()
+				});
+
+				return tasks;
             });
 
             self.addTask = function(task) {
@@ -340,8 +349,7 @@
 
             self.onStartClick = function() {
                 if (self.isRunning()) {
-                    var times = self.time_log();
-                    var time = times[times.length-1];
+                    var time = self.lastTime();
                     time.endTime(moment().unix());
                 } else {
                     var time = new TimeModel();
@@ -385,14 +393,23 @@
             });
 
 			self.description.truncated = ko.computed(function() {
-				return truncate(self.description(), 80);
+				return truncate(self.description(), 50);
             });
+
+			self.firstTime = function() {
+				return self.time_log()[0];
+			}
+
+			self.lastTime = function() {
+				var times = self.time_log();
+				return times[times.length-1];
+			}
 
             self.age = ko.computed(function() {
                 if (! self.time_log().length) {
                     return '';
                 }
-                var time = self.time_log()[0];
+                var time = self.firstTime();
                 return time.age();
             });
 
@@ -401,8 +418,7 @@
                 if (! self.time_log().length) {
                     return '0:00:00';
                 }
-                var times = self.time_log();
-                var time = times[times.length - 1];
+                var time = self.lastTime();
                 var now = new Date().getTime();
                 var duration = 0;
                 if (time.isRunning()) {
@@ -494,6 +510,10 @@
                 self.startTime(data[0]);
                 self.endTime(data[1]);
             };
+
+			self.order = ko.computed(function() {
+				return self.startTime();
+			});
 
             self.isEmpty = ko.computed(function() {
                 return !self.startTime() && !self.endTime();
