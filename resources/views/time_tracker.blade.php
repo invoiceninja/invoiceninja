@@ -139,8 +139,9 @@
                     <h4 class="list-group-item-heading" data-bind="text: description"></h4>
                     <p class="list-group-item-text">
                         <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
-                        <span data-bind="visible: clientName &amp;&amp; projectName &amp;&amp; project.name"> | </span>
+                        <span data-bind="visible: clientName &amp;&amp; projectName"> | </span>
                         <span class="link" data-bind="text: projectName, click: $parent.viewProject, clickBubble: false"></span>
+						&nbsp;
                     </p>
                 </a>
             </div>
@@ -626,8 +627,8 @@
 					$('input[name=project_name]').val(projectName);
 				} else if (projectId) {
 					var project = projectMap[projectId];
-					model.selectedTask().project_id(projectId);
 					model.selectedTask().project = new ProjectModel(project);
+					model.selectedTask().project_id(projectId);
 					// when selecting a project make sure the client is loaded
 					if (project && project.client) {
 						var client = clientMap[project.client.public_id];
