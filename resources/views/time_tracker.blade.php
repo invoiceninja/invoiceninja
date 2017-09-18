@@ -120,8 +120,8 @@
                     <h4 class="list-group-item-heading" data-bind="text: description"></h4>
                     <p class="list-group-item-text">
                         <span class="link" data-bind="text: client.displayName, click: $parent.viewClient, clickBubble: false"></span>
-                        <span data-bind="visible: client.displayName &amp;&amp; project.name"> | </span>
-                        <span class="link" data-bind="text: project.name, click: $parent.viewProject, clickBubble: false"></span>
+                        <span data-bind="visible: client.displayName &amp;&amp; project &amp;&amp; project.name"> | </span>
+                        <span class="link" data-bind="text: project ? project.name : '&nbsp;', click: $parent.viewProject, clickBubble: false"></span>
                     </p>
                 </a>
             </div>
@@ -263,7 +263,7 @@
                 },
                 'project': {
                     create: function(data) {
-                        return new ProjectModel(data.data);
+                        return data.data ? new ProjectModel(data.data) : null;
                     }
                 },
             }
