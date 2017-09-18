@@ -121,7 +121,7 @@
             <!-- Task List -->
             <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
                 <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask(), event: { mouseover: showActionButton, mouseout: hideActionButton }, css: projectColor"
-                    class="list-group-item">
+                    class="list-group-item" stylex="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                     <div class="pull-right" style="text-align:right;">
                         <div data-bind="visible: actionButtonVisible()"
                             data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
@@ -393,7 +393,7 @@
             });
 
 			self.description.truncated = ko.computed(function() {
-				return truncate(self.description(), 50);
+				return truncate(self.description(), self.actionButtonVisible() ? 60 : 80);
             });
 
 			self.firstTime = function() {
