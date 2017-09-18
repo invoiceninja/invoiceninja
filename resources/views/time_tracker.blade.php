@@ -1,8 +1,15 @@
 @extends('master')
 
-@section('head_css')
+@section('head')
+	@parent
+
     <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
 
+@stop
+
+@section('head_css')
+    @parent
+    
     <style type="text/css">
 
         .form-control {
