@@ -23,9 +23,13 @@
 		.list-group-item.active {
 			background-color: #f8f8f8 !important;
 			color: black !important;
-			border-color: #ccc !important;
+			xborder-color: #888 !important;
 			border-left-color: #f8f8f8 !important;
 			border-right-color: #f8f8f8 !important;
+
+			box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 1px 1px rgba(0,0,0,.2);
+    		border-color: #fff !important;
+}
 		}
 
         span.link {
@@ -105,7 +109,7 @@
 
             <!-- Task Form -->
             <div class="col-sm-7 col-sm-push-5">
-                <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px; margin-bottom:0px; display:none;">
+                <div class="xwell" data-bind="visible: selectedTask" style="margin:20px; display:none;">
                     <div class="panel panel-default">
                         <div class="panel-body">
 							<form id="taskForm">
@@ -123,7 +127,7 @@
 			                                    ->label(trans('texts.project')) !!}
 									</div>
 		                            {!! Former::textarea('description')
-		                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
+		                                    ->data_bind("value: selectedTask().description")
 		                                    ->rows(4) !!}
 								</span>
 
