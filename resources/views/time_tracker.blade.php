@@ -365,15 +365,29 @@
             }
 
             self.selectTask = function(task) {
-                //self.filter('');
-                self.selectedTask(task);
+
+				//self.selectedTask(new TaskModel());
+
+				refreshProjectList(true); // ensure all projects are shown
+				self.selectedTask(task);
+				if (! task.project()) {
+					$('select#client_id').trigger('change');
+				}
+				//$('select#client_id').trigger('change');
+
+				/*
+				$('select#client_id').trigger('change')
+				var publicId = task.project() ? task.project().public_id() : 0;
+				var name = task.project() ? task.project().name() : '';
+				setComboboxValue($('.project-select'), publicId, name);
+				*/
             }
         }
 
         function TaskModel(data) {
             var self = this;
 			self.public_id = ko.observable();
-            self.description = ko.observable('test');
+            self.description = ko.observable('');
             self.time_log = ko.observableArray();
 			self.client_id = ko.observable();
 			self.project_id = ko.observable();
@@ -560,6 +574,7 @@
         function ProjectModel(data) {
             var self = this;
             self.name = ko.observable('');
+			self.public_id = ko.observable(0);
 
             if (data) {
                 ko.mapping.fromJS(data, {}, this);
@@ -698,13 +713,35 @@
             */
         }
 
+		function refreshProjectList(forceClear) {
+			var clientId = $('input[name=client_id]').val();
+			$projectCombobox = $('select#project_id');
+			$projectCombobox.find('option').remove().end().combobox('refresh');
+			$projectCombobox.append(new Option('', ''));
+			@if (Auth::user()->can('create', ENTITY_PROJECT))
+				if (clientId) {
+					$projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
+				}
+			@endif
+
+			var list = (clientId && ! forceClear) ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []).concat(projectsForAllClients) : projects;
+
+			for (var i=0; i<list.length; i++) {
+				var project = list[i];
+				$projectCombobox.append(new Option(project.name,  project.public_id));
+			}
+			$('select#project_id').combobox('refresh');
+		}
+
+
+		var clientMap = {};
+		var projectMap = {};
+		var projectsForClientMap = {};
+		var projectsForAllClients = [];
+
         $(function() {
 
 			// setup clients and project comboboxes
-			var clientMap = {};
-			var projectMap = {};
-			var projectsForClientMap = {};
-			var projectsForAllClients = [];
 			var $clientSelect = $('select#client_id');
 
 			for (var i=0; i<projects.length; i++) {
@@ -739,36 +776,26 @@
 
 			$clientSelect.combobox();
 			$clientSelect.on('change', function(e) {
+				console.log('onClientChange...');
 				var clientId = $('input[name=client_id]').val();
 				var projectId = $('input[name=project_id]').val();
 				var client = clientMap[clientId];
 				var project = projectMap[projectId];
-				if (!clientId && (window.model && !model.selectedTask().client)) {
+				if (!clientId && (window.model && !model.selectedTask().client())) {
 					e.preventDefault();return;
 				}
+				/*
 				if (project && ((project.client && project.client.public_id == clientId) || !project.client)) {
 					e.preventDefault();return;
 				}
+				*/
 				if (window.model && model.selectedTask()) {
 					model.selectedTask().client(new ClientModel(client));
 					model.selectedTask().client_id(clientId);
 					model.selectedTask().project_id(0);
 					model.selectedTask().project(false);
 				}
-				$projectCombobox = $('select#project_id');
-				$projectCombobox.find('option').remove().end().combobox('refresh');
-				$projectCombobox.append(new Option('', ''));
-				@if (Auth::user()->can('create', ENTITY_PROJECT))
-					if (clientId) {
-						$projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
-					}
-				@endif
-				var list = clientId ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []).concat(projectsForAllClients) : projects;
-				for (var i=0; i<list.length; i++) {
-					var project = list[i];
-					$projectCombobox.append(new Option(project.name,  project.public_id));
-				}
-				$('select#project_id').combobox('refresh');
+				refreshProjectList();
 			});
 
 			var $projectSelect = $('select#project_id').on('change', function(e) {
