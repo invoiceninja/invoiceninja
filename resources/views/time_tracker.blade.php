@@ -104,7 +104,7 @@
                 <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px; margin-bottom:0px; display:none;">
                     <div class="panel panel-default">
                         <div class="panel-body">
-							<form id="taskForm">
+							<form id="taskForm" data-bind="event: { keypress: onFormKeyPress }">
 								<span class="client-select">
 		                            {!! Former::select('client_id')
 											->addOption('', '')
@@ -214,6 +214,9 @@
 					},
 					success: function(response) {
 						console.log(response);
+						//var task = new TaskModel(response);
+						self.selectedTask().update(response);
+						self.addTask(self.selectedTask());
 					},
 				});
 			}
@@ -235,9 +238,16 @@
                 self.selectedTask(false);
             }
 
-            self.onFilterKeyPress = function(data, event) {
+			self.onFilterKeyPress = function(data, event) {
                 if (event.which == 13) {
                     self.onStartClick();
+                }
+                return true;
+            }
+
+			self.onFormKeyPress = function(data, event) {
+                if (event.which == 13) {
+                    self.onSaveClick();
                 }
                 return true;
             }
@@ -371,13 +381,18 @@
                 },
             }
 
-            if (data) {
-                ko.mapping.fromJS(data, self.mapping, this);
+			self.update = function(data) {
+				var times = JSON.parse(data.time_log);
+				data.time_log = false;
+				ko.mapping.fromJS(data, self.mapping, this);
                 self.time_log = ko.observableArray();
-                data = JSON.parse(data.time_log);
-                for (var i=0; i<data.length; i++) {
-                    self.time_log.push(new TimeModel(data[i]));
+                for (var i=0; i<times.length; i++) {
+                    self.time_log.push(new TimeModel(times[i]));
                 }
+			}
+
+            if (data) {
+				self.update(data);
             }
 
             self.showActionButton = function() {
@@ -435,10 +450,10 @@
             });
 
             self.isRunning = ko.computed(function() {
-                if (! self.time_log().length) {
+				var timeLog = self.time_log();
+                if (! timeLog.length) {
                     return false;
                 }
-                var timeLog = self.time_log();
                 var time = timeLog[timeLog.length-1];
                 return time.isRunning();
             });
