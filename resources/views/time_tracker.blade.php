@@ -124,7 +124,7 @@
 								</span>
 
 								<center style="padding-top: 30px">
-									<span data-bind="visible: !!selectedTask().public_id">
+									<span data-bind="visible: selectedTask().isNew">
 										{!! DropdownButton::normal(trans('texts.archive'))
 											->withAttributes([
 												'class' => 'archive-dropdown',
@@ -138,7 +138,7 @@
 									{!! Button::normal(trans('texts.cancel'))
 										->appendIcon(Icon::create('remove-circle'))
 										->withAttributes([
-											'data-bind' => 'click: onCancelClick, visible: !selectedTask().public_id',
+											'data-bind' => 'click: onCancelClick, visible: selectedTask().isNew',
 										])
 										->large() !!}
 									&nbsp;
@@ -208,12 +208,17 @@
 					return;
 				}
 				var data = $('#taskForm').serialize();
-				var times = model.selectedTask().times();
-		        data += '&time_log=' + JSON.stringify(times);
+				var task = model.selectedTask();
+		        data += '&time_log=' + JSON.stringify(task.times());
 				var url = '{{ url('/tasks') }}';
+				var method = 'post';
+				if (task.public_id()) {
+					method = 'put';
+					url += '/' + task.public_id();
+				}
 				$.ajax({
 					dataType: 'json',
-					type: 'post',
+					type: method,
 					data: data,
 					url: url,
 					accepts: {
@@ -222,8 +227,11 @@
 					success: function(response) {
 						console.log(response);
 						//var task = new TaskModel(response);
+						var isNew = self.selectedTask().isNew();
 						self.selectedTask().update(response);
-						self.addTask(self.selectedTask());
+						if (isNew) {
+							self.addTask(self.selectedTask());
+						}
 					},
 				});
 			}
@@ -364,6 +372,7 @@
 
         function TaskModel(data) {
             var self = this;
+			self.public_id = ko.observable();
             self.description = ko.observable('test');
             self.time_log = ko.observableArray();
 			self.client_id = ko.observable();
@@ -387,7 +396,9 @@
                     }
                 },
 				'ignore': [
-					'time_log'
+					'time_log',
+					'client_id',
+					'project_id',
 				]
             }
 
@@ -404,6 +415,10 @@
             if (data) {
 				self.update(data);
             }
+
+			self.isNew = function() {
+				return ! self.public_id();
+			}
 
             self.showActionButton = function() {
                 self.actionButtonVisible(true);
