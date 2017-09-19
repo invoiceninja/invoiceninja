@@ -20,6 +20,14 @@
             outline: none;
         }
 
+		.list-group-item.active {
+			background-color: #f8f8f8 !important;
+			color: black !important;
+			border-color: #ccc !important;
+			border-left-color: #f8f8f8 !important;
+			border-right-color: #f8f8f8 !important;
+		}
+
         span.link {
             cursor:pointer;
             color:#0000EE;
@@ -153,7 +161,7 @@
 
             <!-- Task List -->
             <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
-                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: projectColor"
+                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
                     class="list-group-item" stylex="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                     <div class="pull-right" style="text-align:right;">
                         <div data-bind="visible: actionButtonVisible()"
@@ -224,10 +232,14 @@
 						console.log(response);
 						//var task = new TaskModel(response);
 						var task = self.selectedTask();
-						task.update(response);
+						//self.selectTask(task);
 						if (task.isNew()) {
 							self.addTask(task);
+						} else {
+							//self.removeTask(task.original);
+							//self.addTask(task);
 						}
+						task.update(response);
 					},
 				});
 			}
@@ -368,8 +380,11 @@
 
 				//var clone = new TaskModel(task.data);
 				//clone.original = task;
+				//self.selectedTask(clone);
 
 				self.selectedTask(task);
+				self.filter('');
+
 				if (! task.project()) {
 					$('select#client_id').trigger('change');
 				}
@@ -409,7 +424,7 @@
             }
 
 			self.update = function(data) {
-				self.data = data;				
+				self.data = data;
 				var times = JSON.parse(data.time_log);
 				data.time_log = false;
 				ko.mapping.fromJS(data, self.mapping, this);
@@ -487,13 +502,18 @@
                 }
             }
 
-            self.projectColor = ko.computed(function() {
+            self.listItemState = ko.computed(function() {
+				var str = '';
+				if (self == model.selectedTask()) {
+					str = 'active';
+				}
                 if (! self.project()) {
-                    return '';
+                    return str;
                 }
                 var projectId = self.project().public_id();
                 var colorNum = (projectId-1) % 8;
-                return 'list-group-item-type' + (colorNum+1);
+                return str + ' list-group-item-type' + (colorNum+1);
+
             });
 
             self.isRunning = ko.computed(function() {
@@ -522,7 +542,7 @@
             });
 
 			self.description.truncated = ko.computed(function() {
-				return truncate(self.description(), self.actionButtonVisible() ? 60 : 80);
+				return truncate(self.description(), self.actionButtonVisible() ? 35 : 60);
             });
 
 			self.createdAt = function() {
