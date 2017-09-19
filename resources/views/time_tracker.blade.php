@@ -153,7 +153,7 @@
 
             <!-- Task List -->
             <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
-                <a href="#" data-bind="click: $parent.selectTask, hasFocus: $data == $parent.selectedTask(), event: { mouseover: showActionButton, mouseout: hideActionButton }, css: projectColor"
+                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: projectColor"
                     class="list-group-item" stylex="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                     <div class="pull-right" style="text-align:right;">
                         <div data-bind="visible: actionButtonVisible()"
@@ -223,10 +223,10 @@
 					success: function(response) {
 						console.log(response);
 						//var task = new TaskModel(response);
-						var isNew = self.selectedTask().isNew();
-						self.selectedTask().update(response);
-						if (isNew) {
-							self.addTask(self.selectedTask());
+						var task = self.selectedTask();
+						task.update(response);
+						if (task.isNew()) {
+							self.addTask(task);
 						}
 					},
 				});
@@ -325,13 +325,6 @@
 
             self.placeholder = ko.computed(function() {
 				return "{{ trans('texts.what_are_you_working_on') }}";
-				/*
-                if (self.selectedTask() && self.selectedTask().description) {
-                    return self.selectedTask().description.truncated();
-                } else {
-                    return "{{ trans('texts.what_are_you_working_on') }}";
-                }
-				*/
             });
 
             self.filteredTasks = ko.computed(function() {
@@ -360,12 +353,22 @@
                 self.tasks.push(task);
             }
 
+			self.removeTask = function(task) {
+				console.log('remove:');
+				console.log(task);
+                self.tasks.remove(task);
+            }
+
             self.selectTask = function(task) {
 				// if a client is selected the project list will be filtered
 				// this prevents the new task's project from being show
 				// to fix it we're clearing the list and then firing a
 				// client change event to re-filter the list
 				refreshProjectList(true);
+
+				//var clone = new TaskModel(task.data);
+				//clone.original = task;
+
 				self.selectedTask(task);
 				if (! task.project()) {
 					$('select#client_id').trigger('change');
@@ -406,6 +409,7 @@
             }
 
 			self.update = function(data) {
+				self.data = data;				
 				var times = JSON.parse(data.time_log);
 				data.time_log = false;
 				ko.mapping.fromJS(data, self.mapping, this);
