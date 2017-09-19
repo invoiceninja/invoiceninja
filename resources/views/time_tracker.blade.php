@@ -365,22 +365,15 @@
             }
 
             self.selectTask = function(task) {
-
-				//self.selectedTask(new TaskModel());
-
-				refreshProjectList(true); // ensure all projects are shown
+				// if a client is selected the project list will be filtered
+				// this prevents the new task's project from being show
+				// to fix it we're clearing the list and then firing a
+				// client change event to re-filter the list
+				refreshProjectList(true);
 				self.selectedTask(task);
 				if (! task.project()) {
 					$('select#client_id').trigger('change');
 				}
-				//$('select#client_id').trigger('change');
-
-				/*
-				$('select#client_id').trigger('change')
-				var publicId = task.project() ? task.project().public_id() : 0;
-				var name = task.project() ? task.project().name() : '';
-				setComboboxValue($('.project-select'), publicId, name);
-				*/
             }
         }
 
