@@ -23,13 +23,11 @@
 		.list-group-item.active {
 			background-color: #f8f8f8 !important;
 			color: black !important;
-			xborder-color: #888 !important;
 			border-left-color: #f8f8f8 !important;
 			border-right-color: #f8f8f8 !important;
 
-			box-shadow: 0 0 0 1px rgba(0,0,0,.1), 0 1px 1px rgba(0,0,0,.2);
+			box-shadow: 0 0 0 2px rgba(0,0,0,.1), 0 2px 2px rgba(0,0,0,.2);
     		border-color: #fff !important;
-}
 		}
 
         span.link {
