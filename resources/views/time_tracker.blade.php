@@ -16,10 +16,6 @@
 			vertical-align: text-top;
 		}
 
-        .panel-body label:not(:first-child) {
-    		margin-top: 20px !important;
-		}
-
         a:focus {
             outline: none;
         }
@@ -106,18 +102,18 @@
                         <div class="panel-body">
 							<form id="taskForm">
 								<span data-bind="event: { keypress: onFormKeyPress }">
-									<span class="client-select">
+									<div style="padding-bottom: 20px" class="client-select">
 			                            {!! Former::select('client_id')
 												->addOption('', '')
 												->label('client')
 												->data_bind("dropdown: selectedTask().client_id") !!}
-									</span>
-									<span class="project-select">
+									</div>
+									<div style="padding-bottom: 20px" class="project-select">
 			                            {!! Former::select('project_id')
 			                                    ->addOption('', '')
 			                                    ->data_bind("dropdown: selectedTask().project_id")
 			                                    ->label(trans('texts.project')) !!}
-									</span>
+									</div>
 		                            {!! Former::textarea('description')
 		                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
 		                                    ->rows(4) !!}
@@ -769,7 +765,6 @@
 
 			$clientSelect.combobox();
 			$clientSelect.on('change', function(e) {
-				console.log('onClientChange...');
 				var clientId = $('input[name=client_id]').val();
 				var projectId = $('input[name=project_id]').val();
 				var client = clientMap[clientId];
@@ -777,11 +772,6 @@
 				if (!clientId && (window.model && !model.selectedTask().client())) {
 					e.preventDefault();return;
 				}
-				/*
-				if (project && ((project.client && project.client.public_id == clientId) || !project.client)) {
-					e.preventDefault();return;
-				}
-				*/
 				if (window.model && model.selectedTask()) {
 					model.selectedTask().client(new ClientModel(client));
 					model.selectedTask().client_id(clientId);
