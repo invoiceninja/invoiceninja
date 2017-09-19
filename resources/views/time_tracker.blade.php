@@ -95,9 +95,6 @@
 
     <div style="height:74px"></div>
 
-
-	<div data-bind="text: ko.toJSON(model.formChanged())"></div>
-
 	<!--
 	<div data-bind="text: ko.toJSON(model.selectedTask().client_id)"></div>
 	<div data-bind="text: ko.toJSON(model.selectedTask().client)"></div>
@@ -252,8 +249,13 @@
 
 			self.onCancelClick = function() {
 				sweetConfirm(function() {
-					self.selectedTask(false);
-					$('.search').focus();
+					var task = self.selectedTask();
+					if (task.isNew()) {
+						self.selectedTask(false);
+						$('.search').focus();
+					} else {
+						task.update(task.data);
+					}
 				});
 
 				return false;
