@@ -120,7 +120,7 @@
 								</span>
 
 								<center style="padding-top: 30px">
-									<span data-bind="visible: ! selectedTask().isNew">
+									<span data-bind="visible: selectedTask().isCreated">
 										{!! DropdownButton::normal(trans('texts.archive'))
 											->withAttributes([
 												'class' => 'archive-dropdown',
@@ -421,6 +421,10 @@
 
 			self.isNew = ko.computed(function() {
 				return ! self.public_id();
+			});
+
+			self.isCreated = ko.computed(function() {
+				return self.public_id();
 			});
 
             self.showActionButton = function() {
