@@ -242,7 +242,11 @@ class TaskController extends BaseController
             return self::bulk();
         }
 
-        return Redirect::to("tasks/{$task->public_id}/edit");
+        if (request()->wantsJson()) {
+            return $task->toJson();
+        } else {
+            return Redirect::to("tasks/{$task->public_id}/edit");
+        }
     }
 
     /**

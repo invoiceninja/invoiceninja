@@ -12,6 +12,10 @@
 
     <style type="text/css">
 
+		button .glyphicon {
+			vertical-align: text-top;
+		}
+
         .panel-body label:not(:first-child) {
     		margin-top: 20px !important;
 		}
@@ -75,7 +79,7 @@
                 <!-- Navbar Filter -->
                 <div class="input-group input-group-lg">
                     <span class="input-group-addon" style="width:1%;"><span class="glyphicon glyphicon-time"></span></span>
-                    <input type="text" class="form-control search" autocomplete="off" autofocus="autofocus"
+                    <input type="search" class="form-control search" autocomplete="off" autofocus="autofocus"
                         data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder}">
                 </div>
 
@@ -100,19 +104,50 @@
                 <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px; margin-bottom:0px; display:none;">
                     <div class="panel panel-default">
                         <div class="panel-body">
-                            {!! Former::select('client_id')
-									->addOption('', '')
-									->label('client')
-									->data_bind("dropdown: selectedTask().client_id")
-									->addGroupClass('client-select') !!}
-                            {!! Former::select('project_id')
-                                    ->addOption('', '')
-                                    ->addGroupClass('project-select')
-									->data_bind("dropdown: selectedTask().project_id")
-                                    ->label(trans('texts.project')) !!}
-                            {!! Former::textarea('description')
-                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
-                                    ->rows(4) !!}
+							<form id="taskForm">
+								<span class="client-select">
+		                            {!! Former::select('client_id')
+											->addOption('', '')
+											->label('client')
+											->data_bind("dropdown: selectedTask().client_id") !!}
+								</span>
+								<span class="project-select">
+		                            {!! Former::select('project_id')
+		                                    ->addOption('', '')
+		                                    ->data_bind("dropdown: selectedTask().project_id")
+		                                    ->label(trans('texts.project')) !!}
+								</span>
+	                            {!! Former::textarea('description')
+	                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
+	                                    ->rows(4) !!}
+
+								<center style="padding-top: 30px">
+									<span data-bind="visible: !!selectedTask().public_id">
+										{!! DropdownButton::normal(trans('texts.archive'))
+											->withAttributes([
+												'class' => 'archive-dropdown',
+											])
+											->large()
+											->withContents([
+											  ['label' => trans('texts.delete_task'), 'url' => '#'],
+											]
+										  )->split() !!}
+									</span>
+									{!! Button::normal(trans('texts.cancel'))
+										->appendIcon(Icon::create('remove-circle'))
+										->withAttributes([
+											'data-bind' => 'click: onCancelClick, visible: !selectedTask().public_id',
+										])
+										->large() !!}
+									&nbsp;
+									{!! Button::success(trans('texts.save'))
+											->large()
+											->appendIcon(Icon::create('floppy-disk'))
+											->withAttributes([
+												'data-bind' => 'click: onSaveClick',
+											]) !!}
+								</center>
+							</form>
                         </div>
                     </div>
                 </div>
@@ -127,7 +162,7 @@
                             data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
                             &nbsp;&nbsp;
                             <button type="button" data-bind="css: startClass, click: onStartClick"
-                                class="btn btn-sm" style="padding-left:0px; padding-right: 12px; margin-top:5px;">
+                                class="btn btn-sm" style="padding-left:0px; padding-right: 12px; padding-bottom: 6px; margin-top:5px;">
                                 <span data-bind="css: startIcon"></span>
                             </button>
                         </div>
@@ -166,6 +201,32 @@
             self.selectedTask = ko.observable(false);
             self.clock = ko.observable(0);
 
+			self.onSaveClick = function() {
+				var data = $('#taskForm').serialize();
+				var url = '{{ url('/tasks') }}';
+				$.ajax({
+					dataType: 'json',
+					type: 'post',
+					data: data,
+					url: url,
+					accepts: {
+						json: 'application/json'
+					},
+					success: function(response) {
+						console.log(response);
+					},
+				});
+			}
+
+			self.onCancelClick = function() {
+				sweetConfirm(function() {
+					self.selectedTask(false);
+					$('.search').focus();
+				});
+
+				return false;
+			}
+
             self.onFilterFocus = function(data) {
                 self.selectedTask(false);
             }
@@ -200,9 +261,9 @@
                     var task = new TaskModel();
                     task.description(self.filter());
                     task.addTime(time);
-                    self.addTask(task);
                     self.selectedTask(task);
                     self.filter('');
+					$('.client-select input.form-control').focus();
                 }
             }
 
@@ -242,11 +303,14 @@
             });
 
             self.placeholder = ko.computed(function() {
+				return "{{ trans('texts.what_are_you_working_on') }}";
+				/*
                 if (self.selectedTask() && self.selectedTask().description) {
                     return self.selectedTask().description.truncated();
                 } else {
                     return "{{ trans('texts.what_are_you_working_on') }}";
                 }
+				*/
             });
 
             self.filteredTasks = ko.computed(function() {
@@ -263,7 +327,9 @@
 
 				// sort the data
 				tasks.sort(function (left, right) {
-					return right.firstTime().order() - left.firstTime().order()
+					right = right.firstTime() ? right.firstTime().order() : right.createdAt();
+					left = left.firstTime() ? left.firstTime().order() : left.createdAt();
+					return right - left;
 				});
 
 				return tasks;
@@ -288,6 +354,7 @@
             self.client = ko.observable();
             self.project = ko.observable();
             self.actionButtonVisible = ko.observable(false);
+			self.created_at = ko.observable(moment().unix());
 
             self.mapping = {
                 'client': {
@@ -395,6 +462,10 @@
 			self.description.truncated = ko.computed(function() {
 				return truncate(self.description(), self.actionButtonVisible() ? 60 : 80);
             });
+
+			self.createdAt = function() {
+				return moment(self.created_at()).unix();
+			}
 
 			self.firstTime = function() {
 				return self.time_log()[0];
