@@ -256,6 +256,7 @@
 					} else {
 						task.update(task.data);
 					}
+					self.formChanged(false);
 				});
 
 				return false;
