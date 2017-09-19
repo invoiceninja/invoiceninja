@@ -32,7 +32,7 @@
 
         span.link {
             cursor:pointer;
-            color:#0000EE;
+            color:#337ab7;
             text-decoration:none;
         }
 
