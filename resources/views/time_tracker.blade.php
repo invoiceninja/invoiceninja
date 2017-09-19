@@ -169,7 +169,7 @@
                         <div data-bind="visible: actionButtonVisible()"
                             data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
                             &nbsp;&nbsp;
-                            <button type="button" data-bind="css: startClass, click: onStartClick"
+                            <button type="button" data-bind="css: startClass, click: onStartClick, clickBubble: false"
                                 class="btn btn-sm" style="padding-left:0px; padding-right: 12px; padding-bottom: 6px; margin-top:5px;">
                                 <span data-bind="css: startIcon"></span>
                             </button>
