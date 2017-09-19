@@ -104,22 +104,24 @@
                 <div class="well" data-bind="visible: selectedTask" style="padding-bottom:0px; margin-bottom:0px; display:none;">
                     <div class="panel panel-default">
                         <div class="panel-body">
-							<form id="taskForm" data-bind="event: { keypress: onFormKeyPress }">
-								<span class="client-select">
-		                            {!! Former::select('client_id')
-											->addOption('', '')
-											->label('client')
-											->data_bind("dropdown: selectedTask().client_id") !!}
+							<form id="taskForm">
+								<span data-bind="event: { keypress: onFormKeyPress }">
+									<span class="client-select">
+			                            {!! Former::select('client_id')
+												->addOption('', '')
+												->label('client')
+												->data_bind("dropdown: selectedTask().client_id") !!}
+									</span>
+									<span class="project-select">
+			                            {!! Former::select('project_id')
+			                                    ->addOption('', '')
+			                                    ->data_bind("dropdown: selectedTask().project_id")
+			                                    ->label(trans('texts.project')) !!}
+									</span>
+		                            {!! Former::textarea('description')
+		                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
+		                                    ->rows(4) !!}
 								</span>
-								<span class="project-select">
-		                            {!! Former::select('project_id')
-		                                    ->addOption('', '')
-		                                    ->data_bind("dropdown: selectedTask().project_id")
-		                                    ->label(trans('texts.project')) !!}
-								</span>
-	                            {!! Former::textarea('description')
-	                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
-	                                    ->rows(4) !!}
 
 								<center style="padding-top: 30px">
 									<span data-bind="visible: !!selectedTask().public_id">
