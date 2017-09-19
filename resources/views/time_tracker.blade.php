@@ -95,6 +95,9 @@
 
     <div style="height:74px"></div>
 
+
+	<div data-bind="text: ko.toJSON(model.formChanged())"></div>
+
 	<!--
 	<div data-bind="text: ko.toJSON(model.selectedTask().client_id)"></div>
 	<div data-bind="text: ko.toJSON(model.selectedTask().client)"></div>
@@ -111,7 +114,7 @@
                     <div class="panel panel-default">
                         <div class="panel-body">
 							<form id="taskForm">
-								<span data-bind="event: { keypress: onFormKeyPress }">
+								<span data-bind="event: { keypress: onFormKeyPress, change: onFormChange, input: onFormChange }">
 									<div style="padding-bottom: 20px" class="client-select">
 			                            {!! Former::select('client_id')
 												->addOption('', '')
@@ -130,7 +133,7 @@
 								</span>
 
 								<center style="padding-top: 30px">
-									<span data-bind="visible: selectedTask().isCreated">
+									<span data-bind="visible: showArchive">
 										{!! DropdownButton::normal(trans('texts.archive'))
 											->withAttributes([
 												'class' => 'archive-dropdown',
@@ -144,7 +147,7 @@
 									{!! Button::normal(trans('texts.cancel'))
 										->appendIcon(Icon::create('remove-circle'))
 										->withAttributes([
-											'data-bind' => 'click: onCancelClick, visible: selectedTask().isNew',
+											'data-bind' => 'click: onCancelClick, visible: showCancel',
 										])
 										->large() !!}
 									&nbsp;
@@ -208,6 +211,7 @@
             self.filter = ko.observable('');
             self.selectedTask = ko.observable(false);
             self.clock = ko.observable(0);
+			self.formChanged = ko.observable(false);
 
 			self.onSaveClick = function() {
 				if (! model.selectedTask()) {
@@ -270,6 +274,11 @@
                 return true;
             }
 
+			self.onFormChange = function(data, event) {
+				self.formChanged(true);
+                return true;
+            }
+
 			self.onFormKeyPress = function(data, event) {
                 if (event.which == 13) {
                     self.onSaveClick();
@@ -308,6 +317,22 @@
                     model.tock();
                 }, 1000);
             }
+
+			self.showArchive = ko.computed(function() {
+				var task = self.selectedTask();
+				if (! task) {
+					return false;
+				}
+				return task.isCreated() && ! self.formChanged();
+			});
+
+			self.showCancel = ko.computed(function() {
+				var task = self.selectedTask();
+				if (! task) {
+					return false;
+				}
+				return task.isNew() || self.formChanged();
+			});
 
             self.startIcon = ko.computed(function() {
                 if (self.selectedTask()) {
@@ -480,11 +505,17 @@
 	                if (self.description().toLowerCase().indexOf(part) >= 0) {
 	                    isMatch = true;
 	                }
-	                if (self.project() && self.project().name().toLowerCase().indexOf(part) >= 0) {
-	                    isMatch = true;
+	                if (self.project()) {
+						var projectName = self.project().name();
+						if (projectName && projectName.toLowerCase().indexOf(part) >= 0) {
+	                    	isMatch = true;
+						}
 	                }
-	                if (self.client() && self.client().displayName().toLowerCase().indexOf(part) >= 0) {
-	                    isMatch = true;
+	                if (self.client()) {
+						var clientName = self.client().displayName();
+						if (clientName && clientName.toLowerCase().indexOf(part) >= 0) {
+	                    	isMatch = true;
+						}
 	                }
 					if (! isMatch) {
 						return false;
