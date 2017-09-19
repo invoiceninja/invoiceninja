@@ -202,7 +202,12 @@
             self.clock = ko.observable(0);
 
 			self.onSaveClick = function() {
+				if (! model.selectedTask()) {
+					return;
+				}
 				var data = $('#taskForm').serialize();
+				var times = model.selectedTask().times();
+		        data += '&time_log=' + JSON.stringify(times);
 				var url = '{{ url('/tasks') }}';
 				$.ajax({
 					dataType: 'json',
@@ -379,14 +384,17 @@
                         return data.data ? new ProjectModel(data.data) : null;
                     }
                 },
+				'ignore': [
+					'time_log'
+				]
             }
 
 			self.update = function(data) {
 				var times = JSON.parse(data.time_log);
 				data.time_log = false;
 				ko.mapping.fromJS(data, self.mapping, this);
-                self.time_log = ko.observableArray();
-                for (var i=0; i<times.length; i++) {
+				self.time_log.removeAll();
+				for (var i=0; i<times.length; i++) {
                     self.time_log.push(new TimeModel(times[i]));
                 }
 			}
@@ -406,6 +414,17 @@
             self.addTime = function(time) {
                 self.time_log.push(time);
             }
+
+			self.times = function() {
+				var times = [];
+				for (var i=0; i<self.time_log().length; i++) {
+		            var timeLog = self.time_log()[i];
+		            if (! timeLog.isEmpty()) {
+		                times.push([timeLog.startTime(),timeLog.endTime()]);
+		            }
+				}
+				return times;
+			}
 
             self.matchesFilter = function(filter) {
                 filter = filter.toLowerCase();
