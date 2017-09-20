@@ -439,7 +439,6 @@
             self.project = ko.observable();
             self.actionButtonVisible = ko.observable(false);
 			self.created_at = ko.observable(moment().format('YYYY-MM-DD HH:mm:ss'));
-			console.log('self.created_at: ' + self.created_at());
 
             self.mapping = {
 				'client': {
@@ -480,7 +479,6 @@
 				for (var i=0; i<times.length; i++) {
                     self.time_log.push(new TimeModel(times[i]));
                 }
-				console.log('self.created_at [updated]: ' + self.created_at());
 			}
 
             if (data) {
@@ -559,9 +557,6 @@
 
             self.listItemState = ko.computed(function() {
 				var str = '';
-				if (! model.selectedTask()) {
-					return str;
-				}
 				if (self == model.selectedTask()) {
 					str = 'active';
 				}
