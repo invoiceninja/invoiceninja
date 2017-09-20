@@ -151,7 +151,7 @@
 											->large()
 											->appendIcon(Icon::create('floppy-disk'))
 											->withAttributes([
-												'data-bind' => 'click: onSaveClick',
+												'data-bind' => 'click: onSaveClick, css: { disabled: ! formChanged() }',
 											]) !!}
 								</center>
 							</form>
@@ -210,7 +210,7 @@
 			self.formChanged = ko.observable(false);
 
 			self.onSaveClick = function() {
-				if (! model.selectedTask()) {
+				if (! model.selectedTask() || ! model.formChanged()) {
 					return;
 				}
 				var data = $('#taskForm').serialize();
