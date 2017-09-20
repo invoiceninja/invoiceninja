@@ -307,10 +307,14 @@ class TaskController extends BaseController
         } else {
             $count = $this->taskService->bulk($ids, $action);
 
-            $message = Utils::pluralize($action.'d_task', $count);
-            Session::flash('message', $message);
+            if (request()->wantsJson()) {
+                return response()->json($count);
+            } else {
+                $message = Utils::pluralize($action.'d_task', $count);
+                Session::flash('message', $message);
 
-            return $this->returnBulk($this->entityType, $action, $ids);
+                return $this->returnBulk($this->entityType, $action, $ids);
+            }
         }
     }
 

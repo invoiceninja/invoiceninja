@@ -136,7 +136,7 @@
 											])
 											->large()
 											->withContents([
-											  ['label' => trans('texts.delete_task'), 'url' => '#'],
+											  ['label' => trans('texts.delete_task'), 'url' => 'javascript:model.onDeleteClick()'],
 											]
 										  )->split() !!}
 									</span>
@@ -243,6 +243,55 @@
 						self.selectTask(task);
 					},
 				});
+			}
+
+			self.submitBulkAction = function(data, cb) {
+				$.ajax({
+					dataType: 'json',
+					type: 'post',
+					data: data,
+					url: '{{ url('/tasks/bulk') }}',
+					accepts: {
+						json: 'application/json'
+					},
+					success: function(response) {
+						console.log(response);
+						cb();
+					},
+					error: function(error) {
+						console.log(error);
+					}
+				});
+
+			}
+
+			self.onDeleteClick = function() {
+				sweetConfirm(function() {
+
+				}, "{{ trans('texts.delete_task') }}");
+
+				return false;
+			}
+
+			self.onArchiveClick = function() {
+				sweetConfirm(function() {
+					var task = self.selectedTask();
+					if (! task) {
+						return false;
+					}
+					var data = {
+						id: task.public_id(),
+						action: 'archive',
+					}
+					self.submitBulkAction(data, function() {
+						console.log('removing: ' + task);
+						var task = self.selectedTask();
+						self.removeTask(task);
+						self.selectTask(false);
+					});
+				}, "{{ trans('texts.archive_task') }}");
+
+				return false;
 			}
 
 			self.onCancelClick = function() {
@@ -425,7 +474,7 @@
 				self.selectedTask(task);
 				//self.filter('');
 
-				if (! task.project()) {
+				if (task && ! task.project()) {
 					$('select#client_id').trigger('change');
 				}
 
@@ -905,6 +954,10 @@
 			}
 			ko.applyBindings(model);
 			model.tock();
+
+			$('.archive-dropdown:not(.dropdown-toggle)').click(function() {
+				model.onArchiveClick();
+			});
         });
 
     </script>
