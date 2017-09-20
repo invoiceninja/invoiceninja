@@ -283,6 +283,9 @@
 
 			self.onFormKeyPress = function(data, event) {
                 if (event.which == 13) {
+					if (event.target.type == 'textarea') {
+						return true;
+					}
                     self.onSaveClick();
                 }
                 return true;
