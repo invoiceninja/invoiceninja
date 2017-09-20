@@ -25,7 +25,6 @@
 			color: black !important;
 			border-left-color: #f8f8f8 !important;
 			border-right-color: #f8f8f8 !important;
-
 			box-shadow: 0 0 0 2px rgba(0,0,0,.1), 0 2px 2px rgba(0,0,0,.2);
     		border-color: #fff !important;
 		}
@@ -235,13 +234,12 @@
 						console.log(response);
 						var task = self.selectedTask();
 						if (task.isNew()) {
-							self.addTask(task);
+							//self.addTask(task);
 						} else {
-							self.removeTask(task.original);
-							self.addTask(task);
+							//self.removeTask(task.original);
+							//self.addTask(task);
 						}
 						task.update(response);
-						//self.formChanged(false);
 						self.selectTask(task);
 					},
 				});
@@ -302,6 +300,11 @@
             self.onStartClick = function() {
                 if (self.selectedTask()) {
                     self.selectedTask().onStartClick();
+					/*
+					if (self.selectedTask().original) {
+						self.selectedTask().original.onStartClick();
+					}
+					*/
                 } else {
                     var time = new TimeModel();
                     time.startTime(moment().unix());
@@ -309,6 +312,7 @@
                     task.description(self.filter());
                     task.addTime(time);
                     self.selectedTask(task);
+					self.addTask(task);
                     self.filter('');
 					$('.client-select input.form-control').focus();
                 }
@@ -383,9 +387,12 @@
 
 				// sort the data
 				tasks.sort(function (left, right) {
+					return right.createdAt() - left.createdAt();
+					/*
 					right = right.firstTime() ? right.firstTime().order() : right.createdAt();
 					left = left.firstTime() ? left.firstTime().order() : left.createdAt();
 					return right - left;
+					*/
 				});
 
 				return tasks;
@@ -406,11 +413,11 @@
 				// client change event to re-filter the list
 				refreshProjectList(true);
 
-				var clone = new TaskModel(task.data);
-				clone.original = task;
-				self.selectedTask(clone);
+				//var clone = new TaskModel(task.data);
+				//clone.original = task;
+				//self.selectedTask(clone);
 
-				//self.selectedTask(task);
+				self.selectedTask(task);
 				//self.filter('');
 
 				if (! task.project()) {
@@ -431,7 +438,8 @@
             self.client = ko.observable();
             self.project = ko.observable();
             self.actionButtonVisible = ko.observable(false);
-			self.created_at = ko.observable(moment().unix());
+			self.created_at = ko.observable(moment().format('YYYY-MM-DD HH:mm:ss'));
+			console.log('self.created_at: ' + self.created_at());
 
             self.mapping = {
 				'client': {
@@ -472,6 +480,7 @@
 				for (var i=0; i<times.length; i++) {
                     self.time_log.push(new TimeModel(times[i]));
                 }
+				console.log('self.created_at [updated]: ' + self.created_at());
 			}
 
             if (data) {
@@ -550,6 +559,9 @@
 
             self.listItemState = ko.computed(function() {
 				var str = '';
+				if (! model.selectedTask()) {
+					return str;
+				}
 				if (self == model.selectedTask()) {
 					str = 'active';
 				}
