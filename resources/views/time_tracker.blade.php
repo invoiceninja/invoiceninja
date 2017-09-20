@@ -250,6 +250,7 @@
 					var task = self.selectedTask();
 					if (task.isNew()) {
 						self.selectedTask(false);
+						self.removeTask(task);
 						$('.search').focus();
 					} else {
 						task.update(task.data);
@@ -400,6 +401,7 @@
 
             self.addTask = function(task) {
                 self.tasks.push(task);
+				self.formChanged(true);
             }
 
 			self.removeTask = function(task) {
