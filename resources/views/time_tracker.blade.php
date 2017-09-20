@@ -254,7 +254,10 @@
 						self.selectedTask(false);
 						$('.search').focus();
 					} else {
+						//console.log(task.data.client)
+						//console.log('before: ' + task.client_id());
 						task.update(task.data);
+						//console.log('after: ' + task.client_id());
 					}
 					self.formChanged(false);
 				});
@@ -413,11 +416,13 @@
 				//self.selectedTask(clone);
 
 				self.selectedTask(task);
-				self.filter('');
+				//self.filter('');
 
 				if (! task.project()) {
 					$('select#client_id').trigger('change');
 				}
+
+				self.formChanged(false);
             }
         }
 
@@ -434,14 +439,20 @@
 			self.created_at = ko.observable(moment().unix());
 
             self.mapping = {
-                'client': {
-                    create: function(data) {
+				'client': {
+					update: function(data) {
+						if (! data.data) {
+							return false;
+						};
 						self.client_id(data.data.public_id);
                         return new ClientModel(data.data);
                     }
                 },
                 'project': {
-                    create: function(data) {
+					update: function(data) {
+						if (! data.data) {
+							return false;
+						};
 						self.project_id(data.data.public_id);
                         return data.data ? new ProjectModel(data.data) : null;
                     }
