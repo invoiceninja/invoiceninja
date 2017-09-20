@@ -245,7 +245,14 @@
 				});
 			}
 
-			self.submitBulkAction = function(data, cb) {
+			self.submitBulkAction = function(action, task) {
+				if (! task || ! action) {
+					return false;
+				}
+				var data = {
+					id: task.public_id(),
+					action: action,
+				}
 				$.ajax({
 					dataType: 'json',
 					type: 'post',
@@ -256,18 +263,20 @@
 					},
 					success: function(response) {
 						console.log(response);
-						cb();
+						if (action == 'archive' || action == 'delete') {
+							self.removeTask(task);
+							self.selectTask(false);
+						}
 					},
 					error: function(error) {
 						console.log(error);
 					}
 				});
-
 			}
 
 			self.onDeleteClick = function() {
 				sweetConfirm(function() {
-
+					self.submitBulkAction('delete', self.selectedTask());
 				}, "{{ trans('texts.delete_task') }}");
 
 				return false;
@@ -275,20 +284,7 @@
 
 			self.onArchiveClick = function() {
 				sweetConfirm(function() {
-					var task = self.selectedTask();
-					if (! task) {
-						return false;
-					}
-					var data = {
-						id: task.public_id(),
-						action: 'archive',
-					}
-					self.submitBulkAction(data, function() {
-						console.log('removing: ' + task);
-						var task = self.selectedTask();
-						self.removeTask(task);
-						self.selectTask(false);
-					});
+					self.submitBulkAction('archive', self.selectedTask());
 				}, "{{ trans('texts.archive_task') }}");
 
 				return false;
