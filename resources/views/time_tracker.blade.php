@@ -236,10 +236,13 @@
 						var task = self.selectedTask();
 						if (task.isNew()) {
 							self.addTask(task);
+						} else {
+							self.removeTask(task.original);
+							self.addTask(task);
 						}
 						task.update(response);
-						self.formChanged(false);
-						//self.selectTask(task);
+						//self.formChanged(false);
+						self.selectTask(task);
 					},
 				});
 			}
@@ -403,11 +406,11 @@
 				// client change event to re-filter the list
 				refreshProjectList(true);
 
-				//var clone = new TaskModel(task.data);
-				//clone.original = task;
-				//self.selectedTask(clone);
+				var clone = new TaskModel(task.data);
+				clone.original = task;
+				self.selectedTask(clone);
 
-				self.selectedTask(task);
+				//self.selectedTask(task);
 				//self.filter('');
 
 				if (! task.project()) {
