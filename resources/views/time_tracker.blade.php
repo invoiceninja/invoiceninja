@@ -233,16 +233,13 @@
 					},
 					success: function(response) {
 						console.log(response);
-						//var task = new TaskModel(response);
 						var task = self.selectedTask();
-						//self.selectTask(task);
 						if (task.isNew()) {
 							self.addTask(task);
-						} else {
-							//self.removeTask(task.original);
-							//self.addTask(task);
 						}
 						task.update(response);
+						self.formChanged(false);
+						//self.selectTask(task);
 					},
 				});
 			}
@@ -254,10 +251,7 @@
 						self.selectedTask(false);
 						$('.search').focus();
 					} else {
-						//console.log(task.data.client)
-						//console.log('before: ' + task.client_id());
 						task.update(task.data);
-						//console.log('after: ' + task.client_id());
 					}
 					self.formChanged(false);
 				});
@@ -399,8 +393,6 @@
             }
 
 			self.removeTask = function(task) {
-				console.log('remove:');
-				console.log(task);
                 self.tasks.remove(task);
             }
 
@@ -442,20 +434,24 @@
 				'client': {
 					update: function(data) {
 						if (! data.data) {
+							self.client_id(0);
 							return false;
-						};
-						self.client_id(data.data.public_id);
-                        return new ClientModel(data.data);
+						} else {
+							self.client_id(data.data.public_id);
+                        	return new ClientModel(data.data);
+						}
                     }
                 },
                 'project': {
 					update: function(data) {
 						if (! data.data) {
+							self.project_id(0);
 							return false;
-						};
-						self.project_id(data.data.public_id);
-                        return data.data ? new ProjectModel(data.data) : null;
-                    }
+						} else {
+							self.project_id(data.data.public_id);
+                        	return new ProjectModel(data.data);
+						}
+                    },
                 },
 				'ignore': [
 					'time_log',

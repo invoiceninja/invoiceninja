@@ -243,7 +243,7 @@ class TaskController extends BaseController
         }
 
         if (request()->wantsJson()) {
-            return $task->toJson();
+            return $task->load(['client.contacts', 'project'])->toJson();
         } else {
             return Redirect::to("tasks/{$task->public_id}/edit");
         }
