@@ -12,28 +12,6 @@
 
     <style type="text/css">
 
-		#side-nav {
-		  position: fixed;
-		  width: 400px;
-		  height:100vh;
-		  left: 0;
-		  right: 0;
-		  overflow-y: auto;
-		  padding-right: 1px;
-		  top: 80px;
-		  xbackground-color: red;
-		}
-
-		#content-wrapper {
-		  margin: 60px 0px 0 400px;
-		  padding: 0 30px;
-		  overflow-y: auto;
-		  position: fixed;
-		  left: 0;
-		  top: 20px;
-		  height:100vh;
-		}
-
 		button .glyphicon {
 			vertical-align: text-top;
 		}
@@ -123,46 +101,12 @@
 	<div data-bind="text: ko.toJSON(model.selectedTask().project)"></div>
 	-->
 
-	<div>
-		<div id="side-nav">
+    <div class="container" style="margin: 0 auto;width: 100%;">
+        <div class="row no-gutter">
 
-			<!-- Task List -->
-			<div data-bind="foreach: filteredTasks">
-				<a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
-					class="list-group-item" stylex="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-					<div class="pull-right" style="text-align:right;">
-						<div data-bind="visible: actionButtonVisible()"
-							data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
-							&nbsp;&nbsp;
-							<button type="button" data-bind="css: startClass, click: onStartClick, clickBubble: false"
-								class="btn btn-sm" style="padding-left:0px; padding-right: 12px; padding-bottom: 6px; margin-top:5px;">
-								<span data-bind="css: startIcon"></span>
-							</button>
-						</div>
-					</div>
-					<div class="pull-right" style="text-align:right">
-						<div data-bind="text: duration, style: { fontWeight: isRunning() ? 'bold' : '' }"></div>
-						<div data-bind="text: age, style: { fontWeight: isRunning() ? 'bold' : '' }" style="padding-top: 2px"></div>
-					</div>
-					<h4 class="list-group-item-heading">
-						<span data-bind="text: description.truncated, style: { fontWeight: isRunning() ? 'bold' : '' }"></span>&nbsp;
-					</h4>
-					<p class="list-group-item-text">
-						<span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
-						<span data-bind="visible: clientName &amp;&amp; projectName"> | </span>
-						<span class="link" data-bind="text: projectName, click: $parent.viewProject, clickBubble: false"></span>
-						&nbsp;
-					</p>
-				</a>
-			</div>
-
-
-		</div>
-		<div id="content-wrapper">
-			<div class="container-fluid">
-
-				<!-- Task Form -->
-                <div data-bind="visible: selectedTask" style="margin:20px; display:none;">
+            <!-- Task Form -->
+            <div class="col-sm-7 col-sm-push-5">
+                <div class="xwell" data-bind="visible: selectedTask" style="margin:20px; display:none;">
                     <div class="panel panel-default">
                         <div class="panel-body">
 							<form id="taskForm">
@@ -214,14 +158,37 @@
                         </div>
                     </div>
                 </div>
+            </div>
 
-			</div>
-		</div>
-	</div>
-
-
-    <div class="container" style="margin: 0 auto;width: 100%;">
-        <div class="row no-gutter">
+            <!-- Task List -->
+            <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
+                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
+                    class="list-group-item" stylex="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                    <div class="pull-right" style="text-align:right;">
+                        <div data-bind="visible: actionButtonVisible()"
+                            data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
+                            &nbsp;&nbsp;
+                            <button type="button" data-bind="css: startClass, click: onStartClick, clickBubble: false"
+                                class="btn btn-sm" style="padding-left:0px; padding-right: 12px; padding-bottom: 6px; margin-top:5px;">
+                                <span data-bind="css: startIcon"></span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="pull-right" style="text-align:right">
+                        <div data-bind="text: duration, style: { fontWeight: isRunning() ? 'bold' : '' }"></div>
+                        <div data-bind="text: age, style: { fontWeight: isRunning() ? 'bold' : '' }" style="padding-top: 2px"></div>
+                    </div>
+                    <h4 class="list-group-item-heading">
+						<span data-bind="text: description.truncated, style: { fontWeight: isRunning() ? 'bold' : '' }"></span>&nbsp;
+					</h4>
+                    <p class="list-group-item-text">
+                        <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
+                        <span data-bind="visible: clientName &amp;&amp; projectName"> | </span>
+                        <span class="link" data-bind="text: projectName, click: $parent.viewProject, clickBubble: false"></span>
+						&nbsp;
+                    </p>
+                </a>
+            </div>
 
         </div>
     </div>
