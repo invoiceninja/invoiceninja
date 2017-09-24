@@ -521,6 +521,7 @@
         }
 
         self.age = ko.computed(function() {
+            model.clock(); // bind to the clock
             if (! self.time_log().length) {
                 return '';
             }
@@ -640,6 +641,7 @@
         });
 
         self.age = ko.computed(function() {
+            model.clock(); // bind to the clock
             return moment.unix(self.startTime()).fromNow();
         });
 
