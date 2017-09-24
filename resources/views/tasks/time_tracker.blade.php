@@ -95,13 +95,15 @@
 
     <div style="height:74px"></div>
 
+
 	<!--
+	Client: <span data-bind="text: ko.toJSON(model.selectedClient().public_id)"></span>
+	Project: <span data-bind="text: ko.toJSON(model.selectedProject().public_id)"></span>
+
 	<div data-bind="text: ko.toJSON(model.selectedTask().client_id)"></div>
 	<div data-bind="text: ko.toJSON(model.selectedTask().client)"></div>
 	<div data-bind="text: ko.toJSON(model.selectedTask().project_id)"></div>
 	<div data-bind="text: ko.toJSON(model.selectedTask().project)"></div>
-	<div data-bind="text: ko.toJSON(model.selectedClient().public_id)"></div>
-	<div data-bind="text: ko.toJSON(model.selectedProject().public_id)"></div>
 	-->
 
     <div class="container" style="margin: 0 auto;width: 100%;">

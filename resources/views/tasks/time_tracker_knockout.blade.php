@@ -15,38 +15,10 @@
             if (! model.selectedTask() || ! model.formChanged()) {
                 return;
             }
-            var data = $('#taskForm').serialize();
             var task = model.selectedTask();
+            var data = $('#taskForm').serialize();
             data += '&time_log=' + JSON.stringify(task.times());
-            var url = '{{ url('/tasks') }}';
-            var method = 'post';
-            if (task.public_id()) {
-                method = 'put';
-                url += '/' + task.public_id();
-            }
-            $.ajax({
-                dataType: 'json',
-                type: method,
-                data: data,
-                url: url,
-                accepts: {
-                    json: 'application/json'
-                },
-                success: function(response) {
-                    console.log(response);
-                    var task = self.selectedTask();
-                    var projectId = $('input[name=project_id]').val();
-                    if (projectId == -1) {
-                        var project = response.project;
-                        project.client = response.client;
-                        projects.push(project);
-                        addProjectToMaps(project);
-                        refreshProjectList();
-                    }
-                    task.update(response);
-                    self.formChanged(false);
-                },
-            });
+            task.save(data, true);
         }
 
         self.submitBulkAction = function(action, task) {
@@ -144,12 +116,14 @@
 
         self.viewClient = function(task) {
             self.filter(task.client().displayName());
+            self.selectedProject(false);
             self.selectedClient(task.client());
             return false;
         }
 
         self.viewProject = function(task) {
             self.filter(task.project().name());
+            self.selectedClient(false);
             self.selectedProject(task.project());
             return false;
         }
@@ -348,6 +322,39 @@
             ]
         }
 
+        self.save = function(data, isSelected) {
+            var url = '{{ url('/tasks') }}';
+            var method = 'post';
+            if (self.public_id()) {
+                method = 'put';
+                url += '/' + self.public_id();
+            }
+            $.ajax({
+                dataType: 'json',
+                type: method,
+                data: data,
+                url: url,
+                accepts: {
+                    json: 'application/json'
+                },
+                success: function(response) {
+                    console.log(response);
+                    if (isSelected) {
+                        var projectId = $('input[name=project_id]').val();
+                        if (projectId == -1) {
+                            var project = response.project;
+                            project.client = response.client;
+                            projects.push(project);
+                            addProjectToMaps(project);
+                            refreshProjectList();
+                        }
+                        self.update(response);
+                        model.formChanged(false);
+                    }
+                },
+            });
+        }
+
         self.update = function(data) {
             self.data = data;
             var times = JSON.parse(data.time_log);
@@ -431,6 +438,7 @@
                 time.startTime(moment().unix());
                 self.addTime(time);
             }
+            self.save('time_log=' + JSON.stringify(self.times()));
         }
 
         self.listItemState = ko.computed(function() {

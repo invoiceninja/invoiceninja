@@ -154,6 +154,14 @@ class TaskRepository extends BaseRepository
             }
         }
 
+        /*
+        if ($count = count($timeLog)) {
+            $lastTime = $timeLog[$count - 1];
+            $task->is_running = count($lastTime) == 2 && $lastTime[1];
+            \Log::info('is running: '  . $task->is_running);
+        }
+        */
+
         $task->time_log = json_encode($timeLog);
         $task->save();
 
