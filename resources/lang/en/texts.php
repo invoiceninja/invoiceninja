@@ -2450,6 +2450,8 @@ $LANG = array(
 
     'what_are_you_working_on' => 'What are you working on?',
     'time_tracker' => 'Time Tracker',
+    'refresh' => 'Refresh',
+    'filter_sort' => 'Filter/Sort',
 
 );
 
