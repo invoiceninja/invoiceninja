@@ -172,7 +172,7 @@
         }
 
         self.statistics = ko.computed(function() {
-            return 'tst';
+            return '';
         });
 
         self.showArchive = ko.computed(function() {
@@ -303,6 +303,7 @@
         self.project = ko.observable();
         self.actionButtonVisible = ko.observable(false);
         self.created_at = ko.observable(moment().format('YYYY-MM-DD HH:mm:ss'));
+        self.isStartEnabled = ko.observable(true);
 
         self.mapping = {
             'client': {
@@ -363,6 +364,9 @@
                         self.update(response);
                         model.formChanged(false);
                     }
+                    setTimeout(function() {
+                        self.isStartEnabled(true);
+                    }, 2000);                    
                 },
             });
         }
@@ -442,6 +446,11 @@
         }
 
         self.onStartClick = function() {
+            if (! self.isStartEnabled()) {
+                return false;
+            }
+
+            self.isStartEnabled(false);
             if (self.isRunning()) {
                 var data = 'is_running=0&';
                 var time = self.lastTime();
@@ -487,6 +496,10 @@
         });
 
         self.startClass = ko.computed(function() {
+            if (! self.isStartEnabled()) {
+                return 'disabled';
+            }
+
             return self.isRunning() ? 'btn-danger' : 'btn-success';
         });
 

@@ -29,6 +29,12 @@
     		border-color: #fff !important;
 		}
 
+		.list-group-item.active .list-group-item-text,
+		.list-group-item.active:focus .list-group-item-text,
+		.list-group-item.active:hover .list-group-item-text {
+    		color: black !important;
+		}
+
         span.link {
             cursor:pointer;
             color:#337ab7;
@@ -214,11 +220,13 @@
         </div>
     </div>
 
+	<!--
 	<footer class="footer">
 		<div style="padding-left: 16px; padding-top: 16px;">
 			<div data-bind="text: statistics"></div>
 		</div>
 	</footer>
+	-->
 
 	@include('tasks.time_tracker_knockout')
 
