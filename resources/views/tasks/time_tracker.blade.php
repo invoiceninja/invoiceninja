@@ -84,7 +84,7 @@
                 <!-- Navbar Filter -->
                 <div class="input-group input-group-lg">
                     <span class="input-group-addon" style="width:1%;" title="{{ trans('texts.filter_sort') }}"><span class="glyphicon glyphicon-filter"></span></span>
-                    <input type="search" class="form-control search" autocomplete="off" autofocus="autofocus"
+                    <input id="search" type="search" class="form-control search" autocomplete="off" autofocus="autofocus"
                         data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder}">
 					<span class="input-group-addon" style="width:1%;" title="{{ trans('texts.refresh') }}"><span class="glyphicon glyphicon-repeat"></span></span>
                 </div>
@@ -209,7 +209,6 @@
 		var clientMap = {};
 		var projectMap = {};
 		var projectsForClientMap = {};
-		var projectsForAllClients = [];
 
 		function refreshProjectList(forceClear) {
 			var clientId = $('input[name=client_id]').val();
@@ -222,13 +221,22 @@
 				}
 			@endif
 
-			var list = (clientId && ! forceClear) ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []).concat(projectsForAllClients) : projects;
+			var list = (clientId && ! forceClear) ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []) : projects;
 
 			for (var i=0; i<list.length; i++) {
 				var project = list[i];
 				$projectCombobox.append(new Option(project.name,  project.public_id));
 			}
 			$('select#project_id').combobox('refresh');
+		}
+
+		function addProjectToMaps(project) {
+			var client = project.client;
+			projectMap[project.public_id] = project;
+			if (!projectsForClientMap.hasOwnProperty(client.public_id)) {
+				projectsForClientMap[client.public_id] = [];
+			}
+			projectsForClientMap[client.public_id].push(project);
 		}
 
         $(function() {
@@ -238,17 +246,7 @@
 
 			for (var i=0; i<projects.length; i++) {
 				var project = projects[i];
-				projectMap[project.public_id] = project;
-
-				var client = project.client;
-				if (!client) {
-					projectsForAllClients.push(project);
-				} else {
-					if (!projectsForClientMap.hasOwnProperty(client.public_id)) {
-						projectsForClientMap[client.public_id] = [];
-					}
-					projectsForClientMap[client.public_id].push(project);
-				}
+				addProjectToMaps(project)
 			}
 
 			for (var i=0; i<clients.length; i++) {
@@ -309,6 +307,12 @@
 					$clientSelect.trigger('change');
 				}
 			});
+
+			Mousetrap.bind('/', function(e) {
+				console.log('clicked..');
+	            event.preventDefault();
+	            $('#search').focus();
+	        });
 
 			@include('partials/entity_combobox', ['entityType' => ENTITY_PROJECT])
 

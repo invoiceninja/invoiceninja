@@ -17,7 +17,7 @@ class TaskRequest extends EntityRequest
         if ($this->project_id == '-1') {
             $project = [
                 'name' => trim($this->project_name),
-                'client_id' => Client::getPrivateId($this->client),
+                'client_id' => Client::getPrivateId($this->client_id ?: $this->client),
             ];
             if (Project::validate($project) === true) {
                 $project = app('App\Ninja\Repositories\ProjectRepository')->save($project);

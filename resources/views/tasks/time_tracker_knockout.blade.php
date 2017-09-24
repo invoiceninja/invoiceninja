@@ -35,15 +35,16 @@
                 success: function(response) {
                     console.log(response);
                     var task = self.selectedTask();
-                    if (task.isNew()) {
-                        //self.addTask(task);
-                    } else {
-                        //self.removeTask(task.original);
-                        //self.addTask(task);
+                    var projectId = $('input[name=project_id]').val();
+                    if (projectId == -1) {
+                        var project = response.project;
+                        project.client = response.client;
+                        projects.push(project);
+                        addProjectToMaps(project);
+                        refreshProjectList();
                     }
                     task.update(response);
                     self.formChanged(false);
-                    //self.selectTask(task);
                 },
             });
         }
@@ -235,7 +236,7 @@
         self.placeholder = ko.computed(function() {
             if (self.selectedTask()) {
                 if (self.selectedTask().description()) {
-                    return self.selectedTask().description();
+                    return self.selectedTask().description.truncated();
                 } else {
                     return "{{ trans('texts.no_description') }}"
                 }
