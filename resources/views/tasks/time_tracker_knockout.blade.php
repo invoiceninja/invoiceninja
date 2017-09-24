@@ -266,6 +266,11 @@
         }
 
         self.selectTask = function(task) {
+            if (model.selectedTask() && model.formChanged()) {
+                swal("{{ trans('texts.save_or_discard') }}");
+                return false;
+            }
+            
             if (task == self.selectedTask()) {
                 task = false;
                 $('.search').focus();

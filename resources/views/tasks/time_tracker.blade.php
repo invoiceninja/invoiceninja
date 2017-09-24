@@ -362,6 +362,15 @@
 				model.onArchiveClick();
 			});
 
+			$(window).on('beforeunload', function () {
+				if (model.selectedTask() && model.formChanged()) {
+					swal("{{ trans('texts.save_or_discard') }}");
+					return false;
+				} else {
+					return undefined;
+				}
+		    });
+
 			/*
 			$( window ).scroll(function() {
 				$('.footer').
