@@ -366,7 +366,7 @@
                     }
                     setTimeout(function() {
                         self.isStartEnabled(true);
-                    }, 2000);                    
+                    }, 2000);
                 },
             });
         }
@@ -545,15 +545,14 @@
             return time.age();
         });
 
-        self.duration = ko.computed(function() {
-            model.clock(); // bind to the clock
+        self.calcDuration = function(total) {
             if (! self.time_log().length) {
                 return '0:00:00';
             }
             var time = self.lastTime();
             var now = new Date().getTime();
             var duration = 0;
-            if (time.isRunning()) {
+            if (time.isRunning() && ! total) {
                 var duration = now - (time.startTime() * 1000);
                 duration = Math.floor(duration / 100) / 10;
             } else {
@@ -564,6 +563,16 @@
 
             var duration = moment.duration(duration * 1000);
             return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
+        }
+
+        self.totalDuration = ko.computed(function() {
+            model.clock(); // bind to the clock
+            return self.calcDuration(true);
+        });
+
+        self.duration = ko.computed(function() {
+            model.clock(); // bind to the clock
+            return self.calcDuration(false);
         });
     }
 
@@ -662,7 +671,8 @@
         });
 
         self.duration = ko.computed(function() {
-            return self.endTime() - self.startTime();
+            model.clock(); // bind to the clock
+            return (self.endTime() || moment().unix()) - self.startTime();
         });
 
 

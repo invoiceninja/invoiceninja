@@ -202,7 +202,7 @@
                         </div>
                     </div>
                     <div class="pull-right" style="text-align:right">
-                        <div data-bind="text: duration, style: { fontWeight: isRunning() ? 'bold' : '' }"></div>
+                        <div data-bind="text: totalDuration, style: { fontWeight: isRunning() ? 'bold' : '' }"></div>
                         <div data-bind="text: age, style: { fontWeight: isRunning() ? 'bold' : '' }" style="padding-top: 2px"></div>
                     </div>
                     <h4 class="list-group-item-heading">
