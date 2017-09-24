@@ -62,6 +62,24 @@
         .list-group-item-type7:before { background-color: #a87821; }
         .list-group-item-type8:before { background-color: #676767; }
 
+		body {
+			/* Margin bottom by footer height */
+			margin-bottom: 60px;
+		}
+
+		.footer {
+			position: fixed;
+			bottom: 0;
+			width: 100%;
+			height: 60px;
+			background-color: #313131;
+			color: white;
+			border-top-width: 3px;
+			border-top-color: #aaa;
+			border-top-style: ridge;
+		}
+
+
     </style>
 
 @stop
@@ -196,6 +214,12 @@
         </div>
     </div>
 
+	<footer class="footer">
+		<div style="padding-left: 16px; padding-top: 16px;">
+			<div data-bind="text: statistics"></div>
+		</div>
+	</footer>
+
 	@include('tasks.time_tracker_knockout')
 
     <script type="text/javascript">
@@ -329,6 +353,12 @@
 			$('.archive-dropdown:not(.dropdown-toggle)').click(function() {
 				model.onArchiveClick();
 			});
+
+			/*
+			$( window ).scroll(function() {
+				$('.footer').
+			});
+			*/
         });
 
     </script>

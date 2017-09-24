@@ -171,6 +171,10 @@
             }, 1000);
         }
 
+        self.statistics = ko.computed(function() {
+            return 'tst';
+        });
+
         self.showArchive = ko.computed(function() {
             var task = self.selectedTask();
             if (! task) {
@@ -521,7 +525,6 @@
         }
 
         self.age = ko.computed(function() {
-            model.clock(); // bind to the clock
             if (! self.time_log().length) {
                 return '';
             }
