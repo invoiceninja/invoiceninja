@@ -152,12 +152,14 @@ class TaskRepository extends BaseRepository
             } elseif ($data['action'] == 'offline'){
                 $task->is_running = $data['is_running'] ? 1 : 0;
             }
+        } elseif (isset($data['is_running'])) {
+            $task->is_running = $data['is_running'] ? 1 : 0;
         }
 
         /*
         if ($count = count($timeLog)) {
             $lastTime = $timeLog[$count - 1];
-            $task->is_running = count($lastTime) == 2 && $lastTime[1];
+            $task->is_running = count($lastTime) == 2 && intval($lastTime[1]);
             \Log::info('is running: '  . $task->is_running);
         }
         */
