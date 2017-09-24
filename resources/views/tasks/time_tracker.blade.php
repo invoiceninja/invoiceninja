@@ -109,56 +109,54 @@
 
             <!-- Task Form -->
             <div class="col-sm-7 col-sm-push-5">
-                <div class="xwell" data-bind="visible: selectedTask" style="margin:20px; display:none;">
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-							<form id="taskForm">
-								<span data-bind="event: { keypress: onFormKeyPress, change: onFormChange, input: onFormChange }">
-									<div style="padding-bottom: 20px" class="client-select">
-			                            {!! Former::select('client_id')
-												->addOption('', '')
-												->label('client')
-												->data_bind("dropdown: selectedTask().client_id") !!}
-									</div>
-									<div style="padding-bottom: 20px" class="project-select">
-			                            {!! Former::select('project_id')
-			                                    ->addOption('', '')
-			                                    ->data_bind("dropdown: selectedTask().project_id")
-			                                    ->label(trans('texts.project')) !!}
-									</div>
-		                            {!! Former::textarea('description')
-		                                    ->data_bind("value: selectedTask().description")
-		                                    ->rows(4) !!}
-								</span>
+                <div class="panel panel-default affix" data-bind="visible: selectedTask" style="margin:20px; display:none;">
+                    <div class="panel-body">
+						<form id="taskForm">
+							<span data-bind="event: { keypress: onFormKeyPress, change: onFormChange, input: onFormChange }">
+								<div style="padding-bottom: 20px" class="client-select">
+		                            {!! Former::select('client_id')
+											->addOption('', '')
+											->label('client')
+											->data_bind("dropdown: selectedTask().client_id") !!}
+								</div>
+								<div style="padding-bottom: 20px" class="project-select">
+		                            {!! Former::select('project_id')
+		                                    ->addOption('', '')
+		                                    ->data_bind("dropdown: selectedTask().project_id")
+		                                    ->label(trans('texts.project')) !!}
+								</div>
+	                            {!! Former::textarea('description')
+	                                    ->data_bind("value: selectedTask().description")
+	                                    ->rows(4) !!}
+							</span>
 
-								<center style="padding-top: 30px">
-									<span data-bind="visible: showArchive">
-										{!! DropdownButton::normal(trans('texts.archive'))
-											->withAttributes([
-												'class' => 'archive-dropdown',
-											])
-											->large()
-											->withContents([
-											  ['label' => trans('texts.delete_task'), 'url' => 'javascript:model.onDeleteClick()'],
-											]
-										  )->split() !!}
-									</span>
-									{!! Button::normal(trans('texts.cancel'))
-										->appendIcon(Icon::create('remove-circle'))
+							<center style="padding-top: 30px">
+								<span data-bind="visible: showArchive">
+									{!! DropdownButton::normal(trans('texts.archive'))
 										->withAttributes([
-											'data-bind' => 'click: onCancelClick, visible: showCancel',
+											'class' => 'archive-dropdown',
 										])
-										->large() !!}
-									&nbsp;
-									{!! Button::success(trans('texts.save'))
-											->large()
-											->appendIcon(Icon::create('floppy-disk'))
-											->withAttributes([
-												'data-bind' => 'click: onSaveClick, css: { disabled: ! formChanged() }',
-											]) !!}
-								</center>
-							</form>
-                        </div>
+										->large()
+										->withContents([
+										  ['label' => trans('texts.delete_task'), 'url' => 'javascript:model.onDeleteClick()'],
+										]
+									  )->split() !!}
+								</span>
+								{!! Button::normal(trans('texts.cancel'))
+									->appendIcon(Icon::create('remove-circle'))
+									->withAttributes([
+										'data-bind' => 'click: onCancelClick, visible: showCancel',
+									])
+									->large() !!}
+								&nbsp;
+								{!! Button::success(trans('texts.save'))
+										->large()
+										->appendIcon(Icon::create('floppy-disk'))
+										->withAttributes([
+											'data-bind' => 'click: onSaveClick, css: { disabled: ! formChanged() }',
+										]) !!}
+							</center>
+						</form>
                     </div>
                 </div>
             </div>
@@ -309,7 +307,6 @@
 			});
 
 			Mousetrap.bind('/', function(e) {
-				console.log('clicked..');
 	            event.preventDefault();
 	            $('#search').focus();
 	        });
