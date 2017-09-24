@@ -21,6 +21,14 @@
             task.save(data, true);
         }
 
+        self.onFilterClick = function() {
+            console.log('filter...');
+        }
+
+        self.onRefreshClick = function() {
+            location.reload();
+        }
+
         self.submitBulkAction = function(action, task) {
             if (! task || ! action) {
                 return false;
