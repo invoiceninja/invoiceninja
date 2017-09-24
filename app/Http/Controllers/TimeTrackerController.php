@@ -23,6 +23,6 @@ class TimeTrackerController extends Controller
             'account' => $account,
         ];
 
-        return view('time_tracker', $data);
+        return view('tasks.time_tracker', $data);
     }
 }

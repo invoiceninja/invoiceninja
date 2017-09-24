@@ -2452,6 +2452,7 @@ $LANG = array(
     'time_tracker' => 'Time Tracker',
     'refresh' => 'Refresh',
     'filter_sort' => 'Filter/Sort',
+    'no_description' => 'No Description',
 
 );
 
