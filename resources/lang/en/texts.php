@@ -2457,6 +2457,7 @@ $LANG = array(
     'save_or_discard' => 'Save or discard your changes',
     'discard_changes' => 'Discard Changes',
     'tasks_not_enabled' => 'Tasks are not enabled.',
+    'started_task' => 'Successfully started task',
 
 );
 

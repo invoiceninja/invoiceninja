@@ -51,9 +51,14 @@
                         self.removeTask(task);
                         self.selectTask(false);
                     }
+                    if (action == 'archive') {
+                        toastr.success("{{ trans('texts.archived_task') }}");
+                    } else if (action == 'delete') {
+                        toastr.success("{{ trans('texts.deleted_task') }}");
+                    }
                 },
                 error: function(error) {
-                    console.log(error);
+                    toastr.error("{{ trans('texts.error_refresh_page') }}");
                 }
             });
         }
@@ -384,12 +389,31 @@
                             addProjectToMaps(project);
                             refreshProjectList();
                         }
+                        var isNew = !self.public_id();
                         self.update(response);
                         model.formChanged(false);
+                        if (isNew) {
+                            toastr.success("{{ trans('texts.created_task') }}");
+                        } else {
+                            toastr.success("{{ trans('texts.updated_task') }}");
+                        }
+                    } else {
+                        if (self.isRunning()) {
+                            if (self.time_log().length == 1) {
+                                toastr.success("{{ trans('texts.started_task') }}");
+                            } else {
+                                toastr.success("{{ trans('texts.resumed_task') }}");
+                            }
+                        } else {
+                            toastr.success("{{ trans('texts.stopped_task') }}");
+                        }
                     }
                     setTimeout(function() {
                         self.isStartEnabled(true);
                     }, 2000);
+                },
+                error: function(error) {
+                    toastr.error("{{ trans('texts.error_refresh_page') }}");
                 },
             });
         }

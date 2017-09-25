@@ -362,6 +362,9 @@
 				model.onArchiveClick();
 			});
 
+			toastr.options.timeOut = 3000;
+			toastr.options.positionClass = 'toast-bottom-right';
+
 			/*
 			$(window).on('beforeunload', function () {
 				console.log('beforeunload');
@@ -381,6 +384,7 @@
 				$('.footer').
 			});
 			*/
+
         });
 
     </script>
