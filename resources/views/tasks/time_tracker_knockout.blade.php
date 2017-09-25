@@ -425,24 +425,24 @@
                 success: function(response) {
                     console.log(response);
                     if (isSelected) {
-                        var isNew = !self.public_id();
-                        self.update(response);
-                        model.formChanged(false);
                         var clientId = $('input[name=client_id]').val();
-                        if (clientId) {
+                        if (clientId == -1 && response.client) {
                             var client = response.client;
                             clients.push(client);
                             addClientToMaps(client);
                             refreshClientList();
                         }
                         var projectId = $('input[name=project_id]').val();
-                        if (projectId == -1) {
+                        if (projectId == -1 && response.project) {
                             var project = response.project;
                             project.client = response.client;
                             projects.push(project);
                             addProjectToMaps(project);
                             refreshProjectList();
                         }
+                        var isNew = !self.public_id();
+                        self.update(response);
+                        model.formChanged(false);
                         if (isNew) {
                             toastr.success("{{ trans('texts.created_task') }}");
                         } else {

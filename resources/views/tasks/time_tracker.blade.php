@@ -263,7 +263,6 @@
 		}
 
 		function refreshProjectList(forceClear) {
-			console.log('refreshProjectList...');
 			var clientId = $('input[name=client_id]').val();
 			$projectCombobox = $('select#project_id');
 			$projectCombobox.find('option').remove().end().combobox('refresh');
