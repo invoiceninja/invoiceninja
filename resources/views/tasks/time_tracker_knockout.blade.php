@@ -385,8 +385,9 @@
         }
 
         self.save = function(data, isSelected) {
-            if (! self.isValid()) {
+            if (self.isValid() !== true) {
                 toastr.error("{{ trans('texts.error_refresh_page') }}");
+                throw self.isValid();
                 return;
             }
             var url = '{{ url('/tasks') }}';
