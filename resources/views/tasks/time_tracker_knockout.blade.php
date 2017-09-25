@@ -198,7 +198,7 @@
         }
 
         self.filterStyle = ko.computed(function() {
-            return 'background-color: ' + (self.filter() ? '#fff68f' : 'white') + ' !important';
+            return 'background-color: ' + (self.filter() ? '#ffffaa' : 'white') + ' !important';
         });
 
         self.statistics = ko.computed(function() {
@@ -432,7 +432,6 @@
             } else {
                 data += '&is_running=0';
             }
-            console.log(data);
             $.ajax({
                 dataType: 'json',
                 type: method,
@@ -590,6 +589,10 @@
             var str = '';
             if (self == model.selectedTask()) {
                 str = 'active';
+
+                if (! self.public_id() || model.formChanged()) {
+                    str += ' changed fade-color';
+                }
             }
             if (! self.project()) {
                 return str;
