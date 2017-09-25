@@ -2458,6 +2458,7 @@ $LANG = array(
     'discard_changes' => 'Discard Changes',
     'tasks_not_enabled' => 'Tasks are not enabled.',
     'started_task' => 'Successfully started task',
+    'create_client' => 'Create Client',
 
 );
 

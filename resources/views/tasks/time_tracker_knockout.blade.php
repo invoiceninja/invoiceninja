@@ -23,7 +23,7 @@
         }
 
         self.onFilterClick = function() {
-            console.log('filter...');
+            console.log('filter clicked...');
         }
 
         self.onRefreshClick = function() {
@@ -425,6 +425,16 @@
                 success: function(response) {
                     console.log(response);
                     if (isSelected) {
+                        var isNew = !self.public_id();
+                        self.update(response);
+                        model.formChanged(false);
+                        var clientId = $('input[name=client_id]').val();
+                        if (clientId) {
+                            var client = response.client;
+                            clients.push(client);
+                            addClientToMaps(client);
+                            refreshClientList();
+                        }
                         var projectId = $('input[name=project_id]').val();
                         if (projectId == -1) {
                             var project = response.project;
@@ -433,9 +443,6 @@
                             addProjectToMaps(project);
                             refreshProjectList();
                         }
-                        var isNew = !self.public_id();
-                        self.update(response);
-                        model.formChanged(false);
                         if (isNew) {
                             toastr.success("{{ trans('texts.created_task') }}");
                         } else {
@@ -687,7 +694,7 @@
 
     function ClientModel(data) {
         var self = this;
-        self.public_id = ko.observable(0);
+        self.public_id = ko.observable(-1);
         self.name = ko.observable('');
         self.contacts = ko.observableArray();
 

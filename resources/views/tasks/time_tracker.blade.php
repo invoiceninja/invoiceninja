@@ -242,24 +242,56 @@
 		var projectMap = {};
 		var projectsForClientMap = {};
 
+		function refreshClientList() {
+			var $clientSelect = $('select#client_id');
+			$clientSelect.find('option').remove().end().combobox('refresh');
+			$clientSelect.append(new Option('', ''));
+
+			@if (Auth::user()->can('create', ENTITY_CLIENT))
+				$clientSelect.append(new Option("{{ trans('texts.create_client')}}: $name", '-1'));
+			@endif
+
+			for (var i=0; i<clients.length; i++) {
+				var client = clients[i];
+				var clientName = getClientDisplayName(client);
+				if (!clientName) {
+					continue;
+				}
+				$clientSelect.append(new Option(clientName, client.public_id));
+			}
+			$('select#client_id').combobox('refresh');
+		}
+
 		function refreshProjectList(forceClear) {
+			console.log('refreshProjectList...');
 			var clientId = $('input[name=client_id]').val();
 			$projectCombobox = $('select#project_id');
 			$projectCombobox.find('option').remove().end().combobox('refresh');
 			$projectCombobox.append(new Option('', ''));
+
 			@if (Auth::user()->can('create', ENTITY_PROJECT))
 				if (clientId) {
 					$projectCombobox.append(new Option("{{ trans('texts.create_project')}}: $name", '-1'));
 				}
 			@endif
 
-			var list = (clientId && ! forceClear) ? (projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : []) : projects;
+			if (clientId && ! forceClear) {
+				var list = projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : [];
+				console.log('client list: ' + clientId);
+			} else {
+				var list = projects;
+			}
 
 			for (var i=0; i<list.length; i++) {
 				var project = list[i];
 				$projectCombobox.append(new Option(project.name,  project.public_id));
 			}
+
 			$('select#project_id').combobox('refresh');
+		}
+
+		function addClientToMaps(client) {
+			clientMap[client.public_id] = client;
 		}
 
 		function addProjectToMaps(project) {
@@ -274,29 +306,16 @@
         $(function() {
 
 			// setup clients and project comboboxes
-			var $clientSelect = $('select#client_id');
-
 			for (var i=0; i<projects.length; i++) {
-				var project = projects[i];
-				addProjectToMaps(project)
+				addProjectToMaps(projects[i])
 			}
 
 			for (var i=0; i<clients.length; i++) {
-				var client = clients[i];
-				clientMap[client.public_id] = client;
+				addClientToMaps(clients[i]);
 			}
 
-			$clientSelect.append(new Option('', ''));
-			for (var i=0; i<clients.length; i++) {
-				var client = clients[i];
-				var clientName = getClientDisplayName(client);
-				if (!clientName) {
-					continue;
-				}
-				$clientSelect.append(new Option(clientName, client.public_id));
-			}
-
-			$clientSelect.combobox();
+			var $clientSelect = $('select#client_id');
+			//$clientSelect.combobox();
 			$clientSelect.on('change', function(e) {
 				var clientId = $('input[name=client_id]').val();
 				var projectId = $('input[name=project_id]').val();
@@ -345,8 +364,10 @@
 	            $('#search').focus();
 	        });
 
+			@include('partials/entity_combobox', ['entityType' => ENTITY_CLIENT])
 			@include('partials/entity_combobox', ['entityType' => ENTITY_PROJECT])
 
+			refreshClientList();
 			$clientSelect.trigger('change');
 
 			window.model = new ViewModel();
@@ -363,7 +384,6 @@
 				var taskId = localStorage.getItem('last:time_tracker_task');
 				var task = model.taskById(taskId);
 				if (task) {
-					console.log(task);
 					setTimeout(function() {
 						model.selectTask(task);
 					}, 1);
