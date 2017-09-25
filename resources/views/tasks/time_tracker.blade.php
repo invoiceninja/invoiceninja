@@ -246,7 +246,7 @@
 			$clientSelect.append(new Option('', ''));
 
 			@if (Auth::user()->can('create', ENTITY_CLIENT))
-				$clientSelect.append(new Option("{{ trans('texts.create_client')}}: $name", '-1'));
+				//$clientSelect.append(new Option("{{ trans('texts.create_client')}}: $name", '-1'));
 			@endif
 
 			for (var i=0; i<clients.length; i++) {
@@ -320,7 +320,11 @@
 					e.preventDefault();return;
 				}
 				if (window.model && model.selectedTask()) {
-					model.selectedTask().client(new ClientModel(client));
+					var clientModel = new ClientModel(client);
+					if (clientId == -1) {
+						clientModel.name($('#client_name').val());
+					}
+					model.selectedTask().client(clientModel);
 					model.selectedTask().client_id(clientId);
 					model.selectedTask().project_id(0);
 					model.selectedTask().project(false);
@@ -371,7 +375,6 @@
 	            $('#search').focus();
 	        });
 
-			@include('partials/entity_combobox', ['entityType' => ENTITY_CLIENT])
 			@include('partials/entity_combobox', ['entityType' => ENTITY_PROJECT])
 
 			refreshClientList();

@@ -13,6 +13,7 @@ class TaskRequest extends EntityRequest
     {
         $input = $this->all();
 
+        /*
         // check if we're creating a new client
         if ($this->client_id == '-1') {
             $client = [
@@ -23,7 +24,8 @@ class TaskRequest extends EntityRequest
                 $input['client_id'] = $this->client_id = $client->public_id;
             }
         }
-
+        */
+        
         // check if we're creating a new project
         if ($this->project_id == '-1') {
             $project = [
