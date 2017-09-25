@@ -156,14 +156,6 @@ class TaskRepository extends BaseRepository
             $task->is_running = $data['is_running'] ? 1 : 0;
         }
 
-        /*
-        if ($count = count($timeLog)) {
-            $lastTime = $timeLog[$count - 1];
-            $task->is_running = count($lastTime) == 2 && intval($lastTime[1]);
-            \Log::info('is running: '  . $task->is_running);
-        }
-        */
-
         $task->time_log = json_encode($timeLog);
         $task->save();
 

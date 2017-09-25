@@ -434,7 +434,6 @@
                     json: 'application/json'
                 },
                 success: function(response) {
-                    console.log(response);
                     if (isSelected) {
                         var clientId = $('input[name=client_id]').val();
                         if (clientId == -1 && response.client) {
@@ -463,6 +462,7 @@
                             toastr.success("{{ trans('texts.updated_task') }}");
                         }
                     } else {
+                        self.update(response);
                         if (self.isRunning()) {
                             if (self.time_log().length == 1) {
                                 toastr.success("{{ trans('texts.started_task') }}");
@@ -485,8 +485,7 @@
 
         self.update = function(data) {
             self.data = data;
-            var times = JSON.parse(data.time_log);
-            data.time_log = false;
+            var times = data.time_log instanceof Array ? data.time_log : JSON.parse(data.time_log);
             ko.mapping.fromJS(data, self.mapping, this);
             self.time_log.removeAll();
             for (var i=0; i<times.length; i++) {
