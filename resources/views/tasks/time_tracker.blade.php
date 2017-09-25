@@ -188,7 +188,7 @@
             </div>
 
             <!-- Task List -->
-            <div class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks">
+            <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks" style="display:none">
                 <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
                     class="list-group-item" stylex="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                     <div class="pull-right" style="text-align:right;">
@@ -355,8 +355,10 @@
 				var taskModel = new TaskModel(task);
 				model.addTask(taskModel);
 			}
+
 			ko.applyBindings(model);
 			model.tock();
+			$('#taskList').show();
 
 			$('.archive-dropdown:not(.dropdown-toggle)').click(function() {
 				model.onArchiveClick();

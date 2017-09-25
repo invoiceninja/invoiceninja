@@ -174,13 +174,7 @@
                 self.selectedTask(task);
                 self.addTask(task);
                 self.filter('');
-                if (! task.client()) {
-                    $('.client-select input.form-control').focus();
-                } else if (! task.project()) {
-                    $('.project-select input.form-control').focus();
-                } else {
-                    $('#description').focus();
-                }
+                task.focus();
             }
         }
 
@@ -313,8 +307,11 @@
             self.selectedTask(task);
             //self.filter('');
 
-            if (task && ! task.project()) {
-                $('select#client_id').trigger('change');
+            if (task) {
+                task.focus();
+                if (! task.project()) {
+                    $('select#client_id').trigger('change');
+                }
             }
 
             self.formChanged(false);
@@ -382,6 +379,16 @@
             }
 
             return true;
+        }
+
+        self.focus = function() {
+            if (! self.client()) {
+                $('.client-select input.form-control').focus();
+            } else if (! self.project()) {
+                $('.project-select input.form-control').focus();
+            } else {
+                $('#description').focus();
+            }
         }
 
         self.save = function(data, isSelected) {
