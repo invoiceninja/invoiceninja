@@ -15,6 +15,10 @@ class TimeTrackerController extends Controller
         $user = auth()->user();
         $account = $user->account;
 
+        if (! $account->hasFeature(ENTITY_TASK)) {
+            return trans('texts.tasks_not_enabled');
+        }
+
         $data = [
             'title' => trans('texts.time_tracker'),
             'tasks' => Task::scope()->with('project', 'client.contacts')->whereNull('invoice_id')->get(),
