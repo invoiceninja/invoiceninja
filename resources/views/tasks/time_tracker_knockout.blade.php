@@ -173,6 +173,10 @@
             }, 1000);
         }
 
+        self.filterStyle = ko.computed(function() {
+            return 'background-color: ' + (self.filter() ? '#fff68f' : 'white') + ' !important';
+        });
+
         self.statistics = ko.computed(function() {
             return '';
         });

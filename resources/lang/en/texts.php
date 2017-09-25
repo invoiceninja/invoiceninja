@@ -2454,7 +2454,7 @@ $LANG = array(
     'filter_sort' => 'Filter/Sort',
     'no_description' => 'No Description',
     'time_tracker_login' => 'Time Tracker Login',
-    'save_or_discard' => 'Please save or discard your changes',
+    'save_or_discard' => 'Save or discard your changes',
     'discard_changes' => 'Discard Changes',
     'tasks_not_enabled' => 'Tasks are not enabled.',
 
