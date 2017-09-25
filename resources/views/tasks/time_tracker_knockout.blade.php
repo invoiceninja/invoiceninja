@@ -97,7 +97,10 @@
             return false;
         }
 
-        self.onFilterFocus = function(data) {
+        self.onFilterFocus = function(data, event) {
+            if (model.selectedTask() && model.formChanged()) {
+                return;
+            }
             self.selectTask(false);
         }
 
