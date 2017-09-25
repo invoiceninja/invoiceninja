@@ -363,7 +363,32 @@
             ]
         }
 
+        self.isValid = function() {
+            var client = self.client();
+            var project = self.project();
+
+            if (client && client.public_id() != self.client_id()) {
+                return "Client id's don't match " + client.public_id() + " " + self.client_id();
+            }
+
+            if (project) {
+                if (project.public_id() != self.project_id()) {
+                    return "Project id's don't match " + project.public_id() + " " + self.project_id();
+                }
+                var client = projectMap[project.public_id()].client;
+                if (client.public_id != self.client_id()) {
+                    return "Client and project id's don't match " + client.public_id + " " + self.client_id();
+                }
+            }
+
+            return true;
+        }
+
         self.save = function(data, isSelected) {
+            if (! self.isValid()) {
+                toastr.error("{{ trans('texts.error_refresh_page') }}");
+                return;
+            }
             var url = '{{ url('/tasks') }}';
             var method = 'post';
             if (self.public_id()) {
