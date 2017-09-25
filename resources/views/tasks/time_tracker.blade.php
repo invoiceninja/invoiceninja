@@ -276,7 +276,6 @@
 
 			if (clientId && ! forceClear) {
 				var list = projectsForClientMap.hasOwnProperty(clientId) ? projectsForClientMap[clientId] : [];
-				console.log('client list: ' + clientId);
 			} else {
 				var list = projects;
 			}

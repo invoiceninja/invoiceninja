@@ -2,7 +2,6 @@ var {{ $entityType }}Name = '';
 
 ${{ $entityType }}Select.combobox({
     highlighter: function (item) {
-        console.log(item);
         if (item.indexOf("{{ trans("texts.create_{$entityType}") }}") == 0) {
             {{ $entityType }}Name = this.query;
             return "{{ trans("texts.create_{$entityType}") }}: " + this.query;

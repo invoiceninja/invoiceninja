@@ -84,7 +84,7 @@
             sweetConfirm(function() {
                 var task = self.selectedTask();
                 if (task.isNew()) {
-                    self.selectedTask(false);
+                    self.selectTask(false);
                     self.removeTask(task);
                     $('.search').focus();
                 } else {
@@ -97,11 +97,11 @@
         }
 
         self.onFilterFocus = function(data) {
-            self.selectedTask(false);
+            self.selectTask(false);
         }
 
         self.onFilterChanged = function(data) {
-            self.selectedTask(false);
+            self.selectTask(false);
             self.selectedClient(false);
             self.selectedProject(false);
         }
@@ -302,7 +302,9 @@
 
             if (task == self.selectedTask()) {
                 task = false;
-                $('.search').focus();
+                if (! $('#search').is(':focus')) {
+                    $('#search').focus();
+                }
             }
 
             // if a client is selected the project list will be filtered
