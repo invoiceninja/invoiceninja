@@ -123,17 +123,29 @@
         }
 
         self.viewClient = function(task) {
-            self.filter(task.client().displayName());
-            self.selectedProject(false);
-            self.selectedClient(task.client());
+            var client = task.client();
+            if (self.selectedClient() && self.selectedClient().public_id() == client.public_id()) {
+                self.filter('');
+                self.selectedClient(false);
+            } else {
+                self.filter(client.displayName());
+                self.selectedProject(false);
+                self.selectedClient(client);
+            }
             $('#search').focus();
             return false;
         }
 
         self.viewProject = function(task) {
-            self.filter(task.project().name());
-            self.selectedClient(false);
-            self.selectedProject(task.project());
+            var project = task.project();
+            if (self.selectedProject() && self.selectedProject().public_id() == project.public_id()) {
+                self.filter('');
+                self.selectedProject(false);
+            } else {
+                self.filter(project.name());
+                self.selectedClient(false);
+                self.selectedProject(project);
+            }
             $('#search').focus();
             return false;
         }
