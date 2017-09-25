@@ -427,6 +427,12 @@
                 method = 'put';
                 url += '/' + self.public_id();
             }
+            if (self.isRunning()) {
+                data += '&is_running=1';
+            } else {
+                data += '&is_running=0';
+            }
+            console.log(data);
             $.ajax({
                 dataType: 'json',
                 type: method,
@@ -566,11 +572,9 @@
             }
 
             if (self.isRunning()) {
-                var data = 'is_running=0&';
                 var time = self.lastTime();
                 time.endTime(moment().unix());
             } else {
-                var data = 'is_running=1&';
                 var time = new TimeModel();
                 time.startTime(moment().unix());
                 self.addTime(time);
@@ -578,7 +582,7 @@
 
             if (self.public_id()) {
                 model.isStartEnabled(false);
-                self.save(data + 'time_log=' + JSON.stringify(self.times()));
+                self.save('time_log=' + JSON.stringify(self.times()));
             }
         }
 
