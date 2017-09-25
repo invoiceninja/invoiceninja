@@ -119,15 +119,13 @@
 
     <div style="height:74px"></div>
 
-
 	<!--
+	<div data-bind="text: ko.toJSON(model.selectedTask().client_id)"></div>
+	<div data-bind="text: ko.toJSON(model.selectedTask().project_id)"></div>
+	<div data-bind="text: ko.toJSON(model.selectedTask().client)"></div>
+	<div data-bind="text: ko.toJSON(model.selectedTask().project)"></div>
 	Client: <span data-bind="text: ko.toJSON(model.selectedClient().public_id)"></span>
 	Project: <span data-bind="text: ko.toJSON(model.selectedProject().public_id)"></span>
-
-	<div data-bind="text: ko.toJSON(model.selectedTask().client_id)"></div>
-	<div data-bind="text: ko.toJSON(model.selectedTask().client)"></div>
-	<div data-bind="text: ko.toJSON(model.selectedTask().project_id)"></div>
-	<div data-bind="text: ko.toJSON(model.selectedTask().project)"></div>
 	-->
 
     <div class="container" style="margin: 0 auto;width: 100%;">
@@ -313,7 +311,6 @@
 			}
 
 			var $clientSelect = $('select#client_id');
-			//$clientSelect.combobox();
 			$clientSelect.on('change', function(e) {
 				var clientId = $('input[name=client_id]').val();
 				var projectId = $('input[name=project_id]').val();
@@ -356,6 +353,18 @@
 					$clientSelect.trigger('change');
 				}
 			});
+
+			$projectSelect.on('change', function(e) {
+				var projectId = $('input[name=project_id]').val();
+				if (window.model && model.selectedTask() && projectId == -1) {
+					var project = new ProjectModel();
+					project.name($('#project_name').val());
+					model.selectedTask().project_id(-1);
+					model.selectedTask().project(project);
+				}
+				refreshProjectList();
+			});
+
 
 			Mousetrap.bind('/', function(e) {
 	            event.preventDefault();

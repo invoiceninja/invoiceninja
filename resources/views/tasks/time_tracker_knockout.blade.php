@@ -698,7 +698,7 @@
     function ProjectModel(data) {
         var self = this;
         self.name = ko.observable('');
-        self.public_id = ko.observable(0);
+        self.public_id = ko.observable(-1);
 
         if (data) {
             ko.mapping.fromJS(data, {}, this);
@@ -707,8 +707,8 @@
 
     function ClientModel(data) {
         var self = this;
-        self.public_id = ko.observable(-1);
         self.name = ko.observable('');
+        self.public_id = ko.observable(-1);
         self.contacts = ko.observableArray();
 
         self.mapping = {
