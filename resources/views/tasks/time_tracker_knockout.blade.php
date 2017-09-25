@@ -22,7 +22,7 @@
             task.save(data, true);
         }
 
-        self.onFilterClick = function() {
+        self.onFilterClick = function(event) {
             console.log('filter clicked...');
         }
 
@@ -85,7 +85,7 @@
             sweetConfirm(function() {
                 var task = self.selectedTask();
                 if (task.isNew()) {
-                    self.selectTask(false);
+                    self.selectedTask(false);
                     self.removeTask(task);
                     $('.search').focus();
                 } else {
@@ -101,11 +101,11 @@
             if (model.selectedTask() && model.formChanged()) {
                 return;
             }
-            self.selectTask(false);
+            self.selectedTask(false);
         }
 
         self.onFilterChanged = function(data) {
-            self.selectTask(false);
+            self.selectedTask(false);
             self.selectedClient(false);
             self.selectedProject(false);
         }
@@ -133,6 +133,10 @@
         }
 
         self.viewClient = function(task) {
+            if (model.selectedTask() && model.formChanged()) {
+                swal("{{ trans('texts.save_or_discard') }}");
+                return false;
+            }
             var client = task.client();
             if (self.selectedClient() && self.selectedClient().public_id() == client.public_id()) {
                 self.filter('');
@@ -147,6 +151,10 @@
         }
 
         self.viewProject = function(task) {
+            if (model.selectedTask() && model.formChanged()) {
+                swal("{{ trans('texts.save_or_discard') }}");
+                return false;
+            }
             var project = task.project();
             if (self.selectedProject() && self.selectedProject().public_id() == project.public_id()) {
                 self.filter('');
@@ -441,11 +449,14 @@
                             project.client = response.client;
                             projects.push(project);
                             addProjectToMaps(project);
-                            refreshProjectList();
+                            refreshProjectList(true);
                         }
                         var isNew = !self.public_id();
                         self.update(response);
                         model.formChanged(false);
+                        if (isStorageSupported()) {
+                            localStorage.setItem('last:time_tracker_task', self.public_id());
+                        }
                         if (isNew) {
                             toastr.success("{{ trans('texts.created_task') }}");
                         } else {
