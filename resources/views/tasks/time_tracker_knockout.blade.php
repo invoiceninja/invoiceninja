@@ -126,6 +126,7 @@
             self.filter(task.client().displayName());
             self.selectedProject(false);
             self.selectedClient(task.client());
+            $('#search').focus();
             return false;
         }
 
@@ -133,6 +134,7 @@
             self.filter(task.project().name());
             self.selectedClient(false);
             self.selectedProject(task.project());
+            $('#search').focus();
             return false;
         }
 
@@ -270,7 +272,7 @@
                 swal("{{ trans('texts.save_or_discard') }}");
                 return false;
             }
-            
+
             if (task == self.selectedTask()) {
                 task = false;
                 $('.search').focus();
