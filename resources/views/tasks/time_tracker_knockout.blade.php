@@ -6,6 +6,7 @@
         self.filter = ko.observable('');
         self.clock = ko.observable(0);
         self.formChanged = ko.observable(false);
+        self.isStartEnabled = ko.observable(true);
 
         self.selectedTask = ko.observable(false);
         self.selectedClient = ko.observable(false);
@@ -331,7 +332,6 @@
         self.project = ko.observable();
         self.actionButtonVisible = ko.observable(false);
         self.created_at = ko.observable(moment().format('YYYY-MM-DD HH:mm:ss'));
-        self.isStartEnabled = ko.observable(true);
 
         self.mapping = {
             'client': {
@@ -409,8 +409,8 @@
                         }
                     }
                     setTimeout(function() {
-                        self.isStartEnabled(true);
-                    }, 2000);
+                        model.isStartEnabled(true);
+                    }, 1000);
                 },
                 error: function(error) {
                     toastr.error("{{ trans('texts.error_refresh_page') }}");
@@ -495,7 +495,7 @@
         }
 
         self.onStartClick = function() {
-            if (! self.isStartEnabled()) {
+            if (! model.isStartEnabled()) {
                 return false;
             }
 
@@ -511,7 +511,7 @@
             }
 
             if (self.public_id()) {
-                self.isStartEnabled(false);
+                model.isStartEnabled(false);
                 self.save(data + 'time_log=' + JSON.stringify(self.times()));
             }
         }
@@ -548,7 +548,7 @@
         });
 
         self.startClass = ko.computed(function() {
-            if (! self.isStartEnabled()) {
+            if (! model.isStartEnabled()) {
                 return 'disabled';
             }
 
