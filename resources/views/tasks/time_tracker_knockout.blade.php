@@ -252,7 +252,7 @@
         self.placeholder = ko.computed(function() {
             if (self.selectedTask()) {
                 if (self.selectedTask().description()) {
-                    return self.selectedTask().description.truncated();
+                    return self.selectedTask().description();
                 } else {
                     return "{{ trans('texts.no_description') }}"
                 }
@@ -630,13 +630,6 @@
 
         self.startIcon = ko.computed(function() {
             return self.isRunning() ? 'glyphicon glyphicon-stop' : 'glyphicon glyphicon-play';
-        });
-
-        self.description.truncated = ko.computed(function() {
-            if (! self.description()) {
-                return '';
-            }
-            return truncate(self.description(), self.actionButtonVisible() ? 35 : 60);
         });
 
         self.setClient = function(client) {
