@@ -51,6 +51,7 @@
                     if (action == 'archive' || action == 'delete') {
                         self.removeTask(task);
                         self.selectTask(false);
+                        $('#search').focus();
                     }
                     if (action == 'archive') {
                         toastr.success("{{ trans('texts.archived_task') }}");
@@ -302,9 +303,6 @@
 
             if (task == self.selectedTask()) {
                 task = false;
-                if (! $('#search').is(':focus')) {
-                    $('#search').focus();
-                }
             }
 
             // if a client is selected the project list will be filtered
