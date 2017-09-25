@@ -249,6 +249,17 @@
             }
         });
 
+        self.taskById = function(taskId) {
+            var tasks = self.tasks();
+            for (var i=0; i<tasks.length; i++) {
+                var task = tasks[i];
+                if (task.public_id() == taskId) {
+                    return task;
+                }
+            }
+            return false;
+        }
+
         self.filteredTasks = ko.computed(function() {
 
             // filter the data
@@ -300,10 +311,6 @@
             // client change event to re-filter the list
             refreshProjectList(true);
 
-            //var clone = new TaskModel(task.data);
-            //clone.original = task;
-            //self.selectedTask(clone);
-
             self.selectedTask(task);
             //self.filter('');
 
@@ -312,6 +319,10 @@
                 if (! task.project()) {
                     $('select#client_id').trigger('change');
                 }
+            }
+
+            if (isStorageSupported()) {
+                localStorage.setItem('last:time_tracker_task', task ? task.public_id() : 0);
             }
 
             self.formChanged(false);

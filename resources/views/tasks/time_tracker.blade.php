@@ -358,6 +358,18 @@
 
 			ko.applyBindings(model);
 			model.tock();
+
+			if (isStorageSupported()) {
+				var taskId = localStorage.getItem('last:time_tracker_task');
+				var task = model.taskById(taskId);
+				if (task) {
+					console.log(task);
+					setTimeout(function() {
+						model.selectTask(task);
+					}, 1);
+				}
+			}
+
 			$('#taskList').show();
 
 			$('.archive-dropdown:not(.dropdown-toggle)').click(function() {
