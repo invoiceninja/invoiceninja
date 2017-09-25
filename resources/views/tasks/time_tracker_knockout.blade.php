@@ -85,7 +85,7 @@
                     task.update(task.data);
                 }
                 self.formChanged(false);
-            });
+            }, "{{ trans('texts.discard_changes') }}");
 
             return false;
         }
@@ -430,8 +430,10 @@
             for (var i=0; i<parts.length; i++) {
                 var part = parts[i];
                 var isMatch = false;
-                if (self.description().toLowerCase().indexOf(part) >= 0) {
-                    isMatch = true;
+                if (self.description()) {
+                    if (self.description().toLowerCase().indexOf(part) >= 0) {
+                        isMatch = true;
+                    }
                 }
                 if (self.project()) {
                     var projectName = self.project().name();
@@ -457,7 +459,6 @@
                 return false;
             }
 
-            self.isStartEnabled(false);
             if (self.isRunning()) {
                 var data = 'is_running=0&';
                 var time = self.lastTime();
@@ -468,7 +469,11 @@
                 time.startTime(moment().unix());
                 self.addTime(time);
             }
-            self.save(data + 'time_log=' + JSON.stringify(self.times()));
+
+            if (self.public_id()) {
+                self.isStartEnabled(false);
+                self.save(data + 'time_log=' + JSON.stringify(self.times()));
+            }
         }
 
         self.listItemState = ko.computed(function() {
@@ -515,6 +520,9 @@
         });
 
         self.description.truncated = ko.computed(function() {
+            if (! self.description()) {
+                return '';
+            }
             return truncate(self.description(), self.actionButtonVisible() ? 35 : 60);
         });
 

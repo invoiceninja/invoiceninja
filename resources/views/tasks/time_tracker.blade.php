@@ -362,15 +362,21 @@
 				model.onArchiveClick();
 			});
 
+			/*
 			$(window).on('beforeunload', function () {
+				console.log('beforeunload');
 				if (model.selectedTask() && model.formChanged()) {
+					console.log('changed');
 					swal("{{ trans('texts.save_or_discard') }}");
 					return false;
+					//return trans('texts.save_or_discard');
 				} else {
+					console.log('not changed');
 					return undefined;
 				}
 		    });
-
+			*/
+			
 			/*
 			$( window ).scroll(function() {
 				$('.footer').
