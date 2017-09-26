@@ -220,7 +220,7 @@
 
             <!-- Task List -->
             <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks" style="display:none">
-                <a href="#" data-bind="click: $parent.selectTask, touchend: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
+                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
                     class="list-group-item">
                     <div class="pull-right" style="text-align:right;">
                         <div data-bind="visible: actionButtonVisible()"
@@ -463,6 +463,7 @@
 				var link = '{{ config('ninja.time_tracker') }}';
 				var message = "{{ trans('texts.download_desktop_app') }}";
 				if (isMobile) {
+					toastr.warning("{{ trans('texts.time_tracker_mobile_help')}}");
 					if (isIPhone) {
 						link = '{{ NINJA_IOS_APP_URL }}';
 						message = "{{ trans('texts.download_iphone_app') }}";

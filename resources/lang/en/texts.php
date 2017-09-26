@@ -2463,6 +2463,7 @@ $LANG = array(
     'download_desktop_app' => 'Download the desktop app',
     'download_iphone_app' => 'Download the iPhone app',
     'download_android_app' => 'Download the Android app',
+    'time_tracker_mobile_help' => 'Double tap a task to select it',
 
 );
 
