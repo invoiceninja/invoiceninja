@@ -102,7 +102,6 @@
         .list-group-item-type8:before { background-color: #676767; }
 
 		body {
-			/* Margin bottom by footer height */
 			margin-bottom: 60px;
 		}
 
@@ -435,8 +434,8 @@
 				var taskModel = new TaskModel(task);
 				model.addTask(taskModel);
 			}
-
 			ko.applyBindings(model);
+			model.formChanged(false);
 			model.refreshTitle();
 			model.tock();
 
