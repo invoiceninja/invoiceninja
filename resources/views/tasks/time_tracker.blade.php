@@ -220,7 +220,7 @@
 
             <!-- Task List -->
             <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks" style="display:none">
-                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
+                <a href="#" data-bind="event: { focus: $parent.selectTask, mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
                     class="list-group-item">
                     <div class="pull-right" style="text-align:right;">
                         <div data-bind="visible: actionButtonVisible()"

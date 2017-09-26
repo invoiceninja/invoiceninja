@@ -541,6 +541,10 @@
             return self.public_id();
         });
 
+        self.hasFocus = function() {
+            console.log('focused... ' + self.public_id());
+        }
+
         self.showActionButton = function() {
             self.actionButtonVisible(true);
         }
