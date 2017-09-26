@@ -12,6 +12,12 @@
 
     <style type="text/css">
 
+		@media (max-width: 768px) {
+			#formDiv {
+				position: relative;
+			}
+		}
+
 		button .glyphicon {
 			vertical-align: text-top;
 		}
@@ -150,7 +156,7 @@
 
             <!-- Task Form -->
             <div class="col-sm-7 col-sm-push-5">
-                <div class="panel panel-default affix" data-bind="visible: selectedTask" style="margin:20px; display:none;">
+                <div id="formDiv" class="panel panel-default affix" data-bind="visible: selectedTask" style="margin:20px; display:none;">
                     <div class="panel-body">
 						<form id="taskForm">
 							<span data-bind="event: { keypress: onFormKeyPress, change: onFormChange, input: onFormChange }">
