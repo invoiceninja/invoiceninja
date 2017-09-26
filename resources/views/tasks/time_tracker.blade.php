@@ -463,7 +463,10 @@
 				var link = '{{ config('ninja.time_tracker') }}';
 				var message = "{{ trans('texts.download_desktop_app') }}";
 				if (isMobile) {
-					toastr.warning("{{ trans('texts.time_tracker_mobile_help')}}");
+					toastr.warning("{{ trans('texts.time_tracker_mobile_help')}}", false, {
+						timeOut: 10000,
+						closeButton: true,						
+					});
 					if (isIPhone) {
 						link = '{{ NINJA_IOS_APP_URL }}';
 						message = "{{ trans('texts.download_iphone_app') }}";
