@@ -9,6 +9,8 @@ var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isChrome48 = isChrome && navigator.userAgent.indexOf('Chrome/48') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+var isAndroid = /Android/i.test(navigator.userAgent);
+var isIPhone = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 var refreshTimer;
 function generatePDF(invoice, javascript, force, cb) {

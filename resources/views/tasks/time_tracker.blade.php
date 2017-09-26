@@ -460,14 +460,25 @@
 			toastr.options.positionClass = 'toast-bottom-right';
 
 			if (navigator.userAgent != 'Time Tracker') {
+				var link = '{{ config('ninja.time_tracker') }}';
+				var message = "{{ trans('texts.download_desktop_app') }}";
+				if (isMobile) {
+					if (isIPhone) {
+						link = '{{ NINJA_IOS_APP_URL }}';
+						message = "{{ trans('texts.download_iphone_app') }}";
+					} else if (isAndroid) {
+						link = '{{ NINJA_ANDROID_APP_URL }}';
+						message = "{{ trans('texts.download_android_app') }}";
+					}
+				}
 				var options = {
 					timeOut: 10000,
 					closeButton: true,
 					onclick: function() {
-						window.open('{{ config('ninja.time_tracker') }}', '_blank');
+						window.open(link, '_blank');
 					}
 				};
-				toastr.info("{{ trans('texts.download_desktop_app') }}", false, options);
+				toastr.info(message, false, options);
 			}
 
 			sendKeepAlive();
