@@ -18,6 +18,16 @@
 			}
 		}
 
+		@media (max-width: 768px) {
+			#clock,
+			#startLabel {
+				display: none;
+			}
+			.navbar-right button {
+				padding-left: 0px;
+			}
+		}
+
 		button .glyphicon {
 			vertical-align: text-top;
 		}
@@ -120,10 +130,10 @@
 
                 <!-- Navbar Buttons -->
                 <ul class="nav navbar-right" style="margin-right:0px; padding-left:12px; float:right;">
-                    <span data-bind="text: selectedTask().duration, visible: selectedTask" class="hidden-xs"
+                    <span id="clock" data-bind="text: selectedTask().duration, visible: selectedTask" class="hidden-xs"
                         style="font-size:28px; color:white; padding-right:12px; vertical-align:middle; display:none;"></span>
                     <button type='button' data-bind="click: onStartClick, css: startClass" class="btn btn-lg">
-                        <span data-bind="text: startLabel"></span>
+                        <span id="startLabel" data-bind="text: startLabel"></span>
                         <span data-bind="css: startIcon"></span>
                     </button>
                 </ul>
@@ -177,7 +187,7 @@
 	                                    ->rows(4) !!}
 							</span>
 
-							<center style="padding-top: 30px">
+							<center id="buttons" style="padding-top: 30px">
 								<span data-bind="visible: showArchive">
 									{!! DropdownButton::normal(trans('texts.archive'))
 										->withAttributes([
@@ -461,6 +471,16 @@
 			}
 
 			sendKeepAlive();
+
+			$(window).on('resize', function() {
+			    if ($(window).width() > 350) {
+			        $('#buttons .btn').removeClass('btn-sm');
+					$('#buttons .btn').addClass('btn-lg');
+			    }else{
+			        $('#buttons .btn').removeClass('btn-lg');
+					$('#buttons .btn').addClass('btn-sm');
+			    }
+			})
 
 			$(window).on('beforeunload', function () {
 				if (navigator.userAgent == 'Time Tracker') {
