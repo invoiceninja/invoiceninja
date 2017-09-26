@@ -421,6 +421,7 @@
 			}
 
 			ko.applyBindings(model);
+			model.refreshTitle();
 			model.tock();
 
 			if (isStorageSupported()) {

@@ -30,6 +30,23 @@
             location.reload();
         }
 
+        self.refreshTitle = function() {
+            var tasks = self.tasks();
+            var count = 0;
+            for (var i=0; i<tasks.length; i++) {
+                var task = tasks[i];
+                if (task.isRunning()) {
+                    count++;
+                }
+            }
+            var title = '';
+            if (count > 0) {
+                title = '(' + count + ') ';
+            }
+            title += "{{ trans('texts.time_tracker') }} | {{ APP_NAME }}";
+            document.title = title;
+        }
+
         self.submitBulkAction = function(action, task) {
             if (! task || ! action) {
                 return false;
@@ -53,6 +70,7 @@
                         self.selectTask(false);
                         $('#search').focus();
                     }
+                    self.refreshTitle();
                     if (action == 'archive') {
                         toastr.success("{{ trans('texts.archived_task') }}");
                     } else if (action == 'delete') {
@@ -185,6 +203,7 @@
                 task.addTime(time);
                 self.selectedTask(task);
                 self.addTask(task);
+                model.refreshTitle();
                 self.filter('');
                 task.focus();
             }
@@ -480,6 +499,7 @@
                             toastr.success("{{ trans('texts.stopped_task') }}");
                         }
                     }
+                    model.refreshTitle();
                     setTimeout(function() {
                         model.isStartEnabled(true);
                     }, 1000);
