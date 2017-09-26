@@ -7,6 +7,7 @@
         self.clock = ko.observable(0);
         self.formChanged = ko.observable(false);
         self.isStartEnabled = ko.observable(true);
+        self.isSaveEnabled = ko.observable(true);
 
         self.selectedTask = ko.observable(false);
         self.selectedClient = ko.observable(false);
@@ -456,7 +457,7 @@
             } else {
                 data += '&is_running=0';
             }
-            model.isStartEnabled(false);
+            model.isSaveEnabled(false);
             $.ajax({
                 dataType: 'json',
                 type: method,
@@ -512,7 +513,7 @@
                 },
             }).always(function() {
                 setTimeout(function() {
-                    model.isStartEnabled(true);
+                    model.isSaveEnabled(true);
                 }, 1000);
             });
         }

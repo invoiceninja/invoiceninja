@@ -210,7 +210,7 @@
 										->large()
 										->appendIcon(Icon::create('floppy-disk'))
 										->withAttributes([
-											'data-bind' => 'click: onSaveClick, css: { disabled: ! formChanged() || ! isStartEnabled() }',
+											'data-bind' => 'click: onSaveClick, css: { disabled: ! formChanged() || ! isSaveEnabled() }',
 										]) !!}
 							</center>
 						</form>
