@@ -13,6 +13,10 @@
         self.selectedClient = ko.observable(false);
         self.selectedProject = ko.observable(false);
 
+        self.isDesktop = function() {
+            return navigator.userAgent == 'Time Tracker';
+        }
+
         self.onSaveClick = function() {
             if (! model.selectedTask() || ! model.formChanged()) {
                 return;
@@ -28,7 +32,16 @@
         }
 
         self.onRefreshClick = function() {
-            location.reload();
+            if (self.isDesktop()) {
+                if (model.selectedTask() && model.formChanged()) {
+                    swal("{{ trans('texts.save_or_discard') }}");
+                    return false;
+                } else {
+                    location.reload();
+                }
+            } else {
+                location.reload();
+            }
         }
 
         self.refreshTitle = function() {

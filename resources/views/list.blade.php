@@ -100,6 +100,7 @@
 		  		});
 			});
 		</script>
+		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
     @endif
 
 	@if (Auth::user()->can('create', $entityType) && empty($vendorId))

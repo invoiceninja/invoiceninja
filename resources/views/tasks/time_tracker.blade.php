@@ -485,7 +485,9 @@
 				toastr.info(message, false, options);
 			}
 
-			sendKeepAlive();
+			if (model.isDesktop()) {
+				sendKeepAlive();
+			}
 
 			function setButtonSize() {
 				if ($(window).width() > 350) {
@@ -500,7 +502,7 @@
 			setButtonSize();
 
 			$(window).on('beforeunload', function () {
-				if (navigator.userAgent == 'Time Tracker') {
+				if (model.isDesktop()) {
 					return undefined;
 				}
 				if (model.selectedTask() && model.formChanged()) {

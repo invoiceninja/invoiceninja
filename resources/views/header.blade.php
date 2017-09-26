@@ -37,6 +37,14 @@
     });
   }
 
+  function openTimeTracker() {
+      var width = 1000;
+      var height = 800;
+      var left = (screen.width/2)-(width/4);
+      var top = (screen.height/2)-(height/1.5);
+      window.open("{{ url('/time_tracker') }}", "time-tracker", "width="+width+",height="+height+",scrollbars=no,toolbar=no,screenx="+left+",screeny="+top+",location=no,titlebar=no,directories=no,status=no,menubar=no");
+  }
+
   window.loadedSearchData = false;
   function onSearchBlur() {
       $('#search').typeahead('val', '');
