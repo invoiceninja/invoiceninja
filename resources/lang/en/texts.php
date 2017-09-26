@@ -2460,6 +2460,8 @@ $LANG = array(
     'started_task' => 'Successfully started task',
     'create_client' => 'Create Client',
 
+    'download_app' => 'Download the desktop app',
+
 );
 
 return $LANG;

@@ -428,6 +428,17 @@
 			toastr.options.timeOut = 3000;
 			toastr.options.positionClass = 'toast-bottom-right';
 
+			if (navigator.userAgent != 'Time Tracker') {
+				var options = {
+					timeOut: 10000,
+					closeButton: true,
+					onclick: function() {
+						window.open('{{ config('ninja.time_tracker') }}', '_blank');
+					}
+				};
+				toastr.info("{{ trans('texts.download_app') }}", false, options);
+			}
+
 			$(window).on('beforeunload', function () {
 				if (navigator.userAgent == 'Time Tracker') {
 					return undefined;
@@ -439,12 +450,6 @@
 					return undefined;
 				}
 		    });
-
-			/*
-			$( window ).scroll(function() {
-				$('.footer').
-			});
-			*/
 
         });
 

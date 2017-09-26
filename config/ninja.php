@@ -2,6 +2,9 @@
 
 return [
 
+    // Marketing links
+    'time_tracker' => env('TIME_TRACKER_URL', 'https://www.invoiceninja.com'),
+
     // Hosted plan coupons
     'coupon_50_off' => env('COUPON_50_OFF', false),
     'coupon_75_off' => env('COUPON_75_OFF', false),
