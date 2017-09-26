@@ -79,6 +79,7 @@
                 },
                 error: function(error) {
                     toastr.error("{{ trans('texts.error_refresh_page') }}");
+                    swal('failed to bulk save');
                 }
             });
         }
@@ -437,6 +438,7 @@
         self.save = function(data, isSelected) {
             if (self.isValid() !== true) {
                 toastr.error("{{ trans('texts.error_refresh_page') }}");
+                swal('not valid on save');
                 throw self.isValid();
                 return;
             }
@@ -506,6 +508,7 @@
                 },
                 error: function(error) {
                     toastr.error("{{ trans('texts.error_refresh_page') }}");
+                    swal('failed to save');
                 },
             });
         }
