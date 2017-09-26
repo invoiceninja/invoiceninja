@@ -2460,9 +2460,9 @@ $LANG = array(
     'started_task' => 'Successfully started task',
     'create_client' => 'Create Client',
 
-    'download_desktop_app' => 'Download desktop app',
-    'download_iphone_app' => 'Download iPhone app',
-    'download_android_app' => 'Download Android app',
+    'download_desktop_app' => 'Download the desktop app',
+    'download_iphone_app' => 'Download the iPhone app',
+    'download_android_app' => 'Download the Android app',
 
 );
 
