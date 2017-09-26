@@ -55,6 +55,7 @@
                 id: task.public_id(),
                 action: action,
             }
+            self.isStartEnabled(false);
             $.ajax({
                 dataType: 'json',
                 type: 'post',
@@ -79,8 +80,11 @@
                 },
                 error: function(error) {
                     toastr.error("{{ trans('texts.error_refresh_page') }}");
-                    swal('failed to bulk save');
                 }
+            }).always(function() {
+                setTimeout(function() {
+                    model.isStartEnabled(true);
+                }, 1000);
             });
         }
 
@@ -438,7 +442,6 @@
         self.save = function(data, isSelected) {
             if (self.isValid() !== true) {
                 toastr.error("{{ trans('texts.error_refresh_page') }}");
-                swal('not valid on save');
                 throw self.isValid();
                 return;
             }
@@ -453,6 +456,7 @@
             } else {
                 data += '&is_running=0';
             }
+            model.isStartEnabled(false);
             $.ajax({
                 dataType: 'json',
                 type: method,
@@ -502,14 +506,14 @@
                         }
                     }
                     model.refreshTitle();
-                    setTimeout(function() {
-                        model.isStartEnabled(true);
-                    }, 1000);
                 },
                 error: function(error) {
                     toastr.error("{{ trans('texts.error_refresh_page') }}");
-                    swal('failed to save');
                 },
+            }).always(function() {
+                setTimeout(function() {
+                    model.isStartEnabled(true);
+                }, 1000);
             });
         }
 

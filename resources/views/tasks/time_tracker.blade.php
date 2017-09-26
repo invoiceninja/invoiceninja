@@ -210,7 +210,7 @@
 										->large()
 										->appendIcon(Icon::create('floppy-disk'))
 										->withAttributes([
-											'data-bind' => 'click: onSaveClick, css: { disabled: ! formChanged() }',
+											'data-bind' => 'click: onSaveClick, css: { disabled: ! formChanged() || ! isStartEnabled() }',
 										]) !!}
 							</center>
 						</form>
@@ -465,7 +465,7 @@
 				if (isMobile) {
 					toastr.warning("{{ trans('texts.time_tracker_mobile_help')}}", false, {
 						timeOut: 10000,
-						closeButton: true,						
+						closeButton: true,
 					});
 					if (isIPhone) {
 						link = '{{ NINJA_IOS_APP_URL }}';
