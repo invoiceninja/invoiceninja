@@ -472,15 +472,17 @@
 
 			sendKeepAlive();
 
-			$(window).on('resize', function() {
-			    if ($(window).width() > 350) {
-			        $('#buttons .btn').removeClass('btn-sm');
+			function setButtonSize() {
+				if ($(window).width() > 350) {
 					$('#buttons .btn').addClass('btn-lg');
-			    }else{
+			    } else {
 			        $('#buttons .btn').removeClass('btn-lg');
-					$('#buttons .btn').addClass('btn-sm');
 			    }
-			})
+			}
+			$(window).on('resize', function() {
+				setButtonSize();
+			});
+			setButtonSize();
 
 			$(window).on('beforeunload', function () {
 				if (navigator.userAgent == 'Time Tracker') {
