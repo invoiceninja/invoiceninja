@@ -121,6 +121,7 @@ if (Utils::isTravis()) {
 }
 
 Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
+    Route::get('logged_in', 'HomeController@loggedIn');
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
     Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');

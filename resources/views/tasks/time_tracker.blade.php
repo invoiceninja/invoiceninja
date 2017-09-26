@@ -318,6 +318,20 @@
 			projectsForClientMap[client.public_id].push(project);
 		}
 
+		function sendKeepAlive() {
+			setTimeout(function() {
+	            $.get('{{ URL::to('/keep_alive') }}', function (response) {
+					if (response == '{{ RESULT_SUCCESS }}') {
+						sendKeepAlive()
+					} else {
+						location.reload();
+					}
+				}).fail(function() {
+					location.reload();
+				});
+	        }, 1000 * 60 * 15);
+		}
+
         $(function() {
 
 			// setup clients and project comboboxes
@@ -436,14 +450,15 @@
 						window.open('{{ config('ninja.time_tracker') }}', '_blank');
 					}
 				};
-				toastr.info("{{ trans('texts.download_app') }}", false, options);
+				toastr.info("{{ trans('texts.download_desktop_app') }}", false, options);
 			}
+
+			sendKeepAlive();
 
 			$(window).on('beforeunload', function () {
 				if (navigator.userAgent == 'Time Tracker') {
 					return undefined;
 				}
-
 				if (model.selectedTask() && model.formChanged()) {
 					return "{{ trans('texts.save_or_discard') }}";
 				} else {
