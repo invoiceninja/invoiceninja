@@ -428,16 +428,14 @@
 			toastr.options.timeOut = 3000;
 			toastr.options.positionClass = 'toast-bottom-right';
 
-			/*
 			$(window).on('beforeunload', function () {
-				console.log('beforeunload');
+				if (navigator.userAgent == 'Time Tracker') {
+					return undefined;
+				}
+
 				if (model.selectedTask() && model.formChanged()) {
-					console.log('changed');
-					swal("{{ trans('texts.save_or_discard') }}");
-					return false;
-					//return trans('texts.save_or_discard');
+					return "{{ trans('texts.save_or_discard') }}";
 				} else {
-					console.log('not changed');
 					return undefined;
 				}
 		    });
