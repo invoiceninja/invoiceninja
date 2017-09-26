@@ -509,7 +509,6 @@
                         }
                     } else {
                         self.update(response);
-                        model.isStartEnabled(true);
                         if (self.isRunning()) {
                             if (self.time_log().length == 1) {
                                 toastr.success("{{ trans('texts.started_task') }}");
@@ -528,6 +527,7 @@
             }).always(function() {
                 setTimeout(function() {
                     model.isSaveEnabled(true);
+                    model.isStartEnabled(true);
                 }, 1000);
             });
         }
