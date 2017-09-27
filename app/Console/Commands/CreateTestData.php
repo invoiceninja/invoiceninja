@@ -188,7 +188,7 @@ class CreateTestData extends Command
     {
         $data = [
             'client_id' => $client->id,
-            'name' => $this->faker->sentence(10),
+            'name' => $this->faker->sentence(3),
         ];
         $project = $this->projectRepo->save($data);
 

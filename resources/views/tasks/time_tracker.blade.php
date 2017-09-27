@@ -128,7 +128,7 @@
             <div class="navbar-collapse" style="padding-top:12px; padding-bottom:12px;">
 
                 <!-- Navbar Buttons -->
-                <ul class="nav navbar-right" style="margin-right:0px; padding-left:12px; float:right;">
+                <ul class="nav navbar-right" style="margin-right:0px; padding-left:12px; float:right; display: none;">
                     <span id="clock" data-bind="text: selectedTask().duration, visible: selectedTask" class="hidden-xs"
                         style="font-size:28px; color:white; padding-right:12px; vertical-align:middle; display:none;"></span>
                     <button type='button' data-bind="click: onStartClick, css: startClass" class="btn btn-lg">
@@ -429,13 +429,14 @@
 			$clientSelect.trigger('change');
 
 			window.model = new ViewModel();
+			var taskModels = [];
 			for (var i=0; i<tasks.length; i++) {
 				var task = tasks[i];
 				var taskModel = new TaskModel(task);
-				model.addTask(taskModel);
+				taskModels.push(taskModel);
 			}
+			ko.utils.arrayPushAll(model.tasks, taskModels);
 			ko.applyBindings(model);
-			model.formChanged(false);
 			model.refreshTitle();
 			model.tock();
 
@@ -449,7 +450,7 @@
 				}
 			}
 
-			$('#taskList').show();
+			$('#taskList, .navbar-right').show();
 
 			$('.archive-dropdown:not(.dropdown-toggle)').click(function() {
 				model.onArchiveClick();
