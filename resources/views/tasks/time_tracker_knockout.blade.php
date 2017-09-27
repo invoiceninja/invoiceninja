@@ -624,12 +624,6 @@
                 return false;
             }
 
-            var selectedTask = model.selectedTask();
-            if (model.formChanged() && selectedTask && selectedTask.public_id() && selectedTask.public_id() == self.public_id()) {
-                model.onSaveClick();
-                return false;
-            }
-
             if (self.isRunning()) {
                 var time = self.lastTime();
                 time.endTime(moment().unix());
@@ -640,8 +634,13 @@
             }
 
             if (self.public_id()) {
-                model.isStartEnabled(false);
-                self.save('time_log=' + JSON.stringify(self.times()));
+                var selectedTask = model.selectedTask();
+                if (model.formChanged() && selectedTask && selectedTask.public_id() == self.public_id()) {
+                    model.onSaveClick();
+                } else {
+                    model.isStartEnabled(false);
+                    self.save('time_log=' + JSON.stringify(self.times()));
+                }
             }
         }
 
