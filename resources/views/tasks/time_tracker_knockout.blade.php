@@ -124,13 +124,16 @@
                 if (task.isNew()) {
                     self.selectedTask(false);
                     self.removeTask(task);
-                    $('.search').focus();
+                    // wait for it to be re-enabled
+                    setTimeout(function() {
+                        $('#search').focus();
+                    }, 1);
                 } else {
                     task.update(task.data);
                 }
                 self.formChanged(false);
-            }, "{{ trans('texts.discard_changes') }}");
 
+            }, "{{ trans('texts.discard_changes') }}");
             return false;
         }
 
@@ -207,7 +210,11 @@
 
         self.onStartClick = function() {
             if (self.selectedTask()) {
-                self.selectedTask().onStartClick();
+                if (self.formChanged()) {
+                    self.onSaveClick();
+                } else {
+                    self.selectedTask().onStartClick();
+                }
             } else {
                 var time = new TimeModel();
                 time.startTime(moment().unix());
@@ -223,6 +230,7 @@
                 self.selectedTask(task);
                 self.addTask(task);
                 model.refreshTitle();
+                model.formChanged(true);
                 self.filter('');
                 task.focus();
             }
@@ -613,6 +621,12 @@
 
         self.onStartClick = function() {
             if (! model.isStartEnabled()) {
+                return false;
+            }
+
+            var selectedTask = model.selectedTask();
+            if (model.formChanged() && selectedTask && selectedTask.public_id() && selectedTask.public_id() == self.public_id()) {
+                model.onSaveClick();
                 return false;
             }
 
