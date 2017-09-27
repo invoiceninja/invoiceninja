@@ -2464,6 +2464,10 @@ $LANG = array(
     'download_iphone_app' => 'Download the iPhone app',
     'download_android_app' => 'Download the Android app',
     'time_tracker_mobile_help' => 'Double tap a task to select it',
+    'stopped' => 'Stopped',
+    'ascending' => 'Ascending',
+    'descending' => 'Descending',
+    'direction' => 'Direction',
 
 );
 

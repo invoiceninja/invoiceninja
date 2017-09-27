@@ -28,7 +28,7 @@
         }
 
         self.onFilterClick = function(event) {
-            console.log('filter clicked...');
+            $('#filterPanel').toggle();
         }
 
         self.onRefreshClick = function() {
@@ -369,7 +369,6 @@
             refreshProjectList(true);
 
             self.selectedTask(task);
-            //self.filter('');
 
             if (task) {
                 task.focus();

@@ -218,35 +218,67 @@
             </div>
 
             <!-- Task List -->
-            <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" data-bind="foreach: filteredTasks" style="display:none">
-                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
-                    class="list-group-item">
-                    <div class="pull-right" style="text-align:right;">
-                        <div data-bind="visible: actionButtonVisible()"
-                            data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
-                            &nbsp;&nbsp;
-                            <button type="button" data-bind="css: startClass, click: onStartClick, clickBubble: false"
-                                class="btn btn-sm" style="padding-left:0px; padding-right: 12px; padding-bottom: 6px; margin-top:5px;">
-                                <span data-bind="css: startIcon"></span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="pull-right" style="text-align:right; padding-left: 16px;">
-                        <div data-bind="text: totalDuration, style: { fontWeight: isRunning() ? 'bold' : '' }"></div>
-                        <div data-bind="text: age, style: { fontWeight: isRunning() ? 'bold' : '' }" style="padding-top: 2px"></div>
-                    </div>
-					<div style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-	                    <h4 class="list-group-item-heading">
-							<span data-bind="text: description, style: { fontWeight: isRunning() ? 'bold' : '' }"></span>&nbsp;
-						</h4>
-	                    <p class="list-group-item-text">
-	                        <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
-	                        <span data-bind="visible: clientName &amp;&amp; projectName"> | </span>
-	                        <span class="link" data-bind="text: projectName, click: $parent.viewProject, clickBubble: false"></span>
-							&nbsp;
-	                    </p>
+            <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" style="display:none">
+				<div id="filterPanel" style="margin-bottom:0px;padding-top:20px;padding-bottom:0px;padding-left:10px;displayx:none;">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="row" xstyle="padding-bottom:22px;">
+							<div class="col-md-12">
+								{!! Former::select('entity_state')
+								 		->addOption(trans('texts.all'), 'all')
+										->addOption(trans('texts.stopped'), 'stopped')
+										->addOption(trans('texts.running'), 'running') !!}
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-md-6" style="padding-top:24px;">
+								{!! Former::select('sort_by')
+								 		->addOption(trans('texts.date'), 'date')
+										->addOption(trans('texts.duration'), 'duration')
+										->addOption(trans('texts.client'), 'client')
+										->addOption(trans('texts.project'), 'project')
+										->addOption(trans('texts.description'), 'description') !!}
+							</div>
+							<div class="col-md-6" style="padding-top:24px;">
+								{!! Former::select('direction')
+										->addOption(trans('texts.ascending'), 'asc')
+										->addOption(trans('texts.descending'), 'desc') !!}
+							</div>
+						</div>
 					</div>
-                </a>
+				</div>
+				</div>
+
+				<div data-bind="foreach: filteredTasks">
+	                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
+	                    class="list-group-item">
+	                    <div class="pull-right" style="text-align:right;">
+	                        <div data-bind="visible: actionButtonVisible()"
+	                            data-bindx="style : { visibility : actionButtonVisible() ? '' : 'hidden' }">
+	                            &nbsp;&nbsp;
+	                            <button type="button" data-bind="css: startClass, click: onStartClick, clickBubble: false"
+	                                class="btn btn-sm" style="padding-left:0px; padding-right: 12px; padding-bottom: 6px; margin-top:5px;">
+	                                <span data-bind="css: startIcon"></span>
+	                            </button>
+	                        </div>
+	                    </div>
+	                    <div class="pull-right" style="text-align:right; padding-left: 16px;">
+	                        <div data-bind="text: totalDuration, style: { fontWeight: isRunning() ? 'bold' : '' }"></div>
+	                        <div data-bind="text: age, style: { fontWeight: isRunning() ? 'bold' : '' }" style="padding-top: 2px"></div>
+	                    </div>
+						<div style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+		                    <h4 class="list-group-item-heading">
+								<span data-bind="text: description, style: { fontWeight: isRunning() ? 'bold' : '' }"></span>&nbsp;
+							</h4>
+		                    <p class="list-group-item-text">
+		                        <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
+		                        <span data-bind="visible: clientName &amp;&amp; projectName"> | </span>
+		                        <span class="link" data-bind="text: projectName, click: $parent.viewProject, clickBubble: false"></span>
+								&nbsp;
+		                    </p>
+						</div>
+	                </a>
+				</div>
             </div>
 
         </div>
@@ -386,6 +418,7 @@
 				if (projectId == '-1') {
 					$('input[name=project_name]').val(projectName);
 					//var project = new ProjectModel();
+					//project.name = projectName;
 					//model.selectedTask().project = project;
 					//model.selectedTask().project_id(projectId);
 				} else if (projectId) {
