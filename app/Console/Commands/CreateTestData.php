@@ -8,6 +8,8 @@ use App\Ninja\Repositories\ExpenseRepository;
 use App\Ninja\Repositories\InvoiceRepository;
 use App\Ninja\Repositories\PaymentRepository;
 use App\Ninja\Repositories\VendorRepository;
+use App\Ninja\Repositories\TaskRepository;
+use App\Ninja\Repositories\ProjectRepository;
 use App\Models\Client;
 use App\Models\TaxRate;
 use App\Models\Project;
@@ -44,6 +46,7 @@ class CreateTestData extends Command
      * @param PaymentRepository $paymentRepo
      * @param VendorRepository  $vendorRepo
      * @param ExpenseRepository $expenseRepo
+     * @param TaskRepository $taskRepo
      * @param AccountRepository $accountRepo
      */
     public function __construct(
@@ -52,6 +55,8 @@ class CreateTestData extends Command
         PaymentRepository $paymentRepo,
         VendorRepository $vendorRepo,
         ExpenseRepository $expenseRepo,
+        TaskRepository $taskRepo,
+        ProjectRepository $projectRepo,
         AccountRepository $accountRepo)
     {
         parent::__construct();
@@ -63,6 +68,8 @@ class CreateTestData extends Command
         $this->paymentRepo = $paymentRepo;
         $this->vendorRepo = $vendorRepo;
         $this->expenseRepo = $expenseRepo;
+        $this->taskRepo = $taskRepo;
+        $this->projectRepo = $projectRepo;
         $this->accountRepo = $accountRepo;
     }
 
@@ -126,6 +133,7 @@ class CreateTestData extends Command
 
             $this->createInvoices($client);
             $this->createInvoices($client, true);
+            $this->createTasks($client);
         }
     }
 
@@ -175,6 +183,31 @@ class CreateTestData extends Command
 
         $this->info('Payment: ' . $payment->amount);
     }
+
+    private function createTasks($client)
+    {
+        $data = [
+            'client_id' => $client->id,
+            'name' => $this->faker->sentence(10),
+        ];
+        $project = $this->projectRepo->save($data);
+
+        for ($i = 0; $i < $this->count; $i++) {
+            $startTime = date_create()->modify(rand(-100, 100) . ' days')->format('U');
+            $endTime = $startTime + (60 * 60 * 2);
+            $timeLog = "[[{$startTime},{$endTime}]]";
+            $data = [
+                'client_id' => $client->id,
+                'project_id' => $project->id,
+                'description' => $this->faker->text($this->faker->numberBetween(50, 300)),
+                'time_log' => $timeLog,
+            ];
+
+            $this->taskRepo->save(false, $data);
+        }
+    }
+
+
 
     private function createVendors()
     {
