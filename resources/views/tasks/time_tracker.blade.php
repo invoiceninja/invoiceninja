@@ -219,7 +219,7 @@
 
             <!-- Task List -->
             <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" style="display:none">
-				<div id="filterPanel" style="margin-bottom:0px;padding-top:20px;padding-bottom:0px;padding-left:10px;displayx:none;">
+				<div id="filterPanel" style="margin-bottom:0px;padding-top:20px;padding-bottom:0px;padding-left:10px;display:none;">
 				<div class="panel panel-default">
 					<div class="panel-body">
 						<div class="row" xstyle="padding-bottom:22px;">

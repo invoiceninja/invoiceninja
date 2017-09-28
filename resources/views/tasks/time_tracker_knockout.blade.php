@@ -400,8 +400,11 @@
             if (task) {
                 task.focus();
                 if (! task.project()) {
+                    // trigger client change to show all projects in autocomplete
                     $('select#client_id').trigger('change');
                 }
+            } else {
+                $('#search').focus();
             }
 
             if (isStorageSupported()) {
