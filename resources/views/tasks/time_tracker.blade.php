@@ -159,7 +159,7 @@
         </div>
     </nav>
 
-    <div style="height:74px"></div>
+    <div style="height:72px"></div>
 
 	<!--
 	<div data-bind="text: ko.toJSON(model.selectedTask().client_id)"></div>
