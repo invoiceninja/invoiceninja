@@ -13,9 +13,16 @@
         self.selectedClient = ko.observable(false);
         self.selectedProject = ko.observable(false);
 
+        var defaultSortField = 'createdAt';
+        var defaultSortDirection = 'descending';
+        if (isStorageSupported()) {
+            defaultSortField = localStorage.getItem('last:time_tracker:sort_field') || defaultSortField;
+            defaultSortDirection = localStorage.getItem('last:time_tracker:sort_direction') || defaultSortDirection;
+        }
+
         self.filterState = ko.observable('all');
-        self.sortBy = ko.observable('createdAt');
-        self.sortDirection = ko.observable('descending');
+        self.sortField = ko.observable(defaultSortField);
+        self.sortDirection = ko.observable(defaultSortDirection);
 
         self.isDesktop = function() {
             return navigator.userAgent == 'Time Tracker';
@@ -32,7 +39,10 @@
         }
 
         self.onSortChange = function() {
-            console.log('sort change...');
+            if (isStorageSupported()) {
+                localStorage.setItem('last:time_tracker:sort_field', self.sortField());
+                localStorage.setItem('last:time_tracker:sort_direction', self.sortDirection());
+            }
         }
 
         self.onFilterClick = function(event) {
@@ -339,9 +349,10 @@
 
             // sort the data
             tasks.sort(function (left, right) {
-                var leftSortValue = left.sortValue(self.sortBy());
-                var rightSortValue = right.sortValue(self.sortBy());
-                if (self.sortBy() == 'createdAt' || self.sortBy() == 'duration') {
+                var sortField = self.sortField();
+                var leftSortValue = left.sortValue(sortField);
+                var rightSortValue = right.sortValue(sortField);
+                if (sortField == 'createdAt' || sortField == 'duration') {
                     if (self.sortDirection() == 'descending') {
                         return rightSortValue - leftSortValue
                     } else {
@@ -394,7 +405,7 @@
             }
 
             if (isStorageSupported()) {
-                localStorage.setItem('last:time_tracker_task', task ? task.public_id() : 0);
+                localStorage.setItem('last:time_tracker:task_id', task ? task.public_id() : 0);
             }
 
             self.formChanged(false);
@@ -523,7 +534,7 @@
                         self.update(response);
                         model.formChanged(false);
                         if (isStorageSupported()) {
-                            localStorage.setItem('last:time_tracker_task', self.public_id());
+                            localStorage.setItem('last:time_tracker:task_id', self.public_id());
                         }
                         if (isNew) {
                             toastr.success("{{ trans('texts.created_task') }}");

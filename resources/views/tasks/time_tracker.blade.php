@@ -234,13 +234,13 @@
 						</div>
 						<div class="row">
 							<div class="col-md-6" style="padding-top:24px;">
-								{!! Former::select('sort_by')
+								{!! Former::select('sort_field')
 								 		->addOption(trans('texts.date'), 'createdAt')
 										->addOption(trans('texts.duration'), 'duration')
 										->addOption(trans('texts.client'), 'client')
 										->addOption(trans('texts.project'), 'project')
 										->addOption(trans('texts.description'), 'description')
-										->data_bind('value: sortBy, event: {change: onSortChange}') !!}
+										->data_bind('value: sortField, event: {change: onSortChange}') !!}
 							</div>
 							<div class="col-md-6" style="padding-top:24px;">
 								{!! Former::select('sort_direction')
@@ -478,7 +478,7 @@
 			model.tock();
 
 			if (isStorageSupported()) {
-				var taskId = localStorage.getItem('last:time_tracker_task');
+				var taskId = localStorage.getItem('last:time_tracker:task_id');
 				var task = model.taskById(taskId);
 				if (task) {
 					setTimeout(function() {
