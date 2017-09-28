@@ -225,11 +225,7 @@
 
         self.onStartClick = function() {
             if (self.selectedTask()) {
-                if (self.formChanged()) {
-                    self.onSaveClick();
-                } else {
-                    self.selectedTask().onStartClick();
-                }
+                self.selectedTask().onStartClick();
             } else {
                 var time = new TimeModel();
                 time.startTime(moment().unix());
@@ -499,7 +495,7 @@
                             + '&project_name=' + encodeURIComponent(self.project() ? self.project().name() : '')
                             + '&description=' + encodeURIComponent(self.description())
                             + '&time_log=' + JSON.stringify(self.times());
-            
+
             var url = '{{ url('/tasks') }}';
             var method = 'post';
             if (self.public_id()) {
