@@ -139,7 +139,7 @@
 
                 <!-- Navbar Filter -->
                 <div class="input-group input-group-lg">
-                    <span class="input-group-addon" style="width:1%;" data-bind="click: onFilterClick" title="{{ trans('texts.filter_sort') }}"><span class="glyphicon glyphicon-filter"></span></span>
+                    <span class="input-group-addon" style="width:1%;" data-bind="click: onFilterClick, style: { 'background-color': filterState() != 'all' ? '#ffffaa'  : '' }" title="{{ trans('texts.filter_sort') }}"><span class="glyphicon glyphicon-filter"></span></span>
                     <input id="search" type="search" class="form-control search" autocomplete="off" autofocus="autofocus"
                         data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder, style: filterStyle, disabled: formChanged }">
 					<span class="input-group-addon" style="width:1%;" data-bind="click: onRefreshClick" title="{{ trans('texts.refresh') }}"><span class="glyphicon glyphicon-repeat"></span></span>
@@ -224,10 +224,12 @@
 					<div class="panel-body">
 						<div class="row" xstyle="padding-bottom:22px;">
 							<div class="col-md-12">
-								{!! Former::select('entity_state')
+								{!! Former::select('filter_state')
+										->label('filter')
 								 		->addOption(trans('texts.all'), 'all')
 										->addOption(trans('texts.stopped'), 'stopped')
-										->addOption(trans('texts.running'), 'running') !!}
+										->addOption(trans('texts.running'), 'running')
+										->data_bind('value: filterState') !!}
 							</div>
 						</div>
 						<div class="row">
@@ -237,12 +239,14 @@
 										->addOption(trans('texts.duration'), 'duration')
 										->addOption(trans('texts.client'), 'client')
 										->addOption(trans('texts.project'), 'project')
-										->addOption(trans('texts.description'), 'description') !!}
+										->addOption(trans('texts.description'), 'description')
+										->data_bind('value: sortBy') !!}
 							</div>
 							<div class="col-md-6" style="padding-top:24px;">
 								{!! Former::select('direction')
 										->addOption(trans('texts.ascending'), 'asc')
-										->addOption(trans('texts.descending'), 'desc') !!}
+										->addOption(trans('texts.descending'), 'desc')
+										->data_bind('value: sortDirection') !!}
 							</div>
 						</div>
 					</div>

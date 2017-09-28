@@ -13,6 +13,10 @@
         self.selectedClient = ko.observable(false);
         self.selectedProject = ko.observable(false);
 
+        self.filterState = ko.observable('all');
+        self.sortBy = ko.observable('date');
+        self.sortDirection = ko.observable('desc');
+
         self.isDesktop = function() {
             return navigator.userAgent == 'Time Tracker';
         }
@@ -320,14 +324,17 @@
 
         self.filteredTasks = ko.computed(function() {
 
-            // filter the data
-            if(! self.filter()) {
-                var tasks = self.tasks();
-            } else {
-                var filtered = ko.utils.arrayFilter(self.tasks(), function(task) {
-                    return task.matchesFilter(self.filter());
-                });
-                var tasks = filtered.length == 0 ? self.tasks() : filtered;
+            var tasks = self.tasks();
+
+            // bind to fields
+            self.filterState();
+
+            var filtered = ko.utils.arrayFilter(tasks, function(task) {
+                return task.matchesFilter();
+            });
+
+            if (! self.filter() || filtered.length > 0) {
+                tasks = filtered;
             }
 
             // sort the data
@@ -588,33 +595,42 @@
             return times;
         }
 
-        self.matchesFilter = function(filter) {
-            filter = filter.toLowerCase();
-            var parts = filter.split(' ');
-            for (var i=0; i<parts.length; i++) {
-                var part = parts[i];
-                var isMatch = false;
-                if (self.description()) {
-                    if (self.description().toLowerCase().indexOf(part) >= 0) {
-                        isMatch = true;
+        self.matchesFilter = function() {
+            if (model.filter()) {
+                filter = model.filter().toLowerCase();
+                var parts = filter.split(' ');
+                for (var i=0; i<parts.length; i++) {
+                    var part = parts[i];
+                    var isMatch = false;
+                    if (self.description()) {
+                        if (self.description().toLowerCase().indexOf(part) >= 0) {
+                            isMatch = true;
+                        }
                     }
-                }
-                if (self.project()) {
-                    var projectName = self.project().name();
-                    if (projectName && projectName.toLowerCase().indexOf(part) >= 0) {
-                        isMatch = true;
+                    if (self.project()) {
+                        var projectName = self.project().name();
+                        if (projectName && projectName.toLowerCase().indexOf(part) >= 0) {
+                            isMatch = true;
+                        }
                     }
-                }
-                if (self.client()) {
-                    var clientName = self.client().displayName();
-                    if (clientName && clientName.toLowerCase().indexOf(part) >= 0) {
-                        isMatch = true;
+                    if (self.client()) {
+                        var clientName = self.client().displayName();
+                        if (clientName && clientName.toLowerCase().indexOf(part) >= 0) {
+                            isMatch = true;
+                        }
                     }
-                }
-                if (! isMatch) {
-                    return false;
+                    if (! isMatch) {
+                        return false;
+                    }
                 }
             }
+
+            if (model.filterState() == 'stopped' && self.isRunning()) {
+                return false;
+            } else if (model.filterState() == 'running' && ! self.isRunning()) {
+                return false;
+            }
+
             return true;
         }
 
