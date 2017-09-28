@@ -108,7 +108,7 @@
             bottom: 0;
             width: 6px;
             content: "";
-			background-color: #c9302c;
+			background-color: #36c157;
         }
 
 		body {
