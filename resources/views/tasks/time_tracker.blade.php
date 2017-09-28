@@ -507,11 +507,11 @@
 			toastr.options.positionClass = 'toast-bottom-right';
 
 			if (navigator.userAgent != 'Time Tracker') {
-				var link = '{{ config('ninja.time_tracker') }}';
+				var link = '{{ config('ninja.time_tracker_web_url') }}';
 				var message = "{{ trans('texts.download_desktop_app') }}";
 				if (isMobile) {
 					toastr.warning("{{ trans('texts.time_tracker_mobile_help')}}", false, {
-						timeOut: 10000,
+						timeOut: 5000,
 						closeButton: true,
 					});
 					if (isIPhone) {
@@ -522,14 +522,16 @@
 						message = "{{ trans('texts.download_android_app') }}";
 					}
 				}
-				var options = {
-					timeOut: 10000,
-					closeButton: true,
-					onclick: function() {
-						window.open(link, '_blank');
-					}
-				};
-				toastr.info(message, false, options);
+				if (link) {
+					var options = {
+						timeOut: 5000,
+						closeButton: true,
+						onclick: function() {
+							window.open(link, '_blank');
+						}
+					};
+					toastr.info(message, false, options);
+				}
 			}
 
 			if (model.isDesktop()) {
