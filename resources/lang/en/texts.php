@@ -2467,7 +2467,7 @@ $LANG = array(
     'stopped' => 'Stopped',
     'ascending' => 'Ascending',
     'descending' => 'Descending',
-    'direction' => 'Direction',
+    'sort_direction' => 'Direction',
 
 );
 

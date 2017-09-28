@@ -235,18 +235,18 @@
 						<div class="row">
 							<div class="col-md-6" style="padding-top:24px;">
 								{!! Former::select('sort_by')
-								 		->addOption(trans('texts.date'), 'date')
+								 		->addOption(trans('texts.date'), 'createdAt')
 										->addOption(trans('texts.duration'), 'duration')
 										->addOption(trans('texts.client'), 'client')
 										->addOption(trans('texts.project'), 'project')
 										->addOption(trans('texts.description'), 'description')
-										->data_bind('value: sortBy') !!}
+										->data_bind('value: sortBy, event: {change: onSortChange}') !!}
 							</div>
 							<div class="col-md-6" style="padding-top:24px;">
-								{!! Former::select('direction')
-										->addOption(trans('texts.ascending'), 'asc')
-										->addOption(trans('texts.descending'), 'desc')
-										->data_bind('value: sortDirection') !!}
+								{!! Former::select('sort_direction')
+										->addOption(trans('texts.ascending'), 'ascending')
+										->addOption(trans('texts.descending'), 'descending')
+										->data_bind('value: sortDirection, event: {change: onSortChange}') !!}
 							</div>
 						</div>
 					</div>
