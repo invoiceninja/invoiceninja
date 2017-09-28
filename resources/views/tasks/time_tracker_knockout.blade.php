@@ -32,10 +32,7 @@
             if (! model.selectedTask() || ! model.formChanged()) {
                 return;
             }
-            var task = model.selectedTask();
-            var data = $('#taskForm').serialize();
-            data += '&time_log=' + JSON.stringify(task.times());
-            task.save(data, true);
+            model.selectedTask().save(true);
         }
 
         self.onSortChange = function() {
@@ -490,12 +487,19 @@
             }
         }
 
-        self.save = function(data, isSelected) {
+        self.save = function(isSelected) {
             if (self.isValid() !== true) {
                 toastr.error("{{ trans('texts.error_refresh_page') }}");
                 throw self.isValid();
                 return;
             }
+
+            var data = 'client_id=' + self.client_id()
+                            + '&project_id=' + self.project_id()
+                            + '&project_name=' + encodeURIComponent(self.project() ? self.project().name() : '')
+                            + '&description=' + encodeURIComponent(self.description())
+                            + '&time_log=' + JSON.stringify(self.times());
+            
             var url = '{{ url('/tasks') }}';
             var method = 'post';
             if (self.public_id()) {
@@ -702,7 +706,7 @@
                     model.onSaveClick();
                 } else {
                     model.isStartEnabled(false);
-                    self.save('time_log=' + JSON.stringify(self.times()));
+                    self.save();
                 }
             }
         }
