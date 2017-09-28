@@ -424,7 +424,7 @@
         self.project_id = ko.observable();
         self.client = ko.observable();
         self.project = ko.observable();
-        self.actionButtonVisible = ko.observable(false);
+        self.isHovered = ko.observable(false);
         self.created_at = ko.observable(moment().format('YYYY-MM-DD HH:mm:ss'));
 
         self.mapping = {
@@ -603,16 +603,29 @@
             return self.public_id();
         });
 
+        self.isRunning = ko.computed(function() {
+            var timeLog = self.time_log();
+            if (! timeLog.length) {
+                return false;
+            }
+            var time = timeLog[timeLog.length-1];
+            return time.isRunning();
+        });
+
+        self.actionButtonVisible = ko.computed(function() {
+            return self.isHovered();
+        });
+
         self.hasFocus = function() {
             console.log('focused... ' + self.public_id());
         }
 
-        self.showActionButton = function() {
-            self.actionButtonVisible(true);
+        self.onMouseOver = function() {
+            self.isHovered(true);
         }
 
-        self.hideActionButton = function() {
-            self.actionButtonVisible(false);
+        self.onMouseOut = function() {
+            self.isHovered(false);
         }
 
         self.addTime = function(time) {
@@ -703,6 +716,9 @@
                     str += ' changed fade-color';
                 }
             }
+            if (self.isRunning()) {
+                str += ' list-group-item-running';
+            }
             if (! self.project()) {
                 return str;
             }
@@ -710,15 +726,6 @@
             var colorNum = (projectId-1) % 8;
             return str + ' list-group-item-type' + (colorNum+1);
 
-        });
-
-        self.isRunning = ko.computed(function() {
-            var timeLog = self.time_log();
-            if (! timeLog.length) {
-                return false;
-            }
-            var time = timeLog[timeLog.length-1];
-            return time.isRunning();
         });
 
         self.clientName = ko.computed(function() {

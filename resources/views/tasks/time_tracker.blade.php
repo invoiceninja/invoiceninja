@@ -101,6 +101,16 @@
         .list-group-item-type7:before { background-color: #a87821; }
         .list-group-item-type8:before { background-color: #676767; }
 
+		.list-group-item-running:after {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 6px;
+            content: "";
+			background-color: #c9302c;
+        }
+
 		body {
 			margin-bottom: 60px;
 		}
@@ -254,7 +264,7 @@
 				</div>
 
 				<div data-bind="foreach: filteredTasks">
-	                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: showActionButton, mouseout: hideActionButton }, css: listItemState"
+	                <a href="#" data-bind="click: $parent.selectTask, event: { mouseover: onMouseOver, mouseout: onMouseOut }, css: listItemState"
 	                    class="list-group-item">
 	                    <div class="pull-right" style="text-align:right;">
 	                        <div data-bind="visible: actionButtonVisible()"
