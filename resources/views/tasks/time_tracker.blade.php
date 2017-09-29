@@ -4,6 +4,8 @@
 	@parent
 
     <link href="{{ asset('css/built.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+	<link href="{{ asset('css/jquery.timepicker.css') }}?no_cache={{ NINJA_VERSION }}" rel="stylesheet" type="text/css"/>
+	<script src="{{ asset('js/jquery.timepicker.js') }}?no_cache={{ NINJA_VERSION }}" type="text/javascript"></script>
 
 @stop
 
@@ -108,11 +110,18 @@
             bottom: 0;
             width: 6px;
             content: "";
-			background-color: #36c157;
+			xbackground-color: #36c157; /* green */
+			background-color: orange; /* orange */
         }
 
 		body {
 			margin-bottom: 60px;
+		}
+
+		.times-table td {
+			xmargin: 0px !important;
+			xpadding: 0px !important;
+			xpadding-bottom: 10px !important;
 		}
 
 		.footer {
@@ -191,9 +200,62 @@
 		                                    ->data_bind("dropdown: selectedTask().project_id")
 		                                    ->label(trans('texts.project')) !!}
 								</div>
+								<div style="padding-bottom: 20px">
 	                            {!! Former::textarea('description')
 	                                    ->data_bind("value: selectedTask().description")
 	                                    ->rows(4) !!}
+								</div>
+
+								<label>{{ trans('texts.times') }}</label>
+
+
+								<table class="table times-table" style="margin-bottom: 0px !important;">
+									<tbody data-bind="foreach: selectedTask().time_log">
+										<tr data-bindx="event: { mouseover: showActions, mouseout: hideActions }">
+											<td style="padding: 0 6px 10px 0">
+												{!! Former::text('date')
+														->data_bindx('timepicker: startTime')
+														->raw() !!}
+											</td>
+											<td style="padding: 0 6px 10px 6px">
+												{!! Former::text('start_time')
+														->data_bind('timepicker: startTime')
+														->raw() !!}
+											</td>
+											<td style="padding: 0 6px 10px 6px">
+												{!! Former::text('end_time')
+														->data_bind('timepicker: endTime')
+														->raw() !!}
+											</td>
+											<td style="padding: 0 0 10px 6px">
+												{!! Former::text('duration')
+														->raw() !!}
+											</td>
+
+											<!--
+											<td style="padding: 0px 12px 12px 0 !important">
+												<div data-bind="css: { 'has-error': !isStartValid() }">
+													<input type="text" data-bind="dateTimePicker: startTime.pretty, event:{ change: $root.refresh }"
+													class="form-control time-input time-input-start" placeholder="{{ trans('texts.start_time') }}"/>
+												</div>
+											</td>
+											<td style="padding: 0px 12px 12px 0 !important">
+												<div data-bind="css: { 'has-error': !isEndValid() }">
+													<input type="text" data-bind="dateTimePicker: endTime.pretty, event:{ change: $root.refresh }"
+														class="form-control time-input time-input-end" placeholder="{{ trans('texts.end_time') }}"/>
+												</div>
+											</td>
+											<td style="padding: 0px 12px 12px 0 !important; width:100px">
+												<input type="text" data-bind="value: duration.pretty, visible: !isEmpty()" class="form-control"></div>
+												<a href="#" data-bind="click: function() { setNow(), $root.refresh() }, visible: isEmpty()">{{ trans('texts.set_now') }}</a>
+											</td>
+											<td style="width:30px" class="td-icon">
+												<i style="width:12px;cursor:pointer" data-bind="click: $root.removeItem, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle redlink" title="Remove item"/>
+											</td>
+											-->
+										</tr>
+									</tbody>
+								</table>
 							</span>
 
 							<center id="buttons" style="padding-top: 30px">
@@ -392,6 +454,38 @@
 				});
 	        }, 1000 * 60 * 15);
 		}
+
+		ko.bindingHandlers.timepicker = {
+	        init: function (element, valueAccessor, allBindingsAccessor) {
+	           var options = allBindingsAccessor().dropdownOptions|| {};
+	           var value = ko.utils.unwrapObservable(valueAccessor());
+			   var options = {
+				   scrollDefault: 'now',
+				   showDuration: true,
+				   step: 15,
+			   };
+			   $(element).timepicker(options);
+
+			   ko.utils.registerEventHandler(element, "change", function () {
+				 var value = valueAccessor();
+				 value($(element).val());
+			   });
+
+			   /*
+			   var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
+	           if (id) $(element).val(id);
+				*/
+	        },
+	        update: function (element, valueAccessor) {
+	          var value = ko.utils.unwrapObservable(valueAccessor());
+			  var field = $(element).attr('name');
+			  if (field == 'start_time') {
+				  $input = $(element).closest('td').next('td').find('input').show();
+				  $input.timepicker('option', 'durationTime', $(element).val());
+			  }
+	        }
+	    };
+
 
         $(function() {
 

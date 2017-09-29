@@ -68,6 +68,10 @@ elixir(function(mix) {
     ], 'public/css/daterangepicker.css');
 
     mix.styles([
+        bowerDir + '/jt.timepicker/jquery.timepicker.css'
+    ], 'public/css/jquery.timepicker.css');
+
+    mix.styles([
         bowerDir + '/select2/dist/css/select2.css'
     ], 'public/css/select2.css');
 
@@ -98,6 +102,10 @@ elixir(function(mix) {
     mix.scripts([
         bowerDir + '/bootstrap-daterangepicker/daterangepicker.js'
     ], 'public/js/daterangepicker.min.js');
+
+    mix.scripts([
+        bowerDir + '/jt.timepicker/jquery.timepicker.js'
+    ], 'public/js/jquery.timepicker.js');
 
     mix.scripts([
         bowerDir + '/fullcalendar/dist/fullcalendar.js',
