@@ -1,5 +1,63 @@
 <script type="text/javascript">
 
+    function intToTime(seconds)
+    {
+        if (seconds === null) {
+            return null;
+        }
+
+        // calculate seconds, minutes, hours
+        var duration = seconds*1000
+        var milliseconds = parseInt((duration%1000)/100)
+            , seconds = parseInt((duration/1000)%60)
+            , minutes = parseInt((duration/(1000*60))%60)
+            , hours = parseInt((duration/(1000*60*60))%24);
+
+        hours = (hours < 10) ? "0" + hours : hours;
+        minutes = (minutes < 10) ? "0" + minutes : minutes;
+        seconds = (seconds < 10) ? "0" + seconds : seconds;
+
+        return new Date(1970, 0, 1, hours, minutes, seconds, 0);
+    }
+
+    ko.bindingHandlers.timepicker = {
+        init: function (element, valueAccessor, allBindingsAccessor) {
+           var options = allBindingsAccessor().timepickerOptions || {};
+           $.extend(options, {
+               wrapHours: false,
+               showDuration: true,
+               step: 15,
+           });
+           $(element).timepicker(options);
+
+           ko.utils.registerEventHandler(element, 'change', function () {
+             var value = valueAccessor();
+             var dateTime = $(element).timepicker('getTime');
+             if (dateTime) {
+                 time = dateTime.getTime() / 1000;
+             }
+             value(time);
+           });
+        },
+        update: function (element, valueAccessor) {
+          var value = ko.utils.unwrapObservable(valueAccessor());
+          var field = $(element).attr('name');
+
+          if (field == 'duration') {
+              $(element).timepicker('setTime', intToTime(value));
+          } else {
+              $(element).timepicker('setTime', new Date(value * 1000));
+          }
+
+          //console.log(field + ': ' + value);
+          if (field == 'start_time') {
+              $input = $(element).closest('td').next('td').find('input').show();
+              $input.timepicker('option', 'durationTime', $(element).val());
+          }
+        }
+    };
+
+
     function ViewModel() {
         var self = this;
         self.tasks = ko.observableArray();
@@ -881,7 +939,6 @@
         var self = this;
         self.startTime = ko.observable(0);
         self.endTime = ko.observable(0);
-        self.duration = ko.observable(0);
         self.actionsVisible = ko.observable(false);
         self.isStartValid = ko.observable(true);
         self.isEndValid = ko.observable(true);
@@ -908,9 +965,17 @@
             return moment.unix(self.startTime()).fromNow();
         });
 
-        self.duration = ko.computed(function() {
-            model.clock(); // bind to the clock
-            return (self.endTime() || moment().unix()) - self.startTime();
+        self.duration = ko.computed({
+            read: function () {
+                model.clock(); // bind to the clock
+                var endTime = self.endTime() ? self.endTime() : moment().unix();
+                //console.log('duration: ' + (endTime - self.startTime()));
+                return endTime - self.startTime();
+            },
+            write: function(value) {
+                console.log('duration: ' + value);
+                //self.endTime(value);
+            }
         });
 
 

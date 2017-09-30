@@ -14,11 +14,13 @@
 
     <style type="text/css">
 
+		/*
 		@media (max-width: 768px) {
 			#formDiv {
 				position: relative;
 			}
 		}
+		*/
 
 		@media (max-width: 768px) {
 			#clock,
@@ -124,6 +126,10 @@
 			xpadding-bottom: 10px !important;
 		}
 
+		.ui-timepicker-wrapper {
+			width: 10em !important;
+		}
+
 		.footer {
 			position: fixed;
 			bottom: 0;
@@ -184,7 +190,7 @@
 
             <!-- Task Form -->
             <div class="col-sm-7 col-sm-push-5">
-                <div id="formDiv" class="panel panel-default affix" data-bind="visible: selectedTask" style="margin:20px; display:none;">
+                <div id="formDiv" class="panel panel-default x-affix" data-bind="visible: selectedTask" style="margin:20px; display:none;">
                     <div class="panel-body">
 						<form id="taskForm">
 							<span data-bind="event: { keypress: onFormKeyPress, change: onFormChange, input: onFormChange }">
@@ -214,21 +220,22 @@
 										<tr data-bindx="event: { mouseover: showActions, mouseout: hideActions }">
 											<td style="padding: 0 6px 10px 0">
 												{!! Former::text('date')
-														->data_bindx('timepicker: startTime')
+														->data_bindx("")
 														->raw() !!}
 											</td>
 											<td style="padding: 0 6px 10px 6px">
 												{!! Former::text('start_time')
-														->data_bind('timepicker: startTime')
+														->data_bind("timepicker: startTime, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
 														->raw() !!}
 											</td>
 											<td style="padding: 0 6px 10px 6px">
 												{!! Former::text('end_time')
-														->data_bind('timepicker: endTime')
+														->data_bind("timepicker: endTime, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
 														->raw() !!}
 											</td>
 											<td style="padding: 0 0 10px 6px">
 												{!! Former::text('duration')
+														->data_bind("timepicker: duration, timepickerOptions: {timeFormat: 'H:i:s', showAsDuration: true}")
 														->raw() !!}
 											</td>
 
@@ -237,12 +244,6 @@
 												<div data-bind="css: { 'has-error': !isStartValid() }">
 													<input type="text" data-bind="dateTimePicker: startTime.pretty, event:{ change: $root.refresh }"
 													class="form-control time-input time-input-start" placeholder="{{ trans('texts.start_time') }}"/>
-												</div>
-											</td>
-											<td style="padding: 0px 12px 12px 0 !important">
-												<div data-bind="css: { 'has-error': !isEndValid() }">
-													<input type="text" data-bind="dateTimePicker: endTime.pretty, event:{ change: $root.refresh }"
-														class="form-control time-input time-input-end" placeholder="{{ trans('texts.end_time') }}"/>
 												</div>
 											</td>
 											<td style="padding: 0px 12px 12px 0 !important; width:100px">
@@ -454,38 +455,6 @@
 				});
 	        }, 1000 * 60 * 15);
 		}
-
-		ko.bindingHandlers.timepicker = {
-	        init: function (element, valueAccessor, allBindingsAccessor) {
-	           var options = allBindingsAccessor().dropdownOptions|| {};
-	           var value = ko.utils.unwrapObservable(valueAccessor());
-			   var options = {
-				   scrollDefault: 'now',
-				   showDuration: true,
-				   step: 15,
-			   };
-			   $(element).timepicker(options);
-
-			   ko.utils.registerEventHandler(element, "change", function () {
-				 var value = valueAccessor();
-				 value($(element).val());
-			   });
-
-			   /*
-			   var id = (value && value.public_id) ? value.public_id() : (value && value.id) ? value.id() : value ? value : false;
-	           if (id) $(element).val(id);
-				*/
-	        },
-	        update: function (element, valueAccessor) {
-	          var value = ko.utils.unwrapObservable(valueAccessor());
-			  var field = $(element).attr('name');
-			  if (field == 'start_time') {
-				  $input = $(element).closest('td').next('td').find('input').show();
-				  $input.timepicker('option', 'durationTime', $(element).val());
-			  }
-	        }
-	    };
-
 
         $(function() {
 
