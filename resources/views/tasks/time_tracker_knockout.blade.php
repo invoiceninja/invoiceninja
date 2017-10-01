@@ -48,7 +48,17 @@
 
            ko.utils.registerEventHandler(element, 'change', function () {
              var value = valueAccessor();
+             var field = $(element).attr('name');
              var seconds = $(element).timepicker('getSecondsFromMidnight');
+
+             if (field == 'end_time') {
+                 $input = $(element).closest('td').prev('td').find('input');
+                 var startTime = $input.timepicker('getSecondsFromMidnight');
+                 if (seconds < startTime) {
+                     seconds += 60 * 60 * 24;
+                 }
+             }
+
              value(seconds);
            });
         },
@@ -68,8 +78,9 @@
 
           if (field == 'start_time') {
               setTimeout(function() {
-                  $input = $(element).closest('td').next('td').find('input').show();
+                  $input = $(element).closest('td').next('td').find('input');
                   $input.timepicker('option', 'durationTime', $(element).val());
+                  $input.timepicker('option', 'minTime', $(element).val());
               }, 1);
           }
         }
