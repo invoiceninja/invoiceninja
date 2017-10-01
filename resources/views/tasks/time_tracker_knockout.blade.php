@@ -1185,50 +1185,6 @@
                 self.endTime(self.startTime() + value);
             }
         });
-
-
-        /*
-        self.startTime.pretty = ko.computed({
-            read: function() {
-                return self.startTime() ? moment.unix(self.startTime()).tz(timezone).format(dateTimeFormat) : '';
-            },
-            write: function(data) {
-                self.startTime(moment(data, dateTimeFormat).tz(timezone).unix());
-            }
-        });
-
-        self.endTime.pretty = ko.computed({
-            read: function() {
-                return self.endTime() ? moment.unix(self.endTime()).tz(timezone).format(dateTimeFormat) : '';
-            },
-            write: function(data) {
-                self.endTime(moment(data, dateTimeFormat).tz(timezone).unix());
-            }
-        });
-
-        self.setNow = function() {
-            self.startTime(moment.tz(timezone).unix());
-            self.endTime(moment.tz(timezone).unix());
-        }
-
-        self.duration.pretty = ko.computed({
-            read: function() {
-                var duration = false;
-                var start = self.startTime();
-                var end = self.endTime();
-
-                if (start && end) {
-                    var duration = end - start;
-                }
-
-                var duration = moment.duration(duration * 1000);
-                return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
-            },
-            write: function(data) {
-                self.endTime(self.startTime() + convertToSeconds(data));
-            }
-        });
-        */
     }
 
 </script>
