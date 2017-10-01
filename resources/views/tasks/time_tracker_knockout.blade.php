@@ -73,10 +73,11 @@
               }
           }
 
-          //console.log(field + ': ' + value);
           if (field == 'start_time') {
-              $input = $(element).closest('td').next('td').find('input').show();
-              $input.timepicker('option', 'durationTime', $(element).val());
+              setTimeout(function() {
+                  $input = $(element).closest('td').next('td').find('input').show();
+                  $input.timepicker('option', 'durationTime', $(element).val());
+              }, 1);
           }
         }
     };
@@ -894,6 +895,12 @@
             var duration = self.seconds(false);
             return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
         });
+
+        self.removeTime = function(time) {
+            console.log('removed..');
+            model.formChanged(true);
+            self.time_log.remove(time);
+        }
     }
 
     function ProjectModel(data) {
@@ -963,14 +970,26 @@
         var self = this;
         self.startTime = ko.observable(0);
         self.endTime = ko.observable(0);
-        self.actionsVisible = ko.observable(false);
         self.isStartValid = ko.observable(true);
         self.isEndValid = ko.observable(true);
+        self.isHovered = ko.observable(false);
 
         if (data) {
             self.startTime(data[0]);
             self.endTime(data[1]);
         };
+
+        self.actionButtonVisible = ko.computed(function() {
+            return self.isHovered() && ! self.isEmpty();
+        });
+
+        self.onMouseOver = function() {
+            self.isHovered(true);
+        }
+
+        self.onMouseOut = function() {
+            self.isHovered(false);
+        }
 
         self.startDate = ko.computed({
             read: function () {

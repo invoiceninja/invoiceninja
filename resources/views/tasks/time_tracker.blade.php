@@ -127,7 +127,7 @@
 		}
 
 		.ui-timepicker-wrapper {
-			width: 10em !important;
+			width: 200px !important;
 		}
 
 		.footer {
@@ -217,27 +217,34 @@
 
 								<table class="table times-table" style="margin-bottom: 0px !important;">
 									<tbody data-bind="foreach: selectedTask().time_log">
-										<tr data-bindx="event: { mouseover: showActions, mouseout: hideActions }">
+										<tr data-bind="event: { mouseover: onMouseOver, mouseout: onMouseOut }">
 											<td style="padding: 0 6px 10px 0">
 												{!! Former::text('date')
+														->placeholder('date')
 														->data_bind("datepicker: startDate, valueUpdate: 'afterkeydown'")
 														->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
 														->raw() !!}
 											</td>
 											<td style="padding: 0 6px 10px 6px">
 												{!! Former::text('start_time')
+														->placeholder('start_time')
 														->data_bind("timepicker: startTime, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
 														->raw() !!}
 											</td>
 											<td style="padding: 0 6px 10px 6px">
 												{!! Former::text('end_time')
+														->placeholder('end_time')
 														->data_bind("timepicker: endTime, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
 														->raw() !!}
 											</td>
 											<td style="padding: 0 0 10px 6px">
 												{!! Former::text('duration')
+														->placeholder('duration')
 														->data_bind("timepicker: duration, timepickerOptions: {timeFormat: 'H:i:s', showAsDuration: true}")
 														->raw() !!}
+											</td>
+											<td style="width:38px; padding-top: 0px; padding-right: 8px">
+												<i style="cursor:pointer;float:right" data-bind="click: $root.selectedTask().removeTime, visible: actionButtonVisible" class="fa fa-minus-circle redlink" title="{{ trans('texts.remove') }}"/>
 											</td>
 
 											<!--
