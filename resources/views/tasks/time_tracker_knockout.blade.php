@@ -664,6 +664,7 @@
             for (var i=0; i<times.length; i++) {
                 self.time_log.push(new TimeModel(times[i]));
             }
+            self.checkForEmpty();
         }
 
         self.checkForEmpty = function() {
@@ -921,7 +922,6 @@
 
         if (data) {
             self.update(data);
-            self.checkForEmpty();
         }
     }
 
@@ -1022,7 +1022,12 @@
                 return self.startTime();
             },
             write: function(value) {
-                self.startTime(self.startDateMidnight().unix() + value);
+                if (self.startTime()) {
+                    var orig = self.startDateMidnight().unix();
+                } else {
+                    var orig = moment().set('hours', 0).set('minutes', 0).set('seconds', 0).unix();
+                }
+                self.startTime(orig + value);
             }
         });
 
