@@ -714,10 +714,6 @@
             return self.isHovered();
         });
 
-        self.hasFocus = function() {
-            console.log('focused... ' + self.public_id());
-        }
-
         self.onMouseOver = function() {
             self.isHovered(true);
         }
@@ -1051,14 +1047,11 @@
                 var diff = newVal.diff(origVal, 'days') * 60 * 60 * 24;
                 if (self.startTime()) {
                     self.startTime(self.startTime() + diff);
-                    console.log('update start to: ' + self.startTime());
                     if (self.endTime()) {
                         self.endTime(self.endTime() + diff);
                     }
                 } else {
                     self.startTime(newVal.unix());
-                    //self.startTime(value);
-                    console.log('set start to: ' + self.startTime());
                 }
             }
         });
