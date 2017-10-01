@@ -1060,7 +1060,7 @@
             },
             write: function(value) {
                 if (value === null) {
-                    self.startTime('');
+                    self.startTime(0);
                 } else {
                     if (self.startTime()) {
                         var orig = self.startDateMidnight().unix();
@@ -1078,7 +1078,7 @@
             },
             write: function(value) {
                 if (value === null) {
-                    self.endTime('');
+                    self.endTime(0);
                 } else {
                     self.endTime(self.startDateMidnight().unix() + value);
                 }
