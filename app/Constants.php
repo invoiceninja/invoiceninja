@@ -341,6 +341,8 @@ if (! defined('APP_NAME')) {
     define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
     define('INVOICEPLANE_IMPORT', 'https://github.com/turbo124/Plane2Ninja');
 
+    define('TIME_TRACKER_USER_AGENT', 'Time Tracker');
+
     define('BOT_PLATFORM_WEB_APP', 'WebApp');
     define('BOT_PLATFORM_SKYPE', 'Skype');
 

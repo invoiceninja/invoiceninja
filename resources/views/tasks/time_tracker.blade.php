@@ -571,7 +571,7 @@
 			toastr.options.timeOut = 3000;
 			toastr.options.positionClass = 'toast-bottom-right';
 
-			if (navigator.userAgent != 'Time Tracker') {
+			if (navigator.userAgent != '{{ TIME_TRACKER_USER_AGENT }}') {
 				var link = '{{ config('ninja.time_tracker_web_url') }}';
 				var message = "{{ trans('texts.download_desktop_app') }}";
 				if (isMobile) {

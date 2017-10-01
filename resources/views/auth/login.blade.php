@@ -110,6 +110,19 @@
             } else {
                 $('#email').focus();
             }
+
+            @if (array_get($_SERVER, 'HTTP_USER_AGENT') == TIME_TRACKER_USER_AGENT)
+                if (isStorageSupported()) {
+                    $('#email').change(function() {
+                        localStorage.setItem('last:time_tracker:email', $('#email').val());
+                    })
+                    var email = localStorage.getItem('last:time_tracker:email');
+                    if (email) {
+                        $('#email').val(email);
+                        $('#password').focus();
+                    }
+                }
+            @endif
         })
     </script>
 
