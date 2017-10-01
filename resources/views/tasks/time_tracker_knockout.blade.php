@@ -650,31 +650,28 @@
             var times = data.time_log instanceof Array ? data.time_log : JSON.parse(data.time_log);
             ko.mapping.fromJS(data, self.mapping, this);
             self.time_log.removeAll();
-            console.log('removing all...');
             for (var i=0; i<times.length; i++) {
                 self.time_log.push(new TimeModel(times[i]));
             }
-            //self.addTime();
-            self.checkForEmpty();
+            if (! self.isRunning()) {
+                self.addTime();
+            }
         }
 
         self.checkForEmpty = function() {
             setTimeout(function() {
-                console.log('checking..');
                 var hasEmpty = false;
                 var times = self.time_log();
                 for (var i=0; i<times.length; i++) {
                     var timeLog = times[i];
-                    console.log('end time: ' + timeLog.endTime());
                     if (! timeLog.endTime()) {
                         hasEmpty = true;
                     }
                 }
                 if (! hasEmpty) {
-                    console.log('addng blank');
                     self.addTime();
                 }
-            }, 1);
+            }, 0);
         }
 
         self.sortValue = function(field) {
@@ -734,7 +731,7 @@
             for (var i=0; i<self.time_log().length; i++) {
                 var timeLog = self.time_log()[i];
                 if (! timeLog.isEmpty()) {
-                    times.push([timeLog.startTime(),timeLog.endTime()]);
+                    times.push([timeLog.startTime(), timeLog.endTime()]);
                 }
             }
             return times;
@@ -788,9 +785,16 @@
                 var time = self.lastTime();
                 time.endTime(moment().unix());
             } else {
-                var time = new TimeModel();
+                var lastTime = self.lastTime();
+                if (lastTime && ! lastTime.startTime()) {
+                    console.log('using time');
+                    var time = lastTime;
+                } else {
+                    console.log('adding time');
+                    var time = new TimeModel();
+                    self.addTime(time);
+                }
                 time.startTime(moment().unix());
-                self.addTime(time);
             }
 
             if (self.public_id()) {
