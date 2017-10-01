@@ -76,8 +76,8 @@
     };
 
     var defaultTimes = [];
-    for (var i=15; i<(15*4*24); i+=15) {
-        var time = moment.utc(i * 1000 * 60).format("HH:mm:ss");
+    for (var i=15; i<(15*4*6); i+=15) {
+        var time = moment.utc(i * 1000 * 60).format("H:mm:ss");
         defaultTimes.push(time);
     }
 

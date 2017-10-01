@@ -127,7 +127,11 @@
 			xpadding-bottom: 10px !important;
 		}
 
-		.ui-timepicker-wrapper {
+		.ui-timepicker-wrapper.start-time  {
+			width: 140px !important;
+		}
+
+		.ui-timepicker-wrapper.end-time  {
 			width: 230px !important;
 		}
 
@@ -230,7 +234,7 @@
 												<div data-bind="css: { 'has-error': !isStartValid() }">
 													{!! Former::text('start_time')
 															->placeholder('start_time')
-															->data_bind("timepicker: startTimeOfDay, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
+															->data_bind("timepicker: startTimeOfDay, timepickerOptions: {className: 'start-time', scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
 															->raw() !!}
 												</div>
 											</td>
@@ -238,17 +242,18 @@
 												<div data-bind="css: { 'has-error': !isEndValid() }">
 													{!! Former::text('end_time')
 															->placeholder('end_time')
-															->data_bind("timepicker: endTimeOfDay, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
+															->data_bind("timepicker: endTimeOfDay, timepickerOptions: {className: 'end-time', scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
 															->raw() !!}
 												</div>
 											</td>
 											<td style="padding: 0 0 10px 6px">
 												{!! Former::text('duration')
 														->placeholder('duration')
+														->addClass('hide-phone')
 														->data_bind("typeahead: duration")
 														->raw() !!}
 											</td>
-											<td style="width:38px; padding-top: 0px; padding-right: 8px">
+											<td style="width:38px; padding-top: 0px; padding-right: 8px" class="hide-phone">
 												<i style="cursor:pointer;float:right" data-bind="click: $root.selectedTask().removeTime, visible: actionButtonVisible" class="fa fa-minus-circle redlink" title="{{ trans('texts.remove') }}"/>
 											</td>
 
