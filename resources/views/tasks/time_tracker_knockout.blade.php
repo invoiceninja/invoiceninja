@@ -106,7 +106,13 @@
             {
                 name: 'times',
                 source: timeMatcher(defaultTimes)
+            }).on('typeahead:change', function(element, datum, name) {
+                console.log('change: ' + datum)
+                var value = valueAccessor();
+                var duration = moment.duration(datum).asSeconds();
+                value(duration);
             }).on('typeahead:select', function(element, datum, name) {
+                console.log('select: ' + datum)
                 var value = valueAccessor();
                 var duration = moment.duration(datum).asSeconds();
                 value(duration);
@@ -119,7 +125,6 @@
                 var duration = moment.duration(value * 1000);
                 var value = Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
                 $(element).typeahead('val', value);
-                //$(element).typeahead('val', moment.utc(value * 1000).format("H:mm:ss"));
             }
         }
     };
@@ -1175,12 +1180,8 @@
                 }
                 var endTime = self.endTime() ? self.endTime() : moment().unix();
                 return endTime - self.startTime();
-                //var duration = moment.duration((endTime - self.startTime()) * 1000);
-                //console.log(Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss"));
-                //return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
             },
             write: function(value) {
-                console.log('end: ' + (self.startTime() + value));
                 self.endTime(self.startTime() + value);
             }
         });
