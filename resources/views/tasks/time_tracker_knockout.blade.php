@@ -20,6 +20,22 @@
         return new Date(1970, 0, 1, hours, minutes, seconds, 0);
     }
 
+    ko.bindingHandlers.datepicker = {
+        init: function (element, valueAccessor, allBindingsAccessor) {
+           $(element).datepicker();
+           $(element).change(function() {
+              var value = valueAccessor();
+              value($(element).datepicker('getDate'));
+           })
+        },
+        update: function (element, valueAccessor) {
+           var value = ko.utils.unwrapObservable(valueAccessor());
+           if (value) {
+               $(element).datepicker('setDate', new Date(value * 1000));
+           }
+        }
+    };
+
     ko.bindingHandlers.timepicker = {
         init: function (element, valueAccessor, allBindingsAccessor) {
            var options = allBindingsAccessor().timepickerOptions || {};
@@ -32,9 +48,15 @@
 
            ko.utils.registerEventHandler(element, 'change', function () {
              var value = valueAccessor();
-             var dateTime = $(element).timepicker('getTime');
-             if (dateTime) {
-                 time = dateTime.getTime() / 1000;
+             var field = $(element).attr('name');
+             var time = 0;
+             if (field == 'duration') {
+                time = $(element).timepicker('getSecondsFromMidnight');
+             } else {
+                 var dateTime = $(element).timepicker('getTime');
+                 if (dateTime) {
+                     time = dateTime.getTime() / 1000;
+                 }
              }
              value(time);
            });
@@ -46,7 +68,9 @@
           if (field == 'duration') {
               $(element).timepicker('setTime', intToTime(value));
           } else {
-              $(element).timepicker('setTime', new Date(value * 1000));
+              if (value) {
+                  $(element).timepicker('setTime', new Date(value * 1000));
+              }
           }
 
           //console.log(field + ': ' + value);
@@ -948,6 +972,15 @@
             self.endTime(data[1]);
         };
 
+        self.startDate = ko.computed({
+            read: function () {
+                return self.startTime();
+            },
+            write: function(value) {
+                console.log('New Date: ' + value);
+            }
+        });
+
         self.order = ko.computed(function() {
             return self.startTime();
         });
@@ -969,12 +1002,10 @@
             read: function () {
                 model.clock(); // bind to the clock
                 var endTime = self.endTime() ? self.endTime() : moment().unix();
-                //console.log('duration: ' + (endTime - self.startTime()));
                 return endTime - self.startTime();
             },
             write: function(value) {
-                console.log('duration: ' + value);
-                //self.endTime(value);
+                self.endTime(self.startTime() + value);
             }
         });
 

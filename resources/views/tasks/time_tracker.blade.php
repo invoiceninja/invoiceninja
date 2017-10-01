@@ -220,7 +220,8 @@
 										<tr data-bindx="event: { mouseover: showActions, mouseout: hideActions }">
 											<td style="padding: 0 6px 10px 0">
 												{!! Former::text('date')
-														->data_bindx("")
+														->data_bind("datepicker: startDate, valueUpdate: 'afterkeydown'")
+														->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
 														->raw() !!}
 											</td>
 											<td style="padding: 0 6px 10px 6px">
@@ -376,7 +377,6 @@
         var tasks = {!! $tasks !!};
 		var clients = {!! $clients !!};
 	    var projects = {!! $projects !!};
-        var dateTimeFormat = '{{ $account->getMomentDateTimeFormat() }}';
         var timezone = '{{ $account->getTimezone() }}';
 
 		var clientMap = {};
