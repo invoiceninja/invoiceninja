@@ -303,6 +303,10 @@
             if (self.selectedTask()) {
                 self.selectedTask().onStartClick();
             } else {
+                if (! task.checkForOverlaps()) {
+                    swal("{{ trans('texts.task_errors') }}");
+                    return;
+                }
                 var time = new TimeModel();
                 time.startTime(moment().unix());
                 var task = new TaskModel();
@@ -560,6 +564,10 @@
         }
 
         self.save = function(isSelected) {
+            if (! self.checkForOverlaps()) {
+                swal("{{ trans('texts.task_errors') }}");
+                return;
+            }
             if (self.isValid() !== true) {
                 toastr.error("{{ trans('texts.error_refresh_page') }}");
                 throw self.isValid();
@@ -658,6 +666,33 @@
             }
         }
 
+        self.checkForOverlaps = function() {
+            var lastTime = 0;
+            var isValid = true;
+
+            for (var i=0; i<self.time_log().length; i++) {
+                var timeLog = self.time_log()[i];
+                var startValid = true;
+                var endValid = true;
+                if (!timeLog.isEmpty()) {
+                    if (timeLog.startTime() < lastTime || (timeLog.endTime() && timeLog.startTime() > timeLog.endTime())) {
+                        startValid = false;
+                    }
+                    if (timeLog.endTime() && timeLog.endTime() < Math.min(timeLog.startTime(), lastTime)) {
+                        endValid = false;
+                    }
+                    lastTime = Math.max(lastTime, timeLog.endTime());
+                }
+                timeLog.isStartValid(startValid);
+                timeLog.isEndValid(endValid);
+                if (! startValid || ! endValid) {
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
         self.checkForEmpty = function() {
             setTimeout(function() {
                 var hasEmpty = false;
@@ -708,6 +743,7 @@
         });
 
         self.onChange = function() {
+            self.checkForOverlaps();
             self.checkForEmpty();
         }
 
@@ -780,17 +816,18 @@
             if (! model.isStartEnabled()) {
                 return false;
             }
-
+            if (! self.checkForOverlaps()) {
+                swal("{{ trans('texts.task_errors') }}");
+                return;
+            }
             if (self.isRunning()) {
                 var time = self.lastTime();
                 time.endTime(moment().unix());
             } else {
                 var lastTime = self.lastTime();
                 if (lastTime && ! lastTime.startTime()) {
-                    console.log('using time');
                     var time = lastTime;
                 } else {
-                    console.log('adding time');
                     var time = new TimeModel();
                     self.addTime(time);
                 }

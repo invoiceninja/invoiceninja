@@ -226,16 +226,20 @@
 														->raw() !!}
 											</td>
 											<td style="padding: 0 6px 10px 6px">
-												{!! Former::text('start_time')
-														->placeholder('start_time')
-														->data_bind("timepicker: startTimeOfDay, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
-														->raw() !!}
+												<div data-bind="css: { 'has-error': !isStartValid() }">
+													{!! Former::text('start_time')
+															->placeholder('start_time')
+															->data_bind("timepicker: startTimeOfDay, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
+															->raw() !!}
+												</div>
 											</td>
 											<td style="padding: 0 6px 10px 6px">
-												{!! Former::text('end_time')
-														->placeholder('end_time')
-														->data_bind("timepicker: endTimeOfDay, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
-														->raw() !!}
+												<div data-bind="css: { 'has-error': !isEndValid() }">
+													{!! Former::text('end_time')
+															->placeholder('end_time')
+															->data_bind("timepicker: endTimeOfDay, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
+															->raw() !!}
+												</div>
 											</td>
 											<td style="padding: 0 0 10px 6px">
 												{!! Former::text('duration')
