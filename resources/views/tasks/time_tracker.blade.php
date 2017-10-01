@@ -245,28 +245,13 @@
 											<td style="padding: 0 0 10px 6px">
 												{!! Former::text('duration')
 														->placeholder('duration')
-														->data_bind("timepicker: duration, timepickerOptions: {timeFormat: 'H:i:s', showAsDuration: true}")
+														->data_bind("typeahead: duration")
 														->raw() !!}
 											</td>
 											<td style="width:38px; padding-top: 0px; padding-right: 8px">
 												<i style="cursor:pointer;float:right" data-bind="click: $root.selectedTask().removeTime, visible: actionButtonVisible" class="fa fa-minus-circle redlink" title="{{ trans('texts.remove') }}"/>
 											</td>
 
-											<!--
-											<td style="padding: 0px 12px 12px 0 !important">
-												<div data-bind="css: { 'has-error': !isStartValid() }">
-													<input type="text" data-bind="dateTimePicker: startTime.pretty, event:{ change: $root.refresh }"
-													class="form-control time-input time-input-start" placeholder="{{ trans('texts.start_time') }}"/>
-												</div>
-											</td>
-											<td style="padding: 0px 12px 12px 0 !important; width:100px">
-												<input type="text" data-bind="value: duration.pretty, visible: !isEmpty()" class="form-control"></div>
-												<a href="#" data-bind="click: function() { setNow(), $root.refresh() }, visible: isEmpty()">{{ trans('texts.set_now') }}</a>
-											</td>
-											<td style="width:30px" class="td-icon">
-												<i style="width:12px;cursor:pointer" data-bind="click: $root.removeItem, visible: actionsVisible() &amp;&amp; !isEmpty()" class="fa fa-minus-circle redlink" title="Remove item"/>
-											</td>
-											-->
 										</tr>
 									</tbody>
 								</table>

@@ -49,7 +49,6 @@
            ko.utils.registerEventHandler(element, 'change', function () {
              var value = valueAccessor();
              var seconds = $(element).timepicker('getSecondsFromMidnight');
-             console.log('seconds:' + seconds);
              value(seconds);
            });
         },
@@ -73,6 +72,55 @@
                   $input.timepicker('option', 'durationTime', $(element).val());
               }, 1);
           }
+        }
+    };
+
+    var defaultTimes = [];
+    for (var i=15; i<(15*4*24); i+=15) {
+        var time = moment.utc(i * 1000 * 60).format("HH:mm:ss");
+        defaultTimes.push(time);
+    }
+
+    var timeMatcher = function(strs) {
+      return function findMatches(q, cb) {
+        var matches, substringRegex;
+        matches = [];
+        substrRegex = new RegExp(q, 'i');
+        $.each(strs, function(i, str) {
+          if (substrRegex.test(str)) {
+            matches.push(str);
+          }
+        });
+        cb(matches);
+      };
+    };
+
+    ko.bindingHandlers.typeahead = {
+        init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            var $element = $(element);
+            var allBindings = allBindingsAccessor();
+            $element.typeahead({
+                highlight: true,
+                minLength: 0,
+            },
+            {
+                name: 'times',
+                source: timeMatcher(defaultTimes)
+            }).on('typeahead:select', function(element, datum, name) {
+                var value = valueAccessor();
+                var duration = moment.duration(datum).asSeconds();
+                value(duration);
+            });
+        },
+
+        update: function (element, valueAccessor) {
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            if (value) {
+                var duration = moment.duration(value * 1000);
+                var value = Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
+                $(element).typeahead('val', value);
+                //$(element).typeahead('val', moment.utc(value * 1000).format("H:mm:ss"));
+            }
         }
     };
 
@@ -672,9 +720,6 @@
                 var startValid = true;
                 var endValid = true;
                 if (!timeLog.isEmpty()) {
-                    console.log('1: ' + (lastTime && timeLog.startTime() < lastTime));
-                    console.log('2: ' + (timeLog.endTime() && timeLog.startTime() > timeLog.endTime()));
-                    console.log('end: ' + timeLog.endTime());
                     if ((lastTime && timeLog.startTime() < lastTime) || (timeLog.endTime() && timeLog.startTime() > timeLog.endTime())) {
                         startValid = false;
                     }
@@ -1130,8 +1175,12 @@
                 }
                 var endTime = self.endTime() ? self.endTime() : moment().unix();
                 return endTime - self.startTime();
+                //var duration = moment.duration((endTime - self.startTime()) * 1000);
+                //console.log(Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss"));
+                //return Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss");
             },
             write: function(value) {
+                console.log('end: ' + (self.startTime() + value));
                 self.endTime(self.startTime() + value);
             }
         });
