@@ -1022,8 +1022,6 @@
                 return self.startTime();
             },
             write: function(value) {
-                console.log('midnigh: ' + self.startDateMidnight().unix());
-                console.log('value: ' + value);
                 self.startTime(self.startDateMidnight().unix() + value);
             }
         });
@@ -1033,7 +1031,7 @@
                 return self.endTime();
             },
             write: function(value) {
-
+                self.endTime(self.startDateMidnight().unix() + value);
             }
         });
 

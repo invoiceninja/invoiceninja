@@ -127,7 +127,7 @@
 		}
 
 		.ui-timepicker-wrapper {
-			width: 200px !important;
+			width: 230px !important;
 		}
 
 		.footer {
