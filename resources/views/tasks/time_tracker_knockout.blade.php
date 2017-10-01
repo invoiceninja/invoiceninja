@@ -49,6 +49,7 @@
            ko.utils.registerEventHandler(element, 'change', function () {
              var value = valueAccessor();
              var seconds = $(element).timepicker('getSecondsFromMidnight');
+             console.log('seconds:' + seconds);
              value(seconds);
            });
         },
@@ -303,10 +304,6 @@
             if (self.selectedTask()) {
                 self.selectedTask().onStartClick();
             } else {
-                if (! task.checkForOverlaps()) {
-                    swal("{{ trans('texts.task_errors') }}");
-                    return;
-                }
                 var time = new TimeModel();
                 time.startTime(moment().unix());
                 var task = new TaskModel();
@@ -675,7 +672,10 @@
                 var startValid = true;
                 var endValid = true;
                 if (!timeLog.isEmpty()) {
-                    if (timeLog.startTime() < lastTime || (timeLog.endTime() && timeLog.startTime() > timeLog.endTime())) {
+                    console.log('1: ' + (lastTime && timeLog.startTime() < lastTime));
+                    console.log('2: ' + (timeLog.endTime() && timeLog.startTime() > timeLog.endTime()));
+                    console.log('end: ' + timeLog.endTime());
+                    if ((lastTime && timeLog.startTime() < lastTime) || (timeLog.endTime() && timeLog.startTime() > timeLog.endTime())) {
                         startValid = false;
                     }
                     if (timeLog.endTime() && timeLog.endTime() < Math.min(timeLog.startTime(), lastTime)) {
@@ -1059,12 +1059,16 @@
                 return self.startTime();
             },
             write: function(value) {
-                if (self.startTime()) {
-                    var orig = self.startDateMidnight().unix();
+                if (value === null) {
+                    self.startTime('');
                 } else {
-                    var orig = moment().set('hours', 0).set('minutes', 0).set('seconds', 0).unix();
+                    if (self.startTime()) {
+                        var orig = self.startDateMidnight().unix();
+                    } else {
+                        var orig = moment().set('hours', 0).set('minutes', 0).set('seconds', 0).unix();
+                    }
+                    self.startTime(orig + value);
                 }
-                self.startTime(orig + value);
             }
         });
 
@@ -1073,7 +1077,11 @@
                 return self.endTime();
             },
             write: function(value) {
-                self.endTime(self.startDateMidnight().unix() + value);
+                if (value === null) {
+                    self.endTime('');
+                } else {
+                    self.endTime(self.startDateMidnight().unix() + value);
+                }
             }
         });
 

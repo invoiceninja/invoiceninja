@@ -112,8 +112,9 @@
             bottom: 0;
             width: 6px;
             content: "";
+			background-color: #d9534f; /* red */
 			xbackground-color: #36c157; /* green */
-			background-color: orange; /* orange */
+			xbackground-color: orange; /* orange */
         }
 
 		body {
