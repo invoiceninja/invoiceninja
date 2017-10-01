@@ -48,6 +48,9 @@
 
            ko.utils.registerEventHandler(element, 'change', function () {
              var value = valueAccessor();
+             var seconds = $(element).timepicker('getSecondsFromMidnight');
+             value(seconds);
+             /*
              var field = $(element).attr('name');
              var time = 0;
              if (field == 'duration') {
@@ -59,16 +62,17 @@
                  }
              }
              value(time);
+             */
            });
         },
         update: function (element, valueAccessor) {
           var value = ko.utils.unwrapObservable(valueAccessor());
           var field = $(element).attr('name');
 
-          if (field == 'duration') {
-              $(element).timepicker('setTime', intToTime(value));
-          } else {
-              if (value) {
+          if (value) {
+              if (field == 'duration') {
+                  $(element).timepicker('setTime', intToTime(value));
+              } else {
                   $(element).timepicker('setTime', new Date(value * 1000));
               }
           }
@@ -662,8 +666,18 @@
             }
         }
 
-        if (data) {
-            self.update(data);
+        self.checkForEmpty = function() {
+            var hasEmpty = false;
+            var lastTime = 0;
+            for (var i=0; i<self.time_log().length; i++) {
+                var timeLog = self.time_log()[i];
+                if (timeLog.isEmpty() || timeLog.isRunning()) {
+                    hasEmpty = true;
+                }
+            }
+            if (!hasEmpty) {
+                self.addTime();
+            }
         }
 
         self.sortValue = function(field) {
@@ -712,6 +726,9 @@
         }
 
         self.addTime = function(time) {
+            if (!time) {
+                time = new TimeModel();
+            }
             self.time_log.push(time);
         }
 
@@ -897,9 +914,14 @@
         });
 
         self.removeTime = function(time) {
-            console.log('removed..');
             model.formChanged(true);
             self.time_log.remove(time);
+            self.checkForEmpty();
+        }
+
+        if (data) {
+            self.update(data);
+            self.checkForEmpty();
         }
     }
 
@@ -991,17 +1013,49 @@
             self.isHovered(false);
         }
 
+        self.startDateMidnight = function() {
+            return moment.unix(self.startTime()).set('hours', 0).set('minutes', 0).set('seconds', 0);
+        }
+
+        self.startTimeOfDay = ko.computed({
+            read: function () {
+                return self.startTime();
+            },
+            write: function(value) {
+                console.log('midnigh: ' + self.startDateMidnight().unix());
+                console.log('value: ' + value);
+                self.startTime(self.startDateMidnight().unix() + value);
+            }
+        });
+
+        self.endTimeOfDay = ko.computed({
+            read: function () {
+                return self.endTime();
+            },
+            write: function(value) {
+
+            }
+        });
+
+
         self.startDate = ko.computed({
             read: function () {
                 return self.startTime();
             },
             write: function(value) {
-                var origVal = moment.unix(self.startTime()).set('hours', 0).set('minutes', 0).set('seconds', 0);
+                var origVal = self.startDateMidnight();
                 var newVal = moment(value).set('hours', 0);
                 var diff = newVal.diff(origVal, 'days') * 60 * 60 * 24;
-                self.startTime(self.startTime() + diff);
-                if (self.endTime()) {
-                    self.endTime(self.endTime() + diff);
+                if (self.startTime()) {
+                    self.startTime(self.startTime() + diff);
+                    console.log('update start to: ' + self.startTime());
+                    if (self.endTime()) {
+                        self.endTime(self.endTime() + diff);
+                    }
+                } else {
+                    self.startTime(newVal.unix());
+                    //self.startTime(value);
+                    console.log('set start to: ' + self.startTime());
                 }
             }
         });
@@ -1011,11 +1065,11 @@
         });
 
         self.isEmpty = ko.computed(function() {
-            return !self.startTime() && !self.endTime();
+            return ! self.startTime() && ! self.endTime();
         });
 
         self.isRunning = ko.computed(function() {
-            return self.startTime() && !self.endTime();
+            return self.startTime() && ! self.endTime();
         });
 
         self.age = ko.computed(function() {
@@ -1026,6 +1080,9 @@
         self.duration = ko.computed({
             read: function () {
                 model.clock(); // bind to the clock
+                if (! self.startTime()) {
+                    return false;
+                }
                 var endTime = self.endTime() ? self.endTime() : moment().unix();
                 return endTime - self.startTime();
             },

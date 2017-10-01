@@ -220,7 +220,7 @@
 										<tr data-bind="event: { mouseover: onMouseOver, mouseout: onMouseOut }">
 											<td style="padding: 0 6px 10px 0">
 												{!! Former::text('date')
-														->placeholder('date')
+														->placeholder($account->formatDate($account->getDateTime()))
 														->data_bind("datepicker: startDate, valueUpdate: 'afterkeydown'")
 														->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
 														->raw() !!}
@@ -228,13 +228,13 @@
 											<td style="padding: 0 6px 10px 6px">
 												{!! Former::text('start_time')
 														->placeholder('start_time')
-														->data_bind("timepicker: startTime, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
+														->data_bind("timepicker: startTimeOfDay, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
 														->raw() !!}
 											</td>
 											<td style="padding: 0 6px 10px 6px">
 												{!! Former::text('end_time')
 														->placeholder('end_time')
-														->data_bind("timepicker: endTime, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
+														->data_bind("timepicker: endTimeOfDay, timepickerOptions: {scrollDefault: 'now', timeFormat: '" . ($account->military_time ? 'H:i:s' : 'g:i:s A') . "'}")
 														->raw() !!}
 											</td>
 											<td style="padding: 0 0 10px 6px">
