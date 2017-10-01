@@ -548,7 +548,7 @@
         self.client = ko.observable();
         self.project = ko.observable();
         self.isHovered = ko.observable(false);
-        self.created_at = ko.observable(moment().format('YYYY-MM-DD HH:mm:ss'));
+        self.created_at = ko.observable(moment.utc().format('YYYY-MM-DD HH:mm:ss'));
 
         self.mapping = {
             'client': {
@@ -963,11 +963,8 @@
         }
 
         self.age = ko.computed(function() {
-            if (! self.time_log().length) {
-                return '';
-            }
-            var time = self.firstTime();
-            return time.age();
+            model.clock(); // bind to the clock
+            return moment.utc(self.created_at()).fromNow();
         });
 
         self.seconds = function(total) {
