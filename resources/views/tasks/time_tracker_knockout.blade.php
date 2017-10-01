@@ -977,7 +977,13 @@
                 return self.startTime();
             },
             write: function(value) {
-                console.log('New Date: ' + value);
+                var origVal = moment.unix(self.startTime()).set('hours', 0).set('minutes', 0).set('seconds', 0);
+                var newVal = moment(value).set('hours', 0);
+                var diff = newVal.diff(origVal, 'days') * 60 * 60 * 24;
+                self.startTime(self.startTime() + diff);
+                if (self.endTime()) {
+                    self.endTime(self.endTime() + diff);
+                }
             }
         });
 
