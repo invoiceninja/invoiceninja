@@ -232,12 +232,6 @@ class TaskController extends BaseController
 
         $task = $this->taskRepo->save($publicId, $request->input());
 
-        if ($publicId) {
-            Session::flash('message', trans('texts.updated_task'));
-        } else {
-            Session::flash('message', trans('texts.created_task'));
-        }
-
         if (in_array($action, ['invoice', 'add_to_invoice'])) {
             return self::bulk();
         }
@@ -246,6 +240,12 @@ class TaskController extends BaseController
             $task->time_log = json_decode($task->time_log);
             return $task->load(['client.contacts', 'project'])->toJson();
         } else {
+            if ($publicId) {
+                Session::flash('message', trans('texts.updated_task'));
+            } else {
+                Session::flash('message', trans('texts.created_task'));
+            }
+
             return Redirect::to("tasks/{$task->public_id}/edit");
         }
     }
