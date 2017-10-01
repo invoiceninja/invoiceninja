@@ -983,7 +983,7 @@
                 duration = Math.floor(duration / 100) / 10;
             } else {
                 self.time_log().forEach(function(time){
-                    duration += time.duration();
+                    duration += time.duration.running();
                 });
             }
 
@@ -1175,6 +1175,19 @@
         self.duration = ko.computed({
             read: function () {
                 model.clock(); // bind to the clock
+                if (! self.startTime() || ! self.endTime()) {
+                    return false;
+                }
+                return self.endTime() - self.startTime();
+            },
+            write: function(value) {
+                self.endTime(self.startTime() + value);
+            }
+        });
+
+        self.duration.running = ko.computed({
+            read: function () {
+                model.clock(); // bind to the clock
                 if (! self.startTime()) {
                     return false;
                 }
@@ -1185,6 +1198,8 @@
                 self.endTime(self.startTime() + value);
             }
         });
+
+
     }
 
 </script>
