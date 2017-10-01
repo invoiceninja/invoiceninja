@@ -50,19 +50,6 @@
              var value = valueAccessor();
              var seconds = $(element).timepicker('getSecondsFromMidnight');
              value(seconds);
-             /*
-             var field = $(element).attr('name');
-             var time = 0;
-             if (field == 'duration') {
-                time = $(element).timepicker('getSecondsFromMidnight');
-             } else {
-                 var dateTime = $(element).timepicker('getTime');
-                 if (dateTime) {
-                     time = dateTime.getTime() / 1000;
-                 }
-             }
-             value(time);
-             */
            });
         },
         update: function (element, valueAccessor) {
@@ -75,6 +62,8 @@
               } else {
                   $(element).timepicker('setTime', new Date(value * 1000));
               }
+          } else {
+              $(element).val('');
           }
 
           if (field == 'start_time') {
@@ -661,24 +650,31 @@
             var times = data.time_log instanceof Array ? data.time_log : JSON.parse(data.time_log);
             ko.mapping.fromJS(data, self.mapping, this);
             self.time_log.removeAll();
+            console.log('removing all...');
             for (var i=0; i<times.length; i++) {
                 self.time_log.push(new TimeModel(times[i]));
             }
+            //self.addTime();
             self.checkForEmpty();
         }
 
         self.checkForEmpty = function() {
-            var hasEmpty = false;
-            var lastTime = 0;
-            for (var i=0; i<self.time_log().length; i++) {
-                var timeLog = self.time_log()[i];
-                if (timeLog.isEmpty() || timeLog.isRunning()) {
-                    hasEmpty = true;
+            setTimeout(function() {
+                console.log('checking..');
+                var hasEmpty = false;
+                var times = self.time_log();
+                for (var i=0; i<times.length; i++) {
+                    var timeLog = times[i];
+                    console.log('end time: ' + timeLog.endTime());
+                    if (! timeLog.endTime()) {
+                        hasEmpty = true;
+                    }
                 }
-            }
-            if (!hasEmpty) {
-                self.addTime();
-            }
+                if (! hasEmpty) {
+                    console.log('addng blank');
+                    self.addTime();
+                }
+            }, 1);
         }
 
         self.sortValue = function(field) {
@@ -713,6 +709,10 @@
         self.actionButtonVisible = ko.computed(function() {
             return self.isHovered();
         });
+
+        self.onChange = function() {
+            self.checkForEmpty();
+        }
 
         self.onMouseOver = function() {
             self.isHovered(true);
@@ -880,6 +880,7 @@
         });
 
         self.seconds = function(total) {
+            //model.clock(); // bind to the clock
             if (! self.time_log().length) {
                 return moment.duration(0);
             }
@@ -913,7 +914,6 @@
         self.removeTime = function(time) {
             model.formChanged(true);
             self.time_log.remove(time);
-            self.checkForEmpty();
         }
 
         if (data) {

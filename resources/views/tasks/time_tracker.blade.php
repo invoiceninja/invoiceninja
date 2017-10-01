@@ -215,7 +215,7 @@
 								<label>{{ trans('texts.times') }}</label>
 
 
-								<table class="table times-table" style="margin-bottom: 0px !important;">
+								<table class="table times-table" data-bind="event: { change: selectedTask().onChange }" style="margin-bottom: 0px !important;">
 									<tbody data-bind="foreach: selectedTask().time_log">
 										<tr data-bind="event: { mouseover: onMouseOver, mouseout: onMouseOut }">
 											<td style="padding: 0 6px 10px 0">
