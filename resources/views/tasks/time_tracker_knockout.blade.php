@@ -209,6 +209,11 @@
             $('#filterPanel').toggle();
         }
 
+        self.onClearClick = function() {
+            self.filter('');
+            $('#search').focus();
+        }
+
         self.onRefreshClick = function() {
             if (self.isDesktop()) {
                 if (model.selectedTask() && model.isChanged()) {
