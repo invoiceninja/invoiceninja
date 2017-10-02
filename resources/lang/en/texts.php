@@ -2469,7 +2469,7 @@ $LANG = array(
     'descending' => 'Descending',
     'sort_field' => 'Sort By',
     'sort_direction' => 'Direction',
-
+    'discard' => 'Discard',
     'time_am' => 'AM',
     'time_pm' => 'PM',
     'time_mins' => 'mins',

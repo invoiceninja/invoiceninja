@@ -40,6 +40,10 @@
             outline: none;
         }
 
+		span.archived-link {
+			color: #888888 !important;
+		}
+
 		.fade-color {
 			animation-name: fadeToYellow;
 		}
@@ -273,6 +277,12 @@
 										]
 									  )->split() !!}
 								</span>
+								{!! Button::normal(trans('texts.discard'))
+									->appendIcon(Icon::create('remove-circle'))
+									->withAttributes([
+										'data-bind' => 'click: onCancelClick, visible: showDiscard',
+									])
+									->large() !!}
 								{!! Button::normal(trans('texts.cancel'))
 									->appendIcon(Icon::create('remove-circle'))
 									->withAttributes([
@@ -350,9 +360,9 @@
 								<span data-bind="text: description, style: { fontWeight: isRunning() ? 'bold' : '' }"></span>&nbsp;
 							</h4>
 		                    <p class="list-group-item-text">
-		                        <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false"></span>
+		                        <span class="link" data-bind="text: clientName, click: $parent.viewClient, clickBubble: false, css: clientClass"></span>
 		                        <span data-bind="visible: clientName &amp;&amp; projectName"> | </span>
-		                        <span class="link" data-bind="text: projectName, click: $parent.viewProject, clickBubble: false"></span>
+		                        <span class="link" data-bind="text: projectName, click: $parent.viewProject, clickBubble: false, css: projectClass"></span>
 								&nbsp;
 		                    </p>
 						</div>

@@ -428,12 +428,20 @@
             return task.isCreated() && ! task.isChanged();
         });
 
+        self.showDiscard = ko.computed(function() {
+            var task = self.selectedTask();
+            if (! task) {
+                return false;
+            }
+            return ! task.isCreated();
+        });
+
         self.showCancel = ko.computed(function() {
             var task = self.selectedTask();
             if (! task) {
                 return false;
             }
-            return task.isChanged();
+            return task.isCreated() && task.isChanged();
         });
 
         self.startIcon = ko.computed(function() {
@@ -983,6 +991,14 @@
             return self.project() ? self.project().name() : '';
         });
 
+        self.clientClass = ko.computed(function() {
+            return self.client() && self.client().deleted_at() ? 'archived-link' : '';
+        });
+
+        self.projectClass = ko.computed(function() {
+            return self.project() && self.project().deleted_at() ? 'archived-link' : '';
+        });
+
         self.startClass = ko.computed(function() {
             if (model.sendingRequest()) {
                 return 'disabled';
@@ -1076,6 +1092,7 @@
         var self = this;
         self.name = ko.observable('');
         self.public_id = ko.observable(-1);
+        self.deleted_at = ko.observable();
 
         if (data) {
             ko.mapping.fromJS(data, {}, this);
@@ -1087,6 +1104,7 @@
         self.name = ko.observable('');
         self.public_id = ko.observable(-1);
         self.contacts = ko.observableArray();
+        self.deleted_at = ko.observable();
 
         self.mapping = {
             'contacts': {
