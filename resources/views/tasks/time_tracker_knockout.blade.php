@@ -118,12 +118,14 @@
                 name: 'times',
                 source: timeMatcher(defaultTimes)
             }).on('typeahead:change', function(element, datum, name) {
-                console.log('change: ' + datum)
                 var value = valueAccessor();
-                var duration = moment.duration(datum).asSeconds();
+                if (datum && datum.indexOf(':') >= 0) {
+                    var duration = moment.duration(datum).asSeconds();
+                } else {
+                    var duration = parseFloat(datum) * 60 * 60;
+                }
                 value(duration);
             }).on('typeahead:select', function(element, datum, name) {
-                console.log('select: ' + datum)
                 var value = valueAccessor();
                 var duration = moment.duration(datum).asSeconds();
                 value(duration);
