@@ -119,16 +119,12 @@
 
 		body {
 			margin-bottom: 60px;
+			overflow-y: scroll;
 		}
 
 		#taskList {
 			position: fixed;
 		}
-
-		#taskForm {
-			overflow: visible;
-		}
-
 
 		.ui-timepicker-wrapper.start-time  {
 			width: 140px !important;
@@ -202,17 +198,19 @@
                     <div class="panel-body">
 						<form id="taskForm">
 							<span data-bind="event: { keypress: onFormKeyPress }">
-								<div style="padding-bottom: 20px" class="client-select">
-		                            {!! Former::select('client_id')
-											->addOption('', '')
-											->label('client')
-											->data_bind("dropdown: selectedTask().client_id") !!}
-								</div>
-								<div style="padding-bottom: 20px" class="project-select">
-		                            {!! Former::select('project_id')
-		                                    ->addOption('', '')
-		                                    ->data_bind("dropdown: selectedTask().project_id")
-		                                    ->label(trans('texts.project')) !!}
+								<div class="row">
+									<div style="padding-bottom: 20px" class="client-select col-md-6">
+			                            {!! Former::select('client_id')
+												->addOption('', '')
+												->label('client')
+												->data_bind("dropdown: selectedTask().client_id") !!}
+									</div>
+									<div style="padding-bottom: 20px" class="project-select col-md-6">
+			                            {!! Former::select('project_id')
+			                                    ->addOption('', '')
+			                                    ->data_bind("dropdown: selectedTask().project_id")
+			                                    ->label(trans('texts.project')) !!}
+									</div>
 								</div>
 								<div style="padding-bottom: 20px">
 	                            {!! Former::textarea('description')
@@ -622,6 +620,8 @@
 			function setPanelHeights() {
 				var height = $(window).height() - $('.navbar').height() - 2;
 				$('#taskList').height(height);
+				$('#taskForm').height(height);
+
 			}
 			$(window).on('resize', function() {
 				setButtonSize();
