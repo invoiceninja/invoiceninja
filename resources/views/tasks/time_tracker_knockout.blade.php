@@ -362,6 +362,7 @@
                 return false;
             }
             var project = task.project();
+            console.log(project);
             if (self.selectedProject() && self.selectedProject().public_id() == project.public_id()) {
                 self.filter('');
                 self.selectedProject(false);
@@ -388,7 +389,6 @@
                     setTimeout(function() {
                         $('select#client_id').trigger('change');
                     }, 1);
-
                 } else {
                     task.description(self.filter());
                 }
@@ -980,10 +980,15 @@
         }
 
         self.setProject = function(project) {
+            if (! projectMap[project.public_id()]) {
+                return;
+            }
+
             self.project(project);
             self.project_id(project.public_id());
 
-            var client = projectMap[project.public_id()].client;
+            var project = projectMap[project.public_id()];
+            var client = project.client;
             self.setClient(new ClientModel(client));
         }
 
