@@ -956,7 +956,6 @@
                 }
                 time.startTime(moment().unix());
             }
-
             if (self.public_id()) {
                 var selectedTask = model.selectedTask();
                 if (model.isChanged() && selectedTask && selectedTask.public_id() == self.public_id()) {

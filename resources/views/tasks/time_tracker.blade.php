@@ -14,13 +14,11 @@
 
     <style type="text/css">
 
-		/*
 		@media (max-width: 768px) {
-			#formDiv {
-				position: relative;
+			#taskList {
+				position: relative !important;
 			}
 		}
-		*/
 
 		@media (max-width: 768px) {
 			#clock,
@@ -204,13 +202,13 @@
 						<form id="taskForm">
 							<span data-bind="event: { keypress: onFormKeyPress }">
 								<div class="row">
-									<div style="padding-bottom: 20px" class="client-select col-md-6">
+									<div style="padding-bottom: 20px; padding-right:6px;" class="client-select col-md-6">
 			                            {!! Former::select('client_id')
 												->addOption('', '')
 												->label('client')
 												->data_bind("dropdown: selectedTask().client_id") !!}
 									</div>
-									<div style="padding-bottom: 20px" class="project-select col-md-6">
+									<div style="padding-bottom: 20px; padding-left:6px;" class="project-select col-md-6">
 			                            {!! Former::select('project_id')
 			                                    ->addOption('', '')
 			                                    ->data_bind("dropdown: selectedTask().project_id")
@@ -229,14 +227,14 @@
 								<table class="table times-table" data-bind="event: { change: selectedTask().onChange }" style="margin-bottom: 0px !important;">
 									<tbody data-bind="foreach: selectedTask().sortedTimes">
 										<tr data-bind="event: { mouseover: onMouseOver, mouseout: onMouseOut }">
-											<td style="padding: 0 6px 10px 0">
+											<td style="width: 25%; padding: 0 6px 10px 0">
 												{!! Former::text('date')
 														->placeholder($account->formatDate($account->getDateTime()))
 														->data_bind("datepicker: startDate, valueUpdate: 'afterkeydown'")
 														->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
 														->raw() !!}
 											</td>
-											<td style="padding: 0 6px 10px 6px">
+											<td style="width: 25%; padding: 0 6px 10px 6px">
 												<div data-bind="css: { 'has-error': !isStartValid() }">
 													{!! Former::text('start_time')
 															->placeholder('start_time')
@@ -244,7 +242,7 @@
 															->raw() !!}
 												</div>
 											</td>
-											<td style="padding: 0 6px 10px 6px">
+											<td style="width: 25%; padding: 0 6px 10px 6px">
 												<div data-bind="css: { 'has-error': !isEndValid() }">
 													{!! Former::text('end_time')
 															->placeholder('end_time')
@@ -259,7 +257,7 @@
 														->data_bind("typeahead: duration")
 														->raw() !!}
 											</td>
-											<td style="width:38px; padding-top: 0px; padding-right: 8px" class="hide-phone">
+											<td style="width: 38px; padding-top: 0px; padding-right: 8px" class="hide-phone">
 												<i style="cursor:pointer;float:right" data-bind="click: $root.selectedTask().removeTime, visible: actionButtonVisible" class="fa fa-minus-circle redlink" title="{{ trans('texts.remove') }}"/>
 											</td>
 
