@@ -158,8 +158,8 @@
 
                 <!-- Navbar Buttons -->
                 <ul class="nav navbar-right" style="margin-right:0px; padding-left:12px; float:right; display: none;">
-                    <span id="clock" data-bind="text: selectedTask().duration, visible: selectedTask" class="hidden-xs"
-                        style="font-size:28px; color:white; padding-right:12px; vertical-align:middle; display:none;"></span>
+                    <span id="clock" data-bind="text: selectedTask().duration || '0:00:00'" class="hidden-xs"
+                        style="font-size:28px; color:white; padding-right:12px; vertical-align:middle;"></span>
                     <button type='button' data-bind="click: onStartClick, css: startClass" class="btn btn-lg">
                         <span id="startLabel" data-bind="text: startLabel"></span>
                         <span data-bind="css: startIcon"></span>
