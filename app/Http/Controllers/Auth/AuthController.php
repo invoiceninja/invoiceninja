@@ -11,6 +11,7 @@ use Auth;
 use Event;
 use Illuminate\Foundation\Auth\AuthenticatesAndRegistersUsers;
 use Illuminate\Http\Request;
+use Lang;
 use Session;
 use Utils;
 
@@ -204,7 +205,8 @@ class AuthController extends Controller
 
         Session::flush();
 
-        if ($reason = request()->reason) {
+        $reason = htmlentities(request()->reason);
+        if (!empty($reason) && Lang::has("texts.{$reason}_logout")) {
             Session::flash('warning', trans("texts.{$reason}_logout"));
         }
 
