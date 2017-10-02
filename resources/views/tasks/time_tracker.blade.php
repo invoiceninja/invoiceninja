@@ -51,10 +51,8 @@
 		.list-group-item.active {
 			background-color: #f8f8f8 !important;
 			color: black !important;
-			border-left-color: #f8f8f8 !important;
-			border-right-color: #f8f8f8 !important;
-			box-shadow: 0 0 0 2px rgba(0,0,0,.1), 0 2px 2px rgba(0,0,0,.2);
-    		border-color: #fff !important;
+			border: 1px solid rgba(81, 203, 238, 1);
+			box-shadow: 0 0 5px rgba(81, 203, 238, 1);
 		}
 
 		.list-group-item.changed {
@@ -112,9 +110,7 @@
             bottom: 0;
             width: 6px;
             content: "";
-			background-color: #36c157; /* green */
-			xbackground-color: #d9534f; /* red */
-			xbackground-color: orange; /* orange */
+			background-color: #36c157;
         }
 
 		body {
@@ -129,12 +125,6 @@
 			overflow: visible;
 		}
 
-
-		.times-table td {
-			xmargin: 0px !important;
-			xpadding: 0px !important;
-			xpadding-bottom: 10px !important;
-		}
 
 		.ui-timepicker-wrapper.start-time  {
 			width: 140px !important;
@@ -305,37 +295,37 @@
             <!-- Task List -->
             <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" style="display:none;overflow:auto;margin-bottom:0px;">
 				<div id="filterPanel" style="margin-bottom:0px;padding-top:20px;padding-bottom:0px;padding-left:10px;display:none;">
-				<div class="panel panel-default">
-					<div class="panel-body">
-						<div class="row" xstyle="padding-bottom:22px;">
-							<div class="col-md-12">
-								{!! Former::select('filter_state')
-										->label('filter')
-								 		->addOption(trans('texts.all'), 'all')
-										->addOption(trans('texts.stopped'), 'stopped')
-										->addOption(trans('texts.running'), 'running')
-										->data_bind('value: filterState') !!}
+					<div class="panel panel-default">
+						<div class="panel-body">
+							<div class="row" xstyle="padding-bottom:22px;">
+								<div class="col-md-12">
+									{!! Former::select('filter_state')
+											->label('filter')
+									 		->addOption(trans('texts.all'), 'all')
+											->addOption(trans('texts.stopped'), 'stopped')
+											->addOption(trans('texts.running'), 'running')
+											->data_bind('value: filterState') !!}
+								</div>
 							</div>
-						</div>
-						<div class="row">
-							<div class="col-md-6" style="padding-top:24px;">
-								{!! Former::select('sort_field')
-								 		->addOption(trans('texts.date'), 'createdAt')
-										->addOption(trans('texts.duration'), 'duration')
-										->addOption(trans('texts.client'), 'client')
-										->addOption(trans('texts.project'), 'project')
-										->addOption(trans('texts.description'), 'description')
-										->data_bind('value: sortField, event: {change: onSortChange}') !!}
-							</div>
-							<div class="col-md-6" style="padding-top:24px;">
-								{!! Former::select('sort_direction')
-										->addOption(trans('texts.ascending'), 'ascending')
-										->addOption(trans('texts.descending'), 'descending')
-										->data_bind('value: sortDirection, event: {change: onSortChange}') !!}
+							<div class="row">
+								<div class="col-md-6" style="padding-top:24px;">
+									{!! Former::select('sort_field')
+									 		->addOption(trans('texts.date'), 'createdAt')
+											->addOption(trans('texts.duration'), 'duration')
+											->addOption(trans('texts.client'), 'client')
+											->addOption(trans('texts.project'), 'project')
+											->addOption(trans('texts.description'), 'description')
+											->data_bind('value: sortField, event: {change: onSortChange}') !!}
+								</div>
+								<div class="col-md-6" style="padding-top:24px;">
+									{!! Former::select('sort_direction')
+											->addOption(trans('texts.ascending'), 'ascending')
+											->addOption(trans('texts.descending'), 'descending')
+											->data_bind('value: sortDirection, event: {change: onSortChange}') !!}
+								</div>
 							</div>
 						</div>
 					</div>
-				</div>
 				</div>
 
 				<div data-bind="foreach: filteredTasks">
