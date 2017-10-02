@@ -43,6 +43,11 @@
                wrapHours: false,
                showDuration: true,
                step: 15,
+               lang: {
+                   @foreach(['AM' , 'PM', 'mins', 'hr', 'hrs'] as $field)
+                        "{{ $field }}": "{{ trans('texts.time_' . strtolower($field)) }}",
+                   @endforeach
+               }
            });
            $(element).timepicker(options);
 
@@ -168,7 +173,7 @@
         self.sortDirection = ko.observable(defaultSortDirection);
 
         self.isDesktop = function() {
-            return navigator.userAgent == 'Time Tracker';
+            return navigator.userAgent == "{{ TIME_TRACKER_USER_AGENT }}";
         }
 
         self.onSaveClick = function() {

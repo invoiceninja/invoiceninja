@@ -2470,6 +2470,12 @@ $LANG = array(
     'sort_field' => 'Sort By',
     'sort_direction' => 'Direction',
 
+    'time_am' => 'AM',
+    'time_pm' => 'PM',
+    'time_mins' => 'mins',
+    'time_hr' => 'hr',
+    'time_hrs' => 'hrs',
+
 );
 
 return $LANG;
