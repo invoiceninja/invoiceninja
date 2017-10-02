@@ -84,8 +84,11 @@
           if (field == 'start_time') {
               setTimeout(function() {
                   $input = $(element).closest('td').next('td').find('input');
-                  $input.timepicker('option', 'durationTime', $(element).val());
-                  $input.timepicker('option', 'minTime', $(element).val());
+                  var value = $(element).val();
+                  if (value) {
+                      $input.timepicker('option', 'durationTime', value);
+                      $input.timepicker('option', 'minTime', value);
+                  }
               }, 1);
           }
         }
@@ -1213,7 +1216,6 @@
                 self.endTime(self.startTime() + value);
             }
         });
-
 
     }
 
