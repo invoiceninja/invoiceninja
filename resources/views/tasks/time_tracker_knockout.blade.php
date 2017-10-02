@@ -156,9 +156,10 @@
         self.tasks = ko.observableArray();
         self.filter = ko.observable('');
         self.clock = ko.observable(0);
+
         self.formChanged = ko.observable(false);
-        self.isStartEnabled = ko.observable(true);
-        self.isSaveEnabled = ko.observable(true);
+        self.sendingRequest = ko.observable(false);
+        self.sendingBulkRequest = ko.observable(false);
 
         self.selectedTask = ko.observable(false);
         self.selectedClient = ko.observable(false);
@@ -178,6 +179,14 @@
         self.isDesktop = function() {
             return navigator.userAgent == "{{ TIME_TRACKER_USER_AGENT }}";
         }
+
+        self.isStartEnabled = ko.computed(function() {
+            return ! self.sendingRequest();
+        });
+
+        self.isSaveEnabled = ko.computed(function() {
+            return ! self.sendingRequest();
+        });
 
         self.onSaveClick = function() {
             if (! model.selectedTask() || ! model.formChanged()) {
@@ -235,7 +244,7 @@
                 id: task.public_id(),
                 action: action,
             }
-            self.isStartEnabled(false);
+            self.sendingBulkRequest(true);
             $.ajax({
                 dataType: 'json',
                 type: 'post',
@@ -263,7 +272,7 @@
                 }
             }).always(function() {
                 setTimeout(function() {
-                    model.isStartEnabled(true);
+                    model.sendingBulkRequest(false);
                 }, 1000);
             });
         }
@@ -665,7 +674,7 @@
             } else {
                 data += '&is_running=0';
             }
-            model.isSaveEnabled(false);
+            model.sendingRequest(true);
             $.ajax({
                 dataType: 'json',
                 type: method,
@@ -721,8 +730,7 @@
                 },
             }).always(function() {
                 setTimeout(function() {
-                    model.isSaveEnabled(true);
-                    model.isStartEnabled(true);
+                    model.sendingRequest(false);
                 }, 1000);
             });
         }
@@ -900,7 +908,7 @@
         }
 
         self.onStartClick = function() {
-            if (! model.isStartEnabled()) {
+            if (model.sendingRequest()) {
                 return false;
             }
             if (! self.checkForOverlaps()) {
@@ -926,7 +934,6 @@
                 if (model.formChanged() && selectedTask && selectedTask.public_id() == self.public_id()) {
                     model.onSaveClick();
                 } else {
-                    model.isStartEnabled(false);
                     self.save();
                 }
             }
@@ -962,7 +969,7 @@
         });
 
         self.startClass = ko.computed(function() {
-            if (! model.isStartEnabled()) {
+            if (model.sendingRequest()) {
                 return 'disabled';
             }
 
