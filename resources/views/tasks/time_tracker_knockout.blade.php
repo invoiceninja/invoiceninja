@@ -1107,7 +1107,25 @@
         };
 
         self.actionButtonVisible = ko.computed(function() {
-            return self.isHovered() && ! self.isEmpty();
+            if (! model.selectedTask()) {
+                return false;
+            }
+            if (! self.isHovered()) {
+                return false;
+            }
+            var times = model.selectedTask().time_log();
+            var count = 0;
+            for (var i=0; i<times.length; i++) {
+                var timeLog = times[i];
+                if (timeLog.isEmpty()) {
+                    count++;
+                }
+            }
+            if (count > 1) {
+                return true;
+            }
+
+            return ! self.isEmpty() && times.length > 1;
         });
 
         self.onMouseOver = function() {
