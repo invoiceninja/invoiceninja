@@ -121,6 +121,15 @@
 			margin-bottom: 60px;
 		}
 
+		#taskList {
+			position: fixed;
+		}
+
+		#taskForm {
+			overflow: visible;
+		}
+
+
 		.times-table td {
 			xmargin: 0px !important;
 			xpadding: 0px !important;
@@ -194,7 +203,7 @@
         <div class="row no-gutter">
 
             <!-- Task Form -->
-            <div class="col-sm-7 col-sm-push-5">
+            <div id="taskForm" class="col-sm-7 col-sm-push-5">
                 <div id="formDiv" class="panel panel-default x-affix" data-bind="visible: selectedTask" style="margin:20px; display:none;">
                     <div class="panel-body">
 						<form id="taskForm">
@@ -294,7 +303,7 @@
             </div>
 
             <!-- Task List -->
-            <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" style="display:none">
+            <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" style="display:none;overflow:auto;margin-bottom:0px;">
 				<div id="filterPanel" style="margin-bottom:0px;padding-top:20px;padding-bottom:0px;padding-left:10px;display:none;">
 				<div class="panel panel-default">
 					<div class="panel-body">
@@ -610,10 +619,16 @@
 			        $('#buttons .btn').removeClass('btn-lg');
 			    }
 			}
+			function setPanelHeights() {
+				var height = $(window).height() - $('.navbar').height() - 2;
+				$('#taskList').height(height);
+			}
 			$(window).on('resize', function() {
 				setButtonSize();
+				setPanelHeights();
 			});
 			setButtonSize();
+			setPanelHeights();
 
 			$(window).on('beforeunload', function () {
 				if (model.isDesktop()) {

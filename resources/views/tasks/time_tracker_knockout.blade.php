@@ -362,7 +362,6 @@
                 return false;
             }
             var project = task.project();
-            console.log(project);
             if (self.selectedProject() && self.selectedProject().public_id() == project.public_id()) {
                 self.filter('');
                 self.selectedProject(false);
