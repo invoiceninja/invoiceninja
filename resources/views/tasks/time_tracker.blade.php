@@ -169,7 +169,7 @@
                     <span class="input-group-addon" style="width:1%;" data-bind="click: onFilterClick, style: { 'background-color': filterState() != 'all' ? '#ffffaa'  : '' }" title="{{ trans('texts.filter_sort') }}"><span class="glyphicon glyphicon-filter"></span></span>
                     <input id="search" type="search" class="form-control search" autocomplete="off" autofocus="autofocus"
                         data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder, style: filterStyle, disabled: selectedTask().isChanged }">
-					<span class="input-group-addon" style="width:1%;" data-bind="click: onClearClick, visible: filter()" title="{{ trans('texts.refresh') }}">
+					<span class="input-group-addon" style="width:1%;" data-bind="click: onClearClick, visible: filter()" title="{{ trans('texts.clear') }}">
 						<span class="glyphicon glyphicon-remove"></span>
 					</span>
 					<span class="input-group-addon" style="width:1%;" data-bind="click: onRefreshClick, visible: ! filter()" title="{{ trans('texts.refresh') }}">

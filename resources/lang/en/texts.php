@@ -2475,6 +2475,7 @@ $LANG = array(
     'time_mins' => 'mins',
     'time_hr' => 'hr',
     'time_hrs' => 'hrs',
+    'clear' => 'Clear',
 
 );
 
