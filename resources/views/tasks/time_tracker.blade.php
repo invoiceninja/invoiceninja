@@ -170,7 +170,7 @@
                 <div class="input-group input-group-lg">
                     <span class="input-group-addon" style="width:1%;" data-bind="click: onFilterClick, style: { 'background-color': filterState() != 'all' ? '#ffffaa'  : '' }" title="{{ trans('texts.filter_sort') }}"><span class="glyphicon glyphicon-filter"></span></span>
                     <input id="search" type="search" class="form-control search" autocomplete="off" autofocus="autofocus"
-                        data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder, style: filterStyle, disabled: formChanged }">
+                        data-bind="event: { focus: onFilterFocus, input: onFilterChanged, keypress: onFilterKeyPress }, value: filter, valueUpdate: 'afterkeydown', attr: {placeholder: placeholder, style: filterStyle, disabled: selectedTask().isChanged }">
 					<span class="input-group-addon" style="width:1%;" data-bind="click: onRefreshClick" title="{{ trans('texts.refresh') }}"><span class="glyphicon glyphicon-repeat"></span></span>
                 </div>
 
@@ -197,7 +197,7 @@
                 <div id="formDiv" class="panel panel-default x-affix" data-bind="visible: selectedTask" style="margin:20px; display:none;">
                     <div class="panel-body">
 						<form id="taskForm">
-							<span data-bind="event: { keypress: onFormKeyPress, change: onFormChange, input: onFormChange }">
+							<span data-bind="event: { keypress: onFormKeyPress }">
 								<div style="padding-bottom: 20px" class="client-select">
 		                            {!! Former::select('client_id')
 											->addOption('', '')
@@ -284,7 +284,7 @@
 										->large()
 										->appendIcon(Icon::create('floppy-disk'))
 										->withAttributes([
-											'data-bind' => 'click: onSaveClick, css: { disabled: ! formChanged() || ! isSaveEnabled() }',
+											'data-bind' => 'click: onSaveClick, css: { disabled: ! isSaveEnabled() }',
 										]) !!}
 							</center>
 						</form>
@@ -624,7 +624,7 @@
 				if (model.isDesktop()) {
 					return undefined;
 				}
-				if (model.selectedTask() && model.formChanged()) {
+				if (model.selectedTask() && model.isChanged()) {
 					return "{{ trans('texts.save_or_discard') }}";
 				} else {
 					return undefined;

@@ -157,7 +157,6 @@
         self.filter = ko.observable('');
         self.clock = ko.observable(0);
 
-        self.formChanged = ko.observable(false);
         self.sendingRequest = ko.observable(false);
         self.sendingBulkRequest = ko.observable(false);
 
@@ -184,12 +183,16 @@
             return ! self.sendingRequest();
         });
 
+        self.isChanged = ko.computed(function() {
+            return self.selectedTask() && self.selectedTask().isChanged();
+        });
+
         self.isSaveEnabled = ko.computed(function() {
-            return ! self.sendingRequest();
+            return self.selectedTask() && self.selectedTask().isChanged() && ! self.sendingRequest();
         });
 
         self.onSaveClick = function() {
-            if (! model.selectedTask() || ! model.formChanged()) {
+            if (! model.selectedTask() || ! model.isChanged()) {
                 return;
             }
             model.selectedTask().save(true);
@@ -208,7 +211,7 @@
 
         self.onRefreshClick = function() {
             if (self.isDesktop()) {
-                if (model.selectedTask() && model.formChanged()) {
+                if (model.selectedTask() && model.isChanged()) {
                     swal("{{ trans('texts.save_or_discard') }}");
                     return false;
                 } else {
@@ -306,14 +309,12 @@
                 } else {
                     task.update(task.data);
                 }
-                self.formChanged(false);
-
             }, "{{ trans('texts.discard_changes') }}");
             return false;
         }
 
         self.onFilterFocus = function(data, event) {
-            if (model.selectedTask() && model.formChanged()) {
+            if (model.selectedTask() && model.isChanged()) {
                 return;
             }
             self.selectedTask(false);
@@ -332,11 +333,6 @@
             return true;
         }
 
-        self.onFormChange = function(data, event) {
-            self.formChanged(true);
-            return true;
-        }
-
         self.onFormKeyPress = function(data, event) {
             if (event.which == 13) {
                 if (event.target.type == 'textarea') {
@@ -348,7 +344,7 @@
         }
 
         self.viewClient = function(task) {
-            if (model.selectedTask() && model.formChanged()) {
+            if (model.isChanged()) {
                 swal("{{ trans('texts.save_or_discard') }}");
                 return false;
             }
@@ -366,7 +362,7 @@
         }
 
         self.viewProject = function(task) {
-            if (model.selectedTask() && model.formChanged()) {
+            if (model.isChanged()) {
                 swal("{{ trans('texts.save_or_discard') }}");
                 return false;
             }
@@ -404,7 +400,6 @@
                 self.selectedTask(task);
                 self.addTask(task);
                 model.refreshTitle();
-                model.formChanged(true);
                 self.filter('');
                 task.focus();
             }
@@ -430,7 +425,7 @@
             if (! task) {
                 return false;
             }
-            return task.isCreated() && ! self.formChanged();
+            return task.isCreated() && ! task.isChanged();
         });
 
         self.showCancel = ko.computed(function() {
@@ -438,7 +433,7 @@
             if (! task) {
                 return false;
             }
-            return task.isNew() || self.formChanged();
+            return task.isChanged();
         });
 
         self.startIcon = ko.computed(function() {
@@ -528,7 +523,6 @@
 
         self.addTask = function(task) {
             self.tasks.push(task);
-            self.formChanged(true);
         }
 
         self.removeTask = function(task) {
@@ -536,7 +530,7 @@
         }
 
         self.selectTask = function(task) {
-            if (model.selectedTask() && model.formChanged()) {
+            if (model.isChanged()) {
                 swal("{{ trans('texts.save_or_discard') }}");
                 return false;
             }
@@ -566,8 +560,6 @@
             if (isStorageSupported()) {
                 localStorage.setItem('last:time_tracker:task_id', task ? task.public_id() : 0);
             }
-
-            self.formChanged(false);
         }
     }
 
@@ -702,7 +694,6 @@
                         }
                         var isNew = !self.public_id();
                         self.update(response);
-                        model.formChanged(false);
                         if (isStorageSupported()) {
                             localStorage.setItem('last:time_tracker:task_id', self.public_id());
                         }
@@ -809,6 +800,30 @@
 
         self.isCreated = ko.computed(function() {
             return self.public_id();
+        });
+
+        self.isChanged = ko.computed(function() {
+            model.sendingRequest(); // bind to the request
+            var data = self.data;
+            if (! self.public_id()) {
+                return true;
+            }
+            var oldProjectId = data.project ? data.project.public_id : 0;
+            if (oldProjectId != (self.project_id()||0)) {
+                return true;
+            }
+            var oldClientId = data.client ? data.client.public_id : 0;
+            if (oldClientId != (self.client_id()||0)) {
+                return true;
+            }
+            if (data.description != self.description()) {
+                return true;
+            }
+            var times = data.time_log instanceof Array ? JSON.stringify(data.time_log) : data.time_log;
+            if (times != JSON.stringify(self.times())) {
+                return true;
+            }
+            return false;
         });
 
         self.sortedTimes = ko.computed(function() {
@@ -931,7 +946,7 @@
 
             if (self.public_id()) {
                 var selectedTask = model.selectedTask();
-                if (model.formChanged() && selectedTask && selectedTask.public_id() == self.public_id()) {
+                if (model.isChanged() && selectedTask && selectedTask.public_id() == self.public_id()) {
                     model.onSaveClick();
                 } else {
                     self.save();
@@ -944,7 +959,7 @@
             if (self == model.selectedTask()) {
                 str = 'active';
 
-                if (! self.public_id() || model.formChanged()) {
+                if (self.isChanged()) {
                     str += ' changed fade-color';
                 }
             }
@@ -1049,7 +1064,6 @@
         });
 
         self.removeTime = function(time) {
-            model.formChanged(true);
             self.time_log.remove(time);
         }
 
