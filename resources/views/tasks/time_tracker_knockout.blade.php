@@ -385,6 +385,10 @@
                     task.setProject(self.selectedProject());
                 } else if (self.selectedClient()) {
                     task.setClient(self.selectedClient());
+                    setTimeout(function() {
+                        $('select#client_id').trigger('change');
+                    }, 1);
+
                 } else {
                     task.description(self.filter());
                 }
@@ -798,6 +802,19 @@
 
         self.isCreated = ko.computed(function() {
             return self.public_id();
+        });
+
+        self.sortedTimes = ko.computed(function() {
+            var times = self.time_log();
+            times.sort(function (left, right) {
+                if (! left.startTime()) {
+                    return 1;
+                } else if (! right.startTime()) {
+                    return -1;
+                }
+                return left.startTime() - right.startTime();
+            });
+            return times;
         });
 
         self.isRunning = ko.computed(function() {

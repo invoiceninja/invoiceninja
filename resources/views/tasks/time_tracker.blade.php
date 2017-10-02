@@ -112,8 +112,8 @@
             bottom: 0;
             width: 6px;
             content: "";
-			background-color: #d9534f; /* red */
-			xbackground-color: #36c157; /* green */
+			background-color: #36c157; /* green */
+			xbackground-color: #d9534f; /* red */
 			xbackground-color: orange; /* orange */
         }
 
@@ -221,7 +221,7 @@
 
 
 								<table class="table times-table" data-bind="event: { change: selectedTask().onChange }" style="margin-bottom: 0px !important;">
-									<tbody data-bind="foreach: selectedTask().time_log">
+									<tbody data-bind="foreach: selectedTask().sortedTimes">
 										<tr data-bind="event: { mouseover: onMouseOver, mouseout: onMouseOut }">
 											<td style="padding: 0 6px 10px 0">
 												{!! Former::text('date')
