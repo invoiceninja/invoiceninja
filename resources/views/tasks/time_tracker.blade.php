@@ -621,6 +621,9 @@
 			    }
 			}
 			function setPanelHeights() {
+				if (isMobile) {
+					return;
+				}
 				var height = $(window).height() - $('.navbar').height() - 2;
 				$('#taskList').height(height);
 				$('#taskForm').height(height);
