@@ -196,7 +196,7 @@
         <div class="row no-gutter">
 
             <!-- Task Form -->
-            <div id="taskForm" class="col-sm-7 col-sm-push-5">
+            <div id="taskForm" class="col-sm-8 col-sm-push-4 col-md-7 col-md-push-5">
                 <div id="formDiv" class="panel panel-default x-affix" data-bind="visible: selectedTask" style="margin:20px; display:none;">
                     <div class="panel-body">
 						<form id="taskForm">
@@ -304,7 +304,7 @@
             </div>
 
             <!-- Task List -->
-            <div id="taskList" class="list-group col-sm-5 col-sm-pull-7" style="display:none;overflow:auto;margin-bottom:0px;">
+            <div id="taskList" class="list-group col-sm-4 col-sm-pull-8 col-md-5 col-md-pull-7" style="display:none;overflow:auto;margin-bottom:0px;">
 				<div id="filterPanel" style="margin-bottom:0px;padding-top:20px;padding-bottom:0px;padding-left:10px;display:none;">
 					<div class="panel panel-default">
 						<div class="panel-body">
