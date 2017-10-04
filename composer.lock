@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "dbe166ca1d6734215357f6b951d287a0",
-    "content-hash": "c096f5f2fdd7f923b22b0425dcba56ec",
+    "hash": "17538bc11db205b06d6656224af6956a",
+    "content-hash": "eb01266703f4233d8fa703516a43bba8",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -5451,16 +5451,16 @@
         },
         {
             "name": "omnipay/authorizenet",
-            "version": "2.5.0",
+            "version": "dev-solution-id",
             "source": {
                 "type": "git",
-                "url": "https://github.com/thephpleague/omnipay-authorizenet.git",
-                "reference": "229bdb205384f2e3bf844cdf258927895b4858d5"
+                "url": "https://github.com/hillelcoren/omnipay-authorizenet.git",
+                "reference": "56e9f740c5f883208594861e1c3564f8ef686a95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/omnipay-authorizenet/zipball/229bdb205384f2e3bf844cdf258927895b4858d5",
-                "reference": "229bdb205384f2e3bf844cdf258927895b4858d5",
+                "url": "https://api.github.com/repos/hillelcoren/omnipay-authorizenet/zipball/56e9f740c5f883208594861e1c3564f8ef686a95",
+                "reference": "56e9f740c5f883208594861e1c3564f8ef686a95",
                 "shasum": ""
             },
             "require": {
@@ -5480,7 +5480,6 @@
                     "Omnipay\\AuthorizeNet\\": "src/"
                 }
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -5506,7 +5505,10 @@
                 "pay",
                 "payment"
             ],
-            "time": "2017-03-07 14:00:14"
+            "support": {
+                "source": "https://github.com/hillelcoren/omnipay-authorizenet/tree/solution-id"
+            },
+            "time": "2017-10-04 09:53:32"
         },
         {
             "name": "omnipay/bitpay",
@@ -12151,7 +12153,14 @@
             "time": "2016-11-23 20:04:58"
         }
     ],
-    "aliases": [],
+    "aliases": [
+        {
+            "alias": "2.5.0",
+            "alias_normalized": "2.5.0.0",
+            "version": "dev-solution-id",
+            "package": "omnipay/authorizenet"
+        }
+    ],
     "minimum-stability": "stable",
     "stability-flags": {
         "dwolla/omnipay-dwolla": 20,
@@ -12179,7 +12188,8 @@
         "omnipay/stripe": 20,
         "simshaun/recurr": 20,
         "webpatser/laravel-countries": 20,
-        "websight/l5-google-cloud-storage": 20
+        "websight/l5-google-cloud-storage": 20,
+        "omnipay/authorizenet": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,
