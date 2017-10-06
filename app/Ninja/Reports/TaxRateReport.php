@@ -8,6 +8,7 @@ use Auth;
 class TaxRateReport extends AbstractReport
 {
     public $columns = [
+        'client',
         'invoice',
         'tax_name',
         'tax_rate',
@@ -67,7 +68,8 @@ class TaxRateReport extends AbstractReport
                 foreach ($taxTotals as $currencyId => $taxes) {
                     foreach ($taxes as $tax) {
                         $this->data[] = [
-                            $invoice->present()->link,
+                            $this->isExport ? $client->getDisplayName() : $client->present()->link,
+                            $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                             $tax['name'],
                             $tax['rate'] . '%',
                             $account->formatMoney($tax['amount'], $client),
