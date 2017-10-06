@@ -43,6 +43,11 @@ class ProductReport extends AbstractReport
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {
+                if (! $invoice->isPaid() && $status == 'paid') {
+                    continue;
+                } elseif ($invoice->isPaid() && $status == 'unpaid') {
+                    continue;
+                }
                 foreach ($invoice->invoice_items as $item) {
                     $this->data[] = [
                         $this->isExport ? $client->getDisplayName() : $client->present()->link,
