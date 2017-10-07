@@ -1,7 +1,6 @@
 <script type="text/javascript">
 
-    function intToTime(seconds)
-    {
+    function intToTime(seconds) {
         if (seconds === null) {
             return null;
         }
@@ -56,7 +55,8 @@
              var field = $(element).attr('name');
              var seconds = $(element).timepicker('getSecondsFromMidnight');
 
-             if (field == 'end_time') {
+             // add 24 hours the end time is before the start time/tomorrow
+             if (field == 'end_time' && seconds !== null) {
                  $input = $(element).closest('td').prev('td').find('input');
                  var startTime = $input.timepicker('getSecondsFromMidnight');
                  if (seconds < startTime) {
@@ -84,10 +84,23 @@
           if (field == 'start_time') {
               setTimeout(function() {
                   $input = $(element).closest('td').next('td').find('input');
-                  var value = $(element).val();
-                  if (value) {
-                      $input.timepicker('option', 'durationTime', value);
-                      $input.timepicker('option', 'minTime', value);
+                  var time = $(element).val();
+                  if (time) {
+                      // round the end time to the next 15 minutes
+                      var seconds = $(element).timepicker('getSecondsFromMidnight');
+                      var minTime = moment.utc(seconds * 1000).seconds(0);
+                      var minutes = minTime.minutes();
+                      if (minutes >= 45) {
+                          minTime.minutes(0).add(1, 'hour');
+                      } else if (minutes >= 30) {
+                          minTime.minutes(45);
+                      } else if (minutes >= 15) {
+                          minTime.minutes(30);
+                      } else {
+                          minTime.minutes(15);
+                      }
+                      $input.timepicker('option', 'minTime', minTime.format("H:mm:ss"));
+                      $input.timepicker('option', 'durationTime', time);
                   }
               }, 1);
           }
@@ -146,6 +159,8 @@
                 var duration = moment.duration(value * 1000);
                 var value = Math.floor(duration.asHours()) + moment.utc(duration.asMilliseconds()).format(":mm:ss")
                 $(element).typeahead('val', value);
+            } else {
+                $(element).typeahead('val', '');
             }
         }
     };
@@ -750,6 +765,11 @@
             if (! self.isRunning()) {
                 self.addTime();
             }
+
+            // Trigger isChanged to update
+            self.client_id.valueHasMutated();
+            self.project_id.valueHasMutated();
+            self.description.valueHasMutated();
         }
 
         self.checkForOverlaps = function() {
@@ -816,7 +836,6 @@
         });
 
         self.isChanged = ko.computed(function() {
-            model.sendingRequest(); // bind to the request
             var data = self.data;
             if (! self.public_id()) {
                 return true;

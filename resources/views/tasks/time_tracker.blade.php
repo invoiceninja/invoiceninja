@@ -217,7 +217,7 @@
 								</div>
 								<div style="padding-bottom: 20px">
 	                            {!! Former::textarea('description')
-	                                    ->data_bind("value: selectedTask().description")
+	                                    ->data_bind("value: selectedTask().description, valueUpdate: 'afterkeydown'")
 	                                    ->rows(4) !!}
 								</div>
 
