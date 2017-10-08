@@ -15,18 +15,22 @@
     <style type="text/css">
 
 		@media (max-width: 768px) {
-			#taskList {
-				position: relative !important;
-			}
-		}
-
-		@media (max-width: 768px) {
 			#clock,
 			#startLabel {
 				display: none;
 			}
+			#taskList {
+				position: relative !important;
+			}
 			.navbar-right button {
 				padding-left: 0px;
+			}
+		}
+
+		@media (max-width: 992px) {
+			.no-padding-mobile {
+				padding-left: 15px !important;
+				padding-right: 15px !important;
 			}
 		}
 
@@ -202,13 +206,13 @@
 						<form id="taskForm">
 							<span data-bind="event: { keypress: onFormKeyPress }">
 								<div class="row">
-									<div style="padding-bottom: 20px; padding-right:6px;" class="client-select col-md-6">
+									<div style="padding-bottom: 20px; padding-right:6px;" class="client-select col-md-6 no-padding-mobile">
 			                            {!! Former::select('client_id')
 												->addOption('', '')
 												->label('client')
 												->data_bind("dropdown: selectedTask().client_id") !!}
 									</div>
-									<div style="padding-bottom: 20px; padding-left:6px;" class="project-select col-md-6">
+									<div style="padding-bottom: 20px; padding-left:6px;" class="project-select col-md-6 no-padding-mobile">
 			                            {!! Former::select('project_id')
 			                                    ->addOption('', '')
 			                                    ->data_bind("dropdown: selectedTask().project_id")
