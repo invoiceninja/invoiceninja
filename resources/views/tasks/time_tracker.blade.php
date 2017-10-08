@@ -254,10 +254,9 @@
 															->raw() !!}
 												</div>
 											</td>
-											<td style="padding: 0 0 10px 6px">
+											<td style="padding: 0 0 10px 6px" class="hide-phone">
 												{!! Former::text('duration')
 														->placeholder('duration')
-														->addClass('hide-phone')
 														->data_bind("typeahead: duration")
 														->raw() !!}
 											</td>
