@@ -667,6 +667,9 @@
         }
 
         self.save = function(isSelected) {
+            if (model.sendingRequest()) {
+                return false;
+            }
             if (! self.checkForOverlaps()) {
                 swal("{{ trans('texts.task_errors') }}");
                 return;
