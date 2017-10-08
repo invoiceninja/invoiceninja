@@ -778,6 +778,7 @@
         self.checkForOverlaps = function() {
             var lastTime = 0;
             var isValid = true;
+            var running = [];
 
             for (var i=0; i<self.time_log().length; i++) {
                 var timeLog = self.time_log()[i];
@@ -791,10 +792,19 @@
                         endValid = false;
                     }
                     lastTime = Math.max(lastTime, timeLog.endTime());
+                    if (timeLog.isRunning()) {
+                        running.push(timeLog);
+                    }
                 }
                 timeLog.isStartValid(startValid);
                 timeLog.isEndValid(endValid);
                 if (! startValid || ! endValid) {
+                    isValid = false;
+                }
+                if (running.length > 1) {
+                    $.each(running, function(i, time) {
+                        time.isEndValid(false);
+                    });
                     isValid = false;
                 }
             }
