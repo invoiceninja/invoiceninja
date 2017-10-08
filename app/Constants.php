@@ -407,6 +407,7 @@ if (! defined('APP_NAME')) {
     define('PAYMENT_TYPE_SWITCH', 23);
     define('PAYMENT_TYPE_ALIPAY', 28);
     define('PAYMENT_TYPE_SOFORT', 29);
+    define('PAYMENT_TYPE_SEPA', 30);
 
     define('PAYMENT_METHOD_STATUS_NEW', 'new');
     define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
@@ -420,6 +421,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_CUSTOM', 6);
     define('GATEWAY_TYPE_ALIPAY', 7);
     define('GATEWAY_TYPE_SOFORT', 8);
+    define('GATEWAY_TYPE_SEPA', 9);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('TEMPLATE_INVOICE', 'invoice');

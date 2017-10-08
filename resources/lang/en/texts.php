@@ -1412,6 +1412,7 @@ $LANG = array(
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
     'payment_type_Sofort' => 'Sofort',
+    'payment_type_SEPA' => 'SEPA Direct Debit',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -2443,6 +2444,7 @@ $LANG = array(
 
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
+    'sepa' => 'SEPA Direct Debit',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
