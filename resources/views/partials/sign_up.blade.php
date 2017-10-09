@@ -232,11 +232,17 @@
             <center><div id="errorTaken" style="display:none">&nbsp;<br/><b>{{ trans('texts.email_taken') }}</b></div></center>
 
             <div class="col-md-12">
-                @if (Auth::user()->registered)
-                    <div style="padding-top:20px;padding-bottom:10px;">{!! trans('texts.email_alias_message') !!}</div>
-                @elseif (Utils::isNinja() && ! Utils::isPro())
-                    <div style="padding-top:20px;padding-bottom:10px;">{{ trans('texts.trial_message') }}</div>
-                @endif
+                <div style="padding-top:20px;padding-bottom:10px;">
+                    @if (Auth::user()->registered)
+                        {!! trans('texts.email_alias_message') !!}
+                    @elseif (Utils::isNinja())
+                        @if (Utils::isPro())
+                            {{ trans('texts.free_year_message') }}
+                        @else
+                            {{ trans('texts.trial_message') }}
+                        @endif
+                    @endif
+                </div>
             </div>
         </div>
 

@@ -996,6 +996,7 @@ $LANG = array(
     'enable_https' => 'We strongly recommend using HTTPS to accept credit card details online.',
     'quote_issued_to' => 'Quote issued to',
     'show_currency_code' => 'Currency Code',
+    'free_year_message' => 'Your account has been upgraded to the pro plan for one year at no cost.',
     'trial_message' => 'Your account will receive a free two week trial of our pro plan.',
     'trial_footer' => 'Your free pro plan trial lasts :count more days, :link to upgrade now.',
     'trial_footer_last_day' => 'This is the last day of your free pro plan trial, :link to upgrade now.',
