@@ -257,7 +257,7 @@ class AccountGatewayController extends BaseController
                     if (! $value && in_array($field, ['testMode', 'developerMode', 'sandbox'])) {
                         // do nothing
                     } elseif ($gatewayId == GATEWAY_CUSTOM) {
-                        $config->$field = strip_tags($value);
+                        $config->$field = Utils::isNinjaProd() ? strip_tags($value) : $value;
                     } else {
                         $config->$field = $value;
                     }
