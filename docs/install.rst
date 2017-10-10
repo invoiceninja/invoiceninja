@@ -64,7 +64,7 @@ You’ll need to create a new database along with a user to access it. Most host
 Step 4: Configure the web server
 """"""""""""""""""""""""""""""""
 
-Please see these guides for detailed information on configuring Apache or Nginx.
+See the guides listed above for detailed information on configuring Apache or Nginx.
 
 Once you can access the site the initial setup screen will enable you to configure the database and email settings as well as create the initial admin user.
 
