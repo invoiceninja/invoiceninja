@@ -145,7 +145,7 @@
 
         <br/>
         <center>
-            {!! Button::normal(trans('texts.use_another_provider'))->large()->asLinkTo(URL::to('/gateways/create?other_providers=true')) !!}
+            {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/gateways/create'))->appendIcon(Icon::create('remove-circle')) !!}
             {!! Button::success(trans('texts.sign_up_with_wepay'))->submit()->large() !!}
         </center>
 
