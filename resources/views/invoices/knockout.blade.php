@@ -710,7 +710,7 @@ function ContactModel(data) {
     self.send_invoice = ko.observable(false);
     self.invitation_link = ko.observable('');
     self.invitation_status = ko.observable('');
-    self.invitation_openend = ko.observable(false);
+    self.invitation_opened = ko.observable(false);
     self.invitation_viewed = ko.observable(false);
     self.email_error = ko.observable('');
     self.invitation_signature_svg = ko.observable('');
@@ -770,7 +770,7 @@ function ContactModel(data) {
     self.info_color = ko.computed(function() {
         if (self.invitation_viewed()) {
             return '#57D172';
-        } else if (self.invitation_openend()) {
+        } else if (self.invitation_opened()) {
             return '#FFCC00';
         } else {
             return '#B1B5BA';

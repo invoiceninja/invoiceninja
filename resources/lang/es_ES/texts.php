@@ -1012,7 +1012,7 @@ Atención! tu password puede estar transmitida como texto plano, considera habil
     'pro_plan_remove_logo' => ':link haz click para eliminar el logo de Invoice Ninja',
     'pro_plan_remove_logo_link' => 'Haz click aquí',
     'invitation_status_sent' => 'sent',
-    'invitation_status_opened' => 'Openend',
+    'invitation_status_opened' => 'Opened',
     'invitation_status_viewed' => 'Viewed',
     'email_error_inactive_client' => 'No se pueden enviar correos a Clientes inactivos',
     'email_error_inactive_contact' => 'No se pueden enviar correos a Contactos inactivos',
