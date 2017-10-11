@@ -66,7 +66,7 @@ class AcceptanceTester extends \Codeception\Actor
     {
         if ( ! $I->grabFromDatabase('account_gateways', 'id', ['id' => 1])) {
             $I->wantTo('create a gateway');
-            $I->amOnPage('/gateways/create?other_providers=true');
+            $I->amOnPage('/gateways/create');
             $I->fillField(['name' =>'23_apiKey'], env('stripe_secret_key') ?: Fixtures::get('stripe_secret_key'));
             $I->fillField(['name' =>'publishable_key'], '');
             $I->click('Save');

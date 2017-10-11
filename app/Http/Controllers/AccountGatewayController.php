@@ -89,26 +89,23 @@ class AccountGatewayController extends BaseController
 
         $account = Auth::user()->account;
         $accountGatewaysIds = $account->gatewayIds();
-        $otherProviders = Input::get('other_providers');
-
-        if (! env('WEPAY_CLIENT_ID') || Gateway::hasStandardGateway($accountGatewaysIds)) {
-            $otherProviders = true;
-        }
+        $wepay = Input::get('wepay');
 
         $data = self::getViewModel();
         $data['url'] = 'gateways';
         $data['method'] = 'POST';
         $data['title'] = trans('texts.add_gateway');
 
-        if ($otherProviders) {
+        if ($wepay) {
+            return View::make('accounts.account_gateway_wepay', $data);
+        } else {
             $availableGatewaysIds = $account->availableGatewaysIds();
             $data['primaryGateways'] = Gateway::primary($availableGatewaysIds)->orderBy('sort_order')->get();
             $data['secondaryGateways'] = Gateway::secondary($availableGatewaysIds)->orderBy('name')->get();
             $data['hiddenFields'] = Gateway::$hiddenFields;
+            $data['accountGatewaysIds'] = $accountGatewaysIds;
 
             return View::make('accounts.account_gateway', $data);
-        } else {
-            return View::make('accounts.account_gateway_wepay', $data);
         }
     }
 

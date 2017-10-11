@@ -1,6 +1,5 @@
 {!! Former::populateField(GATEWAY_STRIPE . '_apiKey', env('STRIPE_TEST_SECRET_KEY')) !!}
 {!! Former::populateField('publishable_key', env('STRIPE_TEST_PUBLISHABLE_KEY')) !!}
-{!! Former::populateField('enable_ach', 1) !!}
 {!! Former::populateField('plaid_client_id', env('PLAID_TEST_CLIENT_ID')) !!}
 {!! Former::populateField('plaid_secret', env('PLAID_TEST_SECRET')) !!}
 {!! Former::populateField('plaid_public_key', env('PLAID_TEST_PUBLIC_KEY')) !!}
