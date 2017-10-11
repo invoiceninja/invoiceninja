@@ -104,7 +104,7 @@ You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env 
 Time Tracking App
 """""""""""""""""
 
-You can create a desktop wrapper for the time tracking app by installing `Nativefier <https://github.com/jiahaog/nativefier>`_ and then running:
+You can create a Windows, MacOS or Linux desktop wrapper for the time tracking app by installing `Nativefier <https://github.com/jiahaog/nativefier>`_ and then running:
 
 .. code-block:: shell
 
