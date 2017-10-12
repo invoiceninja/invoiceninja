@@ -242,6 +242,18 @@ class FontsSeeder extends Seeder
                 'bolditalics' => 'GenShinGothic-Regular.ttf',
                 'sort_order' => 1800,
             ],
+            [
+                'folder' => 'athiti',
+                'name' => 'Athiti - Thai',
+                'css_stack' => "'Athiti', sans-serif",
+                'css_weight' => 400,
+                'google_font' => 'Athiti:400,700',
+                'normal' => 'Athiti-Regular.ttf',
+                'bold' => 'Athiti-Medium.ttf',
+                'italics' => 'Athiti-Regular.ttf',
+                'bolditalics' => 'Athiti-Mediumgr.ttf',
+                'sort_order' => 2000,
+            ],
         ];
 
         foreach ($fonts as $font) {
