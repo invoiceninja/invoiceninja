@@ -172,7 +172,7 @@ class InvoiceController extends BaseController
                             $contact->email_error = $invitation->email_error;
                             $contact->invitation_link = $invitation->getLink('view', $hasPassword, $hasPassword);
                             $contact->invitation_viewed = $invitation->viewed_date && $invitation->viewed_date != '0000-00-00 00:00:00' ? $invitation->viewed_date : false;
-                            $contact->invitation_openend = $invitation->opened_date && $invitation->opened_date != '0000-00-00 00:00:00' ? $invitation->opened_date : false;
+                            $contact->invitation_opened = $invitation->opened_date && $invitation->opened_date != '0000-00-00 00:00:00' ? $invitation->opened_date : false;
                             $contact->invitation_status = $contact->email_error ? false : $invitation->getStatus();
                             $contact->invitation_signature_svg = $invitation->signatureDiv();
                         }
