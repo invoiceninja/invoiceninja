@@ -126,6 +126,7 @@ class AcceptanceTester extends \Codeception\Actor
         $clientSession->does(function(AcceptanceTester $I) use ($invitationKey) {
             $I->amOnPage('/view/' . $invitationKey);
             $I->click('Pay Now');
+            $I->click('Credit Card');
             $I->fillField('#card_number', '4242424242424242');
             $I->fillField('#cvv', '100');
             $I->selectOption('#expiration_month', 12);
