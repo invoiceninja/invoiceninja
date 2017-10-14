@@ -210,6 +210,7 @@
 	        });
 
 	        actionListHandler();
+			$('[data-toggle="tooltip"]').tooltip();
 	    }
 
 	    $('.listForm_{{ $entityType }} .archive, .invoice').prop('disabled', true);

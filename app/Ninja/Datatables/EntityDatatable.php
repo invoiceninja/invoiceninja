@@ -90,4 +90,12 @@ class EntityDatatable
 
         return $indices;
     }
+
+    public function addNote($str, $note) {
+        if (! $note) {
+            return $str;
+        }
+
+        return $str . '&nbsp; <span class="fa fa-file-o" data-toggle="tooltip" data-placement="bottom" title="' . e($note) . '"></span>';
+    }
 }

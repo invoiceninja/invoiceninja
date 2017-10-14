@@ -17,7 +17,8 @@ class ClientDatatable extends EntityDatatable
             [
                 'name',
                 function ($model) {
-                    return link_to("clients/{$model->public_id}", $model->name ?: '')->toHtml();
+                    $str = link_to("clients/{$model->public_id}", $model->name ?: '')->toHtml();
+                    return $this->addNote($str, $model->private_notes);
                 },
             ],
             [

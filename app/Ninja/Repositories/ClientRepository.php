@@ -41,6 +41,7 @@ class ClientRepository extends BaseRepository
                         DB::raw("CONCAT(contacts.first_name, ' ', contacts.last_name) contact"),
                         'clients.public_id',
                         'clients.name',
+                        'clients.private_notes',
                         'contacts.first_name',
                         'contacts.last_name',
                         'clients.balance',
