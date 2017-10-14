@@ -38,8 +38,9 @@ class AnalyticsListener
         $client = $payment->client;
         $amount = $payment->amount;
         $item = $invoice->invoice_items->last()->product_key;
+        $currencyCode = $client->getCurrencyCode();
 
-        $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu=USD&ti={$invoice->invoice_number}";
+        $base = "v=1&tid={$analyticsId}&cid={$client->public_id}&cu={$currencyCode}&ti={$invoice->invoice_number}";
 
         $url = $base . "&t=transaction&ta=ninja&tr={$amount}";
         $this->sendAnalytics($url);
