@@ -101,6 +101,15 @@ You need to create a `Google Maps API <https://developers.google.com/maps/docume
 
 You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env file.
 
+Time Tracking App
+"""""""""""""""""
+
+You can create a Windows, MacOS or Linux desktop wrapper for the time tracking app by installing `Nativefier <https://github.com/jiahaog/nativefier>`_ and then running:
+
+.. code-block:: shell
+
+   nativefier --name "Invoice Ninja" --user-agent "Time Tracker" https://example.com/time_tracker
+
 Voice Commands
 """"""""""""""
 

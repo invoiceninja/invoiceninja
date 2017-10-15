@@ -60,7 +60,7 @@ $LANG = array(
     'download_pdf' => 'Shkarko PDF',
     'pay_now' => 'Paguaj Tani',
     'save_invoice' => 'Ruaj faturën',
-    'clone_invoice' => 'Klono faturën',
+    'clone_invoice' => 'Clone To Invoice',
     'archive_invoice' => 'Arkivo faturën',
     'delete_invoice' => 'Fshi faturën',
     'email_invoice' => 'Dërgo faturën me email',
@@ -320,7 +320,7 @@ $LANG = array(
     'delete_quote' => 'Fshi Ofertën',
     'save_quote' => 'Ruaj Ofertën',
     'email_quote' => 'Dërgo me email Ofertën',
-    'clone_quote' => 'Klono Ofertën',
+    'clone_quote' => 'Clone To Quote',
     'convert_to_invoice' => 'Ktheje Ofertën në Faturë',
     'view_invoice' => 'Shiko Faturën',
     'view_client' => 'Shiko Klientin',
@@ -652,9 +652,9 @@ $LANG = array(
     'created_by_invoice' => 'Krijuar nga :invoice',
     'primary_user' => 'Përdoruesi kryesor',
     'help' => 'Ndihmë',
-    'customize_help' => '<p>Ne përdorim <a href="http://pdfmake.org/" target="_blank">pdfmake</a> për të krijuar faturat PDF dhe dizajnin e tyre. pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> ofron mundësi të mirë për të parë librarinë në veprim. </p>
-                        <p>Ju mund t\'i qaseni të dhënave duke përdorur kodet. Për shembull për të parë emrin e klientit ju mund të përdorni <code>$client.name</code>.</p>
-                        <p>Nëse ju duhet ndihmë për të qartësuar diçka ose për të bërë ndonjë pytje mund të na shkruani në <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">forumin tonë</a> me dizajnin që jeni duke përdorur.</p>',
+    'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provides a great way to see the library in action.</p>
+                        <p>You can access a child property using dot notation. For example to show the client name you could use <code>$client.name</code>.</p>
+                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
     'invoice_due_date' => 'Deri më datë',
     'quote_due_date' => 'Valide deri',
     'valid_until' => 'Valide deri',
@@ -993,6 +993,7 @@ $LANG = array(
     'enable_https' => 'Ju rekomandojmë të përdorni HTTPS për të pranuar detajet e kredit kartave online.',
     'quote_issued_to' => 'Oferta i është lëshuar',
     'show_currency_code' => 'Kodi i valutës',
+    'free_year_message' => 'Your account has been upgraded to the pro plan for one year at no cost.',
     'trial_message' => 'Llogaria juaj do të pranojë një periudhë testuese dyjavore të Pro planit që ofrojmë.',
     'trial_footer' => 'Your free pro plan trial lasts :count more days, :link to upgrade now.',
     'trial_footer_last_day' => 'This is the last day of your free pro plan trial, :link to upgrade now.',
@@ -1013,7 +1014,7 @@ $LANG = array(
     'pro_plan_remove_logo' => ':link për të larguar Invoice Ninja logo duke iu bashkangjitur Pro Planit',
     'pro_plan_remove_logo_link' => 'Kliko këtu',
     'invitation_status_sent' => 'sent',
-    'invitation_status_opened' => 'Openend',
+    'invitation_status_opened' => 'Opened',
     'invitation_status_viewed' => 'Viewed',
     'email_error_inactive_client' => 'Emailat nuk mund t\'i dërgohen klientëve joaktiv',
     'email_error_inactive_contact' => 'Emailat nuk mund t\'i dërgohen kontakteve joaktiv',
@@ -1410,6 +1411,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
     'payment_type_Sofort' => 'Sofort',
+    'payment_type_SEPA' => 'SEPA Direct Debit',
 
     // Industries
     'industry_Accounting & Legal' => 'Kontabilitet & Ligjore',
@@ -1722,6 +1724,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
+    'lang_Thai' => 'Thai',
 
     // Frequencies
     'freq_weekly' => 'Javore',
@@ -2389,6 +2392,7 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
+    'currency_botswana_pula' => 'Botswana Pula',
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">writing a review</a> we\'d greatly appreciate it!',
 
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
@@ -2439,11 +2443,43 @@ Pasi të keni pranuar shumat, kthehuni në faqen e metodave të pagesës dhe kli
 
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
+    'sepa' => 'SEPA Direct Debit',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
     'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
+    'calendar' => 'Calendar',
+    'pro_plan_calendar' => ':link to enable the calendar by joining the Pro Plan',
 
+    'what_are_you_working_on' => 'What are you working on?',
+    'time_tracker' => 'Time Tracker',
+    'refresh' => 'Refresh',
+    'filter_sort' => 'Filter/Sort',
+    'no_description' => 'No Description',
+    'time_tracker_login' => 'Time Tracker Login',
+    'save_or_discard' => 'Save or discard your changes',
+    'discard_changes' => 'Discard Changes',
+    'tasks_not_enabled' => 'Tasks are not enabled.',
+    'started_task' => 'Successfully started task',
+    'create_client' => 'Create Client',
+
+    'download_desktop_app' => 'Download the desktop app',
+    'download_iphone_app' => 'Download the iPhone app',
+    'download_android_app' => 'Download the Android app',
+    'time_tracker_mobile_help' => 'Double tap a task to select it',
+    'stopped' => 'Stopped',
+    'ascending' => 'Ascending',
+    'descending' => 'Descending',
+    'sort_field' => 'Sort By',
+    'sort_direction' => 'Direction',
+    'discard' => 'Discard',
+    'time_am' => 'AM',
+    'time_pm' => 'PM',
+    'time_mins' => 'mins',
+    'time_hr' => 'hr',
+    'time_hrs' => 'hrs',
+    'clear' => 'Clear',
+    'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
 );
 
 return $LANG;

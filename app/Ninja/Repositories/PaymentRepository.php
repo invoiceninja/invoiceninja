@@ -63,6 +63,7 @@ class PaymentRepository extends BaseRepository
                         'payments.email',
                         'payments.routing_number',
                         'payments.bank_name',
+                        'payments.private_notes',
                         'invoices.is_deleted as invoice_is_deleted',
                         'gateways.name as gateway_name',
                         'gateways.id as gateway_id',

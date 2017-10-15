@@ -159,6 +159,10 @@
             location.href = "{{ url('/dashboard') }}";
         });
 
+        Mousetrap.bind('g c', function(e) {
+            location.href = "{{ url('/calendar') }}";
+        });
+
         Mousetrap.bind('g r', function(e) {
             location.href = "{{ url('/reports') }}";
         });

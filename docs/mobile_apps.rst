@@ -3,6 +3,8 @@ Mobile Applications
 
 The Invoice Ninja iPhone and Android applications allows a user to connect to their self-hosted Invoice Ninja web application.
 
+.. TIP:: If you're unable to access the Android app store you can download the APK here: https://download.invoiceninja.com/apk
+
 Connecting your to your self-hosted invoice ninja installation requires a couple of easy steps.
 
 Web App configuration

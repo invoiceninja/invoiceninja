@@ -4,6 +4,10 @@
 @parent
 @include('accounts.nav', ['selected' => ACCOUNT_BANKS])
 
+@if (isset($warnPaymentGateway) && $warnPaymentGateway)
+    <div class="alert alert-warning">{!! trans('texts.warn_payment_gateway', ['link' => link_to('/gateways/create', trans('texts.click_here'))]) !!}</div>
+@endif
+
 @if (Auth::user()->hasFeature(FEATURE_EXPENSES))
     <div class="pull-right">
         {!! Button::normal(trans('texts.import_ofx'))

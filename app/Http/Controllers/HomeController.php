@@ -129,6 +129,14 @@ class HomeController extends BaseController
     /**
      * @return mixed
      */
+    public function loggedIn()
+    {
+        return RESULT_SUCCESS;
+    }
+
+    /**
+     * @return mixed
+     */
     public function contactUs()
     {
         $message = request()->contact_us_message;

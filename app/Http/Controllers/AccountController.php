@@ -431,9 +431,12 @@ class AccountController extends BaseController
      */
     private function showBankAccounts()
     {
+        $account = auth()->user()->account;
+
         return View::make('accounts.banks', [
             'title' => trans('texts.bank_accounts'),
             'advanced' => ! Auth::user()->hasFeature(FEATURE_EXPENSES),
+            'warnPaymentGateway' => ! $account->account_gateways->count(),
         ]);
     }
 

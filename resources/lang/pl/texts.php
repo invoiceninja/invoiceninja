@@ -60,7 +60,7 @@ $LANG = array(
     'download_pdf' => 'Pobierz PDF',
     'pay_now' => 'Zapłać teraz',
     'save_invoice' => 'Zapisz fakturę',
-    'clone_invoice' => 'Skopiuj fakturę',
+    'clone_invoice' => 'Clone To Invoice',
     'archive_invoice' => 'Zarchiwizuj fakturę',
     'delete_invoice' => 'Usuń fakturę',
     'email_invoice' => 'Wyślij fakturę',
@@ -323,7 +323,7 @@ $LANG = array(
     'delete_quote' => 'Usuń ofertę',
     'save_quote' => 'Zapisz ofertę',
     'email_quote' => 'Wyślij ofertę',
-    'clone_quote' => 'Skopiuj ofertę',
+    'clone_quote' => 'Clone To Quote',
     'convert_to_invoice' => 'Konwertuj do faktury',
     'view_invoice' => 'Zobacz fakturę',
     'view_client' => 'Zobacz klienta',
@@ -655,7 +655,7 @@ $LANG = array(
     'created_by_invoice' => 'Utworzona przez :invoice',
     'primary_user' => 'Główny użytkownik',
     'help' => 'Pomoc',
-    'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
+    'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provides a great way to see the library in action.</p>
                         <p>You can access a child property using dot notation. For example to show the client name you could use <code>$client.name</code>.</p>
                         <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
     'invoice_due_date' => 'Termin Płatności',
@@ -996,6 +996,7 @@ $LANG = array(
     'enable_https' => 'Zalecamy korzystanie z protokołu HTTPS do przetwarzania online danych kart kredytowych.',
     'quote_issued_to' => 'Oferta wydana do',
     'show_currency_code' => 'Kod waluty',
+    'free_year_message' => 'Your account has been upgraded to the pro plan for one year at no cost.',
     'trial_message' => 'Twoje konto otrzyma bezpłatny dwutygodniowy okres próbny naszego pro planu.',
     'trial_footer' => 'Your free pro plan trial lasts :count more days, :link to upgrade now.',
     'trial_footer_last_day' => 'This is the last day of your free pro plan trial, :link to upgrade now.',
@@ -1016,7 +1017,7 @@ $LANG = array(
     'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
     'pro_plan_remove_logo_link' => 'Kliknij tutaj',
     'invitation_status_sent' => 'sent',
-    'invitation_status_opened' => 'Otwarto',
+    'invitation_status_opened' => 'Opened',
     'invitation_status_viewed' => 'Wyświetlono',
     'email_error_inactive_client' => 'E-maile nie mogą być wysyłane do klientów nieaktywnych',
     'email_error_inactive_contact' => 'E-mail nie może zostać wysłany do nieaktywnych kontaktów',
@@ -1412,6 +1413,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
     'payment_type_Sofort' => 'Sofort',
+    'payment_type_SEPA' => 'SEPA Direct Debit',
 
     // Industries
     'industry_Accounting & Legal' => 'Księgowość i prawo',
@@ -1724,6 +1726,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
+    'lang_Thai' => 'Thai',
 
     // Frequencies
     'freq_weekly' => 'Co tydzień',
@@ -2391,6 +2394,7 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
+    'currency_botswana_pula' => 'Botswana Pula',
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">writing a review</a> we\'d greatly appreciate it!',
 
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
@@ -2441,11 +2445,43 @@ Gdy przelewy zostaną zaksięgowane na Twoim koncie, wróć do tej strony i klik
 
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
+    'sepa' => 'SEPA Direct Debit',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
     'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
+    'calendar' => 'Calendar',
+    'pro_plan_calendar' => ':link to enable the calendar by joining the Pro Plan',
 
+    'what_are_you_working_on' => 'What are you working on?',
+    'time_tracker' => 'Time Tracker',
+    'refresh' => 'Refresh',
+    'filter_sort' => 'Filter/Sort',
+    'no_description' => 'No Description',
+    'time_tracker_login' => 'Time Tracker Login',
+    'save_or_discard' => 'Save or discard your changes',
+    'discard_changes' => 'Discard Changes',
+    'tasks_not_enabled' => 'Tasks are not enabled.',
+    'started_task' => 'Successfully started task',
+    'create_client' => 'Create Client',
+
+    'download_desktop_app' => 'Download the desktop app',
+    'download_iphone_app' => 'Download the iPhone app',
+    'download_android_app' => 'Download the Android app',
+    'time_tracker_mobile_help' => 'Double tap a task to select it',
+    'stopped' => 'Stopped',
+    'ascending' => 'Ascending',
+    'descending' => 'Descending',
+    'sort_field' => 'Sort By',
+    'sort_direction' => 'Direction',
+    'discard' => 'Discard',
+    'time_am' => 'AM',
+    'time_pm' => 'PM',
+    'time_mins' => 'mins',
+    'time_hr' => 'hr',
+    'time_hrs' => 'hrs',
+    'clear' => 'Clear',
+    'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
 );
 
 return $LANG;

@@ -24,7 +24,8 @@ class InvoiceDatatable extends EntityDatatable
                         return $model->invoice_number;
                     }
 
-                    return link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
+                    $str = link_to("{$entityType}s/{$model->public_id}/edit", $model->invoice_number, ['class' => Utils::getEntityRowClass($model)])->toHtml();
+                    return $this->addNote($str, $model->private_notes);
                 },
             ],
             [

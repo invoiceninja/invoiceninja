@@ -115,6 +115,8 @@ You can archive, delete or restore an entity by setting ``action`` in the reques
   curl -X PUT ninja.dev/api/v1/invoices/1?action=archive \
     -H "X-Ninja-Token: TOKEN"
 
+.. TIP:: For invoices use `mark_sent` to manually mark the invoice as sent
+
 Emailing Invoices
 """""""""""""""""
 

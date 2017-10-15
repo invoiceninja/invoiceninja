@@ -60,7 +60,7 @@ $LANG = array(
     'download_pdf' => 'Stáhnout PDF',
     'pay_now' => 'Zaplatit nyní',
     'save_invoice' => 'Uložit fakturu',
-    'clone_invoice' => 'Zduplikovat fakturu',
+    'clone_invoice' => 'Clone To Invoice',
     'archive_invoice' => 'Archivovat fakturu',
     'delete_invoice' => 'Smazat fakturu',
     'email_invoice' => 'Poslat fakturu emailem',
@@ -322,7 +322,7 @@ $LANG = array(
     'delete_quote' => 'Smazat nabídku',
     'save_quote' => 'Uložit nabídku',
     'email_quote' => 'Odeslat nabídku emailem',
-    'clone_quote' => 'Duplikovat nabídku',
+    'clone_quote' => 'Clone To Quote',
     'convert_to_invoice' => 'Změnit na fakturu',
     'view_invoice' => 'Zobrazit fakturu',
     'view_client' => 'Zobrazit klienta',
@@ -656,7 +656,7 @@ $LANG = array(
     'created_by_invoice' => 'Vytvořeno  :invoice',
     'primary_user' => 'Primární uživatel',
     'help' => 'Pomoc',
-    'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provide\'s a great way to see the library in action.</p>
+    'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provides a great way to see the library in action.</p>
                         <p>You can access a child property using dot notation. For example to show the client name you could use <code>$client.name</code>.</p>
                         <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
     'invoice_due_date' => 'Datum splatnosti',
@@ -998,6 +998,7 @@ $LANG = array(
     'enable_https' => 'Pro akceptování platebních karet online používejte vždy HTTPS.',
     'quote_issued_to' => 'Náklad je vystaven',
     'show_currency_code' => 'Kód měny',
+    'free_year_message' => 'Your account has been upgraded to the pro plan for one year at no cost.',
     'trial_message' => 'Váš účet získá zdarma 2 týdny zkušební verze Profi plánu.',
     'trial_footer' => 'Your free pro plan trial lasts :count more days, :link to upgrade now.',
     'trial_footer_last_day' => 'This is the last day of your free pro plan trial, :link to upgrade now.',
@@ -1018,7 +1019,7 @@ $LANG = array(
     'pro_plan_remove_logo' => ':link pro odstranění loga Invoice Ninja připojením se k profi plánu',
     'pro_plan_remove_logo_link' => 'Klikněte zde',
     'invitation_status_sent' => 'sent',
-    'invitation_status_opened' => 'Openend',
+    'invitation_status_opened' => 'Opened',
     'invitation_status_viewed' => 'Viewed',
     'email_error_inactive_client' => 'Emaily nemohou být odeslány neaktivním klientům',
     'email_error_inactive_contact' => 'Emaily nemohou být odeslány neaktivním kontaktům',
@@ -1414,6 +1415,7 @@ $LANG = array(
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
     'payment_type_Sofort' => 'Sofort',
+    'payment_type_SEPA' => 'SEPA Direct Debit',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -1726,6 +1728,7 @@ $LANG = array(
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
+    'lang_Thai' => 'Thai',
 
     // Frequencies
     'freq_weekly' => 'Weekly',
@@ -2393,6 +2396,7 @@ $LANG = array(
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
+    'currency_botswana_pula' => 'Botswana Pula',
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">writing a review</a> we\'d greatly appreciate it!',
 
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
@@ -2443,11 +2447,43 @@ $LANG = array(
 
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
+    'sepa' => 'SEPA Direct Debit',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
     'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
+    'calendar' => 'Calendar',
+    'pro_plan_calendar' => ':link to enable the calendar by joining the Pro Plan',
 
+    'what_are_you_working_on' => 'What are you working on?',
+    'time_tracker' => 'Time Tracker',
+    'refresh' => 'Refresh',
+    'filter_sort' => 'Filter/Sort',
+    'no_description' => 'No Description',
+    'time_tracker_login' => 'Time Tracker Login',
+    'save_or_discard' => 'Save or discard your changes',
+    'discard_changes' => 'Discard Changes',
+    'tasks_not_enabled' => 'Tasks are not enabled.',
+    'started_task' => 'Successfully started task',
+    'create_client' => 'Create Client',
+
+    'download_desktop_app' => 'Download the desktop app',
+    'download_iphone_app' => 'Download the iPhone app',
+    'download_android_app' => 'Download the Android app',
+    'time_tracker_mobile_help' => 'Double tap a task to select it',
+    'stopped' => 'Stopped',
+    'ascending' => 'Ascending',
+    'descending' => 'Descending',
+    'sort_field' => 'Sort By',
+    'sort_direction' => 'Direction',
+    'discard' => 'Discard',
+    'time_am' => 'AM',
+    'time_pm' => 'PM',
+    'time_mins' => 'mins',
+    'time_hr' => 'hr',
+    'time_hrs' => 'hrs',
+    'clear' => 'Clear',
+    'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
 );
 
 return $LANG;

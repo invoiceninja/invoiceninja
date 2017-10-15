@@ -52,7 +52,8 @@ class ExpenseDatatable extends EntityDatatable
                         return Utils::fromSqlDate($model->expense_date_sql);
                     }
 
-                    return link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml();
+                    $str = link_to("expenses/{$model->public_id}/edit", Utils::fromSqlDate($model->expense_date_sql))->toHtml();
+                    return $this->addNote($str, $model->private_notes);
                 },
             ],
             [

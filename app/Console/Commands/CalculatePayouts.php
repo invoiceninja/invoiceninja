@@ -74,7 +74,8 @@ class CalculatePayouts extends Command
                 $this->info("User: $user");
 
                 foreach ($client->payments as $payment) {
-                    $this->info("Date: $payment->payment_date, Amount: $payment->amount, Reference: $payment->transaction_reference");
+                    $amount = $payment->getCompletedAmount();
+                    $this->info("Date: $payment->payment_date, Amount: $amount, Reference: $payment->transaction_reference");
                 }
             }
         }

@@ -10,7 +10,13 @@
                 ->rules(['email' => 'required|email', 'password' => 'required'])
                 ->addClass('form-signin') !!}
 
-        <h2 class="form-signin-heading">{{ trans('texts.account_login') }}</h2>
+        <h2 class="form-signin-heading">
+            @if (strstr(session('url.intended'), 'time_tracker'))
+                {{ trans('texts.time_tracker_login') }}
+            @else
+                {{ trans('texts.account_login') }}
+            @endif
+        </h2>
         <hr class="green">
 
         @if (count($errors->all()))
@@ -83,7 +89,7 @@
         </div>
         {!! Former::close() !!}
 
-        @if(Utils::allowNewAccounts())
+        @if (Utils::allowNewAccounts() && ! strstr(session('url.intended'), 'time_tracker'))
             <div class="row sign-up">
                 <div class="col-md-3 col-md-offset-3 col-xs-12">
                     <h3>{{trans('texts.not_a_member_yet')}}</h3>
@@ -104,6 +110,19 @@
             } else {
                 $('#email').focus();
             }
+
+            @if (array_get($_SERVER, 'HTTP_USER_AGENT') == TIME_TRACKER_USER_AGENT)
+                if (isStorageSupported()) {
+                    $('#email').change(function() {
+                        localStorage.setItem('last:time_tracker:email', $('#email').val());
+                    })
+                    var email = localStorage.getItem('last:time_tracker:email');
+                    if (email) {
+                        $('#email').val(email);
+                        $('#password').focus();
+                    }
+                }
+            @endif
         })
     </script>
 

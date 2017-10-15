@@ -309,7 +309,7 @@ if (! defined('APP_NAME')) {
     define('NINJA_APP_URL', env('NINJA_APP_URL', 'https://app.invoiceninja.com'));
     define('NINJA_DOCS_URL', env('NINJA_DOCS_URL', 'http://docs.invoiceninja.com/en/latest'));
     define('NINJA_DATE', '2000-01-01');
-    define('NINJA_VERSION', '3.7.2' . env('NINJA_VERSION_SUFFIX'));
+    define('NINJA_VERSION', '3.8.0' . env('NINJA_VERSION_SUFFIX'));
 
     define('SOCIAL_LINK_FACEBOOK', env('SOCIAL_LINK_FACEBOOK', 'https://www.facebook.com/invoiceninja'));
     define('SOCIAL_LINK_TWITTER', env('SOCIAL_LINK_TWITTER', 'https://twitter.com/invoiceninja'));
@@ -340,6 +340,8 @@ if (! defined('APP_NAME')) {
     define('SKYPE_API_URL', 'https://apis.skype.com/v3');
     define('MSBOT_STATE_URL', 'https://state.botframework.com/v3');
     define('INVOICEPLANE_IMPORT', 'https://github.com/turbo124/Plane2Ninja');
+
+    define('TIME_TRACKER_USER_AGENT', 'Time Tracker');
 
     define('BOT_PLATFORM_WEB_APP', 'WebApp');
     define('BOT_PLATFORM_SKYPE', 'Skype');
@@ -405,6 +407,7 @@ if (! defined('APP_NAME')) {
     define('PAYMENT_TYPE_SWITCH', 23);
     define('PAYMENT_TYPE_ALIPAY', 28);
     define('PAYMENT_TYPE_SOFORT', 29);
+    define('PAYMENT_TYPE_SEPA', 30);
 
     define('PAYMENT_METHOD_STATUS_NEW', 'new');
     define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
@@ -418,6 +421,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_CUSTOM', 6);
     define('GATEWAY_TYPE_ALIPAY', 7);
     define('GATEWAY_TYPE_SOFORT', 8);
+    define('GATEWAY_TYPE_SEPA', 9);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('TEMPLATE_INVOICE', 'invoice');

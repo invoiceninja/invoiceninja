@@ -1,19 +1,20 @@
 <li class="nav-{{ $option }} {{ Request::is("{$option}*") ? 'active' : '' }}">
 
     @if ($option == 'settings')
-
         <a type="button" class="btn btn-default btn-sm pull-right" title="{{ Utils::getReadableUrl(request()->path()) }}"
             href="{{ Utils::getDocsUrl(request()->path()) }}" target="_blank">
             <i class="fa fa-info-circle" style="width:20px"></i>
         </a>
-
+    @elseif ($option == 'reports')
+        <a type="button" class="btn btn-default btn-sm pull-right" title="{{ trans('texts.calendar') }}"
+            href="{{ url('/calendar') }}">
+            <i class="fa fa-calendar" style="width:20px"></i>
+        </a>
     @elseif (Auth::user()->can('create', $option) || Auth::user()->can('create', substr($option, 0, -1)))
-
         <a type="button" class="btn btn-primary btn-sm pull-right"
             href="{{ url("/{$option}/create") }}">
             <i class="fa fa-plus-circle" style="width:20px" title="{{ trans('texts.create_new') }}"></i>
         </a>
-
     @endif
 
     <a href="{{ url($option == 'recurring' ? 'recurring_invoice' : $option) }}"

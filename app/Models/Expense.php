@@ -229,6 +229,16 @@ class Expense extends EntityModel
 
     /**
      * @param $query
+     *
+     * @return mixed
+     */
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->whereBetween('expense_date', [$startDate, $endDate]);
+    }
+
+    /**
+     * @param $query
      * @param null $bankdId
      *
      * @return mixed

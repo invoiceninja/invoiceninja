@@ -117,7 +117,10 @@ class TaskRepository extends BaseRepository
 
         if (isset($data['client'])) {
             $task->client_id = $data['client'] ? Client::getPrivateId($data['client']) : null;
+        } elseif (isset($data['client_id'])) {
+            $task->client_id = $data['client_id'] ? Client::getPrivateId($data['client_id']) : null;
         }
+
         if (isset($data['project_id'])) {
             $task->project_id = $data['project_id'] ? Project::getPrivateId($data['project_id']) : null;
         }
@@ -132,10 +135,6 @@ class TaskRepository extends BaseRepository
             $timeLog = json_decode($task->time_log);
         } else {
             $timeLog = [];
-        }
-
-        if(isset($data['client_id'])) {
-            $task->client_id = Client::getPrivateId($data['client_id']);
         }
 
         array_multisort($timeLog);
@@ -153,6 +152,8 @@ class TaskRepository extends BaseRepository
             } elseif ($data['action'] == 'offline'){
                 $task->is_running = $data['is_running'] ? 1 : 0;
             }
+        } elseif (isset($data['is_running'])) {
+            $task->is_running = $data['is_running'] ? 1 : 0;
         }
 
         $task->time_log = json_encode($timeLog);

@@ -329,7 +329,11 @@
               </div>
 
              <div class="panel-body">
-                  {!! nl2br(e($customGatewayText)) !!}
+				  @if (Utils::isNinjaProd())
+				    {!! nl2br(e($customGatewayText)) !!}
+				  @else
+				    {!! $customGatewayText !!}
+				  @endif
               </div>
 
               <div class="modal-footer">

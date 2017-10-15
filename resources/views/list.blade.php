@@ -87,6 +87,7 @@
 			});
 		</script>
 	@elseif ($entityType == ENTITY_TASK)
+		{!! Button::normal(trans('texts.time_tracker'))->asLinkTo('javascript:openTimeTracker()')->appendIcon(Icon::create('time')) !!}
 		{!! DropdownButton::normal(trans('texts.projects'))
 			->withAttributes(['class'=>'projectsDropdown'])
 			->withContents([
@@ -209,6 +210,7 @@
 	        });
 
 	        actionListHandler();
+			$('[data-toggle="tooltip"]').tooltip();
 	    }
 
 	    $('.listForm_{{ $entityType }} .archive, .invoice').prop('disabled', true);

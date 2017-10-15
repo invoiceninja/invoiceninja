@@ -81,7 +81,10 @@
                 }
 
                 trackEvent('/error', errorMsg);
-            } catch (err) {}
+            } catch (exception) {
+                console.log('Failed to log error');
+                console.log(exception);
+            }
 
             return false;
         }

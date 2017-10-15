@@ -5,6 +5,7 @@ namespace App\Ninja\Presenters;
 use Laracasts\Presenter\Presenter;
 use URL;
 use Utils;
+use stdClass;
 
 class EntityPresenter extends Presenter
 {
@@ -49,6 +50,24 @@ class EntityPresenter extends Presenter
         return "<span style=\"font-size:13px\" class=\"label label-{$class}\">{$label}</span>";
     }
 
+    public function statusColor()
+    {
+        $class = $this->entity->statusClass();
+
+        switch ($class) {
+            case 'success':
+                return '#5cb85c';
+            case 'warning':
+                return '#f0ad4e';
+            case 'primary':
+                return '#337ab7';
+            case 'info':
+                return '#5bc0de';
+            default:
+                return '#777';
+        }
+    }
+
     /**
      * @return mixed
      */
@@ -67,4 +86,17 @@ class EntityPresenter extends Presenter
 
         return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
     }
+
+    public function calendarEvent($subColors = false)
+    {
+        $entity = $this->entity;
+
+        $data = new stdClass();
+        $data->id = $entity->getEntityType() . ':' . $entity->public_id;
+        $data->allDay = true;
+        $data->url = $this->url();
+
+        return $data;
+    }
+
 }

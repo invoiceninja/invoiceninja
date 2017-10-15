@@ -60,7 +60,7 @@ $LANG = array(
     'download_pdf' => 'PDF indir',
     'pay_now' => 'Şimdi Öde',
     'save_invoice' => 'Faturayı Kaydet',
-    'clone_invoice' => 'Faturayı çoğalt',
+    'clone_invoice' => 'Clone To Invoice',
     'archive_invoice' => 'Faturayı Arşivle',
     'delete_invoice' => 'Faturayı Sil',
     'email_invoice' => 'Faturayı E-Posta ile gönder',
@@ -322,7 +322,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'delete_quote' => 'Teklif Sil',
     'save_quote' => 'Teklif Kaydet',
     'email_quote' => 'Teklifi E-Posta ile Gönder',
-    'clone_quote' => 'Teklif Çoğalt',
+    'clone_quote' => 'Clone To Quote',
     'convert_to_invoice' => 'Faturaya Dönüştür',
     'view_invoice' => 'Fatura Görüntüle',
     'view_client' => 'Müşteri Görüntüle',
@@ -654,9 +654,9 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'created_by_invoice' => 'Tarafından oluşturulan :invoice',
     'primary_user' => 'Birincil Kullanıcı',
     'help' => 'Yardım',
-    'customize_help' => '<p>Fatura tasarımlarını tanımlamak için <a href="http://pdfmake.org/" target="_blank">pdfmake</a> kullanıyoruz. Pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a>  kütüphaneyi harekete geçirmek için harika bir yoldur.</p>
-<p>Nokta gösterimi kullanarak bir alt mülke erişebilirsiniz. Örneğin, müşteri adını göstermek için <code>$client.name</ code> kullanabilirsiniz.</p>
-<p>Bir şeyi bulmak için yardıma ihtiyacınız varsa  <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">destek forumuna</a> kullandığınız dizaynla birlikte sorunuzu gönderin.</p>',
+    'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provides a great way to see the library in action.</p>
+                        <p>You can access a child property using dot notation. For example to show the client name you could use <code>$client.name</code>.</p>
+                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
     'invoice_due_date' => 'Vade',
     'quote_due_date' => 'Geçerlilik Tarihi',
     'valid_until' => 'Geçerlilik Tarihi',
@@ -995,6 +995,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'enable_https' => 'We strongly recommend using HTTPS to accept credit card details online.',
     'quote_issued_to' => 'Quote issued to',
     'show_currency_code' => 'Currency Code',
+    'free_year_message' => 'Your account has been upgraded to the pro plan for one year at no cost.',
     'trial_message' => 'Your account will receive a free two week trial of our pro plan.',
     'trial_footer' => 'Your free pro plan trial lasts :count more days, :link to upgrade now.',
     'trial_footer_last_day' => 'This is the last day of your free pro plan trial, :link to upgrade now.',
@@ -1015,7 +1016,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
     'pro_plan_remove_logo_link' => 'Click here',
     'invitation_status_sent' => 'sent',
-    'invitation_status_opened' => 'Openend',
+    'invitation_status_opened' => 'Opened',
     'invitation_status_viewed' => 'Viewed',
     'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
     'email_error_inactive_contact' => 'Emails can not be sent to inactive contacts',
@@ -1411,6 +1412,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
     'payment_type_Sofort' => 'Sofort',
+    'payment_type_SEPA' => 'SEPA Direct Debit',
 
     // Industries
     'industry_Accounting & Legal' => 'Accounting & Legal',
@@ -1723,6 +1725,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'lang_Turkish - Turkey' => 'Turkish - Turkey',
     'lang_Portuguese - Brazilian' => 'Portuguese - Brazilian',
     'lang_Portuguese - Portugal' => 'Portuguese - Portugal',
+    'lang_Thai' => 'Thai',
 
     // Frequencies
     'freq_weekly' => 'Weekly',
@@ -2390,6 +2393,7 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
+    'currency_botswana_pula' => 'Botswana Pula',
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">writing a review</a> we\'d greatly appreciate it!',
 
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
@@ -2440,11 +2444,43 @@ adresine gönderildi. Müthiş tüm özelliklerin kilidini açmak için lütfen 
 
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
+    'sepa' => 'SEPA Direct Debit',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
     'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
+    'calendar' => 'Calendar',
+    'pro_plan_calendar' => ':link to enable the calendar by joining the Pro Plan',
 
+    'what_are_you_working_on' => 'What are you working on?',
+    'time_tracker' => 'Time Tracker',
+    'refresh' => 'Refresh',
+    'filter_sort' => 'Filter/Sort',
+    'no_description' => 'No Description',
+    'time_tracker_login' => 'Time Tracker Login',
+    'save_or_discard' => 'Save or discard your changes',
+    'discard_changes' => 'Discard Changes',
+    'tasks_not_enabled' => 'Tasks are not enabled.',
+    'started_task' => 'Successfully started task',
+    'create_client' => 'Create Client',
+
+    'download_desktop_app' => 'Download the desktop app',
+    'download_iphone_app' => 'Download the iPhone app',
+    'download_android_app' => 'Download the Android app',
+    'time_tracker_mobile_help' => 'Double tap a task to select it',
+    'stopped' => 'Stopped',
+    'ascending' => 'Ascending',
+    'descending' => 'Descending',
+    'sort_field' => 'Sort By',
+    'sort_direction' => 'Direction',
+    'discard' => 'Discard',
+    'time_am' => 'AM',
+    'time_pm' => 'PM',
+    'time_mins' => 'mins',
+    'time_hr' => 'hr',
+    'time_hrs' => 'hrs',
+    'clear' => 'Clear',
+    'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
 );
 
 return $LANG;

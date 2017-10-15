@@ -60,6 +60,7 @@ class RecurringExpenseRepository extends BaseRepository
                         'recurring_expenses.user_id',
                         'recurring_expenses.tax_rate1',
                         'recurring_expenses.tax_rate2',
+                        'recurring_expenses.private_notes',
                         'frequencies.name as frequency',
                         'expense_categories.name as category',
                         'expense_categories.user_id as category_user_id',

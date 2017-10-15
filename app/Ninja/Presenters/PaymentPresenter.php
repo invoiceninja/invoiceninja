@@ -45,4 +45,22 @@ class PaymentPresenter extends EntityPresenter
             return trans('texts.payment_type_' . $this->entity->payment_type->name);
         }
     }
+
+    public function calendarEvent($subColors = false)
+    {
+        $data = parent::calendarEvent();
+        $payment = $this->entity;
+        $invoice = $payment->invoice;
+
+        $data->title = trans('texts.payment') . ' ' . $invoice->invoice_number . ' | ' . $this->completedAmount() . ' | ' . $this->client();
+        $data->start = $payment->payment_date;
+
+        if ($subColors) {
+            $data->borderColor = $data->backgroundColor = Utils::brewerColor($payment->payment_status_id);
+        } else {
+            $data->borderColor = $data->backgroundColor = '#5fa213';
+        }
+
+        return $data;
+    }
 }

@@ -428,6 +428,20 @@ class Invoice extends EntityModel implements BalanceAffecting
      *
      * @return mixed
      */
+    public function scopeDateRange($query, $startDate, $endDate)
+    {
+        return $query->where(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('invoice_date', [$startDate, $endDate]);
+        })->orWhere(function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('due_date', [$startDate, $endDate]);
+        });
+    }
+
+    /**
+     * @param $query
+     *
+     * @return mixed
+     */
     public function scopeQuotes($query)
     {
         return $query->where('invoice_type_id', '=', INVOICE_TYPE_QUOTE)

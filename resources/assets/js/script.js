@@ -9,6 +9,8 @@ var isChromium = isChrome && navigator.userAgent.indexOf('Chromium') >= 0;
 var isChrome48 = isChrome && navigator.userAgent.indexOf('Chrome/48') >= 0;
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 var isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+var isAndroid = /Android/i.test(navigator.userAgent);
+var isIPhone = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
 var refreshTimer;
 function generatePDF(invoice, javascript, force, cb) {
@@ -671,6 +673,8 @@ function calculateAmounts(invoice) {
   var hasTaxes = false;
   var taxes = {};
   invoice.has_product_key = false;
+  invoice.has_custom_item_value1 = false;
+  invoice.has_custom_item_value2 = false;
 
   // Bold designs currently breaks w/o the product column
   if (invoice.invoice_design_id == 2) {
@@ -713,6 +717,16 @@ function calculateAmounts(invoice) {
         invoice.has_product_key = true;
     } else if (invoice.invoice_items.length == 1 && !item.qty) {
         invoice.has_product_key = true;
+    }
+
+    if (invoice.features.invoice_settings) {
+        if (item.custom_value1) {
+            invoice.has_custom_item_value1 = true;
+        }
+
+        if (item.custom_value2) {
+            invoice.has_custom_item_value2 = true;
+        }
     }
 
     if (parseFloat(item.tax_rate1) != 0) {
@@ -1258,4 +1272,20 @@ function pad(n, width, z) {
     z = z || '0';
     n = n + '';
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+}
+
+function brewerColor(number) {
+    var colors = [
+        '#1c9f77',
+        '#d95d02',
+        '#716cb1',
+        '#e62a8b',
+        '#5fa213',
+        '#e6aa04',
+        '#a87821',
+        '#676767',
+    ];
+    var number = (number-1) % colors.length;
+
+    return colors[number];
 }

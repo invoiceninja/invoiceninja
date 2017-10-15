@@ -232,17 +232,22 @@ class TaskController extends BaseController
 
         $task = $this->taskRepo->save($publicId, $request->input());
 
-        if ($publicId) {
-            Session::flash('message', trans('texts.updated_task'));
-        } else {
-            Session::flash('message', trans('texts.created_task'));
-        }
-
         if (in_array($action, ['invoice', 'add_to_invoice'])) {
             return self::bulk();
         }
 
-        return Redirect::to("tasks/{$task->public_id}/edit");
+        if (request()->wantsJson()) {
+            $task->time_log = json_decode($task->time_log);
+            return $task->load(['client.contacts', 'project'])->toJson();
+        } else {
+            if ($publicId) {
+                Session::flash('message', trans('texts.updated_task'));
+            } else {
+                Session::flash('message', trans('texts.created_task'));
+            }
+
+            return Redirect::to("tasks/{$task->public_id}/edit");
+        }
     }
 
     /**
@@ -303,10 +308,14 @@ class TaskController extends BaseController
         } else {
             $count = $this->taskService->bulk($ids, $action);
 
-            $message = Utils::pluralize($action.'d_task', $count);
-            Session::flash('message', $message);
+            if (request()->wantsJson()) {
+                return response()->json($count);
+            } else {
+                $message = Utils::pluralize($action.'d_task', $count);
+                Session::flash('message', $message);
 
-            return $this->returnBulk($this->entityType, $action, $ids);
+                return $this->returnBulk($this->entityType, $action, $ids);
+            }
         }
     }
 

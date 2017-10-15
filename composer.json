@@ -86,8 +86,10 @@
         "webpatser/laravel-countries": "dev-master",
         "websight/l5-google-cloud-storage": "dev-master",
         "wepay/php-sdk": "^0.2",
-        "wildbit/laravel-postmark-provider": "3.0"
-    },
+        "wildbit/laravel-postmark-provider": "3.0",
+        "abdala/omnipay-pagseguro": "0.2",
+        "omnipay/authorizenet": "dev-solution-id as 2.5.0"
+	},
     "require-dev": {
         "codeception/c3": "~2.0",
         "codeception/codeception": "2.3.3",
@@ -166,6 +168,10 @@
         {
             "type": "vcs",
             "url": "https://github.com/hillelcoren/omnipay-gocardlessv2"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/hillelcoren/omnipay-authorizenet"
         }
     ]
 }

@@ -121,6 +121,7 @@ if (Utils::isTravis()) {
 }
 
 Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
+    Route::get('logged_in', 'HomeController@loggedIn');
     Route::get('dashboard', 'DashboardController@index');
     Route::get('dashboard_chart_data/{group_by}/{start_date}/{end_date}/{currency_id}/{include_expenses}', 'DashboardController@chartData');
     Route::get('set_entity_filter/{entity_type}/{filter?}', 'AccountController@setEntityFilter');
@@ -147,6 +148,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('clients/bulk', 'ClientController@bulk');
     Route::get('clients/statement/{client_id}/{status_id?}/{start_date?}/{end_date?}', 'ClientController@statement');
 
+    Route::get('time_tracker', 'TimeTrackerController@index');
     Route::resource('tasks', 'TaskController');
     Route::get('api/tasks/{client_id?}', 'TaskController@getDatatable');
     Route::get('tasks/create/{client_id?}/{project_id?}', 'TaskController@create');
@@ -248,6 +250,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::get('reports', 'ReportController@showReports');
     Route::post('reports', 'ReportController@showReports');
+    Route::get('calendar', 'CalendarController@showCalendar');
+    Route::get('calendar_events', 'CalendarController@loadEvents');
 });
 
 Route::group([

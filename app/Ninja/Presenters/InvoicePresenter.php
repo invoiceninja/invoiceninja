@@ -323,4 +323,22 @@ class InvoicePresenter extends EntityPresenter
 
         return $link;
     }
+
+    public function calendarEvent($subColors = false)
+    {
+        $data = parent::calendarEvent();
+        $invoice = $this->entity;
+        $entityType = $invoice->getEntityType();
+
+        $data->title = trans("texts.{$entityType}") . ' ' . $invoice->invoice_number . ' | ' . $this->amount() . ' | ' . $this->client();
+        $data->start = $invoice->due_date ?: $invoice->invoice_date;
+
+        if ($subColors) {
+            $data->borderColor = $data->backgroundColor = $invoice->present()->statusColor();
+        } else {
+            $data->borderColor = $data->backgroundColor = $invoice->isQuote() ? '#716cb1' : '#377eb8';
+        }
+
+        return $data;
+    }
 }
