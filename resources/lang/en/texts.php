@@ -2481,7 +2481,7 @@ $LANG = array(
     'time_hr' => 'hr',
     'time_hrs' => 'hrs',
     'clear' => 'Clear',
-
+    'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
 );
 
 return $LANG;
