@@ -60,7 +60,7 @@ $LANG = array(
     'download_pdf' => 'PDF',
     'pay_now' => 'Payer maintenant',
     'save_invoice' => 'Sauvegarder la facture',
-    'clone_invoice' => 'Dupliquer la facture',
+    'clone_invoice' => 'Clone To Invoice',
     'archive_invoice' => 'Archiver la facture',
     'delete_invoice' => 'Supprimer la facture',
     'email_invoice' => 'Envoyer par courriel',
@@ -317,7 +317,7 @@ $LANG = array(
     'delete_quote' => 'Supprimer la soumission',
     'save_quote' => 'Enregistrer la soumission',
     'email_quote' => 'Envoyer la soumission par courriel',
-    'clone_quote' => 'Dupliquer la soumission',
+    'clone_quote' => 'Clone To Quote',
     'convert_to_invoice' => 'Convertir en facture',
     'view_invoice' => 'Voir la facture',
     'view_client' => 'Voir le client',
@@ -649,9 +649,9 @@ $LANG = array(
     'created_by_invoice' => 'Créée par :invoice',
     'primary_user' => 'Utilisateur principal',
     'help' => 'Aide',
-    'customize_help' => '<p>Nous utilisons <a href="http://pdfmake.org/" target="_blank">pdfmake</a> pour définir la présentation graphique des factures de manière déclarative. Pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> fournit une excellente façon de voir la librairie en action.</p>
-                        <p>Vous pouvez accéder une propriété enfant en utilisant la notation par point. Par exemple, pour afficher le nom du client, vous pouvez utiliser <code>$client.name</code>.</p>
-                        <p>Si vous avez besoin d\'aide à ce sujet, vous pouvez publier une question sur notre <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">forum d\'aide</a> avec la présentation graphique que vous utilisez.</p>',
+    'customize_help' => '<p>Nous utilisons <a href="http://pdfmake.org/" target="_blank">pdfmake</a> pour définir déclarativement le design des factures. L\'environnement <a href="http://pdfmake.org/playground.html" target="_blank">pdfmake</a> offre d\'intéressantes pistes pour voir la librairie en action.</p>
+                        <p>Vous pouvez accéder aux propriétés enfants en utilisant la notation par point. Par exemple, pour afficher le nom du client, vous pourriez utiliser <code>$client.name</code>.</p>
+                        <p>Si vous avez besoin d\'aide, consultez notre <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">forum de support</a> avec le design que vous utilisez.</p>',
     'invoice_due_date' => 'Échéance',
     'quote_due_date' => 'Échéance',
     'valid_until' => 'Échéance',
@@ -987,6 +987,7 @@ $LANG = array(
     'enable_https' => 'Nous vous recommandons fortement d\'activer le HTTPS pour la réception de paiement par carte de crédit en ligne.',
     'quote_issued_to' => 'La soumission a été émise pour',
     'show_currency_code' => 'Code de devise',
+    'free_year_message' => 'Votre compte a été mis à niveau gratuitement vers le Plan Pro pour une année.',
     'trial_message' => 'Vous allez bénéficier d\'un essai gratuit de 2 semaines au Plan Pro.',
     'trial_footer' => 'Vous avez encore :count jours pour votre essai gratuit Pro Plan, :link pour s\'inscrire.',
     'trial_footer_last_day' => 'C\'est le dernier jour de votre essai gratuit Pro Plan, :link pour s\'inscrire.',
@@ -1403,6 +1404,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
     'payment_type_Sofort' => 'Sofort',
+    'payment_type_SEPA' => 'SEPA Débit direct',
 
     // Industries
     'industry_Accounting & Legal' => 'Administration',
@@ -1715,6 +1717,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'lang_Turkish - Turkey' => 'Turc - Turquie',
     'lang_Portuguese - Brazilian' => 'Portugais - Brésil',
     'lang_Portuguese - Portugal' => 'Portugais - Portugal',
+    'lang_Thai' => 'Baht thaïlandais',
 
     // Frequencies
     'freq_weekly' => 'Hebdomadaire',
@@ -1857,7 +1860,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'inactive_logout' => 'Vous avez été déconnecté en raison de l\'inactivité.',
     'reports' => 'Rapports',
     'total_profit' => 'Total des profits',
-    'total_expenses' => 'Total des dépenses',
+    'total_expenses' => 'Dépenses',
     'quote_to' => 'Soumission pour',
 
     // Limits
@@ -1893,10 +1896,10 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
 
     'go_ninja_pro' => 'Devenez Ninja Pro',
     'go_enterprise' => 'Devenez Entreprise!',
-    'upgrade_for_features' => 'Mettre à jour pour plus de fonctionnalités',
+    'upgrade_for_features' => 'Mise à jour pour plus de fonctionnalités',
     'pay_annually_discount' => 'Payez annuellement pour 10 mois + 2 gratuits',
     'pro_upgrade_title' => 'Ninja Pro',
-    'pro_upgrade_feature1' => 'VotreMarque.InvoiceNinja.com',
+    'pro_upgrade_feature1' => 'votrenom.invoiceninja.com',
     'pro_upgrade_feature2' => 'Personnalisez tous les aspects de votre facture',
     'enterprise_upgrade_feature1' => 'Définissez les permissions pour plusieurs utilisateurs',
     'enterprise_upgrade_feature2' => 'Ajoutez des fichiers joints aux factures et dépenses',
@@ -1932,7 +1935,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
 	// BlueVine
 	'bluevine_promo' => 'Obtenez des marges de crédit et d\'affacturages d\'affaires flexible en utilisant BlueVIne.',
 	'bluevine_modal_label' => 'Inscrivez-vous avec BlueVine',
-	'bluevine_modal_text' => '<h3>Finacement rapide pour votre entreprise. Pas de paperasse.</h3>
+	'bluevine_modal_text' => '<h3>Financement rapide pour votre entreprise. Pas de paperasse.</h3>
 <ul><li>Marges de crédit et affacturage d\'affaires flexibles.</li></ul>',
 	'bluevine_create_account' => 'Créer un compte',
 	'quote_types' => 'Obtenir une soumission pour',
@@ -2383,6 +2386,7 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
     'currency_jordanian_dinar' => 'Dinar jordanien',
     'currency_myanmar_kyat' => 'Kyat birman',
     'currency_peruvian_sol' => 'Nouveau sol péruvien',
+    'currency_botswana_pula' => 'Pula botswanais',
     'review_app_help' => 'Nous espérons que votre utilisation de cette application vous est agréable.<br/>Veuillez considérer <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">de laisser un commentaire.</a> Ce serait grandement apprécié!',
 
     'use_english_version' => 'Veuillez vous assurer d\'utiliser la version anglaise des fichiers.<br/>Les entêtes de colonnes sont utilisées pour correspondre aux champs.',
@@ -2433,11 +2437,43 @@ Lorsque les montant apparaîtront sur votre relevé, veuillez revenir sur cette 
 
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
+    'sepa' => 'SEPA Débit direct',
     'enable_alipay' => 'Accepter Alipay',
     'enable_sofort' => 'Accepter les tranferts de banques EU',
     'stripe_alipay_help' => 'Ces passerelles doivent aussi être activées dans :link.',
     'gocardless_webhook_help_link_text' => 'ajoute cette URL comme terminal dans GoCardless',
+    'calendar' => 'Calendrier',
+    'pro_plan_calendar' => ':link pour activer le calendrier en joignant le Plan Pro',
 
+    'what_are_you_working_on' => 'Sur quoi travaillez-vous ?',
+    'time_tracker' => 'Minuteur',
+    'refresh' => 'Actualiser',
+    'filter_sort' => 'Filtrer/trier',
+    'no_description' => 'Aucune description',
+    'time_tracker_login' => 'Connexion au minuteur',
+    'save_or_discard' => 'Sauvegarder ou annuler les changements',
+    'discard_changes' => 'Annuler les changements',
+    'tasks_not_enabled' => 'Les tâches ne sont pas activées.',
+    'started_task' => 'La tâche est démarée',
+    'create_client' => 'Créer un client',
+
+    'download_desktop_app' => 'Télécharger l\'app. de bureau',
+    'download_iphone_app' => 'Télécharger l\'app. iPhone',
+    'download_android_app' => 'Télécharger l\'app. Android',
+    'time_tracker_mobile_help' => 'Double-tapez une tâche pour la sélectionner',
+    'stopped' => 'Arrêtée',
+    'ascending' => 'Ascendant',
+    'descending' => 'Descendant',
+    'sort_field' => 'Trié par',
+    'sort_direction' => 'Direction',
+    'discard' => 'Annuler',
+    'time_am' => 'AM',
+    'time_pm' => 'PM',
+    'time_mins' => 'min',
+    'time_hr' => 'h',
+    'time_hrs' => 'hrs',
+    'clear' => 'Remettre à zéro',
+    'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
 );
 
 return $LANG;

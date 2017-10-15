@@ -60,7 +60,7 @@ $LANG = array(
     'download_pdf' => 'Κατέβασμα PDF',
     'pay_now' => 'Πληρώστε Τώρα',
     'save_invoice' => 'Αποθήκευση Τιμολογίου',
-    'clone_invoice' => 'Κλωνοποίηση Τιμολογίου',
+    'clone_invoice' => 'Clone To Invoice',
     'archive_invoice' => 'Αρχειοθέτηση Τιμολογίου',
     'delete_invoice' => 'Διαγραφή Τιμολογίου',
     'email_invoice' => 'Αποστολή Τιμολογίου με email',
@@ -323,7 +323,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'delete_quote' => 'Διαγραφή Προσφοράς',
     'save_quote' => 'Αποθήκευση Προσφοράς',
     'email_quote' => 'Αποστολή Προσφοράς',
-    'clone_quote' => 'Κλωνοποίηση Προσφοράς',
+    'clone_quote' => 'Clone To Quote',
     'convert_to_invoice' => 'Μετατροπή σε Τιμολόγιο',
     'view_invoice' => 'Προβολή Τιμολογίου',
     'view_client' => 'Προβολή Πελάτη',
@@ -655,9 +655,9 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'created_by_invoice' => 'Δημιουργήθηκε από :invoice',
     'primary_user' => 'Κύριος Χρήστης',
     'help' => 'Βοήθεια',
-    'customize_help' => '<p>Χρησιμοποιούμε την εφαρμογή <a href="http://pdfmake.org/" target="_blank">pdfmake</a> για να ορίσουμε τα σχέδια τιμολογίων ξεκάθαρα. Ο <a href="http://pdfmake.org/playground.html" target="_blank">πειραματικός χώρος</a> του pdfmake μας προσφέρει ένα πολύ καλό τρόπο να δούμε τη βιβλιοθήκη λογισμικού στην πράξη.</p>
-                        <p>Μπορείτε να έχετε πρόσβαση σε μία παιδική ιδιότητα χρησομοποιώντας την κωδικοποίηση τελείας. Για παράδειγμα για να εμφανίσετε το όνομα πελάτη μπορείτε να χρησιμοποιήσετε το <code>$client.name</code>.</p>
-                        <p>Αν χρειάζεστε βοήθεια στην κατανόηση, στείλτε μία ερώτηση στο <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">forum υποστήριξης</a> με το σχεδιασμό που χρησιμοποιείτε.</p>',
+    'customize_help' => '<p>Χρησιμοποιούμε το <a href="http://pdfmake.org/" target="_blank">pdfmake</a> για να ορίσουμε τα σχέδια των τιμολογίων. Το pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> προσφέρει ένα υπέροχο τρόπο για να δείτε τη βιβλιοθήκη στην πράξη.</p>
+                        <p>Μπορείτε να έχετε πρόσβαση σε μία ιδιότητα χρησιμοποιώντας την  σήμανση τελείας. Για παράδειγμα για να εμφανίσετε τον όνομα του πελάτη μπορείτε να χρησιμοποιήσετε το <code>$client.name</code>.</p>
+                        <p>Εάν χρειάζεστε βοήθεια στην κατανόηση κάποιου θέματος μπορείτε να υποβάλετε μία ερώτηση στο  <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">forum υποστήριξης</a> με την εμφάνιση που χρησιμοποιείτε.</p>',
     'invoice_due_date' => 'Ημερομηνία Πληρωμής',
     'quote_due_date' => 'Έγκυρο Έως',
     'valid_until' => 'Έγκυρο Έως',
@@ -996,6 +996,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'enable_https' => 'Σας προτείνουμε να χρησιμοποιήσετε HTTPS για να δέχεστε πιστωτικές κάρτες online.',
     'quote_issued_to' => 'Έκδοση προσφοράς προς',
     'show_currency_code' => 'Κωδικός Νομίσματος',
+    'free_year_message' => 'Ο λογαριασμός σας αναβαθμίστηκε στο επαγγελματικό πακέτο για ένα χρόνο χωρίς κόστος.',
     'trial_message' => 'Ο λογαριασμός σας θα δεχθεί μια δωρεάν δοκιμαστική περίοδο δύο εβδομάδων στο επαγγελματικό μας πλάνο.',
     'trial_footer' => 'Η δωρεάν δοκιμαστική περίοδο ισχύει για :count ακόμα ημέρες, :link για να αναβαθμίσετε τώρα.',
     'trial_footer_last_day' => 'Αυτή είναι η τελευταία ημέρα της δωρεάν δοκιμαστικής περιόδου, :link για να αναβαθμίσετε τώρα.',
@@ -1016,7 +1017,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'pro_plan_remove_logo' => ':link για να αφαιρέσετε το λογότυπο Invoice Ninja και να συμμετέχετε στο Επαγγελματικό Πλάνο',
     'pro_plan_remove_logo_link' => 'Πατήστε εδώ',
     'invitation_status_sent' => 'απεστάλη',
-    'invitation_status_opened' => 'Ανοιγμένα',
+    'invitation_status_opened' => 'Opened',
     'invitation_status_viewed' => 'Εμφανισμένα',
     'email_error_inactive_client' => 'Δεν μπορούν να αποσταλούν emails σε ανενεργούς πελάτες',
     'email_error_inactive_contact' => 'Δεν μπορούν να αποσταλούν emails σε ανενεργές επαφές',
@@ -1412,6 +1413,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
     'payment_type_Sofort' => 'Sofort',
+    'payment_type_SEPA' => 'Απευθείας πίστωση SEPA',
 
     // Industries
     'industry_Accounting & Legal' => 'Λογιστικά & Νομικά',
@@ -1724,6 +1726,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'lang_Turkish - Turkey' => 'Τουρκικά - Τουρκία',
     'lang_Portuguese - Brazilian' => 'Πορτογαλικά - Βραζιλία',
     'lang_Portuguese - Portugal' => 'Πορτογαλικά - Πορτογαλία',
+    'lang_Thai' => 'Ταϊλανδέζικα',
 
     // Frequencies
     'freq_weekly' => 'Εβδομάδα',
@@ -2391,6 +2394,7 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
     'currency_jordanian_dinar' => 'Δηνάριο Ιορδανίας',
     'currency_myanmar_kyat' => 'Κιάτ Νιανμάρ',
     'currency_peruvian_sol' => 'Σολ Περού',
+    'currency_botswana_pula' => 'Πούλα Μποτσουάνας',
     'review_app_help' => 'Ελπίζουμε να απολαμβάνετε τη χρήση της εφαρμογής.<br/>Εάν θα θέλατε <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">να γράψετε μια κριτική</a> θα το εκτιμούσαμε ιδιαίτερα!',
 
     'use_english_version' => 'Σιγουρευτείτε ότι χρησιμοποιείτε την Αγγλική έκδοση των αρχείων.<br/>Χρησιμοποιούμε τις κεφαλίδες των στηλών για να ταιριάξουμε τα πεδία.',
@@ -2441,11 +2445,43 @@ email που είναι συνδεδεμένη με το λογαριασμό σ
 
     'alipay' => 'Alipay',
     'sofort' => 'Sofort',
+    'sepa' => 'Απευθείας πίστωση SEPA',
     'enable_alipay' => 'Αποδοχή Alipay',
     'enable_sofort' => 'Αποδοχή τραπεζικών εμβασμάτων από τράπεζες της Ευρώπης',
     'stripe_alipay_help' => 'Αυτές οι πύλες πληρωμών πρέπει επίσης να ενεργοποιηθούν στο :link.',
     'gocardless_webhook_help_link_text' => 'προσθέστε αυτή τη διεύθυνση internet στο τέλος της διεύθυνσης internet στο GoCardless',
+    'calendar' => 'Ημερολόγιο',
+    'pro_plan_calendar' => ':link για να ενεργοποιήσετε το ημερολόγιο συμμετέχοντας στο Επαγγελματικό Πλάνο',
 
+    'what_are_you_working_on' => 'Σε τι εργάζεστε;',
+    'time_tracker' => 'Παρακολούθηση Χρόνου',
+    'refresh' => 'Ανανέωση',
+    'filter_sort' => 'Φιλτράρισμα/Ταξινόμηση',
+    'no_description' => 'Καμία Περιγραφή',
+    'time_tracker_login' => 'Εισαγωγή στην Παρακολούθηση Χρόνου',
+    'save_or_discard' => 'Αποθήκευση ή απόρριψη των αλλαγών σας',
+    'discard_changes' => 'Απόρριψη Αλλαγών',
+    'tasks_not_enabled' => 'Οι εργασίες δεν έχουν ενεργοποιηθεί.',
+    'started_task' => 'Επιτυχής έναρξη εργασίας',
+    'create_client' => 'Δημιουργία Πελάτη',
+
+    'download_desktop_app' => 'Λήψη της εφαρμογής για Desktop',
+    'download_iphone_app' => 'Λήψη της εφαρμογής για IPhone',
+    'download_android_app' => 'Λήψη της εφαρμογής για Android',
+    'time_tracker_mobile_help' => 'κάντε διπλό κλικ στην εργασία για να την επιλέξετε',
+    'stopped' => 'Διακόπηκε',
+    'ascending' => 'Αύξουσα σειρά',
+    'descending' => 'Φθίνουσα σειρά',
+    'sort_field' => 'Ταξινόμηση κατά',
+    'sort_direction' => 'Κατεύθυνση',
+    'discard' => 'Απόρριψη',
+    'time_am' => 'πμ',
+    'time_pm' => 'μμ',
+    'time_mins' => 'λ',
+    'time_hr' => 'ω',
+    'time_hrs' => 'ω',
+    'clear' => 'Καθαρισμός',
+    'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
 );
 
 return $LANG;

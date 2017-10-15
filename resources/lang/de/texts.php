@@ -60,7 +60,7 @@ $LANG = array(
     'download_pdf' => 'PDF herunterladen',
     'pay_now' => 'Jetzt bezahlen',
     'save_invoice' => 'Rechnung speichern',
-    'clone_invoice' => 'Rechnung duplizieren',
+    'clone_invoice' => 'Clone To Invoice',
     'archive_invoice' => 'Rechnung archivieren',
     'delete_invoice' => 'Rechnung löschen',
     'email_invoice' => 'Rechnung versenden',
@@ -323,7 +323,7 @@ $LANG = array(
     'delete_quote' => 'Angebot löschen',
     'save_quote' => 'Angebot speichern',
     'email_quote' => 'Angebot per E-Mail senden',
-    'clone_quote' => 'Angebot duplizieren',
+    'clone_quote' => 'Clone To Quote',
     'convert_to_invoice' => 'In Rechnung umwandeln',
     'view_invoice' => 'Rechnung anschauen',
     'view_client' => 'Kunde anschauen',
@@ -395,7 +395,7 @@ $LANG = array(
     'more_designs_self_host_text' => '',
     'buy' => 'Kaufen',
     'bought_designs' => 'Die zusätzliche Rechnungsdesigns wurden erfolgreich hinzugefügt',
-    'sent' => 'Sent',
+    'sent' => 'Versendet',
     'vat_number' => 'USt-IdNr.',
     'timesheets' => 'Zeittabellen',
     'payment_title' => 'Geben Sie Ihre Rechnungsadresse und Ihre Kreditkarteninformationen ein',
@@ -655,9 +655,9 @@ $LANG = array(
     'created_by_invoice' => 'Erstellt durch :invoice',
     'primary_user' => 'Primärer Benutzer',
     'help' => 'Hilfe',
-    'customize_help' => '<p>Wir nutzen <a href="http://pdfmake.org/" target="_blank">pdfmake</a> um Rechnungs-Designs zu erstellen. Der pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">"Spielplatz"</a> bietet eine gute Möglichkeit diese Programmbibliothek im Einsatz zu sehen.</p>
-<p>Sie können per Punktnotation auf ein Kind-Attribut zugreifen. Beispielsweise können Sie <code>$client.name</code> nutzen, um den Kundennamen anzuzeigen.</p>
-<p>Sollten Sie Verständnisprobleme haben, hinterlassen Sie doch bitte einen Forenbeitrag in unserem <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">Support Forum</a> mit dem Design, welches Sie verwenden.</p>',
+    'customize_help' => '<p>We use <a href="http://pdfmake.org/" target="_blank">pdfmake</a> to define the invoice designs declaratively. The pdfmake <a href="http://pdfmake.org/playground.html" target="_blank">playground</a> provides a great way to see the library in action.</p>
+                        <p>You can access a child property using dot notation. For example to show the client name you could use <code>$client.name</code>.</p>
+                        <p>If you need help figuring something out post a question to our <a href="https://www.invoiceninja.com/forums/forum/support/" target="_blank">support forum</a> with the design you\'re using.</p>',
     'invoice_due_date' => 'Fälligkeitsdatum',
     'quote_due_date' => 'Gültig bis',
     'valid_until' => 'Gültig bis',
@@ -670,7 +670,7 @@ $LANG = array(
     'status_viewed' => 'Angesehen',
     'status_partial' => 'Teilweise',
     'status_paid' => 'Bezahlt',
-    'status_unpaid' => 'Unpaid',
+    'status_unpaid' => 'Unbezahlt',
     'status_all' => 'All',
     'show_line_item_tax' => '<b>Steuern für Belegpositionen</b> in der jeweiligen Zeile anzeigen',
     'iframe_url' => 'Webseite',
@@ -996,6 +996,7 @@ $LANG = array(
     'enable_https' => 'Wir empfehlen dringend HTTPS zu verwenden, um Kreditkarten online zu akzeptieren.',
     'quote_issued_to' => 'Angebot ausgefertigt an',
     'show_currency_code' => 'Währungscode',
+    'free_year_message' => 'Your account has been upgraded to the pro plan for one year at no cost.',
     'trial_message' => 'Ihr Account erhält zwei Wochen Probemitgliedschaft für unseren Pro-Plan.',
     'trial_footer' => 'Your free pro plan trial lasts :count more days, :link to upgrade now.',
     'trial_footer_last_day' => 'This is the last day of your free pro plan trial, :link to upgrade now.',
@@ -1015,8 +1016,8 @@ $LANG = array(
 
     'pro_plan_remove_logo' => ':link, um das InvoiceNinja-Logo zu entfernen, indem du dem Pro Plan beitrittst',
     'pro_plan_remove_logo_link' => 'Klicke hier',
-    'invitation_status_sent' => 'sent',
-    'invitation_status_opened' => 'Geöffnet',
+    'invitation_status_sent' => 'versendet',
+    'invitation_status_opened' => 'Opened',
     'invitation_status_viewed' => 'Gesehen',
     'email_error_inactive_client' => 'Emails können nicht zu inaktiven Kunden gesendet werden',
     'email_error_inactive_contact' => 'Emails können nicht zu inaktiven Kontakten gesendet werden',
@@ -1176,7 +1177,7 @@ $LANG = array(
     'list_vendors' => 'Lieferanten anzeigen',
     'add_users_not_supported' => 'Führen Sie ein Upgrade auf den Enterprise-Plan durch, um zusätzliche Nutzer zu Ihrem Account hinzufügen zu können.',
     'enterprise_plan_features' => 'Der Enterprise-Plan fügt Unterstützung für mehrere Nutzer und Dateianhänge hinzu. :link um die vollständige Liste der Features zu sehen.',
-    'return_to_app' => 'Return To App',
+    'return_to_app' => 'Zurück zur App',
 
 
     // Payment updates
@@ -1411,7 +1412,8 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'payment_type_iZettle' => 'iZettle',
     'payment_type_Swish' => 'Swish',
     'payment_type_Alipay' => 'Alipay',
-    'payment_type_Sofort' => 'Sofort',
+    'payment_type_Sofort' => 'SOFORT-Überweisung',
+    'payment_type_SEPA' => 'SEPA Direct Debit',
 
     // Industries
     'industry_Accounting & Legal' => 'Buchhaltung und Rechnungswesen',
@@ -1724,6 +1726,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'lang_Turkish - Turkey' => 'Türkisch',
     'lang_Portuguese - Brazilian' => 'Portugiesisch - Brasilien',
     'lang_Portuguese - Portugal' => 'Portugiesisch - Portugal',
+    'lang_Thai' => 'Thai',
 
     // Frequencies
     'freq_weekly' => 'Wöchentlich',
@@ -2237,10 +2240,10 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'white_label_license_error' => 'Failed to validate the license, check storage/logs/laravel-error.log for more details.',
     'plan_price' => 'Plan Price',
     'wrong_confirmation' => 'Incorrect confirmation code',
-    'oauth_taken' => 'The account is already registered',
+    'oauth_taken' => 'Dieses Konto ist bereits registriert',
     'emailed_payment' => 'Zahlungs eMail erfolgreich gesendet',
     'email_payment' => 'Sende Zahlungs eMail',
-    'sent' => 'Sent',
+    'sent' => 'Versendet',
     'invoiceplane_import' => 'Use :link to migrate your data from InvoicePlane.',
     'duplicate_expense_warning' => 'Warning: This :link may be a duplicate',
     'expense_link' => 'Ausgabe',
@@ -2391,6 +2394,7 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'currency_jordanian_dinar' => 'Jordanian Dinar',
     'currency_myanmar_kyat' => 'Myanmar Kyat',
     'currency_peruvian_sol' => 'Peruvian Sol',
+    'currency_botswana_pula' => 'Botswana Pula',
     'review_app_help' => 'We hope you\'re enjoying using the app.<br/>If you\'d consider <a href="http://www.capterra.com/p/145215/Invoice-Ninja/" target="_blank">writing a review</a> we\'d greatly appreciate it!',
 
     'use_english_version' => 'Make sure to use the English version of the files.<br/>We use the column headers to match the fields.',
@@ -2440,12 +2444,44 @@ Sobald Sie die Beträge erhalten haben, kommen Sie bitte wieder zurück zu diese
     'deleted_account_details' => 'Your account (:account) has been successfully deleted.',
 
     'alipay' => 'Alipay',
-    'sofort' => 'Sofort',
+    'sofort' => 'SOFORT-Überweisung',
+    'sepa' => 'SEPA Direct Debit',
     'enable_alipay' => 'Accept Alipay',
     'enable_sofort' => 'Accept EU bank transfers',
     'stripe_alipay_help' => 'These gateways also need to be activated in :link.',
     'gocardless_webhook_help_link_text' => 'add this URL as an endpoint in GoCardless',
+    'calendar' => 'Calendar',
+    'pro_plan_calendar' => ':link to enable the calendar by joining the Pro Plan',
 
+    'what_are_you_working_on' => 'What are you working on?',
+    'time_tracker' => 'Time Tracker',
+    'refresh' => 'Refresh',
+    'filter_sort' => 'Filter/Sort',
+    'no_description' => 'No Description',
+    'time_tracker_login' => 'Time Tracker Login',
+    'save_or_discard' => 'Save or discard your changes',
+    'discard_changes' => 'Discard Changes',
+    'tasks_not_enabled' => 'Tasks are not enabled.',
+    'started_task' => 'Successfully started task',
+    'create_client' => 'Create Client',
+
+    'download_desktop_app' => 'Download the desktop app',
+    'download_iphone_app' => 'Download the iPhone app',
+    'download_android_app' => 'Download the Android app',
+    'time_tracker_mobile_help' => 'Double tap a task to select it',
+    'stopped' => 'Stopped',
+    'ascending' => 'Ascending',
+    'descending' => 'Descending',
+    'sort_field' => 'Sort By',
+    'sort_direction' => 'Direction',
+    'discard' => 'Discard',
+    'time_am' => 'AM',
+    'time_pm' => 'PM',
+    'time_mins' => 'mins',
+    'time_hr' => 'hr',
+    'time_hrs' => 'hrs',
+    'clear' => 'Clear',
+    'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
 );
 
 return $LANG;
