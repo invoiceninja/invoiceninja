@@ -3,7 +3,7 @@
 return [
 
     // Marketing links
-    'time_tracker_web_url' => env('TIME_TRACKER_WEB_URL'),
+    'time_tracker_web_url' => env('TIME_TRACKER_WEB_URL', 'https://www.invoiceninja.com/time-tracker'),
 
     // Hosted plan coupons
     'coupon_50_off' => env('COUPON_50_OFF', false),

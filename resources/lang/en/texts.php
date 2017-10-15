@@ -2482,6 +2482,7 @@ $LANG = array(
     'time_hrs' => 'hrs',
     'clear' => 'Clear',
     'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
+    'setup_desktop_app' => 'Setup the desktop app',
 );
 
 return $LANG;
