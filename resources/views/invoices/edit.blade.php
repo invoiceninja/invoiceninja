@@ -1169,9 +1169,9 @@
 			if (! checkedInvoiceBalances) {
 				// check amounts are correct
 				checkedInvoiceBalances = true;
-				var phpBalance = invoice.balance;
-				var koBalance = model.invoice().totals.rawTotal();
-				var jsBalance = calculateAmounts(invoice).total_amount;
+				var phpBalance = roundSignificant(invoice.balance);
+				var koBalance = roundSignificant(model.invoice().totals.rawTotal());
+				var jsBalance = roundSignificant(calculateAmounts(invoice).total_amount);
 				if (phpBalance == koBalance && koBalance == jsBalance) {
 					// do nothing
 				} else {
