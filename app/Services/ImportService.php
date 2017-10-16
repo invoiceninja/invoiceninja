@@ -524,7 +524,6 @@ class ImportService
 
         if ($resource = $paymentTransformer->transform($row)) {
             $data = $this->fractal->createData($resource)->toArray();
-            $data['amount'] = min($data['amount'], Utils::parseFloat($row->amount));
             $data['invoice_id'] = $invoicePublicId;
             if (Payment::validate($data) === true) {
                 $data['invoice_id'] = $invoiceId;
