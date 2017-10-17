@@ -149,6 +149,12 @@ class HomeController extends BaseController
             $subject = 'Customer Message: ';
             if (Utils::isNinjaProd()) {
                 $subject .= str_replace('db-', '', config('database.default'));
+                $account = Auth::user()->account;
+                if ($account->isEnterprise()) {
+                    $subject .= 'E';
+                } elseif ($account->isPro()) {
+                    $subject .= 'P';
+                }
             } else {
                 $subject .= 'Self-Host';
             }
