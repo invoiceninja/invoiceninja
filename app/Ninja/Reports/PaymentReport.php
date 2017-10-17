@@ -20,6 +20,7 @@ class PaymentReport extends AbstractReport
     public function run()
     {
         $account = Auth::user()->account;
+        $invoiceMap = [];
 
         $payments = Payment::scope()
                         ->orderBy('payment_date', 'desc')
@@ -48,7 +49,11 @@ class PaymentReport extends AbstractReport
                 $payment->present()->method,
             ];
 
-            $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
+            if (! isset($invoiceMap[$invoice->id])) {
+                $this->addToTotals($client->currency_id, 'amount', $invoice->amount);
+                $invoiceMap[$invoice->id] = true;
+            }
+
             $this->addToTotals($client->currency_id, 'paid', $payment->getCompletedAmount());
         }
     }
