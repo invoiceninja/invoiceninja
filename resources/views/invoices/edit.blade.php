@@ -1149,7 +1149,6 @@
 	}
 
 	var origInvoiceNumber = false;
-	var checkedInvoiceBalances = false;
 	function getPDFString(cb, force) {
 		@if (! $invoice->id && $account->credit_number_counter > 0)
 			var total = model.invoice().totals.rawTotal();
@@ -1163,30 +1162,16 @@
 			}
 		@endif
 
-		var invoice = createInvoiceModel();
-
-		@if ($invoice->exists)
-			if (! checkedInvoiceBalances) {
-				// check amounts are correct
-				checkedInvoiceBalances = true;
-				var phpBalance = roundSignificant(invoice.balance);
-				var koBalance = roundSignificant(model.invoice().totals.rawTotal());
-				var jsBalance = roundSignificant(calculateAmounts(invoice).total_amount);
-				if (phpBalance == koBalance && koBalance == jsBalance) {
-					// do nothing
-				} else {
-					var invitationKey = invoice.invitations[0].invitation_key;
-					window.onerror(invitationKey + ': Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance + ', KO: ' + koBalance);
-				}
-			}
-		@endif
-
 		@if ( ! $account->live_preview)
 			return;
 		@endif
 
-		var design  = getDesignJavascript();
-		if (!design) return;
+		var invoice = createInvoiceModel();
+		var design = getDesignJavascript();
+
+		if (! design) {
+			return;
+		}
 
         generatePDF(invoice, design, force, cb);
 	}
