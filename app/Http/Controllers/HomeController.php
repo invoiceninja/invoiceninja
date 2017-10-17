@@ -152,6 +152,7 @@ class HomeController extends BaseController
             } else {
                 $subject .= 'Self-Host';
             }
+            $subject .= ' | ' . date('r');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
                     ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
                     ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)
