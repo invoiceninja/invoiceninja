@@ -1013,7 +1013,9 @@ ko.bindingHandlers.productTypeahead = {
                     model.notes(datum.notes);
                 }
                 if (datum.cost) {
-                    model.cost(roundSignificant(datum.cost, 2));
+                    if (! model.cost() || ! model.task_public_id()) {
+                        model.cost(roundSignificant(datum.cost, 2));
+                    }
                 }
                 if (!model.qty()) {
                     model.qty(1);

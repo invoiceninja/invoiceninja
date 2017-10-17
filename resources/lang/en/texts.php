@@ -2483,6 +2483,9 @@ $LANG = array(
     'clear' => 'Clear',
     'warn_payment_gateway' => 'Note: to accept online payments :link to add a payment gateway.',
     'setup_desktop_app' => 'Setup the desktop app',
+    'task_rate' => 'Task Rate',
+    'task_rate_help' => 'Set the default <b>rate for invoiced tasks</b>.',
+
 );
 
 return $LANG;

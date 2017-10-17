@@ -19,6 +19,7 @@
             ]) !!}
 
 	{{ Former::populate($account) }}
+	{{ Former::populateField('task_rate', floatval($account->task_rate) ? Utils::roundSignificant($account->task_rate) : '') }}
 
     @include('accounts.nav', ['selected' => ACCOUNT_COMPANY_DETAILS])
 
@@ -98,6 +99,11 @@
                         ->addOption('','')
                         ->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
                         ->help(trans('texts.payment_terms_help') . ' | ' . link_to('/settings/payment_terms', trans('texts.customize_options'))) !!}
+
+				@if ($account->isModuleEnabled(ENTITY_TASK))
+					{!! Former::text('task_rate')
+					 		->help('task_rate_help')!!}
+				@endif
 
             </div>
         </div>

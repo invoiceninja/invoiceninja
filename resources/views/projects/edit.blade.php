@@ -12,6 +12,7 @@
 
     @if ($project)
         {!! Former::populate($project) !!}
+		{!! Former::populateField('task_rate', floatval($project->task_rate) ? Utils::roundSignificant($project->task_rate) : '') !!}
     @endif
 
     <span style="display:none">
@@ -39,6 +40,8 @@
 
                 {!! Former::text('name') !!}
 
+				{!! Former::text('task_rate')
+				 		->help('task_rate_help') !!}
 
             </div>
             </div>

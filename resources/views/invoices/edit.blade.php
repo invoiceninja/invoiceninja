@@ -893,6 +893,7 @@
                     var item = model.invoice().addItem(true);
                     item.notes(task.description);
                     item.qty(task.duration);
+					item.cost(task.cost);
                     item.task_public_id(task.publicId);
                 }
                 model.invoice().has_tasks(true);

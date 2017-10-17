@@ -52,6 +52,7 @@ class Client extends EntityModel
         'invoice_number_counter',
         'quote_number_counter',
         'public_notes',
+        'task_rate',
     ];
 
 

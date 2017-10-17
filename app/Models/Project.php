@@ -24,6 +24,7 @@ class Project extends EntityModel
      */
     protected $fillable = [
         'name',
+        'task_rate',
     ];
 
     /**

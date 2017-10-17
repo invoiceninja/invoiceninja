@@ -38,6 +38,12 @@ class ProjectDatatable extends EntityDatatable
                     }
                 },
             ],
+            [
+                'task_rate',
+                function ($model) {
+                    return floatval($model->task_rate) ? Utils::roundSignificant($model->task_rate) : '';
+                }
+            ],
         ];
     }
 

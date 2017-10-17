@@ -111,6 +111,8 @@
                 {{ $client->country->name }}<br/>
             @endif
 
+            <br/>
+
             @if ($client->account->custom_client_label1 && $client->custom_value1)
                 {{ $client->account->custom_client_label1 . ': ' . $client->custom_value1 }}<br/>
             @endif
@@ -120,6 +122,10 @@
 
             @if ($client->work_phone)
                 <i class="fa fa-phone" style="width: 20px"></i>{{ $client->work_phone }}
+            @endif
+
+            @if (floatval($client->task_rate))
+                <p>{{ trans('texts.task_rate') }}: {{ Utils::roundSignificant($client->task_rate) }}</p>
             @endif
 
             @if ($client->public_notes)
