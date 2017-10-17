@@ -106,7 +106,7 @@
                               <li>Go to the dashboard</li>
                               <li>List active and deleted tasks</li>
                               <li>Find &lt;client name&gt;</li>
-                              <li>Show me &lt;client name&gt;'s overdue invoices</li>
+                              <li>Show me &lt;client name&gt;'s past due invoices</li>
                               <li>New invoice for &lt;client name&gt;</li>
                               <li>Create payment for invoice &lt;invoice number&gt;</li>
                           </ul>

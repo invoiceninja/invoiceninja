@@ -338,7 +338,7 @@ class InvoiceRepository extends BaseRepository
             } elseif (Invoice::calcIsOverdue($model->balance, $model->due_date)) {
                 $class = 'danger';
                 if ($entityType == ENTITY_INVOICE) {
-                    $label = trans('texts.overdue');
+                    $label = trans('texts.past_due');
                 } else {
                     $label = trans('texts.expired');
                 }

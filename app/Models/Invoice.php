@@ -682,7 +682,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         if ($quoteInvoiceId) {
             $label = 'converted';
         } elseif ($class == 'danger') {
-            $label = $entityType == ENTITY_INVOICE ? 'overdue' : 'expired';
+            $label = $entityType == ENTITY_INVOICE ? 'past_due' : 'expired';
         } else {
             $label = 'status_' . strtolower($status);
         }
@@ -1458,7 +1458,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         if ($entityType == ENTITY_INVOICE) {
             $statuses[INVOICE_STATUS_UNPAID] = trans('texts.unpaid');
-            $statuses[INVOICE_STATUS_OVERDUE] = trans('texts.overdue');
+            $statuses[INVOICE_STATUS_OVERDUE] = trans('texts.past_due');
         }
 
         return $statuses;
