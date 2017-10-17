@@ -239,7 +239,7 @@
         "invoiceNumber": {
             "bold": true
         },
-        "header": {
+        "fullheader": {
             "font": "$headerFont",
             "fontSize": "$fontSizeLargest",
             "bold": true

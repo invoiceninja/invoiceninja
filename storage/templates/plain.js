@@ -163,7 +163,7 @@
         "subtotalsBalanceDue": {
             "fillColor": "#e6e6e6"
         },
-        "header": {
+        "fullheader": {
             "font": "$headerFont",
             "fontSize": "$fontSizeLargest",
             "bold": true
