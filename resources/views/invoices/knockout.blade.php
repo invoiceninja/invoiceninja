@@ -863,6 +863,8 @@ function ItemModel(data) {
         var cost = parseFloat(this.cost());
         if (cost) {
             this.cost(cost.toFixed(Math.max(2, precision)));
+        } else {
+            this.cost('');
         }
         this.qty(roundSignificant(this.qty()));
     }
@@ -1012,9 +1014,11 @@ ko.bindingHandlers.productTypeahead = {
                 if (datum.notes && (!model.notes() || !model.task_public_id())) {
                     model.notes(datum.notes);
                 }
-                if (datum.cost) {
+                if (parseFloat(datum.cost)) {
                     if (! model.cost() || ! model.task_public_id()) {
-                        model.cost(roundSignificant(datum.cost, 2));
+                        var cost = roundSignificant(datum.cost);
+                        var precision = getPrecision(cost);
+                        model.cost(cost.toFixed(precision));
                     }
                 }
                 if (!model.qty()) {

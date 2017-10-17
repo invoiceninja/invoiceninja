@@ -497,7 +497,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
         var row = [];
         var item = invoice.invoice_items[i];
-        var cost = formatMoneyInvoice(item.cost, invoice, null, getPrecision(item.cost));
+        var cost = NINJA.parseFloat(item.cost) ? formatMoneyInvoice(item.cost, invoice, null, getPrecision(item.cost)) : ' ';
         var qty = NINJA.parseFloat(item.qty) ? roundSignificant(NINJA.parseFloat(item.qty)) + '' : '';
         var notes = item.notes;
         var productKey = item.product_key;
@@ -553,7 +553,9 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             lineTotal += taxAmount1 + taxAmount2;
         }
 
-        lineTotal = formatMoneyInvoice(lineTotal, invoice);
+        if (lineTotal != 0) {
+            lineTotal = formatMoneyInvoice(lineTotal, invoice);
+        }
         rowStyle = (grid.length % 2 == 0) ? 'even' : 'odd';
 
         if (invoice.has_product_key) {
