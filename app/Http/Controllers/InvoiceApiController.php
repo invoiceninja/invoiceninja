@@ -290,14 +290,19 @@ class InvoiceApiController extends BaseAPIController
     private function prepareItem($item)
     {
         // if only the product key is set we'll load the cost and notes
-        if (! empty($item['product_key']) && empty($item['cost']) && empty($item['notes'])) {
+        if (! empty($item['product_key'])) {
             $product = Product::findProductByKey($item['product_key']);
             if ($product) {
-                if (empty($item['cost'])) {
-                    $item['cost'] = $product->cost;
-                }
-                if (empty($item['notes'])) {
-                    $item['notes'] = $product->notes;
+                $fields = [
+                    'cost',
+                    'notes',
+                    'custom_value1',
+                    'custom_value2',
+                ];
+                foreach ($fields as $field) {
+                    if (! isset($item[$field])) {
+                        $item[$field] = $product->$field;
+                    }
                 }
             }
         }
