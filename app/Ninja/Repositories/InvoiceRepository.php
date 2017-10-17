@@ -881,7 +881,7 @@ class InvoiceRepository extends BaseRepository
             if ($account->invoice_terms) {
                 $clone->terms = $account->invoice_terms;
             }
-            if ($account->auto_convert_quote) {
+            if (! auth()->check()) {
                 $clone->is_public = true;
                 $clone->invoice_status_id = INVOICE_STATUS_SENT;
             }
