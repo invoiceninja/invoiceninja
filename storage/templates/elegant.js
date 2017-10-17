@@ -152,6 +152,11 @@
             "color": "$primaryColor:#5a7b61",
             "bold": true
         },
+        "fullheader": {
+            "font": "$headerFont",
+            "fontSize": "$fontSizeLargest",
+            "bold": true
+        },
         "header": {
             "fontSize": 14,
             "bold": true

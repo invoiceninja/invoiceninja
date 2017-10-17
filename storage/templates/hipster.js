@@ -202,7 +202,7 @@
             "bold": true,
             "margin": [0, 16, 0, 4]
         },
-        "header": {
+        "fullheader": {
             "fontSize": "$fontSizeLargest",
             "bold": true
         },
