@@ -96,7 +96,7 @@ class CheckData extends Command
             Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
-                        ->subject("Check-Data [{$database}]: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
+                        ->subject("Check-Data: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE) . " [{$database}]");
             });
         } elseif (! $this->isValid) {
             throw new Exception('Check data failed!!');
