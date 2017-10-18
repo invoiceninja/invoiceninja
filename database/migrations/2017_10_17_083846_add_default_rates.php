@@ -13,15 +13,15 @@ class AddDefaultRates extends Migration
     public function up()
     {
         Schema::table('accounts', function ($table) {
-            $table->decimal('task_rate', 12, 4);
+            $table->decimal('task_rate', 12, 4)->default(0);
         });
 
         Schema::table('clients', function ($table) {
-            $table->decimal('task_rate', 12, 4);
+            $table->decimal('task_rate', 12, 4)->default(0);
         });
 
         Schema::table('projects', function ($table) {
-            $table->decimal('task_rate', 12, 4);
+            $table->decimal('task_rate', 12, 4)->default(0);
         });
     }
 
