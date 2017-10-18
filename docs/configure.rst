@@ -123,6 +123,11 @@ You'll also need to set the following values in the .env file.
    MSBOT_LUIS_APP_ID=...
    MSBOT_LUIS_SUBSCRIPTION_KEY=...
 
+Lock Invoices
+"""""""""""""
+
+Adding ``LOCK_SENT_INVOICES=true`` to the .env file will prevent changing an invoice once it has been sent.
+
 Using a Proxy
 """""""""""""
 

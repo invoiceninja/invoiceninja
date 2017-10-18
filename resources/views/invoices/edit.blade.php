@@ -522,8 +522,10 @@
         @if (Auth::user()->canCreateOrEdit(ENTITY_INVOICE, $invoice))
             @if ($invoice->isClientTrashed())
                 <!-- do nothing -->
+			@elseif ($invoice->isSent() && config('ninja.lock_sent_invoices'))
+				<!-- do nothing -->
             @else
-                @if (!$invoice->is_deleted)
+				@if (!$invoice->is_deleted)
 					@if ($invoice->isSent())
 						{!! Button::success(trans("texts.save_{$entityType}"))->withAttributes(array('id' => 'saveButton', 'onclick' => 'onSaveClick()'))->appendIcon(Icon::create('floppy-disk')) !!}
 					@else
@@ -1374,6 +1376,10 @@
             swal("{!! trans('texts.wait_for_upload') !!}");
             return false;
         }
+
+		@if ($invoice->isSent() && config('ninja.lock_sent_invoices'))
+			return false;
+		@endif
 
         @if ($invoice->is_deleted || $invoice->isClientTrashed())
             if ($('#bulk_action').val() != 'restore') {

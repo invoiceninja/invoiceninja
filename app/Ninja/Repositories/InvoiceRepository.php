@@ -402,6 +402,8 @@ class InvoiceRepository extends BaseRepository
 
         if ($invoice->is_deleted) {
             return $invoice;
+        } elseif ($invoice->isSent() && config('ninja.lock_sent_invoices')) {
+            return $invoice;
         }
 
         if (isset($data['has_tasks']) && filter_var($data['has_tasks'], FILTER_VALIDATE_BOOLEAN)) {
