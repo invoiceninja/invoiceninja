@@ -298,6 +298,10 @@ class InvoiceApiController extends BaseAPIController
                     'notes',
                     'custom_value1',
                     'custom_value2',
+                    'tax_name1',
+                    'tax_rate1',
+                    'tax_name2',
+                    'tax_rate2',
                 ];
                 foreach ($fields as $field) {
                     if (! isset($item[$field])) {
