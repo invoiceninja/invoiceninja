@@ -729,12 +729,12 @@ function calculateAmounts(invoice) {
         }
     }
 
-    if (parseFloat(item.tax_rate1) != 0) {
+    if (parseFloat(item.tax_rate1) != 0 || item.tax_name1) {
       taxRate1 = parseFloat(item.tax_rate1);
       taxName1 = item.tax_name1;
     }
 
-    if (parseFloat(item.tax_rate2) != 0) {
+    if (parseFloat(item.tax_rate2) != 0 || item.tax_name2) {
       taxRate2 = parseFloat(item.tax_rate2);
       taxName2 = item.tax_name2;
     }
@@ -750,7 +750,7 @@ function calculateAmounts(invoice) {
     }
 
     var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
-    if (taxAmount1 != 0) {
+    if (taxAmount1 != 0 || taxName1) {
       var key = taxName1 + taxRate1;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount1;
@@ -760,7 +760,7 @@ function calculateAmounts(invoice) {
     }
 
     var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
-    if (taxAmount2 != 0) {
+    if (taxAmount2 != 0 || taxName2) {
       var key = taxName2 + taxRate2;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount2;
