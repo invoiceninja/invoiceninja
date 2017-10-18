@@ -810,7 +810,7 @@ class Account extends Eloquent
             $available = true;
 
             foreach ($gatewayTypes as $type) {
-                if ($paymentDriver->handles($type)) {
+                if ($type != GATEWAY_TYPE_TOKEN && $paymentDriver->handles($type)) {
                     $available = false;
                     break;
                 }

@@ -12,7 +12,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
     public function gatewayTypes()
     {
         $types = [
-            GATEWAY_TYPE_BANK_TRANSFER,
+            GATEWAY_TYPE_GOCARDLESS,
             GATEWAY_TYPE_TOKEN,
         ];
 

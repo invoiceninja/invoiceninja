@@ -32,6 +32,7 @@ class Gateway extends Eloquent
         GATEWAY_TYPE_BITCOIN,
         GATEWAY_TYPE_DWOLLA,
         GATEWAY_TYPE_TOKEN,
+        GATEWAY_TYPE_GOCARDLESS,
     ];
 
     // these will appear in the primary gateway select
@@ -58,6 +59,7 @@ class Gateway extends Eloquent
      */
     public static $alternate = [
         GATEWAY_PAYPAL_EXPRESS,
+        GATEWAY_GOCARDLESS,
         GATEWAY_BITPAY,
         GATEWAY_DWOLLA,
         GATEWAY_CUSTOM,

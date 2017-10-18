@@ -50,4 +50,5 @@
 
 
 {!! Former::populateField(GATEWAY_GOCARDLESS . '_accessToken', env('GOCARDLESS_TEST_TOKEN')) !!}
+{!! Former::populateField(GATEWAY_GOCARDLESS . '_webhookSecret', env('GOCARDLESS_TEST_WEBHOOK_SECRET')) !!}
 {!! Former::populateField(GATEWAY_GOCARDLESS . '_testMode', 1) !!}

@@ -422,6 +422,7 @@ if (! defined('APP_NAME')) {
     define('GATEWAY_TYPE_ALIPAY', 7);
     define('GATEWAY_TYPE_SOFORT', 8);
     define('GATEWAY_TYPE_SEPA', 9);
+    define('GATEWAY_TYPE_GOCARDLESS', 10);
     define('GATEWAY_TYPE_TOKEN', 'token');
 
     define('TEMPLATE_INVOICE', 'invoice');
