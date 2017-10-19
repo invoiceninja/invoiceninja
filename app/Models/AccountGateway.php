@@ -163,6 +163,22 @@ class AccountGateway extends EntityModel
     /**
      * @return bool
      */
+    public function getSepaEnabled()
+    {
+        return ! empty($this->getConfigField('enableSepa'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function getBitcoinEnabled()
+    {
+        return ! empty($this->getConfigField('enableBitcoin'));
+    }
+
+    /**
+     * @return bool
+     */
     public function getPayPalEnabled()
     {
         return ! empty($this->getConfigField('enablePayPal'));

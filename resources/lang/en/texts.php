@@ -2492,6 +2492,10 @@ $LANG = array(
     'document' => 'Document',
     'invoice_or_expense' => 'Invoice/Expense',
     'invoice_pdfs' => 'Invoice PDFs',
+    'enable_sepa' => 'Accept SEPA',
+    'enable_bitcoin' => 'Accept Bitcoin',
+    'iban' => 'IBAN',
+    'sepa_authorization' => 'By providing your IBAN and confirming this payment, you are authorizing :company and Stripe, our payment service provider, to send instructions to your bank to debit your account and your bank to debit your account in accordance with those instructions. You are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.',
 
 );
 

@@ -43,6 +43,13 @@ class StripePaymentDriver extends BasePaymentDriver
             } elseif ($sofortEnabled) {
                 $types[] = GATEWAY_TYPE_SOFORT;
             }
+
+            if ($gateway->getSepaEnabled()) {
+                $types[] = GATEWAY_TYPE_SEPA;
+            }
+            if ($gateway->getBitcoinEnabled()) {
+                $types[] = GATEWAY_TYPE_BITCOIN;
+            }
             if ($gateway->getAlipayEnabled()) {
                 $types[] = GATEWAY_TYPE_ALIPAY;
             }

@@ -295,6 +295,8 @@ class AccountGatewayController extends BaseController
             if ($gatewayId == GATEWAY_STRIPE) {
                 $config->enableAlipay = boolval(Input::get('enable_alipay'));
                 $config->enableSofort = boolval(Input::get('enable_sofort'));
+                $config->enableSepa = boolval(Input::get('enable_sepa'));
+                $config->enableBitcoin = boolval(Input::get('enable_bitcoin'));
             }
 
             if ($gatewayId == GATEWAY_STRIPE || $gatewayId == GATEWAY_WEPAY) {

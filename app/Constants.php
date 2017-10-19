@@ -408,6 +408,7 @@ if (! defined('APP_NAME')) {
     define('PAYMENT_TYPE_ALIPAY', 28);
     define('PAYMENT_TYPE_SOFORT', 29);
     define('PAYMENT_TYPE_SEPA', 30);
+    define('PAYMENT_TYPE_BITCOIN', 31);
 
     define('PAYMENT_METHOD_STATUS_NEW', 'new');
     define('PAYMENT_METHOD_STATUS_VERIFICATION_FAILED', 'verification_failed');
