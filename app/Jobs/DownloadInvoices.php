@@ -46,7 +46,7 @@ class DownloadInvoices extends Job
      */
     public function handle(UserMailer $userMailer)
     {
-        $zip = Archive::instance_by_useragent(date('Y-m-d') . '-Invoice_PDFs');
+        $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_pdfs')));
 
         foreach ($this->invoices as $invoice) {
             $zip->add_file($invoice->getFileName(), $invoice->getPDFString());

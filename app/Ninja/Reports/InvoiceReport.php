@@ -4,6 +4,7 @@ namespace App\Ninja\Reports;
 
 use App\Models\Client;
 use Auth;
+use Barracuda\ArchiveStream\Archive;
 
 class InvoiceReport extends AbstractReport
 {
@@ -22,6 +23,7 @@ class InvoiceReport extends AbstractReport
     {
         $account = Auth::user()->account;
         $status = $this->options['invoice_status'];
+        $exportFormat = $this->options['export_format'];
 
         $clients = Client::scope()
                         ->orderBy('name')
@@ -43,6 +45,21 @@ class InvoiceReport extends AbstractReport
                                               ->with('payment_type', 'account_gateway.gateway');
                                   }, 'invoice_items']);
                         }]);
+
+
+        if ($this->isExport && $exportFormat == 'zip') {
+            $zip = Archive::instance_by_useragent(date('Y-m-d') . '_' . str_replace(' ', '_', trans('texts.invoice_documents')));
+            foreach ($clients->get() as $client) {
+                foreach ($client->invoices as $invoice) {
+                    foreach ($invoice->documents as $document) {
+                        $name = sprintf('%s_%s_%s', date('Y-m-d'), $invoice->present()->titledName, $document->name);
+                        $zip->add_file($name, $document->getRaw());
+                    }
+                }
+            }
+            $zip->finish();
+            exit;
+        }
 
         foreach ($clients->get() as $client) {
             foreach ($client->invoices as $invoice) {

@@ -288,7 +288,7 @@
                         <li role="presentation"><a href="#footer" aria-controls="footer" role="tab" data-toggle="tab">{{ trans("texts.footer") }}</a></li>
                         @if ($account->hasFeature(FEATURE_DOCUMENTS))
                             <li role="presentation"><a href="#attached-documents" aria-controls="attached-documents" role="tab" data-toggle="tab">
-                                {{ trans("texts.invoice_documents") }}
+                                {{ trans("texts.documents") }}
                                 @if ($count = ($invoice->countDocuments($expenses)))
                                     ({{ $count }})
                                 @endif

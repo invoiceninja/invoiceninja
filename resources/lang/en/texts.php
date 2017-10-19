@@ -1099,8 +1099,9 @@ $LANG = array(
     'email_documents_header' => 'Documents:',
     'email_documents_example_1' => 'Widgets Receipt.pdf',
     'email_documents_example_2' => 'Final Deliverable.zip',
-    'invoice_documents' => 'Documents',
-    'expense_documents' => 'Attached Documents',
+    'quote_documents' => 'Quote Documents',
+    'invoice_documents' => 'Invoice Documents',
+    'expense_documents' => 'Expense Documents',
     'invoice_embed_documents' => 'Embed Documents',
     'invoice_embed_documents_help' => 'Include attached images in the invoice.',
     'document_email_attachment' => 'Attach Documents',
@@ -2488,6 +2489,9 @@ $LANG = array(
     'task_rate' => 'Task Rate',
     'task_rate_help' => 'Set the default <b>rate for invoiced tasks</b>.',
     'past_due' => 'Past Due',
+    'document' => 'Document',
+    'invoice_or_expense' => 'Invoice/Expense',
+    'invoice_pdfs' => 'Invoice PDFs',
 
 );
 

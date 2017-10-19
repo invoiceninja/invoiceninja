@@ -72,6 +72,7 @@ class ReportController extends BaseController
             'activity',
             'aging',
             'client',
+            'document',
             'expense',
             'invoice',
             'payment',
@@ -98,6 +99,8 @@ class ReportController extends BaseController
                 'date_field' => $dateField,
                 'invoice_status' => request()->invoice_status,
                 'group_dates_by' => request()->group_dates_by,
+                'document_filter' => request()->document_filter,
+                'export_format' => $format,
             ];
             $report = new $reportClass($startDate, $endDate, $isExport, $options);
             if (Input::get('report_type')) {
@@ -138,8 +141,8 @@ class ReportController extends BaseController
 
         $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-".strtolower(Utils::normalizeChars(trans("texts.$reportType")))."-report";
 
-        $formats = ['csv', 'pdf', 'xlsx'];
-        if(!in_array($format, $formats)) {
+        $formats = ['csv', 'pdf', 'xlsx', 'zip'];
+        if (! in_array($format, $formats)) {
             throw new \Exception("Invalid format request to export report");
         }
 
