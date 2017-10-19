@@ -112,6 +112,10 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
                 continue;
             }
 
+            if ($payment->is_deleted || $payment->invoice->is_deleted) {
+                continue;
+            }
+
             if ($action == 'failed' || $action == 'charged_back') {
                 if (! $payment->isFailed()) {
                     $payment->markFailed($event['details']['description']);

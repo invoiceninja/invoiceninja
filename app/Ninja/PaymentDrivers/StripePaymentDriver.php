@@ -474,6 +474,10 @@ class StripePaymentDriver extends BasePaymentDriver
                 return false;
             }
 
+            if ($payment->is_deleted || $payment->invoice->is_deleted) {
+                return false;
+            }
+
             if ($eventType == 'charge.failed') {
                 if (! $payment->isFailed()) {
                     $payment->markFailed($source['failure_message']);
