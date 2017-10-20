@@ -149,11 +149,14 @@ class ReportController extends BaseController
         //Get labeled header
         $columns_labeled = $report->tableHeaderArray();
 
-        /*$summary = [];
-        if(count(array_values($totals))) {
+        $summary = [];
+        /*
+        if (count(array_values($totals))) {
             $summary[] = array_merge([
                 trans("texts.totals")
-            ], array_map(function ($key) {return trans("texts.{$key}");}, array_keys(array_values(array_values($totals)[0])[0])));
+            ], array_map(function ($key) {
+                return trans("texts.{$key}");
+            }, array_keys(array_values(array_values($totals)[0])[0])));
         }
 
         foreach ($totals as $currencyId => $each) {
@@ -161,30 +164,38 @@ class ReportController extends BaseController
                 $tmp   = [];
                 $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
 
-                foreach ($val as $id => $field) $tmp[] = Utils::formatMoney($field, $currencyId);
+                foreach ($val as $id => $field) {
+                    $tmp[] = Utils::formatMoney($field, $currencyId);
+                }
 
                 $summary[] = $tmp;
             }
         }
+        */
 
-        dd($summary);*/
-
-        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format, $columns_labeled) {
-            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format, $columns_labeled) {
+        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format, $columns_labeled, $summary) {
+            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format, $columns_labeled, $summary) {
 
                 $sheet->setOrientation('landscape');
                 $sheet->freezeFirstRow();
 
-                //Add border on PDF
-                if($format == 'pdf')
+                if ($format == 'pdf') {
                     $sheet->setAllBorders('thin');
+                }
 
                 $sheet->rows(array_merge(
                     [array_map(function($col) {return $col['label'];}, $columns_labeled)],
                     $data
                 ));
 
-                //Styling header
+                /*
+                $sheet->rows(array_merge(
+                    [],
+                    $summary
+                ));
+                */
+
+                // Styling header
                 $sheet->cells('A1:'.Utils::num2alpha(count($columns_labeled)-1).'1', function($cells) {
                     $cells->setBackground('#777777');
                     $cells->setFontColor('#FFFFFF');
@@ -192,7 +203,6 @@ class ReportController extends BaseController
                     $cells->setFontFamily('Calibri');
                     $cells->setFontWeight('bold');
                 });
-
 
                 $sheet->setAutoSize(true);
             });
