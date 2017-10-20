@@ -259,8 +259,19 @@ class BaseTransformer extends TransformerAbstract
     {
         $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
         $invoiceNumber = strtolower($invoiceNumber);
-
         return isset($this->maps[ENTITY_INVOICE][$invoiceNumber]) ? $this->maps[ENTITY_INVOICE][$invoiceNumber] : null;
+    }
+
+    /**
+     * @param $invoiceNumber
+     *
+     * @return null
+     */
+    public function getInvoicePublicId($invoiceNumber)
+    {
+        $invoiceNumber = $this->getInvoiceNumber($invoiceNumber);
+        $invoiceNumber = strtolower($invoiceNumber);
+        return isset($this->maps['invoices'][$invoiceNumber]) ? $this->maps['invoices'][$invoiceNumber]->public_id : null;
     }
 
     /**
