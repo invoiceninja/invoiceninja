@@ -6,6 +6,7 @@ use App\Events\UserSignedUp;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Requests\UpdateAccountRequest;
 use App\Models\Account;
+use App\Models\User;
 use App\Ninja\OAuth\OAuth;
 use App\Ninja\Repositories\AccountRepository;
 use App\Ninja\Transformers\AccountTransformer;
@@ -54,11 +55,25 @@ class AccountApiController extends BaseAPIController
 
     public function login(Request $request)
     {
+        $user = User::where('email', '=', $request->email)->first();
+
+        if ($user && $user->failed_logins >= MAX_FAILED_LOGINS) {
+            sleep(ERROR_DELAY);
+            return $this->errorResponse(['message' => 'Invalid credentials'], 401);
+        }
+
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            if ($user && $user->failed_logins > 0) {
+                $user->failed_logins = 0;
+                $user->save();
+            }
             return $this->processLogin($request);
         } else {
+            if ($user) {
+                $user->failed_logins = $user->failed_logins + 1;
+                $user->save();
+            }
             sleep(ERROR_DELAY);
-
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
         }
     }

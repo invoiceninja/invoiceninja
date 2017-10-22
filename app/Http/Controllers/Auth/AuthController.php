@@ -158,6 +158,11 @@ class AuthController extends Controller
         $response = self::postLogin($request);
 
         if (Auth::check()) {
+            if ($user && $user->failed_logins > 0) {
+                $user->failed_logins = 0;
+                $user->save();
+            }
+
             Event::fire(new UserLoggedIn());
 
             /*
