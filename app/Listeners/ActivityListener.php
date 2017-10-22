@@ -483,8 +483,8 @@ class ActivityListener
         $this->activityRepo->create(
             $payment,
             ACTIVITY_TYPE_RESTORE_PAYMENT,
-            $event->fromDeleted ? $payment->getCompletedAmount() * -1 : 0,
-            $event->fromDeleted ? $payment->getCompletedAmount() : 0
+            $event->fromDeleted && ! $payment->isFailedOrVoided() ? $payment->getCompletedAmount() * -1 : 0,
+            $event->fromDeleted && ! $payment->isFailedOrVoided() ? $payment->getCompletedAmount() : 0
         );
     }
 

@@ -87,6 +87,11 @@ class InvoiceListener
     public function deletedPayment(PaymentWasDeleted $event)
     {
         $payment = $event->payment;
+
+        if ($payment->isFailedOrVoided()) {
+            return;
+        }
+
         $invoice = $payment->invoice;
         $adjustment = $payment->getCompletedAmount();
 
@@ -143,6 +148,11 @@ class InvoiceListener
         }
 
         $payment = $event->payment;
+
+        if ($payment->isFailedOrVoided()) {
+            return;
+        }
+
         $invoice = $payment->invoice;
         $adjustment = $payment->getCompletedAmount() * -1;
 
