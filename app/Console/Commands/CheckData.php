@@ -531,21 +531,27 @@ class CheckData extends Command
     {
         // update client paid_to_date value
         $clients = DB::table('clients')
+                    ->leftJoin('invoices', function($join) {
+                        $join->on('invoices.client_id', '=', 'clients.id')
+                            ->where('invoices.is_deleted', '=', 0);
+                    })
                     ->leftJoin('payments', function($join) {
-                        $join->on('payments.client_id', '=', 'clients.id')
+                        $join->on('payments.invoice_id', '=', 'invoices.id')
                             ->where('payments.payment_status_id', '!=', 2)
                             ->where('payments.payment_status_id', '!=', 3)
                             ->where('payments.is_deleted', '=', 0);
                     })
+                    ->where('clients.updated_at', '>', '2017-10-01')
                     ->groupBy('clients.id')
-                    ->havingRaw('clients.paid_to_date != coalesce(sum(payments.amount - payments.refunded), 0) and clients.paid_to_date != 999999999.9999')
-                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(payments.amount) as amount')]);
+                    ->havingRaw('clients.paid_to_date != sum(coalesce(payments.amount - payments.refunded, 0)) and clients.paid_to_date != 999999999.9999')
+                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as amount')]);
         $this->logMessage(count($clients) . ' clients with incorrect paid to date');
 
         if (count($clients) > 0) {
             $this->isValid = false;
         }
 
+        /*
         if ($this->option('fix') == 'true') {
             foreach ($clients as $client) {
                 DB::table('clients')
@@ -553,6 +559,7 @@ class CheckData extends Command
                     ->update(['paid_to_date' => $client->amount]);
             }
         }
+        */
     }
 
     private function checkInvoiceBalances()
