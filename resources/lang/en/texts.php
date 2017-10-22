@@ -2496,6 +2496,12 @@ $LANG = array(
     'enable_bitcoin' => 'Accept Bitcoin',
     'iban' => 'IBAN',
     'sepa_authorization' => 'By providing your IBAN and confirming this payment, you are authorizing :company and Stripe, our payment service provider, to send instructions to your bank to debit your account and your bank to debit your account in accordance with those instructions. You are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited.',
+    'recover_license' => 'Recover License',
+    'purchase' => 'Purchase',
+    'recover' => 'Recover',
+    'apply' => 'Apply',
+    'recover_white_label_header' => 'Recover White Label License',
+    'apply_white_label_header' => 'Apply White Label License',
 
 );
 
