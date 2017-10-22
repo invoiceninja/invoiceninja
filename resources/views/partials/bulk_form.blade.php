@@ -13,9 +13,16 @@
             }
         }
 
+        @if (in_array($entityType, [ENTITY_ACCOUNT_GATEWAY]))
+            if (action == 'archive') {
+                if (!confirm('{!! trans("texts.are_you_sure") !!}')) {
+                    return;
+                }
+            }
+        @endif
+
         $('#bulk_public_id').val(id);
         $('#bulk_action').val(action);
-
         $('form.bulk-form').submit();
     }
 </script>
