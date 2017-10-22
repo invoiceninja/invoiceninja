@@ -76,8 +76,9 @@ class CheckData extends Command
             $this->checkDraftSentInvoices();
         }
 
-        //$this->checkInvoices();
-        $this->checkBalances();
+        $this->checkInvoices();
+        $this->checkInvoiceBalances();
+        $this->checkClientBalances();
         $this->checkContacts();
         $this->checkUserAccounts();
 
@@ -96,7 +97,7 @@ class CheckData extends Command
             Mail::raw($this->log, function ($message) use ($errorEmail, $database) {
                 $message->to($errorEmail)
                         ->from(CONTACT_EMAIL)
-                        ->subject("Check-Data [{$database}]: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE));
+                        ->subject("Check-Data: " . strtoupper($this->isValid ? RESULT_SUCCESS : RESULT_FAILURE) . " [{$database}]");
             });
         } elseif (! $this->isValid) {
             throw new Exception('Check data failed!!');
@@ -530,21 +531,27 @@ class CheckData extends Command
     {
         // update client paid_to_date value
         $clients = DB::table('clients')
-                    ->join('payments', 'payments.client_id', '=', 'clients.id')
-                    ->join('invoices', 'invoices.id', '=', 'payments.invoice_id')
-                    ->where('payments.is_deleted', '=', 0)
-                    ->where('payments.payment_status_id', '!=', 2)
-                    ->where('payments.payment_status_id', '!=', 3)
-                    ->where('invoices.is_deleted', '=', 0)
+                    ->leftJoin('invoices', function($join) {
+                        $join->on('invoices.client_id', '=', 'clients.id')
+                            ->where('invoices.is_deleted', '=', 0);
+                    })
+                    ->leftJoin('payments', function($join) {
+                        $join->on('payments.invoice_id', '=', 'invoices.id')
+                            ->where('payments.payment_status_id', '!=', 2)
+                            ->where('payments.payment_status_id', '!=', 3)
+                            ->where('payments.is_deleted', '=', 0);
+                    })
+                    ->where('clients.updated_at', '>', '2017-10-01')
                     ->groupBy('clients.id')
-                    ->havingRaw('clients.paid_to_date != sum(payments.amount - payments.refunded) and clients.paid_to_date != 999999999.9999')
-                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(payments.amount) as amount')]);
+                    ->havingRaw('clients.paid_to_date != sum(coalesce(payments.amount - payments.refunded, 0)) and clients.paid_to_date != 999999999.9999')
+                    ->get(['clients.id', 'clients.paid_to_date', DB::raw('sum(coalesce(payments.amount - payments.refunded, 0)) as amount')]);
         $this->logMessage(count($clients) . ' clients with incorrect paid to date');
 
         if (count($clients) > 0) {
             $this->isValid = false;
         }
 
+        /*
         if ($this->option('fix') == 'true') {
             foreach ($clients as $client) {
                 DB::table('clients')
@@ -552,9 +559,31 @@ class CheckData extends Command
                     ->update(['paid_to_date' => $client->amount]);
             }
         }
+        */
     }
 
-    private function checkBalances()
+    private function checkInvoiceBalances()
+    {
+        $invoices = DB::table('invoices')
+                    ->leftJoin('payments', function($join) {
+                        $join->on('payments.invoice_id', '=', 'invoices.id')
+                            ->where('payments.payment_status_id', '!=', 2)
+                            ->where('payments.payment_status_id', '!=', 3)
+                            ->where('payments.is_deleted', '=', 0);
+                    })
+                    ->where('invoices.updated_at', '>', '2017-10-01')
+                    ->groupBy('invoices.id')
+                    ->havingRaw('(invoices.amount - invoices.balance) != coalesce(sum(payments.amount - payments.refunded), 0)')
+                    ->get(['invoices.id', 'invoices.amount', 'invoices.balance', DB::raw('coalesce(sum(payments.amount - payments.refunded), 0)')]);
+
+        $this->logMessage(count($invoices) . ' invoices with incorrect balances');
+
+        if (count($invoices) > 0) {
+            $this->isValid = false;
+        }
+    }
+
+    private function checkClientBalances()
     {
         // find all clients where the balance doesn't equal the sum of the outstanding invoices
         $clients = DB::table('clients')
