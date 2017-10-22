@@ -25,17 +25,3 @@
         </td>
     </tr>
 @stop
-
-@section('footer')
-    @if (Utils::isNinja() || ! Utils::isWhiteLabel())
-        <p style="color: #A7A6A6; font-size: 13px; line-height: 18px; margin: 0 0 7px; padding: 0;">
-            <a href="{{ SOCIAL_LINK_FACEBOOK }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;"><img src="{{ $message->embed(public_path('images/emails/icon-facebook.png')) }}" alt="Facebook" /></a>
-            <a href="{{ SOCIAL_LINK_TWITTER }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;"><img src="{{ $message->embed(public_path('images/emails/icon-twitter.png')) }}" alt="Twitter" /></a>
-            <a href="{{ SOCIAL_LINK_GITHUB }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;"><img src="{{ $message->embed(public_path('images/emails/icon-github.png')) }}" alt="GitHub" /></a>
-        </p>
-
-        <p style="color: #A7A6A6; font-size: 13px; line-height: 18px; margin: 0 0 7px; padding: 0;">
-            © {{ date('Y') }} Invoice Ninja<br />
-        </p>
-    @endif
-@stop

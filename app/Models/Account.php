@@ -1085,6 +1085,11 @@ class Account extends Eloquent
         }
     }
 
+    public function isPaid()
+    {
+        return Utils::isNinja() ? $this->isPro() : Utils::isWhiteLabel();
+    }
+
     /**
      * @param null $plan_details
      *
