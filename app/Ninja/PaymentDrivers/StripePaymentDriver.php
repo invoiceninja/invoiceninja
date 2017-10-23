@@ -247,13 +247,16 @@ class StripePaymentDriver extends BasePaymentDriver
         $isBank = $this->isGatewayType(GATEWAY_TYPE_BANK_TRANSFER, $paymentMethod);
         $isAlipay = $this->isGatewayType(GATEWAY_TYPE_ALIPAY, $paymentMethod);
         $isSofort = $this->isGatewayType(GATEWAY_TYPE_SOFORT, $paymentMethod);
+        $isBitcoin = $this->isGatewayType(GATEWAY_TYPE_BITCOIN, $paymentMethod);
 
-        if ($isBank || $isAlipay || $isSofort) {
+        if ($isBank || $isAlipay || $isSofort || $isBitcoin) {
             $payment->payment_status_id = $this->purchaseResponse['status'] == 'succeeded' ? PAYMENT_STATUS_COMPLETED : PAYMENT_STATUS_PENDING;
             if ($isAlipay) {
                 $payment->payment_type_id = PAYMENT_TYPE_ALIPAY;
             } elseif ($isSofort) {
                 $payment->payment_type_id = PAYMENT_TYPE_SOFORT;
+            } elseif ($isBitcoin) {
+                $payment->payment_type_id = PAYMENT_TYPE_BITCOIN;
             }
         }
 
