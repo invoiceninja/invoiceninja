@@ -8,6 +8,8 @@
         $(function() {
             var qrcode = new QRCode(document.getElementById("qrcode"), {
             	text: "{{ $source['bitcoin']['uri'] }}",
+                width: 300,
+                height: 300,
             });
         });
     </script>
@@ -27,7 +29,9 @@
             {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
         </div>
         <div class="col-md-6">
-            <div id="qrcode"></div>
+            <center>
+                <div id="qrcode"></div>
+            </center>
         </div>
     </div>
 
