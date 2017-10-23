@@ -8,8 +8,8 @@
         $(function() {
             var qrcode = new QRCode(document.getElementById("qrcode"), {
             	text: "{{ $source['bitcoin']['uri'] }}",
-                width: 300,
-                height: 300,
+                width: 330,
+                height: 330,
             });
         });
     </script>
@@ -24,9 +24,12 @@
             <img src="{{ asset('/images/gateways/logo_Bitcoin.png') }}"/>
             <p>&nbsp;</p>
             <h2>{{ $source['bitcoin']['amount'] / 100000000 }} BTC</h2>
-            <h3>{{ $source['receiver']['address'] }}</h3>
+            <h3>
+                <a href="{{ $source['bitcoin']['uri'] }}">{{ $source['receiver']['address'] }}</a>
+            </h3>
             <p>&nbsp;</p>
             {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+            <p>&nbsp;</p>
         </div>
         <div class="col-md-6">
             <center>
