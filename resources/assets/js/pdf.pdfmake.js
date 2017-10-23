@@ -1111,7 +1111,7 @@ NINJA.processItem = function(item, section) {
     item.style.push(section);
 
     // make sure numbers aren't wrapped
-    if (item.text && item.text.match && item.text.match(/\d\.\d\d|\d,\d\d/)) {
+    if (item.text && item.text.match && item.text.match(/\d[.,]\d\d($| [A-Z]{3}$)/)) {
         item.style.push('noWrap');
     }
 
