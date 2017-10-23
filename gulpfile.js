@@ -117,6 +117,10 @@ elixir(function(mix) {
     ], 'public/js/card.min.js');
 
     mix.scripts([
+        bowerDir + '/qrcode.js/qrcode.js',
+    ], 'public/js/qrcode.min.js');
+
+    mix.scripts([
         bowerDir + '/tablesorter/dist/js/jquery.tablesorter.combined.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-grouping.min.js',
         bowerDir + '/tablesorter/dist/js/widgets/widget-uitheme.min.js',

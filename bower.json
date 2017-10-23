@@ -38,7 +38,8 @@
     "card": "^2.1.1",
     "fullcalendar": "^3.5.1",
     "toastr": "^2.1.3",
-    "jt.timepicker": "jquery-timepicker-jt#^1.11.12"
+    "jt.timepicker": "jquery-timepicker-jt#^1.11.12",
+    "qrcode.js": "qrcode-js#*"
   },
   "resolutions": {
     "jquery": "~1.11"

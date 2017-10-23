@@ -174,13 +174,13 @@
                 ->label('SEPA')
                 ->text(trans('texts.enable_sepa'))
                 ->value(1) !!}
+            -->
 
             {!! Former::checkbox('enable_bitcoin')
                 ->label(trans('texts.bitcoin'))
                 ->text(trans('texts.enable_bitcoin'))
                 ->value(1) !!}
-            -->
-            
+
             {!! Former::checkbox('enable_alipay')
                 ->label(trans('texts.alipay'))
                 ->text(trans('texts.enable_alipay'))
@@ -312,6 +312,8 @@
         $('#enable_ach').change(updateWebhookShown);
         $('#enable_alipay').change(updateWebhookShown);
         $('#enable_sofort').change(updateWebhookShown);
+        $('#enable_sepa').change(updateWebhookShown);
+        $('#enable_bitcoin').change(updateWebhookShown);
 
         @if (!$accountGateway && count($secondaryGateways))
             $('#primary_gateway_id').append($('<option>', {

@@ -91,7 +91,7 @@ class StripePaymentDriver extends BasePaymentDriver
 
     public function shouldUseSource()
     {
-        return in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY, GATEWAY_TYPE_SOFORT]);
+        return in_array($this->gatewayType, [GATEWAY_TYPE_ALIPAY, GATEWAY_TYPE_SOFORT, GATEWAY_TYPE_BITCOIN]);
     }
 
     protected function checkCustomerExists($customer)
@@ -358,6 +358,7 @@ class StripePaymentDriver extends BasePaymentDriver
         $amount = intval($this->invoice()->getRequestedAmount() * 100);
         $invoiceNumber = $this->invoice()->invoice_number;
         $currency = $this->client()->getCurrencyCode();
+        $email = $this->contact()->email;
         $gatewayType = GatewayType::getAliasFromId($this->gatewayType);
         $redirect = url("/complete_source/{$this->invitation->invitation_key}/{$gatewayType}");
         $country = $this->client()->country ? $this->client()->country->iso_3166_2 : ($this->account()->country ? $this->account()->country->iso_3166_2 : '');
@@ -368,6 +369,12 @@ class StripePaymentDriver extends BasePaymentDriver
                 throw new Exception('Alipay is not enabled');
             }
             $type = 'alipay';
+        } elseif ($this->gatewayType == GATEWAY_TYPE_BITCOIN) {
+            if (! $this->accountGateway->getBitcoinEnabled()) {
+                throw new Exception('Bitcoin is not enabled');
+            }
+            $type = 'bitcoin';
+            $extra = "&owner[email]={$email}";
         } else {
             if (! $this->accountGateway->getSofortEnabled()) {
                 throw new Exception('Sofort is not enabled');
@@ -383,7 +390,18 @@ class StripePaymentDriver extends BasePaymentDriver
             $this->invitation->transaction_reference = $response['id'];
             $this->invitation->save();
 
-            return redirect($response['redirect']['url']);
+            if ($this->gatewayType == GATEWAY_TYPE_BITCOIN) {
+                return view('payments/stripe/bitcoin', [
+                    'client' => $this->client(),
+                    'account' => $this->account(),
+                    'invitation' => $this->invitation,
+                    'invoiceNumber' => $invoiceNumber,
+                    'amount' => $amount,
+                    'source' => $response,
+                ]);
+            } else {
+                return redirect($response['redirect']['url']);
+            }
         } else {
             throw new Exception($response);
         }
