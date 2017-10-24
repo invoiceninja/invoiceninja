@@ -309,11 +309,11 @@
     var loadedTabs = {};
 
 	$(function() {
-		$('.normalDropDown:not(.dropdown-toggle)').click(function() {
-			window.location = '{{ URL::to('clients/' . $client->public_id . '/edit') }}';
+		$('.normalDropDown:not(.dropdown-toggle)').click(function(event) {
+            openUrlOnClick('{{ URL::to('clients/' . $client->public_id . '/edit') }}', event);
 		});
-		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
-			window.location = '{{ URL::to('clients/statement/' . $client->public_id ) }}';
+		$('.primaryDropDown:not(.dropdown-toggle)').click(function(event) {
+            openUrlOnClick('{{ URL::to('clients/statement/' . $client->public_id ) }}', event);
 		});
 
         // load datatable data when tab is shown and remember last tab selected

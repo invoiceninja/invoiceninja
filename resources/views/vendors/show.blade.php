@@ -191,15 +191,14 @@
     var loadedTabs = {};
 
 	$(function() {
-		$('.normalDropDown:not(.dropdown-toggle)').click(function() {
-			window.location = '{{ URL::to('vendors/' . $vendor->public_id . '/edit') }}';
+		$('.normalDropDown:not(.dropdown-toggle)').click(function(event) {
+            openUrlOnClick('{{ URL::to('vendors/' . $vendor->public_id . '/edit') }}', event)
 		});
-		$('.primaryDropDown:not(.dropdown-toggle)').click(function() {
-			window.location = '{{ URL::to('expenses/create/' . $vendor->public_id ) }}';
+		$('.primaryDropDown:not(.dropdown-toggle)').click(function(event) {
+			openUrlOnClick('{{ URL::to('expenses/create/' . $vendor->public_id ) }}', event);
 		});
 
         $('.nav-tabs a[href="#expenses"]').tab('show');
-        //load_expenses();
 	});
 
 	function onArchiveClick() {

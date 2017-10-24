@@ -1321,3 +1321,11 @@ function formatXml(xml) {
 
     return formatted;
 }
+
+function openUrlOnClick(url, event) {
+    if (event.ctrlKey) {
+        window.open(url, '_blank');
+    } else {
+        window.location = url;
+    }
+}

@@ -58,8 +58,8 @@
 		  )->split() !!}
 		<script type="text/javascript">
 			$(function() {
-				$('.recurringDropdown:not(.dropdown-toggle)').click(function() {
-					window.location = '{{ url('/recurring_invoices') }}';
+				$('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/recurring_invoices') }}', event);
 				});
 			});
 		</script>
@@ -78,11 +78,11 @@
 		  )->split() !!}
 	  	<script type="text/javascript">
 		  	$(function() {
-				$('.recurringDropdown:not(.dropdown-toggle)').click(function() {
-		  			window.location = '{{ url('/recurring_expenses') }}';
+				$('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/recurring_expenses') }}', event)
 		  		});
-				$('.categoriesDropdown:not(.dropdown-toggle)').click(function() {
-		  			window.location = '{{ url('/expense_categories') }}';
+				$('.categoriesDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/expense_categories') }}', event);
 		  		});
 			});
 		</script>
@@ -96,8 +96,8 @@
 		  )->split() !!}
 	  	<script type="text/javascript">
 		  	$(function() {
-		  		$('.projectsDropdown:not(.dropdown-toggle)').click(function() {
-		  			window.location = '{{ url('projects') }}';
+		  		$('.projectsDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/projects') }}', event);
 		  		});
 			});
 		</script>
