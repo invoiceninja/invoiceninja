@@ -200,15 +200,13 @@ class InvoiceApiController extends BaseAPIController
 
         if ($isEmailInvoice) {
             if ($payment) {
-                app('App\Ninja\Mailers\ContactMailer')->sendPaymentConfirmation($payment);
-                //$this->dispatch(new SendPaymentEmail($payment));
+                $this->dispatch(new SendPaymentEmail($payment));
             } else {
                 if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
                     $invoice = $recurringInvoice;
                 }
                 $reminder = isset($data['email_type']) ? $data['email_type'] : false;
-                app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder);
-                //$this->dispatch(new SendInvoiceEmail($invoice));
+                $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder));
             }
         }
 
@@ -335,11 +333,13 @@ class InvoiceApiController extends BaseAPIController
             $invoice = $recurringInvoice;
         }
 
-        //$this->dispatch(new SendInvoiceEmail($invoice));
-        $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
-
-        if ($result !== true) {
-            return $this->errorResponse($result, 500);
+        if (config('queue.default') !== 'sync') {
+            $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id));
+        } else {
+            $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+            if ($result !== true) {
+                return $this->errorResponse($result, 500);
+            }
         }
 
         $headers = Utils::getApiHeaders();
