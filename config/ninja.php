@@ -2,6 +2,11 @@
 
 return [
 
+    'video_urls' => [
+        'all' => env('NINJA_VIDEOS_URL', 'https://www.youtube.com/channel/UCXAHcBvhW05PDtWYIq7WDFA/videos'),
+        'custom_design' => env('NINJA_VIDEOS_CUSOTM_DESIGN_URL', 'https://www.youtube.com/watch?v=pXQ6jgiHodc'),
+    ],
+
     // invoice locking feature
     'lock_sent_invoices' => env('LOCK_SENT_INVOICES'),
 

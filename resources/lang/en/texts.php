@@ -2502,6 +2502,8 @@ $LANG = array(
     'apply' => 'Apply',
     'recover_white_label_header' => 'Recover White Label License',
     'apply_white_label_header' => 'Apply White Label License',
+    'videos' => 'Videos',
+    'video' => 'Video',
 
 );
 

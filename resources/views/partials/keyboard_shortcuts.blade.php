@@ -124,6 +124,7 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
+        <a class="btn btn-primary" href="{{ config('ninja.video_urls.all') }}" target="_blank">{{ trans('texts.videos') }}</a>
       </div>
     </div>
   </div>
