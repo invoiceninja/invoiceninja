@@ -28,7 +28,7 @@
                 <a href="{{ $source['bitcoin']['uri'] }}">{{ $source['receiver']['address'] }}</a>
             </h3>
             <p>&nbsp;</p>
-            {!! Button::normal(strtoupper(trans('texts.cancel')))->large()->asLinkTo($invitation->getLink()) !!}
+            {!! Button::normal(strtoupper(trans('texts.return_to_invoice')))->large()->asLinkTo($invitation->getLink()) !!}
             <p>&nbsp;</p>
         </div>
         <div class="col-md-6">

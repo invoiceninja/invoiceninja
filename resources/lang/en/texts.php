@@ -2504,6 +2504,7 @@ $LANG = array(
     'apply_white_label_header' => 'Apply White Label License',
     'videos' => 'Videos',
     'video' => 'Video',
+    'return_to_invoice' => 'Return to Invoice',
 
 );
 
