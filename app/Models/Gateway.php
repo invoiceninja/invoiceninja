@@ -162,6 +162,10 @@ class Gateway extends Eloquent
      */
     public function getHelp()
     {
+        if ($this->id == GATEWAY_PAYFAST) {
+            return trans('texts.gateway_help_' . $this->id);
+        }
+
         $link = '';
 
         if ($this->id == GATEWAY_AUTHORIZE_NET) {
