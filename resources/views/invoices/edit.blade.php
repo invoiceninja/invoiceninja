@@ -316,7 +316,7 @@
                             		->label(false)->style('width: 100%')->rows(4)
 		                            ->help('<div class="checkbox">
 		                                        <label>
-		                                            <input name="set_default_terms" type="checkbox" style="width: 24px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
+		                                            <input name="set_default_terms" type="checkbox" style="width: 16px" data-bind="checked: set_default_terms"/>'.trans('texts.save_as_default_terms').'
 		                                        </label>
 		                                        <div class="pull-right" data-bind="visible: showResetTerms()">
 		                                            <a href="#" onclick="return resetTerms()" title="'. trans('texts.reset_terms_help') .'">' . trans("texts.reset_terms") . '</a>
@@ -329,7 +329,7 @@
 		                            ->label(false)->style('width: 100%')->rows(4)
 		                            ->help('<div class="checkbox">
 		                                        <label>
-		                                            <input name="set_default_footer" type="checkbox" style="width: 24px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
+		                                            <input name="set_default_footer" type="checkbox" style="width: 16px" data-bind="checked: set_default_footer"/>'.trans('texts.save_as_default_footer').'
 		                                        </label>
 		                                        <div class="pull-right" data-bind="visible: showResetFooter()">
 		                                            <a href="#" onclick="return resetFooter()" title="'. trans('texts.reset_footer_help') .'">' . trans("texts.reset_footer") . '</a>
