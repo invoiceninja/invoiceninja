@@ -1017,7 +1017,7 @@ $LANG = array(
 
     'pro_plan_remove_logo' => ':link to remove the Invoice Ninja logo by joining the Pro Plan',
     'pro_plan_remove_logo_link' => 'Click here',
-    'invitation_status_sent' => 'sent',
+    'invitation_status_sent' => 'Sent',
     'invitation_status_opened' => 'Opened',
     'invitation_status_viewed' => 'Viewed',
     'email_error_inactive_client' => 'Emails can not be sent to inactive clients',
@@ -2246,7 +2246,6 @@ $LANG = array(
     'oauth_taken' => 'The account is already registered',
     'emailed_payment' => 'Successfully emailed payment',
     'email_payment' => 'Email Payment',
-    'sent' => 'Sent',
     'invoiceplane_import' => 'Use :link to migrate your data from InvoicePlane.',
     'duplicate_expense_warning' => 'Warning: This :link may be a duplicate',
     'expense_link' => 'expense',
