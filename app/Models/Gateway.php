@@ -89,6 +89,8 @@ class Gateway extends Eloquent
         'developerMode',
         // Dwolla
         'sandbox',
+        // Payfast
+        'pdtKey',
     ];
 
     /**
