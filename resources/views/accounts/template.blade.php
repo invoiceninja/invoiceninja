@@ -89,10 +89,10 @@
         </div>
         <p>&nbsp;<p/>
         <div class="row">
-            <div class="col-md-9 show-when-ready" style="display:none">
+            <div class="pull-left show-when-ready" style="display:none">
                 @include('partials/quill_toolbar', ['name' => $field])
             </div>
-            <div class="col-md-3 pull-right" style="padding-top:10px;text-align:right">
+            <div class="pull-right" style="padding-top:13px;text-align:right">
                 {!! Button::normal(trans('texts.raw'))->withAttributes(['onclick' => 'showRaw("'.$field.'")'])->small() !!}
                 {!! Button::primary(trans('texts.preview'))->withAttributes(['onclick' => 'serverPreview("'.$field.'")'])->small() !!}
             </div>
