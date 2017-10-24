@@ -342,7 +342,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
             field = toSnakeCase(field);
 
             var value = getDescendantProp(invoice, field) || ' ';
-            value = doubleDollarSign(value);
+            value = doubleDollarSign(value) + '';
             value = value.replace(/\n/g, "\\n").replace(/\r/g, "\\r");
             javascript = javascript.replace(match, '"'+value+'"');
         }
