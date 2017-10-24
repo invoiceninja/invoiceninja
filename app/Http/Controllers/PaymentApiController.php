@@ -9,20 +9,23 @@ use App\Models\Invoice;
 use App\Models\Payment;
 use App\Ninja\Mailers\ContactMailer;
 use App\Ninja\Repositories\PaymentRepository;
+use App\Services\PaymentService;
 use Input;
 use Response;
 
 class PaymentApiController extends BaseAPIController
 {
     protected $paymentRepo;
+    protected $paymentService;
 
     protected $entityType = ENTITY_PAYMENT;
 
-    public function __construct(PaymentRepository $paymentRepo, ContactMailer $contactMailer)
+    public function __construct(PaymentRepository $paymentRepo, PaymentService $paymentService, ContactMailer $contactMailer)
     {
         parent::__construct();
 
         $this->paymentRepo = $paymentRepo;
+        $this->paymentService = $paymentService;
         $this->contactMailer = $contactMailer;
     }
 
@@ -108,7 +111,7 @@ class PaymentApiController extends BaseAPIController
         // check payment has been marked sent
         $request->invoice->markSentIfUnsent();
 
-        $payment = $this->paymentRepo->save($request->input());
+        $payment = $this->paymentService->save($request->input(), null, $request->invoice);
 
         if (Input::get('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);

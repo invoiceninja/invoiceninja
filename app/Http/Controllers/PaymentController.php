@@ -191,16 +191,10 @@ class PaymentController extends BaseController
 
         // if the payment amount is more than the balance create a credit
         if ($amount > $request->invoice->balance) {
-            $credit = Credit::createNew();
-            $credit->client_id = $request->invoice->client_id;
-            $credit->credit_date = date_create()->format('Y-m-d');
-            $credit->amount = $credit->balance = $amount - $request->invoice->balance;
-            $credit->private_notes = trans('texts.credit_created_by', ['transaction_reference' => $input['transaction_reference']]);
-            $credit->save();
-            $input['amount'] = $request->invoice->balance;
+            $credit = true;
         }
 
-        $payment = $this->paymentService->save($input);
+        $payment = $this->paymentService->save($input, null, $request->invoice);
 
         if (Input::get('email_receipt')) {
             $this->contactMailer->sendPaymentConfirmation($payment);
