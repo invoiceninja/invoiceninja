@@ -65,7 +65,7 @@ class SendRecurringInvoices extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d H:i:s') . ' Running SendRecurringInvoices...');
+        $this->info(date('r') . ' Running SendRecurringInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);
@@ -76,7 +76,7 @@ class SendRecurringInvoices extends Command
         $this->billInvoices();
         $this->createExpenses();
 
-        $this->info(date('Y-m-d H:i:s') . ' Done');
+        $this->info(date('r') . ' Done');
     }
 
     private function resetCounters()

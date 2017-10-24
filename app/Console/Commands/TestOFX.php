@@ -39,6 +39,6 @@ class TestOFX extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running TestOFX...');
+        $this->info(date('r').' Running TestOFX...');
     }
 }

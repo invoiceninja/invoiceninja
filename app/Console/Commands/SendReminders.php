@@ -57,7 +57,7 @@ class SendReminders extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d') . ' Running SendReminders...');
+        $this->info(date('r') . ' Running SendReminders...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);

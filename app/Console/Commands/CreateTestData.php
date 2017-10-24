@@ -83,7 +83,7 @@ class CreateTestData extends Command
             return false;
         }
 
-        $this->info(date('Y-m-d').' Running CreateTestData...');
+        $this->info(date('r').' Running CreateTestData...');
         $this->count = $this->argument('count');
 
         if ($database = $this->option('database')) {
