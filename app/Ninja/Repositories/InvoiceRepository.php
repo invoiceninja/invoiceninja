@@ -501,8 +501,13 @@ class InvoiceRepository extends BaseRepository
             $invoice->terms = '';
         }
 
-        $invoice->invoice_footer = (isset($data['invoice_footer']) && trim($data['invoice_footer'])) ? trim($data['invoice_footer']) : (! $publicId && $account->invoice_footer ? $account->invoice_footer : '');
-        $invoice->public_notes = isset($data['public_notes']) ? trim($data['public_notes']) : '';
+        if (isset($data['invoice_footer']) && trim($data['invoice_footer'])) {
+            $invoice->invoice_footer = trim($data['invoice_footer']);
+        } elseif ($isNew && ! $invoice->is_recurring && $account->invoice_footer) {
+            $invoice->invoice_footer = $account->invoice_footer;
+        } else {
+            $invoice->invoice_footer = '';
+        }
 
         // process date variables if not recurring
         if (! $invoice->is_recurring) {
