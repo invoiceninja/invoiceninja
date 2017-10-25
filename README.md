@@ -29,7 +29,6 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * MySQL
 
 ## Recommended Providers
-* [WePay](https://www.invoiceninja.com/wepay-accept-online-payments-instantly/)
 * [Stripe](https://stripe.com/)
 * [Postmark](https://postmarkapp.com/)
 
