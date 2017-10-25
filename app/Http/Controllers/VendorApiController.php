@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\DeleteVendorRequest;
 use App\Http\Requests\VendorRequest;
 use App\Http\Requests\CreateVendorRequest;
 use App\Http\Requests\UpdateVendorRequest;
@@ -186,7 +187,7 @@ class VendorApiController extends BaseAPIController
      *   )
      * )
      */
-    public function destroy(UpdateVendorRequest $request)
+    public function destroy(DeleteVendorRequest $request)
     {
         $vendor = $request->entity();
 
