@@ -86,11 +86,6 @@
             text-decoration:underline;
         }
 
-        .no-gutter > [class*='col-'] {
-            padding-right:0;
-            padding-left:0;
-        }
-
         .list-group-item:before {
             position: absolute;
             top: 0;

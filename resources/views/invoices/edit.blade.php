@@ -173,8 +173,25 @@
 				{!! Former::text('due_date')->data_bind("datePicker: due_date, valueUpdate: 'afterkeydown'")->label($account->getLabel($invoice->getDueDateLabel()))
 							->placeholder($invoice->id || $invoice->isQuote() ? ' ' : $account->present()->dueDatePlaceholder())
 							->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))->appendIcon('calendar')->addGroupClass('due_date') !!}
-				{!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")->onkeyup('onPartialChange()')
-							->addGroupClass('partial')!!}
+
+				<div class="form-group partial">
+					<label for="partial" class="control-label col-lg-4 col-sm-4">{{ trans('texts.partial') }}</label>
+					<div class="col-lg-8 col-sm-8 no-gutter">
+						<div data-bind="css: {'col-md-4': isPartialSet(), 'col-md-12': ! isPartialSet()}">
+							{!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")
+										->onkeyup('onPartialChange()')
+										->raw() !!}
+						</div>
+						<div class="col-lg-8 no-gap">
+							{!! Former::text('partial_due_date')
+										->placeholder('due_date')
+										->style('display: none')
+										->data_bind("datePicker: partial_due_date, valueUpdate: 'afterkeydown', visible: isPartialSet")
+										->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
+										->raw() !!}
+						</div>
+					</div>
+				</div>
 			</div>
             @if ($entityType == ENTITY_INVOICE)
 			<div data-bind="visible: is_recurring" style="display: none">
@@ -228,7 +245,7 @@
             </span>
 			{!! Former::text('po_number')->label($account->getLabel('po_number', 'po_number_short'))->data_bind("value: po_number, valueUpdate: 'afterkeydown'") !!}
 			{!! Former::text('discount')->data_bind("value: discount, valueUpdate: 'afterkeydown'")
-					->addGroupClass('discount-group')->type('number')->min('0')->step('any')->append(
+					->addGroupClass('no-padding-or-border')->type('number')->min('0')->step('any')->append(
 						Former::select('is_amount_discount')
 							->addOption(trans('texts.discount_percent'), '0')
 							->addOption(trans('texts.discount_amount'), '1')
@@ -951,7 +968,7 @@
 
 		$('[rel=tooltip]').tooltip({'trigger':'manual'});
 
-		$('#invoice_date, #due_date, #start_date, #end_date, #last_sent_date').datepicker();
+		$('#invoice_date, #due_date, #start_date, #end_date, #last_sent_date, #partial_due_date').datepicker();
 
 		@if ($invoice->client && !$invoice->id)
 			$('input[name=client]').val({{ $invoice->client->public_id }});
@@ -983,7 +1000,7 @@
 			});
 		}
 
-		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #start_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2').change(function() {
+		$('#invoice_footer, #terms, #public_notes, #invoice_number, #invoice_date, #due_date, #partial_due_date, #start_date, #po_number, #discount, #currency_id, #invoice_design_id, #recurring, #is_amount_discount, #partial, #custom_text_value1, #custom_text_value2').change(function() {
             $('#downloadPdfButton').attr('disabled', true);
 			setTimeout(function() {
 				refreshPDF(true);

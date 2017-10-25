@@ -24,6 +24,10 @@ class AddDefaultRates extends Migration
             $table->decimal('task_rate', 12, 4)->default(0);
         });
 
+        Schema::table('invoices', function ($table) {
+            $table->date('partial_due_date')->nullable();
+        });
+
         // Add 'Four Months' frequency option
         if (DB::table('frequencies')->count() == 8) {
             DB::table('frequencies')->where('id', '=', 7)->update(['name' => 'Four months']);
@@ -52,6 +56,10 @@ class AddDefaultRates extends Migration
 
         Schema::table('projects', function ($table) {
             $table->dropColumn('task_rate');
+        });
+
+        Schema::table('invoices', function ($table) {
+            $table->dropColumn('partial_due_date');
         });
     }
 }

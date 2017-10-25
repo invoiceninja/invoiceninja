@@ -27,8 +27,7 @@ function ViewModel(data) {
     self.setDueDate = function() {
         @if ($entityType == ENTITY_INVOICE)
             var paymentTerms = parseInt(self.invoice().client().payment_terms());
-            if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date())
-            {
+            if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date()) {
                 if (paymentTerms == -1) paymentTerms = 0;
                 var dueDate = $('#invoice_date').datepicker('getDate');
                 dueDate.setDate(dueDate.getDate() + paymentTerms);
@@ -257,6 +256,7 @@ function InvoiceModel(data) {
     self.partial = ko.observable(0);
     self.has_tasks = ko.observable();
     self.has_expenses = ko.observable();
+    self.partial_due_date = ko.observable('');
 
     self.custom_value1 = ko.observable(0);
     self.custom_value2 = ko.observable(0);
@@ -620,6 +620,10 @@ function InvoiceModel(data) {
         var isAmountDiscount = $('#is_amount_discount').val();
         localStorage.setItem('last:is_amount_discount', isAmountDiscount);
     }
+
+    self.isPartialSet = ko.computed(function() {
+        return self.partial() && self.partial() <= model.invoice().totals.rawTotal()
+    });
 }
 
 function ClientModel(data) {
