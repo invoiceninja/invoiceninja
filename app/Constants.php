@@ -224,8 +224,9 @@ if (! defined('APP_NAME')) {
     define('FREQUENCY_MONTHLY', 4);
     define('FREQUENCY_TWO_MONTHS', 5);
     define('FREQUENCY_THREE_MONTHS', 6);
-    define('FREQUENCY_SIX_MONTHS', 7);
-    define('FREQUENCY_ANNUALLY', 8);
+    define('FREQUENCY_FOUR_MONTHS', 7);
+    define('FREQUENCY_SIX_MONTHS', 8);
+    define('FREQUENCY_ANNUALLY', 9);
 
     define('SESSION_TIMEZONE', 'timezone');
     define('SESSION_CURRENCY', 'currency');

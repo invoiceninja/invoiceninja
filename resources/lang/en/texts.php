@@ -1385,6 +1385,7 @@ $LANG = array(
     'freq_four_weeks' => 'Four weeks',
     'freq_monthly' => 'Monthly',
     'freq_three_months' => 'Three months',
+    'freq_four_months' => 'Four months',
     'freq_six_months' => 'Six months',
     'freq_annually' => 'Annually',
 
