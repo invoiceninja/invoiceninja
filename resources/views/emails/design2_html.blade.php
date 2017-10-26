@@ -26,9 +26,9 @@
                                         {{ strtoupper(trans('texts.valid_until')) }} {{ $account->formatDate($invoice->due_date) }}
                                     @else
                                         @if ($account->hasCustomLabel('due_date'))
-                                            {{ $account->getLabel('due_date') }} {{ $account->formatDate($invoice->due_date) }}
+                                            {{ $account->getLabel('due_date') }} {{ $account->formatDate($invoice->partial_due_date ?: $invoice->due_date) }}
                                         @else
-                                            {{ utrans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)]) }}
+                                            {{ utrans('texts.due_by', ['date' => $account->formatDate($invoice->partial_due_date ?: $invoice->due_date)]) }}
                                         @endif
                                     @endif
                                 </span><br />

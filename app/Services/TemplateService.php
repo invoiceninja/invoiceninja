@@ -45,7 +45,7 @@ class TemplateService
             '$emailSignature' => $account->getEmailFooter(),
             '$client' => $client->getDisplayName(),
             '$account' => $account->getDisplayName(),
-            '$dueDate' => $account->formatDate($invoice->due_date),
+            '$dueDate' => $account->formatDate($invoice->partial_due_date ?: $invoice->due_date),
             '$invoiceDate' => $account->formatDate($invoice->invoice_date),
             '$contact' => $contact->getDisplayName(),
             '$firstName' => $contact->first_name,
