@@ -83,7 +83,7 @@ class ClientPortalController extends BaseController
 
         $invoice->invoice_date = Utils::fromSqlDate($invoice->invoice_date);
         $invoice->due_date = Utils::fromSqlDate($invoice->due_date);
-        $invoice->partial_due_date = Utils::fromSqlDate($invoice->due_date);
+        $invoice->partial_due_date = Utils::fromSqlDate($invoice->partial_due_date);
         $invoice->features = [
             'customize_invoice_design' => $account->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
             'remove_created_by' => $account->hasFeature(FEATURE_REMOVE_CREATED_BY),
