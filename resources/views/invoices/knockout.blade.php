@@ -624,6 +624,13 @@ function InvoiceModel(data) {
     self.isPartialSet = ko.computed(function() {
         return self.partial() && self.partial() <= model.invoice().totals.rawTotal()
     });
+
+    self.showPartialDueDate = ko.computed(function() {
+        if (self.is_quote()) {
+            return false;
+        }
+        return self.isPartialSet();
+    });
 }
 
 function ClientModel(data) {

@@ -2506,6 +2506,7 @@ $LANG = array(
     'video' => 'Video',
     'return_to_invoice' => 'Return to Invoice',
     'gateway_help_13' => 'To use ITN leave the PDT Key field blank.',
+    'partial_due_date' => 'Partial Due Date',
 
 );
 

@@ -11,6 +11,10 @@
     <td>{{ trans('texts.status') }}</td>
     <td>{{ trans(isset($entityType) && $entityType == ENTITY_QUOTE ? 'texts.quote_date' : 'texts.invoice_date') }}</td>
     <td>{{ trans('texts.due_date') }}</td>
+    @if (empty($entityType))
+        <td>{{ trans('texts.partial') }}</td>
+        <td>{{ trans('texts.partial_due_date') }}</td>
+    @endif
     <td>{{ trans('texts.public_notes') }}</td>
     <td>{{ trans('texts.private_notes') }}</td>
     @if ($account->custom_invoice_label1)
@@ -61,6 +65,10 @@
                 <td>{{ $invoice->present()->status }}</td>
                 <td>{{ $invoice->present()->invoice_date }}</td>
                 <td>{{ $invoice->present()->due_date }}</td>
+                @if (empty($entityType))
+                    <td>{{ $invoice->present()->partial }}</td>
+                    <td>{{ $invoice->present()->partial_due_date }}</td>
+                @endif
                 <td>{{ $invoice->public_notes }}</td>
                 <td>{{ $invoice->private_notes }}</td>
                 @if ($account->custom_invoice_label1)

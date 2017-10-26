@@ -105,6 +105,7 @@ class InvoiceController extends BaseController
             $invoice->invoice_type_id = $clone;
             $invoice->invoice_number = $account->getNextNumber($invoice);
             $invoice->due_date = null;
+            $invoice->partial_due_date = null;
             $invoice->balance = $invoice->amount;
             $invoice->invoice_status_id = 0;
             $invoice->invoice_date = date_create()->format('Y-m-d');
@@ -123,6 +124,8 @@ class InvoiceController extends BaseController
         $invoice->start_date = Utils::fromSqlDate($invoice->start_date);
         $invoice->end_date = Utils::fromSqlDate($invoice->end_date);
         $invoice->last_sent_date = Utils::fromSqlDate($invoice->last_sent_date);
+        $invoice->partial_due_date = Utils::fromSqlDate($invoice->partial_due_date);
+
         $invoice->features = [
             'customize_invoice_design' => Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN),
             'remove_created_by' => Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY),

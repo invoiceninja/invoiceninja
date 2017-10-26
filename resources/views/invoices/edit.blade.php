@@ -177,7 +177,7 @@
 				<div class="form-group partial">
 					<label for="partial" class="control-label col-lg-4 col-sm-4">{{ trans('texts.partial') }}</label>
 					<div class="col-lg-8 col-sm-8 no-gutter">
-						<div data-bind="css: {'col-md-4': isPartialSet(), 'col-md-12': ! isPartialSet()}">
+						<div data-bind="css: {'col-md-4': showPartialDueDate(), 'col-md-12': ! showPartialDueDate()}" class="partial">
 							{!! Former::text('partial')->data_bind("value: partial, valueUpdate: 'afterkeydown'")
 										->onkeyup('onPartialChange()')
 										->raw() !!}
@@ -186,7 +186,7 @@
 							{!! Former::text('partial_due_date')
 										->placeholder('due_date')
 										->style('display: none')
-										->data_bind("datePicker: partial_due_date, valueUpdate: 'afterkeydown', visible: isPartialSet")
+										->data_bind("datePicker: partial_due_date, valueUpdate: 'afterkeydown', visible: showPartialDueDate")
 										->data_date_format(Session::get(SESSION_DATE_PICKER_FORMAT, DEFAULT_DATE_PICKER_FORMAT))
 										->raw() !!}
 						</div>
@@ -1609,7 +1609,7 @@
             }
             $('.partial')
                 .addClass('has-error')
-                .find('div')
+                .find('div.partial')
                 .append('<span class="help-block">{{ trans('texts.partial_value') }}</span>');
         } else {
             $('.partial')

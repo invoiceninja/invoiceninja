@@ -155,9 +155,15 @@ trait SendsEmails
     {
         for ($i = 1; $i <= 3; $i++) {
             if ($date = $this->getReminderDate($i, $filterEnabled)) {
-                $field = $this->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
-                if ($invoice->$field == $date) {
-                    return "reminder{$i}";
+                if ($this->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
+                    if (($invoice->partial && $invoice->partial_due_date == $date)
+                        || $invoice->due_date == $date) {
+                        return "reminder{$i}";
+                    }
+                } else {
+                    if ($invoice->invoice_date == $date) {
+                        return "reminder{$i}";
+                    }
                 }
             }
         }

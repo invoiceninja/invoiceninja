@@ -945,7 +945,13 @@ NINJA.renderField = function(invoice, field, twoColumn) {
         value = invoice.invoice_date;
     } else if (field == 'invoice.due_date') {
         label = invoice.is_quote ? invoiceLabels.valid_until : invoiceLabels.due_date;
-        value = invoice.is_recurring ? false : invoice.due_date;
+        if (invoice.is_recurring) {
+            value = false;
+        } else if (invoice.partial_due_date) {
+            value = invoice.partial_due_date;
+        } else {
+            value = invoice.due_date;
+        }
     } else if (field == 'invoice.custom_text_value1') {
         if (invoice.custom_text_value1 && account.custom_invoice_text_label1) {
             label = invoice.account.custom_invoice_text_label1;
@@ -959,7 +965,7 @@ NINJA.renderField = function(invoice, field, twoColumn) {
     } else if (field == 'invoice.balance_due') {
         label = invoice.is_quote || invoice.balance_amount < 0 ? invoiceLabels.total : invoiceLabels.balance_due;
         value = formatMoneyInvoice(invoice.total_amount, invoice);
-    } else if (field == invoice.partial_due) {
+    } else if (field == 'invoice.partial_due') {
         if (NINJA.parseFloat(invoice.partial)) {
             label = invoiceLabels.partial_due;
             value = formatMoneyInvoice(invoice.balance_amount, invoice);

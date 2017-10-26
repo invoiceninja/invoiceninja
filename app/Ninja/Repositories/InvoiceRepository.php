@@ -74,9 +74,10 @@ class InvoiceRepository extends BaseRepository
                 'invoices.balance',
                 'invoices.invoice_date',
                 'invoices.due_date as due_date_sql',
+                'invoices.partial_due_date',
                 DB::raw("CONCAT(invoices.invoice_date, invoices.created_at) as date"),
-                DB::raw("CONCAT(invoices.due_date, invoices.created_at) as due_date"),
-                DB::raw("CONCAT(invoices.due_date, invoices.created_at) as valid_until"),
+                DB::raw("CONCAT(COALESCE(invoices.partial_due_date, invoices.due_date), invoices.created_at) as due_date"),
+                DB::raw("CONCAT(COALESCE(invoices.partial_due_date, invoices.due_date), invoices.created_at) as valid_until"),
                 'invoice_statuses.name as status',
                 'invoice_statuses.name as invoice_status_name',
                 'contacts.first_name',
@@ -389,7 +390,7 @@ class InvoiceRepository extends BaseRepository
             $invoice->custom_taxes2 = $account->custom_invoice_taxes2 ?: false;
 
             // set the default due date
-            if ($entityType == ENTITY_INVOICE) {
+            if ($entityType == ENTITY_INVOICE && empty($data['partial_due_date'])) {
                 $client = Client::scope()->whereId($data['client_id'])->first();
                 $invoice->due_date = $account->defaultDueDate($client);
             }
@@ -447,6 +448,7 @@ class InvoiceRepository extends BaseRepository
         if (isset($data['is_amount_discount'])) {
             $invoice->is_amount_discount = $data['is_amount_discount'] ? true : false;
         }
+
         if (isset($data['invoice_date_sql'])) {
             $invoice->invoice_date = $data['invoice_date_sql'];
         } elseif (isset($data['invoice_date'])) {
@@ -624,6 +626,14 @@ class InvoiceRepository extends BaseRepository
 
         if (isset($data['partial'])) {
             $invoice->partial = max(0, min(round(Utils::parseFloat($data['partial']), 2), $invoice->balance));
+        }
+
+        if ($invoice->partial) {
+            if (isset($data['partial_due_date'])) {
+                $invoice->partial_due_date = Utils::toSqlDate($data['partial_due_date']);
+            }
+        } else {
+            $invoice->partial_due_date = null;
         }
 
         $invoice->amount = $total;
@@ -1139,8 +1149,11 @@ class InvoiceRepository extends BaseRepository
 
         for ($i = 1; $i <= 3; $i++) {
             if ($date = $account->getReminderDate($i, $filterEnabled)) {
-                $field = $account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE ? 'due_date' : 'invoice_date';
-                $dates[] = "$field = '$date'";
+                if ($account->{"field_reminder{$i}"} == REMINDER_FIELD_DUE_DATE) {
+                    $dates[] = "(due_date = '$date' OR partial_due_date = '$date')";
+                } else {
+                    $dates[] = "invoice_date = '$date'";
+                }
             }
         }
 
