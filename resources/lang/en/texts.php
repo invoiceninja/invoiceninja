@@ -2508,6 +2508,8 @@ $LANG = array(
     'return_to_invoice' => 'Return to Invoice',
     'gateway_help_13' => 'To use ITN leave the PDT Key field blank.',
     'partial_due_date' => 'Partial Due Date',
+    'task_fields' => 'Task Fields',
+    'product_fields_help' => 'Drag and drop fields to change their order',
 
 );
 

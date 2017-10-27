@@ -7,6 +7,8 @@ function ViewModel(data) {
     self.client_fields = ko.observableArray();
     self.account_fields1 = ko.observableArray();
     self.account_fields2 = ko.observableArray();
+    self.product_fields = ko.observableArray();
+    self.task_fields = ko.observableArray();
     window.field_map = [];
 
     self.addField = function(section, field, label) {
@@ -20,6 +22,8 @@ function ViewModel(data) {
         self.client_fields.removeAll();
         self.account_fields1.removeAll();
         self.account_fields2.removeAll();
+        self.product_fields.removeAll();
+        self.task_fields.removeAll();
     }
 
     self.onChange = function() {
@@ -29,17 +33,28 @@ function ViewModel(data) {
     }
 
     self.updateSelects = function() {
-        var usedFields = [].concat(self.invoice_fields(), self.client_fields(), self.account_fields1(), self.account_fields2());
+        var usedFields = [].concat(
+            self.invoice_fields(),
+            self.client_fields(),
+            self.account_fields1(),
+            self.account_fields2());
         var selects = [
             'invoice_fields',
             'client_fields',
             'account_fields1',
             'account_fields2',
+            'product_fields',
+            'task_fields',
         ];
 
         for (var i=0; i<selects.length; i++) {
             var select = selects[i];
             $('#' + select + '_select > option').each(function() {
+                if (select == 'product_fields') {
+                    usedFields = self.product_fields();
+                } else if (select == 'task_fields') {
+                    usedFields = self.task_fields();
+                }
                 var isUsed = usedFields.indexOf(this.value) >= 0;
                 $(this).css('color', isUsed ? '#888' : 'black');
             });
@@ -64,6 +79,14 @@ function ViewModel(data) {
     }
     self.removeAccountFields2 = function(item) {
         self.account_fields2.remove(item);
+        self.onChange();
+    }
+    self.removeProductFields = function(item) {
+        self.product_fields.remove(item);
+        self.onChange();
+    }
+    self.removeTaskFields = function(item) {
+        self.task_fields.remove(item);
         self.onChange();
     }
 }

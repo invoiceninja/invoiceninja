@@ -556,6 +556,8 @@ if (! defined('APP_NAME')) {
     define('INVOICE_FIELDS_CLIENT', 'client_fields');
     define('INVOICE_FIELDS_INVOICE', 'invoice_fields');
     define('INVOICE_FIELDS_ACCOUNT', 'account_fields');
+    define('INVOICE_FIELDS_PRODUCT', 'product_fields');
+    define('INVOICE_FIELDS_TASK', 'task_fields');
 
     $creditCards = [
                 1 => ['card' => 'images/credit_cards/Test-Visa-Icon.png', 'text' => 'Visa'],

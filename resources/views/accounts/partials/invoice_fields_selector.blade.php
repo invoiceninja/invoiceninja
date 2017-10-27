@@ -1,4 +1,4 @@
-<div class="col-lg-3 col-md-6">
+<div class="col-lg-{{ isset($colWidth) ? $colWidth : 3 }} col-md-6">
 
     {!! Former::select("{$section}_select")
             ->placeholder(trans("texts.{$fields}"))
