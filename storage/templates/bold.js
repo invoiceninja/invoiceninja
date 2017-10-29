@@ -182,12 +182,6 @@
             "invoiceNumber": {
                 "bold": true
             },
-            "itemTableHeader": {
-                "margin": [40,0,0,0]
-            },
-            "totalTableHeader": {
-                "margin": [0,0,40,0]
-            },
             "tableHeader": {
                 "fontSize": 12,
                 "bold": true

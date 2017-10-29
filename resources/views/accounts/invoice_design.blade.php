@@ -61,7 +61,6 @@
           remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
           invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
       };
-      invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
       invoice.account.invoice_embed_documents = $('#invoice_embed_documents').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
@@ -140,7 +139,6 @@
       {!! Former::populateField('invoice_embed_documents', intval($account->invoice_embed_documents)) !!}
       {!! Former::populateField('primary_color', $account->primary_color) !!}
       {!! Former::populateField('secondary_color', $account->secondary_color) !!}
-      {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
       {!! Former::populateField('all_pages_header', intval($account->all_pages_header)) !!}
       {!! Former::populateField('all_pages_footer', intval($account->all_pages_footer)) !!}
@@ -282,7 +280,6 @@
                 <div role="tabpanel" class="tab-pane" id="invoice_options">
                     <div class="panel-body">
 
-                      {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help'))->value(1) !!}
                       {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help'))->value(1) !!}
                       {!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help'))->value(1) !!}
 
