@@ -485,28 +485,26 @@ NINJA.taxWidth = function(invoice)
 
 NINJA.productFields = function(invoice, isTasks) {
     var account = invoice.account;
-    var fields = JSON.parse(account.invoice_fields);
+    var allFields = JSON.parse(account.invoice_fields);
 
-    if (fields) {
-        if (isTasks && fields.task_fields) {
-            fields = fields.task_fields;
-        } else if (! isTasks && fields.product_fields) {
-            fields = fields.product_fields;
+    if (allFields) {
+        if (isTasks && allFields.task_fields) {
+            return allFields.task_fields;
+        } else if (! isTasks && allFields.product_fields) {
+            return allFields.product_fields;
         }
     }
 
-    if (! fields) {
-        fields = [
-            isTasks ? 'product.service' : 'product.item',
-            'product.description',
-            'product.custom_value1',
-            'product.custom_value2',
-            isTasks ? 'product.rate' : 'product.unit_cost',
-            isTasks ? 'product.hours' : 'product.quantity',
-            'product.tax',
-            'product.line_total',
-        ];
-    }
+    var fields = [
+        isTasks ? 'product.service' : 'product.item',
+        'product.description',
+        'product.custom_value1',
+        'product.custom_value2',
+        isTasks ? 'product.rate' : 'product.unit_cost',
+        isTasks ? 'product.hours' : 'product.quantity',
+        'product.tax',
+        'product.line_total',
+    ];
 
     return fields;
 }
@@ -524,7 +522,6 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     }
 
     var fields = NINJA.productFields(invoice, isTasks);
-    consle.log(fields);
     var hasDescription = fields.indexOf('product.description') >= 0;
 
     for (var i=0; i<fields.length; i++) {
