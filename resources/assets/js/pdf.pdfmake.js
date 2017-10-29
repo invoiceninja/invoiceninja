@@ -411,7 +411,7 @@ NINJA.invoiceColumns = function(invoice, design, isTasks)
     var columns = [];
     var fields = NINJA.productFields(invoice, isTasks);
     var hasDescription = fields.indexOf('product.description') >= 0;
-    var hasPadding = design.indexOf('"pageMargins":[0') == -1;
+    var hasPadding = design.indexOf('"pageMargins":[0') == -1 && design.indexOf('"pageMargins": [0') == -1;
 
     for (var i=0; i<fields.length; i++) {
         var field = fields[i];
@@ -442,16 +442,15 @@ NINJA.invoiceColumns = function(invoice, design, isTasks)
         }
 
         if (width) {
+            // make the first and last columns of the Bold design a bit wider
+            if (! hasPadding) {
+                if (i == 0 || i == fields.length - 1) {
+                    width += 8;
+                }
+            }
             if (! hasDescription) {
                 width = '*';
             } else {
-                // make the first and last columns of the Bold design a bit wider
-                if (! hasPadding) {
-                    if (i == 0 || i == fields.length - 1) {
-                        width += 7;
-                    }
-                }
-
                 width += '%';
             }
         } else {
@@ -489,7 +488,7 @@ NINJA.quantityWidth = function(invoice)
 NINJA.taxWidth = function(invoice)
 {
     var fields = NINJA.productFields(invoice);
-    return fields.indexOf('product.tax') >= 0 ? '"14%", ' : '';
+    return invoice.has_item_taxes && fields.indexOf('product.tax') >= 0 ? '"14%", ' : '';
 }
 
 NINJA.productFields = function(invoice, isTasks) {
