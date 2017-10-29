@@ -2510,6 +2510,8 @@ $LANG = array(
     'partial_due_date' => 'Partial Due Date',
     'task_fields' => 'Task Fields',
     'product_fields_help' => 'Drag and drop fields to change their order',
+    'custom_value1' => 'Custom Value',
+    'custom_value2' => 'Custom Value',
 
 );
 

@@ -24,7 +24,7 @@ function GetPdfMake(invoice, javascript, callback) {
             if (item.table && item.table.body == '$invoiceLineItems') {
                 itemsTable = JSON.stringify(item);
                 itemsTable = itemsTable.replace('$invoiceLineItems', '$taskLineItems');
-                //itemsTable = itemsTable.replace('$invoiceLineItemColumns', '$taskLineItemColumns');
+                itemsTable = itemsTable.replace('$invoiceLineItemColumns', '$taskLineItemColumns');
                 break;
             }
         }
@@ -223,7 +223,7 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'invoiceLineItems': invoice.is_statement ? NINJA.statementLines(invoice) : NINJA.invoiceLines(invoice),
         'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice),
         'taskLineItems': NINJA.invoiceLines(invoice, true),
-        //'taskLineItemColumns': NINJA.invoiceColumns(invoice),
+        'taskLineItemColumns': NINJA.invoiceColumns(invoice, true),
         'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
         'quantityWidth': NINJA.quantityWidth(invoice),
         'taxWidth': NINJA.taxWidth(invoice),
@@ -399,33 +399,32 @@ NINJA.statementLines = function(invoice)
     return NINJA.prepareDataTable(grid, 'invoiceItems');
 }
 
-NINJA.invoiceColumns = function(invoice)
+NINJA.invoiceColumns = function(invoice, isTasks)
 {
     var account = invoice.account;
     var columns = [];
+    var fields = NINJA.productFields(invoice, isTasks);
+    var hasDescription = fields.indexOf('product.description') >= 0;
 
-    if (invoice.has_product_key) {
-        columns.push("15%");
-    }
-
-    columns.push("*")
-
-    if (invoice.has_custom_item_value1) {
-        columns.push("10%");
-    }
-    if (invoice.has_custom_item_value2) {
-        columns.push("10%");
-    }
-
-    var count = 3;
-    if (account.hide_quantity == '1') {
-        count -= 2;
-    }
-    if (account.show_item_taxes == '1') {
-        count++;
-    }
-    for (var i=0; i<count; i++) {
-        columns.push("14%");
+    for (var i=0; i<fields.length; i++) {
+        var field = fields[i];
+        if (field == 'product.custom_value1') {
+            if (invoice.has_custom_item_value1) {
+                columns.push(hasDescription ? '10%' : '*');
+            }
+        } else if (field == 'product.custom_value2') {
+            if (invoice.has_custom_item_value2) {
+                columns.push(hasDescription ? '10%' : '*');
+            }
+        } else if (field == 'product.tax') {
+            if (invoice.has_taxes) {
+                columns.push(hasDescription ? '15%' : '*');
+            }
+        } else if (field == 'product.description') {
+            columns.push('*');
+        } else {
+            columns.push(hasDescription ? '15%' : '*');
+        }
     }
 
     return columns;
@@ -456,45 +455,66 @@ NINJA.taxWidth = function(invoice)
     return invoice.account.show_item_taxes == '1' ? '"14%", ' : '';
 }
 
+NINJA.productFields = function(invoice, isTasks) {
+    var account = invoice.account;
+    var fields = JSON.parse(account.invoice_fields);
+
+    if (fields) {
+        if (isTasks && fields.task_fields) {
+            fields = fields.task_fields;
+        } else if (! isTasks && fields.product_fields) {
+            fields = fields.product_fields;
+        }
+    }
+
+    if (! fields) {
+        fields = [
+            isTasks ? 'product.service' : 'product.item',
+            'product.description',
+            'product.custom_value1',
+            'product.custom_value2',
+            isTasks ? 'product.rate' : 'product.unit_cost',
+            isTasks ? 'product.hours' : 'product.quantity',
+            'product.tax',
+            'product.line_total',
+        ];
+    }
+
+    return fields;
+}
+
 NINJA.invoiceLines = function(invoice, isSecondTable) {
     var account = invoice.account;
     var total = 0;
     var shownItem = false;
-    var hideQuantity = invoice.account.hide_quantity == '1';
-    var showItemTaxes = invoice.account.show_item_taxes == '1';
     var isTasks = isSecondTable || (invoice.hasTasks && !invoice.hasStandard);
-
     var grid = [[]];
     var styles = ['tableHeader'];
+
     if (isSecondTable) {
         styles.push('secondTableHeader');
     }
 
-    if (invoice.has_product_key) {
-        grid[0].push({text: isTasks ? invoiceLabels.service : invoiceLabels.item, style: styles.concat('itemTableHeader')});
+    var fields = NINJA.productFields(invoice, isTasks);
+    var hasDescription = fields.indexOf('product.description') >= 0;
+
+    for (var i=0; i<fields.length; i++) {
+        var field = fields[i].split('.')[1]; // split to remove 'product.'
+
+        if (field == 'custom_value1' && ! invoice.has_custom_item_value1) {
+            continue;
+        } else if (field == 'custom_value2' && ! invoice.has_custom_item_value1) {
+            continue;
+        } else if (field == 'tax' && ! invoice.has_item_taxes) {
+            continue;
+        } else if (field == 'product_key' && ! invoice.has_product_key) {
+            continue;
+        }
+
+        grid[0].push({text: invoiceLabels[field], style: styles.concat(snakeToCamel(field) + 'TableHeader')});
     }
 
-    grid[0].push({text: invoiceLabels.description, style: styles.concat('descriptionTableHeader')});
-
-    if (invoice.has_custom_item_value1) {
-        grid[0].push({text: account.custom_invoice_item_label1, style: styles.concat('custom1TableHeader')});
-    }
-    if (invoice.has_custom_item_value2) {
-        grid[0].push({text: account.custom_invoice_item_label2, style: styles.concat('custom2TableHeader')});
-    }
-
-    if (!hideQuantity) {
-        grid[0].push({text: isTasks ? invoiceLabels.rate : invoiceLabels.unit_cost, style: styles.concat('costTableHeader')});
-        grid[0].push({text: isTasks ? invoiceLabels.hours : invoiceLabels.quantity, style: styles.concat('qtyTableHeader')});
-    }
-    if (showItemTaxes) {
-        grid[0].push({text: invoiceLabels.tax, style: styles.concat('taxTableHeader')});
-    }
-
-    grid[0].push({text: invoiceLabels.line_total, style: styles.concat('lineTotalTableHeader')});
-
-    for (var i = 0; i < invoice.invoice_items.length; i++) {
-
+    for (var i=0; i<invoice.invoice_items.length; i++) {
         var row = [];
         var item = invoice.invoice_items[i];
         var cost = NINJA.parseFloat(item.cost) ? formatMoneyInvoice(item.cost, invoice, null, getPrecision(item.cost)) : ' ';
@@ -516,13 +536,11 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             }
         }
 
-        if (showItemTaxes) {
-            if (parseFloat(item.tax_rate1) != 0) {
-                tax1 = parseFloat(item.tax_rate1);
-            }
-            if (parseFloat(item.tax_rate2) != 0) {
-                tax2 = parseFloat(item.tax_rate2);
-            }
+        if (parseFloat(item.tax_rate1) != 0) {
+            tax1 = parseFloat(item.tax_rate1);
+        }
+        if (parseFloat(item.tax_rate2) != 0) {
+            tax2 = parseFloat(item.tax_rate2);
         }
 
         // show at most one blank line
@@ -558,34 +576,48 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         }
         rowStyle = (grid.length % 2 == 0) ? 'even' : 'odd';
 
-        if (invoice.has_product_key) {
-            row.push({style:["productKey", rowStyle], text:productKey || ' '}); // product key can be blank when selecting from a datalist
-        }
-        row.push({style:["notes", rowStyle], stack:[{text:notes || ' '}]});
-        if (invoice.has_custom_item_value1) {
-            row.push({style:["customValue1", rowStyle], text:custom_value1 || ' '});
-        }
-        if (invoice.has_custom_item_value2) {
-            row.push({style:["customValue2", rowStyle], text:custom_value2 || ' '});
-        }
-        if (!hideQuantity) {
-            row.push({style:["cost", rowStyle], text:cost});
-            row.push({style:["quantity", rowStyle], text:formatAmount(qty, invoice.client.currency_id, getPrecision(qty)) || ' '});
-        }
-        if (showItemTaxes) {
-            var str = ' ';
-            if (item.tax_name1) {
-                str += tax1.toString() + '%';
+        for (var j=0; j<fields.length; j++) {
+            var field = fields[j].split('.')[1]; // split to remove 'product.'
+            var value = item[field];
+            var styles = [snakeToCamel(field), rowStyle];
+
+            if (field == 'custom_value1' && ! invoice.has_custom_item_value1) {
+                continue;
+            } else if (field == 'custom_value2' && ! invoice.has_custom_item_value1) {
+                continue;
+            } else if (field == 'tax' && ! invoice.has_item_taxes) {
+                continue;
+            } else if (field == 'product_key' && ! invoice.has_product_key) {
+                continue;
             }
-            if (item.tax_name2) {
+
+            if (field == 'item' || field == 'service') {
+                value = item.product_key;
+                styles.push('productKey');
+            } else if (field == 'description') {
+                value = item.notes;
+            } else if (field == 'unit_cost') {
+                value = item.cost;
+                styles.push('cost');
+            } else if (field == 'quantity') {
+                value = formatAmount(item.qty, invoice.client.currency_id, getPrecision(item.qty));
+            } else if (field == 'tax') {
+                value = ' ';
                 if (item.tax_name1) {
-                    str += '  ';
+                    value += tax1.toString() + '%';
                 }
-                str += tax2.toString() + '%';
+                if (item.tax_name2) {
+                    if (item.tax_name1) {
+                        value += '  ';
+                    }
+                    value += tax2.toString() + '%';
+                }
+            } else if (field == 'line_total') {
+                value = lineTotal;
             }
-            row.push({style:["tax", rowStyle], text:str});
+
+            row.push({text:value || ' ', style:styles});
         }
-        row.push({style:["lineTotal", rowStyle], text:lineTotal || ' '});
 
         grid.push(row);
     }

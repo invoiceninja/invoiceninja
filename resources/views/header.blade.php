@@ -38,7 +38,7 @@
   }
 
   function openTimeTracker() {
-      var width = 1000;
+      var width = 1060;
       var height = 700;
       var left = (screen.width/2)-(width/4);
       var top = (screen.height/2)-(height/1.5);

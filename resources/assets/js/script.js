@@ -751,6 +751,7 @@ function calculateAmounts(invoice) {
 
     var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
     if (taxAmount1 != 0 || taxName1) {
+      hasTaxes = true;
       var key = taxName1 + taxRate1;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount1;
@@ -761,6 +762,7 @@ function calculateAmounts(invoice) {
 
     var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
     if (taxAmount2 != 0 || taxName2) {
+      hasTaxes = true;
       var key = taxName2 + taxRate2;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount2;
@@ -768,11 +770,9 @@ function calculateAmounts(invoice) {
         taxes[key] = {name: taxName2, rate:taxRate2, amount:taxAmount2};
       }
     }
-
-    if (item.tax_name1 || item.tax_name2) {
-      hasTaxes = true;
-    }
   }
+
+  invoice.has_item_taxes = hasTaxes;
   invoice.subtotal_amount = total;
 
   var discount = 0;
