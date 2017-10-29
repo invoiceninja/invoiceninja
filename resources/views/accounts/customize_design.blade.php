@@ -51,7 +51,6 @@
             remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
             invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
         };
-      invoice.account.hide_quantity = {!! Auth::user()->account->hide_quantity ? 'true' : 'false' !!};
       invoice.account.hide_paid_to_date = {!! Auth::user()->account->hide_paid_to_date ? 'true' : 'false' !!};
       NINJA.primaryColor = '{!! Auth::user()->account->primary_color !!}';
       NINJA.secondaryColor = '{!! Auth::user()->account->secondary_color !!}';

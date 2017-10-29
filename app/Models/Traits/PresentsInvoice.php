@@ -376,4 +376,10 @@ trait PresentsInvoice
 
         return null;
     }
+
+    public function hideQuantity() {
+        $fields = $this->getInvoiceFields();
+
+        return ! isset($fields['product_fields']['product.quantity']);
+    }
 }

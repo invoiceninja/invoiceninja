@@ -309,9 +309,6 @@ function InvoiceModel(data) {
             return false;
         }
         var itemModel = new ItemModel();
-        @if ($account->hide_quantity)
-            itemModel.qty(1);
-        @endif
         if (isTask) {
             itemModel.invoice_item_type_id({{ INVOICE_ITEM_TYPE_TASK }});
             self.invoice_items_with_tasks.push(itemModel);
@@ -903,7 +900,7 @@ function ItemModel(data) {
     }
 
     this.isEmpty = function() {
-        return !self.product_key() && !self.notes() && !self.cost() && (!self.qty() || {{ $account->hide_quantity ? 'true' : 'false' }});
+        return !self.product_key() && !self.notes() && !self.cost() && !self.qty();
     }
 
     this.onSelect = function() {}

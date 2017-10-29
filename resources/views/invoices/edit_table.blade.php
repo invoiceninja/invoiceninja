@@ -15,7 +15,7 @@
             <th style="min-width:120px">{{ $account->custom_invoice_item_label2 }}</th>
         @endif
         <th style="min-width:120px">{{ $invoiceLabels[$isTasks ? 'rate' : 'unit_cost'] }}</th>
-        <th style="{{ $account->hide_quantity ? 'display:none' : 'min-width:120px' }}">{{ $invoiceLabels[$isTasks ? 'hours' : 'quantity'] }}</th>
+        <th style="min-width:120px">{{ $invoiceLabels[$isTasks ? 'hours' : 'quantity'] }}</th>
         <th style="min-width:{{ $account->enable_second_tax_rate ? 180 : 120 }}px;display:none;" data-bind="visible: $root.invoice_item_taxes.show">{{ trans('texts.tax') }}</th>
         <th style="min-width:120px;">{{ trans('texts.line_total') }}</th>
         <th style="min-width:32px;" class="hide-border"></th>
@@ -54,7 +54,7 @@
             <input data-bind="value: prettyCost, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[{{ $isTasks ? 'T' : '' }}' + $index() + '][cost]'}"
                 style="text-align: right" class="form-control invoice-item"/>
         </td>
-        <td style="{{ $account->hide_quantity ? 'display:none' : '' }}">
+        <td>
             <input data-bind="value: prettyQty, valueUpdate: 'afterkeydown', attr: {name: 'invoice_items[{{ $isTasks ? 'T' : '' }}' + $index() + '][qty]'}"
                 style="text-align: right" class="form-control invoice-item" name="quantity"/>
         </td>
