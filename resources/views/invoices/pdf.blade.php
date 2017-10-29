@@ -107,8 +107,9 @@
   var needsRefresh = false;
 
   function refreshPDF(force) {
-    try {
+    //try {
         return getPDFString(refreshPDFCB, force);
+    /*
     } catch (exception) {
         @if (Utils::isTravis())
             var message = exception.message || '';
@@ -130,6 +131,7 @@
             }
         @endif
     }
+    */
   }
 
   function refreshPDFCB(string) {

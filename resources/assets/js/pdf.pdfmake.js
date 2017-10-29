@@ -221,10 +221,12 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'invoiceDetails': NINJA.invoiceDetails(invoice),
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
         'invoiceLineItems': invoice.is_statement ? NINJA.statementLines(invoice) : NINJA.invoiceLines(invoice),
-        'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice),
+        'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice, javascript),
         'taskLineItems': NINJA.invoiceLines(invoice, true),
-        'taskLineItemColumns': NINJA.invoiceColumns(invoice, true),
+        'taskLineItemColumns': NINJA.invoiceColumns(invoice, javascript, true),
         'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
+        'quantityWidth': NINJA.quantityWidth(invoice),
+        'taxWidth': NINJA.taxWidth(invoice),
         'clientDetails': NINJA.clientDetails(invoice),
         'notesAndTerms': NINJA.notesAndTerms(invoice),
         'subtotals': invoice.is_statement ? NINJA.statementSubtotals(invoice) : NINJA.subtotals(invoice),
@@ -246,9 +248,15 @@ NINJA.decodeJavascript = function(invoice, javascript)
     }
 
     for (var key in json) {
-        var regExp = new RegExp('"\\$'+key+'"', 'g');
-        var val = JSON.stringify(json[key]);
-        val = doubleDollarSign(val);
+        // remove trailing commas for these fields
+        if (['quantityWidth', 'taxWidth'].indexOf(key) >= 0) {
+            var regExp = new RegExp('"\\$'+key+'",', 'g');
+            val = json[key];
+        } else {
+            var regExp = new RegExp('"\\$'+key+'"', 'g');
+            var val = JSON.stringify(json[key]);
+            val = doubleDollarSign(val);
+        }
         javascript = javascript.replace(regExp, val);
     }
 
@@ -391,32 +399,60 @@ NINJA.statementLines = function(invoice)
     return NINJA.prepareDataTable(grid, 'invoiceItems');
 }
 
-NINJA.invoiceColumns = function(invoice, isTasks)
+NINJA.invoiceColumns = function(invoice, design, isTasks)
 {
     var account = invoice.account;
     var columns = [];
     var fields = NINJA.productFields(invoice, isTasks);
     var hasDescription = fields.indexOf('product.description') >= 0;
+    var hasPadding = design.indexOf('"pageMargins":[0') == -1;
 
     for (var i=0; i<fields.length; i++) {
         var field = fields[i];
+        var width = 0;
+
         if (field == 'product.custom_value1') {
             if (invoice.has_custom_item_value1) {
-                columns.push(hasDescription ? '10%' : '*');
+                width = 10;
+            } else {
+                continue;
             }
         } else if (field == 'product.custom_value2') {
             if (invoice.has_custom_item_value2) {
-                columns.push(hasDescription ? '10%' : '*');
+                width = 10;
+            } else {
+                continue;
             }
         } else if (field == 'product.tax') {
             if (invoice.has_item_taxes) {
-                columns.push(hasDescription ? '15%' : '*');
+                width = 15;
+            } else {
+                continue;
             }
         } else if (field == 'product.description') {
-            columns.push('*');
+            width = 0;
         } else {
-            columns.push(hasDescription ? '15%' : '*');
+            width = 14;
         }
+
+        if (width) {
+            if (! hasDescription) {
+                width = '*';
+            } else {
+                // make the first and last columns of the Bold design a bit wider
+                if (! hasPadding) {
+                    if (i == 0 || i == fields.length - 1) {
+                        width += 7;
+                    }
+                }
+
+                width += '%';
+            }
+        } else {
+            width = '*';
+        }
+
+        columns.push(width)
     }
 
     return columns;
@@ -435,6 +471,16 @@ NINJA.invoiceFooter = function(invoice)
     } else {
         return footer || ' ';
     }
+}
+
+NINJA.quantityWidth = function(invoice)
+{
+    return invoice.account.hide_quantity == '1' ? '' : '"14%", ';
+}
+
+NINJA.taxWidth = function(invoice)
+{
+    return invoice.account.show_item_taxes == '1' ? '"14%", ' : '';
 }
 
 NINJA.productFields = function(invoice, isTasks) {
@@ -478,6 +524,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     }
 
     var fields = NINJA.productFields(invoice, isTasks);
+    consle.log(fields);
     var hasDescription = fields.indexOf('product.description') >= 0;
 
     for (var i=0; i<fields.length; i++) {
@@ -602,6 +649,12 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 }
             } else if (field == 'line_total') {
                 value = lineTotal;
+            }
+
+            if (j == 0) {
+                styles.push('firstColumn');
+            } else if (j == fields.length - 1) {
+                styles.push('lastColumn');
             }
 
             row.push({text:value || ' ', style:styles});

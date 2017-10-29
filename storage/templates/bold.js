@@ -12,13 +12,13 @@
         },
         {
             "canvas": [
-            { 
-                "type": "rect", 
-                "x": 0, 
-                "y": 0, 
-                "w": 225, 
+            {
+                "type": "rect",
+                "x": 0,
+                "y": 0,
+                "w": 225,
                 "h": "$invoiceDetailsHeight",
-                "r":0, 
+                "r":0,
                 "lineWidth": 1,
                 "color": "$primaryColor:#36a498"
             }
@@ -26,8 +26,8 @@
             "width":10,
             "margin":[-10,100,0,10]
         },
-        {	
-            "table": { 
+        {
+            "table": {
                 "body": "$invoiceDetails"
             },
             "layout": "noBorders",
@@ -39,15 +39,15 @@
         "style": "invoiceLineItemsTable",
         "table": {
             "headerRows": 1,
-            "widths": ["22%", "*", "14%", "$quantityWidth", "$taxWidth", "22%"],
+            "widths": "$invoiceLineItemColumns",
             "body": "$invoiceLineItems"
         },
         "layout": {
             "hLineWidth": "$none",
             "vLineWidth": "$none",
-            "paddingLeft": "$amount:8", 
-            "paddingRight": "$amount:8", 
-            "paddingTop": "$amount:14", 
+            "paddingLeft": "$amount:8",
+            "paddingRight": "$amount:8",
+            "paddingTop": "$amount:14",
             "paddingBottom": "$amount:14"
         }
     },
@@ -66,10 +66,10 @@
             "layout": {
                 "hLineWidth": "$none",
                 "vLineWidth": "$none",
-                "paddingLeft": "$amount:8", 
-                "paddingRight": "$amount:8", 
-                "paddingTop": "$amount:4", 
-                "paddingBottom": "$amount:4"  
+                "paddingLeft": "$amount:8",
+                "paddingRight": "$amount:8",
+                "paddingTop": "$amount:4",
+                "paddingBottom": "$amount:4"
             }
         }]
     },
@@ -112,7 +112,7 @@
           },
           {
             "columns": [
-              { 
+              {
                 "image": "$accountLogo",
                 "fit": [120, 60],
                 "margin": [30, 16, 0, 0]
@@ -165,11 +165,7 @@
                 "margin": [0, 2, 0, 1]
             },
             "odd": {
-                "fillColor": "#ebebeb",
-                "margin": [0,0,0,0]
-            },
-            "productKey": {
-                "color": "$primaryColor:#36a498"
+                "fillColor": "#ebebeb"
             },
             "subtotalsBalanceDueLabel": {
                 "fontSize": "$fontSizeLargest",
@@ -209,15 +205,20 @@
                 "alignment": "right",
                 "margin": [0, 0, 40, 0]
             },
+            "firstColumn": {
+                "margin": [40, 0, 0, 0]
+            },
+            "lastColumn": {
+                "margin": [0, 0, 40, 0]
+            },
             "productKey": {
                 "color": "$primaryColor:#36a498",
-                "margin": [40,0,0,0],
                 "bold": true
             },
             "yourInvoice": {
                 "font": "$headerFont",
-                "bold": true, 
-                "fontSize": 14, 
+                "bold": true,
+                "fontSize": 14,
                 "color": "$primaryColor:#36a498",
                 "margin": [0,0,0,8]
             },
@@ -237,8 +238,7 @@
                 "alignment": "right"
             },
             "lineTotal": {
-                "alignment": "right",
-                "margin": [0, 0, 40, 0]
+                "alignment": "right"
             },
             "subtotals": {
                 "alignment": "right",
