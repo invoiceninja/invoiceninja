@@ -220,8 +220,8 @@ NINJA.decodeJavascript = function(invoice, javascript)
         'accountAddress': NINJA.accountAddress(invoice),
         'invoiceDetails': NINJA.invoiceDetails(invoice),
         'invoiceDetailsHeight': (NINJA.invoiceDetails(invoice).length * 16) + 16,
-        'invoiceLineItems': invoice.is_statement ? NINJA.statementLines(invoice) : NINJA.invoiceLines(invoice),
-        'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice, javascript),
+        'invoiceLineItems': invoice.is_statement ? NINJA.statementLines(invoice) : NINJA.invoiceLines(invoice, ! invoice.hasSecondTable),
+        'invoiceLineItemColumns': invoice.is_statement ? NINJA.statementColumns(invoice) : NINJA.invoiceColumns(invoice, javascript, ! invoice.hasSecondTable),
         'taskLineItems': NINJA.invoiceLines(invoice, true),
         'taskLineItemColumns': NINJA.invoiceColumns(invoice, javascript, true),
         'invoiceDocuments' : NINJA.invoiceDocuments(invoice),
@@ -455,6 +455,7 @@ NINJA.invoiceColumns = function(invoice, design, isTasks)
         columns.push(width)
     }
 
+    console.log(columns);
     return columns;
 }
 
@@ -626,7 +627,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
 
             if (field == 'custom_value1' && ! invoice.has_custom_item_value1) {
                 continue;
-            } else if (field == 'custom_value2' && ! invoice.has_custom_item_value1) {
+            } else if (field == 'custom_value2' && ! invoice.has_custom_item_value2) {
                 continue;
             } else if (field == 'tax' && ! invoice.has_item_taxes) {
                 continue;
@@ -674,6 +675,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         grid.push(row);
     }
 
+    console.log(JSON.stringify(grid));
     return NINJA.prepareDataTable(grid, 'invoiceItems');
 }
 
