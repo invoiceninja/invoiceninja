@@ -18,7 +18,7 @@
         "text": "$entityTypeUC",
         "margin": [8, 30, 8, 5],
         "style": "entityTypeLabel"
-        
+
     },
     {
         "table": {
@@ -27,12 +27,12 @@
             "body": [
                 [
                 {
-                    "table": { 
+                    "table": {
                         "body": "$invoiceDetails"
                     },
                     "margin": [0, 0, 12, 0],
                     "layout": "noBorders"
-                }, 
+                },
                 {
                     "stack": "$clientDetails"
                 },
@@ -46,9 +46,9 @@
             "hLineWidth": "$firstAndLast:.5",
             "vLineWidth": "$none",
             "hLineColor": "#D8D8D8",
-            "paddingLeft": "$amount:8", 
-            "paddingRight": "$amount:8", 
-            "paddingTop": "$amount:6", 
+            "paddingLeft": "$amount:8",
+            "paddingRight": "$amount:8",
+            "paddingTop": "$amount:6",
             "paddingBottom": "$amount:6"
         }
     },
@@ -63,14 +63,14 @@
             "hLineWidth": "$notFirst:.5",
             "vLineWidth": "$none",
             "hLineColor": "#D8D8D8",
-            "paddingLeft": "$amount:8", 
-            "paddingRight": "$amount:8", 
-            "paddingTop": "$amount:14", 
-            "paddingBottom": "$amount:14"            
+            "paddingLeft": "$amount:8",
+            "paddingRight": "$amount:8",
+            "paddingTop": "$amount:14",
+            "paddingBottom": "$amount:14"
         }
     },
     {
-        "columns": [        
+        "columns": [
             "$notesAndTerms",
             {
                 "table": {
@@ -80,10 +80,10 @@
                 "layout": {
                     "hLineWidth": "$none",
                     "vLineWidth": "$none",
-                    "paddingLeft": "$amount:34", 
-                    "paddingRight": "$amount:8", 
-                    "paddingTop": "$amount:4", 
-                    "paddingBottom": "$amount:4" 
+                    "paddingLeft": "$amount:34",
+                    "paddingRight": "$amount:8",
+                    "paddingTop": "$amount:4",
+                    "paddingBottom": "$amount:4"
                 }
             }
         ]
@@ -124,7 +124,7 @@
         },
         "invoiceDetails": {
             "margin": [0, 0, 8, 0]
-        }, 
+        },
         "accountDetails": {
             "margin": [0, 2, 0, 2]
         },
@@ -150,7 +150,7 @@
         "subtotalsBalanceDue": {
             "fontSize": "$fontSizeLarger",
             "color": "$primaryColor:#37a3c6"
-        },  
+        },
         "invoiceNumber": {
             "bold": true
         },
@@ -169,7 +169,7 @@
         },
         "lineTotalTableHeader": {
             "alignment": "right"
-        },        
+        },
         "invoiceLineItemsTable": {
             "margin": [0, 16, 0, 16]
         },
@@ -190,7 +190,7 @@
         },
         "subtotals": {
             "alignment": "right"
-        },            
+        },
         "termsLabel": {
             "bold": true
         },

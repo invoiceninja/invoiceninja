@@ -488,9 +488,9 @@ NINJA.productFields = function(invoice, isTasks) {
     var allFields = JSON.parse(account.invoice_fields);
 
     if (allFields) {
-        if (isTasks && allFields.task_fields) {
+        if (isTasks && allFields.task_fields && allFields.task_fields.length) {
             return allFields.task_fields;
-        } else if (! isTasks && allFields.product_fields) {
+        } else if (! isTasks && allFields.product_fields && allFields.product_fields.length) {
             return allFields.product_fields;
         }
     }
@@ -505,6 +505,11 @@ NINJA.productFields = function(invoice, isTasks) {
         'product.tax',
         'product.line_total',
     ];
+
+    // add backwards compatibility for 'hide qty' setting
+    if (invoice.account.hide_quantity == '1' && ! isTasks) {
+        fields.splice(5, 1);
+    }
 
     return fields;
 }
@@ -527,11 +532,20 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
     for (var i=0; i<fields.length; i++) {
         var field = fields[i].split('.')[1]; // split to remove 'product.'
         var headerStyles = styles.concat([snakeToCamel(field), snakeToCamel(field) + 'TableHeader']);
+        var value = invoiceLabels[field];
 
-        if (field == 'custom_value1' && ! invoice.has_custom_item_value1) {
-            continue;
-        } else if (field == 'custom_value2' && ! invoice.has_custom_item_value1) {
-            continue;
+        if (field == 'custom_value1') {
+            if (invoice.has_custom_item_value1) {
+                value = account.custom_invoice_item_label1;
+            } else {
+                continue;
+            }
+        } else if (field == 'custom_value2') {
+            if (invoice.has_custom_item_value2) {
+                value = account.custom_invoice_item_label2;
+            } else {
+                continue;
+            }
         } else if (field == 'tax' && ! invoice.has_item_taxes) {
             continue;
         } else if (field == 'product_key' && ! invoice.has_product_key) {
@@ -540,7 +554,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             headerStyles.push('cost');
         }
 
-        grid[0].push({text: invoiceLabels[field], style: headerStyles});
+        grid[0].push({text: value, style: headerStyles});
     }
 
     for (var i=0; i<invoice.invoice_items.length; i++) {
