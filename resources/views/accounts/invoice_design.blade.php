@@ -254,7 +254,7 @@
 						  <div class="pull-right" style="padding-right:14px">
                               {!! Button::normal(trans('texts.reset'))->small()
                                     ->withAttributes(['onclick' => 'sweetConfirm(function() {
-                                        resetFields();
+                                        resetInvoiceFields();
                                     })']) !!}
                           </div>
                       </div>
@@ -273,7 +273,7 @@
   						    <div class="pull-right" style="padding-right:14px">
                                 {!! Button::normal(trans('texts.reset'))->small()
                                       ->withAttributes(['onclick' => 'sweetConfirm(function() {
-                                          resetFields();
+                                          resetProductFields();
                                       })']) !!}
                             </div>
                         </div>

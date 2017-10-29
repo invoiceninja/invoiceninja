@@ -17,11 +17,14 @@ function ViewModel(data) {
         }
     }
 
-    self.resetFields = function() {
+    self.resetInvoiceFields = function() {
         self.invoice_fields.removeAll();
         self.client_fields.removeAll();
         self.account_fields1.removeAll();
         self.account_fields2.removeAll();
+    }
+
+    self.resetProductFields = function() {
         self.product_fields.removeAll();
         self.task_fields.removeAll();
     }
@@ -113,10 +116,17 @@ $(function() {
     ko.applyBindings(model);
 })
 
-function resetFields() {
+function resetInvoiceFields() {
     var defaultFields = {!! json_encode($account->getDefaultInvoiceFields()) !!};
-    window.model.resetFields();
-    loadFields(defaultFields);
+    window.model.resetInvoiceFields();
+    loadFields(defaultFields, 'invoice');
+    window.model.onChange();
+}
+
+function resetProductFields() {
+    var defaultFields = {!! json_encode($account->getDefaultInvoiceFields()) !!};
+    window.model.resetProductFields();
+    loadFields(defaultFields, 'product');
     window.model.onChange();
 }
 
@@ -136,12 +146,18 @@ function loadMap(allFields) {
     }
 }
 
-function loadFields(selectedFields)
-{
+function loadFields(selectedFields, filter) {
     for (var section in selectedFields) {
         if ( ! selectedFields.hasOwnProperty(section)) {
             continue;
         }
+
+        if (filter == 'invoice' && (section == 'product_fields' || section == 'task_fields')) {
+            continue;
+        } else if (filter == 'product' && (section != 'product_fields' && section != 'task_fields')) {
+            continue;
+        }
+
         var fields = selectedFields[section];
         for (var field in fields) {
             if ( ! fields.hasOwnProperty(field)) {

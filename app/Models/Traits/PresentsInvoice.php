@@ -329,8 +329,6 @@ trait PresentsInvoice
             'service',
             'product_key',
             'unit_cost',
-            'tax1',
-            'tax2',
             'custom_value1',
             'custom_value2',
         ];
