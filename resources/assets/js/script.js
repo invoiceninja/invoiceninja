@@ -460,7 +460,7 @@ if (window.ko) {
 function comboboxHighlighter(item) {
     var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
     var result = item.replace(new RegExp('<br/>', 'g'), "\n");
-    result = stripHtmlTags(result);
+    result = _.escape(result);
     result = result.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
         return match ? '<strong>' + match + '</strong>' : query;
     });
@@ -474,17 +474,6 @@ function inIframe () {
     } catch (e) {
         return true;
     }
-}
-
-function comboboxMatcher(item) {
-    return ~stripHtmlTags(item).toLowerCase().indexOf(this.query.toLowerCase());
-}
-
-function stripHtmlTags(text) {
-    // http://stackoverflow.com/a/5002618/497368
-    var div = document.createElement("div");
-    div.innerHTML = text;
-    return div.textContent || div.innerText || '';
 }
 
 function getContactDisplayName(contact)
@@ -563,7 +552,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     $clientSelect.val(clientId);
   }
 
-  $clientSelect.combobox();
+  $clientSelect.combobox({highlighter: comboboxHighlighter});
   $clientSelect.on('change', function(e) {
     var clientId = $('input[name=client]').val();
     var invoiceId = $('input[name=invoice]').val();
@@ -602,7 +591,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     }
   });
 
-  $invoiceSelect.combobox();
+  $invoiceSelect.combobox({highlighter: comboboxHighlighter});
 
   if (invoiceId) {
     var invoice = invoiceMap[invoiceId];

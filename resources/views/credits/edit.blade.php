@@ -80,7 +80,7 @@
 				$clientSelect.val({{ $clientPublicId }});
 			}
 
-			$clientSelect.combobox();
+			$clientSelect.combobox({highlighter: comboboxHighlighter});
 		@endif
 
 		$('#currency_id').combobox();

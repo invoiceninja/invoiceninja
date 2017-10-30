@@ -7,8 +7,9 @@ ${{ $entityType }}Select.combobox({
             return "{{ trans("texts.create_{$entityType}") }}: " + this.query;
         } else {
             var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
+            item = _.escape(item);
             return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-              return '<strong>' + match + '</strong>';
+              return match ? '<strong>' + match + '</strong>' : query;
             })
         }
     },

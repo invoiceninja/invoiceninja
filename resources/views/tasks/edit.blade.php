@@ -566,7 +566,7 @@
           $clientSelect.val(clientId);
         }
 
-        $clientSelect.combobox();
+        $clientSelect.combobox({highlighter: comboboxHighlighter});
         $clientSelect.on('change', function(e) {
           var clientId = $('input[name=client]').val();
           var projectId = $('input[name=project_id]').val();

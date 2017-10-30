@@ -80,7 +80,7 @@
 				$clientSelect.val({{ $clientPublicId }});
 			@endif
 
-			$clientSelect.combobox();
+			$clientSelect.combobox({highlighter: comboboxHighlighter});
 
 			@if ($clientPublicId)
 				$('#name').focus();

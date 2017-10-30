@@ -381,7 +381,7 @@ iframe.src = '{{ rtrim(SITE_URL ,'/') }}/view/'
 
             $productSelect.append(new Option(formatMoney(product.cost) + ' - ' + product.product_key, product.public_id));
         }
-        $productSelect.combobox();
+        $productSelect.combobox({highlighter: comboboxHighlighter});
 
         fixCheckboxes();
         updateBuyNowButtons();

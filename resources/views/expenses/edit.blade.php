@@ -350,7 +350,7 @@
                 }
                 $clientSelect.append(new Option(clientName, client.public_id));
             }
-            $clientSelect.combobox().change(function() {
+            $clientSelect.combobox({highlighter: comboboxHighlighter}).change(function() {
                 onClientChange();
             });
 
