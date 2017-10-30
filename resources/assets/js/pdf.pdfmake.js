@@ -460,7 +460,7 @@ NINJA.invoiceColumns = function(invoice, design, isTasks)
         columns.push(width)
     }
 
-    console.log(columns);
+    //console.log(columns);
     return columns;
 }
 
@@ -556,8 +556,6 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             }
         } else if (field == 'tax' && ! invoice.has_item_taxes) {
             continue;
-        } else if (field == 'product_key' && ! invoice.has_product_key) {
-            continue;
         } else if (field == 'unit_cost' || field == 'rate' || field == 'hours') {
             headerStyles.push('cost');
         }
@@ -575,7 +573,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         var row = [];
         var item = invoice.invoice_items[i];
         var cost = NINJA.parseFloat(item.cost) ? formatMoneyInvoice(item.cost, invoice, null, getPrecision(item.cost)) : ' ';
-        var qty = NINJA.parseFloat(item.qty) ? roundSignificant(NINJA.parseFloat(item.qty)) + '' : '';
+        var qty = NINJA.parseFloat(item.qty) ? roundSignificant(NINJA.parseFloat(item.qty)) + '' : ' ';
         var notes = item.notes;
         var productKey = item.product_key;
         var tax1 = '';
@@ -644,8 +642,6 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
                 continue;
             } else if (field == 'tax' && ! invoice.has_item_taxes) {
                 continue;
-            } else if (field == 'product_key' && ! invoice.has_product_key) {
-                continue;
             }
 
             if (field == 'item' || field == 'service') {
@@ -654,10 +650,10 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             } else if (field == 'description') {
                 value = item.notes;
             } else if (field == 'unit_cost' || field == 'rate') {
-                value = item.cost;
+                value = cost;
                 styles.push('cost');
             } else if (field == 'quantity' || field == 'hours') {
-                value = formatAmount(item.qty, invoice.client.currency_id, getPrecision(item.qty));
+                value = qty;
                 if (field == 'hours') {
                     styles.push('cost');
                 }
@@ -688,7 +684,7 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
         grid.push(row);
     }
 
-    console.log(JSON.stringify(grid));
+    //console.log(JSON.stringify(grid));
     return NINJA.prepareDataTable(grid, 'invoiceItems');
 }
 
