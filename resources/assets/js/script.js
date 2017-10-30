@@ -661,14 +661,8 @@ function calculateAmounts(invoice) {
   var total = 0;
   var hasTaxes = false;
   var taxes = {};
-  invoice.has_product_key = false;
   invoice.has_custom_item_value1 = false;
   invoice.has_custom_item_value2 = false;
-
-  // Bold designs currently breaks w/o the product column
-  if (invoice.invoice_design_id == 2) {
-      invoice.has_product_key = true;
-  }
 
   var hasStandard = false;
   var hasTask = false;
@@ -701,12 +695,6 @@ function calculateAmounts(invoice) {
     var taxName1 = '';
     var taxRate2 = 0;
     var taxName2 = '';
-
-    if (item.product_key) {
-        invoice.has_product_key = true;
-    } else if (invoice.invoice_items.length == 1 && !item.qty) {
-        invoice.has_product_key = true;
-    }
 
     if (invoice.features.invoice_settings) {
         if (item.custom_value1) {
