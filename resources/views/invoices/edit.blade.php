@@ -885,11 +885,11 @@
                 @if ($account->invoice_taxes)
 					@if (! empty($account->tax_name1))
 						model.invoice().tax_rate1("{{ $account->tax_rate1 }}");
-						model.invoice().tax_name1("{{ $account->tax_name1 }}");
+						model.invoice().tax_name1("{!! addslashes($account->tax_name1) !!}");
 					@endif
 					@if (! empty($account->tax_name2))
 						model.invoice().tax_rate2("{{ $account->tax_rate2 }}");
-						model.invoice().tax_name2("{{ $account->tax_name2 }}");
+						model.invoice().tax_name2("{!! addslashes($account->tax_name2) !!}");
 					@endif
                 @endif
 
