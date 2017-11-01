@@ -1123,6 +1123,11 @@ class AccountController extends BaseController
         }
 
         $rules = ['email' => 'email|required|unique:users,email,'.$user->id.',id'];
+
+        if ($user->google_2fa_secret) {
+            $rules['phone'] = 'required';
+        }
+
         $validator = Validator::make(Input::all(), $rules);
 
         if ($validator->fails()) {
@@ -1142,6 +1147,10 @@ class AccountController extends BaseController
                 $user->notify_viewed = Input::get('notify_viewed');
                 $user->notify_paid = Input::get('notify_paid');
                 $user->notify_approved = Input::get('notify_approved');
+            }
+
+            if ($user->google_2fa_secret && ! Input::get('enable_two_factor')) {
+                $user->google_2fa_secret = null;
             }
 
             if (Utils::isNinja()) {

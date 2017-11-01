@@ -2510,6 +2510,14 @@ $LANG = array(
     'product_fields_help' => 'Drag and drop fields to change their order',
     'custom_value1' => 'Custom Value',
     'custom_value2' => 'Custom Value',
+    'enable_two_factor' => 'Two-Factor Authentication',
+    'enable_two_factor_help' => 'Use your phone to confirm your identity when logging in',
+    'two_factor_setup' => 'Two-Factor Setup',
+    'two_factor_setup_help' => 'Scan the bar code with a :link compatible app or enter the following code: :code',
+    'return_to_settings' => 'Return to Settings',
+    'one_time_password' => 'One Time Password',
+    'set_phone_for_two_factor' => 'Set your phone number to enable.',
+
 
 );
 

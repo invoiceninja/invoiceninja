@@ -47,7 +47,7 @@ class AccountApiController extends BaseAPIController
         $account = $this->accountRepo->create($request->first_name, $request->last_name, $request->email, $request->password);
         $user = $account->users()->first();
 
-        Auth::login($user, true);
+        Auth::login($user);
         event(new UserSignedUp());
 
         return $this->processLogin($request);
@@ -69,6 +69,7 @@ class AccountApiController extends BaseAPIController
             }
             return $this->processLogin($request);
         } else {
+            error_log('login failed');
             if ($user) {
                 $user->failed_logins = $user->failed_logins + 1;
                 $user->save();

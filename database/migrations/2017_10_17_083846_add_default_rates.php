@@ -28,6 +28,10 @@ class AddDefaultRates extends Migration
             $table->date('partial_due_date')->nullable();
         });
 
+        Schema::table('users', function ($table) {
+            $table->string('google_2fa_secret')->nullable();
+        });
+
         // Add 'Four Months' frequency option
         if (DB::table('frequencies')->count() == 8) {
             DB::table('frequencies')->where('id', '=', 7)->update(['name' => 'Four months']);
@@ -60,6 +64,10 @@ class AddDefaultRates extends Migration
 
         Schema::table('invoices', function ($table) {
             $table->dropColumn('partial_due_date');
+        });
+
+        Schema::table('users', function ($table) {
+            $table->dropColumn('google_2fa_secret');
         });
     }
 }
