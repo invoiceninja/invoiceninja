@@ -812,7 +812,9 @@ class ImportService
                 continue;
             }
 
-            $obj->$field = $data[$index];
+            if (isset($data[$index])) {
+                $obj->$field = $data[$index];
+            }
         }
 
         return $obj;
