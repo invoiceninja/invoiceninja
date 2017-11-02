@@ -2433,7 +2433,6 @@ $LANG = array(
     'include_errors' => 'Include Errors',
     'include_errors_help' => 'Include :link from storage/logs/laravel-error.log',
     'recent_errors' => 'recent errors',
-    'add_item' => 'Add Item',
     'customer' => 'Customer',
     'customers' => 'Customers',
     'created_customer' => 'Successfully created customer',
@@ -2517,7 +2516,7 @@ $LANG = array(
     'one_time_password' => 'One Time Password',
     'set_phone_for_two_factor' => 'Set your phone number to enable.',
     'enabled_two_factor' => 'Successfully enabled Two-Factor Authentication',
-
+    'add_product' => 'Add Product',
 
 );
 

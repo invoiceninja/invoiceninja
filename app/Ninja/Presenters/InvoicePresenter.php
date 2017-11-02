@@ -256,7 +256,7 @@ class InvoicePresenter extends EntityPresenter
             }
 
             if ($invoice->onlyHasTasks()) {
-                $actions[] = ['url' => 'javascript:onAddItemClick()', 'label' => trans('texts.add_item')];
+                $actions[] = ['url' => 'javascript:onAddItemClick()', 'label' => trans('texts.add_product')];
             }
 
             if ($invoice->canBePaid()) {
