@@ -1064,7 +1064,7 @@ class Utils
     {
         $name = trim($name);
         $lastName = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
-        $firstName = trim(preg_replace('#'.$lastName.'#', '', $name));
+        $firstName = trim(preg_replace('#' . preg_quote($lastName, '/') . '#', '', $name));
 
         return [$firstName, $lastName];
     }
