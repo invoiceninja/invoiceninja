@@ -699,7 +699,7 @@ $LANG = array(
     'invalid_credentials' => 'These credentials do not match our records',
     'show_all_options' => 'Show all options',
     'user_details' => 'User Details',
-    'oneclick_login' => 'Social Login',
+    'oneclick_login' => 'Connected Account',
     'disable' => 'Disable',
     'invoice_quote_number' => 'Invoice and Quote Numbers',
     'invoice_charges' => 'Invoice Surcharges',
@@ -2513,10 +2513,10 @@ $LANG = array(
     'enable_two_factor' => 'Two-Factor Authentication',
     'enable_two_factor_help' => 'Use your phone to confirm your identity when logging in',
     'two_factor_setup' => 'Two-Factor Setup',
-    'two_factor_setup_help' => 'Scan the bar code with a :link compatible app or enter the following code: :code',
-    'return_to_settings' => 'Return to Settings',
+    'two_factor_setup_help' => 'Scan the bar code with a :link compatible app.',
     'one_time_password' => 'One Time Password',
     'set_phone_for_two_factor' => 'Set your phone number to enable.',
+    'enabled_two_factor' => 'Successfully enabled Two-Factor Authentication',
 
 
 );

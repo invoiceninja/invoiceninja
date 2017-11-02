@@ -143,8 +143,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
     Route::post('settings/payment_gateway_limits', 'AccountGatewayController@savePaymentGatewayLimits');
     Route::post('users/change_password', 'UserController@changePassword');
-    Route::get('settings/enable_two_factor', 'Google2FAController@enableTwoFactor');
-    Route::get('settings/disable_two_factor', 'Google2FAController@disableTwoFactor');
+    Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
+    Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', 'ClientController@getDatatable');
