@@ -281,11 +281,13 @@ class WePayPaymentDriver extends BasePaymentDriver
                 'checkout_id' => intval($objectId),
             ]);
 
+            /*
             if ($checkout->state == 'refunded') {
                 $payment->recordRefund();
             } elseif (! empty($checkout->refund) && ! empty($checkout->refund->amount_refunded) && ($checkout->refund->amount_refunded - $payment->refunded) > 0) {
                 $payment->recordRefund($checkout->refund->amount_refunded - $payment->refunded);
             }
+            */
 
             if ($checkout->state == 'captured') {
                 $payment->markComplete();

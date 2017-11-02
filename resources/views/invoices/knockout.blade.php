@@ -870,9 +870,7 @@ function ItemModel(data) {
     this.totals = ko.observable();
 
     this.totals.rawTotal = ko.computed(function() {
-        var cost = roundSignificant(NINJA.parseFloat(self.cost()));
-        var qty = roundSignificant(NINJA.parseFloat(self.qty()));
-        var value = cost * qty;
+        var value = roundSignificant(NINJA.parseFloat(self.cost()) * NINJA.parseFloat(self.qty()));
         return value ? roundToTwo(value) : 0;
     });
 
