@@ -2517,6 +2517,7 @@ $LANG = array(
     'set_phone_for_two_factor' => 'Set your phone number to enable.',
     'enabled_two_factor' => 'Successfully enabled Two-Factor Authentication',
     'add_product' => 'Add Product',
+    'email_will_be_sent_on' => 'Note: the email will be sent on :date.',
 
 );
 

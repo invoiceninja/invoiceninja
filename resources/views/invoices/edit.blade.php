@@ -1303,21 +1303,29 @@
 				return false;
 			}
 			if (!isSaveValid()) {
-	            model.showClientForm();
-	            return false;
-	        }
-            // warn invoice will be emailed when saving new recurring invoice
-            var text = '\n' + getSendToEmails();
+				model.showClientForm();
+				return false;
+			}
+
+			var title = "{!! trans("texts.confirm_recurring_email_invoice") !!}";
+			var text = '\n' + getSendToEmails();
+			var startDate = moment($('#start_date').datepicker('getDate'));
+
+			// warn invoice will be emailed when saving new recurring invoice
 			if (model.invoice().start_date() == "{{ Utils::fromSqlDate(date('Y-m-d')) }}") {
 				text += '\n\n' + "{!! trans("texts.confirm_recurring_timing") !!}";
+			// check if the start date is in the future
+			} else if (startDate.isAfter(moment(), 'day')) {
+				var message = "{!! trans("texts.email_will_be_sent_on") !!}";
+				text += '\n\n' + message.replace(':date', model.invoice().start_date());
 			}
-            var title = "{!! trans("texts.confirm_recurring_email_$entityType") !!}";
-            sweetConfirm(function() {
+
+			sweetConfirm(function() {
 				model.invoice().is_public(true);
-                submitAction('');
-            }, text, title);
-            return;
-        } else {
+				submitAction('');
+			}, text, title);
+			return;
+		} else {
 			model.invoice().is_public(true);
 			onSaveClick();
 		}
