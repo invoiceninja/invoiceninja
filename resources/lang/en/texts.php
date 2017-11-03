@@ -2518,6 +2518,7 @@ $LANG = array(
     'enabled_two_factor' => 'Successfully enabled Two-Factor Authentication',
     'add_product' => 'Add Product',
     'email_will_be_sent_on' => 'Note: the email will be sent on :date.',
+    'invoice_product' => 'Invoice Product',
 
 );
 

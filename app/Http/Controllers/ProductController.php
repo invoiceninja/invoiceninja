@@ -149,6 +149,10 @@ class ProductController extends BaseController
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
 
+        if (in_array(request('action'), ['archive', 'delete', 'restore', 'invoice'])) {
+            return self::bulk();
+        }
+
         return Redirect::to("products/{$product->public_id}/edit");
     }
 
@@ -162,6 +166,7 @@ class ProductController extends BaseController
 
         if ($action == 'invoice') {
             $products = Product::scope($ids)->get();
+            $data = [];
             foreach ($products as $product) {
                 $data[] = $product->product_key;
             }
