@@ -161,6 +161,11 @@ class EntityModel extends Eloquent
 
         $query->where($this->getTable() .'.account_id', '=', $accountId);
 
+        if (func_num_args() > 1 && ! $publicId) {
+            $query->where('id', '=', 0);
+            return $query;
+        }
+
         if ($publicId) {
             if (is_array($publicId)) {
                 $query->whereIn('public_id', $publicId);
