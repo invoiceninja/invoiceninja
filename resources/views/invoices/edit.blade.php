@@ -503,8 +503,7 @@
     </div>
     </div>
 
-	<p>&nbsp;</p>
-	<div class="form-actions">
+	<center class="buttons">
 
 		<div style="display:none">
 			{!! Former::populateField('entityType', $entityType) !!}
@@ -565,8 +564,7 @@
     		@endif
         @endif
 
-	</div>
-	<p>&nbsp;</p>
+	</center>
 
 	@include('invoices.pdf', ['account' => Auth::user()->account, 'hide_pdf' => ! Auth::user()->account->live_preview])
 
@@ -913,6 +911,7 @@
                     item.task_public_id(task.publicId);
                 }
                 model.invoice().has_tasks(true);
+				NINJA.formIsChanged = true;
             @endif
 
             @if (isset($expenses) && $expenses)
@@ -937,7 +936,30 @@
                 }
                 model.invoice().invoice_items_without_tasks.push(blank);
                 model.invoice().has_expenses(true);
+				NINJA.formIsChanged = true;
             @endif
+
+			@if ($selectedProducts = session('selectedProducts'))
+				// move the blank invoice line item to the end
+				var blank = model.invoice().invoice_items_without_tasks.pop();
+				var productMap = {};
+				for (var i=0; i<products.length; i++) {
+					var product = products[i];
+					productMap[product.product_key] = product;
+				}
+				var selectedProducts = {!! json_encode($selectedProducts) !!}
+				for (var i=0; i<selectedProducts.length; i++) {
+					var productKey = selectedProducts[i];
+					product = productMap[productKey];
+					if (product) {
+						var item = model.invoice().addItem();
+						item.loadData(product);
+						item.qty(1);
+					}
+				}
+				model.invoice().invoice_items_without_tasks.push(blank);
+				NINJA.formIsChanged = true;
+			@endif
 
         @endif
 

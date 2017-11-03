@@ -16,7 +16,7 @@ class ActivityDatatable extends EntityDatatable
                 function ($model) {
                     $str = Utils::timestampToDateTimeString(strtotime($model->created_at));
 
-                    if ($model->contact_id && $model->ip != '127.0.0.1') {
+                    if ($model->contact_id && ! in_array($model->ip, ['127.0.0.1', '192.168.255.33'])) {
                         $ipLookUpLink = IP_LOOKUP_URL . $model->ip;
                         $str .= sprintf(' &nbsp; <i class="fa fa-globe" style="cursor:pointer" title="%s" onclick="openUrl(\'%s\', \'IP Lookup\')"></i>', $model->ip, $ipLookUpLink);
                     }

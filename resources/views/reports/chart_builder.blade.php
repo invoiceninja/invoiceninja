@@ -171,7 +171,7 @@
 	@endif
 
 
-	<center>
+	<center class="buttons">
 		{!! DropdownButton::primary(trans('texts.export'))
 			  ->large()
 			  ->withAttributes(array('id' => 'export-button'))
@@ -185,8 +185,7 @@
 				->submit()
 				->appendIcon(Icon::create('play'))
 				->large() !!}
-	</center><br/>
-
+	</center>
 
 	{!! Former::close() !!}
 

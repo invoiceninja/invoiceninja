@@ -305,25 +305,22 @@
         </div>
     </div>
 
-
-    <br/>
-    {!! Former::actions(
-			$account->getCustomDesign(CUSTOM_DESIGN1) ?
+    <center class="buttons">
+		{!! $account->getCustomDesign(CUSTOM_DESIGN1) ?
 				DropdownButton::primary(trans('texts.customize'))
 					->withContents($account->present()->customDesigns)
 					->large()  :
 	            Button::primary(trans('texts.customize'))
 	                ->appendIcon(Icon::create('edit'))
 	                ->asLinkTo(URL::to('/settings/customize_design') . '?design_id=' . CUSTOM_DESIGN1)
-	                ->large(),
-            Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ?
+	                ->large() !!}
+        {!! Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ?
                 Button::success(trans('texts.save'))
                     ->submit()->large()
                     ->appendIcon(Icon::create('floppy-disk'))
                     ->withAttributes(['class' => 'save-button']) :
-                false
-        ) !!}
-    <br/>
+                false !!}
+	</center>
 
       {!! Former::close() !!}
 

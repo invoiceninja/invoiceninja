@@ -1,58 +1,58 @@
 @extends('header')
 
 @section('content')
-  @parent
+    @parent
 
-  {!! Former::open($url)->method($method)
-      ->rules(['product_key' => 'required|max:255'])
-      ->addClass('col-md-10 col-md-offset-1 warn-on-exit') !!}
+    {!! Former::open($url)
+            ->method($method)
+            ->rules(['product_key' => 'required|max:255'])
+            ->addClass('col-md-10 col-md-offset-1 warn-on-exit') !!}
 
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">{!! $title !!}</h3>
+        </div>
+        <div class="panel-body form-padding-right">
 
-  <div class="panel panel-default">
-  <div class="panel-heading">
-    <h3 class="panel-title">{!! $title !!}</h3>
-  </div>
-  <div class="panel-body form-padding-right">
+            @if ($product)
+                {{ Former::populate($product) }}
+                {{ Former::populateField('cost', Utils::roundSignificant($product->cost)) }}
+            @endif
 
-  @if ($product)
-    {{ Former::populate($product) }}
-    {{ Former::populateField('cost', Utils::roundSignificant($product->cost)) }}
-  @endif
+            {!! Former::text('product_key')->label('texts.product') !!}
+            {!! Former::textarea('notes')->rows(6) !!}
 
-  {!! Former::text('product_key')->label('texts.product') !!}
-  {!! Former::textarea('notes')->rows(6) !!}
+            @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
+                @if ($account->custom_invoice_item_label1)
+                    {!! Former::text('custom_value1')->label(e($account->custom_invoice_item_label1)) !!}
+                @endif
+                @if ($account->custom_invoice_item_label2)
+                    {!! Former::text('custom_value2')->label(e($account->custom_invoice_item_label2)) !!}
+                @endif
+            @endif
 
-  @if ($account->hasFeature(FEATURE_INVOICE_SETTINGS))
-      @if ($account->custom_invoice_item_label1)
-          {!! Former::text('custom_value1')->label(e($account->custom_invoice_item_label1)) !!}
-      @endif
-      @if ($account->custom_invoice_item_label2)
-          {!! Former::text('custom_value2')->label(e($account->custom_invoice_item_label2)) !!}
-      @endif
-  @endif
+            {!! Former::text('cost') !!}
 
-  {!! Former::text('cost') !!}
+            @if ($account->invoice_item_taxes)
+                @include('partials.tax_rates')
+            @endif
 
-  @if ($account->invoice_item_taxes)
-    @include('partials.tax_rates')
-  @endif
+        </div>
+    </div>
 
-  </div>
-  </div>
+    <center class="buttons">
+        {!! Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/products'))->appendIcon(Icon::create('remove-circle')) !!}
+        {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+    </center>
 
-  {!! Former::actions(
-      Button::normal(trans('texts.cancel'))->large()->asLinkTo(HTMLUtils::previousUrl('/products'))->appendIcon(Icon::create('remove-circle')),
-      Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
-  ) !!}
+    {!! Former::close() !!}
 
-  {!! Former::close() !!}
+    <script type="text/javascript">
 
-  <script type="text/javascript">
+    $(function() {
+        $('#product_key').focus();
+    });
 
-  $(function() {
-    $('#product_key').focus();
-  });
-
-  </script>
+    </script>
 
 @stop

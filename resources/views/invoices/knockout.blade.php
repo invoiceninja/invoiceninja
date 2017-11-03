@@ -864,7 +864,7 @@ function ItemModel(data) {
         owner: this
     });
 
-    if (data) {
+    self.loadData = function(data) {
         ko.mapping.fromJS(data, {}, this);
         var precision = getPrecision(this.cost());
         var cost = parseFloat(this.cost());
@@ -874,6 +874,10 @@ function ItemModel(data) {
             this.cost('');
         }
         this.qty(roundSignificant(this.qty()));
+    }
+
+    if (data) {
+        self.loadData(data);
     }
 
     this.totals = ko.observable();

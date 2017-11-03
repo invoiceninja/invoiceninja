@@ -96,7 +96,7 @@
         @include('accounts.partials.notifications')
     @endif
 
-    <center>
+    <center class="buttons">
         @if (Auth::user()->confirmed)
             {!! Button::primary(trans('texts.change_password'))
                     ->appendIcon(Icon::create('lock'))
