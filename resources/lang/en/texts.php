@@ -2519,6 +2519,9 @@ $LANG = array(
     'add_product' => 'Add Product',
     'email_will_be_sent_on' => 'Note: the email will be sent on :date.',
     'invoice_product' => 'Invoice Product',
+    'self_host_login' => 'Self-Host Login',
+    'set_self_hoat_url' => 'Self-Host URL',
+    'local_storage_required' => 'Error: local storage is not available.',
 
 );
 
