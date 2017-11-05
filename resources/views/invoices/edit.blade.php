@@ -536,7 +536,10 @@
             @if ($invoice->isClientTrashed())
                 <!-- do nothing -->
 			@elseif ($invoice->isSent() && config('ninja.lock_sent_invoices'))
-				<!-- do nothing -->
+				@if (! $invoice->trashed())
+					{!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+				@endif
+
             @else
 				@if (!$invoice->is_deleted)
 					@if ($invoice->isSent())
@@ -1421,10 +1424,6 @@
             return false;
         }
 
-		@if ($invoice->isSent() && config('ninja.lock_sent_invoices'))
-			return false;
-		@endif
-
         @if ($invoice->is_deleted || $invoice->isClientTrashed())
             if ($('#bulk_action').val() != 'restore') {
                 return false;
@@ -1569,7 +1568,6 @@
             submitBulkAction('delete');
         });
 	}
-
 	function formEnterClick(event) {
 		if (event.keyCode === 13){
 			if (event.target.type == 'textarea') {
