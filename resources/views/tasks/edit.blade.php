@@ -41,7 +41,7 @@
         {!! Former::text('time_log') !!}
     </div>
 
-    <div class="row">
+    <div class="row" onkeypress="formEnterClick(event)">
         <div class="col-md-12">
 
             <div class="panel panel-default">
@@ -487,6 +487,20 @@
         } else {
             $('#start-button').hide();
             $('#save-button').show();
+        }
+    }
+
+    function formEnterClick(event) {
+        if (event.keyCode === 13){
+            if (event.target.type == 'textarea') {
+                return;
+            }
+            event.preventDefault();
+            @if ($task && $task->trashed())
+                return;
+            @endif
+            submitAction('');
+            return false;
         }
     }
 
