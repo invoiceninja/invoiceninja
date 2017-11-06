@@ -11,7 +11,7 @@ class TwoFactorController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->google_2fa_secret || ! $user->phone) {
+        if ($user->google_2fa_secret || ! $user->phone || ! $user->confirmed) {
             return redirect('/settings/user_details');
         }
 
@@ -39,7 +39,7 @@ class TwoFactorController extends Controller
         $user = auth()->user();
         $secret = session()->pull('2fa:secret');
 
-        if ($secret && ! $user->google_2fa_secret && $user->phone) {
+        if ($secret && ! $user->google_2fa_secret && $user->phone && $user->confirmed) {
             $user->google_2fa_secret = Crypt::encrypt($secret);
             $user->save();
 

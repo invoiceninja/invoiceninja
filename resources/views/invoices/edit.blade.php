@@ -536,7 +536,10 @@
             @if ($invoice->isClientTrashed())
                 <!-- do nothing -->
 			@elseif ($invoice->isSent() && config('ninja.lock_sent_invoices'))
-				<!-- do nothing -->
+				@if (! $invoice->trashed())
+					{!! Button::info(trans("texts.email_{$entityType}"))->withAttributes(array('id' => 'emailButton', 'onclick' => 'onEmailClick()'))->appendIcon(Icon::create('send')) !!}
+				@endif
+
             @else
 				@if (!$invoice->is_deleted)
 					@if ($invoice->isSent())
@@ -1188,6 +1191,8 @@
 	}
 
 	var origInvoiceNumber = false;
+	var checkedInvoiceBalances = false;
+
 	function getPDFString(cb, force) {
 		@if (! $invoice->id && $account->credit_number_counter > 0)
 			var total = model.invoice().totals.rawTotal();
@@ -1201,12 +1206,29 @@
 			}
 		@endif
 
+		var invoice = createInvoiceModel();
+		var design = getDesignJavascript();
+
+		/*
+		@if ($invoice->exists)
+			if (! checkedInvoiceBalances) {
+				checkedInvoiceBalances = true;
+				var phpBalance = roundSignificant(invoice.balance);
+				var koBalance = roundSignificant(model.invoice().totals.rawTotal());
+				var jsBalance = roundSignificant(calculateAmounts(invoice).total_amount);
+				if (phpBalance == koBalance && koBalance == jsBalance) {
+					// do nothing
+				} else {
+					var invitationKey = invoice.invitations[0].invitation_key;
+					window.onerror(invitationKey + ': Balances do not match | PHP: ' + phpBalance + ', JS: ' + jsBalance + ', KO: ' + koBalance);
+				}
+			}
+		@endif
+		*/
+		
 		@if ( ! $account->live_preview)
 			return;
 		@endif
-
-		var invoice = createInvoiceModel();
-		var design = getDesignJavascript();
 
 		if (! design) {
 			return;
@@ -1421,10 +1443,6 @@
             return false;
         }
 
-		@if ($invoice->isSent() && config('ninja.lock_sent_invoices'))
-			return false;
-		@endif
-
         @if ($invoice->is_deleted || $invoice->isClientTrashed())
             if ($('#bulk_action').val() != 'restore') {
                 return false;
@@ -1569,7 +1587,6 @@
             submitBulkAction('delete');
         });
 	}
-
 	function formEnterClick(event) {
 		if (event.keyCode === 13){
 			if (event.target.type == 'textarea') {

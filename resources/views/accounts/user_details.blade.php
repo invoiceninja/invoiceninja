@@ -50,20 +50,21 @@
                      !!}
                 @endif
 
-                @if ($user->google_2fa_secret)
-                    {!! Former::checkbox('enable_two_factor')
-                            ->help(trans('texts.enable_two_factor_help'))
-                            ->text(trans('texts.enable'))
-                            ->value(1)  !!}
-                @elseif ($user->phone)
-                    {!! Former::plaintext('enable_two_factor')->value(
-                            Button::primary(trans('texts.enable'))->asLinkTo(url('settings/enable_two_factor'))->small()
-                        )->help('enable_two_factor_help') !!}
-                @else
-                    {!! Former::plaintext('enable_two_factor')
-                        ->value('<span class="text-muted">' . trans('texts.set_phone_for_two_factor') . '</span>') !!}
+                @if ($user->confirmed)
+                  @if ($user->google_2fa_secret)
+                      {!! Former::checkbox('enable_two_factor')
+                              ->help(trans('texts.enable_two_factor_help'))
+                              ->text(trans('texts.enable'))
+                              ->value(1)  !!}
+                  @elseif ($user->phone)
+                      {!! Former::plaintext('enable_two_factor')->value(
+                              Button::primary(trans('texts.enable'))->asLinkTo(url('settings/enable_two_factor'))->small()
+                          )->help('enable_two_factor_help') !!}
+                  @else
+                      {!! Former::plaintext('enable_two_factor')
+                          ->value('<span class="text-muted">' . trans('texts.set_phone_for_two_factor') . '</span>') !!}
+                  @endif
                 @endif
-
 
                 {!! Former::checkbox('dark_mode')
                         ->help(trans('texts.dark_mode_help'))

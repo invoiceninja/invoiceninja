@@ -158,6 +158,7 @@
                 ->help(trans('texts.payment_terms_help')) !!}
 			@if ($account->isModuleEnabled(ENTITY_TASK))
 				{!! Former::text('task_rate')
+						->placeholder($account->present()->taskRate)
 						->help('task_rate_help') !!}
 			@endif
 			{!! Former::select('size_id')->addOption('','')

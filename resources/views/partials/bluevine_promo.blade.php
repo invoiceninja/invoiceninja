@@ -18,7 +18,14 @@
             <div class="panel panel-default">
             <div class="panel-body">
                 {!! Former::open('/bluevine/signup')->id('bluevineSignup') !!}
-                {!! trans('texts.bluevine_modal_text') !!}<br/>
+                <div class="pull-left">
+                  {!! trans('texts.bluevine_modal_text') !!}
+                </div>
+                <div class="pull-right">
+                  <br/>
+                  <a class='btn btn-primary btn-sm' href='https://www.invoiceninja.com/blue-vine-invoice-factoring/' target="_blank">{{ trans('texts.learn_more') }}</a>
+                </div>
+                <div class="clearfix"></div>
                 <h3>{!! trans('texts.bluevine_create_account') !!}</h3>
                 {!! Former::text('name')->id('bluevine_name')->placeholder(trans('texts.name'))->value($user->first_name . ' ' . $user->last_name)->required() !!}
                 {!! Former::text('email')->id('bluevine_email')->placeholder(trans('texts.email'))->value($user->email)->required() !!}

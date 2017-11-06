@@ -41,6 +41,7 @@
                 {!! Former::text('name') !!}
 
 				{!! Former::text('task_rate')
+						->placeholder($project && $project->client->task_rate ? $project->client->present()->taskRate : $account->present()->taskRate)
 				 		->help('task_rate_help') !!}
 
             </div>
@@ -65,11 +66,13 @@
     <script>
 
 		var clients = {!! $clients !!};
+		var clientMap = {};
 
         $(function() {
 			var $clientSelect = $('select#client_id');
             for (var i=0; i<clients.length; i++) {
                 var client = clients[i];
+								clientMap[client.public_id] = client;
                 var clientName = getClientDisplayName(client);
                 if (!clientName) {
                     continue;
@@ -80,7 +83,15 @@
 				$clientSelect.val({{ $clientPublicId }});
 			@endif
 
-			$clientSelect.combobox({highlighter: comboboxHighlighter});
+			$clientSelect.combobox({highlighter: comboboxHighlighter}).change(function() {
+				var client = clientMap[$('#client_id').val()];
+				if (client && parseFloat(client.task_rate)) {
+					var rate = client.task_rate;
+				} else {
+					var rate = {{ $account->present()->taskRate }};
+				}
+				$('#task_rate').attr('placeholder', roundSignificant(rate));
+			});
 
 			@if ($clientPublicId)
 				$('#name').focus();

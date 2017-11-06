@@ -83,7 +83,11 @@
                     {!! link_to('/recover_password', trans('texts.recover_password')) !!}
                 </div>
                 <div class="col-md-5 col-sm-12">
-                    {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank']) !!}
+                    @if (Utils::isTimeTracker())
+                        {!! link_to('#', trans('texts.self_host_login'), ['onclick' => 'setSelfHostUrl()']) !!}
+                    @else
+                        {!! link_to(NINJA_WEB_URL.'/knowledgebase/', trans('texts.knowledge_base'), ['target' => '_blank']) !!}
+                    @endif
                 </div>
             @endif
         </div>
@@ -111,8 +115,13 @@
                 $('#email').focus();
             }
 
-            @if (array_get($_SERVER, 'HTTP_USER_AGENT') == TIME_TRACKER_USER_AGENT)
+            @if (Utils::isTimeTracker())
                 if (isStorageSupported()) {
+                    var selfHostUrl = localStorage.getItem('last:time_tracker:url');
+                    if (selfHostUrl) {
+                        location.href = selfHostUrl;
+                        return;
+                    }
                     $('#email').change(function() {
                         localStorage.setItem('last:time_tracker:email', $('#email').val());
                     })
@@ -124,6 +133,29 @@
                 }
             @endif
         })
+
+        @if (Utils::isTimeTracker())
+            function setSelfHostUrl() {
+                if (! isStorageSupported()) {
+                    swal("{{ trans('texts.local_storage_required') }}");
+                    return;
+                }
+                swal({
+                    title: "{{ trans('texts.set_self_hoat_url') }}",
+                    input: 'text',
+                    showCancelButton: true,
+                    confirmButtonText: 'Save',
+                }).then(function (value) {
+                    if (!value) {
+                        return;
+                    }
+                    value = value.replace(/\/+$/, '') + '/time_tracker';
+                    localStorage.setItem('last:time_tracker:url', value);
+                    location.reload();
+                })
+            }
+        @endif
+
     </script>
 
 @endsection

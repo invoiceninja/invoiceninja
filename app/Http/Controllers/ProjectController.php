@@ -51,6 +51,7 @@ class ProjectController extends BaseController
     public function create(ProjectRequest $request)
     {
         $data = [
+            'account' => auth()->user()->account,
             'project' => null,
             'method' => 'POST',
             'url' => 'projects',
@@ -67,6 +68,7 @@ class ProjectController extends BaseController
         $project = $request->entity();
 
         $data = [
+            'account' => auth()->user()->account,
             'project' => $project,
             'method' => 'PUT',
             'url' => 'projects/' . $project->public_id,
