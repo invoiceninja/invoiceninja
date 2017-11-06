@@ -5,10 +5,18 @@ namespace App\Ninja\Transformers;
 use App\Models\Credit;
 
 /**
- * Class CreditTransformer.
+ * @SWG\Definition(definition="Credit", required={"client_id"}, @SWG\Xml(name="Credit"))
  */
 class CreditTransformer extends EntityTransformer
 {
+    /**
+     * @SWG\Property(property="id", type="integer", example=1, readOnly=true)
+     * @SWG\Property(property="amount", type="number", format="float", example=10, readOnly=true)
+     * @SWG\Property(property="client_id", type="integer", example=1)
+     * @SWG\Property(property="private_notes", type="string", example="Notes...")
+     * @SWG\Property(property="public_notes", type="string", example="Notes...")
+     */
+
     /**
      * @param Credit $credit
      *

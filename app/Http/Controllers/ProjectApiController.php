@@ -118,12 +118,12 @@ class ProjectApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="body",
-     *     @SWG\Schema(ref="#/definitions/project")
+     *     @SWG\Schema(ref="#/definitions/Project")
      *   ),
      *   @SWG\Response(
      *     response=200,
      *     description="New project",
-     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/project"))
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Project"))
      *   ),
      *   @SWG\Response(
      *     response="default",
@@ -155,12 +155,12 @@ class ProjectApiController extends BaseAPIController
      *   @SWG\Parameter(
      *     in="body",
      *     name="project",
-     *     @SWG\Schema(ref="#/definitions/project")
+     *     @SWG\Schema(ref="#/definitions/Project")
      *   ),
      *   @SWG\Response(
      *     response=200,
      *     description="Updated project",
-     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/project"))
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Project"))
      *   ),
      *   @SWG\Response(
      *     response="default",
@@ -200,7 +200,7 @@ class ProjectApiController extends BaseAPIController
      *   @SWG\Response(
      *     response=200,
      *     description="Deleted project",
-     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/project"))
+     *      @SWG\Schema(type="object", @SWG\Items(ref="#/definitions/Project"))
      *   ),
      *   @SWG\Response(
      *     response="default",
