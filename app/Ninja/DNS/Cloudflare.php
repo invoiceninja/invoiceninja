@@ -7,13 +7,11 @@ use App\Models\Account;
 
 class Cloudflare
 {
-    const URL = 'https://api.cloudflare.com/client/v4/';
 
     public static function addDNSRecord(Account $account){
 
         $zones = json_decode(env('CLOUDFLARE_ZONE_IDS',''), true);
-        echo env('CLOUDFLARE_ZONE_IDS','');
-        print_r($zones);
+
         foreach($zones as $zone)
         {
 
@@ -21,7 +19,7 @@ class Cloudflare
             $jsonEncodedData = json_encode(['type'=>'A', 'name'=>$account->subdomain, 'content'=>env('CLOUDFLARE_TARGET_IP_ADDRESS','')]);
 
             $opts = [
-                CURLOPT_URL => URL.'zones/'.$zone.'/dns_records',
+                CURLOPT_URL => 'https://api.cloudflare.com/client/v4/zones/'.$zone.'/dns_records',
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POST => 1,
