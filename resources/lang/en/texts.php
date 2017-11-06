@@ -2483,7 +2483,6 @@ $LANG = array(
     'time_hrs' => 'hrs',
     'clear' => 'Clear',
     'warn_payment_gateway' => 'Note: accepting online payments requires a payment gateway, :link to add one.',
-    'setup_desktop_app' => 'Setup the desktop app',
     'task_rate' => 'Task Rate',
     'task_rate_help' => 'Set the default <b>rate for invoiced tasks</b>.',
     'past_due' => 'Past Due',

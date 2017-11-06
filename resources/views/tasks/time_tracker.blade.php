@@ -580,13 +580,8 @@
 			toastr.options.positionClass = 'toast-bottom-right';
 
 			if (navigator.userAgent != '{{ TIME_TRACKER_USER_AGENT }}') {
-				@if (Utils::isNinjaProd())
-					var link = '{{ config('ninja.time_tracker_web_url') }}';
-					var message = "{{ trans('texts.download_desktop_app') }}";
-				@else
-					var link = '{{ NINJA_DOCS_URL }}/configure.html#time-tracking-app';
-					var message = "{{ trans('texts.setup_desktop_app') }}";
-				@endif
+				var link = '{{ config('ninja.time_tracker_web_url') }}';
+				var message = "{{ trans('texts.download_desktop_app') }}";
 				if (isMobile) {
 					toastr.warning("{{ trans('texts.time_tracker_mobile_help')}}", false, {
 						timeOut: 5000,
