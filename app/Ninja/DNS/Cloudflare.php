@@ -16,7 +16,7 @@ class Cloudflare
         {
 
             $curl = curl_init();
-            $jsonEncodedData = json_encode(['type'=>'A', 'name'=>$account->subdomain, 'content'=>env('CLOUDFLARE_TARGET_IP_ADDRESS','')]);
+            $jsonEncodedData = json_encode(['type'=>'A', 'name'=>$account->subdomain, 'content'=>env('CLOUDFLARE_TARGET_IP_ADDRESS',''),'proxied'=>true]);
 
             $opts = [
                 CURLOPT_URL => 'https://api.cloudflare.com/client/v4/zones/'.$zone.'/dns_records',
