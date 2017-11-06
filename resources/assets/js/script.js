@@ -1060,20 +1060,20 @@ function getPrecision(number) {
   }
 }
 
-function roundSignificant(number) {
+function roundSignificant(number, toString) {
   var precision = getPrecision(number);
-  var value = roundToPrecision(number, precision);
-  return isNaN(value) ? 0 : value;
+  var val = roundToPrecision(number, precision) || 0;
+  return toString ? val.toFixed(precision) : val;
 }
 
 function roundToTwo(number, toString) {
-  var val = roundToPrecision(number, 2);
-  return toString ? val.toFixed(2) : (val || 0);
+  var val = roundToPrecision(number, 2) || 0;
+  return toString ? val.toFixed(2) : val;
 }
 
 function roundToFour(number, toString) {
-  var val = roundToPrecision(number, 4);
-  return toString ? val.toFixed(4) : (val || 0);
+  var val = roundToPrecision(number, 4) || 0;
+  return toString ? val.toFixed(4) : val;
 }
 
 // https://stackoverflow.com/a/18358056/497368
