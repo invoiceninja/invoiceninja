@@ -101,6 +101,14 @@
         var id = $select.val();
 		$select.val(null).blur();
 		$('.' + id + '-label-group').fadeIn();
+		showUsedFields();
+	}
+
+	function showUsedFields() {
+		$('#label_field > option').each(function(key, option) {
+			var isUsed = $('#labels_' + option.value).is(':visible');
+			$(this).css('color', isUsed ? '#888' : 'black');
+		});
 	}
 
     $(function() {
@@ -120,6 +128,10 @@
 
 	  updateFieldLabels();
       refreshPDF();
+	  setTimeout(function() {
+		showUsedFields();
+	  }, 1);
+
     });
 
   </script>
