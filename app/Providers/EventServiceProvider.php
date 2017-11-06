@@ -200,6 +200,11 @@ class EventServiceProvider extends ServiceProvider
 
         'Illuminate\Queue\Events\JobExceptionOccurred' => [
             'App\Listeners\InvoiceListener@jobFailed'
+        ],
+
+        //DNS
+        'App\Events\SubdomainWasUpdated' => [
+            'App\Listeners\DNSListener@addDNSRecord'
         ]
 
         /*

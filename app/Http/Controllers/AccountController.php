@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SubdomainWasUpdated;
 use App\Events\UserSettingsChanged;
 use App\Events\UserSignedUp;
 use App\Http\Requests\SaveClientPortalSettings;
@@ -768,7 +769,12 @@ class AccountController extends BaseController
      */
     public function saveClientPortalSettings(SaveClientPortalSettings $request)
     {
+
         $account = $request->user()->account;
+
+        if($account->subdomain !== $request->subdomain)
+            event(new SubdomainWasUpdated($account));
+
         $account->fill($request->all());
         $account->client_view_css = $request->client_view_css;
 		$account->subdomain = $request->subdomain;
