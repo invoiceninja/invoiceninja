@@ -866,13 +866,7 @@ function ItemModel(data) {
 
     self.loadData = function(data) {
         ko.mapping.fromJS(data, {}, this);
-        var precision = getPrecision(this.cost());
-        var cost = parseFloat(this.cost());
-        if (cost) {
-            this.cost(cost.toFixed(Math.max(2, precision)));
-        } else {
-            this.cost('');
-        }
+        this.cost(roundSignificant(this.cost(), true));
         this.qty(roundSignificant(this.qty()));
     }
 
@@ -1025,9 +1019,7 @@ ko.bindingHandlers.productTypeahead = {
                 }
                 if (parseFloat(datum.cost)) {
                     if (! model.cost() || ! model.task_public_id()) {
-                        var cost = roundSignificant(datum.cost);
-                        var precision = getPrecision(cost);
-                        model.cost(cost.toFixed(precision));
+                        model.cost(roundSignificant(datum.cost, true));
                     }
                 }
                 if (!model.qty()) {
