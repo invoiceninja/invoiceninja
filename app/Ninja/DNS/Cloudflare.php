@@ -12,7 +12,8 @@ class Cloudflare
     public static function addDNSRecord(Account $account){
 
         $zones = json_decode(env('CLOUDFLARE_ZONE_IDS',''), true);
-
+        echo env('CLOUDFLARE_ZONE_IDS','');
+        print_r($zones);
         foreach($zones as $zone)
         {
 
