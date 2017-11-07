@@ -347,6 +347,7 @@ class ClientPortalController extends BaseController
             'title' => trans('texts.recurring_invoices'),
             'entityType' => ENTITY_RECURRING_INVOICE,
             'columns' => Utils::trans($columns),
+            'sortColumn' => 1,
         ];
 
         return response()->view('public_list', $data);
@@ -374,6 +375,7 @@ class ClientPortalController extends BaseController
             'title' => trans('texts.invoices'),
             'entityType' => ENTITY_INVOICE,
             'columns' => Utils::trans(['invoice_number', 'invoice_date', 'invoice_total', 'balance_due', 'due_date', 'status']),
+            'sortColumn' => 1,
         ];
 
         return response()->view('public_list', $data);
@@ -418,6 +420,7 @@ class ClientPortalController extends BaseController
             'entityType' => ENTITY_PAYMENT,
             'title' => trans('texts.payments'),
             'columns' => Utils::trans(['invoice', 'transaction_reference', 'method', 'payment_amount', 'payment_date', 'status']),
+            'sortColumn' => 4,
         ];
 
         return response()->view('public_list', $data);
@@ -502,6 +505,7 @@ class ClientPortalController extends BaseController
           'title' => trans('texts.quotes'),
           'entityType' => ENTITY_QUOTE,
           'columns' => Utils::trans(['quote_number', 'quote_date', 'quote_total', 'due_date', 'status']),
+          'sortColumn' => 1,
         ];
 
         return response()->view('public_list', $data);
@@ -537,6 +541,7 @@ class ClientPortalController extends BaseController
           'title' => trans('texts.credits'),
           'entityType' => ENTITY_CREDIT,
           'columns' => Utils::trans(['credit_date', 'credit_amount', 'credit_balance', 'notes']),
+          'sortColumn' => 0,
         ];
 
         return response()->view('public_list', $data);
@@ -572,6 +577,7 @@ class ClientPortalController extends BaseController
           'title' => trans('texts.documents'),
           'entityType' => ENTITY_DOCUMENT,
           'columns' => Utils::trans(['invoice_number', 'name', 'document_date', 'document_size']),
+          'sortColumn' => 2,
         ];
 
         return response()->view('public_list', $data);

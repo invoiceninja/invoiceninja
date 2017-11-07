@@ -54,6 +54,7 @@
 	    	->addColumn($columns)
 	    	->setUrl(route('api.client.' . $entityType . 's'))
 	    	->setOptions('sPaginationType', 'bootstrap')
+			->setOptions('aaSorting', [[$sortColumn, 'desc']])
 	    	->render('datatable') !!}
 	</div>
 

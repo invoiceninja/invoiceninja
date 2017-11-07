@@ -42,6 +42,10 @@ Options:
     By default the script only checks for errors, adding this option
     makes the script apply the fixes.
 
+--fast=true
+
+    Skip using phantomjs
+
 */
 
 /**
@@ -144,7 +148,7 @@ class CheckData extends Command
             return;
         }
 
-        if ($this->option('fix') == 'true') {
+        if ($this->option('fix') == 'true' || $this->option('fast') == 'true') {
             return;
         }
 
@@ -792,6 +796,7 @@ class CheckData extends Command
     {
         return [
             ['fix', null, InputOption::VALUE_OPTIONAL, 'Fix data', null],
+            ['fast', null, InputOption::VALUE_OPTIONAL, 'Fast', null],
             ['client_id', null, InputOption::VALUE_OPTIONAL, 'Client id', null],
             ['database', null, InputOption::VALUE_OPTIONAL, 'Database', null],
         ];

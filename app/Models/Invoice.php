@@ -1203,7 +1203,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         $invitation = $this->invitations[0];
-        $link = $invitation->getLink('view', true);
+        $link = $invitation->getLink('view', true, true);
         $pdfString = false;
         $phantomjsSecret = env('PHANTOMJS_SECRET');
         $phantomjsLink = $link . "?phantomjs=true&phantomjs_secret={$phantomjsSecret}";
@@ -1213,8 +1213,10 @@ class Invoice extends EntityModel implements BalanceAffecting
                 // we see occasional 408 errors
                 for ($i=1; $i<=5; $i++) {
                     $pdfString = CurlUtils::phantom('GET', $phantomjsLink);
-                    if ($pdfString) {
+                    if (strpos($pdfString, 'data') === 0) {
                         break;
+                    } else {
+                        $pdfString = false;
                     }
                 }
             }
@@ -1239,7 +1241,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             if ($pdf = Utils::decodePDF($pdfString)) {
                 return $pdf;
             } else {
-                Utils::logError("PhantomJS - Unable to decode {$phantomjsLink}: {$pdfString}");
+                Utils::logError("PhantomJS - Unable to decode {$phantomjsLink}");
                 return false;
             }
         } else {
