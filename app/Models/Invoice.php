@@ -1213,6 +1213,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 // we see occasional 408 errors
                 for ($i=1; $i<=5; $i++) {
                     $pdfString = CurlUtils::phantom('GET', $phantomjsLink);
+                    $pdfString = strip_tags($pdfString);
                     if (strpos($pdfString, 'data') === 0) {
                         break;
                     } else {
@@ -1224,9 +1225,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             if (! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
                 $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%26phantomjs_secret={$phantomjsSecret}%22,renderType:%22html%22%7D";
                 $pdfString = CurlUtils::get($url);
+                $pdfString = strip_tags($pdfString);
             }
-
-            $pdfString = strip_tags($pdfString);
         } catch (\Exception $exception) {
             Utils::logError("PhantomJS - Failed to load {$phantomjsLink}: {$exception->getMessage()}");
             return false;
