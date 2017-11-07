@@ -612,8 +612,8 @@ NINJA.invoiceLines = function(invoice, isSecondTable) {
             custom_value1 = processVariables(item.custom_value1);
             custom_value2 = processVariables(item.custom_value2);
         }
-
-        var lineTotal = roundSignificant(NINJA.parseFloat(item.cost)) * roundSignificant(NINJA.parseFloat(item.qty));
+        
+        var lineTotal = roundSignificant(NINJA.parseFloat(item.cost) * NINJA.parseFloat(item.qty));
         if (account.include_item_taxes_inline == '1') {
             var taxAmount1 = 0;
             var taxAmount2 = 0;
