@@ -179,7 +179,7 @@ class AccountApiController extends BaseAPIController
         foreach($devices as $key => $value)
         {
             if($request->email == $value['email'])
-                unset($devices[$key])
+                unset($devices[$key]);
         }
 
         $account->devices = json_encode($devices);

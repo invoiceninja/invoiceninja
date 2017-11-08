@@ -352,7 +352,7 @@ Route::group(['middleware' => ['lookup:api', 'api'], 'prefix' => 'api/v1'], func
     Route::resource('users', 'UserApiController');
     Route::resource('expenses', 'ExpenseApiController');
     Route::post('add_token', 'AccountApiController@addDeviceToken');
-    Route::post('removed_token', 'AccountApiController@removeDeviceToken');
+    Route::post('remove_token', 'AccountApiController@removeDeviceToken');
     Route::post('update_notifications', 'AccountApiController@updatePushNotifications');
     Route::get('dashboard', 'DashboardApiController@index');
     Route::resource('documents', 'DocumentAPIController');
