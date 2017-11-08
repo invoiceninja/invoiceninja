@@ -29,6 +29,8 @@
         {!! Former::populateField('enable_sofort', $accountGateway->getSofortEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_alipay', $accountGateway->getAlipayEnabled() ? 1 : 0) !!}
         {!! Former::populateField('enable_paypal', $accountGateway->getPayPalEnabled() ? 1 : 0) !!}
+        {!! Former::populateField('enable_sepa', $accountGateway->getSepaEnabled() ? 1 : 0) !!}
+        {!! Former::populateField('enable_bitcoin', $accountGateway->getBitcoinEnabled() ? 1 : 0) !!}
         {!! Former::populateField('plaid_client_id', $accountGateway->getPlaidClientId() ? str_repeat('*', strlen($accountGateway->getPlaidClientId())) : '') !!}
         {!! Former::populateField('plaid_secret', $accountGateway->getPlaidSecret() ? str_repeat('*', strlen($accountGateway->getPlaidSecret())) : '') !!}
         {!! Former::populateField('plaid_public_key', $accountGateway->getPlaidPublicKey() ? str_repeat('*', strlen($accountGateway->getPlaidPublicKey())) : '') !!}
@@ -167,6 +169,18 @@
                 ->text(trans('texts.enable_sofort'))
                 ->value(1) !!}
 
+            <!--
+            {!! Former::checkbox('enable_sepa')
+                ->label('SEPA')
+                ->text(trans('texts.enable_sepa'))
+                ->value(1) !!}
+            -->
+
+            {!! Former::checkbox('enable_bitcoin')
+                ->label(trans('texts.bitcoin'))
+                ->text(trans('texts.enable_bitcoin'))
+                ->value(1) !!}
+
             {!! Former::checkbox('enable_alipay')
                 ->label(trans('texts.alipay'))
                 ->text(trans('texts.enable_alipay'))
@@ -279,7 +293,9 @@
         var enableAch = $('#enable_ach').is(':checked');
         var enableAlipay = $('#enable_alipay').is(':checked');
         var enableSofort = $('#enable_sofort').is(':checked');
-        $('.stripe-webhook-options').toggle(enableAch || enableAlipay || enableSofort);
+        var enableSepa = $('#enable_sepa').is(':checked');
+        var enableBicoin = $('#enable_bitcoin').is(':checked');
+        $('.stripe-webhook-options').toggle(enableAch || enableAlipay || enableSofort || enableSepa || enableBicoin);
         $('.stripe-ach-options').toggle(enableAch);
     }
 
@@ -296,6 +312,8 @@
         $('#enable_ach').change(updateWebhookShown);
         $('#enable_alipay').change(updateWebhookShown);
         $('#enable_sofort').change(updateWebhookShown);
+        $('#enable_sepa').change(updateWebhookShown);
+        $('#enable_bitcoin').change(updateWebhookShown);
 
         @if (!$accountGateway && count($secondaryGateways))
             $('#primary_gateway_id').append($('<option>', {

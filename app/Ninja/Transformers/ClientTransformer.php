@@ -37,6 +37,7 @@ class ClientTransformer extends EntityTransformer
      * @SWG\Property(property="vat_number", type="string", example="123456")
      * @SWG\Property(property="id_number", type="string", example="123456")
      * @SWG\Property(property="language_id", type="integer", example=1)
+     * @SWG\Property(property="task_rate", type="number", format="float", example=10)
      */
     protected $defaultIncludes = [
         'contacts',
@@ -135,6 +136,7 @@ class ClientTransformer extends EntityTransformer
             'custom_value2' => $client->custom_value2,
             'invoice_number_counter' => (int) $client->invoice_number_counter,
             'quote_number_counter' => (int) $client->quote_number_counter,
+            'task_rate' => (float) $client->task_rate,
         ]);
     }
 }

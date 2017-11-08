@@ -119,6 +119,7 @@ after_script:
   - FILES=$(find tests/_output -type f -name '*.png' | sort -nr)
   - for i in $FILES; do echo $i; base64 "$i"; break; done
 
+
 notifications:
   email:
     on_success: never

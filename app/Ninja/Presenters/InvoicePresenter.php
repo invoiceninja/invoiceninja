@@ -67,11 +67,14 @@ class InvoicePresenter extends EntityPresenter
 
     public function age()
     {
-        if (! $this->entity->due_date || $this->entity->date_date == '0000-00-00') {
+        $invoice = $this->entity;
+        $dueDate = $invoice->partial_due_date ?: $invoice->due_date;
+
+        if (! $dueDate || $dueDate == '0000-00-00') {
             return 0;
         }
 
-        $date = Carbon::parse($this->entity->due_date);
+        $date = Carbon::parse($dueDate);
 
         if ($date->isFuture()) {
             return 0;
@@ -153,6 +156,11 @@ class InvoicePresenter extends EntityPresenter
     public function due_date()
     {
         return Utils::fromSqlDate($this->entity->due_date);
+    }
+
+    public function partial_due_date()
+    {
+        return Utils::fromSqlDate($this->entity->partial_due_date);
     }
 
     public function frequency()
@@ -248,7 +256,7 @@ class InvoicePresenter extends EntityPresenter
             }
 
             if ($invoice->onlyHasTasks()) {
-                $actions[] = ['url' => 'javascript:onAddItemClick()', 'label' => trans('texts.add_item')];
+                $actions[] = ['url' => 'javascript:onAddItemClick()', 'label' => trans('texts.add_product')];
             }
 
             if ($invoice->canBePaid()) {

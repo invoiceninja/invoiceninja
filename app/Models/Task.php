@@ -146,6 +146,24 @@ class Task extends EntityModel
     }
 
     /**
+     * @return float
+     */
+    public function getRate()
+    {
+        $value = 0;
+
+        if ($this->project && floatval($this->project->task_rate)) {
+            $value = $this->project->task_rate;
+        } elseif ($this->client && floatval($this->client->task_rate)) {
+            $value = $this->client->task_rate;
+        } else {
+            $value = $this->account->task_rate;
+        }
+
+        return Utils::roundSignificant($value);
+    }
+
+    /**
      * @return int
      */
     public function getCurrentDuration()

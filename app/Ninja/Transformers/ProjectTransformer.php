@@ -16,6 +16,7 @@ class ProjectTransformer extends EntityTransformer
      * @SWG\Property(property="updated_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="archived_at", type="integer", example=1451160233, readOnly=true)
      * @SWG\Property(property="is_deleted", type="boolean", example=false, readOnly=true)
+     * @SWG\Property(property="task_rate", type="number", format="float", example=10)
      */
     public function transform(Project $project)
     {
@@ -26,6 +27,7 @@ class ProjectTransformer extends EntityTransformer
             'updated_at' => $this->getTimestamp($project->updated_at),
             'archived_at' => $this->getTimestamp($project->deleted_at),
             'is_deleted' => (bool) $project->is_deleted,
+            'task_rate' => (float) $project->task_rate,
         ]);
     }
 }

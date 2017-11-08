@@ -17,7 +17,7 @@
             'footer': {!! json_encode($account->getEmailFooter()) !!},
             'emailSignature': {!! json_encode($account->getEmailFooter()) !!},
             'account': "{{ $account->getDisplayName() }}",
-            'dueDate': invoice ? invoice.due_date : "{{ $account->formatDate($account->getDateTime()) }}",
+            'dueDate': invoice ? invoice.partial_due_date || invoice.due_date : "{{ $account->formatDate($account->getDateTime()) }}",
             'invoiceDate': invoice ? invoice.invoice_date : "{{ $account->formatDate($account->getDateTime()) }}",
             'client': invoice ? getClientDisplayName(invoice.client) : "{{ trans('texts.client_name') }}",
             'amount': invoice ? formatMoneyInvoice(parseFloat(invoice.partial) || parseFloat(invoice.balance_amount), invoice) : formatMoneyAccount(100, account),

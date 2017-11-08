@@ -119,6 +119,7 @@ class InvoiceTransformer extends EntityTransformer
             'is_amount_discount' => (bool) $invoice->is_amount_discount,
             'invoice_footer' => $invoice->invoice_footer,
             'partial' => (float) $invoice->partial,
+            'partial_due_date' => $invoice->partial_due_date,
             'has_tasks' => (bool) $invoice->has_tasks,
             'auto_bill' => (bool) $invoice->auto_bill,
             'custom_value1' => (float) $invoice->custom_value1,

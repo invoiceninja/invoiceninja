@@ -15,6 +15,7 @@ class FrequencySeeder extends Seeder
             ['name' => 'Monthly'],
             ['name' => 'Two months'],
             ['name' => 'Three months'],
+            ['name' => 'Four months'],
             ['name' => 'Six months'],
             ['name' => 'Annually'],
         ];

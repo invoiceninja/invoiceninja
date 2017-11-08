@@ -200,15 +200,13 @@ class InvoiceApiController extends BaseAPIController
 
         if ($isEmailInvoice) {
             if ($payment) {
-                app('App\Ninja\Mailers\ContactMailer')->sendPaymentConfirmation($payment);
-                //$this->dispatch(new SendPaymentEmail($payment));
+                $this->dispatch(new SendPaymentEmail($payment));
             } else {
                 if ($invoice->is_recurring && $recurringInvoice = $this->invoiceRepo->createRecurringInvoice($invoice)) {
                     $invoice = $recurringInvoice;
                 }
                 $reminder = isset($data['email_type']) ? $data['email_type'] : false;
-                app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice, $reminder);
-                //$this->dispatch(new SendInvoiceEmail($invoice));
+                $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id, $reminder));
             }
         }
 
@@ -290,14 +288,23 @@ class InvoiceApiController extends BaseAPIController
     private function prepareItem($item)
     {
         // if only the product key is set we'll load the cost and notes
-        if (! empty($item['product_key']) && empty($item['cost']) && empty($item['notes'])) {
+        if (! empty($item['product_key'])) {
             $product = Product::findProductByKey($item['product_key']);
             if ($product) {
-                if (empty($item['cost'])) {
-                    $item['cost'] = $product->cost;
-                }
-                if (empty($item['notes'])) {
-                    $item['notes'] = $product->notes;
+                $fields = [
+                    'cost',
+                    'notes',
+                    'custom_value1',
+                    'custom_value2',
+                    'tax_name1',
+                    'tax_rate1',
+                    'tax_name2',
+                    'tax_rate2',
+                ];
+                foreach ($fields as $field) {
+                    if (! isset($item[$field])) {
+                        $item[$field] = $product->$field;
+                    }
                 }
             }
         }
@@ -326,11 +333,13 @@ class InvoiceApiController extends BaseAPIController
             $invoice = $recurringInvoice;
         }
 
-        //$this->dispatch(new SendInvoiceEmail($invoice));
-        $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
-
-        if ($result !== true) {
-            return $this->errorResponse($result, 500);
+        if (config('queue.default') !== 'sync') {
+            $this->dispatch(new SendInvoiceEmail($invoice, auth()->user()->id));
+        } else {
+            $result = app('App\Ninja\Mailers\ContactMailer')->sendInvoice($invoice);
+            if ($result !== true) {
+                return $this->errorResponse($result, 500);
+            }
         }
 
         $headers = Utils::getApiHeaders();

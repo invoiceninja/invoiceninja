@@ -72,6 +72,7 @@ class ReportController extends BaseController
             'activity',
             'aging',
             'client',
+            'document',
             'expense',
             'invoice',
             'payment',
@@ -98,6 +99,8 @@ class ReportController extends BaseController
                 'date_field' => $dateField,
                 'invoice_status' => request()->invoice_status,
                 'group_dates_by' => request()->group_dates_by,
+                'document_filter' => request()->document_filter,
+                'export_format' => $format,
             ];
             $report = new $reportClass($startDate, $endDate, $isExport, $options);
             if (Input::get('report_type')) {
@@ -138,61 +141,87 @@ class ReportController extends BaseController
 
         $filename = "{$params['startDate']}-{$params['endDate']}_invoiceninja-".strtolower(Utils::normalizeChars(trans("texts.$reportType")))."-report";
 
-        $formats = ['csv', 'pdf', 'xlsx'];
-        if(!in_array($format, $formats)) {
+        $formats = ['csv', 'pdf', 'xlsx', 'zip'];
+        if (! in_array($format, $formats)) {
             throw new \Exception("Invalid format request to export report");
         }
 
         //Get labeled header
-        $columns_labeled = $report->tableHeaderArray();
+        $data = array_merge(
+            [
+                array_map(function($col) {
+                    return $col['label'];
+                }, $report->tableHeaderArray())
+            ],
+            $data
+        );
 
-        /*$summary = [];
-        if(count(array_values($totals))) {
+        $summary = [];
+        if (count(array_values($totals))) {
             $summary[] = array_merge([
                 trans("texts.totals")
-            ], array_map(function ($key) {return trans("texts.{$key}");}, array_keys(array_values(array_values($totals)[0])[0])));
+            ], array_map(function ($key) {
+                return trans("texts.{$key}");
+            }, array_keys(array_values(array_values($totals)[0])[0])));
         }
 
         foreach ($totals as $currencyId => $each) {
             foreach ($each as $dimension => $val) {
                 $tmp   = [];
                 $tmp[] = Utils::getFromCache($currencyId, 'currencies')->name . (($dimension) ? ' - ' . $dimension : '');
-
-                foreach ($val as $id => $field) $tmp[] = Utils::formatMoney($field, $currencyId);
-
+                foreach ($val as $id => $field) {
+                    $tmp[] = Utils::formatMoney($field, $currencyId);
+                }
                 $summary[] = $tmp;
             }
         }
 
-        dd($summary);*/
+        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format, $summary) {
 
-        return Excel::create($filename, function($excel) use($report, $data, $reportType, $format, $columns_labeled) {
-            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format, $columns_labeled) {
-
+            $excel->sheet(trans("texts.$reportType"), function($sheet) use($report, $data, $format, $summary) {
                 $sheet->setOrientation('landscape');
                 $sheet->freezeFirstRow();
-
-                //Add border on PDF
-                if($format == 'pdf')
+                if ($format == 'pdf') {
                     $sheet->setAllBorders('thin');
+                }
 
-                $sheet->rows(array_merge(
-                    [array_map(function($col) {return $col['label'];}, $columns_labeled)],
-                    $data
-                ));
+                if ($format == 'csv') {
+                    $sheet->rows(array_merge($data, [[]], $summary));
+                } else {
+                    $sheet->rows($data);
+                }
 
-                //Styling header
-                $sheet->cells('A1:'.Utils::num2alpha(count($columns_labeled)-1).'1', function($cells) {
+                // Styling header
+                $sheet->cells('A1:'.Utils::num2alpha(count($data[0])-1).'1', function($cells) {
                     $cells->setBackground('#777777');
                     $cells->setFontColor('#FFFFFF');
                     $cells->setFontSize(13);
                     $cells->setFontFamily('Calibri');
                     $cells->setFontWeight('bold');
                 });
-
-
                 $sheet->setAutoSize(true);
             });
+
+            $excel->sheet(trans("texts.totals"), function($sheet) use($report, $summary, $format) {
+                $sheet->setOrientation('landscape');
+                $sheet->freezeFirstRow();
+
+                if ($format == 'pdf') {
+                    $sheet->setAllBorders('thin');
+                }
+                $sheet->rows($summary);
+
+                // Styling header
+                $sheet->cells('A1:'.Utils::num2alpha(count($summary[0])-1).'1', function($cells) {
+                    $cells->setBackground('#777777');
+                    $cells->setFontColor('#FFFFFF');
+                    $cells->setFontSize(13);
+                    $cells->setFontFamily('Calibri');
+                    $cells->setFontWeight('bold');
+                });
+                $sheet->setAutoSize(true);
+            });
+
         })->export($format);
     }
 }

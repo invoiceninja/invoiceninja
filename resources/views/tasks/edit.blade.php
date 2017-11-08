@@ -41,7 +41,7 @@
         {!! Former::text('time_log') !!}
     </div>
 
-    <div class="row">
+    <div class="row" onkeypress="formEnterClick(event)">
         <div class="col-md-12">
 
             <div class="panel panel-default">
@@ -490,6 +490,20 @@
         }
     }
 
+    function formEnterClick(event) {
+        if (event.keyCode === 13){
+            if (event.target.type == 'textarea') {
+                return;
+            }
+            event.preventDefault();
+            @if ($task && $task->trashed())
+                return;
+            @endif
+            submitAction('');
+            return false;
+        }
+    }
+
     $(function() {
         $('input[type=radio]').change(function() {
             onTaskTypeChange();
@@ -566,7 +580,7 @@
           $clientSelect.val(clientId);
         }
 
-        $clientSelect.combobox();
+        $clientSelect.combobox({highlighter: comboboxHighlighter});
         $clientSelect.on('change', function(e) {
           var clientId = $('input[name=client]').val();
           var projectId = $('input[name=project_id]').val();

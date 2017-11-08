@@ -101,15 +101,6 @@ You need to create a `Google Maps API <https://developers.google.com/maps/docume
 
 You can disable the feature by adding ``GOOGLE_MAPS_ENABLED=false`` to the .env file.
 
-Time Tracking App
-"""""""""""""""""
-
-You can create a Windows, MacOS or Linux desktop wrapper for the time tracking app by installing `Nativefier <https://github.com/jiahaog/nativefier>`_ and then running:
-
-.. code-block:: shell
-
-   nativefier --name "Invoice Ninja" --user-agent "Time Tracker" https://example.com/time_tracker
-
 Voice Commands
 """"""""""""""
 
@@ -122,6 +113,11 @@ You'll also need to set the following values in the .env file.
    SPEECH_ENABLED=true
    MSBOT_LUIS_APP_ID=...
    MSBOT_LUIS_SUBSCRIPTION_KEY=...
+
+Lock Invoices
+"""""""""""""
+
+Adding ``LOCK_SENT_INVOICES=true`` to the .env file will prevent changing an invoice once it has been sent.
 
 Using a Proxy
 """""""""""""

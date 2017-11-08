@@ -84,7 +84,7 @@ class EntityPresenter extends Presenter
         $entity = $this->entity;
         $entityType = $entity->getEntityType();
 
-        return sprintf('%s: %s', trans('texts.' . $entityType), $entity->getDisplayName());
+        return sprintf('%s %s', trans('texts.' . $entityType), $entity->getDisplayName());
     }
 
     public function calendarEvent($subColors = false)

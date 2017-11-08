@@ -23,7 +23,7 @@ class RemoveOrphanedDocuments extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running RemoveOrphanedDocuments...');
+        $this->info(date('r').' Running RemoveOrphanedDocuments...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);

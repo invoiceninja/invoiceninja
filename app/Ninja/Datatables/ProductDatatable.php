@@ -30,7 +30,7 @@ class ProductDatatable extends EntityDatatable
             [
                 'cost',
                 function ($model) {
-                    return Utils::formatMoney($model->cost);
+                    return Utils::roundSignificant($model->cost);
                 },
             ],
             [
@@ -50,6 +50,15 @@ class ProductDatatable extends EntityDatatable
                 uctrans('texts.edit_product'),
                 function ($model) {
                     return URL::to("products/{$model->public_id}/edit");
+                },
+            ],
+            [
+                trans('texts.invoice_product'),
+                function ($model) {
+                    return "javascript:submitForm_product('invoice', {$model->public_id})";
+                },
+                function ($model) {
+                    return (! $model->deleted_at || $model->deleted_at == '0000-00-00') && Auth::user()->can('create', ENTITY_INVOICE);
                 },
             ],
         ];

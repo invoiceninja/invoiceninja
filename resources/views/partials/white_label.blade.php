@@ -45,19 +45,20 @@
 
         <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
           <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
-          <button type="button" class="btn btn-primary" onclick="buyWhiteLabel()">{{ trans('texts.buy_license') }} </button>
-          <button type="button" class="btn btn-primary" onclick="showApplyLicense()">{{ trans('texts.apply_license') }} </button>
+          <!-- <button type="button" class="btn btn-primary" onclick="showRecoverLicense()">{{ trans('texts.recover') }} </button> -->
+          <button type="button" class="btn btn-primary" onclick="showApplyLicense()">{{ trans('texts.apply') }} </button>
+          <button type="button" class="btn btn-success" onclick="buyWhiteLabel()">{{ trans('texts.purchase') }} </button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="modal fade" id="whiteLabelLicenseModal" tabindex="-1" role="dialog" aria-labelledby="whiteLabelLicenseModal" aria-hidden="true">
+  <div class="modal fade" id="applyWhiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="applyWhiteLabelModal" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="myModalLabel">{{ trans('texts.white_label_header') }}</h4>
+            <h4 class="modal-title" id="myModalLabel">{{ trans('texts.apply_white_label_header') }}</h4>
           </div>
 
           <div class="container" style="width: 100%; padding-bottom: 0px !important">
@@ -65,6 +66,32 @@
           <div class="panel-body">
               {!! Former::open()->rules(['white_label_license_key' => 'required|min:24|max:24']) !!}
               {!! Former::input('white_label_license_key') !!}
+              {!! Former::close() !!}
+          </div>
+          </div>
+          </div>
+
+          <div class="modal-footer" id="signUpFooter" style="margin-top: 0px">
+            <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }} </button>
+            <button type="button" class="btn btn-success" onclick="applyLicense()">{{ trans('texts.submit') }} </button>
+          </div>
+        </div>
+      </div>
+  </div>
+
+  <div class="modal fade" id="recoverWhiteLabelModal" tabindex="-1" role="dialog" aria-labelledby="recoverWhiteLabelModal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">{{ trans('texts.recover_white_label_header') }}</h4>
+          </div>
+
+          <div class="container" style="width: 100%; padding-bottom: 0px !important">
+          <div class="panel panel-default">
+          <div class="panel-body">
+              {!! Former::open()->rules(['white_label_license_email' => 'required|email']) !!}
+              {!! Former::input('white_label_license_email')->label('email') !!}
               {!! Former::close() !!}
           </div>
           </div>
@@ -122,7 +149,12 @@
 
     function showApplyLicense() {
         $('#whiteLabelModal').modal('hide');
-        $('#whiteLabelLicenseModal').modal('show');
+        $('#applyWhiteLabelModal').modal('show');
+    }
+
+    function showRecoverLicense() {
+        $('#whiteLabelModal').modal('hide');
+        $('#recoverWhiteLabelModal').modal('show');
     }
 
     function applyLicense() {

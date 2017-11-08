@@ -53,6 +53,18 @@ class AccountPresenter extends Presenter
     }
 
     /**
+     * @return string
+     */
+    public function taskRate()
+    {
+        if ($this->entity->task_rate) {
+            return Utils::roundSignificant($this->entity->task_rate);
+        } else {
+            return '';
+        }
+    }
+
+    /**
      * @return mixed
      */
     public function currencyCode()

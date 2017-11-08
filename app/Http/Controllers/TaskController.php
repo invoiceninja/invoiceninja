@@ -262,7 +262,7 @@ class TaskController extends BaseController
             $this->taskRepo->save($ids, ['action' => $action]);
             return Redirect::to('tasks')->withMessage(trans($action == 'stop' ? 'texts.stopped_task' : 'texts.resumed_task'));
         } elseif ($action == 'invoice' || $action == 'add_to_invoice') {
-            $tasks = Task::scope($ids)->with('client')->orderBy('project_id', 'id')->get();
+            $tasks = Task::scope($ids)->with('account', 'client', 'project')->orderBy('project_id', 'id')->get();
             $clientPublicId = false;
             $data = [];
 
@@ -294,6 +294,7 @@ class TaskController extends BaseController
                     'publicId' => $task->public_id,
                     'description' => $task->present()->invoiceDescription($account, $showProject),
                     'duration' => $task->getHours(),
+                    'cost' => $task->getRate(),
                 ];
                 $lastProjectId = $task->project_id;
             }

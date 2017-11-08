@@ -149,9 +149,16 @@ class HomeController extends BaseController
             $subject = 'Customer Message: ';
             if (Utils::isNinjaProd()) {
                 $subject .= str_replace('db-', '', config('database.default'));
+                $account = Auth::user()->account;
+                if ($account->isEnterprise()) {
+                    $subject .= 'E';
+                } elseif ($account->isPro()) {
+                    $subject .= 'P';
+                }
             } else {
                 $subject .= 'Self-Host';
             }
+            $subject .= ' | ' . date('r');
             $message->to(env('CONTACT_EMAIL', 'contact@invoiceninja.com'))
                     ->from(CONTACT_EMAIL, Auth::user()->present()->fullName)
                     ->replyTo(Auth::user()->email, Auth::user()->present()->fullName)

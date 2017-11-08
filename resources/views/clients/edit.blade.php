@@ -23,6 +23,7 @@
 
 	@if ($client)
 		{!! Former::populate($client) !!}
+		{!! Former::populateField('task_rate', floatval($client->task_rate) ? Utils::roundSignificant($client->task_rate) : '') !!}
         {!! Former::hidden('public_id') !!}
 	@else
 		{!! Former::populateField('invoice_number_counter', 1) !!}
@@ -155,6 +156,11 @@
 				->fromQuery(\App\Models\PaymentTerm::getSelectOptions(), 'name', 'num_days')
 				->placeholder($account->present()->paymentTerms)
                 ->help(trans('texts.payment_terms_help')) !!}
+			@if ($account->isModuleEnabled(ENTITY_TASK))
+				{!! Former::text('task_rate')
+						->placeholder($account->present()->taskRate)
+						->help('task_rate_help') !!}
+			@endif
 			{!! Former::select('size_id')->addOption('','')
 				->fromQuery($sizes, 'name', 'id') !!}
 			{!! Former::select('industry_id')->addOption('','')

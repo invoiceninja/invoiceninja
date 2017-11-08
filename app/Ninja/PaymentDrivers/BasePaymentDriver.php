@@ -318,7 +318,11 @@ class BasePaymentDriver
 
         // parse the transaction reference
         if ($this->transactionReferenceParam) {
-            $ref = $this->purchaseResponse[$this->transactionReferenceParam];
+            if (! empty($this->purchaseResponse[$this->transactionReferenceParam])) {
+                $ref = $this->purchaseResponse[$this->transactionReferenceParam];
+            } else {
+                throw new Exception($response->getMessage() ?: trans('texts.payment_error'));
+            }
         } else {
             $ref = $response->getTransactionReference();
         }

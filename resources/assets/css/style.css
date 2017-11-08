@@ -28,7 +28,7 @@ border-bottom: 1px solid #dfe0e1;
 .redlink:hover { color:#c13b25; }
 
 .buttons { margin: 25px 0;  }
-.buttons .btn { margin: 0 6px;  }
+.buttons .btn { margin: 0 4px;  }
 
 /*forms*/
 .form-group {
@@ -616,7 +616,7 @@ body {
 }
 */
 
-div.discount-group span {
+div.no-padding-or-border span {
     padding: 0px;
     border: none;
 }
@@ -1411,4 +1411,9 @@ div.panel-body div.panel-body {
 #upgrade-modal select {
   vertical-align: top;
   width: 140px;
+}
+
+.no-gutter > [class*='col-'] {
+    padding-right:0;
+    padding-left:0;
 }

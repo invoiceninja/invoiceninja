@@ -61,7 +61,7 @@
                     ->text(trans('texts.update_address_help'))
                     ->value(1) !!}
             {!! Former::checkboxes('creditCardTypes[]')
-                    ->label('Accepted Credit Cards')
+                    ->label('accepted_card_logos')
                     ->checkboxes($creditCardTypes)
                     ->class('creditcard-types')
                     ->value(1) !!}

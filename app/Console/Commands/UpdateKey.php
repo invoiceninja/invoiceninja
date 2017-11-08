@@ -27,10 +27,10 @@ class UpdateKey extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d h:i:s') . ' Running UpdateKey...');
+        $this->info(date('r') . ' Running UpdateKey...');
 
         if (! env('APP_KEY') || ! env('APP_CIPHER')) {
-            $this->info(date('Y-m-d h:i:s') . ' Error: app key and cipher are not set');
+            $this->info(date('r') . ' Error: app key and cipher are not set');
             exit;
         }
 
@@ -73,9 +73,9 @@ class UpdateKey extends Command
         }
 
         if ($envWriteable) {
-            $this->info(date('Y-m-d h:i:s') . ' Successfully update the key');
+            $this->info(date('r') . ' Successfully update the key');
         } else {
-            $this->info(date('Y-m-d h:i:s') . ' Successfully update data, make sure to set the new app key: ' . $key);
+            $this->info(date('r') . ' Successfully update data, make sure to set the new app key: ' . $key);
         }
     }
 

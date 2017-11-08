@@ -47,6 +47,11 @@
 <script type="text/javascript">
     $(function() {
         $('#email').focus();
+
+        $('.form-signin').submit(function() {
+            $('button.btn-success').prop('disabled', true);
+        });
+
     })
 </script>
 

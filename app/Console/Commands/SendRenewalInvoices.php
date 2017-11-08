@@ -50,7 +50,7 @@ class SendRenewalInvoices extends Command
 
     public function fire()
     {
-        $this->info(date('Y-m-d').' Running SendRenewalInvoices...');
+        $this->info(date('r').' Running SendRenewalInvoices...');
 
         if ($database = $this->option('database')) {
             config(['database.default' => $database]);

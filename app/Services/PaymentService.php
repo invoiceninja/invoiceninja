@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Account;
 use App\Models\Activity;
 use App\Models\Client;
+use App\Models\Credit;
 use App\Models\Invoice;
 use App\Ninja\Datatables\PaymentDatatable;
 use App\Ninja\Repositories\AccountRepository;
@@ -149,8 +150,19 @@ class PaymentService extends BaseService
         }
     }
 
-    public function save($input, $payment = null)
+    public function save($input, $payment = null, $invoice = null)
     {
+        // if the payment amount is more than the balance create a credit
+        if ($invoice && $input['amount'] > $invoice->balance) {
+            $credit = Credit::createNew();
+            $credit->client_id = $invoice->client_id;
+            $credit->credit_date = date_create()->format('Y-m-d');
+            $credit->amount = $credit->balance = $input['amount'] - $invoice->balance;
+            $credit->private_notes = trans('texts.credit_created_by', ['transaction_reference' => isset($input['transaction_reference']) ? $input['transaction_reference'] : '']);
+            $credit->save();
+            $input['amount'] = $invoice->balance;
+        }
+
         return $this->paymentRepo->save($input, $payment);
     }
 

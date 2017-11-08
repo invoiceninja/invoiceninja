@@ -27,8 +27,7 @@ function ViewModel(data) {
     self.setDueDate = function() {
         @if ($entityType == ENTITY_INVOICE)
             var paymentTerms = parseInt(self.invoice().client().payment_terms());
-            if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date())
-            {
+            if (paymentTerms && paymentTerms != 0 && !self.invoice().due_date()) {
                 if (paymentTerms == -1) paymentTerms = 0;
                 var dueDate = $('#invoice_date').datepicker('getDate');
                 dueDate.setDate(dueDate.getDate() + paymentTerms);
@@ -52,7 +51,6 @@ function ViewModel(data) {
 
     self.invoice_taxes = ko.observable({{ Auth::user()->account->invoice_taxes ? 'true' : 'false' }});
     self.invoice_item_taxes = ko.observable({{ Auth::user()->account->invoice_item_taxes ? 'true' : 'false' }});
-    self.show_item_taxes = ko.observable({{ Auth::user()->account->show_item_taxes ? 'true' : 'false' }});
 
     self.mapping = {
         'invoice': {
@@ -257,6 +255,7 @@ function InvoiceModel(data) {
     self.partial = ko.observable(0);
     self.has_tasks = ko.observable();
     self.has_expenses = ko.observable();
+    self.partial_due_date = ko.observable('');
 
     self.custom_value1 = ko.observable(0);
     self.custom_value2 = ko.observable(0);
@@ -309,9 +308,6 @@ function InvoiceModel(data) {
             return false;
         }
         var itemModel = new ItemModel();
-        @if ($account->hide_quantity)
-            itemModel.qty(1);
-        @endif
         if (isTask) {
             itemModel.invoice_item_type_id({{ INVOICE_ITEM_TYPE_TASK }});
             self.invoice_items_with_tasks.push(itemModel);
@@ -620,6 +616,17 @@ function InvoiceModel(data) {
         var isAmountDiscount = $('#is_amount_discount').val();
         localStorage.setItem('last:is_amount_discount', isAmountDiscount);
     }
+
+    self.isPartialSet = ko.computed(function() {
+        return self.partial() && self.partial() <= model.invoice().totals.rawTotal()
+    });
+
+    self.showPartialDueDate = ko.computed(function() {
+        if (self.is_quote()) {
+            return false;
+        }
+        return self.isPartialSet();
+    });
 }
 
 function ClientModel(data) {
@@ -857,14 +864,14 @@ function ItemModel(data) {
         owner: this
     });
 
-    if (data) {
+    self.loadData = function(data) {
         ko.mapping.fromJS(data, {}, this);
-        var precision = getPrecision(this.cost());
-        var cost = parseFloat(this.cost());
-        if (cost) {
-            this.cost(cost.toFixed(Math.max(2, precision)));
-        }
+        this.cost(roundSignificant(this.cost(), true));
         this.qty(roundSignificant(this.qty()));
+    }
+
+    if (data) {
+        self.loadData(data);
     }
 
     this.totals = ko.observable();
@@ -888,7 +895,7 @@ function ItemModel(data) {
     }
 
     this.isEmpty = function() {
-        return !self.product_key() && !self.notes() && !self.cost() && (!self.qty() || {{ $account->hide_quantity ? 'true' : 'false' }});
+        return !self.product_key() && !self.notes() && !self.cost() && !self.qty();
     }
 
     this.onSelect = function() {}
@@ -995,10 +1002,10 @@ ko.bindingHandlers.productTypeahead = {
             limit: 50,
             templates: {
                 suggestion: function(item) { return '<div title="'
-                    + item.product_key + ': '
+                    + _.escape(item.product_key) + ': '
                     + item.cost + "\n"
                     + item.notes.substring(0, 60) + '">'
-                    + item.product_key + '</div>' }
+                    + _.escape(item.product_key) + '</div>' }
             },
             source: searchData(allBindings.items, allBindings.key)
         }).on('typeahead:select', function(element, datum, name) {
@@ -1010,8 +1017,10 @@ ko.bindingHandlers.productTypeahead = {
                 if (datum.notes && (!model.notes() || !model.task_public_id())) {
                     model.notes(datum.notes);
                 }
-                if (datum.cost) {
-                    model.cost(roundSignificant(datum.cost, 2));
+                if (parseFloat(datum.cost)) {
+                    if (! model.cost() || ! model.task_public_id()) {
+                        model.cost(roundSignificant(datum.cost, true));
+                    }
                 }
                 if (!model.qty()) {
                     model.qty(1);

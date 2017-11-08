@@ -8,14 +8,11 @@
 </div>
 
 <div class="pull-left">
-	@can('create', 'invoice')
-		@if ($entityType == ENTITY_TASK)
+	@if (in_array($entityType, [ENTITY_TASK, ENTITY_INVOICE, ENTITY_PRODUCT]))
+		@can('create', 'invoice')
 			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
-		@endif
-		@if ($entityType == ENTITY_EXPENSE)
-			{!! Button::primary(trans('texts.invoice'))->withAttributes(['class'=>'invoice', 'onclick' =>'submitForm_'.$entityType.'("invoice")'])->appendIcon(Icon::create('check')) !!}
-		@endif
-	@endcan
+		@endcan
+	@endif
 
 	{!! DropdownButton::normal(trans('texts.archive'))
 			->withContents($datatable->bulkActions())
@@ -58,8 +55,8 @@
 		  )->split() !!}
 		<script type="text/javascript">
 			$(function() {
-				$('.recurringDropdown:not(.dropdown-toggle)').click(function() {
-					window.location = '{{ url('/recurring_invoices') }}';
+				$('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/recurring_invoices') }}', event);
 				});
 			});
 		</script>
@@ -78,11 +75,11 @@
 		  )->split() !!}
 	  	<script type="text/javascript">
 		  	$(function() {
-				$('.recurringDropdown:not(.dropdown-toggle)').click(function() {
-		  			window.location = '{{ url('/recurring_expenses') }}';
+				$('.recurringDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/recurring_expenses') }}', event)
 		  		});
-				$('.categoriesDropdown:not(.dropdown-toggle)').click(function() {
-		  			window.location = '{{ url('/expense_categories') }}';
+				$('.categoriesDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/expense_categories') }}', event);
 		  		});
 			});
 		</script>
@@ -96,8 +93,8 @@
 		  )->split() !!}
 	  	<script type="text/javascript">
 		  	$(function() {
-		  		$('.projectsDropdown:not(.dropdown-toggle)').click(function() {
-		  			window.location = '{{ url('projects') }}';
+		  		$('.projectsDropdown:not(.dropdown-toggle)').click(function(event) {
+					openUrlOnClick('{{ url('/projects') }}', event);
 		  		});
 			});
 		</script>

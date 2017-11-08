@@ -9,7 +9,6 @@
   {{ Former::populate($account) }}
   {{ Former::populateField('invoice_taxes', intval($account->invoice_taxes)) }}
   {{ Former::populateField('invoice_item_taxes', intval($account->invoice_item_taxes)) }}
-  {{ Former::populateField('show_item_taxes', intval($account->show_item_taxes)) }}
   {{ Former::populateField('enable_second_tax_rate', intval($account->enable_second_tax_rate)) }}
   {{ Former::populateField('include_item_taxes_inline', intval($account->include_item_taxes_inline)) }}
 
@@ -27,11 +26,6 @@
 
     {!! Former::checkbox('invoice_item_taxes')
         ->text(trans('texts.enable_line_item_tax'))
-        ->label('&nbsp;')
-        ->value(1) !!}
-
-    {!! Former::checkbox('show_item_taxes')
-        ->text(trans('texts.show_line_item_tax'))
         ->label('&nbsp;')
         ->value(1) !!}
 

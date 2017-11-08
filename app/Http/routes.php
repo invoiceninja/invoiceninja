@@ -79,6 +79,8 @@ Route::group(['middleware' => 'lookup:postmark'], function () {
 Route::group(['middleware' => 'lookup:account'], function () {
     Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
+    Route::get('validate_two_factor/{account_key}', 'Auth\AuthController@getValidateToken');
+    Route::post('validate_two_factor/{account_key}', ['middleware' => 'throttle:5', 'uses' => 'Auth\AuthController@postValidateToken']);
 });
 
 //Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
@@ -141,6 +143,8 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
     Route::post('settings/user_details', 'AccountController@saveUserDetails');
     Route::post('settings/payment_gateway_limits', 'AccountGatewayController@savePaymentGatewayLimits');
     Route::post('users/change_password', 'UserController@changePassword');
+    Route::get('settings/enable_two_factor', 'TwoFactorController@setupTwoFactor');
+    Route::post('settings/enable_two_factor', 'TwoFactorController@enableTwoFactor');
 
     Route::resource('clients', 'ClientController');
     Route::get('api/clients', 'ClientController@getDatatable');

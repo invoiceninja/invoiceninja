@@ -41,7 +41,7 @@ class AgingReport extends AbstractReport
                     $this->isExport ? $client->getDisplayName() : $client->present()->link,
                     $this->isExport ? $invoice->invoice_number : $invoice->present()->link,
                     $invoice->present()->invoice_date,
-                    $invoice->present()->due_date,
+                    $invoice->present()->partial_due_date ?: $invoice->present()->due_date,
                     $invoice->present()->age,
                     $account->formatMoney($invoice->amount, $client),
                     $account->formatMoney($invoice->balance, $client),

@@ -51,7 +51,6 @@
             remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
             invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
         };
-      invoice.account.hide_quantity = {!! Auth::user()->account->hide_quantity ? 'true' : 'false' !!};
       invoice.account.hide_paid_to_date = {!! Auth::user()->account->hide_paid_to_date ? 'true' : 'false' !!};
       NINJA.primaryColor = '{!! Auth::user()->account->primary_color !!}';
       NINJA.secondaryColor = '{!! Auth::user()->account->secondary_color !!}';
@@ -215,7 +214,7 @@
       <script>
 
         function showHelp() {
-            $('#helpModal').modal('show');
+            $('#designHelpModal').modal('show');
         }
 
       </script>
@@ -223,12 +222,12 @@
       {!! Former::close() !!}
 
 
-    <div class="modal fade" id="helpModal" tabindex="-1" role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal fade" id="designHelpModal" tabindex="-1" role="dialog" aria-labelledby="designHelpModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title" id="helpModalLabel">{{ trans('texts.help') }}</h4>
+            <h4 class="modal-title" id="designHelpModalLabel">{{ trans('texts.help') }}</h4>
           </div>
 
 		  <div class="container" style="width: 100%; padding-bottom: 0px !important">
@@ -246,6 +245,7 @@
 
          <div class="modal-footer">
             <button type="button" class="btn btn-default" data-dismiss="modal">{{ trans('texts.close') }}</button>
+			<a class="btn btn-primary" href="{{ config('ninja.video_urls.custom_design') }}" target="_blank">{{ trans('texts.video') }}</a>
          </div>
 
         </div>

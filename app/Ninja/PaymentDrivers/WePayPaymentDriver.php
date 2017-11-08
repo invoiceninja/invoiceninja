@@ -276,6 +276,10 @@ class WePayPaymentDriver extends BasePaymentDriver
                 throw new Exception('Unknown payment');
             }
 
+            if ($payment->is_deleted || $payment->invoice->is_deleted) {
+                throw new Exception('Payment is deleted');
+            }
+
             $wepay = Utils::setupWePay($accountGateway);
             $checkout = $wepay->request('checkout', [
                 'checkout_id' => intval($objectId),

@@ -6,7 +6,8 @@
     {!! Former::open_for_files()->addClass('warn-on-exit')->rules(array(
         'first_name' => 'required',
         'last_name' => 'required',
-        'email' => 'email|required'
+        'email' => 'email|required',
+        'phone' => $user->google_2fa_secret ? 'required' : ''
     )) !!}
 
     {{ Former::populate($account) }}
@@ -15,6 +16,7 @@
     {{ Former::populateField('email', $user->email) }}
     {{ Former::populateField('phone', $user->phone) }}
     {{ Former::populateField('dark_mode', intval($user->dark_mode)) }}
+    {{ Former::populateField('enable_two_factor', $user->google_2fa_secret ? 1 : 0) }}
 
     @if (Input::has('affiliate'))
         {{ Former::populateField('referral_code', true) }}
@@ -48,6 +50,22 @@
                      !!}
                 @endif
 
+                @if ($user->confirmed)
+                  @if ($user->google_2fa_secret)
+                      {!! Former::checkbox('enable_two_factor')
+                              ->help(trans('texts.enable_two_factor_help'))
+                              ->text(trans('texts.enable'))
+                              ->value(1)  !!}
+                  @elseif ($user->phone)
+                      {!! Former::plaintext('enable_two_factor')->value(
+                              Button::primary(trans('texts.enable'))->asLinkTo(url('settings/enable_two_factor'))->small()
+                          )->help('enable_two_factor_help') !!}
+                  @else
+                      {!! Former::plaintext('enable_two_factor')
+                          ->value('<span class="text-muted">' . trans('texts.set_phone_for_two_factor') . '</span>') !!}
+                  @endif
+                @endif
+
                 {!! Former::checkbox('dark_mode')
                         ->help(trans('texts.dark_mode_help'))
                         ->text(trans('texts.enable'))
@@ -79,7 +97,7 @@
         @include('accounts.partials.notifications')
     @endif
 
-    <center>
+    <center class="buttons">
         @if (Auth::user()->confirmed)
             {!! Button::primary(trans('texts.change_password'))
                     ->appendIcon(Icon::create('lock'))

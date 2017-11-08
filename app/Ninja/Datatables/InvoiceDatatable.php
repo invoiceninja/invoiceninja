@@ -66,7 +66,11 @@ class InvoiceDatatable extends EntityDatatable
             [
                 $entityType == ENTITY_INVOICE ? 'due_date' : 'valid_until',
                 function ($model) {
-                    return Utils::fromSqlDate($model->due_date_sql);
+                    $str = '';
+                    if ($model->partial_due_date) {
+                        $str = Utils::fromSqlDate($model->partial_due_date) . ', ';
+                    }
+                    return $str . Utils::fromSqlDate($model->due_date_sql);
                 },
             ],
             [
@@ -165,7 +169,7 @@ class InvoiceDatatable extends EntityDatatable
 
     private function getStatusLabel($model)
     {
-        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->due_date_sql, $model->is_recurring);
+        $class = Invoice::calcStatusClass($model->invoice_status_id, $model->balance, $model->partial_due_date ?: $model->due_date_sql, $model->is_recurring);
         $label = Invoice::calcStatusLabel($model->invoice_status_name, $class, $this->entityType, $model->quote_invoice_id);
 
         return "<h4><div class=\"label label-{$class}\">$label</div></h4>";

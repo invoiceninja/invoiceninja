@@ -443,7 +443,9 @@ class ImportService
         // update the entity maps
         if ($entityType != ENTITY_CUSTOMER) {
             $mapFunction = 'add' . ucwords($entity->getEntityType()) . 'ToMaps';
-            $this->$mapFunction($entity);
+            if (method_exists($this, $mapFunction)) {
+                $this->$mapFunction($entity);
+            }
         }
 
         // if the invoice is paid we'll also create a payment record
@@ -929,6 +931,7 @@ class ImportService
     private function addInvoiceToMaps(Invoice $invoice)
     {
         if ($number = strtolower(trim($invoice->invoice_number))) {
+            $this->maps['invoices'][$number] = $invoice;
             $this->maps['invoice'][$number] = $invoice->id;
             $this->maps['invoice_client'][$number] = $invoice->client_id;
             $this->maps['invoice_ids'][$invoice->public_id] = $invoice->id;

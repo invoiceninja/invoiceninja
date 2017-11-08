@@ -89,6 +89,11 @@ class Utils
         return env('NINJA_DEV') == 'true';
     }
 
+    public static function isTimeTracker()
+    {
+        return array_get($_SERVER, 'HTTP_USER_AGENT') == TIME_TRACKER_USER_AGENT;
+    }
+
     public static function requireHTTPS()
     {
         if (Request::root() === 'http://ninja.dev' || Request::root() === 'http://ninja.dev:8000') {
@@ -1064,7 +1069,7 @@ class Utils
     {
         $name = trim($name);
         $lastName = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
-        $firstName = trim(preg_replace('#'.$lastName.'#', '', $name));
+        $firstName = trim(preg_replace('#' . preg_quote($lastName, '/') . '#', '', $name));
 
         return [$firstName, $lastName];
     }

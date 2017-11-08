@@ -36,5 +36,6 @@ class Kernel extends HttpKernel
         'guest' => 'App\Http\Middleware\RedirectIfAuthenticated',
         'api' => 'App\Http\Middleware\ApiCheck',
         'cors' => '\Barryvdh\Cors\HandleCors',
+        'throttle' => 'Illuminate\Routing\Middleware\ThrottleRequests',
     ];
 }

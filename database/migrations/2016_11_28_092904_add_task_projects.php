@@ -32,6 +32,7 @@ class AddTaskProjects extends Migration
 
         Schema::table('tasks', function ($table) {
             $table->unsignedInteger('project_id')->nullable()->index();
+
             if (Schema::hasColumn('tasks', 'description')) {
                 $table->text('description')->change();
             }
@@ -53,17 +54,25 @@ class AddTaskProjects extends Migration
         });
 
         // add 'delete cascase' to resolve error when deleting an account
-        Schema::table('account_gateway_tokens', function ($table) {
-            $table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
-        });
+        // This may fail if the foreign key doesn't exist
+        try {
+            Schema::table('account_gateway_tokens', function ($table) {
+                $table->dropForeign('account_gateway_tokens_default_payment_method_id_foreign');
+            });
+        } catch (Exception $e) {
+            // do nothing
+        }
 
         Schema::table('account_gateway_tokens', function ($table) {
             $table->foreign('default_payment_method_id')->references('id')->on('payment_methods')->onDelete('cascade');
         });
 
-        Schema::table('invoices', function ($table) {
-            $table->boolean('is_public')->default(false);
-        });
+        if (! Schema::hasColumn('invoices', 'is_public')) {
+            Schema::table('invoices', function ($table) {
+                $table->boolean('is_public')->default(false);
+            });
+        }
+
         DB::table('invoices')->update(['is_public' => true]);
     }
 

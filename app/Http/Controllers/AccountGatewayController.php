@@ -209,7 +209,8 @@ class AccountGatewayController extends BaseController
         $validator = Validator::make(Input::all(), $rules);
 
         if ($validator->fails()) {
-            return Redirect::to('gateways/create?other_providers=' . ($gatewayId == GATEWAY_WEPAY ? 'false' : 'true'))
+            $url = $accountGatewayPublicId ? "/gateways/{$accountGatewayPublicId}/edit" : 'gateways/create?other_providers=' . ($gatewayId == GATEWAY_WEPAY ? 'false' : 'true');
+            return Redirect::to($url)
                 ->withErrors($validator)
                 ->withInput();
         } else {
@@ -294,6 +295,8 @@ class AccountGatewayController extends BaseController
             if ($gatewayId == GATEWAY_STRIPE) {
                 $config->enableAlipay = boolval(Input::get('enable_alipay'));
                 $config->enableSofort = boolval(Input::get('enable_sofort'));
+                $config->enableSepa = boolval(Input::get('enable_sepa'));
+                $config->enableBitcoin = boolval(Input::get('enable_bitcoin'));
             }
 
             if ($gatewayId == GATEWAY_STRIPE || $gatewayId == GATEWAY_WEPAY) {

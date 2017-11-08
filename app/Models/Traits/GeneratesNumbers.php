@@ -345,6 +345,9 @@ trait GeneratesNumbers
             case FREQUENCY_THREE_MONTHS:
                 $resetDate->addMonths(3);
                 break;
+            case FREQUENCY_FOUR_MONTHS:
+                $resetDate->addMonths(4);
+                break;
             case FREQUENCY_SIX_MONTHS:
                 $resetDate->addMonths(6);
                 break;

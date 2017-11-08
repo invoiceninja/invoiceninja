@@ -141,6 +141,13 @@
                                     ->addOption(trans('texts.payment_date'), FILTER_PAYMENT_DATE) !!}
                         </div>
 
+						<div id="invoiceOrExpenseField" style="display:none">
+							{!! Former::select('document_filter')->label('filter')
+								->addOption(trans('texts.all'), '')
+									->addOption(trans('texts.invoice'), 'invoice')
+									->addOption(trans('texts.expense'), 'expense') !!}
+						</div>
+
                     </div>
                     <div class="col-md-6">
 
@@ -164,9 +171,10 @@
 	@endif
 
 
-	<center>
+	<center class="buttons">
 		{!! DropdownButton::primary(trans('texts.export'))
 			  ->large()
+			  ->withAttributes(array('id' => 'export-button'))
               ->withContents([
 				  ['url' => 'javascript:onExportClick("csv")', 'label' => 'CSV'],
 				  ['url' => 'javascript:onExportClick("xlsx")', 'label' => 'XLSX'],
@@ -177,8 +185,7 @@
 				->submit()
 				->appendIcon(Icon::create('play'))
 				->large() !!}
-	</center><br/>
-
+	</center>
 
 	{!! Former::close() !!}
 
@@ -268,20 +275,25 @@
         $('#action').val('export');
 		$('#format').val(format);
         $('#submitButton').click();
-        $('#action').val('');
+		$('#action').val('');
     }
 
 	function setFiltersShown() {
 		var val = $('#report_type').val();
-		if (val == '{{ ENTITY_TAX_RATE }}') {
-			$('#dateField').show();
-		} else {
-			$('#dateField').hide();
-		}
-		if (val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}') {
-			$('#statusField').show();
-		} else {
-			$('#statusField').hide();
+		$('#dateField').toggle(val == '{{ ENTITY_TAX_RATE }}');
+		$('#statusField').toggle(val == '{{ ENTITY_INVOICE }}' || val == '{{ ENTITY_PRODUCT }}');
+		$('#invoiceOrExpenseField').toggle(val == '{{ ENTITY_DOCUMENT }}');
+	}
+
+	function setDocumentZipShown() {
+		var $ul = $('#export-button').next();
+		var val = $('#report_type').val();
+		var showOption = ['invoice', 'quote', 'expense', 'document'].indexOf(val) >= 0;
+		var numOptions = $ul.children().length;
+		if (showOption && numOptions == 3) {
+			$ul.append('<li><a href="javascript:onExportClick(\'zip\')">ZIP - {{ trans('texts.documents') }}</a></li>');
+		} else if (! showOption && numOptions == 4) {
+			$ul.find('li:last-child').remove();
 		}
 	}
 
@@ -298,9 +310,17 @@
             toggleDatePicker('end_date');
         });
 
+		$('#document_filter').change(function() {
+			var val = $('#document_filter').val();
+            if (isStorageSupported()) {
+                localStorage.setItem('last:document_filter', val);
+            }
+        });
+
         $('#report_type').change(function() {
 			var val = $('#report_type').val();
 			setFiltersShown();
+			setDocumentZipShown();
             if (isStorageSupported()) {
                 localStorage.setItem('last:report_type', val);
             }
@@ -361,11 +381,19 @@
 				widgets: ['zebra', 'uitheme'],
 			}).show();
 
-			var lastReportType = localStorage.getItem('last:report_type');
-			if (lastReportType) {
-				$('#report_type').val(lastReportType);
+			if (isStorageSupported()) {
+				var lastReportType = localStorage.getItem('last:report_type');
+				if (lastReportType) {
+					$('#report_type').val(lastReportType);
+				}
+				var lastDocumentFilter = localStorage.getItem('last:document_filter');
+				if (lastDocumentFilter) {
+					$('#document_filter').val(lastDocumentFilter);
+				}
 			}
+
 			setFiltersShown();
+			setDocumentZipShown();
 		});
     })
 

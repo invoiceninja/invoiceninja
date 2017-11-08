@@ -26,9 +26,9 @@
                                         {{ strtoupper(trans('texts.valid_until')) }} {{ $account->formatDate($invoice->due_date) }}
                                     @else
                                         @if ($account->hasCustomLabel('due_date'))
-                                            {{ $account->getLabel('due_date') }} {{ $account->formatDate($invoice->due_date) }}
+                                            {{ $account->getLabel('due_date') }} {{ $account->formatDate($invoice->partial_due_date ?: $invoice->due_date) }}
                                         @else
-                                            {{ utrans('texts.due_by', ['date' => $account->formatDate($invoice->due_date)]) }}
+                                            {{ utrans('texts.due_by', ['date' => $account->formatDate($invoice->partial_due_date ?: $invoice->due_date)]) }}
                                         @endif
                                     @endif
                                 </span><br />
@@ -63,10 +63,14 @@
 
 @section('footer')
     <p style="color: #A7A6A6; font-size: 13px; line-height: 18px; margin: 0 0 7px; padding: 0;">
-        {{ $account->present()->address }}
-        <br />
-        @if ($account->website)
-            <strong><a href="{{ $account->present()->website }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
+        @if (! $account->isPaid())
+            {!! trans('texts.ninja_email_footer', ['site' => link_to(NINJA_WEB_URL . '?utm_source=email_footer', APP_NAME)]) !!}
+        @else
+            {{ $account->present()->address }}
+            <br />
+            @if ($account->website)
+                <strong><a href="{{ $account->present()->website }}" style="color: #A7A6A6; text-decoration: none; font-weight: bold; font-size: 10px;">{{ $account->website }}</a></strong>
+            @endif
         @endif
     </p>
 @stop

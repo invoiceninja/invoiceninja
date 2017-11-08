@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Event;
+use App\Events\UserLoggedIn;
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 
@@ -18,7 +20,9 @@ class PasswordController extends Controller
     |
     */
 
-    use ResetsPasswords;
+    use ResetsPasswords {
+        getResetSuccessResponse as protected traitGetResetSuccessResponse;
+    }
 
     /**
      * @var string
@@ -48,5 +52,19 @@ class PasswordController extends Controller
         }
 
         return $this->getEmail();
+    }
+
+    protected function getResetSuccessResponse($response)
+    {
+        $user = auth()->user();
+
+        if ($user->google_2fa_secret) {
+            auth()->logout();
+            session(['2fa:user:id' => $user->id]);
+            return redirect('/validate_two_factor/' . $user->account->account_key);
+        } else {
+            Event::fire(new UserLoggedIn());
+            return $this->traitGetResetSuccessResponse($response);
+        }
     }
 }

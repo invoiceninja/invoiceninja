@@ -86,11 +86,6 @@
             text-decoration:underline;
         }
 
-        .no-gutter > [class*='col-'] {
-            padding-right:0;
-            padding-left:0;
-        }
-
         .list-group-item:before {
             position: absolute;
             top: 0;
@@ -210,12 +205,12 @@
 			                            {!! Former::select('client_id')
 												->addOption('', '')
 												->label('client')
-												->data_bind("dropdown: selectedTask().client_id") !!}
+												->data_bind("dropdown: selectedTask().client_id, dropdownOptions: {highlighter: comboboxHighlighter}") !!}
 									</div>
 									<div style="padding-bottom: 20px; padding-left:6px;" class="project-select col-md-6 no-padding-mobile">
 			                            {!! Former::select('project_id')
 			                                    ->addOption('', '')
-			                                    ->data_bind("dropdown: selectedTask().project_id")
+			                                    ->data_bind("dropdown: selectedTask().project_id, dropdownOptions: {highlighter: comboboxHighlighter}")
 			                                    ->label(trans('texts.project')) !!}
 									</div>
 								</div>
@@ -400,7 +395,7 @@
 
 		function refreshClientList() {
 			var $clientSelect = $('select#client_id');
-			$clientSelect.find('option').remove().end().combobox('refresh');
+			$clientSelect.combobox({highlighter: comboboxHighlighter}).find('option').remove().end().combobox('refresh');
 			$clientSelect.append(new Option('', ''));
 
 			@if (Auth::user()->can('create', ENTITY_CLIENT))

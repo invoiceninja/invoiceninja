@@ -12,7 +12,7 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
     public function gatewayTypes()
     {
         $types = [
-            GATEWAY_TYPE_BANK_TRANSFER,
+            GATEWAY_TYPE_GOCARDLESS,
             GATEWAY_TYPE_TOKEN,
         ];
 
@@ -109,6 +109,10 @@ class GoCardlessV2RedirectPaymentDriver extends BasePaymentDriver
             $payment = Payment::scope(false, $accountId)->where('transaction_reference', '=', $sourceRef)->first();
 
             if (! $payment) {
+                continue;
+            }
+
+            if ($payment->is_deleted || $payment->invoice->is_deleted) {
                 continue;
             }
 

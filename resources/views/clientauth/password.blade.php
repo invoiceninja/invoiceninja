@@ -41,4 +41,13 @@
 
         {!! Former::close() !!}
     </div>
+
+    <script type="text/javascript">
+        $(function() {
+            $('.form-signin').submit(function() {
+                $('button.btn-success').prop('disabled', true);
+            });
+        })
+    </script>
+
 @endsection

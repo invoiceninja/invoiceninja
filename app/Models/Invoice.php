@@ -216,6 +216,7 @@ class Invoice extends EntityModel implements BalanceAffecting
                 'public_notes',
                 'invoice_footer',
                 'partial',
+                'partial_due_date',
             ] as $field) {
                 if ($this->$field != $this->getOriginal($field)) {
                     return true;
@@ -634,6 +635,15 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         if ($this->partial > 0) {
             $this->partial = $partial;
+
+            // clear the partial due date and set the due date
+            // using payment terms if it's blank
+            if (! $this->partial && $this->partial_due_date) {
+                $this->partial_due_date = null;
+                if (! $this->due_date) {
+                    $this->due_date = $this->account->defaultDueDate($this->client);
+                }
+            }
         }
 
         $this->save();
@@ -682,7 +692,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         if ($quoteInvoiceId) {
             $label = 'converted';
         } elseif ($class == 'danger') {
-            $label = $entityType == ENTITY_INVOICE ? 'overdue' : 'expired';
+            $label = $entityType == ENTITY_INVOICE ? 'past_due' : 'expired';
         } else {
             $label = 'status_' . strtolower($status);
         }
@@ -719,7 +729,8 @@ class Invoice extends EntityModel implements BalanceAffecting
 
     public function statusClass()
     {
-        return static::calcStatusClass($this->invoice_status_id, $this->balance, $this->getOriginal('due_date'), $this->is_recurring);
+        $dueDate = $this->getOriginal('partial_due_date') ?: $this->getOriginal('due_date');
+        return static::calcStatusClass($this->invoice_status_id, $this->balance, $dueDate, $this->is_recurring);
     }
 
     public function statusLabel()
@@ -808,7 +819,7 @@ class Invoice extends EntityModel implements BalanceAffecting
      */
     public function isOverdue()
     {
-        return static::calcIsOverdue($this->balance, $this->due_date);
+        return static::calcIsOverdue($this->balance, $this->partial_due_date ?: $this->due_date);
     }
 
     /**
@@ -878,6 +889,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             'custom_taxes1',
             'custom_taxes2',
             'partial',
+            'partial_due_date',
             'has_tasks',
             'custom_text_value1',
             'custom_text_value2',
@@ -1198,7 +1210,7 @@ class Invoice extends EntityModel implements BalanceAffecting
         }
 
         $invitation = $this->invitations[0];
-        $link = $invitation->getLink('view', true);
+        $link = $invitation->getLink('view', true, true);
         $pdfString = false;
         $phantomjsSecret = env('PHANTOMJS_SECRET');
         $phantomjsLink = $link . "?phantomjs=true&phantomjs_secret={$phantomjsSecret}";
@@ -1208,8 +1220,11 @@ class Invoice extends EntityModel implements BalanceAffecting
                 // we see occasional 408 errors
                 for ($i=1; $i<=5; $i++) {
                     $pdfString = CurlUtils::phantom('GET', $phantomjsLink);
-                    if ($pdfString) {
+                    $pdfString = strip_tags($pdfString);
+                    if (strpos($pdfString, 'data') === 0) {
                         break;
+                    } else {
+                        $pdfString = false;
                     }
                 }
             }
@@ -1217,9 +1232,8 @@ class Invoice extends EntityModel implements BalanceAffecting
             if (! $pdfString && ($key = env('PHANTOMJS_CLOUD_KEY'))) {
                 $url = "http://api.phantomjscloud.com/api/browser/v2/{$key}/?request=%7Burl:%22{$link}?phantomjs=true%26phantomjs_secret={$phantomjsSecret}%22,renderType:%22html%22%7D";
                 $pdfString = CurlUtils::get($url);
+                $pdfString = strip_tags($pdfString);
             }
-
-            $pdfString = strip_tags($pdfString);
         } catch (\Exception $exception) {
             Utils::logError("PhantomJS - Failed to load {$phantomjsLink}: {$exception->getMessage()}");
             return false;
@@ -1234,7 +1248,7 @@ class Invoice extends EntityModel implements BalanceAffecting
             if ($pdf = Utils::decodePDF($pdfString)) {
                 return $pdf;
             } else {
-                Utils::logError("PhantomJS - Unable to decode {$phantomjsLink}: {$pdfString}");
+                Utils::logError("PhantomJS - Unable to decode {$phantomjsLink}");
                 return false;
             }
         } else {
@@ -1465,7 +1479,7 @@ class Invoice extends EntityModel implements BalanceAffecting
 
         if ($entityType == ENTITY_INVOICE) {
             $statuses[INVOICE_STATUS_UNPAID] = trans('texts.unpaid');
-            $statuses[INVOICE_STATUS_OVERDUE] = trans('texts.overdue');
+            $statuses[INVOICE_STATUS_OVERDUE] = trans('texts.past_due');
         }
 
         return $statuses;

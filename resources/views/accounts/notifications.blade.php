@@ -55,10 +55,11 @@
     </div>
 
 
-    {!! Former::actions(
-            Button::success(trans('texts.save'))
+    <center class="buttons">
+        {!! Button::success(trans('texts.save'))
                 ->submit()->large()
-                ->appendIcon(Icon::create('floppy-disk'))) !!}
+                ->appendIcon(Icon::create('floppy-disk')) !!}
+	</center>
 
 	{!! Former::close() !!}
 

@@ -30,7 +30,7 @@ class CreatePaymentAPIRequest extends PaymentRequest
             ];
         }
 
-        $this->invoice = $invoice = Invoice::scope($this->invoice_id)
+        $this->invoice = $invoice = Invoice::scope($this->invoice_public_id ?: $this->invoice_id)
             ->withArchived()
             ->invoices()
             ->first();

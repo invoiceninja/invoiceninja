@@ -1,6 +1,6 @@
 @extends('header')
 
-@section('content') 
+@section('content')
   @parent
   @include('accounts.nav', ['selected' => ACCOUNT_API_TOKENS])
 
@@ -15,7 +15,7 @@
 <div class="panel-body form-padding-right">
 
   @if ($token)
-    {!! Former::populate($token) !!}    
+    {!! Former::populate($token) !!}
   @endif
 
   {!! Former::text('name') !!}
@@ -24,10 +24,10 @@
 </div>
 
     @if (Auth::user()->hasFeature(FEATURE_API))
-      {!! Former::actions( 
-          Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/api_tokens'))->appendIcon(Icon::create('remove-circle'))->large(),
-          Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk'))
-      ) !!}
+      <center class="buttons">
+        {!! Button::normal(trans('texts.cancel'))->asLinkTo(URL::to('/settings/api_tokens'))->appendIcon(Icon::create('remove-circle'))->large() !!}
+        {!! Button::success(trans('texts.save'))->submit()->large()->appendIcon(Icon::create('floppy-disk')) !!}
+      </center>
     @else
         <script>
             $(function() {
@@ -35,7 +35,7 @@
             });
         </script>
     @endif
-  
+
 
   {!! Former::close() !!}
 

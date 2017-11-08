@@ -63,6 +63,8 @@ trait HasRecurrence
                 return $monthsSinceLastSent >= 2;
             case FREQUENCY_THREE_MONTHS:
                 return $monthsSinceLastSent >= 3;
+            case FREQUENCY_FOUR_MONTHS:
+                return $monthsSinceLastSent >= 4;
             case FREQUENCY_SIX_MONTHS:
                 return $monthsSinceLastSent >= 6;
             case FREQUENCY_ANNUALLY:
@@ -99,6 +101,9 @@ trait HasRecurrence
                 break;
             case FREQUENCY_THREE_MONTHS:
                 $rule = 'FREQ=MONTHLY;INTERVAL=3;';
+                break;
+            case FREQUENCY_FOUR_MONTHS:
+                $rule = 'FREQ=MONTHLY;INTERVAL=4;';
                 break;
             case FREQUENCY_SIX_MONTHS:
                 $rule = 'FREQ=MONTHLY;INTERVAL=6;';

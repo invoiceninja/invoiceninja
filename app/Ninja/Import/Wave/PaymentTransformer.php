@@ -27,6 +27,7 @@ class PaymentTransformer extends BaseTransformer
                 'payment_date_sql' => $this->getDate($data, 'payment_date'),
                 'client_id' => $this->getInvoiceClientId($data->invoice_num),
                 'invoice_id' => $this->getInvoiceId($data->invoice_num),
+                'invoice_public_id' => $this->getInvoicePublicId($data->invoice_num),
             ];
         });
     }

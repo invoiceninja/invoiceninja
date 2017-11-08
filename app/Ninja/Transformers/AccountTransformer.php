@@ -274,6 +274,7 @@ class AccountTransformer extends EntityTransformer
             'reset_counter_date' => $account->reset_counter_date,
             'custom_contact_label1' => $account->custom_contact_label1,
             'custom_contact_label2' => $account->custom_contact_label2,
+            'task_rate' => (float) $account->task_rate,
         ];
     }
 }

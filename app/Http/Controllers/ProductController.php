@@ -149,6 +149,10 @@ class ProductController extends BaseController
         $message = $productPublicId ? trans('texts.updated_product') : trans('texts.created_product');
         Session::flash('message', $message);
 
+        if (in_array(request('action'), ['archive', 'delete', 'restore', 'invoice'])) {
+            return self::bulk();
+        }
+
         return Redirect::to("products/{$product->public_id}/edit");
     }
 
@@ -159,7 +163,17 @@ class ProductController extends BaseController
     {
         $action = Input::get('action');
         $ids = Input::get('public_id') ? Input::get('public_id') : Input::get('ids');
-        $count = $this->productService->bulk($ids, $action);
+
+        if ($action == 'invoice') {
+            $products = Product::scope($ids)->get();
+            $data = [];
+            foreach ($products as $product) {
+                $data[] = $product->product_key;
+            }
+            return redirect("invoices/create")->with('selectedProducts', $data);
+        } else {
+            $count = $this->productService->bulk($ids, $action);
+        }
 
         $message = Utils::pluralize($action.'d_product', $count);
         Session::flash('message', $message);

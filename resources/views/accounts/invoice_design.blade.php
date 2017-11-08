@@ -61,7 +61,6 @@
           remove_created_by:{{ Auth::user()->hasFeature(FEATURE_REMOVE_CREATED_BY) ? 'true' : 'false' }},
           invoice_settings:{{ Auth::user()->hasFeature(FEATURE_INVOICE_SETTINGS) ? 'true' : 'false' }}
       };
-      invoice.account.hide_quantity = $('#hide_quantity').is(":checked");
       invoice.account.invoice_embed_documents = $('#invoice_embed_documents').is(":checked");
       invoice.account.hide_paid_to_date = $('#hide_paid_to_date').is(":checked");
       invoice.invoice_design_id = $('#invoice_design_id').val();
@@ -102,7 +101,14 @@
         var id = $select.val();
 		$select.val(null).blur();
 		$('.' + id + '-label-group').fadeIn();
-		console.log(id);
+		showUsedFields();
+	}
+
+	function showUsedFields() {
+		$('#label_field > option').each(function(key, option) {
+			var isUsed = $('#labels_' + option.value).is(':visible');
+			$(this).css('color', isUsed ? '#888' : 'black');
+		});
 	}
 
     $(function() {
@@ -122,6 +128,10 @@
 
 	  updateFieldLabels();
       refreshPDF();
+	  setTimeout(function() {
+		showUsedFields();
+	  }, 1);
+
     });
 
   </script>
@@ -141,7 +151,6 @@
       {!! Former::populateField('invoice_embed_documents', intval($account->invoice_embed_documents)) !!}
       {!! Former::populateField('primary_color', $account->primary_color) !!}
       {!! Former::populateField('secondary_color', $account->secondary_color) !!}
-      {!! Former::populateField('hide_quantity', intval($account->hide_quantity)) !!}
       {!! Former::populateField('hide_paid_to_date', intval($account->hide_paid_to_date)) !!}
       {!! Former::populateField('all_pages_header', intval($account->all_pages_header)) !!}
       {!! Former::populateField('all_pages_footer', intval($account->all_pages_footer)) !!}
@@ -166,8 +175,8 @@
                     <li role="presentation" class="active"><a href="#general_settings" aria-controls="general_settings" role="tab" data-toggle="tab">{{ trans('texts.general_settings') }}</a></li>
                     <li role="presentation"><a href="#invoice_labels" aria-controls="invoice_labels" role="tab" data-toggle="tab">{{ trans('texts.invoice_labels') }}</a></li>
                     <li role="presentation"><a href="#invoice_fields" aria-controls="invoice_fields" role="tab" data-toggle="tab">{{ trans('texts.invoice_fields') }}</a></li>
+					<li role="presentation"><a href="#product_fields" aria-controls="product_fields" role="tab" data-toggle="tab">{{ trans('texts.product_fields') }}</a></li>
                     <li role="presentation"><a href="#invoice_options" aria-controls="invoice_options" role="tab" data-toggle="tab">{{ trans('texts.invoice_options') }}</a></li>
-                    <li role="presentation"><a href="#header_footer" aria-controls="header_footer" role="tab" data-toggle="tab">{{ trans('texts.header_footer') }}</a></li>
                 </ul>
             </div>
             <div class="tab-content">
@@ -242,7 +251,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="invoice_fields">
                     <div class="panel-body">
-                      <div class="row">
+                      <div class="row" id="invoiceFields">
                           @include('accounts.partials.invoice_fields_selector', ['section' => 'invoice_fields', 'fields' => INVOICE_FIELDS_INVOICE])
                           @include('accounts.partials.invoice_fields_selector', ['section' => 'client_fields', 'fields' => INVOICE_FIELDS_CLIENT])
                           @include('accounts.partials.invoice_fields_selector', ['section' => 'account_fields1', 'fields' => INVOICE_FIELDS_ACCOUNT])
@@ -250,43 +259,57 @@
                       </div>
                       <div class="row" style="padding-top:30px">
                           <div class="pull-left help-block">
-                              {{ trans('texts.invoice_fields_help') }}
+							  {{ trans('texts.invoice_fields_help') }}
                           </div>
-                          <div class="pull-right" style="padding-right:14px">
-                              {!! Button::normal(trans('texts.reset'))
+						  <div class="pull-right" style="padding-right:14px">
+                              {!! Button::normal(trans('texts.reset'))->small()
                                     ->withAttributes(['onclick' => 'sweetConfirm(function() {
-                                        resetFields();
-                                    })'])
-                                    ->small() !!}
+                                        resetInvoiceFields();
+                                    })']) !!}
                           </div>
                       </div>
                     </div>
                 </div>
+				<div role="tabpanel" class="tab-pane" id="product_fields">
+                    <div class="panel-body">
+  						<div class="row" id="productFields">
+                            @include('accounts.partials.invoice_fields_selector', ['section' => 'product_fields', 'fields' => INVOICE_FIELDS_PRODUCT, 'colWidth' => 6])
+                            @include('accounts.partials.invoice_fields_selector', ['section' => 'task_fields', 'fields' => INVOICE_FIELDS_TASK, 'colWidth' => 6])
+                        </div>
+                        <div class="row" style="padding-top:30px">
+                            <div class="pull-left help-block">
+  							  {{ trans('texts.product_fields_help') }}
+                            </div>
+  						    <div class="pull-right" style="padding-right:14px">
+                                {!! Button::normal(trans('texts.reset'))->small()
+                                      ->withAttributes(['onclick' => 'sweetConfirm(function() {
+                                          resetProductFields();
+                                      })']) !!}
+                            </div>
+                        </div>
+					</div>
+				</div>
                 <div role="tabpanel" class="tab-pane" id="invoice_options">
                     <div class="panel-body">
 
-                      {!! Former::checkbox('hide_quantity')->text(trans('texts.hide_quantity_help'))->value(1) !!}
                       {!! Former::checkbox('hide_paid_to_date')->text(trans('texts.hide_paid_to_date_help'))->value(1) !!}
                       {!! Former::checkbox('invoice_embed_documents')->text(trans('texts.invoice_embed_documents_help'))->value(1) !!}
 
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="header_footer">
-                    <div class="panel-body">
+					  <br/>
 
-                    {!! Former::inline_radios('all_pages_header')
-                            ->label(trans('texts.all_pages_header'))
-                            ->radios([
-                                trans('texts.first_page') => ['value' => 0, 'name' => 'all_pages_header'],
-                                trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_header'],
-                            ])->check($account->all_pages_header) !!}
+					  {!! Former::inline_radios('all_pages_header')
+                              ->label(trans('texts.all_pages_header'))
+                              ->radios([
+                                  trans('texts.first_page') => ['value' => 0, 'name' => 'all_pages_header'],
+                                  trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_header'],
+                              ])->check($account->all_pages_header) !!}
 
-                    {!! Former::inline_radios('all_pages_footer')
-                            ->label(trans('texts.all_pages_footer'))
-                            ->radios([
-                                trans('texts.last_page') => ['value' => 0, 'name' => 'all_pages_footer'],
-                                trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_footer'],
-                            ])->check($account->all_pages_footer) !!}
+                      {!! Former::inline_radios('all_pages_footer')
+                              ->label(trans('texts.all_pages_footer'))
+                              ->radios([
+                                  trans('texts.last_page') => ['value' => 0, 'name' => 'all_pages_footer'],
+                                  trans('texts.all_pages') => ['value' => 1, 'name' => 'all_pages_footer'],
+                              ])->check($account->all_pages_footer) !!}
 
                     </div>
                 </div>
@@ -294,25 +317,22 @@
         </div>
     </div>
 
-
-    <br/>
-    {!! Former::actions(
-			$account->getCustomDesign(CUSTOM_DESIGN1) ?
+    <center class="buttons">
+		{!! $account->getCustomDesign(CUSTOM_DESIGN1) ?
 				DropdownButton::primary(trans('texts.customize'))
 					->withContents($account->present()->customDesigns)
 					->large()  :
 	            Button::primary(trans('texts.customize'))
 	                ->appendIcon(Icon::create('edit'))
 	                ->asLinkTo(URL::to('/settings/customize_design') . '?design_id=' . CUSTOM_DESIGN1)
-	                ->large(),
-            Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ?
+	                ->large() !!}
+        {!! Auth::user()->hasFeature(FEATURE_CUSTOMIZE_INVOICE_DESIGN) ?
                 Button::success(trans('texts.save'))
                     ->submit()->large()
                     ->appendIcon(Icon::create('floppy-disk'))
                     ->withAttributes(['class' => 'save-button']) :
-                false
-        ) !!}
-    <br/>
+                false !!}
+	</center>
 
       {!! Former::close() !!}
 

@@ -50,4 +50,16 @@ class ClientPresenter extends EntityPresenter
 
         return sprintf('%s: %s %s', trans('texts.payment_terms'), trans('texts.payment_terms_net'), $client->defaultDaysDue());
     }
+
+    /**
+     * @return string
+     */
+    public function taskRate()
+    {
+      if ($this->entity->task_rate) {
+          return Utils::roundSignificant($this->entity->task_rate);
+      } else {
+          return '';
+      }
+    }
 }

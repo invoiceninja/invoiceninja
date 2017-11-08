@@ -460,7 +460,7 @@ if (window.ko) {
 function comboboxHighlighter(item) {
     var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&');
     var result = item.replace(new RegExp('<br/>', 'g'), "\n");
-    result = stripHtmlTags(result);
+    result = _.escape(result);
     result = result.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
         return match ? '<strong>' + match + '</strong>' : query;
     });
@@ -474,17 +474,6 @@ function inIframe () {
     } catch (e) {
         return true;
     }
-}
-
-function comboboxMatcher(item) {
-    return ~stripHtmlTags(item).toLowerCase().indexOf(this.query.toLowerCase());
-}
-
-function stripHtmlTags(text) {
-    // http://stackoverflow.com/a/5002618/497368
-    var div = document.createElement("div");
-    div.innerHTML = text;
-    return div.textContent || div.innerText || '';
 }
 
 function getContactDisplayName(contact)
@@ -563,7 +552,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     $clientSelect.val(clientId);
   }
 
-  $clientSelect.combobox();
+  $clientSelect.combobox({highlighter: comboboxHighlighter});
   $clientSelect.on('change', function(e) {
     var clientId = $('input[name=client]').val();
     var invoiceId = $('input[name=invoice]').val();
@@ -602,7 +591,7 @@ function populateInvoiceComboboxes(clientId, invoiceId) {
     }
   });
 
-  $invoiceSelect.combobox();
+  $invoiceSelect.combobox({highlighter: comboboxHighlighter});
 
   if (invoiceId) {
     var invoice = invoiceMap[invoiceId];
@@ -672,14 +661,8 @@ function calculateAmounts(invoice) {
   var total = 0;
   var hasTaxes = false;
   var taxes = {};
-  invoice.has_product_key = false;
   invoice.has_custom_item_value1 = false;
   invoice.has_custom_item_value2 = false;
-
-  // Bold designs currently breaks w/o the product column
-  if (invoice.invoice_design_id == 2) {
-      invoice.has_product_key = true;
-  }
 
   var hasStandard = false;
   var hasTask = false;
@@ -692,7 +675,7 @@ function calculateAmounts(invoice) {
     if (lineTotal) {
       total += lineTotal;
     }
-    if (!item.notes && !item.product_key) {
+    if (!item.notes && !item.product_key && !item.cost) {
         continue;
     }
     if (item.invoice_item_type_id == 2) {
@@ -712,12 +695,6 @@ function calculateAmounts(invoice) {
     var taxName1 = '';
     var taxRate2 = 0;
     var taxName2 = '';
-
-    if (item.product_key) {
-        invoice.has_product_key = true;
-    } else if (invoice.invoice_items.length == 1 && !item.qty) {
-        invoice.has_product_key = true;
-    }
 
     if (invoice.features.invoice_settings) {
         if (item.custom_value1) {
@@ -751,6 +728,7 @@ function calculateAmounts(invoice) {
 
     var taxAmount1 = roundToTwo(lineTotal * taxRate1 / 100);
     if (taxAmount1 != 0 || taxName1) {
+      hasTaxes = true;
       var key = taxName1 + taxRate1;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount1;
@@ -761,6 +739,7 @@ function calculateAmounts(invoice) {
 
     var taxAmount2 = roundToTwo(lineTotal * taxRate2 / 100);
     if (taxAmount2 != 0 || taxName2) {
+      hasTaxes = true;
       var key = taxName2 + taxRate2;
       if (taxes.hasOwnProperty(key)) {
         taxes[key].amount += taxAmount2;
@@ -768,11 +747,9 @@ function calculateAmounts(invoice) {
         taxes[key] = {name: taxName2, rate:taxRate2, amount:taxAmount2};
       }
     }
-
-    if (item.tax_name1 || item.tax_name2) {
-      hasTaxes = true;
-    }
   }
+
+  invoice.has_item_taxes = hasTaxes;
   invoice.subtotal_amount = total;
 
   var discount = 0;
@@ -1083,20 +1060,20 @@ function getPrecision(number) {
   }
 }
 
-function roundSignificant(number) {
+function roundSignificant(number, toString) {
   var precision = getPrecision(number);
-  var value = roundToPrecision(number, precision);
-  return isNaN(value) ? 0 : value;
+  var val = roundToPrecision(number, precision) || 0;
+  return toString ? val.toFixed(precision) : val;
 }
 
 function roundToTwo(number, toString) {
-  var val = roundToPrecision(number, 2);
-  return toString ? val.toFixed(2) : (val || 0);
+  var val = roundToPrecision(number, 2) || 0;
+  return toString ? val.toFixed(2) : val;
 }
 
 function roundToFour(number, toString) {
-  var val = roundToPrecision(number, 4);
-  return toString ? val.toFixed(4) : (val || 0);
+  var val = roundToPrecision(number, 4) || 0;
+  return toString ? val.toFixed(4) : val;
 }
 
 // https://stackoverflow.com/a/18358056/497368
@@ -1288,4 +1265,44 @@ function brewerColor(number) {
     var number = (number-1) % colors.length;
 
     return colors[number];
+}
+
+// https://gist.github.com/sente/1083506
+function formatXml(xml) {
+    var formatted = '';
+    var reg = /(>)(<)(\/*)/g;
+    xml = xml.replace(reg, '$1\r\n$2$3');
+    var pad = 0;
+    jQuery.each(xml.split('\r\n'), function(index, node) {
+        var indent = 0;
+        if (node.match( /.+<\/\w[^>]*>$/ )) {
+            indent = 0;
+        } else if (node.match( /^<\/\w/ )) {
+            if (pad != 0) {
+                pad -= 1;
+            }
+        } else if (node.match( /^<\w[^>]*[^\/]>.*$/ )) {
+            indent = 1;
+        } else {
+            indent = 0;
+        }
+
+        var padding = '';
+        for (var i = 0; i < pad; i++) {
+            padding += '  ';
+        }
+
+        formatted += padding + node + '\r\n';
+        pad += indent;
+    });
+
+    return formatted;
+}
+
+function openUrlOnClick(url, event) {
+    if (event.ctrlKey) {
+        window.open(url, '_blank');
+    } else {
+        window.location = url;
+    }
 }
