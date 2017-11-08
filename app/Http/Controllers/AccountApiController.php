@@ -179,11 +179,10 @@ class AccountApiController extends BaseAPIController
 
         foreach($devices as $key => $value)
         {
-            Log::error($value['email']. " = ". $request->email);
 
-            if($request->email == $value['email']) {
+            if($request->token == $value['token'])
                 unset($devices[$key]);
-            }
+
         }
 
         $account->devices = json_encode(array_values($devices));
