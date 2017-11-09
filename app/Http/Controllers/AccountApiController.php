@@ -91,9 +91,7 @@ class AccountApiController extends BaseAPIController
 
         return $this->response($data);
     }
-
-    private function
-
+    
     public function show(Request $request)
     {
         $account = Auth::user()->account;
