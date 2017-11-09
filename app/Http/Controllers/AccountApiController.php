@@ -92,6 +92,8 @@ class AccountApiController extends BaseAPIController
         return $this->response($data);
     }
 
+    private function
+
     public function show(Request $request)
     {
         $account = Auth::user()->account;
@@ -118,7 +120,13 @@ class AccountApiController extends BaseAPIController
 
     public function getUserAccounts(Request $request)
     {
-        return $this->processLogin($request);
+        $user = Auth::user();
+
+        $users = $this->accountRepo->findUsers($user, 'account.account_tokens');
+        $transformer = new UserAccountTransformer($user->account, $request->serializer, $request->token_name);
+        $data = $this->createCollection($users, $transformer, 'user_account');
+
+        return $this->response($data);
     }
 
     public function update(UpdateAccountRequest $request)
