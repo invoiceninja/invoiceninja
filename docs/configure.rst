@@ -86,7 +86,7 @@ Omnipay
 
 We use `Omnipay <https://github.com/thephpleague/omnipay-braintree>`_ to support our payment gateway integrations.
 
-Follow these steps to add a driver.
+Follow these steps to add a `custom driver<https://packagist.org/packages/omnipay/common/dependents>`_.
 
 - Add the package to composer.json and then run ``composer install``
 - Add a row to the gateways table. ``name`` is used in the gateway select, ``provider`` needs to match the Omnipay driver name
