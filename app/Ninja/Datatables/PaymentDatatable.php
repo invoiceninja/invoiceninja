@@ -69,7 +69,7 @@ class PaymentDatatable extends EntityDatatable
                         } elseif ($model->email) {
                             return $model->email;
                         } elseif ($model->payment_type) {
-                            return trans('texts.payment_type_' . strtolower($model->payment_type));
+                            return trans('texts.payment_type_' . $model->payment_type);
                         }
                     } elseif ($model->last4) {
                         if ($model->bank_name) {
