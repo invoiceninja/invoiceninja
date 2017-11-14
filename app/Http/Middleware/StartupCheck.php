@@ -191,7 +191,6 @@ class StartupCheck
             Session::flash('message', 'Cache cleared');
         }
         foreach ($cachedTables as $name => $class) {
-            \Log::info("Cache for {$name} is " . (Cache::has($name) ? 'SET' : 'NOT SET'));
             if (Input::has('clear_cache') || ! Cache::has($name)) {
                 // check that the table exists in case the migration is pending
                 if (! Schema::hasTable((new $class())->getTable())) {
@@ -208,7 +207,6 @@ class StartupCheck
                 }
                 $tableData = $class::orderBy($orderBy)->get();
                 if (count($tableData)) {
-                    \Log::info("Setting cache for {$name}");
                     Cache::forever($name, $tableData);
                 }
             }
