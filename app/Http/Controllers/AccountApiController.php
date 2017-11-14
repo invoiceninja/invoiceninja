@@ -247,4 +247,11 @@ class AccountApiController extends BaseAPIController
             return $this->errorResponse(['message' => 'Invalid credentials'], 401);
 
     }
+
+    public function iosSubscriptionStatus() {
+
+        //stubbed for iOS callbacks
+        
+    }
+
 }

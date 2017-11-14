@@ -360,6 +360,7 @@ Route::group(['middleware' => ['lookup:api', 'api'], 'prefix' => 'api/v1'], func
     Route::resource('documents', 'DocumentAPIController');
     Route::resource('vendors', 'VendorApiController');
     Route::resource('expense_categories', 'ExpenseCategoryApiController');
+    Route::post('ios_subscription_status', 'AccountApiController@iosSubscriptionStatus');
 });
 
 // Redirects for legacy links
