@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Event;
 use Cache;
+use Lang;
 use App\Events\UserLoggedIn;
 use App\Http\Requests\ValidateTwoFactorRequest;
 
@@ -186,7 +187,7 @@ class LoginController extends Controller
 
         $reason = htmlentities(request()->reason);
         if (!empty($reason) && Lang::has("texts.{$reason}_logout")) {
-            sesion()->flash('warning', trans("texts.{$reason}_logout"));
+            session()->flash('warning', trans("texts.{$reason}_logout"));
         }
 
         return $response;
