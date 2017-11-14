@@ -10,6 +10,8 @@ use Utils;
 use Validator;
 use Queue;
 use Illuminate\Queue\Events\JobProcessing;
+use Illuminate\Support\Facades\Route;
+
 
 /**
  * Class AppServiceProvider.
@@ -23,7 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // support selecting job database 
+        Route::singularResourceParameters(false);
+
+        // support selecting job database
         Queue::before(function (JobProcessing $event) {
             $body = $event->job->getRawBody();
             preg_match('/db-ninja-[\d+]/', $body, $matches);

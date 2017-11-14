@@ -93,7 +93,7 @@ class InvoiceController extends BaseController
             ->where('invitations.invoice_id', '=', $invoice->id)
             ->where('invitations.account_id', '=', Auth::user()->account_id)
             ->where('invitations.deleted_at', '=', null)
-            ->select('contacts.public_id')->lists('public_id');
+            ->select('contacts.public_id')->pluck('public_id');
 
         $clients = Client::scope()->withTrashed()->with('contacts', 'country');
 

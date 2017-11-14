@@ -39,12 +39,21 @@ class RedirectIfAuthenticated
      *
      * @return mixed
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, $guard = null)
     {
-        if ($this->auth->check() && Client::scope()->count() > 0) {
+        if (auth()->guard($guard)->check()) {
             Session::reflash();
 
-            return new RedirectResponse(url('/dashboard'));
+            switch ($guard) {
+                case 'client':
+                    if (session('contact_key')) {
+                        return redirect('/client/dashboard');
+                    }
+                    break;
+                default:
+                    return redirect('/dashboard');
+                    break;
+            }
         }
 
         return $next($request);

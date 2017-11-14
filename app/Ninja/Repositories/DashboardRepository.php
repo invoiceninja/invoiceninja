@@ -159,7 +159,7 @@ class DashboardRepository
             $records->select(DB::raw('sum(expenses.amount + (expenses.amount * expenses.tax_rate1 / 100) + (expenses.amount * expenses.tax_rate2 / 100)) as total, count(expenses.id) as count, '.$timeframe.' as '.$groupBy));
         }
 
-        return $records->get();
+        return $records->get()->all();
     }
 
     public function totals($accountId, $userId, $viewAll)

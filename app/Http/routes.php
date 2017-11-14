@@ -79,39 +79,37 @@ Route::group(['middleware' => 'lookup:postmark'], function () {
 Route::group(['middleware' => 'lookup:account'], function () {
     Route::post('/payment_hook/{account_key}/{gateway_id}', 'OnlinePaymentController@handlePaymentWebhook');
     Route::match(['GET', 'POST', 'OPTIONS'], '/buy_now/{gateway_type?}', 'OnlinePaymentController@handleBuyNow');
-    Route::get('validate_two_factor/{account_key}', 'Auth\AuthController@getValidateToken');
-    Route::post('validate_two_factor/{account_key}', ['middleware' => 'throttle:5', 'uses' => 'Auth\AuthController@postValidateToken']);
+    Route::get('validate_two_factor/{account_key}', 'Auth\LoginController@getValidateToken');
+    Route::post('validate_two_factor/{account_key}', ['middleware' => 'throttle:5', 'uses' => 'Auth\LoginController@postValidateToken']);
 });
 
 //Route::post('/hook/bot/{platform?}', 'BotController@handleMessage');
 
 // Laravel auth routes
-Route::get('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@getRegister']);
-Route::post('/signup', ['as' => 'signup', 'uses' => 'Auth\AuthController@postRegister']);
-Route::get('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@getLoginWrapper']);
-Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\AuthController@getLogoutWrapper']);
-Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getEmailWrapper']);
-Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@getReset']);
-Route::get('/auth/{provider}', 'Auth\AuthController@authLogin');
+Route::get('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@getLoginWrapper']);
+Route::get('/logout', ['as' => 'logout', 'uses' => 'Auth\LoginController@getLogoutWrapper']);
+Route::get('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\ForgotPasswordController@showLinkRequestForm']);
+Route::get('/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\ResetPasswordController@showResetForm']);
+Route::get('/auth/{provider}', 'Auth\AuthController@oauthLogin');
 
 Route::group(['middleware' => ['lookup:user']], function () {
     Route::get('/user/confirm/{confirmation_code}', 'UserController@confirm');
-    Route::post('/login', ['as' => 'login', 'uses' => 'Auth\AuthController@postLoginWrapper']);
-    Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postEmail']);
-    Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\PasswordController@postReset']);
+    Route::post('/login', ['as' => 'login', 'uses' => 'Auth\LoginController@postLoginWrapper']);
+    Route::post('/recover_password', ['as' => 'forgot', 'uses' => 'Auth\ForgotPasswordController@sendResetLinkEmail']);
+    Route::post('/password/reset', ['as' => 'forgot', 'uses' => 'Auth\ResetPasswordController@reset']);
 });
 
 // Client auth
-Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@getLogin']);
-Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getLogout']);
-Route::get('/client/sessionexpired', ['as' => 'logout', 'uses' => 'ClientAuth\AuthController@getSessionExpired']);
-Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getEmail']);
-Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@getReset']);
+Route::get('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@showLoginForm']);
+Route::get('/client/logout', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getLogout']);
+Route::get('/client/session_expired', ['as' => 'logout', 'uses' => 'ClientAuth\LoginController@getSessionExpired']);
+Route::get('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@showLinkRequestForm']);
+Route::get('/client/password/reset/{token}', ['as' => 'forgot', 'uses' => 'Auth\ResetPasswordController@showResetForm']);
 
 Route::group(['middleware' => ['lookup:contact']], function () {
-    Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\AuthController@postLogin']);
-    Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postEmail']);
-    Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\PasswordController@postReset']);
+    Route::post('/client/login', ['as' => 'login', 'uses' => 'ClientAuth\LoginController@login']);
+    Route::post('/client/recover_password', ['as' => 'forgot', 'uses' => 'ClientAuth\ForgotPasswordController@sendResetLinkEmail']);
+    Route::post('/client/password/reset', ['as' => 'forgot', 'uses' => 'ClientAuth\ResetPasswordController@reset']);
 });
 
 if (Utils::isReseller()) {
@@ -137,7 +135,7 @@ Route::group(['middleware' => ['lookup:user', 'auth:user']], function () {
 
     Route::post('signup/validate', 'AccountController@checkEmail');
     Route::post('signup/submit', 'AccountController@submitSignup');
-    Route::get('auth_unlink', 'Auth\AuthController@authUnlink');
+    Route::get('auth_unlink', 'Auth\AuthController@oauthUnlink');
 
     Route::get('settings/user_details', 'AccountController@showUserDetails');
     Route::post('settings/user_details', 'AccountController@saveUserDetails');

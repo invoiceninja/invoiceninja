@@ -39,7 +39,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 * [Voice Commands](https://www.youtube.com/watch?v=w1ylz-q58cU)
 
 ## Features
-* Built using Laravel 5.2
+* Built using Laravel 5.3
 * Live PDF generation using [pdfmake](http://pdfmake.org/)
 * Supports 50+ payment gateways with [Omnipay](https://github.com/thephpleague/omnipay)
 * Integrate with hundreds of apps with [Zapier](https://zapier.com/zapbook/invoice-ninja/) and [Integromat](https://www.integromat.com/en/integrations/invoiceninja)

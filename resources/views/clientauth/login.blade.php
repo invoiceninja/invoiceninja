@@ -2,7 +2,7 @@
 
 @section('form')
 
-    @include('partials.warn_session', ['redirectTo' => '/client/sessionexpired'])
+    @include('partials.warn_session', ['redirectTo' => '/client/session_expired'])
 
     <div class="container">
 
