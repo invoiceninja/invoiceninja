@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "627f199185222a0ab01efcb55a0956de",
-    "content-hash": "4ec49f8cba7092b4c8294ea4c551de5f",
+    "hash": "4e21badbba68d5feb34f05eaa12ccfe1",
+    "content-hash": "2d294b7828cf14adaf1deeb66426acc3",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -862,7 +862,7 @@
             ],
             "authors": [
                 {
-                    "name": "CardGate",
+                    "name": "Cardgate",
                     "email": "tech@cardgate.com"
                 },
                 {
@@ -1014,7 +1014,7 @@
                 "laravel"
             ],
             "abandoned": "OpenSkill/Datatable",
-            "time": "2017-01-26 10:04:06"
+            "time": "2015-11-23 21:33:41"
         },
         {
             "name": "classpreloader/classpreloader",
@@ -2538,7 +2538,8 @@
                 "reference": "origin/master",
                 "shasum": null
             },
-            "type": "library"
+            "type": "library",
+            "time": "2016-05-12 12:00:45"
         },
         {
             "name": "gocardless/gocardless-pro",
@@ -4158,6 +4159,53 @@
                 "laravel"
             ],
             "time": "2017-03-24 16:31:06"
+        },
+        {
+            "name": "laravel/legacy-encrypter",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/legacy-encrypter.git",
+                "reference": "4047fc1e6a9346501ba48ba3f79509534875dea3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/legacy-encrypter/zipball/4047fc1e6a9346501ba48ba3f79509534875dea3",
+                "reference": "4047fc1e6a9346501ba48ba3f79509534875dea3",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "ext-openssl": "*",
+                "illuminate/contracts": "5.3.*",
+                "illuminate/support": "5.3.*",
+                "paragonie/random_compat": "~1.4|~2.0",
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\LegacyEncrypter\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "The legacy version of the Laravel mcrypt encrypter.",
+            "homepage": "http://laravel.com",
+            "time": "2016-08-03 21:22:03"
         },
         {
             "name": "laravel/socialite",
@@ -12351,20 +12399,20 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "invoiceninja/omnipay-collection": 20,
         "anahkiasen/former": 20,
         "chumper/datatable": 20,
         "codedge/laravel-selfupdater": 20,
+        "collizo4sky/omnipay-wepay": 20,
+        "digitickets/omnipay-gocardlessv2": 20,
         "gatepay/fedachdir": 20,
         "intervention/image": 20,
+        "invoiceninja/omnipay-collection": 20,
         "jlapp/swaggervel": 20,
         "laracasts/presenter": 20,
+        "omnipay/authorizenet": 20,
         "simshaun/recurr": 20,
         "webpatser/laravel-countries": 20,
-        "websight/l5-google-cloud-storage": 20,
-        "omnipay/authorizenet": 20,
-        "digitickets/omnipay-gocardlessv2": 20,
-        "collizo4sky/omnipay-wepay": 20
+        "websight/l5-google-cloud-storage": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
