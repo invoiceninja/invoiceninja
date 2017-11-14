@@ -421,6 +421,12 @@ class User extends Authenticatable
     {
         return $this->account->company->accounts->sortBy('id')->first();
     }
+
+    public function sendPasswordResetNotification($token)
+    {
+        //$this->notify(new ResetPasswordNotification($token));
+        app('App\Ninja\Mailers\UserMailer')->sendPasswordReset($this, $token);
+    }
 }
 
 User::created(function ($user)

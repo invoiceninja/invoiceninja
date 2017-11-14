@@ -2521,6 +2521,7 @@ $LANG = array(
     'self_host_login' => 'Self-Host Login',
     'set_self_hoat_url' => 'Self-Host URL',
     'local_storage_required' => 'Error: local storage is not available.',
+    'your_password_reset_link' => 'Your Password Reset Link',
 
 );
 

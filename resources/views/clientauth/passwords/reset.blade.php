@@ -35,6 +35,7 @@
         <input type="hidden" name="token" value="{{{ $token }}}">
 
         <div>
+            {!! Former::text('email')->placeholder(trans('texts.email'))->raw() !!}
             {!! Former::password('password')->placeholder(trans('texts.password'))->raw() !!}
             {!! Former::password('password_confirmation')->placeholder(trans('texts.confirm_password'))->raw() !!}
         </div>

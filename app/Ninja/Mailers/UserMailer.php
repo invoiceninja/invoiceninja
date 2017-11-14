@@ -154,4 +154,19 @@ class UserMailer extends Mailer
 
         $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
     }
+
+    public function sendPasswordReset($user, $token)
+    {
+        if (! $user->email) {
+            return;
+        }
+
+        $subject = trans('texts.your_password_reset_link');
+        $view = 'password';
+        $data = [
+            'token' => $token,
+        ];
+
+        $this->sendTo($user->email, CONTACT_EMAIL, CONTACT_NAME, $subject, $view, $data);
+    }
 }
