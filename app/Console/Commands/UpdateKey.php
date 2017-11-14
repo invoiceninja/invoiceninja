@@ -7,11 +7,11 @@ use Symfony\Component\Console\Input\InputOption;
 use App\Models\AccountGateway;
 use App\Models\BankAccount;
 use Artisan;
-use Crypt;
 use Illuminate\Encryption\Encrypter;
+use Laravel\LegacyEncrypter\McryptEncrypter;
 
 /**
- * Class PruneData.
+ * Class UpdateKey
  */
 class UpdateKey extends Command
 {
@@ -34,16 +34,29 @@ class UpdateKey extends Command
             exit;
         }
 
+        $legacy = false;
+        if ($this->option('legacy') == 'true') {
+            $legacy = new McryptEncrypter(env('APP_KEY'));
+        }
+
         // load the current values
         $gatewayConfigs = [];
         $bankUsernames = [];
 
         foreach (AccountGateway::all() as $gateway) {
-            $gatewayConfigs[$gateway->id] = $gateway->getConfig();
+            if ($legacy) {
+                $gatewayConfigs[$gateway->id] = json_decode($legacy->decrypt($gateway->config));
+            } else {
+                $gatewayConfigs[$gateway->id] = $gateway->getConfig();
+            }
         }
 
         foreach (BankAccount::all() as $bank) {
-            $bankUsernames[$bank->id] = $bank->getUsername();
+            if ($legacy) {
+                $bankUsernames[$bank->id] = $legacy->decrypt($bank->username);
+            } else {
+                $bankUsernames[$bank->id] = $bank->getUsername();
+            }
         }
 
         // check if we can write to the .env file
@@ -92,6 +105,8 @@ class UpdateKey extends Command
      */
     protected function getOptions()
     {
-        return [];
+        return [
+            ['legacy', null, InputOption::VALUE_OPTIONAL, 'Legacy', null],
+        ];
     }
 }
