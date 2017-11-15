@@ -67,7 +67,7 @@ class LookupAccount extends LookupModel
         $lookupAccount = LookupAccount::whereAccountKey($accountKey)
                             ->firstOrFail();
 
-        $lookupAccount->subdomain = $account->subdomain;
+        $lookupAccount->subdomain = $account->subdomain ?: null;
         $lookupAccount->save();
 
         config(['database.default' => $current]);

@@ -44,6 +44,8 @@ class DatabaseLookup
                 LookupInvitation::setServerByField('invitation_key', $key);
             } elseif ($key = request()->contact_key ?: session('contact_key')) {
                 LookupContact::setServerByField('contact_key', $key);
+            } elseif ($key = request()->account_key) {
+                LookupAccount::setServerByField('account_key', $key);
             }
         } elseif ($guard == 'postmark') {
             LookupInvitation::setServerByField('message_id', request()->MessageID);

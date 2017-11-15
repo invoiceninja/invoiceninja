@@ -170,6 +170,10 @@
                                     ->label(trans('texts.send_portal_password'))
                                     ->value(1) !!}
                             </div>
+                            <div class="col-md-10 col-md-offset-1">
+                                {!! Former::plaintext('client_login')
+                                    ->value(link_to($account->present()->clientLoginUrl, null, ['target' => '_blank'])) !!}
+                            </div>
                         </div>
                         </div>
                     </div>

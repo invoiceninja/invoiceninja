@@ -236,4 +236,31 @@ class AccountPresenter extends Presenter
 
         return $data;
     }
+
+    public function clientLoginUrl()
+    {
+        $account = $this->entity;
+
+        if (Utils::isNinjaProd()) {
+            $url = 'https://';
+            $url .= $account->subdomain ?: 'app';
+            $url .= '.' . Domain::getDomainFromId($account->domain_id);
+        } else {
+            $url = SITE_URL;
+        }
+        
+        $url .= '/client/login';
+
+        if (Utils::isNinja()) {
+            if (! $account->subdomain) {
+                $url .= '?account_key=' . $account->account_key;
+            }
+        } else {
+            if (Account::count() > 1) {
+                $url .= '?account_key=' . $account->account_key;
+            }
+        }
+
+        return $url;
+    }
 }

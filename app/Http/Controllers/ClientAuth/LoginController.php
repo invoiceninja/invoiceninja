@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\ClientAuth;
 
+use Utils;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Contact;
+use App\Models\Account;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Contracts\Auth\Authenticatable;
 
 class LoginController extends Controller
 {
@@ -54,15 +57,22 @@ class LoginController extends Controller
      */
     public function showLoginForm()
     {
+        $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+        $hasAccountIndentifier = request()->account_key || ($subdomain && $subdomain != 'app');
+
         if (! session('contact_key')) {
-            return redirect('/client/session_expired');
+            if (Utils::isNinja()) {
+                if (! $hasAccountIndentifier) {
+                    return redirect('/client/session_expired');
+                }
+            } else {
+                if (! $hasAccountIndentifier && Account::count() > 1) {
+                    return redirect('/client/session_expired');
+                }
+            }
         }
 
-        $data = [
-			'clientauth' => true,
-		];
-
-        return view('clientauth.login')->with($data);
+        return view('clientauth.login')->with(['clientauth' => true]);
     }
 
     /**
@@ -74,18 +84,45 @@ class LoginController extends Controller
      */
     protected function credentials(Request $request)
     {
-        $credentials = $request->only('password');
-        $credentials['id'] = null;
+        if ($contactKey = session('contact_key')) {
+            $credentials = $request->only('password');
+            $credentials['contact_key'] = $contactKey;
+        } else {
+            $credentials = $request->only('email', 'password');
+            $account = false;
 
-        $contactKey = session('contact_key');
-        if ($contactKey) {
-            $contact = Contact::where('contact_key', '=', $contactKey)->first();
-            if ($contact && ! $contact->is_deleted) {
-                $credentials['id'] = $contact->id;
+            // resovle the email to a contact/account
+            if ($accountKey = request()->account_key) {
+                $account = Account::whereAccountKey($accountKey)->first();
+            } else {
+                $subdomain = Utils::getSubdomain(\Request::server('HTTP_HOST'));
+                if ($subdomain != 'app') {
+                    $account = Account::whereSubdomain($subdomain)->first();
+                }
+            }
+
+            if ($account) {
+                $credentials['account_id'] = $account->id;
+            } else {
+                abort(500, 'Account not resolved in client login');
             }
         }
 
         return $credentials;
+    }
+
+    /**
+     * Send the post-authentication response.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \Illuminate\Contracts\Auth\Authenticatable $user
+     * @return \Illuminate\Http\Response
+     */
+    private function authenticated(Request $request, Authenticatable $contact)
+    {
+        session(['contact_key' => $contact->contact_key]);
+
+        return redirect()->intended($this->redirectPath());
     }
 
     /**
@@ -101,7 +138,7 @@ class LoginController extends Controller
             ->withErrors([
                 $this->username() => trans('texts.invalid_credentials'),
             ]);
-    }   
+    }
 
     /**
      * Validate the user login request - don't require the email
@@ -112,9 +149,15 @@ class LoginController extends Controller
      */
     protected function validateLogin(Request $request)
     {
-        $this->validate($request, [
+        $rules = [
             'password' => 'required',
-        ]);
+        ];
+
+        if (! session('contact_key')) {
+            $rules['email'] = 'required|email';
+        }
+
+        $this->validate($request, $rules);
     }
 
     /**

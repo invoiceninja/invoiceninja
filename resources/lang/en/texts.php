@@ -1050,7 +1050,7 @@ $LANG = array(
     // Client Passwords
     'enable_portal_password' => 'Password Protect Invoices',
     'enable_portal_password_help' => 'Allows you to set a password for each contact. If a password is set, the contact will be required to enter a password before viewing invoices.',
-    'send_portal_password' => 'Generate Password Automatically',
+    'send_portal_password' => 'Generate Automatically',
     'send_portal_password_help' => 'If no password is set, one will be generated and sent with the first invoice.',
 
     'expired' => 'Expired',
@@ -2523,6 +2523,7 @@ $LANG = array(
     'local_storage_required' => 'Error: local storage is not available.',
     'your_password_reset_link' => 'Your Password Reset Link',
     'subdomain_taken' => 'The subdomain is already in use',
+    'client_login' => 'Client Login',
 
 );
 
