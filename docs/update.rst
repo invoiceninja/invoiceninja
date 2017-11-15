@@ -24,6 +24,11 @@ If the auto-update fails you can manually run the update with the following comm
 
 .. TIP:: You can see the detailed changes for each release on our `GitHub release notes <https://github.com/invoiceninja/invoiceninja/releases>`_.
 
+Version 4.0
+"""""""""""""
+
+The minimum PHP version is now 7.0.0
+
 Version 3.2
 """""""""""
 
@@ -36,7 +41,8 @@ Make sure the .env file includes ``APP_CIPHER=rijndael-128``
 
 Version 2.5.1
 """""""""""""
-Minimum PHP version is now 5.5.9
+
+The minimum PHP version is now 5.5.9
 
 Version 2.0
 """""""""""

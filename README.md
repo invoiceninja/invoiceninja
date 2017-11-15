@@ -15,8 +15,11 @@ All Pro and Enterprise features from the hosted app are included in the open-sou
 The self-host zip includes all third party libraries whereas downloading the code from GitHub requires using Composer to install the dependencies.
 
 ## Affiliates Programs
-* Referral program (we pay you): $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
-* White-label reseller (you pay us): $500 sign up fee and either 10% of revenue or $1 per user per month
+* Referral Program (we pay you)
+	* $100 per sign up paid over 3 years - [Learn more](https://www.invoiceninja.com/referral-program/)
+* White-Label Reseller (you pay us)
+	* Hosted: $500 sign up fee and either 10% of revenue or $1/user/month
+	* Self-Hosted: Contact us for volume license pricing
 
 ### Installation Options
 * [Self-Host Zip](http://docs.invoiceninja.com/en/latest/install.html)
@@ -25,7 +28,7 @@ The self-host zip includes all third party libraries whereas downloading the cod
 
 ## Requirements
 
-* PHP >= 5.5.9
+* PHP 7
 * MySQL
 
 ## Recommended Providers

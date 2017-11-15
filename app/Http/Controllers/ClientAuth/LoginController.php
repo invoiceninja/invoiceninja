@@ -89,6 +89,21 @@ class LoginController extends Controller
     }
 
     /**
+     * Get the failed login response instance.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        return redirect()->back()
+            ->withInput($request->only($this->username(), 'remember'))
+            ->withErrors([
+                $this->username() => trans('texts.invalid_credentials'),
+            ]);
+    }   
+
+    /**
      * Validate the user login request - don't require the email
      *
      * @param \Illuminate\Http\Request $request

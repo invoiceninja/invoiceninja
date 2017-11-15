@@ -13,10 +13,10 @@
         }
     ],
     "require": {
-        "php": ">=5.5.9",
+        "php": ">=7.0.0",
         "ext-gd": "*",
         "ext-gmp": "*",
-        "anahkiasen/former": "4.0.*@dev",
+        "anahkiasen/former": "4.*",
         "asgrim/ofxparser": "^1.1",
         "bacon/bacon-qr-code": "^1.0",
         "barracudanetworks/archivestream-php": "^1.0",
@@ -61,7 +61,7 @@
         "webpatser/laravel-countries": "dev-master",
         "websight/l5-google-cloud-storage": "dev-master",
         "wepay/php-sdk": "^0.2",
-        "wildbit/laravel-postmark-provider": "3.0"
+        "wildbit/laravel-postmark-provider": "dev-master#134f359"
     },
     "require-dev": {
         "symfony/dom-crawler": "~3.1",

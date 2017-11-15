@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4e21badbba68d5feb34f05eaa12ccfe1",
-    "content-hash": "2d294b7828cf14adaf1deeb66426acc3",
+    "hash": "303fbf170906bca5a5354e7bbb92c94d",
+    "content-hash": "a1aaf83c53c00ce8dbb3ec13d70a42b3",
     "packages": [
         {
             "name": "abdala/omnipay-pagseguro",
@@ -169,16 +169,16 @@
         },
         {
             "name": "anahkiasen/former",
-            "version": "4.0.6",
+            "version": "4.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/formers/former.git",
-                "reference": "1ad9b332e8d8f5b23159aabbca89084276938382"
+                "reference": "56fd10035d7e7c34e2761e0458b92ca8890e6a9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/formers/former/zipball/1ad9b332e8d8f5b23159aabbca89084276938382",
-                "reference": "1ad9b332e8d8f5b23159aabbca89084276938382",
+                "url": "https://api.github.com/repos/formers/former/zipball/56fd10035d7e7c34e2761e0458b92ca8890e6a9a",
+                "reference": "56fd10035d7e7c34e2761e0458b92ca8890e6a9a",
                 "shasum": ""
             },
             "require": {
@@ -197,6 +197,11 @@
                 "phpunit/phpunit": "~4"
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.5.x-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Former\\": [
@@ -217,14 +222,14 @@
                 }
             ],
             "description": "A powerful form builder",
-            "homepage": "http://anahkiasen.github.com/former/",
+            "homepage": "http://formers.github.io/former/",
             "keywords": [
                 "bootstrap",
                 "form",
                 "foundation",
                 "laravel"
             ],
-            "time": "2016-07-28 19:36:11"
+            "time": "2017-05-30 18:43:09"
         },
         {
             "name": "anahkiasen/html-object",
@@ -380,16 +385,16 @@
         },
         {
             "name": "aws/aws-sdk-php",
-            "version": "3.38.1",
+            "version": "3.38.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/aws/aws-sdk-php.git",
-                "reference": "9f704274f4748d2039a16d45b3388ed8dde74e89"
+                "reference": "7b13de0b39f29833a977176ce58eed990e1487ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/9f704274f4748d2039a16d45b3388ed8dde74e89",
-                "reference": "9f704274f4748d2039a16d45b3388ed8dde74e89",
+                "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/7b13de0b39f29833a977176ce58eed990e1487ba",
+                "reference": "7b13de0b39f29833a977176ce58eed990e1487ba",
                 "shasum": ""
             },
             "require": {
@@ -456,7 +461,7 @@
                 "s3",
                 "sdk"
             ],
-            "time": "2017-11-09 19:15:59"
+            "time": "2017-11-14 23:47:41"
         },
         {
             "name": "bacon/bacon-qr-code",
@@ -1747,21 +1752,21 @@
         },
         {
             "name": "doctrine/annotations",
-            "version": "v1.4.0",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/annotations.git",
-                "reference": "54cacc9b81758b14e3ce750f205a393d52339e97"
+                "reference": "5beebb01b025c94e93686b7a0ed3edae81fe3e7f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/annotations/zipball/54cacc9b81758b14e3ce750f205a393d52339e97",
-                "reference": "54cacc9b81758b14e3ce750f205a393d52339e97",
+                "url": "https://api.github.com/repos/doctrine/annotations/zipball/5beebb01b025c94e93686b7a0ed3edae81fe3e7f",
+                "reference": "5beebb01b025c94e93686b7a0ed3edae81fe3e7f",
                 "shasum": ""
             },
             "require": {
                 "doctrine/lexer": "1.*",
-                "php": "^5.6 || ^7.0"
+                "php": "^7.1"
             },
             "require-dev": {
                 "doctrine/cache": "1.*",
@@ -1770,7 +1775,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.4.x-dev"
+                    "dev-master": "1.5.x-dev"
                 }
             },
             "autoload": {
@@ -1811,37 +1816,41 @@
                 "docblock",
                 "parser"
             ],
-            "time": "2017-02-24 16:22:25"
+            "time": "2017-07-22 10:58:02"
         },
         {
             "name": "doctrine/cache",
-            "version": "v1.6.2",
+            "version": "v1.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/cache.git",
-                "reference": "eb152c5100571c7a45470ff2a35095ab3f3b900b"
+                "reference": "b3217d58609e9c8e661cd41357a54d926c4a2a1a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/cache/zipball/eb152c5100571c7a45470ff2a35095ab3f3b900b",
-                "reference": "eb152c5100571c7a45470ff2a35095ab3f3b900b",
+                "url": "https://api.github.com/repos/doctrine/cache/zipball/b3217d58609e9c8e661cd41357a54d926c4a2a1a",
+                "reference": "b3217d58609e9c8e661cd41357a54d926c4a2a1a",
                 "shasum": ""
             },
             "require": {
-                "php": "~5.5|~7.0"
+                "php": "~7.1"
             },
             "conflict": {
                 "doctrine/common": ">2.2,<2.4"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.8|~5.0",
-                "predis/predis": "~1.0",
-                "satooshi/php-coveralls": "~0.6"
+                "alcaeus/mongo-php-adapter": "^1.1",
+                "mongodb/mongodb": "^1.1",
+                "phpunit/phpunit": "^5.7",
+                "predis/predis": "~1.0"
+            },
+            "suggest": {
+                "alcaeus/mongo-php-adapter": "Required to use legacy MongoDB driver"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.6.x-dev"
+                    "dev-master": "1.7.x-dev"
                 }
             },
             "autoload": {
@@ -1881,24 +1890,24 @@
                 "cache",
                 "caching"
             ],
-            "time": "2017-07-22 12:49:21"
+            "time": "2017-08-25 07:02:50"
         },
         {
             "name": "doctrine/collections",
-            "version": "v1.4.0",
+            "version": "v1.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/collections.git",
-                "reference": "1a4fb7e902202c33cce8c55989b945612943c2ba"
+                "reference": "a01ee38fcd999f34d9bfbcee59dbda5105449cbf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/collections/zipball/1a4fb7e902202c33cce8c55989b945612943c2ba",
-                "reference": "1a4fb7e902202c33cce8c55989b945612943c2ba",
+                "url": "https://api.github.com/repos/doctrine/collections/zipball/a01ee38fcd999f34d9bfbcee59dbda5105449cbf",
+                "reference": "a01ee38fcd999f34d9bfbcee59dbda5105449cbf",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.6 || ^7.0"
+                "php": "^7.1"
             },
             "require-dev": {
                 "doctrine/coding-standard": "~0.1@dev",
@@ -1948,7 +1957,7 @@
                 "collections",
                 "iterator"
             ],
-            "time": "2017-01-03 10:49:41"
+            "time": "2017-07-22 10:37:32"
         },
         {
             "name": "doctrine/common",
@@ -2539,20 +2548,20 @@
                 "shasum": null
             },
             "type": "library",
-            "time": "2016-05-12 12:00:45"
+            "time": "2017-11-13 12:00:28"
         },
         {
             "name": "gocardless/gocardless-pro",
-            "version": "1.2.0",
+            "version": "1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/gocardless/gocardless-pro-php.git",
-                "reference": "d2d4adb7cde53722858f1e7e5508697fefdb5390"
+                "reference": "16ac38c2531e08c15e54b4a82d44854349cbfcf6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/d2d4adb7cde53722858f1e7e5508697fefdb5390",
-                "reference": "d2d4adb7cde53722858f1e7e5508697fefdb5390",
+                "url": "https://api.github.com/repos/gocardless/gocardless-pro-php/zipball/16ac38c2531e08c15e54b4a82d44854349cbfcf6",
+                "reference": "16ac38c2531e08c15e54b4a82d44854349cbfcf6",
                 "shasum": ""
             },
             "require": {
@@ -2591,7 +2600,7 @@
                 "direct debit",
                 "gocardless"
             ],
-            "time": "2017-09-18 15:08:13"
+            "time": "2017-11-14 15:46:50"
         },
         {
             "name": "google/apiclient",
@@ -2654,16 +2663,16 @@
         },
         {
             "name": "google/apiclient-services",
-            "version": "v0.33",
+            "version": "v0.34",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/google-api-php-client-services.git",
-                "reference": "6399eb82c725aef79124cd6b543e1984cd13d207"
+                "reference": "4d0d438e323929579cabf0b4d420177a96835c6d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/6399eb82c725aef79124cd6b543e1984cd13d207",
-                "reference": "6399eb82c725aef79124cd6b543e1984cd13d207",
+                "url": "https://api.github.com/repos/google/google-api-php-client-services/zipball/4d0d438e323929579cabf0b4d420177a96835c6d",
+                "reference": "4d0d438e323929579cabf0b4d420177a96835c6d",
                 "shasum": ""
             },
             "require": {
@@ -2687,7 +2696,7 @@
             "keywords": [
                 "google"
             ],
-            "time": "2017-11-06 00:24:21"
+            "time": "2017-11-11 00:27:24"
         },
         {
             "name": "google/auth",
@@ -2941,16 +2950,16 @@
         },
         {
             "name": "google/protobuf",
-            "version": "v3.4.1",
+            "version": "v3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/google/protobuf.git",
-                "reference": "b04e5cba356212e4e8c66c61bbe0c3a20537c5b9"
+                "reference": "2761122b810fe8861004ae785cc3ab39f384d342"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/google/protobuf/zipball/b04e5cba356212e4e8c66c61bbe0c3a20537c5b9",
-                "reference": "b04e5cba356212e4e8c66c61bbe0c3a20537c5b9",
+                "url": "https://api.github.com/repos/google/protobuf/zipball/2761122b810fe8861004ae785cc3ab39f384d342",
+                "reference": "2761122b810fe8861004ae785cc3ab39f384d342",
                 "shasum": ""
             },
             "require": {
@@ -2978,7 +2987,7 @@
             "keywords": [
                 "proto"
             ],
-            "time": "2017-09-14 19:24:28"
+            "time": "2017-11-13 18:47:29"
         },
         {
             "name": "grpc/grpc",
@@ -3533,23 +3542,32 @@
         },
         {
             "name": "jakoch/phantomjs-installer",
-            "version": "2.1.1",
+            "version": "2.1.1-p08",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jakoch/phantomjs-installer.git",
-                "reference": "b8ee2aac9b95f9a9ee30a05a4df4a0984a8a8b85"
+                "reference": "7775820cf5eae8962cf68ab44757238e4d3136cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jakoch/phantomjs-installer/zipball/b8ee2aac9b95f9a9ee30a05a4df4a0984a8a8b85",
-                "reference": "b8ee2aac9b95f9a9ee30a05a4df4a0984a8a8b85",
+                "url": "https://api.github.com/repos/jakoch/phantomjs-installer/zipball/7775820cf5eae8962cf68ab44757238e4d3136cc",
+                "reference": "7775820cf5eae8962cf68ab44757238e4d3136cc",
                 "shasum": ""
             },
             "require": {
-                "ext-openssl": "*"
+                "ext-bz2": "*",
+                "ext-openssl": "*",
+                "php": ">5.3"
+            },
+            "require-dev": {
+                "composer/composer": "^1.2",
+                "phpunit/phpunit": "^4.8"
             },
             "type": "custom-installer",
             "autoload": {
+                "psr-4": {
+                    "PhantomInstaller\\Test\\": "tests/"
+                },
                 "psr-0": {
                     "PhantomInstaller\\": "src/"
                 }
@@ -3570,7 +3588,7 @@
                 "headless",
                 "phantomjs"
             ],
-            "time": "2016-01-25 16:30:30"
+            "time": "2017-01-10 09:56:38"
         },
         {
             "name": "jakub-onderka/php-console-color",
@@ -3877,20 +3895,20 @@
         },
         {
             "name": "jonnyw/php-phantomjs",
-            "version": "v4.5.1",
+            "version": "v4.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jonnnnyw/php-phantomjs.git",
-                "reference": "cf8d9a221f4c624aa1537c55a2e181f4b50367d7"
+                "reference": "b3c3e20857caf9a36eb90fb1a7cf1e1f1ec4b672"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jonnnnyw/php-phantomjs/zipball/cf8d9a221f4c624aa1537c55a2e181f4b50367d7",
-                "reference": "cf8d9a221f4c624aa1537c55a2e181f4b50367d7",
+                "url": "https://api.github.com/repos/jonnnnyw/php-phantomjs/zipball/b3c3e20857caf9a36eb90fb1a7cf1e1f1ec4b672",
+                "reference": "b3c3e20857caf9a36eb90fb1a7cf1e1f1ec4b672",
                 "shasum": ""
             },
             "require": {
-                "jakoch/phantomjs-installer": "2.1.1",
+                "jakoch/phantomjs-installer": "2.1.1-p08",
                 "php": ">=5.3.0",
                 "symfony/config": "~2.3|~3.0",
                 "symfony/dependency-injection": "~2.3|~3.0",
@@ -3929,7 +3947,7 @@
                 "phantomjs",
                 "testing"
             ],
-            "time": "2016-06-28 16:00:15"
+            "time": "2017-04-22 21:24:02"
         },
         {
             "name": "justinbusschau/omnipay-secpay",
@@ -8325,12 +8343,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/simshaun/recurr.git",
-                "reference": "7d0e8942cb1d00d4bc11d5eb87fa990d77b0de61"
+                "reference": "7679f92be8e6046c40668b34dbf87000e4ab430f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/simshaun/recurr/zipball/7d0e8942cb1d00d4bc11d5eb87fa990d77b0de61",
-                "reference": "7d0e8942cb1d00d4bc11d5eb87fa990d77b0de61",
+                "url": "https://api.github.com/repos/simshaun/recurr/zipball/7679f92be8e6046c40668b34dbf87000e4ab430f",
+                "reference": "7679f92be8e6046c40668b34dbf87000e4ab430f",
                 "shasum": ""
             },
             "require": {
@@ -8371,7 +8389,7 @@
                 "recurring",
                 "rrule"
             ],
-            "time": "2017-08-03 23:25:58"
+            "time": "2017-11-13 18:18:52"
         },
         {
             "name": "softcommerce/omnipay-paytrace",
@@ -8481,7 +8499,7 @@
         },
         {
             "name": "symfony/class-loader",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/class-loader.git",
@@ -8654,7 +8672,7 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
@@ -8827,7 +8845,7 @@
         },
         {
             "name": "symfony/event-dispatcher",
-            "version": "v2.8.29",
+            "version": "v2.8.30",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
@@ -8887,7 +8905,7 @@
         },
         {
             "name": "symfony/filesystem",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/filesystem.git",
@@ -9120,7 +9138,7 @@
         },
         {
             "name": "symfony/options-resolver",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/options-resolver.git",
@@ -9592,7 +9610,7 @@
         },
         {
             "name": "symfony/yaml",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
@@ -10220,16 +10238,16 @@
         },
         {
             "name": "wildbit/laravel-postmark-provider",
-            "version": "3.0.0",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/wildbit/laravel-postmark-provider.git",
-                "reference": "b80815602f618abe24030ea6d3f117da49a72885"
+                "reference": "134f359"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/wildbit/laravel-postmark-provider/zipball/b80815602f618abe24030ea6d3f117da49a72885",
-                "reference": "b80815602f618abe24030ea6d3f117da49a72885",
+                "url": "https://api.github.com/repos/wildbit/laravel-postmark-provider/zipball/134f359",
+                "reference": "134f359",
                 "shasum": ""
             },
             "require": {
@@ -10247,7 +10265,7 @@
                 "MIT"
             ],
             "description": "An officially supported mail provider to send mail from Laravel through Postmark, see instructions for integrating it here: https://github.com/wildbit/laravel-postmark-provider/blob/master/README.md",
-            "time": "2016-02-10 14:15:58"
+            "time": "2017-01-19 19:52:38"
         },
         {
             "name": "wildbit/swiftmailer-postmark",
@@ -11007,32 +11025,32 @@
         },
         {
             "name": "doctrine/instantiator",
-            "version": "1.0.5",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/doctrine/instantiator.git",
-                "reference": "8e884e78f9f0eb1329e445619e04456e64d8051d"
+                "reference": "185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/8e884e78f9f0eb1329e445619e04456e64d8051d",
-                "reference": "8e884e78f9f0eb1329e445619e04456e64d8051d",
+                "url": "https://api.github.com/repos/doctrine/instantiator/zipball/185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda",
+                "reference": "185b8868aa9bf7159f5f953ed5afb2d7fcdc3bda",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.3,<8.0-DEV"
+                "php": "^7.1"
             },
             "require-dev": {
                 "athletic/athletic": "~0.1.8",
                 "ext-pdo": "*",
                 "ext-phar": "*",
-                "phpunit/phpunit": "~4.0",
-                "squizlabs/php_codesniffer": "~2.0"
+                "phpunit/phpunit": "^6.2.3",
+                "squizlabs/php_codesniffer": "^3.0.2"
             },
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "1.0.x-dev"
+                    "dev-master": "1.2.x-dev"
                 }
             },
             "autoload": {
@@ -11057,7 +11075,7 @@
                 "constructor",
                 "instantiate"
             ],
-            "time": "2015-06-14 21:17:01"
+            "time": "2017-07-22 11:58:36"
         },
         {
             "name": "facebook/webdriver",
@@ -12227,7 +12245,7 @@
         },
         {
             "name": "symfony/browser-kit",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/browser-kit.git",
@@ -12284,7 +12302,7 @@
         },
         {
             "name": "symfony/dom-crawler",
-            "version": "v3.3.11",
+            "version": "v3.3.12",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/dom-crawler.git",
@@ -12399,7 +12417,6 @@
     ],
     "minimum-stability": "dev",
     "stability-flags": {
-        "anahkiasen/former": 20,
         "chumper/datatable": 20,
         "codedge/laravel-selfupdater": 20,
         "collizo4sky/omnipay-wepay": 20,
@@ -12412,12 +12429,13 @@
         "omnipay/authorizenet": 20,
         "simshaun/recurr": 20,
         "webpatser/laravel-countries": 20,
-        "websight/l5-google-cloud-storage": 20
+        "websight/l5-google-cloud-storage": 20,
+        "wildbit/laravel-postmark-provider": 20
     },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.5.9",
+        "php": ">=7.0.0",
         "ext-gd": "*",
         "ext-gmp": "*"
     },

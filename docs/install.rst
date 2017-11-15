@@ -3,7 +3,7 @@ Install
 
 Thanks for taking the time to setup Invoice Ninja.
 
-.. Note:: The applications requires PHP >= 5.5.9 and MySQL.
+.. Note:: The applications requires PHP >= 7.0.0 and MySQL.
 
 Detailed Guides
 ^^^^^^^^^^^^^^^

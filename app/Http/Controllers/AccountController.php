@@ -769,11 +769,20 @@ class AccountController extends BaseController
      */
     public function saveClientPortalSettings(SaveClientPortalSettings $request)
     {
-
         $account = $request->user()->account;
 
-        if($account->subdomain !== $request->subdomain)
+        // check subdomain is unique in the lookup tables
+        if (request()->subdomain) {
+            if (! \App\Models\LookupAccount::validateField('subdomain', request()->subdomain, $account)) {
+                return Redirect::to('settings/' . ACCOUNT_CLIENT_PORTAL)
+                    ->withError(trans('texts.subdomain_taken'))
+                    ->withInput();
+            }
+        }
+
+        if ($account->subdomain !== $request->subdomain) {
             event(new SubdomainWasUpdated($account));
+        }
 
         $account->fill($request->all());
         $account->client_view_css = $request->client_view_css;
